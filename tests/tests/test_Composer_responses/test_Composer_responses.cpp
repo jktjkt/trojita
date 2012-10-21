@@ -99,6 +99,43 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
     // Test our escaping
     QTest::newRow("escaping-1") << QString::fromUtf8("&gt; § §gt; §para;\n") << QString::fromUtf8("&amp;gt; § §gt; §para;\n");
 
+    // Test how the quoted bits are represented
+    QTest::newRow("quoted-1") << QString::fromUtf8("Foo bar.\n"
+                                                   "> blesmrt\n"
+                                                   ">>trojita\n"
+                                                   "omacka")
+                              << QString::fromUtf8("Foo bar.\n"
+                                                   "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
+                                                   "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita\n"
+                                                   "</blockquote></blockquote>omacka");
+    QTest::newRow("quoted-common") << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                                        "> If you think that running 21 threads on an 8 core system will run make \n"
+                                                        "> your task go faster, then Thiago is right: you don't understand your \n"
+                                                        "> problem.\n"
+                                                        "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
+                                                        "you're running as fast as you can.\n"
+                                                        "\n"
+                                                        "If you have more threads than the number of processors and if all threads are \n"
+                                                        "ready to be executed, then the OS will schedule timeslices to each thread. \n"
+                                                        "That means threads get executed and suspended all the time, sometimes \n"
+                                                        "migrating between processors. That adds overhead.\n"
+                                                        // yes, some parts have been removed here.
+                                                        "\n"
+                                                        "-- \n"
+                                                        "Thiago's name goes here.\n")
+                                   << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                                        "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads "
+                                                        "on an 8 core system will run make your task go faster, then Thiago is right: you don't understand your problem.\n"
+                                                        "</blockquote>If you run 8 threads on an 8-core system and they use the CPU fully, then you're running as fast as you can.\n"
+                                                        "\n"
+                                                        "If you have more threads than the number of processors and if all threads are ready "
+                                                        "to be executed, then the OS will schedule timeslices to each thread. That means "
+                                                        "threads get executed and suspended all the time, sometimes migrating between "
+                                                        "processors. That adds overhead.\n"
+                                                        "\n"
+                                                        "-- \n"
+                                                        "Thiago's name goes here.\n");
+
     // FIXME: more tests, including the format=flowed bits
     //QTest::newRow("long line") << QString("Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.") << QString("ahoj\n");
 }
