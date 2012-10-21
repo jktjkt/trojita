@@ -72,6 +72,7 @@ QStringList plainTextToHtml(const QString &plaintext)
             line->remove(quotemarks);
         }
         // markup *bold*, /italic/, _underline_ and active links
+        line->replace(QString::fromUtf8("§"), QString::fromUtf8("§para;")); // better not clobber these funny characters
         line->replace(">", "§gt;"); // we cannot escape them after we added actual tags
         line->replace("<", "§lt;"); // and we cannot use the amps "&" since we'll have to escape it to &amp; later on as well
         line->replace(link, "<a href=\"\\1\">\\1</a>");
@@ -84,6 +85,7 @@ QStringList plainTextToHtml(const QString &plaintext)
         line->replace("&", "&amp;");
         line->replace("§gt;", "&gt;");
         line->replace("§lt;", "&lt;");
+        line->replace(QString::fromUtf8("§para;"), QString::fromUtf8("§")); // undo the transformation
 
         // if this is a non floating new line, prepend canonical quotemarks
         if (cQuoteLevel && !(cQuoteLevel == quoteLevel && markup.last().endsWith(' '))) {
