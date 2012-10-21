@@ -77,8 +77,6 @@ QStringList plainTextToHtml(const QString &plaintext)
         line->replace(link, "<a href=\"\\1\">\\1</a>");
         line->replace(mail, "<a href=\"mailto:\\1\">\\1</a>");
 #define MARKUP(_item_) "<span class=\"markup\">"#_item_"</span>"
-        if (line->contains("italic"))
-            qDebug() << *line;
         line->replace(bold, "\\1<b>" MARKUP(*) "\\2" MARKUP(*) "</b>\\3");
         line->replace(italic, "\\1<i>" MARKUP(/) "\\2" MARKUP(/) "</i>\\3");
         line->replace(underline, "\\1<u>" MARKUP(_) "\\2" MARKUP(_) "</u>\\3");
