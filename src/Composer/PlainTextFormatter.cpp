@@ -50,6 +50,8 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
     int quoteLevel = 0;
     QStringList plain(plaintext.split('\n'));
     QStringList markup;
+    // have we seen the signature separator and should we therefore explicitly close that block later?
+    bool shallCloseSignature = false;
     for (int i = 0; i < plain.count(); ++i) {
         QString &line = plain[i];
 
@@ -109,11 +111,17 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             ++cQuoteLevel;
         }
 
+        if (!shallCloseSignature && line == QLatin1String("-- ")) {
+            // Only recognize the first signature separator
+            shallCloseSignature = true;
+            line.prepend(QLatin1String("<span class=\"signature\">"));
+        }
+
         // appaned or join the line
         if (markup.isEmpty()) {
             markup << line;
         } else if (flowed == FORMAT_FLOWED) {
-            if (markup.last().endsWith(QLatin1Char(' ')) && markup.last() != QLatin1String("-- "))
+            if (markup.last().endsWith(QLatin1Char(' ')) && markup.last() != QLatin1String("<span class=\"signature\">-- "))
                 markup.last().append(line);
             else
                 markup << line;
@@ -121,17 +129,21 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             markup << line;
         }
     }
+    // close any open elements
+    QString closer;
+    if (shallCloseSignature)
+        closer = QLatin1String("</span>");
     // close open blockquotes
     // (bottom quoters, we're unfortunately -yet- not permittet to shoot them, so we need to deal with them ;-)
-    QString quoteCloser;
     while (quoteLevel > 0) {
-        quoteCloser.append("</blockquote>");
+        closer.append("</blockquote>");
         --quoteLevel;
     }
-    if (!quoteCloser.isEmpty()) {
+    if (!closer.isEmpty()) {
         Q_ASSERT(!markup.isEmpty());
-        markup.last().append(quoteCloser);
+        markup.last().append(closer);
     }
+
     return markup;
 }
 

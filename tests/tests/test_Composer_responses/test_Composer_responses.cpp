@@ -151,8 +151,8 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
                                                         "threads get executed and suspended all the time, sometimes migrating between "
                                                         "processors. That adds overhead.\n"
                                                         "\n"
-                                                        "-- \n"
-                                                        "Thiago's name goes here.\n")
+                                                        "<span class=\"signature\">-- \n"
+                                                        "Thiago's name goes here.\n</span>")
                                    << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
                                                         "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make \n"
                                                         "your task go faster, then Thiago is right: you don't understand your \n"
@@ -165,8 +165,8 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
                                                         "That means threads get executed and suspended all the time, sometimes \n"
                                                         "migrating between processors. That adds overhead.\n"
                                                         "\n"
-                                                        "-- \n"
-                                                        "Thiago's name goes here.\n");
+                                                        "<span class=\"signature\">-- \n"
+                                                        "Thiago's name goes here.\n</span>");
 
     QTest::newRow("quoted-no-spacing") << QString::fromUtf8("> foo\nbar\n> baz")
                                        << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"

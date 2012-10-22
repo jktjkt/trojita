@@ -64,6 +64,7 @@ void SimplePartWidget::slotMarkupPlainText() {
         "pre{word-wrap: break-word; white-space: pre-wrap;}"
         ".quotemarks{color:transparent;font-size:0px;}"
         "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
+        ".signature{opacity: 0.6;}"
     );
 
     // build stylesheet and html header
