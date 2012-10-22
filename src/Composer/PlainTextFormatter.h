@@ -27,7 +27,13 @@
 namespace Composer {
 namespace Util {
 
-QStringList plainTextToHtml(const QString &plaintext);
+/** @short Enable decoding of format=flowed, RFC 3676 */
+typedef enum {
+    FORMAT_FLOWED,
+    FORMAT_PLAIN
+} FlowedFormat;
+
+QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed);
 
 }
 }

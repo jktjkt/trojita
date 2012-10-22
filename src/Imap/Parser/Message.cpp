@@ -909,6 +909,12 @@ void AbstractMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
         p->setCharset(*it);
     }
 
+    // Support for format=flowed, RFC3676
+    it = bodyFldParam.find("FORMAT");
+    if (it != bodyFldParam.end()) {
+        p->setContentFormat(*it);
+    }
+
     // Filename and content-disposition
     if (!bodyFldDsp.first.isNull()) {
         p->setBodyDisposition(bodyFldDsp.first);

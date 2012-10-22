@@ -25,7 +25,6 @@
 #include <QWebFrame>
 
 #include "SimplePartWidget.h"
-#include "Composer/PlainTextFormatter.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Network/FileDownloadManager.h"
@@ -34,7 +33,7 @@ namespace Gui
 {
 
 SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-    EmbeddedWebView(parent, manager)
+    EmbeddedWebView(parent, manager), flowedFormat(Composer::Util::FORMAT_PLAIN)
 {
     Q_ASSERT(partIndex.isValid());
     QUrl url;
@@ -43,6 +42,8 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == "text/plain")
         connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
+    if (partIndex.data(Imap::Mailbox::RolePartContentFormat).toString().toLower() == QLatin1String("flowed"))
+        flowedFormat = Composer::Util::FORMAT_FLOWED;
     load(url);
 
     fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
@@ -82,7 +83,7 @@ void SimplePartWidget::slotMarkupPlainText() {
     QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
     static QString htmlFooter("\n</pre></body></html>");
 
-    QStringList markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText());
+    QStringList markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);
 
     // and finally set the marked up page.
     page()->mainFrame()->setHtml(htmlHeader + markup.join("\n") + htmlFooter);

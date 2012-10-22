@@ -23,6 +23,7 @@
 
 #include "AbstractPartWidget.h"
 #include "EmbeddedWebView.h"
+#include "Composer/PlainTextFormatter.h"
 #include <QAction>
 #include <QFile>
 
@@ -61,6 +62,7 @@ private slots:
 private:
     QAction *saveAction;
     Imap::Network::FileDownloadManager *fileDownloadManager;
+    Composer::Util::FlowedFormat flowedFormat;
 
     SimplePartWidget(const SimplePartWidget &); // don't implement
     SimplePartWidget &operator=(const SimplePartWidget &); // don't implement

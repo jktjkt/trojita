@@ -45,6 +45,7 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
     roleNames[RoleIsFetched] = "isFetched";
     roleNames[RolePartMimeType] = "mimeType";
     roleNames[RolePartCharset] = "charset";
+    roleNames[RolePartContentFormat] = "contentFormat";
     roleNames[RolePartEncoding] = "encoding";
     roleNames[RolePartBodyFldId] = "bodyFldId";
     roleNames[RolePartBodyDisposition] = "bodyDisposition";

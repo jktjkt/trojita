@@ -120,6 +120,8 @@ enum {
     RolePartMimeType,
     /** @short Charset of a message part */
     RolePartCharset,
+    /** @short The format= parameter of the message part's Content-Type */
+    RolePartContentFormat,
     /** @short Encoding of a message part */
     RolePartEncoding,
     /** @short The body-fld-id field from BODYSTRUCTURE */

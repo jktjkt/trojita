@@ -29,7 +29,7 @@
 namespace Composer {
 namespace Util {
 
-QStringList plainTextToHtml(const QString &plaintext)
+QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
     static const QRegExp link("(https*://[;/?:@=&$\\-_.+!'(),0-9a-zA-Z%#]*)");
     static const QRegExp mail("([a-zA-Z0-9\\.\\-_]*@[a-zA-Z0-9\\.\\-_]*)");
@@ -108,11 +108,18 @@ QStringList plainTextToHtml(const QString &plaintext)
             markup.last().append("</blockquote>");
             ++cQuoteLevel;
         }
+
         // appaned or join the line
-        if (!markup.isEmpty() && markup.last().endsWith(' ') && markup.last() != QLatin1String("-- "))
-            markup.last().append(line);
-        else
+        if (markup.isEmpty()) {
             markup << line;
+        } else if (flowed == FORMAT_FLOWED) {
+            if (markup.last().endsWith(QLatin1Char(' ')) && markup.last() != QLatin1String("-- "))
+                markup.last().append(line);
+            else
+                markup << line;
+        } else {
+            markup << line;
+        }
     }
     // close open blockquotes
     // (bottom quoters, we're unfortunately -yet- not permittet to shoot them, so we need to deal with them ;-)

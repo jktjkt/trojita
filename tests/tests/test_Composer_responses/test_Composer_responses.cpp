@@ -72,37 +72,54 @@ void ComposerResponsesTest::testSubjectMangling_data()
 void ComposerResponsesTest::testPlainTextFormatting()
 {
     QFETCH(QString, plaintext);
-    QFETCH(QString, html);
+    QFETCH(QString, htmlFlowed);
+    QFETCH(QString, htmlNotFlowed);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext).join(QLatin1String("\n")), html);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED).join(QLatin1String("\n")), htmlFlowed);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_PLAIN).join(QLatin1String("\n")), htmlNotFlowed);
 }
 
 /** @short Data for testPlainTextFormatting */
 void ComposerResponsesTest::testPlainTextFormatting_data()
 {
     QTest::addColumn<QString>("plaintext");
-    QTest::addColumn<QString>("html");
+    QTest::addColumn<QString>("htmlFlowed");
+    QTest::addColumn<QString>("htmlNotFlowed");
 
-    QTest::newRow("empty-1") << QString() << QString();
-    QTest::newRow("empty-2") << QString("") << QString("");
-    QTest::newRow("empty-3") << QString("\n") << QString("\n");
-    QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n");
+    QTest::newRow("empty-1") << QString() << QString() << QString();
+    QTest::newRow("empty-2") << QString("") << QString("") << QString("");
+    QTest::newRow("empty-3") << QString("\n") << QString("\n") << QString("\n");
+    QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n") << QString("\n\n");
 
-    QTest::newRow("minimal") << QString("ahoj") << QString("ahoj");
-    QTest::newRow("containing-html") << QString("<p>ahoj &amp; blesmrt</p>") << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
+    QTest::newRow("minimal") << QString("ahoj") << QString("ahoj") << QString("ahoj");
+    QTest::newRow("containing-html") << QString("<p>ahoj &amp; blesmrt</p>")
+                                     << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;")
+                                     << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
     QTest::newRow("basic-formatting") << QString("foo *bar* _baz_ /pwn/ yay") <<
                                          QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
                                                  "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
-                                                 "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay");
-    QTest::newRow("links") << QString("ahoj http://pwn:123/foo?bar&baz#nope") <<
-                              QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
+                                                 "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay") <<
+                                         QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
+                                                 "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
+                                                 "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay")
+                                         ;
+    QTest::newRow("links") << QString("ahoj http://pwn:123/foo?bar&baz#nope")
+                           << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>")
+                           << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
     // Test our escaping
-    QTest::newRow("escaping-1") << QString::fromUtf8("&gt; § §gt; §para;\n") << QString::fromUtf8("&amp;gt; § §gt; §para;\n");
+    QTest::newRow("escaping-1") << QString::fromUtf8("&gt; § §gt; §para;\n")
+                                << QString::fromUtf8("&amp;gt; § §gt; §para;\n")
+                                << QString::fromUtf8("&amp;gt; § §gt; §para;\n");
 
     // Test how the quoted bits are represented
     QTest::newRow("quoted-1") << QString::fromUtf8("Foo bar.\n"
                                                    "> blesmrt\n"
                                                    ">>trojita\n"
+                                                   "omacka")
+                              << QString::fromUtf8("Foo bar.\n"
+                                                   "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
+                                                   "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita"
+                                                   "</blockquote></blockquote>\n"
                                                    "omacka")
                               << QString::fromUtf8("Foo bar.\n"
                                                    "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
@@ -135,9 +152,26 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
                                                         "processors. That adds overhead.\n"
                                                         "\n"
                                                         "-- \n"
+                                                        "Thiago's name goes here.\n")
+                                   << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                                        "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make \n"
+                                                        "your task go faster, then Thiago is right: you don't understand your \n"
+                                                        "problem.</blockquote>\n"
+                                                        "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
+                                                        "you're running as fast as you can.\n"
+                                                        "\n"
+                                                        "If you have more threads than the number of processors and if all threads are \n"
+                                                        "ready to be executed, then the OS will schedule timeslices to each thread. \n"
+                                                        "That means threads get executed and suspended all the time, sometimes \n"
+                                                        "migrating between processors. That adds overhead.\n"
+                                                        "\n"
+                                                        "-- \n"
                                                         "Thiago's name goes here.\n");
 
     QTest::newRow("quoted-no-spacing") << QString::fromUtf8("> foo\nbar\n> baz")
+                                       << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"
+                                                            "bar\n"
+                                                            "<blockquote><span class=\"quotemarks\">&gt; </span>baz</blockquote>")
                                        << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"
                                                             "bar\n"
                                                             "<blockquote><span class=\"quotemarks\">&gt; </span>baz</blockquote>");
