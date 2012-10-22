@@ -98,17 +98,17 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             line.prepend(quotemarks);
         }
 
-        // handle quotelevel depending blockquotes
-        cQuoteLevel -= quoteLevel;
-        quoteLevel += cQuoteLevel; // quoteLevel is now what cQuoteLevel was two lines before
-        while (cQuoteLevel > 0) {
-            line.prepend("<blockquote>");
-            --cQuoteLevel;
-        }
-        while (cQuoteLevel < 0) {
+        if (cQuoteLevel < quoteLevel) {
+            // this line is ascending in the quoted depth
             Q_ASSERT(!markup.isEmpty());
-            markup.last().append("</blockquote>");
-            ++cQuoteLevel;
+            for (int i = 0; i < quoteLevel - cQuoteLevel; ++i) {
+                markup.last().append("</blockquote>");
+            }
+        } else if (cQuoteLevel > quoteLevel) {
+            // even more nested quotations
+            for (int i = 0; i < cQuoteLevel - quoteLevel; ++i) {
+                line.prepend("<blockquote>");
+            }
         }
 
         if (!shallCloseSignature && line == QLatin1String("-- ")) {
@@ -121,14 +121,18 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         if (markup.isEmpty()) {
             markup << line;
         } else if (flowed == FORMAT_FLOWED) {
-            if (markup.last().endsWith(QLatin1Char(' ')) && markup.last() != QLatin1String("<span class=\"signature\">-- "))
+            if ((quoteLevel == cQuoteLevel) && markup.last().endsWith(QLatin1Char(' ')) &&
+                    markup.last() != QLatin1String("<span class=\"signature\">-- "))
                 markup.last().append(line);
             else
                 markup << line;
         } else {
             markup << line;
         }
+
+        quoteLevel = cQuoteLevel;
     }
+
     // close any open elements
     QString closer;
     if (shallCloseSignature)
