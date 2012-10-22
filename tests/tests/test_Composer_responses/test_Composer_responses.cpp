@@ -130,6 +130,7 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
                                  "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita"
                                  "</blockquote></blockquote>\n"
                                  "omacka");
+
     QTest::newRow("quoted-common")
             << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
                                  "> If you think that running 21 threads on an 8 core system will run make \n"
