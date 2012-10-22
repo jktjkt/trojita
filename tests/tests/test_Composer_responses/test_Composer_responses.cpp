@@ -92,99 +92,106 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
     QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n") << QString("\n\n");
 
     QTest::newRow("minimal") << QString("ahoj") << QString("ahoj") << QString("ahoj");
-    QTest::newRow("containing-html") << QString("<p>ahoj &amp; blesmrt</p>")
-                                     << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;")
-                                     << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
-    QTest::newRow("basic-formatting") << QString("foo *bar* _baz_ /pwn/ yay") <<
-                                         QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
-                                                 "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
-                                                 "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay") <<
-                                         QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
-                                                 "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
-                                                 "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay")
-                                         ;
-    QTest::newRow("links") << QString("ahoj http://pwn:123/foo?bar&baz#nope")
-                           << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>")
-                           << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
+    QTest::newRow("containing-html")
+            << QString("<p>ahoj &amp; blesmrt</p>")
+            << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;")
+            << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
+    QTest::newRow("basic-formatting")
+            << QString("foo *bar* _baz_ /pwn/ yay")
+            << QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
+                       "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
+                       "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay")
+            << QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
+                       "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
+                       "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay");
+    QTest::newRow("links")
+            << QString("ahoj http://pwn:123/foo?bar&baz#nope")
+            << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>")
+            << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
     // Test our escaping
-    QTest::newRow("escaping-1") << QString::fromUtf8("&gt; § §gt; §para;\n")
-                                << QString::fromUtf8("&amp;gt; § §gt; §para;\n")
-                                << QString::fromUtf8("&amp;gt; § §gt; §para;\n");
+    QTest::newRow("escaping-1")
+            << QString::fromUtf8("&gt; § §gt; §para;\n")
+            << QString::fromUtf8("&amp;gt; § §gt; §para;\n")
+            << QString::fromUtf8("&amp;gt; § §gt; §para;\n");
 
     // Test how the quoted bits are represented
-    QTest::newRow("quoted-1") << QString::fromUtf8("Foo bar.\n"
-                                                   "> blesmrt\n"
-                                                   ">>trojita\n"
-                                                   "omacka")
-                              << QString::fromUtf8("Foo bar.\n"
-                                                   "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                                   "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita"
-                                                   "</blockquote></blockquote>\n"
-                                                   "omacka")
-                              << QString::fromUtf8("Foo bar.\n"
-                                                   "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                                   "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita"
-                                                   "</blockquote></blockquote>\n"
-                                                   "omacka");
-    QTest::newRow("quoted-common") << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
-                                                        "> If you think that running 21 threads on an 8 core system will run make \n"
-                                                        "> your task go faster, then Thiago is right: you don't understand your \n"
-                                                        "> problem.\n"
-                                                        "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
-                                                        "you're running as fast as you can.\n"
-                                                        "\n"
-                                                        "If you have more threads than the number of processors and if all threads are \n"
-                                                        "ready to be executed, then the OS will schedule timeslices to each thread. \n"
-                                                        "That means threads get executed and suspended all the time, sometimes \n"
-                                                        "migrating between processors. That adds overhead.\n"
-                                                        // yes, some parts have been removed here.
-                                                        "\n"
-                                                        "-- \n"
-                                                        "Thiago's name goes here.\n")
-                                   << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
-                                                        "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads "
-                                                        "on an 8 core system will run make your task go faster, then Thiago is right: you don't understand your problem.</blockquote>\n"
-                                                        "If you run 8 threads on an 8-core system and they use the CPU fully, then you're running as fast as you can.\n"
-                                                        "\n"
-                                                        "If you have more threads than the number of processors and if all threads are ready "
-                                                        "to be executed, then the OS will schedule timeslices to each thread. That means "
-                                                        "threads get executed and suspended all the time, sometimes migrating between "
-                                                        "processors. That adds overhead.\n"
-                                                        "\n"
-                                                        "<span class=\"signature\">-- \n"
-                                                        "Thiago's name goes here.\n</span>")
-                                   << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
-                                                        "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make \n"
-                                                        "your task go faster, then Thiago is right: you don't understand your \n"
-                                                        "problem.</blockquote>\n"
-                                                        "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
-                                                        "you're running as fast as you can.\n"
-                                                        "\n"
-                                                        "If you have more threads than the number of processors and if all threads are \n"
-                                                        "ready to be executed, then the OS will schedule timeslices to each thread. \n"
-                                                        "That means threads get executed and suspended all the time, sometimes \n"
-                                                        "migrating between processors. That adds overhead.\n"
-                                                        "\n"
-                                                        "<span class=\"signature\">-- \n"
-                                                        "Thiago's name goes here.\n</span>");
+    QTest::newRow("quoted-1")
+            << QString::fromUtf8("Foo bar.\n"
+                                 "> blesmrt\n"
+                                 ">>trojita\n"
+                                 "omacka")
+            << QString::fromUtf8("Foo bar.\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita"
+                                 "</blockquote></blockquote>\n"
+                                 "omacka")
+            << QString::fromUtf8("Foo bar.\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita"
+                                 "</blockquote></blockquote>\n"
+                                 "omacka");
+    QTest::newRow("quoted-common")
+            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                 "> If you think that running 21 threads on an 8 core system will run make \n"
+                                 "> your task go faster, then Thiago is right: you don't understand your \n"
+                                 "> problem.\n"
+                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
+                                 "you're running as fast as you can.\n"
+                                 "\n"
+                                 "If you have more threads than the number of processors and if all threads are \n"
+                                 "ready to be executed, then the OS will schedule timeslices to each thread. \n"
+                                 "That means threads get executed and suspended all the time, sometimes \n"
+                                 "migrating between processors. That adds overhead.\n"
+                                 // yes, some parts have been removed here.
+                                 "\n"
+                                 "-- \n"
+                                 "Thiago's name goes here.\n")
+            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads "
+                                 "on an 8 core system will run make your task go faster, then Thiago is right: you don't understand your problem.</blockquote>\n"
+                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then you're running as fast as you can.\n"
+                                 "\n"
+                                 "If you have more threads than the number of processors and if all threads are ready "
+                                 "to be executed, then the OS will schedule timeslices to each thread. That means "
+                                 "threads get executed and suspended all the time, sometimes migrating between "
+                                 "processors. That adds overhead.\n"
+                                 "\n"
+                                 "<span class=\"signature\">-- \n"
+                                 "Thiago's name goes here.\n</span>")
+            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make \n"
+                                 "your task go faster, then Thiago is right: you don't understand your \n"
+                                 "problem.</blockquote>\n"
+                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
+                                 "you're running as fast as you can.\n"
+                                 "\n"
+                                 "If you have more threads than the number of processors and if all threads are \n"
+                                 "ready to be executed, then the OS will schedule timeslices to each thread. \n"
+                                 "That means threads get executed and suspended all the time, sometimes \n"
+                                 "migrating between processors. That adds overhead.\n"
+                                 "\n"
+                                 "<span class=\"signature\">-- \n"
+                                 "Thiago's name goes here.\n</span>");
 
-    QTest::newRow("quoted-no-spacing") << QString::fromUtf8("> foo\nbar\n> baz")
-                                       << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"
-                                                            "bar\n"
-                                                            "<blockquote><span class=\"quotemarks\">&gt; </span>baz</blockquote>")
-                                       << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"
-                                                            "bar\n"
-                                                            "<blockquote><span class=\"quotemarks\">&gt; </span>baz</blockquote>");
+    QTest::newRow("quoted-no-spacing")
+            << QString::fromUtf8("> foo\nbar\n> baz")
+            << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"
+                                 "bar\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt; </span>baz</blockquote>")
+            << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"
+                                 "bar\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt; </span>baz</blockquote>");
 
-    QTest::newRow("bottom-quoting") << QString::fromUtf8("Foo bar.\n"
-                                                         "> blesmrt\n"
-                                                         ">> 333")
-                                    << QString::fromUtf8("Foo bar.\n"
-                                                         "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                                         "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>")
-                                    << QString::fromUtf8("Foo bar.\n"
-                                                         "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                                         "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>");
+    QTest::newRow("bottom-quoting")
+            << QString::fromUtf8("Foo bar.\n"
+                                 "> blesmrt\n"
+                                 ">> 333")
+            << QString::fromUtf8("Foo bar.\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>")
+            << QString::fromUtf8("Foo bar.\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
+                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>");
 
 
     // FIXME: more tests, including the format=flowed bits
