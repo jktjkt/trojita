@@ -40,6 +40,7 @@ private slots:
     void handleError(QProcess::ProcessError e);
     void handleBytesWritten(qint64 bytes);
     void handleStarted();
+    void handleFinished(const int exitCode);
 public slots:
     virtual void cancel();
 private:

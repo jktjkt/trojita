@@ -28,7 +28,7 @@ Sendmail::Sendmail(QObject *parent, const QString &command, const QStringList &a
 {
     proc = new QProcess(this);
     connect(proc, SIGNAL(started()), this, SLOT(handleStarted()));
-    connect(proc, SIGNAL(finished(int)), this, SIGNAL(sent()));
+    connect(proc, SIGNAL(finished(int)), this, SLOT(handleFinished(int)));
     connect(proc, SIGNAL(error(QProcess::ProcessError)),
             this, SLOT(handleError(QProcess::ProcessError)));
     connect(proc, SIGNAL(bytesWritten(qint64)), this, SLOT(handleBytesWritten(qint64)));
@@ -79,6 +79,19 @@ void Sendmail::handleBytesWritten(qint64 bytes)
 {
     writtenSoFar += bytes;
     emit progress(writtenSoFar);
+}
+
+void Sendmail::handleFinished(const int exitCode)
+{
+    if (exitCode == 0) {
+        emit sent();
+        return;
+    }
+
+    QByteArray stdout = proc->readAllStandardOutput();
+    QByteArray stderr = proc->readAllStandardError();
+    emit error(tr("The sendmail process has failed (%1):\n%2\n%3").arg(QString::number(exitCode), QString::fromUtf8(stdout),
+                                                                       QString::fromUtf8(stderr)));
 }
 
 }
