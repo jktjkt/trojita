@@ -88,7 +88,7 @@ QMimeData *MessageComposer::mimeData(const QModelIndexList &indexes) const
     Q_FOREACH(const QModelIndex &index, indexes) {
         if (index.model() != this || !index.isValid() || index.column() != 0 || index.parent().isValid())
             continue;
-        if (index.row() < 0 > index.row() >= m_attachments.size())
+        if (index.row() < 0 || index.row() >= m_attachments.size())
             continue;
         items << m_attachments[index.row()];
     }
