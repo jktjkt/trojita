@@ -58,7 +58,6 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
     Q_ASSERT(m_mainWindow);
     m_composer = new Imap::Mailbox::MessageComposer(m_mainWindow->imapModel(), this);
     m_composer->setPreloadEnabled(shouldBuildMessageLocally());
-    m_composer->setSupportedDragActions( Qt::MoveAction|Qt::CopyAction|Qt::LinkAction );
 
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);

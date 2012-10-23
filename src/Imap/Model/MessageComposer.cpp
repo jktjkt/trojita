@@ -64,7 +64,7 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
 
 Qt::DropActions MessageComposer::supportedDropActions() const
 {
-    return Qt::CopyAction | Qt::MoveAction;
+    return Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
 }
 
 Qt::ItemFlags MessageComposer::flags(const QModelIndex &index) const
