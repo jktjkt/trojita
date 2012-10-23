@@ -98,7 +98,11 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     hlayout->addWidget(m_searchOptions);
     hlayout->addStretch();
     hlayout->activate(); // this processes the layout and ensures the toolbutton has it's final dimensions
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    if (QGuiApplication::isLeftToRight())
+#else
     if (qApp->keyboardInputDirection() == Qt::LeftToRight)
+#endif
         m_quickSearchText->setTextMargins(m_searchOptions->width(), 0, 0, 0);
     else // ppl. in N Africa and the middle east write the wrong direction...
         m_quickSearchText->setTextMargins(0, 0, m_searchOptions->width(), 0);
