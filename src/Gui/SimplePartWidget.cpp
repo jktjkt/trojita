@@ -22,6 +22,9 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QNetworkReply>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  include <QStandardPaths>
+#endif
 #include <QWebFrame>
 
 #include "SimplePartWidget.h"
@@ -69,7 +72,11 @@ void SimplePartWidget::slotMarkupPlainText() {
 
     // build stylesheet and html header
     static QString stylesheet = defaultStyle;
-    static QFile file(QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/message.css");
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    static QFile file(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QLatin1String("message.css"));
+#else
+    static QFile file(QDesktopServices::storageLocation(QDesktopServices::DataLocation) + QLatin1String("/message.css"));
+#endif
     static QDateTime lastVersion;
     QDateTime lastTouched(file.exists() ? QFileInfo(file).lastModified() : QDateTime());
     if (lastVersion < lastTouched) {
