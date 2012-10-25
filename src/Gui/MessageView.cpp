@@ -189,10 +189,13 @@ void MessageView::setMessage(const QModelIndex &index)
     Q_ASSERT(realModel);
 
     if (!messageIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
-        qDebug() << "Attempted to load a message that hasn't been synced yet";
+        // This happens when the message placeholder is already available in the GUI, but the actual message data haven't been
+        // loaded yet. This is especially common with the threading model.
+        // Note that the data might be already available in the cache, it's just that it isn't in the mailbox tree yet.
         setEmpty();
         connect(realModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
         message = messageIndex;
+        item->fetch(realModel);
         return;
     }
 
@@ -460,7 +463,7 @@ void MessageView::handleDataChanged(const QModelIndex &topLeft, const QModelInde
     Q_ASSERT(topLeft.row() == bottomRight.row() && topLeft.parent() == bottomRight.parent());
     if (topLeft == message) {
         if (viewer == emptyView && message.data(Imap::Mailbox::RoleIsFetched).toBool()) {
-            qDebug() << "got it!";
+            qDebug() << "MessageView: message which was previously not loaded has just became available";
             setEmpty();
             setMessage(topLeft);
         }
