@@ -114,6 +114,9 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
         }
 
     case Qt::DecorationRole:
+        // We will need the data, but asking for Flags or IsMarkedXYZ doesn't cause a fetch
+        translated.data(RoleMessageSubject);
+
         switch (index.column()) {
         case MsgListModel::SUBJECT:
         {
@@ -148,7 +151,11 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
         }
 
     case Qt::FontRole: {
-        if (! translated.data(RoleIsFetched).toBool())
+        // We will need the data, but asking for Flags or IsMarkedXYZ doesn't cause a fetch
+        translated.data(RoleMessageSubject);
+
+        // These items should definitely *not* be rendered in bold
+        if (!translated.data(RoleIsFetched).toBool())
             return QVariant();
 
         QFont font;
