@@ -188,6 +188,9 @@ void MessageView::setMessage(const QModelIndex &index)
     Imap::Mailbox::Model *realModel = const_cast<Imap::Mailbox::Model *>(constModel);
     Q_ASSERT(realModel);
 
+    // The data might be available from the local cache, so let's try to save a possible roundtrip here
+    item->fetch(realModel);
+
     if (!messageIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
         // This happens when the message placeholder is already available in the GUI, but the actual message data haven't been
         // loaded yet. This is especially common with the threading model.
@@ -195,7 +198,6 @@ void MessageView::setMessage(const QModelIndex &index)
         setEmpty();
         connect(realModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
         message = messageIndex;
-        item->fetch(realModel);
         return;
     }
 
