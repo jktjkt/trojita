@@ -131,7 +131,7 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
     }
     if (rootCandidate != translated) {
         // We're really an embedded message
-        emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), translated.column()));
+        emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), bottomRight.column()));
     }
 
     QSet<TreeItem*>::iterator persistent = unknownUids.find(static_cast<TreeItem*>(topLeft.internalPointer()));
