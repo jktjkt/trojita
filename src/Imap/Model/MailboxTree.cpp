@@ -1036,6 +1036,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return m_wasUnread;
     case RoleThreadRootWithUnreadMessages:
         // This one doesn't really make much sense here, but we do want to catch it to prevent a fetch request from this context
+        qDebug() << "Warning: asked for RoleThreadRootWithUnreadMessages on TreeItemMessage. This does not make sense.";
         return QVariant();
     }
 

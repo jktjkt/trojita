@@ -280,8 +280,15 @@ QVariant ThreadingMsgListModel::data(const QModelIndex &proxyIndex, int role) co
 
     if (it->ptr) {
         // It's a real item which exists in the underlying model
-        if (role == RoleThreadRootWithUnreadMessages && ! proxyIndex.parent().isValid()) {
-            return threadContainsUnreadMessages(it->internalId);
+        if (role == RoleThreadRootWithUnreadMessages) {
+            if (proxyIndex.parent().isValid()) {
+                // We don't support this kind of questions for other messages than the roots of the threads.
+                // Other components, like the QML bindings, are however happy to request that, so let's just return
+                // a reasonable result instead of whinning about callers requesting useless stuff.
+                return false;
+            } else {
+                return threadContainsUnreadMessages(it->internalId);
+            }
         } else {
             return QAbstractProxyModel::data(proxyIndex, role);
         }
