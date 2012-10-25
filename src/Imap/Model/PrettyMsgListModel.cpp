@@ -158,7 +158,8 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
         if (! translated.data(RoleMessageIsMarkedRead).toBool()) {
             // If any message is marked as unread, show it in bold and be done with it
             font.setBold(true);
-        } else if (translated.model()->hasChildren(translated) && translated.data(RoleThreadRootWithUnreadMessages).toBool()) {
+        } else if (translated.model()->hasChildren(translated.sibling(translated.row(), 0)) &&
+                   translated.data(RoleThreadRootWithUnreadMessages).toBool()) {
             // If this node is not marked as read, is a root of some thread and that thread
             // contains unread messages, display the thread's root underlined
             font.setUnderline(true);
