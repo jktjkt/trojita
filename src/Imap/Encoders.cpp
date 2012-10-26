@@ -111,45 +111,44 @@ namespace {
 
     QString decodeWordSequence(const QByteArray& str)
     {
-        static const QRegExp whitespace("^\\s+$");
+        QRegExp whitespace("^\\s+$");
 
         QString out;
 
         // Any idea why this isn't matching?
         //QRegExp encodedWord("\\b=\\?\\S+\\?\\S+\\?\\S*\\?=\\b");
-        QRegExp encodedWord("=\\?\\S+\\?\\S+\\?\\S*\\?=");
+        QRegExp encodedWord("\"?=\\?\\S+\\?\\S+\\?.*\\?=\"?");
+
+        // set minimal=true, to match sequences which do not have whit space in between 2 encoded words; otherwise by default greedy matching is performed
+        // eg. "Sm=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=sbord" will match "=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=" as a single encoded word without minimal=true
+        // with minimal=true, "=?ISO-8859-1?B?9g==?=" will be the first encoded word and "=?ISO-8859-1?B?5Q==?=" the second.
+        // -- assuming there are no nested encodings, will there be?
+        encodedWord.setMinimal(true);
 
         int pos = 0;
         int lastPos = 0;
-        int length = str.length();
 
         while (pos != -1) {
             pos = encodedWord.indexIn(str, pos);
             if (pos != -1) {
                 int endPos = pos + encodedWord.matchedLength();
 
-                if ( ((pos == 0) || (::isspace(str[pos - 1]))) &&
-                     ((endPos == length) || (::isspace(str[endPos]))) ) {
+                QString preceding(str.mid(lastPos, (pos - lastPos)));
+                QString decoded = decodeWord(str.mid(pos, (endPos - pos)));
 
-                    QString preceding = QString::fromUtf8(str.mid(lastPos, (pos - lastPos)));
-                    QString decoded = decodeWord(str.mid(pos, (endPos - pos)));
+                // If there is only whitespace between two encoded words, it should not be included
+                if (!whitespace.exactMatch(preceding))
+                    out.append(preceding);
 
-                    // If there is only whitespace between two encoded words, it should not be included
-                    if (!whitespace.exactMatch(preceding))
-                        out.append(preceding);
+                out.append(decoded);
 
-                    out.append(decoded);
-
-                    pos = endPos;
-                    lastPos = pos;
-                }
-                else
-                    pos = endPos;
+                pos = endPos;
+                lastPos = pos;
             }
         }
 
         // Copy anything left
-        out.append(QString::fromUtf8(str.mid(lastPos)));
+        out.append(str.mid(lastPos));
 
         return out;
     }
