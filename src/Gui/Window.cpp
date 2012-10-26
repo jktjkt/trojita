@@ -1272,7 +1272,6 @@ void MainWindow::slotViewMsgHeaders()
                                         messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex));
         headers->setAttribute(Qt::WA_DeleteOnClose);
         connect(headers, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
-        area->resize(800, 600);
         headers->show();
     }
 }
