@@ -97,13 +97,13 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
             << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;")
             << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
     QTest::newRow("basic-formatting")
-            << QString("foo *bar* _baz_ /pwn/ yay")
+            << QString("foo *bar* _baz_ /pwn/ yay foo@ @bar @ blesmrt")
             << QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
                        "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
-                       "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay")
+                       "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay foo@ @bar @ blesmrt")
             << QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
                        "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
-                       "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay");
+                       "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay foo@ @bar @ blesmrt");
     QTest::newRow("links")
             << QString("ahoj http://pwn:123/foo?bar&baz#nope")
             << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>")
