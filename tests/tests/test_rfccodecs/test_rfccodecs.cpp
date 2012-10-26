@@ -100,10 +100,46 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
         << QByteArray("Domen =?UTF-8?Q?Ko=C5=BEar?=")
         << QString::fromUtf8("Domen Kožar");
 
-    // FIXME: make this work later
-    /*QTest::newRow("csa")
+    QTest::newRow("B-iso-1-jkt")
+        << QByteArray("=?ISO-8859-1?B?SmFuIEt1bmRy4XQ=?=")
+        << QString::fromUtf8("Jan Kundrát");
+
+    QTest::newRow("Q-iso-2-jkt")
+        << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=E1t?=")
+        << QString::fromUtf8("Jan Kundrát");
+
+    QTest::newRow("buggy-no-space-between-encoded-words")
+        << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=E1t?=XX=?ISO-8859-2?Q?Jan_Kundr=E1t?=")
+        << QString::fromUtf8("Jan KundrátXXJan Kundrát");
+
+    QTest::newRow("B-utf8-vodakove")
+        << QByteArray("=?UTF-8?B?W3ZvZF0gUmU6IGthemltaXIgdnlyYXplbiB6ZSB6YXNpbGFuaSBza3VwaW55?= "
+                      "=?UTF-8?B?IChqZXN0bGkgbmUsIHRhayB0byBuZWN0aSBrYXppbWlyZSBhIHByaXpuZWog?= "
+                      "=?UTF-8?B?c2UgOm8p?=")
+        << QString::fromUtf8("[vod] Re: kazimir vyrazen ze zasilani skupiny (jestli ne, tak to necti kazimire a priznej se :o)");
+
+    QTest::newRow("Q-iso-2-ceskosaske")
+        << QByteArray("=?ISO-8859-2?Q?=C8eskosask=E9_=A9v=FDcarsko=3A_podzimn=ED_?= "
+                      "=?ISO-8859-2?Q?nostalgie?=")
+        << QString::fromUtf8("Českosaské Švýcarsko: podzimní nostalgie");
+
+    QTest::newRow("B-utf8-empty")
+        // careful to prevent the compiler from interpreting this is a trigraph/
+        << QByteArray("=?UTF-8?B?" "?=")
+        << QString::fromUtf8("");
+
+    QTest::newRow("Q-utf8-multiword-upc")
+        << QByteArray("=?utf-8?q?Studie pro podnikov=C3=A9 z=C3=A1kazn=C3=ADky spole=C4=8Dnosti UPC Business?=")
+        << QString::fromUtf8("Studie pro podnikové zákazníky společnosti UPC Business");
+
+    QTest::newRow("Q-utf8-multiword-csa")
         << QByteArray("=?utf-8?Q?HOLIDAYS Czech Airlines?=")
-        << QString::fromUtf8("HOLIDAYS Czech Airlines");*/
+        << QString::fromUtf8("HOLIDAYS Czech Airlines");
+
+    QTest::newRow("unescaped")
+        << QByteArray("blesmrt")
+        << QString::fromUtf8("blesmrt");
+
 }
 
 TROJITA_HEADLESS_TEST( RFCCodecsTest )
