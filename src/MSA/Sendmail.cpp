@@ -42,7 +42,9 @@ Sendmail::~Sendmail()
 
 void Sendmail::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data)
 {
-    emit progressMax(data.size());
+    // first +1 for the process startup
+    // second +1 for waiting for the result
+    emit progressMax(data.size() + 2);
     emit progress(0);
     QStringList myArgs = args;
     myArgs << "-f" << from;
@@ -64,6 +66,9 @@ void Sendmail::cancel()
 
 void Sendmail::handleStarted()
 {
+    // The process has started already -> +1
+    emit progress(1);
+
     emit sending();
     proc->write(dataToSend);
     proc->closeWriteChannel();
@@ -78,11 +83,15 @@ void Sendmail::handleError(QProcess::ProcessError e)
 void Sendmail::handleBytesWritten(qint64 bytes)
 {
     writtenSoFar += bytes;
-    emit progress(writtenSoFar);
+    // +1 due to starting at one
+    emit progress(writtenSoFar + 1);
 }
 
 void Sendmail::handleFinished(const int exitCode)
 {
+    // that's the last one
+    emit progressMax(dataToSend.size() + 2);
+
     if (exitCode == 0) {
         emit sent();
         return;
