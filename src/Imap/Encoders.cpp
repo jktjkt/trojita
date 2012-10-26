@@ -74,6 +74,8 @@ namespace {
         QString result;
         int index[4];
 
+        bool recognized = false;
+
         // Find the parts of the input
         index[0] = encodedWord.indexOf("=?");
         if (index[0] != -1)
@@ -93,17 +95,19 @@ namespace {
                     {
                         QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047);
                         result = codec.decode(encoded, charset);
+                        recognized = true;
                     }
                     else if (encoding == "B")
                     {
                         QMailBase64Codec codec(QMailBase64Codec::Binary);
                         result = codec.decode(encoded, charset);
+                        recognized = true;
                     }
                 }
             }
         }
 
-        if (result.isEmpty())
+        if (!recognized)
             result = encodedWord;
 
         return result;
