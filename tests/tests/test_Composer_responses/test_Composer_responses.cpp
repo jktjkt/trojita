@@ -252,6 +252,8 @@ void ComposerResponsesTest::testUnrecognizedLinks_data()
     QTest::newRow("at-sign-end") << QString::fromUtf8("foo@");
     QTest::newRow("at-sign-standalone-1") << QString::fromUtf8("@");
     QTest::newRow("at-sign-standalone-2") << QString::fromUtf8(" @ ");
+    QTest::newRow("http-standalone") << QString::fromUtf8("http://");
+    QTest::newRow("http-standalone-stuff") << QString::fromUtf8("http:// foo");
 }
 
 TROJITA_HEADLESS_TEST(ComposerResponsesTest)
