@@ -34,6 +34,12 @@ private slots:
 
     void testPlainTextFormatting();
     void testPlainTextFormatting_data();
+
+    void testLinkRecognition();
+    void testLinkRecognition_data();
+
+    void testUnrecognizedLinks();
+    void testUnrecognizedLinks_data();
 };
 
 #endif

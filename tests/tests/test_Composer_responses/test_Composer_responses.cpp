@@ -207,4 +207,51 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
 
 }
 
+/** @short Test that the link recognition in plaintext -> HTML formatting recognizes the interesting links */
+void ComposerResponsesTest::testLinkRecognition()
+{
+    QFETCH(QString, prefix);
+    QFETCH(QString, link);
+    QFETCH(QString, suffix);
+
+    QString input = prefix + link + suffix;
+    QString expected = prefix + QString::fromUtf8("<a href=\"%1\">%1</a>").arg(link) + suffix;
+
+    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FORMAT_PLAIN).join(QLatin1String("\n")), expected);
+}
+
+/** @short Test data for testLinkRecognition */
+void ComposerResponsesTest::testLinkRecognition_data()
+{
+    QTest::addColumn<QString>("prefix");
+    QTest::addColumn<QString>("link");
+    QTest::addColumn<QString>("suffix");
+
+    QString empty;
+    QString space(QLatin1String(" "));
+
+    QTest::newRow("basic-http") << empty << QString::fromUtf8("http://blesmrt") << empty;
+    QTest::newRow("basic-https") << empty << QString::fromUtf8("https://blesmrt") << empty;
+}
+
+/** @short Test data which should not be recognized as links */
+void ComposerResponsesTest::testUnrecognizedLinks()
+{
+    QFETCH(QString, input);
+
+    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FORMAT_PLAIN).join(QLatin1String("\n")), input);
+}
+
+/** @short Test data for testUnrecognizedLinks */
+void ComposerResponsesTest::testUnrecognizedLinks_data()
+{
+    QTest::addColumn<QString>("input");
+
+    QTest::newRow("basic-ftp") << QString::fromUtf8("ftp://blesmrt");
+    QTest::newRow("at-sign-start") << QString::fromUtf8("@foo");
+    QTest::newRow("at-sign-end") << QString::fromUtf8("foo@");
+    QTest::newRow("at-sign-standalone-1") << QString::fromUtf8("@");
+    QTest::newRow("at-sign-standalone-2") << QString::fromUtf8(" @ ");
+}
+
 TROJITA_HEADLESS_TEST(ComposerResponsesTest)
