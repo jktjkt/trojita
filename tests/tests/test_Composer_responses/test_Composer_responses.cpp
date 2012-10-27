@@ -232,6 +232,7 @@ void ComposerResponsesTest::testLinkRecognition_data()
 
     QTest::newRow("basic-http") << empty << QString::fromUtf8("http://blesmrt") << empty;
     QTest::newRow("basic-https") << empty << QString::fromUtf8("https://blesmrt") << empty;
+    QTest::newRow("parentheses") << QString::fromUtf8("(") << QString::fromUtf8("https://blesmrt") << QString::fromUtf8(")");
 }
 
 /** @short Test data which should not be recognized as links */
