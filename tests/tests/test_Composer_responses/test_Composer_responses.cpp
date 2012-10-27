@@ -233,6 +233,19 @@ void ComposerResponsesTest::testLinkRecognition_data()
     QTest::newRow("basic-http") << empty << QString::fromUtf8("http://blesmrt") << empty;
     QTest::newRow("basic-https") << empty << QString::fromUtf8("https://blesmrt") << empty;
     QTest::newRow("parentheses") << QString::fromUtf8("(") << QString::fromUtf8("https://blesmrt") << QString::fromUtf8(")");
+
+    QTest::newRow("trailing-dot") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(".");
+    QTest::newRow("trailing-dot-2") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(". Foo");
+    QTest::newRow("trailing-comma") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(",");
+    QTest::newRow("trailing-comma-2") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(", foo");
+    QTest::newRow("trailing-semicolon") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(";");
+    QTest::newRow("trailing-semicolon-2") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8("; foo");
+    QTest::newRow("trailing-colon") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(":");
+    QTest::newRow("trailing-colon-2") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(": blah");
+
+    QTest::newRow("trailing-sentence-1") << QString::fromUtf8("meh ") << QString::fromUtf8("http://blesmrt") << QString::fromUtf8("?");
+    QTest::newRow("trailing-sentence-2") << QString::fromUtf8("meh ") << QString::fromUtf8("http://blesmrt") << QString::fromUtf8("!");
+    QTest::newRow("trailing-sentence-3") << QString::fromUtf8("meh ") << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(".");
 }
 
 /** @short Test data which should not be recognized as links */

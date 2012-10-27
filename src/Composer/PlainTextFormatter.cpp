@@ -31,7 +31,11 @@ namespace Util {
 
 QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
-    static const QRegExp link("(https?://[;/?:@=&$\\-_.+!',0-9a-zA-Z%#~]+)");
+    static const QRegExp link("("
+                              "https?://" // scheme prefix
+                              "[;/?:@=&$\\-_.+!',0-9a-zA-Z%#~]+" // allowed characters
+                              "[/@=&$\\-_+'0-9a-zA-Z%#~]" // termination
+                              ")");
     static const QRegExp mail("([a-zA-Z0-9\\.\\-_]+@[a-zA-Z0-9\\.\\-_]+)");
     static QString intro("(^|[\\s\\(\\[\\{])");
     static QString extro("([\\s\\),;.\\]\\}])");
