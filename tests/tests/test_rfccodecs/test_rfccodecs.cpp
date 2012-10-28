@@ -140,6 +140,33 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
         << QByteArray("blesmrt")
         << QString::fromUtf8("blesmrt");
 
+    QTest::newRow("rfc2047-ex-1")
+        << QByteArray("(=?ISO-8859-1?Q?a?=)")
+        << QString::fromUtf8("(a)");
+
+#if 0
+    // Redmine #570
+    QTest::newRow("rfc2047-ex-2")
+        << QByteArray("(=?ISO-8859-1?Q?a?= b)")
+        << QString::fromUtf8("(ab)");
+#endif
+
+    QTest::newRow("rfc2047-ex-3")
+        << QByteArray("(=?ISO-8859-1?Q?a?=  =?ISO-8859-1?Q?b?=)")
+        << QString::fromUtf8("(ab)");
+
+    QTest::newRow("rfc2047-ex-4")
+        << QByteArray("(=?ISO-8859-1?Q?a?= \n \t =?ISO-8859-1?Q?b?=)")
+        << QString::fromUtf8("(ab)");
+
+    QTest::newRow("rfc2047-ex-5")
+        << QByteArray("(=?ISO-8859-1?Q?a_b?=)")
+        << QString::fromUtf8("(a b)");
+
+    QTest::newRow("rfc2047-ex-6")
+        << QByteArray("(=?ISO-8859-1?Q?a?= =?ISO-8859-2?Q?_b?=)")
+        << QString::fromUtf8("(a b)");
+
 }
 
 TROJITA_HEADLESS_TEST( RFCCodecsTest )
