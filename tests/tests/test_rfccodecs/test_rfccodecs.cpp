@@ -146,12 +146,9 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
         << QByteArray("(=?ISO-8859-1?Q?a?=)")
         << QString::fromUtf8("(a)");
 
-#if 0
-    // Redmine #570
     QTest::newRow("rfc2047-ex-2")
         << QByteArray("(=?ISO-8859-1?Q?a?= b)")
-        << QString::fromUtf8("(ab)");
-#endif
+        << QString::fromUtf8("(a b)");
 
     QTest::newRow("rfc2047-ex-3")
         << QByteArray("(=?ISO-8859-1?Q?a?=  =?ISO-8859-1?Q?b?=)")
@@ -168,6 +165,20 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
     QTest::newRow("rfc2047-ex-6")
         << QByteArray("(=?ISO-8859-1?Q?a?= =?ISO-8859-2?Q?_b?=)")
         << QString::fromUtf8("(a b)");
+
+    QTest::newRow("ascii")
+        << QByteArray("foo bar baz  blah ble")
+        << QString::fromUtf8("foo bar baz  blah ble");
+
+    QTest::newRow("tb-ascii-then-unicode")
+        << QByteArray("[foo] johoho tohlencto je ale pekne =?UTF-8?B?YmzEmyBzbXJ0IHRyb2o=?=\n"
+                      " =?UTF-8?B?aXRhIHMgbWF0b3ZvdSBvbWFja291?=")
+        << QString::fromUtf8("[foo] johoho tohlencto je ale pekne blě smrt trojita s matovou omackou");
+
+    QTest::newRow("ascii-then-unicode-then-ascii")
+        << QByteArray("[foo] johoho tohlencto je ale pekne =?UTF-8?B?YmzEmyBzbXJ0IHRyb2o=?=\n"
+                      " =?UTF-8?B?aXRhIHMgbWF0b3ZvdSBvbWFja291?= blabla")
+        << QString::fromUtf8("[foo] johoho tohlencto je ale pekne blě smrt trojita s matovou omackou blabla");
 
 }
 
