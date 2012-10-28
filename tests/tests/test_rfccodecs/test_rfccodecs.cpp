@@ -128,10 +128,12 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
         << QByteArray("=?UTF-8?B?" "?=")
         << QString::fromUtf8("");
 
+    // This is in violation from RFC2047, but some mailers do produce this
     QTest::newRow("Q-utf8-multiword-upc")
         << QByteArray("=?utf-8?q?Studie pro podnikov=C3=A9 z=C3=A1kazn=C3=ADky spole=C4=8Dnosti UPC Business?=")
         << QString::fromUtf8("Studie pro podnikové zákazníky společnosti UPC Business");
 
+    // Again, this violates RFC2047
     QTest::newRow("Q-utf8-multiword-csa")
         << QByteArray("=?utf-8?Q?HOLIDAYS Czech Airlines?=")
         << QString::fromUtf8("HOLIDAYS Czech Airlines");
