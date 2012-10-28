@@ -424,7 +424,6 @@ QByteArray MessageComposer::generateMimeBoundary()
 QByteArray MessageComposer::encodeHeaderField(const QString &text)
 {
     /* This encodes an "unstructured" header field */
-    /* FIXME: Don't apply RFC2047 if it isn't needed */
     return Imap::encodeRFC2047String(text);
 }
 

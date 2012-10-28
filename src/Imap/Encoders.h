@@ -31,11 +31,17 @@ typedef enum {
     Parentheses
 } QuotedStringStyle;
 
+typedef enum {
+    RFC2047_STRING_ASCII,
+    RFC2047_STRING_LATIN,
+    RFC2047_STRING_UTF8
+} Rfc2047StringCharacterSetType;
+
 QByteArray quotedString(const QByteArray &unquoted, QuotedStringStyle style = DoubleQuoted);
 QByteArray encodeRFC2047Phrase(const QString &text);
 
 QByteArray encodeRFC2047String(const QString &text);
-QByteArray encodeRFC2047String(const QByteArray &text, const QByteArray &encoding);
+QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacterSetType charset);
 
 QString decodeRFC2047String(const QByteArray &raw);
 

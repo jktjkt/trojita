@@ -177,29 +177,101 @@ namespace {
         return result;
     }
 
+    // shamelessly stolen from QMF's qmailmessage.cpp
+    static Imap::Rfc2047StringCharacterSetType charsetForInput(const QString& input)
+    {
+        // See if this input needs encoding
+        Imap::Rfc2047StringCharacterSetType latin1 = Imap::RFC2047_STRING_ASCII;
+
+        const QChar* it = input.constData();
+        const QChar* const end = it + input.length();
+        for ( ; it != end; ++it)
+        {
+            if ((*it).unicode() > 0xff)
+            {
+                // Multi-byte characters included - we need to use UTF-8
+                return Imap::RFC2047_STRING_UTF8;
+            }
+            else if (!latin1 && ((*it).unicode() > 0x7f))
+            {
+                // We need encoding from latin-1
+                latin1 = Imap::RFC2047_STRING_LATIN;
+            }
+        }
+
+        return latin1;
+    }
+
+    /** @short Split a string into chunks so that each chunk has at most maximumEncoded bytes when represented in UTF-8 */
+    static QList<QByteArray> splitUtf8String(const QString &text, const int maximumEncoded)
+    {
+        QList<QByteArray> res;
+        int start = 0;
+        while (start < text.size()) {
+            // as long as we have something to work on...
+            int size = maximumEncoded;
+            QByteArray candidate;
+            while (true) {
+                candidate = text.mid(start, size).toUtf8();
+                if (candidate.size() <= maximumEncoded) {
+                    // if this chunk is OK, great
+                    res.append(candidate);
+                    start += size;
+                    break;
+                } else {
+                    // otherwise, try with something smaller
+                    --size;
+                    Q_ASSERT(size >= 1);
+                }
+            }
+        }
+        return res;
+    }
+
 }
 
 namespace Imap {
 
-QByteArray encodeRFC2047String( const QString& text )
-{
-    return encodeRFC2047String(text.toUtf8(), "UTF-8");
-}
-
-QByteArray encodeRFC2047String( const QByteArray& text, const QByteArray& encoding )
+QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacterSetType charset)
 {
     // We can't allow more than 75 chars per encoded-word, including the boiler plate...
-    int maximumEncoded = 75 - 7 - encoding.size();
+    int maximumEncoded = 75 - 7;
+    QByteArray encoding;
+    if (charset == RFC2047_STRING_UTF8)
+        encoding = "utf-8";
+    else if (charset == RFC2047_STRING_LATIN)
+        encoding = "iso-8859-1";
+    maximumEncoded -= encoding.size();
 
-#ifdef ENCODER_USE_QUOTED_PRINTABLE_UNICODE
-    QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047, maximumEncoded);
-    QByteArray encoded = codec.encode(text);
-    return generateEncodedWord(encoding, 'Q', split(encoded, "=\n"));
-#else
-    QMailBase64Codec codec(QMailBase64Codec::Binary, maximumEncoded);
-    QByteArray encoded = codec.encode(text);
-    return generateEncodedWord(encoding, 'B', split(encoded, "\r\n"));
-#endif
+    // If this is an encodedWord, we need to include any whitespace that we don't want to lose
+    if (charset == RFC2047_STRING_UTF8)
+    {
+        QList<QByteArray> listEnc;
+        QList<QByteArray> list = ::splitUtf8String(text, maximumEncoded);
+        Q_FOREACH(const QByteArray &item, list) {
+            QMailBase64Codec codec(QMailBase64Codec::Binary, maximumEncoded);
+            QByteArray encoded = codec.encode(item);
+            listEnc.append(encoded);
+        }
+
+        return generateEncodedWord(encoding, 'B', listEnc);
+    }
+    else if (charset == RFC2047_STRING_LATIN)
+    {
+        QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047, maximumEncoded);
+        QByteArray encoded = codec.encode(text, encoding);
+        return generateEncodedWord(encoding, 'Q', split(encoded, "=\r\n"));
+    }
+
+    return text.toUtf8();
+}
+
+
+QByteArray encodeRFC2047String(const QString& text)
+{
+    // Do we need to encode this input?
+    Rfc2047StringCharacterSetType charset = charsetForInput(text);
+    return encodeRFC2047String(text, charset);
 }
 
 QString decodeRFC2047String( const QByteArray& raw )
@@ -304,7 +376,7 @@ QByteArray encodeRFC2047Phrase( const QString &text )
                     /* This string contains non-ASCII characters, so the
                        only way to represent it in a mail header is as an
                        RFC2047 encoded-word. */
-                    return encodeRFC2047String(unquoted, "ISO-8859-1");
+                    return encodeRFC2047String(text, RFC2047_STRING_LATIN);
                 }
             }
 
@@ -314,7 +386,7 @@ QByteArray encodeRFC2047Phrase( const QString &text )
 
     /* If the text has characters outside of the basic ASCII set, then
        it has to be encoded using the RFC2047 encoded-word syntax. */
-    return encodeRFC2047String(text);
+    return encodeRFC2047String(text, RFC2047_STRING_UTF8);
 }
 
 }
