@@ -203,6 +203,7 @@ void MainWindow::createActions()
     connect(saveWholeMessage, SIGNAL(triggered()), this, SLOT(slotSaveCurrentMessageBody()));
 
     viewMsgHeaders = new QAction(tr("View Message Headers..."), this);
+    viewMsgHeaders->setShortcut(tr("Ctrl+U"));
     msgListWidget->tree->addAction(viewMsgHeaders);
     connect(viewMsgHeaders, SIGNAL(triggered()), this, SLOT(slotViewMsgHeaders()));
 
