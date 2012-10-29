@@ -1141,8 +1141,7 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
 
     RecipientsType recipients;
     // FIXME: handle the display name as well, Redmine #534
-    recipients << qMakePair<ComposeWidget::RecipientKind,QString>(Imap::Mailbox::MessageComposer::Recipient_To,
-                                                                  QString::fromUtf8("%1@%2").arg(url.userName(), url.host()));
+    recipients << qMakePair<ComposeWidget::RecipientKind,QString>(Imap::Mailbox::MessageComposer::Recipient_To, url.path());
     invokeComposeDialog(QString(), QString(), recipients);
 }
 
