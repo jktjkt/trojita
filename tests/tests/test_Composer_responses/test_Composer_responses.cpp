@@ -58,14 +58,28 @@ void ComposerResponsesTest::testSubjectMangling_data()
     QTest::newRow("ml-re-empty") << QString::fromUtf8("[foo] Re:") << QString::fromUtf8("[foo] Re: ");
     QTest::newRow("re-ml-re-empty") << QString::fromUtf8("Re: [foo] Re:") << QString::fromUtf8("[foo] Re: ");
     QTest::newRow("re-ml-re-empty-no-spaces") << QString::fromUtf8("Re:[foo]Re:") << QString::fromUtf8("[foo] Re: ");
-    QTest::newRow("ml-ml") << QString::fromUtf8("[foo] [bar] blah") << QString::fromUtf8("[foo] Re: [bar] blah");
-    QTest::newRow("ml-ml-re") << QString::fromUtf8("[foo] [bar] Re: blah") << QString::fromUtf8("[foo] Re: [bar] Re: blah");
-    QTest::newRow("ml-re-ml") << QString::fromUtf8("[foo] Re: [bar] blah") << QString::fromUtf8("[foo] Re: [bar] blah");
-    QTest::newRow("ml-re-ml-re") << QString::fromUtf8("[foo] Re: [bar] Re: blah") << QString::fromUtf8("[foo] Re: [bar] Re: blah");
-    QTest::newRow("re-ml-ml") << QString::fromUtf8("Re: [foo] [bar] blah") << QString::fromUtf8("[foo] Re: [bar] blah");
-    QTest::newRow("re-ml-ml-re") << QString::fromUtf8("Re: [foo] [bar] Re: blah") << QString::fromUtf8("[foo] Re: [bar] Re: blah");
-    QTest::newRow("re-ml-re-ml") << QString::fromUtf8("Re: [foo] Re: [bar] blah") << QString::fromUtf8("[foo] Re: [bar] blah");
-    QTest::newRow("re-ml-re-ml-re") << QString::fromUtf8("Re: [foo] Re: [bar] Re: blah") << QString::fromUtf8("[foo] Re: [bar] Re: blah");
+    QTest::newRow("ml-ml") << QString::fromUtf8("[foo] [bar] blah") << QString::fromUtf8("[foo] [bar] Re: blah");
+    QTest::newRow("ml-ml-re") << QString::fromUtf8("[foo] [bar] Re: blah") << QString::fromUtf8("[foo] [bar] Re: blah");
+    QTest::newRow("ml-re-ml") << QString::fromUtf8("[foo] Re: [bar] blah") << QString::fromUtf8("[foo] [bar] Re: blah");
+    QTest::newRow("ml-re-ml-re") << QString::fromUtf8("[foo] Re: [bar] Re: blah") << QString::fromUtf8("[foo] [bar] Re: blah");
+    QTest::newRow("re-ml-ml") << QString::fromUtf8("Re: [foo] [bar] blah") << QString::fromUtf8("[foo] [bar] Re: blah");
+    QTest::newRow("re-ml-ml-re") << QString::fromUtf8("Re: [foo] [bar] Re: blah") << QString::fromUtf8("[foo] [bar] Re: blah");
+    QTest::newRow("re-ml-re-ml") << QString::fromUtf8("Re: [foo] Re: [bar] blah") << QString::fromUtf8("[foo] [bar] Re: blah");
+    QTest::newRow("re-ml-re-ml-re") << QString::fromUtf8("Re: [foo] Re: [bar] Re: blah") << QString::fromUtf8("[foo] [bar] Re: blah");
+
+    // test removing duplicate items
+    QTest::newRow("M-M") << QString::fromUtf8("[foo] [foo] blah") << QString::fromUtf8("[foo] Re: blah");
+    QTest::newRow("M-M-re") << QString::fromUtf8("[foo] [foo] Re: blah") << QString::fromUtf8("[foo] Re: blah");
+    QTest::newRow("M-M-re-re") << QString::fromUtf8("[foo] [foo] Re: Re: blah") << QString::fromUtf8("[foo] Re: blah");
+    QTest::newRow("M-re-M") << QString::fromUtf8("[foo] Re: [foo] blah") << QString::fromUtf8("[foo] Re: blah");
+    QTest::newRow("re-M-re-M") << QString::fromUtf8("Re: [foo] Re: [foo] blah") << QString::fromUtf8("[foo] Re: blah");
+    QTest::newRow("re-M-re-M-re") << QString::fromUtf8("Re: [foo] Re: [foo] Re: blah") << QString::fromUtf8("[foo] Re: blah");
+
+    // stuff which should not be subject to subject sanitization
+    QTest::newRow("brackets-end") << QString::fromUtf8("blesmrt [test]") << QString::fromUtf8("Re: blesmrt [test]");
+    QTest::newRow("re-brackets-end") << QString::fromUtf8("Re: blesmrt [test]") << QString::fromUtf8("Re: blesmrt [test]");
+    QTest::newRow("re-brackets-re-end") << QString::fromUtf8("Re: blesmrt Re: [test]") << QString::fromUtf8("Re: blesmrt Re: [test]");
+    QTest::newRow("brackets-re-end") << QString::fromUtf8("blesmrt Re: [test]") << QString::fromUtf8("Re: blesmrt Re: [test]");
 }
 
 /** @short Test that conversion of plaintext mail to HTML works reasonably well */
