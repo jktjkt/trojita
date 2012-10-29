@@ -199,6 +199,31 @@ void RFCCodecsTest::testEncodeRFC2047String_data()
     QTest::newRow("empty") << QString() << QByteArray();
     QTest::newRow("simple-ascii") << QString::fromUtf8("ahoj") << QByteArray("ahoj");
     QTest::newRow("jan-kundrat") << QString::fromUtf8("Jan Kundrát") << QByteArray("=?iso-8859-1?Q?Jan_Kundr=E1t?=");
+    QTest::newRow("czech") << QString::fromUtf8("ě") << QByteArray("=?utf-8?B?xJs=?=");
+}
+
+void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix()
+{
+    QFETCH(QString, input);
+    QFETCH(QByteArray, encoded);
+
+    QCOMPARE(Imap::encodeRFC2047StringWithAsciiPrefix(input), encoded);
+    QCOMPARE(Imap::decodeRFC2047String(Imap::encodeRFC2047StringWithAsciiPrefix(input)), input);
+}
+
+void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QByteArray>("encoded");
+
+    QTest::newRow("empty") << QString() << QByteArray();
+    QTest::newRow("simple-ascii") << QString::fromUtf8("ahoj") << QByteArray("ahoj");
+    QTest::newRow("jan-kundrat") << QString::fromUtf8("Jan Kundrát") << QByteArray("Jan =?iso-8859-1?Q?Kundr=E1t?=");
+    QTest::newRow("jan-kundrat-e") << QString::fromUtf8("Jan Kundrát ě") << QByteArray("Jan =?utf-8?B?S3VuZHLDoXQgxJs=?=");
+    QTest::newRow("czech") << QString::fromUtf8("ě") << QByteArray("=?utf-8?B?xJs=?=");
+    QTest::newRow("trojita-subjects") << QString::fromUtf8("[trojita] foo bar blesmrt") << QByteArray("[trojita] foo bar blesmrt");
+    QTest::newRow("trojita-subjects-utf") << QString::fromUtf8("[trojita] foo bar ěščřžýáíé")
+        << QByteArray("[trojita] foo bar =?utf-8?B?xJvFocSNxZnFvsO9w6HDrcOp?=");
 }
 
 TROJITA_HEADLESS_TEST( RFCCodecsTest )

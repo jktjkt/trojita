@@ -39,6 +39,9 @@ private Q_SLOTS:
 
   void testEncodeRFC2047String();
   void testEncodeRFC2047String_data();
+
+  void testEncodeRFC2047StringAsciiPrefix();
+  void testEncodeRFC2047StringAsciiPrefix_data();
 };
 
 #endif

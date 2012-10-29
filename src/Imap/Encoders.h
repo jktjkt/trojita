@@ -40,6 +40,7 @@ typedef enum {
 QByteArray quotedString(const QByteArray &unquoted, QuotedStringStyle style = DoubleQuoted);
 QByteArray encodeRFC2047Phrase(const QString &text);
 
+QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text);
 QByteArray encodeRFC2047String(const QString &text);
 QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacterSetType charset);
 

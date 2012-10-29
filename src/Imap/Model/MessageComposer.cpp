@@ -424,7 +424,7 @@ QByteArray MessageComposer::generateMimeBoundary()
 QByteArray MessageComposer::encodeHeaderField(const QString &text)
 {
     /* This encodes an "unstructured" header field */
-    return Imap::encodeRFC2047String(text);
+    return Imap::encodeRFC2047StringWithAsciiPrefix(text);
 }
 
 void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByteArray boundary) const
