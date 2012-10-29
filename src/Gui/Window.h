@@ -145,8 +145,6 @@ private slots:
     void slotLayoutCompact();
     void slotLayoutWide();
 
-    void slotReleaseSelectedMessage();
-
 private:
     void createMenus();
     void createActions();
@@ -208,7 +206,6 @@ private:
 #ifdef XTUPLE_CONNECT
     QAction *xtIncludeMailboxInSync;
 #endif
-    QAction *releaseMessageData;
     QAction *aboutTrojita;
     QAction *donateToTrojita;
 
