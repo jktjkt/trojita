@@ -152,8 +152,7 @@ QString MailAddress::prettyName(FormattingMode mode) const
         } else {
             QUrl target;
             target.setScheme(QLatin1String("mailto"));
-            target.setUserName(mailbox);
-            target.setHost(host);
+            target.setPath(QString::fromUtf8("%1@%2").arg(mailbox, host));
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
             target.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
             return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(Qt::escape(target.toString()), Qt::escape(niceName));
