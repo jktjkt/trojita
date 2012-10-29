@@ -23,8 +23,11 @@
 #include <QAuthenticator>
 #include <QCoreApplication>
 #include <QDebug>
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
 #include <QNetworkConfigurationManager>
 #include <QNetworkSession>
+#define TROJITA_HAS_QNETWORKSESSION
+#endif
 #include <QtAlgorithms>
 #include "Model.h"
 #include "AppendTask.h"
@@ -137,8 +140,10 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     m_periodicMailboxNumbersRefresh->setInterval(5 * 60 * 1000);
     connect(m_periodicMailboxNumbersRefresh, SIGNAL(timeout()), this, SLOT(invalidateAllMessageCounts()));
 
+#ifdef TROJITA_HAS_QNETWORKSESSION
     m_networkConfigurationManager = new QNetworkConfigurationManager(this);
     connect(m_networkConfigurationManager, SIGNAL(onlineStateChanged(bool)), this, SLOT(slotNetworkConnectivityStatusChanged(bool)));
+#endif
 }
 
 Model::~Model()
@@ -1014,11 +1019,13 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         emit networkPolicyChanged();
         emit networkPolicyOffline();
 
+#ifdef TROJITA_HAS_QNETWORKSESSION
         if (m_networkSession) {
             m_networkSession->close();
             delete m_networkSession;
             m_networkSession = 0;
         }
+#endif
 
         // FIXME: kill the connection
         break;
@@ -1038,9 +1045,11 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
     if (networkReconnected) {
         // We're connecting after being offline
 
+#ifdef TROJITA_HAS_QNETWORKSESSION
         // Take care of the connectivity management
         m_networkSession = new QNetworkSession(m_networkConfigurationManager->defaultConfiguration(), this);
         m_networkSession->open();
+#endif
         if (m_mailboxes->m_fetchStatus != TreeItem::NONE) {
             // We should ask for an updated list of mailboxes
             // The main reason is that this happens after entering wrong password and going back online
