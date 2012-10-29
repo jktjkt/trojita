@@ -1414,9 +1414,12 @@ void TreeItemPart::silentlyReleaseMemoryRecursive()
         Q_ASSERT(part);
         part->silentlyReleaseMemoryRecursive();
     }
-    m_partHeader->silentlyReleaseMemoryRecursive();
-    m_partText->silentlyReleaseMemoryRecursive();
-    m_partMime->silentlyReleaseMemoryRecursive();
+    if (m_partHeader)
+        m_partHeader->silentlyReleaseMemoryRecursive();
+    if (m_partText)
+        m_partText->silentlyReleaseMemoryRecursive();
+    if (m_partMime)
+        m_partMime->silentlyReleaseMemoryRecursive();
     m_data.clear();
     m_fetchStatus = NONE;
 }
