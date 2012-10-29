@@ -1272,6 +1272,10 @@ void MainWindow::slotViewMsgHeaders()
                                         messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex));
         headers->setAttribute(Qt::WA_DeleteOnClose);
         connect(headers, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
+        QAction *close = new QAction(loadIcon(QLatin1String("window-close")), tr("Close"), headers);
+        headers->addAction(close);
+        close->setShortcut(tr("Ctrl+W"));
+        connect(close, SIGNAL(triggered()), headers, SLOT(close()));
         headers->show();
     }
 }
