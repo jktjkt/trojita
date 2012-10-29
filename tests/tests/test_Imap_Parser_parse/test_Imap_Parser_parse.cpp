@@ -846,6 +846,22 @@ void ImapParserParseTest::testParseUntagged_data()
             << QByteArray("* 11235 FETCH (UID 42463 MODSEQ (45278) FLAGS (\\Seen))\r\n")
             << QSharedPointer<AbstractResponse>(new Fetch(11235, fetchData));
 
+    fetchData.clear();
+    fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(81));
+    fetchData["BODY[HEADER.FIELDS (MESSAGE-ID IN-REPLY-TO REFERENCES DATE)]"] = QSharedPointer<AbstractData>(
+                new RespData<QByteArray>("01234567\r\n"));
+    QTest::newRow("fetch-header-fields-1")
+            << QByteArray("* 81 FETCH (UID 81 BODY[HEADER.FIELDS (MESSAGE-ID In-REPLY-TO REFERENCES DATE)]{10}\r\n01234567\r\n)\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(81, fetchData));
+
+    fetchData.clear();
+    fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(81));
+    fetchData["BODY[HEADER.FIELDS (MESSAGE-ID)]"] = QSharedPointer<AbstractData>(
+                new RespData<QByteArray>("01234567\r\n"));
+    QTest::newRow("fetch-header-fields-2")
+            << QByteArray("* 81 FETCH (UID 81 BODY[HEADER.FIELDS (MESSAgE-Id)]{10}\r\n01234567\r\n)\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(81, fetchData));
+
     QTest::newRow("id-nil")
             << QByteArray("* ID nIl\r\n")
             << QSharedPointer<AbstractResponse>(new Id(QMap<QByteArray,QByteArray>()));
