@@ -67,6 +67,9 @@ void SimplePartWidget::slotMarkupPlainText() {
         "pre{word-wrap: break-word; white-space: pre-wrap;}"
         ".quotemarks{color:transparent;font-size:0px;}"
         "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
+        // Stop the font size from getting smaller after reaching two levels of quotes
+        // (ie. starting on the third level, don't make the size any smaller than what it already is)
+        "blockquote blockquote blockquote {font-size: 100%}"
         ".signature{opacity: 0.6;}"
     );
 
