@@ -140,7 +140,11 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         bool attached = false;
         QList<QUrl> urls = data->urls();
         foreach (const QUrl &url, urls) {
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
             if (url.isLocalFile()) {
+#else
+            if (url.scheme() == QLatin1String("file")) {
+#endif
                 // Careful here -- we definitely don't want the boolean evaluation shortcuts taking effect!
                 // At the same time, any file being recognized and attached is enough to "satisfy" the drop
                 attached = addFileAttachment(url.path()) || attached;

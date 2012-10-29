@@ -579,7 +579,12 @@ void ComposeWidget::slotAskForFileAttachment()
 void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
 {
     foreach (const QUrl &url, urls) {
+
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
         if (url.isLocalFile()) {
+#else
+        if (url.scheme() == QLatin1String("file")) {
+#endif
             m_composer->addFileAttachment(url.path());
         }
     }
