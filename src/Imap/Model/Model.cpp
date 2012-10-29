@@ -1616,15 +1616,21 @@ void Model::releaseMessageData(const QModelIndex &message)
     msg->m_envelope.clear();
     if (msg->m_partHeader) {
         msg->m_partHeader->silentlyReleaseMemoryRecursive();
+        delete msg->m_partHeader;
+        msg->m_partHeader = 0;
     }
     if (msg->m_partText) {
         msg->m_partText->silentlyReleaseMemoryRecursive();
+        delete msg->m_partText;
+        msg->m_partText = 0;
     }
     Q_FOREACH(TreeItem *item, msg->m_children) {
         TreeItemPart *part = dynamic_cast<TreeItemPart *>(item);
         Q_ASSERT(part);
         part->silentlyReleaseMemoryRecursive();
+        delete part;
     }
+    msg->m_children.clear();
     emit dataChanged(realMessage, realMessage);
 }
 

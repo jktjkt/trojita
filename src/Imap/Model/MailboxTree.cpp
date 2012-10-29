@@ -1414,14 +1414,25 @@ void TreeItemPart::silentlyReleaseMemoryRecursive()
         Q_ASSERT(part);
         part->silentlyReleaseMemoryRecursive();
     }
-    if (m_partHeader)
+    if (m_partHeader) {
         m_partHeader->silentlyReleaseMemoryRecursive();
-    if (m_partText)
+        delete m_partHeader;
+        m_partHeader = 0;
+    }
+    if (m_partText) {
         m_partText->silentlyReleaseMemoryRecursive();
-    if (m_partMime)
+        delete m_partText;
+        m_partText = 0;
+    }
+    if (m_partMime) {
         m_partMime->silentlyReleaseMemoryRecursive();
+        delete m_partMime;
+        m_partMime = 0;
+    }
     m_data.clear();
     m_fetchStatus = NONE;
+    qDeleteAll(m_children);
+    m_children.clear();
 }
 
 
