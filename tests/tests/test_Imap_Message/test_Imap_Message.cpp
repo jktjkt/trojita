@@ -174,11 +174,15 @@ void ImapMessageTest::testMailAddressFormat_data()
        is normalized before being converted to punycode for the
        IDN. We don't actually care whether it's normalized for
        PRETTYNAME, but we have to give a value for the test. */
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+    // For some reason, this is broken on OpenSuSE's Qt 4.6. I have no data for
+    // Qt 4.7.
     QTest::newRow("idn+normalize") <<
         MailAddress( "words j. name", "adl", "us.er",
                      QString::fromUtf8("trojita\xCC\x81.example.com") ) <<
         QString::fromUtf8("words j. name <us.er@trojita\xCC\x81.example.com>") <<
         QByteArray("us.er@xn--trojit-uta.example.com") << false;
+#endif
 
     QTest::newRow("odd-mailbox") <<
         MailAddress( "words (q) name", "adl", "us er", "example.com" ) <<
