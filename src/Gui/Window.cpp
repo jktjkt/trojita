@@ -1277,6 +1277,10 @@ void MainWindow::slotViewMsgHeaders()
         headers->addAction(close);
         close->setShortcut(tr("Ctrl+W"));
         connect(close, SIGNAL(triggered()), headers, SLOT(close()));
+        headers->setWindowTitle(tr("Message headers of UID %1 in %2").arg(
+                                    QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
+                                    messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
+                                    ));
         headers->show();
     }
 }
