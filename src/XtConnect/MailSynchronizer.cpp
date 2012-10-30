@@ -150,7 +150,8 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
     Q_ASSERT(subject.isValid());
     QDateTime dateTime = dateTimeVariant.toDateTime();
     if ( dateTime.isNull() ) {
-        qDebug() << "Warning: unknown timestamp for this message, using current one";
+        qDebug() << "Warning: unknown timestamp for UID" << message.data(Imap::Mailbox::RoleMessageUid).toUInt() << "in" <<
+                 message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString() << "- using current one";
         dateTime = QDateTime::currentDateTime();
     }
 
