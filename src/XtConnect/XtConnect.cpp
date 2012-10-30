@@ -185,8 +185,17 @@ void XtConnect::authenticationRequested()
 
 void XtConnect::sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors)
 {
-    qCritical() << "SECURITY ERROR: certificate validation has failed. Please run Trojita to accept the certificate.";
+    QByteArray lastKnownCertPem = m_settings->value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    QList<QSslCertificate> lastKnownCerts = lastKnownCertPem.isEmpty() ?
+                QList<QSslCertificate>() :
+                QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
+    if (!certificateChain.isEmpty() && !lastKnownCerts.isEmpty() && certificateChain == lastKnownCerts) {
+        // It's the same certificate as the last time; we should accept that
+        m_model->setSslPolicy(certificateChain, errors, true);
+        return;
+    }
     m_model->setSslPolicy(certificateChain, errors, false);
+    qFatal("SECURITY ERROR: SSL certificate validation has failed. Please run Trojita to accept the certificate.");
 }
 
 void XtConnect::connectionError(const QString &error)
