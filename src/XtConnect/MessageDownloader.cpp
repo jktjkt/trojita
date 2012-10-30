@@ -40,6 +40,9 @@ namespace XtConnect {
 MessageDownloader::MessageDownloader(QObject *parent, const QString &mailboxName ):
     QObject(parent), lastModel(0), registeredMailbox(mailboxName)
 {
+    m_releasingTimer = new QTimer(this);
+    m_releasingTimer->setSingleShot(true);
+    connect(m_releasingTimer, SIGNAL(timeout()), this, SLOT(slotFreeProcessedMessages()));
 }
 
 void MessageDownloader::requestDownload( const QModelIndex &message )
@@ -226,13 +229,11 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         Q_ASSERT(message.data( Imap::Mailbox::RoleMessageSubject ).isValid());
         Q_ASSERT(message.data( Imap::Mailbox::RoleMessageDate ).isValid());
         emit messageDownloaded( message, it->headerData, it->bodyData, mainPart );
-
-        // The const_cast should be safe here -- this action is certainly not going to invalidate the index,
-        // and even the releaseMessageData() won't (directly) touch its members anyway...
-        Imap::Mailbox::Model *model = qobject_cast<Imap::Mailbox::Model*>( const_cast<QAbstractItemModel*>( message.model() ) );
-        Q_ASSERT(model);
-        model->releaseMessageData( message );
         m_parts.erase( it );
+
+        m_messagesToBeFreed << message;
+        if (!m_releasingTimer->isActive())
+            m_releasingTimer->start();
     } else {
 #ifdef DEBUG_PENDING_MESSAGES
         qDebug() << "Something is missing for" << uid << it->hasHeader << it->hasBody << it->hasMessage << it->hasMainPart;
@@ -243,6 +244,21 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
 int MessageDownloader::pendingMessages() const
 {
     return m_parts.size();
+}
+
+/** @short Instruct the Model that the data it has cached for a particular message is no longer needed */
+void MessageDownloader::slotFreeProcessedMessages()
+{
+    Q_FOREACH(QPersistentModelIndex index, m_messagesToBeFreed) {
+        if (index.isValid())
+            continue;
+        // The const_cast should be safe here -- this action is certainly not going to invalidate the index,
+        // and even the releaseMessageData() won't (directly) touch its members anyway...
+        Imap::Mailbox::Model *model = qobject_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(index.model()));
+        Q_ASSERT(model);
+        model->releaseMessageData(index);
+    }
+    m_messagesToBeFreed.clear();
 }
 
 }

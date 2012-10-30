@@ -32,6 +32,8 @@
 
 #include <QModelIndex>
 
+class QTimer;
+
 namespace XtConnect {
 
 /** @short Download messages from the IMAP server
@@ -51,6 +53,7 @@ public:
     int pendingMessages() const;
 private slots:
     void slotDataChanged( const QModelIndex &a, const QModelIndex &b );
+    void slotFreeProcessedMessages();
 
 signals:
     /** @short All data for a message are available
@@ -77,6 +80,11 @@ private:
 
     QMap<uint, MessageMetadata> m_parts;
     const QAbstractItemModel *lastModel;
+
+    /** @short A list of messages for which the Model shall be asked to free memory */
+    QList<QPersistentModelIndex> m_messagesToBeFreed;
+
+    QTimer *m_releasingTimer;
 
     /** @short Mailbox to which all messages got to belong */
     QString registeredMailbox;
