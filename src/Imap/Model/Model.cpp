@@ -1623,6 +1623,8 @@ void Model::releaseMessageData(const QModelIndex &message)
 
     msg->m_fetchStatus = TreeItem::NONE;
     msg->m_envelope.clear();
+
+    beginRemoveRows(realMessage, 0, msg->m_children.size() - 1);
     if (msg->m_partHeader) {
         msg->m_partHeader->silentlyReleaseMemoryRecursive();
         delete msg->m_partHeader;
@@ -1640,6 +1642,7 @@ void Model::releaseMessageData(const QModelIndex &message)
         delete part;
     }
     msg->m_children.clear();
+    endRemoveRows();
     emit dataChanged(realMessage, realMessage);
 }
 
