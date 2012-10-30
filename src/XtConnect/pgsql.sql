@@ -1,3 +1,5 @@
+CREATE SCHEMA xtbatch;
+
 CREATE TABLE xtbatch.eml (
   eml_id serial primary key,
   eml_hash text  not null UNIQUE,
@@ -5,7 +7,7 @@ CREATE TABLE xtbatch.eml (
   eml_subj text not null,
   eml_body text not null,
   eml_msg bytea not null,
-  eml_status char(1) not null CHECK (eml_status IN ('I','O','C')),
+  eml_status char(1) not null CHECK (eml_status IN ('I','O','C'))
 );
  
 GRANT ALL ON TABLE xtbatch.eml TO xtrole;
@@ -16,8 +18,8 @@ COMMENT ON COLUMN xtbatch.eml.eml_id IS 'E-mail primary key';
 COMMENT ON COLUMN xtbatch.eml.eml_hash IS 'Email md5 hash of message to check for uniqueness';
 COMMENT ON COLUMN xtbatch.eml.eml_subj IS 'E-mail subject';
 COMMENT ON COLUMN xtbatch.eml.eml_body IS 'E-mail body text';
-COMMENT ON COLUMN xtbatch.eml.eml_msg IS 'Complete e-mail message content;
-COMMENT ON COLUMN xtbatch.eml.eml_proc IS 'Processing status I=In-process, O=open,C=complete';
+COMMENT ON COLUMN xtbatch.eml.eml_msg IS 'Complete e-mail message content';
+COMMENT ON COLUMN xtbatch.eml.eml_status IS 'Processing status I=In-process, O=open,C=complete';
 
 
 CREATE TABLE xtbatch.emladdr (
@@ -25,8 +27,8 @@ CREATE TABLE xtbatch.emladdr (
  emladdr_eml_id integer not null REFERENCES xtbatch.eml (eml_id),
  emladdr_type text not null CHECK (emladdr_type IN ('FROM','TO','CC','BCC')),
  emladdr_addr text not null,
- emladdr_name text not null,
- )
+ emladdr_name text not null
+ );
  
  
 GRANT ALL ON TABLE xtbatch.emladdr TO xtrole;
