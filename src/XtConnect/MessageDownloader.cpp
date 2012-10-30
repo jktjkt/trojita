@@ -34,6 +34,7 @@
 #include "Imap/Model/MailboxTree.h"
 
 //#define DEBUG_PENDING_MESSAGES
+//#define DEBUG_PENDING_MESSAGES_2
 
 namespace XtConnect {
 
@@ -81,7 +82,7 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
                              mainPartStatus == Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE );
     metaData.mainPartFailed = mainPartStatus == Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE;
 
-#ifdef DEBUG_PENDING_MESSAGES
+#ifdef DEBUG_PENDING_MESSAGES_2
     qDebug() << "requestDownload:" << message.row() << message.data( Imap::Mailbox::RoleMessageUid ).toUInt() <<
             metaData.hasHeader << metaData.hasBody << metaData.hasMessage << metaData.hasMainPart;
 #endif
@@ -115,14 +116,14 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
 
     QModelIndex message = Imap::Mailbox::Model::findMessageForItem( a );
     if ( ! message.isValid() ) {
-#ifdef DEBUG_PENDING_MESSAGES
+#ifdef DEBUG_PENDING_MESSAGES_2
         qDebug() << "MessageDownloader::slotDataChanged: message not valid" << a;
 #endif
         return;
     }
 
     if ( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() != registeredMailbox ) {
-#ifdef DEBUG_PENDING_MESSAGES
+#ifdef DEBUG_PENDING_MESSAGES_2
         qDebug() << "MessageDownloader::slotDataChanged: not this mailbox" << a <<
                     message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString() << registeredMailbox;
 #endif
@@ -181,9 +182,8 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
             break;
         case Imap::Mailbox::FindInterestingPart::MAINPART_MESSAGE_NOT_LOADED:
 #ifdef DEBUG_PENDING_MESSAGES
-            qDebug() << "  ...and MAINPART_MESSAGE_NOT_LOADED for" << uid;
-            qDebug() << message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString() <<
-                        message.data(Imap::Mailbox::RoleMessageUid).toUInt();
+            qDebug() << "  ...and MAINPART_MESSAGE_NOT_LOADED for" << uid <<
+                        "in" << message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString();
 #endif
             Q_ASSERT(false);
             break;
@@ -256,6 +256,10 @@ void MessageDownloader::slotFreeProcessedMessages()
         // and even the releaseMessageData() won't (directly) touch its members anyway...
         Imap::Mailbox::Model *model = qobject_cast<Imap::Mailbox::Model*>(const_cast<QAbstractItemModel*>(index.model()));
         Q_ASSERT(model);
+#ifdef DEBUG_PENDING_MESSAGES
+        qDebug() << "Freeing memory for" << index.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString() <<
+                    "UID" << index.data(Imap::Mailbox::RoleMessageUid).toUInt();
+#endif
         model->releaseMessageData(index);
     }
     m_messagesToBeFreed.clear();
