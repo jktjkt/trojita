@@ -120,7 +120,8 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
 
     if ( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() != registeredMailbox ) {
 #ifdef DEBUG_PENDING_MESSAGES
-        qDebug() << "MessageDownloader::slotDataChanged: not this mailbox" << a << message.parent().parent().data( Imap::Mailbox::RoleMailboxName );
+        qDebug() << "MessageDownloader::slotDataChanged: not this mailbox" << a <<
+                    message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString() << registeredMailbox;
 #endif
         return;
     }
@@ -178,6 +179,8 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         case Imap::Mailbox::FindInterestingPart::MAINPART_MESSAGE_NOT_LOADED:
 #ifdef DEBUG_PENDING_MESSAGES
             qDebug() << "  ...and MAINPART_MESSAGE_NOT_LOADED for" << uid;
+            qDebug() << message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString() <<
+                        message.data(Imap::Mailbox::RoleMessageUid).toUInt();
 #endif
             Q_ASSERT(false);
             break;
