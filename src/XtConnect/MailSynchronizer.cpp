@@ -116,7 +116,7 @@ void MailSynchronizer::walkThroughMessages( int start, int end )
             m_deferredMessages << message;
             if ( ! m_deferredTimer->isActive() )
                 m_deferredTimer->start();
-            qDebug() << "Message not synced yet, will check in a while" << m_mailbox << i;
+            //qDebug() << "Message not synced yet, will check in a while" << m_mailbox << i;
         }
     }
 }
