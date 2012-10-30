@@ -432,6 +432,11 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         } else if (it.key() == "RFC822.SIZE") {
             message->m_size = dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data;
             gotSize = true;
+        } else if (it.key().startsWith("BODY[HEADER.FIELDS (")) {
+            // Process any headers found in any such response bit
+            const QByteArray &rawHeaders = dynamic_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
+            message->processAdditionalHeaders(rawHeaders);
+            changedMessage = message;
         } else if (it.key().startsWith("BODY[") || it.key().startsWith("BINARY[")) {
             if (it.key()[ it.key().size() - 1 ] != ']')
                 throw UnknownMessageIndex("Can't parse such BODY[]/BINARY[]", response);
@@ -1172,6 +1177,18 @@ void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, 
             }
         }
     }
+}
+
+/** @short Process the data found in the headers passed along and file in auxiliary metadata
+
+This function accepts a snippet containing some RFC5322 headers of a message, no matter what headers are actually
+present in the passed text.  The headers are parsed and those recognized are used as a source of data to file
+the "auxiliary metadata" of this TreeItemMessage (basically anything not available in ENVELOPE, UID, FLAGS,
+INTERNALDATE etc).
+*/
+void TreeItemMessage::processAdditionalHeaders(const QByteArray &rawHeaders)
+{
+    // FIXME: implement me
 }
 
 
