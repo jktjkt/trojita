@@ -163,6 +163,14 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         qDebug() << "  Got body for" << uid;
 #endif
     } else if ( a == message && ! it->hasMessage ) {
+
+        if (!message.data(Imap::Mailbox::RoleIsFetched).toBool()) {
+#ifdef DEBUG_PENDING_MESSAGES_2
+            qDebug() << "  Not loaded yet";
+#endif
+            return;
+        }
+
         it->hasMessage = true;
 #ifdef DEBUG_PENDING_MESSAGES
         qDebug() << "  Got message for" << uid;
