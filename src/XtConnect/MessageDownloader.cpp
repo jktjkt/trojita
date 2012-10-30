@@ -250,7 +250,7 @@ int MessageDownloader::pendingMessages() const
 void MessageDownloader::slotFreeProcessedMessages()
 {
     Q_FOREACH(QPersistentModelIndex index, m_messagesToBeFreed) {
-        if (index.isValid())
+        if (!index.isValid())
             continue;
         // The const_cast should be safe here -- this action is certainly not going to invalidate the index,
         // and even the releaseMessageData() won't (directly) touch its members anyway...
