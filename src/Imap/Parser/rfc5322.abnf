@@ -50,7 +50,7 @@
    qcontent        =   qtext / quoted-pair
 
    quoted-string   =   [CFWS]
-                       DQUOTE *([FWS] qcontent) [FWS] DQUOTE
+                       DQUOTE ((1*([FWS] qcontent) [FWS]) / FWS) DQUOTE
                        [CFWS]
 
 
@@ -135,13 +135,13 @@
 
    fields          =   *(trace
                          *optional-field /
-                         *(resent-date /
-                          resent-from /
-                          resent-sender /
-                          resent-to /
-                          resent-cc /
-                          resent-bcc /
-                          resent-msg-id))
+                         1*(resent-date /
+                           resent-from /
+                           resent-sender /
+                           resent-to /
+                           resent-cc /
+                           resent-bcc /
+                           resent-msg-id))
                        *(orig-date /
                        from /
                        sender /
@@ -245,16 +245,16 @@
 
    obs-qp          =   "\" (%d0 / obs-NO-WS-CTL / LF / CR)
 
-   obs-body        =   *((*LF *CR *((%d0 / text) *LF *CR)) / CRLF)
+   obs-body        =   *(%d0-127)
 
-   obs-unstruct    =   *((*LF *CR *(obs-utext *LF *CR)) / FWS)
+   obs-unstruct    =   *( (*CR 1*(obs-utext / FWS)) / 1*LF ) *CR
 
 
    obs-phrase      =   word *(word / "." / CFWS)
 
    obs-phrase-list =   [phrase / CFWS] *("," [phrase / CFWS])
 
-   obs-FWS         =   1*WSP *(CRLF 1*WSP)
+   obs-FWS         =   1*([CRLF] WSP)
 
    obs-day-of-week =   [CFWS] day-name [CFWS]
 
