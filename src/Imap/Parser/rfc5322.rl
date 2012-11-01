@@ -114,10 +114,10 @@
 	msg_id = CFWS? "<" id_left "@" id_right ">" CFWS?;
 	resent_msg_id = "Resent-Message-ID:"i msg_id CRLF;
 	orig_date = "Date:"i date_time CRLF;
-	from = "From:"i mailbox_list CRLF;
+	hdr_from = "From:"i mailbox_list CRLF;
 	sender = "Sender:"i mailbox CRLF;
 	reply_to = "Reply-To:"i address_list CRLF;
-	to = "To:"i address_list CRLF;
+	hdr_to = "To:"i address_list CRLF;
 	cc = "Cc:"i address_list CRLF;
 	bcc = "Bcc:"i ( address_list | CFWS )? CRLF;
 	message_id = "Message-ID:"i msg_id CRLF;
@@ -126,7 +126,7 @@
 	subject = "Subject:"i unstructured CRLF;
 	comments = "Comments:"i unstructured CRLF;
 	keywords = "Keywords:"i phrase ( "," phrase )* CRLF;
-	fields = ( ( trace optional_field* ) | ( resent_date | resent_from | resent_sender | resent_to | resent_cc | resent_bcc | resent_msg_id )+ )* ( orig_date | from | sender | reply_to | to | cc | bcc | message_id | in_reply_to | references | subject | comments | keywords | optional_field )*;
+	fields = ( ( trace optional_field* ) | ( resent_date | resent_from | resent_sender | resent_to | resent_cc | resent_bcc | resent_msg_id )+ )* ( orig_date | hdr_from | sender | reply_to | hdr_to | cc | bcc | message_id | in_reply_to | references | subject | comments | keywords | optional_field )*;
 	obs_return = "Return-Path"i WSP* ":" path CRLF;
 	obs_received = "Received"i WSP* ":" received_token* CRLF;
 	obs_orig_date = "Date"i WSP* ":" date_time CRLF;
