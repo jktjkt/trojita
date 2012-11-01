@@ -31,7 +31,7 @@
 	FWS = ( ( WSP* CRLF )? WSP+ ) | obs_FWS;
 	obs_ctext = obs_NO_WS_CTL;
 	ctext = 0x21..0x27 | 0x2a..0x5b | 0x5d..0x7e | obs_ctext;
-	comment = "(" ( FWS? ccontent )* FWS? ")";
+	comment = "(" ( FWS? (ctext | quoted_pair) )* FWS? ")";
 	ccontent = ctext | quoted_pair | comment;
 	CFWS = ( ( FWS? comment )+ FWS? ) | FWS;
 	atext = ALPHA | DIGIT | "!" | "#" | "$" | "%" | "&" | "'" | "*" | "+" | "-" | "/" | "=" | "?" | "^" | "_" | "`" | "{" | "|" | "}" | "~";
