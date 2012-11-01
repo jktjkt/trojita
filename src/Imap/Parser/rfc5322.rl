@@ -5,7 +5,7 @@
 # 	rfc5322.abnf
 %%{
 	# write your name
-	machine generated_from_abnf;
+	machine rfc5322;
 
 	# generated rules, define required actions
 	ALPHA = 0x41..0x5a | 0x61..0x7a;
