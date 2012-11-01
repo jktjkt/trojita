@@ -25,8 +25,8 @@
 	OCTET = 0x00..0xff;
 	VCHAR = 0x21..0x7e;
 	obs_NO_WS_CTL = 0x01..0x08 | "\v" | "\f" | 0x0e..0x1f | 0x7f;
-	obs_qp = "\" ( "\0" | obs_NO_WS_CTL | LF | CR );
-	quoted_pair = ( "\" ( VCHAR | WSP ) ) | obs_qp;
+	obs_qp = "\\" ( "\0" | obs_NO_WS_CTL | LF | CR );
+	quoted_pair = ( "\\" ( VCHAR | WSP ) ) | obs_qp;
 	obs_FWS = ( CRLF? WSP )+;
 	FWS = ( ( WSP* CRLF )? WSP+ ) | obs_FWS;
 	obs_ctext = obs_NO_WS_CTL;
@@ -38,7 +38,7 @@
 	atom = CFWS? atext+ CFWS?;
 	dot_atom_text = atext+ ( "." atext+ )*;
 	dot_atom = CFWS? dot_atom_text CFWS?;
-	specials = "(" | ")" | "<" | ">" | "[" | "]" | ":" | ";" | "@" | "\" | "," | "." | DQUOTE;
+	specials = "(" | ")" | "<" | ">" | "[" | "]" | ":" | ";" | "@" | "\\" | "," | "." | DQUOTE;
 	obs_qtext = obs_NO_WS_CTL;
 	qtext = "!" | 0x23..0x5b | 0x5d..0x7e | obs_qtext;
 	qcontent = qtext | quoted_pair;
