@@ -158,6 +158,9 @@ void XtConnect::setupModels()
     m_model->setObjectName( QLatin1String("model") );
     // We want to wait longer to increase the potential of better grouping -- we don't care much about the latency
     m_model->setProperty( "trojita-imap-delayed-fetch-part", 300 );
+    // Disable preload of message envelopes. We are aggresively cleaning the cache as soon as possible, and
+    // we don't want to re-request message envelopes for messages which have been already processed before.
+    m_model->setProperty("trojita-imap-preload-msg-metadata", 0);
 
     connect( m_model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
     connect( m_model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
