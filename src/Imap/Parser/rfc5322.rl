@@ -157,7 +157,4 @@
 	obs_body = 0x00..0x7f*;
 	body = ( ( text{,998} CRLF )* text{,998} ) | obs_body;
 	message = ( fields | obs_fields ) ( CRLF body )?;
-
-	# instantiate machine rules
-	main:= message;
 }%%
