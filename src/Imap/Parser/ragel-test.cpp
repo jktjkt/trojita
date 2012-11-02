@@ -1,24 +1,47 @@
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <iostream>
+/* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
 
-#include <QByteArray>
-#include <QList>
+   This file is part of the Trojita Qt IMAP e-mail client,
+   http://trojita.flaska.net/
 
-#define DBG(X) do {std::cerr << X << " (current char: " << *p << ")" << std::endl;} while(false);
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public
+   License as published by the Free Software Foundation; either
+   version 2 of the License, or the version 3 of the License.
 
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; see the file COPYING.  If not, write to
+   the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
+   Boston, MA 02110-1301, USA.
+*/
+
+#include <QDebug>
+#include "Rfc5322HeaderParser.h"
+
+#define DBG(X) do {qDebug() << X << "(current char:" << *p << ")";} while(false);
+//#define RAGEL_DEBUG
+
+namespace Imap {
+namespace Parser {
 
 %%{
     machine rfc5322;
 
     action push_current_char {
-        std::cerr << "push_current_char " << *p << std::endl;
+#ifdef RAGEL_DEBUG
+        qDebug() << "push_current_char " << *p;
+#endif
         str.append(*p);
     }
 
     action clear_str {
-        std::cerr << "clear_str" << std::endl;
+#ifdef RAGEL_DEBUG
+        qDebug() << "clear_str";
+#endif
         str.clear();
     }
 
@@ -39,62 +62,75 @@
             default:
                 str += '\\' + *p;
         }
-        std::cerr << "push_current_backslashed \\" << *p << std::endl;
+#ifdef RAGEL_DEBUG
+        qDebug() << "push_current_backslashed \\" << *p;
+#endif
     }
 
     action push_string_list {
-        std::cerr << "push_string_list " << str.data() << std::endl;
+#ifdef RAGEL_DEBUG
+        qDebug() << "push_string_list " << str.data();
+#endif
         list.append(str);
         str.clear();
     }
 
     action clear_list {
-        std::cerr << "clear_list" << std::endl;
+#ifdef RAGEL_DEBUG
+        qDebug() << "clear_list";
+#endif
         list.clear();
         str.clear();
     }
 
     action got_message_id_header {
         if (list.size() == 1) {
-            std::cout << "Message-Id: " << list[0].data() << std::endl;
+#ifdef RAGEL_DEBUG
+            qDebug() << "Message-Id: " << list[0].data();
+#endif
         } else {
-            std::cout << "invalid Message-Id" << std::endl;
+#ifdef RAGEL_DEBUG
+            qDebug() "invalid Message-Id";
+#endif
         }
     }
 
     action got_in_reply_to_header {
-        std::cout << "In-Reply-To: ";
-        Q_FOREACH(const QByteArray &item, list) {
-            std::cout << "<" << item.data() << ">, ";
-        }
-        std::cout << std::endl;
+#ifdef RAGEL_DEBUG
+        qDebug() << "In-Reply-To: " << list;
+#endif
     }
 
     action got_references_header {
-        std::cout << "References: ";
-        Q_FOREACH(const QByteArray &item, list) {
-            std::cout << "<" << item.data() << ">, ";
-        }
-        std::cout << std::endl;
+        references += list;
+    }
+
+    action header_error {
+        qDebug() << "Error when parsing RFC5322 headers";
     }
 
 
     include rfc5322 "rfc5322.rl";
 
-    main := (optional_field | references | obs_references)* CRLF*;
+    main := (optional_field | references | obs_references)* @err(header_error) CRLF*;
 
     write data;
 }%%
 
-int main()
+Rfc5322HeaderParser::Rfc5322HeaderParser():
+    m_error(false)
 {
-    QByteArray data;
-    std::string line;
+}
 
-    while (std::getline(std::cin, line)) {
-        data += line.c_str();
-        data += '\n';
-    }
+void Rfc5322HeaderParser::clear()
+{
+    m_error = false;
+    references.clear();
+}
+
+bool Rfc5322HeaderParser::parse(const QByteArray &data)
+{
+    clear();
 
     const char *p = data.data();
     const char *pe = p + data.length();
@@ -109,6 +145,31 @@ int main()
     %% write init;
     %% write exec;
 
-    std::cout << "cs: " << cs << std::endl;
+    return !m_error;
+}
+
+}
+}
+
+#include <iostream>
+int main()
+{
+    QByteArray data;
+    std::string line;
+
+    while (std::getline(std::cin, line)) {
+        data += line.c_str();
+        data += '\n';
+    }
+
+    Imap::Parser::Rfc5322HeaderParser parser;
+    bool res = parser.parse(data);
+    if (!res) {
+        qDebug() << "Parsing error.";
+        return 1;
+    }
+
+    qDebug() << "References:" << parser.references;
+
     return 0;
 }
