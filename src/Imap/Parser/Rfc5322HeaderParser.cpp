@@ -109,7 +109,9 @@ namespace Parser {
     }
 
     action header_error {
+#ifdef RAGEL_DEBUG
         qDebug() << "Error when parsing RFC5322 headers";
+#endif
     }
 
 
