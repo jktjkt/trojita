@@ -22,12 +22,12 @@
 #include <algorithm>
 #include <QTextStream>
 #include "Common/FindWithUnknown.h"
-#include "MailboxTree.h"
-#include "Model.h"
+#include "DelayedPopulation.h"
+#include "ItemRoles.h"
 #include "Imap/Encoders.h"
 #include "KeepMailboxOpenTask.h"
-#include "ItemRoles.h"
-#include "DelayedPopulation.h"
+#include "MailboxTree.h"
+#include "Model.h"
 #include <QtDebug>
 
 namespace
