@@ -26,26 +26,47 @@
 	VCHAR = 0x21..0x7e;
 	obs_NO_WS_CTL = 0x01..0x08 | "\v" | "\f" | 0x0e..0x1f | 0x7f;
 	obs_qp = "\\" ( "\0" | obs_NO_WS_CTL | LF | CR );
-	quoted_pair = ( "\\" ( VCHAR | WSP ) ) | obs_qp;
+
+    # backslash + something, pushing into current string
+	quoted_pair = ( ( "\\" ( VCHAR | WSP ) ) | obs_qp ) % push_current_backslashed;
+
 	obs_FWS = ( CRLF? WSP )+;
 	FWS = ( ( WSP* CRLF )? WSP+ ) | obs_FWS;
 	obs_ctext = obs_NO_WS_CTL;
 	ctext = 0x21..0x27 | 0x2a..0x5b | 0x5d..0x7e | obs_ctext;
+    # FIXME: nested comments should be supported
 	comment = "(" ( FWS? (ctext | quoted_pair) )* FWS? ")";
 	ccontent = ctext | quoted_pair | comment;
 	CFWS = ( ( FWS? comment )+ FWS? ) | FWS;
 	atext = ALPHA | DIGIT | "!" | "#" | "$" | "%" | "&" | "'" | "*" | "+" | "-" | "/" | "=" | "?" | "^" | "_" | "`" | "{" | "|" | "}" | "~";
-	atom = CFWS? atext+ CFWS?;
-	dot_atom_text = atext+ ( "." atext+ )*;
+
+    # pushing chars
+	atom = CFWS? atext+ $ push_current_char CFWS?;
+
+    # pushing chars
+	dot_atom_text = (atext+ ( "." atext+ )*) $push_current_char;
+
+    # pushing chars
 	dot_atom = CFWS? dot_atom_text CFWS?;
+
 	specials = "(" | ")" | "<" | ">" | "[" | "]" | ":" | ";" | "@" | "\\" | "," | "." | DQUOTE;
 	obs_qtext = obs_NO_WS_CTL;
-	qtext = "!" | 0x23..0x5b | 0x5d..0x7e | obs_qtext;
+
+    # pushing chars
+    qtext = ("!" | 0x23..0x5b | 0x5d..0x7e | obs_qtext) %push_current_char;
+
+    # pushing chars
 	qcontent = qtext | quoted_pair;
-	quoted_string = CFWS? DQUOTE ( ( ( FWS? qcontent )+ FWS? ) | FWS ) DQUOTE CFWS?;
-	word = atom | quoted_string;
-	obs_phrase = word ( word | "." | CFWS )*;
-	phrase = word+ | obs_phrase;
+
+    # pushing chars
+    quoted_string = CFWS? DQUOTE ( ( ( FWS? qcontent )+ FWS? ) | FWS ) DQUOTE CFWS?;
+	
+    # pushing chars
+    word = atom | quoted_string;
+    # pushing chars
+	obs_phrase = word ( word | "." %push_current_char | CFWS )*;
+    # pushing chars
+	phrase = (word+ | obs_phrase) @dbg_phrase;
 	obs_utext = "\0" | obs_NO_WS_CTL | VCHAR;
 	obs_unstruct = ( ( CR* ( obs_utext | FWS )+ ) | LF+ )* CR*;
 	unstructured = ( ( FWS? VCHAR )* WSP* ) | obs_unstruct;
@@ -70,13 +91,26 @@
 	time = time_of_day zone;
 	date_time = ( day_of_week "," )? date time CFWS?;
 	display_name = phrase;
-	obs_local_part = word ( "." word )*;
+
+    # pushing chars
+	obs_local_part = word ( "." % push_current_char word )*;
+
+    # pushing chars
 	local_part = dot_atom | quoted_string | obs_local_part;
-	obs_dtext = obs_NO_WS_CTL | quoted_pair;
-	dtext = 0x21..0x5a | 0x5e..0x7e | obs_dtext;
-	domain_literal = CFWS? "[" ( FWS? dtext )* FWS? "]" CFWS?;
+
+    # pushing chars
+	obs_dtext = (obs_NO_WS_CTL %push_current_char) | quoted_pair;
+
+    # pushing chars
+	dtext = ((0x21..0x5a | 0x5e..0x7e) %push_current_char) | obs_dtext;
+
+    # pushing chars
+	domain_literal = CFWS? "[" %push_current_char ( FWS? dtext )* FWS? "]" %push_current_char CFWS?;
+    # pushing chars
 	obs_domain = atom ( "." atom )*;
+    # pushing chars
 	domain = dot_atom | domain_literal | obs_domain;
+
 	addr_spec = local_part "@" domain;
 	obs_domain_list = ( CFWS | "," )* "@" domain ( "," CFWS? ( "@" domain )? )*;
 	obs_route = obs_domain_list ":";
@@ -106,12 +140,25 @@
 	resent_to = "Resent-To:"i address_list CRLF;
 	resent_cc = "Resent-Cc:"i address_list CRLF;
 	resent_bcc = "Resent-Bcc:"i ( address_list | CFWS )? CRLF;
+
+    # pushing chars
 	obs_id_left = local_part;
+
+    # pushing chars
 	id_left = dot_atom_text | obs_id_left;
-	no_fold_literal = "[" dtext* "]";
+
+    # pushing chars
+	no_fold_literal = ("[" %push_current_char) dtext* ("]" %push_current_char);
+
+    # pushing chars
 	obs_id_right = domain;
-	id_right = dot_atom_text | no_fold_literal | obs_id_right;
-	msg_id = CFWS? "<" id_left "@" id_right ">" CFWS?;
+
+    # pushing chars
+	id_right = dot_atom_text | (no_fold_literal@{DBG("no-fold-literal")}) | (obs_id_right@{DBG("obs_id_right")});
+	
+    # gets pushed into a list
+    msg_id = CFWS? "<" id_left ("@" $push_current_char) id_right (">" %push_string_list) CFWS?;
+
 	resent_msg_id = "Resent-Message-ID:"i msg_id CRLF;
 	orig_date = "Date:"i date_time CRLF;
 	hdr_from = "From:"i mailbox_list CRLF;
@@ -120,9 +167,9 @@
 	hdr_to = "To:"i address_list CRLF;
 	cc = "Cc:"i address_list CRLF;
 	bcc = "Bcc:"i ( address_list | CFWS )? CRLF;
-	message_id = "Message-ID:"i msg_id CRLF;
-	in_reply_to = "In-Reply-To:"i msg_id+ CRLF;
-	references = "References:"i msg_id+ CRLF;
+	message_id = "Message-ID:"i >clear_list msg_id CRLF %got_message_id_header;
+	in_reply_to = "In-Reply-To:"i >clear_list msg_id+ CRLF %got_in_reply_to_header;
+	references = "References:"i >clear_list msg_id+ (CRLF >got_references_header);
 	subject = "Subject:"i unstructured CRLF;
 	comments = "Comments:"i unstructured CRLF;
 	keywords = "Keywords:"i phrase ( "," phrase )* CRLF;
@@ -136,9 +183,9 @@
 	obs_to = "To"i WSP* ":" address_list CRLF;
 	obs_cc = "Cc"i WSP* ":" address_list CRLF;
 	obs_bcc = "Bcc"i WSP* ":" ( address_list | ( ( CFWS? "," )* CFWS? ) ) CRLF;
-	obs_message_id = "Message-ID"i WSP* ":" msg_id CRLF;
-	obs_in_reply_to = "In-Reply-To"i WSP* ":" ( phrase | msg_id )* CRLF;
-	obs_references = "References"i WSP* ":" ( phrase | msg_id )* CRLF;
+	obs_message_id = "Message-ID"i WSP* ":" >clear_list msg_id CRLF %got_message_id_header;
+	obs_in_reply_to = "In-Reply-To"i WSP* ":" >clear_list ( phrase | msg_id )* CRLF %got_in_reply_to_header;
+	obs_references = "References"i WSP* ":" >clear_list ( phrase | msg_id )* CRLF %got_references_header;
 	obs_subject = "Subject"i WSP* ":" unstructured CRLF;
 	obs_comments = "Comments"i WSP* ":" unstructured CRLF;
 	obs_phrase_list = ( phrase | CFWS )? ( "," ( phrase | CFWS )? )*;
