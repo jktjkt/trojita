@@ -61,6 +61,16 @@ void Rfc5322Test::testReferences_data()
 
     refs << "foo@bar";
     QTest::newRow("trivial") << QByteArray("reFerences: <foo@bar>\r\n") << true << refs;
+
+    refs.clear();
+    refs << "a@b" << "x@[aaaa]" << "bar@baz";
+    QTest::newRow("folding-squares-phrases-other-headers-etc")
+        << QByteArray("references: <a@b>   <x@[aaaa]> foo <bar@\r\n baz>\r\nfail: foo\r\n\r\nsmrt")
+        << true << refs;
+
+    QTest::newRow("broken-following-headers")
+        << QByteArray("references: <a@b>   <x@[aaaa]> foo <bar@\r\n baz>\r\nfail: foo\r")
+        << false << refs;
 }
 
 
