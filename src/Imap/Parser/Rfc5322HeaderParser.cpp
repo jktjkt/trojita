@@ -103,6 +103,9 @@ namespace Parser {
 
     action got_references_header {
         references += list;
+#ifdef RAGEL_DEBUG
+        qDebug() << "got_references_header:" << references;
+#endif
     }
 
     action header_error {
