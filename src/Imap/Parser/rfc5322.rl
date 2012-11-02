@@ -185,12 +185,10 @@
     obs_cc = "Cc"i WSP* ":" address_list CRLF;
     obs_bcc = "Bcc"i WSP* ":" ( address_list | ( ( CFWS? "," )* CFWS? ) ) CRLF;
     obs_message_id = "Message-ID"i WSP* ":" >clear_list msg_id CRLF %got_message_id_header;
-    obs_in_reply_to = "In-Reply-To"i WSP* ":" >clear_list ( phrase | msg_id )* CRLF %got_in_reply_to_header;
 
-    obs_references = "References"i WSP* ":" >clear_list 
-        # RFC5322 says that phrases shall be ignored
-        ( phrase | msg_id >clear_str )*
-        CRLF %got_references_header;
+    # RFC5322 says that phrases shall be ignored in obs_in_reply_to and obs_references
+    obs_in_reply_to = "In-Reply-To"i WSP* ":" >clear_list ( phrase | msg_id >clear_str )* CRLF %got_in_reply_to_header;
+    obs_references = "References"i WSP* ":" >clear_list ( phrase | msg_id >clear_str )* CRLF %got_references_header;
 
     obs_subject = "Subject"i WSP* ":" unstructured CRLF;
     obs_comments = "Comments"i WSP* ":" unstructured CRLF;
