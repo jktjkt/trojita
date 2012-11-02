@@ -78,15 +78,10 @@
         std::cout << std::endl;
     }
 
-    action dbg_phrase {
-        std::cerr << "dbg_phrase" << std::endl;
-    }
-
-
 
     include rfc5322 "rfc5322.rl";
 
-    main := (optional_field | references)* CRLF*;
+    main := (optional_field | references | obs_references)* CRLF*;
 
     write data;
 }%%

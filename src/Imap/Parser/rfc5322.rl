@@ -41,7 +41,7 @@
 	atext = ALPHA | DIGIT | "!" | "#" | "$" | "%" | "&" | "'" | "*" | "+" | "-" | "/" | "=" | "?" | "^" | "_" | "`" | "{" | "|" | "}" | "~";
 
     # pushing chars
-	atom = CFWS? atext+ $ push_current_char CFWS?;
+	atom = CFWS? atext+ $push_current_char CFWS?;
 
     # pushing chars
 	dot_atom_text = (atext+ ( "." atext+ )*) $push_current_char;
@@ -66,8 +66,9 @@
     # pushing chars
 	obs_phrase = word ( word | "." $push_current_char | CFWS )*;
     # pushing chars
-	phrase = (word+ | obs_phrase) @dbg_phrase;
-	obs_utext = "\0" | obs_NO_WS_CTL | VCHAR;
+    phrase = (word+ | obs_phrase);
+	
+    obs_utext = "\0" | obs_NO_WS_CTL | VCHAR;
 	obs_unstruct = ( ( CR* ( obs_utext | FWS )+ ) | LF+ )* CR*;
 	unstructured = ( ( FWS? VCHAR )* WSP* ) | obs_unstruct;
 	day_name = "Mon"i | "Tue"i | "Wed"i | "Thu"i | "Fri"i | "Sat"i | "Sun"i;
@@ -157,7 +158,7 @@
     id_right = dot_atom_text | no_fold_literal | obs_id_right;
 	
     # gets pushed into a list
-    msg_id = CFWS? "<" id_left ("@" $push_current_char) id_right (">" %push_string_list) CFWS?;
+    msg_id = CFWS? "<" id_left "@" $push_current_char id_right ">" %push_string_list CFWS?;
 
 	resent_msg_id = "Resent-Message-ID:"i msg_id CRLF;
 	orig_date = "Date:"i date_time CRLF;
@@ -185,7 +186,12 @@
 	obs_bcc = "Bcc"i WSP* ":" ( address_list | ( ( CFWS? "," )* CFWS? ) ) CRLF;
 	obs_message_id = "Message-ID"i WSP* ":" >clear_list msg_id CRLF %got_message_id_header;
 	obs_in_reply_to = "In-Reply-To"i WSP* ":" >clear_list ( phrase | msg_id )* CRLF %got_in_reply_to_header;
-	obs_references = "References"i WSP* ":" >clear_list ( phrase | msg_id )* CRLF %got_references_header;
+
+	obs_references = "References"i WSP* ":" >clear_list 
+        # RFC5322 says that phrases shall be ignored
+        ( phrase | msg_id >clear_str )*
+        CRLF %got_references_header;
+
 	obs_subject = "Subject"i WSP* ":" unstructured CRLF;
 	obs_comments = "Comments"i WSP* ":" unstructured CRLF;
 	obs_phrase_list = ( phrase | CFWS )? ( "," ( phrase | CFWS )? )*;
