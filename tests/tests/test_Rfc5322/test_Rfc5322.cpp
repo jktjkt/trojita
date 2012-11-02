@@ -37,7 +37,7 @@ void Rfc5322Test::testReferences()
     QFETCH(bool, ok);
     QFETCH(QList<QByteArray>, references);
 
-    Imap::Parser::Rfc5322HeaderParser parser;
+    Imap::LowLevelParser::Rfc5322HeaderParser parser;
     bool res = parser.parse(input);
     QCOMPARE(res, ok);
     if (parser.references != references) {

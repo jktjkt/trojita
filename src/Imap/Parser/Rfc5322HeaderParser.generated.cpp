@@ -28,7 +28,7 @@
 //#define RAGEL_DEBUG
 
 namespace Imap {
-namespace Parser {
+namespace LowLevelParser {
 
 
 #line 35 "Rfc5322HeaderParser.generated.cpp"

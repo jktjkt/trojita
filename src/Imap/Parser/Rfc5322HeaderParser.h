@@ -26,7 +26,7 @@
 
 namespace Imap {
 
-namespace Parser {
+namespace LowLevelParser {
 
 /** @short Parser for e-mail headers formatted according to the RFC 5322 */
 class Rfc5322HeaderParser

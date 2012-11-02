@@ -26,7 +26,7 @@
 //#define RAGEL_DEBUG
 
 namespace Imap {
-namespace Parser {
+namespace LowLevelParser {
 
 %%{
     machine rfc5322;
