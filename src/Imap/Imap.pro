@@ -178,7 +178,7 @@ ragel {
     RAGEL_INCLUDES += Parser/rfc5322.rl
     ragel.depends += rfc5322.ragel.included.file.cpp
 } else {
-    message("FAIL: no ragel yet")
+    SOURCES += Parser/Rfc5322HeaderParser.generated.cpp
 }
 
 XtConnect:DEFINES += XTUPLE_CONNECT
