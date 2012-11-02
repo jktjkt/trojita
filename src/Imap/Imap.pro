@@ -173,9 +173,8 @@ HEADERS += Parser/Parser.h \
     Parser/Rfc5322HeaderParser.h
 
 ragel {
-    message("Will run ragel for you")
     include(../ragel.prf)
-    RAGEL_SOURCES += Parser/ragel-test.cpp
+    RAGEL_SOURCES += Parser/Rfc5322HeaderParser.cpp
     RAGEL_INCLUDES += Parser/rfc5322.rl
     ragel.depends += rfc5322.ragel.included.file.cpp
 } else {
