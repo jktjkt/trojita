@@ -28,7 +28,7 @@
 	obs_qp = "\\" ( "\0" | obs_NO_WS_CTL | LF | CR );
 
     # backslash + something, pushing into current string
-	quoted_pair = ( ( "\\" ( VCHAR | WSP ) ) | obs_qp ) % push_current_backslashed;
+	quoted_pair = ( ( "\\" ( VCHAR | WSP ) ) | obs_qp ) $push_current_backslashed;
 
 	obs_FWS = ( CRLF? WSP )+;
 	FWS = ( ( WSP* CRLF )? WSP+ ) | obs_FWS;
@@ -53,7 +53,7 @@
 	obs_qtext = obs_NO_WS_CTL;
 
     # pushing chars
-    qtext = ("!" | 0x23..0x5b | 0x5d..0x7e | obs_qtext) %push_current_char;
+    qtext = ("!" | 0x23..0x5b | 0x5d..0x7e | obs_qtext) $push_current_char;
 
     # pushing chars
 	qcontent = qtext | quoted_pair;
@@ -64,7 +64,7 @@
     # pushing chars
     word = atom | quoted_string;
     # pushing chars
-	obs_phrase = word ( word | "." %push_current_char | CFWS )*;
+	obs_phrase = word ( word | "." $push_current_char | CFWS )*;
     # pushing chars
 	phrase = (word+ | obs_phrase) @dbg_phrase;
 	obs_utext = "\0" | obs_NO_WS_CTL | VCHAR;
@@ -93,19 +93,19 @@
 	display_name = phrase;
 
     # pushing chars
-	obs_local_part = word ( "." % push_current_char word )*;
+	obs_local_part = word ( "." $push_current_char word )*;
 
     # pushing chars
 	local_part = dot_atom | quoted_string | obs_local_part;
 
     # pushing chars
-	obs_dtext = (obs_NO_WS_CTL %push_current_char) | quoted_pair;
+	obs_dtext = (obs_NO_WS_CTL $push_current_char) | quoted_pair;
 
     # pushing chars
-	dtext = ((0x21..0x5a | 0x5e..0x7e) %push_current_char) | obs_dtext;
+	dtext = ((0x21..0x5a | 0x5e..0x7e) $push_current_char) | obs_dtext;
 
     # pushing chars
-	domain_literal = CFWS? "[" %push_current_char ( FWS? dtext )* FWS? "]" %push_current_char CFWS?;
+	domain_literal = CFWS? "[" $push_current_char ( FWS? dtext )* FWS? "]" $push_current_char CFWS?;
     # pushing chars
 	obs_domain = atom ( "." atom )*;
     # pushing chars
@@ -148,13 +148,13 @@
 	id_left = dot_atom_text | obs_id_left;
 
     # pushing chars
-	no_fold_literal = ("[" %push_current_char) dtext* ("]" %push_current_char);
+	no_fold_literal = ("[" $push_current_char) dtext* ("]" $push_current_char);
 
     # pushing chars
 	obs_id_right = domain;
 
     # pushing chars
-	id_right = dot_atom_text | (no_fold_literal@{DBG("no-fold-literal")}) | (obs_id_right@{DBG("obs_id_right")});
+    id_right = dot_atom_text | no_fold_literal | obs_id_right;
 	
     # gets pushed into a list
     msg_id = CFWS? "<" id_left ("@" $push_current_char) id_right (">" %push_string_list) CFWS?;

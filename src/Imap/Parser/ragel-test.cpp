@@ -6,7 +6,7 @@
 #include <QByteArray>
 #include <QList>
 
-#define DBG(X) do {std::cerr << X << std::endl;} while(false);
+#define DBG(X) do {std::cerr << X << " (current char: " << *p << ")" << std::endl;} while(false);
 
 
 %%{
