@@ -20,7 +20,7 @@
 */
 
 #include <QDebug>
-#include "Rfc5322HeaderParser.h"
+#include "Imap/Parser/Rfc5322HeaderParser.h"
 
 #define DBG(X) do {qDebug() << X << "(current char:" << *p << ")";} while(false);
 //#define RAGEL_DEBUG
@@ -137,8 +137,6 @@ bool Rfc5322HeaderParser::parse(const QByteArray &data)
     const char *eof = pe;
     int cs;
 
-    const char *orig = p;
-    int start_string_offset = 0;
     QByteArray str;
     QList<QByteArray> list;
 
@@ -151,6 +149,7 @@ bool Rfc5322HeaderParser::parse(const QByteArray &data)
 }
 }
 
+#if 0
 #include <iostream>
 int main()
 {
@@ -173,3 +172,4 @@ int main()
 
     return 0;
 }
+#endif

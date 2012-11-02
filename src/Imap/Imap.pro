@@ -169,6 +169,17 @@ HEADERS += Parser/Parser.h \
     Model/MessageComposer.h \
     Model/ComposerAttachments.h \
     Model/CatenateData.h \
-    Model/UidSubmitData.h
+    Model/UidSubmitData.h \
+    Parser/Rfc5322HeaderParser.h
+
+ragel {
+    message("Will run ragel for you")
+    include(../ragel.prf)
+    RAGEL_SOURCES += Parser/ragel-test.cpp
+    RAGEL_INCLUDES += Parser/rfc5322.rl
+    ragel.depends += rfc5322.ragel.included.file.cpp
+} else {
+    message("FAIL: no ragel yet")
+}
 
 XtConnect:DEFINES += XTUPLE_CONNECT
