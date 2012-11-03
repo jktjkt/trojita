@@ -159,7 +159,7 @@ bool Rfc5322HeaderParser::parse(const QByteArray &data)
 {
     clear();
 
-    const char *p = data.data();
+    const char *p = data.constData();
     const char *pe = p + data.length();
     const char *eof = pe;
     int cs;
