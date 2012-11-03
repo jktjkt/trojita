@@ -89,6 +89,8 @@ private:
     bool writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const;
     bool writeAttachmentBody(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const;
 
+    void writeHeaderWithMsgIds(QIODevice *target, const QByteArray &headerName, const QList<QByteArray> &messageIds) const;
+
     bool validateDropImapMessage(QDataStream &stream, QString &mailbox, uint &uidValidity, QList<uint> &uids) const;
     bool validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QString &partId, QString &trojitaPath) const;
     bool dropImapMessage(QDataStream &stream);
