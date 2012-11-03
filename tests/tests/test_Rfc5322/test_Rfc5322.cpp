@@ -25,6 +25,21 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Parser/Rfc5322HeaderParser.h"
 
+namespace QTest {
+
+/** @short Debug data dumper for QList<uint> */
+template<>
+char *toString(const QList<QByteArray> &list)
+{
+    QString buf;
+    QDebug d(&buf);
+    d << list;
+    return qstrdup(buf.toUtf8().constData());
+}
+
+}
+
+
 void Rfc5322Test::initTestCase()
 {
     qRegisterMetaType<QList<QByteArray> >("QList<QByteArray>");
@@ -41,16 +56,8 @@ void Rfc5322Test::testHeaders()
     Imap::LowLevelParser::Rfc5322HeaderParser parser;
     bool res = parser.parse(input);
     QCOMPARE(res, ok);
-    if (parser.references != references) {
-        qDebug() << "References Actual:" << parser.references;
-        qDebug() << "References Expected:" << references;
-    }
-    QCOMPARE(parser.references, references);
 
-    if (parser.listPost != listPost) {
-        qDebug() << "List-Post Actual:" << parser.listPost;
-        qDebug() << "List-Post Expected:" << listPost;
-    }
+    QCOMPARE(parser.references, references);
     QCOMPARE(parser.listPost, listPost);
     QCOMPARE(parser.listPostNo, listPostNo);
 }
