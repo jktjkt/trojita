@@ -69,8 +69,10 @@ class MainWindow: public QMainWindow
     typedef QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,QString> > RecipientsType;
 public:
     MainWindow();
-    void invokeComposeDialog(const QString &subject=QString(), const QString &body=QString(),
-                             const RecipientsType &recipients=RecipientsType(), const QByteArray &inReplyTo = QByteArray());
+    void invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
+                             const RecipientsType &recipients = RecipientsType(),
+                             const QList<QByteArray> &inReplyTo = QList<QByteArray>(),
+                             const QList<QByteArray> &references = QList<QByteArray>());
     QSize sizeHint() const;
 
     Imap::Mailbox::Model *imapModel() const;

@@ -372,9 +372,14 @@ void MessageComposer::setRecipients(const QList<QPair<RecipientKind, Message::Ma
     m_recipients = recipients;
 }
 
-void MessageComposer::setInReplyTo(const QByteArray &inReplyTo)
+void MessageComposer::setInReplyTo(const QList<QByteArray> &inReplyTo)
 {
     m_inReplyTo = inReplyTo;
+}
+
+void MessageComposer::setReferences(const QList<QByteArray> &references)
+{
+    m_references = references;
 }
 
 void MessageComposer::setTimestamp(const QDateTime &timestamp)
@@ -466,9 +471,19 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
         target->write(QByteArray("Message-ID: <").append(messageId).append(">\r\n"));
     }
     if (!m_inReplyTo.isEmpty()) {
-        target->write(QByteArray("In-Reply-To: ").append(m_inReplyTo).append("\r\n"));
+        target->write(QByteArray("In-Reply-To: "));
+        for (int i = 0; i < m_inReplyTo.size(); ++i) {
+            target->write( (i > 0 ? " <" : "<") + m_inReplyTo[i] + ">");
+        }
+        target->write(QByteArray("\r\n"));
     }
-
+    if (!m_references.isEmpty()) {
+        target->write(QByteArray("References: "));
+        for (int i = 0; i < m_references.size(); ++i) {
+            target->write( (i > 0 ? " <" : "<") + m_references[i] + ">");
+        }
+        target->write(QByteArray("\r\n"));
+    }
 
     // Headers depending on actual message body data
     if (!m_attachments.isEmpty()) {

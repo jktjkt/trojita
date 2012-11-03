@@ -61,7 +61,8 @@ public:
 
     void setFrom(const Message::MailAddress &from);
     void setRecipients(const QList<QPair<RecipientKind,Message::MailAddress> > &recipients);
-    void setInReplyTo(const QByteArray &inReplyTo);
+    void setInReplyTo(const QList<QByteArray> &inReplyTo);
+    void setReferences(const QList<QByteArray> &references);
     void setTimestamp(const QDateTime &timestamp);
     void setSubject(const QString &subject);
     void setText(const QString &text);
@@ -96,7 +97,8 @@ private:
 
     Message::MailAddress m_from;
     QList<QPair<RecipientKind,Message::MailAddress> > m_recipients;
-    QByteArray m_inReplyTo;
+    QList<QByteArray> m_inReplyTo;
+    QList<QByteArray> m_references;
     QDateTime m_timestamp;
     QString m_subject;
     QString m_text;
