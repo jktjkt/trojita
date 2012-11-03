@@ -396,7 +396,10 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
             recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
     }
-    mainWindow->invokeComposeDialog(Composer::Util::replySubject(e.subject), quoteText(), recipients, e.messageId);
+    mainWindow->invokeComposeDialog(Composer::Util::replySubject(e.subject), quoteText(), recipients,
+                                    QList<QByteArray>() << e.messageId,
+                                    message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << e.messageId
+                                    );
 }
 
 void MessageView::externalsRequested(const QUrl &url)

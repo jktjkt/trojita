@@ -216,6 +216,9 @@ class TreeItemMessage: public TreeItem
     uint m_size;
     uint m_uid;
     QStringList m_flags;
+    QList<QByteArray> m_hdrReferences;
+    QList<QUrl> m_hdrListPost;
+    bool m_hdrListPostNo;
     bool m_flagsHandled;
     int m_offset;
     bool m_wasUnread;
@@ -224,6 +227,7 @@ class TreeItemMessage: public TreeItem
     mutable TreeItemPart *m_partText;
     /** @short Set FLAGS and maintain the unread message counter */
     void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
+    void processAdditionalHeaders(Model *model, const QByteArray &rawHeaders);
 public:
     TreeItemMessage(TreeItem *parent);
     ~TreeItemMessage();

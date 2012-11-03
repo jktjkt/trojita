@@ -372,9 +372,14 @@ void MessageComposer::setRecipients(const QList<QPair<RecipientKind, Message::Ma
     m_recipients = recipients;
 }
 
-void MessageComposer::setInReplyTo(const QByteArray &inReplyTo)
+void MessageComposer::setInReplyTo(const QList<QByteArray> &inReplyTo)
 {
     m_inReplyTo = inReplyTo;
+}
+
+void MessageComposer::setReferences(const QList<QByteArray> &references)
+{
+    m_references = references;
 }
 
 void MessageComposer::setTimestamp(const QDateTime &timestamp)
@@ -465,10 +470,8 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     if (!messageId.isEmpty()) {
         target->write(QByteArray("Message-ID: <").append(messageId).append(">\r\n"));
     }
-    if (!m_inReplyTo.isEmpty()) {
-        target->write(QByteArray("In-Reply-To: ").append(m_inReplyTo).append("\r\n"));
-    }
-
+    writeHeaderWithMsgIds(target, QByteArray("In-Reply-To"), m_inReplyTo);
+    writeHeaderWithMsgIds(target, QByteArray("References"), m_references);
 
     // Headers depending on actual message body data
     if (!m_attachments.isEmpty()) {
@@ -481,6 +484,34 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
                   "Content-Transfer-Encoding: quoted-printable\r\n"
                   "\r\n");
     target->write(Imap::quotedPrintableEncode(m_text.toUtf8()));
+}
+
+/** @short Write a header consisting of a list of message-ids
+
+Empty headers will not be produced, and the result is wrapped at an appropriate length.
+
+The header name must not contain the colon, it is added automatically.
+*/
+void MessageComposer::writeHeaderWithMsgIds(QIODevice *target, const QByteArray &headerName,
+                                            const QList<QByteArray> &messageIds) const
+{
+    if (messageIds.isEmpty())
+        return;
+
+    target->write(headerName + ":");
+    int charCount = headerName.length() + 1;
+    for (int i = 0; i < messageIds.size(); ++i) {
+        // Wrapping shall happen at 78 columns, three bytes are eaten by "space < >"
+        if (i != 0 && charCount != 0 && charCount + messageIds[i].length() > 78 - 3) {
+            // got to wrap the header to respect a reasonably small line size
+            charCount = 0;
+            target->write("\r\n");
+        }
+        // and now just append one more item
+        target->write(" <" + messageIds[i] + ">");
+        charCount += messageIds[i].length() + 3;
+    }
+    target->write("\r\n");
 }
 
 bool MessageComposer::writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const

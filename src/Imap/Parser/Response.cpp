@@ -900,7 +900,6 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
                                                       new RespData<QByteArray>(buffer));
 
             } else if (identifier.startsWith(QLatin1String("BODY[")) || identifier.startsWith(QLatin1String("BINARY["))) {
-                // FIXME: split into more identifiers?
                 if (it->type() != QVariant::ByteArray)
                     throw UnexpectedHere(line, start);
                 data[identifier] = QSharedPointer<AbstractData>(

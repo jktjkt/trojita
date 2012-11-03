@@ -61,7 +61,8 @@ public:
 
     void setFrom(const Message::MailAddress &from);
     void setRecipients(const QList<QPair<RecipientKind,Message::MailAddress> > &recipients);
-    void setInReplyTo(const QByteArray &inReplyTo);
+    void setInReplyTo(const QList<QByteArray> &inReplyTo);
+    void setReferences(const QList<QByteArray> &references);
     void setTimestamp(const QDateTime &timestamp);
     void setSubject(const QString &subject);
     void setText(const QString &text);
@@ -88,6 +89,8 @@ private:
     bool writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const;
     bool writeAttachmentBody(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const;
 
+    void writeHeaderWithMsgIds(QIODevice *target, const QByteArray &headerName, const QList<QByteArray> &messageIds) const;
+
     bool validateDropImapMessage(QDataStream &stream, QString &mailbox, uint &uidValidity, QList<uint> &uids) const;
     bool validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QString &partId, QString &trojitaPath) const;
     bool dropImapMessage(QDataStream &stream);
@@ -96,7 +99,8 @@ private:
 
     Message::MailAddress m_from;
     QList<QPair<RecipientKind,Message::MailAddress> > m_recipients;
-    QByteArray m_inReplyTo;
+    QList<QByteArray> m_inReplyTo;
+    QList<QByteArray> m_references;
     QDateTime m_timestamp;
     QString m_subject;
     QString m_text;

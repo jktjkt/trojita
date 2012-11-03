@@ -13,7 +13,8 @@ SUBDIRS  = \
     test_Imap_SelectedMailboxUpdates \
     test_Imap_DisappearingMailboxes \
     test_Imap_Threading \
-    test_Composer_responses
+    test_Composer_responses \
+    test_Rfc5322
 
 # At first, we define the "check" target which simply propagates the "check" call below
 check.target = check

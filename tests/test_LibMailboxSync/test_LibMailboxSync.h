@@ -27,6 +27,9 @@
 #include "Streams/SocketFactory.h"
 #include "TagGenerator.h"
 
+/** @short What items are expected to be requested when asking for "message metadata" */
+#define FETCH_METADATA_ITEMS "ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE BODY.PEEK[HEADER.FIELDS (References List-Post)]"
+
 class QSignalSpy;
 
 namespace Imap {
@@ -115,7 +118,7 @@ protected:
     uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt(); \
     Q_ASSERT(uid); \
     QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString()); \
-    cClient(t.mk(QString::fromUtf8("UID FETCH %1 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n").arg(QString::number(uid)).toUtf8())); \
+    cClient(t.mk(QString::fromUtf8("UID FETCH %1 (" FETCH_METADATA_ITEMS ")\r\n").arg(QString::number(uid)).toUtf8())); \
     cServer(helperCreateTrivialEnvelope(OFFSET + 1, uid, SUBJECT) + t.last("OK fetched\r\n")); \
     QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString::fromUtf8(SUBJECT)); \
 }
