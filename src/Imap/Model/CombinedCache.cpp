@@ -151,5 +151,10 @@ void CombinedCache::setMessageThreading(const QString &mailbox, const QVector<Im
     sqlCache->setMessageThreading(mailbox, threading);
 }
 
+void CombinedCache::setRenewalThreshold(const int days)
+{
+    sqlCache->setRenewalThreshold(days);
+}
+
 }
 }

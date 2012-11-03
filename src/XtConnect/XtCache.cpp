@@ -182,4 +182,9 @@ void XtCache::setMessageThreading(const QString &mailbox, const QVector<Imap::Re
     Q_UNUSED(threading);
 }
 
+void XtCache::setRenewalThreshold(const int days)
+{
+    Q_UNUSED(days);
+}
+
 }

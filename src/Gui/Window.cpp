@@ -523,6 +523,16 @@ void MainWindow::setupModels()
             // Error message was already shown by the cacheError() slot
             cache->deleteLater();
             cache = new Imap::Mailbox::MemoryCache(this, QString());
+        } else {
+            if (s.value(SettingsNames::cacheOfflineKey).toString() == SettingsNames::cacheOfflineAll) {
+                cache->setRenewalThreshold(0);
+            } else {
+                bool ok;
+                int num = s.value(SettingsNames::cacheOfflineNumberDaysKey, 30).toInt(&ok);
+                if (!ok)
+                    num = 30;
+                cache->setRenewalThreshold(num);
+            }
         }
     }
     model = new Imap::Mailbox::Model(this, cache, factory, taskFactory, s.value(SettingsNames::imapStartOffline).toBool());

@@ -96,6 +96,8 @@ public:
     /** @short Open a connection to the cache */
     bool open();
 
+    void setRenewalThreshold(const int days);
+
     /** @short Saving status of a message */
     typedef enum {
         STATE_SAVED, /**< Message has been already saved into the DB */

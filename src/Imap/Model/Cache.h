@@ -126,6 +126,9 @@ public:
     /** @short Save information about how messages are threaded */
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading) = 0;
 
+    /** @short How many days is it OK not to mark entries as accessed? */
+    virtual void setRenewalThreshold(const int days) = 0;
+
 signals:
     /** @short Some cache error has occured */
     void error(const QString &error) const;

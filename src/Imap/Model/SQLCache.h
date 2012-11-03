@@ -94,6 +94,8 @@ public:
     /** @short Open a connection to the cache */
     bool open(const QString &name, const QString &fileName);
 
+    virtual void setRenewalThreshold(const int days);
+
 private:
     /** @short Broadcast an error from the SQL query */
     void emitError(const QString &message, const QSqlQuery &query) const;

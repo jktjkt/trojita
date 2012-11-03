@@ -813,6 +813,11 @@ void SQLCache::timeToCommit()
     }
 }
 
+void SQLCache::setRenewalThreshold(const int days)
+{
+    m_updateAccessIfOlder = days;
+}
+
 
 }
 }

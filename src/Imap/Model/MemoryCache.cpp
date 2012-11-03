@@ -232,6 +232,11 @@ bool MemoryCache::saveData() const
     return false;
 }
 
+void MemoryCache::setRenewalThreshold(const int days)
+{
+    Q_UNUSED(days);
+}
+
 }
 }
 
