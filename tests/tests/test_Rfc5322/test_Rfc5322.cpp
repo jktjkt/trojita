@@ -110,7 +110,20 @@ void Rfc5322Test::testHeaders_data()
     QTest::newRow("list-post-4")
         << QByteArray("List-Post: <ftp://ftp.host.com/list.txt> (FTP),\r\n  <mailto:list@host.com?subject=help>\r\n")
         << true << refs << lp << false;
+
+    refs.clear();
+    lp.clear();
+    refs << "20121031120002.5C37D5807C@linuxized.com" << "CAKmKYaDZtfZ9wzKML8WgJ=evVhteyOG0RVfsASpBGViwncsaiQ@mail.gmail.com"
+        << "50911AE6.8060402@gmail.com";
+    lp << "mailto:gentoo-dev@lists.gentoo.org";
+    QTest::newRow("realworld-1")
+        << QByteArray("List-Post: <mailto:gentoo-dev@lists.gentoo.org>\r\n"
+                      "References: <20121031120002.5C37D5807C@linuxized.com> "
+                      "<CAKmKYaDZtfZ9wzKML8WgJ=evVhteyOG0RVfsASpBGViwncsaiQ@mail.gmail.com>\r\n"
+                      " <50911AE6.8060402@gmail.com>\r\n"
+                      "\r\n")
+        << true << refs << lp << false;
 }
 
 
-TROJITA_HEADLESS_TEST( Rfc5322Test )
+TROJITA_HEADLESS_TEST(Rfc5322Test)

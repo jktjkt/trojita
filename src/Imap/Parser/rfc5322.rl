@@ -170,7 +170,7 @@
     bcc = "Bcc:"i ( address_list | CFWS )? CRLF;
     message_id = "Message-ID:"i >clear_list msg_id CRLF %got_message_id_header;
     in_reply_to = "In-Reply-To:"i >clear_list msg_id+ CRLF %got_in_reply_to_header;
-    references = "References:"i >clear_list msg_id+ (CRLF >got_references_header);
+    references = "References:"i >clear_list msg_id+ (CRLF %got_references_header);
     subject = "Subject:"i unstructured CRLF;
     comments = "Comments:"i unstructured CRLF;
     keywords = "Keywords:"i phrase ( "," phrase )* CRLF;
@@ -196,7 +196,7 @@
 
     # RFC5322 says that phrases shall be ignored in obs_in_reply_to and obs_references
     obs_in_reply_to = "In-Reply-To"i WSP* ":" >clear_list ( phrase | msg_id >clear_str )* CRLF %got_in_reply_to_header;
-    obs_references = "References"i WSP* ":" >clear_list ( phrase | msg_id >clear_str )* (CRLF >got_references_header);
+    obs_references = "References"i WSP* ":" >clear_list ( phrase | msg_id >clear_str )* (CRLF %got_references_header);
 
     obs_subject = "Subject"i WSP* ":" unstructured CRLF;
     obs_comments = "Comments"i WSP* ":" unstructured CRLF;
