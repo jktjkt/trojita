@@ -138,6 +138,21 @@ void Rfc5322Test::testHeaders_data()
                       " <50911AE6.8060402@gmail.com>\r\n"
                       "\r\n")
         << true << refs << lp << false << mi << irt;
+
+    refs.clear();
+    lp.clear();
+    mi << "ea758af6-e6ff-44d3-964d-cb61289d1d3a@flaska.net";
+    QTest::newRow("message-id-1")
+        << QByteArray("Message-ID: <ea758af6-e6ff-44d3-964d-cb61289d1d3a@flaska.net>\r\n")
+        << true << refs << lp << false << mi << irt;
+
+    mi.clear();
+    mi << "a@b";
+    irt << "x@y" << "foo@[666]";
+    QTest::newRow("message-id-and-in-reply-to")
+        << QByteArray("MESSAGE-id: <a@b>\r\n"
+                      "In-REPLY-to:   <x@y > <foo@[666]>\r\n")
+        << true << refs << lp << false << mi << irt;
 }
 
 
