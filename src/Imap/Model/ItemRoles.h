@@ -120,6 +120,10 @@ enum {
     RoleMessageFuzzyDate,
     /** @short List of message IDs from the message's References header */
     RoleMessageHeaderReferences,
+    /** @short The List-Post header from RFC 2369 */
+    RoleMessageHeaderListPost,
+    /** @short Is the List-Post set to a special value of "NO"? */
+    RoleMessageHeaderListPostNo,
 
     /** @short Contents of a message part */
     RolePartData,

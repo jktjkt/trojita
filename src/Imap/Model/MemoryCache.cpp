@@ -176,6 +176,8 @@ MemoryCache::MessageDataBundle MemoryCache::messageMetadata(const QString &mailb
     res.internalDate = it->internalDate;
     res.uid = uid;
     res.hdrReferences = it->hdrReferences;
+    res.hdrListPost = it->hdrListPost;
+    res.hdrListPostNo = it->hdrListPostNo;
     return res;
 }
 
@@ -235,11 +237,13 @@ bool MemoryCache::saveData() const
 
 QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle &x)
 {
-    stream >> x.envelope >> x.internalDate >> x.serializedBodyStructure >> x.size >> x.hdrReferences;
+    stream >> x.envelope >> x.internalDate >> x.serializedBodyStructure >> x.size >> x.hdrReferences >> x.hdrListPost
+           >> x.hdrListPostNo;
     return stream;
 }
 
 QDataStream &operator<<(QDataStream &stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle &x)
 {
-    return stream << x.envelope << x.internalDate << x.serializedBodyStructure << x.size << x.hdrReferences;
+    return stream << x.envelope << x.internalDate << x.serializedBodyStructure << x.size << x.hdrReferences << x.hdrListPost
+                     << x.hdrListPostNo;
 }

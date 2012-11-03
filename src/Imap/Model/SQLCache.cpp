@@ -668,7 +668,8 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbo
         res.uid = uid;
         QDataStream stream(qUncompress(queryMessageMetadata.value(0).toByteArray()));
         stream.setVersion(streamVersion);
-        stream >> res.envelope >> res.internalDate >> res.size >> res.serializedBodyStructure >> res.hdrReferences;
+        stream >> res.envelope >> res.internalDate >> res.size >> res.serializedBodyStructure >> res.hdrReferences
+                  >> res.hdrListPost >> res.hdrListPostNo;
     }
     // "Not found" is not an error here
     return res;
@@ -687,7 +688,7 @@ void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const Messag
     QDataStream stream(&buf, QIODevice::ReadWrite);
     stream.setVersion(streamVersion);
     stream << metadata.envelope << metadata.internalDate << metadata.size << metadata.serializedBodyStructure
-           << metadata.hdrReferences;
+           << metadata.hdrReferences << metadata.hdrListPost << metadata.hdrListPostNo;
     querySetMessageMetadata.bindValue(2, qCompress(buf));
     if (! querySetMessageMetadata.exec()) {
         emitError(tr("Query querySetMessageMetadata failed"), querySetMessageMetadata);

@@ -487,6 +487,8 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             dataForCache.uid = message->uid();
             dataForCache.internalDate = message->m_internalDate;
             dataForCache.hdrReferences = message->m_hdrReferences;
+            dataForCache.hdrListPost = message->m_hdrListPost;
+            dataForCache.hdrListPostNo = message->m_hdrListPostNo;
             model->cache()->setMessageMetadata(mailbox(), message->uid(), dataForCache);
         }
         if (updatedFlags) {
@@ -913,7 +915,8 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage(TreeItem *parent):
-    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_wasUnread(false), m_partHeader(0), m_partText(0)
+    TreeItem(parent), m_size(0), m_uid(0), m_hdrListPostNo(false), m_flagsHandled(false), m_offset(-1), m_wasUnread(false),
+    m_partHeader(0), m_partText(0)
 {
 }
 
@@ -1103,6 +1106,15 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return m_size;
     case RoleMessageHeaderReferences:
         return QVariant::fromValue(m_hdrReferences);
+    case RoleMessageHeaderListPost:
+    {
+        QVariantList res;
+        Q_FOREACH(const QUrl &url, m_hdrListPost)
+            res << url;
+        return res;
+    }
+    case RoleMessageHeaderListPostNo:
+        return m_hdrListPostNo;
     default:
         return QVariant();
     }
@@ -1200,6 +1212,15 @@ void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &r
     }
 
     m_hdrReferences = parser.references;
+    if (!parser.listPost.isEmpty()) {
+        m_hdrListPost.clear();
+        Q_FOREACH(const QByteArray &item, parser.listPost)
+            m_hdrListPost << QUrl(item);
+    }
+    // That's right, this can only be set, not ever reset from this context.
+    // This is because we absolutely want to support incremental header arrival.
+    if (parser.listPostNo)
+        m_hdrListPostNo = true;
 }
 
 

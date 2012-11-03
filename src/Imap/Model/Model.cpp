@@ -876,6 +876,8 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
             item->m_flags = normalizeFlags(flags);
             item->m_size = data.size;
             item->m_hdrReferences = data.hdrReferences;
+            item->m_hdrListPost = data.hdrListPost;
+            item->m_hdrListPostNo = data.hdrListPostNo;
             QDataStream stream(&data.serializedBodyStructure, QIODevice::ReadOnly);
             stream.setVersion(QDataStream::Qt_4_6);
             QVariantList unserialized;

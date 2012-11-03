@@ -48,6 +48,8 @@ public:
         QDateTime internalDate;
         uint size;
         QList<QByteArray> hdrReferences;
+        QList<QUrl> hdrListPost;
+        bool hdrListPostNo;
     };
 
     MemoryCache(QObject *parent, const QString &fileName);
