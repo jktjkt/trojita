@@ -223,6 +223,10 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     for ( int i = 0; i < static_cast<int>(existsA) + 1; ++i )
         msgListA.child(i,0).data(Imap::Mailbox::RoleMessageSubject);
 
+    QModelIndex uid43 = msgListA.child(0, 0);
+    Q_ASSERT(uid43.isValid());
+    QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageUid).toUInt(), 43u);
+
     if ( askForEnvelopes ) {
         // Envelopes for A and B already got requested
         // We have to preserve the previous command, too
@@ -230,18 +234,46 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
         cClient(t.mk("UID FETCH 45 (" FETCH_METADATA_ITEMS ")\r\n"));
         // Simulate out-of-order execution here -- the completion responses for both commands arrive only
         // after the actual data for both of them got pushed
+
+        // Also test the header parsing
+        QByteArray headerData("List-Post: <mailto:gentoo-dev@lists.gentoo.org>\r\n"
+                              "References: <20121031120002.5C37D5807C@linuxized.com> "
+                              "<CAKmKYaDZtfZ9wzKML8WgJ=evVhteyOG0RVfsASpBGViwncsaiQ@mail.gmail.com>\r\n"
+                              " <50911AE6.8060402@gmail.com>\r\n"
+                              "\r\n");
+        cServer("* 1 FETCH (BODY[HEADER.FIELDS (List-Post References fail)]{" + QByteArray::number(headerData.size()) + "}\r\n"
+                + headerData + ")\r\n");
+
         cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
                            helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
                            completionForFirstFetch +
                            t.last("OK fetched\r\n"));
+
+
+        QList<QByteArray> receivedReferences = uid43.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >();
+        QCOMPARE(receivedReferences,
+                 QList<QByteArray>() << "20121031120002.5C37D5807C@linuxized.com"
+                 << "CAKmKYaDZtfZ9wzKML8WgJ=evVhteyOG0RVfsASpBGViwncsaiQ@mail.gmail.com" << "50911AE6.8060402@gmail.com");
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPost).toList(),
+                 QVariantList() << QUrl("mailto:gentoo-dev@lists.gentoo.org"));
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPostNo).toBool(), false);
     } else {
         // Requesting all envelopes at once
         cClient(t.mk("UID FETCH 43:45 (" FETCH_METADATA_ITEMS ")\r\n"));
+
+        // test header parsing as well
+        QByteArray headerData("List-Post: NO (disabled)\r\n\r\n");
+        cServer("* 1 FETCH (BODY[HEADER.FIELDS (References List-Post)]{" + QByteArray::number(headerData.size()) + "}\r\n"
+                + headerData + ")\r\n");
+
         cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
                            helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
                            t.last("OK fetched\r\n"));
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >(), QList<QByteArray>());
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPost).toList(), QVariantList());
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPostNo).toBool(), true);
     }
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C"));
     cEmpty();
