@@ -28,6 +28,7 @@
 #include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
 #include "Model.h"
+#include "Parser/Rfc5322HeaderParser.h"
 #include <QtDebug>
 
 namespace
@@ -435,7 +436,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         } else if (it.key().startsWith("BODY[HEADER.FIELDS (")) {
             // Process any headers found in any such response bit
             const QByteArray &rawHeaders = dynamic_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
-            message->processAdditionalHeaders(rawHeaders);
+            message->processAdditionalHeaders(model, rawHeaders);
             changedMessage = message;
         } else if (it.key().startsWith("BODY[") || it.key().startsWith("BINARY[")) {
             if (it.key()[ it.key().size() - 1 ] != ']')
@@ -485,6 +486,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             dataForCache.size = message->m_size;
             dataForCache.uid = message->uid();
             dataForCache.internalDate = message->m_internalDate;
+            dataForCache.hdrReferences = message->m_hdrReferences;
             model->cache()->setMessageMetadata(mailbox(), message->uid(), dataForCache);
         }
         if (updatedFlags) {
@@ -1099,6 +1101,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return envelope(model).subject;
     case RoleMessageSize:
         return m_size;
+    case RoleMessageHeaderReferences:
+        return QVariant::fromValue(m_hdrReferences);
     default:
         return QVariant();
     }
@@ -1186,9 +1190,16 @@ present in the passed text.  The headers are parsed and those recognized are use
 the "auxiliary metadata" of this TreeItemMessage (basically anything not available in ENVELOPE, UID, FLAGS,
 INTERNALDATE etc).
 */
-void TreeItemMessage::processAdditionalHeaders(const QByteArray &rawHeaders)
+void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &rawHeaders)
 {
-    // FIXME: implement me
+    Imap::LowLevelParser::Rfc5322HeaderParser parser;
+    bool ok = parser.parse(rawHeaders);
+    if (!ok) {
+        model->logTrace(0, LOG_OTHER, QLatin1String("Rfc5322HeaderParser"),
+                        QLatin1String("Unspecified error during RFC5322 header parsing"));
+    }
+
+    m_hdrReferences = parser.references;
 }
 
 

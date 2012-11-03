@@ -225,7 +225,7 @@ class TreeItemMessage: public TreeItem
     mutable TreeItemPart *m_partText;
     /** @short Set FLAGS and maintain the unread message counter */
     void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
-    void processAdditionalHeaders(const QByteArray &rawHeaders);
+    void processAdditionalHeaders(Model *model, const QByteArray &rawHeaders);
 public:
     TreeItemMessage(TreeItem *parent);
     ~TreeItemMessage();

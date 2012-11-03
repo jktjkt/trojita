@@ -47,6 +47,7 @@ public:
         QByteArray serializedBodyStructure;
         QDateTime internalDate;
         uint size;
+        QList<QByteArray> hdrReferences;
     };
 
     MemoryCache(QObject *parent, const QString &fileName);

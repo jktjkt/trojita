@@ -337,7 +337,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncTwoInParallel()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
-    cClient(t.mk(QByteArray("UID FETCH 1 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n")));
+    cClient(t.mk("UID FETCH 1 (" FETCH_METADATA_ITEMS ")\r\n"));
     // let's try to get around without specifying ENVELOPE and BODYSTRUCTURE
     cServer(QByteArray("* 1 FETCH (UID 1 RFC822.SIZE 13021)\r\n") + t.last("OK Completed\r\n"));
     cClient(t.mk(QByteArray("SELECT b\r\n")));

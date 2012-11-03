@@ -22,9 +22,8 @@
 #include <QTest>
 #include "test_Rfc5322.h"
 #include "../headless_test.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Parser/Rfc5322HeaderParser.h"
-
-Q_DECLARE_METATYPE(QList<QByteArray>)
 
 void Rfc5322Test::initTestCase()
 {

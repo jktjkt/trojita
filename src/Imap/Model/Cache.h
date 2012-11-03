@@ -59,12 +59,16 @@ public:
         */
         QByteArray serializedBodyStructure;
 
+        /** @short Parsed form of the References RFC5322 header */
+        QList<QByteArray> hdrReferences;
+
         MessageDataBundle(): uid(0), size(0) {}
 
         bool operator==(const MessageDataBundle &other) const
         {
             return uid == other.uid && envelope == other.envelope && internalDate == other.internalDate &&
-                    serializedBodyStructure == other.serializedBodyStructure && size == other.size;
+                    serializedBodyStructure == other.serializedBodyStructure && size == other.size &&
+                    hdrReferences == other.hdrReferences;
         }
     };
 

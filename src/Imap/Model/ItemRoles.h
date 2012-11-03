@@ -22,7 +22,12 @@
 #ifndef IMAP_MODEL_ITEMROLES_H
 #define IMAP_MODEL_ITEMROLES_H
 
-#include <Qt>
+#include <QByteArray>
+#include <QList>
+#include <QMetaType>
+
+// The following is needed for RoleMessageHdrReferences
+Q_DECLARE_METATYPE(QList<QByteArray>)
 
 namespace Imap
 {
@@ -113,6 +118,8 @@ enum {
     RoleThreadRootWithUnreadMessages,
     /** @short Fuzzy date of a particular message; useful for rough navigation */
     RoleMessageFuzzyDate,
+    /** @short List of message IDs from the message's References header */
+    RoleMessageHeaderReferences,
 
     /** @short Contents of a message part */
     RolePartData,
