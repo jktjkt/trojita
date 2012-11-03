@@ -39,6 +39,8 @@ public:
 
     QList<QByteArray> references;
     QList<QByteArray> listPost;
+    QList<QByteArray> messageId;
+    QList<QByteArray> inReplyTo;
     bool listPostNo;
 private:
     bool m_error;

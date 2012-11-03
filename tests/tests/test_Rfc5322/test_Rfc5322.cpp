@@ -52,6 +52,8 @@ void Rfc5322Test::testHeaders()
     QFETCH(QList<QByteArray>, references);
     QFETCH(QList<QByteArray>, listPost);
     QFETCH(bool, listPostNo);
+    QFETCH(QList<QByteArray>, messageId);
+    QFETCH(QList<QByteArray>, inReplyTo);
 
     Imap::LowLevelParser::Rfc5322HeaderParser parser;
     bool res = parser.parse(input);
@@ -60,6 +62,8 @@ void Rfc5322Test::testHeaders()
     QCOMPARE(parser.references, references);
     QCOMPARE(parser.listPost, listPost);
     QCOMPARE(parser.listPostNo, listPostNo);
+    QCOMPARE(parser.messageId, messageId);
+    QCOMPARE(parser.inReplyTo, inReplyTo);
 }
 
 void Rfc5322Test::testHeaders_data()
@@ -69,54 +73,58 @@ void Rfc5322Test::testHeaders_data()
     QTest::addColumn<QList<QByteArray> >("references");
     QTest::addColumn<QList<QByteArray> >("listPost");
     QTest::addColumn<bool>("listPostNo");
+    QTest::addColumn<QList<QByteArray> >("messageId");
+    QTest::addColumn<QList<QByteArray> >("inReplyTo");
 
     QList<QByteArray> refs;
     QList<QByteArray> lp;
+    QList<QByteArray> mi;
+    QList<QByteArray> irt;
 
-    QTest::newRow("empty-1") << QByteArray() << true << refs << lp << false;
-    QTest::newRow("empty-2") << QByteArray("  ") << true << refs << lp << false;
-    QTest::newRow("empty-3") << QByteArray("\r\n  \r\n") << true << refs << lp << false;
+    QTest::newRow("empty-1") << QByteArray() << true << refs << lp << false << mi << irt;
+    QTest::newRow("empty-2") << QByteArray("  ") << true << refs << lp << false << mi << irt;
+    QTest::newRow("empty-3") << QByteArray("\r\n  \r\n") << true << refs << lp << false << mi << irt;
 
     refs << "foo@bar";
-    QTest::newRow("trivial") << QByteArray("reFerences: <foo@bar>\r\n") << true << refs << lp << false;
+    QTest::newRow("trivial") << QByteArray("reFerences: <foo@bar>\r\n") << true << refs << lp << false << mi << irt;
 
     refs.clear();
     refs << "a@b" << "x@[aaaa]" << "bar@baz";
     QTest::newRow("folding-squares-phrases-other-headers-etc")
         << QByteArray("references: <a@b>   <x@[aaaa]> foo <bar@\r\n baz>\r\nfail: foo\r\n\r\nsmrt")
-        << true << refs << lp << false;
+        << true << refs << lp << false << mi << irt;
 
     QTest::newRow("broken-following-headers")
         << QByteArray("references: <a@b>   <x@[aaaa]> foo <bar@\r\n baz>\r\nfail: foo\r")
-        << false << refs << lp << false;
+        << false << refs << lp << false << mi << irt;
 
     refs.clear();
     lp << "mailto:list@host.com";
     QTest::newRow("list-post-1")
         << QByteArray("List-Post: <mailto:list@host.com>\r\n")
-        << true << refs << lp << false;
+        << true << refs << lp << false << mi << irt;
 
     lp.clear();
     lp << "mailto:moderator@host.com";
     QTest::newRow("list-post-2")
         << QByteArray("List-Post: <mailto:moderator@host.com> (Postings are Moderated)\r\n")
-        << true << refs << lp << false;
+        << true << refs << lp << false << mi << irt;
 
     lp.clear();
     lp << "mailto:moderator@host.com?subject=list%20posting";
     QTest::newRow("list-post-3")
         << QByteArray("List-Post: <mailto:moderator@host.com?subject=list%20posting>\r\n")
-        << true << refs << lp << false;
+        << true << refs << lp << false << mi << irt;
 
     lp.clear();
     QTest::newRow("list-post-no")
         << QByteArray("List-Post: NO (posting not allowed on this list)\r\n")
-        << true << refs << lp << true;
+        << true << refs << lp << true << mi << irt;
 
     lp << "ftp://ftp.host.com/list.txt" << "mailto:list@host.com?subject=help";
     QTest::newRow("list-post-4")
         << QByteArray("List-Post: <ftp://ftp.host.com/list.txt> (FTP),\r\n  <mailto:list@host.com?subject=help>\r\n")
-        << true << refs << lp << false;
+        << true << refs << lp << false << mi << irt;
 
     refs.clear();
     lp.clear();
@@ -129,7 +137,7 @@ void Rfc5322Test::testHeaders_data()
                       "<CAKmKYaDZtfZ9wzKML8WgJ=evVhteyOG0RVfsASpBGViwncsaiQ@mail.gmail.com>\r\n"
                       " <50911AE6.8060402@gmail.com>\r\n"
                       "\r\n")
-        << true << refs << lp << false;
+        << true << refs << lp << false << mi << irt;
 }
 
 

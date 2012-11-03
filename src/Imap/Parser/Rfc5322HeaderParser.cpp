@@ -88,6 +88,7 @@ namespace LowLevelParser {
 #ifdef RAGEL_DEBUG
             qDebug() << "Message-Id: " << list[0].data();
 #endif
+            messageId += list;
         } else {
 #ifdef RAGEL_DEBUG
             qDebug() "invalid Message-Id";
@@ -96,6 +97,7 @@ namespace LowLevelParser {
     }
 
     action got_in_reply_to_header {
+        inReplyTo += list;
 #ifdef RAGEL_DEBUG
         qDebug() << "In-Reply-To: " << list;
 #endif
@@ -132,7 +134,8 @@ namespace LowLevelParser {
 
     include rfc5322 "rfc5322.rl";
 
-    main := (optional_field | references | obs_references | list_post)* @err(header_error) CRLF*;
+    main := ( optional_field | references | obs_references | list_post | message_id | obs_message_id
+        | in_reply_to | obs_in_reply_to)* @err(header_error) CRLF*;
 
     write data;
 }%%
@@ -147,6 +150,8 @@ void Rfc5322HeaderParser::clear()
     m_error = false;
     references.clear();
     listPost.clear();
+    messageId.clear();
+    inReplyTo.clear();
     listPostNo = false;
 }
 
