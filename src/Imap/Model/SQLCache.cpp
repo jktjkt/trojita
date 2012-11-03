@@ -688,7 +688,6 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbo
         if (m_updateAccessIfOlder) {
             int lastAccessTimestamp = queryMessageMetadata.value(1).toInt();
             int currentDiff = accessingThresholdDate.daysTo(QDate::currentDate());
-            qDebug() << mailbox << uid << lastAccessTimestamp << currentDiff;
             if (lastAccessTimestamp < currentDiff - m_updateAccessIfOlder) {
                 queryAccessMessageMetadata.bindValue(0, currentDiff);
                 queryAccessMessageMetadata.bindValue(1, mailbox.isEmpty() ? QLatin1String("") : mailbox);
