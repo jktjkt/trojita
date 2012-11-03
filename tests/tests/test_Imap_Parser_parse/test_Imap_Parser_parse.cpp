@@ -633,10 +633,10 @@ void ImapParserParseTest::testParseUntagged_data()
     to.append( MailAddress( QByteArray(), QByteArray(), "imap", "cac.washington.edu") );
     cc.append( MailAddress( QByteArray(), QByteArray(), "minutes", "CNRI.Reston.VA.US") );
     cc.append( MailAddress( "John Klensin", QByteArray(), "KLENSIN", "MIT.EDU") );
-    QByteArray messageId( "<B27397-0100000@cac.washington.edu>" );
+    QByteArray messageId( "B27397-0100000@cac.washington.edu" );
     fetchData[ "ENVELOPE" ] = QSharedPointer<AbstractData>(
             new RespData<Envelope>(
-                Envelope( date, subject, from, sender, replyTo, to, cc, bcc, QByteArray(), messageId )
+                Envelope( date, subject, from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), messageId )
                 ) );
     QTest::newRow("fetch-envelope")
         << QByteArray( "* 12 FETCH (ENVELOPE (\"Wed, 17 Jul 1996 02:23:25 -0700 (PDT)\" "
@@ -653,7 +653,7 @@ void ImapParserParseTest::testParseUntagged_data()
     fetchData.clear();
     fetchData[ "ENVELOPE" ] = QSharedPointer<AbstractData>(
             new RespData<Envelope>(
-                Envelope( QDateTime(), subject, from, sender, replyTo, to, cc, bcc, QByteArray(), messageId )
+                Envelope( QDateTime(), subject, from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), messageId )
                 ) );
     QTest::newRow("fetch-envelope-nildate")
         << QByteArray( "* 13 FETCH (ENVELOPE (NIL "
@@ -746,7 +746,7 @@ void ImapParserParseTest::testParseUntagged_data()
     bcc.clear();
     fetchData["ENVELOPE"] = QSharedPointer<AbstractData>(
             new RespData<Envelope>(
-                    Envelope( QDateTime(QDate(2011, 1, 11), QTime(9, 21, 42), Qt::UTC), QLatin1String("blablabla"), from, sender, replyTo, to, cc, bcc, QByteArray(), QByteArray() )
+                    Envelope( QDateTime(QDate(2011, 1, 11), QTime(9, 21, 42), Qt::UTC), QLatin1String("blablabla"), from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), QByteArray() )
                     ));
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(8803));
     fetchData["RFC822.SIZE"] = QSharedPointer<AbstractData>(new RespData<uint>(56144));

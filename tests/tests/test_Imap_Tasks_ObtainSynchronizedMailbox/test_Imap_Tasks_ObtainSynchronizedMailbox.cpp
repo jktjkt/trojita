@@ -470,7 +470,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
-                                              QByteArray(), QByteArray());
+                                              QList<QByteArray>(), QByteArray());
     bundle.uid = 1;
     model->cache()->setMessageMetadata("a", 1, bundle);
     bundle.uid = 6;

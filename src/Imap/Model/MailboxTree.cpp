@@ -1097,7 +1097,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case RoleMessageReplyTo:
         return addresListToQVariant(envelope(model).replyTo);
     case RoleMessageInReplyTo:
-        return envelope(model).inReplyTo;
+        return QVariant::fromValue(envelope(model).inReplyTo);
     case RoleMessageMessageId:
         return envelope(model).messageId;
     case RoleMessageSubject:
