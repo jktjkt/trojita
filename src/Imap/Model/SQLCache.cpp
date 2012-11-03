@@ -214,7 +214,7 @@ bool SQLCache::createTables()
         emitError(tr("Failed to prepare table structures"), q);
         return false;
     }
-    if (! q.exec(QLatin1String("INSERT INTO trojita ( version ) VALUES ( 4 )"))) {
+    if (! q.exec(QLatin1String("INSERT INTO trojita ( version ) VALUES ( 6 )"))) {
         emitError(tr("Can't store version info"), q);
         return false;
     }
