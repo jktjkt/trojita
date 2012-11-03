@@ -904,24 +904,23 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
         }
     }
 
-    if (item->fetched()) {
-        // Nothing to do here
-        return;
-    }
-
     switch (networkPolicy()) {
     case NETWORK_OFFLINE:
         if (item->m_fetchStatus != TreeItem::DONE)
             item->m_fetchStatus = TreeItem::UNAVAILABLE;
         break;
     case NETWORK_EXPENSIVE:
-        item->m_fetchStatus = TreeItem::LOADING;
-        findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        if (item->m_fetchStatus != TreeItem::DONE) {
+            item->m_fetchStatus = TreeItem::LOADING;
+            findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        }
         break;
     case NETWORK_ONLINE:
     {
-        item->m_fetchStatus = TreeItem::LOADING;
-        findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        if (item->m_fetchStatus != TreeItem::DONE) {
+            item->m_fetchStatus = TreeItem::LOADING;
+            findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        }
 
         // preload
         if (preloadMode != PRELOAD_PER_POLICY)
