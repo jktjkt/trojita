@@ -37,8 +37,13 @@ namespace Imap
 namespace Mailbox
 {
 
+// This is an arbitrary cutoff point against which we're storing the offset in the database.
+// It cannot change without bumping the DB version (but probably shouldn't change at all, at least
+// I cannot imagine a reason why that would be necessary).
+QDate SQLCache::accessingThresholdDate = QDate(2012, 11, 1);
+
 SQLCache::SQLCache(QObject *parent):
-    AbstractCache(parent), delayedCommit(0), tooMuchTimeWithoutCommit(0), inTransaction(false)
+    AbstractCache(parent), delayedCommit(0), tooMuchTimeWithoutCommit(0), inTransaction(false), m_updateAccessIfOlder(0)
 {
 }
 
@@ -99,6 +104,7 @@ if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( " \
                                "mailbox STRING NOT NULL, " \
                                "uid INT NOT NULL, " \
                                "data BINARY, " \
+                               "lastAccessDate INT, " \
                                "PRIMARY KEY (mailbox, uid)" \
                                ")"))) { \
         emitError(tr("Can't create table msg_metadata"), q); \
@@ -166,9 +172,11 @@ bool SQLCache::open(const QString &name, const QString &fileName)
     }
 
     if (version == 4 || version == 5) {
-        // No difference in table structure, but the data stored in msg_metadata is different; the UID got removed and
-        // INTERNALDATE was added.
-        // In addition, in v6, there's been an addition of the References and List-Post headers.
+        // No difference in table structure between v4 and v5, but the data stored in msg_metadata is different; the UID
+        // got removed and INTERNALDATE was added.
+        // V6 has added the References and List-Post headers (i.e. a change in the structure of the blobs stored in the DB,
+        // but transparent on the SQL level), and also changed the DB structure by adding a date specifying how recently
+        // a given message was accessed (which was needed for cache lifetime management).
         if (!q.exec(QLatin1String("DROP TABLE msg_metadata;"))) {
             emitError(tr("Failed to drop old table msg_metadata"));
             return false;
@@ -316,13 +324,19 @@ bool SQLCache::prepareQueries()
     }
 
     queryMessageMetadata = QSqlQuery(db);
-    if (! queryMessageMetadata.prepare(QLatin1String("SELECT data FROM msg_metadata WHERE mailbox = ? AND uid = ?"))) {
+    if (! queryMessageMetadata.prepare(QLatin1String("SELECT data, lastAccessDate FROM msg_metadata WHERE mailbox = ? AND uid = ?"))) {
         emitError(tr("Failed to prepare queryMessageMetadata"), queryMessageMetadata);
         return false;
     }
 
+    queryAccessMessageMetadata = QSqlQuery(db);
+    if (!queryAccessMessageMetadata.prepare(QLatin1String("UPDATE msg_metadata SET lastAccessDate = ? WHERE mailbox = ? AND uid = ?"))) {
+        emitError(tr("Failed to prepare queryAccssMessageMetadata"), queryAccessMessageMetadata);
+        return false;
+    }
+
     querySetMessageMetadata = QSqlQuery(db);
-    if (! querySetMessageMetadata.prepare(QLatin1String("INSERT OR REPLACE INTO msg_metadata ( mailbox, uid, data ) VALUES ( ?, ?, ? )"))) {
+    if (! querySetMessageMetadata.prepare(QLatin1String("INSERT OR REPLACE INTO msg_metadata ( mailbox, uid, data, lastAccessDate ) VALUES ( ?, ?, ?, ? )"))) {
         emitError(tr("Failed to prepare querySetMessageMetadata"), querySetMessageMetadata);
         return false;
     }
@@ -671,6 +685,19 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbo
         stream.setVersion(streamVersion);
         stream >> res.envelope >> res.internalDate >> res.size >> res.serializedBodyStructure >> res.hdrReferences
                   >> res.hdrListPost >> res.hdrListPostNo;
+        if (m_updateAccessIfOlder) {
+            int lastAccessTimestamp = queryMessageMetadata.value(1).toInt();
+            int currentDiff = accessingThresholdDate.daysTo(QDate::currentDate());
+            qDebug() << mailbox << uid << lastAccessTimestamp << currentDiff;
+            if (lastAccessTimestamp < currentDiff - m_updateAccessIfOlder) {
+                queryAccessMessageMetadata.bindValue(0, currentDiff);
+                queryAccessMessageMetadata.bindValue(1, mailbox.isEmpty() ? QLatin1String("") : mailbox);
+                queryAccessMessageMetadata.bindValue(2, uid);
+                if (!queryAccessMessageMetadata.exec()) {
+                    emitError(tr("Query queryAccessMessageMetadata failed"), queryAccessMessageMetadata);
+                }
+            }
+        }
     }
     // "Not found" is not an error here
     return res;
@@ -691,6 +718,7 @@ void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const Messag
     stream << metadata.envelope << metadata.internalDate << metadata.size << metadata.serializedBodyStructure
            << metadata.hdrReferences << metadata.hdrListPost << metadata.hdrListPostNo;
     querySetMessageMetadata.bindValue(2, qCompress(buf));
+    querySetMessageMetadata.bindValue(3, accessingThresholdDate.daysTo(QDate::currentDate()));
     if (! querySetMessageMetadata.exec()) {
         emitError(tr("Query querySetMessageMetadata failed"), querySetMessageMetadata);
     }

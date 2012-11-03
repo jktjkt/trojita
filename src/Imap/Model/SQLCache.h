@@ -130,6 +130,7 @@ private:
     mutable QSqlQuery querySetUidMapping;
     mutable QSqlQuery queryClearUidMapping;
     mutable QSqlQuery queryMessageMetadata;
+    mutable QSqlQuery queryAccessMessageMetadata;
     mutable QSqlQuery querySetMessageMetadata;
     mutable QSqlQuery queryMessageFlags;
     mutable QSqlQuery querySetMessageFlags;
@@ -147,6 +148,15 @@ private:
     QTimer *delayedCommit;
     QTimer *tooMuchTimeWithoutCommit;
     bool inTransaction;
+
+    /** @short A point in time against which the "last accessed on" data is computed */
+    static QDate accessingThresholdDate;
+
+    /** @short Update the "last accessed on" each time we are making an access *and* the difference is greater than X days
+
+    To disable updating of the DB accesses, set to zero.
+    */
+    int m_updateAccessIfOlder;
 };
 
 }
