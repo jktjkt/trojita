@@ -30,46 +30,86 @@ void Rfc5322Test::initTestCase()
     qRegisterMetaType<QList<QByteArray> >("QList<QByteArray>");
 }
 
-void Rfc5322Test::testReferences()
+void Rfc5322Test::testHeaders()
 {
     QFETCH(QByteArray, input);
     QFETCH(bool, ok);
     QFETCH(QList<QByteArray>, references);
+    QFETCH(QList<QByteArray>, listPost);
+    QFETCH(bool, listPostNo);
 
     Imap::LowLevelParser::Rfc5322HeaderParser parser;
     bool res = parser.parse(input);
     QCOMPARE(res, ok);
     if (parser.references != references) {
-        qDebug() << "Actual:" << parser.references;
-        qDebug() << "Expected:" << references;
+        qDebug() << "References Actual:" << parser.references;
+        qDebug() << "References Expected:" << references;
     }
     QCOMPARE(parser.references, references);
+
+    if (parser.listPost != listPost) {
+        qDebug() << "List-Post Actual:" << parser.listPost;
+        qDebug() << "List-Post Expected:" << listPost;
+    }
+    QCOMPARE(parser.listPost, listPost);
+    QCOMPARE(parser.listPostNo, listPostNo);
 }
 
-void Rfc5322Test::testReferences_data()
+void Rfc5322Test::testHeaders_data()
 {
     QTest::addColumn<QByteArray>("input");
     QTest::addColumn<bool>("ok");
     QTest::addColumn<QList<QByteArray> >("references");
+    QTest::addColumn<QList<QByteArray> >("listPost");
+    QTest::addColumn<bool>("listPostNo");
 
     QList<QByteArray> refs;
+    QList<QByteArray> lp;
 
-    QTest::newRow("empty-1") << QByteArray() << true << refs;
-    QTest::newRow("empty-2") << QByteArray("  ") << true << refs;
-    QTest::newRow("empty-3") << QByteArray("\r\n  \r\n") << true << refs;
+    QTest::newRow("empty-1") << QByteArray() << true << refs << lp << false;
+    QTest::newRow("empty-2") << QByteArray("  ") << true << refs << lp << false;
+    QTest::newRow("empty-3") << QByteArray("\r\n  \r\n") << true << refs << lp << false;
 
     refs << "foo@bar";
-    QTest::newRow("trivial") << QByteArray("reFerences: <foo@bar>\r\n") << true << refs;
+    QTest::newRow("trivial") << QByteArray("reFerences: <foo@bar>\r\n") << true << refs << lp << false;
 
     refs.clear();
     refs << "a@b" << "x@[aaaa]" << "bar@baz";
     QTest::newRow("folding-squares-phrases-other-headers-etc")
         << QByteArray("references: <a@b>   <x@[aaaa]> foo <bar@\r\n baz>\r\nfail: foo\r\n\r\nsmrt")
-        << true << refs;
+        << true << refs << lp << false;
 
     QTest::newRow("broken-following-headers")
         << QByteArray("references: <a@b>   <x@[aaaa]> foo <bar@\r\n baz>\r\nfail: foo\r")
-        << false << refs;
+        << false << refs << lp << false;
+
+    refs.clear();
+    lp << "mailto:list@host.com";
+    QTest::newRow("list-post-1")
+        << QByteArray("List-Post: <mailto:list@host.com>\r\n")
+        << true << refs << lp << false;
+
+    lp.clear();
+    lp << "mailto:moderator@host.com";
+    QTest::newRow("list-post-2")
+        << QByteArray("List-Post: <mailto:moderator@host.com> (Postings are Moderated)\r\n")
+        << true << refs << lp << false;
+
+    lp.clear();
+    lp << "mailto:moderator@host.com?subject=list%20posting";
+    QTest::newRow("list-post-3")
+        << QByteArray("List-Post: <mailto:moderator@host.com?subject=list%20posting>\r\n")
+        << true << refs << lp << false;
+
+    lp.clear();
+    QTest::newRow("list-post-no")
+        << QByteArray("List-Post: NO (posting not allowed on this list)\r\n")
+        << true << refs << lp << true;
+
+    lp << "ftp://ftp.host.com/list.txt" << "mailto:list@host.com?subject=help";
+    QTest::newRow("list-post-4")
+        << QByteArray("List-Post: <ftp://ftp.host.com/list.txt> (FTP),\r\n  <mailto:list@host.com?subject=help>\r\n")
+        << true << refs << lp << false;
 }
 
 

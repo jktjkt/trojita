@@ -174,6 +174,14 @@
     subject = "Subject:"i unstructured CRLF;
     comments = "Comments:"i unstructured CRLF;
     keywords = "Keywords:"i phrase ( "," phrase )* CRLF;
+
+    # RFC2369 doesn't provide a proper grammar, this is my best guess
+    list_url = CFWS? "<" >clear_str CFWS? /[^<>\r\n]/* $push_current_char CFWS? ">" %push_string_list CFWS?;
+    list_post_urls = "List-Post:"i >clear_list list_url ( "," list_url )* unstructured? (CRLF %got_list_post_header);
+    list_post_no = "List-Post:"i CFWS? "NO"i unstructured? (CRLF >got_list_post_no);
+    list_post = list_post_urls | list_post_no;
+
+
     fields = ( ( trace optional_field* ) | ( resent_date | resent_from | resent_sender | resent_to | resent_cc | resent_bcc | resent_msg_id )+ )* ( orig_date | hdr_from | sender | reply_to | hdr_to | cc | bcc | message_id | in_reply_to | references | subject | comments | keywords | optional_field )*;
     obs_return = "Return-Path"i WSP* ":" path CRLF;
     obs_received = "Received"i WSP* ":" received_token* CRLF;

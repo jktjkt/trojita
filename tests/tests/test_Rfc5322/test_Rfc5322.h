@@ -31,8 +31,8 @@ class Rfc5322Test : public QObject
 private Q_SLOTS:
 
     void initTestCase();
-    void testReferences();
-    void testReferences_data();
+    void testHeaders();
+    void testHeaders_data();
 };
 
 #endif

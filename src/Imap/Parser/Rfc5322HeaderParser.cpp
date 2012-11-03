@@ -108,6 +108,20 @@ namespace LowLevelParser {
 #endif
     }
 
+    action got_list_post_header {
+        listPost += list;
+#ifdef RAGEL_DEBUG
+        qDebug() << "got_list_post_header:" << listPost;
+#endif
+    }
+
+    action got_list_post_no {
+        listPostNo = true;
+#ifdef RAGEL_DEBUG
+        qDebug() << "got_list_post_no";
+#endif
+    }
+
     action header_error {
 #ifdef RAGEL_DEBUG
         qDebug() << "Error when parsing RFC5322 headers";
@@ -118,13 +132,13 @@ namespace LowLevelParser {
 
     include rfc5322 "rfc5322.rl";
 
-    main := (optional_field | references | obs_references)* @err(header_error) CRLF*;
+    main := (optional_field | references | obs_references | list_post)* @err(header_error) CRLF*;
 
     write data;
 }%%
 
 Rfc5322HeaderParser::Rfc5322HeaderParser():
-    m_error(false)
+    listPostNo(false), m_error(false)
 {
 }
 
@@ -132,6 +146,8 @@ void Rfc5322HeaderParser::clear()
 {
     m_error = false;
     references.clear();
+    listPost.clear();
+    listPostNo = false;
 }
 
 bool Rfc5322HeaderParser::parse(const QByteArray &data)

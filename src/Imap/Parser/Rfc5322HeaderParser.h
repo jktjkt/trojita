@@ -38,6 +38,8 @@ public:
     bool parse(const QByteArray &data);
 
     QList<QByteArray> references;
+    QList<QByteArray> listPost;
+    bool listPostNo;
 private:
     bool m_error;
 };
