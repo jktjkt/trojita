@@ -11,68 +11,7 @@
   <widget class="QWidget" name="scrollAreaWidgetContents">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QGroupBox" name="cachingGroup">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="title">
-       <string>Caching</string>
-      </property>
-      <layout class="QVBoxLayout" name="cachingGroupLayout">
-       <property name="margin">
-        <number>12</number>
-       </property>
-       <item>
-        <widget class="QRadioButton" name="metadataPersistentCache">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>Speed up opening mailboxes by keeping a local cache of their state</string>
-         </property>
-         <property name="whatsThis">
-          <string>Speed up access to mailboxes by remembering their state between sessions.
-
-If you enable this option, Trojitá will use local storage of this device to accelerate opening mailboxes when you select them next time.</string>
-         </property>
-         <property name="text">
-          <string>Use persistent cache</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="metadataMemoryCache">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="toolTip">
-          <string>Don't use on-device caching</string>
-         </property>
-         <property name="whatsThis">
-          <string>If you select this option, Trojitá will not store any data related to the state of remote mailboxes on this device. This means that all messages will have to be downloaded again when you launch Trojitá next time.</string>
-         </property>
-         <property name="text">
-          <string>Cache metadata only for session duration</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
      <widget class="QGroupBox" name="offlineModeGroup">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
         <horstretch>0</horstretch>
@@ -82,11 +21,14 @@ If you enable this option, Trojitá will use local storage of this device to acc
       <property name="title">
        <string>Offline mode</string>
       </property>
-      <layout class="QVBoxLayout" name="offlineModeGroupLayout">
+      <layout class="QFormLayout" name="formLayout">
+       <property name="fieldGrowthPolicy">
+        <enum>QFormLayout::ExpandingFieldsGrow</enum>
+       </property>
        <property name="margin">
         <number>12</number>
        </property>
-       <item>
+       <item row="0" column="0">
         <widget class="QRadioButton" name="offlineNope">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
@@ -95,11 +37,11 @@ If you enable this option, Trojitá will use local storage of this device to acc
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Don't store messages for offline access</string>
+          <string>Don't use cache</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item row="1" column="0">
         <widget class="QRadioButton" name="offlineXDays">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
@@ -108,11 +50,11 @@ If you enable this option, Trojitá will use local storage of this device to acc
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Remember messages from X recent days</string>
+          <string>Remember messages for X days</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item row="2" column="0">
         <widget class="QSpinBox" name="offlineNumberOfDays">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
@@ -128,36 +70,7 @@ If you enable this option, Trojitá will use local storage of this device to acc
          </property>
         </widget>
        </item>
-       <item>
-        <widget class="QRadioButton" name="offlineXMessages">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="text">
-          <string>Remember X recent messages</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSpinBox" name="offlineNumberOfMessages">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimum">
-          <number>1</number>
-         </property>
-         <property name="maximum">
-          <number>2147483647</number>
-         </property>
-        </widget>
-       </item>
-       <item>
+       <item row="3" column="0">
         <widget class="QRadioButton" name="offlineEverything">
          <property name="sizePolicy">
           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
@@ -166,7 +79,7 @@ If you enable this option, Trojitá will use local storage of this device to acc
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Remember all messages</string>
+          <string>Store forever</string>
          </property>
         </widget>
        </item>

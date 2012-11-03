@@ -85,6 +85,8 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
     createWidgets();
 
+    migrateSettings();
+
     QSettings s;
     if (! s.contains(Common::SettingsNames::imapMethodKey)) {
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
@@ -501,8 +503,7 @@ void MainWindow::setupModels()
         cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
     Imap::Mailbox::AbstractCache *cache = 0;
 
-    bool shouldUsePersistentCache = s.value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataPersistent;
-
+    bool shouldUsePersistentCache = s.value(SettingsNames::cacheOfflineKey).toString() != SettingsNames::cacheOfflineNone;
     if (shouldUsePersistentCache) {
         if (! QDir().mkpath(cacheDir)) {
             QMessageBox::critical(this, tr("Cache Error"), tr("Failed to create directory %1").arg(cacheDir));
@@ -1634,6 +1635,18 @@ bool MainWindow::isGenUrlAuthSupported() const
 bool MainWindow::isImapSubmissionSupported() const
 {
     return m_supportsImapSubmission;
+}
+
+/** @short Deal with various obsolete settings */
+void MainWindow::migrateSettings()
+{
+    using Common::SettingsNames;
+    QSettings s;
+
+    // Process the obsolete settings about the "cache backend". Thsi has been changed to "offline stuff" after v0.3.
+    if (s.value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
+        s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
+    }
 }
 
 }

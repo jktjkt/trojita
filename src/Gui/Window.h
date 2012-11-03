@@ -160,6 +160,8 @@ private:
 
     void updateActionsOnlineOffline(bool online);
 
+    void migrateSettings();
+
     Imap::Mailbox::Model *model;
     Imap::Mailbox::MailboxModel *mboxModel;
     Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;
