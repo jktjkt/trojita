@@ -165,22 +165,23 @@ bool SQLCache::open(const QString &name, const QString &fileName)
         }
     }
 
-    if (version == 4) {
+    if (version == 4 || version == 5) {
         // No difference in table structure, but the data stored in msg_metadata is different; the UID got removed and
-        // INTERNALDATE was added
+        // INTERNALDATE was added.
+        // In addition, in v6, there's been an addition of the References and List-Post headers.
         if (!q.exec(QLatin1String("DROP TABLE msg_metadata;"))) {
             emitError(tr("Failed to drop old table msg_metadata"));
             return false;
         }
         TROJITA_SQL_CACHE_CREATE_MSG_METADATA;
-        version = 5;
-        if (! q.exec(QLatin1String("UPDATE trojita SET version = 5;"))) {
-            emitError(tr("Failed to update cache DB scheme from v4 to v5"), q);
+        version = 6;
+        if (! q.exec(QLatin1String("UPDATE trojita SET version = 6;"))) {
+            emitError(tr("Failed to update cache DB scheme from v4/v5 to v6"), q);
             return false;
         }
     }
 
-    if (version != 5) {
+    if (version != 6) {
         emitError(tr("Unknown version"));
         return false;
     }
