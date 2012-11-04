@@ -243,9 +243,9 @@ QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
     while (pos < text.size() && (text[pos].unicode() == 0x20 || !rfc2047QPNeedsEscpaing(text[pos].unicode())))
         ++pos;
 
+    // Find last character of a word which doesn't need escaping
     if (pos != text.size()) {
-        // Find last character of a word which doesn't need escaping
-        while (pos >0 && text[pos-1] != QLatin1Char(' '))
+        while (pos > 0 && text[pos-1].unicode() != 0x20)
             --pos;
     }
 
