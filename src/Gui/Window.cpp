@@ -1616,6 +1616,7 @@ void MainWindow::slotLayoutCompact()
 {
     m_mainVSplitter->addWidget(area);
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
+    setMinimumWidth(800);
 }
 
 void MainWindow::slotLayoutWide()
@@ -1625,6 +1626,7 @@ void MainWindow::slotLayoutWide()
     m_mainHSplitter->setStretchFactor(1, 1);
     m_mainHSplitter->setStretchFactor(2, 1);
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
+    setMinimumWidth(1250);
 }
 
 Imap::Mailbox::Model *MainWindow::imapModel() const
