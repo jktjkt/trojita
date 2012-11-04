@@ -241,8 +241,8 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
     QTest::newRow("long-text-with-utf")
         // again, be careful with that trigraph
         << QString::fromUtf8("[Trojitá - Bug #553] (New) Subject \"=?UTF-8?B?" "?=\" not decoded ěščřžýáíé")
-        << QByteArray("=?utf-8?B?W1Ryb2ppdMOhIC0gQnVnICM1NTNdIChOZXcpIFN1YmplY3QgIj0/VVRGLTg/Qj8/PSIgbm90IGRlY29kZWQg?=\r\n"
-                      " =?utf-8?B?xJvFocSNxZnFvsO9w6HDrcOp?=");
+        << QByteArray("=?utf-8?B?W1Ryb2ppdMOhIC0gQnVnICM1NTNdIChOZXcpIFN1YmplY3QgIj0/VVRGLTg/Qg==?=\r\n"
+                      " =?utf-8?B?Pz89IiBub3QgZGVjb2RlZCDEm8WhxI3FmcW+w73DocOtw6k=?=");
 
     // Make sure that QP-specials are escaped
     QTest::newRow("prevent-unescaped-rfc2047") << QString::fromUtf8("ble =?") << QByteArray("ble =?iso-8859-1?Q?=3D=3F?=");

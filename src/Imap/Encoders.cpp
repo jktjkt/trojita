@@ -171,7 +171,7 @@ namespace {
         return latin1;
     }
 
-    /** @short Split a string into chunks so that each chunk has at most maximumEncoded bytes when represented in UTF-8 */
+    /** @short Split a string into chunks so that each chunk has at most maximumEncoded bytes when represented as base64-encoded UTF-8 */
     static QList<QByteArray> splitUtf8String(const QString &text, const int maximumEncoded)
     {
         QList<QByteArray> res;
@@ -182,7 +182,9 @@ namespace {
             QByteArray candidate;
             while (true) {
                 candidate = text.mid(start, size).toUtf8();
-                if (candidate.size() <= maximumEncoded) {
+                int utf8Size = candidate.size();
+                int base64Size = utf8Size * 4 / 3 + utf8Size % 3;
+                if (base64Size <= maximumEncoded) {
                     // if this chunk is OK, great
                     res.append(candidate);
                     start += size;
