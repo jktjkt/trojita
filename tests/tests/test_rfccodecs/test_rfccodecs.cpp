@@ -211,13 +211,6 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
     QTest::newRow("crlf") << QString::fromUtf8("\r\n")
         << QByteArray("=?iso-8859-1?Q?=0D=0A?=");
 
-#if 0
-    QTest::newRow("long-text-with-latin")
-        // again, be careful with that trigraph
-        << QString::fromUtf8("[Trojitá - Bug #553] (New) Subject \"=?UTF-8?B?" "?=\" not decoded")
-        << QByteArray();
-#endif
-
     QTest::newRow("long-text-with-utf")
         // again, be careful with that trigraph
         << QString::fromUtf8("[Trojitá - Bug #553] (New) Subject \"=?UTF-8?B?" "?=\" not decoded ěščřžýáíé")
@@ -250,6 +243,15 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
                       " =?utf-8?B?c2V2ZW50eS1zaXggYnl0ZXMgaGFzIGJlZW4gdXNlZCBiZWZvcmUgdGhlICdzZQ==?=\r\n"
                       " =?utf-8?B?dmVudHknIHdvcmQgYXBwZWFyZWQuIExldCdzIGZvcmNlIFVURi04IG5vdzog?=\r\n"
                       " =?utf-8?B?xJvFocSNxZnFvsO9w6HDrcOp?=");
+
+    QTest::newRow("correct-prefix-wrapping-latin1")
+        << QString::fromUtf8("Prefix: .1.........2.........3.........4.........5.........6.........7 23456 "
+                             "seventy-six bytes has been used before the 'seventy' word appeared. Let's force Latin-1 now: á")
+        // Same issue as with correct-prefix-wrapping-utf
+        << QByteArray("Prefix: .1.........2.........3.........4.........5.........6.........7 23456"
+                      " =?iso-8859-1?Q?seventy-six_bytes_has_been_used_before_the_'seventy'_word_?=\r\n"
+                      " =?iso-8859-1?Q?appeared._Let's_force_Latin-1_now:_=E1?=");
+
 
 }
 

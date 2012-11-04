@@ -42,33 +42,6 @@ namespace {
         return src;
     }
 
-    static QByteArray generateEncodedWord(const QByteArray& codec, char encoding, const QByteArray& text)
-    {
-        QByteArray result("=?");
-        result.append(codec);
-        result.append('?');
-        result.append(encoding);
-        result.append('?');
-        result.append(text);
-        result.append("?=");
-        return result;
-    }
-
-    static QByteArray generateEncodedWord(const QByteArray& codec, char encoding, const QList<QByteArray>& list)
-    {
-        QByteArray result;
-
-        foreach (const QByteArray& item, list)
-        {
-            if (!result.isEmpty())
-                result.append(' ');
-
-            result.append(generateEncodedWord(codec, encoding, item));
-        }
-
-        return result;
-    }
-
     static QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
         if (encoding == "Q") {
@@ -124,26 +97,6 @@ namespace {
         out.append(str.mid(lastPos));
 
         return out;
-    }
-
-
-    static QList<QByteArray> split(const QByteArray& input, const QByteArray& separator)
-    {
-        QList<QByteArray> result;
-
-        int index = -1;
-        int lastIndex = -1;
-        do
-        {
-            lastIndex = index;
-            index = input.indexOf(separator, lastIndex + 1);
-
-            int offset = (lastIndex == -1 ? 0 : lastIndex + separator.length());
-            int length = (index == -1 ? -1 : index - offset);
-            result.append(input.mid(offset, length));
-        } while (index != -1);
-
-        return result;
     }
 
     // shamelessly stolen from QMF's qmailmessage.cpp
@@ -220,9 +173,30 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
         }
         return res;
     } else {
-        QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047, maximumEncoded);
-        QByteArray encoded = codec.encode(text, encoding);
-        return generateEncodedWord(encoding, 'Q', split(encoded, "=\r\n")).replace("\r\n", "\r\n ");
+        QByteArray buf = "=?" + encoding + "?Q?";
+        int i = 0;
+        int currentLineLength = 0;
+        while (i < text.size()) {
+            QByteArray symbol;
+            const ushort unicode = text[i].unicode();
+            if (unicode == 0x20) {
+                symbol = "_";
+            } else if (!rfc2047QPNeedsEscpaing(unicode)) {
+                symbol += text[i].toLatin1();
+            } else {
+                const char hexChars[] = "0123456789ABCDEF";
+                symbol = QByteArray("=") + hexChars[(unicode >> 4) & 0xf] + hexChars[unicode & 0xf];
+            }
+            currentLineLength += symbol.size();
+            if (currentLineLength > maximumEncoded) {
+                buf += "?=\r\n =?" + encoding + "?Q?";
+                currentLineLength = 0;
+            }
+            buf += symbol;
+            ++i;
+        }
+        buf += "?=";
+        return buf;
     }
 }
 
