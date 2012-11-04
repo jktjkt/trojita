@@ -134,7 +134,7 @@ QByteArray CombinedCache::messagePart(const QString &mailbox, uint uid, const QS
 
 void CombinedCache::setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data)
 {
-    if (data.size() < 1000) {
+    if (data.size() < 1024 * 1024) {
         sqlCache->setMsgPart(mailbox, uid, partId, data);
     } else {
         diskPartCache->setMsgPart(mailbox, uid, partId, data);
