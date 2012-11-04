@@ -54,7 +54,7 @@ namespace {
         return result;
     }
 
-    QByteArray generateEncodedWord(const QByteArray& codec, char encoding, const QList<QByteArray>& list)
+    static QByteArray generateEncodedWord(const QByteArray& codec, char encoding, const QList<QByteArray>& list)
     {
         QByteArray result;
 
@@ -69,7 +69,7 @@ namespace {
         return result;
     }
 
-    QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
+    static QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
         if (encoding == "Q") {
             QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047);
@@ -81,7 +81,7 @@ namespace {
         }
     }
 
-    QString decodeWordSequence(const QByteArray& str)
+    static QString decodeWordSequence(const QByteArray& str)
     {
         QRegExp whitespace("^\\s+$");
 
