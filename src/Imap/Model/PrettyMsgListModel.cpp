@@ -182,9 +182,10 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
 /** @short Format a QDateTime for compact display in one column of the view */
 QString PrettyMsgListModel::prettyFormatDate(const QDateTime &dateTime) const
 {
-    QDateTime now = QDateTime::currentDateTime();
+    // The time is not always synced properly, so better accept even slightly too new messages as "from today"
+    QDateTime now = QDateTime::currentDateTime().addSecs(15*60);
     if (dateTime >= now) {
-        // messages from future shall always be shown using full format to prevent nasty surprises
+        // Messages from future shall always be shown using full format to prevent nasty surprises.
         return dateTime.toString(Qt::DefaultLocaleShortDate);
     } else if (dateTime > now.addDays(-1)) {
         // It's a message fresher than 24 hours, let's show just the time.
