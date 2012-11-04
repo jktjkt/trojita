@@ -206,7 +206,8 @@ namespace Imap {
 
 QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacterSetType charset)
 {
-    // We can't allow more than 75 chars per encoded-word, including the boiler plate...
+    // We can't allow more than 75 chars per encoded-word, including the boiler plate (7 chars and the size of the encoding spec)
+    // -- this is defined by RFC2047.
     int maximumEncoded = 75 - 7;
     QByteArray encoding;
     if (charset == RFC2047_STRING_UTF8)
@@ -237,7 +238,9 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
 /** @short Encode the given string into RFC2047 form, preserving the ASCII leading part if possible */
 QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
 {
+    // The maximal recommended line length, as defined by RFC 5322
     const int maxLineLength = 78;
+
     // Find first character which needs escaping
     int pos = 0;
     while (pos < text.size() && pos < maxLineLength &&
