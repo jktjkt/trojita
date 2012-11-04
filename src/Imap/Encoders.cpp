@@ -243,6 +243,8 @@ QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
     if (pos != text.size()) {
         while (pos > 0 && text[pos-1].unicode() != 0x20)
             --pos;
+        if (pos > 0 && text[pos].unicode() == 0x20)
+            --pos;
     }
 
     QByteArray prefix = text.left(pos).toUtf8();

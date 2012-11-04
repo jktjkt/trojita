@@ -239,6 +239,18 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
     QTest::newRow("subject-newline")
         << QString::fromUtf8("Subject: \n")
         << QByteArray("Subject: =?iso-8859-1?Q?=0A?=");
+
+    QTest::newRow("correct-prefix-wrapping-utf")
+        << QString::fromUtf8("Prefix: .1.........2.........3.........4.........5.........6.........7 23456 "
+                             "seventy-six bytes has been used before the 'seventy' word appeared. Let's force UTF-8 now: "
+                             "ěščřžýáíé")
+        // Yep, this isn't great, the second "line" shall actually *be* separated by a newline, so that the total length of any
+        // line is smaller than 78 chars. The thing is, this is not really easy.
+        << QByteArray("Prefix: .1.........2.........3.........4.........5.........6.........7 23456"
+                      " =?utf-8?B?c2V2ZW50eS1zaXggYnl0ZXMgaGFzIGJlZW4gdXNlZCBiZWZvcmUgdGhlICdzZQ==?=\r\n"
+                      " =?utf-8?B?dmVudHknIHdvcmQgYXBwZWFyZWQuIExldCdzIGZvcmNlIFVURi04IG5vdzog?=\r\n"
+                      " =?utf-8?B?xJvFocSNxZnFvsO9w6HDrcOp?=");
+
 }
 
 TROJITA_HEADLESS_TEST( RFCCodecsTest )
