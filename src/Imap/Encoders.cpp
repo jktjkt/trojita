@@ -238,13 +238,6 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
 }
 
 
-QByteArray encodeRFC2047String(const QString& text)
-{
-    // Do we need to encode this input?
-    Rfc2047StringCharacterSetType charset = charsetForInput(text);
-    return encodeRFC2047String(text, charset);
-}
-
 /** @short Encode the given string into RFC2047 form, preserving the ASCII leading part if possible */
 QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
 {
@@ -259,7 +252,14 @@ QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
             --pos;
     }
 
-    return text.left(pos).toUtf8() + encodeRFC2047String(text.mid(pos));
+    QByteArray prefix = text.left(pos).toUtf8();
+    if (pos == text.size())
+        return prefix;
+
+    QString rest = text.mid(pos);
+    Rfc2047StringCharacterSetType charset = charsetForInput(rest);
+
+    return prefix + encodeRFC2047String(rest, charset);
 }
 
 QString decodeRFC2047String( const QByteArray& raw )

@@ -226,6 +226,19 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
 
     // Make sure that QP-specials are escaped
     QTest::newRow("prevent-unescaped-rfc2047") << QString::fromUtf8("ble =?") << QByteArray("ble =?iso-8859-1?Q?=3D=3F?=");
+
+    QTest::newRow("empty-subject")
+        << QString::fromUtf8("Subject: ")
+        << QByteArray("Subject: ");
+
+    // Is this actually correct?
+    QTest::newRow("spaces-in-subject")
+        << QString::fromUtf8("Subject:  ")
+        << QByteArray("Subject:  ");
+
+    QTest::newRow("subject-newline")
+        << QString::fromUtf8("Subject: \n")
+        << QByteArray("Subject: =?iso-8859-1?Q?=0A?=");
 }
 
 TROJITA_HEADLESS_TEST( RFCCodecsTest )
