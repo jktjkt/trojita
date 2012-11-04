@@ -182,26 +182,6 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
 
 }
 
-void RFCCodecsTest::testEncodeRFC2047String()
-{
-    QFETCH(QString, input);
-    QFETCH(QByteArray, encoded);
-
-    QCOMPARE(Imap::encodeRFC2047String(input), encoded);
-    QCOMPARE(Imap::decodeRFC2047String(Imap::encodeRFC2047String(input)), input);
-}
-
-void RFCCodecsTest::testEncodeRFC2047String_data()
-{
-    QTest::addColumn<QString>("input");
-    QTest::addColumn<QByteArray>("encoded");
-
-    QTest::newRow("empty") << QString() << QByteArray();
-    QTest::newRow("simple-ascii") << QString::fromUtf8("ahoj") << QByteArray("ahoj");
-    QTest::newRow("jan-kundrat") << QString::fromUtf8("Jan Kundrát") << QByteArray("=?iso-8859-1?Q?Jan_Kundr=E1t?=");
-    QTest::newRow("czech") << QString::fromUtf8("ě") << QByteArray("=?utf-8?B?xJs=?=");
-}
-
 void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix()
 {
     QFETCH(QString, input);
