@@ -69,47 +69,16 @@ namespace {
         return result;
     }
 
-    QString decodeWord( const QByteArray& encodedWord )
+    QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
-        QString result;
-        int index[4];
-
-        bool recognized = false;
-
-        // Find the parts of the input
-        index[0] = encodedWord.indexOf("=?");
-        if (index[0] != -1)
-        {
-            index[1] = encodedWord.indexOf('?', index[0] + 2);
-            if (index[1] != -1)
-            {
-                index[2] = encodedWord.indexOf('?', index[1] + 1);
-                index[3] = encodedWord.lastIndexOf("?=");
-                if ((index[2] != -1) && (index[3] > index[2]))
-                {
-                    QByteArray charset = unquoteString(encodedWord.mid(index[0] + 2, (index[1] - index[0] - 2)));
-                    QByteArray encoding = encodedWord.mid(index[1] + 1, (index[2] - index[1] - 1)).toUpper();
-                    QByteArray encoded = encodedWord.mid(index[2] + 1, (index[3] - index[2] - 1));
-
-                    if (encoding == "Q")
-                    {
-                        QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047);
-                        result = codec.decode(encoded, charset);
-                        recognized = true;
-                    }
-                    else if (encoding == "B")
-                    {
-                        result = decodeByteArray(QByteArray::fromBase64(encoded), charset);
-                        recognized = true;
-                    }
-                }
-            }
+        if (encoding == "Q") {
+            QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047);
+            return codec.decode(encoded, charset);
+        } else if (encoding == "B") {
+            return decodeByteArray(QByteArray::fromBase64(encoded), charset);
+        } else {
+            return fullWord;
         }
-
-        if (!recognized)
-            result = encodedWord;
-
-        return result;
     }
 
     QString decodeWordSequence(const QByteArray& str)
@@ -120,7 +89,7 @@ namespace {
 
         // Any idea why this isn't matching?
         //QRegExp encodedWord("\\b=\\?\\S+\\?\\S+\\?\\S*\\?=\\b");
-        QRegExp encodedWord("\"?=\\?\\S+\\?\\S+\\?.*\\?=\"?");
+        QRegExp encodedWord("\"?=(\\?\\S+)\\?(\\S+)\\?(.*)\\?=\"?");
 
         // set minimal=true, to match sequences which do not have whit space in between 2 encoded words; otherwise by default greedy matching is performed
         // eg. "Sm=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=sbord" will match "=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=" as a single encoded word without minimal=true
@@ -137,7 +106,8 @@ namespace {
                 int endPos = pos + encodedWord.matchedLength();
 
                 QString preceding(str.mid(lastPos, (pos - lastPos)));
-                QString decoded = decodeWord(str.mid(pos, (endPos - pos)));
+                QString decoded = decodeWord(str.mid(pos, (endPos - pos)), encodedWord.cap(1).toLatin1(),
+                                             encodedWord.cap(2).toUpper().toLatin1(), encodedWord.cap(3).toLatin1());
 
                 // If there is only whitespace between two encoded words, it should not be included
                 if (!whitespace.exactMatch(preceding))
