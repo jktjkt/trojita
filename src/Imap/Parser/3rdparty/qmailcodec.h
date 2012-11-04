@@ -48,6 +48,10 @@
 #include <QString>
 #include <QTextStream>
 
+bool rfc2047QPNeedsEscpaing(const int unicode);
+
+QString decodeByteArray(const QByteArray &encoded, const QString &charset);
+
 class QTOPIAMAIL_EXPORT QMailCodec
 {
 public:

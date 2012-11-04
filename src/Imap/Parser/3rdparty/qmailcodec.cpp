@@ -222,6 +222,15 @@ void QMailCodec::decode(QTextStream& out, QDataStream& in, const QString& charse
     }
 }
 
+
+QString decodeByteArray(const QByteArray &encoded, const QString &charset)
+{
+    if (QTextCodec *codec = codecForName(charset.toLatin1())) {
+        return codec->toUnicode(encoded);
+    }
+    return QString();
+}
+
 /*!
     Writes the data read from the stream \a in to the stream \a out, as a sequence 
     of 7-bit ASCII characters.
@@ -364,6 +373,7 @@ const unsigned char FormFeed = 0x0c;
 const unsigned char CarriageReturn = 0x0d;
 const unsigned char Space = 0x20;
 const unsigned char Equals = 0x3d;
+const unsigned char QuestionMark = 0x3f;
 const unsigned char ExclamationMark = 0x21;
 const unsigned char Asterisk = 0x2a;
 const unsigned char Plus = 0x2b;
@@ -794,6 +804,17 @@ QString QMailQuotedPrintableCodec::name() const
     return QLatin1String("QMailQuotedPrintableCodec");
 }
 
+bool rfc2047QPNeedsEscpaing(const int unicode)
+{
+    if (unicode <= Space)
+        return true;
+    if (unicode == Equals || unicode == QuestionMark || unicode == Underscore)
+        return true;
+    if (unicode > MaxPrintableRange)
+        return true;
+    return false;
+}
+
 /*! \internal */
 void QMailQuotedPrintableCodec::encodeChunk(QDataStream& out, const unsigned char* it, int length, bool finalChunk)
 {
@@ -803,6 +824,19 @@ void QMailQuotedPrintableCodec::encodeChunk(QDataStream& out, const unsigned cha
     while (it != end)
     {
         unsigned char input = *it++;
+
+        if (_conformance == Rfc2047) {
+            // This is *very* different from the RFC2045 encoding.
+            // Just don't bother fighting the QMF code and use this shortcut.
+            if (input == Space) {
+                out << static_cast<unsigned char>(Underscore);
+            } else if (!rfc2047QPNeedsEscpaing(input)) {
+                out << input;
+            } else {
+                encodeCharacter(out, input);
+            }
+            continue;
+        }
 
         if ((input == CarriageReturn || input == LineFeed) && (_content == Text))
         {

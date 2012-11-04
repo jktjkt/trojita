@@ -99,8 +99,7 @@ namespace {
                     }
                     else if (encoding == "B")
                     {
-                        QMailBase64Codec codec(QMailBase64Codec::Binary);
-                        result = codec.decode(encoded, charset);
+                        result = decodeByteArray(QByteArray::fromBase64(encoded), charset);
                         recognized = true;
                     }
                 }
@@ -192,7 +191,7 @@ namespace {
                 // Multi-byte characters included - we need to use UTF-8
                 return Imap::RFC2047_STRING_UTF8;
             }
-            else if (!latin1 && ((*it).unicode() > 0x7f))
+            else if (!latin1 && rfc2047QPNeedsEscpaing(it->unicode()))
             {
                 // We need encoding from latin-1
                 latin1 = Imap::RFC2047_STRING_LATIN;
@@ -246,21 +245,21 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
     // If this is an encodedWord, we need to include any whitespace that we don't want to lose
     if (charset == RFC2047_STRING_UTF8)
     {
-        QList<QByteArray> listEnc;
+        QByteArray res;
         QList<QByteArray> list = ::splitUtf8String(text, maximumEncoded);
         Q_FOREACH(const QByteArray &item, list) {
-            QMailBase64Codec codec(QMailBase64Codec::Binary, maximumEncoded);
-            QByteArray encoded = codec.encode(item);
-            listEnc.append(encoded);
+            QByteArray encoded = item.toBase64();
+            if (!res.isEmpty())
+                res.append("\r\n ");
+            res.append("=?utf-8?B?" + encoded + "?=");
         }
-
-        return generateEncodedWord(encoding, 'B', listEnc);
+        return res;
     }
     else if (charset == RFC2047_STRING_LATIN)
     {
         QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047, maximumEncoded);
         QByteArray encoded = codec.encode(text, encoding);
-        return generateEncodedWord(encoding, 'Q', split(encoded, "=\r\n"));
+        return generateEncodedWord(encoding, 'Q', split(encoded, "=\r\n")).replace("\r\n", "\r\n ");
     }
 
     return text.toUtf8();
