@@ -215,8 +215,7 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
     maximumEncoded -= encoding.size();
 
     // If this is an encodedWord, we need to include any whitespace that we don't want to lose
-    if (charset == RFC2047_STRING_UTF8)
-    {
+    if (charset == RFC2047_STRING_UTF8) {
         QByteArray res;
         QList<QByteArray> list = ::splitUtf8String(text, maximumEncoded);
         Q_FOREACH(const QByteArray &item, list) {
@@ -226,9 +225,7 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
             res.append("=?utf-8?B?" + encoded + "?=");
         }
         return res;
-    }
-    else if (charset == RFC2047_STRING_LATIN)
-    {
+    } else if (charset == RFC2047_STRING_LATIN) {
         QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047, maximumEncoded);
         QByteArray encoded = codec.encode(text, encoding);
         return generateEncodedWord(encoding, 'Q', split(encoded, "=\r\n")).replace("\r\n", "\r\n ");
