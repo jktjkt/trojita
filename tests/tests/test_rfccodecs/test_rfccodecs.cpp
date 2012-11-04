@@ -218,6 +218,9 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
 
     QTest::newRow("empty") << QString() << QByteArray();
     QTest::newRow("simple-ascii") << QString::fromUtf8("ahoj") << QByteArray("ahoj");
+    QTest::newRow("simple-ascii-multiword")
+            << QString::fromUtf8("ahoj, johoho! at tece rum!")
+            << QByteArray("ahoj, johoho! at tece rum!");
     QTest::newRow("jan-kundrat") << QString::fromUtf8("Jan Kundrát") << QByteArray("Jan =?iso-8859-1?Q?Kundr=E1t?=");
     QTest::newRow("jan-kundrat-e") << QString::fromUtf8("Jan Kundrát ě") << QByteArray("Jan =?utf-8?B?S3VuZHLDoXQgxJs=?=");
     QTest::newRow("czech") << QString::fromUtf8("ě") << QByteArray("=?utf-8?B?xJs=?=");
@@ -240,6 +243,9 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
         << QString::fromUtf8("[Trojitá - Bug #553] (New) Subject \"=?UTF-8?B?" "?=\" not decoded ěščřžýáíé")
         << QByteArray("=?utf-8?B?W1Ryb2ppdMOhIC0gQnVnICM1NTNdIChOZXcpIFN1YmplY3QgIj0/VVRGLTg/Qj8/PSIgbm90IGRlY29kZWQg?=\r\n"
                       " =?utf-8?B?xJvFocSNxZnFvsO9w6HDrcOp?=");
+
+    // Make sure that QP-specials are escaped
+    QTest::newRow("prevent-unescaped-rfc2047") << QString::fromUtf8("ble =?") << QByteArray("ble =?iso-8859-1?Q?=3D=3F?=");
 }
 
 TROJITA_HEADLESS_TEST( RFCCodecsTest )
