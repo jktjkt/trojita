@@ -171,35 +171,6 @@ namespace {
         return latin1;
     }
 
-    /** @short Split a string into chunks so that each chunk has at most maximumEncoded bytes when represented as base64-encoded UTF-8 */
-    static QList<QByteArray> splitUtf8String(const QString &text, const int maximumEncoded)
-    {
-        // FIXME: take into account the length of the "already processed" prefix
-        QList<QByteArray> res;
-        int start = 0;
-        while (start < text.size()) {
-            // as long as we have something to work on...
-            int size = maximumEncoded;
-            QByteArray candidate;
-            while (true) {
-                candidate = text.mid(start, size).toUtf8();
-                int utf8Size = candidate.size();
-                int base64Size = utf8Size * 4 / 3 + utf8Size % 3;
-                if (base64Size <= maximumEncoded) {
-                    // if this chunk is OK, great
-                    res.append(candidate);
-                    start += size;
-                    break;
-                } else {
-                    // otherwise, try with something smaller
-                    --size;
-                    Q_ASSERT(size >= 1);
-                }
-            }
-        }
-        return res;
-    }
-
 }
 
 namespace Imap {
@@ -219,12 +190,33 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
     // If this is an encodedWord, we need to include any whitespace that we don't want to lose
     if (charset == RFC2047_STRING_UTF8) {
         QByteArray res;
-        QList<QByteArray> list = ::splitUtf8String(text, maximumEncoded);
-        Q_FOREACH(const QByteArray &item, list) {
-            QByteArray encoded = item.toBase64();
-            if (!res.isEmpty())
-                res.append("\r\n ");
-            res.append("=?utf-8?B?" + encoded + "?=");
+        int start = 0;
+
+        while (start < text.size()) {
+            // as long as we have something to work on...
+            int size = maximumEncoded;
+            QByteArray candidate;
+
+            // Find the character boundary at which we have to split the input.
+            // Remember that we're iterating on Unicode codepoints now, not on raw bytes.
+            while (true) {
+                candidate = text.mid(start, size).toUtf8();
+                int utf8Size = candidate.size();
+                int base64Size = utf8Size * 4 / 3 + utf8Size % 3;
+                if (base64Size <= maximumEncoded) {
+                    // if this chunk's size is small enough, great
+                    QByteArray encoded = candidate.toBase64();
+                    if (!res.isEmpty())
+                        res.append("\r\n ");
+                    res.append("=?utf-8?B?" + encoded + "?=");
+                    start += size;
+                    break;
+                } else {
+                    // otherwise, try with something smaller
+                    --size;
+                    Q_ASSERT(size >= 1);
+                }
+            }
         }
         return res;
     } else {
