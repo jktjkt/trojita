@@ -174,6 +174,7 @@ namespace {
     /** @short Split a string into chunks so that each chunk has at most maximumEncoded bytes when represented as base64-encoded UTF-8 */
     static QList<QByteArray> splitUtf8String(const QString &text, const int maximumEncoded)
     {
+        // FIXME: take into account the length of the "already processed" prefix
         QList<QByteArray> res;
         int start = 0;
         while (start < text.size()) {
@@ -210,7 +211,7 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
     QByteArray encoding;
     if (charset == RFC2047_STRING_UTF8)
         encoding = "utf-8";
-    else if (charset == RFC2047_STRING_LATIN)
+    else
         encoding = "iso-8859-1";
     maximumEncoded -= encoding.size();
 
@@ -225,22 +226,22 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
             res.append("=?utf-8?B?" + encoded + "?=");
         }
         return res;
-    } else if (charset == RFC2047_STRING_LATIN) {
+    } else {
         QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047, maximumEncoded);
         QByteArray encoded = codec.encode(text, encoding);
         return generateEncodedWord(encoding, 'Q', split(encoded, "=\r\n")).replace("\r\n", "\r\n ");
     }
-
-    return text.toUtf8();
 }
 
 
 /** @short Encode the given string into RFC2047 form, preserving the ASCII leading part if possible */
 QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
 {
+    const int maxLineLength = 78;
     // Find first character which needs escaping
     int pos = 0;
-    while (pos < text.size() && (text[pos].unicode() == 0x20 || !rfc2047QPNeedsEscpaing(text[pos].unicode())))
+    while (pos < text.size() && pos < maxLineLength &&
+           (text[pos].unicode() == 0x20 || !rfc2047QPNeedsEscpaing(text[pos].unicode())))
         ++pos;
 
     // Find last character of a word which doesn't need escaping
