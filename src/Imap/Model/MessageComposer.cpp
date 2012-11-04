@@ -140,7 +140,7 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         bool attached = false;
         QList<QUrl> urls = data->urls();
         foreach (const QUrl &url, urls) {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
             if (url.isLocalFile()) {
 #else
             if (url.scheme() == QLatin1String("file")) {
