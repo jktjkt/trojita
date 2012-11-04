@@ -459,7 +459,7 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     target->write(recipientHeaders);
 
     // Other message metadata
-    target->write(QByteArray("Subject: ").append(encodeHeaderField(m_subject)).append("\r\n").
+    target->write(encodeHeaderField(QLatin1String("Subject: ") + m_subject).append("\r\n").
             append("Date: ").append(Imap::dateTimeToRfc2822(m_timestamp)).append("\r\n").
             append("User-Agent: ").append(
                 QString::fromUtf8("%1/%2; %3")
