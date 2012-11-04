@@ -321,6 +321,10 @@ QString MessageView::quoteText() const
         QStringList quote;
         QStringList lines = w->quoteMe().split('\n');
         for (QStringList::iterator line = lines.begin(); line != lines.end(); ++line) {
+            if (*line == QLatin1String("-- ")) {
+                // This is the signature separator, we should not include anything below that in the quote
+                break;
+            }
             // rewrap - we need to keep the quotes at < 79 chars, yet the grow with every level
             if (line->length() < 79-2) {
                 // this line is short enough, prepend quote mark and continue
