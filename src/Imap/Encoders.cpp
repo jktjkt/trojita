@@ -65,6 +65,7 @@ namespace {
         return 0;
     }
 
+    /** @short Interpret the raw byte array as a sequence of bytes in the given encoding */
     static QString decodeByteArray(const QByteArray &encoded, const QString &charset)
     {
         if (QTextCodec *codec = codecForName(charset.toLatin1())) {
@@ -80,6 +81,7 @@ namespace {
     const unsigned char QuestionMark = 0x3f;
     const unsigned char Underscore = 0x5f;
 
+    /** @short Check the given unicode code point if it has to be escaped in the quoted-printable encoding according to RFC2047 */
     static inline bool rfc2047QPNeedsEscpaing(const int unicode)
     {
         if (unicode <= Space)
@@ -91,9 +93,15 @@ namespace {
         return false;
     }
 
-    // shamelessly stolen from QMF's qmailmessage.cpp
+    /** @short Find the most efficient encoding for the given unicode string
+
+    It can be either just plain ASCII, or ISO-Latin1 using the Quoted-Printable encoding, or
+    a full-blown UTF-8 scheme with Base64 encoding.
+    */
     static Imap::Rfc2047StringCharacterSetType charsetForInput(const QString& input)
     {
+        // shamelessly stolen from QMF's qmailmessage.cpp
+
         // See if this input needs encoding
         Imap::Rfc2047StringCharacterSetType latin1 = Imap::RFC2047_STRING_ASCII;
 
@@ -114,6 +122,7 @@ namespace {
         return latin1;
     }
 
+    /** @short Convert a hex digit into a number */
     static inline int hexValueOfChar(const char input)
     {
         if (input >= '0' && input <= '9') {
@@ -127,6 +136,11 @@ namespace {
         }
     }
 
+    /** @short Translate a quoted-printable-encoded array of bytes into binary characters
+
+    The transformations performed are according to RFC 2047; underscores are transferred into spaces
+    and the three-character =12 escapes are turned into a single byte value.
+    */
     static inline QByteArray translateQuotedPrintableToBin(const QByteArray &input)
     {
         QByteArray res;
@@ -148,6 +162,7 @@ namespace {
         return res;
     }
 
+    /** @short Decode an encoded-word as per RFC2047 into a unicode string */
     static QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
         if (encoding == "Q") {
@@ -159,6 +174,7 @@ namespace {
         }
     }
 
+    /** @short Decode a header in the RFC 2047 format into a unicode string */
     static QString decodeWordSequence(const QByteArray& str)
     {
         QRegExp whitespace("^\\s+$");
