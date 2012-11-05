@@ -25,6 +25,31 @@
 
 namespace {
 
+    // shamelessly stolen from QMF's qmailmessage.cpp
+    static Imap::Rfc2047StringCharacterSetType charsetForInput(const QString& input)
+    {
+        // See if this input needs encoding
+        Imap::Rfc2047StringCharacterSetType latin1 = Imap::RFC2047_STRING_ASCII;
+
+        const QChar* it = input.constData();
+        const QChar* const end = it + input.length();
+        for ( ; it != end; ++it)
+        {
+            if ((*it).unicode() > 0xff)
+            {
+                // Multi-byte characters included - we need to use UTF-8
+                return Imap::RFC2047_STRING_UTF8;
+            }
+            else if (!latin1 && rfc2047QPNeedsEscpaing(it->unicode()))
+            {
+                // We need encoding from latin-1
+                latin1 = Imap::RFC2047_STRING_LATIN;
+            }
+        }
+
+        return latin1;
+    }
+
     static QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
         if (encoding == "Q") {
@@ -80,31 +105,6 @@ namespace {
         out.append(str.mid(lastPos));
 
         return out;
-    }
-
-    // shamelessly stolen from QMF's qmailmessage.cpp
-    static Imap::Rfc2047StringCharacterSetType charsetForInput(const QString& input)
-    {
-        // See if this input needs encoding
-        Imap::Rfc2047StringCharacterSetType latin1 = Imap::RFC2047_STRING_ASCII;
-
-        const QChar* it = input.constData();
-        const QChar* const end = it + input.length();
-        for ( ; it != end; ++it)
-        {
-            if ((*it).unicode() > 0xff)
-            {
-                // Multi-byte characters included - we need to use UTF-8
-                return Imap::RFC2047_STRING_UTF8;
-            }
-            else if (!latin1 && rfc2047QPNeedsEscpaing(it->unicode()))
-            {
-                // We need encoding from latin-1
-                latin1 = Imap::RFC2047_STRING_LATIN;
-            }
-        }
-
-        return latin1;
     }
 
 }
