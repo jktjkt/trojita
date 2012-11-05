@@ -28,10 +28,9 @@ namespace {
     {
         static bool enumerated = false;
 
-        if (!enumerated)
-        {
+        if (!enumerated) {
             qWarning() << "Available codecs:";
-            foreach (const QByteArray& codec, QTextCodec::availableCodecs())
+            Q_FOREACH (const QByteArray& codec, QTextCodec::availableCodecs())
                 qWarning() << "  " << codec;
 
             enumerated = true;
@@ -42,24 +41,20 @@ namespace {
     {
         QByteArray encoding(charset.toLower());
 
-        if (!encoding.isEmpty())
-        {
+        if (!encoding.isEmpty()) {
             int index;
 
-            if (translateAscii && encoding.contains("ascii"))
-            {
+            if (translateAscii && encoding.contains("ascii")) {
                 // We'll assume the text is plain ASCII, to be extracted to Latin-1
                 encoding = "ISO-8859-1";
             }
-            else if ((index = encoding.indexOf('*')) != -1)
-            {
+            else if ((index = encoding.indexOf('*')) != -1) {
                 // This charset specification includes a trailing language specifier
                 encoding = encoding.left(index);
             }
 
             QTextCodec* codec = QTextCodec::codecForName(encoding);
-            if (!codec)
-            {
+            if (!codec) {
                 qWarning() << "QMailCodec::codecForName - Unable to find codec for charset" << encoding;
                 enumerateCodecs();
             }
@@ -70,7 +65,7 @@ namespace {
         return 0;
     }
 
-    QString decodeByteArray(const QByteArray &encoded, const QString &charset)
+    static QString decodeByteArray(const QByteArray &encoded, const QString &charset)
     {
         if (QTextCodec *codec = codecForName(charset.toLatin1())) {
             return codec->toUnicode(encoded);
@@ -85,7 +80,7 @@ namespace {
     const unsigned char QuestionMark = 0x3f;
     const unsigned char Underscore = 0x5f;
 
-    bool rfc2047QPNeedsEscpaing(const int unicode)
+    static inline bool rfc2047QPNeedsEscpaing(const int unicode)
     {
         if (unicode <= Space)
             return true;
@@ -95,6 +90,7 @@ namespace {
             return true;
         return false;
     }
+
     // shamelessly stolen from QMF's qmailmessage.cpp
     static Imap::Rfc2047StringCharacterSetType charsetForInput(const QString& input)
     {
@@ -103,10 +99,8 @@ namespace {
 
         const QChar* it = input.constData();
         const QChar* const end = it + input.length();
-        for ( ; it != end; ++it)
-        {
-            if ((*it).unicode() > 0xff)
-            {
+        for ( ; it != end; ++it) {
+            if ((*it).unicode() > 0xff) {
                 // Multi-byte characters included - we need to use UTF-8
                 return Imap::RFC2047_STRING_UTF8;
             }
@@ -120,7 +114,7 @@ namespace {
         return latin1;
     }
 
-    static int hexValueOfChar(const char input)
+    static inline int hexValueOfChar(const char input)
     {
         if (input >= '0' && input <= '9') {
             return input - '0';
@@ -133,7 +127,7 @@ namespace {
         }
     }
 
-    static QByteArray translateQuotedPrintableToBin(const QByteArray &input)
+    static inline QByteArray translateQuotedPrintableToBin(const QByteArray &input)
     {
         QByteArray res;
         for (int i = 0; i < input.size(); ++i) {
