@@ -24,23 +24,6 @@
 #include "Parser/3rdparty/kcodecs.h"
 
 namespace {
-    template<typename StringType>
-    StringType unquoteString(const StringType& src)
-    {
-        // If a string has double-quote as the first and last characters, return the string
-        // between those characters
-        int length = src.length();
-        if (length)
-        {
-            typename StringType::const_iterator const begin = src.constData();
-            typename StringType::const_iterator const last = begin + length - 1;
-
-            if ((last > begin) && (*begin == '"' && *last == '"'))
-                return src.mid(1, length - 2);
-        }
-
-        return src;
-    }
 
     static QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
