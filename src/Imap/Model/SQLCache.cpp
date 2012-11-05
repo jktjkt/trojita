@@ -40,6 +40,22 @@ namespace Mailbox
 // This is an arbitrary cutoff point against which we're storing the offset in the database.
 // It cannot change without bumping the DB version (but probably shouldn't change at all, at least
 // I cannot imagine a reason why that would be necessary).
+//
+// Yes, we have just invented our own date storage format. That sucks.
+// Now, I'm afraid I actually do have an excuse for it. First of all, we're only interested in the data with a rather
+// coarse granularity, so we don't really need a type like QDateTime, QDate is enough. However, there's no explicit
+// mapping for it in the QtSql's manual page, so we either have to rely on implicit conversions (which don't appear to
+// be documented anywhere) or code it ourselves (which is what we do).
+//
+// Now, an integer looks like a reasonably efficient implementation, so we just have to come up with some cutoff time.
+// At first, I wanted to use something "well known" like 1970-01-01, but on a second thought, that looks rather confusing
+// -- it's the start of the posix epoch, but the time difference we're storing is in days, not seconds, so it is really
+// different from the usual Posix' semantics. That leads me to a conclusion that choosing a "recent" value (at the time this
+// was written) is a reasonable approach after all.
+//
+// But even though the whole code manipulating these data is just a few lines in size, I'm sure there must be a bug lurking
+// somewehere -- because there is one each time one codes date-specific functions once again. Please let me know if you're
+// hit by it; I apologise in advance.
 QDate SQLCache::accessingThresholdDate = QDate(2012, 11, 1);
 
 SQLCache::SQLCache(QObject *parent):
@@ -685,6 +701,7 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbo
         stream.setVersion(streamVersion);
         stream >> res.envelope >> res.internalDate >> res.size >> res.serializedBodyStructure >> res.hdrReferences
                   >> res.hdrListPost >> res.hdrListPostNo;
+
         if (m_updateAccessIfOlder) {
             int lastAccessTimestamp = queryMessageMetadata.value(1).toInt();
             int currentDiff = accessingThresholdDate.daysTo(QDate::currentDate());
