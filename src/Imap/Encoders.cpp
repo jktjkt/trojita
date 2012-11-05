@@ -19,12 +19,82 @@
    Boston, MA 02110-1301, USA.
 */
 #include "Encoders.h"
-#include "Parser/3rdparty/qmailcodec.h"
 #include "Parser/3rdparty/rfccodecs.h"
 #include "Parser/3rdparty/kcodecs.h"
 
 namespace {
 
+    static void enumerateCodecs()
+    {
+        static bool enumerated = false;
+
+        if (!enumerated)
+        {
+            qWarning() << "Available codecs:";
+            foreach (const QByteArray& codec, QTextCodec::availableCodecs())
+                qWarning() << "  " << codec;
+
+            enumerated = true;
+        }
+    }
+
+    static QTextCodec* codecForName(const QByteArray& charset, bool translateAscii = true)
+    {
+        QByteArray encoding(charset.toLower());
+
+        if (!encoding.isEmpty())
+        {
+            int index;
+
+            if (translateAscii && encoding.contains("ascii"))
+            {
+                // We'll assume the text is plain ASCII, to be extracted to Latin-1
+                encoding = "ISO-8859-1";
+            }
+            else if ((index = encoding.indexOf('*')) != -1)
+            {
+                // This charset specification includes a trailing language specifier
+                encoding = encoding.left(index);
+            }
+
+            QTextCodec* codec = QTextCodec::codecForName(encoding);
+            if (!codec)
+            {
+                qWarning() << "QMailCodec::codecForName - Unable to find codec for charset" << encoding;
+                enumerateCodecs();
+            }
+
+            return codec;
+        }
+
+        return 0;
+    }
+
+    QString decodeByteArray(const QByteArray &encoded, const QString &charset)
+    {
+        if (QTextCodec *codec = codecForName(charset.toLatin1())) {
+            return codec->toUnicode(encoded);
+        }
+        return QString();
+    }
+
+    // ASCII character values used throughout
+    const unsigned char MaxPrintableRange = 0x7e;
+    const unsigned char Space = 0x20;
+    const unsigned char Equals = 0x3d;
+    const unsigned char QuestionMark = 0x3f;
+    const unsigned char Underscore = 0x5f;
+
+    bool rfc2047QPNeedsEscpaing(const int unicode)
+    {
+        if (unicode <= Space)
+            return true;
+        if (unicode == Equals || unicode == QuestionMark || unicode == Underscore)
+            return true;
+        if (unicode > MaxPrintableRange)
+            return true;
+        return false;
+    }
     // shamelessly stolen from QMF's qmailmessage.cpp
     static Imap::Rfc2047StringCharacterSetType charsetForInput(const QString& input)
     {

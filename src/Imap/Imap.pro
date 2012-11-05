@@ -25,7 +25,6 @@ SOURCES += Parser/Parser.cpp \
     Parser/ThreadingNode.cpp \
     Parser/3rdparty/rfccodecs.cpp \
     Parser/3rdparty/kcodecs.cpp \
-    Parser/3rdparty/qmailcodec.cpp \
     Encoders.cpp \
     Exceptions.cpp \
     ConnectionState.cpp \
@@ -97,7 +96,6 @@ HEADERS += Parser/Parser.h \
     Parser/ThreadingNode.h \
     Parser/3rdparty/rfccodecs.h \
     Parser/3rdparty/kcodecs.h \
-    Parser/3rdparty/qmailcodec.h \
     Encoders.h \
     Exceptions.h \
     ConnectionState.h \
