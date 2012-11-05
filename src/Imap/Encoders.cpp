@@ -50,11 +50,44 @@ namespace {
         return latin1;
     }
 
+    static int hexValueOfChar(const char input)
+    {
+        if (input >= '0' && input <= '9') {
+            return input - '0';
+        } else if (input >= 'A' && input <= 'F') {
+            return 0x0a + input - 'A';
+        } else if (input >= 'a' && input <= 'f') {
+            return 0x0a + input - 'a';
+        } else {
+            return -1;
+        }
+    }
+
+    static QByteArray translateQuotedPrintableToBin(const QByteArray &input)
+    {
+        QByteArray res;
+        for (int i = 0; i < input.size(); ++i) {
+            if (input[i] == '_') {
+                res += ' ';
+            } else if (input[i] == '=' && i < input.size() - 2) {
+                int hi = hexValueOfChar(input[++i]);
+                int lo = hexValueOfChar(input[++i]);
+                if (hi != -1 && lo != -1) {
+                    res += static_cast<char>((hi << 4) + lo);
+                } else {
+                    res += input.mid(i - 2, 3);
+                }
+            } else {
+                res += input[i];
+            }
+        }
+        return res;
+    }
+
     static QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
         if (encoding == "Q") {
-            QMailQuotedPrintableCodec codec(QMailQuotedPrintableCodec::Text, QMailQuotedPrintableCodec::Rfc2047);
-            return codec.decode(encoded, charset);
+            return decodeByteArray(translateQuotedPrintableToBin(encoded), charset);
         } else if (encoding == "B") {
             return decodeByteArray(QByteArray::fromBase64(encoded), charset);
         } else {

@@ -180,6 +180,9 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
                       " =?UTF-8?B?aXRhIHMgbWF0b3ZvdSBvbWFja291?= blabla")
         << QString::fromUtf8("[foo] johoho tohlencto je ale pekne blě smrt trojita s matovou omackou blabla");
 
+    QTest::newRow("QP-malformed-1")
+        << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=xxt?=")
+        << QString::fromUtf8("Jan Kundr=xxt");
 }
 
 void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix()
