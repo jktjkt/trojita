@@ -244,9 +244,9 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         QVariant bodyData = text.data(Imap::Mailbox::RolePartData);
         Q_ASSERT(bodyData.isValid());
 
-//#ifdef DEBUG_PENDING_MESSAGES
+#ifdef DEBUG_PENDING_MESSAGES
         qDebug() << "Stored" << registeredMailbox << uid;
-//#endif
+#endif
         emit messageDownloaded( message, headerData.toByteArray(), bodyData.toByteArray(), mainPart );
         m_parts.erase(it);
 
