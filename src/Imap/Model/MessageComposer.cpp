@@ -436,26 +436,47 @@ QByteArray MessageComposer::encodeHeaderField(const QString &text)
     return Imap::encodeRFC2047StringWithAsciiPrefix(text);
 }
 
+namespace {
+
+/** @short Write a list of recipients into an output buffer */
+static void processListOfRecipientsIntoHeader(const QByteArray &prefix, const QList<QByteArray> &addresses, QByteArray &out)
+{
+    // Qt and STL are different, it looks like we cannot easily use something as simple as the ostream_iterator here :(
+    if (!addresses.isEmpty()) {
+        out.append(prefix);
+        for (int i = 0; i < addresses.size() - 1; ++i)
+            out.append(addresses[i]).append(",\r\n ");
+        out.append(addresses.last()).append("\r\n");
+    }
+}
+
+}
+
 void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByteArray boundary) const
 {
     // The From header
     target->write(QByteArray("From: ").append(m_from.asMailHeader()).append("\r\n"));
 
     // All recipients
-    QByteArray recipientHeaders;
+    // Got to group the headers so that both of (To, Cc) are present at most once
+    QList<QByteArray> rcptTo, rcptCc;
     for (QList<QPair<RecipientKind,Imap::Message::MailAddress> >::const_iterator it = m_recipients.begin();
          it != m_recipients.end(); ++it) {
         switch(it->first) {
         case Recipient_To:
-            recipientHeaders.append("To: ").append(it->second.asMailHeader()).append("\r\n");
+            rcptTo << it->second.asMailHeader();
             break;
         case Recipient_Cc:
-            recipientHeaders.append("Cc: ").append(it->second.asMailHeader()).append("\r\n");
+            rcptCc << it->second.asMailHeader();
             break;
         case Recipient_Bcc:
             break;
         }
     }
+
+    QByteArray recipientHeaders;
+    processListOfRecipientsIntoHeader("To: ", rcptTo, recipientHeaders);
+    processListOfRecipientsIntoHeader("Cc: ", rcptCc, recipientHeaders);
     target->write(recipientHeaders);
 
     // Other message metadata
