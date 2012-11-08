@@ -38,12 +38,18 @@
 
 namespace XtConnect {
 
+enum {BATCH_SIZE = 300};
+
 MessageDownloader::MessageDownloader(QObject *parent, const QString &mailboxName ):
     QObject(parent), lastModel(0), registeredMailbox(mailboxName)
 {
     m_releasingTimer = new QTimer(this);
     m_releasingTimer->setSingleShot(true);
     connect(m_releasingTimer, SIGNAL(timeout()), this, SLOT(slotFreeProcessedMessages()));
+
+    m_queuedTimer = new QTimer(this);
+    m_queuedTimer->setSingleShot(true);
+    connect(m_queuedTimer, SIGNAL(timeout()), this, SLOT(slotFetchQueuedMessages()));
 }
 
 void MessageDownloader::requestDownload( const QModelIndex &message )
@@ -56,6 +62,15 @@ void MessageDownloader::requestDownload( const QModelIndex &message )
 
     Q_ASSERT( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() == registeredMailbox );
 
+    if (m_parts.size() >= BATCH_SIZE) {
+        m_queuedEnvelopes << message;
+    } else {
+        reallyRequestDownload(message);
+    }
+}
+
+void MessageDownloader::reallyRequestDownload(const QModelIndex &message)
+{
     MessageMetadata metaData;
 
     // Now request loading of the message metadata. We are especially interested in the message envelope, the part which will
@@ -253,6 +268,10 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         m_messagesToBeFreed << message;
         if (!m_releasingTimer->isActive())
             m_releasingTimer->start();
+
+        if (!m_queuedTimer->isActive() && m_parts.size() <= BATCH_SIZE / 10)
+            m_queuedTimer->start();
+
     } else {
 #ifdef DEBUG_PENDING_MESSAGES
         qDebug() << "Something is missing for" << uid << it->hasHeader << it->hasBody << it->hasMessage << it->hasMainPart;
@@ -260,9 +279,14 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
     }
 }
 
-int MessageDownloader::pendingMessages() const
+int MessageDownloader::activeMessages() const
 {
     return m_parts.size();
+}
+
+int MessageDownloader::pendingMessages() const
+{
+    return m_queuedEnvelopes.size();
 }
 
 /** @short Instruct the Model that the data it has cached for a particular message is no longer needed */
@@ -282,6 +306,16 @@ void MessageDownloader::slotFreeProcessedMessages()
         model->releaseMessageData(index);
     }
     m_messagesToBeFreed.clear();
+}
+
+void MessageDownloader::slotFetchQueuedMessages()
+{
+    for (int i = 0; i < BATCH_SIZE; ++i) {
+        if (m_queuedEnvelopes.isEmpty())
+            return;
+        QPersistentModelIndex message = m_queuedEnvelopes.dequeue();
+        reallyRequestDownload(message);
+    }
 }
 
 }

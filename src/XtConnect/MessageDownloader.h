@@ -31,6 +31,7 @@
 #define MESSAGEDOWNLOADER_H
 
 #include <QModelIndex>
+#include <QQueue>
 
 class QTimer;
 
@@ -50,12 +51,15 @@ public:
     explicit MessageDownloader( QObject *parent, const QString &mailboxName );
     /** @short Find out the body structure of a message and ask for relevant parts */
     void requestDownload( const QModelIndex &message );
+    void reallyRequestDownload( const QModelIndex &message );
+    int activeMessages() const;
     int pendingMessages() const;
 
     void requestDataDownload(const QModelIndex &message);
 private slots:
     void slotDataChanged( const QModelIndex &a, const QModelIndex &b );
     void slotFreeProcessedMessages();
+    void slotFetchQueuedMessages();
 
 signals:
     /** @short All data for a message are available
@@ -84,7 +88,11 @@ private:
     /** @short A list of messages for which the Model shall be asked to free memory */
     QList<QPersistentModelIndex> m_messagesToBeFreed;
 
+    /** @short List of envelopes which were requested, but are still waiting because too many messages are pending */
+    QQueue<QPersistentModelIndex> m_queuedEnvelopes;
+
     QTimer *m_releasingTimer;
+    QTimer *m_queuedTimer;
 
     /** @short Mailbox to which all messages got to belong */
     QString registeredMailbox;

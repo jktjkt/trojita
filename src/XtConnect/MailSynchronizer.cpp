@@ -221,7 +221,8 @@ void MailSynchronizer::debugStats() const
         qDebug() << "Mailbox" << m_mailbox <<
                 ( m_index.data(Imap::Mailbox::RoleMailboxItemsAreLoading).toBool() ? "[loading]" : "" ) <<
                 "total" << m_index.data( Imap::Mailbox::RoleTotalMessageCount ).toUInt() <<
-                ", pending" << m_downloader->pendingMessages() << ", uid_wait" << m_deferredMessages.count();
+                ", active" << m_downloader->activeMessages() << ", queued" << m_downloader->pendingMessages() <<
+                ", uid_wait" << m_deferredMessages.count();
     } else {
         qDebug() << "Mailbox" << m_mailbox << ": waiting for sync.";
     }
