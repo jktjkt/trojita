@@ -1625,6 +1625,10 @@ void Model::releaseMessageData(const QModelIndex &message)
 
     msg->m_fetchStatus = TreeItem::NONE;
     msg->m_envelope.clear();
+    msg->m_hdrListPost.clear();
+    msg->m_hdrListPostNo = false;
+    msg->m_hdrReferences.clear();
+    msg->m_internalDate = QDateTime();
 
     beginRemoveRows(realMessage, 0, msg->m_children.size() - 1);
     if (msg->m_partHeader) {
