@@ -51,6 +51,8 @@ public:
     /** @short Find out the body structure of a message and ask for relevant parts */
     void requestDownload( const QModelIndex &message );
     int pendingMessages() const;
+
+    void requestDataDownload(const QModelIndex &message);
 private slots:
     void slotDataChanged( const QModelIndex &a, const QModelIndex &b );
     void slotFreeProcessedMessages();
@@ -73,8 +75,6 @@ private:
         bool hasMainPart;
         bool mainPartFailed;
         QString partMessage;
-        QByteArray headerData;
-        QByteArray bodyData;
         MessageMetadata(): hasHeader(false), hasBody(false), hasMessage(false), hasMainPart(false), mainPartFailed(false) {}
     };
 
