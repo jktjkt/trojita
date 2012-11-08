@@ -1625,6 +1625,14 @@ void Model::releaseMessageData(const QModelIndex &message)
 
     msg->m_fetchStatus = TreeItem::NONE;
     msg->m_envelope.clear();
+    msg->m_hdrListPost.clear();
+    msg->m_hdrListPostNo = false;
+    msg->m_hdrReferences.clear();
+    msg->m_internalDate = QDateTime();
+
+#ifndef XTUPLE_CONNECT
+    beginRemoveRows(realMessage, 0, msg->m_children.size() - 1);
+#endif
     if (msg->m_partHeader) {
         msg->m_partHeader->silentlyReleaseMemoryRecursive();
         delete msg->m_partHeader;
@@ -1642,7 +1650,10 @@ void Model::releaseMessageData(const QModelIndex &message)
         delete part;
     }
     msg->m_children.clear();
+#ifndef XTUPLE_CONNECT
+    endRemoveRows();
     emit dataChanged(realMessage, realMessage);
+#endif
 }
 
 QStringList Model::capabilities() const

@@ -47,6 +47,9 @@ namespace XtConnect {
 XtConnect::XtConnect(QObject *parent, QSettings *s) :
     QObject(parent), m_model(0), m_settings(s), m_cache(0)
 {
+    qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
+    qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
+
     Q_ASSERT(m_settings);
     m_settings->setParent(this);
     if ( ! m_settings->contains( Common::SettingsNames::xtConnectCacheDirectory ) ) {
@@ -155,11 +158,16 @@ void XtConnect::setupModels()
     m_model->setObjectName( QLatin1String("model") );
     // We want to wait longer to increase the potential of better grouping -- we don't care much about the latency
     m_model->setProperty( "trojita-imap-delayed-fetch-part", 300 );
+    // Disable preload of message envelopes. We are aggresively cleaning the cache as soon as possible, and
+    // we don't want to re-request message envelopes for messages which have been already processed before.
+    m_model->setProperty("trojita-imap-preload-msg-metadata", 0);
 
     connect( m_model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
     connect( m_model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
-    connect( m_model, SIGNAL( authRequested( QAuthenticator* ) ), this, SLOT( authenticationRequested( QAuthenticator* ) ) );
+    connect(m_model, SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
     connect(m_model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
+    connect(m_model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
+            this, SLOT(sslErrors(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
     connect( m_model, SIGNAL(connectionStateChanged(QObject*,Imap::ConnectionState)), this, SLOT(showConnectionStatus(QObject*,Imap::ConnectionState)) );
 }
 
@@ -168,16 +176,29 @@ void XtConnect::alertReceived(const QString &alert)
     qCritical() << "ALERT: " << alert;
 }
 
-void XtConnect::authenticationRequested(QAuthenticator *auth)
+void XtConnect::authenticationRequested()
 {
     if ( ! m_settings->contains(Common::SettingsNames::imapPassKey) ) {
         qWarning() << "Warning: no IMAP password set in the configuration.";
         qWarning() << "Please remember to configure the synchronization service in Trojita GUI's settings dialog.";
     }
-    QString user = m_settings->value( Common::SettingsNames::imapUserKey ).toString();
-    QString pass = m_settings->value( Common::SettingsNames::imapPassKey ).toString();
-    auth->setUser( user );
-    auth->setPassword( pass );
+    m_model->setImapUser(m_settings->value(Common::SettingsNames::imapUserKey).toString());
+    m_model->setImapPassword(m_settings->value(Common::SettingsNames::imapPassKey).toString());
+}
+
+void XtConnect::sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors)
+{
+    QByteArray lastKnownCertPem = m_settings->value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    QList<QSslCertificate> lastKnownCerts = lastKnownCertPem.isEmpty() ?
+                QList<QSslCertificate>() :
+                QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
+    if (!certificateChain.isEmpty() && !lastKnownCerts.isEmpty() && certificateChain == lastKnownCerts) {
+        // It's the same certificate as the last time; we should accept that
+        m_model->setSslPolicy(certificateChain, errors, true);
+        return;
+    }
+    m_model->setSslPolicy(certificateChain, errors, false);
+    qFatal("SECURITY ERROR: SSL certificate validation has failed. Please run Trojita to accept the certificate.");
 }
 
 void XtConnect::connectionError(const QString &error)

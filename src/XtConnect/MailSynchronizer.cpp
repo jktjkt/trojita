@@ -116,7 +116,7 @@ void MailSynchronizer::walkThroughMessages( int start, int end )
             m_deferredMessages << message;
             if ( ! m_deferredTimer->isActive() )
                 m_deferredTimer->start();
-            qDebug() << "Message not synced yet, will check in a while" << m_mailbox << i;
+            //qDebug() << "Message not synced yet, will check in a while" << m_mailbox << i;
         }
     }
 }
@@ -150,7 +150,8 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
     Q_ASSERT(subject.isValid());
     QDateTime dateTime = dateTimeVariant.toDateTime();
     if ( dateTime.isNull() ) {
-        qDebug() << "Warning: unknown timestamp for this message, using current one";
+        qDebug() << "Warning: unknown timestamp for UID" << message.data(Imap::Mailbox::RoleMessageUid).toUInt() << "in" <<
+                 message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString() << "- using current one";
         dateTime = QDateTime::currentDateTime();
     }
 
@@ -220,7 +221,8 @@ void MailSynchronizer::debugStats() const
         qDebug() << "Mailbox" << m_mailbox <<
                 ( m_index.data(Imap::Mailbox::RoleMailboxItemsAreLoading).toBool() ? "[loading]" : "" ) <<
                 "total" << m_index.data( Imap::Mailbox::RoleTotalMessageCount ).toUInt() <<
-                ", pending" << m_downloader->pendingMessages() << ", uid_wait" << m_deferredMessages.count();
+                ", active" << m_downloader->activeMessages() << ", queued" << m_downloader->pendingMessages() <<
+                ", uid_wait" << m_deferredMessages.count();
     } else {
         qDebug() << "Mailbox" << m_mailbox << ": waiting for sync.";
     }

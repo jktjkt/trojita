@@ -902,6 +902,11 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
                 buf.append(cert.toPem());
             }
             s.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
+
+#ifdef XTUPLE_CONNECT
+            QSettings xtSettings(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
+            xtSettings.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
+#endif
         }
         model->setSslPolicy(certificateChain, errors, true);
     } else {
