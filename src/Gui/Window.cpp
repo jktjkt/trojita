@@ -85,6 +85,8 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
     createWidgets();
 
+    migrateSettings();
+
     QSettings s;
     if (! s.contains(Common::SettingsNames::imapMethodKey)) {
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
@@ -501,8 +503,7 @@ void MainWindow::setupModels()
         cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
     Imap::Mailbox::AbstractCache *cache = 0;
 
-    bool shouldUsePersistentCache = s.value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataPersistent;
-
+    bool shouldUsePersistentCache = s.value(SettingsNames::cacheOfflineKey).toString() != SettingsNames::cacheOfflineNone;
     if (shouldUsePersistentCache) {
         if (! QDir().mkpath(cacheDir)) {
             QMessageBox::critical(this, tr("Cache Error"), tr("Failed to create directory %1").arg(cacheDir));
@@ -522,6 +523,16 @@ void MainWindow::setupModels()
             // Error message was already shown by the cacheError() slot
             cache->deleteLater();
             cache = new Imap::Mailbox::MemoryCache(this, QString());
+        } else {
+            if (s.value(SettingsNames::cacheOfflineKey).toString() == SettingsNames::cacheOfflineAll) {
+                cache->setRenewalThreshold(0);
+            } else {
+                bool ok;
+                int num = s.value(SettingsNames::cacheOfflineNumberDaysKey, 30).toInt(&ok);
+                if (!ok)
+                    num = 30;
+                cache->setRenewalThreshold(num);
+            }
         }
     }
     model = new Imap::Mailbox::Model(this, cache, factory, taskFactory, s.value(SettingsNames::imapStartOffline).toBool());
@@ -1151,14 +1162,15 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
 }
 
 void MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
-                                     const RecipientsType &recipients, const QByteArray &inReplyTo)
+                                     const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
+                                     const QList<QByteArray> &references)
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this);
     w->setData(QString::fromUtf8("%1 <%2>").arg(
                    s.value(Common::SettingsNames::realNameKey).toString(),
                    s.value(Common::SettingsNames::addressKey).toString()),
-               recipients, subject, body, inReplyTo);
+               recipients, subject, body, inReplyTo, references);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     Util::centerWidgetOnScreen(w);
     w->show();
@@ -1609,6 +1621,7 @@ void MainWindow::slotLayoutCompact()
 {
     m_mainVSplitter->addWidget(area);
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
+    setMinimumWidth(800);
 }
 
 void MainWindow::slotLayoutWide()
@@ -1618,6 +1631,7 @@ void MainWindow::slotLayoutWide()
     m_mainHSplitter->setStretchFactor(1, 1);
     m_mainHSplitter->setStretchFactor(2, 1);
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
+    setMinimumWidth(1250);
 }
 
 Imap::Mailbox::Model *MainWindow::imapModel() const
@@ -1638,6 +1652,18 @@ bool MainWindow::isGenUrlAuthSupported() const
 bool MainWindow::isImapSubmissionSupported() const
 {
     return m_supportsImapSubmission;
+}
+
+/** @short Deal with various obsolete settings */
+void MainWindow::migrateSettings()
+{
+    using Common::SettingsNames;
+    QSettings s;
+
+    // Process the obsolete settings about the "cache backend". Thsi has been changed to "offline stuff" after v0.3.
+    if (s.value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
+        s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
+    }
 }
 
 }

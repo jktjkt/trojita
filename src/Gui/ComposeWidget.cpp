@@ -315,7 +315,8 @@ void ComposeWidget::send()
 
 
 void ComposeWidget::setData(const QString &from, const QList<QPair<RecipientKind, QString> > &recipients,
-                            const QString &subject, const QString &body, const QByteArray &inReplyTo)
+                            const QString &subject, const QString &body, const QList<QByteArray> &inReplyTo,
+                            const QList<QByteArray> &references)
 {
     // FIXME: combobox for from...
     ui->sender->addItem(from);
@@ -329,6 +330,7 @@ void ComposeWidget::setData(const QString &from, const QList<QPair<RecipientKind
     ui->subject->setText(subject);
     ui->mailText->setText(body);
     m_composer->setInReplyTo(inReplyTo);
+    m_composer->setReferences(references);
 }
 
 //BEGIN QFormLayout workarounds
@@ -580,7 +582,7 @@ void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
 {
     foreach (const QUrl &url, urls) {
 
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         if (url.isLocalFile()) {
 #else
         if (url.scheme() == QLatin1String("file")) {

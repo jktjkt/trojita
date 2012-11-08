@@ -30,6 +30,7 @@
 #include "Message.h"
 #include "../Model/MailboxTree.h"
 #include "../Encoders.h"
+#include "../Parser/Rfc5322HeaderParser.h"
 
 namespace Imap
 {
@@ -290,6 +291,8 @@ Envelope Envelope::fromList(const QVariantList &items, const QByteArray &line, c
     cc = Envelope::getListOfAddresses(items[6], line, start);
     bcc = Envelope::getListOfAddresses(items[7], line, start);
 
+    LowLevelParser::Rfc5322HeaderParser headerParser;
+
     if (items[8].type() != QVariant::ByteArray)
         throw UnexpectedHere("Envelope::fromList: inReplyTo not a QByteArray", line, start);
     QByteArray inReplyTo = items[8].toByteArray();
@@ -298,7 +301,22 @@ Envelope Envelope::fromList(const QVariantList &items, const QByteArray &line, c
         throw UnexpectedHere("Envelope::fromList: messageId not a QByteArray", line, start);
     QByteArray messageId = items[9].toByteArray();
 
-    return Envelope(date, subject, from, sender, replyTo, to, cc, bcc, inReplyTo, messageId);
+    QByteArray buf;
+    if (!messageId.isEmpty())
+        buf += "Message-Id: " + messageId + "\r\n";
+    if (!inReplyTo.isEmpty())
+        buf += "In-Reply-To: " + inReplyTo + "\r\n";
+    if (!buf.isEmpty()) {
+        bool ok = headerParser.parse(buf);
+        if (!ok) {
+            qDebug() << "Envelope::fromList: malformed headers";
+        }
+    }
+    // If the Message-Id fails to parse, well, bad luck. This enforced sanitizaion is hopefully better than
+    // generating garbage in outgoing e-mails.
+    messageId = headerParser.messageId.size() == 1 ? headerParser.messageId.front() : QByteArray();
+
+    return Envelope(date, subject, from, sender, replyTo, to, cc, bcc, headerParser.inReplyTo, messageId);
 }
 
 void Envelope::clear()

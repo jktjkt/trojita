@@ -875,6 +875,9 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
             flags.removeOne(QLatin1String("\\Recent"));
             item->m_flags = normalizeFlags(flags);
             item->m_size = data.size;
+            item->m_hdrReferences = data.hdrReferences;
+            item->m_hdrListPost = data.hdrListPost;
+            item->m_hdrListPostNo = data.hdrListPostNo;
             QDataStream stream(&data.serializedBodyStructure, QIODevice::ReadOnly);
             stream.setVersion(QDataStream::Qt_4_6);
             QVariantList unserialized;
@@ -904,24 +907,23 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
         }
     }
 
-    if (item->fetched()) {
-        // Nothing to do here
-        return;
-    }
-
     switch (networkPolicy()) {
     case NETWORK_OFFLINE:
         if (item->m_fetchStatus != TreeItem::DONE)
             item->m_fetchStatus = TreeItem::UNAVAILABLE;
         break;
     case NETWORK_EXPENSIVE:
-        item->m_fetchStatus = TreeItem::LOADING;
-        findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        if (item->m_fetchStatus != TreeItem::DONE) {
+            item->m_fetchStatus = TreeItem::LOADING;
+            findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        }
         break;
     case NETWORK_ONLINE:
     {
-        item->m_fetchStatus = TreeItem::LOADING;
-        findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        if (item->m_fetchStatus != TreeItem::DONE) {
+            item->m_fetchStatus = TreeItem::LOADING;
+            findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
+        }
 
         // preload
         if (preloadMode != PRELOAD_PER_POLICY)

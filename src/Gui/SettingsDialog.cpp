@@ -253,33 +253,21 @@ CachePage::CachePage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_Cac
 
     using Common::SettingsNames;
 
-    // Enable on-disk cache by default
-    QString val = s.value(SettingsNames::cacheMetadataKey).toString();
-    if (val == SettingsNames::cacheMetadataMemory)
-        metadataMemoryCache->setChecked(true);
-    else
-        metadataPersistentCache->setChecked(true);
-
-    val = s.value(SettingsNames::cacheOfflineKey).toString();
-    if (val == SettingsNames::cacheOfflineAll)
+    QString val = s.value(SettingsNames::cacheOfflineKey).toString();
+    if (val == SettingsNames::cacheOfflineAll) {
         offlineEverything->setChecked(true);
-    else if (val == SettingsNames::cacheOfflineXDays)
-        offlineXDays->setChecked(true);
-    else if (val == SettingsNames::cacheOfflineXMessages)
-        offlineXMessages->setChecked(true);
-    else
+    } else if (val == SettingsNames::cacheOfflineNone) {
         offlineNope->setChecked(true);
+    } else {
+        offlineXDays->setChecked(true);
+    }
 
     offlineNumberOfDays->setValue(s.value(SettingsNames::cacheOfflineNumberDaysKey, QVariant(30)).toInt());
-    offlineNumberOfDays->setValue(s.value(SettingsNames::cacheOfflineNumberMessagesKey, QVariant(100)).toInt());
 
     updateWidgets();
     connect(offlineNope, SIGNAL(clicked()), this, SLOT(updateWidgets()));
     connect(offlineXDays, SIGNAL(clicked()), this, SLOT(updateWidgets()));
-    connect(offlineXMessages, SIGNAL(clicked()), this, SLOT(updateWidgets()));
     connect(offlineEverything, SIGNAL(clicked()), this, SLOT(updateWidgets()));
-    connect(metadataMemoryCache, SIGNAL(clicked()), this, SLOT(updateWidgets()));
-    connect(metadataPersistentCache, SIGNAL(clicked()), this, SLOT(updateWidgets()));
 }
 
 void CachePage::resizeEvent(QResizeEvent *event)
@@ -291,39 +279,21 @@ void CachePage::resizeEvent(QResizeEvent *event)
 
 void CachePage::updateWidgets()
 {
-    if (metadataMemoryCache->isChecked()) {
-        offlineNope->setChecked(true);
-        offlineXDays->setEnabled(false);
-        offlineXMessages->setEnabled(false);
-        offlineEverything->setEnabled(false);
-    } else {
-        offlineXDays->setEnabled(true);
-        offlineXMessages->setEnabled(true);
-        offlineEverything->setEnabled(true);
-    }
     offlineNumberOfDays->setEnabled(offlineXDays->isChecked());
-    offlineNumberOfMessages->setEnabled(offlineXMessages->isChecked());
 }
 
 void CachePage::save(QSettings &s)
 {
     using Common::SettingsNames;
-    if (metadataPersistentCache->isChecked())
-        s.setValue(SettingsNames::cacheMetadataKey, SettingsNames::cacheMetadataPersistent);
-    else
-        s.setValue(SettingsNames::cacheMetadataKey, SettingsNames::cacheMetadataMemory);
 
     if (offlineEverything->isChecked())
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineAll);
     else if (offlineXDays->isChecked())
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineXDays);
-    else if (offlineXMessages->isChecked())
-        s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineXMessages);
     else
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
 
     s.setValue(SettingsNames::cacheOfflineNumberDaysKey, offlineNumberOfDays->value());
-    s.setValue(SettingsNames::cacheOfflineNumberMessagesKey, offlineNumberOfMessages->value());
 }
 
 OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_OutgoingPage()

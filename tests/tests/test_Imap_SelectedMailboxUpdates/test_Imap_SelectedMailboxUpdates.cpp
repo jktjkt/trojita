@@ -210,7 +210,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 3);
     if ( askForEnvelopes ) {
         // The ENVELOPE and related fields should be requested now
-        cClient(t.mk("UID FETCH 43:44 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 43:44 (" FETCH_METADATA_ITEMS ")\r\n"));
     }
 
     existsA = 3;
@@ -223,25 +223,57 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     for ( int i = 0; i < static_cast<int>(existsA) + 1; ++i )
         msgListA.child(i,0).data(Imap::Mailbox::RoleMessageSubject);
 
+    QModelIndex uid43 = msgListA.child(0, 0);
+    Q_ASSERT(uid43.isValid());
+    QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageUid).toUInt(), 43u);
+
     if ( askForEnvelopes ) {
         // Envelopes for A and B already got requested
         // We have to preserve the previous command, too
         QByteArray completionForFirstFetch = t.last("OK fetched\r\n");
-        cClient(t.mk("UID FETCH 45 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 45 (" FETCH_METADATA_ITEMS ")\r\n"));
         // Simulate out-of-order execution here -- the completion responses for both commands arrive only
         // after the actual data for both of them got pushed
+
+        // Also test the header parsing
+        QByteArray headerData("List-Post: <mailto:gentoo-dev@lists.gentoo.org>\r\n"
+                              "References: <20121031120002.5C37D5807C@linuxized.com> "
+                              "<CAKmKYaDZtfZ9wzKML8WgJ=evVhteyOG0RVfsASpBGViwncsaiQ@mail.gmail.com>\r\n"
+                              " <50911AE6.8060402@gmail.com>\r\n"
+                              "\r\n");
+        cServer("* 1 FETCH (BODY[HEADER.FIELDS (List-Post References fail)]{" + QByteArray::number(headerData.size()) + "}\r\n"
+                + headerData + ")\r\n");
+
         cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
                            helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
                            completionForFirstFetch +
                            t.last("OK fetched\r\n"));
+
+
+        QList<QByteArray> receivedReferences = uid43.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >();
+        QCOMPARE(receivedReferences,
+                 QList<QByteArray>() << "20121031120002.5C37D5807C@linuxized.com"
+                 << "CAKmKYaDZtfZ9wzKML8WgJ=evVhteyOG0RVfsASpBGViwncsaiQ@mail.gmail.com" << "50911AE6.8060402@gmail.com");
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPost).toList(),
+                 QVariantList() << QUrl("mailto:gentoo-dev@lists.gentoo.org"));
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPostNo).toBool(), false);
     } else {
         // Requesting all envelopes at once
-        cClient(t.mk("UID FETCH 43:45 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 43:45 (" FETCH_METADATA_ITEMS ")\r\n"));
+
+        // test header parsing as well
+        QByteArray headerData("List-Post: NO (disabled)\r\n\r\n");
+        cServer("* 1 FETCH (BODY[HEADER.FIELDS (References List-Post)]{" + QByteArray::number(headerData.size()) + "}\r\n"
+                + headerData + ")\r\n");
+
         cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
                            helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
                            t.last("OK fetched\r\n"));
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >(), QList<QByteArray>());
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPost).toList(), QVariantList());
+        QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPostNo).toBool(), true);
     }
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C"));
     cEmpty();
@@ -287,7 +319,7 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     if ( askForEnvelopes ) {
         QCoreApplication::processEvents();
         // The ENVELOPE and related fields should be requested now
-        cClient(t.mk("UID FETCH 46 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 46 (" FETCH_METADATA_ITEMS ")\r\n"));
     }
 
     existsA = 4;
@@ -305,7 +337,7 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
         // Envelope for D already got requested -> nothing to do here
     } else {
         // The D got requested by an explicit query above
-        cClient(t.mk("UID FETCH 46 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 46 (" FETCH_METADATA_ITEMS ")\r\n"));
     }
     cServer(helperCreateTrivialEnvelope(4, 46, QLatin1String("D")) + t.last("OK fetched\r\n"));
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C") << QLatin1String("D"));
@@ -406,7 +438,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
 
     if ( askForEnvelopes ) {
         // The ENVELOPE and related fields should be requested now
-        cClient(t.mk("UID FETCH 47:50 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 47:50 (" FETCH_METADATA_ITEMS ")\r\n"));
     }
 
     existsA = 4;
@@ -421,7 +453,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
     } else {
         // Not requested yet -> do it now
         QVERIFY( ! msgD.data(Imap::Mailbox::RoleMessageFrom).isValid() );
-        cClient(t.mk("UID FETCH 47:50 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 47:50 (" FETCH_METADATA_ITEMS ")\r\n"));
     }
     // This is common for both cases; the data should finally arrive
     cServer(helperCreateTrivialEnvelope(1, 47, QLatin1String("A")) +
@@ -477,7 +509,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     if ( askForEnvelopes ) {
         QCoreApplication::processEvents();
         // The ENVELOPE and related fields should be requested now
-        cClient(t.mk("UID FETCH 52 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 52 (" FETCH_METADATA_ITEMS ")\r\n"));
     }
 
     existsA = 5;
@@ -491,7 +523,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     } else {
         // Not requested yet -> do it now
         QVERIFY( ! msgE.data(Imap::Mailbox::RoleMessageFrom).isValid() );
-        cClient(t.mk("UID FETCH 52:53,63 (ENVELOPE INTERNALDATE BODYSTRUCTURE RFC822.SIZE)\r\n"));
+        cClient(t.mk("UID FETCH 52:53,63 (" FETCH_METADATA_ITEMS ")\r\n"));
     }
     // This is common for both cases; the data should finally arrive
     cServer(helperCreateTrivialEnvelope(3, 52, QLatin1String("E")) +

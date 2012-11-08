@@ -18,38 +18,35 @@
    the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.
 */
-#ifndef IMAP_ENCODERS_H
-#define IMAP_ENCODERS_H
+#ifndef IMAP_PARSER_RFC5322_H
+#define IMAP_PARSER_RFC5322_H
 
-#include <QString>
+#include <QByteArray>
+#include <QList>
 
 namespace Imap {
 
-typedef enum {
-    DoubleQuoted,
-    SquareBrackets,
-    Parentheses
-} QuotedStringStyle;
+namespace LowLevelParser {
 
-typedef enum {
-    RFC2047_STRING_ASCII,
-    RFC2047_STRING_LATIN,
-    RFC2047_STRING_UTF8
-} Rfc2047StringCharacterSetType;
+/** @short Parser for e-mail headers formatted according to the RFC 5322 */
+class Rfc5322HeaderParser
+{
+public:
+    Rfc5322HeaderParser();
 
-QByteArray quotedString(const QByteArray &unquoted, QuotedStringStyle style = DoubleQuoted);
-QByteArray encodeRFC2047Phrase(const QString &text);
+    void clear();
+    bool parse(const QByteArray &data);
 
-QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text);
-QString decodeRFC2047String(const QByteArray &raw);
-
-QByteArray encodeImapFolderName(const QString &text);
-
-QString decodeImapFolderName(const QByteArray &raw);
-
-QByteArray quotedPrintableDecode(const QByteArray &raw);
-QByteArray quotedPrintableEncode(const QByteArray &raw);
+    QList<QByteArray> references;
+    QList<QByteArray> listPost;
+    QList<QByteArray> messageId;
+    QList<QByteArray> inReplyTo;
+    bool listPostNo;
+private:
+    bool m_error;
+};
 
 }
+}
 
-#endif // IMAP_ENCODERS_H
+#endif // IMAP_PARSER_RFC5322_H

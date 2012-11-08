@@ -22,12 +22,13 @@
 #include <algorithm>
 #include <QTextStream>
 #include "Common/FindWithUnknown.h"
-#include "MailboxTree.h"
-#include "Model.h"
+#include "DelayedPopulation.h"
+#include "ItemRoles.h"
 #include "Imap/Encoders.h"
 #include "KeepMailboxOpenTask.h"
-#include "ItemRoles.h"
-#include "DelayedPopulation.h"
+#include "MailboxTree.h"
+#include "Model.h"
+#include "Parser/Rfc5322HeaderParser.h"
 #include <QtDebug>
 
 namespace
@@ -432,6 +433,11 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         } else if (it.key() == "RFC822.SIZE") {
             message->m_size = dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data;
             gotSize = true;
+        } else if (it.key().startsWith("BODY[HEADER.FIELDS (")) {
+            // Process any headers found in any such response bit
+            const QByteArray &rawHeaders = dynamic_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
+            message->processAdditionalHeaders(model, rawHeaders);
+            changedMessage = message;
         } else if (it.key().startsWith("BODY[") || it.key().startsWith("BINARY[")) {
             if (it.key()[ it.key().size() - 1 ] != ']')
                 throw UnknownMessageIndex("Can't parse such BODY[]/BINARY[]", response);
@@ -480,6 +486,9 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             dataForCache.size = message->m_size;
             dataForCache.uid = message->uid();
             dataForCache.internalDate = message->m_internalDate;
+            dataForCache.hdrReferences = message->m_hdrReferences;
+            dataForCache.hdrListPost = message->m_hdrListPost;
+            dataForCache.hdrListPostNo = message->m_hdrListPostNo;
             model->cache()->setMessageMetadata(mailbox(), message->uid(), dataForCache);
         }
         if (updatedFlags) {
@@ -906,7 +915,8 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 TreeItemMessage::TreeItemMessage(TreeItem *parent):
-    TreeItem(parent), m_size(0), m_uid(0), m_flagsHandled(false), m_offset(-1), m_wasUnread(false), m_partHeader(0), m_partText(0)
+    TreeItem(parent), m_size(0), m_uid(0), m_hdrListPostNo(false), m_flagsHandled(false), m_offset(-1), m_wasUnread(false),
+    m_partHeader(0), m_partText(0)
 {
 }
 
@@ -1087,13 +1097,24 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case RoleMessageReplyTo:
         return addresListToQVariant(envelope(model).replyTo);
     case RoleMessageInReplyTo:
-        return envelope(model).inReplyTo;
+        return QVariant::fromValue(envelope(model).inReplyTo);
     case RoleMessageMessageId:
         return envelope(model).messageId;
     case RoleMessageSubject:
         return envelope(model).subject;
     case RoleMessageSize:
         return m_size;
+    case RoleMessageHeaderReferences:
+        return QVariant::fromValue(m_hdrReferences);
+    case RoleMessageHeaderListPost:
+    {
+        QVariantList res;
+        Q_FOREACH(const QUrl &url, m_hdrListPost)
+            res << url;
+        return res;
+    }
+    case RoleMessageHeaderListPostNo:
+        return m_hdrListPostNo;
     default:
         return QVariant();
     }
@@ -1172,6 +1193,34 @@ void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, 
             }
         }
     }
+}
+
+/** @short Process the data found in the headers passed along and file in auxiliary metadata
+
+This function accepts a snippet containing some RFC5322 headers of a message, no matter what headers are actually
+present in the passed text.  The headers are parsed and those recognized are used as a source of data to file
+the "auxiliary metadata" of this TreeItemMessage (basically anything not available in ENVELOPE, UID, FLAGS,
+INTERNALDATE etc).
+*/
+void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &rawHeaders)
+{
+    Imap::LowLevelParser::Rfc5322HeaderParser parser;
+    bool ok = parser.parse(rawHeaders);
+    if (!ok) {
+        model->logTrace(0, LOG_OTHER, QLatin1String("Rfc5322HeaderParser"),
+                        QLatin1String("Unspecified error during RFC5322 header parsing"));
+    }
+
+    m_hdrReferences = parser.references;
+    if (!parser.listPost.isEmpty()) {
+        m_hdrListPost.clear();
+        Q_FOREACH(const QByteArray &item, parser.listPost)
+            m_hdrListPost << QUrl(item);
+    }
+    // That's right, this can only be set, not ever reset from this context.
+    // This is because we absolutely want to support incremental header arrival.
+    if (parser.listPostNo)
+        m_hdrListPostNo = true;
 }
 
 

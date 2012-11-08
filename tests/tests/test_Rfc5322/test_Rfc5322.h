@@ -24,21 +24,15 @@
 
 #include <QtCore/QObject>
 
-/** @short Unit tests for various codec helpers in KIMAP */
-class RFCCodecsTest : public QObject
+/** @short Unit tests for RFC5322 parsing */
+class Rfc5322Test : public QObject
 {
   Q_OBJECT
 private Q_SLOTS:
-  /** @short Test for KIMAP::encodeImapFolderName() */
-  void testIMAPEncoding();
-  /** @short Tests for proper IMAP quoting and auote escaping */
-  void testQuotes();
-  /** @short Test the RFC2047 decoder */
-  void testDecodeRFC2047String();
-  void testDecodeRFC2047String_data();
 
-  void testEncodeRFC2047StringAsciiPrefix();
-  void testEncodeRFC2047StringAsciiPrefix_data();
+    void initTestCase();
+    void testHeaders();
+    void testHeaders_data();
 };
 
 #endif

@@ -58,7 +58,7 @@ public:
                  const QList<QPair<RecipientKind, QString> > &recipients,
                  const QString &subject,
                  const QString &body,
-                 const QByteArray &inReplyTo);
+                 const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
 
 protected:
     void changeEvent(QEvent *e);

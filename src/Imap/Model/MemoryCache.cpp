@@ -157,6 +157,7 @@ void MemoryCache::setMessageMetadata(const QString &mailbox, uint uid, const Mes
     tmp.envelope = metadata.envelope;
     tmp.serializedBodyStructure = metadata.serializedBodyStructure;
     tmp.size = metadata.size;
+    tmp.hdrReferences = metadata.hdrReferences;
     msgMetadata[ mailbox ][ uid ] = tmp;
 }
 
@@ -174,6 +175,9 @@ MemoryCache::MessageDataBundle MemoryCache::messageMetadata(const QString &mailb
     res.size = it->size;
     res.internalDate = it->internalDate;
     res.uid = uid;
+    res.hdrReferences = it->hdrReferences;
+    res.hdrListPost = it->hdrListPost;
+    res.hdrListPostNo = it->hdrListPostNo;
     return res;
 }
 
@@ -228,16 +232,23 @@ bool MemoryCache::saveData() const
     return false;
 }
 
+void MemoryCache::setRenewalThreshold(const int days)
+{
+    Q_UNUSED(days);
+}
+
 }
 }
 
 QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle &x)
 {
-    stream >> x.envelope >> x.internalDate >> x.serializedBodyStructure >> x.size;
+    stream >> x.envelope >> x.internalDate >> x.serializedBodyStructure >> x.size >> x.hdrReferences >> x.hdrListPost
+           >> x.hdrListPostNo;
     return stream;
 }
 
 QDataStream &operator<<(QDataStream &stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle &x)
 {
-    return stream << x.envelope << x.internalDate << x.serializedBodyStructure << x.size;
+    return stream << x.envelope << x.internalDate << x.serializedBodyStructure << x.size << x.hdrReferences << x.hdrListPost
+                     << x.hdrListPostNo;
 }

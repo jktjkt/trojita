@@ -633,10 +633,10 @@ void ImapParserParseTest::testParseUntagged_data()
     to.append( MailAddress( QByteArray(), QByteArray(), "imap", "cac.washington.edu") );
     cc.append( MailAddress( QByteArray(), QByteArray(), "minutes", "CNRI.Reston.VA.US") );
     cc.append( MailAddress( "John Klensin", QByteArray(), "KLENSIN", "MIT.EDU") );
-    QByteArray messageId( "<B27397-0100000@cac.washington.edu>" );
+    QByteArray messageId( "B27397-0100000@cac.washington.edu" );
     fetchData[ "ENVELOPE" ] = QSharedPointer<AbstractData>(
             new RespData<Envelope>(
-                Envelope( date, subject, from, sender, replyTo, to, cc, bcc, QByteArray(), messageId )
+                Envelope( date, subject, from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), messageId )
                 ) );
     QTest::newRow("fetch-envelope")
         << QByteArray( "* 12 FETCH (ENVELOPE (\"Wed, 17 Jul 1996 02:23:25 -0700 (PDT)\" "
@@ -653,7 +653,7 @@ void ImapParserParseTest::testParseUntagged_data()
     fetchData.clear();
     fetchData[ "ENVELOPE" ] = QSharedPointer<AbstractData>(
             new RespData<Envelope>(
-                Envelope( QDateTime(), subject, from, sender, replyTo, to, cc, bcc, QByteArray(), messageId )
+                Envelope( QDateTime(), subject, from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), messageId )
                 ) );
     QTest::newRow("fetch-envelope-nildate")
         << QByteArray( "* 13 FETCH (ENVELOPE (NIL "
@@ -746,7 +746,7 @@ void ImapParserParseTest::testParseUntagged_data()
     bcc.clear();
     fetchData["ENVELOPE"] = QSharedPointer<AbstractData>(
             new RespData<Envelope>(
-                    Envelope( QDateTime(QDate(2011, 1, 11), QTime(9, 21, 42), Qt::UTC), QLatin1String("blablabla"), from, sender, replyTo, to, cc, bcc, QByteArray(), QByteArray() )
+                    Envelope( QDateTime(QDate(2011, 1, 11), QTime(9, 21, 42), Qt::UTC), QLatin1String("blablabla"), from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), QByteArray() )
                     ));
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(8803));
     fetchData["RFC822.SIZE"] = QSharedPointer<AbstractData>(new RespData<uint>(56144));
@@ -845,6 +845,22 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("fetch-flags-modseq")
             << QByteArray("* 11235 FETCH (UID 42463 MODSEQ (45278) FLAGS (\\Seen))\r\n")
             << QSharedPointer<AbstractResponse>(new Fetch(11235, fetchData));
+
+    fetchData.clear();
+    fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(81));
+    fetchData["BODY[HEADER.FIELDS (MESSAGE-ID IN-REPLY-TO REFERENCES DATE)]"] = QSharedPointer<AbstractData>(
+                new RespData<QByteArray>("01234567\r\n"));
+    QTest::newRow("fetch-header-fields-1")
+            << QByteArray("* 81 FETCH (UID 81 BODY[HEADER.FIELDS (MESSAGE-ID In-REPLY-TO REFERENCES DATE)]{10}\r\n01234567\r\n)\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(81, fetchData));
+
+    fetchData.clear();
+    fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(81));
+    fetchData["BODY[HEADER.FIELDS (MESSAGE-ID)]"] = QSharedPointer<AbstractData>(
+                new RespData<QByteArray>("01234567\r\n"));
+    QTest::newRow("fetch-header-fields-2")
+            << QByteArray("* 81 FETCH (UID 81 BODY[HEADER.FIELDS (MESSAgE-Id)]{10}\r\n01234567\r\n)\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(81, fetchData));
 
     QTest::newRow("id-nil")
             << QByteArray("* ID nIl\r\n")

@@ -86,6 +86,8 @@ public:
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
 
+    virtual void setRenewalThreshold(const int days);
+
     /** @short Open a connection to the cache */
     bool open();
 

@@ -180,26 +180,9 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
                       " =?UTF-8?B?aXRhIHMgbWF0b3ZvdSBvbWFja291?= blabla")
         << QString::fromUtf8("[foo] johoho tohlencto je ale pekne blě smrt trojita s matovou omackou blabla");
 
-}
-
-void RFCCodecsTest::testEncodeRFC2047String()
-{
-    QFETCH(QString, input);
-    QFETCH(QByteArray, encoded);
-
-    QCOMPARE(Imap::encodeRFC2047String(input), encoded);
-    QCOMPARE(Imap::decodeRFC2047String(Imap::encodeRFC2047String(input)), input);
-}
-
-void RFCCodecsTest::testEncodeRFC2047String_data()
-{
-    QTest::addColumn<QString>("input");
-    QTest::addColumn<QByteArray>("encoded");
-
-    QTest::newRow("empty") << QString() << QByteArray();
-    QTest::newRow("simple-ascii") << QString::fromUtf8("ahoj") << QByteArray("ahoj");
-    QTest::newRow("jan-kundrat") << QString::fromUtf8("Jan Kundrát") << QByteArray("=?iso-8859-1?Q?Jan_Kundr=E1t?=");
-    QTest::newRow("czech") << QString::fromUtf8("ě") << QByteArray("=?utf-8?B?xJs=?=");
+    QTest::newRow("QP-malformed-1")
+        << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=xxt?=")
+        << QString::fromUtf8("Jan Kundr=xxt");
 }
 
 void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix()
@@ -218,12 +201,61 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
 
     QTest::newRow("empty") << QString() << QByteArray();
     QTest::newRow("simple-ascii") << QString::fromUtf8("ahoj") << QByteArray("ahoj");
+    QTest::newRow("simple-ascii-multiword")
+            << QString::fromUtf8("ahoj, johoho! at tece rum!")
+            << QByteArray("ahoj, johoho! at tece rum!");
     QTest::newRow("jan-kundrat") << QString::fromUtf8("Jan Kundrát") << QByteArray("Jan =?iso-8859-1?Q?Kundr=E1t?=");
     QTest::newRow("jan-kundrat-e") << QString::fromUtf8("Jan Kundrát ě") << QByteArray("Jan =?utf-8?B?S3VuZHLDoXQgxJs=?=");
     QTest::newRow("czech") << QString::fromUtf8("ě") << QByteArray("=?utf-8?B?xJs=?=");
     QTest::newRow("trojita-subjects") << QString::fromUtf8("[trojita] foo bar blesmrt") << QByteArray("[trojita] foo bar blesmrt");
     QTest::newRow("trojita-subjects-utf") << QString::fromUtf8("[trojita] foo bar ěščřžýáíé")
         << QByteArray("[trojita] foo bar =?utf-8?B?xJvFocSNxZnFvsO9w6HDrcOp?=");
+
+    QTest::newRow("crlf") << QString::fromUtf8("\r\n")
+        << QByteArray("=?iso-8859-1?Q?=0D=0A?=");
+
+    QTest::newRow("long-text-with-utf")
+        // again, be careful with that trigraph
+        << QString::fromUtf8("[Trojitá - Bug #553] (New) Subject \"=?UTF-8?B?" "?=\" not decoded ěščřžýáíé")
+        << QByteArray("=?utf-8?B?W1Ryb2ppdMOhIC0gQnVnICM1NTNdIChOZXcpIFN1YmplY3QgIj0/VVRGLTg/Qg==?=\r\n"
+                      " =?utf-8?B?Pz89IiBub3QgZGVjb2RlZCDEm8WhxI3FmcW+w73DocOtw6k=?=");
+
+    // Make sure that QP-specials are escaped
+    QTest::newRow("prevent-unescaped-rfc2047") << QString::fromUtf8("ble =?") << QByteArray("ble =?iso-8859-1?Q?=3D=3F?=");
+
+    QTest::newRow("empty-subject")
+        << QString::fromUtf8("Subject: ")
+        << QByteArray("Subject: ");
+
+    // Is this actually correct?
+    QTest::newRow("spaces-in-subject")
+        << QString::fromUtf8("Subject:  ")
+        << QByteArray("Subject:  ");
+
+    QTest::newRow("subject-newline")
+        << QString::fromUtf8("Subject: \n")
+        << QByteArray("Subject: =?iso-8859-1?Q?=0A?=");
+
+    QTest::newRow("correct-prefix-wrapping-utf")
+        << QString::fromUtf8("Prefix: .1.........2.........3.........4.........5.........6.........7 23456 "
+                             "seventy-six bytes has been used before the 'seventy' word appeared. Let's force UTF-8 now: "
+                             "ěščřžýáíé")
+        // Yep, this isn't great, the second "line" shall actually *be* separated by a newline, so that the total length of any
+        // line is smaller than 78 chars. The thing is, this is not really easy.
+        << QByteArray("Prefix: .1.........2.........3.........4.........5.........6.........7 23456"
+                      " =?utf-8?B?c2V2ZW50eS1zaXggYnl0ZXMgaGFzIGJlZW4gdXNlZCBiZWZvcmUgdGhlICdzZQ==?=\r\n"
+                      " =?utf-8?B?dmVudHknIHdvcmQgYXBwZWFyZWQuIExldCdzIGZvcmNlIFVURi04IG5vdzog?=\r\n"
+                      " =?utf-8?B?xJvFocSNxZnFvsO9w6HDrcOp?=");
+
+    QTest::newRow("correct-prefix-wrapping-latin1")
+        << QString::fromUtf8("Prefix: .1.........2.........3.........4.........5.........6.........7 23456 "
+                             "seventy-six bytes has been used before the 'seventy' word appeared. Let's force Latin-1 now: á")
+        // Same issue as with correct-prefix-wrapping-utf
+        << QByteArray("Prefix: .1.........2.........3.........4.........5.........6.........7 23456"
+                      " =?iso-8859-1?Q?seventy-six_bytes_has_been_used_before_the_'seventy'_word_?=\r\n"
+                      " =?iso-8859-1?Q?appeared._Let's_force_Latin-1_now:_=E1?=");
+
+
 }
 
 TROJITA_HEADLESS_TEST( RFCCodecsTest )

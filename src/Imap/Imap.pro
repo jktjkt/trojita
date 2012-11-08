@@ -25,7 +25,6 @@ SOURCES += Parser/Parser.cpp \
     Parser/ThreadingNode.cpp \
     Parser/3rdparty/rfccodecs.cpp \
     Parser/3rdparty/kcodecs.cpp \
-    Parser/3rdparty/qmailcodec.cpp \
     Encoders.cpp \
     Exceptions.cpp \
     ConnectionState.cpp \
@@ -97,7 +96,6 @@ HEADERS += Parser/Parser.h \
     Parser/ThreadingNode.h \
     Parser/3rdparty/rfccodecs.h \
     Parser/3rdparty/kcodecs.h \
-    Parser/3rdparty/qmailcodec.h \
     Encoders.h \
     Exceptions.h \
     ConnectionState.h \
@@ -169,6 +167,16 @@ HEADERS += Parser/Parser.h \
     Model/MessageComposer.h \
     Model/ComposerAttachments.h \
     Model/CatenateData.h \
-    Model/UidSubmitData.h
+    Model/UidSubmitData.h \
+    Parser/Rfc5322HeaderParser.h
+
+ragel {
+    include(../ragel.prf)
+    RAGEL_SOURCES += Parser/Rfc5322HeaderParser.cpp
+    RAGEL_INCLUDES += Parser/rfc5322.rl
+    ragel.depends += rfc5322.ragel.included.file.cpp
+} else {
+    SOURCES += Parser/Rfc5322HeaderParser.generated.cpp
+}
 
 XtConnect:DEFINES += XTUPLE_CONNECT

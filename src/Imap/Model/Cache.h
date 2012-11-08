@@ -22,6 +22,7 @@
 #ifndef IMAP_MODEL_CACHE_H
 #define IMAP_MODEL_CACHE_H
 
+#include <QUrl>
 #include "MailboxMetadata.h"
 #include "../Parser/Message.h"
 #include "Imap/Parser/ThreadingNode.h"
@@ -59,12 +60,22 @@ public:
         */
         QByteArray serializedBodyStructure;
 
-        MessageDataBundle(): uid(0), size(0) {}
+        /** @short Parsed form of the References RFC5322 header */
+        QList<QByteArray> hdrReferences;
+
+        /** @short The List-Post from RFC 2368 */
+        QList<QUrl> hdrListPost;
+        /** @short Is the List-Post set to "NO"? */
+        bool hdrListPostNo;
+
+        MessageDataBundle(): uid(0), size(0), hdrListPostNo(false) {}
 
         bool operator==(const MessageDataBundle &other) const
         {
             return uid == other.uid && envelope == other.envelope && internalDate == other.internalDate &&
-                    serializedBodyStructure == other.serializedBodyStructure && size == other.size;
+                    serializedBodyStructure == other.serializedBodyStructure && size == other.size &&
+                    hdrReferences == other.hdrReferences && hdrListPost == other.hdrListPost &&
+                    hdrListPostNo == other.hdrListPostNo;
         }
     };
 
@@ -114,6 +125,9 @@ public:
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox) = 0;
     /** @short Save information about how messages are threaded */
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading) = 0;
+
+    /** @short How many days is it OK not to mark entries as accessed? */
+    virtual void setRenewalThreshold(const int days) = 0;
 
 signals:
     /** @short Some cache error has occured */
