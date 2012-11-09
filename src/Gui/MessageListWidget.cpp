@@ -114,6 +114,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     layout->addWidget(tree);
 
     m_searchResetTimer = new QTimer(this);
+    m_searchResetTimer->setSingleShot(true);
     connect(m_searchResetTimer, SIGNAL(timeout()), SLOT(slotApplySearch()));
 
     slotAutoEnableDisableSearch();
