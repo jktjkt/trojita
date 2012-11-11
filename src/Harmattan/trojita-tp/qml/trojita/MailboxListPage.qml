@@ -63,7 +63,7 @@ Page {
                     font: UiConstants.SubtitleFont
                     visible: mailboxIsSelectable && totalMessageCount !== undefined
                     text: totalMessageCount === 0 ?
-                              "empty" :
+                              "No messages" :
                               (totalMessageCount + " total, " + unreadMessageCount + " unread")
                 }
                 Label {
