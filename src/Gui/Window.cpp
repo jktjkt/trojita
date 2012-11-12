@@ -1663,6 +1663,7 @@ void MainWindow::migrateSettings()
     // Process the obsolete settings about the "cache backend". This has been changed to "offline stuff" after v0.3.
     if (s.value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
+        s.remove(SettingsNames::cacheMetadataKey);
     }
 }
 
