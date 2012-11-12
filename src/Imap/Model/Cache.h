@@ -87,8 +87,6 @@ public:
     virtual bool childMailboxesFresh(const QString &mailbox) const = 0;
     /** @short Update cache info about the state of child mailboxes */
     virtual void setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data) = 0;
-    /** @short Forget about child mailboxes */
-    virtual void forgetChildMailboxes(const QString &mailbox) = 0;
 
     /** @short Return previous known state of a mailbox */
     virtual SyncState mailboxSyncState(const QString &mailbox) const = 0;

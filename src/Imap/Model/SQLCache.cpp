@@ -301,12 +301,6 @@ bool SQLCache::prepareQueries()
         return false;
     }
 
-    queryForgetChildMailboxes1 = QSqlQuery(db);
-    if (! queryForgetChildMailboxes1.prepare(QLatin1String("DELETE FROM child_mailboxes WHERE parent = ?"))) {
-        emitError(tr("Failed to prepare queryForgetChildMailboxes1"), queryForgetChildMailboxes1);
-        return false;
-    }
-
     queryMailboxSyncState = QSqlQuery(db);
     if (! queryMailboxSyncState.prepare(QLatin1String("SELECT sync_state FROM mailbox_sync_state WHERE mailbox = ?"))) {
         emitError(tr("Failed to prepare queryMailboxSyncState"), queryMailboxSyncState);
@@ -510,19 +504,6 @@ void SQLCache::setChildMailboxes(const QString &mailbox, const QList<MailboxMeta
     if (! querySetChildMailboxes.execBatch()) {
         emitError(tr("Query querySetChildMailboxes failed"), querySetChildMailboxes);
         return;
-    }
-}
-
-void SQLCache::forgetChildMailboxes(const QString &mailbox)
-{
-#ifdef CACHE_DEBUG
-    qDebug() << "Forgetting child mailboxes for" << mailbox;
-#endif
-    touchingDB();
-    QString myMailbox = mailbox.isEmpty() ? QLatin1String("") : mailbox;
-    queryForgetChildMailboxes1.bindValue(0, myMailbox);
-    if (! queryForgetChildMailboxes1.exec()) {
-        emitError(tr("Query queryForgetChildMailboxes1 failed"), queryForgetChildMailboxes1);
     }
 }
 

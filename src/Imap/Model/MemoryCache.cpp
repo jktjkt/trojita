@@ -58,21 +58,6 @@ void MemoryCache::setChildMailboxes(const QString &mailbox, const QList<MailboxM
     mailboxes[ mailbox ] = data;
 }
 
-void MemoryCache::forgetChildMailboxes(const QString &mailbox)
-{
-    for (QMap<QString,QList<MailboxMetadata> >::iterator it = mailboxes.begin();
-         it != mailboxes.end(); /* do nothing */) {
-        if (it.key().startsWith(mailbox)) {
-#ifdef CACHE_DEBUG
-            qDebug() << "forgetting about mailbox" << it.key();
-#endif
-            it = mailboxes.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-
 SyncState MemoryCache::mailboxSyncState(const QString &mailbox) const
 {
     return syncState[ mailbox ];

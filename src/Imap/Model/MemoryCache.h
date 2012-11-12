@@ -58,7 +58,6 @@ public:
     virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
     virtual bool childMailboxesFresh(const QString &mailbox) const;
     virtual void setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data);
-    virtual void forgetChildMailboxes(const QString &mailbox);
 
     virtual SyncState mailboxSyncState(const QString &mailbox) const;
     virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state);

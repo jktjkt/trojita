@@ -61,11 +61,6 @@ void CombinedCache::setChildMailboxes(const QString &mailbox, const QList<Mailbo
     sqlCache->setChildMailboxes(mailbox, data);
 }
 
-void CombinedCache::forgetChildMailboxes(const QString &mailbox)
-{
-    sqlCache->forgetChildMailboxes(mailbox);
-}
-
 SyncState CombinedCache::mailboxSyncState(const QString &mailbox) const
 {
     return sqlCache->mailboxSyncState(mailbox);
