@@ -1660,7 +1660,7 @@ void MainWindow::migrateSettings()
     using Common::SettingsNames;
     QSettings s;
 
-    // Process the obsolete settings about the "cache backend". Thsi has been changed to "offline stuff" after v0.3.
+    // Process the obsolete settings about the "cache backend". This has been changed to "offline stuff" after v0.3.
     if (s.value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
     }
