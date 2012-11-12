@@ -1,6 +1,7 @@
 # needs GUI because of the item models...
 QT += core gui network sql
 include(../../install.pri)
+include(../Streams/ZlibLinking.pri)
 INCLUDEPATH += ../
 DEPENDPATH += ../
 DEFINES -= QT3_SUPPORT
