@@ -1664,6 +1664,11 @@ void MainWindow::migrateSettings()
     if (s.value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
         s.remove(SettingsNames::cacheMetadataKey);
+
+        // Also remove the older values used for cache lifetime management which were not used, but set to zero by default
+        s.remove(QLatin1String("offline.sync"));
+        s.remove(QLatin1String("offline.sync.days"));
+        s.remove(QLatin1String("offline.sync.messages"));
     }
 }
 
