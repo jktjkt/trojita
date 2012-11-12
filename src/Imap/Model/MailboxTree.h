@@ -128,6 +128,7 @@ public:
 
     virtual QList<TreeItem *> setChildren(const QList<TreeItem *> items);
     virtual void fetch(Model *const model);
+    virtual void fetchWithCacheControl(Model *const model, bool forceReload);
     virtual unsigned int rowCount(Model *const model);
     virtual QVariant data(Model *const model, int role);
     virtual bool hasChildren(Model *const model);

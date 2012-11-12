@@ -55,7 +55,12 @@ class DelayedAskForChildrenOfMailbox : public QObject
 {
     Q_OBJECT
 public:
-    DelayedAskForChildrenOfMailbox(Model *model, const QModelIndex &mailbox);
+    typedef enum {
+        CACHE_NORMAL,
+        CACHE_FORCE_RELOAD
+    } CacheMode;
+
+    DelayedAskForChildrenOfMailbox(Model *model, const QModelIndex &mailbox, const CacheMode cacheMode);
 private slots:
     /** @short Call Model's askForChildrenOfMailbox() */
     void askNow();
@@ -71,6 +76,8 @@ private:
     or to infinite recursion.
     */
     bool m_topLevel;
+
+    CacheMode m_cacheMode;
 };
 
 /** @short Helper for filing messages into a TreeItemMsgList outside of MVC slots

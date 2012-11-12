@@ -158,6 +158,11 @@ TreeItemMailbox *TreeItemMailbox::fromMetadata(TreeItem *parent, const MailboxMe
 
 void TreeItemMailbox::fetch(Model *const model)
 {
+    fetchWithCacheControl(model, false);
+}
+
+void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload)
+{
     if (fetched() || isUnavailable(model))
         return;
 
@@ -171,7 +176,10 @@ void TreeItemMailbox::fetch(Model *const model)
         // It's possible that we've got invoked in response to something relatively harmless like rowCount(),
         // that's why we have to delay the call to askForChildrenOfMailbox() until we re-enter the event
         // loop.
-        new DelayedAskForChildrenOfMailbox(model, toIndex(model));
+        new DelayedAskForChildrenOfMailbox(model, toIndex(model),
+                                           forceReload ?
+                                               DelayedAskForChildrenOfMailbox::CACHE_FORCE_RELOAD :
+                                               DelayedAskForChildrenOfMailbox::CACHE_NORMAL);
     }
 }
 
@@ -179,9 +187,8 @@ void TreeItemMailbox::rescanForChildMailboxes(Model *const model)
 {
     // FIXME: fix duplicate requests (ie. don't allow more when some are on their way)
     // FIXME: gotta be fixed in the Model, or spontaneous replies from server can break us
-    model->cache()->forgetChildMailboxes(mailbox());
     m_fetchStatus = NONE;
-    fetch(model);
+    fetchWithCacheControl(model, true);
 }
 
 unsigned int TreeItemMailbox::rowCount(Model *const model)

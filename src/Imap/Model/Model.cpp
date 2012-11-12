@@ -764,9 +764,9 @@ bool Model::hasChildren(const QModelIndex &parent) const
         return false;
 }
 
-void Model::askForChildrenOfMailbox(TreeItemMailbox *item)
+void Model::askForChildrenOfMailbox(TreeItemMailbox *item, bool forceReload)
 {
-    if (cache()->childMailboxesFresh(item->mailbox())) {
+    if (!forceReload && cache()->childMailboxesFresh(item->mailbox())) {
         // The permanent cache contains relevant data
         QList<MailboxMetadata> metadata = cache()->childMailboxes(item->mailbox());
         QList<TreeItem *> mailboxes;

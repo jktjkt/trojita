@@ -30,10 +30,10 @@ namespace Imap
 namespace Mailbox
 {
 
-DelayedAskForChildrenOfMailbox::DelayedAskForChildrenOfMailbox(Model *model, const QModelIndex &mailbox):
+DelayedAskForChildrenOfMailbox::DelayedAskForChildrenOfMailbox(Model *model, const QModelIndex &mailbox, const CacheMode cacheMode):
     QObject(model), m_model(model), m_mailbox(mailbox),
     // There's a catch with the meaning of "invalid index", see the documentation in the header
-    m_topLevel(!mailbox.isValid())
+    m_topLevel(!mailbox.isValid()), m_cacheMode(cacheMode)
 {
     QTimer::singleShot(0, this, SLOT(askNow()));
 }
@@ -55,7 +55,7 @@ void DelayedAskForChildrenOfMailbox::askNow()
         mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(m_mailbox.internalPointer()));
     }
     Q_ASSERT(mailboxPtr);
-    m_model->askForChildrenOfMailbox(mailboxPtr);
+    m_model->askForChildrenOfMailbox(mailboxPtr, m_cacheMode == CACHE_FORCE_RELOAD);
     // We're responsible for cleaning up
     deleteLater();
 }

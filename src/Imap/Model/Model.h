@@ -473,7 +473,7 @@ private:
     friend class ImapPartAttachmentItem; // dtto
     friend class MessageComposer; // dtto
 
-    void askForChildrenOfMailbox(TreeItemMailbox *item);
+    void askForChildrenOfMailbox(TreeItemMailbox *item, bool forceReload);
     void askForMessagesInMailbox(TreeItemMsgList *item);
     void askForNumberOfMessages(TreeItemMsgList *item);
 
