@@ -116,9 +116,19 @@ void ProtocolLoggerWidget::closeTab(int index)
 
 void ProtocolLoggerWidget::clearLogDisplay()
 {
-    for (QMap<uint, QPlainTextEdit *>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it) {
-        (*it)->document()->clear();
+    // These will be freed from the GUI
+    loggerWidgets.clear();
+
+    // We use very different indexing internally, to an extent where QTabWidget's ints are not easily obtainable from that,
+    // so it's much better to clean up the GUI at first and only after that purge the underlying data
+    while (tabs->count()) {
+        QWidget *w = tabs->widget(0);
+        Q_ASSERT(w);
+        tabs->removeTab(0);
+        w->deleteLater();
     }
+
+    buffers.clear();
 }
 
 void ProtocolLoggerWidget::showEvent(QShowEvent *e)
