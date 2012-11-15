@@ -550,6 +550,9 @@ void XtConnectPage::saveXtConfig()
 
 void XtConnectPage::runXtConnect()
 {
+    // First of all, let's save the XTuple-specific configuration to save useless debugging
+    saveXtConfig();
+
     QString path = QCoreApplication::applicationFilePath();
     QStringList args;
 
