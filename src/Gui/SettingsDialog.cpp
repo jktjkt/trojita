@@ -541,7 +541,8 @@ void XtConnectPage::saveXtConfig()
                        Common::SettingsNames::xtDbHost <<
                        Common::SettingsNames::xtDbPort <<
                        Common::SettingsNames::xtDbDbName <<
-                       Common::SettingsNames::xtDbUser;
+                       Common::SettingsNames::xtDbUser <<
+                       Common::SettingsNames::imapSslPemCertificate;
     Q_FOREACH(const QString &key, keys) {
         s.setValue(key, QSettings().value(key));
     }
