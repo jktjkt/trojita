@@ -455,7 +455,7 @@ QModelIndex ImapModelThreadingTest::findItem(const QString &where)
     QStringList list = where.split(QLatin1Char('.'));
     Q_ASSERT(!list.isEmpty());
     QList<int> items;
-    Q_FOREACH(const QString number, list) {
+    Q_FOREACH(const QString &number, list) {
         bool ok;
         items << number.toInt(&ok);
         Q_ASSERT(ok);
@@ -502,7 +502,7 @@ IndexMapping ImapModelThreadingTest::buildIndexMap(const Mapping &mapping)
 
 void ImapModelThreadingTest::verifyIndexMap(const IndexMapping &indexMap, const Mapping &map)
 {
-    Q_FOREACH(const QString key, indexMap.keys()) {
+    Q_FOREACH(const QString &key, indexMap.keys()) {
         if (!map.contains(key)) {
             qDebug() << "Table contains an index for" << key << ", but mapping to UIDs indicates that the index should not be there. Bug in the unit test, I'd say.";
             QFAIL("Extra index found in the map");

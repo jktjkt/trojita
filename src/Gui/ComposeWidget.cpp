@@ -256,7 +256,7 @@ void ComposeWidget::send()
         }
         Imap::Mailbox::UidSubmitOptionsList options;
         options.append(qMakePair<QByteArray,QVariant>("FROM", m_composer->rawFromAddress()));
-        Q_FOREACH(const QByteArray recipient, m_composer->rawRecipientAddresses()) {
+        Q_FOREACH(const QByteArray &recipient, m_composer->rawRecipientAddresses()) {
             options.append(qMakePair<QByteArray,QVariant>("RECIPIENT", recipient));
         }
         Imap::Mailbox::UidSubmitTask *submitTask = m_mainWindow->imapModel()->sendMailViaUidSubmit(

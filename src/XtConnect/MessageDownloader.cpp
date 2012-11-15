@@ -292,7 +292,7 @@ int MessageDownloader::pendingMessages() const
 /** @short Instruct the Model that the data it has cached for a particular message is no longer needed */
 void MessageDownloader::slotFreeProcessedMessages()
 {
-    Q_FOREACH(QPersistentModelIndex index, m_messagesToBeFreed) {
+    Q_FOREACH(const QPersistentModelIndex &index, m_messagesToBeFreed) {
         if (!index.isValid())
             continue;
         // The const_cast should be safe here -- this action is certainly not going to invalidate the index,
