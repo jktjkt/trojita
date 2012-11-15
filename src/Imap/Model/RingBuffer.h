@@ -76,14 +76,14 @@ public:
         }
 
         /** @short Compare two iterators from the same container for equality */
-        bool operator==(const const_iterator &other)
+        bool operator==(const const_iterator &other) const
         {
             Q_ASSERT(container_ == other.container_);
             return offset_ == other.offset_;
         }
 
         /** @short Compare two iterators from the same container for inqeuality */
-        bool operator!=(const const_iterator &other)
+        bool operator!=(const const_iterator &other) const
         {
             return !(*this == other);
         }
