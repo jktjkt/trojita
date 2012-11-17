@@ -218,7 +218,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
 
         switch (it->kind) {
         case Imap::Mailbox::LOG_IO_WRITTEN:
-            if (it->message.startsWith("***")) {
+            if (it->message.startsWith(QLatin1String("***"))) {
                 textColor = "#800080";
                 bgColor = "#d0d0d0";
             } else {
@@ -227,7 +227,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
             }
             break;
         case Imap::Mailbox::LOG_IO_READ:
-            if (it->message.startsWith("***")) {
+            if (it->message.startsWith(QLatin1String("***"))) {
                 textColor = "#808000";
                 bgColor = "#d0d0d0";
             } else {

@@ -184,7 +184,7 @@ void MessageListWidget::slotComplexSearchInput(QAction *act)
     if (selectionStart > -1 && m_quickSearchText->text().at(selectionStart) != ' ')
             s.prepend(' ');
     m_quickSearchText->insert(s);
-    if (!m_quickSearchText->text().startsWith(":=")) {
+    if (!m_quickSearchText->text().startsWith(QLatin1String(":="))) {
         s = m_quickSearchText->text().trimmed();
         m_quickSearchText->setText(":=" + s);
     }
@@ -196,7 +196,7 @@ void MessageListWidget::slotComplexSearchInput(QAction *act)
 
 void MessageListWidget::slotDeActivateSimpleSearch()
 {
-    const bool isEnabled = !m_quickSearchText->text().startsWith(":=");
+    const bool isEnabled = !m_quickSearchText->text().startsWith(QLatin1String(":="));
     m_searchInSubject->setEnabled(isEnabled);
     m_searchInBody->setEnabled(isEnabled);
     m_searchInSenders->setEnabled(isEnabled);
