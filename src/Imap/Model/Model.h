@@ -194,7 +194,7 @@ public:
 
     /** @short Subscribe a mailbox */
     void subscribeMailbox(const QString &name);
-    /** @Unsubscribe a mailbox */
+    /** @short Unsubscribe a mailbox */
     void unsubscribeMailbox(const QString &name);
 
     /** @short Save a message into a mailbox */

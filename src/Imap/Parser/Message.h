@@ -61,7 +61,7 @@ public:
     /** @short Phrase from RFC2822 mailbox */
     QString name;
 
-    /** @hosrt Route information */
+    /** @short Route information */
     QString adl;
 
     /** @short RFC2822 Group Name or Local Part */

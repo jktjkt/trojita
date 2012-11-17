@@ -33,19 +33,7 @@ namespace Imap
 
 /** @short A fake socket implementation, useful for automated unit tests
 
-Typical use:
-
-model->rowCount( QModelIndex() );
-SOCK->fakeReading( "* PREAUTH foo\r\n" );
-QTest::qWait( 100 );
-QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CAPABILITY\r\ny0 LIST \"\" \"%\"\r\n") );
-SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
-                   "* CAPABILITY IMAP4rev1\r\n"
-                   "y1 OK capability completed\r\n"
-                   "y0 ok list completed\r\n" );
-QTest::qWait( 100 );
-QModelIndex inbox = model->index( 1, 0, QModelIndex() );
-QCOMPARE( model->data( inbox, Qt::DisplayRole ), QVariant("INBOX") );
+See the unit tests in tests/ for how to use this class.
 */
 class FakeSocket: public Socket
 {
