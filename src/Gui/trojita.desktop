@@ -12,5 +12,5 @@ Exec=trojita
 Terminal=false
 Type=Application
 Icon=trojita
-Categories=Qt;Network;Email;
+Categories=Qt;Office;Network;Email;
 StartupNotify=true
