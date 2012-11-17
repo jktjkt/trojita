@@ -1,7 +1,13 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Trojitá
+Name[pt]=Trojitá
+Name[uk]=Trojitá
+Name[x-test]=xxTrojitáxx
 GenericName=IMAP E-mail Client
+GenericName[pt]=Cliente de E-Mail por IMAP
+GenericName[uk]=Поштовий клієнт IMAP
+GenericName[x-test]=xxIMAP E-mail Clientxx
 TryExec=trojita
 Exec=trojita
 Terminal=false
