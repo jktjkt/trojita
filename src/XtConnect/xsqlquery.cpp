@@ -310,9 +310,9 @@ bool XSqlQuery::first()
       }
       _data->_currRecord = record();
     }
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 bool XSqlQuery::next()
@@ -334,9 +334,9 @@ bool XSqlQuery::next()
       }
       _data->_currRecord = record();
     }
-    return TRUE;
+    return true;
   }
-  return FALSE;
+  return false;
 }
 
 bool XSqlQuery::previous()
