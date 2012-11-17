@@ -554,7 +554,7 @@ public:
 class Fetch : public AbstractResponse
 {
 public:
-    typedef QMap<QString,QSharedPointer<AbstractData> > dataType;
+    typedef QMap<QByteArray,QSharedPointer<AbstractData> > dataType;
 
     /** @short Sequence number of message that we're working with */
     uint number;

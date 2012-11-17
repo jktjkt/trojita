@@ -878,17 +878,17 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
     QVariantList list = LowLevelParser::parseList('(', ')', line, start);
 
     bool isIdentifier = true;
-    QString identifier;
+    QByteArray identifier;
     for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd();
          ++it, isIdentifier = !isIdentifier) {
         if (isIdentifier) {
-            identifier = it->toString().toUpper();
+            identifier = it->toByteArray().toUpper();
             if (identifier.isEmpty())
                 throw UnexpectedHere(line, start);   // FIXME: wrong offset
             if (data.contains(identifier))
                 throw UnexpectedHere(line, start);   // FIXME: wrong offset
         } else {
-            if (identifier == QLatin1String("BODY") || identifier == QLatin1String("BODYSTRUCTURE")) {
+            if (identifier == "BODY" || identifier == "BODYSTRUCTURE") {
                 if (it->type() != QVariant::List)
                     throw UnexpectedHere(line, start);
                 data[identifier] = Message::AbstractMessage::fromList(it->toList(), line, start);
@@ -896,48 +896,48 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
                 QDataStream stream(&buffer, QIODevice::WriteOnly);
                 stream.setVersion(QDataStream::Qt_4_6);
                 stream << it->toList();
-                data[QLatin1String("x-trojita-bodystructure")] = QSharedPointer<AbstractData>(
+                data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(
                                                       new RespData<QByteArray>(buffer));
 
-            } else if (identifier.startsWith(QLatin1String("BODY[")) || identifier.startsWith(QLatin1String("BINARY["))) {
+            } else if (identifier.startsWith("BODY[") || identifier.startsWith("BINARY[")) {
                 if (it->type() != QVariant::ByteArray)
                     throw UnexpectedHere(line, start);
                 data[identifier] = QSharedPointer<AbstractData>(
                                        new RespData<QByteArray>(it->toByteArray()));
 
-            } else if (identifier == QLatin1String("ENVELOPE")) {
+            } else if (identifier == "ENVELOPE") {
                 if (it->type() != QVariant::List)
                     throw UnexpectedHere(line, start);
                 QVariantList items = it->toList();
                 data[identifier] = QSharedPointer<AbstractData>(
                                        new RespData<Message::Envelope>(Message::Envelope::fromList(items, line, start)));
 
-            } else if (identifier == QLatin1String("FLAGS")) {
+            } else if (identifier == "FLAGS") {
                 if (! it->canConvert(QVariant::StringList))
                     throw UnexpectedHere(line, start);   // FIXME: wrong offset
 
                 data[identifier] = QSharedPointer<AbstractData>(
                                        new RespData<QStringList>(it->toStringList()));
 
-            } else if (identifier == QLatin1String("INTERNALDATE")) {
+            } else if (identifier == "INTERNALDATE") {
                 if (it->type() != QVariant::ByteArray)
                     throw UnexpectedHere(line, start);   // FIXME: wrong offset
                 QByteArray _str = it->toByteArray();
                 data[ identifier ] = QSharedPointer<AbstractData>(
                                          new RespData<QDateTime>(dateify(_str, line, start)));
 
-            } else if (identifier == QLatin1String("RFC822") ||
-                       identifier == QLatin1String("RFC822.HEADER") || identifier == QLatin1String("RFC822.TEXT")) {
+            } else if (identifier == "RFC822" ||
+                       identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT") {
                 if (it->type() != QVariant::ByteArray)
                     throw UnexpectedHere(line, start);   // FIXME: wrong offset
                 data[ identifier ] = QSharedPointer<AbstractData>(
                                          new RespData<QByteArray>(it->toByteArray()));
-            } else if (identifier == QLatin1String("RFC822.SIZE") || identifier == QLatin1String("UID")) {
+            } else if (identifier == "RFC822.SIZE" || identifier == "UID") {
                 if (it->type() != QVariant::UInt)
                     throw ParseError(line, start);   // FIXME: wrong offset
                 data[ identifier ] = QSharedPointer<AbstractData>(
                                          new RespData<uint>(it->toUInt()));
-            } else if (identifier == QLatin1String("MODSEQ")) {
+            } else if (identifier == "MODSEQ") {
                 if (it->type() != QVariant::List)
                     throw UnexpectedHere(line, start);
                 QVariantList items = it->toList();

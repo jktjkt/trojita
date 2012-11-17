@@ -354,7 +354,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     Q_ASSERT(message);   // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
 
     // At first, have a look at the response and check the UID of the message
-    Responses::Fetch::dataType::const_iterator uidRecord = response.data.find(QLatin1String("UID"));
+    Responses::Fetch::dataType::const_iterator uidRecord = response.data.find("UID");
     if (uidRecord != response.data.constEnd()) {
         uint receivedUid = dynamic_cast<const Responses::RespData<uint>&>(*(uidRecord.value())).data;
         if (message->uid() == receivedUid) {
