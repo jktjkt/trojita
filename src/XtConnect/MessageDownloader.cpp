@@ -30,7 +30,6 @@
 #include "MessageDownloader.h"
 #include "Imap/Model/FindInterestingPart.h"
 #include "Imap/Model/ItemRoles.h"
-#include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxTree.h"
 
 //#define DEBUG_PENDING_MESSAGES
@@ -40,8 +39,8 @@ namespace XtConnect {
 
 enum {BATCH_SIZE = 300};
 
-MessageDownloader::MessageDownloader(QObject *parent, const QString &mailboxName ):
-    QObject(parent), lastModel(0), registeredMailbox(mailboxName)
+MessageDownloader::MessageDownloader(QObject *parent, const Imap::Mailbox::Model *model, const QString &mailboxName):
+    QObject(parent), m_model(model), registeredMailbox(mailboxName)
 {
     m_releasingTimer = new QTimer(this);
     m_releasingTimer->setSingleShot(true);
@@ -50,15 +49,14 @@ MessageDownloader::MessageDownloader(QObject *parent, const QString &mailboxName
     m_queuedTimer = new QTimer(this);
     m_queuedTimer->setSingleShot(true);
     connect(m_queuedTimer, SIGNAL(timeout()), this, SLOT(slotFetchQueuedMessages()));
+
+    Q_ASSERT(m_model);
+    connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotDataChanged(QModelIndex,QModelIndex)));
 }
 
 void MessageDownloader::requestDownload( const QModelIndex &message )
 {
-    if ( ! lastModel ) {
-        lastModel = message.model();
-        connect( lastModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotDataChanged(QModelIndex,QModelIndex)) );
-    }
-    Q_ASSERT(lastModel == message.model());
+    Q_ASSERT(m_model == message.model());
 
     Q_ASSERT( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() == registeredMailbox );
 

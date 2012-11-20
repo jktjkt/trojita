@@ -96,8 +96,8 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     statsDumper->start();
 
     Q_FOREACH( const QString &mailbox, s->value( Common::SettingsNames::xtSyncMailboxList ).toStringList() ) {
-        MessageDownloader *downloader = new MessageDownloader( this, mailbox );
-        MailSynchronizer *sync = new MailSynchronizer( this, m_model, m_finder, downloader, storage );
+        MessageDownloader *downloader = new MessageDownloader(this, m_model, mailbox);
+        MailSynchronizer *sync = new MailSynchronizer(this, m_model, m_finder, downloader, storage);
         connect( sync, SIGNAL(aboutToRequestMessage(QString,QModelIndex,bool*)), this, SLOT(slotAboutToRequestMessage(QString,QModelIndex,bool*)) );
         connect( sync, SIGNAL(messageSaved(QString,QModelIndex)), this, SLOT(slotMessageStored(QString,QModelIndex)) );
         connect( sync, SIGNAL(messageIsDuplicate(QString,QModelIndex)), this, SLOT(slotMessageIsDuplicate(QString,QModelIndex)) );
