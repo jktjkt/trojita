@@ -91,7 +91,7 @@ signals:
 public slots:
     void alertReceived(const QString &message);
     void connectionError(const QString &message);
-    void slotLogged(uint parserId, const Imap::Mailbox::LogMessage &message);
+    void slotLogged(uint parserId, const Common::LogMessage &message);
     void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
 
 private:

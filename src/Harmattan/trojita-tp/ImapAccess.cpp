@@ -59,9 +59,9 @@ void ImapAccess::connectionError(const QString &message)
     qDebug() << "connectionError" << message;
 }
 
-void ImapAccess::slotLogged(uint parserId, const Imap::Mailbox::LogMessage &message)
+void ImapAccess::slotLogged(uint parserId, const Common::LogMessage &message)
 {
-    if (false && message.kind != Imap::Mailbox::LOG_IO_READ) {
+    if (false && message.kind != Common::LOG_IO_READ) {
         qDebug() << "LOG" << parserId << message.timestamp << message.kind << message.source << message.message;
     }
 }
@@ -144,7 +144,7 @@ void ImapAccess::setSslMode(const QString &sslMode)
     m_imapModel->setProperty("trojita-imap-enable-id", true);
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
-    connect(m_imapModel, SIGNAL(logged(uint,Imap::Mailbox::LogMessage)), this, SLOT(slotLogged(uint,Imap::Mailbox::LogMessage)));
+    connect(m_imapModel, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(slotLogged(uint,Common::LogMessage)));
     connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
 
