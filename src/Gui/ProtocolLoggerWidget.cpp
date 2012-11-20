@@ -206,12 +206,12 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
 {
     using namespace Common;
 
-    if (buf.skippedCount()) {
-        getLogger(parserId)->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
-                                           "", buf.skippedCount()));
-    }
-
     QPlainTextEdit *w = getLogger(parserId);
+
+    if (buf.skippedCount()) {
+        w->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
+                         "", buf.skippedCount()));
+    }
 
     for (RingBuffer<LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
         QString message = QString::fromUtf8("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
