@@ -1,5 +1,8 @@
 [Desktop Entry]
 Name=Trojitá
+Name[cs]=Trojitá
+Name[et]=Trojitá
+Name[hu]=Trojitá
 Name[nl]=Trojitá
 Name[pt]=Trojitá
 Name[pt_BR]=Trojitá
@@ -7,6 +10,9 @@ Name[sk]=Trojitá
 Name[uk]=Trojitá
 Name[x-test]=xxTrojitáxx
 GenericName=IMAP E-mail Client
+GenericName[cs]=Poštovní klient pro IMAP
+GenericName[et]=IMAP e-posti klient
+GenericName[hu]=IMAP e-mail kliens
 GenericName[nl]=IMAP-E-mailclient
 GenericName[pt]=Cliente de E-Mail por IMAP
 GenericName[pt_BR]=Cliente de e-mail IMAP
