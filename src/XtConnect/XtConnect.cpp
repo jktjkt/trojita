@@ -87,6 +87,7 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     // Prepare the mailboxes
     m_finder = new MailboxFinder( this, m_model );
     SqlStorage *storage = new SqlStorage( this, host, port, dbname, username, password );
+    connect(storage, SIGNAL(encounteredError(QString)), this, SLOT(slotSqlError(QString)));
     storage->open();
 
     QTimer *statsDumper = new QTimer(this);
@@ -287,6 +288,12 @@ void XtConnect::slotDumpStats()
     Q_FOREACH( const QPointer<MailSynchronizer> item, m_syncers ) {
         item->debugStats();
     }
+}
+
+void XtConnect::slotSqlError(const QString &message)
+{
+    qWarning() << message;
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("SqlCache"), message);
 }
 
 }

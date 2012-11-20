@@ -75,6 +75,8 @@ public slots:
     /** @short Dump some statistics about how is it going */
     void slotDumpStats();
 
+    void slotSqlError(const QString &message);
+
 private:
     void setupModels();
 

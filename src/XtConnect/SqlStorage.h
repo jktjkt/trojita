@@ -65,6 +65,9 @@ public:
     /** @short Log a message saying that something talking to the DB failed */
     void fail( const QString &message );
 
+signals:
+    void encounteredError(const QString &message);
+
 private slots:
     /** @short Record a failure and optionally reconnect if too many errors happened since last reconnect */
     void slotReconnect();

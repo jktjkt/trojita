@@ -127,28 +127,28 @@ SqlStorage::ResultType SqlStorage::insertMail( const QDateTime &dateTime, const 
     }
 }
 
-void SqlStorage::_fail( const QString &message, const QSqlQuery &query )
+void SqlStorage::_fail(const QString &message, const QSqlQuery &query)
 {
-    if ( ! db.isOpen() )
+    if (!db.isOpen())
         reconnect->start();
-    qWarning() << QString::fromAscii("SqlStorage: Query Error: %1: %2").arg( message, query.lastError().text() );
+    emit encounteredError(QString::fromAscii("SqlStorage: Query Error: %1: %2").arg(message, query.lastError().text()));
 }
 
-void SqlStorage::_fail( const QString &message, const QSqlDatabase &database )
+void SqlStorage::_fail(const QString &message, const QSqlDatabase &database)
 {
-    if ( ! db.isOpen() )
+    if (!db.isOpen())
         reconnect->start();
-    qWarning() << QString::fromAscii("SqlStorage: Query Error: %1: %2").arg( message, database.lastError().text() );
+    emit encounteredError(QString::fromAscii("SqlStorage: Query Error: %1: %2").arg(message, database.lastError().text()));
 }
 
-void SqlStorage::fail( const QString &message )
+void SqlStorage::fail(const QString &message)
 {
-    _fail( message, db );
+    _fail(message, db);
 }
 
 Common::SqlTransactionAutoAborter SqlStorage::transactionGuard()
 {
-    return Common::SqlTransactionAutoAborter( &db );
+    return Common::SqlTransactionAutoAborter(&db);
 }
 
 SqlStorage::ResultType SqlStorage::insertAddress( const quint64 emlId, const QString &name, const QString &address, const QLatin1String kind )
