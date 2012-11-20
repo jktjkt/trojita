@@ -120,8 +120,6 @@ HEADERS += Parser/Parser.h \
     Model/FlagsOperation.h \
     Model/SubscribeUnSubscribeOperation.h \
     Model/ItemRoles.h \
-    Model/RingBuffer.h \
-    Model/Logging.h \
     Model/ParserState.h \
     Tasks/ImapTask.h \
     Tasks/FetchMsgPartTask.h \

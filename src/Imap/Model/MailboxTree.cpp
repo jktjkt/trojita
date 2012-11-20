@@ -547,7 +547,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
 
         if (uid == 0) {
             qDebug() << "VANISHED informs about removal of UID zero...";
-            model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
+            model->logTrace(listIndex.parent(), Common::LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
                             "VANISHED contains UID zero for increased fun");
             break;
         }
@@ -556,7 +556,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
             // Well, it'd be cool to throw an exception here but VANISHED is free to contain references to UIDs which are not here
             // at all...
             qDebug() << "VANISHED attempted to remove too many messages";
-            model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
+            model->logTrace(listIndex.parent(), Common::LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
                             "VANISHED attempted to remove too many messages");
             break;
         }
@@ -596,7 +596,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
                           static_cast<TreeItemMessage*>(*(list->m_children.end() - 1))->uid() << " at the end)";
                     ss.flush();
                     qDebug() << str.toUtf8().constData();
-                    model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
+                    model->logTrace(listIndex.parent(), Common::LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
                     continue;
                 }
             } else {
@@ -607,7 +607,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
                       static_cast<TreeItemMessage*>(list->m_children.front())->uid() << ")";
                 ss.flush();
                 qDebug() << str.toUtf8().constData();
-                model->logTrace(listIndex.parent(), LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
+                model->logTrace(listIndex.parent(), Common::LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"), str);
                 continue;
             }
         }
@@ -1214,7 +1214,7 @@ void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &r
     Imap::LowLevelParser::Rfc5322HeaderParser parser;
     bool ok = parser.parse(rawHeaders);
     if (!ok) {
-        model->logTrace(0, LOG_OTHER, QLatin1String("Rfc5322HeaderParser"),
+        model->logTrace(0, Common::LOG_OTHER, QLatin1String("Rfc5322HeaderParser"),
                         QLatin1String("Unspecified error during RFC5322 header parsing"));
     }
 

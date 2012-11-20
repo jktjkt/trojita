@@ -36,7 +36,7 @@
 #include "ParserState.h"
 #include "TaskFactory.h"
 
-#include "Logging.h"
+#include "Common/Logging.h"
 
 class QAuthenticator;
 class QNetworkConfigurationManager;
@@ -255,8 +255,8 @@ public:
     QStringList capabilities() const;
 
     /** @short Log an IMAP-related message */
-    void logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message);
-    void logTrace(const QModelIndex &relevantIndex, const LogKind kind, const QString &source, const QString &message);
+    void logTrace(uint parserId, const Common::LogKind kind, const QString &source, const QString &message);
+    void logTrace(const QModelIndex &relevantIndex, const Common::LogKind kind, const QString &source, const QString &message);
 
     /** @short Return the server's response to the ID command
 
@@ -413,7 +413,7 @@ signals:
 
     void capabilitiesUpdated(const QStringList &capabilities);
 
-    void logged(uint parserId, const Imap::Mailbox::LogMessage &message);
+    void logged(uint parserId, const Common::LogMessage &message);
 
 private:
     Model &operator=(const Model &);  // don't implement

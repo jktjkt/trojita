@@ -299,7 +299,7 @@ QString ImapTask::debugIdentification() const
     return QString();
 }
 
-void ImapTask::log(const QString &message, const LogKind kind)
+void ImapTask::log(const QString &message, const Common::LogKind kind)
 {
     Q_ASSERT(model);
     QString dbg = debugIdentification();

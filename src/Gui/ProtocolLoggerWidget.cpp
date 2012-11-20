@@ -144,12 +144,14 @@ void ProtocolLoggerWidget::hideEvent(QHideEvent *e)
     QWidget::hideEvent(e);
 }
 
-void ProtocolLoggerWidget::slotImapLogged(uint parser, Imap::Mailbox::LogMessage message)
+void ProtocolLoggerWidget::slotImapLogged(uint parser, Common::LogMessage message)
 {
-    QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator bufIt = buffers.find(parser);
+    using namespace Common;
+
+    QMap<uint, RingBuffer<LogMessage> >::iterator bufIt = buffers.find(parser);
     if (bufIt == buffers.end()) {
         // FIXME: don't hard-code that
-        bufIt = buffers.insert(parser, Imap::RingBuffer<Imap::Mailbox::LogMessage>(900));
+        bufIt = buffers.insert(parser, RingBuffer<LogMessage>(900));
     }
     if (m_fileLog) {
         writeToDisk(parser, message);
@@ -164,9 +166,9 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, Imap::Mailbox::LogMessage
         delayedDisplay->start();
 }
 
-void ProtocolLoggerWidget::writeToDisk(uint parser, const Imap::Mailbox::LogMessage &message)
+void ProtocolLoggerWidget::writeToDisk(uint parser, const Common::LogMessage &message)
 {
-    using namespace Imap::Mailbox;
+    using namespace Common;
     QString direction;
     switch (message.kind) {
     case LOG_IO_READ:
@@ -200,8 +202,10 @@ void ProtocolLoggerWidget::writeToDisk(uint parser, const Imap::Mailbox::LogMess
     m_fileLog->flush();
 }
 
-void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf)
+void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer<Common::LogMessage> &buf)
 {
+    using namespace Common;
+
     if (buf.skippedCount()) {
         getLogger(parserId)->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
                                            "", buf.skippedCount()));
@@ -209,7 +213,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
 
     QPlainTextEdit *w = getLogger(parserId);
 
-    for (Imap::RingBuffer<Imap::Mailbox::LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
+    for (RingBuffer<LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
         QString message = QString::fromUtf8("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
         QString direction;
         QString textColor;
@@ -217,7 +221,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
         QString trimmedInfo;
 
         switch (it->kind) {
-        case Imap::Mailbox::LOG_IO_WRITTEN:
+        case LOG_IO_WRITTEN:
             if (it->message.startsWith(QLatin1String("***"))) {
                 textColor = "#800080";
                 bgColor = "#d0d0d0";
@@ -226,7 +230,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
                 direction = "<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>";
             }
             break;
-        case Imap::Mailbox::LOG_IO_READ:
+        case LOG_IO_READ:
             if (it->message.startsWith(QLatin1String("***"))) {
                 textColor = "#808000";
                 bgColor = "#d0d0d0";
@@ -235,11 +239,11 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
                 direction = "<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>";
             }
             break;
-        case Imap::Mailbox::LOG_MAILBOX_SYNC:
-        case Imap::Mailbox::LOG_MESSAGES:
-        case Imap::Mailbox::LOG_OTHER:
-        case Imap::Mailbox::LOG_PARSE_ERROR:
-        case Imap::Mailbox::LOG_TASKS:
+        case LOG_MAILBOX_SYNC:
+        case LOG_MESSAGES:
+        case LOG_OTHER:
+        case LOG_PARSE_ERROR:
+        case LOG_TASKS:
             direction = QLatin1String("<span style='color: #c0c0c0;'>") + it->source + QLatin1String("</span> ");
             break;
         }
@@ -267,7 +271,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Imap::RingBuffer<I
 void ProtocolLoggerWidget::slotShowLogs()
 {
     // Please note that we can't return to the event loop from this context, as the log buffer has to be read atomically
-    for (QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> >::iterator it = buffers.begin(); it != buffers.end(); ++it) {
+    for (QMap<uint, Common::RingBuffer<Common::LogMessage> >::iterator it = buffers.begin(); it != buffers.end(); ++it) {
         flushToWidget(it.key(), *it);
     }
 }

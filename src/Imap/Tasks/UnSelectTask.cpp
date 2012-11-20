@@ -99,7 +99,7 @@ bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
         } else if (resp->tag == selectMissingTag) {
             if (resp->kind == Responses::OK) {
                 QTimer::singleShot(0, this, SLOT(doFakeSelect()));
-                log(tr("The emergency EXAMINE command has unexpectedly succeeded, trying to get out of here..."), LOG_MAILBOX_SYNC);
+                log(tr("The emergency EXAMINE command has unexpectedly succeeded, trying to get out of here..."), Common::LOG_MAILBOX_SYNC);
             } else {
                 // This is very good :)
                 _completed();
@@ -113,28 +113,28 @@ bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
 bool UnSelectTask::handleNumberResponse(const Imap::Responses::NumberResponse *const resp)
 {
     Q_UNUSED(resp);
-    log("UnSelectTask: ignoring numeric response", LOG_MAILBOX_SYNC);
+    log("UnSelectTask: ignoring numeric response", Common::LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleFlags(const Imap::Responses::Flags *const resp)
 {
     Q_UNUSED(resp);
-    log("UnSelectTask: ignoring FLAGS response", LOG_MAILBOX_SYNC);
+    log("UnSelectTask: ignoring FLAGS response", Common::LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleSearch(const Imap::Responses::Search *const resp)
 {
     Q_UNUSED(resp);
-    log("UnSelectTask: ignoring SEARCH response", LOG_MAILBOX_SYNC);
+    log("UnSelectTask: ignoring SEARCH response", Common::LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     Q_UNUSED(resp);
-    log("UnSelectTask: ignoring FETCH response", LOG_MAILBOX_SYNC);
+    log("UnSelectTask: ignoring FETCH response", Common::LOG_MAILBOX_SYNC);
     return true;
 }
 

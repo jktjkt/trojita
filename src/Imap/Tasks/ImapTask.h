@@ -23,7 +23,7 @@
 
 #include <QObject>
 #include <QPointer>
-#include "../Model/Logging.h"
+#include "Common/Logging.h"
 #include "../Parser/Parser.h"
 
 namespace Imap
@@ -146,7 +146,7 @@ protected:
     task. The events will be marked with an identification of the task which triggered them, and could be accessed from
     the GUI if logging is enabled.
     */
-    void log(const QString &message, const LogKind kind=LOG_TASKS);
+    void log(const QString &message, const Common::LogKind kind = Common::LOG_TASKS);
 
     /** @short Priority of the task activation that controls where it gets placed in the queue */
     typedef enum {

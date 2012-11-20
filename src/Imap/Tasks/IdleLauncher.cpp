@@ -123,7 +123,7 @@ void IdleLauncher::idleCommandCompleted()
 {
     // FIXME: these asseerts could be triggered by a rogue server...
     if (m_idling) {
-        task->log("Warning: IDLE completed before we could ask for its termination...", LOG_MAILBOX_SYNC);
+        task->log("Warning: IDLE completed before we could ask for its termination...", Common::LOG_MAILBOX_SYNC);
         m_idling = false;
         renewal->stop();
         task->parser->idleMagicallyTerminatedByServer();

@@ -72,13 +72,13 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
 
     if (resp->tag == tag) {
         if (resp->kind == Responses::OK) {
-            log("Fetched parts", LOG_MESSAGES);
+            log("Fetched parts", Common::LOG_MESSAGES);
             TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
             Q_ASSERT(mailbox);
             QList<TreeItemMessage *> messages = model->findMessagesByUids(mailbox, uids);
             Q_FOREACH(TreeItemMessage *message, messages) {
                 Q_FOREACH(const QString &partId, parts) {
-                    log("Fetched part" + partId, LOG_MESSAGES);
+                    log("Fetched part" + partId, Common::LOG_MESSAGES);
                     model->finalizeFetchPart(mailbox, message->row() + 1, partId);
                 }
             }

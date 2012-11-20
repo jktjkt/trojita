@@ -1201,7 +1201,7 @@ void ThreadingMsgListModel::logTrace(const QString &message)
     Model::realTreeItem(idx, &realModel, &realIndex);
     Q_ASSERT(realModel);
     QModelIndex mailboxIndex = const_cast<Model *>(realModel)->findMailboxForItems(QModelIndexList() << realIndex);
-    const_cast<Model *>(realModel)->logTrace(mailboxIndex, LOG_OTHER,
+    const_cast<Model *>(realModel)->logTrace(mailboxIndex, Common::LOG_OTHER,
             QString::fromUtf8("ThreadingMsgListModel for %1").arg(mailboxIndex.data(RoleMailboxName).toString()), message);
 }
 

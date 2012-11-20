@@ -25,8 +25,8 @@
 
 #include <QMap>
 #include <QWidget>
-#include "Imap/Model/Logging.h"
-#include "Imap/Model/RingBuffer.h"
+#include "Common/Logging.h"
+#include "Common/RingBuffer.h"
 
 class QPushButton;
 class QTabWidget;
@@ -51,7 +51,7 @@ public:
 
 public slots:
     /** @short An IMAP model wants to log something */
-    void slotImapLogged(uint parser, Imap::Mailbox::LogMessage message);
+    void slotImapLogged(uint parser, Common::LogMessage message);
 
     /** @short Enable/disable persistent logging */
     void slotSetPersistentLogging(const bool enabled);
@@ -68,7 +68,7 @@ private slots:
 private:
     QTabWidget *tabs;
     QMap<uint, QPlainTextEdit *> loggerWidgets;
-    QMap<uint, Imap::RingBuffer<Imap::Mailbox::LogMessage> > buffers;
+    QMap<uint, Common::RingBuffer<Common::LogMessage> > buffers;
     QPushButton *clearAll;
     bool loggingActive;
     QTimer *delayedDisplay;
@@ -78,10 +78,10 @@ private:
     QPlainTextEdit *getLogger(const uint parser);
 
     /** @short Dump the log bufer contents to the GUI widget */
-    void flushToWidget(const uint parserId, Imap::RingBuffer<Imap::Mailbox::LogMessage> &buf);
+    void flushToWidget(const uint parserId, Common::RingBuffer<Common::LogMessage> &buf);
 
     /** @short Append a message to the log file */
-    void writeToDisk(uint parser, const Imap::Mailbox::LogMessage &message);
+    void writeToDisk(uint parser, const Common::LogMessage &message);
 
     virtual void showEvent(QShowEvent *e);
     virtual void hideEvent(QHideEvent *e);

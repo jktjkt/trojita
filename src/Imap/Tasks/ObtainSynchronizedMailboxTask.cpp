@@ -70,7 +70,7 @@ void ObtainSynchronizedMailboxTask::perform()
 
     if (! mailboxIndex.isValid()) {
         // FIXME: proper error handling
-        log("The mailbox went missing, sorry", LOG_MAILBOX_SYNC);
+        log("The mailbox went missing, sorry", Common::LOG_MAILBOX_SYNC);
         _completed();
         return;
     }
@@ -120,7 +120,7 @@ void ObtainSynchronizedMailboxTask::perform()
     }
     mailbox->syncState = SyncState();
     status = STATE_SELECTING;
-    log("Synchronizing mailbox", LOG_MAILBOX_SYNC);
+    log("Synchronizing mailbox", Common::LOG_MAILBOX_SYNC);
     emit model->mailboxSyncingProgress(mailboxIndex, status);
 }
 
@@ -156,7 +156,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
     } else if (resp->tag == uidSyncingCmd) {
 
         if (resp->kind == Responses::OK) {
-            log("UIDs synchronized", LOG_MAILBOX_SYNC);
+            log("UIDs synchronized", Common::LOG_MAILBOX_SYNC);
             Q_ASSERT(status == STATE_SYNCING_FLAGS);
             Q_ASSERT(mailboxIndex.isValid());   // FIXME
             TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
@@ -176,7 +176,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
             Q_ASSERT(mailbox);
             status = STATE_DONE;
-            log("Flags synchronized", LOG_MAILBOX_SYNC);
+            log("Flags synchronized", Common::LOG_MAILBOX_SYNC);
             notifyInterestingMessages(mailbox);
             flagsCmd.clear();
 
@@ -184,7 +184,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
                 saveSyncState(mailbox);
                 _completed();
             } else {
-                log("Pending new arrival fetching, not terminating yet", LOG_MAILBOX_SYNC);
+                log("Pending new arrival fetching, not terminating yet", Common::LOG_MAILBOX_SYNC);
             }
         } else {
             status = STATE_DONE;
@@ -237,7 +237,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
         QDebug dbg(&buf);
         dbg << "Inconsistent cache data, falling back to full sync (" << uidMap.size() << "in UID map," << oldSyncState.exists() <<
             "EXIST before)";
-        log(buf, LOG_MAILBOX_SYNC);
+        log(buf, Common::LOG_MAILBOX_SYNC);
         fullMboxSync(mailbox, list);
     } else {
         if (syncState.isUsableForSyncing() && oldSyncState.isUsableForSyncing() && syncState.uidValidity() == oldSyncState.uidValidity()) {
@@ -248,7 +248,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 // Looks like we can use QRESYNC for fast syncing
                 if (oldSyncState.highestModSeq() > syncState.highestModSeq()) {
                     // Looks like a corrupted cache or a server's bug
-                    log("Yuck, recycled HIGHESTMODSEQ when trying to use QRESYNC", LOG_MAILBOX_SYNC);
+                    log("Yuck, recycled HIGHESTMODSEQ when trying to use QRESYNC", Common::LOG_MAILBOX_SYNC);
                     mailbox->syncState.setHighestModSeq(0);
                     model->cache()->clearAllMessages(mailbox->mailbox());
                     m_usingQresync = false;
@@ -256,13 +256,13 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 } else {
                     if (oldSyncState.highestModSeq() == syncState.highestModSeq()) {
                         if (oldSyncState.exists() != syncState.exists()) {
-                            log("Sync error: QRESYNC says no changes but EXISTS has changed", LOG_MAILBOX_SYNC);
+                            log("Sync error: QRESYNC says no changes but EXISTS has changed", Common::LOG_MAILBOX_SYNC);
                             mailbox->syncState.setHighestModSeq(0);
                             model->cache()->clearAllMessages(mailbox->mailbox());
                             m_usingQresync = false;
                             fullMboxSync(mailbox, list);
                         } else if (oldSyncState.uidNext() != syncState.uidNext()) {
-                            log("Sync error: QRESYNC says no changes but UIDNEXT has changed", LOG_MAILBOX_SYNC);
+                            log("Sync error: QRESYNC says no changes but UIDNEXT has changed", Common::LOG_MAILBOX_SYNC);
                             mailbox->syncState.setHighestModSeq(0);
                             model->cache()->clearAllMessages(mailbox->mailbox());
                             m_usingQresync = false;
@@ -271,7 +271,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             log(QString::fromUtf8("Sync error: constant HIGHESTMODSEQ, EXISTS says %1 messages but in fact "
                                                    "there are %2 when finalizing SELECT")
                                 .arg(QString::number(mailbox->syncState.exists()), QString::number(list->m_children.size())),
-                                LOG_MAILBOX_SYNC);
+                                Common::LOG_MAILBOX_SYNC);
                             mailbox->syncState.setHighestModSeq(0);
                             model->cache()->clearAllMessages(mailbox->mailbox());
                             m_usingQresync = false;
@@ -357,7 +357,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 // so either a server's bug, or a completely invalid cache.
                 Q_ASSERT(syncState.uidNext() < oldSyncState.uidNext());
                 Q_ASSERT(syncState.uidValidity() == oldSyncState.uidValidity());
-                log("Yuck, UIDVALIDITY remains same but UIDNEXT decreased", LOG_MAILBOX_SYNC);
+                log("Yuck, UIDVALIDITY remains same but UIDNEXT decreased", Common::LOG_MAILBOX_SYNC);
                 model->cache()->clearAllMessages(mailbox->mailbox());
                 fullMboxSync(mailbox, list);
             }
@@ -371,7 +371,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
 
 void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
-    log("Full synchronization", LOG_MAILBOX_SYNC);
+    log("Full synchronization", Common::LOG_MAILBOX_SYNC);
 
     QModelIndex parent = list->toIndex(model);
     if (! list->m_children.isEmpty()) {
@@ -419,7 +419,7 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
 void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
     Q_ASSERT(mailbox->syncState.exists() == static_cast<uint>(uidMap.size()));
-    log("No arrivals or deletions since the last time", LOG_MAILBOX_SYNC);
+    log("No arrivals or deletions since the last time", Common::LOG_MAILBOX_SYNC);
     if (mailbox->syncState.exists()) {
         // Verify that we indeed have all UIDs and not need them anymore
         bool uidsOk = true;
@@ -473,7 +473,7 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
 
 void ObtainSynchronizedMailboxTask::syncOnlyAdditions(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
-    log("Syncing new arrivals", LOG_MAILBOX_SYNC);
+    log("Syncing new arrivals", Common::LOG_MAILBOX_SYNC);
 
     // So, we know that messages only got added to the mailbox and that none were removed,
     // neither those that we already know or those that got added while we weren't around.
@@ -487,7 +487,7 @@ void ObtainSynchronizedMailboxTask::syncOnlyAdditions(TreeItemMailbox *mailbox, 
 
 void ObtainSynchronizedMailboxTask::syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list)
 {
-    log("generic synchronization from previous state", LOG_MAILBOX_SYNC);
+    log("generic synchronization from previous state", Common::LOG_MAILBOX_SYNC);
 
     list->m_numberFetchingStatus = TreeItem::LOADING;
     list->m_unreadMessageCount = 0;
@@ -498,7 +498,7 @@ void ObtainSynchronizedMailboxTask::syncGeneric(TreeItemMailbox *mailbox, TreeIt
 void ObtainSynchronizedMailboxTask::syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery)
 {
     status = STATE_SYNCING_UIDS;
-    log("Syncing UIDs", LOG_MAILBOX_SYNC);
+    log("Syncing UIDs", Common::LOG_MAILBOX_SYNC);
     QByteArray uidSpecification;
     if (lowestUidToQuery == 0) {
         uidSpecification = "ALL";
@@ -517,7 +517,7 @@ void ObtainSynchronizedMailboxTask::syncUids(TreeItemMailbox *mailbox, const uin
 void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
 {
     status = STATE_SYNCING_FLAGS;
-    log("Syncing flags", LOG_MAILBOX_SYNC);
+    log("Syncing flags", Common::LOG_MAILBOX_SYNC);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[ 0 ]);
     Q_ASSERT(list);
 
@@ -535,10 +535,10 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
             // but only after some sanity checks
             if (oldSyncState.exists() > mailbox->syncState.exists()) {
                 log("Some messages have arrived to the mailbox, but HIGHESTMODSEQ hasn't changed. "
-                    "That's a bug in the server implementation.", LOG_MAILBOX_SYNC);
+                    "That's a bug in the server implementation.", Common::LOG_MAILBOX_SYNC);
                 // will issue the ordinary FETCH command for FLAGS
             } else if (oldSyncState.uidNext() != mailbox->syncState.uidNext()) {
-                log("UIDNEXT has changed, yet HIGHESTMODSEQ remained constant; that's server's bug", LOG_MAILBOX_SYNC);
+                log("UIDNEXT has changed, yet HIGHESTMODSEQ remained constant; that's server's bug", Common::LOG_MAILBOX_SYNC);
                 // and again, don't trust that HIGHESTMODSEQ
             } else {
                 // According to HIGHESTMODSEQ, there hasn't been any change. UIDNEXT and EXISTS do not contradict
@@ -556,7 +556,7 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
             }
         } else if (oldSyncState.highestModSeq() > mailbox->syncState.highestModSeq()) {
             // Clearly a bug
-            log("HIGHESTMODSEQ decreased, that's a bug in the IMAP server", LOG_MAILBOX_SYNC);
+            log("HIGHESTMODSEQ decreased, that's a bug in the IMAP server", Common::LOG_MAILBOX_SYNC);
             // won't use HIGHESTMODSEQ
         } else {
             // Will use FETCH CHANGEDSINCE
@@ -1156,13 +1156,13 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages(TreeItemMailbox *m
         int offset = model->rowCount(listIndex) - 1;
         log(QString::fromUtf8("\"First interesting message\" doesn't look terribly interesting (%1), scrolling to the end at %2 instead")
             .arg(firstInterestingMessage.data(RoleMessageFlags).toStringList().join(QLatin1String(", ")),
-                 QString::number(offset)), LOG_MAILBOX_SYNC);
+                 QString::number(offset)), Common::LOG_MAILBOX_SYNC);
         firstInterestingMessage = model->index(offset, 0, listIndex);
     } else {
         log(QString::fromUtf8("First interesting message at %1 (%2)")
             .arg(QString::number(mailbox->syncState.unSeenOffset()),
                  firstInterestingMessage.data(RoleMessageFlags).toStringList().join(QLatin1String(", "))
-                 ), LOG_MAILBOX_SYNC);
+                 ), Common::LOG_MAILBOX_SYNC);
     }
     emit model->mailboxFirstUnseenMessage(mailbox->toIndex(model), firstInterestingMessage);
 }
@@ -1175,7 +1175,7 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
     // OK, so we are in trouble -- our mailbox has disappeared, but the IMAP server will likely keep us busy with its
     // status updates. This is bad, so we have to get out as fast as possible. All hands, evasive maneuvers!
 
-    log("Mailbox disappeared", LOG_MAILBOX_SYNC);
+    log("Mailbox disappeared", Common::LOG_MAILBOX_SYNC);
 
     if (!unSelectTask) {
         unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);

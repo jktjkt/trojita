@@ -66,7 +66,7 @@ void UpdateFlagsTask::perform()
 
     Q_FOREACH(const QPersistentModelIndex& index, messages) {
         if (!index.isValid()) {
-            log("Some message got removed before we could update its flags", LOG_MESSAGES);
+            log("Some message got removed before we could update its flags", Common::LOG_MESSAGES);
         } else {
             TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
             Q_ASSERT(item);

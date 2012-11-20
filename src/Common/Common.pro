@@ -7,7 +7,9 @@ HEADERS += SettingsNames.h \
     SetCoreApplication.cpp \
     SqlTransactionAutoAborter.h \
     PortNumbers.h \
-    FindWithUnknown.h
+    FindWithUnknown.h \
+    Logging.h \
+    RingBuffer.h
 
 GITVERSION_PREFIX = $$join(PWD,,,/../..)
 include(../gitversion.pri)

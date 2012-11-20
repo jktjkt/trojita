@@ -24,9 +24,7 @@
 #include <QDateTime>
 #include <QVector>
 
-namespace Imap
-{
-namespace Mailbox
+namespace Common
 {
 
 /** @short What is that message related to? */
@@ -63,9 +61,8 @@ struct LogMessage {
 };
 
 }
-}
 
 // Both QString and QDateTime are movable, so our combination is movable as well
-Q_DECLARE_TYPEINFO(Imap::Mailbox::LogMessage, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(Common::LogMessage, Q_MOVABLE_TYPE);
 
 #endif // TROJITA_IMAP_LOGGING_H

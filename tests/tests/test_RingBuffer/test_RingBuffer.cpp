@@ -24,9 +24,9 @@
 #include <QTest>
 #include "test_RingBuffer.h"
 #include "../headless_test.h"
-#include "Imap/Model/RingBuffer.h"
+#include "Common/RingBuffer.h"
 
-using namespace Imap;
+using namespace Common;
 
 Q_DECLARE_METATYPE(QVector<int>);
 

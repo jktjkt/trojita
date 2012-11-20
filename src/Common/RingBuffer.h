@@ -23,7 +23,7 @@
 
 #include <QVector>
 
-namespace Imap
+namespace Common
 {
 
 /** @short Circular buffer holding a number of items

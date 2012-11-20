@@ -187,7 +187,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
                 QString buf;
                 QTextStream s(&buf);
                 s << *stateResponse;
-                logTrace(it->parser->parserId(), LOG_OTHER, QLatin1String("Model"), QString::fromUtf8("BAD response: %1").arg(buf));
+                logTrace(it->parser->parserId(), Common::LOG_OTHER, QLatin1String("Model"), QString::fromUtf8("BAD response: %1").arg(buf));
                 qDebug() << buf;
             }
         }
@@ -222,17 +222,17 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
 
 #ifdef DEBUG_TASK_ROUTING
                     try {
-                        logTrace(it->parser->parserId(), LOG_TASKS, QString(),
+                        logTrace(it->parser->parserId(), Common::LOG_TASKS, QString(),
                                  QString::fromAscii("Routing to %1 %2").arg((*taskIt)->metaObject()->className(),
                                                                             (*taskIt)->debugIdentification()));
 #endif
                     handled = resp->plug(*taskIt);
 #ifdef DEBUG_TASK_ROUTING
                         if (handled) {
-                            logTrace(it->parser->parserId(), LOG_TASKS, (*taskIt)->debugIdentification(), QLatin1String("Handled"));
+                            logTrace(it->parser->parserId(), Common::LOG_TASKS, (*taskIt)->debugIdentification(), QLatin1String("Handled"));
                         }
                     } catch (std::exception &e) {
-                        logTrace(it->parser->parserId(), LOG_TASKS, (*taskIt)->debugIdentification(), QLatin1String("Got exception when handling"));
+                        logTrace(it->parser->parserId(), Common::LOG_TASKS, (*taskIt)->debugIdentification(), QLatin1String("Got exception when handling"));
                         throw;
                     }
 #endif
@@ -251,16 +251,16 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
                 resp->plug(it->parser, this);
 #ifdef DEBUG_TASK_ROUTING
                 if (it->parser) {
-                    logTrace(it->parser->parserId(), LOG_TASKS, QLatin1String("Model"), QLatin1String("Handled"));
+                    logTrace(it->parser->parserId(), Common::LOG_TASKS, QLatin1String("Model"), QLatin1String("Handled"));
                 } else {
-                    logTrace(0, LOG_TASKS, QLatin1String("Model"), QLatin1String("Handled"));
+                    logTrace(0, Common::LOG_TASKS, QLatin1String("Model"), QLatin1String("Handled"));
                 }
 #endif
             }
         } catch (Imap::StartTlsFailed &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
-            logTrace(parserId, LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QLatin1String("STARTTLS has failed"));
+            logTrace(parserId, Common::LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QLatin1String("STARTTLS has failed"));
             emit connectionError(tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>"));
             setNetworkOffline();
             break;
@@ -334,11 +334,11 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 // This one probably should not be logged at all; dovecot sends these reponses to keep NATted connections alive
                 break;
             } else {
-                logTrace(ptr->parserId(), LOG_OTHER, QString(), tr("Warning: unhandled untagged OK with a response code"));
+                logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), tr("Warning: unhandled untagged OK with a response code"));
                 break;
             }
         case NO:
-            logTrace(ptr->parserId(), LOG_OTHER, QString(), tr("Warning: unhandled untagged NO..."));
+            logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), tr("Warning: unhandled untagged NO..."));
             break;
         default:
             throw UnexpectedResponseReceived("Unhandled untagged response, sorry", *resp);
@@ -672,7 +672,7 @@ void Model::handleGenUrlAuth(Parser *ptr, const Responses::GenUrlAuth *const res
 void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);
-    logTrace(ptr->parserId(), LOG_IO_READ, "Model", "Information about the SSL state not handled by the upper layers -- disconnect?");
+    logTrace(ptr->parserId(), Common::LOG_IO_READ, "Model", "Information about the SSL state not handled by the upper layers -- disconnect?");
     killParser(ptr, PARSER_KILL_EXPECTED);
 }
 
@@ -1075,7 +1075,7 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
         // But we still absolutely want to clean up and kill the connection/Parser anyway
         killParser(ptr, PARSER_KILL_EXPECTED);
     } else {
-        logTrace(ptr->parserId(), LOG_PARSE_ERROR, QString(), resp->message);
+        logTrace(ptr->parserId(), Common::LOG_PARSE_ERROR, QString(), resp->message);
         killParser(ptr, PARSER_KILL_EXPECTED);
         emit connectionError(resp->message);
         setNetworkOffline();
@@ -1093,7 +1093,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
 {
     emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
     QByteArray details = (position == -1) ? QByteArray() : QByteArray(position, ' ') + QByteArray("^ here");
-    logTrace(parser, LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, line, details));
+    logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, line, details));
     emit connectionError(trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
                                 "This might either mean that there's a bug in Trojiá's code, or "
                                 "that the IMAP server you are connected to is broken. Please "
@@ -1122,7 +1122,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     Q_FOREACH(const QString& str, capabilities) {
         QString cap = str.toUpper();
         if (m_capabilitiesBlacklist.contains(cap)) {
-            logTrace(parser->parserId(), LOG_OTHER, QLatin1String("Model"), QString::fromUtf8("Ignoring capability \"%1\"").arg(cap));
+            logTrace(parser->parserId(), Common::LOG_OTHER, QLatin1String("Model"), QString::fromUtf8("Ignoring capability \"%1\"").arg(cap));
             continue;
         }
         uppercaseCaps << cap;
@@ -1351,7 +1351,7 @@ TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QMode
 void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
     accessParser(parser).connState = state;
-    logTrace(parser->parserId(), LOG_TASKS, QLatin1String("conn"), connectionStateToString(state));
+    logTrace(parser->parserId(), Common::LOG_TASKS, QLatin1String("conn"), connectionStateToString(state));
     emit connectionStateChanged(parser, state);
 }
 
@@ -1383,10 +1383,10 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
     accessParser(parser).parser = 0;
     switch (method) {
     case PARSER_KILL_EXPECTED:
-        logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection closed.");
+        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), "*** Connection closed.");
         return;
     case PARSER_KILL_HARD:
-        logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), "*** Connection killed.");
+        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), "*** Connection killed.");
         return;
     case PARSER_JUST_DELETE_LATER:
         // already handled
@@ -1397,12 +1397,12 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
 
 void Model::slotParserLineReceived(Parser *parser, const QByteArray &line)
 {
-    logTrace(parser->parserId(), LOG_IO_READ, QString(), line);
+    logTrace(parser->parserId(), Common::LOG_IO_READ, QString(), line);
 }
 
 void Model::slotParserLineSent(Parser *parser, const QByteArray &line)
 {
-    logTrace(parser->parserId(), LOG_IO_WRITTEN, QString(), line);
+    logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), line);
 }
 
 void Model::setCache(AbstractCache *cache)
@@ -1667,9 +1667,9 @@ QStringList Model::capabilities() const
     return QStringList();
 }
 
-void Model::logTrace(uint parserId, const LogKind kind, const QString &source, const QString &message)
+void Model::logTrace(uint parserId, const Common::LogKind kind, const QString &source, const QString &message)
 {
-    LogMessage m(QDateTime::currentDateTime(), kind, source,  message, 0);
+    Common::LogMessage m(QDateTime::currentDateTime(), kind, source,  message, 0);
     emit logged(parserId, m);
 }
 
@@ -1677,7 +1677,7 @@ void Model::logTrace(uint parserId, const LogKind kind, const QString &source, c
 
 The relevantIndex argument is used for finding out what parser to send the message to.
 */
-void Model::logTrace(const QModelIndex &relevantIndex, const LogKind kind, const QString &source, const QString &message)
+void Model::logTrace(const QModelIndex &relevantIndex, const Common::LogKind kind, const QString &source, const QString &message)
 {
     QModelIndex translatedIndex;
     realTreeItem(relevantIndex, 0, &translatedIndex);

@@ -51,7 +51,7 @@ protected slots:
     virtual void initTestCase();
 
     void modelSignalsError(const QString &message);
-    void modelLogged(uint parserId, const Imap::Mailbox::LogMessage &message);
+    void modelLogged(uint parserId, const Common::LogMessage &message);
 
 protected:
     virtual void helperSyncAWithMessagesEmptyState();
