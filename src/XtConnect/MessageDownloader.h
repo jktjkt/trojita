@@ -48,7 +48,7 @@ class MessageDownloader : public QObject
     Q_OBJECT
 public:
     /** @short Create a new downloader and inform it to ignore messages which belong to another mailbox */
-    explicit MessageDownloader(QObject *parent, const Imap::Mailbox::Model *model, const QString &mailboxName);
+    explicit MessageDownloader(QObject *parent, Imap::Mailbox::Model *model, const QString &mailboxName);
     /** @short Find out the body structure of a message and ask for relevant parts */
     void requestDownload( const QModelIndex &message );
     void reallyRequestDownload( const QModelIndex &message );
@@ -83,7 +83,7 @@ private:
     };
 
     QMap<uint, MessageMetadata> m_parts;
-    const QAbstractItemModel *m_model;
+    Imap::Mailbox::Model *m_model;
 
     /** @short A list of messages for which the Model shall be asked to free memory */
     QList<QPersistentModelIndex> m_messagesToBeFreed;
@@ -96,6 +96,8 @@ private:
 
     /** @short Mailbox to which all messages got to belong */
     QString registeredMailbox;
+
+    void log(const QString &message);
 
 };
 

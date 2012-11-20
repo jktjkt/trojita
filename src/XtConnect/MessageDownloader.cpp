@@ -39,7 +39,7 @@ namespace XtConnect {
 
 enum {BATCH_SIZE = 300};
 
-MessageDownloader::MessageDownloader(QObject *parent, const Imap::Mailbox::Model *model, const QString &mailboxName):
+MessageDownloader::MessageDownloader(QObject *parent, Imap::Mailbox::Model *model, const QString &mailboxName):
     QObject(parent), m_model(model), registeredMailbox(mailboxName)
 {
     m_releasingTimer = new QTimer(this);
@@ -54,11 +54,18 @@ MessageDownloader::MessageDownloader(QObject *parent, const Imap::Mailbox::Model
     connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotDataChanged(QModelIndex,QModelIndex)));
 }
 
+void MessageDownloader::log(const QString &message)
+{
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("MessageDownloader"), message);
+}
+
 void MessageDownloader::requestDownload( const QModelIndex &message )
 {
     Q_ASSERT(m_model == message.model());
-
     Q_ASSERT( message.parent().parent().data( Imap::Mailbox::RoleMailboxName ).toString() == registeredMailbox );
+
+    log(QString::fromUtf8("Requesting download of UID %1 from mailbox %2").arg(
+            message.data(Imap::Mailbox::RoleMessageUid).toString(), registeredMailbox));
 
     if (m_parts.size() >= BATCH_SIZE) {
         m_queuedEnvelopes << message;
@@ -122,9 +129,7 @@ void MessageDownloader::requestDataDownload(const QModelIndex &message)
     case Imap::Mailbox::FindInterestingPart::MAINPART_PART_CANNOT_DETERMINE:
         it->hasMainPart = true;
         it->mainPartFailed = true;
-#ifdef DEBUG_PENDING_MESSAGES
-        qDebug() << "Cannot find the main part for " << uid;
-#endif
+        log(QString::fromUtf8("Cannot find the main part for %1").arg(QString::number(uid)));
         break;
     }
 
@@ -233,9 +238,6 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
     }
 
     if ( it->hasHeader && it->hasBody && it->hasMessage && it->hasMainPart ) {
-#ifdef DEBUG_PENDING_MESSAGES
-        qDebug() << "We've got everything for" << uid << "-> saving";
-#endif
         // Check message metadata
         Q_ASSERT(message.data(Imap::Mailbox::RoleMessageMessageId).isValid());
         Q_ASSERT(message.data(Imap::Mailbox::RoleMessageSubject).isValid());
@@ -257,9 +259,7 @@ void MessageDownloader::slotDataChanged( const QModelIndex &a, const QModelIndex
         QVariant bodyData = text.data(Imap::Mailbox::RolePartData);
         Q_ASSERT(bodyData.isValid());
 
-#ifdef DEBUG_PENDING_MESSAGES
-        qDebug() << "Stored" << registeredMailbox << uid;
-#endif
+        log(QString::fromUtf8("Downloaded message %1").arg(QString::number(uid)));
         emit messageDownloaded( message, headerData.toByteArray(), bodyData.toByteArray(), mainPart );
         m_parts.erase(it);
 

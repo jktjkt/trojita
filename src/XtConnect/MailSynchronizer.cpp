@@ -150,8 +150,10 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
     Q_ASSERT(subject.isValid());
     QDateTime dateTime = dateTimeVariant.toDateTime();
     if ( dateTime.isNull() ) {
-        qDebug() << "Warning: unknown timestamp for UID" << message.data(Imap::Mailbox::RoleMessageUid).toUInt() << "in" <<
-                 message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString() << "- using current one";
+        m_model->logTrace(message, Common::LOG_OTHER, QLatin1String("MailSynchronizer"),
+                          QString::fromUtf8("Warning: unknown timestamp for UID %1 in %2 - using current one").arg(
+                              message.data(Imap::Mailbox::RoleMessageUid).toString(),
+                              message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()));
         dateTime = QDateTime::currentDateTime();
     }
 
@@ -160,11 +162,13 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
                                                         mainPart, headers, body, emlId );
 
     if ( res == SqlStorage::RESULT_DUPLICATE ) {
+        m_model->logTrace(message, Common::LOG_OTHER, QLatin1String("MailSynchronizer"), QLatin1String("Duplicate message"));
         emit messageIsDuplicate( m_mailbox, message );
         return;
     }
 
     if ( res == SqlStorage::RESULT_ERROR ) {
+        m_model->logTrace(message, Common::LOG_OTHER, QLatin1String("MailSynchronizer"), QLatin1String("Cannot store into Postgres"));
         qWarning() << "Inserting failed";
         return;
     }
@@ -175,11 +179,15 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
     _saveAddrList( emlId, message.data( Imap::Mailbox::RoleMessageBcc ), QLatin1String("BCC") );
 
     if ( m_storage->markMailReady( emlId ) != SqlStorage::RESULT_OK ) {
+        m_model->logTrace(message, Common::LOG_OTHER, QLatin1String("MailSynchronizer"),
+                          QLatin1String("Failed to mark mail ready"));
         qWarning() << "Failed to mark mail ready";
         return;
     }
 
     if ( ! guard.commit() ) {
+        m_model->logTrace(message, Common::LOG_OTHER, QLatin1String("MailSynchronizer"),
+                          QLatin1String("Failed to commit current transaction"));
         m_storage->fail( QLatin1String("Failed to commit current transaction") );
         return;
     }
@@ -210,6 +218,8 @@ void MailSynchronizer::_saveAddrList( const quint64 emlId, const QVariant &addre
         }
 
         if ( m_storage->insertAddress( emlId, name, address, kind ) != SqlStorage::RESULT_OK ) {
+            m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("MailSynchronizer"),
+                              QLatin1String("Failed to insert address"));
             qWarning() << "Failed to insert address";
         }
     }
