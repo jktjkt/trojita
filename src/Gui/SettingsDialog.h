@@ -141,6 +141,7 @@ private:
     QLineEdit *dbName;
     QLineEdit *username;
     QLabel *imapPasswordWarning;
+    QCheckBox *debugLog;
 
     XtConnectPage(const XtConnectPage &); // don't implement
     XtConnectPage &operator=(const XtConnectPage &); // don't implement

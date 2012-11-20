@@ -510,6 +510,8 @@ XtConnectPage::XtConnectPage(QWidget *parent, QSettings &s, ImapPage *imapPage):
     imapPasswordWarning->setWordWrap(true);
     imapPasswordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
     layout->addRow(imapPasswordWarning);
+    debugLog = new QCheckBox();
+    layout->addRow(tr("Debugging"), debugLog);
 
     QPushButton *btn = new QPushButton(tr("Run xTuple Synchronization"));
     connect(btn, SIGNAL(clicked()), this, SLOT(runXtConnect()));
@@ -584,6 +586,9 @@ void XtConnectPage::runXtConnect()
 
     QString password = QInputDialog::getText(this, tr("Database Connection"), tr("Password"), QLineEdit::Password);
     args << QLatin1String("-W") << password;
+
+    if (debugLog->isChecked())
+        args << QLatin1String("--log") << cacheDir->text() + QLatin1String("/xt-trojita-log");
 
     QProcess::startDetached(cmd, args);
 }
