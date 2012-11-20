@@ -25,14 +25,17 @@
 
 #include <QMap>
 #include <QWidget>
-#include "Common/Logging.h"
+#include "Common/FileLogger.h"
 #include "Common/RingBuffer.h"
 
 class QPushButton;
 class QTabWidget;
 class QPlainTextEdit;
-class QTextStream;
 class QTimer;
+
+namespace Common {
+class FileLogger;
+}
 
 namespace Gui
 {
@@ -72,16 +75,13 @@ private:
     QPushButton *clearAll;
     bool loggingActive;
     QTimer *delayedDisplay;
-    QTextStream *m_fileLog;
+    Common::FileLogger *m_fileLogger;
 
     /** @short Return (possibly newly created) logger widget for a given parser */
     QPlainTextEdit *getLogger(const uint parser);
 
     /** @short Dump the log bufer contents to the GUI widget */
     void flushToWidget(const uint parserId, Common::RingBuffer<Common::LogMessage> &buf);
-
-    /** @short Append a message to the log file */
-    void writeToDisk(uint parser, const Common::LogMessage &message);
 
     virtual void showEvent(QShowEvent *e);
     virtual void hideEvent(QHideEvent *e);

@@ -28,13 +28,14 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include "ProtocolLoggerWidget.h"
+#include "Common/FileLogger.h"
 #include "Imap/Model/Utils.h"
 
 namespace Gui
 {
 
 ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
-    QWidget(parent), loggingActive(false), m_fileLog(0)
+    QWidget(parent), loggingActive(false), m_fileLogger(0)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     tabs = new QTabWidget(this);
@@ -56,25 +57,20 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
 void ProtocolLoggerWidget::slotSetPersistentLogging(const bool enabled)
 {
     if (enabled) {
-        if (m_fileLog)
+        if (m_fileLogger)
             return;
 
-        QFile *logFile = new QFile(Imap::Mailbox::persistentLogFileName(), this);
-        logFile->open(QIODevice::Truncate | QIODevice::WriteOnly);
-        m_fileLog = new QTextStream(logFile);
+        m_fileLogger = new Common::FileLogger(this);
+        m_fileLogger->setFileLogging(true, Imap::Mailbox::persistentLogFileName());
+        m_fileLogger->setAutoFlush(true);
     } else {
-        if (m_fileLog) {
-            QIODevice *dev = m_fileLog->device();
-            delete m_fileLog;
-            delete dev;
-            m_fileLog = 0;
-        }
+        delete m_fileLogger;
+        m_fileLogger = 0;
     }
 }
 
 ProtocolLoggerWidget::~ProtocolLoggerWidget()
 {
-    delete m_fileLog;
 }
 
 QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parser)
@@ -153,8 +149,8 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, Common::LogMessage messag
         // FIXME: don't hard-code that
         bufIt = buffers.insert(parser, RingBuffer<LogMessage>(900));
     }
-    if (m_fileLog) {
-        writeToDisk(parser, message);
+    if (m_fileLogger) {
+        m_fileLogger->slotImapLogged(parser, message);
     }
     enum {CUTOFF=200};
     if (message.message.size() > CUTOFF) {
@@ -164,42 +160,6 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, Common::LogMessage messag
     bufIt->append(message);
     if (loggingActive && !delayedDisplay->isActive())
         delayedDisplay->start();
-}
-
-void ProtocolLoggerWidget::writeToDisk(uint parser, const Common::LogMessage &message)
-{
-    using namespace Common;
-    QString direction;
-    switch (message.kind) {
-    case LOG_IO_READ:
-        direction = QLatin1String(" <<< ");
-        break;
-    case LOG_IO_WRITTEN:
-        direction = QLatin1String(" >>> ");
-        break;
-    case LOG_PARSE_ERROR:
-        direction = QLatin1String(" [err] ");
-        break;
-    case LOG_MAILBOX_SYNC:
-        direction = QLatin1String(" [sync] ");
-        break;
-    case LOG_TASKS:
-        direction = QLatin1String(" [task] ");
-        break;
-    case LOG_MESSAGES:
-        direction = QLatin1String(" [msg] ");
-        break;
-    case LOG_OTHER:
-        direction = QLatin1String(" ");
-        break;
-    }
-    if (message.truncatedBytes) {
-        direction += QLatin1String("[truncated] ");
-    }
-    QString line = message.timestamp.toString(QLatin1String("hh:mm:ss.zzz")) + QString::number(parser) + QLatin1Char(' ') +
-                   direction + message.source + QLatin1Char(' ') + message.message.trimmed() + QLatin1String("\n");
-    *m_fileLog << line;
-    m_fileLog->flush();
 }
 
 void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer<Common::LogMessage> &buf)

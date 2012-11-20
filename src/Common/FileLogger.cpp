@@ -40,7 +40,7 @@ void FileLogger::setFileLogging(const bool enabled, const QString &fileName)
         if (m_fileLog)
             return;
 
-        QFile *logFile = new QFile(fileName.isEmpty() ? Imap::Mailbox::persistentLogFileName() : fileName, this);
+        QFile *logFile = new QFile(fileName, this);
         logFile->open(QIODevice::Truncate | QIODevice::WriteOnly);
         m_fileLog = new QTextStream(logFile);
     } else {
