@@ -95,7 +95,7 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     if (logConsole)
         logger->setConsoleLogging(true);
     if (!logFile.isEmpty()) {
-        logger->slotSetFileLogging(true, logFile);
+        logger->setFileLogging(true, logFile);
         logger->setAutoFlush(true);
     }
     connect(m_model, SIGNAL(logged(uint,Common::LogMessage)), logger, SLOT(slotImapLogged(uint,Common::LogMessage)));

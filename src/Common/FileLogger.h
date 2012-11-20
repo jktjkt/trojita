@@ -41,13 +41,13 @@ public slots:
     void slotImapLogged(uint parser, Common::LogMessage message);
 
     /** @short Enable/disable persistent logging */
-    void slotSetFileLogging(const bool enabled, const QString &fileName);
+    void setFileLogging(const bool enabled, const QString &fileName);
 
     void setConsoleLogging(const bool enabled);
 
     void setAutoFlush(const bool autoFlush);
 
-private:
+protected:
     QString formatMessage(uint parser, const Common::LogMessage &message) const;
     void escapeCrLf(QString &s);
 

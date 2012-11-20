@@ -34,7 +34,7 @@ FileLogger::FileLogger(QObject *parent) :
 {
 }
 
-void FileLogger::slotSetFileLogging(const bool enabled, const QString &fileName)
+void FileLogger::setFileLogging(const bool enabled, const QString &fileName)
 {
     if (enabled) {
         if (m_fileLog)
