@@ -33,6 +33,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QSettings>
+#include "Common/FileLogger.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "XtCache.h"
@@ -62,6 +63,8 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     QString username = s->value( Common::SettingsNames::xtDbUser ).toString();
     QString password;
     bool readstdin = false;
+    bool logConsole = false;
+    QString logFile;
 
     QStringList args = QCoreApplication::arguments();
     for ( int i = 1; i < args.length(); i++ ) {
@@ -75,6 +78,10 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
             username = args.at(++i);
         else if (args.at(i) == "-W")
             readstdin = true;
+        else if (args.at(i) == "--debug")
+            logConsole = true;
+        else if (args.at(i) == "--log" && args.length() > i)
+            logFile = args.at(++i);
     }
 
     for ( int i = 0; i < 3 && password.isEmpty() && readstdin; i++ ) {
@@ -83,6 +90,15 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     }
 
     setupModels();
+
+    Common::FileLogger *logger = new Common::FileLogger(this);
+    if (logConsole)
+        logger->setConsoleLogging(true);
+    if (!logFile.isEmpty()) {
+        logger->slotSetFileLogging(true, logFile);
+        logger->setAutoFlush(true);
+    }
+    connect(m_model, SIGNAL(logged(uint,Common::LogMessage)), logger, SLOT(slotImapLogged(uint,Common::LogMessage)));
 
     // Prepare the mailboxes
     m_finder = new MailboxFinder( this, m_model );
