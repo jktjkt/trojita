@@ -1,6 +1,22 @@
 This is Trojitá, Qt IMAP e-mail client
 
-Copyright (C) 2006 - 2012 Jan Kundrát, <jkt@flaska.net>
+Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
+
+Copyright (C) 2012 Thomas Lübking <thomas.luebking@gmail.com>
+Copyright (C) 2011 - 2012 Thomas Gahr <thomas.gahr@physik.uni-muenchen.de>
+Copyright (C) 2012 Shanti Bouchez <shanti@sogilis.com>
+
+Copyright (C) 2010-2012 OpenMFG LLC, dba xTuple
+Copyright (C) 2012 Michael Sprauer <Michael@Sprauer.net>
+Copyright (C) 2012 Chase Douglas <chase.douglas@canonical.com>
+Copyright (C) 2012 Wim Lewis <wiml@hhhh.org>
+Copyright (C) 2011 Tomáš Kouba <tomas@jikos.cz>
+Copyright (C) 2011 Jun Yang <slickqt@gmail.com>
+Copyright (C) 2009, 2011 Jiří Helebrant <helb@helb.cz>
+Copyright (C) 2011 Mariusz Fik <fisiu@opensuse.org>
+Copyright (C) 2011 Andrew Brouwers <abrouwers@gmail.com>
+Copyright (C) 2010 Benson Tsai <btsai@vrwarp.com>
+Copyright (C) 2009 Justin J <justin@jjamfd.com>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
