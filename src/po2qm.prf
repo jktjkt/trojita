@@ -12,6 +12,6 @@ isEmpty(QMAKE_LRELEASE) {
 
 po2qm.input = PO_FILES
 po2qm.output = locale/${QMAKE_FILE_BASE}.qm
-po2qm.commands = $$QMAKE_LRELEASE ${QMAKE_FILE_IN} -qm locale/${QMAKE_FILE_BASE}.qm
+po2qm.commands = po2ts ${QMAKE_FILE_IN} ${QMAKE_FILE_BASE}.ts && $$QMAKE_LRELEASE -nounfinished ${QMAKE_FILE_BASE}.ts -qm locale/${QMAKE_FILE_BASE}.qm
 po2qm.CONFIG += no_link target_predeps
 QMAKE_EXTRA_COMPILERS += po2qm

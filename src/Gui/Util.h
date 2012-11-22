@@ -24,6 +24,8 @@
 #ifndef GUI_UTIL_H
 #define GUI_UTIL_H
 
+#include <QString>
+
 class QWidget;
 
 namespace Gui
@@ -34,6 +36,8 @@ namespace Util
 
 /** @short Center widget on screen containing its parent widget of the mousepointer */
 void centerWidgetOnScreen(QWidget *widget, bool centerOnCursorScreen=true);
+
+QString pkgDataDir();
 
 } // namespace Util
 
