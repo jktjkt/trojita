@@ -9,5 +9,4 @@ trojita_harmattan {
     XtConnect:SUBDIRS += XtConnect
 }
 
-TRANSLATIONS = trojita.ts
 CODECFORTR = UTF-8

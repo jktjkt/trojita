@@ -20,15 +20,39 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QApplication>
+#include <QLibraryInfo>
+#include <QTranslator>
 
-#include "Gui/Window.h"
 #include "Common/SetCoreApplication.h"
+#include "Gui/Util.h"
+#include "Gui/Window.h"
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     Q_INIT_RESOURCE(icons);
     QCoreApplication::setApplicationName(QLatin1String("trojita"));
+
+    QTranslator qtTranslator;
+    qtTranslator.load(QLatin1String("qt_") + QLocale::system().name(),
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
+
+    QLatin1String localeSuffix("/locale");
+    QString localeName(QLatin1String("trojita_common_") + QLocale::system().name());
+
+    // The "installed to system" localization
+    QTranslator appSystemTranslator;
+    if (!Gui::Util::pkgDataDir().isEmpty()) {
+        appSystemTranslator.load(localeName, Gui::Util::pkgDataDir() + localeSuffix);
+        app.installTranslator(&appSystemTranslator);
+    }
+
+    // The "in the directory with the binary" localization
+    QTranslator appDirectoryTranslator;
+    appDirectoryTranslator.load(localeName, app.applicationDirPath() + localeSuffix);
+    app.installTranslator(&appDirectoryTranslator);
+
     Common::setCoreApplicationData();
     app.setWindowIcon(QIcon(QLatin1String(":/icons/trojita.png")));
     Gui::MainWindow win;

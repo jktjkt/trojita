@@ -53,6 +53,21 @@ void centerWidgetOnScreen(QWidget *widget, bool centerOnCursorScreen)
     }
 }
 
+/** @short Path to the "package data directory"
+
+This path shall contain various files (like the localization data).  In case we're running without being installed
+(or on some funny^Hnon-X11 platform), this function returns an empty QString.  Please also note that the returned
+value might contain data for a completely different version of Trojita.
+*/
+QString pkgDataDir()
+{
+#ifdef PKGDATADIR
+    return QLatin1String(PKGDATADIR);
+#else
+    return QString();
+#endif
+}
+
 } // namespace Util
 
 } // namespace Gui

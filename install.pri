@@ -9,5 +9,9 @@ unix {
     target.path = $$BINDIR
 
     DATADIR = $$PREFIX/share
+    PKGDATADIR = $$DATADIR/trojita
+
+    # Share the information about the setup that qmake knows with the application
+    DEFINES += DATADIR=\\\"$$DATADIR\\\" PKGDATADIR=\\\"$$PKGDATADIR\\\"
 }
 
