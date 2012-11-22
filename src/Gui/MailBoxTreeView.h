@@ -31,6 +31,7 @@ namespace Gui{
 */
 class MailBoxTreeView : public QTreeView
 {
+    Q_OBJECT
 public:
     MailBoxTreeView();
 protected:
