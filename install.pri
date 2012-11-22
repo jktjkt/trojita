@@ -9,5 +9,6 @@ unix {
     target.path = $$BINDIR
 
     DATADIR = $$PREFIX/share
+    PKGDATADIR = $$DATADIR/trojita
 }
 

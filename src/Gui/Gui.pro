@@ -94,6 +94,9 @@ include(../linking.pri)
 XtConnect:DEFINES += XTUPLE_CONNECT
 XtConnect:RESOURCES += ../xtconnect-icons.qrc
 
+include(../po2qm.prf)
+PO_FILES = $$files(../../po/trojita_common_*.po)
+
 unix:!trojita_harmattan {
     INSTALLS += desktop iconsvg icon32
 
@@ -105,6 +108,20 @@ unix:!trojita_harmattan {
 
     icon32.path = $$DATADIR/icons/hicolor/32x32/apps
     icon32.files += ../icons/trojita.png
+
+    isEmpty(PO_FILES) {
+        # The localization works by letting KDE run the top-level Messages.sh to produce a po/trojita_common.pot file. This
+        # translation template is then used by the translator teams to produce po/trojita_common_${LANG}.po files which are
+        # picked by qmake.
+        # Please be careful, qmake only picks up changes in the glob when it is explicitly invoked. This means that the .po
+        # files have to be in place before one runs qmake. Updates to the number of installed .po files are not picked up on
+        # each call to `make`.
+        message(No .po files found at po/trojita_common_*.po.)
+    } else {
+        INSTALLS += translations
+        translations.path = $$PKGDATADIR
+        translations.files += locale
+    }
 }
 
 trojita_harmattan {
