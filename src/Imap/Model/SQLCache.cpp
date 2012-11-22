@@ -103,7 +103,7 @@ if ( ! q.exec( QLatin1String("CREATE TABLE msg_threading ( " \
                              "mailbox STRING NOT NULL PRIMARY KEY, " \
                              "threading BINARY" \
                              " )") ) ) { \
-    emitError( tr("Can't create table msg_threading"), q ); \
+    emitError( SQLCache::tr("Can't create table msg_threading"), q ); \
     return false; \
 }
 
@@ -112,7 +112,7 @@ if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( " \
                              "mailbox STRING NOT NULL PRIMARY KEY, " \
                              "sync_state BINARY " \
                              " )") ) ) { \
-    emitError( tr("Can't create table mailbox_sync_state"), q ); \
+    emitError( SQLCache::tr("Can't create table mailbox_sync_state"), q ); \
     return false; \
 }
 
@@ -124,7 +124,7 @@ if ( ! q.exec( QLatin1String("CREATE TABLE mailbox_sync_state ( " \
                                "lastAccessDate INT, " \
                                "PRIMARY KEY (mailbox, uid)" \
                                ")"))) { \
-        emitError(tr("Can't create table msg_metadata"), q); \
+        emitError(SQLCache::tr("Can't create table msg_metadata"), q); \
         return false; \
     }
 
