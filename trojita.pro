@@ -3,10 +3,11 @@ lessThan(QT_VERSION, 4.6) {
 }
 
 TEMPLATE = subdirs
-SUBDIRS  = src tests
+SUBDIRS  = src
+!disable_tests: SUBDIRS += tests
 CONFIG += ordered
 
-unix {
+unix:!disable_tests {
     test.commands = cd tests && TESTARGS=-silent $(MAKE) -s check
     QMAKE_EXTRA_TARGETS += test
 }
