@@ -5,6 +5,6 @@
 # class names. This approach works.
 
 rm -f "${podir}/trojita.ts"
-lupdate -recursive src/ -ts "${podir}/trojita.ts"
-ts2po "${podir}/trojita.ts" "${podir}/trojita_common.pot"
+lupdate -silent -recursive src/ -ts "${podir}/trojita.ts"
+ts2po --progress=none "${podir}/trojita.ts" "${podir}/trojita_common.pot"
 rm "${podir}/trojita.ts"
