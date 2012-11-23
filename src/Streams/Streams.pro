@@ -6,10 +6,13 @@ TARGET = Streams
 TEMPLATE = lib
 
 include(../../configh.pri)
-include(ZlibLinking.pri)
-unix {
-    HEADERS += 3rdparty/rfc1951.h
-    SOURCES += 3rdparty/rfc1951.cpp
+
+!disable_zlib {
+    include(ZlibLinking.pri)
+    unix {
+        HEADERS += 3rdparty/rfc1951.h
+        SOURCES += 3rdparty/rfc1951.cpp
+    }
 }
 
 SOURCES += Socket.cpp \
