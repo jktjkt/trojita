@@ -32,7 +32,7 @@ ExternalElementsWidget::ExternalElementsWidget(QWidget *parent):
 {
     QHBoxLayout *layout = new QHBoxLayout(this);
     loadStuffButton = new QPushButton(tr("Load"), this);
-    QLabel *lbl = new QLabel(tr("This e-mail wants to load external entities form the Internet"), this);
+    QLabel *lbl = new QLabel(tr("This e-mail wants to load external entities from the Internet"), this);
     layout->addWidget(lbl);
     layout->addWidget(loadStuffButton);
     layout->addStretch();

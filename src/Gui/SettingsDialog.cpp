@@ -111,7 +111,7 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s): QWidget(parent)
     layout->addRow(separator);
     showHomepage = new QCheckBox(trUtf8("Show Trojitá's homepage on startup"), this);
     showHomepage->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
-    showHomepage->setToolTip(trUtf8("<p>If enabled, Trojitá will show its hoempage upon startup.</p>"
+    showHomepage->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
                                     "<p>The remote server will receive the user's IP address and versions of Trojitá, the Qt library, "
                                     "and the underlying operating system. No private information, like account settings "
                                     "or IMAP server details, are collected.</p>"));
