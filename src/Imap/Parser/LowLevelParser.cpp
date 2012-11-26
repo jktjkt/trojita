@@ -130,7 +130,7 @@ QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
         ++start;
         int size = getUInt(line, start);
         if (line.mid(start, 3) != "}\r\n")
-            throw ParseError("getString: mallformed literal specification", line, start);
+            throw ParseError("getString: malformed literal specification", line, start);
         start += 3;
         if (start + size > line.size())
             throw NoData("getString: run out of data", line, start);
@@ -142,7 +142,7 @@ QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
         start += 2;
         int size = getUInt(line, start);
         if (line.mid(start, 3) != "}\r\n")
-            throw ParseError("getString: mallformed literal8 specification", line, start);
+            throw ParseError("getString: malformed literal8 specification", line, start);
         start += 3;
         if (start + size > line.size())
             throw NoData("getString: literal8: run out of data", line, start);

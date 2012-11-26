@@ -88,12 +88,12 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
     layout->setSpacing(0);
     uint childrenCount = partIndex.model()->rowCount(partIndex);
     if (childrenCount == 1) {
-        setTitle(tr("Mallformed multipart/signed message: only one nested part"));
+        setTitle(tr("Malformed multipart/signed message: only one nested part"));
         QModelIndex anotherPart = partIndex.child(0, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
         layout->addWidget(factory->create(anotherPart, recursionDepth + 1));
     } else if (childrenCount != 2) {
-        QLabel *lbl = new QLabel(tr("Mallformed multipart/signed message: %1 nested parts").arg(QString::number(childrenCount)), this);
+        QLabel *lbl = new QLabel(tr("Malformed multipart/signed message: %1 nested parts").arg(QString::number(childrenCount)), this);
         layout->addWidget(lbl);
         return;
     } else {

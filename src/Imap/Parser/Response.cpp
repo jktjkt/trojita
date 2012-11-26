@@ -973,11 +973,11 @@ QList<NamespaceData> NamespaceData::listFromLine(const QByteArray &line, int &st
         QVariantList list = LowLevelParser::parseList('(', ')', line, start);
         for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd(); ++it) {
             if (it->type() != QVariant::List)
-                throw UnexpectedHere("Mallformed data found when processing one item "
+                throw UnexpectedHere("Malformed data found when processing one item "
                                      "in NAMESPACE record (not a list)", line, start);
             QStringList list = it->toStringList();
             if (list.size() != 2)
-                throw UnexpectedHere("Mallformed data found when processing one item "
+                throw UnexpectedHere("Malformed data found when processing one item "
                                      "in NAMESPACE record (list of weird size)", line, start);
             result << NamespaceData(list[0], list[1]);
         }

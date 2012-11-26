@@ -172,7 +172,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             return true;
 
         case BYE:
-            logout(tr("Server has closed the conection"));
+            logout(tr("Server has closed the connection"));
             return true;
 
         case BAD:
