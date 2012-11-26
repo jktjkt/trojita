@@ -82,6 +82,7 @@ private slots:
     void deleteLabelAction(const QString &tag);
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void headerLinkActivated(QString);
+    void partContextMenuRequested(const QPoint &point);
 signals:
     void messageChanged();
 private:

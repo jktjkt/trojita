@@ -55,6 +55,7 @@ public:
     SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex);
     virtual QString quoteMe() const;
     virtual void reloadContents();
+    QList<QAction *> contextMenuSpecificActions() const;
 private slots:
     void slotTransferError(const QString &errorString);
     void slotFileNameRequested(QString *fileName);

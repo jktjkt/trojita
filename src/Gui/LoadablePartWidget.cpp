@@ -29,8 +29,9 @@ namespace Gui
 {
 
 LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex  &part,
-                                       QObject *wheelEventFilter):
-    QStackedWidget(parent), manager(manager), partIndex(part), realPart(0), wheelEventFilter(wheelEventFilter)
+                                       QObject *wheelEventFilter, QObject *contextMenuTarget):
+    QStackedWidget(parent), manager(manager), partIndex(part), realPart(0), wheelEventFilter(wheelEventFilter),
+    contextMenuTarget(contextMenuTarget)
 {
     Q_ASSERT(partIndex.isValid());
     loadButton = new QPushButton(tr("Load %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
@@ -48,6 +49,7 @@ void LoadablePartWidget::loadClicked()
     }
     realPart = new SimplePartWidget(this, manager, partIndex);
     realPart->installEventFilter(wheelEventFilter);
+    connect(realPart, SIGNAL(customContextMenuRequested(QPoint)), contextMenuTarget, SLOT(partContextMenuRequested(QPoint)));
     addWidget(realPart);
     setCurrentIndex(1);
 }

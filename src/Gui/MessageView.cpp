@@ -23,6 +23,7 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QMenu>
 #include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
@@ -30,7 +31,10 @@
 #include <QUrlQuery>
 #endif
 #include <QVBoxLayout>
+#include <QtWebKit/QWebFrame>
 #include <QtWebKit/QWebHistory>
+#include <QtWebKit/QWebHitTestResult>
+#include <QtWebKit/QWebPage>
 
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
@@ -38,6 +42,7 @@
 #include "EmbeddedWebView.h"
 #include "ExternalElementsWidget.h"
 #include "PartWidgetFactory.h"
+#include "SimplePartWidget.h"
 #include "TagListWidget.h"
 #include "UserAgentWebPage.h"
 #include "Window.h"
@@ -59,7 +64,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
-    factory = new PartWidgetFactory(netAccess, this);
+    factory = new PartWidgetFactory(netAccess, this, this);
 
     emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
     emptyView->setFixedSize(450,300);
@@ -498,7 +503,19 @@ void MessageView::headerLinkActivated(QString s)
     QDesktopServices::openUrl(QUrl(s));
 }
 
+void MessageView::partContextMenuRequested(const QPoint &point)
+{
+    if (SimplePartWidget *w = qobject_cast<SimplePartWidget *>(sender())) {
+        QMenu menu(w);
+        Q_FOREACH(QAction *action, w->contextMenuSpecificActions())
+            menu.addAction(action);
+        menu.addAction(w->pageAction(QWebPage::SelectAll));
+        if (!w->page()->mainFrame()->hitTestContent(point).linkUrl().isEmpty()) {
+            menu.addSeparator();
+            menu.addAction(w->pageAction(QWebPage::CopyLinkToClipboard));
+        }
+        menu.exec(w->mapToGlobal(point));
+    }
 }
 
-
-
+}

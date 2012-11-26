@@ -39,8 +39,8 @@
 namespace Gui
 {
 
-PartWidgetFactory::PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *_manager, QObject *_wheelEventFilter):
-    manager(_manager), wheelEventFilter(_wheelEventFilter)
+PartWidgetFactory::PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter, QObject *contextMenuTarget):
+    manager(manager), wheelEventFilter(wheelEventFilter), contextMenuTarget(contextMenuTarget)
 {
 }
 
@@ -139,8 +139,10 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             QWidget *widget = 0;
             if (showDirectly) {
                 widget = new SimplePartWidget(0, manager, partIndex);
+                QObject::connect(widget, SIGNAL(customContextMenuRequested(QPoint)),
+                                 contextMenuTarget, SLOT(partContextMenuRequested(QPoint)));
             } else if (model->isNetworkAvailable()) {
-                widget = new LoadablePartWidget(0, manager, partIndex, wheelEventFilter);
+                widget = new LoadablePartWidget(0, manager, partIndex, wheelEventFilter, contextMenuTarget);
             } else {
                 widget = new QLabel(tr("Offline"), 0);
             }

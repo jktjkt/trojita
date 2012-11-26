@@ -56,7 +56,7 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     connect(saveAction, SIGNAL(triggered()), fileDownloadManager, SLOT(slotDownloadNow()));
     this->addAction(saveAction);
 
-    setContextMenuPolicy(Qt::ActionsContextMenu);
+    setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
 void SimplePartWidget::slotMarkupPlainText() {
@@ -126,6 +126,11 @@ QString SimplePartWidget::quoteMe() const
 void SimplePartWidget::reloadContents()
 {
     EmbeddedWebView::reload();
+}
+
+QList<QAction *> SimplePartWidget::contextMenuSpecificActions() const
+{
+    return QList<QAction*>() << saveAction;
 }
 
 }
