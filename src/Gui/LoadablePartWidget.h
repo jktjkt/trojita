@@ -45,7 +45,7 @@ class LoadablePartWidget : public QStackedWidget, public AbstractPartWidget
     Q_OBJECT
 public:
     LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
-                       QObject *wheelEventFilter, QObject *contextMenuTarget);
+                       QObject *wheelEventFilter, QObject *guiInteractionTarget);
     QString quoteMe() const;
     virtual void reloadContents() {}
 private slots:
@@ -55,7 +55,7 @@ private:
     QPersistentModelIndex partIndex;
     SimplePartWidget *realPart;
     QObject *wheelEventFilter;
-    QObject *contextMenuTarget;
+    QObject *guiInteractionTarget;
     QPushButton *loadButton;
 
     LoadablePartWidget(const LoadablePartWidget &); // don't implement

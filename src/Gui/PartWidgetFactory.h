@@ -36,13 +36,13 @@ class PartWidgetFactory
     Q_DECLARE_TR_FUNCTIONS(PartWidgetFactory)
     enum { ExpensiveFetchThreshold = 50*1024 };
 public:
-    PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter, QObject *contextMenuTarget);
+    PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter, QObject *guiInteractionTarget);
     QWidget *create(const QModelIndex &partIndex);
     QWidget *create(const QModelIndex &partIndex, int recursionDepth);
 private:
     Imap::Network::MsgPartNetAccessManager *manager;
     QObject *wheelEventFilter;
-    QObject *contextMenuTarget;
+    QObject *guiInteractionTarget;
 
     PartWidgetFactory(const PartWidgetFactory &); // don't implement
     PartWidgetFactory &operator=(const PartWidgetFactory &); // don't implement
