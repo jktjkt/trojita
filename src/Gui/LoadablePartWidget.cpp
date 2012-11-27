@@ -49,7 +49,7 @@ void LoadablePartWidget::loadClicked()
     }
     realPart = new SimplePartWidget(this, manager, partIndex);
     realPart->installEventFilter(wheelEventFilter);
-    connect(realPart, SIGNAL(customContextMenuRequested(QPoint)), guiInteractionTarget, SLOT(partContextMenuRequested(QPoint)));
+    realPart->connectGuiInteractionEvents(guiInteractionTarget);
     addWidget(realPart);
     setCurrentIndex(1);
 }

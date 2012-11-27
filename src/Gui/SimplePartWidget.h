@@ -56,6 +56,7 @@ public:
     virtual QString quoteMe() const;
     virtual void reloadContents();
     QList<QAction *> contextMenuSpecificActions() const;
+    void connectGuiInteractionEvents(QObject *guiInteractionTarget);
 private slots:
     void slotTransferError(const QString &errorString);
     void slotFileNameRequested(QString *fileName);

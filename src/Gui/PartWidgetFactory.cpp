@@ -139,8 +139,8 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             QWidget *widget = 0;
             if (showDirectly) {
                 widget = new SimplePartWidget(0, manager, partIndex);
-                QObject::connect(widget, SIGNAL(customContextMenuRequested(QPoint)),
-                                 guiInteractionTarget, SLOT(partContextMenuRequested(QPoint)));
+                static_cast<SimplePartWidget*>(widget)->connectGuiInteractionEvents(guiInteractionTarget);
+
             } else if (model->isNetworkAvailable()) {
                 widget = new LoadablePartWidget(0, manager, partIndex, wheelEventFilter, guiInteractionTarget);
             } else {

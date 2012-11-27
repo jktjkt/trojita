@@ -133,5 +133,11 @@ QList<QAction *> SimplePartWidget::contextMenuSpecificActions() const
     return QList<QAction*>() << saveAction;
 }
 
+/** @short Connect various signals which require a certain reaction from the rest of the GUI */
+void SimplePartWidget::connectGuiInteractionEvents(QObject *guiInteractionTarget)
+{
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), guiInteractionTarget, SLOT(partContextMenuRequested(QPoint)));
+}
+
 }
 
