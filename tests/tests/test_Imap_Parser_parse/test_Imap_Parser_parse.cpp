@@ -931,6 +931,38 @@ void ImapParserParseTest::benchmark()
         parser->processLine( line1 );
         parser->processLine( line2 );
         parser->processLine( line3 );
+
+        while (parser->hasResponse())
+            parser->getResponse();
+    }
+}
+
+void ImapParserParseTest::benchmarkInitialChat()
+{
+    QByteArray line4 = "* OK [CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE STARTTLS AUTH=PLAIN] Dovecot ready.\r\n";
+    QByteArray line5 = "* CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE STARTTLS AUTH=PLAIN\r\n";
+    QByteArray line6 = "1 OK Pre-login capabilities listed, post-login capabilities have more.\r\n";
+    QByteArray line7 = "* CAPABILITY IMAP4rev1 LITERAL+ SASL-IR LOGIN-REFERRALS ID ENABLE IDLE SORT SORT=DISPLAY "
+        "THREAD=REFERENCES THREAD=REFS MULTIAPPEND UNSELECT CHILDREN NAMESPACE UIDPLUS LIST-EXTENDED I18NLEVEL=1 "
+        "CONDSTORE QRESYNC ESEARCH ESORT SEARCHRES WITHIN CONTEXT=SEARCH LIST-STATUS SPECIAL-USE\r\n";
+    QByteArray line8 = "2 OK Logged in\r\n";
+    QByteArray line9 = "3 OK Capability completed.\r\n";
+    QByteArray line10 = "* ENABLED QRESYNC\r\n";
+    QByteArray line11 = "4 OK Enabled.\r\n";
+    QByteArray line12 = "* NAMESPACE ((\"\" \".\")) NIL NIL\r\n";
+    QByteArray line13 = "5 OK Namespace completed.\r\n";
+
+    QBENCHMARK {
+        parser->processLine(line4);
+        parser->processLine(line5);
+        parser->processLine(line6);
+        parser->processLine(line7);
+        parser->processLine(line8);
+        parser->processLine(line9);
+        parser->processLine(line10);
+        parser->processLine(line11);
+        parser->processLine(line12);
+        parser->processLine(line13);
         while (parser->hasResponse())
             parser->getResponse();
     }

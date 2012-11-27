@@ -52,6 +52,7 @@ private Q_SLOTS:
     void cleanupTestCase();
 
     void benchmark();
+    void benchmarkInitialChat();
 };
 
 #endif
