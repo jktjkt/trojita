@@ -926,13 +926,14 @@ void ImapParserParseTest::benchmark()
             "(\"John Klensin\" NIL \"KLENSIN\" \"MIT.EDU\")) NIL NIL "
             "\"<B27397-0100000@cac.washington.edu>\"))\r\n";
     QByteArray line3 = "* 123 FETCH (InternalDate \"6-Apr-1981 12:03:32 -0630\")\r\n";
+
     QBENCHMARK {
         parser->processLine( line1 );
         parser->processLine( line2 );
         parser->processLine( line3 );
+        while (parser->hasResponse())
+            parser->getResponse();
     }
-    while ( parser->hasResponse() )
-        parser->getResponse();
 }
 
 void ImapParserParseTest::testSequences()
