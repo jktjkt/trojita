@@ -83,8 +83,10 @@ private slots:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void headerLinkActivated(QString);
     void partContextMenuRequested(const QPoint &point);
+    void partLinkHovered(const QString &link, const QString &title, const QString &textContent);
 signals:
     void messageChanged();
+    void linkHovered(const QString &url);
 private:
     bool eventFilter(QObject *object, QEvent *event);
     Imap::Message::Envelope envelope() const;

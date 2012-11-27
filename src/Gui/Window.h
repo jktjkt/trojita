@@ -124,6 +124,7 @@ private slots:
     void updateMessageFlags(const QModelIndex &index);
     void scrollMessageUp();
     void showConnectionStatus(QObject *parser, Imap::ConnectionState state);
+    void slotShowLinkTarget(const QString &link);
     void slotShowAboutTrojita();
     void slotDonateToTrojita();
 

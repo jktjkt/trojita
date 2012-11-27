@@ -419,6 +419,7 @@ void MainWindow::createWidgets()
     area->setWidget(msgView);
     area->setWidgetResizable(true);
     connect(msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
+    connect(msgView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
     if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
         msgView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
@@ -1206,6 +1207,11 @@ void MainWindow::showConnectionStatus(QObject *parser, Imap::ConnectionState sta
         break;
     }
     statusBar()->showMessage(message, transient ? DURATION : 0);
+}
+
+void MainWindow::slotShowLinkTarget(const QString &link)
+{
+    statusBar()->showMessage(tr("Link target: %1").arg(link));
 }
 
 void MainWindow::slotShowAboutTrojita()

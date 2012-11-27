@@ -61,6 +61,8 @@ private slots:
     void slotTransferError(const QString &errorString);
     void slotFileNameRequested(QString *fileName);
     void slotMarkupPlainText();
+signals:
+    void linkHovered(const QString &link, const QString &title, const QString &textContent);
 private:
     QAction *saveAction;
     Imap::Network::FileDownloadManager *fileDownloadManager;

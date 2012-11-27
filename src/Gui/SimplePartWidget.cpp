@@ -137,6 +137,12 @@ QList<QAction *> SimplePartWidget::contextMenuSpecificActions() const
 void SimplePartWidget::connectGuiInteractionEvents(QObject *guiInteractionTarget)
 {
     connect(this, SIGNAL(customContextMenuRequested(QPoint)), guiInteractionTarget, SLOT(partContextMenuRequested(QPoint)));
+
+    // The targets expect the sender() of the signal to be a SimplePartWidget, not a QWebPage,
+    // which means we have to do this indirection
+    connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SIGNAL(linkHovered(QString,QString,QString)));
+    connect(this, SIGNAL(linkHovered(QString,QString,QString)),
+            guiInteractionTarget, SLOT(partLinkHovered(QString,QString,QString)));
 }
 
 }
