@@ -12,7 +12,6 @@ isEmpty(QMAKE_LRELEASE) {
 
 po2qm.input = PO_FILES
 po2qm.output = locale/${QMAKE_FILE_BASE}.qm
-# Undo comment normalization performed in Messages.sh before applying po2ts.
-po2qm.commands = sed \'s/^$$LITERAL_HASH\\./$$LITERAL_HASH:/\' ${QMAKE_FILE_IN} >${QMAKE_FILE_BASE}.sed.po && po2ts ${QMAKE_FILE_BASE}.sed.po ${QMAKE_FILE_BASE}.ts && $$QMAKE_LRELEASE -nounfinished ${QMAKE_FILE_BASE}.ts -qm locale/${QMAKE_FILE_BASE}.qm && rm ${QMAKE_FILE_BASE}.sed.po
+po2qm.commands = lconvert ${QMAKE_FILE_IN} -o ${QMAKE_FILE_BASE}.ts && $$QMAKE_LRELEASE -nounfinished ${QMAKE_FILE_BASE}.ts -qm locale/${QMAKE_FILE_BASE}.qm && rm ${QMAKE_FILE_BASE}.ts
 po2qm.CONFIG += no_link target_predeps
 QMAKE_EXTRA_COMPILERS += po2qm
