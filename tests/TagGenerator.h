@@ -28,7 +28,7 @@
 class TagGenerator {
     int number;
 public:
-    TagGenerator( int beforeStart=-1 ): number(beforeStart) {}
+    TagGenerator(): number(-1) {}
     QByteArray mk( const char * const what )
     {
         ++number;
