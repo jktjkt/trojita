@@ -1218,8 +1218,9 @@ void MainWindow::slotShowAboutTrojita()
 {
     QMessageBox::about(this, trUtf8("About Trojitá"),
                        trUtf8("<p>This is <b>Trojitá</b>, a fast Qt IMAP e-mail client</p>"
-                              "<p>Copyright &copy; 2006-2012 Jan Kundrát &lt;jkt@flaska.net&gt; and others</p>"
-                              "<p>More information at http://trojita.flaska.net/</p>"
+                              "<p>Copyright &copy; 2006-2012 Jan Kundrát &lt;jkt@flaska.net&gt; and "
+                              "<a href=\"http://quickgit.kde.org/?p=trojita.git&amp;a=blob&amp;f=LICENSE\">others</a></p>"
+                              "<p>More information at <a href=\"http://trojita.flaska.net/\">http://trojita.flaska.net/</a></p>"
                               "<p>You are using version %1.</p>").arg(
                            QApplication::applicationVersion()));
 }
