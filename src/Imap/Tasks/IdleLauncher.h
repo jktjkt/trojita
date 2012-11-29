@@ -51,7 +51,7 @@ public:
     This function should only be called when the KeepMailboxOpenTask has selected the
     target mailbox and all member variables are set up.
     */
-    IdleLauncher(KeepMailboxOpenTask *parent);
+    explicit IdleLauncher(KeepMailboxOpenTask *parent);
 
     /** @short Register the interest in launching the IDLE command after a delay */
     void enterIdleLater();

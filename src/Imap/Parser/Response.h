@@ -210,7 +210,7 @@ public:
     /** @short Kind of reponse */
     Kind kind;
     AbstractResponse(): kind(BAD) {}
-    AbstractResponse(const Kind kind): kind(kind) {}
+    explicit AbstractResponse(const Kind kind): kind(kind) {}
     virtual ~AbstractResponse();
     /** @short Helper for operator<<() */
     virtual QTextStream &dump(QTextStream &) const = 0;
@@ -688,7 +688,7 @@ class SocketDisconnectedResponse : public AbstractResponse
 {
 public:
     QString message;
-    SocketDisconnectedResponse(const QString &message): message(message) {}
+    explicit SocketDisconnectedResponse(const QString &message): message(message) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
@@ -703,7 +703,7 @@ public:
     QByteArray exceptionClass;
     QByteArray line;
     int offset;
-    ParseErrorResponse(const ImapException &e);
+    explicit ParseErrorResponse(const ImapException &e);
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

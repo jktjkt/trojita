@@ -47,7 +47,7 @@ class GetAnyConnectionTask : public ImapTask
 {
     Q_OBJECT
 public:
-    GetAnyConnectionTask(Model *model);
+    explicit GetAnyConnectionTask(Model *model);
     virtual void perform();
     virtual bool isReadyToRun() const;
     virtual QVariant taskData(const int role) const;

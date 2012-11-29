@@ -51,7 +51,7 @@ class QwwSmtpClient : public QObject {
     Q_FLAGS(AuthModes);
 
 public:
-    QwwSmtpClient(QObject *parent = 0);
+    explicit QwwSmtpClient(QObject *parent = 0);
     ~QwwSmtpClient();
     enum State { Disconnected, Connecting, Connected, TLSRequested, Authenticating, Sending, Disconnecting };
     enum Option { NoOptions = 0, StartTlsOption, SizeOption, PipeliningOption, EightBitMimeOption, AuthOption };

@@ -37,7 +37,7 @@ namespace Gui
 class AutoCompletionModel : public QStringListModel
 {
 public:
-    AutoCompletionModel(QObject *parent=0);
+    explicit AutoCompletionModel(QObject *parent=0);
     ~AutoCompletionModel();
 
     /** @short Save the gathered list of e-mails into a persistent storage */

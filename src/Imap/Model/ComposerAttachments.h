@@ -147,7 +147,7 @@ private:
 /** @short On-disk file */
 class FileAttachmentItem: public AttachmentItem {
 public:
-    FileAttachmentItem(const QString &fileName);
+    explicit FileAttachmentItem(const QString &fileName);
     ~FileAttachmentItem();
 
     virtual QString caption() const;

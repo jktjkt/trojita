@@ -64,7 +64,7 @@ namespace Imap {
 class Rfc1951Compressor
 {
 public:
-    Rfc1951Compressor(int chunkSize = 8192);
+    explicit Rfc1951Compressor(int chunkSize = 8192);
     ~Rfc1951Compressor();
 
     bool write(QIODevice *out, QByteArray *in);
@@ -78,7 +78,7 @@ private:
 class Rfc1951Decompressor
 {
 public:
-    Rfc1951Decompressor(int chunkSize = 8192);
+    explicit Rfc1951Decompressor(int chunkSize = 8192);
     ~Rfc1951Decompressor();
 
     bool consume(QIODevice *in);

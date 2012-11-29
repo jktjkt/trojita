@@ -45,7 +45,7 @@ class MsgListView : public QTreeView
 {
     Q_OBJECT
 public:
-    MsgListView(QWidget *parent=0);
+    explicit MsgListView(QWidget *parent=0);
     virtual ~MsgListView() {}
     void setModel(QAbstractItemModel *model);
 protected:

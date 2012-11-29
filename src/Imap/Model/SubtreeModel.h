@@ -99,7 +99,7 @@ class SubtreeModelOfModel: public SubtreeModel
     Q_DISABLE_COPY(SubtreeModelOfModel)
 
 public:
-    SubtreeModelOfModel(QObject *parent = 0);
+    explicit SubtreeModelOfModel(QObject *parent = 0);
 };
 
 /** @short Subtree model implementation for MailboxModel */
@@ -109,7 +109,7 @@ class SubtreeModelOfMailboxModel: public SubtreeModel
     Q_DISABLE_COPY(SubtreeModelOfMailboxModel)
 
 public:
-    SubtreeModelOfMailboxModel(QObject *parent = 0);
+    explicit SubtreeModelOfMailboxModel(QObject *parent = 0);
 };
 
 }

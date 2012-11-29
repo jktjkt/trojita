@@ -26,7 +26,7 @@
 class ComposerAttachments : public QListView {
     Q_OBJECT
 public:
-    ComposerAttachments(QWidget *parent = 0);
+    explicit ComposerAttachments(QWidget *parent = 0);
 signals:
     void itemDroppedOut();
 protected:

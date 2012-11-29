@@ -92,7 +92,7 @@ public:
     Command &operator<<(const PartOfCommand &part) { cmds << part; return *this; }
     Command &operator<<(const QByteArray &text) { cmds << PartOfCommand(text); return *this; }
     Command(): currentPart(0) {}
-    Command(const QByteArray &name): currentPart(0) { cmds << PartOfCommand(ATOM, name); }
+    explicit Command(const QByteArray &name): currentPart(0) { cmds << PartOfCommand(ATOM, name); }
     void addTag(const QByteArray &tag) { cmds.insert(0, PartOfCommand(ATOM, tag)); }
 };
 

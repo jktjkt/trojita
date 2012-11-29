@@ -39,7 +39,7 @@ class OfflineConnectionTask : public ImapTask
 {
     Q_OBJECT
 public:
-    OfflineConnectionTask(Model *model);
+    explicit OfflineConnectionTask(Model *model);
     virtual void perform();
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return false;}

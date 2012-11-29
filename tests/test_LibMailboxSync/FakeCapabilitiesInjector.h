@@ -29,7 +29,7 @@
 class FakeCapabilitiesInjector
 {
 public:
-    FakeCapabilitiesInjector(Imap::Mailbox::Model *_model): model(_model)
+    explicit FakeCapabilitiesInjector(Imap::Mailbox::Model *_model): model(_model)
     {}
 
     /** @short Add the specified capability to the list of capabilities "supported" by the server */

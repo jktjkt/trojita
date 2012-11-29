@@ -44,7 +44,7 @@ class OpenConnectionTask : public ImapTask
 {
     Q_OBJECT
 public:
-    OpenConnectionTask(Model *model);
+    explicit OpenConnectionTask(Model *model);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);

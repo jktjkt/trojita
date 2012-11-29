@@ -36,7 +36,7 @@ class PrettyMsgListModel: public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    PrettyMsgListModel(QObject *parent=0);
+    explicit PrettyMsgListModel(QObject *parent=0);
     virtual QVariant data(const QModelIndex &index, int role) const;
     void setHideRead(bool value);
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;

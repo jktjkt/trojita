@@ -33,7 +33,7 @@ class UserAgentWebPage: public QWebPage
 {
     Q_OBJECT
 public:
-    UserAgentWebPage(QWidget *parent);
+    explicit UserAgentWebPage(QWidget *parent);
 protected:
     virtual QString userAgentForUrl(const QUrl &url) const;
 };

@@ -60,7 +60,7 @@ private:
 class TrojitaQNAMGraphicsWebView : public QGraphicsWebView {
     Q_OBJECT
 public:
-    TrojitaQNAMGraphicsWebView(TrojitaQNAMDeclarativeWebView* parent = 0);
+    explicit TrojitaQNAMGraphicsWebView(TrojitaQNAMDeclarativeWebView* parent = 0);
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
@@ -124,7 +124,7 @@ class TrojitaQNAMDeclarativeWebView : public QDeclarativeItem {
     Q_PROPERTY(QNetworkAccessManager* networkAccessManager READ networkAccessManager WRITE setNetworkAccessManager)
 
 public:
-    TrojitaQNAMDeclarativeWebView(QDeclarativeItem *parent = 0);
+    explicit TrojitaQNAMDeclarativeWebView(QDeclarativeItem *parent = 0);
     ~TrojitaQNAMDeclarativeWebView();
 
     QUrl url() const;
@@ -255,7 +255,7 @@ class TrojitaQNAMDeclarativeWebViewAttached : public QObject {
     Q_OBJECT
     Q_PROPERTY(QString windowObjectName READ windowObjectName WRITE setWindowObjectName)
 public:
-    TrojitaQNAMDeclarativeWebViewAttached(QObject* parent)
+    explicit TrojitaQNAMDeclarativeWebViewAttached(QObject* parent)
         : QObject(parent)
     {
     }

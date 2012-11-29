@@ -86,7 +86,7 @@ protected:
     QList<TreeItem *> m_children;
     FetchingState m_fetchStatus;
 public:
-    TreeItem(TreeItem *parent);
+    explicit TreeItem(TreeItem *parent);
     TreeItem *parent() const { return m_parent; }
     virtual int row() const;
 
@@ -121,7 +121,7 @@ class TreeItemMailbox: public TreeItem
     static QLatin1String flagHasNoChildren;
     static QLatin1String flagHasChildren;
 public:
-    TreeItemMailbox(TreeItem *parent);
+    explicit TreeItemMailbox(TreeItem *parent);
     TreeItemMailbox(TreeItem *parent, Responses::List);
     ~TreeItemMailbox();
 
@@ -188,7 +188,7 @@ class TreeItemMsgList: public TreeItem
     int m_unreadMessageCount;
     int m_recentMessageCount;
 public:
-    TreeItemMsgList(TreeItem *parent);
+    explicit TreeItemMsgList(TreeItem *parent);
 
     virtual void fetch(Model *const model);
     virtual unsigned int rowCount(Model *const model);
@@ -231,7 +231,7 @@ class TreeItemMessage: public TreeItem
     void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
     void processAdditionalHeaders(Model *model, const QByteArray &rawHeaders);
 public:
-    TreeItemMessage(TreeItem *parent);
+    explicit TreeItemMessage(TreeItem *parent);
     ~TreeItemMessage();
 
     virtual int row() const;

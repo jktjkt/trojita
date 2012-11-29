@@ -46,7 +46,7 @@ class IODeviceSocket: public Socket
     Q_OBJECT
     Q_DISABLE_COPY(IODeviceSocket)
 public:
-    IODeviceSocket(QIODevice *device);
+    explicit IODeviceSocket(QIODevice *device);
     ~IODeviceSocket();
     virtual bool canReadLine();
     virtual QByteArray read(qint64 maxSize);

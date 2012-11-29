@@ -80,7 +80,7 @@ public:
         }
     };
 
-    AbstractCache(QObject *parent): QObject(parent) {}
+    explicit AbstractCache(QObject *parent): QObject(parent) {}
 
     /** @short Return a list of all known child mailboxes */
     virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const = 0;

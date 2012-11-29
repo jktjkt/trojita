@@ -68,7 +68,7 @@ class OneMessageModel: public QObject
     Q_PROPERTY(bool hasValidIndex READ hasValidIndex NOTIFY envelopeChanged)
 
 public:
-    OneMessageModel(Model *model);
+    explicit OneMessageModel(Model *model);
 
     QString subject() const;
     QDateTime date() const;

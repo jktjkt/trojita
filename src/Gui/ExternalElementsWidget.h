@@ -33,7 +33,7 @@ class ExternalElementsWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ExternalElementsWidget(QWidget *parent);
+    explicit ExternalElementsWidget(QWidget *parent);
 signals:
     void loadingEnabled();
 private:

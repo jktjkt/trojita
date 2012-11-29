@@ -51,7 +51,7 @@ public:
       There's no way to turn it into an unlimited sequence, though -- use
       the startingAt() for creating sequences that grow to the "infinite".
     */
-    Sequence(const uint num);
+    explicit Sequence(const uint num);
 
     /** @short Construct a sequence holding a set of numbers between upper and lower bound
 

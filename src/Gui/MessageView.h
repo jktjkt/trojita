@@ -61,7 +61,7 @@ class MessageView : public QWidget
 {
     Q_OBJECT
 public:
-    MessageView(QWidget *parent=0);
+    explicit MessageView(QWidget *parent=0);
     ~MessageView();
     enum ReplyMode { REPLY_SENDER_ONLY, /**< @short Reply to sender(s) only */
                      REPLY_ALL /**< @short Reply to all recipients */

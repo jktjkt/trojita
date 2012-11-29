@@ -34,7 +34,7 @@ class ForbiddenReply : public QNetworkReply
 {
     Q_OBJECT
 public:
-    ForbiddenReply(QObject *parent);
+    explicit ForbiddenReply(QObject *parent);
 protected:
     virtual qint64 readData(char *data, qint64 maxSize) {
         Q_UNUSED(data); Q_UNUSED(maxSize);

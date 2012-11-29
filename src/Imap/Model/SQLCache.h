@@ -62,7 +62,7 @@ class SQLCache : public AbstractCache
 {
     Q_OBJECT
 public:
-    SQLCache(QObject *parent);
+    explicit SQLCache(QObject *parent);
     virtual ~SQLCache();
 
     virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;

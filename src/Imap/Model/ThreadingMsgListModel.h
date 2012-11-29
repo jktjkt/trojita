@@ -120,7 +120,7 @@ public:
         SORT_TO
     } SortCriterium;
 
-    ThreadingMsgListModel(QObject *parent);
+    explicit ThreadingMsgListModel(QObject *parent);
     virtual void setSourceModel(QAbstractItemModel *sourceModel);
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent=QModelIndex()) const;
