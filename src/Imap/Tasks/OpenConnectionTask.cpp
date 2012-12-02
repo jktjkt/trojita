@@ -132,9 +132,12 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     case CONN_STATE_FETCHING_PART:
     case CONN_STATE_FETCHING_MSG_METADATA:
     case CONN_STATE_LOGOUT:
+    {
+        QByteArray message = "No response expected by the OpenConnectionTask in state " +
+                Imap::connectionStateToString(model->accessParser(parser).connState).toUtf8();
         // These shall not ever be reached by this code
-        Q_ASSERT(false);
-        return false;
+        throw Imap::UnexpectedResponseReceived(message.constData(), *resp);
+    }
 
     case CONN_STATE_NONE:
     case CONN_STATE_HOST_LOOKUP:
