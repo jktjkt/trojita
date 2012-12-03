@@ -547,15 +547,15 @@ QByteArray ImapModelThreadingTest::treeToThreading(QModelIndex index)
         // If there are multiple siblings (or at the top level), we're always enclosed in parentheses
         bool shallEncloseInParenteses = threadingModel->rowCount(index) > 1 || !index.isValid();
         if (shallAddSpace) {
-            res += " ";
+            res += ' ';
         }
         if (shallEncloseInParenteses) {
-            res += "(";
+            res += '(';
         }
         QModelIndex child = threadingModel->index(i, 0, index);
         res += treeToThreading(child);
         if (shallEncloseInParenteses) {
-            res += ")";
+            res += ')';
         }
     }
     return res;
