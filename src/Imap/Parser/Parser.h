@@ -184,7 +184,7 @@ public slots:
     CommandHandle uidCopy(const Sequence &seq, const QString &mailbox);
 
     /** @short UID XMOVE, draft-gulbrandsen-imap-move-01 as implemented by fastmail.fm */
-    CommandHandle uidXMove(const Sequence &seq, const QString &mailbox);
+    CommandHandle uidMove(const Sequence &seq, const QString &mailbox);
 
     /** @short UID EXPUNGE from the UIDPLUS extension, RFC 2359 section 4.1 */
     CommandHandle uidExpunge(const Sequence &seq);

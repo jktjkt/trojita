@@ -480,9 +480,9 @@ CommandHandle Parser::uidCopy(const Sequence &seq, const QString &mailbox)
                         encodeImapFolderName(mailbox));
 }
 
-CommandHandle Parser::uidXMove(const Sequence &seq, const QString &mailbox)
+CommandHandle Parser::uidMove(const Sequence &seq, const QString &mailbox)
 {
-    return queueCommand(Commands::Command("UID XMOVE") <<
+    return queueCommand(Commands::Command("UID MOVE") <<
                         Commands::PartOfCommand(Commands::ATOM, seq.toByteArray()) <<
                         encodeImapFolderName(mailbox));
 }

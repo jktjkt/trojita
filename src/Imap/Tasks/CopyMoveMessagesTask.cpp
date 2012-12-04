@@ -84,8 +84,8 @@ void CopyMoveMessagesTask::perform()
         return;
     }
 
-    if (shouldDelete && model->accessParser(parser).capabilities.contains(QLatin1String("XMOVE"))) {
-        moveTag = parser->uidXMove(seq, targetMailbox);
+    if (shouldDelete && model->accessParser(parser).capabilities.contains(QLatin1String("MOVE"))) {
+        moveTag = parser->uidMove(seq, targetMailbox);
     } else {
         copyTag = parser->uidCopy(seq, targetMailbox);
     }
