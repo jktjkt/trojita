@@ -81,7 +81,7 @@ int MsgListView::sizeHintForColumn(int column) const
                            //: The English version uses "Mon" because of the M letter; you should use something similar.
                            tr("Mon 10:33")).width();
     case Imap::Mailbox::MsgListModel::SIZE:
-        return metric.size(Qt::TextSingleLine, QLatin1String("888.1 kB")).width();
+        return metric.size(Qt::TextSingleLine, tr("888.1 kB")).width();
     default:
         return QTreeView::sizeHintForColumn(column);
     }
