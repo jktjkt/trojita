@@ -10,7 +10,8 @@ point of view, all of that happens by pure magic.
 3) When localization is about to be used, the produced .po files are downloaded
 into the po/ directory and renamed to trojita_common_$LANG.po. This MUST happen
 before qmake is run (or rather "qmake MUST be re-run after the contents of po/
-changes).
+changes). You can use the l10n-fetch-po-files.py script for that (run from the
+top-level directory.)
 
 4) The build system converts the .po files into .ts and these into .qm, which
 are then ready to be used by QObject::tr. The .qm files are installed into
