@@ -19,9 +19,10 @@ Name:           trojita
 Version:        0.3
 Release:        1
 # Almost everything: dual-licensed under the GPLv2 or GPLv3
-# src/src/XtConnect: BSD
+# (with KDE e.V. provision for relicensing)
+# src/XtConnect: BSD
 # src/Imap/Parser/3rdparty/kcodecs.*: LGPLv2
-# src/Imap/Parser/3rdparty/qmailcodec.*: LGPLv2.1 or GPLv3
+# Nokia imports: LGPLv2.1 or GPLv3
 # src/Imap/Parser/3rdparty/rfccodecs.cpp: LGPLv2+
 # src/qwwsmtpclient/: GPLv2
 License:        (GPLv2 or GPLv3) and BSD and LGPLv2 and (LGPLv2.1 or GPLv3) and LGPLv2+ and GPLv2
