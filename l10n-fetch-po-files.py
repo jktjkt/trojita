@@ -14,6 +14,9 @@ OUTPUT_PO_PATH = "./po/"
 OUTPUT_PO_PATTERN = "trojita_common_%s.po"
 
 fixer = re.compile(r'^#~\| ', re.MULTILINE)
+re_empty_msgid = re.compile('^msgid ""$', re.MULTILINE)
+re_empty_line = re.compile('^$', re.MULTILINE)
+re_has_qt_contexts = re.compile('X-Qt-Contexts: true\\n')
 
 if not os.path.exists(OUTPUT_PO_PATH):
     os.mkdir(OUTPUT_PO_PATH)
@@ -27,6 +30,13 @@ for lang in all_languages:
         raw_data = subprocess.check_output(['svn', 'cat', SVN_PATH + lang + SOURCE_PO_PATH],
                                           stderr=subprocess.PIPE)
         (transformed, subs) = fixer.subn('# ~| ', raw_data)
+        pos1 = re_empty_msgid.search(transformed).start()
+        pos2 = re_empty_line.search(transformed).start()
+        if re_has_qt_contexts.search(transformed, pos1, pos2) is None:
+            transformed = transformed[:pos2] + \
+                    '"X-Qt-Contexts: true\\n"\n' + \
+                    transformed[pos2:]
+            subs = subs + 1
         if (subs > 0):
             print "Fetched %s (and performed %d cleanups)" % (lang, subs)
         else:
