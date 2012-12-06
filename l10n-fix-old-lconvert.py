@@ -3,6 +3,7 @@ import sys
 ts_context_prefix = "#. ts-context "
 
 context = None
+output = []
 
 for line in sys.stdin.readlines():
     if line.endswith("\n"):
@@ -11,10 +12,12 @@ for line in sys.stdin.readlines():
         context = line[len(ts_context_prefix):]
     elif line.startswith("msgid "):
         if context is not None:
-            print 'msgctxt "%s|"' % context
+            output.append('msgctxt "%s|"' % context)
             context = None
-        print line
+        output.append(line)
     elif line == "#, fuzzy":
         pass
     else:
-        print line
+        output.append(line)
+
+print "\n".join(output)
