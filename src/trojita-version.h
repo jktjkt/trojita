@@ -1,1 +1,1 @@
-const char* trojitaVersion = "0.3-git";
+const char* trojitaVersion = "0.3.90";
