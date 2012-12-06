@@ -50,15 +50,13 @@ BuildRequires: update-desktop-files
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
  
 %description
-Trojita is a Qt IMAP e-mail client:
-  * a pure Qt4 application with no additional dependencies
-  * robust IMAP core implemented using Qt's Model-View framework
-  * standards compliance is a design goal
-  * on-demand message list and body part loading
-  * offline IMAP support (you can access data you already have; there's no complete "offline mail access" yet, though)
-  * support for bandwidth-saving mode aimed at mobile users with expensive connection
-  * IMAP over SSH -- in addition to usual SSL/TLS connections, the server could be accessed via SSH
-  * safe dealing with HTML mail (actually more robust than Thunderbird's)
+Trojita is a Qt IMAP e-mail client which:
+  * Enables you to access your mail anytime, anywhere.
+  * Does not slow you down. If we can improve the productivity of an e-mail user, we better do.
+  * Respects open standards and facilitates modern technologies. We value the vendor-neutrality that IMAP provides and are committed to be as interoperable as possible.
+  * Is efficient — be it at conserving the network bandwidth, keeping memory use at a reasonable level or not hogging the system's CPU.
+  * Can be used on many platforms. One UI is not enough for everyone, but our IMAP core works fine on anything from desktop computers to cell phones and big ERP systems.
+  * Plays well with the rest of the ecosystem. We don't like reinventing wheels, but when the existing wheels quite don't fit the tracks, we're not afraid of making them work.
  
 %prep
 %setup -q
