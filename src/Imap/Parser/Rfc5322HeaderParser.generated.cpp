@@ -32,7 +32,7 @@ namespace Imap {
 namespace LowLevelParser {
 
 
-#line 35 "Rfc5322HeaderParser.generated.cpp"
+#line 36 "Rfc5322HeaderParser.generated.cpp"
 static const char _rfc5322_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
@@ -2187,7 +2187,7 @@ static const int rfc5322_error = 0;
 static const int rfc5322_en_main = 632;
 
 
-#line 141 "Rfc5322HeaderParser.cpp"
+#line 142 "Rfc5322HeaderParser.cpp"
 
 
 Rfc5322HeaderParser::Rfc5322HeaderParser():
@@ -2218,14 +2218,14 @@ bool Rfc5322HeaderParser::parse(const QByteArray &data)
     QList<QByteArray> list;
 
     
-#line 2221 "Rfc5322HeaderParser.generated.cpp"
+#line 2222 "Rfc5322HeaderParser.generated.cpp"
 	{
 	cs = rfc5322_start;
 	}
 
-#line 171 "Rfc5322HeaderParser.cpp"
+#line 172 "Rfc5322HeaderParser.cpp"
     
-#line 2228 "Rfc5322HeaderParser.generated.cpp"
+#line 2229 "Rfc5322HeaderParser.generated.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -2300,7 +2300,7 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 34 "Rfc5322HeaderParser.cpp"
+#line 35 "Rfc5322HeaderParser.cpp"
 	{
 #ifdef RAGEL_DEBUG
         qDebug() << "push_current_char " << *p;
@@ -2309,7 +2309,7 @@ _match:
     }
 	break;
 	case 1:
-#line 41 "Rfc5322HeaderParser.cpp"
+#line 42 "Rfc5322HeaderParser.cpp"
 	{
 #ifdef RAGEL_DEBUG
         qDebug() << "clear_str";
@@ -2318,7 +2318,7 @@ _match:
     }
 	break;
 	case 2:
-#line 48 "Rfc5322HeaderParser.cpp"
+#line 49 "Rfc5322HeaderParser.cpp"
 	{
         switch (*p) {
             case 'n':
@@ -2342,7 +2342,7 @@ _match:
     }
 	break;
 	case 3:
-#line 70 "Rfc5322HeaderParser.cpp"
+#line 71 "Rfc5322HeaderParser.cpp"
 	{
 #ifdef RAGEL_DEBUG
         qDebug() << "push_string_list " << str.data();
@@ -2352,7 +2352,7 @@ _match:
     }
 	break;
 	case 4:
-#line 78 "Rfc5322HeaderParser.cpp"
+#line 79 "Rfc5322HeaderParser.cpp"
 	{
 #ifdef RAGEL_DEBUG
         qDebug() << "clear_list";
@@ -2362,7 +2362,7 @@ _match:
     }
 	break;
 	case 5:
-#line 86 "Rfc5322HeaderParser.cpp"
+#line 87 "Rfc5322HeaderParser.cpp"
 	{
         if (list.size() == 1) {
 #ifdef RAGEL_DEBUG
@@ -2377,7 +2377,7 @@ _match:
     }
 	break;
 	case 6:
-#line 99 "Rfc5322HeaderParser.cpp"
+#line 100 "Rfc5322HeaderParser.cpp"
 	{
         inReplyTo += list;
 #ifdef RAGEL_DEBUG
@@ -2386,7 +2386,7 @@ _match:
     }
 	break;
 	case 7:
-#line 106 "Rfc5322HeaderParser.cpp"
+#line 107 "Rfc5322HeaderParser.cpp"
 	{
         references += list;
 #ifdef RAGEL_DEBUG
@@ -2395,7 +2395,7 @@ _match:
     }
 	break;
 	case 8:
-#line 113 "Rfc5322HeaderParser.cpp"
+#line 114 "Rfc5322HeaderParser.cpp"
 	{
         listPost += list;
 #ifdef RAGEL_DEBUG
@@ -2404,7 +2404,7 @@ _match:
     }
 	break;
 	case 9:
-#line 120 "Rfc5322HeaderParser.cpp"
+#line 121 "Rfc5322HeaderParser.cpp"
 	{
         listPostNo = true;
 #ifdef RAGEL_DEBUG
@@ -2413,7 +2413,7 @@ _match:
     }
 	break;
 	case 10:
-#line 127 "Rfc5322HeaderParser.cpp"
+#line 128 "Rfc5322HeaderParser.cpp"
 	{
 #ifdef RAGEL_DEBUG
         qDebug() << "Error when parsing RFC5322 headers";
@@ -2421,7 +2421,7 @@ _match:
         m_error = true;
     }
 	break;
-#line 2424 "Rfc5322HeaderParser.generated.cpp"
+#line 2425 "Rfc5322HeaderParser.generated.cpp"
 		}
 	}
 
@@ -2438,7 +2438,7 @@ _again:
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
 	case 5:
-#line 86 "Rfc5322HeaderParser.cpp"
+#line 87 "Rfc5322HeaderParser.cpp"
 	{
         if (list.size() == 1) {
 #ifdef RAGEL_DEBUG
@@ -2453,7 +2453,7 @@ _again:
     }
 	break;
 	case 6:
-#line 99 "Rfc5322HeaderParser.cpp"
+#line 100 "Rfc5322HeaderParser.cpp"
 	{
         inReplyTo += list;
 #ifdef RAGEL_DEBUG
@@ -2462,7 +2462,7 @@ _again:
     }
 	break;
 	case 7:
-#line 106 "Rfc5322HeaderParser.cpp"
+#line 107 "Rfc5322HeaderParser.cpp"
 	{
         references += list;
 #ifdef RAGEL_DEBUG
@@ -2471,7 +2471,7 @@ _again:
     }
 	break;
 	case 8:
-#line 113 "Rfc5322HeaderParser.cpp"
+#line 114 "Rfc5322HeaderParser.cpp"
 	{
         listPost += list;
 #ifdef RAGEL_DEBUG
@@ -2480,7 +2480,7 @@ _again:
     }
 	break;
 	case 10:
-#line 127 "Rfc5322HeaderParser.cpp"
+#line 128 "Rfc5322HeaderParser.cpp"
 	{
 #ifdef RAGEL_DEBUG
         qDebug() << "Error when parsing RFC5322 headers";
@@ -2488,7 +2488,7 @@ _again:
         m_error = true;
     }
 	break;
-#line 2491 "Rfc5322HeaderParser.generated.cpp"
+#line 2492 "Rfc5322HeaderParser.generated.cpp"
 		}
 	}
 	}
@@ -2496,7 +2496,7 @@ _again:
 	_out: {}
 	}
 
-#line 172 "Rfc5322HeaderParser.cpp"
+#line 173 "Rfc5322HeaderParser.cpp"
 
     return !m_error;
 }
