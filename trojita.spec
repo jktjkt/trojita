@@ -84,6 +84,8 @@ make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
 %dir %{_datadir}/icons/hicolor/*/apps
 %{_datadir}/icons/hicolor/32x32/apps/trojita.png
 %{_datadir}/icons/hicolor/scalable/apps/trojita.svg
+%dir %{_datadir}/trojita
+%dir %{_datadir}/trojita/locale
 %{_datadir}/trojita/locale/trojita_common_*.qm
 
 %check
