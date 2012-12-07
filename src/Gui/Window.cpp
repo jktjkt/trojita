@@ -511,6 +511,15 @@ void MainWindow::setupModels()
             QMessageBox::critical(this, tr("Cache Error"), tr("Failed to create directory %1").arg(cacheDir));
             shouldUsePersistentCache = false;
         }
+        QFile::Permissions expectedPerms = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner;
+        if (QFileInfo(cacheDir).permissions() != expectedPerms) {
+            if (!QFile::setPermissions(cacheDir, expectedPerms)) {
+#ifndef Q_OS_WIN32
+                QMessageBox::critical(this, tr("Cache Error"), tr("Failed to set safe permissions on cache directory %1").arg(cacheDir));
+                shouldUsePersistentCache = false;
+#endif
+            }
+        }
     }
 
     //setProperty( "trojita-sqlcache-commit-period", QVariant(5000) );
