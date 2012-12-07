@@ -143,46 +143,43 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
 
 void GeneralPage::updateButtonsState()
 {
-    deleteButton->setEnabled(true);
-    editButton->setEnabled(true);
+    bool enabled = identityTabelView->currentIndex().isValid();
+    deleteButton->setEnabled(enabled);
+    editButton->setEnabled(enabled);
 }
 
 void GeneralPage::addButtonClicked()
 {
-    EditIdentity *dialog = new EditIdentity(this, m_identitiesModel);
+    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(QString(), QString()));
+    identityTabelView->setCurrentIndex(m_identitiesModel->index(m_identitiesModel->rowCount() - 1, 0));
+    EditIdentity *dialog = new EditIdentity(this, m_identitiesModel, identityTabelView->currentIndex());
+    dialog->setDeleteOnReject();
     dialog->setWindowTitle(tr("Add New Identity"));
     dialog->show();
+    updateButtonsState();
 }
 
 void GeneralPage::editButtonClicked()
 {
-    EditIdentity *dialog = new EditIdentity(this,  m_identitiesModel);
+    EditIdentity *dialog = new EditIdentity(this,  m_identitiesModel, identityTabelView->currentIndex());
     dialog->setWindowTitle(tr("Edit Identity"));
     dialog->show();
 }
 
 void GeneralPage::deleteButtonClicked()
 {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Delete Identity");
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText("Are you sure you want to delete this identity?");
-    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Yes);
-    msgBox.setDefaultButton(QMessageBox::Cancel);
-    msgBox.setModal(true);
-    msgBox.show();
-
-    switch(msgBox.exec())
-    {
-    case QMessageBox::Cancel:
-        msgBox.close();
-        break;
-    case QMessageBox::Yes:
-        m_identitiesModel->removeIdentityAt(0);
-        QSettings s;
-        s.remove(Common::SettingsNames::realNameKey);
-        s.remove(Common::SettingsNames::addressKey);
-        break;
+    Q_ASSERT(identityTabelView->currentIndex().isValid());
+    QMessageBox::StandardButton answer =
+            QMessageBox::question(this, tr("Delete Identity?"),
+                                  tr("Are you sure you want to delete identity %1 <%2>?").arg(
+                                      m_identitiesModel->index(identityTabelView->currentIndex().row(),
+                                                               Composer::SenderIdentitiesModel::COLUMN_NAME).data().toString(),
+                                      m_identitiesModel->index(identityTabelView->currentIndex().row(),
+                                                               Composer::SenderIdentitiesModel::COLUMN_EMAIL).data().toString()),
+                                  QMessageBox::Yes | QMessageBox::No);
+    if (answer == QMessageBox::Yes) {
+        m_identitiesModel->removeIdentityAt(identityTabelView->currentIndex().row());
+        updateButtonsState();
     }
 }
 
@@ -192,8 +189,8 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
 }
 
-EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel):
-    QDialog(parent), Ui_EditIdentity(), m_identitiesModel(identitiesModel)
+EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, const QModelIndex &currentIndex):
+    QDialog(parent), Ui_EditIdentity(), m_identitiesModel(identitiesModel), m_deleteOnReject(false)
 {
     Ui_EditIdentity::setupUi(this);
     m_mapper = new QDataWidgetMapper(this);
@@ -201,19 +198,33 @@ EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *ide
     m_mapper->addMapping(realNameLineEdit, Composer::SenderIdentitiesModel::COLUMN_NAME);
     m_mapper->addMapping(emailLineEdit, Composer::SenderIdentitiesModel::COLUMN_EMAIL);
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
-    m_mapper->toFirst();
+    m_mapper->setCurrentIndex(currentIndex.row());
     buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     connect(realNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
     connect(emailLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
     connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
     connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
     connect(this, SIGNAL(accepted()), m_mapper, SLOT(submit()));
+    connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
     setModal(true);
 }
 
 void EditIdentity::enableButton()
 {
-    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(
+        !realNameLineEdit->text().isEmpty() && !emailLineEdit->text().isEmpty());
+}
+
+/** @short If enabled, make sure that the current row gets deleted when the dialog is rejected */
+void EditIdentity::setDeleteOnReject(const bool reject)
+{
+    m_deleteOnReject = reject;
+}
+
+void EditIdentity::onReject()
+{
+    if (m_deleteOnReject)
+        m_identitiesModel->removeIdentityAt(m_mapper->currentIndex());
 }
 
 ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapPage()

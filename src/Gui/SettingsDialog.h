@@ -72,14 +72,17 @@ class EditIdentity : public QDialog, Ui_EditIdentity
 {
     Q_OBJECT
 public:
-    EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel);
+    EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, const QModelIndex &currentIndex);
+    void setDeleteOnReject(const bool reject = true);
 
 public slots:
     void enableButton();
+    void onReject();
 
 private:
     Composer::SenderIdentitiesModel *m_identitiesModel;
     QDataWidgetMapper *m_mapper;
+    bool m_deleteOnReject;
 
     EditIdentity(const EditIdentity &); // don't implement
     EditIdentity &operator=(const EditIdentity &); // don't implement
