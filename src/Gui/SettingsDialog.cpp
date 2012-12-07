@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2012        Mohammed Nafees <nafees.technocool@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -37,6 +38,9 @@
 #include <QPushButton>
 #include <QResizeEvent>
 #include <QDebug>
+#include <QStandardItemModel>
+#include <QMessageBox>
+#include <QDataWidgetMapper>
 #include "SettingsDialog.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Common/PortNumbers.h"
@@ -102,38 +106,134 @@ void SettingsDialog::accept()
 }
 
 GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
-    QWidget(parent), m_identitiesModel(identitiesModel)
+    QScrollArea(parent), Ui_GeneralPage(), m_identitiesModel(identitiesModel)
 {
-    QFormLayout *layout = new QFormLayout(this);
+    Ui_GeneralPage::setupUi(this);
     Q_ASSERT(m_identitiesModel);
+    editButton->setEnabled(false);
+    deleteButton->setEnabled(false);
+    identityTabelView->setModel(m_identitiesModel);
+    identityTabelView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    identityTabelView->setSelectionMode(QAbstractItemView::SingleSelection);
+    identityTabelView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    identityTabelView->resizeColumnsToContents();
+    identityTabelView->resizeRowsToContents();
+    identityTabelView->setGridStyle(Qt::NoPen);
     QModelIndex nameIndex = m_identitiesModel->index(0, Composer::SenderIdentitiesModel::COLUMN_NAME);
     QModelIndex mailIndex = m_identitiesModel->index(0, Composer::SenderIdentitiesModel::COLUMN_EMAIL);
-    realName = new QLineEdit(nameIndex.data().toString(), this);
-    layout->addRow(tr("Real Name"), realName);
-    address = new QLineEdit(mailIndex.data().toString(), this);
-    layout->addRow(tr("E-mail"), address);
-    QFrame *separator = new QFrame(this);
-    separator->setFrameShape(QFrame::HLine);
-    layout->addRow(separator);
-    showHomepage = new QCheckBox(trUtf8("Show Trojitá's homepage on startup"), this);
-    showHomepage->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
-    showHomepage->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
-                                    "<p>The remote server will receive the user's IP address and versions of Trojitá, the Qt library, "
-                                    "and the underlying operating system. No private information, like account settings "
-                                    "or IMAP server details, are collected.</p>"));
-    layout->addRow(showHomepage);
+
+    showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
+    showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
+                                        "<p>The remote server will receive the user's IP address and versions of Trojitá, the Qt library, "
+                                        "and the underlying operating system. No private information, like account settings "
+                                        "or IMAP server details, are collected.</p>"));
+
+    connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(enableButtons()));
+    connect(addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
+    connect(editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
+    connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
+
+}
+
+void GeneralPage::enableButtons()
+{
+    deleteButton->setEnabled(true);
+    editButton->setEnabled(true);
+}
+
+void GeneralPage::addButtonClicked()
+{
+    QSettings s;
+    EditIdentity *dialog = new EditIdentity(this, s, m_identitiesModel);
+    dialog->setWindowTitle(tr("Add New Identity"));
+    dialog->show();
+}
+
+void GeneralPage::editButtonClicked()
+{
+    QSettings s;
+    EditIdentity *dialog = new EditIdentity(this, s, m_identitiesModel);
+    dialog->setWindowTitle(tr("Edit Identity"));
+    dialog->show();
+}
+
+void GeneralPage::deleteButtonClicked()
+{
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Delete Identity");
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText("Are you sure you want to delete this identity?");
+    msgBox.setStandardButtons(QMessageBox::Cancel | QMessageBox::Yes);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    msgBox.setModal(true);
+    msgBox.show();
+
+    switch(msgBox.exec())
+    {
+    case QMessageBox::Cancel:
+        msgBox.close();
+        break;
+    case QMessageBox::Yes:
+        m_identitiesModel->removeIdentityAt(0);
+        QSettings s;
+        s.remove(Common::SettingsNames::realNameKey);
+        s.remove(Common::SettingsNames::addressKey);
+        break;
+    }
 }
 
 void GeneralPage::save(QSettings &s)
 {
     // FIXME: replace this block with support for multiple identities
-    while (m_identitiesModel->rowCount()) {
+   while (m_identitiesModel->rowCount()) {
         m_identitiesModel->removeIdentityAt(0);
     }
-    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(realName->text(), address->text()));
+    //m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(realNameLineEdit->text(), emailLineEdit->text()));
     m_identitiesModel->saveToSettings(s);
 
-    s.setValue(Common::SettingsNames::appLoadHomepage, showHomepage->isChecked());
+    s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
+}
+
+EditIdentity::EditIdentity(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
+    QDialog(parent), Ui_EditIdentity(), m_identitiesModel(identitiesModel)
+{
+    Ui_EditIdentity::setupUi(this);
+    QDataWidgetMapper *mapper = new QDataWidgetMapper(this);
+    mapper->setModel(m_identitiesModel);
+    mapper->addMapping(realNameLineEdit, Composer::SenderIdentitiesModel::COLUMN_NAME);
+    mapper->addMapping(emailLineEdit, Composer::SenderIdentitiesModel::COLUMN_EMAIL);
+    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    mapper->toFirst();
+    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+    connect(realNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
+    connect(emailLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
+    connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), SLOT(okButtonClicked()));
+    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(close()));
+    setModal(true);
+}
+
+void EditIdentity::enableButton()
+{
+    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
+}
+
+void EditIdentity::okButtonClicked()
+{
+    QSettings s;
+    save(s);
+}
+
+void EditIdentity::save(QSettings &s)
+{
+    /*QList<Identity> identities;
+    s.beginWriteArray("identities");
+     for (int i = 0; i<identities.size(); ++i) {
+         s.setArrayIndex(i);
+         s.setValue(Common::SettingsNames::realNameKey, identities.at(i).name);
+         s.setValue(Common::SettingsNames::addressKey, identities.at(i).email);
+     }
+     s.endArray();*/
+     close();
 }
 
 ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapPage()
