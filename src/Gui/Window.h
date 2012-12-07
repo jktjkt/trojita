@@ -170,6 +170,7 @@ private:
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
+    QAbstractItemModel *m_senderIdentities;
 
     MailBoxTreeView *mboxTree;
     MessageListWidget *msgListWidget;
