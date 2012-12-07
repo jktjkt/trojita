@@ -36,6 +36,11 @@ class QRadioButton;
 class QSpinBox;
 class QTabWidget;
 
+namespace Composer
+{
+class SenderIdentitiesModel;
+}
+
 namespace Gui
 {
 
@@ -43,12 +48,13 @@ class GeneralPage : public QWidget
 {
     Q_OBJECT
 public:
-    GeneralPage(QWidget *parent, QSettings &s);
+    GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
     void save(QSettings &s);
 private:
     QLineEdit *realName;
     QLineEdit *address;
     QCheckBox *showHomepage;
+    Composer::SenderIdentitiesModel *m_identitiesModel;
 
     GeneralPage(const GeneralPage &); // don't implement
     GeneralPage &operator=(const GeneralPage &); // don't implement
@@ -154,7 +160,7 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SettingsDialog();
+    SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel);
 
     static QString warningStyleSheet;
 public slots:
@@ -168,6 +174,7 @@ private:
 #ifdef XTUPLE_CONNECT
     XtConnectPage *xtConnect;
 #endif
+    Composer::SenderIdentitiesModel *m_senderIdentities;
 
     SettingsDialog(const SettingsDialog &); // don't implement
     SettingsDialog &operator=(const SettingsDialog &); // don't implement
