@@ -25,6 +25,8 @@
 
 #include <QAbstractTableModel>
 
+class QSettings;
+
 namespace Composer
 {
 
@@ -51,6 +53,9 @@ public:
 
     void appendIdentity(const ItemSenderIdentity &item);
     void removeIdentityAt(const int position);
+
+    void loadFromSettings(const QSettings &s);
+    void saveToSettings(QSettings &s) const;
 
 private:
     QList<ItemSenderIdentity> m_identities;

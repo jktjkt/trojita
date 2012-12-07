@@ -9,3 +9,6 @@ HEADERS += \
     SubjectMangling.h \
     PlainTextFormatter.h \
     SenderIdentitiesModel.h
+
+INCLUDEPATH += ../
+DEPENDPATH += ../

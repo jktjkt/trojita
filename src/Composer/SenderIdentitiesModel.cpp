@@ -21,6 +21,8 @@
 */
 
 #include "SenderIdentitiesModel.h"
+#include <QSettings>
+#include "Common/SettingsNames.h"
 
 namespace Composer
 {
@@ -100,6 +102,28 @@ void SenderIdentitiesModel::removeIdentityAt(const int position)
     beginRemoveRows(QModelIndex(), position, position);
     m_identities.removeAt(position);
     endRemoveRows();
+}
+
+void SenderIdentitiesModel::loadFromSettings(const QSettings &s)
+{
+    beginResetModel();
+    m_identities.clear();
+
+    // FIXME: replace this block with support for multiple identities
+    m_identities << ItemSenderIdentity(
+                        s.value(Common::SettingsNames::realNameKey).toString(),
+                        s.value(Common::SettingsNames::addressKey).toString());
+    endResetModel();
+}
+
+void SenderIdentitiesModel::saveToSettings(QSettings &s) const
+{
+    // FIXME: replace this with support for multiple identities
+
+    if (m_identities.size() == 1) {
+        s.setValue(Common::SettingsNames::realNameKey, m_identities[0].realName);
+        s.setValue(Common::SettingsNames::addressKey, m_identities[0].emailAddress);
+    }
 }
 
 }
