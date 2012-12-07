@@ -56,7 +56,7 @@ public:
     void save(QSettings &s);
 
 private slots:
-    void enableButtons();
+    void updateButtonsState();
     void addButtonClicked();
     void editButtonClicked();
     void deleteButtonClicked();

@@ -134,14 +134,14 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
                                         "and the underlying operating system. No private information, like account settings "
                                         "or IMAP server details, are collected.</p>"));
 
-    connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(enableButtons()));
+    connect(identityTabelView, SIGNAL(activated(QModelIndex)), SLOT(updateButtonsState()));
     connect(addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
     connect(editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
     connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
 
 }
 
-void GeneralPage::enableButtons()
+void GeneralPage::updateButtonsState()
 {
     deleteButton->setEnabled(true);
     editButton->setEnabled(true);
