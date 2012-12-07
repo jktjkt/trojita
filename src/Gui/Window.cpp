@@ -97,6 +97,9 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
     }
 
+    QTreeView *view = new QTreeView(0);
+    view->show();
+    view->setModel(m_senderIdentities);
 
     setupModels();
     createActions();
