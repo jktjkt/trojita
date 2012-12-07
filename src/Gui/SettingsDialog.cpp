@@ -40,6 +40,7 @@
 #include <QDebug>
 #include <QStandardItemModel>
 #include <QMessageBox>
+#include <QDataWidgetMapper>
 #include "SettingsDialog.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Common/PortNumbers.h"
@@ -131,6 +132,7 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
     connect(addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
     connect(editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
     connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
+
 }
 
 void GeneralPage::enableButtons()
@@ -142,7 +144,7 @@ void GeneralPage::enableButtons()
 void GeneralPage::addButtonClicked()
 {
     QSettings s;
-    EditIdentity *dialog = new EditIdentity(this, s);
+    EditIdentity *dialog = new EditIdentity(this, s, m_identitiesModel);
     dialog->setWindowTitle(tr("Add New Identity"));
     dialog->show();
 }
@@ -150,9 +152,8 @@ void GeneralPage::addButtonClicked()
 void GeneralPage::editButtonClicked()
 {
     QSettings s;
-    EditIdentity *dialog = new EditIdentity(this, s);
+    EditIdentity *dialog = new EditIdentity(this, s, m_identitiesModel);
     dialog->setWindowTitle(tr("Edit Identity"));
-    //dialog->realNameLineEdit->setText(QString(s.value(Common::SettingsNames::realNameKey).toString()));
     dialog->show();
 }
 
@@ -193,19 +194,27 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
 }
 
-EditIdentity::EditIdentity(QWidget *parent, QSettings &s): QDialog(parent), Ui_EditIdentity()
+EditIdentity::EditIdentity(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
+    QDialog(parent), Ui_EditIdentity(), m_identitiesModel(identitiesModel)
 {
     Ui_EditIdentity::setupUi(this);
-    okButton->setEnabled(false);
+    QDataWidgetMapper *mapper = new QDataWidgetMapper(this);
+    mapper->setModel(m_identitiesModel);
+    mapper->addMapping(realNameLineEdit, Composer::SenderIdentitiesModel::COLUMN_NAME);
+    mapper->addMapping(emailLineEdit, Composer::SenderIdentitiesModel::COLUMN_EMAIL);
+    mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
+    mapper->toFirst();
+    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     connect(realNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
     connect(emailLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
-    connect(okButton, SIGNAL(clicked()), SLOT(okButtonClicked()));
+    connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), SLOT(okButtonClicked()));
+    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(close()));
     setModal(true);
 }
 
 void EditIdentity::enableButton()
 {
-    okButton->setEnabled(true);
+    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
 }
 
 void EditIdentity::okButtonClicked()

@@ -71,7 +71,7 @@ class EditIdentity : public QDialog, Ui_EditIdentity
 {
     Q_OBJECT
 public:
-    EditIdentity(QWidget *parent, QSettings &s);
+    EditIdentity(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
     void save(QSettings &s);
 
 public slots:
@@ -79,6 +79,8 @@ public slots:
     void okButtonClicked();
 
 private:
+    Composer::SenderIdentitiesModel *m_identitiesModel;
+
     EditIdentity(const EditIdentity &); // don't implement
     EditIdentity &operator=(const EditIdentity &); // don't implement
 };
