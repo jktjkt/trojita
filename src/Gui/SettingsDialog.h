@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2012        Mohammed Nafees <nafees.technocool@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -25,6 +26,8 @@
 #include <QDialog>
 #include <QPointer>
 #include <QSettings>
+#include "ui_SettingsGeneralPage.h"
+#include "ui_EditIdentity.h"
 #include "ui_SettingsImapPage.h"
 #include "ui_SettingsCachePage.h"
 #include "ui_SettingsOutgoingPage.h"
@@ -36,23 +39,52 @@ class QRadioButton;
 class QSpinBox;
 class QTabWidget;
 
+namespace Composer
+{
+class SenderIdentitiesModel;
+}
+
 namespace Gui
 {
 
-class GeneralPage : public QWidget
+class GeneralPage : public QScrollArea, Ui_GeneralPage
 {
     Q_OBJECT
 public:
-    GeneralPage(QWidget *parent, QSettings &s);
+    GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
     void save(QSettings &s);
+
+private slots:
+    void enableButtons();
+    void addButtonClicked();
+    void editButtonClicked();
+    void deleteButtonClicked();
+
 private:
-    QLineEdit *realName;
-    QLineEdit *address;
-    QCheckBox *showHomepage;
+    Composer::SenderIdentitiesModel *m_identitiesModel;
 
     GeneralPage(const GeneralPage &); // don't implement
     GeneralPage &operator=(const GeneralPage &); // don't implement
 };
+
+class EditIdentity : public QDialog, Ui_EditIdentity
+{
+    Q_OBJECT
+public:
+    EditIdentity(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
+    void save(QSettings &s);
+
+public slots:
+    void enableButton();
+    void okButtonClicked();
+
+private:
+    Composer::SenderIdentitiesModel *m_identitiesModel;
+
+    EditIdentity(const EditIdentity &); // don't implement
+    EditIdentity &operator=(const EditIdentity &); // don't implement
+};
+
 
 class OutgoingPage : public QScrollArea, Ui_OutgoingPage
 {
@@ -154,7 +186,7 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SettingsDialog();
+    SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel);
 
     static QString warningStyleSheet;
 public slots:
@@ -168,6 +200,7 @@ private:
 #ifdef XTUPLE_CONNECT
     XtConnectPage *xtConnect;
 #endif
+    Composer::SenderIdentitiesModel *m_senderIdentities;
 
     SettingsDialog(const SettingsDialog &); // don't implement
     SettingsDialog &operator=(const SettingsDialog &); // don't implement

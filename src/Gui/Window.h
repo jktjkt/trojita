@@ -39,6 +39,11 @@ class QSslError;
 class QToolButton;
 class QTreeView;
 
+namespace Composer
+{
+class SenderIdentitiesModel;
+}
+
 namespace Imap
 {
 namespace Mailbox
@@ -170,6 +175,7 @@ private:
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
+    Composer::SenderIdentitiesModel *m_senderIdentities;
 
     MailBoxTreeView *mboxTree;
     MessageListWidget *msgListWidget;

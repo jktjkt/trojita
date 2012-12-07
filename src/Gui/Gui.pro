@@ -83,6 +83,8 @@ FORMS += CreateMailboxDialog.ui \
     SettingsImapPage.ui \
     SettingsCachePage.ui \
     SettingsOutgoingPage.ui \
+    SettingsGeneralPage.ui \
+    EditIdentity.ui
 
 RESOURCES += ../icons.qrc
 
