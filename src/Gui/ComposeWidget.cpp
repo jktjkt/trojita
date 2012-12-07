@@ -321,13 +321,10 @@ void ComposeWidget::send()
 
 
 
-void ComposeWidget::setData(const QString &from, const QList<QPair<RecipientKind, QString> > &recipients,
+void ComposeWidget::setData(const QList<QPair<RecipientKind, QString> > &recipients,
                             const QString &subject, const QString &body, const QList<QByteArray> &inReplyTo,
                             const QList<QByteArray> &references)
 {
-    // FIXME: combobox for from...
-    //ui->sender->addItem(from);
-
     for (int i = 0; i < recipients.size(); ++i) {
         addRecipient(i, recipients.at(i).first, recipients.at(i).second);
     }
