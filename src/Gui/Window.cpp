@@ -44,6 +44,7 @@
 
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
+#include "Composer/SenderIdentitiesModel.h"
 #include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
@@ -92,6 +93,8 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     if (! s.contains(Common::SettingsNames::imapMethodKey)) {
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
     }
+
+    m_senderIdentities = new Composer::SenderIdentitiesModel(this);
 
     setupModels();
     createActions();
@@ -616,7 +619,6 @@ void MainWindow::setupModels()
 
     // TODO write more addressbook backends and make this configurable
     m_addressBook = new AbookAddressbook();
-
 }
 
 void MainWindow::msgListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
