@@ -39,6 +39,7 @@ public:
     QString emailAddress;
 };
 
+/** @short Model for a list of available sender identities */
 class SenderIdentitiesModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -50,12 +51,15 @@ public:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, const int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+    /** @short Reimplemented from QAbstractTableModel; required for QDataWidgetMapper. */
     virtual bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
     void appendIdentity(const ItemSenderIdentity &item);
     void removeIdentityAt(const int position);
 
+    /** @short Replace the contents of this model by data read from a QSettings instance */
     void loadFromSettings(const QSettings &s);
+    /** @short Save the data into a QSettings instance */
     void saveToSettings(QSettings &s) const;
 
 private:

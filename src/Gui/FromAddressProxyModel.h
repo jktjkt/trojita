@@ -28,6 +28,13 @@
 namespace Gui
 {
 
+/** @short Proxy model which displays a list of sender identities
+
+The source model presents the sender's real name and her e-mail address as two columns -- a form which cannot be immediately used
+in a QComboxBox.
+
+This proxy model simply combines the relevant columns into a single string which can be shown to the user.
+*/
 class FromAddressProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
