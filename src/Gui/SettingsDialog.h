@@ -27,7 +27,7 @@
 #include <QPointer>
 #include <QSettings>
 #include "ui_SettingsGeneralPage.h"
-#include "ui_ManageIdentity.h"
+#include "ui_EditIdentity.h"
 #include "ui_SettingsImapPage.h"
 #include "ui_SettingsCachePage.h"
 #include "ui_SettingsOutgoingPage.h"
@@ -62,17 +62,16 @@ private slots:
 
 private:
     Composer::SenderIdentitiesModel *m_identitiesModel;
-    Ui_ManageIdentity *identityUi;
 
     GeneralPage(const GeneralPage &); // don't implement
     GeneralPage &operator=(const GeneralPage &); // don't implement
 };
 
-class ManageIdentity : public QDialog, Ui_ManageIdentity
+class EditIdentity : public QDialog, Ui_EditIdentity
 {
     Q_OBJECT
 public:
-    ManageIdentity(QWidget *parent, QSettings &s);
+    EditIdentity(QWidget *parent, QSettings &s);
     void save(QSettings &s);
 
 public slots:
@@ -80,8 +79,8 @@ public slots:
     void okButtonClicked();
 
 private:
-    ManageIdentity(const ManageIdentity &); // don't implement
-    ManageIdentity &operator=(const ManageIdentity &); // don't implement
+    EditIdentity(const EditIdentity &); // don't implement
+    EditIdentity &operator=(const EditIdentity &); // don't implement
 };
 
 

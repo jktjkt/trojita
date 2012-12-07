@@ -105,12 +105,19 @@ void SettingsDialog::accept()
 }
 
 GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
-    QScrollArea(parent), Ui_GeneralPage(), m_identitiesModel(identitiesModel), identityUi(new Ui_ManageIdentity)
+    QScrollArea(parent), Ui_GeneralPage(), m_identitiesModel(identitiesModel)
 {
     Ui_GeneralPage::setupUi(this);
     Q_ASSERT(m_identitiesModel);
     editButton->setEnabled(false);
     deleteButton->setEnabled(false);
+    identityTabelView->setModel(m_identitiesModel);
+    identityTabelView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    identityTabelView->setSelectionMode(QAbstractItemView::SingleSelection);
+    identityTabelView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    identityTabelView->resizeColumnsToContents();
+    identityTabelView->resizeRowsToContents();
+    identityTabelView->setGridStyle(Qt::NoPen);
     QModelIndex nameIndex = m_identitiesModel->index(0, Composer::SenderIdentitiesModel::COLUMN_NAME);
     QModelIndex mailIndex = m_identitiesModel->index(0, Composer::SenderIdentitiesModel::COLUMN_EMAIL);
 
@@ -135,7 +142,7 @@ void GeneralPage::enableButtons()
 void GeneralPage::addButtonClicked()
 {
     QSettings s;
-    ManageIdentity *dialog = new ManageIdentity(this, s);
+    EditIdentity *dialog = new EditIdentity(this, s);
     dialog->setWindowTitle(tr("Add New Identity"));
     dialog->show();
 }
@@ -143,8 +150,9 @@ void GeneralPage::addButtonClicked()
 void GeneralPage::editButtonClicked()
 {
     QSettings s;
-    ManageIdentity *dialog = new ManageIdentity(this, s);
+    EditIdentity *dialog = new EditIdentity(this, s);
     dialog->setWindowTitle(tr("Edit Identity"));
+    //dialog->realNameLineEdit->setText(QString(s.value(Common::SettingsNames::realNameKey).toString()));
     dialog->show();
 }
 
@@ -165,7 +173,10 @@ void GeneralPage::deleteButtonClicked()
         msgBox.close();
         break;
     case QMessageBox::Yes:
-
+        m_identitiesModel->removeIdentityAt(0);
+        QSettings s;
+        s.remove(Common::SettingsNames::realNameKey);
+        s.remove(Common::SettingsNames::addressKey);
         break;
     }
 }
@@ -173,18 +184,18 @@ void GeneralPage::deleteButtonClicked()
 void GeneralPage::save(QSettings &s)
 {
     // FIXME: replace this block with support for multiple identities
-    while (m_identitiesModel->rowCount()) {
+   while (m_identitiesModel->rowCount()) {
         m_identitiesModel->removeIdentityAt(0);
     }
-    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(identityUi->realNameLineEdit->text(), identityUi->emailLineEdit->text()));
+    //m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(realNameLineEdit->text(), emailLineEdit->text()));
     m_identitiesModel->saveToSettings(s);
 
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
 }
 
-ManageIdentity::ManageIdentity(QWidget *parent, QSettings &s): QDialog(parent), Ui_ManageIdentity()
+EditIdentity::EditIdentity(QWidget *parent, QSettings &s): QDialog(parent), Ui_EditIdentity()
 {
-    Ui_ManageIdentity::setupUi(this);
+    Ui_EditIdentity::setupUi(this);
     okButton->setEnabled(false);
     connect(realNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
     connect(emailLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
@@ -192,18 +203,18 @@ ManageIdentity::ManageIdentity(QWidget *parent, QSettings &s): QDialog(parent), 
     setModal(true);
 }
 
-void ManageIdentity::enableButton()
+void EditIdentity::enableButton()
 {
     okButton->setEnabled(true);
 }
 
-void ManageIdentity::okButtonClicked()
+void EditIdentity::okButtonClicked()
 {
     QSettings s;
     save(s);
 }
 
-void ManageIdentity::save(QSettings &s)
+void EditIdentity::save(QSettings &s)
 {
     /*QList<Identity> identities;
     s.beginWriteArray("identities");

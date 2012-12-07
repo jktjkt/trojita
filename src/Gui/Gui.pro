@@ -84,7 +84,7 @@ FORMS += CreateMailboxDialog.ui \
     SettingsCachePage.ui \
     SettingsOutgoingPage.ui \
     SettingsGeneralPage.ui \
-    ManageIdentity.ui
+    EditIdentity.ui
 
 RESOURCES += ../icons.qrc
 
