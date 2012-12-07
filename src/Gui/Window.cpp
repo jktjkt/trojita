@@ -88,13 +88,15 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     createWidgets();
 
     migrateSettings();
-
     QSettings s;
+
+    m_senderIdentities = new Composer::SenderIdentitiesModel(this);
+    m_senderIdentities->loadFromSettings(s);
+
     if (! s.contains(Common::SettingsNames::imapMethodKey)) {
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
     }
 
-    m_senderIdentities = new Composer::SenderIdentitiesModel(this);
 
     setupModels();
     createActions();
@@ -838,7 +840,7 @@ void MainWindow::networkPolicyOnline()
 
 void MainWindow::slotShowSettings()
 {
-    SettingsDialog *dialog = new SettingsDialog();
+    SettingsDialog *dialog = new SettingsDialog(this, m_senderIdentities);
     if (dialog->exec() == QDialog::Accepted) {
         // FIXME: wipe cache in case we're moving between servers
         nukeModels();

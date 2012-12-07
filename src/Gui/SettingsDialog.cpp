@@ -38,6 +38,7 @@
 #include <QResizeEvent>
 #include <QDebug>
 #include "SettingsDialog.h"
+#include "Composer/SenderIdentitiesModel.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 
@@ -48,7 +49,8 @@ QString SettingsDialog::warningStyleSheet = QLatin1String("border: 2px solid red
         "font-weight: bold; padding: 5px; margin: 5px; "
         "text-align: center;");
 
-SettingsDialog::SettingsDialog(): QDialog()
+SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel):
+    QDialog(parent), m_senderIdentities(identitiesModel)
 {
     setWindowTitle(tr("Settings"));
     QSettings s;
@@ -58,7 +60,7 @@ SettingsDialog::SettingsDialog(): QDialog()
     layout->addWidget(stack);
     stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    general = new GeneralPage(this, s);
+    general = new GeneralPage(this, s, m_senderIdentities);
     stack->addTab(general, tr("General"));
     imap = new ImapPage(stack, s);
     stack->addTab(imap, tr("IMAP"));
@@ -99,12 +101,16 @@ void SettingsDialog::accept()
     QDialog::accept();
 }
 
-GeneralPage::GeneralPage(QWidget *parent, QSettings &s): QWidget(parent)
+GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
+    QWidget(parent), m_identitiesModel(identitiesModel)
 {
     QFormLayout *layout = new QFormLayout(this);
-    realName = new QLineEdit(s.value(Common::SettingsNames::realNameKey).toString(), this);
+    Q_ASSERT(m_identitiesModel);
+    QModelIndex nameIndex = m_identitiesModel->index(0, Composer::SenderIdentitiesModel::COLUMN_NAME);
+    QModelIndex mailIndex = m_identitiesModel->index(0, Composer::SenderIdentitiesModel::COLUMN_EMAIL);
+    realName = new QLineEdit(nameIndex.data().toString(), this);
     layout->addRow(tr("Real Name"), realName);
-    address = new QLineEdit(s.value(Common::SettingsNames::addressKey).toString(), this);
+    address = new QLineEdit(mailIndex.data().toString(), this);
     layout->addRow(tr("E-mail"), address);
     QFrame *separator = new QFrame(this);
     separator->setFrameShape(QFrame::HLine);
@@ -120,8 +126,13 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s): QWidget(parent)
 
 void GeneralPage::save(QSettings &s)
 {
-    s.setValue(Common::SettingsNames::realNameKey, realName->text());
-    s.setValue(Common::SettingsNames::addressKey, address->text());
+    // FIXME: replace this block with support for multiple identities
+    while (m_identitiesModel->rowCount()) {
+        m_identitiesModel->removeIdentityAt(0);
+    }
+    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(realName->text(), address->text()));
+    m_identitiesModel->saveToSettings(s);
+
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepage->isChecked());
 }
 
