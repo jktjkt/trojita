@@ -105,7 +105,7 @@ void SettingsDialog::accept()
 }
 
 GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
-    QScrollArea(parent), Ui_GeneralPage(), Ui_ManageIdentity(), m_identitiesModel(identitiesModel)
+    QScrollArea(parent), Ui_GeneralPage(), m_identitiesModel(identitiesModel), identityUi(new Ui_ManageIdentity)
 {
     Ui_GeneralPage::setupUi(this);
     Q_ASSERT(m_identitiesModel);
@@ -135,7 +135,7 @@ void GeneralPage::enableButtons()
 void GeneralPage::addButtonClicked()
 {
     QSettings s;
-    ManageIdentity *dialog = new ManageIdentity(dialog, s);
+    ManageIdentity *dialog = new ManageIdentity(this, s);
     dialog->setWindowTitle(tr("Add New Identity"));
     dialog->show();
 }
@@ -143,7 +143,7 @@ void GeneralPage::addButtonClicked()
 void GeneralPage::editButtonClicked()
 {
     QSettings s;
-    ManageIdentity *dialog = new ManageIdentity(dialog, s);
+    ManageIdentity *dialog = new ManageIdentity(this, s);
     dialog->setWindowTitle(tr("Edit Identity"));
     dialog->show();
 }
@@ -176,7 +176,7 @@ void GeneralPage::save(QSettings &s)
     while (m_identitiesModel->rowCount()) {
         m_identitiesModel->removeIdentityAt(0);
     }
-    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(realNameLineEdit->text(), emailLineEdit->text()));
+    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(identityUi->realNameLineEdit->text(), identityUi->emailLineEdit->text()));
     m_identitiesModel->saveToSettings(s);
 
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
@@ -186,10 +186,15 @@ ManageIdentity::ManageIdentity(QWidget *parent, QSettings &s): QDialog(parent), 
 {
     Ui_ManageIdentity::setupUi(this);
     okButton->setEnabled(false);
-    connect(realNameLineEdit, SIGNAL(textChanged(QString)), okButton, SLOT(setEnabled(bool)));
-    connect(emailLineEdit, SIGNAL(textChanged(QString)), okButton, SLOT(setEnabled(bool)));
+    connect(realNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
+    connect(emailLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
     connect(okButton, SIGNAL(clicked()), SLOT(okButtonClicked()));
     setModal(true);
+}
+
+void ManageIdentity::enableButton()
+{
+    okButton->setEnabled(true);
 }
 
 void ManageIdentity::okButtonClicked()
@@ -617,7 +622,7 @@ void XtConnectPage::save(QSettings &s)
 
 void XtConnectPage::saveXtConfig()
 {
-    QSettings s(QUserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
+    QSettings s(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
 
     // Copy the IMAP settings
     Q_ASSERT(imap);
