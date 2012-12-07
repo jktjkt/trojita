@@ -47,7 +47,7 @@ class SenderIdentitiesModel;
 namespace Gui
 {
 
-class GeneralPage : public QScrollArea, Ui_GeneralPage, Ui_ManageIdentity
+class GeneralPage : public QScrollArea, Ui_GeneralPage
 {
     Q_OBJECT
 public:
@@ -62,6 +62,7 @@ private slots:
 
 private:
     Composer::SenderIdentitiesModel *m_identitiesModel;
+    Ui_ManageIdentity *identityUi;
 
     GeneralPage(const GeneralPage &); // don't implement
     GeneralPage &operator=(const GeneralPage &); // don't implement
@@ -75,6 +76,7 @@ public:
     void save(QSettings &s);
 
 public slots:
+    void enableButton();
     void okButtonClicked();
 
 private:
