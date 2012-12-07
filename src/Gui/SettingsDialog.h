@@ -34,6 +34,7 @@
 
 class QCheckBox;
 class QComboBox;
+class QDataWidgetMapper;
 class QLineEdit;
 class QRadioButton;
 class QSpinBox;
@@ -71,15 +72,14 @@ class EditIdentity : public QDialog, Ui_EditIdentity
 {
     Q_OBJECT
 public:
-    EditIdentity(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
-    void save(QSettings &s);
+    EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel);
 
 public slots:
     void enableButton();
-    void okButtonClicked();
 
 private:
     Composer::SenderIdentitiesModel *m_identitiesModel;
+    QDataWidgetMapper *m_mapper;
 
     EditIdentity(const EditIdentity &); // don't implement
     EditIdentity &operator=(const EditIdentity &); // don't implement
@@ -191,6 +191,7 @@ public:
     static QString warningStyleSheet;
 public slots:
     void accept();
+    void reject();
 private:
     QTabWidget *stack;
     GeneralPage *general;
