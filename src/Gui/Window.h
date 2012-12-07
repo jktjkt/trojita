@@ -87,6 +87,7 @@ public:
     bool isImapSubmissionSupported() const;
 
     const AbstractAddressbook *addressBook() const { return m_addressBook; }
+    Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
 
 private slots:
     void showContextMenuMboxTree(const QPoint &position);
