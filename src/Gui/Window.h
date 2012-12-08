@@ -39,6 +39,11 @@ class QSslError;
 class QToolButton;
 class QTreeView;
 
+namespace Composer
+{
+class SenderIdentitiesModel;
+}
+
 namespace Imap
 {
 namespace Mailbox
@@ -82,6 +87,7 @@ public:
     bool isImapSubmissionSupported() const;
 
     const AbstractAddressbook *addressBook() const { return m_addressBook; }
+    Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
 
 private slots:
     void showContextMenuMboxTree(const QPoint &position);
@@ -170,6 +176,7 @@ private:
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
+    Composer::SenderIdentitiesModel *m_senderIdentities;
 
     MailBoxTreeView *mboxTree;
     MessageListWidget *msgListWidget;

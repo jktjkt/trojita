@@ -31,9 +31,11 @@
 #include "AbstractAddressbook.h"
 #include "AutoCompletion.h"
 #include "ComposeWidget.h"
+#include "FromAddressProxyModel.h"
 #include "Window.h"
 #include "ui_ComposeWidget.h"
 
+#include "Composer/SenderIdentitiesModel.h"
 #include "Common/SettingsNames.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
@@ -96,6 +98,10 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
 
     connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
     connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
+
+    FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
+    proxy->setSourceModel(m_mainWindow->senderIdentitiesModel());
+    ui->sender->setModel(proxy);
 }
 
 ComposeWidget::~ComposeWidget()
@@ -315,12 +321,10 @@ void ComposeWidget::send()
 
 
 
-void ComposeWidget::setData(const QString &from, const QList<QPair<RecipientKind, QString> > &recipients,
+void ComposeWidget::setData(const QList<QPair<RecipientKind, QString> > &recipients,
                             const QString &subject, const QString &body, const QList<QByteArray> &inReplyTo,
                             const QList<QByteArray> &references)
 {
-    // FIXME: combobox for from...
-    ui->sender->addItem(from);
     for (int i = 0; i < recipients.size(); ++i) {
         addRecipient(i, recipients.at(i).first, recipients.at(i).second);
     }

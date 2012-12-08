@@ -55,8 +55,7 @@ public:
     explicit ComposeWidget(MainWindow *parent);
     ~ComposeWidget();
     typedef Imap::Mailbox::MessageComposer::RecipientKind RecipientKind;
-    void setData(const QString &from,
-                 const QList<QPair<RecipientKind, QString> > &recipients,
+    void setData(const QList<QPair<RecipientKind, QString> > &recipients,
                  const QString &subject,
                  const QString &body,
                  const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);

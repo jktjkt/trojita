@@ -24,8 +24,11 @@
 namespace Common
 {
 
-QString SettingsNames::realNameKey = QLatin1String("identity.realName");
-QString SettingsNames::addressKey = QLatin1String("identity.address");
+QString SettingsNames::identitiesKey = QLatin1String("identities");
+QString SettingsNames::realNameKey = QLatin1String("realName");
+QString SettingsNames::addressKey = QLatin1String("address");
+QString SettingsNames::obsRealNameKey = QLatin1String("identity.realName");
+QString SettingsNames::obsAddressKey = QLatin1String("identity.address");
 QString SettingsNames::msaMethodKey = QLatin1String("msa.method");
 QString SettingsNames::methodSMTP = QLatin1String("SMTP");
 QString SettingsNames::methodSSMTP = QLatin1String("SSMTP");

@@ -44,6 +44,7 @@
 
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
+#include "Composer/SenderIdentitiesModel.h"
 #include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MailboxTree.h"
@@ -87,11 +88,15 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     createWidgets();
 
     migrateSettings();
-
     QSettings s;
+
+    m_senderIdentities = new Composer::SenderIdentitiesModel(this);
+    m_senderIdentities->loadFromSettings(s);
+
     if (! s.contains(Common::SettingsNames::imapMethodKey)) {
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
     }
+
 
     setupModels();
     createActions();
@@ -625,7 +630,6 @@ void MainWindow::setupModels()
 
     // TODO write more addressbook backends and make this configurable
     m_addressBook = new AbookAddressbook();
-
 }
 
 void MainWindow::msgListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
@@ -845,7 +849,7 @@ void MainWindow::networkPolicyOnline()
 
 void MainWindow::slotShowSettings()
 {
-    SettingsDialog *dialog = new SettingsDialog();
+    SettingsDialog *dialog = new SettingsDialog(this, m_senderIdentities);
     if (dialog->exec() == QDialog::Accepted) {
         // FIXME: wipe cache in case we're moving between servers
         nukeModels();
@@ -1178,10 +1182,7 @@ void MainWindow::invokeComposeDialog(const QString &subject, const QString &body
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this);
-    w->setData(QString::fromUtf8("%1 <%2>").arg(
-                   s.value(Common::SettingsNames::realNameKey).toString(),
-                   s.value(Common::SettingsNames::addressKey).toString()),
-               recipients, subject, body, inReplyTo, references);
+    w->setData(recipients, subject, body, inReplyTo, references);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     Util::centerWidgetOnScreen(w);
     w->show();
