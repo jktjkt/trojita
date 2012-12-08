@@ -58,7 +58,7 @@ public:
     void removeIdentityAt(const int position);
 
     /** @short Replace the contents of this model by data read from a QSettings instance */
-    void loadFromSettings(const QSettings &s);
+    void loadFromSettings(QSettings &s);
     /** @short Save the data into a QSettings instance */
     void saveToSettings(QSettings &s) const;
 

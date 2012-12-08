@@ -124,26 +124,45 @@ void SenderIdentitiesModel::removeIdentityAt(const int position)
     endRemoveRows();
 }
 
-void SenderIdentitiesModel::loadFromSettings(const QSettings &s)
+void SenderIdentitiesModel::loadFromSettings(QSettings &s)
 {
     beginResetModel();
     m_identities.clear();
 
-    // FIXME: replace this block with support for multiple identities
-    m_identities << ItemSenderIdentity(
-                        s.value(Common::SettingsNames::realNameKey).toString(),
-                        s.value(Common::SettingsNames::addressKey).toString());
+    int num = s.beginReadArray(Common::SettingsNames::identitiesKey);
+    if (num == 0) {
+        s.endArray();
+        // Load from the older format where only one identity was supported
+        m_identities << ItemSenderIdentity(
+                            s.value(Common::SettingsNames::obsRealNameKey).toString(),
+                            s.value(Common::SettingsNames::obsAddressKey).toString());
+        // Thrash the old settings, replace with the new format
+        saveToSettings(s);
+    } else {
+        // The new format with multiple identities
+        for (int i = 0; i < num; ++i) {
+            s.setArrayIndex(i);
+            m_identities << ItemSenderIdentity(
+                                s.value(Common::SettingsNames::realNameKey).toString(),
+                                s.value(Common::SettingsNames::addressKey).toString());
+        }
+        s.endArray();
+    }
+
     endResetModel();
 }
 
 void SenderIdentitiesModel::saveToSettings(QSettings &s) const
 {
-    // FIXME: replace this with support for multiple identities
-
-    if (m_identities.size() == 1) {
-        s.setValue(Common::SettingsNames::realNameKey, m_identities[0].realName);
-        s.setValue(Common::SettingsNames::addressKey, m_identities[0].emailAddress);
+    s.beginWriteArray(Common::SettingsNames::identitiesKey);
+    for (int i = 0; i < m_identities.size(); ++i) {
+        s.setArrayIndex(i);
+        s.setValue(Common::SettingsNames::realNameKey, m_identities[i].realName);
+        s.setValue(Common::SettingsNames::addressKey, m_identities[i].emailAddress);
     }
+    s.endArray();
+    s.remove(Common::SettingsNames::obsRealNameKey);
+    s.remove(Common::SettingsNames::obsAddressKey);
 }
 
 }
