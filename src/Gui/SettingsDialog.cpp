@@ -120,13 +120,17 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
     Q_ASSERT(m_identitiesModel);
     editButton->setEnabled(false);
     deleteButton->setEnabled(false);
+    moveUpButton->setIcon(QIcon::fromTheme("go-up", QIcon(":/icons/arrow-up.png")));
+    moveDownButton->setIcon(QIcon::fromTheme("go-down", QIcon(":/icons/arrow-down.png")));
+    moveUpButton->setEnabled(false);
+    moveDownButton->setEnabled(false);
     identityTabelView->setModel(m_identitiesModel);
     identityTabelView->setSelectionBehavior(QAbstractItemView::SelectRows);
     identityTabelView->setSelectionMode(QAbstractItemView::SingleSelection);
-    identityTabelView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     identityTabelView->resizeColumnsToContents();
     identityTabelView->resizeRowsToContents();
     identityTabelView->setGridStyle(Qt::NoPen);
+    identityTabelView->hideColumn(Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION);
 
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
     showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
@@ -134,11 +138,15 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
                                         "and the underlying operating system. No private information, like account settings "
                                         "or IMAP server details, are collected.</p>"));
 
-    connect(identityTabelView, SIGNAL(activated(QModelIndex)), SLOT(updateButtonsState()));
+    connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(updateButtonsState()));
+    connect(m_identitiesModel, SIGNAL(layoutChanged()), SLOT(updateButtonsState()));
+    connect(m_identitiesModel, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateButtonsState()));
+    connect(m_identitiesModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateButtonsState()));
+    connect(moveUpButton, SIGNAL(clicked()), SLOT(moveIdentityUp()));
+    connect(moveDownButton, SIGNAL(clicked()), SLOT(moveIdentityDown()));
     connect(addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
     connect(editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
     connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
-
 }
 
 void GeneralPage::updateButtonsState()
@@ -146,11 +154,31 @@ void GeneralPage::updateButtonsState()
     bool enabled = identityTabelView->currentIndex().isValid();
     deleteButton->setEnabled(enabled);
     editButton->setEnabled(enabled);
+    bool upEnabled = m_identitiesModel->rowCount() > 0 && identityTabelView->currentIndex().row() > 0;
+    bool downEnabled = m_identitiesModel->rowCount() > 0 && identityTabelView->currentIndex().row() < m_identitiesModel->rowCount() - 1;
+    moveUpButton->setEnabled(upEnabled);
+    moveDownButton->setEnabled(downEnabled);
+}
+
+void GeneralPage::moveIdentityUp()
+{
+    int from = identityTabelView->currentIndex().row();
+    int to = identityTabelView->currentIndex().row() - 1;
+
+    m_identitiesModel->moveIdentity(from, to);
+}
+
+void GeneralPage::moveIdentityDown()
+{
+    int from = identityTabelView->currentIndex().row();
+    int to = identityTabelView->currentIndex().row() + 1;
+
+    m_identitiesModel->moveIdentity(from, to);
 }
 
 void GeneralPage::addButtonClicked()
 {
-    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(QString(), QString()));
+    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(QString(), QString(), QString()));
     identityTabelView->setCurrentIndex(m_identitiesModel->index(m_identitiesModel->rowCount() - 1, 0));
     EditIdentity *dialog = new EditIdentity(this, m_identitiesModel, identityTabelView->currentIndex());
     dialog->setDeleteOnReject();
@@ -197,11 +225,13 @@ EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *ide
     m_mapper->setModel(m_identitiesModel);
     m_mapper->addMapping(realNameLineEdit, Composer::SenderIdentitiesModel::COLUMN_NAME);
     m_mapper->addMapping(emailLineEdit, Composer::SenderIdentitiesModel::COLUMN_EMAIL);
+    m_mapper->addMapping(organisationLineEdit, Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION);
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     m_mapper->setCurrentIndex(currentIndex.row());
     buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     connect(realNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
     connect(emailLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
+    connect(organisationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
     connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
     connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
     connect(this, SIGNAL(accepted()), m_mapper, SLOT(submit()));

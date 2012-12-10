@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2012        Mohammed Nafees <nafees.technocool@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -27,8 +28,8 @@
 namespace Composer
 {
 
-ItemSenderIdentity::ItemSenderIdentity(const QString &realName, const QString &emailAddress):
-    realName(realName), emailAddress(emailAddress)
+ItemSenderIdentity::ItemSenderIdentity(const QString &realName, const QString &emailAddress, const QString &organisation):
+    realName(realName), emailAddress(emailAddress), organisation(organisation)
 {
 }
 
@@ -66,6 +67,8 @@ QVariant SenderIdentitiesModel::data(const QModelIndex &index, const int role) c
         return m_identities[index.row()].realName;
     case COLUMN_EMAIL:
         return m_identities[index.row()].emailAddress;
+    case COLUMN_ORGANIZATION:
+        return m_identities[index.row()].organisation;
     }
     Q_ASSERT(false);
     return QVariant();
@@ -83,6 +86,8 @@ QVariant SenderIdentitiesModel::headerData(int section, Qt::Orientation orientat
         return tr("Name");
     case COLUMN_EMAIL:
         return tr("E-mail");
+    case COLUMN_ORGANIZATION:
+        return tr("Organization");
     default:
         return QVariant();
     }
@@ -100,12 +105,35 @@ bool SenderIdentitiesModel::setData(const QModelIndex &index, const QVariant &va
     case COLUMN_EMAIL:
         m_identities[index.row()].emailAddress = value.toString();
         break;
+    case COLUMN_ORGANIZATION:
+        m_identities[index.row()].organisation = value.toString();
+        break;
     default:
         Q_ASSERT(false);
         return false;
     }
     emit dataChanged(index, index);
     return true;
+}
+
+void SenderIdentitiesModel::moveIdentity(const int from, const int to)
+{
+    Q_ASSERT(to >= 0);
+    Q_ASSERT(from >= 0);
+    Q_ASSERT(to < m_identities.size());
+    Q_ASSERT(from < m_identities.size());
+    Q_ASSERT(from != to);
+
+    int targetOffset = to;
+    if (to > from) {
+        ++targetOffset;
+    }
+
+    bool ok = beginMoveRows(QModelIndex(), from, from, QModelIndex(), targetOffset);
+    Q_ASSERT(ok);
+
+    m_identities.move(from, to);
+    endMoveRows();
 }
 
 void SenderIdentitiesModel::appendIdentity(const ItemSenderIdentity &item)
@@ -135,7 +163,8 @@ void SenderIdentitiesModel::loadFromSettings(QSettings &s)
         // Load from the older format where only one identity was supported
         m_identities << ItemSenderIdentity(
                             s.value(Common::SettingsNames::obsRealNameKey).toString(),
-                            s.value(Common::SettingsNames::obsAddressKey).toString());
+                            s.value(Common::SettingsNames::obsAddressKey).toString(),
+                            QString());
         // Thrash the old settings, replace with the new format
         saveToSettings(s);
     } else {
@@ -144,11 +173,11 @@ void SenderIdentitiesModel::loadFromSettings(QSettings &s)
             s.setArrayIndex(i);
             m_identities << ItemSenderIdentity(
                                 s.value(Common::SettingsNames::realNameKey).toString(),
-                                s.value(Common::SettingsNames::addressKey).toString());
+                                s.value(Common::SettingsNames::addressKey).toString(),
+                                s.value(Common::SettingsNames::organisationKey).toString());
         }
         s.endArray();
     }
-
     endResetModel();
 }
 
@@ -159,6 +188,7 @@ void SenderIdentitiesModel::saveToSettings(QSettings &s) const
         s.setArrayIndex(i);
         s.setValue(Common::SettingsNames::realNameKey, m_identities[i].realName);
         s.setValue(Common::SettingsNames::addressKey, m_identities[i].emailAddress);
+        s.setValue(Common::SettingsNames::organisationKey, m_identities[i].organisation);
     }
     s.endArray();
     s.remove(Common::SettingsNames::obsRealNameKey);

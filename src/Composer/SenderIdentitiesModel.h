@@ -33,10 +33,11 @@ namespace Composer
 class ItemSenderIdentity
 {
 public:
-    ItemSenderIdentity(const QString &realName, const QString &emailAddress);
+    ItemSenderIdentity(const QString &realName, const QString &emailAddress, const QString &organisation);
 
     QString realName;
     QString emailAddress;
+    QString organisation;
 };
 
 /** @short Model for a list of available sender identities */
@@ -44,7 +45,7 @@ class SenderIdentitiesModel : public QAbstractTableModel
 {
     Q_OBJECT
 public:
-    enum { COLUMN_NAME, COLUMN_EMAIL, COLUMN_LAST };
+    enum { COLUMN_NAME, COLUMN_EMAIL, COLUMN_ORGANIZATION, COLUMN_LAST };
 
     explicit SenderIdentitiesModel(QObject *parent = 0);
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -56,6 +57,7 @@ public:
 
     void appendIdentity(const ItemSenderIdentity &item);
     void removeIdentityAt(const int position);
+    void moveIdentity(const int from, const int to);
 
     /** @short Replace the contents of this model by data read from a QSettings instance */
     void loadFromSettings(QSettings &s);

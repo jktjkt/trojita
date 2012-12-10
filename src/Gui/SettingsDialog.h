@@ -57,6 +57,8 @@ public:
 
 private slots:
     void updateButtonsState();
+    void moveIdentityUp();
+    void moveIdentityDown();
     void addButtonClicked();
     void editButtonClicked();
     void deleteButtonClicked();

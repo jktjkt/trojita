@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>299</width>
-    <height>314</height>
+    <width>298</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,21 +22,86 @@
   <widget class="QWidget" name="scrollAreaWidgetContents">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>-28</x>
      <y>0</y>
-     <width>293</width>
-     <height>308</height>
+     <width>324</width>
+     <height>282</height>
     </rect>
    </property>
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QTableView" name="identityTabelView"/>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0" rowspan="2">
+     <widget class="QTableView" name="identityTabelView">
+      <property name="minimumSize">
+       <size>
+        <width>241</width>
+        <height>192</height>
+       </size>
+      </property>
+     </widget>
     </item>
-    <item>
+    <item row="0" column="1">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QPushButton" name="moveUpButton">
+        <property name="minimumSize">
+         <size>
+          <width>29</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>29</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="moveDownButton">
+        <property name="minimumSize">
+         <size>
+          <width>29</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>29</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="1" column="1" rowspan="2">
+     <spacer name="verticalSpacer">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>125</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item row="2" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="sizeConstraint">
+       <enum>QLayout::SetMinimumSize</enum>
+      </property>
       <item>
        <widget class="QPushButton" name="addButton">
         <property name="text">
@@ -60,14 +125,14 @@
       </item>
      </layout>
     </item>
-    <item>
+    <item row="3" column="0" colspan="2">
      <widget class="Line" name="line">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
-    <item>
+    <item row="4" column="0" colspan="2">
      <widget class="QCheckBox" name="showHomepageCheckbox">
       <property name="toolTip">
        <string/>
