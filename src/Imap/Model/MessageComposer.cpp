@@ -393,6 +393,11 @@ void MessageComposer::setSubject(const QString &subject)
     m_subject = subject;
 }
 
+void MessageComposer::setOrganization(const QString &organization)
+{
+    m_organization = organization;
+}
+
 void MessageComposer::setText(const QString &text)
 {
     m_text = text;
@@ -494,6 +499,9 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     }
     writeHeaderWithMsgIds(target, QByteArray("In-Reply-To"), m_inReplyTo);
     writeHeaderWithMsgIds(target, QByteArray("References"), m_references);
+    if (!m_organization.isEmpty()) {
+        target->write(encodeHeaderField(QLatin1String("Organization: ") + m_organization).append("\r\n"));
+    }
 
     // Headers depending on actual message body data
     if (!m_attachments.isEmpty()) {

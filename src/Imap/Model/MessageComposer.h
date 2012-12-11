@@ -66,6 +66,7 @@ public:
     void setReferences(const QList<QByteArray> &references);
     void setTimestamp(const QDateTime &timestamp);
     void setSubject(const QString &subject);
+    void setOrganization(const QString &organization);
     void setText(const QString &text);
 
     bool isReadyForSerialization() const;
@@ -104,6 +105,7 @@ private:
     QList<QByteArray> m_references;
     QDateTime m_timestamp;
     QString m_subject;
+    QString m_organization;
     QString m_text;
 
     QList<AttachmentItem *> m_attachments;

@@ -19,6 +19,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <QAbstractProxyModel>
 #include <QBuffer>
 #include <QFileDialog>
 #include <QKeyEvent>
@@ -143,6 +144,14 @@ bool ComposeWidget::buildMessageData()
 
     m_composer->setTimestamp(QDateTime::currentDateTime());
     m_composer->setSubject(ui->subject->text());
+
+    QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
+    Q_ASSERT(proxy);
+    QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
+    Q_ASSERT(proxyIndex.isValid());
+    m_composer->setOrganization(
+                proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION)
+                .data().toString());
     m_composer->setText(ui->mailText->toPlainText());
 
     return m_composer->isReadyForSerialization();
