@@ -161,10 +161,14 @@ void SenderIdentitiesModel::loadFromSettings(QSettings &s)
     if (num == 0) {
         s.endArray();
         // Load from the older format where only one identity was supported
-        m_identities << ItemSenderIdentity(
-                            s.value(Common::SettingsNames::obsRealNameKey).toString(),
-                            s.value(Common::SettingsNames::obsAddressKey).toString(),
-                            QString());
+
+        QString realName = s.value(Common::SettingsNames::obsRealNameKey).toString();
+        QString email = s.value(Common::SettingsNames::obsAddressKey).toString();
+        if (!realName.isEmpty() || !email.isEmpty()) {
+            // Don't add empty identities
+            m_identities << ItemSenderIdentity(realName, email, QString());
+        }
+
         // Thrash the old settings, replace with the new format
         saveToSettings(s);
     } else {
