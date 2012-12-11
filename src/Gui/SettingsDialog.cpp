@@ -127,10 +127,11 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
     identityTabelView->setModel(m_identitiesModel);
     identityTabelView->setSelectionBehavior(QAbstractItemView::SelectRows);
     identityTabelView->setSelectionMode(QAbstractItemView::SingleSelection);
-    identityTabelView->resizeColumnsToContents();
+    identityTabelView->resizeColumnToContents(Composer::SenderIdentitiesModel::COLUMN_NAME);
     identityTabelView->resizeRowsToContents();
     identityTabelView->setGridStyle(Qt::NoPen);
     identityTabelView->hideColumn(Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION);
+    identityTabelView->horizontalHeader()->setStretchLastSection(true);
 
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
     showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
@@ -138,10 +139,11 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
                                         "and the underlying operating system. No private information, like account settings "
                                         "or IMAP server details, are collected.</p>"));
 
-    connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(updateButtonsState()));
-    connect(m_identitiesModel, SIGNAL(layoutChanged()), SLOT(updateButtonsState()));
-    connect(m_identitiesModel, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateButtonsState()));
-    connect(m_identitiesModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateButtonsState()));
+    connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(updateWidgets()));
+    connect(m_identitiesModel, SIGNAL(layoutChanged()), SLOT(updateWidgets()));
+    connect(m_identitiesModel, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateWidgets()));
+    connect(m_identitiesModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateWidgets()));
+    connect(m_identitiesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SLOT(updateWidgets()));
     connect(moveUpButton, SIGNAL(clicked()), SLOT(moveIdentityUp()));
     connect(moveDownButton, SIGNAL(clicked()), SLOT(moveIdentityDown()));
     connect(addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
@@ -149,7 +151,7 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
     connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
 }
 
-void GeneralPage::updateButtonsState()
+void GeneralPage::updateWidgets()
 {
     bool enabled = identityTabelView->currentIndex().isValid();
     deleteButton->setEnabled(enabled);
@@ -158,6 +160,8 @@ void GeneralPage::updateButtonsState()
     bool downEnabled = m_identitiesModel->rowCount() > 0 && identityTabelView->currentIndex().row() < m_identitiesModel->rowCount() - 1;
     moveUpButton->setEnabled(upEnabled);
     moveDownButton->setEnabled(downEnabled);
+
+    identityTabelView->resizeColumnToContents(Composer::SenderIdentitiesModel::COLUMN_NAME);
 }
 
 void GeneralPage::moveIdentityUp()
@@ -184,7 +188,7 @@ void GeneralPage::addButtonClicked()
     dialog->setDeleteOnReject();
     dialog->setWindowTitle(tr("Add New Identity"));
     dialog->show();
-    updateButtonsState();
+    updateWidgets();
 }
 
 void GeneralPage::editButtonClicked()
@@ -207,7 +211,7 @@ void GeneralPage::deleteButtonClicked()
                                   QMessageBox::Yes | QMessageBox::No);
     if (answer == QMessageBox::Yes) {
         m_identitiesModel->removeIdentityAt(identityTabelView->currentIndex().row());
-        updateButtonsState();
+        updateWidgets();
     }
 }
 

@@ -56,7 +56,7 @@ public:
     void save(QSettings &s);
 
 private slots:
-    void updateButtonsState();
+    void updateWidgets();
     void moveIdentityUp();
     void moveIdentityDown();
     void addButtonClicked();
