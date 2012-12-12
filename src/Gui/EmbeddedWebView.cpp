@@ -28,9 +28,9 @@
 #include <QDesktopServices>
 #include <QLayout>
 #include <QStyle>
+#include <QStyleFactory>
 #include <QWebFrame>
 #include <QWebHistory>
-#include <QWindowsStyle>
 
 #include <QDebug>
 
@@ -72,9 +72,9 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     // Redmine#3, the QWebView uses black text color when rendering stuff on dark background
     QPalette palette = QApplication::palette();
     if (palette.background().color().lightness() < 50) {
-        qDebug() << "Setting the palette tweak";
-        QWindowsStyle s;
-        palette = s.standardPalette();
+        QStyle *style = QStyleFactory::create(QLatin1String("windows"));
+        Q_ASSERT(style);
+        palette = style->standardPalette();
         setPalette(palette);
     }
 
