@@ -848,10 +848,10 @@ QDateTime Fetch::dateify(QByteArray str, const QByteArray &line, const int start
     QDateTime date = QLocale(QLocale::C).toDateTime(str.left(20), QLatin1String("d-MMM-yyyy HH:mm:ss"));
     const char sign = str[21];
     bool ok;
-    uint hours = str.mid(22, 2).toUInt(&ok);
+    int hours = str.mid(22, 2).toInt(&ok);
     if (!ok)
         throw ParseError(line, start);
-    uint minutes = str.mid(24, 2).toUInt(&ok);
+    int minutes = str.mid(24, 2).toInt(&ok);
     if (!ok)
         throw ParseError(line, start);
     switch (sign) {
