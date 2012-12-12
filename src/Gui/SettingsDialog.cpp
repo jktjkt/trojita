@@ -183,7 +183,7 @@ void GeneralPage::moveIdentityDown()
 
 void GeneralPage::addButtonClicked()
 {
-    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(QString(), QString(), QString(), QString()));
+    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity());
     identityTabelView->setCurrentIndex(m_identitiesModel->index(m_identitiesModel->rowCount() - 1, 0));
     EditIdentity *dialog = new EditIdentity(this, m_identitiesModel, identityTabelView->currentIndex());
     dialog->setDeleteOnReject();

@@ -35,6 +35,7 @@ class ItemSenderIdentity
 public:
     ItemSenderIdentity(const QString &realName, const QString &emailAddress,
                        const QString &organisation, const QString &signature);
+    ItemSenderIdentity();
 
     QString realName;
     QString emailAddress;

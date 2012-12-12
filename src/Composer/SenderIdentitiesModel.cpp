@@ -35,6 +35,10 @@ ItemSenderIdentity::ItemSenderIdentity(const QString &realName, const QString &e
 {
 }
 
+ItemSenderIdentity::ItemSenderIdentity()
+{
+}
+
 SenderIdentitiesModel::SenderIdentitiesModel(QObject *parent) :
     QAbstractTableModel(parent)
 {
