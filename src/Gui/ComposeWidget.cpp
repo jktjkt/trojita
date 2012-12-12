@@ -29,6 +29,7 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QSettings>
+#include <QTextBlock>
 
 #include "AbstractAddressbook.h"
 #include "AutoCompletion.h"
@@ -638,8 +639,9 @@ void ComposeWidget::slotGenUrlAuthReceived(const QString &url)
 
 void ComposeWidget::slotUpdateSignature()
 {
-    const QLatin1String signatureSeperator("\n-- \n");
-    QTextDocument *document = ui->mailText->document();
+    // We set up the QTextEdit in such a way as to treat a fully terminated line as a standalone text block,
+    // hence no newlines in the signature separator
+    const QLatin1String signatureSeperator("-- ");
 
     QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
     Q_ASSERT(proxy);
@@ -649,17 +651,46 @@ void ComposeWidget::slotUpdateSignature()
                                                                   Composer::SenderIdentitiesModel::COLUMN_SIGNATURE)
             .data().toString();
 
-    // Remove the old signature
-    QString plainText = document->toPlainText();
-    int signatureOffset = plainText.lastIndexOf(signatureSeperator);
-    if (signatureOffset != -1) {
-        plainText.truncate(signatureOffset);
+    QTextDocument *document = ui->mailText->document();
+    QTextBlock block = document->lastBlock();
+    while (block.isValid() && block.blockNumber() > 0) {
+        if (block.text() == signatureSeperator) {
+            // So this block holds the last signature separator -- great!
+            break;
+        }
+        block = block.previous();
+    }
+
+    QTextCursor cursor(block);
+    if (block.text() == signatureSeperator) {
+        // Remove everything till the end of the document since the end of the previous block
+        if (block.previous().isValid()) {
+            // Prevent adding newlines when switching signatures
+            block = block.previous();
+            cursor = QTextCursor(block);
+            cursor.movePosition(QTextCursor::EndOfBlock);
+        }
+        cursor.beginEditBlock();
+        cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+        cursor.removeSelectedText();
+        cursor.endEditBlock();
+    } else {
+        // We have not removed anything, so we have to "fake" an edit action so that we're adding the signature to a correct place
+        block = document->lastBlock();
+        cursor = QTextCursor(block);
+        cursor.movePosition(QTextCursor::EndOfBlock);
+        cursor.beginEditBlock();
+        cursor.endEditBlock();
     }
 
     if (!newSignature.isEmpty()) {
-        plainText = plainText.append(signatureSeperator + newSignature);
+        cursor.joinPreviousEditBlock();
+        cursor.insertBlock();
+        cursor.insertText(signatureSeperator);
+        cursor.insertBlock();
+        cursor.insertText(newSignature);
+        cursor.endEditBlock();
     }
-    document->setPlainText(plainText);
 }
 
 
