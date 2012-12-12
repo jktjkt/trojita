@@ -156,8 +156,8 @@ HEADERS += Parser/Parser.h \
     Network/MsgPartNetworkReply.h \
     Network/FileDownloadManager.h \
     Model/TaskPresentationModel.h \
-    kdeui-itemviews/kdescendantsproxymodel.h \
-    kdeui-itemviews/kbihash_p.h \
+    Model/kdeui-itemviews/kdescendantsproxymodel.h \
+    Model/kdeui-itemviews/kbihash_p.h \
     Model/VisibleTasksModel.h \
     Model/SubtreeModel.h \
     Model/OneMessageModel.h \

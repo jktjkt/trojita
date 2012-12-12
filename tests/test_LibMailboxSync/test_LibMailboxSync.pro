@@ -15,7 +15,7 @@ TARGET = test_LibMailboxSync
 #include(../../src/linking.pri)
 include(../../configh.pri)
 
-HEADERS += TagGenerator.h \
+HEADERS += ../TagGenerator.h \
     FakeCapabilitiesInjector.h
 HEADERS += test_LibMailboxSync.h
 SOURCES += test_LibMailboxSync.cpp
