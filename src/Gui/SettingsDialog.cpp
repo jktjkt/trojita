@@ -127,11 +127,11 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
     identityTabelView->setModel(m_identitiesModel);
     identityTabelView->setSelectionBehavior(QAbstractItemView::SelectRows);
     identityTabelView->setSelectionMode(QAbstractItemView::SingleSelection);
-    identityTabelView->resizeColumnToContents(Composer::SenderIdentitiesModel::COLUMN_NAME);
-    identityTabelView->resizeRowsToContents();
     identityTabelView->setGridStyle(Qt::NoPen);
     identityTabelView->hideColumn(Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION);
     identityTabelView->setColumnHidden(Composer::SenderIdentitiesModel::COLUMN_SIGNATURE, true);
+    identityTabelView->resizeColumnToContents(Composer::SenderIdentitiesModel::COLUMN_NAME);
+    identityTabelView->resizeRowsToContents();
     identityTabelView->horizontalHeader()->setStretchLastSection(true);
 
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
