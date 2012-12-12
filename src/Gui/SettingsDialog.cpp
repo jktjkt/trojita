@@ -150,7 +150,7 @@ void GeneralPage::updateButtonsState()
 
 void GeneralPage::addButtonClicked()
 {
-    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(QString(), QString()));
+    m_identitiesModel->appendIdentity(Composer::ItemSenderIdentity(QString(), QString(), QString()));
     identityTabelView->setCurrentIndex(m_identitiesModel->index(m_identitiesModel->rowCount() - 1, 0));
     EditIdentity *dialog = new EditIdentity(this, m_identitiesModel, identityTabelView->currentIndex());
     dialog->setDeleteOnReject();
@@ -197,11 +197,13 @@ EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *ide
     m_mapper->setModel(m_identitiesModel);
     m_mapper->addMapping(realNameLineEdit, Composer::SenderIdentitiesModel::COLUMN_NAME);
     m_mapper->addMapping(emailLineEdit, Composer::SenderIdentitiesModel::COLUMN_EMAIL);
+    m_mapper->addMapping(signaturePlainTextEdit, Composer::SenderIdentitiesModel::COLUMN_SIGNATURE);
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     m_mapper->setCurrentIndex(currentIndex.row());
     buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     connect(realNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
     connect(emailLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
+    connect(signaturePlainTextEdit, SIGNAL(textChanged()), this, SLOT(enableButton()));
     connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
     connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
     connect(this, SIGNAL(accepted()), m_mapper, SLOT(submit()));

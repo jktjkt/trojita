@@ -27,6 +27,7 @@ namespace Common
 QString SettingsNames::identitiesKey = QLatin1String("identities");
 QString SettingsNames::realNameKey = QLatin1String("realName");
 QString SettingsNames::addressKey = QLatin1String("address");
+QString SettingsNames::signatureKey = QLatin1String("signature");
 QString SettingsNames::obsRealNameKey = QLatin1String("identity.realName");
 QString SettingsNames::obsAddressKey = QLatin1String("identity.address");
 QString SettingsNames::msaMethodKey = QLatin1String("msa.method");
