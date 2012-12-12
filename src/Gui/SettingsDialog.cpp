@@ -141,6 +141,7 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
                                         "or IMAP server details, are collected.</p>"));
 
     connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(updateWidgets()));
+    connect(identityTabelView, SIGNAL(doubleClicked(QModelIndex)), SLOT(editButtonClicked()));
     connect(m_identitiesModel, SIGNAL(layoutChanged()), SLOT(updateWidgets()));
     connect(m_identitiesModel, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateWidgets()));
     connect(m_identitiesModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateWidgets()));
