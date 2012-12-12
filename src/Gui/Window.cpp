@@ -1222,7 +1222,10 @@ void MainWindow::showConnectionStatus(QObject *parser, Imap::ConnectionState sta
 
 void MainWindow::slotShowLinkTarget(const QString &link)
 {
-    statusBar()->showMessage(tr("Link target: %1").arg(link));
+    if (link.isEmpty())
+        statusBar()->clearMessage();
+    else
+        statusBar()->showMessage(tr("Link target: %1").arg(link));
 }
 
 void MainWindow::slotShowAboutTrojita()
