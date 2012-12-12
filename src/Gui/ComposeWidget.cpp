@@ -629,18 +629,25 @@ void ComposeWidget::slotGenUrlAuthReceived(const QString &url)
 
 void ComposeWidget::slotUpdateSignature()
 {
-    QTextDocument *document = ui->mailText->document();
-    QString plainText = document->toPlainText();
     const QLatin1String signatureSeperator("\n-- \n");
-    int indexOf = plainText.lastIndexOf(signatureSeperator);
-    int lastIndex = plainText.size();
-    plainText = plainText.remove(indexOf, lastIndex-indexOf);
+    QTextDocument *document = ui->mailText->document();
+
     QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
     Q_ASSERT(proxy);
     QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
     Q_ASSERT(proxyIndex.isValid());
-    QString newSignature = proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_SIGNATURE).data().toString();
-    if (newSignature != tr("")) {
+    QString newSignature = proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(),
+                                                                  Composer::SenderIdentitiesModel::COLUMN_SIGNATURE)
+            .data().toString();
+
+    // Remove the old signature
+    QString plainText = document->toPlainText();
+    int signatureOffset = plainText.lastIndexOf(signatureSeperator);
+    if (signatureOffset != -1) {
+        plainText.truncate(signatureOffset);
+    }
+
+    if (!newSignature.isEmpty()) {
         plainText = plainText.append(signatureSeperator + newSignature);
     }
     document->setPlainText(plainText);
