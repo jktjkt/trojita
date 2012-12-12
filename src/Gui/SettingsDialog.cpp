@@ -127,6 +127,7 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
     identityTabelView->resizeColumnsToContents();
     identityTabelView->resizeRowsToContents();
     identityTabelView->setGridStyle(Qt::NoPen);
+    identityTabelView->setColumnHidden(Composer::SenderIdentitiesModel::COLUMN_SIGNATURE, true);
 
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
     showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
