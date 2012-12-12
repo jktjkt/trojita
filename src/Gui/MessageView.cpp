@@ -32,10 +32,10 @@
 #include <QUrlQuery>
 #endif
 #include <QVBoxLayout>
-#include <QtWebKit/QWebFrame>
-#include <QtWebKit/QWebHistory>
-#include <QtWebKit/QWebHitTestResult>
-#include <QtWebKit/QWebPage>
+#include <QWebFrame>
+#include <QWebHistory>
+#include <QWebHitTestResult>
+#include <QWebPage>
 
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
