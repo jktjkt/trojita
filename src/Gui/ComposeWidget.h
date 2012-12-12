@@ -80,6 +80,8 @@ private slots:
     void slotAppendUidKnown(const uint uidValidity, const uint uid);
     void slotGenUrlAuthReceived(const QString &url);
 
+    void slotUpdateSignature();
+
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     void addRecipient(int position, RecipientKind kind, const QString &address);

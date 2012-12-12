@@ -1,5 +1,6 @@
 /* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
    Copyright (C) 2012        Mohammed Nafees <nafees.technocool@gmail.com>
+   Copyright (C) 2012 Peter Amidon <peter@picnicpark.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -28,8 +29,9 @@
 namespace Composer
 {
 
-ItemSenderIdentity::ItemSenderIdentity(const QString &realName, const QString &emailAddress, const QString &organisation):
-    realName(realName), emailAddress(emailAddress), organisation(organisation)
+ItemSenderIdentity::ItemSenderIdentity(const QString &realName, const QString &emailAddress,
+                                       const QString &organisation, const QString &signature):
+    realName(realName), emailAddress(emailAddress), organisation(organisation), signature(signature)
 {
 }
 
@@ -69,6 +71,8 @@ QVariant SenderIdentitiesModel::data(const QModelIndex &index, const int role) c
         return m_identities[index.row()].emailAddress;
     case COLUMN_ORGANIZATION:
         return m_identities[index.row()].organisation;
+    case COLUMN_SIGNATURE:
+        return m_identities[index.row()].signature;
     }
     Q_ASSERT(false);
     return QVariant();
@@ -88,6 +92,8 @@ QVariant SenderIdentitiesModel::headerData(int section, Qt::Orientation orientat
         return tr("E-mail");
     case COLUMN_ORGANIZATION:
         return tr("Organization");
+    case COLUMN_SIGNATURE:
+        return tr("Signature");
     default:
         return QVariant();
     }
@@ -107,6 +113,8 @@ bool SenderIdentitiesModel::setData(const QModelIndex &index, const QVariant &va
         break;
     case COLUMN_ORGANIZATION:
         m_identities[index.row()].organisation = value.toString();
+    case COLUMN_SIGNATURE:
+        m_identities[index.row()].signature = value.toString();
         break;
     default:
         Q_ASSERT(false);
@@ -166,7 +174,9 @@ void SenderIdentitiesModel::loadFromSettings(QSettings &s)
         QString email = s.value(Common::SettingsNames::obsAddressKey).toString();
         if (!realName.isEmpty() || !email.isEmpty()) {
             // Don't add empty identities
-            m_identities << ItemSenderIdentity(realName, email, QString());
+            m_identities << ItemSenderIdentity(realName, email,
+                                               // Old format had no support for signatures/organizations
+                                               QString(), QString());
         }
 
         // Thrash the old settings, replace with the new format
@@ -178,7 +188,8 @@ void SenderIdentitiesModel::loadFromSettings(QSettings &s)
             m_identities << ItemSenderIdentity(
                                 s.value(Common::SettingsNames::realNameKey).toString(),
                                 s.value(Common::SettingsNames::addressKey).toString(),
-                                s.value(Common::SettingsNames::organisationKey).toString());
+                                s.value(Common::SettingsNames::organisationKey).toString(),
+                                s.value(Common::SettingsNames::signatureKey).toString());
         }
         s.endArray();
     }
@@ -193,6 +204,7 @@ void SenderIdentitiesModel::saveToSettings(QSettings &s) const
         s.setValue(Common::SettingsNames::realNameKey, m_identities[i].realName);
         s.setValue(Common::SettingsNames::addressKey, m_identities[i].emailAddress);
         s.setValue(Common::SettingsNames::organisationKey, m_identities[i].organisation);
+        s.setValue(Common::SettingsNames::signatureKey, m_identities[i].signature);
     }
     s.endArray();
     s.remove(Common::SettingsNames::obsRealNameKey);

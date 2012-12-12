@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2012 Peter Amidon <peter@picnicpark.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -103,6 +104,8 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
     FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
     proxy->setSourceModel(m_mainWindow->senderIdentitiesModel());
     ui->sender->setModel(proxy);
+
+    connect(ui->sender, SIGNAL(currentIndexChanged(int)), SLOT(slotUpdateSignature()));
 }
 
 ComposeWidget::~ComposeWidget()
@@ -345,6 +348,7 @@ void ComposeWidget::setData(const QList<QPair<RecipientKind, QString> > &recipie
     ui->mailText->setText(body);
     m_composer->setInReplyTo(inReplyTo);
     m_composer->setReferences(references);
+    slotUpdateSignature();
 }
 
 //BEGIN QFormLayout workarounds
@@ -631,6 +635,33 @@ void ComposeWidget::slotGenUrlAuthReceived(const QString &url)
         m_genUrlAuthReceived = true;
     }
 }
+
+void ComposeWidget::slotUpdateSignature()
+{
+    const QLatin1String signatureSeperator("\n-- \n");
+    QTextDocument *document = ui->mailText->document();
+
+    QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
+    Q_ASSERT(proxy);
+    QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
+    Q_ASSERT(proxyIndex.isValid());
+    QString newSignature = proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(),
+                                                                  Composer::SenderIdentitiesModel::COLUMN_SIGNATURE)
+            .data().toString();
+
+    // Remove the old signature
+    QString plainText = document->toPlainText();
+    int signatureOffset = plainText.lastIndexOf(signatureSeperator);
+    if (signatureOffset != -1) {
+        plainText.truncate(signatureOffset);
+    }
+
+    if (!newSignature.isEmpty()) {
+        plainText = plainText.append(signatureSeperator + newSignature);
+    }
+    document->setPlainText(plainText);
+}
+
 
 /** @short Remove the "@domain" from a string */
 QString ComposeWidget::killDomainPartFromString(const QString &s)
