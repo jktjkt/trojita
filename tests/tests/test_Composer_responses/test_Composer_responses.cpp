@@ -21,9 +21,11 @@
 */
 
 #include <QtTest>
+#include <QTextDocument>
 #include "test_Composer_responses.h"
 #include "../headless_test.h"
 #include "Composer/PlainTextFormatter.h"
+#include "Composer/ReplaceSignature.h"
 #include "Composer/SubjectMangling.h"
 
 /** @short Test that subjects remain sane in replied/forwarded messages */
@@ -285,6 +287,41 @@ void ComposerResponsesTest::testUnrecognizedLinks_data()
     QTest::newRow("at-sign-standalone-2") << QString::fromUtf8(" @ ");
     QTest::newRow("http-standalone") << QString::fromUtf8("http://");
     QTest::newRow("http-standalone-stuff") << QString::fromUtf8("http:// foo");
+}
+
+void ComposerResponsesTest::testSignatures()
+{
+    QFETCH(QString, original);
+    QFETCH(QString, signature);
+    QFETCH(QString, result);
+
+    QTextDocument doc;
+    doc.setPlainText(original);
+    Composer::Util::replaceSignature(&doc, signature);
+    QCOMPARE(doc.toPlainText(), result);
+}
+
+void ComposerResponsesTest::testSignatures_data()
+{
+    QTest::addColumn<QString>("original");
+    QTest::addColumn<QString>("signature");
+    QTest::addColumn<QString>("result");
+
+    QTest::newRow("empty-all") << QString() << QString() << QString();
+    QTest::newRow("empty-signature-1") << QString("foo") << QString() << QString("foo");
+    QTest::newRow("empty-signature-2") << QString("foo\n") << QString() << QString("foo\n");
+    QTest::newRow("empty-signature-3") << QString("foo\n-- ") << QString() << QString("foo");
+    QTest::newRow("empty-signature-4") << QString("foo\n-- \n") << QString() << QString("foo");
+    QTest::newRow("empty-signature-5") << QString("foo\n\n-- \n") << QString() << QString("foo\n");
+
+    QTest::newRow("no-signature-1") << QString("foo") << QString("meh") << QString("foo\n-- \nmeh");
+    QTest::newRow("no-signature-2") << QString("foo\n") << QString("meh") << QString("foo\n\n-- \nmeh");
+    QTest::newRow("no-signature-3") << QString("foo\n\n") << QString("meh") << QString("foo\n\n\n-- \nmeh");
+    QTest::newRow("no-signature-4") << QString("foo\nbar\nbaz") << QString("meh") << QString("foo\nbar\nbaz\n-- \nmeh");
+    QTest::newRow("no-signature-5") << QString("foo\n--") << QString("meh") << QString("foo\n--\n-- \nmeh");
+
+    QTest::newRow("replacement") << QString("foo\n-- \njohoho") << QString("sig") << QString("foo\n-- \nsig");
+    QTest::newRow("replacement-of-multiline") << QString("foo\n-- \njohoho\nwtf\nbar") << QString("sig") << QString("foo\n-- \nsig");
 }
 
 TROJITA_HEADLESS_TEST(ComposerResponsesTest)

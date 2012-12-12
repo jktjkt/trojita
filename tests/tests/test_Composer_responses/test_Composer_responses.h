@@ -41,6 +41,9 @@ private slots:
 
     void testUnrecognizedLinks();
     void testUnrecognizedLinks_data();
+
+    void testSignatures();
+    void testSignatures_data();
 };
 
 #endif
