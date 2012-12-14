@@ -2,7 +2,7 @@ CREATE SCHEMA xtbatch;
 
 CREATE TABLE xtbatch.eml (
   eml_id serial primary key,
-  eml_hash text  not null UNIQUE,
+  eml_hash bytea not null UNIQUE,
   eml_date date not null,
   eml_subj text not null,
   eml_body text not null,
