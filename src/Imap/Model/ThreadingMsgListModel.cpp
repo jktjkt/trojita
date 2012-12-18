@@ -453,19 +453,33 @@ void ThreadingMsgListModel::updateNoThreading()
     QHash<uint,ThreadNodeInfo> newThreading;
     QHash<void *,uint> newPtrToInternal;
 
-    for (int i = 0; i < upstreamMessages; ++i) {
-        QModelIndex index = sourceModel()->index(i, 0);
-        uint uid = index.data(RoleMessageUid).toUInt();
-        ThreadNodeInfo node;
-        node.internalId = i + 1;
-        node.uid = uid;
-        node.ptr = static_cast<TreeItem *>(index.internalPointer());
-        node.offset = i;
-        newThreading[node.internalId] = node;
-        allIds.append(node.internalId);
-        newPtrToInternal[node.ptr] = node.internalId;
-        if (!node.uid) {
-            unknownUids << static_cast<TreeItem*>(index.internalPointer());
+    if (upstreamMessages) {
+        // Prefer the direct pointer access instead of going through the MVC API -- similar to how applyThreading() works.
+        // This improves the speed of the testSortingPerformance benchmark by 18%.
+        QModelIndex firstMessageIndex = sourceModel()->index(0, 0);
+        Q_ASSERT(firstMessageIndex.isValid());
+        const Model *realModel = 0;
+        TreeItem *firstMessagePtr = Model::realTreeItem(firstMessageIndex, &realModel);
+        Q_ASSERT(firstMessagePtr);
+        // If the next asserts fails, it means that the implementation of MsgListModel has changed and uses its own pointers
+        Q_ASSERT(firstMessagePtr == firstMessageIndex.internalPointer());
+        TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(firstMessagePtr->parent());
+        Q_ASSERT(list);
+
+        for (int i = 0; i < upstreamMessages; ++i) {
+            TreeItemMessage *ptr = static_cast<TreeItemMessage*>(list->m_children[i]);
+            Q_ASSERT(ptr);
+            ThreadNodeInfo node;
+            node.internalId = i + 1;
+            node.uid = ptr->uid();
+            node.ptr = ptr;
+            node.offset = i;
+            newThreading[node.internalId] = node;
+            allIds.append(node.internalId);
+            newPtrToInternal[node.ptr] = node.internalId;
+            if (!node.uid) {
+                unknownUids << ptr;
+            }
         }
     }
 
