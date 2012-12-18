@@ -85,6 +85,7 @@ void UpdateFlagsTask::perform()
             switch (flagOperation) {
             case FLAG_ADD:
             case FLAG_REMOVE:
+            case FLAG_USE_THESE:
                 // we aren't supposed to update them ourselves; the IMAP server will tell us
                 break;
             case FLAG_REMOVE_SILENT:
@@ -132,6 +133,9 @@ void UpdateFlagsTask::perform()
         break;
     case FLAG_REMOVE_SILENT:
         op = QLatin1String("-FLAGS.SILENT");
+        break;
+    case FLAG_USE_THESE:
+        op = QLatin1String("FLAGS");
         break;
     }
     Q_ASSERT(!op.isEmpty());

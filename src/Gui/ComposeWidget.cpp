@@ -499,6 +499,21 @@ void ComposeWidget::gotError(const QString &error)
 
 void ComposeWidget::sent()
 {
+#if 0
+    if (m_appendUidReceived) {
+        // FIXME: check the UIDVALIDITY!!!
+        // FIXME: doesn't work at all; the messageIndexByUid() only works on already selected mailboxes
+        QModelIndex message = m_mainWindow->imapModel()->
+                messageIndexByUid(QSettings().value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(), m_appendUid);
+        if (message.isValid()) {
+            m_mainWindow->imapModel()->setMessageFlags(QModelIndexList() << message,
+                                                       QLatin1String("\\Seen $Submitted"), Imap::Mailbox::FLAG_USE_THESE);
+        }
+    }
+#endif
+
+    // FIXME: move back to the currently selected mailbox
+
     QMessageBox::information(this, tr("OK"), tr("Message Sent"));
     setEnabled(true);
 }

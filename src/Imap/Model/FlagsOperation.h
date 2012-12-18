@@ -28,7 +28,7 @@ namespace Imap
 namespace Mailbox
 {
 
-typedef enum { FLAG_ADD, FLAG_REMOVE, FLAG_ADD_SILENT, FLAG_REMOVE_SILENT } FlagsOperation;
+typedef enum { FLAG_ADD, FLAG_REMOVE, FLAG_ADD_SILENT, FLAG_REMOVE_SILENT, FLAG_USE_THESE } FlagsOperation;
 
 }
 }
