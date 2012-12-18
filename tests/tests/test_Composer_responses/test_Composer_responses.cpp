@@ -324,4 +324,4 @@ void ComposerResponsesTest::testSignatures_data()
     QTest::newRow("replacement-of-multiline") << QString("foo\n-- \njohoho\nwtf\nbar") << QString("sig") << QString("foo\n-- \nsig");
 }
 
-TROJITA_HEADLESS_TEST(ComposerResponsesTest)
+QTEST_MAIN(ComposerResponsesTest)
