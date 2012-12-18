@@ -412,7 +412,8 @@ void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
     }
     mainWindow->invokeComposeDialog(Composer::Util::replySubject(e.subject), quoteText(), recipients,
                                     QList<QByteArray>() << e.messageId,
-                                    message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << e.messageId
+                                    message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << e.messageId,
+                                    message
                                     );
 }
 

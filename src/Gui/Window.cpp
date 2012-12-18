@@ -1178,11 +1178,11 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
 
 void MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
                                      const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
-                                     const QList<QByteArray> &references)
+                                     const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this);
-    w->setData(recipients, subject, body, inReplyTo, references);
+    w->setData(recipients, subject, body, inReplyTo, references, replyingToMessage);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     Util::centerWidgetOnScreen(w);
     w->show();

@@ -336,7 +336,7 @@ void ComposeWidget::send()
 
 void ComposeWidget::setData(const QList<QPair<RecipientKind, QString> > &recipients,
                             const QString &subject, const QString &body, const QList<QByteArray> &inReplyTo,
-                            const QList<QByteArray> &references)
+                            const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
     for (int i = 0; i < recipients.size(); ++i) {
         addRecipient(i, recipients.at(i).first, recipients.at(i).second);
@@ -349,6 +349,7 @@ void ComposeWidget::setData(const QList<QPair<RecipientKind, QString> > &recipie
     ui->mailText->setText(body);
     m_composer->setInReplyTo(inReplyTo);
     m_composer->setReferences(references);
+    m_replyingTo = replyingToMessage;
     slotUpdateSignature();
 }
 
@@ -511,6 +512,11 @@ void ComposeWidget::sent()
         }
     }
 #endif
+
+    if (m_replyingTo.isValid()) {
+        m_mainWindow->imapModel()->setMessageFlags(QModelIndexList() << m_replyingTo,
+                                                   QLatin1String("\\Answered"), Imap::Mailbox::FLAG_ADD);
+    }
 
     // FIXME: move back to the currently selected mailbox
 

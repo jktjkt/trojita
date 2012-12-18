@@ -78,7 +78,8 @@ public:
     void invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
                              const RecipientsType &recipients = RecipientsType(),
                              const QList<QByteArray> &inReplyTo = QList<QByteArray>(),
-                             const QList<QByteArray> &references = QList<QByteArray>());
+                             const QList<QByteArray> &references = QList<QByteArray>(),
+                             const QModelIndex &replyingToMessage = QModelIndex());
     QSize sizeHint() const;
 
     Imap::Mailbox::Model *imapModel() const;

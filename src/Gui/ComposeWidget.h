@@ -58,7 +58,8 @@ public:
     void setData(const QList<QPair<RecipientKind, QString> > &recipients,
                  const QString &subject,
                  const QString &body,
-                 const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
+                 const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references,
+                 const QModelIndex &replyingToMessage);
 
 protected:
     void changeEvent(QEvent *e);
@@ -114,6 +115,7 @@ private:
     QMenu *m_completionPopup;
     QLineEdit *m_completionReceiver;
     int m_completionCount;
+    QPersistentModelIndex m_replyingTo;
 
 
     ComposeWidget(const ComposeWidget &); // don't implement
