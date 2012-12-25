@@ -22,11 +22,13 @@
 #ifndef ATTACHMENTVIEW_H
 #define ATTACHMENTVIEW_H
 
+#include <QModelIndex>
 #include <QWidget>
 
-class QModelIndex;
+
 class QNetworkReply;
 class QPushButton;
+class QToolButton;
 
 namespace Imap
 {
@@ -55,11 +57,21 @@ public:
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
 private slots:
+    void slotDownloadOnlyActionTriggered();
+    void slotOpenDirectlyActionTriggered();
+
     void slotTransferError(const QString &errorString);
+    void slotFileNameRequestedOnOpen(QString *fileName);
     void slotFileNameRequested(QString *fileName);
+    void slotTransferSucceeded();
+
 private:
+    QModelIndex partIndex;
     Imap::Network::FileDownloadManager *fileDownloadManager;
-    QPushButton *downloadButton;
+    QToolButton *downloadButton;
+
+    QAction *downloadOnlyAction;
+    QAction *openDirectlyAction;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement

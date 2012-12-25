@@ -25,21 +25,24 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Utils.h"
 
+#include <QAction>
 #include <QDesktopServices>
 #include <QDrag>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QMenu>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QLabel>
+#include <QToolButton>
 
 namespace Gui
 {
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-    QWidget(parent), fileDownloadManager(0), downloadButton(0)
+    QWidget(parent), partIndex(partIndex), fileDownloadManager(0), downloadButton(0), downloadOnlyAction(0), openDirectlyAction(0)
 {
     fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
@@ -48,22 +51,71 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
                              Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
                                                                    Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX)));
     layout->addWidget(lbl);
-    downloadButton = new QPushButton(tr("Download"));
+    downloadButton = new QToolButton();
+    downloadButton->setPopupMode(QToolButton::MenuButtonPopup);
     downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    layout->addWidget(downloadButton);
+
+    QMenu *menu = new QMenu();
+    downloadOnlyAction = menu->addAction(tr("Download"));
+    openDirectlyAction = menu->addAction(tr("Open Directly"));
+    connect( downloadOnlyAction, SIGNAL(triggered()), this, SLOT(slotDownloadOnlyActionTriggered()));
+    connect(openDirectlyAction, SIGNAL(triggered()), this, SLOT(slotOpenDirectlyActionTriggered()));
+
+    downloadButton->setMenu(menu);
+    downloadButton->setDefaultAction(downloadOnlyAction);
+
     connect(downloadButton, SIGNAL(clicked()), fileDownloadManager, SLOT(slotDownloadNow()));
-    connect(fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+
+    layout->addWidget(downloadButton);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+}
+
+void AttachmentView::slotDownloadOnlyActionTriggered()
+{
+    //We should disconnect the fileDownloadManager from any connected slots
+    //and reconnect again to prevent duplicate emitting of signals
+    fileDownloadManager->disconnect();
+    downloadButton->setDefaultAction(downloadOnlyAction);
+    connect(fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+}
+
+void AttachmentView::slotOpenDirectlyActionTriggered()
+{
+    //We should disconnect the fileDownloadManager from any connected slots
+    //and reconnect again to prevent duplicate emitting of signals
+    fileDownloadManager->disconnect();
+    downloadButton->setDefaultAction(openDirectlyAction);
+    connect(fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
+    connect(fileDownloadManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
+}
+
+void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
+{
+    *fileName = QDir(QDesktopServices::storageLocation(QDesktopServices::TempLocation)).filePath(*fileName);
 }
 
 void AttachmentView::slotFileNameRequested(QString *fileName)
 {
-    *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), *fileName, QString(), 0, QFileDialog::HideNameFilterDetails);
+    QString fileLocation;
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    fileLocation =  QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath(*fileName);
+#else
+    fileLocation = QDir(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).filePath(*fileName);
+#endif
+
+    *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), fileLocation, QString(), 0, QFileDialog::HideNameFilterDetails);
 }
 
 void AttachmentView::slotTransferError(const QString &errorString)
 {
     QMessageBox::critical(this, tr("Can't save attachment"), tr("Unable to save the attachment. Error:\n%1").arg(errorString));
+}
+
+void AttachmentView::slotTransferSucceeded()
+{
+    QString fileRealPath = QDir(QDesktopServices::storageLocation(QDesktopServices::TempLocation)).filePath(fileDownloadManager->toRealFileName(partIndex));
+    QDesktopServices::openUrl(QUrl::fromLocalFile(fileRealPath));
 }
 
 void AttachmentView::mousePressEvent(QMouseEvent *event)
@@ -94,4 +146,6 @@ void AttachmentView::mousePressEvent(QMouseEvent *event)
     drag->exec(Qt::CopyAction, Qt::CopyAction);
 }
 
+
 }
+
