@@ -91,18 +91,27 @@ void AttachmentView::slotOpenAttachment()
 
 void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
 {
-    *fileName = QDir(QDesktopServices::storageLocation(QDesktopServices::TempLocation)).filePath(*fileName);
+    *fileName = QDir(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                QDesktopServices::storageLocation(QDesktopServices::TempLocation)
+#else
+                QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+#endif
+                ).filePath(*fileName);
 }
 
 void AttachmentView::slotFileNameRequested(QString *fileName)
 {
     QString fileLocation;
 
+    fileLocation = QDir(
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    fileLocation =  QDir(QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)).filePath(*fileName);
+                QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)
 #else
-    fileLocation = QDir(QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)).filePath(*fileName);
+                QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)
 #endif
+            ).filePath(*fileName);
+
 
     *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), fileLocation, QString(), 0, QFileDialog::HideNameFilterDetails);
 }
@@ -114,8 +123,13 @@ void AttachmentView::slotTransferError(const QString &errorString)
 
 void AttachmentView::slotTransferSucceeded()
 {
-    QString fileRealPath = QDir(QDesktopServices::storageLocation(QDesktopServices::TempLocation)).
-            filePath(m_fileDownloadManager->toRealFileName(m_partIndex));
+    QString fileRealPath = QDir(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                QDesktopServices::storageLocation(QDesktopServices::TempLocation)
+#else
+                QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+#endif
+            ).filePath(m_fileDownloadManager->toRealFileName(m_partIndex));
     QDesktopServices::openUrl(QUrl::fromLocalFile(fileRealPath));
 }
 
