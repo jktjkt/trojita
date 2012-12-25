@@ -64,8 +64,6 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     m_downloadButton->setMenu(menu);
     m_downloadButton->setDefaultAction(m_downloadAttachment);
 
-    connect(m_downloadButton, SIGNAL(clicked()), m_fileDownloadManager, SLOT(slotDownloadNow()));
-
     layout->addWidget(m_downloadButton);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }
@@ -75,8 +73,8 @@ void AttachmentView::slotDownloadAttachment()
     // We should disconnect the fileDownloadManager from any connected slots
     // and reconnect again to prevent duplicate emitting of signals
     m_fileDownloadManager->disconnect();
-    m_downloadButton->setDefaultAction(m_downloadAttachment);
     connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+    m_fileDownloadManager->slotDownloadNow();
 }
 
 void AttachmentView::slotOpenAttachment()
@@ -84,9 +82,9 @@ void AttachmentView::slotOpenAttachment()
     // We should disconnect the fileDownloadManager from any connected slots
     // and reconnect again to prevent duplicate emitting of signals
     m_fileDownloadManager->disconnect();
-    m_downloadButton->setDefaultAction(m_openAttachment);
     connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
     connect(m_fileDownloadManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
+    m_fileDownloadManager->slotDownloadNow();
 }
 
 void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
