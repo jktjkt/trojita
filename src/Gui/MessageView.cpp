@@ -305,6 +305,10 @@ QString MessageView::headerText()
     QString res;
     if (!e.from.isEmpty())
         res += tr("<b>From:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.from, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!e.sender.isEmpty() && e.sender != e.from)
+        res += tr("<b>Sender:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.sender, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    if (!e.replyTo.isEmpty() && e.replyTo != e.from)
+        res += tr("<b>Reply-To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.replyTo, Imap::Message::MailAddress::FORMAT_CLICKABLE));
     if (!e.to.isEmpty())
         res += tr("<b>To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.to, Imap::Message::MailAddress::FORMAT_CLICKABLE));
     if (!e.cc.isEmpty())
