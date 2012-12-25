@@ -42,51 +42,51 @@ namespace Gui
 {
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-    QWidget(parent), partIndex(partIndex), fileDownloadManager(0), downloadButton(0), downloadOnlyAction(0), openDirectlyAction(0)
+    QWidget(parent), m_partIndex(partIndex), m_fileDownloadManager(0), m_downloadButton(0), m_downloadAttachment(0), m_openAttachment(0)
 {
-    fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
+    m_fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
     QLabel *lbl = new QLabel(tr("Attachment %1 (%2, %3)").arg(partIndex.data(Imap::Mailbox::RolePartFileName).toString(),
                              partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
                              Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
                                                                    Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX)));
     layout->addWidget(lbl);
-    downloadButton = new QToolButton();
-    downloadButton->setPopupMode(QToolButton::MenuButtonPopup);
-    downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_downloadButton = new QToolButton();
+    m_downloadButton->setPopupMode(QToolButton::MenuButtonPopup);
+    m_downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
     QMenu *menu = new QMenu();
-    downloadOnlyAction = menu->addAction(tr("Download"));
-    openDirectlyAction = menu->addAction(tr("Open Directly"));
-    connect( downloadOnlyAction, SIGNAL(triggered()), this, SLOT(slotDownloadOnlyActionTriggered()));
-    connect(openDirectlyAction, SIGNAL(triggered()), this, SLOT(slotOpenDirectlyActionTriggered()));
+    m_downloadAttachment = menu->addAction(tr("Download"));
+    m_openAttachment = menu->addAction(tr("Open Directly"));
+    connect(m_downloadAttachment, SIGNAL(triggered()), this, SLOT(slotDownloadAttachment()));
+    connect(m_openAttachment, SIGNAL(triggered()), this, SLOT(slotOpenAttachment()));
 
-    downloadButton->setMenu(menu);
-    downloadButton->setDefaultAction(downloadOnlyAction);
+    m_downloadButton->setMenu(menu);
+    m_downloadButton->setDefaultAction(m_downloadAttachment);
 
-    connect(downloadButton, SIGNAL(clicked()), fileDownloadManager, SLOT(slotDownloadNow()));
+    connect(m_downloadButton, SIGNAL(clicked()), m_fileDownloadManager, SLOT(slotDownloadNow()));
 
-    layout->addWidget(downloadButton);
+    layout->addWidget(m_downloadButton);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 }
 
-void AttachmentView::slotDownloadOnlyActionTriggered()
+void AttachmentView::slotDownloadAttachment()
 {
-    //We should disconnect the fileDownloadManager from any connected slots
-    //and reconnect again to prevent duplicate emitting of signals
-    fileDownloadManager->disconnect();
-    downloadButton->setDefaultAction(downloadOnlyAction);
-    connect(fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+    // We should disconnect the fileDownloadManager from any connected slots
+    // and reconnect again to prevent duplicate emitting of signals
+    m_fileDownloadManager->disconnect();
+    m_downloadButton->setDefaultAction(m_downloadAttachment);
+    connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
 }
 
-void AttachmentView::slotOpenDirectlyActionTriggered()
+void AttachmentView::slotOpenAttachment()
 {
-    //We should disconnect the fileDownloadManager from any connected slots
-    //and reconnect again to prevent duplicate emitting of signals
-    fileDownloadManager->disconnect();
-    downloadButton->setDefaultAction(openDirectlyAction);
-    connect(fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
-    connect(fileDownloadManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
+    // We should disconnect the fileDownloadManager from any connected slots
+    // and reconnect again to prevent duplicate emitting of signals
+    m_fileDownloadManager->disconnect();
+    m_downloadButton->setDefaultAction(m_openAttachment);
+    connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
+    connect(m_fileDownloadManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
 }
 
 void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
@@ -114,29 +114,30 @@ void AttachmentView::slotTransferError(const QString &errorString)
 
 void AttachmentView::slotTransferSucceeded()
 {
-    QString fileRealPath = QDir(QDesktopServices::storageLocation(QDesktopServices::TempLocation)).filePath(fileDownloadManager->toRealFileName(partIndex));
+    QString fileRealPath = QDir(QDesktopServices::storageLocation(QDesktopServices::TempLocation)).
+            filePath(m_fileDownloadManager->toRealFileName(m_partIndex));
     QDesktopServices::openUrl(QUrl::fromLocalFile(fileRealPath));
 }
 
 void AttachmentView::mousePressEvent(QMouseEvent *event)
 {
     QWidget *child = childAt(event->pos());
-    if (child == downloadButton) {
+    if (child == m_downloadButton) {
         // We shouldn't really interfere with its operation
         return;
     }
 
-    if (fileDownloadManager->data(Imap::Mailbox::RoleMessageUid) == 0) {
+    if (m_fileDownloadManager->data(Imap::Mailbox::RoleMessageUid) == 0) {
         return;
     }
 
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::WriteOnly);
-    stream << fileDownloadManager->data(Imap::Mailbox::RoleMailboxName).toString() <<
-              fileDownloadManager->data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
-              fileDownloadManager->data(Imap::Mailbox::RoleMessageUid).toUInt() <<
-              fileDownloadManager->data(Imap::Mailbox::RolePartId).toString() <<
-              fileDownloadManager->data(Imap::Mailbox::RolePartPathToPart).toString();
+    stream << m_fileDownloadManager->data(Imap::Mailbox::RoleMailboxName).toString() <<
+              m_fileDownloadManager->data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
+              m_fileDownloadManager->data(Imap::Mailbox::RoleMessageUid).toUInt() <<
+              m_fileDownloadManager->data(Imap::Mailbox::RolePartId).toString() <<
+              m_fileDownloadManager->data(Imap::Mailbox::RolePartPathToPart).toString();
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(QLatin1String("application/x-trojita-imap-part"), buf);

@@ -53,12 +53,12 @@ class AttachmentView : public QWidget
 {
     Q_OBJECT
 public:
-    AttachmentView(QWidget *parent,  Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex);
+    AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex);
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
 private slots:
-    void slotDownloadOnlyActionTriggered();
-    void slotOpenDirectlyActionTriggered();
+    void slotDownloadAttachment();
+    void slotOpenAttachment();
 
     void slotTransferError(const QString &errorString);
     void slotFileNameRequestedOnOpen(QString *fileName);
@@ -66,12 +66,12 @@ private slots:
     void slotTransferSucceeded();
 
 private:
-    QModelIndex partIndex;
-    Imap::Network::FileDownloadManager *fileDownloadManager;
-    QToolButton *downloadButton;
+    QModelIndex m_partIndex;
+    Imap::Network::FileDownloadManager *m_fileDownloadManager;
+    QToolButton *m_downloadButton;
 
-    QAction *downloadOnlyAction;
-    QAction *openDirectlyAction;
+    QAction *m_downloadAttachment;
+    QAction *m_openAttachment;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement
