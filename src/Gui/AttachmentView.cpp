@@ -55,7 +55,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     m_downloadButton->setPopupMode(QToolButton::MenuButtonPopup);
     m_downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
-    QMenu *menu = new QMenu();
+    QMenu *menu = new QMenu(this);
     m_downloadAttachment = menu->addAction(tr("Download"));
     m_openAttachment = menu->addAction(tr("Open Directly"));
     connect(m_downloadAttachment, SIGNAL(triggered()), this, SLOT(slotDownloadAttachment()));
