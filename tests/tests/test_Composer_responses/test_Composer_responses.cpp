@@ -131,6 +131,11 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
             << QString::fromUtf8("&amp;gt; § §gt; §para;\n")
             << QString::fromUtf8("&amp;gt; § §gt; §para;\n");
 
+    QTest::newRow("mailto-1")
+            << QString("ble.smrt-1_2+3@example.org")
+            << QString("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>")
+            << QString("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>");
+
     // Test how the quoted bits are represented
     QTest::newRow("quoted-1")
             << QString::fromUtf8("Foo bar.\n"
