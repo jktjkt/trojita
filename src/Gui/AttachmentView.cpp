@@ -70,18 +70,16 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 
 void AttachmentView::slotDownloadAttachment()
 {
-    // We should disconnect the fileDownloadManager from any connected slots
-    // and reconnect again to prevent duplicate emitting of signals
-    m_fileDownloadManager->disconnect();
+    disconnect(m_fileDownloadManager, 0, this, 0);
+
     connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
     m_fileDownloadManager->slotDownloadNow();
 }
 
 void AttachmentView::slotOpenAttachment()
 {
-    // We should disconnect the fileDownloadManager from any connected slots
-    // and reconnect again to prevent duplicate emitting of signals
-    m_fileDownloadManager->disconnect();
+    disconnect(m_fileDownloadManager, 0, this, 0);
+
     connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
     connect(m_fileDownloadManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
     m_fileDownloadManager->slotDownloadNow();
