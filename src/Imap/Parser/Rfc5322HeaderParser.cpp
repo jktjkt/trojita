@@ -92,7 +92,7 @@ namespace LowLevelParser {
             messageId += list;
         } else {
 #ifdef RAGEL_DEBUG
-            qDebug() "invalid Message-Id";
+            qDebug() << "invalid Message-Id";
 #endif
         }
     }
