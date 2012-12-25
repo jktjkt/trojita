@@ -71,6 +71,7 @@ void FileDownloadManager::slotDownloadNow()
         return;
 
     saving.setFileName(saveFileName);
+    saved = false;
 
     QNetworkRequest request;
     QUrl url;
