@@ -327,25 +327,16 @@ void MailboxModel::handleRowsRemoved(const QModelIndex &parent, int first, int l
 
 void MailboxModel::handleRowsAboutToBeInserted(const QModelIndex &parent, int first, int last)
 {
-    TreeItemMailbox *parentMbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(parent.internalPointer()));
-    if (parent.internalPointer() && ! parentMbox)
+    if (parent.internalPointer() && ! dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(parent.internalPointer())))
         return;
-    if (! parentMbox)
-        parentMbox = static_cast<Imap::Mailbox::Model *>(sourceModel())->m_mailboxes;
     if (first == 0 && last == 0)
         return;
-    if (first != 0)
-        first--;
-    last--;
-    beginInsertRows(mapFromSource(parent), first, last);
+    beginInsertRows(mapFromSource(parent), first - 1, last - 1);
 }
 
 void MailboxModel::handleRowsInserted(const QModelIndex &parent, int first, int last)
 {
-    Q_UNUSED(first);
-    Q_UNUSED(last);
-    TreeItemMailbox *parentMbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(parent.internalPointer()));
-    if (parent.internalPointer() && ! parentMbox)
+    if (parent.internalPointer() && ! dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(parent.internalPointer())))
         return;
     if (first == 0 && last == 0)
         return;
