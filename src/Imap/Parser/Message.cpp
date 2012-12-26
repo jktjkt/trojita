@@ -904,7 +904,7 @@ QTextStream &operator<<(QTextStream &stream, const QList<QByteArray> &list)
 
 bool operator==(const Envelope &a, const Envelope &b)
 {
-    return a.date == b.date && a.date == b.date && a.subject == b.subject &&
+    return a.date == b.date && a.subject == b.subject &&
            a.from == b.from && a.sender == b.sender && a.replyTo == b.replyTo &&
            a.to == b.to && a.cc == b.cc && a.bcc == b.bcc &&
            a.inReplyTo == b.inReplyTo && a.messageId == b.messageId;
