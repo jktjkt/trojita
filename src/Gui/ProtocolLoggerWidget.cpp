@@ -103,10 +103,11 @@ void ProtocolLoggerWidget::closeTab(int index)
     for (QMap<uint, QPlainTextEdit *>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it) {
         if (*it != w)
             continue;
+        const uint key = it.key();
         loggerWidgets.erase(it);
         tabs->removeTab(index);
         w->deleteLater();
-        buffers.remove(it.key());
+        buffers.remove(key);
         return;
     }
 }
