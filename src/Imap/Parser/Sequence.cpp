@@ -63,7 +63,6 @@ QByteArray Sequence::toByteArray() const
             ++i;
         }
         return res.join(QLatin1String(",")).toLocal8Bit();
-        break;
     }
     case RANGE:
         Q_ASSERT(lo <= hi);
