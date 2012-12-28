@@ -2015,4 +2015,17 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncArrived()
     justKeepTask();
 }
 
+/** @short Test that extra SEARCH responses don't cause asserts */
+void ImapModelObtainSynchronizedMailboxTest::testSpuriousSearch()
+{
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer(QByteArray("* 0 exists\r\n"));
+
+    {
+        ExpectSingleErrorHere blocker(this);
+        cServer("* SEARCH \r\n");
+    }
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

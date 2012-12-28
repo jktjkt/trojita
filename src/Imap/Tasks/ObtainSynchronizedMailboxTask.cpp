@@ -855,6 +855,10 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->m_children[0]);
     Q_ASSERT(list);
 
+    if (!mailbox->syncState.isUsableForSyncing()) {
+        throw MailboxException("Received SEARCH response but the syncState is not usable which means that we haven't asked for one", *resp);
+    }
+
     switch (uidSyncingMode) {
     case UID_SYNC_ALL:
         if (static_cast<uint>(resp->items.size()) != mailbox->syncState.exists()) {
@@ -867,7 +871,6 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
             ss.flush();
             throw MailboxException(ss.str().c_str(), *resp);
         }
-        Q_ASSERT(mailbox->syncState.isUsableForSyncing());
         break;
     case UID_SYNC_ONLY_NEW:
     {
