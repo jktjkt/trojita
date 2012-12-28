@@ -41,6 +41,7 @@ private slots:
     void testSyncWithMessages();
     void testSyncTwoLikeCyrus();
     void testSyncTwoInParallel();
+    void testSyncNoUidnext();
     void testResyncNoArrivals();
     void testResyncOneNew();
     void testResyncUidValidity();

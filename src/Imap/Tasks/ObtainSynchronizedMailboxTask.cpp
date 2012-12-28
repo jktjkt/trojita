@@ -853,12 +853,11 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     if (dieIfInvalidMailbox())
         return true;
 
+    if (uidSyncingCmd.isEmpty())
+        return false;
+
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
-
-    if (!mailbox->syncState.isUsableForSyncing()) {
-        throw MailboxException("Received SEARCH response but the syncState is not usable which means that we haven't asked for one", *resp);
-    }
 
     uidMap += resp->items;
 

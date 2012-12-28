@@ -2041,4 +2041,81 @@ void ImapModelObtainSynchronizedMailboxTest::testSpuriousESearch()
     }
 }
 
+/** @short Mailbox synchronization without the UIDNEXT -- this is what Courier 4.5.0 is happy to return */
+void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
+{
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* 0 RECENT\r\n"
+            "* OK [UIDVALIDITY 1336643053] Ok\r\n"
+            "* OK [MYRIGHTS \"acdilrsw\"] ACL\r\n"
+            + t.last("OK [READ-WRITE] Ok\r\n"));
+    QCOMPARE(model->rowCount(msgListA), 3);
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer("* SEARCH 1212 1214 1215\r\n");
+    cServer(t.last("OK search\r\n"));
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (uid1212))\r\n"
+            "* 2 FETCH (FLAGS (uid1214))\r\n"
+            "* 3 FETCH (FLAGS (uid1215))\r\n"
+            + t.last("OK fetch\r\n"));
+    cEmpty();
+    justKeepTask();
+
+    // Verify the cache
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(1336643053);
+    sync.setRecent(0);
+    // The UIDNEXT shall be updated automatically
+    sync.setUidNext(1216);
+    QList<uint> uidMap;
+    uidMap << 1212 << 1214 << 1215;
+
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 1212), QStringList() << "uid1212");
+    QCOMPARE(model->cache()->msgFlags("a", 1214), QStringList() << "uid1214");
+    QCOMPARE(model->cache()->msgFlags("a", 1215), QStringList() << "uid1215");
+
+    // Switch away from this mailbox
+    helperSyncBNoMessages();
+
+    // Make sure that we catch UIDNEXT missing by purging the cache
+    model->cache()->setMsgPart("a", 1212, QString(), "foo");
+
+    // Now go back to mailbox A
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* 0 RECENT\r\n"
+            "* OK [UIDVALIDITY 1336643053] .\r\n"
+            "* OK [MYRIGHTS \"acdilrsw\"] ACL\r\n"
+            );
+    QCOMPARE(model->rowCount(msgListA), 3);
+    cServer(t.last("OK selected\r\n"));
+    // The UIDNEXT is missing -> resyncing the UIDs again
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer("* SEARCH 1212 1214 1215\r\n");
+    cServer(t.last("OK search\r\n"));
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (uid1212))\r\n"
+            "* 2 FETCH (FLAGS (uid1214))\r\n"
+            "* 3 FETCH (FLAGS (uid1215))\r\n"
+            + t.last("OK fetch\r\n"));
+    cEmpty();
+    justKeepTask();
+
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+
+    // Missing UIDNEXT is a violation of the IMAP protocol specification, we treat that like a severe error and fall back to
+    // a full synchronization which means that any cached data is discarded
+    QCOMPARE(model->cache()->messagePart("a", 1212, QString()), QByteArray());
+}
+
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
