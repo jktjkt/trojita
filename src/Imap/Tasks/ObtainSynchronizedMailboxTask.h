@@ -71,6 +71,7 @@ private:
     void syncGeneric(TreeItemMailbox *mailbox, TreeItemMsgList *list);
 
     void applyUids(TreeItemMailbox *mailbox);
+    void finalizeSearch();
 
     void syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery=0);
     void syncFlags(TreeItemMailbox *mailbox);
