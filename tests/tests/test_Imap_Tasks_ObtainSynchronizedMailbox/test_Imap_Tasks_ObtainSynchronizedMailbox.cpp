@@ -2028,4 +2028,17 @@ void ImapModelObtainSynchronizedMailboxTest::testSpuriousSearch()
     }
 }
 
+/** @short Test how unexpected ESEARCH operates */
+void ImapModelObtainSynchronizedMailboxTest::testSpuriousESearch()
+{
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer(QByteArray("* 0 exists\r\n"));
+
+    {
+        ExpectSingleErrorHere blocker(this);
+        cServer("* ESEARCH (TAG \"\") UID \r\n");
+    }
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

@@ -911,8 +911,7 @@ bool ObtainSynchronizedMailboxTask::handleESearch(const Imap::Responses::ESearch
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->m_children[0]);
     Q_ASSERT(list);
 
-
-    if (resp->tag != uidSyncingCmd)
+    if (resp->tag.isEmpty() || resp->tag != uidSyncingCmd)
         return false;
 
     if (resp->seqOrUids != Imap::Responses::ESearch::UIDS)

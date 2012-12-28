@@ -83,6 +83,7 @@ private slots:
     void testQresyncArrived();
 
     void testSpuriousSearch();
+    void testSpuriousESearch();
 
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();
