@@ -31,6 +31,21 @@
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
 
+ExpectSingleErrorHere::ExpectSingleErrorHere(LibMailboxSync *syncer):
+    m_syncer(syncer)
+{
+    m_syncer->m_expectsError = true;
+}
+
+ExpectSingleErrorHere::~ExpectSingleErrorHere()
+{
+    if (m_syncer->m_expectsError) {
+        QFAIL("Expected an error from the IMAP model, but there wasn't one");
+    }
+    QCOMPARE(m_syncer->errorSpy->size(), 1);
+    m_syncer->errorSpy->removeFirst();
+}
+
 LibMailboxSync::~LibMailboxSync()
 {
 }
@@ -38,6 +53,7 @@ LibMailboxSync::~LibMailboxSync()
 void LibMailboxSync::init()
 {
     m_verbose = qgetenv("TROJITA_IMAP_DEBUG") == QByteArray("1");
+    m_expectsError = false;
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
     factory = new Imap::Mailbox::FakeSocketFactory();
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
@@ -71,8 +87,12 @@ void LibMailboxSync::init()
 
 void LibMailboxSync::modelSignalsError(const QString &message)
 {
-    qDebug() << message;
-    QFAIL("Model emits an error");
+    if (m_expectsError) {
+        m_expectsError = false;
+    } else {
+        qDebug() << message;
+        QFAIL("Model emits an error");
+    }
 }
 
 void LibMailboxSync::modelLogged(uint parserId, const Common::LogMessage &message)

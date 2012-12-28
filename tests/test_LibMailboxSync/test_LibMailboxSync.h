@@ -40,6 +40,18 @@ bool operator==(const SyncState &a, const SyncState &b);
 }
 }
 
+class LibMailboxSync;
+
+/** @short Helper which checks that an error is thrown */
+class ExpectSingleErrorHere
+{
+public:
+    ExpectSingleErrorHere(LibMailboxSync *syncer);
+    ~ExpectSingleErrorHere();
+private:
+    LibMailboxSync *m_syncer;
+};
+
 class LibMailboxSync : public QObject
 {
     Q_OBJECT
@@ -87,6 +99,9 @@ protected:
     uint existsA, uidValidityA, uidNextA;
     QList<uint> uidMapA;
     bool m_verbose;
+    bool m_expectsError;
+
+    friend class ExpectSingleErrorHere;
 };
 
 #define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
