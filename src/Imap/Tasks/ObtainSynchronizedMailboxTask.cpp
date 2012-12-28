@@ -160,6 +160,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
     } else if (resp->tag == uidSyncingCmd) {
 
         if (resp->kind == Responses::OK) {
+            // FIXME: move the finalizeSearch() here to support working with split SEARCH reposnes -- but beware of
+            // arrivals/expunges which happen while the UID SEARCH is in progres...
             log("UIDs synchronized", Common::LOG_MAILBOX_SYNC);
             Q_ASSERT(status == STATE_SYNCING_FLAGS);
             Q_ASSERT(mailboxIndex.isValid());   // FIXME
