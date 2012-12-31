@@ -865,8 +865,9 @@ void MainWindow::authenticationRequested()
     QString pass = s.value(Common::SettingsNames::imapPassKey).toString();
     if (m_ignoreStoredPassword || pass.isEmpty()) {
         bool ok;
-        pass = QInputDialog::getText(this, tr("Password"),
-                                     tr("Please provide password for %1").arg(user),
+        pass = QInputDialog::getText(this, tr("IMAP Password"),
+                                     tr("Please provide password for %1 on %2:").arg(
+                                         user, QSettings().value(Common::SettingsNames::imapHostKey).toString()),
                                      QLineEdit::Password, QString::null, &ok);
         if (ok) {
             model->setImapUser(user);
