@@ -85,6 +85,7 @@ private slots:
 
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
+    static RecipientKind recipientKindForNextRow(const RecipientKind kind);
     void addRecipient(int position, RecipientKind kind, const QString &address);
     bool parseRecipients(QList<QPair<RecipientKind, Imap::Message::MailAddress> > &results);
     void removeRecipient(int position);

@@ -344,13 +344,29 @@ void ComposeWidget::setData(const QList<QPair<RecipientKind, QString> > &recipie
     if (recipients.isEmpty())
         addRecipient(0, Imap::Mailbox::MessageComposer::Recipient_To, QString());
     else
-        addRecipient(recipients.size(), recipients.last().first, QString());
+        addRecipient(recipients.size(), recipientKindForNextRow(recipients.last().first), QString());
     ui->subject->setText(subject);
     ui->mailText->setText(body);
     m_composer->setInReplyTo(inReplyTo);
     m_composer->setReferences(references);
     m_replyingTo = replyingToMessage;
     slotUpdateSignature();
+}
+
+/** @short Find out what type of recipient to use for the last row */
+ComposeWidget::RecipientKind ComposeWidget::recipientKindForNextRow(const RecipientKind kind)
+{
+    using namespace Imap::Mailbox;
+    switch (kind) {
+    case MessageComposer::Recipient_To:
+        // Heuristic: if the last one is "to", chances are that the next one shall not be "to" as well.
+        // Cc is reasonable here.
+        return MessageComposer::Recipient_Cc;
+    case MessageComposer::Recipient_Cc:
+    case MessageComposer::Recipient_Bcc:
+        // In any other case, it is probably better to just reuse the type of the last row
+        return kind;
+    }
 }
 
 //BEGIN QFormLayout workarounds
@@ -466,7 +482,7 @@ void ComposeWidget::updateRecipientList()
         }
     }
     if (!haveEmpty)
-        addRecipient(m_recipients.count(), currentRecipient(m_recipients.last().first), QString());
+        addRecipient(m_recipients.count(), recipientKindForNextRow(currentRecipient(m_recipients.last().first)), QString());
 }
 
 void ComposeWidget::collapseRecipients()
@@ -479,7 +495,7 @@ void ComposeWidget::collapseRecipients()
     // an empty recipient line just lost focus -> we "place it at the end", ie. simply remove it
     // and append a clone
     bool needEmpty = false;
-    RecipientKind carriedKind = Imap::Mailbox::MessageComposer::Recipient_To;
+    RecipientKind carriedKind = recipientKindForNextRow(Imap::Mailbox::MessageComposer::Recipient_To);
     for (int i = 0; i < m_recipients.count() - 1; ++i) { // sic! on the -1, no action if it trails anyway
         if (m_recipients.at(i).second == edit) {
             carriedKind = currentRecipient(m_recipients.last().first);
