@@ -2,17 +2,9 @@
 <ui version="4.0">
  <class>GeneralPage</class>
  <widget class="QScrollArea" name="GeneralPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>350</width>
-    <height>300</height>
-   </rect>
-  </property>
   <property name="minimumSize">
    <size>
-    <width>350</width>
+    <width>400</width>
     <height>0</height>
    </size>
   </property>
@@ -26,14 +18,6 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="scrollAreaWidgetContents">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>344</width>
-     <height>294</height>
-    </rect>
-   </property>
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
@@ -145,6 +129,13 @@
       </property>
       <property name="text">
        <string>Show Trojitá's homepage on startup</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="0">
+     <widget class="QCheckBox" name="preferPlaintextCheckbox">
+      <property name="text">
+       <string>Show plaintext e-mails instead of the HTML version</string>
       </property>
      </widget>
     </item>

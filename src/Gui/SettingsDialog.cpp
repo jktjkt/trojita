@@ -139,6 +139,7 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
                                         "<p>The remote server will receive the user's IP address and versions of Trojitá, the Qt library, "
                                         "and the underlying operating system. No private information, like account settings "
                                         "or IMAP server details, are collected.</p>"));
+    preferPlaintextCheckbox->setChecked(s.value(Common::SettingsNames::guiPreferPlaintextRendering).toBool());
 
     connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(updateWidgets()));
     connect(identityTabelView, SIGNAL(doubleClicked(QModelIndex)), SLOT(editButtonClicked()));
@@ -221,6 +222,7 @@ void GeneralPage::save(QSettings &s)
 {
     m_identitiesModel->saveToSettings(s);
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
+    s.setValue(Common::SettingsNames::guiPreferPlaintextRendering, preferPlaintextCheckbox->isChecked());
 }
 
 EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, const QModelIndex &currentIndex):

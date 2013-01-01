@@ -39,7 +39,8 @@ class MultipartAlternativeWidget: public QTabWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    MultipartAlternativeWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth);
+    MultipartAlternativeWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex,
+                               const int recursionDepth, const QString &preferredMimeType);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 };

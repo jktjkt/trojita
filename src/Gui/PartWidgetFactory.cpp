@@ -24,6 +24,7 @@
 #include "LoadablePartWidget.h"
 #include "PartWidget.h"
 #include "SimplePartWidget.h"
+#include "Common/SettingsNames.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
@@ -32,6 +33,7 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QSettings>
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QVBoxLayout>
@@ -60,16 +62,27 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                              "the top-most thousand items or so are shown."), 0);
     }
 
+    bool userPrefersPlaintext = QSettings().value(Common::SettingsNames::guiPreferPlaintextRendering).toBool();
+
     QString mimeType = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
     if (mimeType.startsWith(QLatin1String("multipart/"))) {
         // it's a compound part
         if (mimeType == QLatin1String("multipart/alternative")) {
-            return new MultipartAlternativeWidget(0, this, partIndex, recursionDepth);
+            return new MultipartAlternativeWidget(0, this, partIndex, recursionDepth,
+                                                  userPrefersPlaintext ?
+                                                      QLatin1String("text/plain") :
+                                                      QLatin1String("text/html"));
         } else if (mimeType == QLatin1String("multipart/signed")) {
             return new MultipartSignedWidget(0, this, partIndex, recursionDepth);
         } else if (mimeType == QLatin1String("multipart/related")) {
             // The purpose of this section is to find a text/html e-mail, along with its associated body parts, and hide
             // everything else than the HTML widget.
+
+            // At this point, it might be interesting to somehow respect the user's preference about using text/plain
+            // instead of text/html. However, things are a bit complicated; the widget used at this point really wants
+            // to either show just a single part or alternatively all of them in a sequence.
+            // Furthermore, if someone sends a text/plain and a text/html together inside a multipart/related, they're
+            // just wrong.
 
             // Let's see if we know what the root part is
             QModelIndex mainPartIndex;

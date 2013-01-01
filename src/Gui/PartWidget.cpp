@@ -46,18 +46,22 @@ QString quoteMeHelper(const QObjectList &children)
 
 MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
-        const int recursionDepth):
+        const int recursionDepth, const QString &preferredMimeType):
     QTabWidget(parent)
 {
     setContentsMargins(0,0,0,0);
+    int preferredIndex = -1;
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid());
         QWidget *item = factory->create(anotherPart, recursionDepth + 1);
-        addTab(item, anotherPart.data(Imap::Mailbox::RolePartMimeType).toString());
+        QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
+        addTab(item, mimeType);
+        if (preferredIndex == -1 && mimeType == preferredMimeType)
+            preferredIndex = i;
     }
-    setCurrentIndex(partIndex.model()->rowCount(partIndex) - 1);
+    setCurrentIndex(preferredIndex == -1 ? partIndex.model()->rowCount(partIndex) - 1 : preferredIndex);
 }
 
 QString MultipartAlternativeWidget::quoteMe() const
