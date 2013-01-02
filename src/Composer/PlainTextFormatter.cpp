@@ -39,7 +39,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                               ")");
     static const QRegExp mail("([a-zA-Z0-9\\.\\-_\\+]+@[a-zA-Z0-9\\.\\-_]+)");
     static QString intro("(^|[\\s\\(\\[\\{])");
-    static QString extro("([\\s\\),;.\\]\\}])");
+    static QString extro("($|[\\s\\),;.\\]\\}])");
     static const QRegExp bold(intro + "\\*(\\S*)\\*" + extro);
     static const QRegExp italic(intro + "/(\\S*)/" + extro);
     static const QRegExp underline(intro + "_(\\S*)_" + extro);
