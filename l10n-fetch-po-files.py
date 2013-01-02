@@ -44,3 +44,6 @@ for lang in all_languages:
         file(OUTPUT_PO_PATH + OUTPUT_PO_PATTERN % lang, "wb").write(transformed)
     except subprocess.CalledProcessError:
         print "No data for %s" % lang
+
+# Inform qmake about the updated file list
+os.utime("./src/Gui/Gui.pro", None)
