@@ -44,6 +44,10 @@ class QNetworkConfigurationManager;
 class QNetworkSession;
 class QSslError;
 
+// Required for Qt5; without this, qRegisterMetaType asserts.
+// See http://lists.qt-project.org/pipermail/development/2013-January/008976.html for details.
+Q_DECLARE_METATYPE(QList<QSslError>)
+
 class FakeCapabilitiesInjector;
 class ImapModelIdleTest;
 
