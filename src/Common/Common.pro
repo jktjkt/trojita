@@ -3,7 +3,8 @@ TEMPLATE = lib
 TARGET = Common
 SOURCES += SettingsNames.cpp \
     SetCoreApplication.cpp \
-    FileLogger.cpp
+    FileLogger.cpp \
+    DeleteAfter.cpp
 HEADERS += SettingsNames.h \
     SetCoreApplication.cpp \
     SqlTransactionAutoAborter.h \
@@ -11,7 +12,8 @@ HEADERS += SettingsNames.h \
     FindWithUnknown.h \
     Logging.h \
     RingBuffer.h \
-    FileLogger.h
+    FileLogger.h \
+    DeleteAfter.h
 
 GITVERSION_PREFIX = $$join(PWD,,,/../..)
 include(../gitversion.pri)

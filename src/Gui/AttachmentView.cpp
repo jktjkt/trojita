@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AttachmentView.h"
+#include "Common/DeleteAfter.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ItemRoles.h"
@@ -36,13 +37,15 @@
 #include <QMouseEvent>
 #include <QPushButton>
 #include <QLabel>
+#include <QTemporaryFile>
 #include <QToolButton>
 
 namespace Gui
 {
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-    QWidget(parent), m_partIndex(partIndex), m_fileDownloadManager(0), m_downloadButton(0), m_downloadAttachment(0), m_openAttachment(0)
+    QWidget(parent), m_partIndex(partIndex), m_fileDownloadManager(0), m_downloadButton(0), m_downloadAttachment(0),
+    m_openAttachment(0), m_tmpFile(0)
 {
     m_fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
@@ -87,13 +90,10 @@ void AttachmentView::slotOpenAttachment()
 
 void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
 {
-    *fileName = QDir(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                QDesktopServices::storageLocation(QDesktopServices::TempLocation)
-#else
-                QStandardPaths::writableLocation(QStandardPaths::TempLocation)
-#endif
-                ).filePath(*fileName);
+    m_tmpFile = new QTemporaryFile(QDir::tempPath() + QLatin1String("/trojita-attachment-XXXXXX-") +
+                                   fileName->replace(QLatin1Char('/'), QLatin1Char('_')));
+    m_tmpFile->open();
+    *fileName = m_tmpFile->fileName();
 }
 
 void AttachmentView::slotFileNameRequested(QString *fileName)
@@ -119,14 +119,13 @@ void AttachmentView::slotTransferError(const QString &errorString)
 
 void AttachmentView::slotTransferSucceeded()
 {
-    QString fileRealPath = QDir(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                QDesktopServices::storageLocation(QDesktopServices::TempLocation)
-#else
-                QStandardPaths::writableLocation(QStandardPaths::TempLocation)
-#endif
-            ).filePath(m_fileDownloadManager->toRealFileName(m_partIndex));
-    QDesktopServices::openUrl(QUrl::fromLocalFile(fileRealPath));
+    Q_ASSERT(m_tmpFile);
+    QDesktopServices::openUrl(QUrl::fromLocalFile(m_tmpFile->fileName()));
+
+    // This will delete the temporary file in ten seconds. It should give the application plenty of time to start and also prevent
+    // leaving cruft behind.
+    new Common::DeleteAfter(m_tmpFile, 10000);
+    m_tmpFile = 0;
 }
 
 void AttachmentView::mousePressEvent(QMouseEvent *event)

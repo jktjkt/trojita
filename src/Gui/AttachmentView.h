@@ -28,6 +28,7 @@
 
 class QNetworkReply;
 class QPushButton;
+class QTemporaryFile;
 class QToolButton;
 
 namespace Imap
@@ -72,6 +73,8 @@ private:
 
     QAction *m_downloadAttachment;
     QAction *m_openAttachment;
+
+    QTemporaryFile *m_tmpFile;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement
