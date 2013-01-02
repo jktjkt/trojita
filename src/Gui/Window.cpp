@@ -1183,7 +1183,19 @@ void MainWindow::invokeComposeDialog(const QString &subject, const QString &body
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this);
-    w->setData(recipients, subject, body, inReplyTo, references, replyingToMessage);
+
+    // Trim the References header as per RFC 5537
+    QList<QByteArray> trimmedReferences = references;
+    int referencesSize = QByteArray("References: ").size();
+    const int lineOverhead = 3; // one for the " " prefix, two for the \r\n suffix
+    Q_FOREACH(const QByteArray &item, references)
+        referencesSize += item.size() + lineOverhead;
+    // The magic numbers are from RFC 5537
+    while (referencesSize >= 998 && trimmedReferences.size() > 3) {
+        referencesSize -= trimmedReferences.takeAt(1).size() + lineOverhead;
+    }
+
+    w->setData(recipients, subject, body, inReplyTo, trimmedReferences, replyingToMessage);
     w->setAttribute(Qt::WA_DeleteOnClose, true);
     Util::centerWidgetOnScreen(w);
     w->show();
