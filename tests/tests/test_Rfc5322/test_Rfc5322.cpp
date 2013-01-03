@@ -155,6 +155,15 @@ void Rfc5322Test::testHeaders_data()
         << QByteArray("MESSAGE-id: <a@b>\r\n"
                       "In-REPLY-to:   <x@y > <foo@[666]>\r\n")
         << true << refs << lp << false << mi << irt;
+
+    refs.clear();
+    lp.clear();
+    lp << "http://groups.google.com/group/MEH/post?hl=cs_US" << "mailto:CENSORED@googlegroups.com";
+    mi.clear();
+    irt.clear();
+    QTest::newRow("list-post-http-and-mailto")
+        << QByteArray("List-Post: <http://groups.google.com/group/MEH/post?hl=cs_US>, <mailto:CENSORED@googlegroups.com>\r\n")
+        << true << refs << lp << false << mi << irt;
 }
 
 
