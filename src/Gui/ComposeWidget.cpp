@@ -367,6 +367,8 @@ ComposeWidget::RecipientKind ComposeWidget::recipientKindForNextRow(const Recipi
         // In any other case, it is probably better to just reuse the type of the last row
         return kind;
     }
+    Q_ASSERT(false);
+    return MessageComposer::Recipient_To;
 }
 
 //BEGIN QFormLayout workarounds
