@@ -61,6 +61,8 @@ ComposeWidget::ComposeWidget(MainWindow *parent) :
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(parent)
 {
+    setAttribute(Qt::WA_DeleteOnClose, true);
+
     Q_ASSERT(m_mainWindow);
     m_composer = new Imap::Mailbox::MessageComposer(m_mainWindow->imapModel(), this);
     m_composer->setPreloadEnabled(shouldBuildMessageLocally());
@@ -321,7 +323,6 @@ void ComposeWidget::send()
     connect(msa, SIGNAL(error(QString)), progress, SLOT(close()));
     connect(msa, SIGNAL(sent()), progress, SLOT(close()));
     connect(msa, SIGNAL(sent()), this, SLOT(sent()));
-    connect(msa, SIGNAL(sent()), this, SLOT(deleteLater()));
     connect(progress, SIGNAL(canceled()), msa, SLOT(cancel()));
     connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
 
@@ -538,8 +539,7 @@ void ComposeWidget::sent()
 
     // FIXME: move back to the currently selected mailbox
 
-    QMessageBox::information(this, tr("OK"), tr("Message Sent"));
-    setEnabled(true);
+    QTimer::singleShot(0, this, SLOT(close()));
 }
 
 bool ComposeWidget::parseRecipients(QList<QPair<RecipientKind, Imap::Message::MailAddress> > &results)

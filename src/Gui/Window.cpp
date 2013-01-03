@@ -1196,7 +1196,6 @@ void MainWindow::invokeComposeDialog(const QString &subject, const QString &body
     }
 
     w->setData(recipients, subject, body, inReplyTo, trimmedReferences, replyingToMessage);
-    w->setAttribute(Qt::WA_DeleteOnClose, true);
     Util::centerWidgetOnScreen(w);
     w->show();
 }
