@@ -464,12 +464,12 @@ void MessageView::externalsEnabled()
 
 void MessageView::linkInTitleHovered(const QString &target)
 {
-    if (target.isEmpty()) {
+    QUrl url(target);
+
+    if (target.isEmpty() || url.scheme().toLower() != QLatin1String("mailto")) {
         header->setToolTip(QString());
         return;
     }
-
-    QUrl url(target);
 
     QString frontOfAtSign, afterAtSign;
     if (url.path().indexOf(QLatin1String("@")) != -1) {
