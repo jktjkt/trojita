@@ -309,6 +309,32 @@ QString MessageView::headerText()
         res += tr("<b>Sender:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.sender, Imap::Message::MailAddress::FORMAT_CLICKABLE));
     if (!e.replyTo.isEmpty() && e.replyTo != e.from)
         res += tr("<b>Reply-To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.replyTo, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+    QVariantList headerListPost = message.data(Imap::Mailbox::RoleMessageHeaderListPost).toList();
+    if (!headerListPost.isEmpty()) {
+        QStringList buf;
+        Q_FOREACH(const QVariant &item, headerListPost) {
+            const QString scheme = item.toUrl().scheme().toLower();
+            if (scheme == QLatin1String("http") || scheme == QLatin1String("https") || scheme == QLatin1String("mailto")) {
+                QString target = item.toUrl().toString();
+                QString caption = item.toUrl().toString(scheme == QLatin1String("mailto") ? QUrl::RemoveScheme : QUrl::None);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                target = Qt::escape(target);
+                caption = Qt::escape(caption);
+#else
+                target = target.toHtmlEscaped();
+                caption = caption.toHtmlEscaped();
+#endif
+                buf << tr("<a href=\"%1\">%2</a>").arg(target, caption);
+            } else {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                buf << Qt::escape(item.toUrl().toString());
+#else
+                buf << item.toUrl().toString().toHtmlEscaped();
+#endif
+            }
+        }
+        res += tr("<b>List-Post:</b>&nbsp;%1<br/>").arg(buf.join(tr(", ")));
+    }
     if (!e.to.isEmpty())
         res += tr("<b>To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.to, Imap::Message::MailAddress::FORMAT_CLICKABLE));
     if (!e.cc.isEmpty())
