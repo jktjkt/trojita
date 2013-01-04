@@ -23,11 +23,14 @@
 #ifndef COMPOSER_RECIPIENTS_H
 #define COMPOSER_RECIPIENTS_H
 
+#include "Imap/Parser/MailAddress.h"
+
 namespace Composer {
 
 typedef enum {
     REPLY_SENDER_ONLY, /**< @short Reply to sender(s) only */
-    REPLY_ALL /**< @short Reply to all recipients */
+    REPLY_ALL, /**< @short Reply to all recipients */
+    REPLY_LIST /**< @short Reply to the mailing list */
 } ReplyMode;
 
 /** @short Recipients */
@@ -36,6 +39,16 @@ typedef enum {
     ADDRESS_CC,
     ADDRESS_BCC
 } RecipientKind;
+
+typedef QList<QPair<RecipientKind, Imap::Message::MailAddress> > RecipientList;
+
+namespace Util {
+
+bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecipients,
+                        const QList<QUrl> &headerListPost, const bool headerListPostNo,
+                        RecipientList &output);
+
+}
 
 }
 
