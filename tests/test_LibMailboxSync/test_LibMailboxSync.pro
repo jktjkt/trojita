@@ -20,8 +20,6 @@ HEADERS += ../TagGenerator.h \
 HEADERS += test_LibMailboxSync.h
 SOURCES += test_LibMailboxSync.cpp
 
-greaterThan(QT_MAJOR_VERSION, 4) {
-    # got to define a dummy target for `make check` under Qt5
-    check.target = check
-    QMAKE_EXTRA_TARGETS += check
-}
+# the upper makefile really wants to call `make check` in here...
+check.target = check
+QMAKE_EXTRA_TARGETS += check
