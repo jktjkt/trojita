@@ -343,7 +343,7 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
         addRecipient(i, recipients.at(i).first, recipients.at(i).second);
     }
     if (recipients.isEmpty())
-        addRecipient(0, Composer::Recipient_To, QString());
+        addRecipient(0, Composer::ADDRESS_TO, QString());
     else
         addRecipient(recipients.size(), recipientKindForNextRow(recipients.last().first), QString());
     ui->subject->setText(subject);
@@ -359,17 +359,17 @@ Composer::RecipientKind ComposeWidget::recipientKindForNextRow(const Composer::R
 {
     using namespace Imap::Mailbox;
     switch (kind) {
-    case Composer::Recipient_To:
+    case Composer::ADDRESS_TO:
         // Heuristic: if the last one is "to", chances are that the next one shall not be "to" as well.
         // Cc is reasonable here.
-        return Composer::Recipient_Cc;
-    case Composer::Recipient_Cc:
-    case Composer::Recipient_Bcc:
+        return Composer::ADDRESS_CC;
+    case Composer::ADDRESS_CC:
+    case Composer::ADDRESS_BCC:
         // In any other case, it is probably better to just reuse the type of the last row
         return kind;
     }
     Q_ASSERT(false);
-    return Composer::Recipient_To;
+    return Composer::ADDRESS_TO;
 }
 
 //BEGIN QFormLayout workarounds
@@ -441,9 +441,9 @@ static QWidget* formPredecessor(QFormLayout *form, QWidget *w)
 void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, const QString &address)
 {
     QComboBox *combo = new QComboBox(this);
-    combo->addItem(tr("To"), Composer::Recipient_To);
-    combo->addItem(tr("Cc"), Composer::Recipient_Cc);
-    combo->addItem(tr("Bcc"), Composer::Recipient_Bcc);
+    combo->addItem(tr("To"), Composer::ADDRESS_TO);
+    combo->addItem(tr("Cc"), Composer::ADDRESS_CC);
+    combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
     combo->setCurrentIndex(combo->findData(kind));
     QLineEdit *edit = new QLineEdit(address, this);
     connect(edit, SIGNAL(textEdited(QString)), SLOT(completeRecipients(QString)));
@@ -498,7 +498,7 @@ void ComposeWidget::collapseRecipients()
     // an empty recipient line just lost focus -> we "place it at the end", ie. simply remove it
     // and append a clone
     bool needEmpty = false;
-    Composer::RecipientKind carriedKind = recipientKindForNextRow(Composer::Recipient_To);
+    Composer::RecipientKind carriedKind = recipientKindForNextRow(Composer::ADDRESS_TO);
     for (int i = 0; i < m_recipients.count() - 1; ++i) { // sic! on the -1, no action if it trails anyway
         if (m_recipients.at(i).second == edit) {
             carriedKind = currentRecipient(m_recipients.last().first);

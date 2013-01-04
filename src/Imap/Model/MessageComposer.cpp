@@ -469,13 +469,13 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     for (QList<QPair<Composer::RecipientKind,Imap::Message::MailAddress> >::const_iterator it = m_recipients.begin();
          it != m_recipients.end(); ++it) {
         switch(it->first) {
-        case Composer::Recipient_To:
+        case Composer::ADDRESS_TO:
             rcptTo << it->second.asMailHeader();
             break;
-        case Composer::Recipient_Cc:
+        case Composer::ADDRESS_CC:
             rcptCc << it->second.asMailHeader();
             break;
-        case Composer::Recipient_Bcc:
+        case Composer::ADDRESS_BCC:
             break;
         }
     }

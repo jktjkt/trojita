@@ -32,9 +32,9 @@ typedef enum {
 
 /** @short Recipients */
 typedef enum {
-    Recipient_To,
-    Recipient_Cc,
-    Recipient_Bcc
+    ADDRESS_TO,
+    ADDRESS_CC,
+    ADDRESS_BCC
 } RecipientKind;
 
 }
