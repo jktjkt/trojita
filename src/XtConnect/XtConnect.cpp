@@ -48,8 +48,8 @@ namespace XtConnect {
 XtConnect::XtConnect(QObject *parent, QSettings *s) :
     QObject(parent), m_model(0), m_settings(s), m_cache(0)
 {
-    qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
-    qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
+    qRegisterMetaType<QList<QSslCertificate> >();
+    qRegisterMetaType<QList<QSslError> >();
 
     Q_ASSERT(m_settings);
     m_settings->setParent(this);

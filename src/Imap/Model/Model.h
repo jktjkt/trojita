@@ -46,6 +46,7 @@ class QSslError;
 
 // Required for Qt5; without this, qRegisterMetaType asserts.
 // See http://lists.qt-project.org/pipermail/development/2013-January/008976.html for details.
+Q_DECLARE_METATYPE(QList<QSslCertificate>)
 Q_DECLARE_METATYPE(QList<QSslError>)
 
 class FakeCapabilitiesInjector;

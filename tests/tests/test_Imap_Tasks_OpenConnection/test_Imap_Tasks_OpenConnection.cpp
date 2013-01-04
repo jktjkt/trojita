@@ -30,12 +30,14 @@
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Tasks/OpenConnectionTask.h"
 
+Q_DECLARE_METATYPE(Imap::Mailbox::ImapTask*)
+
 void ImapModelOpenConnectionTest::initTestCase()
 {
     model = 0;
     completedSpy = 0;
-    qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
-    qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
+    qRegisterMetaType<QList<QSslCertificate> >();
+    qRegisterMetaType<QList<QSslError> >();
 }
 
 void ImapModelOpenConnectionTest::init()
@@ -56,7 +58,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     QCoreApplication::processEvents();
     task = new Imap::Mailbox::OpenConnectionTask( model );
     using Imap::Mailbox::ImapTask;
-    qRegisterMetaType<ImapTask*>("ImapTask*");
+    qRegisterMetaType<ImapTask*>();
     completedSpy = new QSignalSpy(task, SIGNAL(completed(ImapTask*)));
     failedSpy = new QSignalSpy(task, SIGNAL(failed(QString)));
     authSpy = new QSignalSpy(model, SIGNAL(authRequested()));

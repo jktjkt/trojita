@@ -44,7 +44,7 @@ char *toString(const QList<QByteArray> &list)
 
 void Rfc5322Test::initTestCase()
 {
-    qRegisterMetaType<QList<QByteArray> >("QList<QByteArray>");
+    qRegisterMetaType<QList<QByteArray> >();
 }
 
 void Rfc5322Test::testHeaders()

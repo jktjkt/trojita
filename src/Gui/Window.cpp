@@ -83,8 +83,8 @@ namespace Gui
 MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_supportsCatenate(false),
     m_supportsGenUrlAuth(false), m_supportsImapSubmission(false)
 {
-    qRegisterMetaType<QList<QSslCertificate> >("QList<QSslCertificate>");
-    qRegisterMetaType<QList<QSslError> >("QList<QSslError>");
+    qRegisterMetaType<QList<QSslCertificate> >();
+    qRegisterMetaType<QList<QSslError> >();
     createWidgets();
 
     migrateSettings();
