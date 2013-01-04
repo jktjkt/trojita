@@ -10,7 +10,8 @@ HEADERS += \
     SubjectMangling.h \
     PlainTextFormatter.h \
     SenderIdentitiesModel.h \
-    ReplaceSignature.h
+    ReplaceSignature.h \
+    Recipients.h
 
 INCLUDEPATH += ../
 DEPENDPATH += ../

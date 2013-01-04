@@ -72,7 +72,7 @@ class TaskProgressIndicator;
 class MainWindow: public QMainWindow
 {
     Q_OBJECT
-    typedef QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,QString> > RecipientsType;
+    typedef QList<QPair<Composer::RecipientKind,QString> > RecipientsType;
 public:
     MainWindow();
     void invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),

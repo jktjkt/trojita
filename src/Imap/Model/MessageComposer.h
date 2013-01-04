@@ -26,6 +26,7 @@
 #include <QAbstractListModel>
 #include <QPointer>
 
+#include "Composer/Recipients.h"
 #include "Imap/Model/CatenateData.h"
 #include "Imap/Parser/Message.h"
 
@@ -42,13 +43,6 @@ class MessageComposer : public QAbstractListModel
     Q_OBJECT
 public:
 
-    /** @short Recipients */
-    typedef enum {
-        Recipient_To,
-        Recipient_Cc,
-        Recipient_Bcc
-    } RecipientKind;
-
     explicit MessageComposer(Model *model, QObject *parent = 0);
     ~MessageComposer();
 
@@ -61,7 +55,7 @@ public:
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 
     void setFrom(const Message::MailAddress &from);
-    void setRecipients(const QList<QPair<RecipientKind,Message::MailAddress> > &recipients);
+    void setRecipients(const QList<QPair<Composer::RecipientKind, Message::MailAddress> > &recipients);
     void setInReplyTo(const QList<QByteArray> &inReplyTo);
     void setReferences(const QList<QByteArray> &references);
     void setTimestamp(const QDateTime &timestamp);
@@ -100,7 +94,7 @@ private:
     bool dropAttachmentList(QDataStream &stream);
 
     Message::MailAddress m_from;
-    QList<QPair<RecipientKind,Message::MailAddress> > m_recipients;
+    QList<QPair<Composer::RecipientKind, Message::MailAddress> > m_recipients;
     QList<QByteArray> m_inReplyTo;
     QList<QByteArray> m_references;
     QDateTime m_timestamp;

@@ -421,23 +421,23 @@ QString MessageView::quoteText() const
     return QString();
 }
 
-void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
+void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
 {
     if (!message.isValid())
         return;
 
     const Imap::Message::Envelope &e = envelope();
 
-    QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,QString> > recipients;
+    QList<QPair<Composer::RecipientKind,QString> > recipients;
     for (QList<Imap::Message::MailAddress>::const_iterator it = e.from.begin(); it != e.from.end(); ++it) {
-        recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
+        recipients << qMakePair(Composer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
     }
-    if (mode == REPLY_ALL) {
+    if (mode == Composer::REPLY_ALL) {
         for (QList<Imap::Message::MailAddress>::const_iterator it = e.to.begin(); it != e.to.end(); ++it) {
-            recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_Cc, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
+            recipients << qMakePair(Composer::Recipient_Cc, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
         for (QList<Imap::Message::MailAddress>::const_iterator it = e.cc.begin(); it != e.cc.end(); ++it) {
-            recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
+            recipients << qMakePair(Composer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
         }
     }
     mainWindow->invokeComposeDialog(Composer::Util::replySubject(e.subject), quoteText(), recipients,

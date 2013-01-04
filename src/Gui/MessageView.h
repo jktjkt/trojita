@@ -24,6 +24,7 @@
 
 #include <QPersistentModelIndex>
 #include <QWidget>
+#include "Composer/Recipients.h"
 
 class QBoxLayout;
 class QLabel;
@@ -64,10 +65,8 @@ class MessageView : public QWidget
 public:
     explicit MessageView(QWidget *parent=0);
     ~MessageView();
-    enum ReplyMode { REPLY_SENDER_ONLY, /**< @short Reply to sender(s) only */
-                     REPLY_ALL /**< @short Reply to all recipients */
-                   };
-    void reply(MainWindow *mainWindow, ReplyMode mode);
+
+    void reply(MainWindow *mainWindow, Composer::ReplyMode mode);
 public slots:
     void setMessage(const QModelIndex &index);
     void setEmpty();
