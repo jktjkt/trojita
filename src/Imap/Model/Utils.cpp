@@ -49,6 +49,8 @@ QString PrettySize::prettySize(uint bytes, const ShowBytesSuffix compactUnitForm
         return tr("0");
     }
     int order = std::log(static_cast<double>(bytes)) / std::log(1024.0);
+    double number = bytes / std::pow(1024.0, order);
+
     QString suffix;
     if (order <= 0) {
         if (compactUnitFormat == COMPACT_FORM)
@@ -66,7 +68,7 @@ QString PrettySize::prettySize(uint bytes, const ShowBytesSuffix compactUnitForm
         order = 4;
         suffix = tr("TB"); // shame on you for such mails
     }
-    return tr("%1 %2").arg(QString::number(bytes / std::pow(1024.0, order), 'f', 1), suffix);
+    return tr("%1 %2").arg(QString::number(number, 'f', number < 100 ? 1 : 0), suffix);
 }
 
 QString persistentLogFileName()
