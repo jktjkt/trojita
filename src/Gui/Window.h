@@ -95,7 +95,6 @@ private slots:
     void showContextMenuMsgListTree(const QPoint &position);
     void slotReloadMboxList();
     void slotResyncMbox();
-    void slotResizeMsgListColumns();
     void alertReceived(const QString &message);
     void networkPolicyOffline();
     void networkPolicyExpensive();

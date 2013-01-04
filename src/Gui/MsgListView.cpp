@@ -79,9 +79,9 @@ int MsgListView::sizeHintForColumn(int column) const
                            //: (see Imap::Mailbox::PrettyMsgListModel::prettyFormatDate() for the string formats); the idea here
                            //: is to have a text which is "wide enough" in a typical UI font.
                            //: The English version uses "Mon" because of the M letter; you should use something similar.
-                           tr("Mon 10:33")).width();
+                           tr("Mon 10")).width();
     case Imap::Mailbox::MsgListModel::SIZE:
-        return metric.size(Qt::TextSingleLine, tr("888.1 kB")).width();
+        return metric.size(Qt::TextSingleLine, tr("88.8 kB")).width();
     default:
         return QTreeView::sizeHintForColumn(column);
     }
@@ -181,13 +181,24 @@ void MsgListView::slotFixSize()
         return;
     }
     header()->setStretchLastSection(false);
+
+    for (int i = 0; i < Imap::Mailbox::MsgListModel::COLUMN_COUNT; ++i) {
+        QHeaderView::ResizeMode resizeMode = QHeaderView::Interactive;
+        switch (i) {
+        case Imap::Mailbox::MsgListModel::SUBJECT:
+            resizeMode = QHeaderView::Stretch;
+            break;
+        case Imap::Mailbox::MsgListModel::SEEN:
+            resizeMode = QHeaderView::Fixed;
+            break;
+        }
+        setColumnWidth(i, sizeHintForColumn(i));
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    header()->setSectionResizeMode(Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch);
-    header()->setSectionResizeMode(Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed);
+        header()->setSectionResizeMode(i, resizeMode);
 #else
-    header()->setResizeMode(Imap::Mailbox::MsgListModel::SUBJECT, QHeaderView::Stretch);
-    header()->setResizeMode(Imap::Mailbox::MsgListModel::SEEN, QHeaderView::Fixed);
+        header()->setResizeMode(i, resizeMode);
 #endif
+    }
 }
 
 void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)

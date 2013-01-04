@@ -572,7 +572,6 @@ void MainWindow::setupModels()
 
     connect(mboxTree, SIGNAL(clicked(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
     connect(mboxTree, SIGNAL(activated(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
-    connect(msgListModel, SIGNAL(mailboxChanged()), this, SLOT(slotResizeMsgListColumns()));
     connect(msgListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMessageFlags()));
     connect(msgListModel, SIGNAL(messagesAvailable()), msgListWidget->tree, SLOT(scrollToBottom()));
     connect(msgListModel, SIGNAL(rowsInserted(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
@@ -706,12 +705,6 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     widget->setAttribute(Qt::WA_DeleteOnClose);
     widget->resize(800, 600);
     widget->show();
-}
-
-void MainWindow::slotResizeMsgListColumns()
-{
-    for (int i = 0; i < msgListWidget->tree->header()->count(); ++i)
-        msgListWidget->tree->resizeColumnToContents(i);
 }
 
 void MainWindow::showContextMenuMboxTree(const QPoint &position)
