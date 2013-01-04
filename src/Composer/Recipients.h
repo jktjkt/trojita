@@ -28,7 +28,7 @@
 namespace Composer {
 
 typedef enum {
-    REPLY_SENDER_ONLY, /**< @short Reply to sender(s) only */
+    REPLY_PRIVATE, /**< @short Reply to "sender(s)" only */
     REPLY_ALL, /**< @short Reply to all recipients */
     REPLY_LIST /**< @short Reply to the mailing list */
 } ReplyMode;
@@ -37,7 +37,10 @@ typedef enum {
 typedef enum {
     ADDRESS_TO,
     ADDRESS_CC,
-    ADDRESS_BCC
+    ADDRESS_BCC,
+    ADDRESS_FROM,
+    ADDRESS_SENDER,
+    ADDRESS_REPLY_TO
 } RecipientKind;
 
 typedef QList<QPair<RecipientKind, Imap::Message::MailAddress> > RecipientList;

@@ -1152,7 +1152,7 @@ void MainWindow::scrollMessageUp()
 
 void MainWindow::slotReplyTo()
 {
-    msgView->reply(this, Composer::REPLY_SENDER_ONLY);
+    msgView->reply(this, Composer::REPLY_PRIVATE);
 }
 
 void MainWindow::slotReplyAll()

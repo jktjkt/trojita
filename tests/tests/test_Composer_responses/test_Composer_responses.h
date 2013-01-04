@@ -44,6 +44,9 @@ private slots:
 
     void testSignatures();
     void testSignatures_data();
+
+    void testResponseAddresses();
+    void testResponseAddresses_data();
 };
 
 #endif

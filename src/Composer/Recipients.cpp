@@ -30,7 +30,7 @@ namespace {
 using namespace Composer;
 
 /** @short Eliminate duplicate identities from the list */
-RecipientList deduplicated(RecipientList input)
+RecipientList deduplicatedAndJustToCcBcc(RecipientList input)
 {
     QList<Imap::Message::MailAddress> to, cc, bcc;
 
@@ -44,6 +44,12 @@ RecipientList deduplicated(RecipientList input)
             break;
         case Composer::ADDRESS_BCC:
             bcc << recipient.second;
+            break;
+        case Composer::ADDRESS_FROM:
+        case Composer::ADDRESS_SENDER:
+        case Composer::ADDRESS_REPLY_TO:
+            // that's right, ignore these two
+            break;
         }
     }
 
@@ -63,7 +69,7 @@ RecipientList deduplicated(RecipientList input)
     Q_FOREACH(const Imap::Message::MailAddress &addr, cc) {
         QPair<QString, QString> item = qMakePair(addr.mailbox, addr.host);
         if (!alreadySeen.contains(item)) {
-            result << qMakePair(Composer::ADDRESS_CC, addr);
+            result << qMakePair(result.isEmpty() ? Composer::ADDRESS_TO : Composer::ADDRESS_CC, addr);
             alreadySeen.insert(item);
         }
     }
@@ -79,18 +85,100 @@ RecipientList deduplicated(RecipientList input)
     return result;
 }
 
-/** @short Helper: replying to all */
-bool prepareReplyAll(const RecipientList &originalRecipients, RecipientList &output)
+/** @short Mangle the list of recipients according to the stated rules
+
+  The type of each recipient in the input is checked against the mapping. If the mapping has no record for
+  that type, the recipient is discarded, otherwise the kind is adjusted to the desired value.
+
+*/
+RecipientList mapRecipients(RecipientList input, const QMap<RecipientKind, RecipientKind>& mapping)
 {
-    output = deduplicated(originalRecipients);
-    return true;
+    RecipientList::iterator recipient = input.begin();
+    while (recipient != input.end()) {
+        QMap<RecipientKind, RecipientKind>::const_iterator operation = mapping.constFind(recipient->first);
+        if (operation == mapping.constEnd()) {
+            recipient = input.erase(recipient);
+        } else if (*operation != recipient->first) {
+            recipient->first = *operation;
+            ++recipient;
+        } else {
+            // don't modify items which don't need modification
+            ++recipient;
+        }
+    }
+    return input;
 }
 
-/** @short Helper: replying to sender only */
-bool prepareReplySenderOnly(const RecipientList &originalRecipients, RecipientList &output)
+/** @short Replying to all */
+bool prepareReplyAll(const RecipientList &originalRecipients, RecipientList &output)
 {
-    // FIXME: implement me
-    return false;
+    QMap<RecipientKind, RecipientKind> mapping;
+    mapping[ADDRESS_FROM] = ADDRESS_TO;
+    mapping[ADDRESS_TO] = ADDRESS_CC;
+    mapping[ADDRESS_CC] = ADDRESS_CC;
+    mapping[ADDRESS_BCC] = ADDRESS_BCC;
+    RecipientList res;
+    res = deduplicatedAndJustToCcBcc(mapRecipients(originalRecipients, mapping));
+    if (res.isEmpty()) {
+        return false;
+    } else {
+        output = res;
+        return true;
+    }
+}
+
+/** @short Replying to the original author only */
+bool prepareReplySenderOnly(const RecipientList &originalRecipients, const QList<QUrl> &headerListPost, RecipientList &output)
+{
+    // Create a blacklist for the Reply-To filtering
+    QList<QPair<QString, QString> > blacklist;
+    Q_FOREACH(const QUrl &url, headerListPost) {
+        if (url.scheme().toLower() != QLatin1String("mailto")) {
+            // non-mail links are not relevant in this situation; they don't mean that we have to give up
+            continue;
+        }
+
+        QStringList list = url.path().split(QLatin1Char('@'));
+        if (list.size() != 2) {
+            // Malformed mailto: link, maybe it relies on some fancy routing? Either way, play it safe and refuse to work on that
+            // FIXME: we actually don't catch the routing!like!this#or#like#this (I don't remember which one is used).
+            // The routing shall definitely be checked.
+            return false;
+        }
+
+        // FIXME: URL decoding? UTF-8 denormalization?
+        blacklist << qMakePair(list[0].toLower(), list[1].toLower());
+    }
+
+    RecipientList originalFrom, originalReplyTo;
+    Q_FOREACH(const RecipientList::value_type &recipient, originalRecipients) {
+        switch (recipient.first) {
+        case ADDRESS_FROM:
+            originalFrom << qMakePair(ADDRESS_TO, recipient.second);
+            break;
+        case ADDRESS_REPLY_TO:
+            if (blacklist.contains(qMakePair(recipient.second.mailbox.toLower(), recipient.second.host.toLower()))) {
+                // This is the safe situation, this item in the Reply-To is set to a recognized mailing list address.
+                // We can safely ignore that.
+            } else {
+                originalReplyTo << qMakePair(ADDRESS_TO, recipient.second);
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    if (!originalReplyTo.isEmpty()) {
+        output = originalReplyTo;
+        return true;
+    } else if (!originalFrom.isEmpty()) {
+        output = originalFrom;
+        return true;
+    } else {
+        // No recognized addresses
+        return false;
+    }
 }
 
 /** @short Helper: replying to the list */
@@ -112,7 +200,7 @@ bool prepareReplyList(const QList<QUrl> &headerListPost, const bool headerListPo
     }
 
     if (!res.isEmpty()) {
-        output = deduplicated(res);
+        output = deduplicatedAndJustToCcBcc(res);
         return true;
     }
 
@@ -138,8 +226,8 @@ bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecip
     switch (mode) {
     case REPLY_ALL:
         return prepareReplyAll(originalRecipients, output);
-    case REPLY_SENDER_ONLY:
-        return prepareReplySenderOnly(originalRecipients, output);
+    case REPLY_PRIVATE:
+        return prepareReplySenderOnly(originalRecipients, headerListPost, output);
     case REPLY_LIST:
         return prepareReplyList(headerListPost, headerListPostNo, output);
     }
