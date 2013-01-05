@@ -285,7 +285,7 @@ void ComposeWidget::send()
                     s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(), m_appendUidValidity, m_appendUid,
                     options);
         Q_ASSERT(submitTask);
-        connect(submitTask, SIGNAL(completed(ImapTask*)), this, SLOT(sent()));
+        connect(submitTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(sent()));
         connect(submitTask, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
         progress->setLabelText(tr("Sending mail..."));
         progress->setValue(2);

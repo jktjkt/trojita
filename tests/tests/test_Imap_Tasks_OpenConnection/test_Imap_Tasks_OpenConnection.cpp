@@ -38,7 +38,7 @@ void ImapModelOpenConnectionTest::initTestCase()
     completedSpy = 0;
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
-    qRegisterMetaType<Imap::Mailbox::ImapTask*>("ImapTask*");
+    qRegisterMetaType<Imap::Mailbox::ImapTask*>();
 }
 
 void ImapModelOpenConnectionTest::init()
@@ -58,7 +58,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
             this, SLOT(acceptSsl(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
     QCoreApplication::processEvents();
     task = new Imap::Mailbox::OpenConnectionTask( model );
-    completedSpy = new QSignalSpy(task, SIGNAL(completed(ImapTask*)));
+    completedSpy = new QSignalSpy(task, SIGNAL(completed(Imap::Mailbox::ImapTask*)));
     failedSpy = new QSignalSpy(task, SIGNAL(failed(QString)));
     authSpy = new QSignalSpy(model, SIGNAL(authRequested()));
 }

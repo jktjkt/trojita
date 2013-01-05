@@ -166,7 +166,7 @@ signals:
     /** @short This signal is emitted if the job failed in some way */
     void failed(QString errorMessage);
     /** @short This signal is emitted upon succesfull completion of a job */
-    void completed(ImapTask *task);
+    void completed(Imap::Mailbox::ImapTask *task);
 
 public:
     Imap::Parser *parser;
