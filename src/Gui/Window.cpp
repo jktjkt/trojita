@@ -1170,9 +1170,9 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
     invokeComposeDialog(QString(), QString(), recipients);
 }
 
-void MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
-                                     const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
-                                     const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
+ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
+                                               const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
+                                               const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this);
@@ -1191,6 +1191,7 @@ void MainWindow::invokeComposeDialog(const QString &subject, const QString &body
     w->setData(recipients, subject, body, inReplyTo, trimmedReferences, replyingToMessage);
     Util::centerWidgetOnScreen(w);
     w->show();
+    return w;
 }
 
 void MainWindow::slotMailboxDeleteFailed(const QString &mailbox, const QString &msg)

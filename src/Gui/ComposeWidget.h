@@ -64,6 +64,9 @@ protected:
     void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
 
+public slots:
+    bool setReplyMode(const Composer::ReplyMode mode);
+
 private slots:
     void collapseRecipients();
     void completeRecipient(QAction *act);

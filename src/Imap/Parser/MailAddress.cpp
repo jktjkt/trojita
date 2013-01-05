@@ -243,6 +243,15 @@ QByteArray MailAddress::asMailHeader() const
     return result;
 }
 
+/** @short The mail address usable for manipulation by user */
+QString MailAddress::asPrettyString() const
+{
+    return name.isEmpty() ?
+                QString() :
+                name + QLatin1Char(' ')
+            + QLatin1Char('<') + asSMTPMailbox() + QLatin1Char('>');
+}
+
 QTextStream &operator<<(QTextStream &stream, const MailAddress &address)
 {
     stream << '"' << address.name << "\" <";

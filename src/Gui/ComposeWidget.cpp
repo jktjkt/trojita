@@ -42,6 +42,8 @@
 #include "Common/SettingsNames.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GenUrlAuthTask.h"
@@ -708,6 +710,58 @@ bool ComposeWidget::shouldBuildMessageLocally() const
     // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
     return ! (m_mainWindow->isCatenateSupported() && m_mainWindow->isGenUrlAuthSupported()
               && QSettings().value(Common::SettingsNames::smtpUseBurlKey, false).toBool());
+}
+
+/** @short Massage the list of recipients so that they match the desired type of reply
+
+In case of an error, the original list of recipients is left as is.
+*/
+bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
+{
+    if (!m_replyingTo.isValid())
+        return false;
+
+    using namespace Imap::Mailbox;
+    using namespace Imap::Message;
+    Model *model = dynamic_cast<Model *>(const_cast<QAbstractItemModel *>(m_replyingTo.model()));
+    TreeItemMessage *messagePtr = dynamic_cast<TreeItemMessage *>(static_cast<TreeItem *>(m_replyingTo.internalPointer()));
+    Envelope envelope = messagePtr->envelope(model);
+
+    // Prepare the list of recipients
+    Composer::RecipientList originalRecipients;
+    Q_FOREACH(const MailAddress &addr, envelope.from)
+        originalRecipients << qMakePair(Composer::ADDRESS_FROM, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.to)
+        originalRecipients << qMakePair(Composer::ADDRESS_TO, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.cc)
+        originalRecipients << qMakePair(Composer::ADDRESS_CC, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.bcc)
+        originalRecipients << qMakePair(Composer::ADDRESS_BCC, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.sender)
+        originalRecipients << qMakePair(Composer::ADDRESS_SENDER, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.replyTo)
+        originalRecipients << qMakePair(Composer::ADDRESS_REPLY_TO, addr);
+
+    // The List-Post header
+    QList<QUrl> headerListPost;
+    Q_FOREACH(const QVariant &item, m_replyingTo.data(RoleMessageHeaderListPost).toList())
+        headerListPost << item.toUrl();
+
+    // Determine the new list of reicpients
+    Composer::RecipientList list;
+    if (!Composer::Util::replyRecipientList(
+                mode, originalRecipients, headerListPost, m_replyingTo.data(RoleMessageHeaderListPostNo).toBool(), list)) {
+        return false;
+    }
+
+    while (!m_recipients.isEmpty())
+        removeRecipient(0);
+
+    Q_FOREACH(const Composer::RecipientList::value_type &recipient, list) {
+        addRecipient(m_recipients.size(), recipient.first, recipient.second.asPrettyString());
+    }
+
+    return true;
 }
 
 }

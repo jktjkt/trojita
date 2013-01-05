@@ -63,6 +63,7 @@ namespace Gui
 {
 
 class AbstractAddressbook;
+class ComposeWidget;
 class MailBoxTreeView;
 class MessageView;
 class MessageListWidget;
@@ -75,11 +76,11 @@ class MainWindow: public QMainWindow
     typedef QList<QPair<Composer::RecipientKind,QString> > RecipientsType;
 public:
     MainWindow();
-    void invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
-                             const RecipientsType &recipients = RecipientsType(),
-                             const QList<QByteArray> &inReplyTo = QList<QByteArray>(),
-                             const QList<QByteArray> &references = QList<QByteArray>(),
-                             const QModelIndex &replyingToMessage = QModelIndex());
+    ComposeWidget *invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
+                                       const RecipientsType &recipients = RecipientsType(),
+                                       const QList<QByteArray> &inReplyTo = QList<QByteArray>(),
+                                       const QList<QByteArray> &references = QList<QByteArray>(),
+                                       const QModelIndex &replyingToMessage = QModelIndex());
     QSize sizeHint() const;
 
     Imap::Mailbox::Model *imapModel() const;

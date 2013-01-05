@@ -69,6 +69,7 @@ public:
 
     QByteArray asSMTPMailbox() const;
     QByteArray asMailHeader() const;
+    QString asPrettyString() const;
 
     static QString prettyList(const QList<MailAddress> &list, FormattingMode mode);
     static QString prettyList(const QVariantList &list, FormattingMode mode);

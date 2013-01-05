@@ -47,6 +47,7 @@
 #include "TagListWidget.h"
 #include "UserAgentWebPage.h"
 #include "Window.h"
+#include "ComposeWidget.h"
 
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
@@ -426,25 +427,17 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
     if (!message.isValid())
         return;
 
-    const Imap::Message::Envelope &e = envelope();
+    QByteArray messageId = message.data(Imap::Mailbox::RoleMessageMessageId).toByteArray();
 
-    QList<QPair<Composer::RecipientKind,QString> > recipients;
-    for (QList<Imap::Message::MailAddress>::const_iterator it = e.from.begin(); it != e.from.end(); ++it) {
-        recipients << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
-    }
-    if (mode == Composer::REPLY_ALL) {
-        for (QList<Imap::Message::MailAddress>::const_iterator it = e.to.begin(); it != e.to.end(); ++it) {
-            recipients << qMakePair(Composer::ADDRESS_CC, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
-        }
-        for (QList<Imap::Message::MailAddress>::const_iterator it = e.cc.begin(); it != e.cc.end(); ++it) {
-            recipients << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
-        }
-    }
-    mainWindow->invokeComposeDialog(Composer::Util::replySubject(e.subject), quoteText(), recipients,
-                                    QList<QByteArray>() << e.messageId,
-                                    message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << e.messageId,
-                                    message
-                                    );
+    ComposeWidget *w = mainWindow->invokeComposeDialog(
+                Composer::Util::replySubject(message.data(Imap::Mailbox::RoleMessageSubject).toString()), quoteText(),
+                QList<QPair<Composer::RecipientKind,QString> >(),
+                QList<QByteArray>() << messageId,
+                message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << messageId,
+                message
+                );
+    bool ok = w->setReplyMode(mode);
+    Q_ASSERT(ok);
 }
 
 void MessageView::externalsRequested(const QUrl &url)
