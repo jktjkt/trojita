@@ -25,6 +25,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMenu>
+#include <QMessageBox>
 #include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
@@ -436,8 +437,25 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
                 message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << messageId,
                 message
                 );
+
     bool ok = w->setReplyMode(mode);
-    Q_ASSERT(ok);
+    if (!ok) {
+        QString err;
+        switch (mode) {
+        case Composer::REPLY_ALL:
+            // do nothing
+            break;
+        case Composer::REPLY_LIST:
+            err = tr("It doesn't look like this is a message to the mailing list. Please file in the recipients manually.");
+            break;
+        case Composer::REPLY_PRIVATE:
+            err = trUtf8("Trojitá was unable to safely determine the real e-mail address of the author of the message. "
+                         "You might want to use the \"Reply All\" funciton and trim the list of addresses manually.");
+            break;
+        }
+        if (!err.isEmpty())
+            QMessageBox::warning(w, tr("Cannot Determine Recipients"), err);
+    }
 }
 
 void MessageView::externalsRequested(const QUrl &url)
