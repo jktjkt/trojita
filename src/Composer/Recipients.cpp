@@ -24,6 +24,9 @@
 #include <QStringList>
 #include <QUrl>
 #include "Recipients.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
 
 namespace {
 
@@ -239,6 +242,38 @@ bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecip
 
     Q_ASSERT(false);
     return false;
+}
+
+/** @short Convenience wrapper */
+bool replyRecipientList(const ReplyMode mode, const QModelIndex &message, RecipientList &output)
+{
+    using namespace Imap::Mailbox;
+    using namespace Imap::Message;
+    Model *model = dynamic_cast<Model *>(const_cast<QAbstractItemModel *>(message.model()));
+    TreeItemMessage *messagePtr = dynamic_cast<TreeItemMessage *>(static_cast<TreeItem *>(message.internalPointer()));
+    Envelope envelope = messagePtr->envelope(model);
+
+    // Prepare the list of recipients
+    Composer::RecipientList originalRecipients;
+    Q_FOREACH(const MailAddress &addr, envelope.from)
+        originalRecipients << qMakePair(Composer::ADDRESS_FROM, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.to)
+        originalRecipients << qMakePair(Composer::ADDRESS_TO, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.cc)
+        originalRecipients << qMakePair(Composer::ADDRESS_CC, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.bcc)
+        originalRecipients << qMakePair(Composer::ADDRESS_BCC, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.sender)
+        originalRecipients << qMakePair(Composer::ADDRESS_SENDER, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.replyTo)
+        originalRecipients << qMakePair(Composer::ADDRESS_REPLY_TO, addr);
+
+    // The List-Post header
+    QList<QUrl> headerListPost;
+    Q_FOREACH(const QVariant &item, message.data(RoleMessageHeaderListPost).toList())
+        headerListPost << item.toUrl();
+
+    return replyRecipientList(mode, originalRecipients, headerListPost, message.data(RoleMessageHeaderListPostNo).toBool(), output);
 }
 
 

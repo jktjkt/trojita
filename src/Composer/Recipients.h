@@ -25,6 +25,8 @@
 
 #include "Imap/Parser/MailAddress.h"
 
+class QModelIndex;
+
 namespace Composer {
 
 typedef enum {
@@ -50,6 +52,8 @@ namespace Util {
 bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecipients,
                         const QList<QUrl> &headerListPost, const bool headerListPostNo,
                         RecipientList &output);
+
+bool replyRecipientList(const ReplyMode mode, const QModelIndex &message, RecipientList &output);
 
 }
 
