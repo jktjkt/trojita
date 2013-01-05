@@ -39,6 +39,7 @@
 #include "OpenConnectionTask.h"
 #include "QAIM_reset.h"
 #include "Common/FindWithUnknown.h"
+#include "Streams/SocketFactory.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
 //#define DEBUG_TASK_ROUTING

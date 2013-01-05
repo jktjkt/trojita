@@ -47,6 +47,7 @@
 #include "SubscribeUnsubscribeTask.h"
 #include "Imap/Model/TaskPresentationModel.h"
 #include "Imap/Parser/Parser.h"
+#include "Streams/SocketFactory.h"
 
 namespace Imap
 {

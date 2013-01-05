@@ -42,6 +42,10 @@
 #include "MailboxFinder.h"
 #include "MessageDownloader.h"
 #include "SqlStorage.h"
+#include "Streams/SocketFactory.h"
+
+Q_DECLARE_METATYPE(QList<QSslCertificate>)
+Q_DECLARE_METATYPE(QList<QSslError>)
 
 namespace XtConnect {
 

@@ -24,6 +24,7 @@
 #include <QTimer>
 #include "ItemRoles.h"
 #include "Model/TaskPresentationModel.h"
+#include "Streams/SocketFactory.h"
 #include "Streams/TrojitaZlibStatus.h"
 
 namespace Imap

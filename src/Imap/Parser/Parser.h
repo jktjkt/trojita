@@ -26,8 +26,8 @@
 #include "Command.h"
 #include "Response.h"
 #include "Sequence.h"
+#include "../ConnectionState.h"
 #include "../Exceptions.h"
-#include "Streams/Socket.h"
 #include "Imap/Model/CatenateData.h"
 #include "Imap/Model/UidSubmitData.h"
 
@@ -43,6 +43,8 @@ class ImapParserParseTest;
 /** @short Namespace for IMAP interaction */
 namespace Imap
 {
+
+class Socket;
 
 /** @short A handle identifying a command sent to the server */
 typedef QByteArray CommandHandle;

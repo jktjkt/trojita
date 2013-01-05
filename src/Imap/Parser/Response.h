@@ -26,7 +26,6 @@
 #include <QPair>
 #include <QSharedPointer>
 #include <QStringList>
-#include <QSslError>
 #include <QTextStream>
 #include <QVariantList>
 #include <QVector>
@@ -39,6 +38,9 @@
 // Disable warnings about throw/nothrow
 #pragma warning(disable: 4290)
 #endif
+
+class QSslCertificate;
+class QSslError;
 
 /**
  * @file

@@ -29,6 +29,7 @@
 #include <QProgressDialog>
 #include <QPushButton>
 #include <QSettings>
+#include <QTimer>
 
 #include "AbstractAddressbook.h"
 #include "AutoCompletion.h"

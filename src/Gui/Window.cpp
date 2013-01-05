@@ -76,6 +76,9 @@
 
 #include "Imap/Model/ModelTest/modeltest.h"
 
+Q_DECLARE_METATYPE(QList<QSslCertificate>)
+Q_DECLARE_METATYPE(QList<QSslError>)
+
 /** @short All user-facing widgets and related classes */
 namespace Gui
 {
