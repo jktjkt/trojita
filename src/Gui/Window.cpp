@@ -234,6 +234,8 @@ void MainWindow::createActions()
     connect(xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()));
 #endif
 
+    // FIXME: add proper shortcuts
+    // this is complicated a bit because there shall typically be one shortcut to lead to the "default thing"...
     m_replyPrivate = new QAction(tr("Private Reply"), this);
     m_replyPrivate->setEnabled(false);
     connect(m_replyPrivate, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
