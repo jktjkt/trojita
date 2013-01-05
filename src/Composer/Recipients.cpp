@@ -29,7 +29,7 @@ namespace {
 
 using namespace Composer;
 
-/** @short Eliminate duplicate identities from the list */
+/** @short Eliminate duplicate identities from the list and preserve just the To, Cc and Bcc fields */
 RecipientList deduplicatedAndJustToCcBcc(RecipientList input)
 {
     QList<Imap::Message::MailAddress> to, cc, bcc;
@@ -48,7 +48,7 @@ RecipientList deduplicatedAndJustToCcBcc(RecipientList input)
         case Composer::ADDRESS_FROM:
         case Composer::ADDRESS_SENDER:
         case Composer::ADDRESS_REPLY_TO:
-            // that's right, ignore these two
+            // that's right, ignore these
             break;
         }
     }
