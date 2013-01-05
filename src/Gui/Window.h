@@ -112,6 +112,8 @@ private slots:
     void slotComposeMail();
     void slotReplyTo();
     void slotReplyAll();
+    void slotReplyList();
+    void slotUpdateMessageActions();
     void handleMarkAsRead(bool);
     void handleMarkAsDeleted(bool);
     void slotNextUnread();
@@ -211,8 +213,9 @@ private:
     QAction *showToolBar;
     QAction *configSettings;
     QAction *composeMail;
-    QAction *replyTo;
-    QAction *replyAll;
+    QAction *m_replyPrivate;
+    QAction *m_replyAll;
+    QAction *m_replyList;
     QAction *expunge;
     QAction *createChildMailbox;
     QAction *createTopMailbox;
@@ -250,6 +253,8 @@ private:
     QAction *m_actionShowOnlySubscribed;
 
     QToolBar *m_mainToolbar;
+    QToolButton *m_replyButton;
+    QMenu *m_replyMenu;
 
     TaskProgressIndicator *busyParsersIndicator;
     QToolButton *networkIndicator;

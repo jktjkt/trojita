@@ -230,13 +230,17 @@ void MainWindow::createActions()
     connect(xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()));
 #endif
 
-    replyTo = new QAction(tr("Reply..."), this);
-    replyTo->setShortcut(tr("Ctrl+R"));
-    connect(replyTo, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
+    m_replyPrivate = new QAction(tr("Private Reply"), this);
+    m_replyPrivate->setEnabled(false);
+    connect(m_replyPrivate, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
 
-    replyAll = new QAction(tr("Reply All..."), this);
-    replyAll->setShortcut(tr("Ctrl+Shift+R"));
-    connect(replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()));
+    m_replyAll = new QAction(tr("Reply to All"), this);
+    m_replyAll->setEnabled(false);
+    connect(m_replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()));
+
+    m_replyList = new QAction(tr("Reply to Mailing List"), this);
+    m_replyList->setEnabled(false);
+    connect(m_replyList, SIGNAL(triggered()), this, SLOT(slotReplyList()));
 
     actionThreadMsgList = new QAction(tr("Show Messages in Threads"), this);
     actionThreadMsgList->setCheckable(true);
@@ -318,9 +322,17 @@ void MainWindow::createActions()
 
     connectModelActions();
 
+    m_replyButton = new QToolButton(this);
+    m_replyButton->setPopupMode(QToolButton::MenuButtonPopup);
+    m_replyMenu = new QMenu(m_replyButton);
+    m_replyMenu->addAction(m_replyPrivate);
+    m_replyMenu->addAction(m_replyAll);
+    m_replyMenu->addAction(m_replyList);
+    m_replyButton->setMenu(m_replyMenu);
+    m_replyButton->setDefaultAction(m_replyPrivate);
+
     m_mainToolbar->addAction(composeMail);
-    m_mainToolbar->addAction(replyTo);
-    m_mainToolbar->addAction(replyAll);
+    m_mainToolbar->addWidget(m_replyButton);
     m_mainToolbar->addAction(expunge);
     m_mainToolbar->addSeparator();
     m_mainToolbar->addAction(markAsRead);
@@ -342,8 +354,9 @@ void MainWindow::createMenus()
 {
     QMenu *imapMenu = menuBar()->addMenu(tr("IMAP"));
     imapMenu->addAction(composeMail);
-    imapMenu->addAction(replyTo);
-    imapMenu->addAction(replyAll);
+    imapMenu->addAction(m_replyPrivate);
+    imapMenu->addAction(m_replyAll);
+    imapMenu->addAction(m_replyList);
     imapMenu->addAction(expunge);
     imapMenu->addSeparator()->setText(tr("Network Access"));
     QMenu *netPolicyMenu = imapMenu->addMenu(tr("Network Access"));
@@ -425,6 +438,7 @@ void MainWindow::createWidgets()
     area->setWidget(msgView);
     area->setWidgetResizable(true);
     connect(msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
+    connect(msgView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
     connect(msgView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
     if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
@@ -1143,6 +1157,16 @@ void MainWindow::updateActionsOnlineOffline(bool online)
     markAsDeleted->setEnabled(online);
     markAsRead->setEnabled(online);
     showImapCapabilities->setEnabled(online);
+    if (!online) {
+        m_replyPrivate->setEnabled(false);
+        m_replyAll->setEnabled(false);
+        m_replyList->setEnabled(false);
+    }
+}
+
+void MainWindow::slotUpdateMessageActions()
+{
+    // FIXME
 }
 
 void MainWindow::scrollMessageUp()
@@ -1158,6 +1182,11 @@ void MainWindow::slotReplyTo()
 void MainWindow::slotReplyAll()
 {
     msgView->reply(this, Composer::REPLY_ALL);
+}
+
+void MainWindow::slotReplyList()
+{
+    msgView->reply(this, Composer::REPLY_LIST);
 }
 
 void MainWindow::slotComposeMailUrl(const QUrl &url)
