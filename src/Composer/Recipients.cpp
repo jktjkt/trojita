@@ -117,8 +117,7 @@ bool prepareReplyAll(const RecipientList &originalRecipients, RecipientList &out
     mapping[ADDRESS_TO] = ADDRESS_CC;
     mapping[ADDRESS_CC] = ADDRESS_CC;
     mapping[ADDRESS_BCC] = ADDRESS_BCC;
-    RecipientList res;
-    res = deduplicatedAndJustToCcBcc(mapRecipients(originalRecipients, mapping));
+    RecipientList res = deduplicatedAndJustToCcBcc(mapRecipients(originalRecipients, mapping));
     if (res.isEmpty()) {
         return false;
     } else {
