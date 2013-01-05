@@ -572,4 +572,9 @@ void MessageView::partLinkHovered(const QString &link, const QString &title, con
     emit linkHovered(link);
 }
 
+QModelIndex MessageView::currentMessage() const
+{
+    return message;
+}
+
 }

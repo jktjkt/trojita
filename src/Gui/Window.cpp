@@ -1169,7 +1169,15 @@ void MainWindow::updateActionsOnlineOffline(bool online)
 
 void MainWindow::slotUpdateMessageActions()
 {
-    // FIXME
+    Composer::RecipientList dummy;
+    m_replyPrivate->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE, msgView->currentMessage(), dummy));
+    m_replyAll->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL, msgView->currentMessage(), dummy));
+    m_replyList->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_LIST, msgView->currentMessage(), dummy));
+    if (m_replyList->isEnabled()) {
+        m_replyButton->setDefaultAction(m_replyList);
+    } else {
+        m_replyButton->setDefaultAction(m_replyPrivate);
+    }
 }
 
 void MainWindow::scrollMessageUp()

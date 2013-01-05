@@ -67,6 +67,7 @@ public:
     ~MessageView();
 
     void reply(MainWindow *mainWindow, Composer::ReplyMode mode);
+    QModelIndex currentMessage() const;
 public slots:
     void setMessage(const QModelIndex &index);
     void setEmpty();
