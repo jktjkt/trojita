@@ -367,6 +367,12 @@ Composer::RecipientKind ComposeWidget::recipientKindForNextRow(const Composer::R
     case Composer::ADDRESS_BCC:
         // In any other case, it is probably better to just reuse the type of the last row
         return kind;
+    case Composer::ADDRESS_FROM:
+    case Composer::ADDRESS_SENDER:
+    case Composer::ADDRESS_REPLY_TO:
+        // shall never be used here
+        Q_ASSERT(false);
+        return kind;
     }
     Q_ASSERT(false);
     return Composer::ADDRESS_TO;
