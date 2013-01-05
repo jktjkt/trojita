@@ -114,6 +114,7 @@ bool prepareReplyAll(const RecipientList &originalRecipients, RecipientList &out
 {
     QMap<RecipientKind, RecipientKind> mapping;
     mapping[ADDRESS_FROM] = ADDRESS_TO;
+    mapping[ADDRESS_REPLY_TO] = ADDRESS_CC;
     mapping[ADDRESS_TO] = ADDRESS_CC;
     mapping[ADDRESS_CC] = ADDRESS_CC;
     mapping[ADDRESS_BCC] = ADDRESS_BCC;
