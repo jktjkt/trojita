@@ -21,6 +21,7 @@ SOURCES += Parser/Parser.cpp \
     Parser/Sequence.cpp \
     Parser/LowLevelParser.cpp \
     Parser/Data.cpp \
+    Parser/MailAddress.cpp \
     Parser/Message.cpp \
     Parser/ThreadingNode.cpp \
     Parser/3rdparty/rfccodecs.cpp \
@@ -92,6 +93,7 @@ HEADERS += Parser/Parser.h \
     Parser/Sequence.h \
     Parser/LowLevelParser.h \
     Parser/Data.h \
+    Parser/MailAddress.h \
     Parser/Message.h \
     Parser/ThreadingNode.h \
     Parser/3rdparty/rfccodecs.h \

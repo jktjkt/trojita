@@ -5,12 +5,14 @@ SOURCES += \
     SubjectMangling.cpp \
     PlainTextFormatter.cpp \
     SenderIdentitiesModel.cpp \
-    ReplaceSignature.cpp
+    ReplaceSignature.cpp \
+    Recipients.cpp
 HEADERS += \
     SubjectMangling.h \
     PlainTextFormatter.h \
     SenderIdentitiesModel.h \
-    ReplaceSignature.h
+    ReplaceSignature.h \
+    Recipients.h
 
 INCLUDEPATH += ../
 DEPENDPATH += ../

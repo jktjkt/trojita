@@ -54,8 +54,7 @@ class ComposeWidget : public QWidget
 public:
     explicit ComposeWidget(MainWindow *parent);
     ~ComposeWidget();
-    typedef Imap::Mailbox::MessageComposer::RecipientKind RecipientKind;
-    void setData(const QList<QPair<RecipientKind, QString> > &recipients,
+    void setData(const QList<QPair<Composer::RecipientKind, QString> > &recipients,
                  const QString &subject,
                  const QString &body,
                  const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references,
@@ -64,6 +63,9 @@ public:
 protected:
     void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
+
+public slots:
+    bool setReplyMode(const Composer::ReplyMode mode);
 
 private slots:
     void collapseRecipients();
@@ -85,9 +87,9 @@ private slots:
 
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
-    static RecipientKind recipientKindForNextRow(const RecipientKind kind);
-    void addRecipient(int position, RecipientKind kind, const QString &address);
-    bool parseRecipients(QList<QPair<RecipientKind, Imap::Message::MailAddress> > &results);
+    static Composer::RecipientKind recipientKindForNextRow(const Composer::RecipientKind kind);
+    void addRecipient(int position, Composer::RecipientKind kind, const QString &address);
+    bool parseRecipients(QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &results);
     void removeRecipient(int position);
 
     bool buildMessageData();

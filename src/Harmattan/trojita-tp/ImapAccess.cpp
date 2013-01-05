@@ -27,6 +27,10 @@
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
+#include "Streams/SocketFactory.h"
+
+Q_DECLARE_METATYPE(QList<QSslCertificate>)
+Q_DECLARE_METATYPE(QList<QSslError>)
 
 ImapAccess::ImapAccess(QObject *parent) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),

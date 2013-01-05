@@ -23,8 +23,9 @@
 #ifndef IMAP_KEEPMAILBOXOPENTASK_H
 #define IMAP_KEEPMAILBOXOPENTASK_H
 
-#include "ImapTask.h"
 #include <QModelIndex>
+#include <QSet>
+#include "ImapTask.h"
 
 class QTimer;
 class ImapModelIdleTest;

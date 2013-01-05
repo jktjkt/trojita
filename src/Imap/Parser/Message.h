@@ -33,6 +33,7 @@
 #include "Data.h"
 #include "../Exceptions.h"
 #include "LowLevelParser.h"
+#include "MailAddress.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap
@@ -47,46 +48,6 @@ class TreeItemPart;
 /** @short Classes for handling e-mail messages */
 namespace Message
 {
-
-/** @short Storage container for one address from an envelope */
-class MailAddress {
-public:
-
-    /** @short Mode to format the address to string */
-    typedef enum {
-        FORMAT_JUST_NAME, /**< @short Just the human-readable name */
-        FORMAT_READABLE, /**< @short Real Name <foo@example.org> */
-        FORMAT_CLICKABLE /**< @short HTML clickable form of FORMAT_READABLE */
-    } FormattingMode;
-
-    /** @short Phrase from RFC2822 mailbox */
-    QString name;
-
-    /** @short Route information */
-    QString adl;
-
-    /** @short RFC2822 Group Name or Local Part */
-    QString mailbox;
-
-    /** @short RFC2822 Domain Name */
-    QString host;
-
-    MailAddress(const QString &_name, const QString &_adl,
-                const QString &_mailbox, const QString &_host):
-        name(_name), adl(_adl), mailbox(_mailbox), host(_host) {}
-    MailAddress(const QVariantList &input, const QByteArray &line, const int start);
-    MailAddress() {}
-    QString prettyName(FormattingMode mode) const;
-
-    QByteArray asSMTPMailbox() const;
-    QByteArray asMailHeader() const;
-
-    static QString prettyList(const QList<MailAddress> &list, FormattingMode mode);
-    static QString prettyList(const QVariantList &list, FormattingMode mode);
-
-    static bool fromPrettyString(MailAddress &into, const QString &address);
-    static bool parseOneAddress(MailAddress &into, const QString &address, int &startOffset);
-};
 
 /** @short Storage for envelope */
 class Envelope {
@@ -276,7 +237,6 @@ protected:
     void storeInterestingFields(Mailbox::TreeItemPart *p) const;
 };
 
-QTextStream &operator<<(QTextStream &stream, const MailAddress &address);
 QTextStream &operator<<(QTextStream &stream, const Envelope &e);
 QTextStream &operator<<(QTextStream &stream, const AbstractMessage::bodyFldParam_t &p);
 QTextStream &operator<<(QTextStream &stream, const AbstractMessage::bodyFldDsp_t &p);
@@ -284,8 +244,6 @@ QTextStream &operator<<(QTextStream &stream, const QList<QByteArray> &list);
 
 bool operator==(const Envelope &a, const Envelope &b);
 inline bool operator!=(const Envelope &a, const Envelope &b) { return !(a == b); }
-bool operator==(const MailAddress &a, const MailAddress &b);
-inline bool operator!=(const MailAddress &a, const MailAddress &b) { return !(a == b); }
 
 }
 
@@ -295,8 +253,6 @@ QDebug operator<<(QDebug &dbg, const Imap::Message::Envelope &envelope);
 
 QDataStream &operator>>(QDataStream &stream, Imap::Message::Envelope &e);
 QDataStream &operator<<(QDataStream &stream, const Imap::Message::Envelope &e);
-QDataStream &operator>>(QDataStream &stream, Imap::Message::MailAddress &a);
-QDataStream &operator<<(QDataStream &stream, const Imap::Message::MailAddress &a);
 
 
 #endif /* IMAP_MESSAGE_H */

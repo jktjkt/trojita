@@ -43,7 +43,7 @@ class SocketFactory: public QObject
     bool m_startTls;
 public:
     SocketFactory();
-    virtual ~SocketFactory() {};
+    virtual ~SocketFactory() {}
     /** @short Create new socket and return a smart pointer to it */
     virtual Socket *create() = 0;
     void setStartTlsRequired(const bool doIt);

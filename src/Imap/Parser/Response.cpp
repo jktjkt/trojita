@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <typeinfo>
+#include <QSslError>
 #include "Response.h"
 #include "Message.h"
 #include "LowLevelParser.h"

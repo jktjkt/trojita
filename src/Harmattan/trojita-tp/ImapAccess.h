@@ -24,6 +24,7 @@
 #define IMAPACCESS_H
 
 #include <QObject>
+#include <QSslError>
 
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/Model.h"

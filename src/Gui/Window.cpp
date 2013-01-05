@@ -24,6 +24,7 @@
 #include <QDesktopServices>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #  include <QStandardPaths>
+#  include <QUrlQuery>
 #endif
 #include <QDir>
 #include <QDockWidget>
@@ -75,6 +76,9 @@
 #include "ui_CreateMailboxDialog.h"
 
 #include "Imap/Model/ModelTest/modeltest.h"
+
+Q_DECLARE_METATYPE(QList<QSslCertificate>)
+Q_DECLARE_METATYPE(QList<QSslError>)
 
 /** @short All user-facing widgets and related classes */
 namespace Gui
@@ -230,13 +234,17 @@ void MainWindow::createActions()
     connect(xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()));
 #endif
 
-    replyTo = new QAction(tr("Reply..."), this);
-    replyTo->setShortcut(tr("Ctrl+R"));
-    connect(replyTo, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
+    m_replyPrivate = new QAction(tr("Private Reply"), this);
+    m_replyPrivate->setEnabled(false);
+    connect(m_replyPrivate, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
 
-    replyAll = new QAction(tr("Reply All..."), this);
-    replyAll->setShortcut(tr("Ctrl+Shift+R"));
-    connect(replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()));
+    m_replyAll = new QAction(tr("Reply to All"), this);
+    m_replyAll->setEnabled(false);
+    connect(m_replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()));
+
+    m_replyList = new QAction(tr("Reply to Mailing List"), this);
+    m_replyList->setEnabled(false);
+    connect(m_replyList, SIGNAL(triggered()), this, SLOT(slotReplyList()));
 
     actionThreadMsgList = new QAction(tr("Show Messages in Threads"), this);
     actionThreadMsgList->setCheckable(true);
@@ -318,9 +326,17 @@ void MainWindow::createActions()
 
     connectModelActions();
 
+    m_replyButton = new QToolButton(this);
+    m_replyButton->setPopupMode(QToolButton::MenuButtonPopup);
+    m_replyMenu = new QMenu(m_replyButton);
+    m_replyMenu->addAction(m_replyPrivate);
+    m_replyMenu->addAction(m_replyAll);
+    m_replyMenu->addAction(m_replyList);
+    m_replyButton->setMenu(m_replyMenu);
+    m_replyButton->setDefaultAction(m_replyPrivate);
+
     m_mainToolbar->addAction(composeMail);
-    m_mainToolbar->addAction(replyTo);
-    m_mainToolbar->addAction(replyAll);
+    m_mainToolbar->addWidget(m_replyButton);
     m_mainToolbar->addAction(expunge);
     m_mainToolbar->addSeparator();
     m_mainToolbar->addAction(markAsRead);
@@ -342,8 +358,9 @@ void MainWindow::createMenus()
 {
     QMenu *imapMenu = menuBar()->addMenu(tr("IMAP"));
     imapMenu->addAction(composeMail);
-    imapMenu->addAction(replyTo);
-    imapMenu->addAction(replyAll);
+    imapMenu->addAction(m_replyPrivate);
+    imapMenu->addAction(m_replyAll);
+    imapMenu->addAction(m_replyList);
     imapMenu->addAction(expunge);
     imapMenu->addSeparator()->setText(tr("Network Access"));
     QMenu *netPolicyMenu = imapMenu->addMenu(tr("Network Access"));
@@ -425,6 +442,7 @@ void MainWindow::createWidgets()
     area->setWidget(msgView);
     area->setWidgetResizable(true);
     connect(msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
+    connect(msgView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
     connect(msgView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
     if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
@@ -1143,6 +1161,24 @@ void MainWindow::updateActionsOnlineOffline(bool online)
     markAsDeleted->setEnabled(online);
     markAsRead->setEnabled(online);
     showImapCapabilities->setEnabled(online);
+    if (!online) {
+        m_replyPrivate->setEnabled(false);
+        m_replyAll->setEnabled(false);
+        m_replyList->setEnabled(false);
+    }
+}
+
+void MainWindow::slotUpdateMessageActions()
+{
+    Composer::RecipientList dummy;
+    m_replyPrivate->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE, msgView->currentMessage(), dummy));
+    m_replyAll->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL, msgView->currentMessage(), dummy));
+    m_replyList->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_LIST, msgView->currentMessage(), dummy));
+    if (m_replyList->isEnabled()) {
+        m_replyButton->setDefaultAction(m_replyList);
+    } else {
+        m_replyButton->setDefaultAction(m_replyPrivate);
+    }
 }
 
 void MainWindow::scrollMessageUp()
@@ -1152,27 +1188,42 @@ void MainWindow::scrollMessageUp()
 
 void MainWindow::slotReplyTo()
 {
-    msgView->reply(this, MessageView::REPLY_SENDER_ONLY);
+    msgView->reply(this, Composer::REPLY_PRIVATE);
 }
 
 void MainWindow::slotReplyAll()
 {
-    msgView->reply(this, MessageView::REPLY_ALL);
+    msgView->reply(this, Composer::REPLY_ALL);
+}
+
+void MainWindow::slotReplyList()
+{
+    msgView->reply(this, Composer::REPLY_LIST);
 }
 
 void MainWindow::slotComposeMailUrl(const QUrl &url)
 {
     Q_ASSERT(url.scheme().toLower() == QLatin1String("mailto"));
 
+    QStringList list = url.path().split(QLatin1Char('@'));
+    if (list.size() != 2)
+        return;
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    Imap::Message::MailAddress addr(url.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
+                                    list[0], list[1]);
+#else
+    QUrlQuery q(url);
+    Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
+                                    list[0], list[1]);
+#endif
     RecipientsType recipients;
-    // FIXME: handle the display name as well, Redmine #534
-    recipients << qMakePair<ComposeWidget::RecipientKind,QString>(Imap::Mailbox::MessageComposer::Recipient_To, url.path());
+    recipients << qMakePair<Composer::RecipientKind,QString>(Composer::ADDRESS_TO, addr.asPrettyString());
     invokeComposeDialog(QString(), QString(), recipients);
 }
 
-void MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
-                                     const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
-                                     const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
+ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
+                                               const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
+                                               const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
     QSettings s;
     ComposeWidget *w = new ComposeWidget(this);
@@ -1191,6 +1242,7 @@ void MainWindow::invokeComposeDialog(const QString &subject, const QString &body
     w->setData(recipients, subject, body, inReplyTo, trimmedReferences, replyingToMessage);
     Util::centerWidgetOnScreen(w);
     w->show();
+    return w;
 }
 
 void MainWindow::slotMailboxDeleteFailed(const QString &mailbox, const QString &msg)

@@ -25,6 +25,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QMenu>
+#include <QMessageBox>
 #include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
@@ -47,6 +48,7 @@
 #include "TagListWidget.h"
 #include "UserAgentWebPage.h"
 #include "Window.h"
+#include "ComposeWidget.h"
 
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
@@ -421,30 +423,39 @@ QString MessageView::quoteText() const
     return QString();
 }
 
-void MessageView::reply(MainWindow *mainWindow, ReplyMode mode)
+void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
 {
     if (!message.isValid())
         return;
 
-    const Imap::Message::Envelope &e = envelope();
+    QByteArray messageId = message.data(Imap::Mailbox::RoleMessageMessageId).toByteArray();
 
-    QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,QString> > recipients;
-    for (QList<Imap::Message::MailAddress>::const_iterator it = e.from.begin(); it != e.from.end(); ++it) {
-        recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
-    }
-    if (mode == REPLY_ALL) {
-        for (QList<Imap::Message::MailAddress>::const_iterator it = e.to.begin(); it != e.to.end(); ++it) {
-            recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_Cc, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
+    ComposeWidget *w = mainWindow->invokeComposeDialog(
+                Composer::Util::replySubject(message.data(Imap::Mailbox::RoleMessageSubject).toString()), quoteText(),
+                QList<QPair<Composer::RecipientKind,QString> >(),
+                QList<QByteArray>() << messageId,
+                message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << messageId,
+                message
+                );
+
+    bool ok = w->setReplyMode(mode);
+    if (!ok) {
+        QString err;
+        switch (mode) {
+        case Composer::REPLY_ALL:
+            // do nothing
+            break;
+        case Composer::REPLY_LIST:
+            err = tr("It doesn't look like this is a message to the mailing list. Please file in the recipients manually.");
+            break;
+        case Composer::REPLY_PRIVATE:
+            err = trUtf8("Trojitá was unable to safely determine the real e-mail address of the author of the message. "
+                         "You might want to use the \"Reply All\" funciton and trim the list of addresses manually.");
+            break;
         }
-        for (QList<Imap::Message::MailAddress>::const_iterator it = e.cc.begin(); it != e.cc.end(); ++it) {
-            recipients << qMakePair(Imap::Mailbox::MessageComposer::Recipient_To, QString::fromUtf8("%1@%2").arg(it->mailbox, it->host));
-        }
+        if (!err.isEmpty())
+            QMessageBox::warning(w, tr("Cannot Determine Recipients"), err);
     }
-    mainWindow->invokeComposeDialog(Composer::Util::replySubject(e.subject), quoteText(), recipients,
-                                    QList<QByteArray>() << e.messageId,
-                                    message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << e.messageId,
-                                    message
-                                    );
 }
 
 void MessageView::externalsRequested(const QUrl &url)
@@ -559,6 +570,11 @@ void MessageView::partLinkHovered(const QString &link, const QString &title, con
     Q_UNUSED(title);
     Q_UNUSED(textContent);
     emit linkHovered(link);
+}
+
+QModelIndex MessageView::currentMessage() const
+{
+    return message;
 }
 
 }

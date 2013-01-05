@@ -22,11 +22,10 @@
 #ifndef IMAP_IODEVICE_SOCKET_H
 #define IMAP_IODEVICE_SOCKET_H
 
-#include <QAbstractSocket>
 #include <QProcess>
+#include <QSslSocket>
 #include "Socket.h"
 
-class QSslSocket;
 class QTimer;
 
 namespace Imap

@@ -22,7 +22,6 @@
 
 #include <QObject>
 #include "ConnectionState.h"
-#include "Imap/Model/Model.h"
 
 namespace Imap
 {
@@ -33,45 +32,45 @@ QString connectionStateToString(const ConnectionState state)
     case CONN_STATE_NONE:
         return QString();
     case CONN_STATE_HOST_LOOKUP:
-        return Imap::Mailbox::Model::tr("Resolving hostname...");
+        return QObject::tr("Resolving hostname...");
     case CONN_STATE_CONNECTING:
-        return Imap::Mailbox::Model::tr("Connecting to the IMAP server...");
+        return QObject::tr("Connecting to the IMAP server...");
     case CONN_STATE_SSL_HANDSHAKE:
-        return Imap::Mailbox::Model::tr("Starting encryption (SSL)...");
+        return QObject::tr("Starting encryption (SSL)...");
     case CONN_STATE_SSL_VERIFYING:
-        return Imap::Mailbox::Model::tr("Checking certificates (SSL)...");
+        return QObject::tr("Checking certificates (SSL)...");
     case CONN_STATE_CONNECTED_PRETLS_PRECAPS:
-        return Imap::Mailbox::Model::tr("Checking capabilities...");
+        return QObject::tr("Checking capabilities...");
     case CONN_STATE_CONNECTED_PRETLS:
-        return Imap::Mailbox::Model::tr("Waiting for encryption...");
+        return QObject::tr("Waiting for encryption...");
     case CONN_STATE_STARTTLS_ISSUED:
-        return Imap::Mailbox::Model::tr("Asking for encryption...");
+        return QObject::tr("Asking for encryption...");
     case CONN_STATE_STARTTLS_HANDSHAKE:
-        return Imap::Mailbox::Model::tr("Starting encryption (STARTTLS)...");
+        return QObject::tr("Starting encryption (STARTTLS)...");
     case CONN_STATE_STARTTLS_VERIFYING:
-        return Imap::Mailbox::Model::tr("Checking certificates (STARTTLS)...");
+        return QObject::tr("Checking certificates (STARTTLS)...");
     case CONN_STATE_ESTABLISHED_PRECAPS:
-        return Imap::Mailbox::Model::tr("Checking capabilities (after STARTTLS)...");
+        return QObject::tr("Checking capabilities (after STARTTLS)...");
     case CONN_STATE_LOGIN:
-        return Imap::Mailbox::Model::tr("Logging in...");
+        return QObject::tr("Logging in...");
     case CONN_STATE_POSTAUTH_PRECAPS:
-        return Imap::Mailbox::Model::tr("Checking capabilities (after login)...");
+        return QObject::tr("Checking capabilities (after login)...");
     case CONN_STATE_COMPRESS_DEFLATE:
-        return Imap::Mailbox::Model::tr("Activating compression...");
+        return QObject::tr("Activating compression...");
     case CONN_STATE_AUTHENTICATED:
-        return Imap::Mailbox::Model::tr("Logged in.");
+        return QObject::tr("Logged in.");
     case CONN_STATE_SELECTING:
-        return Imap::Mailbox::Model::tr("Opening mailbox...");
+        return QObject::tr("Opening mailbox...");
     case CONN_STATE_SYNCING:
-        return Imap::Mailbox::Model::tr("Synchronizing mailbox...");
+        return QObject::tr("Synchronizing mailbox...");
     case CONN_STATE_SELECTED:
-        return Imap::Mailbox::Model::tr("Mailbox opened.");
+        return QObject::tr("Mailbox opened.");
     case CONN_STATE_FETCHING_PART:
-        return Imap::Mailbox::Model::tr("Downloading message...");
+        return QObject::tr("Downloading message...");
     case CONN_STATE_FETCHING_MSG_METADATA:
-        return Imap::Mailbox::Model::tr("Downloading message structure...");
+        return QObject::tr("Downloading message structure...");
     case CONN_STATE_LOGOUT:
-        return Imap::Mailbox::Model::tr("Logged out.");
+        return QObject::tr("Logged out.");
     }
     Q_ASSERT(false);
     return QString();

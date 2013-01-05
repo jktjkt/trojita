@@ -20,33 +20,43 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TEST_COMPOSER_RESPONSES
-#define TEST_COMPOSER_RESPONSES
+#ifndef COMPOSER_RECIPIENTS_H
+#define COMPOSER_RECIPIENTS_H
 
-#include <QTest>
+#include "Imap/Parser/MailAddress.h"
 
-/** @short Test sanity of data produced when responding to e-mail */
-class ComposerResponsesTest : public QObject
-{
-    Q_OBJECT
-private slots:
-    void testSubjectMangling();
-    void testSubjectMangling_data();
+class QModelIndex;
 
-    void testPlainTextFormatting();
-    void testPlainTextFormatting_data();
+namespace Composer {
 
-    void testLinkRecognition();
-    void testLinkRecognition_data();
+typedef enum {
+    REPLY_PRIVATE, /**< @short Reply to "sender(s)" only */
+    REPLY_ALL, /**< @short Reply to all recipients */
+    REPLY_LIST /**< @short Reply to the mailing list */
+} ReplyMode;
 
-    void testUnrecognizedLinks();
-    void testUnrecognizedLinks_data();
+/** @short Recipients */
+typedef enum {
+    ADDRESS_TO,
+    ADDRESS_CC,
+    ADDRESS_BCC,
+    ADDRESS_FROM,
+    ADDRESS_SENDER,
+    ADDRESS_REPLY_TO
+} RecipientKind;
 
-    void testSignatures();
-    void testSignatures_data();
+typedef QList<QPair<RecipientKind, Imap::Message::MailAddress> > RecipientList;
 
-    void testResponseAddresses();
-    void testResponseAddresses_data();
-};
+namespace Util {
 
-#endif
+bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecipients,
+                        const QList<QUrl> &headerListPost, const bool headerListPostNo,
+                        RecipientList &output);
+
+bool replyRecipientList(const ReplyMode mode, const QModelIndex &message, RecipientList &output);
+
+}
+
+}
+
+#endif // COMPOSER_RECIPIENTS_H

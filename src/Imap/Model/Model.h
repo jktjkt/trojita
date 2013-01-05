@@ -31,7 +31,6 @@
 #include "Cache.h"
 #include "../ConnectionState.h"
 #include "../Parser/Parser.h"
-#include "Streams/SocketFactory.h"
 #include "CopyMoveOperation.h"
 #include "FlagsOperation.h"
 #include "ParserState.h"
@@ -43,11 +42,6 @@ class QAuthenticator;
 class QNetworkConfigurationManager;
 class QNetworkSession;
 class QSslError;
-
-// Required for Qt5; without this, qRegisterMetaType asserts.
-// See http://lists.qt-project.org/pipermail/development/2013-January/008976.html for details.
-Q_DECLARE_METATYPE(QList<QSslCertificate>)
-Q_DECLARE_METATYPE(QList<QSslError>)
 
 class FakeCapabilitiesInjector;
 class ImapModelIdleTest;
@@ -73,6 +67,9 @@ class ImapTask;
 class KeepMailboxOpenTask;
 class TaskPresentationModel;
 template <typename SourceModel> class SubtreeClassSpecificItem;
+
+class SocketFactory;
+typedef std::auto_ptr<SocketFactory> SocketFactoryPtr;
 
 /** @short Progress of mailbox synchronization with the IMAP server */
 typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active */

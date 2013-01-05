@@ -63,6 +63,7 @@ namespace Gui
 {
 
 class AbstractAddressbook;
+class ComposeWidget;
 class MailBoxTreeView;
 class MessageView;
 class MessageListWidget;
@@ -72,14 +73,14 @@ class TaskProgressIndicator;
 class MainWindow: public QMainWindow
 {
     Q_OBJECT
-    typedef QList<QPair<Imap::Mailbox::MessageComposer::RecipientKind,QString> > RecipientsType;
+    typedef QList<QPair<Composer::RecipientKind,QString> > RecipientsType;
 public:
     MainWindow();
-    void invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
-                             const RecipientsType &recipients = RecipientsType(),
-                             const QList<QByteArray> &inReplyTo = QList<QByteArray>(),
-                             const QList<QByteArray> &references = QList<QByteArray>(),
-                             const QModelIndex &replyingToMessage = QModelIndex());
+    ComposeWidget *invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
+                                       const RecipientsType &recipients = RecipientsType(),
+                                       const QList<QByteArray> &inReplyTo = QList<QByteArray>(),
+                                       const QList<QByteArray> &references = QList<QByteArray>(),
+                                       const QModelIndex &replyingToMessage = QModelIndex());
     QSize sizeHint() const;
 
     Imap::Mailbox::Model *imapModel() const;
@@ -111,6 +112,8 @@ private slots:
     void slotComposeMail();
     void slotReplyTo();
     void slotReplyAll();
+    void slotReplyList();
+    void slotUpdateMessageActions();
     void handleMarkAsRead(bool);
     void handleMarkAsDeleted(bool);
     void slotNextUnread();
@@ -210,8 +213,9 @@ private:
     QAction *showToolBar;
     QAction *configSettings;
     QAction *composeMail;
-    QAction *replyTo;
-    QAction *replyAll;
+    QAction *m_replyPrivate;
+    QAction *m_replyAll;
+    QAction *m_replyList;
     QAction *expunge;
     QAction *createChildMailbox;
     QAction *createTopMailbox;
@@ -249,6 +253,8 @@ private:
     QAction *m_actionShowOnlySubscribed;
 
     QToolBar *m_mainToolbar;
+    QToolButton *m_replyButton;
+    QMenu *m_replyMenu;
 
     TaskProgressIndicator *busyParsersIndicator;
     QToolButton *networkIndicator;

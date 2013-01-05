@@ -22,6 +22,7 @@
 #ifndef TEST_IMAP_PARSER_PARSE
 #define TEST_IMAP_PARSER_PARSE
 
+#include <memory>
 #include <QtCore/QObject>
 #include "Imap/Parser/Parser.h"
 

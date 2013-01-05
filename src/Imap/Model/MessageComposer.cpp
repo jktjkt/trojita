@@ -368,7 +368,7 @@ void MessageComposer::setFrom(const Message::MailAddress &from)
     m_from = from;
 }
 
-void MessageComposer::setRecipients(const QList<QPair<RecipientKind, Message::MailAddress> > &recipients)
+void MessageComposer::setRecipients(const QList<QPair<Composer::RecipientKind, Message::MailAddress> > &recipients)
 {
     m_recipients = recipients;
 }
@@ -466,16 +466,22 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     // All recipients
     // Got to group the headers so that both of (To, Cc) are present at most once
     QList<QByteArray> rcptTo, rcptCc;
-    for (QList<QPair<RecipientKind,Imap::Message::MailAddress> >::const_iterator it = m_recipients.begin();
+    for (QList<QPair<Composer::RecipientKind,Imap::Message::MailAddress> >::const_iterator it = m_recipients.begin();
          it != m_recipients.end(); ++it) {
         switch(it->first) {
-        case Recipient_To:
+        case Composer::ADDRESS_TO:
             rcptTo << it->second.asMailHeader();
             break;
-        case Recipient_Cc:
+        case Composer::ADDRESS_CC:
             rcptCc << it->second.asMailHeader();
             break;
-        case Recipient_Bcc:
+        case Composer::ADDRESS_BCC:
+            break;
+        case Composer::ADDRESS_FROM:
+        case Composer::ADDRESS_SENDER:
+        case Composer::ADDRESS_REPLY_TO:
+            // These should never ever be produced by Trojita for now
+            Q_ASSERT(false);
             break;
         }
     }
@@ -676,7 +682,7 @@ QList<QByteArray> MessageComposer::rawRecipientAddresses() const
 {
     QList<QByteArray> res;
 
-    for (QList<QPair<RecipientKind,Imap::Message::MailAddress> >::const_iterator it = m_recipients.begin();
+    for (QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> >::const_iterator it = m_recipients.begin();
          it != m_recipients.end(); ++it) {
         res << it->second.asSMTPMailbox();
     }
