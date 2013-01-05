@@ -129,7 +129,8 @@ bool prepareReplyAll(const RecipientList &originalRecipients, RecipientList &out
 /** @short Replying to the original author only */
 bool prepareReplySenderOnly(const RecipientList &originalRecipients, const QList<QUrl> &headerListPost, RecipientList &output)
 {
-    // Create a blacklist for the Reply-To filtering
+    // Create a blacklist for the Reply-To filtering. This is needed to work with nasty mailing lists (hey, I run quite
+    // a few like that) which do the reply-to munging.
     QList<QPair<QString, QString> > blacklist;
     Q_FOREACH(const QUrl &url, headerListPost) {
         if (url.scheme().toLower() != QLatin1String("mailto")) {
@@ -140,15 +141,17 @@ bool prepareReplySenderOnly(const RecipientList &originalRecipients, const QList
         QStringList list = url.path().split(QLatin1Char('@'));
         if (list.size() != 2) {
             // Malformed mailto: link, maybe it relies on some fancy routing? Either way, play it safe and refuse to work on that
-            // FIXME: we actually don't catch the routing!like!this#or#like#this (I don't remember which one is used).
-            // The routing shall definitely be checked.
             return false;
         }
+
+        // FIXME: we actually don't catch the routing!like!this#or#like#this (I don't remember which one is used).
+        // The routing shall definitely be checked.
 
         // FIXME: URL decoding? UTF-8 denormalization?
         blacklist << qMakePair(list[0].toLower(), list[1].toLower());
     }
 
+    // Now gather all addresses from the From and Reply-To headers, taking care to skip munged Reply-To from ML software
     RecipientList originalFrom, originalReplyTo;
     Q_FOREACH(const RecipientList::value_type &recipient, originalRecipients) {
         switch (recipient.first) {
@@ -169,13 +172,15 @@ bool prepareReplySenderOnly(const RecipientList &originalRecipients, const QList
     }
 
     if (!originalReplyTo.isEmpty()) {
+        // Prefer replying to the (ML-demunged) Reply-To addresses
         output = originalReplyTo;
         return true;
     } else if (!originalFrom.isEmpty()) {
+        // If no usable thing is in the Reply-To, fall back to anything in From
         output = originalFrom;
         return true;
     } else {
-        // No recognized addresses
+        // No recognized addresses -> bail out
         return false;
     }
 }
