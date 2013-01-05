@@ -247,9 +247,8 @@ QByteArray MailAddress::asMailHeader() const
 QString MailAddress::asPrettyString() const
 {
     return name.isEmpty() ?
-                QString() :
-                name + QLatin1Char(' ')
-            + QLatin1Char('<') + asSMTPMailbox() + QLatin1Char('>');
+                asSMTPMailbox() :
+                name + QLatin1Char(' ') + QLatin1Char('<') + asSMTPMailbox() + QLatin1Char('>');
 }
 
 QTextStream &operator<<(QTextStream &stream, const MailAddress &address)
