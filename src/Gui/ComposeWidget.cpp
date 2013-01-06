@@ -488,8 +488,13 @@ void ComposeWidget::updateRecipientList()
             haveEmpty = true;
         }
     }
-    if (!haveEmpty)
-        addRecipient(m_recipients.count(), recipientKindForNextRow(currentRecipient(m_recipients.last().first)), QString());
+    if (!haveEmpty) {
+        addRecipient(m_recipients.count(),
+                     m_recipients.isEmpty() ?
+                         Composer::ADDRESS_TO :
+                         recipientKindForNextRow(currentRecipient(m_recipients.last().first)),
+                     QString());
+    }
 }
 
 void ComposeWidget::collapseRecipients()
@@ -729,6 +734,8 @@ bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
     Q_FOREACH(const Composer::RecipientList::value_type &recipient, list) {
         addRecipient(m_recipients.size(), recipient.first, recipient.second.asPrettyString());
     }
+
+    updateRecipientList();
 
     return true;
 }
