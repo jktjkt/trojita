@@ -657,7 +657,7 @@ the UIDs were assigned in a favorable way.  The biggest contribution is, however
 single updated item.
 
 The search and sort contexts also impose certain, albeit abysmal overhead, though --- whenever a message is removed, an
-explicit {\tt ESEARCH REMOVEFROM} has to be issued.  This funcitonality is mandated by the relevant RFC, even though it
+explicit {\tt ESEARCH REMOVEFROM} has to be issued.  This functionality is mandated by the relevant RFC, even though it
 doesn't provide any extra functionality --- all clients {\em still} have to listen for {\tt EXPUNGE} or {\tt VANISHED}
 untagged responses (and rightly so, obviously), so there is no technical obstacle in requiring them to remove the
 freshly removed items from their search/sort result cache.  Etiquette also dictates that clients shall cancel these

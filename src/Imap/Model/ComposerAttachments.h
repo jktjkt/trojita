@@ -52,8 +52,8 @@ public:
     The QIODevice MAY support only a single reading pass.  If the caller wants to read data multiple times, they should
     obtain another copy through calling rawData again.
 
-    This funciton MAY return a null pointer if the data is not ready yet. Always use isAvailable() to make sure that
-    the funciton will return correct data AND check the return value due to a possible TOCTOU issue.
+    This function MAY return a null pointer if the data is not ready yet. Always use isAvailable() to make sure that
+    the function will return correct data AND check the return value due to a possible TOCTOU issue.
 
     When the event loop is renetered, the QIODevice MAY become invalid and MUST NOT be used anymore.
 
