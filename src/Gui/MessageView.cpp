@@ -450,7 +450,7 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
             break;
         case Composer::REPLY_PRIVATE:
             err = trUtf8("Trojitá was unable to safely determine the real e-mail address of the author of the message. "
-                         "You might want to use the \"Reply All\" funciton and trim the list of addresses manually.");
+                         "You might want to use the \"Reply All\" function and trim the list of addresses manually.");
             break;
         }
         if (!err.isEmpty())
