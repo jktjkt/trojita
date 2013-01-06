@@ -343,10 +343,7 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     for (int i = 0; i < recipients.size(); ++i) {
         addRecipient(i, recipients.at(i).first, recipients.at(i).second);
     }
-    if (recipients.isEmpty())
-        addRecipient(0, Composer::ADDRESS_TO, QString());
-    else
-        addRecipient(recipients.size(), recipientKindForNextRow(recipients.last().first), QString());
+    updateRecipientList();
     ui->subject->setText(subject);
     ui->mailText->setText(body);
     m_composer->setInReplyTo(inReplyTo);
