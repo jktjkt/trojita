@@ -89,18 +89,11 @@ void ObtainSynchronizedMailboxTask::perform()
     QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
     Q_ASSERT(it != model->m_parsers.end());
 
-    QString qresyncArrived(QLatin1String("X-DRAFT-I01-QRESYNC-ARRIVED"));
-
     oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
-    if ((model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) ||
-         model->accessParser(parser).capabilities.contains(qresyncArrived)
-         ) && oldSyncState.isUsableForCondstore()) {
-        Parser::SelectQresyncMode qresyncMode = model->accessParser(parser).capabilities.contains(qresyncArrived) ?
-                    Parser::QRESYNC_ARRIVED :
-                    Parser::QRESYNC_RFC5162;
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) && oldSyncState.isUsableForCondstore()) {
         QList<uint> oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
         if (oldUidMap.isEmpty()) {
-            selectCmd = parser->selectQresync(qresyncMode, mailbox->mailbox(), oldSyncState.uidValidity(),
+            selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(),
                                               oldSyncState.highestModSeq());
         } else {
             Sequence knownSeq, knownUid;
@@ -114,7 +107,7 @@ void ObtainSynchronizedMailboxTask::perform()
             m_usingQresync = true;
             // We absolutely want to maintain a complete UID->seq mapping at all times, which is why the known-uids shall remain
             // empty to indicate "anything".
-            selectCmd = parser->selectQresync(qresyncMode, mailbox->mailbox(), oldSyncState.uidValidity(),
+            selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(),
                                               oldSyncState.highestModSeq(), Sequence(), knownSeq, knownUid);
         }
     } else if (model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE"))) {
@@ -531,8 +524,7 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
     // 0 => don't use it; >0 => use that as the old value
     quint64 useModSeq = 0;
     if ((model->accessParser(parser).capabilities.contains(QLatin1String("CONDSTORE")) ||
-         model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) ||
-         model->accessParser(parser).capabilities.contains(QLatin1String("X-DRAFT-I01-QRESYNC-ARRIVED"))) &&
+         model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC"))) &&
             oldSyncState.highestModSeq() > 0 && mailbox->syncState.isUsableForCondstore() &&
             oldSyncState.uidValidity() == mailbox->syncState.uidValidity()) {
         // The CONDSTORE is available, UIDVALIDITY has not changed and the HIGHESTMODSEQ suggests that
@@ -691,7 +683,7 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
         case STATE_SELECTING:
             if (m_usingQresync) {
                 // Because QRESYNC won't tell us anything about the new UIDs, we have to resort to this kludgy way of working.
-                // I really, really wonder why there's no such thing likt * ARRIVED to accompany * VANISHED. Oh well.
+                // I really, really wonder why there's no such thing like the ARRIVED to accompany VANISHED. Oh well.
                 mailbox->syncState.setExists(resp->number);
                 int newArrivals = resp->number - list->m_children.size();
                 if (newArrivals > 0) {

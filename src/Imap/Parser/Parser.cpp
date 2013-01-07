@@ -164,20 +164,13 @@ CommandHandle Parser::select(const QString &mailbox, const QList<QByteArray> &pa
     return queueCommand(cmd);
 }
 
-CommandHandle Parser::selectQresync(const SelectQresyncMode qresyncMode, const QString &mailbox, const uint uidValidity,
+CommandHandle Parser::selectQresync(const QString &mailbox, const uint uidValidity,
                                     const quint64 highestModSeq, const Sequence &knownUids, const Sequence &sequenceSnapshot,
                                     const Sequence &uidSnapshot)
 {
-    Commands::Command cmd = Commands::Command("SELECT") << encodeImapFolderName(mailbox);
-    switch (qresyncMode) {
-    case QRESYNC_RFC5162:
-        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (QRESYNC (");
-        break;
-    case QRESYNC_ARRIVED:
-        cmd << Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (QRESYNC-ARRIVED (");
-        break;
-    }
-    cmd << Commands::PartOfCommand(Commands::ATOM, QByteArray::number(uidValidity)) <<
+    Commands::Command cmd = Commands::Command("SELECT") << encodeImapFolderName(mailbox) <<
+           Commands::PartOfCommand(Commands::ATOM_NO_SPACE_AROUND, " (QRESYNC (") <<
+           Commands::PartOfCommand(Commands::ATOM, QByteArray::number(uidValidity)) <<
            Commands::PartOfCommand(Commands::ATOM, QByteArray::number(highestModSeq));
     if (knownUids.isValid()) {
         cmd << Commands::PartOfCommand(Commands::ATOM, knownUids.toByteArray());
@@ -1060,9 +1053,6 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
     case Responses::VANISHED:
         return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::Vanished(line, start));
-    case Responses::ARRIVED:
-        return QSharedPointer<Responses::AbstractResponse>(
-                    new Responses::Arrived(line, start));
     case Responses::GENURLAUTH:
         return QSharedPointer<Responses::AbstractResponse>(
                     new Responses::GenUrlAuth(line, start));

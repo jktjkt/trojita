@@ -156,7 +156,6 @@ public:
     void handleId(Imap::Parser *ptr, const Imap::Responses::Id *const resp);
     void handleEnabled(Imap::Parser *ptr, const Imap::Responses::Enabled *const resp);
     void handleVanished(Imap::Parser *ptr, const Imap::Responses::Vanished *const resp);
-    void handleArrived(Imap::Parser *ptr, const Imap::Responses::Arrived *const resp);
     void handleGenUrlAuth(Imap::Parser *ptr, const Imap::Responses::GenUrlAuth *const resp);
     void handleSocketEncryptedResponse(Imap::Parser *ptr, const Imap::Responses::SocketEncryptedResponse *const resp);
     void handleSocketDisconnectedResponse(Imap::Parser *ptr, const Imap::Responses::SocketDisconnectedResponse *const resp);

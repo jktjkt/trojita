@@ -166,7 +166,6 @@ public:
     void handleExpunge(Model *const model, const Responses::NumberResponse &resp);
     void handleExists(Model *const model, const Responses::NumberResponse &resp);
     void handleVanished(Model *const model, const Responses::Vanished &resp);
-    void handleArrived(Model *const model, const Responses::Arrived &resp);
     bool isSelectable() const;
 private:
     TreeItemPart *partIdToPtr(Model *model, TreeItemMessage *message, const QString &msgId);

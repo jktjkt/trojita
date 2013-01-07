@@ -93,7 +93,6 @@ enum Kind {
     ID,
     ENABLED, /**< @short RFC 5161 ENABLE */
     VANISHED, /**< @short RFC 5162 VANISHED (for QRESYNC) */
-    ARRIVED, /**< @short ARRIVED from draft-imap-qresync-arrived-00 */
     GENURLAUTH /**< @short GENURLAUTH, RFC 4467 */
 }; // aren't those comments just sexy? :)
 
@@ -639,19 +638,6 @@ public:
     QList<uint> uids;
     Vanished(const QByteArray &line, int &start);
     Vanished(EarlierOrNow earlier, const QList<uint> &uids): AbstractResponse(VANISHED), earlier(earlier), uids(uids) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
-};
-
-/** @short ARRIVED is the UID-based equivalent of EXISTS */
-class Arrived: public AbstractResponse
-{
-public:
-    QList<uint> uids;
-    Arrived(const QByteArray &line, int &start);
-    Arrived(const QList<uint> uids): AbstractResponse(ARRIVED), uids(uids) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

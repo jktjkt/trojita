@@ -196,12 +196,6 @@ bool ImapTask::handleVanished(const Responses::Vanished *const resp)
     return false;
 }
 
-bool ImapTask::handleArrived(const Responses::Arrived *const resp)
-{
-    Q_UNUSED(resp);
-    return false;
-}
-
 bool ImapTask::handleGenUrlAuth(const Responses::GenUrlAuth *const resp)
 {
     Q_UNUSED(resp);

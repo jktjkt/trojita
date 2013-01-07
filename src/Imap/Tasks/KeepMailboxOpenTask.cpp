@@ -446,36 +446,6 @@ bool KeepMailboxOpenTask::handleVanished(const Responses::Vanished *const resp)
     return true;
 }
 
-bool KeepMailboxOpenTask::handleArrived(const Responses::Arrived *const resp)
-{
-    if (_dead) {
-        _failed("Asked to die");
-        return true;
-    }
-
-    if (dieIfInvalidMailbox())
-        return true;
-
-    // FIXME: add proper boundaries
-    if (! isRunning)
-        return false;
-
-    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
-    Q_ASSERT(mailbox);
-
-    uint oldExists = mailbox->syncState.exists();
-    mailbox->handleArrived(model, *resp);
-
-    if (oldExists != mailbox->syncState.exists()) {
-        // Some messages have arrived, let's request their flags now
-        breakOrCancelPossibleIdle();
-        newArrivalsFetch.append(parser->uidFetch(Sequence(resp->uids.front(), resp->uids.last()),
-                                                 QStringList() << QLatin1String("FLAGS")));
-    }
-
-    return true;
-}
-
 bool KeepMailboxOpenTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     if (dieIfInvalidMailbox())

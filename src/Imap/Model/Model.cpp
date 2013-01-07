@@ -657,13 +657,6 @@ void Model::handleVanished(Parser *ptr, const Responses::Vanished *const resp)
     throw UnexpectedResponseReceived("Unhandled VANISHED response", *resp);
 }
 
-void Model::handleArrived(Parser *ptr, const Responses::Arrived *const resp)
-{
-    if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
-        return;
-    throw UnexpectedResponseReceived("Unhandled ARRIVED response", *resp);
-}
-
 void Model::handleGenUrlAuth(Parser *ptr, const Responses::GenUrlAuth *const resp)
 {
     if (accessParser(ptr).connState == CONN_STATE_LOGOUT)

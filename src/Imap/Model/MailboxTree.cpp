@@ -689,51 +689,6 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
     model->emitMessageCountChanged(this);
 }
 
-/** @short Process the ARRIVED response
-
-This function assumes that the mailbox is already synchronized, notably that it is safe to append messages to the very end.
-*/
-void TreeItemMailbox::handleArrived(Model *const model, const Responses::Arrived &resp)
-{
-    Q_ASSERT(resp.kind == Responses::ARRIVED);
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
-    Q_ASSERT(list);
-
-    if (resp.uids.isEmpty())
-        return;
-
-    // The specification guarantees that the UIDs are already sorted
-    QModelIndex parent = list->toIndex(model);
-    model->beginInsertRows(parent, list->m_children.size(), list->m_children.size() + resp.uids.size() - 1);
-    Q_FOREACH(const uint uid, resp.uids) {
-        // Perform a sanity check for a reasonable UID nevertheless
-        if (!list->m_children.isEmpty() && static_cast<TreeItemMessage*>(list->m_children.last())->uid() >= uid) {
-            QString str;
-            QTextStream ss(&str);
-            ss << "ARRIVED refers to UID " << uid << ", but mailbox already contains UID " <<
-                  static_cast<TreeItemMessage*>(list->m_children.last())->uid();
-            ss.flush();
-            throw MailboxException(str.toUtf8().constData(), resp);
-        }
-        TreeItemMessage *msg = new TreeItemMessage(list);
-        msg->m_offset = list->m_children.size();
-        msg->m_uid = uid;
-        list->m_children << msg;
-    }
-    model->endInsertRows();
-
-    // Update the SyncState and stuff
-    syncState.setExists(list->m_children.size());
-
-    // Also anticipate the change in UIDNEXT; this might very well help us in next sync
-    const uint lastUid = static_cast<TreeItemMessage*>(list->m_children.last())->uid();
-    if (syncState.uidNext() <= lastUid)
-        syncState.setUidNext(lastUid + 1);
-
-    list->m_totalMessageCount = syncState.exists();
-    model->emitMessageCountChanged(this);
-}
-
 TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *message, const QString &msgId)
 {
     QString partIdentification;
