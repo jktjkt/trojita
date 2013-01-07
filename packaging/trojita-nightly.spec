@@ -16,6 +16,7 @@
 #
  
 Name:           trojita
+Version:        git
 Release:        1
 # Almost everything: dual-licensed under the GPLv2 or GPLv3
 # (with KDE e.V. provision for relicensing)
