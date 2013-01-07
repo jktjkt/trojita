@@ -15,7 +15,7 @@
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
  
-Name:           trojita
+Name:           trojita-nightly
 Version:        git
 Release:        1
 # Almost everything: dual-licensed under the GPLv2 or GPLv3
