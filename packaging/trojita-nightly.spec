@@ -47,7 +47,7 @@ BuildRequires: pkgconfig(QtGui) >= 4.6
 BuildRequires: pkgconfig(QtWebKit) >= 4.6
 BuildRequires: libQtWebKit-devel
 BuildRequires: update-desktop-files
-BuildRequires: xorg-x11-Xvfb
+BuildRequires: xorg-x11-Xvfb xkeyboard-config
 %define qmake_command qmake
 %endif
 %define         X_display         ":98"
