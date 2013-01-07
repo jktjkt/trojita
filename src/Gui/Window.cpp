@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2012 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2013 Jan Kundrát <jkt@flaska.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -1291,7 +1291,7 @@ void MainWindow::slotShowAboutTrojita()
 {
     QMessageBox::about(this, trUtf8("About Trojitá"),
                        trUtf8("<p>This is <b>Trojitá</b>, a fast Qt IMAP e-mail client</p>"
-                              "<p>Copyright &copy; 2006-2012 Jan Kundrát &lt;jkt@flaska.net&gt; and "
+                              "<p>Copyright &copy; 2006 - 2013 Jan Kundrát &lt;jkt@flaska.net&gt; and "
                               "<a href=\"http://quickgit.kde.org/?p=trojita.git&amp;a=blob&amp;f=LICENSE\">others</a></p>"
                               "<p>More information at <a href=\"http://trojita.flaska.net/\">http://trojita.flaska.net/</a></p>"
                               "<p>You are using version %1.</p>").arg(
