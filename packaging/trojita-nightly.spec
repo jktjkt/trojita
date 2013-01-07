@@ -29,7 +29,7 @@ License:        (GPLv2 or GPLv3) and BSD and LGPLv2 and (LGPLv2.1 or GPLv3) and 
 Summary:        Qt IMAP e-mail client
 Url:            http://trojita.flaska.net/
 Group:          Productivity/Networking/Email/Clients
-Source:         trojita-%{version}.tar.bz2
+Source:         trojita-nightly-%{version}.tar.bz2
 %if 0%{?fedora}
 BuildRequires: qt-webkit-devel >= 4.6
 BuildRequires: libstdc++-devel gcc-c++
