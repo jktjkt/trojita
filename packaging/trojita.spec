@@ -11,7 +11,7 @@
 # case the license is the MIT License). An "Open Source License" is a
 # license that conforms to the Open Source Definition (Version 1.9)
 # published by the Open Source Initiative.
- 
+ 	
 # Please submit bugfixes or comments via http://bugs.opensuse.org/
 #
  
@@ -36,7 +36,7 @@ BuildRequires: libstdc++-devel gcc-c++
 %define qmake_command qmake-qt4
 %endif
 %if 0%{?rhel_version} || 0%{?centos_version}
-BuildRequires: qtwebkit-devel >= 4.6
+BuildRequires: qtwebkit-devel >= 2.1
 BuildRequires: libstdc++-devel gcc-c++
 %define qmake_command qmake-qt4
 %endif
