@@ -91,7 +91,7 @@ make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
 
 %check
 export DISPLAY=%{X_display}
-Xvfb %{X_display} >& Xvfb.log &
+Xvfb %{X_display} &
 trap "kill $! || true" EXIT
 make test
 
