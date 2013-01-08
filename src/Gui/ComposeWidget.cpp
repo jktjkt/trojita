@@ -57,7 +57,7 @@ namespace Gui
 {
 
 ComposeWidget::ComposeWidget(MainWindow *parent) :
-    QWidget(parent, Qt::Window),
+    QWidget(0, Qt::Window),
     ui(new Ui::ComposeWidget),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(parent)
