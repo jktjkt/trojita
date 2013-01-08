@@ -98,10 +98,10 @@ void Sendmail::handleFinished(const int exitCode)
         return;
     }
 
-    QByteArray stdout = proc->readAllStandardOutput();
-    QByteArray stderr = proc->readAllStandardError();
-    emit error(tr("The sendmail process has failed (%1):\n%2\n%3").arg(QString::number(exitCode), QString::fromUtf8(stdout),
-                                                                       QString::fromUtf8(stderr)));
+    QByteArray allStdout = proc->readAllStandardOutput();
+    QByteArray allStderr = proc->readAllStandardError();
+    emit error(tr("The sendmail process has failed (%1):\n%2\n%3").arg(QString::number(exitCode), QString::fromUtf8(allStdout),
+                                                                       QString::fromUtf8(allStderr)));
 }
 
 }
