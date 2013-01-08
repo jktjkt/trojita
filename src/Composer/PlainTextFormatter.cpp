@@ -25,25 +25,120 @@
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QTextDocument>
 #endif
-
 #include "PlainTextFormatter.h"
+
+#include <QDebug> // FIXME: remove me
 
 namespace Composer {
 namespace Util {
 
-QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
+/** @short Helper for plainTextToHtml for applying the HTML formatting
+
+This funciton recognizes http and https links, e-mail addresses, *bold*, /italic/ and _underline_ text.
+*/
+QString helperHtmlifySingleLine(QString line)
 {
-    static const QRegExp link("("
+    // Static regexps for the engine construction
+    static const QRegExp linkRe("("
                               "https?://" // scheme prefix
-                              "[;/?:@=&$\\-_.+!',0-9a-zA-Z%#~]+" // allowed characters
+                              "[;/?:@=&$\\-_.+!',0-9a-zA-Z%#~\\[\\]\\(\\)*]+" // allowed characters
                               "[/@=&$\\-_+'0-9a-zA-Z%#~]" // termination
                               ")");
-    static const QRegExp mail("([a-zA-Z0-9\\.\\-_\\+]+@[a-zA-Z0-9\\.\\-_]+)");
+    static const QRegExp mailRe("([a-zA-Z0-9\\.\\-_\\+]+@[a-zA-Z0-9\\.\\-_]+)");
     static QString intro("(^|[\\s\\(\\[\\{])");
     static QString extro("($|[\\s\\),;.\\]\\}])");
-    static const QRegExp bold(intro + "\\*(\\S*)\\*" + extro);
-    static const QRegExp italic(intro + "/(\\S*)/" + extro);
-    static const QRegExp underline(intro + "_(\\S*)_" + extro);
+#define TROJITA_RE_BOLD "\\*(\\S*)\\*"
+#define TROJITA_RE_ITALIC "/(\\S*)/"
+#define TROJITA_RE_UNDERLINE "_(\\S*)_"
+    static const QRegExp boldRe(intro + TROJITA_RE_BOLD + extro);
+    static const QRegExp italicRe(intro + TROJITA_RE_ITALIC + extro);
+    static const QRegExp underlineRe(intro + TROJITA_RE_UNDERLINE + extro);
+    static const QRegExp anyFormattingRe(intro + "(" TROJITA_RE_BOLD "|" TROJITA_RE_ITALIC "|" TROJITA_RE_UNDERLINE ")" + extro);
+#undef TROJITA_RE_BOLD
+#undef TROJITA_RE_ITALIC
+#undef TROJITA_RE_UNDERLINE
+
+    // RE instances to work on
+    QRegExp link(linkRe), mail(mailRe), bold(boldRe), italic(italicRe), underline(underlineRe), anyFormatting(anyFormattingRe);
+
+    // Now prepare markup *bold*, /italic/ and _underline_ and also turn links into HTML.
+    // This is a bit more involved because we want to apply the regular expressions in a certain order and also at the same
+    // time prevent the lower-priority regexps from clobbering the output of the previous stages.
+    int start = 0;
+    while (start < line.size()) {
+        qDebug() << "Main loop:" << start << line.size() << line;
+        // Find the position of the first thing which matches
+        int posLink = link.indexIn(line, start, QRegExp::CaretAtOffset);
+        if (posLink == -1)
+            posLink = line.size();
+
+        int posMail = mail.indexIn(line, start, QRegExp::CaretAtOffset);
+        if (posMail == -1)
+            posMail = line.size();
+
+        int posFormatting = anyFormatting.indexIn(line, start, QRegExp::CaretAtOffset);
+        if (posFormatting == -1)
+            posFormatting = line.size();
+
+        const int firstSpecial = qMin(qMin(posLink, posMail), posFormatting);
+        if (firstSpecial == line.size()) {
+            qDebug() << "nothing else";
+            // No further matches for this line -> we're done
+            break;
+        }
+        qDebug() << "some RE has matched";
+
+        if (firstSpecial == posLink) {
+            QString replacement = QString::fromUtf8("<a href=\"%1\">%1</a>").arg(link.cap(1));
+            line = line.left(firstSpecial) + replacement + line.mid(firstSpecial + link.matchedLength());
+            start = firstSpecial + replacement.size();
+        } else if (firstSpecial == posMail) {
+            QString replacement = QString::fromUtf8("<a href=\"mailto:%1\">%1</a>").arg(mail.cap(1));
+            line = line.left(firstSpecial) + replacement + line.mid(firstSpecial + mail.matchedLength());
+            start = firstSpecial + replacement.size();
+        } else if (firstSpecial == posFormatting) {
+            // Careful here; the inner contents of the current match shall be formatted as well which is why we need recursion
+            QChar elementName;
+            QChar markupChar;
+            const QRegExp *re = 0;
+
+            if (posFormatting == bold.indexIn(line, start, QRegExp::CaretAtOffset)) {
+                elementName = QLatin1Char('b');
+                markupChar = QLatin1Char('*');
+                re = &bold;
+            } else if (posFormatting == italic.indexIn(line, start, QRegExp::CaretAtOffset)) {
+                elementName = QLatin1Char('i');
+                markupChar = QLatin1Char('/');
+                re = &italic;
+            } else if (posFormatting == underline.indexIn(line, start, QRegExp::CaretAtOffset)) {
+                elementName = QLatin1Char('u');
+                markupChar = QLatin1Char('_');
+                re = &underline;
+            }
+            Q_ASSERT(re);
+            qDebug() << "Got formatting";
+            qDebug() << " old line:" << line;
+            qDebug() << " at:" << line.mid(start);
+            qDebug() << " prefix:" << line.left(firstSpecial);
+            qDebug() << " suffix:" << line.mid(firstSpecial + re->matchedLength());
+            QString replacement = QString::fromUtf8("%1<%2><span class=\"markup\">%3</span>%4<span class=\"markup\">%3</span></%2>%5")
+                        .arg(re->cap(1), elementName, markupChar, helperHtmlifySingleLine(re->cap(2)), re->cap(3));
+
+            qDebug() << " replacement:" << replacement;
+            line = line.left(firstSpecial) + replacement + line.mid(firstSpecial + re->matchedLength());
+            start = firstSpecial + replacement.size();
+            qDebug() << " chunk to be still processed:" << line.mid(start);
+        } else {
+            Q_ASSERT(false);
+        }
+    }
+
+    return line;
+}
+
+QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
+{
+
 
     // Processing:
     // the plain text is split into lines
@@ -85,14 +180,8 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 #else
         line = line.toHtmlEscaped();
 #endif
-        // markup *bold*, /italic/, _underline_ and active links
-        line.replace(link, "<a href=\"\\1\">\\1</a>");
-        line.replace(mail, "<a href=\"mailto:\\1\">\\1</a>");
-#define MARKUP(_item_) "<span class=\"markup\">"#_item_"</span>"
-        line.replace(bold, "\\1<b>" MARKUP(*) "\\2" MARKUP(*) "</b>\\3");
-        line.replace(italic, "\\1<i>" MARKUP(/) "\\2" MARKUP(/) "</i>\\3");
-        line.replace(underline, "\\1<u>" MARKUP(_) "\\2" MARKUP(_) "</u>\\3");
-#undef MARKUP
+
+        line = helperHtmlifySingleLine(line);
 
         // if this is a non floating new line, prepend canonical quotemarks
         if (cQuoteLevel && !(cQuoteLevel == quoteLevel && markup.last().endsWith(' '))) {
