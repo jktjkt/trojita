@@ -269,6 +269,26 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
                                  "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt \n"
                                  "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>");
 
+    QTest::newRow("multiple-links-on-line")
+            << QString::fromUtf8("Hi,\n"
+                                 "http://meh/ http://pwn/now foo@bar http://wtf\n"
+                                 "nothing x@y.org\n"
+                                 "foo@example.org else\n"
+                                 "test@domain"
+                                 )
+            << QString::fromUtf8("Hi,\n"
+                                 "<a href=\"http://meh/\">http://meh/</a> <a href=\"http://pwn/now\">http://pwn/now</a> "
+                                    "<a href=\"mailto:foo@bar\">foo@bar</a> <a href=\"http://wtf\">http://wtf</a>\n"
+                                 "nothing <a href=\"mailto:x@y.org\">x@y.org</a>\n"
+                                 "<a href=\"mailto:foo@example.org\">foo@example.org</a> else\n"
+                                 "<a href=\"mailto:test@domain\">test@domain</a>")
+            << QString::fromUtf8("Hi,\n"
+                                 "<a href=\"http://meh/\">http://meh/</a> <a href=\"http://pwn/now\">http://pwn/now</a> "
+                                    "<a href=\"mailto:foo@bar\">foo@bar</a> <a href=\"http://wtf\">http://wtf</a>\n"
+                                 "nothing <a href=\"mailto:x@y.org\">x@y.org</a>\n"
+                                 "<a href=\"mailto:foo@example.org\">foo@example.org</a> else\n"
+                                 "<a href=\"mailto:test@domain\">test@domain</a>");
+
 }
 
 /** @short Test that the link recognition in plaintext -> HTML formatting recognizes the interesting links */
