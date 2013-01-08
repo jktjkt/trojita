@@ -142,6 +142,20 @@ void MessageListWidget::slotAutoEnableDisableSearch()
     m_searchOptions->setEnabled(isEnabled);
 }
 
+void MessageListWidget::slotSortingFailed()
+{
+    QPalette pal = m_quickSearchText->palette();
+    pal.setColor(m_quickSearchText->backgroundRole(), Qt::red);
+    pal.setColor(m_quickSearchText->foregroundRole(), Qt::white);
+    m_quickSearchText->setPalette(pal);
+    QTimer::singleShot(500, this, SLOT(slotResetSortingFailed()));
+}
+
+void MessageListWidget::slotResetSortingFailed()
+{
+    m_quickSearchText->setPalette(QPalette());
+}
+
 void MessageListWidget::slotConditionalSearchReset()
 {
     if (m_quickSearchText->text().isEmpty())

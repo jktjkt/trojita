@@ -586,6 +586,7 @@ void MainWindow::setupModels()
     threadingMsgListModel = new Imap::Mailbox::ThreadingMsgListModel(this);
     threadingMsgListModel->setObjectName(QLatin1String("threadingMsgListModel"));
     threadingMsgListModel->setSourceModel(msgListModel);
+    connect(threadingMsgListModel, SIGNAL(sortingFailed()), msgListWidget, SLOT(slotSortingFailed()));
     prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
     prettyMsgListModel->setSourceModel(threadingMsgListModel);
     prettyMsgListModel->setObjectName(QLatin1String("prettyMsgListModel"));

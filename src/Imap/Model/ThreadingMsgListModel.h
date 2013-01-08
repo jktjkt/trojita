@@ -182,6 +182,9 @@ public slots:
     void slotIncrementalThreadingAvailable(const Responses::ESearch::IncrementalThreadingData_t &data);
     void slotIncrementalThreadingFailed();
 
+signals:
+    void sortingFailed();
+
 private:
     /** @short Display messages without any threading at all, as a liner list */
     void updateNoThreading();

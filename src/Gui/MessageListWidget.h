@@ -53,11 +53,13 @@ signals:
 protected slots:
     void slotApplySearch();
     void slotAutoEnableDisableSearch();
+    void slotSortingFailed();
 
 private slots:
     void slotComplexSearchInput(QAction*);
     void slotConditionalSearchReset();
     void slotDeActivateSimpleSearch();
+    void slotResetSortingFailed();
     void slotUpdateSearchCursor();
 
 private:

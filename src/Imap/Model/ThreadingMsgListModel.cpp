@@ -817,6 +817,7 @@ void ThreadingMsgListModel::slotSortingFailed()
     m_sortReverse = false;
     calculateNullSort();
     applySort();
+    emit sortingFailed();
 }
 
 void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearch::IncrementalContextData_t &updates)
