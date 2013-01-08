@@ -73,20 +73,24 @@ void SqlStorage::open()
 void SqlStorage::_prepareStatements()
 {
     _queryValidateMail = XSqlQuery(db);
-    if ( ! _queryValidateMail.prepare( QLatin1String("SELECT eml_id FROM xtbatch.eml WHERE (eml_hash=E:eml_hash);")) )
-        _fail( "Failed to prepare query _queryValidateMail", _queryValidateMail );
+    if ( ! _queryValidateMail.prepare( QLatin1String("SELECT eml_id FROM xtbatch.eml "
+                                                     " WHERE :eml_hash=eml_hash::bytea;")) )
+                                                     _fail( "Failed to prepare query _queryValidateMail", _queryValidateMail );
 
     _queryInsertMail = XSqlQuery(db);
     if ( ! _queryInsertMail.prepare( QLatin1String("INSERT INTO xtbatch.eml "
                                                    "(eml_hash, eml_date, eml_subj, eml_body, eml_msg, eml_status) "
                                                    "VALUES "
-                                                   "(E:eml_hash, :eml_date, E:eml_subj, E:eml_body, E:eml_msg, 'I') returning eml_id;")) )
-        _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
+                                                   "(:eml_hash, :eml_date, :eml_subj, :eml_body,"
+                                                   " :eml_msg, 'I') "
+                                                   "returning eml_id;")) )
+                                                    _fail( "Failed to prepare query _queryInsertMail", _queryInsertMail );
 
     _queryInsertAddress = XSqlQuery(db);
     if ( ! _queryInsertAddress.prepare( QLatin1String("INSERT INTO xtbatch.emladdr "
                                                       "(emladdr_eml_id, emladdr_type, emladdr_addr, emladdr_name) "
-                                                      "VALUES (:emladdr_eml_id, :emladdr_type, E:emladdr_addr, E:emladdr_name)") ) )
+                                                      "VALUES (:emladdr_eml_id, :emladdr_type, :emladdr_addr, "
+                                                      ":emladdr_name)") ) )
         _fail( "Failed to prepare query _queryInsertAddress", _queryInsertAddress );
 
     _queryMarkMailReady = QSqlQuery(db);
