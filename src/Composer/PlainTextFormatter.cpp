@@ -27,8 +27,6 @@
 #endif
 #include "PlainTextFormatter.h"
 
-#include <QDebug> // FIXME: remove me
-
 namespace Composer {
 namespace Util {
 
@@ -66,7 +64,6 @@ QString helperHtmlifySingleLine(QString line)
     // time prevent the lower-priority regexps from clobbering the output of the previous stages.
     int start = 0;
     while (start < line.size()) {
-        qDebug() << "Main loop:" << start << line.size() << line;
         // Find the position of the first thing which matches
         int posLink = link.indexIn(line, start, QRegExp::CaretAtOffset);
         if (posLink == -1)
@@ -82,11 +79,9 @@ QString helperHtmlifySingleLine(QString line)
 
         const int firstSpecial = qMin(qMin(posLink, posMail), posFormatting);
         if (firstSpecial == line.size()) {
-            qDebug() << "nothing else";
             // No further matches for this line -> we're done
             break;
         }
-        qDebug() << "some RE has matched";
 
         if (firstSpecial == posLink) {
             QString replacement = QString::fromUtf8("<a href=\"%1\">%1</a>").arg(link.cap(1));
@@ -116,18 +111,11 @@ QString helperHtmlifySingleLine(QString line)
                 re = &underline;
             }
             Q_ASSERT(re);
-            qDebug() << "Got formatting";
-            qDebug() << " old line:" << line;
-            qDebug() << " at:" << line.mid(start);
-            qDebug() << " prefix:" << line.left(firstSpecial);
-            qDebug() << " suffix:" << line.mid(firstSpecial + re->matchedLength());
             QString replacement = QString::fromUtf8("%1<%2><span class=\"markup\">%3</span>%4<span class=\"markup\">%3</span></%2>%5")
                         .arg(re->cap(1), elementName, markupChar, helperHtmlifySingleLine(re->cap(2)), re->cap(3));
 
-            qDebug() << " replacement:" << replacement;
             line = line.left(firstSpecial) + replacement + line.mid(firstSpecial + re->matchedLength());
             start = firstSpecial + replacement.size();
-            qDebug() << " chunk to be still processed:" << line.mid(start);
         } else {
             Q_ASSERT(false);
         }
