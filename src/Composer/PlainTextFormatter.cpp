@@ -22,8 +22,9 @@
 */
 
 #include <QObject>
-
-#include <QDebug> // FIXME: jkt: remove this
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+#include <QTextDocument>
+#endif
 
 #include "PlainTextFormatter.h"
 
@@ -78,10 +79,13 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             static QRegExp quotemarks("^[>\\s]*");
             line.remove(quotemarks);
         }
+        // Escape the HTML entities
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        line = Qt::escape(line);
+#else
+        line = line.toHtmlEscaped();
+#endif
         // markup *bold*, /italic/, _underline_ and active links
-        line.replace(QString::fromUtf8("§"), QString::fromUtf8("§para;")); // better not clobber these funny characters
-        line.replace(">", "§gt;"); // we cannot escape them after we added actual tags
-        line.replace("<", "§lt;"); // and we cannot use the amps "&" since we'll have to escape it to &amp; later on as well
         line.replace(link, "<a href=\"\\1\">\\1</a>");
         line.replace(mail, "<a href=\"mailto:\\1\">\\1</a>");
 #define MARKUP(_item_) "<span class=\"markup\">"#_item_"</span>"
@@ -89,10 +93,6 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         line.replace(italic, "\\1<i>" MARKUP(/) "\\2" MARKUP(/) "</i>\\3");
         line.replace(underline, "\\1<u>" MARKUP(_) "\\2" MARKUP(_) "</u>\\3");
 #undef MARKUP
-        line.replace("&", "&amp;");
-        line.replace("§gt;", "&gt;");
-        line.replace("§lt;", "&lt;");
-        line.replace(QString::fromUtf8("§para;"), QString::fromUtf8("§")); // undo the transformation
 
         // if this is a non floating new line, prepend canonical quotemarks
         if (cQuoteLevel && !(cQuoteLevel == quoteLevel && markup.last().endsWith(' '))) {

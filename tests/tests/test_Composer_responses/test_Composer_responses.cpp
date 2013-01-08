@@ -169,9 +169,9 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
             << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
     // Test our escaping
     QTest::newRow("escaping-1")
-            << QString::fromUtf8("&gt; § §gt; §para;\n")
-            << QString::fromUtf8("&amp;gt; § §gt; §para;\n")
-            << QString::fromUtf8("&amp;gt; § §gt; §para;\n");
+            << QString::fromUtf8("<>&&gt; § §gt; §para;\n")
+            << QString::fromUtf8("&lt;&gt;&amp;&amp;gt; § §gt; §para;\n")
+            << QString::fromUtf8("&lt;&gt;&amp;&amp;gt; § §gt; §para;\n");
 
     QTest::newRow("mailto-1")
             << QString("ble.smrt-1_2+3@example.org")
