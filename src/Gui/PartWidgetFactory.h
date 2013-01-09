@@ -36,9 +36,15 @@ class PartWidgetFactory
     Q_DECLARE_TR_FUNCTIONS(PartWidgetFactory)
     enum { ExpensiveFetchThreshold = 50*1024 };
 public:
+    /** @short Are the parts supposed to be visible immediately, or only after their respective widget is shown? */
+    typedef enum {
+        LOAD_IMMEDIATELY, /**< @short Load them immediately */
+        LOAD_ON_SHOW /**< @short Load the parts only after they have been shown to the user */
+    } PartLoadingMode;
+
     PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter, QObject *guiInteractionTarget);
     QWidget *create(const QModelIndex &partIndex);
-    QWidget *create(const QModelIndex &partIndex, int recursionDepth);
+    QWidget *create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingMode loadingMode = LOAD_IMMEDIATELY);
 private:
     Imap::Network::MsgPartNetAccessManager *manager;
     QObject *wheelEventFilter;

@@ -29,23 +29,31 @@ namespace Gui
 {
 
 LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex  &part,
-                                       QObject *wheelEventFilter, QObject *guiInteractionTarget):
+                                       QObject *wheelEventFilter, QObject *guiInteractionTarget, const LoadingTriggerMode mode):
     QStackedWidget(parent), manager(manager), partIndex(part), realPart(0), wheelEventFilter(wheelEventFilter),
-    guiInteractionTarget(guiInteractionTarget)
+    guiInteractionTarget(guiInteractionTarget), loadButton(0), m_loadOnShow(mode == LOAD_ON_SHOW)
 {
     Q_ASSERT(partIndex.isValid());
-    loadButton = new QPushButton(tr("Load %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
-                                 Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt())),
-                                 this);
-    connect(loadButton, SIGNAL(clicked()), this, SLOT(loadClicked()));
-    addWidget(loadButton);
+    if (mode == LOAD_ON_CLICK) {
+        loadButton = new QPushButton(tr("Load %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
+                                     Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt())),
+                                     this);
+        connect(loadButton, SIGNAL(clicked()), this, SLOT(loadClicked()));
+        addWidget(loadButton);
+    }
 }
 
 void LoadablePartWidget::loadClicked()
 {
     if (!partIndex.isValid()) {
-        loadButton->setEnabled(false);
+        if (loadButton) {
+            loadButton->setEnabled(false);
+        }
         return;
+    }
+    if (loadButton) {
+        loadButton->deleteLater();
+        loadButton = 0;
     }
     realPart = new SimplePartWidget(this, manager, partIndex);
     realPart->installEventFilter(wheelEventFilter);
@@ -59,6 +67,13 @@ QString LoadablePartWidget::quoteMe() const
     return realPart ? realPart->quoteMe() : QString();
 }
 
+void LoadablePartWidget::showEvent(QShowEvent *event)
+{
+    QStackedWidget::showEvent(event);
+    if (m_loadOnShow) {
+        m_loadOnShow = false;
+        loadClicked();
+    }
 }
 
-
+}

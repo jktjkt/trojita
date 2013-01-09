@@ -51,17 +51,33 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
 {
     setContentsMargins(0,0,0,0);
     int preferredIndex = -1;
+    // First loop iteration is used to find out what MIME type to show
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
-        using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid());
-        QWidget *item = factory->create(anotherPart, recursionDepth + 1);
         QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
-        addTab(item, mimeType);
         if (preferredIndex == -1 && mimeType == preferredMimeType)
             preferredIndex = i;
     }
-    setCurrentIndex(preferredIndex == -1 ? partIndex.model()->rowCount(partIndex) - 1 : preferredIndex);
+    if (preferredIndex == -1) {
+        // If no preference is obvious, let's assume the last item wins
+        preferredIndex = partIndex.model()->rowCount(partIndex) - 1;
+    }
+    // The second loop actually creates the widgets
+    for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
+        QModelIndex anotherPart = partIndex.child(i, 0);
+        Q_ASSERT(anotherPart.isValid());
+        // TODO: This is actually not perfect, the preferred part of a multipart/alternative
+        // which is nested as a non-preferred part of another multipart/alternative actually gets loaded here.
+        // I can live with that.
+        QWidget *item = factory->create(anotherPart, recursionDepth + 1,
+                                        i == preferredIndex ?
+                                            PartWidgetFactory::LOAD_IMMEDIATELY :
+                                            PartWidgetFactory::LOAD_ON_SHOW);
+        QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
+        addTab(item, mimeType);
+    }
+    setCurrentIndex(preferredIndex);
 }
 
 QString MultipartAlternativeWidget::quoteMe() const

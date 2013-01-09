@@ -51,7 +51,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex)
     return create(partIndex, 0);
 }
 
-QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDepth)
+QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingMode loadingMode)
 {
     using namespace Imap::Mailbox;
     Q_ASSERT(partIndex.isValid());
@@ -145,9 +145,10 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             Q_ASSERT(model);
             Q_ASSERT(part);
             part->fetchFromCache(model);
-            bool showDirectly = true;
+
+            bool showDirectly = loadingMode == LOAD_IMMEDIATELY;
             if (!part->fetched())
-                showDirectly = model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold;
+                showDirectly &= model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold;
 
             QWidget *widget = 0;
             if (showDirectly) {
@@ -155,7 +156,10 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                 static_cast<SimplePartWidget*>(widget)->connectGuiInteractionEvents(guiInteractionTarget);
 
             } else if (model->isNetworkAvailable()) {
-                widget = new LoadablePartWidget(0, manager, partIndex, wheelEventFilter, guiInteractionTarget);
+                widget = new LoadablePartWidget(0, manager, partIndex, wheelEventFilter, guiInteractionTarget,
+                                                loadingMode == LOAD_ON_SHOW && part->octets() <= ExpensiveFetchThreshold ?
+                                                    LoadablePartWidget::LOAD_ON_SHOW :
+                                                    LoadablePartWidget::LOAD_ON_CLICK);
             } else {
                 widget = new QLabel(tr("Offline"), 0);
             }
