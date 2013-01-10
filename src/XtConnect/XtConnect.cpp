@@ -66,7 +66,7 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     QString dbname = s->value( Common::SettingsNames::xtDbDbName ).toString();
     QString username = s->value( Common::SettingsNames::xtDbUser ).toString();
     QString password;
-    bool readstdin = false;
+    bool readstdin = true;
     bool logConsole = false;
     QString logFile;
 
@@ -81,7 +81,8 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
         } else if (args.at(i) == "-U" && args.length() > i) {
             username = args.at(++i);
         } else if (args.at(i) == "-W") {
-            readstdin = true;
+            readstdin = false;
+            password = args.at(++i);
         } else if (args.at(i) == "--debug") {
             logConsole = true;
         } else if (args.at(i) == "--log" && args.length() > i) {
