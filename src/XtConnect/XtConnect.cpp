@@ -89,7 +89,7 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
     }
 
     for ( int i = 0; i < 3 && password.isEmpty() && readstdin; i++ ) {
-        QTextStream(stdout) << tr("Password: ");
+        QTextStream(stdout) << tr("Database Password: ");
         password = QTextStream(stdin).readLine();
     }
 
