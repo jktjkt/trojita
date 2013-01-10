@@ -86,6 +86,9 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
             logConsole = true;
         } else if (args.at(i) == "--log" && args.length() > i) {
             logFile = args.at(++i);
+        } else {
+            QByteArray err = args.at(i).toLocal8Bit();
+            qFatal("Error: unrecognized command line option '%s'.", err.constData());
         }
     }
 
