@@ -88,6 +88,8 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
             if (args.length() <= i + 1) qFatal("The \"-w\" option requires a value.");
             readstdin = false;
             password = args.at(++i);
+        } else if (args.at(i) == "-W") {
+            readstdin = true;
         } else if (args.at(i) == "--debug") {
             logConsole = true;
         } else if (args.at(i) == "--log" && args.length() > i) {
