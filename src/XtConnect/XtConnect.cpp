@@ -72,20 +72,26 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
 
     QStringList args = QCoreApplication::arguments();
     for ( int i = 1; i < args.length(); i++ ) {
-        if (args.at(i) == "-h" && args.length() > i) {
+        if (args.at(i) == "-h" && args.length() > i ) {
+            if (args.length() <= i + 1) qFatal("The \"-h\" option requires a value.");
             host = args.at(++i);
-        } else if (args.at(i) == "-d" && args.length() > i) {
+        } else if (args.at(i) == "-d" && args.length() > i ) {
+            if (args.length() <= i + 1) qFatal("The \"-d\" option requires a value.");
             dbname = args.at(++i);
-        } else if (args.at(i) == "-p" && args.length() > i) {
+        } else if (args.at(i) == "-p" && args.length() > i ) {
+            if (args.length() <= i + 1) qFatal("The \"-p\" option requires a value.");
             port = args.at(++i).toInt();
-        } else if (args.at(i) == "-U" && args.length() > i) {
+        } else if (args.at(i) == "-U" && args.length() > i ) {
+            if (args.length() <= i + 1) qFatal("The \"-U\" option requires a value.");
             username = args.at(++i);
         } else if (args.at(i) == "-W") {
+            if (args.length() <= i + 1) qFatal("The \"-W\" option requires a value.");
             readstdin = false;
             password = args.at(++i);
         } else if (args.at(i) == "--debug") {
             logConsole = true;
         } else if (args.at(i) == "--log" && args.length() > i) {
+            if (args.length() <= i + 1) qFatal("The \"--log\" option requires a value.");
             logFile = args.at(++i);
         } else {
             QByteArray err = args.at(i).toLocal8Bit();
