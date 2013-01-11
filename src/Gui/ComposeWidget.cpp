@@ -558,6 +558,8 @@ bool ComposeWidget::parseRecipients(QList<QPair<Composer::RecipientKind, Imap::M
         Composer::RecipientKind kind = currentRecipient(m_recipients.at(i).first);
 
         QString text = m_recipients.at(i).second->text();
+        if (text.isEmpty())
+            continue;
         Imap::Message::MailAddress addr;
         bool ok = Imap::Message::MailAddress::fromPrettyString(addr, text);
         if (ok) {
