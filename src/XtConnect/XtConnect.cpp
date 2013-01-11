@@ -84,8 +84,8 @@ XtConnect::XtConnect(QObject *parent, QSettings *s) :
         } else if (args.at(i) == "-U" && args.length() > i ) {
             if (args.length() <= i + 1) qFatal("The \"-U\" option requires a value.");
             username = args.at(++i);
-        } else if (args.at(i) == "-W") {
-            if (args.length() <= i + 1) qFatal("The \"-W\" option requires a value.");
+        } else if (args.at(i) == "-w") {
+            if (args.length() <= i + 1) qFatal("The \"-w\" option requires a value.");
             readstdin = false;
             password = args.at(++i);
         } else if (args.at(i) == "--debug") {

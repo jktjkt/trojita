@@ -736,7 +736,7 @@ void XtConnectPage::runXtConnect()
         args << QLatin1String("-U") << username->text();
 
     QString password = QInputDialog::getText(this, tr("Database Connection"), tr("Password"), QLineEdit::Password);
-    args << QLatin1String("-W") << password;
+    args << QLatin1String("-w") << password;
 
     if (debugLog->isChecked())
         args << QLatin1String("--log") << cacheDir->text() + QLatin1String("/xt-trojita-log");
