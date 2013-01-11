@@ -56,11 +56,11 @@ enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
 namespace Gui
 {
 
-ComposeWidget::ComposeWidget(MainWindow *parent) :
+ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
     QWidget(0, Qt::Window),
     ui(new Ui::ComposeWidget),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
-    m_mainWindow(parent)
+    m_mainWindow(mainWindow)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
 

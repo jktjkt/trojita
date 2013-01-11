@@ -52,7 +52,7 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ComposeWidget(MainWindow *parent);
+    explicit ComposeWidget(MainWindow *mainWindow);
     ~ComposeWidget();
     void setData(const QList<QPair<Composer::RecipientKind, QString> > &recipients,
                  const QString &subject,
