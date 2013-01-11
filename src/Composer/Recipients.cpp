@@ -247,10 +247,14 @@ bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecip
 /** @short Convenience wrapper */
 bool replyRecipientList(const ReplyMode mode, const QModelIndex &message, RecipientList &output)
 {
+    if (!message.isValid())
+        return false;
+
     using namespace Imap::Mailbox;
     using namespace Imap::Message;
     Model *model = dynamic_cast<Model *>(const_cast<QAbstractItemModel *>(message.model()));
     TreeItemMessage *messagePtr = dynamic_cast<TreeItemMessage *>(static_cast<TreeItem *>(message.internalPointer()));
+    Q_ASSERT(messagePtr);
     Envelope envelope = messagePtr->envelope(model);
 
     // Prepare the list of recipients
