@@ -43,6 +43,8 @@ public:
                                const int recursionDepth, const QString &preferredMimeType);
     virtual QString quoteMe() const;
     virtual void reloadContents();
+protected:
+    bool eventFilter(QObject *o, QEvent *e);
 };
 
 /** @short Message quoting support for multipart/signed MIME type */

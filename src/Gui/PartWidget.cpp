@@ -24,6 +24,7 @@
 #include <QLabel>
 #include <QModelIndex>
 #include <QVBoxLayout>
+#include <QTabBar>
 
 #include "PartWidgetFactory.h"
 #include "Rfc822HeaderView.h"
@@ -78,6 +79,9 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         addTab(item, mimeType);
     }
     setCurrentIndex(preferredIndex);
+    Q_FOREACH(QTabBar *tb, findChildren<QTabBar*>()) {
+        tb->installEventFilter(this);
+    }
 }
 
 QString MultipartAlternativeWidget::quoteMe() const
@@ -96,6 +100,15 @@ void MultipartAlternativeWidget::reloadContents()
             }
         }
     }
+}
+
+bool MultipartAlternativeWidget::eventFilter(QObject *o, QEvent *e)
+{
+    if (e->type() == QEvent::Wheel && qobject_cast<QTabBar*>(o)) { // don't alter part while wheeling
+        e->ignore();
+        return true;
+    }
+    return false;
 }
 
 MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
