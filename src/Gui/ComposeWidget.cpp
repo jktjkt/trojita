@@ -132,8 +132,9 @@ void ComposeWidget::changeEvent(QEvent *e)
 bool ComposeWidget::buildMessageData()
 {
     QList<QPair<Composer::RecipientKind,Imap::Message::MailAddress> > recipients;
-    if (!parseRecipients(recipients)) {
-        gotError(tr("Cannot parse recipients"));
+    QString errorMessage;
+    if (!parseRecipients(recipients, errorMessage)) {
+        gotError(tr("Cannot parse recipients:\n%1").arg(errorMessage));
         return false;
     }
     if (recipients.isEmpty()) {
@@ -551,28 +552,21 @@ void ComposeWidget::sent()
     QTimer::singleShot(0, this, SLOT(close()));
 }
 
-bool ComposeWidget::parseRecipients(QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &results)
+bool ComposeWidget::parseRecipients(QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &results, QString &errorMessage)
 {
     for (int i = 0; i < m_recipients.size(); ++i) {
         Composer::RecipientKind kind = currentRecipient(m_recipients.at(i).first);
 
-        int offset = 0;
         QString text = m_recipients.at(i).second->text();
-        for(;;) {
-            Imap::Message::MailAddress addr;
-            bool ok = Imap::Message::MailAddress::parseOneAddress(addr, text, offset);
-            if (ok) {
-                // TODO: should we *really* learn every junk entered into a recipient field?
-                // m_mainWindow->addressBook()->learn(addr);
-                results << qMakePair(kind, addr);
-            } else if (offset < text.size()) {
-                QMessageBox::critical(this, tr("Invalid Address"),
-                                      tr("Can't parse \"%1\" as an e-mail address").arg(text.mid(offset)));
-                return false;
-            } else {
-                /* Successfully parsed the field. */
-                break;
-            }
+        Imap::Message::MailAddress addr;
+        bool ok = Imap::Message::MailAddress::fromPrettyString(addr, text);
+        if (ok) {
+            // TODO: should we *really* learn every junk entered into a recipient field?
+            // m_mainWindow->addressBook()->learn(addr);
+            results << qMakePair(kind, addr);
+        } else {
+            errorMessage = tr("Can't parse \"%1\" as an e-mail address.").arg(text);
+            return false;
         }
     }
     return true;

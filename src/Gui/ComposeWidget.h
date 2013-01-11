@@ -89,7 +89,7 @@ private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     static Composer::RecipientKind recipientKindForNextRow(const Composer::RecipientKind kind);
     void addRecipient(int position, Composer::RecipientKind kind, const QString &address);
-    bool parseRecipients(QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &results);
+    bool parseRecipients(QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &results, QString &errorMessage);
     void removeRecipient(int position);
 
     bool buildMessageData();
