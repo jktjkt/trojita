@@ -350,6 +350,14 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     m_composer->setInReplyTo(inReplyTo);
     m_composer->setReferences(references);
     m_replyingTo = replyingToMessage;
+
+    int row = -1;
+    bool ok = Composer::Util::chooseSenderIdentityForReply(m_mainWindow->senderIdentitiesModel(), m_replyingTo, row);
+    if (ok) {
+        Q_ASSERT(row >= 0 && row < m_mainWindow->senderIdentitiesModel()->rowCount());
+        ui->sender->setCurrentIndex(row);
+    }
+
     slotUpdateSignature();
 }
 

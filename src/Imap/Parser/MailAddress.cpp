@@ -268,6 +268,18 @@ bool operator==(const MailAddress &a, const MailAddress &b)
     return a.name == b.name && a.adl == b.adl && a.mailbox == b.mailbox && a.host == b.host;
 }
 
+MailAddressesEqualByMail::result_type MailAddressesEqualByMail::operator()(const MailAddress &a, const MailAddress &b) const
+{
+    // FIXME: fancy stuff like the IDN?
+    return a.mailbox.toLower() == b.mailbox.toLower() && a.host.toLower() == b.host.toLower();
+}
+
+MailAddressesEqualByDomain::result_type MailAddressesEqualByDomain::operator()(const MailAddress &a, const MailAddress &b) const
+{
+    // FIXME: fancy stuff like the IDN?
+    return a.host.toLower() == b.host.toLower();
+}
+
 }
 }
 

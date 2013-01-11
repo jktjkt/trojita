@@ -24,6 +24,7 @@
 #include <QStringList>
 #include <QUrl>
 #include "Recipients.h"
+#include "SenderIdentitiesModel.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
@@ -215,10 +216,54 @@ bool prepareReplyList(const QList<QUrl> &headerListPost, const bool headerListPo
     return false;
 }
 
+/** @short Functor for extracting the second value from a pair
+
+Helper for the Composer::Util::extractEmailAddresses.
+*/
+template<typename T>
+class ExtractSecond: public std::unary_function<T, typename T::second_type> {
+public:
+   typename T::second_type operator()(const T& value) const
+   {
+       return value.second;
+   }
+};
+
 }
 
 namespace Composer {
 namespace Util {
+
+/** @short Return a list of all addresses which are found in the message's headers */
+RecipientList extractListOfRecipients(const QModelIndex &message)
+{
+    Composer::RecipientList originalRecipients;
+    if (!message.isValid())
+        return originalRecipients;
+
+    using namespace Imap::Mailbox;
+    using namespace Imap::Message;
+    Model *model = dynamic_cast<Model *>(const_cast<QAbstractItemModel *>(message.model()));
+    TreeItemMessage *messagePtr = dynamic_cast<TreeItemMessage *>(static_cast<TreeItem *>(message.internalPointer()));
+    Q_ASSERT(messagePtr);
+    Envelope envelope = messagePtr->envelope(model);
+
+    // Prepare the list of recipients
+    Q_FOREACH(const MailAddress &addr, envelope.from)
+        originalRecipients << qMakePair(Composer::ADDRESS_FROM, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.to)
+        originalRecipients << qMakePair(Composer::ADDRESS_TO, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.cc)
+        originalRecipients << qMakePair(Composer::ADDRESS_CC, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.bcc)
+        originalRecipients << qMakePair(Composer::ADDRESS_BCC, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.sender)
+        originalRecipients << qMakePair(Composer::ADDRESS_SENDER, addr);
+    Q_FOREACH(const MailAddress &addr, envelope.replyTo)
+        originalRecipients << qMakePair(Composer::ADDRESS_REPLY_TO, addr);
+
+    return originalRecipients;
+}
 
 /** @short Prepare a list of recipients to be used when replying
 
@@ -250,36 +295,76 @@ bool replyRecipientList(const ReplyMode mode, const QModelIndex &message, Recipi
     if (!message.isValid())
         return false;
 
-    using namespace Imap::Mailbox;
-    using namespace Imap::Message;
-    Model *model = dynamic_cast<Model *>(const_cast<QAbstractItemModel *>(message.model()));
-    TreeItemMessage *messagePtr = dynamic_cast<TreeItemMessage *>(static_cast<TreeItem *>(message.internalPointer()));
-    Q_ASSERT(messagePtr);
-    Envelope envelope = messagePtr->envelope(model);
-
     // Prepare the list of recipients
-    Composer::RecipientList originalRecipients;
-    Q_FOREACH(const MailAddress &addr, envelope.from)
-        originalRecipients << qMakePair(Composer::ADDRESS_FROM, addr);
-    Q_FOREACH(const MailAddress &addr, envelope.to)
-        originalRecipients << qMakePair(Composer::ADDRESS_TO, addr);
-    Q_FOREACH(const MailAddress &addr, envelope.cc)
-        originalRecipients << qMakePair(Composer::ADDRESS_CC, addr);
-    Q_FOREACH(const MailAddress &addr, envelope.bcc)
-        originalRecipients << qMakePair(Composer::ADDRESS_BCC, addr);
-    Q_FOREACH(const MailAddress &addr, envelope.sender)
-        originalRecipients << qMakePair(Composer::ADDRESS_SENDER, addr);
-    Q_FOREACH(const MailAddress &addr, envelope.replyTo)
-        originalRecipients << qMakePair(Composer::ADDRESS_REPLY_TO, addr);
+    RecipientList originalRecipients = extractListOfRecipients(message);
 
     // The List-Post header
     QList<QUrl> headerListPost;
-    Q_FOREACH(const QVariant &item, message.data(RoleMessageHeaderListPost).toList())
+    Q_FOREACH(const QVariant &item, message.data(Imap::Mailbox::RoleMessageHeaderListPost).toList())
         headerListPost << item.toUrl();
 
-    return replyRecipientList(mode, originalRecipients, headerListPost, message.data(RoleMessageHeaderListPostNo).toBool(), output);
+    return replyRecipientList(mode, originalRecipients, headerListPost,
+                              message.data(Imap::Mailbox::RoleMessageHeaderListPostNo).toBool(), output);
 }
 
+/** @short Try to find the preferred identity for a reply looking at a list of recipients */
+bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, const QList<Imap::Message::MailAddress> &addresses, int &row)
+{
+    using namespace Imap::Message;
+    // What identities do we have?
+    QList<MailAddress> identities;
+    for (int i = 0; i < senderIdetitiesModel->rowCount(); ++i) {
+        MailAddress addr;
+        MailAddress::fromPrettyString(addr,
+                senderIdetitiesModel->data(senderIdetitiesModel->index(i, Composer::SenderIdentitiesModel::COLUMN_EMAIL)).toString());
+        identities << addr;
+    }
+
+    // I want to stop this madness. I want C++11.
+
+    // First of all, look for a full match of the sender among the addresses
+    for (int i = 0; i < identities.size(); ++i) {
+        QList<MailAddress>::const_iterator it = std::find_if(
+                    addresses.constBegin(), addresses.constEnd(),
+                    std::bind2nd(Imap::Message::MailAddressesEqualByMail(), identities[i]));
+        if (it != addresses.constEnd()) {
+            // Found an exact match of one of our identities in the recipients -> return that
+            row = i;
+            return true;
+        }
+    }
+
+    // Then look for the matching domain
+    for (int i = 0; i < identities.size(); ++i) {
+        QList<MailAddress>::const_iterator it = std::find_if(
+                    addresses.constBegin(), addresses.constEnd(),
+                    std::bind2nd(Imap::Message::MailAddressesEqualByDomain(), identities[i]));
+        if (it != addresses.constEnd()) {
+            // Found a match because the domain matches -> return that
+            row = i;
+            return true;
+        }
+    }
+
+    // No other heuristic is there for now -> give up
+    return false;
+}
+
+/** @short Try to find the preferred indetity for replying to a message */
+bool chooseSenderIdentityForReply(const SenderIdentitiesModel *senderIdetitiesModel,
+                                  const QModelIndex &message, int &row)
+{
+    return chooseSenderIdentity(senderIdetitiesModel, extractEmailAddresses(extractListOfRecipients(message)), row);
+}
+
+/** @short Extract the list of e-mail addresses from the list of <type, address> pairs */
+QList<Imap::Message::MailAddress> extractEmailAddresses(const RecipientList &list)
+{
+    QList<Imap::Message::MailAddress> addresses;
+    std::transform(list.constBegin(), list.constEnd(), std::back_inserter(addresses),
+                   ExtractSecond<RecipientList::value_type>());
+    return addresses;
+}
 
 }
 }

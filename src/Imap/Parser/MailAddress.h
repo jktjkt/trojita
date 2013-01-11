@@ -83,6 +83,27 @@ QTextStream &operator<<(QTextStream &stream, const MailAddress &address);
 bool operator==(const MailAddress &a, const MailAddress &b);
 inline bool operator!=(const MailAddress &a, const MailAddress &b) { return !(a == b); }
 
+
+/** Are the actual e-mail addresses (without any fancy details) equal?
+
+These ugly functors are needed as long as we need support for pre-C++11 compilers.
+*/
+class MailAddressesEqualByMail: public std::binary_function<MailAddress, MailAddress, bool>
+{
+public:
+    result_type operator()(const MailAddress &a, const MailAddress &b) const;
+};
+
+/** Are the domains in the e-mail addresses equal?
+
+These ugly functors are needed as long as we need support for pre-C++11 compilers.
+*/
+class MailAddressesEqualByDomain: public std::binary_function<MailAddress, MailAddress, bool>
+{
+public:
+    result_type operator()(const MailAddress &a, const MailAddress &b) const;
+};
+
 }
 
 }

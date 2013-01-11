@@ -47,6 +47,8 @@ typedef enum {
 
 typedef QList<QPair<RecipientKind, Imap::Message::MailAddress> > RecipientList;
 
+class SenderIdentitiesModel;
+
 namespace Util {
 
 bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecipients,
@@ -55,6 +57,12 @@ bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecip
 
 bool replyRecipientList(const ReplyMode mode, const QModelIndex &message, RecipientList &output);
 
+bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel,
+        const QList<Imap::Message::MailAddress> &addresses, int &row);
+
+bool chooseSenderIdentityForReply(const SenderIdentitiesModel *senderIdetitiesModel, const QModelIndex &message, int &row);
+
+QList<Imap::Message::MailAddress> extractEmailAddresses(const RecipientList &list);
 }
 
 }
