@@ -52,7 +52,8 @@ bool MailAddress::fromPrettyString(MailAddress &into, const QString &address)
 }
 
 /* A simple regexp to match an address typed into the input field. */
-static QRegExp mailishRx(QLatin1String("(?:\\b|\\<)([\\w_.-+]+)\\s*\\@\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))(?:\\b|\\>)"));
+static QRegExp mailishRx(QLatin1String("(?:\\b|\\<)([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@"
+                                       "\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))(?:\\b|\\>)"));
 
 /*
    This is of course far from complete, but at least catches "Real

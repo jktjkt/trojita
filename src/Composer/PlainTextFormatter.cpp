@@ -42,7 +42,7 @@ QString helperHtmlifySingleLine(QString line)
                               "[;/?:@=&$\\-_.+!',0-9a-zA-Z%#~\\[\\]\\(\\)*]+" // allowed characters
                               "[/@=&$\\-_+'0-9a-zA-Z%#~]" // termination
                               ")");
-    static const QRegExp mailRe("([a-zA-Z0-9\\.\\-_\\+]+@[a-zA-Z0-9\\.\\-_]+)");
+    static const QRegExp mailRe("([\\w!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9\\.\\-_]+)");
     static QString intro("(^|[\\s\\(\\[\\{])");
     static QString extro("($|[\\s\\),;.\\]\\}])");
 #define TROJITA_RE_BOLD "\\*(\\S*)\\*"
