@@ -11,3 +11,5 @@ before_install:
 script: mkdir _build && cd _build && qmake CONFIG+=debug PREFIX=/usr ../trojita.pro && make && xvfb-run -a make test && sudo make install
 notifications:
  irc: "chat.freenode.net#trojita"
+ on_success: change
+ use_notice: true
