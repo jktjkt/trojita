@@ -24,6 +24,12 @@
 #include <QListView>
 #include <QUrl>
 
+/** @short
+    This class is used inside the ComposeWidget. @see GUI::ComposeWidget. It is positioned below
+    the "Attach" button at the right of the ComposeWidget. When an item is dropped inside it an
+    attachement is added to the @see Imap::Mailbox::MessageComposer model.
+  */
+
 class ComposerAttachments : public QListView {
     Q_OBJECT
 public:

@@ -46,7 +46,9 @@ class MainWindow;
 
 /** @short A "Compose New Mail..." dialog
 
-  Implements a widget which can act as a standalone window for composing e-mail messages
+  Implements a widget which can act as a standalone window for composing e-mail messages.
+  Uses Imap::Mailbox::MessageComposer as a backend for composing a message. @see Imap::Mailbox::MessageComposer
+
   */
 class ComposeWidget : public QWidget
 {
