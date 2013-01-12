@@ -25,6 +25,7 @@
 #include "Streams/FakeSocket.h"
 #include "ItemRoles.h"
 #include "TaskPresentationModel.h"
+#include "Common/ConnectionId.h"
 
 namespace Imap
 {
@@ -33,7 +34,7 @@ namespace Mailbox
 
 OfflineConnectionTask::OfflineConnectionTask(Model *model) : ImapTask(model)
 {
-    parser = new Parser(model, new FakeSocket(), ++model->m_lastParserId);
+    parser = new Parser(model, new FakeSocket(), Common::ConnectionId::next());
     ParserState parserState(parser);
     parserState.connState = CONN_STATE_LOGOUT;
     model->m_parsers[parser] = parserState;

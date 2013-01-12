@@ -26,6 +26,7 @@
 #include "Model/TaskPresentationModel.h"
 #include "Streams/SocketFactory.h"
 #include "Streams/TrojitaZlibStatus.h"
+#include "Common/ConnectionId.h"
 
 namespace Imap
 {
@@ -37,7 +38,7 @@ OpenConnectionTask::OpenConnectionTask(Model *model) :
 {
     // Offline mode shall be checked by the caller who decides to create the connection
     Q_ASSERT(model->networkPolicy() != Model::NETWORK_OFFLINE);
-    parser = new Parser(model, model->m_socketFactory->create(), ++model->m_lastParserId);
+    parser = new Parser(model, model->m_socketFactory->create(), Common::ConnectionId::next());
     ParserState parserState(parser);
     connect(parser, SIGNAL(responseReceived(Imap::Parser *)), model, SLOT(responseReceived(Imap::Parser*)), Qt::QueuedConnection);
     connect(parser, SIGNAL(connectionStateChanged(Imap::Parser *,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser *,Imap::ConnectionState)));

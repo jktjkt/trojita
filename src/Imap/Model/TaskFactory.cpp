@@ -48,6 +48,7 @@
 #include "Imap/Model/TaskPresentationModel.h"
 #include "Imap/Parser/Parser.h"
 #include "Streams/SocketFactory.h"
+#include "Common/ConnectionId.h"
 
 namespace Imap
 {
@@ -200,7 +201,7 @@ TestingTaskFactory::TestingTaskFactory(): TaskFactory(), fakeOpenConnectionTask(
 
 Parser *TestingTaskFactory::newParser(Model *model)
 {
-    Parser *parser = new Parser(model, model->m_socketFactory->create(), ++model->m_lastParserId);
+    Parser *parser = new Parser(model, model->m_socketFactory->create(), Common::ConnectionId::next());
     ParserState parserState(parser);
     QObject::connect(parser, SIGNAL(responseReceived(Imap::Parser*)), model, SLOT(responseReceived(Imap::Parser*)), Qt::QueuedConnection);
     QObject::connect(parser, SIGNAL(connectionStateChanged(Imap::Parser*,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser*,Imap::ConnectionState)));

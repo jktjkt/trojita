@@ -549,8 +549,6 @@ private:
 
     QStringList onlineMessageFetch;
 
-    uint m_lastParserId;
-
     /** @short Model visualizing the state of the tasks */
     TaskPresentationModel *m_taskModel;
 

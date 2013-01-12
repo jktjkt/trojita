@@ -4,7 +4,8 @@ TARGET = Common
 SOURCES += SettingsNames.cpp \
     SetCoreApplication.cpp \
     FileLogger.cpp \
-    DeleteAfter.cpp
+    DeleteAfter.cpp \
+    ConnectionId.cpp
 HEADERS += SettingsNames.h \
     SetCoreApplication.cpp \
     SqlTransactionAutoAborter.h \
@@ -13,7 +14,8 @@ HEADERS += SettingsNames.h \
     Logging.h \
     RingBuffer.h \
     FileLogger.h \
-    DeleteAfter.h
+    DeleteAfter.h \
+    ConnectionId.h
 
 GITVERSION_PREFIX = $$join(PWD,,,/../..)
 include(../gitversion.pri)

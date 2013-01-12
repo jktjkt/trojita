@@ -14,7 +14,7 @@ myprefix = ../../
 include(../../src/linking.pri)
 
 # Link with Trojita
-trojita_libs = Imap Streams
+trojita_libs = Imap Streams Common
 myprefix = ../../../src/
 include(../../src/linking.pri)
 include(../../configh.pri)
