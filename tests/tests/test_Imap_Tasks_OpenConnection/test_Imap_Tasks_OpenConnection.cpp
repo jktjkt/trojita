@@ -50,7 +50,7 @@ void ImapModelOpenConnectionTest::init()
 
 void ImapModelOpenConnectionTest::init( bool startTlsRequired )
 {
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
+    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
     factory = new Imap::Mailbox::FakeSocketFactory();
     factory->setStartTlsRequired( startTlsRequired );
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one

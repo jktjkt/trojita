@@ -53,8 +53,7 @@ public:
         bool hdrListPostNo;
     };
 
-    MemoryCache(QObject *parent, const QString &fileName);
-    ~MemoryCache();
+    MemoryCache(QObject *parent);
 
     virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
     virtual bool childMailboxesFresh(const QString &mailbox) const;
@@ -85,9 +84,6 @@ public:
     virtual void setRenewalThreshold(const int days);
 
 private:
-    bool loadData();
-    bool saveData() const;
-
     QMap<QString, QList<MailboxMetadata> > mailboxes;
     QMap<QString, SyncState> syncState;
     QMap<QString, QList<uint> > seqToUid;
@@ -95,16 +91,10 @@ private:
     QMap<QString, QMap<uint, LightMessageDataBundle> > msgMetadata;
     QMap<QString, QMap<uint, QMap<QString, QByteArray> > > parts;
     QMap<QString, QVector<Imap::Responses::ThreadingNode> > threads;
-
-
-    QString fileName;
 };
 
 }
 
 }
-
-QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle &x);
-QDataStream &operator<<(QDataStream &stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle &x);
 
 #endif /* IMAP_MODEL_MEMORYCACHE_H */

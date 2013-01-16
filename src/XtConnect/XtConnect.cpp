@@ -186,9 +186,9 @@ void XtConnect::setupModels()
         }
     }
 
-    m_model = new Imap::Mailbox::Model( this, m_cache ? static_cast<Imap::Mailbox::AbstractCache*>( m_cache ) :
-                                                        static_cast<Imap::Mailbox::AbstractCache*>( new Imap::Mailbox::MemoryCache( this, QString() ) ),
-                                        factory, taskFactory, m_settings->value( SettingsNames::imapStartOffline ).toBool() );
+    m_model = new Imap::Mailbox::Model(this, m_cache ? static_cast<Imap::Mailbox::AbstractCache*>(m_cache) :
+                                                       static_cast<Imap::Mailbox::AbstractCache*>(new Imap::Mailbox::MemoryCache(this)),
+                                       factory, taskFactory, m_settings->value(SettingsNames::imapStartOffline).toBool());
     m_model->setObjectName( QLatin1String("model") );
     // We want to wait longer to increase the potential of better grouping -- we don't care much about the latency
     m_model->setProperty( "trojita-imap-delayed-fetch-part", 300 );
@@ -255,7 +255,7 @@ void XtConnect::cacheError(const QString &error)
     qCritical() << "Cache error: " << error;
     if ( m_model ) {
         m_cache = 0;
-        m_model->setCache( new Imap::Mailbox::MemoryCache( m_model, QString() ) );
+        m_model->setCache(new Imap::Mailbox::MemoryCache(m_model));
     }
 }
 

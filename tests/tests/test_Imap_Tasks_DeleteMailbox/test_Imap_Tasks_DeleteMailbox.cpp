@@ -29,7 +29,7 @@
 
 void ImapModelDeleteMailboxTest::init()
 {
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
+    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
     factory = new Imap::Mailbox::FakeSocketFactory();
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );

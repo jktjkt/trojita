@@ -54,7 +54,7 @@ void LibMailboxSync::init()
 {
     m_verbose = qgetenv("TROJITA_IMAP_DEBUG") == QByteArray("1");
     m_expectsError = false;
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache( this, QString() );
+    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
     factory = new Imap::Mailbox::FakeSocketFactory();
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );

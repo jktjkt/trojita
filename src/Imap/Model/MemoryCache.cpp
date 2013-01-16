@@ -31,14 +31,8 @@ namespace Imap
 namespace Mailbox
 {
 
-MemoryCache::MemoryCache(QObject *parent, const QString &fileName): AbstractCache(parent), fileName(fileName)
+MemoryCache::MemoryCache(QObject *parent): AbstractCache(parent)
 {
-    loadData();
-}
-
-MemoryCache::~MemoryCache()
-{
-    saveData();
 }
 
 QList<MailboxMetadata> MemoryCache::childMailboxes(const QString &mailbox) const
@@ -192,51 +186,10 @@ void MemoryCache::setMessageThreading(const QString &mailbox, const QVector<Imap
     threads[mailbox] = threading;
 }
 
-bool MemoryCache::loadData()
-{
-    if (! fileName.isEmpty()) {
-        QFile file(fileName);
-        if (! file.open(QIODevice::ReadOnly))
-            return false;
-        QDataStream stream(&file);
-        stream >> mailboxes >> syncState >> seqToUid >> flags >> msgMetadata >> parts >> threads;
-        file.close();
-        return true;
-    }
-    return false;
-}
-
-bool MemoryCache::saveData() const
-{
-    if (! fileName.isEmpty()) {
-        QFile file(fileName);
-        if (! file.open(QIODevice::WriteOnly))
-            return false;
-        QDataStream stream(&file);
-        stream << mailboxes << syncState << seqToUid << flags << msgMetadata << parts << threads;
-        file.close();
-        return true;
-    }
-    return false;
-}
-
 void MemoryCache::setRenewalThreshold(const int days)
 {
     Q_UNUSED(days);
 }
 
 }
-}
-
-QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::MemoryCache::LightMessageDataBundle &x)
-{
-    stream >> x.envelope >> x.internalDate >> x.serializedBodyStructure >> x.size >> x.hdrReferences >> x.hdrListPost
-           >> x.hdrListPostNo;
-    return stream;
-}
-
-QDataStream &operator<<(QDataStream &stream, const Imap::Mailbox::MemoryCache::LightMessageDataBundle &x)
-{
-    return stream << x.envelope << x.internalDate << x.serializedBodyStructure << x.size << x.hdrReferences << x.hdrListPost
-                     << x.hdrListPostNo;
 }

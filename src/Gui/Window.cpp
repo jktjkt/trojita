@@ -551,14 +551,14 @@ void MainWindow::setupModels()
     //setProperty( "trojita-sqlcache-commit-delay", QVariant(1000) );
 
     if (! shouldUsePersistentCache) {
-        cache = new Imap::Mailbox::MemoryCache(this, QString());
+        cache = new Imap::Mailbox::MemoryCache(this);
     } else {
         cache = new Imap::Mailbox::CombinedCache(this, QLatin1String("trojita-imap-cache"), cacheDir);
         connect(cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)));
         if (! static_cast<Imap::Mailbox::CombinedCache *>(cache)->open()) {
             // Error message was already shown by the cacheError() slot
             cache->deleteLater();
-            cache = new Imap::Mailbox::MemoryCache(this, QString());
+            cache = new Imap::Mailbox::MemoryCache(this);
         } else {
             if (s.value(SettingsNames::cacheOfflineKey).toString() == SettingsNames::cacheOfflineAll) {
                 cache->setRenewalThreshold(0);
@@ -830,7 +830,7 @@ void MainWindow::cacheError(const QString &message)
                              "downloaded from the IMAP server is having troubles. "
                              "All caching will be disabled.\n\n%1").arg(message));
     if (model)
-        model->setCache(new Imap::Mailbox::MemoryCache(model, QString()));
+        model->setCache(new Imap::Mailbox::MemoryCache(model));
 }
 
 void MainWindow::networkPolicyOffline()
