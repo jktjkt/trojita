@@ -117,6 +117,7 @@ bool SenderIdentitiesModel::setData(const QModelIndex &index, const QVariant &va
         break;
     case COLUMN_ORGANIZATION:
         m_identities[index.row()].organisation = value.toString();
+        break;
     case COLUMN_SIGNATURE:
         m_identities[index.row()].signature = value.toString();
         break;

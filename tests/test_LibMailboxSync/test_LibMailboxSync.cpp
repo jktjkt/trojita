@@ -357,6 +357,7 @@ void LibMailboxSync::helperSyncFlags()
             break;
         case 5:
             buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen starred))\r\n").arg(i).toUtf8();
+            break;
         case 6:
         case 7:
         case 8:

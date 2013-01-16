@@ -168,6 +168,7 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
         break;
     case SORT:
         stream << "SORT";
+        break;
     case THREAD:
         stream << "THREAD";
         break;
