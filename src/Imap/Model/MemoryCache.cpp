@@ -144,6 +144,8 @@ void MemoryCache::setMessageMetadata(const QString &mailbox, uint uid, const Mes
     tmp.serializedBodyStructure = metadata.serializedBodyStructure;
     tmp.size = metadata.size;
     tmp.hdrReferences = metadata.hdrReferences;
+    tmp.hdrListPost = metadata.hdrListPost;
+    tmp.hdrListPostNo = metadata.hdrListPostNo;
     msgMetadata[ mailbox ][ uid ] = tmp;
 }
 
