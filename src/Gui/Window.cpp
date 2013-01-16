@@ -1687,11 +1687,11 @@ void MainWindow::slotUpdateWindowTitle()
     QModelIndex mailbox = msgListModel->currentMailbox();
     if (mailbox.isValid()) {
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()) {
-            setWindowTitle(trUtf8("%1 — %2 unread — Trojitá")
+            setWindowTitle(trUtf8("%1 - %2 unread - Trojitá")
                            .arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString(),
                                 mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString()));
         } else {
-            setWindowTitle(trUtf8("%1 — Trojitá").arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()));
+            setWindowTitle(trUtf8("%1 - Trojitá").arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()));
         }
     } else {
         setWindowTitle(trUtf8("Trojitá"));
