@@ -378,7 +378,7 @@ bool SQLCache::prepareQueries()
 
     queryClearAllMessages3 = QSqlQuery(db);
     if (! queryClearAllMessages3.prepare(QLatin1String("DELETE FROM parts WHERE mailbox = ?"))) {
-        emitError(tr("Failed to prepare queryClearAllMessages3"), queryClearAllMessages2);
+        emitError(tr("Failed to prepare queryClearAllMessages3"), queryClearAllMessages3);
         return false;
     }
 
