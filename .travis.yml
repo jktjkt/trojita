@@ -14,6 +14,8 @@ before_install:
  - sudo apt-get install -qq xvfb xauth
 script: sh -c "mkdir _build; cd _build; if [ '$QT' = 'qt4' ] ; then export QMAKE=qmake; else export QMAKE=/opt/qt5/bin/qmake; fi; \$QMAKE QMAKE_CXX=$CXX CONFIG+=$CONFIG PREFIX=/usr ../trojita.pro && make && xvfb-run -a make test && sudo make install"
 notifications:
- irc: "chat.freenode.net#trojita"
- on_success: change
- use_notice: true
+ irc:
+  channels:
+   - "chat.freenode.net#trojita"
+  on_success: change
+  use_notice: true
