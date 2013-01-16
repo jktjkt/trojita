@@ -133,34 +133,17 @@ QList<uint> MemoryCache::uidMapping(const QString &mailbox) const
 
 void MemoryCache::setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata)
 {
-    LightMessageDataBundle tmp;
-    tmp.envelope = metadata.envelope;
-    tmp.serializedBodyStructure = metadata.serializedBodyStructure;
-    tmp.size = metadata.size;
-    tmp.hdrReferences = metadata.hdrReferences;
-    tmp.hdrListPost = metadata.hdrListPost;
-    tmp.hdrListPostNo = metadata.hdrListPostNo;
-    msgMetadata[ mailbox ][ uid ] = tmp;
+    msgMetadata[mailbox][uid] = metadata;
 }
 
 MemoryCache::MessageDataBundle MemoryCache::messageMetadata(const QString &mailbox, uint uid) const
 {
-    MessageDataBundle res;
-    const QMap<uint, LightMessageDataBundle> &firstLevel = msgMetadata[ mailbox ];
-    QMap<uint, LightMessageDataBundle>::const_iterator it = firstLevel.find(uid);
+    const QMap<uint, MessageDataBundle> &firstLevel = msgMetadata[ mailbox ];
+    QMap<uint, MessageDataBundle>::const_iterator it = firstLevel.find(uid);
     if (it == firstLevel.end()) {
-        res.uid = 0;
-        return res;
+        return MessageDataBundle();
     }
-    res.envelope = it->envelope;
-    res.serializedBodyStructure = it->serializedBodyStructure;
-    res.size = it->size;
-    res.internalDate = it->internalDate;
-    res.uid = uid;
-    res.hdrReferences = it->hdrReferences;
-    res.hdrListPost = it->hdrListPost;
-    res.hdrListPostNo = it->hdrListPostNo;
-    return res;
+    return *it;
 }
 
 QByteArray MemoryCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const

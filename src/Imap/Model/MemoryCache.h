@@ -43,16 +43,6 @@ class MemoryCache : public AbstractCache
 {
     Q_OBJECT
 public:
-    struct LightMessageDataBundle {
-        Imap::Message::Envelope envelope;
-        QByteArray serializedBodyStructure;
-        QDateTime internalDate;
-        uint size;
-        QList<QByteArray> hdrReferences;
-        QList<QUrl> hdrListPost;
-        bool hdrListPostNo;
-    };
-
     MemoryCache(QObject *parent);
 
     virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
@@ -88,7 +78,7 @@ private:
     QMap<QString, SyncState> syncState;
     QMap<QString, QList<uint> > seqToUid;
     QMap<QString, QMap<uint,QStringList> > flags;
-    QMap<QString, QMap<uint, LightMessageDataBundle> > msgMetadata;
+    QMap<QString, QMap<uint, MessageDataBundle> > msgMetadata;
     QMap<QString, QMap<uint, QMap<QString, QByteArray> > > parts;
     QMap<QString, QVector<Imap::Responses::ThreadingNode> > threads;
 };
