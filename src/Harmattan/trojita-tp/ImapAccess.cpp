@@ -143,7 +143,7 @@ void ImapAccess::setSslMode(const QString &sslMode)
     }
 
     // FIXME: respect the settings about the cache
-    cache = new Imap::Mailbox::MemoryCache(this, QString());
+    cache = new Imap::Mailbox::MemoryCache(this);
 
     m_imapModel = new Imap::Mailbox::Model(this, cache, factory, taskFactory, false);
     m_imapModel->setProperty("trojita-imap-enable-id", true);
