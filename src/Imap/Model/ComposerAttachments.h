@@ -31,6 +31,7 @@ namespace Imap {
 namespace Mailbox {
 
 class Model;
+class FullMessageCombiner;
 class TreeItemMessage;
 class TreeItemPart;
 
@@ -106,9 +107,8 @@ public:
     virtual void preload() const;
     virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
+    FullMessageCombiner *fullMessageCombiner;
     TreeItemMessage *messagePtr() const;
-    TreeItemPart *headerPartPtr() const;
-    TreeItemPart *bodyPartPtr() const;
 
     QPointer<Model> model;
     QString mailbox;

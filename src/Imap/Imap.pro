@@ -86,7 +86,8 @@ SOURCES += Parser/Parser.cpp \
     Model/OneMessageModel.cpp \
     Model/FindInterestingPart.cpp \
     Model/MessageComposer.cpp \
-    Model/ComposerAttachments.cpp
+    Model/ComposerAttachments.cpp \
+    Model/FullMessageCombiner.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -168,7 +169,8 @@ HEADERS += Parser/Parser.h \
     Model/ComposerAttachments.h \
     Model/CatenateData.h \
     Model/UidSubmitData.h \
-    Parser/Rfc5322HeaderParser.h
+    Parser/Rfc5322HeaderParser.h \
+    Model/FullMessageCombiner.h
 
 ragel {
     include(../ragel.prf)
