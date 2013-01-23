@@ -982,12 +982,12 @@ void MainWindow::recoverDrafts()
 {
     QDir draftPath(
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                QDesktopServices::storageLocation(QDesktopServices::TempLocation)
+                QDesktopServices::storageLocation(QDesktopServices::CacheLocation)
 #else
-                QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+                QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
 #endif
-                + "/"+ "trojita_drafts/");
-    QStringList drafts(draftPath.entryList(QStringList() << "*.draft"));
+                + QLatin1Char('/') + QLatin1String("Drafts/"));
+    QStringList drafts(draftPath.entryList(QStringList() << QLatin1String("*.draft")));
     Q_FOREACH(const QString &draft, drafts) {
         ComposeWidget *cw = invokeComposeDialog();
         cw->loadDraft(draftPath.filePath(draft));
@@ -1007,9 +1007,9 @@ void MainWindow::slotEditDraft()
 #else
                 QStandardPaths::writableLocation(QStandardPaths::DataLocation)
 #endif
-                + "/"+ tr("Drafts"));
+                + QLatin1Char('/') + tr("Drafts"));
     QDir().mkpath(path);
-    path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + " (*.draft)");
+    path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + QLatin1String(" (*.draft)"));
     if (!path.isEmpty()) {
         ComposeWidget *cw = invokeComposeDialog();
         cw->loadDraft(path);

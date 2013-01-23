@@ -62,6 +62,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
     ui(new Ui::ComposeWidget),
     m_sentMail(false),
     m_messageUpdated(false),
+    m_messageEdited(false),
     m_explicitDraft(false),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(mainWindow)
@@ -122,13 +123,13 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
 
     m_autoSavePath = QString(
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                QDesktopServices::storageLocation(QDesktopServices::TempLocation)
+                QDesktopServices::storageLocation(QDesktopServices::CacheLocation)
 #else
-                QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+                QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
 #endif
-                + "/"+ "trojita_drafts/");
+                + QLatin1Char('/') + QLatin1String("Drafts/"));
     QDir().mkpath(m_autoSavePath);
-    m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + ".draft";
+    m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + QLatin1String(".draft");
 }
 
 ComposeWidget::~ComposeWidget()
@@ -148,38 +149,57 @@ void ComposeWidget::changeEvent(QEvent *e)
     }
 }
 
+/**
+ * We capture the close event and check whether there's something to save
+ * (not sent, not up-to-date or persistent autostore)
+ * The offer the user to store or omit the message or not close at all
+ */
+
 void ComposeWidget::closeEvent(QCloseEvent *ce)
 {
-    if (!(m_sentMail || ui->mailText->document()->isEmpty())) {
+    const bool noSaveRequired = m_sentMail || ui->mailText->document()->isEmpty() || !m_messageEdited ||
+                                (m_explicitDraft && !m_messageUpdated); // autosave to permanent draft and no update
+    if (!noSaveRequired) {  // save is required
         QMessageBox msgBox(this);
         msgBox.setWindowModality(Qt::WindowModal);
         msgBox.setWindowTitle(tr("Safe Draft?"));
-        msgBox.setText(tr("The mail has not been sent.\nDo you want to save the draft?"));
+        QString message(tr("The mail has not been sent.<br>Do you want to save the draft?"));
+        if (ui->attachmentsView->model()->rowCount() > 0)
+            message += tr("<br><span style=\"color:red\">Warning: Attachments are <b>not</b> saved with the draft!</span>");
+        msgBox.setText(message);
         msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Close | QMessageBox::Cancel);
         msgBox.setDefaultButton(QMessageBox::Save);
-        const int ret = msgBox.exec();
+        int ret = msgBox.exec();
+        if (ret == QMessageBox::Save) {
+            if (m_explicitDraft) { // editing a present draft - override it
+                saveDraft(m_autoSavePath);
+            } else {
+                QString path(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                             QDesktopServices::storageLocation(QDesktopServices::DataLocation)
+#else
+                             QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+#endif
+                                                                            + QLatin1Char('/') + tr("Drafts"));
+                QDir().mkpath(path);
+                path = QFileDialog::getSaveFileName(this, tr("Save as"), path + QLatin1Char('/') + ui->subject->text() + QLatin1String(".draft"), tr("Drafts") + QLatin1String(" (*.draft)"));
+                if (path.isEmpty()) { // cancelled save
+                    ret = QMessageBox::Cancel;
+                } else {
+                    m_explicitDraft = true;
+                    saveDraft(path);
+                    if (path != m_autoSavePath) // we can remove the temp save
+                        QFile::remove(m_autoSavePath);
+                }
+            }
+        }
         if (ret == QMessageBox::Cancel) {
             ce->ignore(); // don't close the window
             return;
-        } else if (ret == QMessageBox::Save) {
-            QString path(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                        QDesktopServices::storageLocation(QDesktopServices::DataLocation)
-#else
-                        QStandardPaths::writableLocation(QStandardPaths::DataLocation)
-#endif
-                        + "/"+ tr("Drafts"));
-            QDir().mkpath(path);
-            path = QFileDialog::getSaveFileName(this, tr("Save as"), path + "/" + ui->subject->text() + ".draft", tr("Drafts") + " (*.draft)");
-            if (!path.isEmpty()) { // not cancelled
-                m_explicitDraft = true;
-                QFile::remove(m_autoSavePath);
-                saveDraft(path);
-            }
         }
     }
-    if (!m_explicitDraft)
-        QFile::remove(m_autoSavePath);
+    if (m_sentMail || !m_explicitDraft) // is the mail has been sent or the user does not want to store it
+        QFile::remove(m_autoSavePath); // get rid of draft
     ce->accept(); // ultimately close the window
 }
 
@@ -405,7 +425,9 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     }
     updateRecipientList();
     ui->subject->setText(subject);
+    const bool wasEdited = m_messageEdited;
     ui->mailText->setText(body);
+    m_messageEdited = wasEdited;
     m_composer->setInReplyTo(inReplyTo);
     m_composer->setReferences(references);
     m_replyingTo = replyingToMessage;
@@ -758,7 +780,9 @@ void ComposeWidget::slotUpdateSignature()
                                                                   Composer::SenderIdentitiesModel::COLUMN_SIGNATURE)
             .data().toString();
 
+    const bool wasEdited = m_messageEdited;
     Composer::Util::replaceSignature(ui->mailText->document(), newSignature);
+    m_messageEdited = wasEdited;
 }
 
 
@@ -836,7 +860,14 @@ void ComposeWidget::saveDraft(const QString &path)
     // c) the data behind the url or the url validity might have changed
     // d) nasty part is writing mails - DnD a file into it is not a problem
     file.close();
+    file.setPermissions(QFile::ReadOwner|QFile::WriteOwner);
 }
+
+/**
+ * When loading a draft we omit the present autostorage (content is replaced anyway) and make
+ * the loaded path the autosave path, so all further automatic storage goes into the present
+ * draft file
+ */
 
 void ComposeWidget::loadDraft(const QString &path)
 {
@@ -875,6 +906,7 @@ void ComposeWidget::loadDraft(const QString &path)
     ui->subject->setText(string);
     stream >> string;
     ui->mailText->setPlainText(string);
+    m_messageUpdated = false; // this is now the most up-to-date one
     file.close();
 }
 
@@ -888,7 +920,7 @@ void ComposeWidget::autoSaveDraft()
 
 void ComposeWidget::setMessageUpdated()
 {
-    m_messageUpdated = true;
+    m_messageEdited = m_messageUpdated = true;
 }
 
 }

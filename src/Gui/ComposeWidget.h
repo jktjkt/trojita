@@ -115,6 +115,7 @@ private:
 
     bool m_sentMail;
     bool m_messageUpdated;
+    bool m_messageEdited;
     bool m_explicitDraft;
     QString m_autoSavePath;
 
