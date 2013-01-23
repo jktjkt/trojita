@@ -61,9 +61,11 @@ public:
                  const QString &body,
                  const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references,
                  const QModelIndex &replyingToMessage);
+    void loadDraft(const QString &path);
 
 protected:
     void changeEvent(QEvent *e);
+    void closeEvent(QCloseEvent *ce);
     bool eventFilter(QObject *o, QEvent *e);
 
 public slots:
@@ -87,6 +89,9 @@ private slots:
 
     void slotUpdateSignature();
 
+    void autoSaveDraft();
+    void setMessageUpdated();
+
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     static Composer::RecipientKind recipientKindForNextRow(const Composer::RecipientKind kind);
@@ -99,12 +104,19 @@ private:
 
     static QString killDomainPartFromString(const QString &s);
 
+    void saveDraft(const QString &path);
+
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;
     QPushButton *cancelButton;
     typedef QPair<QComboBox*, QLineEdit*> Recipient;
     QList<Recipient> m_recipients;
     QTimer *m_recipientListUpdateTimer;
+
+    bool m_sentMail;
+    bool m_messageUpdated;
+    bool m_explicitDraft;
+    QString m_autoSavePath;
 
     bool m_appendUidReceived;
     uint m_appendUidValidity;

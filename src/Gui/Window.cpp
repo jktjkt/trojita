@@ -110,6 +110,8 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     QDesktopServices::setUrlHandler(QLatin1String("mailto"), this, "slotComposeMailUrl");
 
     slotUpdateWindowTitle();
+
+    recoverDrafts();
 }
 
 void MainWindow::createActions()
@@ -181,6 +183,9 @@ void MainWindow::createActions()
 
     composeMail = new QAction(loadIcon(QLatin1String("document-edit")),  tr("Compose Mail..."), this);
     connect(composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()));
+
+    m_editDraft = new QAction(loadIcon(QLatin1String("document-edit")),  tr("Edit draft..."), this);
+    connect(m_editDraft, SIGNAL(triggered()), this, SLOT(slotEditDraft()));
 
     expunge = new QAction(loadIcon(QLatin1String("trash-empty")),  tr("Expunge Mailbox"), this);
     expunge->setShortcut(tr("Ctrl+E"));
@@ -328,6 +333,14 @@ void MainWindow::createActions()
 
     connectModelActions();
 
+    m_composeButton = new QToolButton(this);
+    m_composeButton->setPopupMode(QToolButton::MenuButtonPopup);
+    m_composeMenu = new QMenu(m_composeButton);
+    m_composeMenu->addAction(composeMail);
+    m_composeMenu->addAction(m_editDraft);
+    m_composeButton->setMenu(m_composeMenu);
+    m_composeButton->setDefaultAction(composeMail);
+
     m_replyButton = new QToolButton(this);
     m_replyButton->setPopupMode(QToolButton::MenuButtonPopup);
     m_replyMenu = new QMenu(m_replyButton);
@@ -337,7 +350,7 @@ void MainWindow::createActions()
     m_replyButton->setMenu(m_replyMenu);
     m_replyButton->setDefaultAction(m_replyPrivate);
 
-    m_mainToolbar->addAction(composeMail);
+    m_mainToolbar->addWidget(m_composeButton);
     m_mainToolbar->addWidget(m_replyButton);
     m_mainToolbar->addAction(expunge);
     m_mainToolbar->addSeparator();
@@ -965,9 +978,30 @@ void MainWindow::nukeModels()
     model = 0;
 }
 
+void MainWindow::recoverDrafts()
+{
+    QDir draftPath(QDesktopServices::storageLocation(QDesktopServices::TempLocation) + "/"+ "trojita_drafts/");
+    QStringList drafts(draftPath.entryList(QStringList() << "*.draft"));
+    Q_FOREACH(const QString &draft, drafts) {
+        ComposeWidget *cw = invokeComposeDialog();
+        cw->loadDraft(draftPath.filePath(draft));
+    }
+}
+
 void MainWindow::slotComposeMail()
 {
     invokeComposeDialog();
+}
+
+void MainWindow::slotEditDraft()
+{
+    QString path(QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/"+ tr("Drafts"));
+    QDir().mkpath(path);
+    path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + " (*.draft)");
+    if (!path.isEmpty()) {
+        ComposeWidget *cw = invokeComposeDialog();
+        cw->loadDraft(path);
+    }
 }
 
 void MainWindow::handleMarkAsRead(bool value)

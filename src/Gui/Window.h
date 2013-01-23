@@ -110,6 +110,7 @@ private slots:
     void sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors);
     void slotComposeMailUrl(const QUrl &url);
     void slotComposeMail();
+    void slotEditDraft();
     void slotReplyTo();
     void slotReplyAll();
     void slotReplyList();
@@ -173,6 +174,8 @@ private:
 
     void migrateSettings();
 
+    void recoverDrafts();
+
     Imap::Mailbox::Model *model;
     Imap::Mailbox::MailboxModel *mboxModel;
     Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;
@@ -213,6 +216,7 @@ private:
     QAction *showToolBar;
     QAction *configSettings;
     QAction *composeMail;
+    QAction *m_editDraft;
     QAction *m_replyPrivate;
     QAction *m_replyAll;
     QAction *m_replyList;
@@ -255,6 +259,8 @@ private:
     QToolBar *m_mainToolbar;
     QToolButton *m_replyButton;
     QMenu *m_replyMenu;
+    QToolButton *m_composeButton;
+    QMenu *m_composeMenu;
 
     TaskProgressIndicator *busyParsersIndicator;
     QToolButton *networkIndicator;

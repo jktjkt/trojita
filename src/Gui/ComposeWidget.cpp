@@ -22,6 +22,7 @@
 */
 #include <QAbstractProxyModel>
 #include <QBuffer>
+#include <QDesktopServices>
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QMenu>
@@ -59,6 +60,9 @@ namespace Gui
 ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
     QWidget(0, Qt::Window),
     ui(new Ui::ComposeWidget),
+    m_sentMail(false),
+    m_messageUpdated(false),
+    m_explicitDraft(false),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(mainWindow)
 {
@@ -104,12 +108,21 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
 
     connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
     connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
+    connect(ui->mailText, SIGNAL(textChanged()), SLOT(setMessageUpdated()));
 
     FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
     proxy->setSourceModel(m_mainWindow->senderIdentitiesModel());
     ui->sender->setModel(proxy);
 
     connect(ui->sender, SIGNAL(currentIndexChanged(int)), SLOT(slotUpdateSignature()));
+
+    QTimer *autoSaveTimer = new QTimer(this);
+    connect(autoSaveTimer, SIGNAL(timeout()), SLOT(autoSaveDraft()));
+    autoSaveTimer->start(30*1000);
+
+    m_autoSavePath = QString(QDesktopServices::storageLocation(QDesktopServices::TempLocation) + "/"+ "trojita_drafts/");
+    QDir().mkpath(m_autoSavePath);
+    m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + ".draft";
 }
 
 ComposeWidget::~ComposeWidget()
@@ -128,6 +141,37 @@ void ComposeWidget::changeEvent(QEvent *e)
         break;
     }
 }
+
+void ComposeWidget::closeEvent(QCloseEvent *ce)
+{
+    if (!(m_sentMail || ui->mailText->document()->isEmpty())) {
+        QMessageBox msgBox(this);
+        msgBox.setWindowModality(Qt::WindowModal);
+        msgBox.setWindowTitle(tr("Safe Draft?"));
+        msgBox.setText(tr("The mail has not been sent.\nDo you want to save the draft?"));
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Close | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Save);
+        const int ret = msgBox.exec();
+        if (ret == QMessageBox::Cancel) {
+            ce->ignore(); // don't close the window
+            return;
+        } else if (ret == QMessageBox::Save) {
+            QString path(QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/"+ tr("Drafts"));
+            QDir().mkpath(path);
+            path = QFileDialog::getSaveFileName(this, tr("Save as"), path + "/" + ui->subject->text() + ".draft", tr("Drafts") + " (*.draft)");
+            if (!path.isEmpty()) { // not cancelled
+                m_explicitDraft = true;
+                QFile::remove(m_autoSavePath);
+                saveDraft(path);
+            }
+        }
+    }
+    if (!m_explicitDraft)
+        QFile::remove(m_autoSavePath);
+    ce->accept(); // ultimately close the window
+}
+
+
 
 bool ComposeWidget::buildMessageData()
 {
@@ -295,6 +339,7 @@ void ComposeWidget::send()
             QCoreApplication::processEvents();
         }
         progress->cancel();
+        m_sentMail = true;
         return;
     }
 
@@ -333,6 +378,8 @@ void ComposeWidget::send()
     } else {
         msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), rawMessageData);
     }
+
+    m_sentMail = true;
 }
 
 
@@ -742,6 +789,84 @@ bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
     updateRecipientList();
 
     return true;
+}
+
+/** local draft serializaton:
+ * Version (int)
+ * Whether this draft was stored explicitly (bool)
+ * The sender (QString)
+ * Amount of recipients (int)
+ * n * (RecipientKind ("int") + recipient (QString))
+ * Subject (QString)
+ * The message text (QString)
+ */
+
+void ComposeWidget::saveDraft(const QString &path)
+{
+    static const int trojitaDraftVersion = 1;
+    QFile file(path);
+    if (!file.open(QIODevice::WriteOnly))
+        return; // TODO: error message?
+    QDataStream stream(&file);
+    stream.setVersion(QDataStream::Qt_4_6);
+    stream << trojitaDraftVersion << m_explicitDraft << ui->sender->currentText();
+    stream << m_recipients.count();
+    for (int i = 0; i < m_recipients.count(); ++i) {
+        stream << m_recipients.at(i).first->itemData(m_recipients.at(i).first->currentIndex()).toInt();
+        stream << m_recipients.at(i).second->text();
+    }
+    stream << ui->subject->text();
+    stream << ui->mailText->toPlainText();
+    // we spare attachments
+    // a) serializing isn't an option, they could be HUUUGE
+    // b) storing urls only works for urls
+    // c) the data behind the url or the url validity might have changed
+    // d) nasty part is writing mails - DnD a file into it is not a problem
+    file.close();
+}
+
+void ComposeWidget::loadDraft(const QString &path)
+{
+    QFile file(path);
+    if (!file.open(QIODevice::ReadOnly))
+        return;
+
+    if (m_autoSavePath != path) {
+        QFile::remove(m_autoSavePath);
+        m_autoSavePath = path;
+    }
+
+    QDataStream stream(&file);
+    stream.setVersion(QDataStream::Qt_4_6);
+    QString string;
+    int int1, int2;
+    stream >> int1; // version, currently unused
+    stream >> m_explicitDraft;
+    stream >> string >> int1; // sender / amount of recipients
+    ui->sender->setCurrentIndex(ui->sender->findText(string));
+    for (int i = 0; i < int1; ++i) {
+        stream >> int2 >> string;
+        if (!string.isEmpty())
+            addRecipient(i, (Composer::RecipientKind)int2, string);
+    }
+    stream >> string;
+    ui->subject->setText(string);
+    stream >> string;
+    ui->mailText->setPlainText(string);
+    file.close();
+}
+
+void ComposeWidget::autoSaveDraft()
+{
+    if (m_messageUpdated) {
+        m_messageUpdated = false;
+        saveDraft(m_autoSavePath);
+    }
+}
+
+void ComposeWidget::setMessageUpdated()
+{
+    m_messageUpdated = true;
 }
 
 }
