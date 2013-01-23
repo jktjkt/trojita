@@ -22,6 +22,7 @@ Name[sk]=Trojitá
 Name[sv]=Trojitá
 Name[uk]=Trojitá
 Name[x-test]=xxTrojitáxx
+Name[zh_TW]=Trojitá
 Exec=/opt/trojita-tp/bin/trojita-tp
 Icon=trojita64
 X-Window-Icon=

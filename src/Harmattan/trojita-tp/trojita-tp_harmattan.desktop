@@ -23,6 +23,7 @@ Name[sk]=Trojitá
 Name[sv]=Trojitá
 Name[uk]=Trojitá
 Name[x-test]=xxTrojitáxx
+Name[zh_TW]=Trojitá
 Exec=/usr/bin/single-instance /opt/trojita-tp/bin/trojita-tp
 Icon=/usr/share/icons/hicolor/80x80/apps/trojita-tp80.png
 X-Window-Icon=
