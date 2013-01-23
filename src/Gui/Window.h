@@ -122,7 +122,6 @@ private slots:
     void msgListActivated(const QModelIndex &);
     void msgListClicked(const QModelIndex &);
     void msgListDoubleClicked(const QModelIndex &);
-    void msgListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void slotCreateMailboxBelowCurrent();
     void slotCreateTopMailbox();
     void slotDeleteCurrentMailbox();

@@ -648,8 +648,6 @@ void MainWindow::setupModels()
 
     mboxTree->setModel(prettyMboxModel);
     msgListWidget->tree->setModel(prettyMsgListModel);
-    connect(msgListWidget->tree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-            this, SLOT(msgListSelectionChanged(const QItemSelection &, const QItemSelection &)));
 
     allTree->setModel(model);
     taskTree->setModel(model->taskModel());
@@ -663,19 +661,6 @@ void MainWindow::setupModels()
 
     // TODO write more addressbook backends and make this configurable
     m_addressBook = new AbookAddressbook();
-}
-
-void MainWindow::msgListSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
-{
-    Q_UNUSED(deselected);
-    if (selected.indexes().isEmpty())
-        return;
-
-    QModelIndex index = selected.indexes().front();
-    if (index.data(Imap::Mailbox::RoleMessageUid).isValid()) {
-        updateMessageFlags(index);
-        msgView->setMessage(index);
-    }
 }
 
 void MainWindow::msgListActivated(const QModelIndex &index)
