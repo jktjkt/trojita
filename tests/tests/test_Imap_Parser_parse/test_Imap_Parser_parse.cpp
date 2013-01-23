@@ -906,6 +906,42 @@ void ImapParserParseTest::testParseUntagged_data()
             << QSharedPointer<AbstractResponse>(new Vanished(Vanished::EARLIER, QList<uint>() << 300 << 301 << 302 << 303 << 405 << 411));
 }
 
+/** @short Test that parsing this garbage doesn't result in an expceiton
+
+In a erfect world with unlimited resources, it would be nice to verify the result of the parsing. However, I'm trying to feed
+real-world data to the test cases and this might mean having to construct tens of lines using code which is just tedious to create.
+This is better than nothing.
+*/
+void ImapParserParseTest::testParseFetchGarbageWithoutExceptions()
+{
+    QFETCH(QByteArray, line);
+    try {
+        QSharedPointer<Imap::Responses::AbstractResponse> r = parser->parseUntagged(line);
+        QVERIFY(r.dynamicCast<Imap::Responses::Fetch>());
+    } catch (const Imap::ParseError &err) {
+        qDebug() << err.what();
+        QFAIL("Parsing resulted in an exception");
+    }
+}
+
+void ImapParserParseTest::testParseFetchGarbageWithoutExceptions_data()
+{
+    QTest::addColumn<QByteArray>("line");
+
+    QTest::newRow("fetch-seznam.cz-quirk-minus-two-as-uint")
+        << QByteArray("* 997 FETCH (UID 8636 ENVELOPE (NIL \"Merkantilismus\" ((\"\" NIL \"tony.szturc\" \"seznam.cz\")) "
+                      "((\"\" NIL \"tony.szturc\" \"seznam.cz\")) ((\"\" NIL \"tony.szturc\" \"seznam.cz\")) "
+                      "((\"\" NIL \"xxx\" \"seznam.cz\")) NIL NIL NIL \"\") INTERNALDATE \"15-Jan-2013 12:17:06 +0000\" "
+                      "BODYSTRUCTURE ((\"text\" \"plain\" (\"charset\" \"us- ascii\") NIL NIL \"7bit\" -2 1 NIL NIL NIL)"
+                      "(\"application\" \"msword\" (\"name\" "
+                      "\"=?utf-8?B?NC10cmFkaWNuaV9ob3Nwb2RhcnNrZV9teXNsZW5pLG5vdm92ZWtlX2Vrb25vbWlja2VfdGVvcmllLmRvY2==?=\") "
+                      "NIL NIL \"base64\" 51146 NIL NIL NIL)"
+                      "(\"application\" \"msword\" (\"name\" \"=?utf-8?B?NS1ob3Nwb2RhcnNreXZ5dm9qLmRvY2==?=\") NIL NIL "
+                      "\"base64\" 205984 NIL NIL NIL)"
+                      "(\"application\" \"vnd.ms-powerpoint\" (\"name\" \"=?utf-8?B?Mi5faG9zcG9kYXJza3lfdnl2b2pfY2Vza3ljaF96ZW1pLnBwdH==?=\") "
+                      "NIL NIL \"base64\" 3986596 NIL NIL NIL) \"mixed\" NIL NIL NIL) RFC822.SIZE 4245505)\r\n");
+}
+
 void ImapParserParseTest::benchmark()
 {
     QByteArray line1 = "* 1 FETCH (BODYSTRUCTURE ((\"text\" \"plain\" "

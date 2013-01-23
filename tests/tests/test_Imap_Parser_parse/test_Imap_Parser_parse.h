@@ -42,6 +42,10 @@ private Q_SLOTS:
     /** @short Test parsing of untagged responses */
     void testParseUntagged();
     void testParseUntagged_data();
+    /** @short Test that we can parse that garbage without resorting to a fatal error */
+    void testParseFetchGarbageWithoutExceptions();
+    void testParseFetchGarbageWithoutExceptions_data();
+
     /** @short Test sequence output */
     void testSequences();
     void testSequences_data();

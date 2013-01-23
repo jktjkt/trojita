@@ -369,9 +369,17 @@ uint AbstractMessage::extractUInt(const QVariant &var, const QByteArray &line, c
 {
     if (var.type() == QVariant::UInt)
         return var.toUInt();
-    if (var.type() == QVariant::ByteArray && var.toByteArray() == QByteArray("-1")) {
-        qDebug() << "Parser warning: -1 is not an unsigned int";
-        return 0;
+    if (var.type() == QVariant::ByteArray) {
+        bool ok = false;
+        int number = var.toInt(&ok);
+        if (ok) {
+            if (number >= 0) {
+                return number;
+            } else {
+                qDebug() << "Parser warning:" << number << "is not an unsigned int";
+                return 0;
+            }
+        }
     }
     throw UnexpectedHere("extractUInt: weird data type", line, start);
 }
