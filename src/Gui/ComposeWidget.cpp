@@ -120,7 +120,13 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
     connect(autoSaveTimer, SIGNAL(timeout()), SLOT(autoSaveDraft()));
     autoSaveTimer->start(30*1000);
 
-    m_autoSavePath = QString(QDesktopServices::storageLocation(QDesktopServices::TempLocation) + "/"+ "trojita_drafts/");
+    m_autoSavePath = QString(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                QDesktopServices::storageLocation(QDesktopServices::TempLocation)
+#else
+                QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+#endif
+                + "/"+ "trojita_drafts/");
     QDir().mkpath(m_autoSavePath);
     m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + ".draft";
 }
@@ -156,7 +162,13 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
             ce->ignore(); // don't close the window
             return;
         } else if (ret == QMessageBox::Save) {
-            QString path(QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/"+ tr("Drafts"));
+            QString path(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                        QDesktopServices::storageLocation(QDesktopServices::DataLocation)
+#else
+                        QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+#endif
+                        + "/"+ tr("Drafts"));
             QDir().mkpath(path);
             path = QFileDialog::getSaveFileName(this, tr("Save as"), path + "/" + ui->subject->text() + ".draft", tr("Drafts") + " (*.draft)");
             if (!path.isEmpty()) { // not cancelled

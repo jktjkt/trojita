@@ -980,7 +980,13 @@ void MainWindow::nukeModels()
 
 void MainWindow::recoverDrafts()
 {
-    QDir draftPath(QDesktopServices::storageLocation(QDesktopServices::TempLocation) + "/"+ "trojita_drafts/");
+    QDir draftPath(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                QDesktopServices::storageLocation(QDesktopServices::TempLocation)
+#else
+                QStandardPaths::writableLocation(QStandardPaths::TempLocation)
+#endif
+                + "/"+ "trojita_drafts/");
     QStringList drafts(draftPath.entryList(QStringList() << "*.draft"));
     Q_FOREACH(const QString &draft, drafts) {
         ComposeWidget *cw = invokeComposeDialog();
@@ -995,7 +1001,13 @@ void MainWindow::slotComposeMail()
 
 void MainWindow::slotEditDraft()
 {
-    QString path(QDesktopServices::storageLocation(QDesktopServices::DataLocation) + "/"+ tr("Drafts"));
+    QString path(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                QDesktopServices::storageLocation(QDesktopServices::DataLocation)
+#else
+                QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+#endif
+                + "/"+ tr("Drafts"));
     QDir().mkpath(path);
     path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + " (*.draft)");
     if (!path.isEmpty()) {
