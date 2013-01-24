@@ -62,7 +62,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
     ui(new Ui::ComposeWidget),
     m_sentMail(false),
     m_messageUpdated(false),
-    m_messageEdited(false),
+    m_messageEverEdited(false),
     m_explicitDraft(false),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(mainWindow)
@@ -157,7 +157,7 @@ void ComposeWidget::changeEvent(QEvent *e)
 
 void ComposeWidget::closeEvent(QCloseEvent *ce)
 {
-    const bool noSaveRequired = m_sentMail || ui->mailText->document()->isEmpty() || !m_messageEdited ||
+    const bool noSaveRequired = m_sentMail || ui->mailText->document()->isEmpty() || !m_messageEverEdited ||
                                 (m_explicitDraft && !m_messageUpdated); // autosave to permanent draft and no update
     if (!noSaveRequired) {  // save is required
         QMessageBox msgBox(this);
@@ -425,9 +425,9 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     }
     updateRecipientList();
     ui->subject->setText(subject);
-    const bool wasEdited = m_messageEdited;
+    const bool wasEdited = m_messageEverEdited;
     ui->mailText->setText(body);
-    m_messageEdited = wasEdited;
+    m_messageEverEdited = wasEdited;
     m_composer->setInReplyTo(inReplyTo);
     m_composer->setReferences(references);
     m_replyingTo = replyingToMessage;
@@ -780,9 +780,9 @@ void ComposeWidget::slotUpdateSignature()
                                                                   Composer::SenderIdentitiesModel::COLUMN_SIGNATURE)
             .data().toString();
 
-    const bool wasEdited = m_messageEdited;
+    const bool wasEdited = m_messageEverEdited;
     Composer::Util::replaceSignature(ui->mailText->document(), newSignature);
-    m_messageEdited = wasEdited;
+    m_messageEverEdited = wasEdited;
 }
 
 
@@ -920,7 +920,7 @@ void ComposeWidget::autoSaveDraft()
 
 void ComposeWidget::setMessageUpdated()
 {
-    m_messageEdited = m_messageUpdated = true;
+    m_messageEverEdited = m_messageUpdated = true;
 }
 
 }

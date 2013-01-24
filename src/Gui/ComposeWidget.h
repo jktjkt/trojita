@@ -114,8 +114,15 @@ private:
     QTimer *m_recipientListUpdateTimer;
 
     bool m_sentMail;
+    /** @short Has it been updated since the last time we auto-saved it? */
     bool m_messageUpdated;
-    bool m_messageEdited;
+    /** @short Was this message ever editted by human?
+
+    We have to track both of these. Simply changing the sender (and hence the signature) without any text being written
+    shall not trigger automatic saving, but on the other hand changing the sender after something was already written
+    is an important change.
+    */
+    bool m_messageEverEdited;
     bool m_explicitDraft;
     QString m_autoSavePath;
 
