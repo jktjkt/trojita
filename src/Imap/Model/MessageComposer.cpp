@@ -673,6 +673,16 @@ QDateTime MessageComposer::timestamp() const
     return m_timestamp;
 }
 
+QList<QByteArray> MessageComposer::inReplyTo() const
+{
+    return m_inReplyTo;
+}
+
+QList<QByteArray> MessageComposer::references() const
+{
+    return m_references;
+}
+
 QByteArray MessageComposer::rawFromAddress() const
 {
     return m_from.asSMTPMailbox();

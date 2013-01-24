@@ -68,6 +68,8 @@ public:
     bool asCatenateData(QList<CatenatePair> &target, QString *errorMessage) const;
 
     QDateTime timestamp() const;
+    QList<QByteArray> inReplyTo() const;
+    QList<QByteArray> references() const;
     QByteArray rawFromAddress() const;
     QList<QByteArray> rawRecipientAddresses() const;
 

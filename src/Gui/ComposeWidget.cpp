@@ -815,7 +815,7 @@ bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
 
 void ComposeWidget::saveDraft(const QString &path)
 {
-    static const int trojitaDraftVersion = 1;
+    static const int trojitaDraftVersion = 2;
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
         return; // TODO: error message?
@@ -827,6 +827,7 @@ void ComposeWidget::saveDraft(const QString &path)
         stream << m_recipients.at(i).first->itemData(m_recipients.at(i).first->currentIndex()).toInt();
         stream << m_recipients.at(i).second->text();
     }
+    stream << m_composer->timestamp() << m_composer->inReplyTo() << m_composer->references();
     stream << ui->subject->text();
     stream << ui->mailText->toPlainText();
     // we spare attachments
@@ -851,15 +852,24 @@ void ComposeWidget::loadDraft(const QString &path)
     QDataStream stream(&file);
     stream.setVersion(QDataStream::Qt_4_6);
     QString string;
-    int int1, int2;
-    stream >> int1; // version, currently unused
+    int version, recipientCount;
+    stream >> version;
     stream >> m_explicitDraft;
-    stream >> string >> int1; // sender / amount of recipients
+    stream >> string >> recipientCount; // sender / amount of recipients
     ui->sender->setCurrentIndex(ui->sender->findText(string));
-    for (int i = 0; i < int1; ++i) {
-        stream >> int2 >> string;
+    for (int i = 0; i < recipientCount; ++i) {
+        int kind;
+        stream >> kind >> string;
         if (!string.isEmpty())
-            addRecipient(i, (Composer::RecipientKind)int2, string);
+            addRecipient(i, static_cast<Composer::RecipientKind>(kind), string);
+    }
+    if (version == 2) {
+        QDateTime timestamp;
+        QList<QByteArray> inReplyTo, references;
+        stream >> timestamp >> inReplyTo >> references;
+        m_composer->setTimestamp(timestamp);
+        m_composer->setInReplyTo(inReplyTo);
+        m_composer->setReferences(references);
     }
     stream >> string;
     ui->subject->setText(string);
