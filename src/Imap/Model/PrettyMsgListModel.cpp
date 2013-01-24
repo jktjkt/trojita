@@ -188,9 +188,14 @@ QString PrettyMsgListModel::prettyFormatDate(const QDateTime &dateTime) const
     if (dateTime >= now) {
         // Messages from future shall always be shown using full format to prevent nasty surprises.
         return dateTime.toString(Qt::DefaultLocaleShortDate);
-    } else if (dateTime > now.addDays(-1)) {
-        // It's a message fresher than 24 hours, let's show just the time.
-        // While we're at it, cut the seconds, these are not terribly useful here
+    } else if (dateTime.date() == now.date() || dateTime > now.addSecs(-6 * 3600)) {
+        // It's a "today's message", i.e. something which is either literally from today or at least something not older than
+        // six hours (an arbitraty magic number).
+        // Originally, the cut-off time interval was set to 24 hours, but it led to weird things in the GUI like showing mails
+        // from yesterday's 18:33 just as "18:33" even though the local time was "18:20" already. In a perfect world, we would
+        // also periodically emit dataChanged() in order to force a wrap once the view has been open for too long, but that will
+        // have to wait a bit.
+        // The time is displayed without seconds to conserve space as well.
         return dateTime.time().toString(tr("hh:mm"));
     } else if (dateTime > now.addDays(-7)) {
         // Messages from the last seven days can be formatted just with the weekday name
