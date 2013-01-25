@@ -139,6 +139,15 @@ protected:
     QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString::fromUtf8(SUBJECT)); \
 }
 
+#define checkCachedSubject(OFFSET, SUBJECT) \
+{ \
+    QModelIndex index = msgListA.child(OFFSET, 0); \
+    Q_ASSERT(index.isValid()); \
+    uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt(); \
+    Q_ASSERT(uid); \
+    QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString::fromUtf8(SUBJECT)); \
+}
+
 namespace QTest {
 
 /** @short Debug data dumper for QList<uint> */

@@ -2028,5 +2028,55 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     QCOMPARE(model->cache()->messagePart("a", 1212, QString()), QByteArray());
 }
 
+/** @short Test that we can open a mailbox using just the cached data when offline */
+void ImapModelObtainSynchronizedMailboxTest::testOfflineOpening()
+{
+    model->setNetworkOffline();
+    cClient(t.mk("LOGOUT\r\n"));
+    cServer(t.last("OK logged out\r\n"));
+
+    // prepare the cache
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(333);
+    sync.setRecent(0);
+    sync.setUidNext(666);
+    QList<uint> uidMap;
+    uidMap << 10 << 20 << 30;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    Imap::Mailbox::AbstractCache::MessageDataBundle msg10, msg20;
+    msg10.uid = 10;
+    msg10.envelope.subject = "msg10";
+    msg20.uid = 20;
+    msg20.envelope.subject = "msg20";
+
+    // Prepare the body structure for this message
+    int start = 0;
+    Imap::Responses::Fetch fetchResponse(666, QByteArray(" (BODYSTRUCTURE (\"text\" \"plain\" (\"chaRset\" \"UTF-8\" "
+                                                         "\"format\" \"flowed\") NIL NIL \"8bit\" 362 15 NIL NIL NIL))\r\n"),
+                                         start);
+    msg10.serializedBodyStructure = dynamic_cast<const Imap::Responses::RespData<QByteArray>&>(*(fetchResponse.data["x-trojita-bodystructure"])).data;
+    msg20.serializedBodyStructure = msg10.serializedBodyStructure;
+
+    model->cache()->setMessageMetadata("a", 10, msg10);
+    model->cache()->setMessageMetadata("a", 20, msg20);
+
+    // Check that stuff works
+    QCOMPARE(model->rowCount(msgListA), 0);
+    QCoreApplication::processEvents();
+    QCOMPARE(model->rowCount(msgListA), 3);
+    checkCachedSubject(0, "msg10");
+    checkCachedSubject(1, "msg20");
+    checkCachedSubject(2, "");
+    QCOMPARE(msgListA.child(2, 0).data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+
+    QCOMPARE(model->taskModel()->rowCount(), 0);
+
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+}
+
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

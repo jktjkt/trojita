@@ -802,7 +802,7 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
     Q_ASSERT(item->m_children.size() == 0);
 
     QList<uint> uidMapping = cache()->uidMapping(mailbox);
-    if (networkPolicy() == NETWORK_OFFLINE && uidMapping.size() != item->m_totalMessageCount) {
+    if (networkPolicy() == NETWORK_OFFLINE && item->m_totalMessageCount != -1 && uidMapping.size() != item->m_totalMessageCount) {
         qDebug() << "UID cache stale for mailbox" << mailbox <<
                  "(" << uidMapping.size() << "in UID cache vs." <<
                  item->m_totalMessageCount << "as totalMessageCount)";
