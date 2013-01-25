@@ -49,6 +49,8 @@ public:
     virtual ~MsgListView() {}
     void setModel(QAbstractItemModel *model);
 protected:
+    void keyPressEvent(QKeyEvent *ke);
+    void keyReleaseEvent(QKeyEvent *ke);
     virtual int sizeHintForColumn(int column) const;
     virtual void startDrag(Qt::DropActions supportedActions);
 private slots:
@@ -61,10 +63,13 @@ private slots:
     void slotHeaderSectionVisibilityToggled(int section);
     /** @short Pick up the change of the sort critera */
     void slotHandleSortCriteriaChanged(int column, Qt::SortOrder order);
+    /** @short conditionally emits activated(currentIndex()) for keyboard events */
+    void slotCurrentActivated();
 private:
     static Imap::Mailbox::PrettyMsgListModel *findPrettyMsgListModel(QAbstractItemModel *model);
 
     QSignalMapper *headerFieldsMapper;
+    QTimer *m_naviActivationTimer;
 };
 
 }

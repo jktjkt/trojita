@@ -27,8 +27,10 @@
 #include <QDrag>
 #include <QFontMetrics>
 #include <QHeaderView>
+#include <QKeyEvent>
 #include <QPainter>
 #include <QSignalMapper>
+#include <QTimer>
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
 
@@ -55,6 +57,42 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
     setSortingEnabled(true);
     // By default, we don't do any sorting
     header()->setSortIndicator(-1, Qt::AscendingOrder);
+
+    m_naviActivationTimer = new QTimer(this);
+    m_naviActivationTimer->setSingleShot(true);
+    connect (m_naviActivationTimer, SIGNAL(timeout()), SLOT(slotCurrentActivated()));
+}
+
+// up and down perform controlled selection, where PgUP, PgDown, Home and End jump to an
+// usually unknown destination (-> no activation intended?!)
+// left might collapse a thread, question is whether ending there (on closing the thread) should be
+// taken as mail loading request (i don't think so, but it's sth. that needs to be figured over time)
+// NOTICE: resonably Triggers should be a (non strict) subset of Blockers (user changed his mind)
+
+// the list of key events which pot. lead to loading a new message.
+static QList<int> gs_naviActivationTriggers = QList<int>() << Qt::Key_Up << Qt::Key_Down;
+// the list of key events which cancel naviActivationTrigger induced action.
+static QList<int> gs_naviActivationBlockers = QList<int>() << Qt::Key_Up << Qt::Key_Down << Qt::Key_Left;
+
+
+void MsgListView::keyPressEvent(QKeyEvent *ke)
+{
+    if (gs_naviActivationBlockers.contains(ke->key()))
+        m_naviActivationTimer->stop();
+    QTreeView::keyPressEvent(ke);
+}
+
+void MsgListView::keyReleaseEvent(QKeyEvent *ke)
+{
+    if (ke->modifiers() == Qt::NoModifier && gs_naviActivationTriggers.contains(ke->key()))
+        m_naviActivationTimer->start(150); // few ms for the user to re-orientate. 150ms is not much
+    QTreeView::keyReleaseEvent(ke);
+}
+
+void MsgListView::slotCurrentActivated()
+{
+    if (currentIndex().isValid())
+        emit activated(currentIndex());
 }
 
 int MsgListView::sizeHintForColumn(int column) const
