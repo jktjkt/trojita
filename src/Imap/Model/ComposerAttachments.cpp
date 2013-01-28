@@ -159,14 +159,12 @@ ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString
     Q_ASSERT(model);
     TreeItemMessage *msg = messagePtr();
     Q_ASSERT(msg);
-
-    fullMessageCombiner = new FullMessageCombiner(messagePtr()->toIndex(const_cast<Model*>(model)));
+    fullMessageCombiner = new FullMessageCombiner(msg->toIndex(model));
 }
 
 ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
 {
     delete fullMessageCombiner;
-    fullMessageCombiner = 0;
 }
 
 QString ImapMessageAttachmentItem::caption() const
