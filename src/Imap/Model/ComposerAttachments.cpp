@@ -27,6 +27,7 @@
 #include <QProcess>
 #include <QUrl>
 #include "Imap/Encoders.h"
+#include "Imap/Model/FullMessageCombiner.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MessageComposer.h"
 #include "Imap/Model/Model.h"
@@ -153,12 +154,17 @@ void FileAttachmentItem::asDroppableMimeData(QDataStream &stream) const
 
 
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
-    model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
+    fullMessageCombiner(0), model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
 {
+    Q_ASSERT(model);
+    TreeItemMessage *msg = messagePtr();
+    Q_ASSERT(msg);
+    fullMessageCombiner = new FullMessageCombiner(msg->toIndex(model));
 }
 
 ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
 {
+    delete fullMessageCombiner;
 }
 
 QString ImapMessageAttachmentItem::caption() const
@@ -198,9 +204,8 @@ bool ImapMessageAttachmentItem::isAvailableLocally() const
     TreeItemMessage *msg = messagePtr();
     if (!msg)
         return false;
-    TreeItemPart *headerPart = headerPartPtr();
-    TreeItemPart *bodyPart = bodyPartPtr();
-    return headerPart && bodyPart && headerPart->fetched() && bodyPart->fetched();
+
+    return fullMessageCombiner->loaded();
 }
 
 QSharedPointer<QIODevice> ImapMessageAttachmentItem::rawData() const
@@ -208,16 +213,10 @@ QSharedPointer<QIODevice> ImapMessageAttachmentItem::rawData() const
     TreeItemMessage *msg = messagePtr();
     if (!msg)
         return QSharedPointer<QIODevice>();
-    TreeItemPart *headerPart = headerPartPtr();
-    if (!headerPart || !headerPart->fetched())
-        return QSharedPointer<QIODevice>();
-    TreeItemPart *bodyPart = bodyPartPtr();
-    if (!bodyPart || !bodyPart->fetched())
-        return QSharedPointer<QIODevice>();
 
     QSharedPointer<QIODevice> io(new QBuffer());
     // This can probably be optimized to allow zero-copy operation through a pair of two QIODevices
-    static_cast<QBuffer*>(io.data())->setData(*(headerPart->dataPtr()) + *(bodyPart->dataPtr()));
+    static_cast<QBuffer*>(io.data())->setData(fullMessageCombiner->data());
     io->open(QIODevice::ReadOnly);
     return io;
 }
@@ -242,22 +241,6 @@ TreeItemMessage *ImapMessageAttachmentItem::messagePtr() const
     return messages.front();
 }
 
-TreeItemPart *ImapMessageAttachmentItem::headerPartPtr() const
-{
-    TreeItemMessage *msg = messagePtr();
-    if (!msg)
-        return 0;
-    return dynamic_cast<TreeItemPart*>(msg->specialColumnPtr(0, TreeItemMessage::OFFSET_HEADER));
-}
-
-TreeItemPart *ImapMessageAttachmentItem::bodyPartPtr() const
-{
-    TreeItemMessage *msg = messagePtr();
-    if (!msg)
-        return 0;
-    return dynamic_cast<TreeItemPart*>(msg->specialColumnPtr(0, TreeItemMessage::OFFSET_TEXT));
-}
-
 AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE() const
 {
     // FIXME?
@@ -272,13 +255,7 @@ QByteArray ImapMessageAttachmentItem::imapUrl() const
 
 void ImapMessageAttachmentItem::preload() const
 {
-    TreeItemPart *part = headerPartPtr();
-    if (part) {
-        part->fetch(model);
-    }
-    part = bodyPartPtr();
-    if (part)
-        part->fetch(model);
+    fullMessageCombiner->load();
 }
 
 void ImapMessageAttachmentItem::asDroppableMimeData(QDataStream &stream) const
