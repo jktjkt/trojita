@@ -775,7 +775,12 @@ void ComposeWidget::slotUpdateSignature()
     QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
     Q_ASSERT(proxy);
     QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
-    Q_ASSERT(proxyIndex.isValid());
+
+    if (!proxyIndex.isValid()) {
+        // This happens when the settings dialog gets closed and the SenderIdentitiesModel reloads data from the on-disk cache
+        return;
+    }
+
     QString newSignature = proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(),
                                                                   Composer::SenderIdentitiesModel::COLUMN_SIGNATURE)
             .data().toString();
