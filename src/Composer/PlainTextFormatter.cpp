@@ -22,6 +22,7 @@
 */
 
 #include <QObject>
+#include <QPair>
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QTextDocument>
 #endif
@@ -126,108 +127,141 @@ QString helperHtmlifySingleLine(QString line)
 
 QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
+    static QRegExp quotemarks("^>[>\\s]*");
+    const int SIGNATURE_SEPARATOR = -2;
 
+    QList<QPair<int, QString> > lineBuffer;
 
-    // Processing:
-    // the plain text is split into lines
-    // leading quotemarks are counted and stripped
-    // next, the line is marked up (*bold*, /italic/, _underline_ and active link support)
-    // if the last line ended with a space, the result is appended, otherwise canonical quotemarkes are
-    // prepended and the line appended to the markup list (see http://tools.ietf.org/html/rfc3676)
-    // whenever the quote level grows, a <blockquote> is opened and closed when it shrinks
+    // First pass: determine the quote level for each source line.
+    // The quote level is ignored for the signature.
+    bool signatureSeparatorSeen = false;
+    Q_FOREACH(QString line, plaintext.split('\n')) {
 
-    int quoteLevel = 0;
-    QStringList plain(plaintext.split('\n'));
-    QStringList markup;
-    // have we seen the signature separator and should we therefore explicitly close that block later?
-    bool shallCloseSignature = false;
-    for (int i = 0; i < plain.count(); ++i) {
-        QString &line = plain[i];
-
-        // ignore empty lines
+        // Fast path for empty lines
         if (line.isEmpty()) {
-            markup << line;
+            lineBuffer << qMakePair(0, line);
             continue;
         }
-        // determine quotelevel
-        int cQuoteLevel = 0;
-        if (line.at(0) == '>') {
+
+        // Special marker for the signature separator
+        if (line == QLatin1String("-- ")) {
+            lineBuffer << qMakePair(SIGNATURE_SEPARATOR, line);
+            signatureSeparatorSeen = true;
+            continue;
+        }
+
+        // Determine the quoting level
+        int quoteLevel = 0;
+        if (!signatureSeparatorSeen && line.at(0) == '>') {
             int j = 1;
-            cQuoteLevel = 1;
+            quoteLevel = 1;
             while (j < line.length() && (line.at(j) == '>' || line.at(j) == ' '))
-                cQuoteLevel += line.at(j++) == '>';
+                quoteLevel += line.at(j++) == '>';
         }
-        // strip quotemarks
-        if (cQuoteLevel) {
-            static QRegExp quotemarks("^[>\\s]*");
-            line.remove(quotemarks);
+
+        lineBuffer << qMakePair(quoteLevel, line);
+    }
+
+    // Second pass:
+    // - Remove the quotemarks for everything prior to the signature separator.
+    // - Collapse the lines with the same quoting level into a single block
+    //   (optionally into a single line if format=flowed is active)
+    QList<QPair<int, QString> >::iterator it = lineBuffer.begin();
+    while (it < lineBuffer.end() && it->first != SIGNATURE_SEPARATOR) {
+
+        // Remove the quotemarks
+        it->second.remove(quotemarks);
+
+        if (it == lineBuffer.begin()) {
+            // No "previous line"
+            ++it;
+            continue;
         }
+
+        // Check for the line joining
+        QList<QPair<int, QString> >::iterator prev = it - 1;
+        if (prev->first == it->first) {
+            // empty lines must not be removed
+
+            QString separator;
+            switch (flowed) {
+            case FORMAT_PLAIN:
+                separator = QLatin1Char('\n');
+                break;
+            case FORMAT_FLOWED:
+                separator = prev->second.endsWith(QLatin1Char(' ')) ? QLatin1String("") : QLatin1String("\n");
+                break;
+            }
+            prev->second += separator + it->second;
+            it = lineBuffer.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // Third pass: the HTML escaping
+    for (it = lineBuffer.begin(); it != lineBuffer.end(); ++it) {
+        it->second = helperHtmlifySingleLine(
         // Escape the HTML entities
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        line = Qt::escape(line);
+                    Qt::escape(it->second)
 #else
-        line = line.toHtmlEscaped();
+                    it->second.toHtmlEscaped()
 #endif
-
-        line = helperHtmlifySingleLine(line);
-
-        // if this is a non floating new line, prepend canonical quotemarks
-        if (cQuoteLevel && !(cQuoteLevel == quoteLevel && markup.last().endsWith(' '))) {
-            QString quotemarks("<span class=\"quotemarks\">");
-            for (int i = 0; i < cQuoteLevel; ++i)
-                quotemarks += "&gt;";
-            quotemarks += " </span>";
-            line.prepend(quotemarks);
-        }
-
-        if (cQuoteLevel < quoteLevel) {
-            // this line is ascending in the quoted depth
-            Q_ASSERT(!markup.isEmpty());
-            for (int i = 0; i < quoteLevel - cQuoteLevel; ++i) {
-                markup.last().append("</blockquote>");
-            }
-        } else if (cQuoteLevel > quoteLevel) {
-            // even more nested quotations
-            for (int i = 0; i < cQuoteLevel - quoteLevel; ++i) {
-                line.prepend("<blockquote>");
-            }
-        }
-
-        if (!shallCloseSignature && line == QLatin1String("-- ")) {
-            // Only recognize the first signature separator
-            shallCloseSignature = true;
-            line.prepend(QLatin1String("<span class=\"signature\">"));
-        }
-
-        // appaned or join the line
-        if (markup.isEmpty()) {
-            markup << line;
-        } else if (flowed == FORMAT_FLOWED) {
-            if ((quoteLevel == cQuoteLevel) && markup.last().endsWith(QLatin1Char(' ')) &&
-                    markup.last() != QLatin1String("<span class=\"signature\">-- "))
-                markup.last().append(line);
-            else
-                markup << line;
-        } else {
-            markup << line;
-        }
-
-        quoteLevel = cQuoteLevel;
+                    );
     }
 
-    // close any open elements
-    QString closer;
-    if (shallCloseSignature)
-        closer = QLatin1String("</span>");
-    // close open blockquotes
-    // (bottom quoters, we're unfortunately -yet- not permittet to shoot them, so we need to deal with them ;-)
-    while (quoteLevel > 0) {
-        closer.append("</blockquote>");
+    // Fourth pass: adding fancy markup
+    signatureSeparatorSeen = false;
+    int quoteLevel = 0;
+    QStringList markup;
+    static QLatin1String closeSingleQuote("</blockquote>");
+    for (it = lineBuffer.begin(); it != lineBuffer.end(); ++it) {
+
+        if (it->first == SIGNATURE_SEPARATOR && !signatureSeparatorSeen) {
+            // The first signature separator
+            signatureSeparatorSeen = true;
+            // Terminate the quotes
+            while (quoteLevel) {
+                --quoteLevel;
+                markup.last().append(closeSingleQuote);
+            }
+            markup << QLatin1String("<span class=\"signature\">-- ");
+            continue;
+        }
+
+        if (signatureSeparatorSeen) {
+            // Just copy the data
+            markup << it->second;
+            continue;
+        }
+
+        while (quoteLevel > it->first) {
+            --quoteLevel;
+            markup.last().append(closeSingleQuote);
+        }
+        QString prefix;
+        while (quoteLevel < it->first) {
+            ++quoteLevel;
+            prefix += QLatin1String("<blockquote>");
+        }
+        if (quoteLevel) {
+            prefix += QLatin1String("<span class=\"quotemarks\">");
+            for (int i = 0; i < quoteLevel; ++i) {
+                prefix += QLatin1String("&gt;");
+            }
+            prefix += QLatin1String(" </span>");
+        }
+        markup << prefix + it->second;
+    }
+    // Terminate the signature
+    if (signatureSeparatorSeen) {
+        markup.last().append(QLatin1String("</span>"));
+    }
+    // Terminate the quotes
+    while (quoteLevel) {
         --quoteLevel;
-    }
-    if (!closer.isEmpty()) {
-        Q_ASSERT(!markup.isEmpty());
-        markup.last().append(closer);
+        markup.last().append(closeSingleQuote);
     }
 
     return markup;
