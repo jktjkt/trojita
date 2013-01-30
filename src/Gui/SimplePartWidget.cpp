@@ -64,7 +64,7 @@ void SimplePartWidget::slotMarkupPlainText() {
     // NOTICE "single shot", we get a recursion otherwise!
     disconnect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
 
-    static const QString defaultStyle(
+    static const QString defaultStyle = QString::fromUtf8(
         "pre{word-wrap: break-word; white-space: pre-wrap;}"
         ".quotemarks{color:transparent;font-size:0px;}"
         "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
@@ -72,6 +72,18 @@ void SimplePartWidget::slotMarkupPlainText() {
         // (ie. starting on the third level, don't make the size any smaller than what it already is)
         "blockquote blockquote blockquote {font-size: 100%}"
         ".signature{opacity: 0.6;}"
+        // Dynamic quote collapsing via pure CSS, yay
+        "input {display: none}"
+        "input + span.short + span.full {display: block}"
+        "input + span.short {display: none}"
+        "input:checked + span.short + span.full {display: none}"
+        "input:checked + span.short {display: block}"
+        "span label {background-color: #ffffdd; border: 1px solid #333333; border-radius: 5px; padding: 0px 4px 0px 4px; margin-left: 8px}"
+        // BLACK UP-POINTING SMALL TRIANGLE (U+25B4)
+        // BLACK DOWN-POINTING SMALL TRIANGLE (U+25BE)
+        "span.full label:before {content: \"\u25b4\"}"
+        "span.short label:after {content: \" \u25be\"}"
+        "span.shortquote label {display: none}"
     );
 
     // build stylesheet and html header
@@ -96,6 +108,8 @@ void SimplePartWidget::slotMarkupPlainText() {
     static QString htmlFooter("\n</pre></body></html>");
 
     QStringList markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);
+
+    qDebug() << htmlHeader + markup.join("\n") + htmlFooter;
 
     // and finally set the marked up page.
     page()->mainFrame()->setHtml(htmlHeader + markup.join("\n") + htmlFooter);
