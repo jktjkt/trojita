@@ -60,6 +60,13 @@ QString helperHtmlifySingleLine(QString line)
     // RE instances to work on
     QRegExp link(linkRe), mail(mailRe), bold(boldRe), italic(italicRe), underline(underlineRe), anyFormatting(anyFormattingRe);
 
+    // Escape the HTML entities
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    line = Qt::escape(line);
+#else
+    line = line.toHtmlEscaped();
+#endif
+
     // Now prepare markup *bold*, /italic/ and _underline_ and also turn links into HTML.
     // This is a bit more involved because we want to apply the regular expressions in a certain order and also at the same
     // time prevent the lower-priority regexps from clobbering the output of the previous stages.
@@ -199,19 +206,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         }
     }
 
-    // Third pass: the HTML escaping
-    for (it = lineBuffer.begin(); it != lineBuffer.end(); ++it) {
-        it->second = helperHtmlifySingleLine(
-        // Escape the HTML entities
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                    Qt::escape(it->second)
-#else
-                    it->second.toHtmlEscaped()
-#endif
-                    );
-    }
-
-    // Fourth pass: adding fancy markup
+    // Third pass: HTML escaping, formatting and adding fancy markup
     signatureSeparatorSeen = false;
     int quoteLevel = 0;
     QStringList markup;
@@ -232,7 +227,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
         if (signatureSeparatorSeen) {
             // Just copy the data
-            markup << it->second;
+            markup << helperHtmlifySingleLine(it->second);
             continue;
         }
 
@@ -252,7 +247,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             }
             prefix += QLatin1String(" </span>");
         }
-        markup << prefix + it->second;
+        markup << prefix + helperHtmlifySingleLine(it->second);
     }
     // Terminate the signature
     if (signatureSeparatorSeen) {
