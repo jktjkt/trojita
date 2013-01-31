@@ -221,6 +221,22 @@ void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
                                  "<a href=\"http://example.org/(*checkout*)/pwn\">http://example.org/(*checkout*)/pwn</a>\n"
                                  "<b><span class=\"markup\">*</span><a href=\"https://domain.org/yay\">https://domain.org/yay</a><span class=\"markup\">*</span></b>");
 
+    QTest::newRow("just-underscores")
+            << QString::fromUtf8("___________")
+            << QString::fromUtf8("___________");
+
+    QTest::newRow("duplicated-formatters")
+            << QString::fromUtf8("__meh__ **blah** //boo//")
+            << QString::fromUtf8("__meh__ **blah** //boo//");
+
+    QTest::newRow("two-but-different")
+            << QString::fromUtf8("_/meh/_ *_blah_* /*boo*/")
+            << QString::fromUtf8("<u><span class=\"markup\">_</span><i><span class=\"markup\">/</span>meh"
+                                 "<span class=\"markup\">/</span></i><span class=\"markup\">_</span></u> "
+                                 "<b><span class=\"markup\">*</span><u><span class=\"markup\">_</span>blah"
+                                 "<span class=\"markup\">_</span></u><span class=\"markup\">*</span></b> "
+                                 "<i><span class=\"markup\">/</span><b><span class=\"markup\">*</span>boo"
+                                 "<span class=\"markup\">*</span></b><span class=\"markup\">/</span></i>");
 }
 
 WebRenderingTester::WebRenderingTester()

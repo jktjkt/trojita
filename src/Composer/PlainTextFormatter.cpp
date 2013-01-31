@@ -47,9 +47,9 @@ QString helperHtmlifySingleLine(QString line)
     static const QRegExp mailRe("([\\w!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9\\.\\-_]+)");
     static QString intro("(^|[\\s\\(\\[\\{])");
     static QString extro("($|[\\s\\),;.\\]\\}])");
-#define TROJITA_RE_BOLD "\\*(\\S*)\\*"
-#define TROJITA_RE_ITALIC "/(\\S*)/"
-#define TROJITA_RE_UNDERLINE "_(\\S*)_"
+#define TROJITA_RE_BOLD "\\*((?!\\*)\\S+)\\*"
+#define TROJITA_RE_ITALIC "/((?!/)\\S+)/"
+#define TROJITA_RE_UNDERLINE "_((?!_)\\S+)_"
     static const QRegExp boldRe(intro + TROJITA_RE_BOLD + extro);
     static const QRegExp italicRe(intro + TROJITA_RE_ITALIC + extro);
     static const QRegExp underlineRe(intro + TROJITA_RE_UNDERLINE + extro);
