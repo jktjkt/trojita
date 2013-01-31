@@ -24,6 +24,9 @@
 #define TEST_COMPOSER_RESPONSES
 
 #include <QTest>
+#include "Composer/PlainTextFormatter.h"
+
+class QWebView;
 
 /** @short Test sanity of data produced when responding to e-mail */
 class ComposerResponsesTest : public QObject
@@ -33,8 +36,10 @@ private slots:
     void testSubjectMangling();
     void testSubjectMangling_data();
 
-    void testPlainTextFormatting();
-    void testPlainTextFormatting_data();
+    void testPlainTextFormattingViaHtml();
+    void testPlainTextFormattingViaHtml_data();
+    void testPlainTextFormattingViaPaste();
+    void testPlainTextFormattingViaPaste_data();
 
     void testLinkRecognition();
     void testLinkRecognition_data();
@@ -47,6 +52,28 @@ private slots:
 
     void testResponseAddresses();
     void testResponseAddresses_data();
+};
+
+class WebRenderingTester: public QObject
+{
+    Q_OBJECT
+public:
+
+    typedef enum {
+        RenderDefaultCollapsing,
+        RenderExpandEverythingCollapsed
+    } CollapsingFlags;
+
+    WebRenderingTester();
+    virtual ~WebRenderingTester();
+    QString asPlainText(const QString &input, const Composer::Util::FlowedFormat format,
+                        const CollapsingFlags collapsing=RenderDefaultCollapsing);
+public slots:
+    void doDelayedLoad();
+private:
+    QWebView *m_web;
+    QEventLoop *m_loop;
+    QString sourceData;
 };
 
 #endif

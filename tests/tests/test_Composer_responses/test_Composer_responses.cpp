@@ -21,10 +21,12 @@
 */
 
 #include <QtTest>
+#include <QAction>
 #include <QTextDocument>
+#include <QWebFrame>
+#include <QWebView>
 #include "test_Composer_responses.h"
 #include "../headless_test.h"
-#include "Composer/PlainTextFormatter.h"
 #include "Composer/Recipients.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
@@ -125,7 +127,7 @@ void ComposerResponsesTest::testSubjectMangling_data()
 }
 
 /** @short Test that conversion of plaintext mail to HTML works reasonably well */
-void ComposerResponsesTest::testPlainTextFormatting()
+void ComposerResponsesTest::testPlainTextFormattingViaHtml()
 {
     QFETCH(QString, plaintext);
     QFETCH(QString, htmlFlowed);
@@ -136,7 +138,7 @@ void ComposerResponsesTest::testPlainTextFormatting()
 }
 
 /** @short Data for testPlainTextFormatting */
-void ComposerResponsesTest::testPlainTextFormatting_data()
+void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
 {
     QTest::addColumn<QString>("plaintext");
     QTest::addColumn<QString>("htmlFlowed");
@@ -195,21 +197,19 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
             << QString("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>");
 
     // Test how the quoted bits are represented
+    QString expected = QString::fromUtf8("Foo bar.\n"
+                                 "<span class=\"level\"><input type=\"checkbox\" id=\"q1\" />"
+                                 "<span class=\"short\"><blockquote><span class=\"quotemarks\">&gt; </span>blesmrt<label for=\"q1\">...</label></blockquote></span>"
+                                 "<span class=\"full\"><blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
+                                 "<span class=\"level\"><input type=\"checkbox\" id=\"q2\"/>"
+                                 "<span class=\"shortquote\"><blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita<label for=\"q2\"></label>"
+                                 "</blockquote></span></span><label for=\"q1\"></label></blockquote></span></span>\nomacka");
     QTest::newRow("quoted-1")
             << QString::fromUtf8("Foo bar.\n"
                                  "> blesmrt\n"
                                  ">>trojita\n"
                                  "omacka")
-            << QString::fromUtf8("Foo bar.\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita"
-                                 "</blockquote></blockquote>\n"
-                                 "omacka")
-            << QString::fromUtf8("Foo bar.\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita"
-                                 "</blockquote></blockquote>\n"
-                                 "omacka");
+            << expected << expected;
 
     QTest::newRow("quoted-common")
             << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
@@ -228,21 +228,19 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
                                  "-- \n"
                                  "Thiago's name goes here.\n")
             << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads "
-                                 "on an 8 core system will run make your task go faster, then Thiago is right: you don't understand your problem.</blockquote>\n"
+                                 "<span class=\"level\"><input type=\"checkbox\" id=\"q1\"/><span class=\"shortquote\"><blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make your task go faster, then Thiago is right: you don't understand your problem.<label for=\"q1\"></label></blockquote></span></span>\n"
                                  "If you run 8 threads on an 8-core system and they use the CPU fully, then you're running as fast as you can.\n"
                                  "\n"
-                                 "If you have more threads than the number of processors and if all threads are ready "
-                                 "to be executed, then the OS will schedule timeslices to each thread. That means "
-                                 "threads get executed and suspended all the time, sometimes migrating between "
-                                 "processors. That adds overhead.\n"
+                                 "If you have more threads than the number of processors and if all threads are ready to be executed, then the OS will schedule timeslices to each thread. That means threads get executed and suspended all the time, sometimes migrating between processors. That adds overhead.\n"
                                  "\n"
                                  "<span class=\"signature\">-- \n"
-                                 "Thiago's name goes here.\n</span>")
+                                 "Thiago's name goes here.\n"
+                                 "</span>")
             << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make \n"
+                                 "<span class=\"level\"><input type=\"checkbox\" id=\"q1\" /><span class=\"short\"><blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make\n"
+                                 "your task go faster, then Thiago is right: you don't understand your<label for=\"q1\">...</label></blockquote></span><span class=\"full\"><blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make \n"
                                  "your task go faster, then Thiago is right: you don't understand your \n"
-                                 "problem.</blockquote>\n"
+                                 "problem.<label for=\"q1\"></label></blockquote></span></span>\n"
                                  "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
                                  "you're running as fast as you can.\n"
                                  "\n"
@@ -252,38 +250,8 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
                                  "migrating between processors. That adds overhead.\n"
                                  "\n"
                                  "<span class=\"signature\">-- \n"
-                                 "Thiago's name goes here.\n</span>");
-
-    QTest::newRow("quoted-no-spacing")
-            << QString::fromUtf8("> foo\nbar\n> baz")
-            << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"
-                                 "bar\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>baz</blockquote>")
-            << QString::fromUtf8("<blockquote><span class=\"quotemarks\">&gt; </span>foo</blockquote>\n"
-                                 "bar\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>baz</blockquote>");
-
-    QTest::newRow("bottom-quoting")
-            << QString::fromUtf8("Foo bar.\n"
-                                 "> blesmrt\n"
-                                 ">> 333")
-            << QString::fromUtf8("Foo bar.\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>")
-            << QString::fromUtf8("Foo bar.\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>");
-
-    QTest::newRow("different-quote-levels-not-flowed-together")
-            << QString::fromUtf8("Foo bar. \n"
-                                 "> blesmrt \n"
-                                 ">> 333")
-            << QString::fromUtf8("Foo bar. \n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt \n"
-                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>")
-            << QString::fromUtf8("Foo bar. \n"
-                                 "<blockquote><span class=\"quotemarks\">&gt; </span>blesmrt \n"
-                                 "<blockquote><span class=\"quotemarks\">&gt;&gt; </span>333</blockquote></blockquote>");
+                                 "Thiago's name goes here.\n"
+                                 "</span>");
 
     QTest::newRow("multiple-links-on-line")
             << QString::fromUtf8("Hi,\n"
@@ -316,6 +284,134 @@ void ComposerResponsesTest::testPlainTextFormatting_data()
                                  "<a href=\"http://example.org/(*checkout*)/pwn\">http://example.org/(*checkout*)/pwn</a>\n"
                                  "<b><span class=\"markup\">*</span><a href=\"https://domain.org/yay\">https://domain.org/yay</a><span class=\"markup\">*</span></b>");
 
+}
+
+WebRenderingTester::WebRenderingTester()
+{
+    m_web = new QWebView(0);
+    m_loop = new QEventLoop(this);
+    connect(m_web, SIGNAL(loadFinished(bool)), m_loop, SLOT(quit()));
+}
+
+WebRenderingTester::~WebRenderingTester()
+{
+    delete m_web;
+}
+
+QString WebRenderingTester::asPlainText(const QString &input, const Composer::Util::FlowedFormat format,
+                                        const CollapsingFlags collapsing)
+{
+    // FIXME: bad pasted thing!
+    static const QString stylesheet = QString::fromUtf8(
+        "pre{word-wrap: break-word; white-space: pre-wrap;}"
+        ".quotemarks{color:transparent;font-size:0px;}"
+        "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
+        "blockquote blockquote blockquote {font-size: 100%}"
+        ".signature{opacity: 0.6;}"
+        "input {display: none}"
+        "input ~ span.full {display: block}"
+        "input ~ span.short {display: none}"
+        "input:checked ~ span.full {display: none}"
+        "input:checked ~ span.short {display: block}"
+        "label {border: 1px solid #333333; border-radius: 5px; padding: 0px 4px 0px 4px; margin-left: 8px; white-space: nowrap}"
+        "span.full > blockquote > label:before {content: \"\u25b4\"}"
+        "span.short > blockquote > label:after {content: \" \u25be\"}"
+        "span.shortquote > blockquote > label {display: none}"
+    );
+    static const QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
+    static const QString htmlFooter("\n</pre></body></html>");
+
+    sourceData = htmlHeader + Composer::Util::plainTextToHtml(input, format).join(QLatin1String("\n")) + htmlFooter;
+    if (collapsing == RenderExpandEverythingCollapsed)
+        sourceData = sourceData.replace(" checked=\"checked\"", QString());
+    QTimer::singleShot(0, this, SLOT(doDelayedLoad()));
+    m_loop->exec();
+    m_web->page()->action(QWebPage::SelectAll)->trigger();
+    return m_web->page()->selectedText();
+}
+
+void WebRenderingTester::doDelayedLoad()
+{
+    m_web->page()->mainFrame()->setHtml(sourceData);
+}
+
+void ComposerResponsesTest::testPlainTextFormattingViaPaste()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, formattedFlowed);
+    QFETCH(QString, formattedPlain);
+    QFETCH(QString, expandedFlowed);
+
+    // Allow specifying "the same" by just passing null QStrings along
+    if (formattedPlain.isEmpty())
+        formattedPlain = formattedFlowed;
+    if (expandedFlowed.isEmpty())
+        expandedFlowed = formattedFlowed;
+
+    {
+        WebRenderingTester tester;
+        QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED), formattedFlowed);
+    }
+
+    {
+        WebRenderingTester tester;
+        QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_PLAIN), formattedPlain);
+    }
+
+    {
+        WebRenderingTester tester;
+        QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
+                 expandedFlowed);
+    }
+}
+
+void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("formattedFlowed");
+    QTest::addColumn<QString>("formattedPlain");
+    QTest::addColumn<QString>("expandedFlowed");
+
+    QTest::newRow("no-quotes")
+            << QString("Sample mail message.\n")
+            << QString("Sample mail message.\n")
+            << QString() << QString();
+
+    QTest::newRow("no-quotes-flowed")
+            << QString("This is something which is split \namong a few lines \nlike this.")
+            << QString("This is something which is split among a few lines like this.")
+            << QString("This is something which is split \namong a few lines \nlike this.")
+            << QString();
+
+    // FIXME: remove excess newline between "trojita" and "omacka"
+    QTest::newRow("quote-1")
+            << QString("Foo bar.\n> blesmrt\n>>trojita\nomacka")
+            << QString("Foo bar.\n> blesmrt\n>> trojita\n\nomacka")
+            << QString() << QString();
+
+    QTest::newRow("quote-levels")
+            << QString("Zero.\n>One\n>> Two\n>>>> Four\n>>>Three\nZeroB")
+            // FIXME: extra newline in front of ZeroB
+            << QString("Zero.\n> One\n>> Two...\n\nZeroB")
+            << QString()
+            << QString("Zero.\n> One\n>> Two\n>>>> Four\n>>> Three\n\nZeroB");
+
+    QTest::newRow("quoted-no-spacing")
+            << QString("> foo\nbar\n> baz")
+            << QString("> foo\nbar\n> baz")
+            << QString() << QString();
+
+    QTest::newRow("bottom-quoting")
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333")
+            << QString::fromUtf8("Foo bar.\n> blesmrt...\n")
+            << QString()
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n");
+
+    QTest::newRow("different-quote-levels-not-flowed-together")
+            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
+            << QString::fromUtf8("Foo bar. \n> blesmrt...\n")
+            << QString::fromUtf8("Foo bar. \n> blesmrt...\n")
+            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n");
 }
 
 /** @short Test that the link recognition in plaintext -> HTML formatting recognizes the interesting links */
