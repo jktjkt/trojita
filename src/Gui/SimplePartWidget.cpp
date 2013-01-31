@@ -74,16 +74,16 @@ void SimplePartWidget::slotMarkupPlainText() {
         ".signature{opacity: 0.6;}"
         // Dynamic quote collapsing via pure CSS, yay
         "input {display: none}"
-        "input + span.short + span.full {display: block}"
-        "input + span.short {display: none}"
-        "input:checked + span.short + span.full {display: none}"
-        "input:checked + span.short {display: block}"
-        "span label {background-color: #ffffdd; border: 1px solid #333333; border-radius: 5px; padding: 0px 4px 0px 4px; margin-left: 8px}"
+        "input ~ span.full {display: block}"
+        "input ~ span.short {display: none}"
+        "input:checked ~ span.full {display: none}"
+        "input:checked ~ span.short {display: block}"
+        "span.level label {background-color: #ffffdd; border: 1px solid #333333; border-radius: 5px; padding: 0px 4px 0px 4px; margin-left: 8px}"
         // BLACK UP-POINTING SMALL TRIANGLE (U+25B4)
         // BLACK DOWN-POINTING SMALL TRIANGLE (U+25BE)
-        "span.full label:before {content: \"\u25b4\"}"
-        "span.short label:after {content: \" \u25be\"}"
-        "span.shortquote label {display: none}"
+        "span.full > blockquote > label:before {content: \"\u25b4\"}"
+        "span.short > blockquote > label:after {content: \" \u25be\"}"
+        "span.shortquote > label {display: none}"
     );
 
     // build stylesheet and html header

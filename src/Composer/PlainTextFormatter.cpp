@@ -308,6 +308,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
         if (quoteLevel < it->first) {
             // We're going deeper in the quote hierarchy
+            QString line;
             while (quoteLevel < it->first) {
                 ++quoteLevel;
 
@@ -372,23 +373,26 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                 if (/* FIXME*/ false && preview == it->second) {
                     // special case: the quote is very short, no point in making it collapsible
-                    markup << QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
-                              + QLatin1String("<span class=\"shortquote\">") + openingBlockquotes + quotemarks
-                              + helperHtmlifySingleLine(it->second);
+                    line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
+                            + QLatin1String("<span class=\"shortquote\">") + openingBlockquotes + quotemarks
+                            + helperHtmlifySingleLine(it->second);
                 } else {
-                    // FIXME: BUG: quote nesting (>>>, >>, >, 0) doesn't work correctly here
                     bool collapsed = nothingButQuotesAndSpaceTillSignature || quoteLevel > 1;
-                    markup << QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
-                              .arg(QString::number(interactiveControlsId),
-                                   collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
-                              + QLatin1String("<span class=\"short\">") + openingBlockquotes + quotemarks
-                                + helperHtmlifySingleLine(preview)
-                                + QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId)
-                                + closingBlockquotes + QLatin1String("</span>")
-                              + QLatin1String("<span class=\"full\">")
-                                + openingBlockquotes + quotemarks + helperHtmlifySingleLine(it->second);
+                    line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
+                            .arg(QString::number(interactiveControlsId),
+                                 collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
+                            + QLatin1String("<span class=\"short\">") + openingBlockquotes + quotemarks
+                              + helperHtmlifySingleLine(preview)
+                              + QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId)
+                              + closingBlockquotes + QLatin1String("</span>")
+                            + QLatin1String("<span class=\"full\">") + openingBlockquotes;
+                    if (quoteLevel == it->first) {
+                        // We're now finally on the correct level of nesting so we can output the current line
+                        line += quotemarks + helperHtmlifySingleLine(it->second);
+                    }
                 }
             }
+            markup << line;
         } else {
             // Either no quotation or we're continuing an old quote block and there was a nested quotation before
             markup << quotemarks + helperHtmlifySingleLine(it->second);
