@@ -196,21 +196,6 @@ void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
             << QString("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>")
             << QString("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>");
 
-    // Test how the quoted bits are represented
-    QString expected = QString::fromUtf8("Foo bar.\n"
-                                 "<span class=\"level\"><input type=\"checkbox\" id=\"q1\" />"
-                                 "<span class=\"short\"><blockquote><span class=\"quotemarks\">&gt; </span>blesmrt<label for=\"q1\">...</label></blockquote></span>"
-                                 "<span class=\"full\"><blockquote><span class=\"quotemarks\">&gt; </span>blesmrt\n"
-                                 "<span class=\"level\"><input type=\"checkbox\" id=\"q2\"/>"
-                                 "<span class=\"shortquote\"><blockquote><span class=\"quotemarks\">&gt;&gt; </span>trojita<label for=\"q2\"></label>"
-                                 "</blockquote></span></span><label for=\"q1\"></label></blockquote></span></span>\nomacka");
-    QTest::newRow("quoted-1")
-            << QString::fromUtf8("Foo bar.\n"
-                                 "> blesmrt\n"
-                                 ">>trojita\n"
-                                 "omacka")
-            << expected << expected;
-
     QTest::newRow("multiple-links-on-line")
             << QString::fromUtf8("Hi,\n"
                                  "http://meh/ http://pwn/now foo@bar http://wtf\n"
