@@ -83,7 +83,7 @@ void SimplePartWidget::slotMarkupPlainText() {
         // BLACK DOWN-POINTING SMALL TRIANGLE (U+25BE)
         "span.full > blockquote > label:before {content: \"\u25b4\"}"
         "span.short > blockquote > label:after {content: \" \u25be\"}"
-        "span.shortquote > label {display: none}"
+        "span.shortquote > blockquote > label {display: none}"
     );
 
     // build stylesheet and html header

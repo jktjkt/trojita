@@ -371,7 +371,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 qDebug() << openingBlockquotes << closingBlockquotes;
                 qDebug() << it->second.left(40);
 
-                if (/* FIXME*/ false && preview == it->second) {
+                if (preview == it->second && quoteLevel == it->first) {
                     // special case: the quote is very short, no point in making it collapsible
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
                             + QLatin1String("<span class=\"shortquote\">") + openingBlockquotes + quotemarks
