@@ -134,36 +134,21 @@ QString helperHtmlifySingleLine(QString line)
 }
 
 
-/** @short Return a preview of first N non-empty "lines of an input". Each line is capped at the charsPerLine characters. */
+/** @short Return a preview of the quoted text
+
+The goal is to produce "roughly N" lines of non-empty text. Blanks are ignored and
+lines longer than charsPerLine are broken into multiple chunks.
+*/
 QString firstNLines(const QString &input, int numLines, const int charsPerLine)
 {
-    QStringList buf = input.split(QLatin1Char('\n'));
-    QStringList::iterator it = buf.begin();
-    while (it != buf.end()) {
-        *it = it->trimmed();
-        if (it->isEmpty()) {
-            it = buf.erase(it);
-        } else if (it->size() > charsPerLine) {
-            int pos = it->indexOf(QLatin1Char(' '), charsPerLine);
-            if (pos != -1) {
-                QString rest = it->mid(pos + 1);
-                *it = it->left(pos);
-                it = buf.insert(it + 1, rest);
-                ++it;
-                --numLines;
-            } else {
-                ++it;
-                --numLines;
-            }
-        } else {
-            ++it;
-            --numLines;
-        }
-        if (numLines <= 0) {
-            it = buf.erase(it, buf.end());
-        }
+    QString out = input.section(QLatin1Char('\n'), 0, numLines, QString::SectionSkipEmpty);
+    const int cutoff = numLines * charsPerLine;
+    if (out.size() > cutoff) {
+        int pos = input.indexOf(QLatin1Char(' '), cutoff);
+        if (pos != -1)
+            return out.left(pos);
     }
-    return buf.join(QLatin1String("\n"));
+    return out;
 }
 
 /** @short Helper for closing blockquotes and adding the interactive control elements at the right places */
@@ -369,7 +354,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                     // special case: the quote is very short, no point in making it collapsible
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
                             + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
-                            + helperHtmlifySingleLine(it->second);
+                            + helperHtmlifySingleLine(it->second).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
                 } else {
                     bool collapsed = nothingButQuotesAndSpaceTillSignature
                             || quoteLevel > 1
@@ -385,14 +370,16 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             + QLatin1String("<span class=\"full\"><blockquote>");
                     if (quoteLevel == it->first) {
                         // We're now finally on the correct level of nesting so we can output the current line
-                        line += quotemarks + helperHtmlifySingleLine(it->second);
+                        line += quotemarks + helperHtmlifySingleLine(it->second)
+                                .replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
                     }
                 }
             }
             markup << line;
         } else {
             // Either no quotation or we're continuing an old quote block and there was a nested quotation before
-            markup << quotemarks + helperHtmlifySingleLine(it->second);
+            markup << quotemarks + helperHtmlifySingleLine(it->second)
+                      .replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
         }
     }
 

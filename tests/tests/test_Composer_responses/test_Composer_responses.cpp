@@ -211,48 +211,6 @@ void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
                                  "omacka")
             << expected << expected;
 
-    QTest::newRow("quoted-common")
-            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
-                                 "> If you think that running 21 threads on an 8 core system will run make \n"
-                                 "> your task go faster, then Thiago is right: you don't understand your \n"
-                                 "> problem.\n"
-                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
-                                 "you're running as fast as you can.\n"
-                                 "\n"
-                                 "If you have more threads than the number of processors and if all threads are \n"
-                                 "ready to be executed, then the OS will schedule timeslices to each thread. \n"
-                                 "That means threads get executed and suspended all the time, sometimes \n"
-                                 "migrating between processors. That adds overhead.\n"
-                                 // yes, some parts have been removed here.
-                                 "\n"
-                                 "-- \n"
-                                 "Thiago's name goes here.\n")
-            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
-                                 "<span class=\"level\"><input type=\"checkbox\" id=\"q1\"/><span class=\"shortquote\"><blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make your task go faster, then Thiago is right: you don't understand your problem.<label for=\"q1\"></label></blockquote></span></span>\n"
-                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then you're running as fast as you can.\n"
-                                 "\n"
-                                 "If you have more threads than the number of processors and if all threads are ready to be executed, then the OS will schedule timeslices to each thread. That means threads get executed and suspended all the time, sometimes migrating between processors. That adds overhead.\n"
-                                 "\n"
-                                 "<span class=\"signature\">-- \n"
-                                 "Thiago's name goes here.\n"
-                                 "</span>")
-            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
-                                 "<span class=\"level\"><input type=\"checkbox\" id=\"q1\" /><span class=\"short\"><blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make\n"
-                                 "your task go faster, then Thiago is right: you don't understand your<label for=\"q1\">...</label></blockquote></span><span class=\"full\"><blockquote><span class=\"quotemarks\">&gt; </span>If you think that running 21 threads on an 8 core system will run make \n"
-                                 "your task go faster, then Thiago is right: you don't understand your \n"
-                                 "problem.<label for=\"q1\"></label></blockquote></span></span>\n"
-                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
-                                 "you're running as fast as you can.\n"
-                                 "\n"
-                                 "If you have more threads than the number of processors and if all threads are \n"
-                                 "ready to be executed, then the OS will schedule timeslices to each thread. \n"
-                                 "That means threads get executed and suspended all the time, sometimes \n"
-                                 "migrating between processors. That adds overhead.\n"
-                                 "\n"
-                                 "<span class=\"signature\">-- \n"
-                                 "Thiago's name goes here.\n"
-                                 "</span>");
-
     QTest::newRow("multiple-links-on-line")
             << QString::fromUtf8("Hi,\n"
                                  "http://meh/ http://pwn/now foo@bar http://wtf\n"
@@ -335,6 +293,22 @@ void WebRenderingTester::doDelayedLoad()
     m_web->page()->mainFrame()->setHtml(sourceData);
 }
 
+// ...because QCOMPARE uses a fixed buffer for 1024 bytes for the debug printing...
+#define LONG_STR_QCOMPARE(WHAT, EXPECTED) \
+{ \
+    if (EXPECTED.size() < 350) { \
+        QCOMPARE(WHAT, EXPECTED); \
+    } else { \
+        QString actual = WHAT; \
+        if (actual != EXPECTED) {\
+            qDebug() << actual; \
+            qDebug() << EXPECTED; \
+            qDebug() << #WHAT; \
+        }; \
+        QVERIFY(actual == EXPECTED); \
+    } \
+}
+
 void ComposerResponsesTest::testPlainTextFormattingViaPaste()
 {
     QFETCH(QString, source);
@@ -350,17 +324,17 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste()
 
     {
         WebRenderingTester tester;
-        QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED), formattedFlowed);
+        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED), formattedFlowed);
     }
 
     {
         WebRenderingTester tester;
-        QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_PLAIN), formattedPlain);
+        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_PLAIN), formattedPlain);
     }
 
     {
         WebRenderingTester tester;
-        QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
+        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
                  expandedFlowed);
     }
 }
@@ -409,9 +383,71 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("different-quote-levels-not-flowed-together")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
-            << QString::fromUtf8("Foo bar. \n> blesmrt...\n")
-            << QString::fromUtf8("Foo bar. \n> blesmrt...\n")
+            << QString::fromUtf8("Foo bar. \n> blesmrt ...\n")
+            << QString::fromUtf8("Foo bar. \n> blesmrt ...\n")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n");
+
+    QString lipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut "
+                                       "labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
+                                       "laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in "
+                                       "voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat "
+                                       "cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    QString shortLipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt "
+                                            "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation "
+                                            "ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit "
+                                            "in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur");
+
+    QTest::newRow("collapsed-last-quote")
+            << QString::fromUtf8("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum
+            << QString::fromUtf8("Some real text.\n> ") + shortLipsum + "...\n"
+            << QString()
+            << QString::fromUtf8("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum + "\n";
+
+    QTest::newRow("quoted-common")
+            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                 "> If you think that running 21 threads on an 8 core system will run make \n"
+                                 "> your task go faster, then Thiago is right: you don't understand your \n"
+                                 "> problem.\n"
+                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
+                                 "you're running as fast as you can.\n"
+                                 "\n"
+                                 "If you have more threads than the number of processors and if all threads are \n"
+                                 "ready to be executed, then the OS will schedule timeslices to each thread. \n"
+                                 "That means threads get executed and suspended all the time, sometimes \n"
+                                 "migrating between processors. That adds overhead.\n"
+                                 // yes, some parts have been removed here.
+                                 "\n"
+                                 "-- \n"
+                                 "Thiago's name goes here.\n")
+            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                 "> If you think that running 21 threads on an 8 core system will run make "
+                                 "your task go faster, then Thiago is right: you don't understand your "
+                                 "problem.\n"
+                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then "
+                                 "you're running as fast as you can.\n"
+                                 "\n"
+                                 "If you have more threads than the number of processors and if all threads are "
+                                 "ready to be executed, then the OS will schedule timeslices to each thread. "
+                                 "That means threads get executed and suspended all the time, sometimes "
+                                 "migrating between processors. That adds overhead.\n"
+                                 "\n"
+                                 "-- \n"
+                                 "Thiago's name goes here.\n")
+            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+                                 "> If you think that running 21 threads on an 8 core system will run make \n"
+                                 "> your task go faster, then Thiago is right: you don't understand your \n"
+                                 "> problem.\n"
+                                 "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
+                                 "you're running as fast as you can.\n"
+                                 "\n"
+                                 "If you have more threads than the number of processors and if all threads are \n"
+                                 "ready to be executed, then the OS will schedule timeslices to each thread. \n"
+                                 "That means threads get executed and suspended all the time, sometimes \n"
+                                 "migrating between processors. That adds overhead.\n"
+                                 "\n"
+                                 "-- \n"
+                                 "Thiago's name goes here.\n")
+            << QString();
 }
 
 /** @short Test that the link recognition in plaintext -> HTML formatting recognizes the interesting links */
