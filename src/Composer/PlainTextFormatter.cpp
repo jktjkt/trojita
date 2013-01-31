@@ -288,6 +288,10 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             quotemarks += QLatin1String(" </span>");
         }
 
+        static const int previewLines = 2;
+        static const int charsPerLineEquivalent = 160;
+        static const int forceCollapseAfterLines = 20;
+
         if (quoteLevel < it->first) {
             // We're going deeper in the quote hierarchy
             QString line;
@@ -309,7 +313,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                         ++interactiveControlsId;
                         controlStack.push(qMakePair(quoteLevel, interactiveControlsId));
 
-                        preview = firstNLines(runner->second, 2, 160);
+                        preview = firstNLines(runner->second, previewLines, charsPerLineEquivalent);
                         if (runner != it) {
                             // we have skipped something, make it obvious to the user
                             previewPrefix = QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId);
@@ -342,15 +346,27 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                     }
                 }
 
+                // Size of the current level, including the nested stuff
+                int currentLevelCharCount = 0;
+                int currentLevelLineCount = 0;
+                runner = it;
+                while (runner != lineBuffer.end() && runner->first >= quoteLevel) {
+                    currentLevelCharCount += runner->second.size();
+                    // one for the actual block
+                    currentLevelLineCount += runner->second.count(QLatin1Char('\n')) + 1;
+                    ++runner;
+                }
+
+
                 if (!anythingOnJustThisLevel) {
                     // no need for fancy UI controls
                     line += QLatin1String("<blockquote>");
                     continue;
                 }
 
-                if (preview == it->second && quoteLevel == it->first &&
-                        // also make sure that it isn't just like "> short" ">> something..." "> other stuff..."
-                        (it + 1 == lineBuffer.end() || (it+1)->first <= it->first)) {
+                if (quoteLevel == it->first
+                        && currentLevelCharCount < charsPerLineEquivalent * previewLines
+                        && currentLevelLineCount < previewLines) {
                     // special case: the quote is very short, no point in making it collapsible
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
                             + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
@@ -358,8 +374,9 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 } else {
                     bool collapsed = nothingButQuotesAndSpaceTillSignature
                             || quoteLevel > 1
-                            || it->second.size() > 80 * 20
-                            || it->second.count(QLatin1Char('\n')) > 20;
+                            || currentLevelCharCount >= charsPerLineEquivalent * forceCollapseAfterLines
+                            || currentLevelLineCount >= forceCollapseAfterLines;
+
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
                             .arg(QString::number(interactiveControlsId),
                                  collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())

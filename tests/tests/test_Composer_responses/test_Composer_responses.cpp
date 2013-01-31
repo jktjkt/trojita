@@ -437,6 +437,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
                                  "> If you think that running 21 threads on an 8 core system will run make \n"
                                  "> your task go faster, then Thiago is right: you don't understand your \n"
                                  "> problem.\n"
+                                 "\n"
                                  "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
                                  "you're running as fast as you can.\n"
                                  "\n"
