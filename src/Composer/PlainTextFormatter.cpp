@@ -318,12 +318,27 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                 // A short summary of the quotation
                 QString preview;
+                QString previewPrefix;
 
                 QList<QPair<int, QString> >::iterator runner = it;
                 while (runner != lineBuffer.end()) {
                     if (runner->first == quoteLevel) {
                         anythingOnJustThisLevel = true;
+
+                        ++interactiveControlsId;
+                        qDebug() << "*** pushing into the control stack ***";
+                        controlStack.push(qMakePair(quoteLevel, interactiveControlsId));
+                        qDebug() << controlStack;
+
                         preview = firstNLines(runner->second, 2, 160);
+                        if (runner != it) {
+                            // we have skipped something, make it obvious to the user
+                            previewPrefix = QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId);
+                            while (runner != it) {
+                                --runner;
+                                previewPrefix = QLatin1String("<blockquote>") + previewPrefix + QLatin1String("</blockquote>");
+                            }
+                        }
                         break;
                     }
                     if (runner->first < quoteLevel) {
@@ -359,11 +374,6 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                     continue;
                 }
 
-                ++interactiveControlsId;
-                qDebug() << "*** pushing into the control stack ***";
-                controlStack.push(qMakePair(quoteLevel, interactiveControlsId));
-                qDebug() << controlStack;
-
                 qDebug() << it->second.left(40);
 
                 if (preview == it->second && quoteLevel == it->first &&
@@ -382,7 +392,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             .arg(QString::number(interactiveControlsId),
                                  collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
                             + QLatin1String("<span class=\"short\"><blockquote>") + quotemarks
-                              + helperHtmlifySingleLine(preview)
+                              + previewPrefix + helperHtmlifySingleLine(preview)
                               + QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId)
                               + QLatin1String("</blockquote></span>")
                             + QLatin1String("<span class=\"full\"><blockquote>");
