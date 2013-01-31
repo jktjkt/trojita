@@ -127,7 +127,7 @@ void ComposerResponsesTest::testSubjectMangling_data()
 }
 
 /** @short Test that conversion of plaintext mail to HTML works reasonably well */
-void ComposerResponsesTest::testPlainTextFormattingViaHtml()
+void ComposerResponsesTest::testPlainTextFormattingFlowed()
 {
     QFETCH(QString, plaintext);
     QFETCH(QString, htmlFlowed);
@@ -138,7 +138,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaHtml()
 }
 
 /** @short Data for testPlainTextFormatting */
-void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
+void ComposerResponsesTest::testPlainTextFormattingFlowed_data()
 {
     QTest::addColumn<QString>("plaintext");
     QTest::addColumn<QString>("htmlFlowed");
@@ -150,50 +150,53 @@ void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
     QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n") << QString("\n\n");
 
     QTest::newRow("minimal") << QString("ahoj") << QString("ahoj") << QString("ahoj");
+}
+
+void ComposerResponsesTest::testPlainTextFormattingViaHtml()
+{
+    QFETCH(QString, plaintext);
+    QFETCH(QString, html);
+
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED).join(QLatin1String("\n")), html);
+}
+
+void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
+{
+    QTest::addColumn<QString>("plaintext");
+    QTest::addColumn<QString>("html");
+
     QTest::newRow("containing-html")
             << QString("<p>ahoj &amp; blesmrt</p>")
-            << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;")
             << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
-    QTest::newRow("basic-formatting-1") << QString("foo bar") << QString("foo bar") << QString("foo bar");
+    QTest::newRow("basic-formatting-1") << QString("foo bar") << QString("foo bar");
     QTest::newRow("basic-formatting-2")
             << QString("ahoj *cau* nazdar")
-            << QString("ahoj <b><span class=\"markup\">*</span>cau<span class=\"markup\">*</span></b> nazdar")
             << QString("ahoj <b><span class=\"markup\">*</span>cau<span class=\"markup\">*</span></b> nazdar");
     QTest::newRow("basic-formatting-3")
             << QString("/ahoj/ *cau*")
-            << QString("<i><span class=\"markup\">/</span>ahoj<span class=\"markup\">/</span></i> <b><span class=\"markup\">*</span>cau<span class=\"markup\">*</span></b>")
             << QString("<i><span class=\"markup\">/</span>ahoj<span class=\"markup\">/</span></i> <b><span class=\"markup\">*</span>cau<span class=\"markup\">*</span></b>");
     QTest::newRow("basic-formatting-4")
             << QString("ahoj *_cau_* nazdar")
-            << QString("ahoj <b><span class=\"markup\">*</span><u><span class=\"markup\">_</span>cau"
-                       "<span class=\"markup\">_</span></u><span class=\"markup\">*</span></b> nazdar")
             << QString("ahoj <b><span class=\"markup\">*</span><u><span class=\"markup\">_</span>cau"
                        "<span class=\"markup\">_</span></u><span class=\"markup\">*</span></b> nazdar");
     QTest::newRow("basic-formatting-666")
             << QString("foo *bar* _baz_ /pwn/ yay foo@ @bar @ blesmrt")
             << QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
                        "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
-                       "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay foo@ @bar @ blesmrt")
-            << QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
-                       "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
                        "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay foo@ @bar @ blesmrt");
     QTest::newRow("formatting-and-newlines")
             << QString("*blesmrt*\ntrojita")
-            << QString("<b><span class=\"markup\">*</span>blesmrt<span class=\"markup\">*</span></b>\ntrojita")
             << QString("<b><span class=\"markup\">*</span>blesmrt<span class=\"markup\">*</span></b>\ntrojita");
     QTest::newRow("links")
             << QString("ahoj http://pwn:123/foo?bar&baz#nope")
-            << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>")
             << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
     // Test our escaping
     QTest::newRow("escaping-1")
             << QString::fromUtf8("<>&&gt; § §gt; §para;\n")
-            << QString::fromUtf8("&lt;&gt;&amp;&amp;gt; § §gt; §para;\n")
             << QString::fromUtf8("&lt;&gt;&amp;&amp;gt; § §gt; §para;\n");
 
     QTest::newRow("mailto-1")
             << QString("ble.smrt-1_2+3@example.org")
-            << QString("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>")
             << QString("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>");
 
     QTest::newRow("multiple-links-on-line")
@@ -208,21 +211,12 @@ void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
                                     "<a href=\"mailto:foo@bar\">foo@bar</a> <a href=\"http://wtf\">http://wtf</a>\n"
                                  "nothing <a href=\"mailto:x@y.org\">x@y.org</a>\n"
                                  "<a href=\"mailto:foo@example.org\">foo@example.org</a> else\n"
-                                 "<a href=\"mailto:test@domain\">test@domain</a>")
-            << QString::fromUtf8("Hi,\n"
-                                 "<a href=\"http://meh/\">http://meh/</a> <a href=\"http://pwn/now\">http://pwn/now</a> "
-                                    "<a href=\"mailto:foo@bar\">foo@bar</a> <a href=\"http://wtf\">http://wtf</a>\n"
-                                 "nothing <a href=\"mailto:x@y.org\">x@y.org</a>\n"
-                                 "<a href=\"mailto:foo@example.org\">foo@example.org</a> else\n"
                                  "<a href=\"mailto:test@domain\">test@domain</a>");
 
     QTest::newRow("http-link-with-nested-mail-and-formatting-chars")
             << QString::fromUtf8("http://example.org/meh/yay/?foo=test@example.org\n"
                                  "http://example.org/(*checkout*)/pwn\n"
                                  "*https://domain.org/yay*")
-            << QString::fromUtf8("<a href=\"http://example.org/meh/yay/?foo=test@example.org\">http://example.org/meh/yay/?foo=test@example.org</a>\n"
-                                 "<a href=\"http://example.org/(*checkout*)/pwn\">http://example.org/(*checkout*)/pwn</a>\n"
-                                 "<b><span class=\"markup\">*</span><a href=\"https://domain.org/yay\">https://domain.org/yay</a><span class=\"markup\">*</span></b>")
             << QString::fromUtf8("<a href=\"http://example.org/meh/yay/?foo=test@example.org\">http://example.org/meh/yay/?foo=test@example.org</a>\n"
                                  "<a href=\"http://example.org/(*checkout*)/pwn\">http://example.org/(*checkout*)/pwn</a>\n"
                                  "<b><span class=\"markup\">*</span><a href=\"https://domain.org/yay\">https://domain.org/yay</a><span class=\"markup\">*</span></b>");

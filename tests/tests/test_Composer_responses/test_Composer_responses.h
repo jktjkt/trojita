@@ -36,6 +36,9 @@ private slots:
     void testSubjectMangling();
     void testSubjectMangling_data();
 
+    void testPlainTextFormattingFlowed();
+    void testPlainTextFormattingFlowed_data();
+
     void testPlainTextFormattingViaHtml();
     void testPlainTextFormattingViaHtml_data();
     void testPlainTextFormattingViaPaste();
