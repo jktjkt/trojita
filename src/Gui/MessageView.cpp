@@ -71,7 +71,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
 
     emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
     emptyView->setFixedSize(450,300);
-    QMetaObject::invokeMethod(emptyView, "handlePageLoadFinished", Qt::QueuedConnection, Q_ARG(bool, true));
+    QMetaObject::invokeMethod(emptyView, "handlePageLoadFinished", Qt::QueuedConnection);
     emptyView->setPage(new UserAgentWebPage(emptyView));
     emptyView->installEventFilter(this);
     emptyView->setAutoFillBackground(false);

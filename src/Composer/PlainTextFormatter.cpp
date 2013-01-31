@@ -23,6 +23,7 @@
 
 #include <QObject>
 #include <QPair>
+#include <QStack>
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QTextDocument>
 #endif
@@ -59,6 +60,13 @@ QString helperHtmlifySingleLine(QString line)
 
     // RE instances to work on
     QRegExp link(linkRe), mail(mailRe), bold(boldRe), italic(italicRe), underline(underlineRe), anyFormatting(anyFormattingRe);
+
+    // Escape the HTML entities
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    line = Qt::escape(line);
+#else
+    line = line.toHtmlEscaped();
+#endif
 
     // Now prepare markup *bold*, /italic/ and _underline_ and also turn links into HTML.
     // This is a bit more involved because we want to apply the regular expressions in a certain order and also at the same
@@ -123,6 +131,48 @@ QString helperHtmlifySingleLine(QString line)
     }
 
     return line;
+}
+
+
+/** @short Return a preview of the quoted text
+
+The goal is to produce "roughly N" lines of non-empty text. Blanks are ignored and
+lines longer than charsPerLine are broken into multiple chunks.
+*/
+QString firstNLines(const QString &input, int numLines, const int charsPerLine)
+{
+    Q_ASSERT(numLines >= 2);
+    QString out = input.section(QLatin1Char('\n'), 0, numLines - 1, QString::SectionSkipEmpty);
+    const int cutoff = numLines * charsPerLine;
+    if (out.size() > cutoff) {
+        int pos = input.indexOf(QLatin1Char(' '), cutoff);
+        if (pos != -1)
+            return out.left(pos);
+    }
+    return out;
+}
+
+/** @short Helper for closing blockquotes and adding the interactive control elements at the right places */
+void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack, int &quoteLevel, const int finalQuoteLevel)
+{
+    static QString closingLabel("<label for=\"q%1\"></label>");
+    static QLatin1String closeSingleQuote("</blockquote>");
+    static QLatin1String closeQuoteBlock("</span></span>");
+
+    Q_ASSERT(quoteLevel >= finalQuoteLevel);
+
+    while (quoteLevel > finalQuoteLevel) {
+        // Check whether an interactive control element is supposed to be present here
+        bool controlBlock = !controlStack.isEmpty() && (quoteLevel == controlStack.top().first);
+        if (controlBlock) {
+            markup.last().append(closingLabel.arg(controlStack.pop().second));
+        }
+        markup.last().append(closeSingleQuote);
+        --quoteLevel;
+        if (controlBlock) {
+            markup.last().append(closeQuoteBlock);
+        }
+    }
 }
 
 QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
@@ -199,70 +249,169 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         }
     }
 
-    // Third pass: the HTML escaping
-    for (it = lineBuffer.begin(); it != lineBuffer.end(); ++it) {
-        it->second = helperHtmlifySingleLine(
-        // Escape the HTML entities
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                    Qt::escape(it->second)
-#else
-                    it->second.toHtmlEscaped()
-#endif
-                    );
-    }
-
-    // Fourth pass: adding fancy markup
+    // Third pass: HTML escaping, formatting and adding fancy markup
     signatureSeparatorSeen = false;
     int quoteLevel = 0;
     QStringList markup;
-    static QLatin1String closeSingleQuote("</blockquote>");
+    int interactiveControlsId = 0;
+    QStack<QPair<int,int> > controlStack;
     for (it = lineBuffer.begin(); it != lineBuffer.end(); ++it) {
 
         if (it->first == SIGNATURE_SEPARATOR && !signatureSeparatorSeen) {
             // The first signature separator
             signatureSeparatorSeen = true;
-            // Terminate the quotes
-            while (quoteLevel) {
-                --quoteLevel;
-                markup.last().append(closeSingleQuote);
-            }
+            closeQuotesUpTo(markup, controlStack, quoteLevel, 0);
             markup << QLatin1String("<span class=\"signature\">-- ");
             continue;
         }
 
         if (signatureSeparatorSeen) {
             // Just copy the data
-            markup << it->second;
+            markup << helperHtmlifySingleLine(it->second);
             continue;
         }
 
-        while (quoteLevel > it->first) {
-            --quoteLevel;
-            markup.last().append(closeSingleQuote);
+        Q_ASSERT(quoteLevel == 0 || quoteLevel != it->first);
+
+        if (quoteLevel > it->first) {
+            // going back in the quote hierarchy
+            closeQuotesUpTo(markup, controlStack, quoteLevel, it->first);
         }
-        QString prefix;
-        while (quoteLevel < it->first) {
-            ++quoteLevel;
-            prefix += QLatin1String("<blockquote>");
-        }
-        if (quoteLevel) {
-            prefix += QLatin1String("<span class=\"quotemarks\">");
-            for (int i = 0; i < quoteLevel; ++i) {
-                prefix += QLatin1String("&gt;");
+
+        // Pretty-formatted block of the ">>>" characters
+        QString quotemarks;
+
+        if (it->first) {
+            quotemarks += QLatin1String("<span class=\"quotemarks\">");
+            for (int i = 0; i < it->first; ++i) {
+                quotemarks += QLatin1String("&gt;");
             }
-            prefix += QLatin1String(" </span>");
+            quotemarks += QLatin1String(" </span>");
         }
-        markup << prefix + it->second;
+
+        static const int previewLines = 2;
+        static const int charsPerLineEquivalent = 160;
+        static const int forceCollapseAfterLines = 20;
+
+        if (quoteLevel < it->first) {
+            // We're going deeper in the quote hierarchy
+            QString line;
+            while (quoteLevel < it->first) {
+                ++quoteLevel;
+
+                // Check whether there is anything at the newly entered level of nesting
+                bool anythingOnJustThisLevel = false;
+
+                // A short summary of the quotation
+                QString preview;
+                QString previewPrefix;
+
+                QList<QPair<int, QString> >::iterator runner = it;
+                while (runner != lineBuffer.end()) {
+                    if (runner->first == quoteLevel) {
+                        anythingOnJustThisLevel = true;
+
+                        ++interactiveControlsId;
+                        controlStack.push(qMakePair(quoteLevel, interactiveControlsId));
+
+                        preview = firstNLines(runner->second, previewLines, charsPerLineEquivalent);
+                        if (runner != it) {
+                            // we have skipped something, make it obvious to the user
+                            previewPrefix = QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId);
+                            while (runner != it) {
+                                --runner;
+                                previewPrefix = QLatin1String("<blockquote>") + previewPrefix + QLatin1String("</blockquote>");
+                            }
+                        }
+                        break;
+                    }
+                    if (runner->first < quoteLevel) {
+                        // This means that we have left the current level of nesting, so there cannot possible be anything else
+                        // at the current level of nesting *and* in the current quote block
+                        break;
+                    }
+                    ++runner;
+                }
+
+                // Is there nothing but quotes until the end of mail or until the signature separator?
+                bool nothingButQuotesAndSpaceTillSignature = true;
+                runner = it;
+                while (++runner != lineBuffer.end()) {
+                    if (runner->first == SIGNATURE_SEPARATOR)
+                        break;
+                    if (runner->first > 0)
+                        continue;
+                    if (runner->first == 0 && !runner->second.isEmpty()) {
+                        nothingButQuotesAndSpaceTillSignature = false;
+                        break;
+                    }
+                }
+
+                // Size of the current level, including the nested stuff
+                int currentLevelCharCount = 0;
+                int currentLevelLineCount = 0;
+                runner = it;
+                while (runner != lineBuffer.end() && runner->first >= quoteLevel) {
+                    currentLevelCharCount += runner->second.size();
+                    // one for the actual block
+                    currentLevelLineCount += runner->second.count(QLatin1Char('\n')) + 1;
+                    ++runner;
+                }
+
+
+                if (!anythingOnJustThisLevel) {
+                    // no need for fancy UI controls
+                    line += QLatin1String("<blockquote>");
+                    continue;
+                }
+
+                if (quoteLevel == it->first
+                        && currentLevelCharCount <= charsPerLineEquivalent * previewLines
+                        && currentLevelLineCount <= previewLines) {
+                    // special case: the quote is very short, no point in making it collapsible
+                    line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
+                            + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
+                            + helperHtmlifySingleLine(it->second).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
+                } else {
+                    bool collapsed = nothingButQuotesAndSpaceTillSignature
+                            || quoteLevel > 1
+                            || currentLevelCharCount >= charsPerLineEquivalent * forceCollapseAfterLines
+                            || currentLevelLineCount >= forceCollapseAfterLines;
+
+                    line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
+                            .arg(QString::number(interactiveControlsId),
+                                 collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
+                            + QLatin1String("<span class=\"short\"><blockquote>") + quotemarks
+                              + previewPrefix + helperHtmlifySingleLine(preview)
+                              + QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId)
+                              + QLatin1String("</blockquote></span>")
+                            + QLatin1String("<span class=\"full\"><blockquote>");
+                    if (quoteLevel == it->first) {
+                        // We're now finally on the correct level of nesting so we can output the current line
+                        line += quotemarks + helperHtmlifySingleLine(it->second)
+                                .replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
+                    }
+                }
+            }
+            markup << line;
+        } else {
+            // Either no quotation or we're continuing an old quote block and there was a nested quotation before
+            markup << quotemarks + helperHtmlifySingleLine(it->second)
+                      .replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
+        }
     }
-    // Terminate the signature
+
     if (signatureSeparatorSeen) {
+        // Terminate the signature
         markup.last().append(QLatin1String("</span>"));
     }
-    // Terminate the quotes
-    while (quoteLevel) {
-        --quoteLevel;
-        markup.last().append(closeSingleQuote);
+
+    if (quoteLevel) {
+        // Terminate the quotes
+        closeQuotesUpTo(markup, controlStack, quoteLevel, 0);
     }
+
+    Q_ASSERT(controlStack.isEmpty());
 
     return markup;
 }

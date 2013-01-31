@@ -58,7 +58,7 @@ private:
     void findScrollParent();
 private slots:
     void slotLinkClicked(const QUrl &url);
-    void handlePageLoadFinished(bool ok);
+    void handlePageLoadFinished();
 private:
     QWidget *m_scrollParent;
     int m_scrollParentPadding;

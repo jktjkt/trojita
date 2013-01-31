@@ -58,7 +58,8 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
 
     page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
     connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(slotLinkClicked(QUrl)));
-    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(handlePageLoadFinished(bool)));
+    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(handlePageLoadFinished()));
+    connect(page()->mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(handlePageLoadFinished()));
 
     // Scrolling is implemented on upper layers
     page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
@@ -118,9 +119,8 @@ void EmbeddedWebView::slotLinkClicked(const QUrl &url)
     }
 }
 
-void EmbeddedWebView::handlePageLoadFinished(bool ok)
+void EmbeddedWebView::handlePageLoadFinished()
 {
-    Q_UNUSED(ok);
     constrainSize();
 
     // We've already set in in our constructor, but apparently it isn't enough (Qt 4.8.0 on X11).
