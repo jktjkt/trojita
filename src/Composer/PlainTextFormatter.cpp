@@ -315,9 +315,6 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             while (quoteLevel < it->first) {
                 ++quoteLevel;
 
-                QString openingBlockquotes;
-                QString closingBlockquotes;
-
                 // Check whether there is anything at the newly entered level of nesting
                 bool anythingOnJustThisLevel = false;
 
@@ -353,9 +350,6 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                     }
                 }
 
-                openingBlockquotes += QLatin1String("<blockquote>");
-                closingBlockquotes += QLatin1String("</blockquote>");
-
                 qDebug() << "Line has nesting" << it->first << "Currently checking" << quoteLevel
                          << "Anything interesting?" << anythingOnJustThisLevel
                          << "Nothing but quotes till the end?" << nothingButQuotesAndSpaceTillSignature
@@ -371,24 +365,23 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 controlStack.push(qMakePair(quoteLevel, interactiveControlsId));
                 qDebug() << controlStack;
 
-                qDebug() << openingBlockquotes << closingBlockquotes;
                 qDebug() << it->second.left(40);
 
                 if (preview == it->second && quoteLevel == it->first) {
                     // special case: the quote is very short, no point in making it collapsible
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
-                            + QLatin1String("<span class=\"shortquote\">") + openingBlockquotes + quotemarks
+                            + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
                             + helperHtmlifySingleLine(it->second);
                 } else {
                     bool collapsed = nothingButQuotesAndSpaceTillSignature || quoteLevel > 1;
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
                             .arg(QString::number(interactiveControlsId),
                                  collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
-                            + QLatin1String("<span class=\"short\">") + openingBlockquotes + quotemarks
+                            + QLatin1String("<span class=\"short\"><blockquote>") + quotemarks
                               + helperHtmlifySingleLine(preview)
                               + QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId)
-                              + closingBlockquotes + QLatin1String("</span>")
-                            + QLatin1String("<span class=\"full\">") + openingBlockquotes;
+                              + QLatin1String("</blockquote></span>")
+                            + QLatin1String("<span class=\"full\"><blockquote>");
                     if (quoteLevel == it->first) {
                         // We're now finally on the correct level of nesting so we can output the current line
                         line += quotemarks + helperHtmlifySingleLine(it->second);
