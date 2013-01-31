@@ -366,13 +366,18 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                 qDebug() << it->second.left(40);
 
-                if (preview == it->second && quoteLevel == it->first) {
+                if (preview == it->second && quoteLevel == it->first &&
+                        // also make sure that it isn't just like "> short" ">> something..." "> other stuff..."
+                        (it + 1 == lineBuffer.end() || (it+1)->first <= it->first)) {
                     // special case: the quote is very short, no point in making it collapsible
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
                             + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
                             + helperHtmlifySingleLine(it->second);
                 } else {
-                    bool collapsed = nothingButQuotesAndSpaceTillSignature || quoteLevel > 1;
+                    bool collapsed = nothingButQuotesAndSpaceTillSignature
+                            || quoteLevel > 1
+                            || it->second.size() > 80 * 20
+                            || it->second.count(QLatin1Char('\n')) > 20;
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
                             .arg(QString::number(interactiveControlsId),
                                  collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
