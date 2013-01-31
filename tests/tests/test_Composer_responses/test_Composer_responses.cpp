@@ -342,10 +342,9 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
             << QString("This is something which is split \namong a few lines \nlike this.")
             << QString();
 
-    // FIXME: remove excess newline between "trojita" and "omacka"
     QTest::newRow("quote-1")
             << QString("Foo bar.\n> blesmrt\n>>trojita\nomacka")
-            << QString("Foo bar.\n> blesmrt\n>> trojita\n\nomacka")
+            << QString("Foo bar.\n> blesmrt\n>> trojita\nomacka")
             << QString() << QString();
 
     QTest::newRow("quote-levels")
@@ -362,15 +361,26 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("bottom-quoting")
             << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333")
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333")
+            << QString()
+            << QString();
+
+    QTest::newRow("bottom-quoting-toobig")
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666")
             << QString::fromUtf8("Foo bar.\n> blesmrt...\n")
             << QString()
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n");
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n");
 
     QTest::newRow("different-quote-levels-not-flowed-together")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
+            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
+            << QString() << QString();
+
+    QTest::newRow("different-quote-levels-not-flowed-together-toobig")
+            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666")
             << QString::fromUtf8("Foo bar. \n> blesmrt ...\n")
             << QString::fromUtf8("Foo bar. \n> blesmrt ...\n")
-            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n");
+            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n");
 
     QString lipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut "
                                        "labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
@@ -482,7 +492,6 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
                                  "> And don't forget to ask sysadmins to create a \"mangonel\" product on \n"
                                  "> bugs.kde.org :)\n"
                                  "\n"
-                                 "\n" // FIXME: this one is extra
                                  "Done.\n"
                                  "\n"
                                  "Thanks for the review! :D\n"

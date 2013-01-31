@@ -141,7 +141,8 @@ lines longer than charsPerLine are broken into multiple chunks.
 */
 QString firstNLines(const QString &input, int numLines, const int charsPerLine)
 {
-    QString out = input.section(QLatin1Char('\n'), 0, numLines, QString::SectionSkipEmpty);
+    Q_ASSERT(numLines >= 2);
+    QString out = input.section(QLatin1Char('\n'), 0, numLines - 1, QString::SectionSkipEmpty);
     const int cutoff = numLines * charsPerLine;
     if (out.size() > cutoff) {
         int pos = input.indexOf(QLatin1Char(' '), cutoff);
@@ -365,8 +366,8 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 }
 
                 if (quoteLevel == it->first
-                        && currentLevelCharCount < charsPerLineEquivalent * previewLines
-                        && currentLevelLineCount < previewLines) {
+                        && currentLevelCharCount <= charsPerLineEquivalent * previewLines
+                        && currentLevelLineCount <= previewLines) {
                     // special case: the quote is very short, no point in making it collapsible
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
                             + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
