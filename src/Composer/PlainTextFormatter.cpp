@@ -305,6 +305,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 // A short summary of the quotation
                 QString preview;
                 QString previewPrefix;
+                QString previewSuffix;
 
                 QList<QPair<int, QString> >::iterator runner = it;
                 while (runner != lineBuffer.end()) {
@@ -320,7 +321,8 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             previewPrefix = QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId);
                             while (runner != it) {
                                 --runner;
-                                previewPrefix = QLatin1String("<blockquote>") + previewPrefix + QLatin1String("</blockquote>");
+                                previewPrefix.prepend(QLatin1String("<blockquote>"));
+                                previewSuffix.append(QLatin1String("</blockquote>"));
                             }
                         }
                         break;
@@ -381,8 +383,10 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
                             .arg(QString::number(interactiveControlsId),
                                  collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
-                            + QLatin1String("<span class=\"short\"><blockquote>") + quotemarks
-                              + previewPrefix + helperHtmlifySingleLine(preview)
+                            + QLatin1String("<span class=\"short\"><blockquote>")
+                              + previewPrefix + quotemarks
+                              + helperHtmlifySingleLine(preview).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks)
+                              + previewSuffix
                               + QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId)
                               + QLatin1String("</blockquote></span>")
                             + QLatin1String("<span class=\"full\"><blockquote>");
