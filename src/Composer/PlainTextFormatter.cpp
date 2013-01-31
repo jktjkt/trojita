@@ -29,8 +29,6 @@
 #endif
 #include "PlainTextFormatter.h"
 
-#include <QDebug>
-
 namespace Composer {
 namespace Util {
 
@@ -171,7 +169,6 @@ QString firstNLines(const QString &input, int numLines, const int charsPerLine)
 /** @short Helper for closing blockquotes and adding the interactive control elements at the right places */
 void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack, int &quoteLevel, const int finalQuoteLevel)
 {
-    qDebug() << Q_FUNC_INFO << quoteLevel << finalQuoteLevel << controlStack;
     static QString closingLabel("<label for=\"q%1\"></label>");
     static QLatin1String closeSingleQuote("</blockquote>");
     static QLatin1String closeQuoteBlock("</span></span>");
@@ -182,7 +179,6 @@ void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack
         // Check whether an interactive control element is supposed to be present here
         bool controlBlock = !controlStack.isEmpty() && (quoteLevel == controlStack.top().first);
         if (controlBlock) {
-            qDebug() << "*** pop of value" << controlStack.top().first << "at quote level" << controlStack.top().second;
             markup.last().append(closingLabel.arg(controlStack.pop().second));
         }
         markup.last().append(closeSingleQuote);
@@ -326,9 +322,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                         anythingOnJustThisLevel = true;
 
                         ++interactiveControlsId;
-                        qDebug() << "*** pushing into the control stack ***";
                         controlStack.push(qMakePair(quoteLevel, interactiveControlsId));
-                        qDebug() << controlStack;
 
                         preview = firstNLines(runner->second, 2, 160);
                         if (runner != it) {
@@ -363,18 +357,11 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                     }
                 }
 
-                qDebug() << "Line has nesting" << it->first << "Currently checking" << quoteLevel
-                         << "Anything interesting?" << anythingOnJustThisLevel
-                         << "Nothing but quotes till the end?" << nothingButQuotesAndSpaceTillSignature
-                         << "Preview: " << preview;
-
                 if (!anythingOnJustThisLevel) {
                     // no need for fancy UI controls
                     line += QLatin1String("<blockquote>");
                     continue;
                 }
-
-                qDebug() << it->second.left(40);
 
                 if (preview == it->second && quoteLevel == it->first &&
                         // also make sure that it isn't just like "> short" ">> something..." "> other stuff..."
