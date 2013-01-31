@@ -373,7 +373,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
     QTest::newRow("different-quote-levels-not-flowed-together-toobig")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666")
             << QString::fromUtf8("Foo bar. \n> blesmrt ...\n")
-            << QString::fromUtf8("Foo bar. \n> blesmrt ...\n")
+            << QString()
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n");
 
     QString lipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut "
