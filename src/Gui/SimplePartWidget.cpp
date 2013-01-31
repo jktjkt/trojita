@@ -109,8 +109,6 @@ void SimplePartWidget::slotMarkupPlainText() {
 
     QStringList markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);
 
-    qDebug() << htmlHeader + markup.join("\n") + htmlFooter;
-
     // and finally set the marked up page.
     page()->mainFrame()->setHtml(htmlHeader + markup.join("\n") + htmlFooter);
 }
