@@ -357,6 +357,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                 if (!anythingOnJustThisLevel) {
                     // no need for fancy UI controls
+                    line += QLatin1String("<blockquote>");
                     continue;
                 }
 
