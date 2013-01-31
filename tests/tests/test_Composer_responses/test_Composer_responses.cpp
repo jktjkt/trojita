@@ -342,11 +342,11 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
             << QString() << QString();
 
     QTest::newRow("quote-levels")
-            << QString("Zero.\n>One\n>> Two\n>>>> Four\n>>>Three\nZeroB")
+            << QString("Zero.\n>One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>>Three\nZeroB")
             // FIXME: extra newline in front of ZeroB
             << QString("Zero.\n> One\n>> Two...\n\nZeroB")
             << QString()
-            << QString("Zero.\n> One\n>> Two\n>>>> Four\n>>> Three\n\nZeroB");
+            << QString("Zero.\n> One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>> Three\n\nZeroB");
 
     QTest::newRow("quoted-no-spacing")
             << QString("> foo\nbar\n> baz")
@@ -360,10 +360,10 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
             << QString();
 
     QTest::newRow("bottom-quoting-toobig")
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666")
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
             << QString::fromUtf8("Foo bar.\n> blesmrt...\n")
             << QString()
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n");
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
 
     QTest::newRow("different-quote-levels-not-flowed-together")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
@@ -371,20 +371,17 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
             << QString() << QString();
 
     QTest::newRow("different-quote-levels-not-flowed-together-toobig")
-            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666")
+            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
             << QString::fromUtf8("Foo bar. \n> blesmrt ...\n")
             << QString()
-            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n");
+            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
 
     QString lipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut "
                                        "labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
                                        "laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in "
                                        "voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat "
                                        "cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-    QString shortLipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt "
-                                            "ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation "
-                                            "ullamco laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit "
-                                            "in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur");
+    QString shortLipsum = (lipsum + QLatin1Char(' ') + lipsum).left(5*160);
 
     QTest::newRow("collapsed-last-quote")
             << QString::fromUtf8("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum
@@ -426,7 +423,6 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
                                  "> If you think that running 21 threads on an 8 core system will run make \n"
                                  "> your task go faster, then Thiago is right: you don't understand your \n"
                                  "> problem.\n"
-                                 "\n"
                                  "If you run 8 threads on an 8-core system and they use the CPU fully, then \n"
                                  "you're running as fast as you can.\n"
                                  "\n"
@@ -478,7 +474,6 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
                                  "> If you plan to \n"
                                  "> use bugs.kde.org as the tracker, then you don't need to call \n"
                                  "> setBugAddress() at all. The default value just works.\n"
-                                 "\n" // FIXME: this one is extra
                                  "\n"
                                  "Fixed.\n"
                                  "\n"

@@ -144,10 +144,10 @@ QString firstNLines(const QString &input, int numLines, const int charsPerLine)
     Q_ASSERT(numLines >= 2);
     QString out = input.section(QLatin1Char('\n'), 0, numLines - 1, QString::SectionSkipEmpty);
     const int cutoff = numLines * charsPerLine;
-    if (out.size() > cutoff) {
+    if (out.size() >= cutoff) {
         int pos = input.indexOf(QLatin1Char(' '), cutoff);
         if (pos != -1)
-            return out.left(pos);
+            return out.left(pos - 1);
     }
     return out;
 }
@@ -289,9 +289,9 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             quotemarks += QLatin1String(" </span>");
         }
 
-        static const int previewLines = 2;
+        static const int previewLines = 5;
         static const int charsPerLineEquivalent = 160;
-        static const int forceCollapseAfterLines = 20;
+        static const int forceCollapseAfterLines = 10;
 
         if (quoteLevel < it->first) {
             // We're going deeper in the quote hierarchy
