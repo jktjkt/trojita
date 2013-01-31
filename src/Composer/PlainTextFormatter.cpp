@@ -179,10 +179,8 @@ void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack
     Q_ASSERT(quoteLevel >= finalQuoteLevel);
 
     while (quoteLevel > finalQuoteLevel) {
-        Q_ASSERT(!controlStack.isEmpty());
-
         // Check whether an interactive control element is supposed to be present here
-        bool controlBlock = quoteLevel == controlStack.top().first;
+        bool controlBlock = !controlStack.isEmpty() && (quoteLevel == controlStack.top().first);
         if (controlBlock) {
             qDebug() << "*** pop of value" << controlStack.top().first << "at quote level" << controlStack.top().second;
             markup.last().append(closingLabel.arg(controlStack.pop().second));
