@@ -449,6 +449,63 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
                                  "-- \n"
                                  "Thiago's name goes here.\n")
             << QString();
+
+    QTest::newRow("small-quotes-arent-collapsible")
+            << QString::fromUtf8("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
+                                 "> If you plan to \n"
+                                 "> use bugs.kde.org as the tracker, then you don't need to call \n"
+                                 "> setBugAddress() at all. The default value just works.\n"
+                                 "\n"
+                                 "Fixed.\n"
+                                 "\n"
+                                 "\n"
+                                 "> And don't forget to ask sysadmins to create a \"mangonel\" product on \n"
+                                 "> bugs.kde.org :)\n"
+                                 "\n"
+                                 "Done.\n"
+                                 "\n"
+                                 "Thanks for the review! :D\n"
+                                 "\n"
+                                 "-- \n"
+                                 "Martin Sandsmark\n"
+                                 "KDE\n")
+            << QString::fromUtf8("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
+                                 "> If you plan to use bugs.kde.org as the tracker, then you don't need to call setBugAddress() "
+                                 "at all. The default value just works.\n"
+                                 "\n"
+                                 "Fixed.\n"
+                                 "\n"
+                                 "\n"
+                                 "> And don't forget to ask sysadmins to create a \"mangonel\" product on bugs.kde.org :)\n"
+                                 "\n"
+                                 "Done.\n"
+                                 "\n"
+                                 "Thanks for the review! :D\n"
+                                 "\n"
+                                 "-- \n"
+                                 "Martin Sandsmark\n"
+                                 "KDE\n")
+            << QString::fromUtf8("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
+                                 "> If you plan to \n"
+                                 "> use bugs.kde.org as the tracker, then you don't need to call \n"
+                                 "> setBugAddress() at all. The default value just works.\n"
+                                 "\n" // FIXME: this one is extra
+                                 "\n"
+                                 "Fixed.\n"
+                                 "\n"
+                                 "\n"
+                                 "> And don't forget to ask sysadmins to create a \"mangonel\" product on \n"
+                                 "> bugs.kde.org :)\n"
+                                 "\n"
+                                 "\n" // FIXME: this one is extra
+                                 "Done.\n"
+                                 "\n"
+                                 "Thanks for the review! :D\n"
+                                 "\n"
+                                 "-- \n"
+                                 "Martin Sandsmark\n"
+                                 "KDE\n")
+            << QString();
 }
 
 /** @short Test that the link recognition in plaintext -> HTML formatting recognizes the interesting links */
