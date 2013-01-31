@@ -359,7 +359,7 @@ QString MessageView::quoteText() const
         QStringList quote;
         QStringList lines = w->quoteMe().split('\n');
         for (QStringList::iterator line = lines.begin(); line != lines.end(); ++line) {
-            if (*line == QLatin1String("-- ")) {
+            if (Composer::Util::signatureSeparator().exactMatch(*line)) {
                 // This is the signature separator, we should not include anything below that in the quote
                 break;
             }

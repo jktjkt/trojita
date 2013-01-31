@@ -36,6 +36,8 @@ typedef enum {
 
 QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed);
 
+QRegExp signatureSeparator();
+
 }
 }
 

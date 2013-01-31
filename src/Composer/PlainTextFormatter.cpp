@@ -175,6 +175,14 @@ void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack
     }
 }
 
+/** @short Returna a regular expression which matches the signature separators */
+QRegExp signatureSeparator()
+{
+    // "-- " is the standards-compliant signature separator.
+    // "Line of underscores" is non-standard garbage which Mailman happily generates. Yes, it's nasty and ugly.
+    return QRegExp(QLatin1String("-- |_{45,}"));
+}
+
 QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
     static QRegExp quotemarks("^>[>\\s]*");
@@ -194,7 +202,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         }
 
         // Special marker for the signature separator
-        if (line == QLatin1String("-- ")) {
+        if (signatureSeparator().exactMatch(line)) {
             lineBuffer << qMakePair(SIGNATURE_SEPARATOR, line);
             signatureSeparatorSeen = true;
             continue;
@@ -261,7 +269,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             // The first signature separator
             signatureSeparatorSeen = true;
             closeQuotesUpTo(markup, controlStack, quoteLevel, 0);
-            markup << QLatin1String("<span class=\"signature\">-- ");
+            markup << QLatin1String("<span class=\"signature\">") + helperHtmlifySingleLine(it->second);
             continue;
         }
 
