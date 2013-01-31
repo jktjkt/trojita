@@ -150,10 +150,13 @@ QString firstNLines(const QString &input, int numLines, const int charsPerLine)
             if (pos != -1) {
                 QString rest = it->mid(pos + 1);
                 *it = it->left(pos);
-                buf.insert(it + 1, rest);
+                it = buf.insert(it + 1, rest);
+                ++it;
+                --numLines;
+            } else {
+                ++it;
+                --numLines;
             }
-            ++it;
-            --numLines;
         } else {
             ++it;
             --numLines;
