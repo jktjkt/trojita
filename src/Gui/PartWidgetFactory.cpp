@@ -62,7 +62,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                              "the top-most thousand items or so are shown."), 0);
     }
 
-    bool userPrefersPlaintext = QSettings().value(Common::SettingsNames::guiPreferPlaintextRendering).toBool();
+    bool userPrefersPlaintext = QSettings().value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool();
 
     QString mimeType = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
     if (mimeType.startsWith(QLatin1String("multipart/"))) {
