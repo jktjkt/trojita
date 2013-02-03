@@ -883,6 +883,15 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << false << empty
         << true << (QStringList() << QString::fromUtf8("foo@bar") << QString::fromUtf8("jkt@flaska")) << QString::fromUtf8("jkt@flaska");
 
+    QTest::newRow("me-to-me")
+        << (RecipientList() << mailFrom("j@k") << mailTo("j@k"))
+        << QList<QUrl>() << false
+        << true << (RecipientList() << mailTo("j@k"))
+        << true << (RecipientList() << mailTo("j@k"))
+        << false << empty
+        << false << empty
+        << true << (QStringList() << QString::fromUtf8("j@k")) << QString::fromUtf8("j@k");
+
     // FIXME: more tests!
 }
 

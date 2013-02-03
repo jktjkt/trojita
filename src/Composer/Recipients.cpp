@@ -303,8 +303,9 @@ bool replyRecipientList(const ReplyMode mode, const SenderIdentitiesModel *sende
         if (res.size()) {
             output = res;
             return true;
+        } else {
+            return false;
         }
-        break;
     }
     case REPLY_PRIVATE:
         return prepareReplySenderOnly(originalRecipients, headerListPost, output);
