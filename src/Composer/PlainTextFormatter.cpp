@@ -184,7 +184,7 @@ QRegExp signatureSeparator()
     return QRegExp(QLatin1String("-- |_{45,}"));
 }
 
-QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
+QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
     static QRegExp quotemarks("^>[>\\s]*");
     const int SIGNATURE_SEPARATOR = -2;
@@ -271,12 +271,15 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             signatureSeparatorSeen = true;
             closeQuotesUpTo(markup, controlStack, quoteLevel, 0);
             markup << QLatin1String("<span class=\"signature\">") + helperHtmlifySingleLine(it->second);
+            markup << QLatin1String("\n");
             continue;
         }
 
         if (signatureSeparatorSeen) {
             // Just copy the data
             markup << helperHtmlifySingleLine(it->second);
+            if (it+1 != lineBuffer.end())
+                markup << QLatin1String("\n");
             continue;
         }
 
@@ -446,11 +449,22 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             markup << quotemarks + helperHtmlifySingleLine(it->second)
                       .replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
         }
+
+        QList<QPair<int, QString> >::iterator next = it + 1;
+        if (next != lineBuffer.end()) {
+            if (next->first >= 0 && next->first < it->first) {
+                // Decreasing the quotation level -> no starting <blockquote>
+                markup << QLatin1String("\n");
+            } else if (it->first == 0) {
+                // Non-quoted block which is not enclosed in a <blockquote>
+                markup << QLatin1String("\n");
+            }
+        }
     }
 
     if (signatureSeparatorSeen) {
         // Terminate the signature
-        markup.last().append(QLatin1String("</span>"));
+        markup << QLatin1String("</span>");
     }
 
     if (quoteLevel) {
@@ -460,7 +474,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
     Q_ASSERT(controlStack.isEmpty());
 
-    return markup;
+    return markup.join(QString());
 }
 
 }

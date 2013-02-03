@@ -107,10 +107,10 @@ void SimplePartWidget::slotMarkupPlainText() {
     QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
     static QString htmlFooter("\n</pre></body></html>");
 
-    QStringList markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);
+    QString markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);
 
     // and finally set the marked up page.
-    page()->mainFrame()->setHtml(htmlHeader + markup.join("\n") + htmlFooter);
+    page()->mainFrame()->setHtml(htmlHeader + markup + htmlFooter);
 }
 
 void SimplePartWidget::slotFileNameRequested(QString *fileName)

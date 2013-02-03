@@ -133,8 +133,8 @@ void ComposerResponsesTest::testPlainTextFormattingFlowed()
     QFETCH(QString, htmlFlowed);
     QFETCH(QString, htmlNotFlowed);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED).join(QLatin1String("\n")), htmlFlowed);
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_PLAIN).join(QLatin1String("\n")), htmlNotFlowed);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED), htmlFlowed);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_PLAIN), htmlNotFlowed);
 }
 
 /** @short Data for testPlainTextFormatting */
@@ -157,7 +157,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaHtml()
     QFETCH(QString, plaintext);
     QFETCH(QString, html);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED).join(QLatin1String("\n")), html);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED), html);
 }
 
 void ComposerResponsesTest::testPlainTextFormattingViaHtml_data()
@@ -274,7 +274,7 @@ QString WebRenderingTester::asPlainText(const QString &input, const Composer::Ut
     static const QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
     static const QString htmlFooter("\n</pre></body></html>");
 
-    sourceData = htmlHeader + Composer::Util::plainTextToHtml(input, format).join(QLatin1String("\n")) + htmlFooter;
+    sourceData = htmlHeader + Composer::Util::plainTextToHtml(input, format) + htmlFooter;
     if (collapsing == RenderExpandEverythingCollapsed)
         sourceData = sourceData.replace(" checked=\"checked\"", QString());
     QTimer::singleShot(0, this, SLOT(doDelayedLoad()));
@@ -359,10 +359,9 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("quote-levels")
             << QString("Zero.\n>One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>>Three\nZeroB")
-            // FIXME: extra newline in front of ZeroB
-            << QString("Zero.\n> One\n>> Two...\n\nZeroB")
+            << QString("Zero.\n> One\n>> Two...\nZeroB")
             << QString()
-            << QString("Zero.\n> One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>> Three\n\nZeroB");
+            << QString("Zero.\n> One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>> Three\nZeroB");
 
     QTest::newRow("quoted-no-spacing")
             << QString("> foo\nbar\n> baz")
@@ -394,12 +393,10 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("nested-quotes-correct-indicator")
             << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.")
-            // FIXME: extra line breaks are here
             // FIXME: should be a space between the "." and the "..."
-            << QString::fromUtf8(">>> ...\n>> Two levels down....\n\n> One level down.\n\nReal mail.")
+            << QString::fromUtf8(">>> ...\n>> Two levels down....\n> One level down.\nReal mail.")
             << QString()
-            // FIXME: extra newlines...
-            << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n\n> One level down.\n\nReal mail.");
+            << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.");
 
     QString lipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut "
                                        "labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
@@ -526,7 +523,7 @@ void ComposerResponsesTest::testLinkRecognition()
     QString input = prefix + link + suffix;
     QString expected = prefix + QString::fromUtf8("<a href=\"%1\">%1</a>").arg(link) + suffix;
 
-    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FORMAT_PLAIN).join(QLatin1String("\n")), expected);
+    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FORMAT_PLAIN), expected);
 }
 
 /** @short Test data for testLinkRecognition */
@@ -564,7 +561,7 @@ void ComposerResponsesTest::testUnrecognizedLinks()
 {
     QFETCH(QString, input);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FORMAT_PLAIN).join(QLatin1String("\n")), input);
+    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FORMAT_PLAIN), input);
 }
 
 /** @short Test data for testUnrecognizedLinks */
