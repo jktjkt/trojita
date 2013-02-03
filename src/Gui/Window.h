@@ -112,6 +112,7 @@ private slots:
     void slotComposeMail();
     void slotEditDraft();
     void slotReplyTo();
+    void slotReplyAllButMe();
     void slotReplyAll();
     void slotReplyList();
     void slotReplyGuess();
@@ -218,6 +219,7 @@ private:
     QAction *composeMail;
     QAction *m_editDraft;
     QAction *m_replyPrivate;
+    QAction *m_replyAllButMe;
     QAction *m_replyAll;
     QAction *m_replyList;
     QAction *m_replyGuess;

@@ -266,9 +266,14 @@ void MainWindow::createActions()
     m_replyPrivate->setShortcut(tr("Ctrl+Shift+A"));
     connect(m_replyPrivate, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
 
+    m_replyAllButMe = new QAction(tr("Reply to All but Me"), this);
+    m_replyAllButMe->setEnabled(false);
+    m_replyAllButMe->setShortcut(tr("Ctrl+Shift+R"));
+    connect(m_replyAllButMe, SIGNAL(triggered()), this, SLOT(slotReplyAllButMe()));
+
     m_replyAll = new QAction(tr("Reply to All"), this);
     m_replyAll->setEnabled(false);
-    m_replyAll->setShortcut(tr("Ctrl+Shift+R"));
+    m_replyAll->setShortcut(tr("Ctrl+Alt+Shift+R"));
     connect(m_replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()));
 
     m_replyList = new QAction(tr("Reply to Mailing List"), this);
@@ -373,6 +378,7 @@ void MainWindow::createActions()
     m_replyButton->setPopupMode(QToolButton::MenuButtonPopup);
     m_replyMenu = new QMenu(m_replyButton);
     m_replyMenu->addAction(m_replyPrivate);
+    m_replyMenu->addAction(m_replyAllButMe);
     m_replyMenu->addAction(m_replyAll);
     m_replyMenu->addAction(m_replyList);
     m_replyButton->setMenu(m_replyMenu);
@@ -404,6 +410,7 @@ void MainWindow::createMenus()
     imapMenu->addAction(m_replyGuess);
     imapMenu->addAction(m_replyPrivate);
     imapMenu->addAction(m_replyAll);
+    imapMenu->addAction(m_replyAllButMe);
     imapMenu->addAction(m_replyList);
     imapMenu->addAction(expunge);
     imapMenu->addSeparator()->setText(tr("Network Access"));
@@ -1228,6 +1235,7 @@ void MainWindow::updateActionsOnlineOffline(bool online)
         m_replyGuess->setEnabled(false);
         m_replyPrivate->setEnabled(false);
         m_replyAll->setEnabled(false);
+        m_replyAllButMe->setEnabled(false);
         m_replyList->setEnabled(false);
     }
 }
@@ -1237,19 +1245,22 @@ void MainWindow::slotUpdateMessageActions()
     Composer::RecipientList dummy;
     m_replyPrivate->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE, senderIdentitiesModel(),
                                                                   msgView->currentMessage(), dummy));
+    m_replyAllButMe->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL_BUT_ME, senderIdentitiesModel(),
+                                                                   msgView->currentMessage(), dummy));
+    bool replyAllButMeGoesToMany = dummy.size() > 1;
     m_replyAll->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL, senderIdentitiesModel(),
                                                               msgView->currentMessage(), dummy));
-    bool replyAllGoesToMany = dummy.size() > 1;
     m_replyList->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_LIST, senderIdentitiesModel(),
                                                                msgView->currentMessage(), dummy));
-    m_replyGuess->setEnabled(m_replyPrivate->isEnabled() || m_replyAll->isEnabled() || m_replyList->isEnabled());
+    m_replyGuess->setEnabled(m_replyPrivate->isEnabled() || m_replyAllButMe->isEnabled()
+                             || m_replyAll->isEnabled() || m_replyList->isEnabled());
 
     // Check the default reply mode
     // I suspect this is not going to work for everybody. Suggestions welcome...
     if (m_replyList->isEnabled()) {
         m_replyButton->setDefaultAction(m_replyList);
-    } else if (replyAllGoesToMany && m_replyAll->isEnabled()) {
-        m_replyButton->setDefaultAction(m_replyAll);
+    } else if (replyAllButMeGoesToMany && m_replyAllButMe->isEnabled()) {
+        m_replyButton->setDefaultAction(m_replyAllButMe);
     } else {
         m_replyButton->setDefaultAction(m_replyPrivate);
     }
@@ -1270,6 +1281,11 @@ void MainWindow::slotReplyAll()
     msgView->reply(this, Composer::REPLY_ALL);
 }
 
+void MainWindow::slotReplyAllButMe()
+{
+    msgView->reply(this, Composer::REPLY_ALL_BUT_ME);
+}
+
 void MainWindow::slotReplyList()
 {
     msgView->reply(this, Composer::REPLY_LIST);
@@ -1277,7 +1293,9 @@ void MainWindow::slotReplyList()
 
 void MainWindow::slotReplyGuess()
 {
-    if (m_replyButton->defaultAction() == m_replyAll) {
+    if (m_replyButton->defaultAction() == m_replyAllButMe) {
+        slotReplyAllButMe();
+    } else if (m_replyButton->defaultAction() == m_replyAll) {
         slotReplyAll();
     } else if (m_replyButton->defaultAction() == m_replyList) {
         slotReplyList();
