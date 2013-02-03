@@ -359,7 +359,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("quote-levels")
             << QString("Zero.\n>One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>>Three\nZeroB")
-            << QString("Zero.\n> One\n>> Two...\nZeroB")
+            << QString("Zero.\n> One\n>> Two ...\nZeroB")
             << QString()
             << QString("Zero.\n> One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>> Three\nZeroB");
 
@@ -376,7 +376,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("bottom-quoting-toobig")
             << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
-            << QString::fromUtf8("Foo bar.\n> blesmrt...\n")
+            << QString::fromUtf8("Foo bar.\n> blesmrt ...\n")
             << QString()
             << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
 
@@ -387,14 +387,14 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("different-quote-levels-not-flowed-together-toobig")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
-            << QString::fromUtf8("Foo bar. \n> blesmrt ...\n")
+            // First space is part of the original input, the second one is a separator for copy-paste.
+            << QString::fromUtf8("Foo bar. \n> blesmrt  ...\n")
             << QString()
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
 
     QTest::newRow("nested-quotes-correct-indicator")
             << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.")
-            // FIXME: should be a space between the "." and the "..."
-            << QString::fromUtf8(">>> ...\n>> Two levels down....\n> One level down.\nReal mail.")
+            << QString::fromUtf8(">>> ...\n>> Two levels down. ...\n> One level down.\nReal mail.")
             << QString()
             << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.");
 
@@ -407,7 +407,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("collapsed-last-quote")
             << QString::fromUtf8("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum
-            << QString::fromUtf8("Some real text.\n> ") + shortLipsum + "...\n"
+            << QString::fromUtf8("Some real text.\n> ") + shortLipsum + " ...\n"
             << QString()
             << QString::fromUtf8("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum + "\n";
 

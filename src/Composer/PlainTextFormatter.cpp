@@ -433,7 +433,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                                  collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
                             + QLatin1String("<span class=\"short\"><blockquote>")
                               + preview
-                              + QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId)
+                              + QString::fromUtf8(" <label for=\"q%1\">...</label>").arg(interactiveControlsId)
                               + QLatin1String("</blockquote></span>")
                             + QLatin1String("<span class=\"full\"><blockquote>");
                     if (quoteLevel == it->first) {

@@ -78,7 +78,7 @@ void SimplePartWidget::slotMarkupPlainText() {
         "input ~ span.short {display: none}"
         "input:checked ~ span.full {display: none}"
         "input:checked ~ span.short {display: block}"
-        "label {border: 1px solid #333333; border-radius: 5px; padding: 0px 4px 0px 4px; margin: 0px 8px 0px 8px; white-space: nowrap}"
+        "label {border: 1px solid #333333; border-radius: 5px; padding: 0px 4px 0px 4px; white-space: nowrap}"
         // BLACK UP-POINTING SMALL TRIANGLE (U+25B4)
         // BLACK DOWN-POINTING SMALL TRIANGLE (U+25BE)
         "span.full > blockquote > label:before {content: \"\u25b4\"}"
