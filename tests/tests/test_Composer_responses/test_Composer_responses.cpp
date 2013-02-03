@@ -392,6 +392,15 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste_data()
             << QString()
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
 
+    QTest::newRow("nested-quotes-correct-indicator")
+            << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.")
+            // FIXME: extra line breaks are here
+            // FIXME: should be a space between the "." and the "..."
+            << QString::fromUtf8(">>> ...\n>> Two levels down....\n\n> One level down.\n\nReal mail.")
+            << QString()
+            // FIXME: extra newlines...
+            << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n\n> One level down.\n\nReal mail.");
+
     QString lipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut "
                                        "labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
                                        "laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in "

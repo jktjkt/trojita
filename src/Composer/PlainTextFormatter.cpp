@@ -21,6 +21,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <limits>
 #include <QObject>
 #include <QPair>
 #include <QStack>
@@ -312,8 +313,6 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                 // A short summary of the quotation
                 QString preview;
-                QString previewPrefix;
-                QString previewSuffix;
 
                 QList<QPair<int, QString> >::iterator runner = it;
                 while (runner != lineBuffer.end()) {
@@ -323,16 +322,54 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                         ++interactiveControlsId;
                         controlStack.push(qMakePair(quoteLevel, interactiveControlsId));
 
-                        preview = firstNLines(runner->second, previewLines, charsPerLineEquivalent);
-                        if (runner != it) {
+                        QString omittedStuff;
+                        QString previewPrefix, previewSuffix;
+                        QString currentChunk = firstNLines(runner->second, previewLines, charsPerLineEquivalent);
+                        QString omittedPrefix, omittedSuffix;
+                        QString previewQuotemarks;
+
+                        if (runner != it ) {
                             // we have skipped something, make it obvious to the user
-                            previewPrefix = QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId);
-                            while (runner != it) {
-                                --runner;
-                                previewPrefix.prepend(QLatin1String("<blockquote>"));
+
+                            // Find the closest level which got collapsed
+                            int closestDepth = std::numeric_limits<int>::max();
+                            QList<QPair<int, QString> >::const_iterator depthRunner = it;
+                            while (depthRunner != runner) {
+                                closestDepth = std::min(closestDepth, depthRunner->first);
+                                ++depthRunner;
+                            }
+
+                            // The [...] marks shall be prefixed by the closestDepth quote markers
+                            omittedStuff = QLatin1String("<span class=\"quotemarks\">");
+                            for (int i = 0; i < closestDepth; ++i) {
+                                omittedStuff += QLatin1String("&gt;");
+                            }
+                            for (int i = runner->first; i < closestDepth; ++i) {
+                                omittedPrefix += QLatin1String("<blockquote>");
+                                omittedSuffix += QLatin1String("</blockquote>");
+                            }
+                            omittedStuff += QString::fromUtf8(" </span><label for=\"q%1\">...</label>").arg(interactiveControlsId);
+
+                            // Now produce the proper quotation for the preview itself
+                            for (int i = quoteLevel; i < runner->first; ++i) {
+                                previewPrefix.append(QLatin1String("<blockquote>"));
                                 previewSuffix.append(QLatin1String("</blockquote>"));
                             }
                         }
+
+                        previewQuotemarks = QLatin1String("<span class=\"quotemarks\">");
+                        for (int i = 0; i < runner->first; ++i) {
+                            previewQuotemarks += QLatin1String("&gt;");
+                        }
+                        previewQuotemarks += QLatin1String(" </span>");
+
+                        preview = previewPrefix
+                                    + omittedPrefix + omittedStuff + omittedSuffix
+                                + previewQuotemarks
+                                + helperHtmlifySingleLine(currentChunk)
+                                    .replace(QLatin1String("\n"), QLatin1String("\n") + previewQuotemarks)
+                                + previewSuffix;
+
                         break;
                     }
                     if (runner->first < quoteLevel) {
@@ -392,9 +429,7 @@ QStringList plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             .arg(QString::number(interactiveControlsId),
                                  collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
                             + QLatin1String("<span class=\"short\"><blockquote>")
-                              + previewPrefix + quotemarks
-                              + helperHtmlifySingleLine(preview).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks)
-                              + previewSuffix
+                              + preview
                               + QString::fromUtf8("<label for=\"q%1\">...</label>").arg(interactiveControlsId)
                               + QLatin1String("</blockquote></span>")
                             + QLatin1String("<span class=\"full\"><blockquote>");
