@@ -274,6 +274,10 @@ void MainWindow::createActions()
     m_replyList->setEnabled(false);
     connect(m_replyList, SIGNAL(triggered()), this, SLOT(slotReplyList()));
 
+    m_replyGuess = new QAction(tr("Reply by Guess"), this);
+    m_replyGuess->setEnabled(true);
+    connect(m_replyGuess, SIGNAL(triggered()), this, SLOT(slotReplyGuess()));
+
     actionThreadMsgList = new QAction(tr("Show Messages in Threads"), this);
     actionThreadMsgList->setCheckable(true);
     // This action is enabled/disabled by model's capabilities
@@ -394,6 +398,7 @@ void MainWindow::createMenus()
 {
     QMenu *imapMenu = menuBar()->addMenu(tr("IMAP"));
     imapMenu->addAction(composeMail);
+    imapMenu->addAction(m_replyGuess);
     imapMenu->addAction(m_replyPrivate);
     imapMenu->addAction(m_replyAll);
     imapMenu->addAction(m_replyList);
@@ -1217,6 +1222,7 @@ void MainWindow::updateActionsOnlineOffline(bool online)
     markAsRead->setEnabled(online);
     showImapCapabilities->setEnabled(online);
     if (!online) {
+        m_replyGuess->setEnabled(false);
         m_replyPrivate->setEnabled(false);
         m_replyAll->setEnabled(false);
         m_replyList->setEnabled(false);
@@ -1229,6 +1235,7 @@ void MainWindow::slotUpdateMessageActions()
     m_replyPrivate->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE, msgView->currentMessage(), dummy));
     m_replyAll->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL, msgView->currentMessage(), dummy));
     m_replyList->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_LIST, msgView->currentMessage(), dummy));
+    m_replyGuess->setEnabled(m_replyPrivate->isEnabled() || m_replyAll->isEnabled() || m_replyList->isEnabled());
     if (m_replyList->isEnabled()) {
         m_replyButton->setDefaultAction(m_replyList);
     } else {
@@ -1254,6 +1261,17 @@ void MainWindow::slotReplyAll()
 void MainWindow::slotReplyList()
 {
     msgView->reply(this, Composer::REPLY_LIST);
+}
+
+void MainWindow::slotReplyGuess()
+{
+    if (m_replyButton->defaultAction() == m_replyAll) {
+        slotReplyAll();
+    } else if (m_replyButton->defaultAction() == m_replyList) {
+        slotReplyList();
+    } else {
+        slotReplyTo();
+    }
 }
 
 void MainWindow::slotComposeMailUrl(const QUrl &url)

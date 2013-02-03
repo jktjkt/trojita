@@ -114,6 +114,7 @@ private slots:
     void slotReplyTo();
     void slotReplyAll();
     void slotReplyList();
+    void slotReplyGuess();
     void slotUpdateMessageActions();
     void handleMarkAsRead(bool);
     void handleMarkAsDeleted(bool);
@@ -219,6 +220,7 @@ private:
     QAction *m_replyPrivate;
     QAction *m_replyAll;
     QAction *m_replyList;
+    QAction *m_replyGuess;
     QAction *expunge;
     QAction *createChildMailbox;
     QAction *createTopMailbox;
