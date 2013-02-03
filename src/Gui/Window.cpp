@@ -203,6 +203,7 @@ void MainWindow::createActions()
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
     composeMail = new QAction(loadIcon(QLatin1String("document-edit")),  tr("Compose Mail..."), this);
+    composeMail->setShortcut(tr("Ctrl+N"));
     connect(composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()));
 
     m_editDraft = new QAction(loadIcon(QLatin1String("document-edit")),  tr("Edit draft..."), this);
@@ -260,22 +261,24 @@ void MainWindow::createActions()
     connect(xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()));
 #endif
 
-    // FIXME: add proper shortcuts
-    // this is complicated a bit because there shall typically be one shortcut to lead to the "default thing"...
     m_replyPrivate = new QAction(tr("Private Reply"), this);
     m_replyPrivate->setEnabled(false);
+    m_replyPrivate->setShortcut(tr("Ctrl+Shift+A"));
     connect(m_replyPrivate, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
 
     m_replyAll = new QAction(tr("Reply to All"), this);
     m_replyAll->setEnabled(false);
+    m_replyAll->setShortcut(tr("Ctrl+Shift+R"));
     connect(m_replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()));
 
     m_replyList = new QAction(tr("Reply to Mailing List"), this);
     m_replyList->setEnabled(false);
+    m_replyList->setShortcut(tr("Ctrl+L"));
     connect(m_replyList, SIGNAL(triggered()), this, SLOT(slotReplyList()));
 
     m_replyGuess = new QAction(tr("Reply by Guess"), this);
     m_replyGuess->setEnabled(true);
+    m_replyGuess->setShortcut(tr("Ctrl+R"));
     connect(m_replyGuess, SIGNAL(triggered()), this, SLOT(slotReplyGuess()));
 
     actionThreadMsgList = new QAction(tr("Show Messages in Threads"), this);
