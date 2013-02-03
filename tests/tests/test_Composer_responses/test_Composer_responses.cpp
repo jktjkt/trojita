@@ -617,40 +617,13 @@ void ComposerResponsesTest::testResponseAddresses()
     QFETCH(Composer::RecipientList, privateRecipients);
     QFETCH(bool, allOk);
     QFETCH(Composer::RecipientList, allRecipients);
+    QFETCH(bool, allButMeOk);
+    QFETCH(Composer::RecipientList, allButMeRecipients);
     QFETCH(bool, listOk);
     QFETCH(Composer::RecipientList, listRecipients);
     QFETCH(bool, senderDetermined);
     QFETCH(QStringList, senderIdentities);
     QFETCH(QString, selectedIdentity);
-
-    Composer::RecipientList canary;
-    canary << qMakePair(Composer::ADDRESS_REPLY_TO,
-                        Imap::Message::MailAddress(QString(), QString(), QString(), QLatin1String("fail")));
-    Composer::RecipientList res;
-
-    res = canary;
-    QCOMPARE(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE, original, headerListPost, headerListPostNo, res),
-             privateOk);
-    if (!privateOk)
-        QVERIFY(res == canary);
-    else
-        QCOMPARE(res, privateRecipients);
-
-    res = canary;
-    QCOMPARE(Composer::Util::replyRecipientList(Composer::REPLY_ALL, original, headerListPost, headerListPostNo, res),
-             allOk);
-    if (!allOk)
-        QVERIFY(res == canary);
-    else
-        QCOMPARE(res, allRecipients);
-
-    res = canary;
-    QCOMPARE(Composer::Util::replyRecipientList(Composer::REPLY_LIST, original, headerListPost, headerListPostNo, res),
-             listOk);
-    if (!listOk)
-        QVERIFY(res == canary);
-    else
-        QCOMPARE(res, listRecipients);
 
     Composer::SenderIdentitiesModel model;
     Q_FOREACH(const QString &mail, senderIdentities) {
@@ -658,6 +631,44 @@ void ComposerResponsesTest::testResponseAddresses()
         identity.emailAddress = mail;
         model.appendIdentity(identity);
     }
+
+    Composer::RecipientList canary;
+    canary << qMakePair(Composer::ADDRESS_REPLY_TO,
+                        Imap::Message::MailAddress(QString(), QString(), QString(), QLatin1String("fail")));
+    Composer::RecipientList res;
+
+    res = canary;
+    QCOMPARE(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE, &model, original, headerListPost, headerListPostNo, res),
+             privateOk);
+    if (!privateOk)
+        QVERIFY(res == canary);
+    else
+        QCOMPARE(res, privateRecipients);
+
+    res = canary;
+    QCOMPARE(Composer::Util::replyRecipientList(Composer::REPLY_ALL, &model, original, headerListPost, headerListPostNo, res),
+             allOk);
+    if (!allOk)
+        QVERIFY(res == canary);
+    else
+        QCOMPARE(res, allRecipients);
+
+    res = canary;
+    QCOMPARE(Composer::Util::replyRecipientList(Composer::REPLY_ALL_BUT_ME, &model, original, headerListPost, headerListPostNo, res),
+             allButMeOk);
+    if (!allButMeOk)
+        QVERIFY(res == canary);
+    else
+        QCOMPARE(res, allButMeRecipients);
+
+    res = canary;
+    QCOMPARE(Composer::Util::replyRecipientList(Composer::REPLY_LIST, &model, original, headerListPost, headerListPostNo, res),
+             listOk);
+    if (!listOk)
+        QVERIFY(res == canary);
+    else
+        QCOMPARE(res, listRecipients);
+
     int offset = -1;
     bool ok = Composer::Util::chooseSenderIdentity(&model, Composer::Util::extractEmailAddresses(original), offset);
     QCOMPARE(ok, senderDetermined);
@@ -716,6 +727,8 @@ void ComposerResponsesTest::testResponseAddresses_data()
     QTest::addColumn<RecipientList>("privateRecipients");
     QTest::addColumn<bool>("allOk");
     QTest::addColumn<RecipientList>("allRecipients");
+    QTest::addColumn<bool>("allButMeOk");
+    QTest::addColumn<RecipientList>("allButMeRecipients");
     QTest::addColumn<bool>("listOk");
     QTest::addColumn<RecipientList>("listRecipients");
     QTest::addColumn<bool>("senderDetermined");
@@ -730,12 +743,14 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << listPost << false
         << true << (RecipientList() << mailTo("a@b"))
         << true << (RecipientList() << mailTo("a@b"))
+        << true << (RecipientList() << mailTo("a@b"))
         << false << empty
         << false << QStringList() << QString();
 
     QTest::newRow("sender")
         << (RecipientList() << mailSender("a@b"))
         << listPost << false
+        << false << empty
         << false << empty
         << false << empty
         << false << empty
@@ -746,6 +761,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << listPost << false
         << false << empty
         << true << (RecipientList() << mailTo("a@b"))
+        << true << (RecipientList() << mailTo("a@b"))
         << false << empty
         << false << QStringList() << QString();
 
@@ -753,6 +769,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << (RecipientList() << mailCc("a@b"))
         << listPost << false
         << false << empty
+        << true << (RecipientList() << mailTo("a@b"))
         << true << (RecipientList() << mailTo("a@b"))
         << false << empty
         << false << QStringList() << QString();
@@ -762,6 +779,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << listPost << false
         << false << empty
         << true << (RecipientList() << mailBcc("a@b"))
+        << true << (RecipientList() << mailBcc("a@b"))
         << false << empty
         << false << QStringList() << QString();
 
@@ -770,6 +788,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << listPost << false
         << true << (RecipientList() << mailTo("a@b"))
         << true << (RecipientList() << mailTo("a@b") << mailCc("c@d"))
+        << true << (RecipientList() << mailTo("a@b") << mailCc("c@d"))
         << false << empty
         << false << QStringList() << QString();
 
@@ -777,6 +796,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << (RecipientList() << mailFrom("a@b") << mailSender("x@y") << mailTo("c@d"))
         << listPost << false
         << true << (RecipientList() << mailTo("a@b"))
+        << true << (RecipientList() << mailTo("a@b") << mailCc("c@d"))
         << true << (RecipientList() << mailTo("a@b") << mailCc("c@d"))
         << false << empty
         << false << QStringList() << QString();
@@ -788,7 +808,8 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
-        << false << QStringList() << QString();
+        << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
+        << true << (QStringList() << QString::fromUtf8("jkt@flaska.net")) << QString::fromUtf8("jkt@flaska.net");
 
     QTest::newRow("list-munged-sender")
         << (RecipientList() << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net")
@@ -797,12 +818,14 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
-        << false << QStringList() << QString();
+        << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
+        << true << (QStringList() << QString::fromUtf8("jkt@flaska.net")) << QString::fromUtf8("jkt@flaska.net");
 
     QTest::newRow("list-unmunged")
         << (RecipientList() << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net"))
         << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
+        << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         // The sender identity is matched through the domain
@@ -814,14 +837,26 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
+        << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         << false << QStringList() << QString();
+
+    QTest::newRow("list-me-at-the-end")
+        << (RecipientList() << mailBcc("bcc@example.org") << mailFrom("someone@else") << mailTo("trojita@lists.flaska.net")
+            << mailReplyTo("trojita@lists.flaska.net") << mailBcc("jkt@flaska.net"))
+        << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
+        << true << (RecipientList() << mailTo("someone@else"))
+        << true << (RecipientList() << mailTo("someone@else") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org") << mailBcc("jkt@flaska.net"))
+        << true << (RecipientList() << mailTo("someone@else") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
+        << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
+        << true << (QStringList() << QString::fromUtf8("jkt@flaska.net")) << QString::fromUtf8("jkt@flaska.net");
 
     QTest::newRow("list-unmunged-bcc")
         << (RecipientList() << mailBcc("bcc@example.org") << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net"))
         << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
+        << true << (RecipientList() << mailTo("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         // An exact match for the sender identity
         << true << (QStringList() << "jkt@gentoo" << "foo@flaska.net" << "jKt@flaSka.net") << QString::fromUtf8("jKt@flaSka.net");
@@ -830,6 +865,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << (RecipientList() << mailFrom("andy@x") << mailSender("list-12345@y") << mailTo("someone@z") << mailCc("list@y"))
         << (QList<QUrl>() << QUrl(QLatin1String("mailtO:list@Y"))) << false
         << true << (RecipientList() << mailTo("andy@x"))
+        << true << (RecipientList() << mailTo("andy@x") << mailCc("someone@z") << mailCc("list@y"))
         << true << (RecipientList() << mailTo("andy@x") << mailCc("someone@z") << mailCc("list@y"))
         << true << (RecipientList() << mailTo("list@Y"))
         << false << (QStringList() << "foo@bar" << "baz@bah") << QString();
@@ -842,8 +878,10 @@ void ComposerResponsesTest::testResponseAddresses_data()
         // FIXME: this shall be better!
         << true << (RecipientList() << mailTo("gerrit-noreply@qt-project") << mailCc("j.n@digia") << mailCc("jkt@flaska")
                     << mailCc("qt_sanity_bot@ovi") << mailCc("s.k@kdab"))
+        << true << (RecipientList() << mailTo("gerrit-noreply@qt-project") << mailCc("j.n@digia")
+                    << mailCc("qt_sanity_bot@ovi") << mailCc("s.k@kdab"))
         << false << empty
-        << false << QStringList() << QString();
+        << true << (QStringList() << QString::fromUtf8("foo@bar") << QString::fromUtf8("jkt@flaska")) << QString::fromUtf8("jkt@flaska");
 
     // FIXME: more tests!
 }

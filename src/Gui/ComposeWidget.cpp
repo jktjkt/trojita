@@ -816,7 +816,7 @@ bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
 
     // Determine the new list of recipients
     Composer::RecipientList list;
-    if (!Composer::Util::replyRecipientList(mode, m_replyingTo, list)) {
+    if (!Composer::Util::replyRecipientList(mode, m_mainWindow->senderIdentitiesModel(), m_replyingTo, list)) {
         return false;
     }
 

@@ -273,13 +273,39 @@ RecipientList extractListOfRecipients(const QModelIndex &message)
   to list is not defined, for example).
 
 */
-bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecipients,
+bool replyRecipientList(const ReplyMode mode, const SenderIdentitiesModel *senderIdetitiesModel,
+                        const RecipientList &originalRecipients,
                         const QList<QUrl> &headerListPost, const bool headerListPostNo,
                         RecipientList &output)
 {
     switch (mode) {
     case REPLY_ALL:
         return prepareReplyAll(originalRecipients, output);
+    case REPLY_ALL_BUT_ME:
+    {
+        RecipientList res = output;
+        bool ok = prepareReplyAll(originalRecipients, res);
+        if (!ok)
+            return false;
+        Q_FOREACH(const Imap::Message::MailAddress &addr, extractEmailAddresses(senderIdetitiesModel)) {
+            RecipientList::iterator it = res.begin();
+            while (it != res.end()) {
+                if (Imap::Message::MailAddressesEqualByMail()(it->second, addr)) {
+                    // this is our own address
+                    it = res.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+        }
+        // We might have deleted something, let's repeat the Cc -> To (...) promotion
+        res = deduplicatedAndJustToCcBcc(res);
+        if (res.size()) {
+            output = res;
+            return true;
+        }
+        break;
+    }
     case REPLY_PRIVATE:
         return prepareReplySenderOnly(originalRecipients, headerListPost, output);
     case REPLY_LIST:
@@ -291,7 +317,8 @@ bool replyRecipientList(const ReplyMode mode, const RecipientList &originalRecip
 }
 
 /** @short Convenience wrapper */
-bool replyRecipientList(const ReplyMode mode, const QModelIndex &message, RecipientList &output)
+bool replyRecipientList(const ReplyMode mode, const SenderIdentitiesModel *senderIdetitiesModel,
+                        const QModelIndex &message, RecipientList &output)
 {
     if (!message.isValid())
         return false;
@@ -304,12 +331,11 @@ bool replyRecipientList(const ReplyMode mode, const QModelIndex &message, Recipi
     Q_FOREACH(const QVariant &item, message.data(Imap::Mailbox::RoleMessageHeaderListPost).toList())
         headerListPost << item.toUrl();
 
-    return replyRecipientList(mode, originalRecipients, headerListPost,
+    return replyRecipientList(mode, senderIdetitiesModel, originalRecipients, headerListPost,
                               message.data(Imap::Mailbox::RoleMessageHeaderListPostNo).toBool(), output);
 }
 
-/** @short Try to find the preferred identity for a reply looking at a list of recipients */
-bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, const QList<Imap::Message::MailAddress> &addresses, int &row)
+QList<Imap::Message::MailAddress> extractEmailAddresses(const SenderIdentitiesModel *senderIdetitiesModel)
 {
     using namespace Imap::Message;
     // What identities do we have?
@@ -320,6 +346,14 @@ bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, con
                 senderIdetitiesModel->data(senderIdetitiesModel->index(i, Composer::SenderIdentitiesModel::COLUMN_EMAIL)).toString());
         identities << addr;
     }
+    return identities;
+}
+
+/** @short Try to find the preferred identity for a reply looking at a list of recipients */
+bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, const QList<Imap::Message::MailAddress> &addresses, int &row)
+{
+    using namespace Imap::Message;
+    QList<MailAddress> identities = extractEmailAddresses(senderIdetitiesModel);
 
     // I want to stop this madness. I want C++11.
 

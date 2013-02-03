@@ -443,6 +443,7 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
         QString err;
         switch (mode) {
         case Composer::REPLY_ALL:
+        case Composer::REPLY_ALL_BUT_ME:
             // do nothing
             break;
         case Composer::REPLY_LIST:
