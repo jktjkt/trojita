@@ -116,6 +116,27 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
 
 void MainWindow::createActions()
 {
+    // The shortcuts are a little bit complicated, unfortunately. This is what the other applications use by default:
+    //
+    // Thunderbird:
+    // private: Ctrl+R
+    // all: Ctrl+Shift+R
+    // list: Ctrl+Shift+L
+    // forward: Ctrl+L
+    // (no shortcuts for type of forwarding)
+    // bounce: ctrl+B
+    // new message: Ctrl+N
+    //
+    // KMail:
+    // "reply": R
+    // private: Shift+A
+    // all: A
+    // list: L
+    // forward as attachment: F
+    // forward inline: Shift+F
+    // bounce: E
+    // new: Ctrl+N
+
     m_mainToolbar = addToolBar(tr("Navigation"));
 
     reloadMboxList = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), tr("Update List of Child Mailboxes"), this);
