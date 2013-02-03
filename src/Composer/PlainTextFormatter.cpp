@@ -166,12 +166,12 @@ void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack
         // Check whether an interactive control element is supposed to be present here
         bool controlBlock = !controlStack.isEmpty() && (quoteLevel == controlStack.top().first);
         if (controlBlock) {
-            markup.last().append(closingLabel.arg(controlStack.pop().second));
+            markup << closingLabel.arg(controlStack.pop().second);
         }
-        markup.last().append(closeSingleQuote);
+        markup << closeSingleQuote;
         --quoteLevel;
         if (controlBlock) {
-            markup.last().append(closeQuoteBlock);
+            markup << closeQuoteBlock;
         }
     }
 }
