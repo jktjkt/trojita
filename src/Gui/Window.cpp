@@ -1237,10 +1237,16 @@ void MainWindow::slotUpdateMessageActions()
     Composer::RecipientList dummy;
     m_replyPrivate->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE, msgView->currentMessage(), dummy));
     m_replyAll->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL, msgView->currentMessage(), dummy));
+    bool replyAllGoesToMany = dummy.size() > 1;
     m_replyList->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_LIST, msgView->currentMessage(), dummy));
     m_replyGuess->setEnabled(m_replyPrivate->isEnabled() || m_replyAll->isEnabled() || m_replyList->isEnabled());
+
+    // Check the default reply mode
+    // I suspect this is not going to work for everybody. Suggestions welcome...
     if (m_replyList->isEnabled()) {
         m_replyButton->setDefaultAction(m_replyList);
+    } else if (replyAllGoesToMany && m_replyAll->isEnabled()) {
+        m_replyButton->setDefaultAction(m_replyAll);
     } else {
         m_replyButton->setDefaultAction(m_replyPrivate);
     }
