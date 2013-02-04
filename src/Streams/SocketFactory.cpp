@@ -81,13 +81,13 @@ Socket *TlsAbleSocketFactory::create()
     return new SslTlsSocket(sslSock, host, port);
 }
 
-FakeSocketFactory::FakeSocketFactory(): SocketFactory()
+FakeSocketFactory::FakeSocketFactory(const ConnectionState initialState): SocketFactory(), m_initialState(initialState)
 {
 }
 
 Socket *FakeSocketFactory::create()
 {
-    return m_last = new FakeSocket();
+    return m_last = new FakeSocket(m_initialState);
 }
 
 Socket *FakeSocketFactory::lastSocket()

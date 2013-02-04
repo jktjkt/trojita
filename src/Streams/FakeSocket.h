@@ -40,7 +40,7 @@ class FakeSocket: public Socket
 {
     Q_OBJECT
 public:
-    FakeSocket();
+    explicit FakeSocket(const ConnectionState initialState);
     ~FakeSocket();
     virtual bool canReadLine();
     virtual QByteArray read(qint64 maxSize);
@@ -74,6 +74,8 @@ private:
     QIODevice *writeChannel;
 
     QByteArray r, w;
+
+    ConnectionState m_initialState;
 
     FakeSocket(const FakeSocket &); // don't implement
     FakeSocket &operator=(const FakeSocket &); // don't implement

@@ -98,12 +98,13 @@ class FakeSocketFactory: public SocketFactory
 {
     Q_OBJECT
 public:
-    FakeSocketFactory();
+    explicit FakeSocketFactory(const Imap::ConnectionState initialState);
     virtual Socket *create();
     /** @short Return the last created socket */
     Socket *lastSocket();
 private:
     QPointer<Socket> m_last;
+    Imap::ConnectionState m_initialState;
 };
 
 
