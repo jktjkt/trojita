@@ -58,6 +58,8 @@ private slots:
 
     void testOpenConnectionShallBlock();
 
+    void testLoginDelaysOtherTasks();
+
     void provideAuthDetails();
     void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
 
@@ -68,6 +70,8 @@ private:
     QSignalSpy* completedSpy;
     QSignalSpy* failedSpy;
     QSignalSpy* authSpy;
+
+    bool m_enableAutoLogin;
 };
 
 #endif

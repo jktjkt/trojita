@@ -75,6 +75,11 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
             // let's just wait till we get a chance to play
             synchronizeConn = model->m_taskFactory->
                               createObtainSynchronizedMailboxTask(model, mailboxIndex, model->accessParser(oldParser).maintainingTask, this);
+        } else if (model->accessParser(parser).connState < CONN_STATE_AUTHENTICATED) {
+            // The parser is still in the process of being initialized, let's wait until it's completed
+            Q_ASSERT(!model->accessParser(oldParser).activeTasks.isEmpty());
+            ImapTask *task = model->accessParser(oldParser).activeTasks.front();
+            synchronizeConn = model->m_taskFactory->createObtainSynchronizedMailboxTask(model, mailboxIndex, task, this);
         } else {
             // The parser is free, or at least there's no KeepMailboxOpenTask associated with it.
             // There's no mailbox besides us in the game, yet, so we can simply schedule us for immediate execution.
