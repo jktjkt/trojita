@@ -557,8 +557,8 @@ void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
     MemoryCache *cache = dynamic_cast<MemoryCache *>(model->cache());
     Q_ASSERT(cache);
     cache->setChildMailboxes(QString(),
-                             QList<MailboxMetadata>() << MailboxMetadata(QString::fromAscii("a"), QString(), QStringList())
-                             << MailboxMetadata(QString::fromAscii("b"), QString(), QStringList())
+                             QList<MailboxMetadata>() << MailboxMetadata(QString::fromUtf8("a"), QString(), QStringList())
+                             << MailboxMetadata(QString::fromUtf8("b"), QString(), QStringList())
                              );
     m_enableAutoLogin = false;
     // The cache is not queried synchronously
