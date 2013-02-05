@@ -1247,7 +1247,6 @@ void MainWindow::slotUpdateMessageActions()
                                                                   msgView->currentMessage(), dummy));
     m_replyAllButMe->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL_BUT_ME, senderIdentitiesModel(),
                                                                    msgView->currentMessage(), dummy));
-    bool replyAllButMeGoesToMany = dummy.size() > 1;
     m_replyAll->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL, senderIdentitiesModel(),
                                                               msgView->currentMessage(), dummy));
     m_replyList->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_LIST, senderIdentitiesModel(),
@@ -1259,7 +1258,7 @@ void MainWindow::slotUpdateMessageActions()
     // I suspect this is not going to work for everybody. Suggestions welcome...
     if (m_replyList->isEnabled()) {
         m_replyButton->setDefaultAction(m_replyList);
-    } else if (replyAllButMeGoesToMany && m_replyAllButMe->isEnabled()) {
+    } else if (m_replyAllButMe->isEnabled()) {
         m_replyButton->setDefaultAction(m_replyAllButMe);
     } else {
         m_replyButton->setDefaultAction(m_replyPrivate);
