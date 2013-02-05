@@ -49,7 +49,7 @@
 namespace Gui
 {
 
-QString SettingsDialog::warningStyleSheet = QLatin1String("border: 2px solid red; background-color: #E7C575; "
+QString SettingsDialog::warningStyleSheet = QLatin1String("border: 2px solid red; background-color: #E7C575; color: black; "
         "font-weight: bold; padding: 5px; margin: 5px; "
         "text-align: center;");
 
