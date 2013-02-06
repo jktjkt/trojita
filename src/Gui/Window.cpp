@@ -64,6 +64,7 @@
 #include "MailBoxTreeView.h"
 #include "MessageListWidget.h"
 #include "MessageView.h"
+#include "MessageSourceWidget.h"
 #include "MsgListView.h"
 #include "ProtocolLoggerWidget.h"
 #include "SettingsDialog.h"
@@ -240,6 +241,11 @@ void MainWindow::createActions()
     saveWholeMessage = new QAction(loadIcon(QLatin1String("file-save")), tr("Save Message..."), this);
     msgListWidget->tree->addAction(saveWholeMessage);
     connect(saveWholeMessage, SIGNAL(triggered()), this, SLOT(slotSaveCurrentMessageBody()));
+
+    viewMsgSource = new QAction(tr("View Message Source..."), this);
+    //viewMsgHeaders->setShortcut(tr("Ctrl+U"));
+    msgListWidget->tree->addAction(viewMsgSource);
+    connect(viewMsgSource, SIGNAL(triggered()), this, SLOT(slotViewMsgSource()));
 
     viewMsgHeaders = new QAction(tr("View Message Headers..."), this);
     viewMsgHeaders->setShortcut(tr("Ctrl+U"));
@@ -797,6 +803,7 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         actionList.append(markAsRead);
         actionList.append(markAsDeleted);
         actionList.append(saveWholeMessage);
+        actionList.append(viewMsgSource);
         actionList.append(viewMsgHeaders);
     }
     if (! actionList.isEmpty())
@@ -1445,6 +1452,31 @@ void MainWindow::slotDownloadMessageFileNameRequested(QString *fileName)
                 *fileName, QString(),
                 0, QFileDialog::HideNameFilterDetails
                                             );
+}
+
+void MainWindow::slotViewMsgSource()
+{
+    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
+            continue;
+        if (! item.data(Imap::Mailbox::RoleMessageUid).isValid())
+            continue;
+        QModelIndex messageIndex;
+        Imap::Mailbox::Model::realTreeItem(item, 0, &messageIndex);
+
+        MessageSourceWidget *sourceWidget= new MessageSourceWidget(0, messageIndex);
+        sourceWidget->setAttribute(Qt::WA_DeleteOnClose);
+        QAction *close = new QAction(loadIcon(QLatin1String("window-close")), tr("Close"), sourceWidget);
+        sourceWidget->addAction(close);
+        close->setShortcut(tr("Ctrl+W"));
+        connect(close, SIGNAL(triggered()), sourceWidget, SLOT(close()));
+        sourceWidget->setWindowTitle(tr("Message source of UID %1 in %2").arg(
+                                    QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
+                                    messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
+                                    ));
+        sourceWidget->show();
+    }
 }
 
 void MainWindow::slotViewMsgHeaders()

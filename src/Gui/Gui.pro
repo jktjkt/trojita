@@ -47,7 +47,8 @@ SOURCES += \
     AbookAddressbook.cpp \
     ComposerTextEdit.cpp \
     ComposerAttachments.cpp \
-    FromAddressProxyModel.cpp
+    FromAddressProxyModel.cpp \
+    MessageSourceWidget.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -80,7 +81,8 @@ HEADERS += \
     AbookAddressbook.h \
     ComposerTextEdit.h \
     ComposerAttachments.h \
-    FromAddressProxyModel.h
+    FromAddressProxyModel.h \
+    MessageSourceWidget.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \

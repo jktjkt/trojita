@@ -141,6 +141,7 @@ private slots:
     void slotDonateToTrojita();
 
     void slotSaveCurrentMessageBody();
+    void slotViewMsgSource();
     void slotViewMsgHeaders();
     void slotThreadMsgList();
     void slotHideRead();
@@ -236,6 +237,7 @@ private:
     QAction *markAsRead;
     QAction *markAsDeleted;
     QAction *saveWholeMessage;
+    QAction *viewMsgSource;
     QAction *viewMsgHeaders;
     QAction *m_nextMessage;
     QAction *m_previousMessage;
