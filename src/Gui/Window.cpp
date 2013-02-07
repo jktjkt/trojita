@@ -1467,7 +1467,7 @@ void MainWindow::slotViewMsgSource()
         QModelIndex messageIndex;
         Imap::Mailbox::Model::realTreeItem(item, 0, &messageIndex);
 
-        MessageSourceWidget *sourceWidget= new MessageSourceWidget(0, messageIndex);
+        MessageSourceWidget *sourceWidget = new MessageSourceWidget(0, messageIndex);
         sourceWidget->setAttribute(Qt::WA_DeleteOnClose);
         QAction *close = new QAction(loadIcon(QLatin1String("window-close")), tr("Close"), sourceWidget);
         sourceWidget->addAction(close);

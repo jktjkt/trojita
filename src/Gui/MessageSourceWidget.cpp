@@ -21,9 +21,7 @@
 */
 
 #include "MessageSourceWidget.h"
-
 #include <QModelIndex>
-
 #include "Imap/Model/FullMessageCombiner.h"
 
 namespace Gui
@@ -34,17 +32,14 @@ MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &mes
 {
     Q_ASSERT(messageIndex.isValid());
     page()->setNetworkAccessManager(0);
-
     m_combiner = new Imap::Mailbox::FullMessageCombiner(messageIndex, this);
-
     connect(m_combiner, SIGNAL(completed()), this, SLOT(slotCompleted()));
-
     m_combiner->load();
 }
 
 void MessageSourceWidget::slotCompleted()
 {
-    setContent(m_combiner->data(), "text/plain");
+    setContent(m_combiner->data(), QLatin1String("text/plain"));
 }
 
 }

@@ -82,14 +82,12 @@ void FullMessageCombiner::load()
 TreeItemPart *FullMessageCombiner::headerPartPtr() const
 {
     Imap::Mailbox::TreeItem *target = m_model->realTreeItem(m_messageIndex);
-
     return dynamic_cast<Imap::Mailbox::TreeItemPart *>(target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_HEADER));
 }
 
 TreeItemPart *FullMessageCombiner::bodyPartPtr() const
 {
     Imap::Mailbox::TreeItem *target = m_model->realTreeItem(m_messageIndex);
-
     return dynamic_cast<Imap::Mailbox::TreeItemPart *>(target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_TEXT));
 }
 
