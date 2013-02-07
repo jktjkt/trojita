@@ -23,7 +23,7 @@
 #ifndef MESSAGESOURCEWIDGET_H
 #define MESSAGESOURCEWIDGET_H
 
-#include "EmbeddedWebView.h"
+#include <QWebView>
 
 class QModelIndex;
 
@@ -38,7 +38,7 @@ namespace Mailbox
 namespace Gui
 {
 
-class MessageSourceWidget : public EmbeddedWebView
+class MessageSourceWidget : public QWebView
 {
     Q_OBJECT
 public:

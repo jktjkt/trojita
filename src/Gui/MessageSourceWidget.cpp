@@ -30,9 +30,10 @@ namespace Gui
 {
 
 MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &messageIndex):
-    EmbeddedWebView(parent, 0)
+    QWebView(parent)
 {
     Q_ASSERT(messageIndex.isValid());
+    page()->setNetworkAccessManager(0);
 
     m_combiner = new Imap::Mailbox::FullMessageCombiner(messageIndex, this);
 
