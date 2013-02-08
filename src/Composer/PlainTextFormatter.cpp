@@ -423,10 +423,16 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
                             + helperHtmlifySingleLine(it->second).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
                 } else {
+#if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)
+                    // old WebKit doesn't really support the dynamic updates of the :checked pseudoclass
+                    bool collapsed = false;
+                    Q_UNUSED(forceCollapseAfterLines);
+#else
                     bool collapsed = nothingButQuotesAndSpaceTillSignature
                             || quoteLevel > 1
                             || currentLevelCharCount >= charsPerLineEquivalent * forceCollapseAfterLines
                             || currentLevelLineCount >= forceCollapseAfterLines;
+#endif
 
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
                             .arg(QString::number(interactiveControlsId),

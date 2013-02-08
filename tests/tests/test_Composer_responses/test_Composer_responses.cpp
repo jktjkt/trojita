@@ -317,6 +317,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste()
     if (expandedFlowed.isEmpty())
         expandedFlowed = formattedFlowed;
 
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     {
         WebRenderingTester tester;
         LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED), formattedFlowed);
@@ -326,6 +327,7 @@ void ComposerResponsesTest::testPlainTextFormattingViaPaste()
         WebRenderingTester tester;
         LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_PLAIN), formattedPlain);
     }
+#endif
 
     {
         WebRenderingTester tester;
