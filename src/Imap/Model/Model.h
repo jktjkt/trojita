@@ -354,8 +354,8 @@ signals:
 
     /** @short The network policy has changed
 
-    This signal is emited whenever the network policy (might) got changed to any state and for any reason. No filtering for false
-    positives is done, i.e. it might be emited even when no change has actually taken place.
+    This signal is emitted whenever the network policy (might) got changed to any state and for any reason. No filtering for false
+    positives is done, i.e. it might be emitted even when no change has actually taken place.
     */
     void networkPolicyChanged();
 

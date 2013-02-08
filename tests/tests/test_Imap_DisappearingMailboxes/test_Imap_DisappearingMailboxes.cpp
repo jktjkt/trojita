@@ -40,7 +40,7 @@ void ImapModelDisappearingMailboxTest::testGoingOfflineOnline()
     t.reset();
 
     // We can't call helperSyncBNoMessages() here, it relies on msgListB's validity,
-    // but that index is not neccessary valid because of our kludgy fake listing...
+    // but that index is not necessary valid because of our kludgy fake listing...
 
     QCOMPARE( model->rowCount( msgListB ), 0 );
     model->switchToMailbox( idxB );

@@ -44,7 +44,7 @@ Each ImapTask serves a distinct purpose; some of them are for establishing a con
 for updating FLAGS of some messages, other tasks maintain a given mailbox synchronized with the server's responses and yet others
 deal with listing mailboxes, to name a few examples.
 
-Each task signals its succesfull completion by the completed() signal.  Should the activity fail, failed() is emitted.
+Each task signals its successful completion by the completed() signal.  Should the activity fail, failed() is emitted.
 
 Some tasks perform activity which could be interrupted by the user without huge trouble, for example when downloading huge
 attachments.  Tasks which support this graceful abort shall do so when asked through the abort() method.
@@ -86,7 +86,7 @@ public:
 
     /** @short Another task wants to depend on this one
 
-    When this task finishes succesfully, the dependent task gets called.  If this task fails, the child task will not get called.
+    When this task finishes successfully, the dependent task gets called.  If this task fails, the child task will not get called.
     */
     virtual void addDependentTask(ImapTask *task);
     void updateParentTask(ImapTask *newParent);
@@ -164,7 +164,7 @@ private:
 signals:
     /** @short This signal is emitted if the job failed in some way */
     void failed(QString errorMessage);
-    /** @short This signal is emitted upon succesfull completion of a job */
+    /** @short This signal is emitted upon successful completion of a job */
     void completed(Imap::Mailbox::ImapTask *task);
 
 public:

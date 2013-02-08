@@ -508,7 +508,7 @@ void ThreadingMsgListModel::wantThreading(const SkipSortSearch skipSortSearch)
     if (threadingInFlight) {
         // Imagine the following scenario:
         // <<< "* 3 EXISTS"
-        // Message 2 has unkown UID
+        // Message 2 has unknown UID
         // >>> "y4 UID FETCH 66:* (FLAGS)"
         // >>> "y5 UID THREAD REFS utf-8 ALL"
         // <<< "* 3 FETCH (UID 66 FLAGS ())"

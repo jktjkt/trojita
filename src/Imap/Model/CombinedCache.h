@@ -52,7 +52,7 @@ class CombinedCache : public AbstractCache
 public:
     /** @short Constructor
 
-      Create new instance, using the @arg name as the name for the database connnection.
+      Create new instance, using the @arg name as the name for the database connection.
       Store all data into the @arg cacheDir directory. Actual opening of the DB connection
       is deferred till a call to the load() method.
     */

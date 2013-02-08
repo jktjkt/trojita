@@ -425,7 +425,7 @@ bool SQLCache::prepareQueries()
     }
 
 #ifdef CACHE_DEBUG
-    qDebug() << "SQLCache::_prepareQueries() succeded";
+    qDebug() << "SQLCache::_prepareQueries() succeeded";
 #endif
     return true;
 }

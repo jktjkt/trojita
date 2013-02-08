@@ -188,7 +188,7 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         shouldExit = true;
         task->updateParentTask(this);
 
-        // Before we can die, though, we have to accomodate fetch requests for all envelopes and parts queued so far.
+        // Before we can die, though, we have to accommodate fetch requests for all envelopes and parts queued so far.
         slotFetchRequestedEnvelopes();
         slotFetchRequestedParts();
 

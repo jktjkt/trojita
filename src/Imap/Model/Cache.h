@@ -129,7 +129,7 @@ public:
     virtual void setRenewalThreshold(const int days) = 0;
 
 signals:
-    /** @short Some cache error has occured */
+    /** @short Some cache error has occurred */
     void error(const QString &error) const;
 };
 

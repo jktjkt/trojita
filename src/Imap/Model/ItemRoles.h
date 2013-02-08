@@ -64,7 +64,7 @@ enum {
     RoleMailboxHasChildmailboxes,
     /** @short Information about whether the number of messages in the mailbox has already been loaded */
     RoleMailboxNumbersFetched,
-    /** @short Is anything still loading for tihs mailbox? */
+    /** @short Is anything still loading for this mailbox? */
     RoleMailboxItemsAreLoading,
     /** @short Current UIDVALIDITY of a mailbox */
     RoleMailboxUidValidity,

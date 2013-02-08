@@ -30,7 +30,7 @@ namespace Gui
 
 /** @short Wrapper around the QIcon::fromTheme with sane fallback
  *
- * The issue with the QIcon::fromTheme is that it does not realy work on non-X11
+ * The issue with the QIcon::fromTheme is that it does not really work on non-X11
  * platforms, unless you ship your own theme index and specify your theme name.
  * In Trojitá, we do not really want to hardcode anything, because the
  * preference is to use whatever is available from the current theme, but *also*

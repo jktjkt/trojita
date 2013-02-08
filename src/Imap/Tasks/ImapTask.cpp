@@ -43,7 +43,7 @@ ImapTask::~ImapTask()
 
 /** @short Schedule another task to get a go when this one completes
 
-This function informs the current task (this) that when it terminates succesfully, the dependant task (@arg task) shall be started.
+This function informs the current task (this) that when it terminates successfully, the dependant task (@arg task) shall be started.
 Subclasses are free to reimplement this method (@see KeepMailboxOpenTask), but they must not forget to update the parentTask of
 the depending task.
 */

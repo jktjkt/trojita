@@ -25,7 +25,7 @@
 
 namespace Common {
 
-/** @short Perform a linear search between the pair of iterators and find a first occurence of the specified value
+/** @short Perform a linear search between the pair of iterators and find a first occurrence of the specified value
 
 The function will completely ignore any items for which isUnknown returns true.
 

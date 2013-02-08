@@ -68,7 +68,7 @@ The problem with threading is that due to the extremely asynchronous nature of t
 to messages which "just arrived", and therefore do not have even their UID available. That sucks, because we have to somehow handle
 them.  Situation gets a bit more complicated by the initial syncing -- this ThreadingMsgListModel can't tell whether the rowsInserted()
 signals mean that the underlying model is getting populated, or whether it's a sign of a just-arrived message.  On a plus side, the Model
-guarantees that the only occurence when a message could have UID 0 is when the mailbox has been synced previously, and the message is a new
+guarantees that the only occurrence when a message could have UID 0 is when the mailbox has been synced previously, and the message is a new
 arrival.  In all other contexts (that is, during the mailbox re-synchronization), there is a hard guarantee that the UID of any message
 available via the MVC API will always be non-zero.
 
@@ -249,7 +249,7 @@ private:
     /** @short Last assigned internal ID */
     uint threadingHelperLastId;
 
-    /** @short Messages with unkown UIDs */
+    /** @short Messages with unknown UIDs */
     QSet<TreeItem*> unknownUids;
 
     /** @short Threading algorithm we're using for this request */

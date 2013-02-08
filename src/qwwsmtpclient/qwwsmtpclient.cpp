@@ -163,7 +163,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     // stage 0 completed with success - socket is connected and EHLO was sent
                     if(stage==1 && status==250){
                         QString arg = rx.cap(2).trimmed();
-                        parseOption(arg);   // we're probably receving options
+                        parseOption(arg);   // we're probably receiving options
                     }
                 }
                 break;

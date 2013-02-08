@@ -116,7 +116,7 @@ private:
     void init();
 
 private slots:
-    /** @short We haven't commited for a while */
+    /** @short We haven't committed for a while */
     void timeToCommit();
 
 private:

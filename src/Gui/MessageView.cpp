@@ -447,7 +447,7 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
             // do nothing
             break;
         case Composer::REPLY_LIST:
-            err = tr("It doesn't look like this is a message to the mailing list. Please file in the recipients manually.");
+            err = tr("It doesn't look like this is a message to the mailing list. Please fill in the recipients manually.");
             break;
         case Composer::REPLY_PRIVATE:
             err = trUtf8("Trojitá was unable to safely determine the real e-mail address of the author of the message. "

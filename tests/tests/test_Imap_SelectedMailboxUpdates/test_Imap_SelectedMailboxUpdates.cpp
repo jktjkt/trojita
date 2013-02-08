@@ -357,7 +357,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperCheckSubjects(const QStringList 
         QVERIFY(index.isValid());
         QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), subjects[i]);
     }
-    // Me sure thet there are no more messages
+    // Me sure that there are no more messages
     QVERIFY( ! msgListA.child(subjects.size(),0).isValid() );
 }
 

@@ -553,7 +553,7 @@ void ComposeWidget::removeRecipient(int pos)
 {
     // removing the widgets from the layout is important
     // a) not doing so leaks (minor)
-    // b) deleteLater() crosses the evenchain and so our actualRow funtion would be tricked
+    // b) deleteLater() crosses the evenchain and so our actualRow function would be tricked
     ui->envelopeLayout->removeWidget(m_recipients.at(pos).first);
     ui->envelopeLayout->removeWidget(m_recipients.at(pos).second);
     m_recipients.at(pos).first->deleteLater();
