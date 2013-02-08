@@ -476,7 +476,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(_list));
             break;
         case Responses::ATOM: // no sanity check here, just make a string
-        case Responses::NONE: // this won't happen, but if we ommit it, gcc warns us about that
+        case Responses::NONE: // this won't happen, but if we omit it, gcc warns us about that
             respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
             break;
         case Responses::NEWNAME:

@@ -450,7 +450,7 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
         if (mailbox->syncState.exists() != static_cast<uint>(list->m_children.size())) {
             throw CantHappen("TreeItemMsgList has wrong number of "
                              "children, even though no change of "
-                             "message count occured");
+                             "message count occurred");
         }
     }
 

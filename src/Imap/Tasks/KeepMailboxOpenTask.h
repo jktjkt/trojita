@@ -124,7 +124,7 @@ public:
 
     /** @short Start child processes
 
-    This function is called when the synchronizing task finished succesfully, that is, when we are ready
+    This function is called when the synchronizing task finished successfully, that is, when we are ready
     to execute regular tasks which depend on us.
     */
     virtual void perform();

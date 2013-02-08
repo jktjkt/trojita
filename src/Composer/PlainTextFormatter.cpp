@@ -35,7 +35,7 @@ namespace Util {
 
 /** @short Helper for plainTextToHtml for applying the HTML formatting
 
-This funciton recognizes http and https links, e-mail addresses, *bold*, /italic/ and _underline_ text.
+This function recognizes http and https links, e-mail addresses, *bold*, /italic/ and _underline_ text.
 */
 QString helperHtmlifySingleLine(QString line)
 {

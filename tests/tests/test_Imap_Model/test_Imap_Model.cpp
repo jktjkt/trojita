@@ -157,7 +157,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE( deletionSucceded.count(), 0 );
     QVERIFY( noParseError.isEmpty() );
 
-    // Now test its succesfull completion
+    // Now test its successful completion
     model->createMailbox( QLatin1String("zzz_newly-Created2") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();

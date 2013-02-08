@@ -283,7 +283,7 @@ signals:
 
     /** @short A full line was received from the remote IMAP server
 
-    This signal is emited when a full line, including all embedded literals, have
+    This signal is emitted when a full line, including all embedded literals, have
     been received from the remote IMAP server, but before it was attempted to parse
     it. However,
     */

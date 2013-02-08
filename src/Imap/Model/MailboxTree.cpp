@@ -365,7 +365,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             message->m_uid = receivedUid;
             changedMessage = message;
             if (message->loading()) {
-                // The Model tried to ask for data for this message. That couldn't succeded because the UID
+                // The Model tried to ask for data for this message. That couldn't succeeded because the UID
                 // wasn't known at that point, so let's ask now
                 //
                 // FIXME: tweak this to keep a high watermark of "highest UID we requested an ENVELOPE for",
@@ -820,7 +820,7 @@ bool TreeItemMsgList::hasChildren(Model *const model)
 
 int TreeItemMsgList::totalMessageCount(Model *const model)
 {
-    // Yes, the numbers can be accomodated by a full mailbox sync, but that's not really what we shall do from this context.
+    // Yes, the numbers can be accommodated by a full mailbox sync, but that's not really what we shall do from this context.
     // Because we want to allow the old-school polling for message numbers, we have to look just at the numberFetched() state.
     if (!numbersFetched())
         fetchNumbers(model);

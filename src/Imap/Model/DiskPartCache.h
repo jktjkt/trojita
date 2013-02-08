@@ -55,7 +55,7 @@ public:
     virtual void setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data);
 
 signals:
-    /** @short An error has occured while performing cache operations */
+    /** @short An error has occurred while performing cache operations */
     void error(const QString &message);
 
 private:

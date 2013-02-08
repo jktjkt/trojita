@@ -197,7 +197,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
             /* At this point, we want to iterate over all active tasks and try them
             for processing the server's responses (the plug() method). However, this
             is rather complex -- this call to plug() could result in signals being
-            emited, and certain slots connected to those signals might in turn want
+            emitted, and certain slots connected to those signals might in turn want
             to queue more Tasks. Therefore, it->activeTasks could be modified, some
             items could be appended to it using the QList::append, which in turn could
             cause a realloc to happen, happily invalidating our iterators, and that
