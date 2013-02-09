@@ -69,7 +69,7 @@ bool DeleteMailboxTask::handleStateHelper(const Imap::Responses::State *const re
             } else {
                 QString buf;
                 QDebug dbg(&buf);
-                dbg << "The IMAP server just told us that it succeded to delete mailbox named" <<
+                dbg << "The IMAP server just told us that it succeeded to delete mailbox named" <<
                     mailbox << ", yet we don't know of any such mailbox. Message from the server:" <<
                     resp->message;
                 log(buf);

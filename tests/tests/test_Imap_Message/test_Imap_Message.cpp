@@ -58,7 +58,7 @@ void ImapMessageTest::testEnvelope_data()
     sender << MailAddress( "Jan Kundrat", QByteArray(), "flaska.net", "jkt" );
     to << MailAddress( QByteArray(), QByteArray(), "lists.flaska.net", "trojita-announce" );
     bcc << MailAddress( QByteArray(), QByteArray(), "example.org", "trash" ) <<
-        MailAddress( QByteArray(), QByteArray(), "exmaple.org", "spam" );
+        MailAddress( QByteArray(), QByteArray(), "example.org", "spam" );
 
     QTest::newRow("foo") <<
         Envelope( QDateTime( QDate( 2008, 4, 27 ), QTime( 13, 41, 37 ), Qt::UTC ),

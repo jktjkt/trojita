@@ -313,7 +313,7 @@ void MsgListView::slotHeaderSectionVisibilityToggled(int section)
     }
 }
 
-/** @short Overriden from QTreeView::setModel
+/** @short Overridden from QTreeView::setModel
 
 The whole point is that we have to listen for sortingPreferenceChanged to update your header view when sorting is requested
 but cannot be fulfilled.
