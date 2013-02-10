@@ -1348,7 +1348,7 @@ QString TreeItemPart::partId() const
         if (part)
             return part->partId();
         else
-            return QString::null;
+            return QString();
     } else if (dynamic_cast<TreeItemMessage *>(parent())) {
         return QString::number(row() + 1);
     } else {

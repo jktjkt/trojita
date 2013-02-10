@@ -38,10 +38,10 @@ class XSqlQuery : public QSqlQuery
 {
   public:
     XSqlQuery();
-    XSqlQuery(QSqlDatabase);
-    XSqlQuery(QSqlResult *);
-    XSqlQuery(const QString &, QSqlDatabase = QSqlDatabase());
-    XSqlQuery(const QSqlQuery &);
+    explicit XSqlQuery(QSqlDatabase);
+    explicit XSqlQuery(QSqlResult *);
+    explicit XSqlQuery(const QString &, QSqlDatabase = QSqlDatabase());
+    explicit XSqlQuery(const QSqlQuery &);
     XSqlQuery(const XSqlQuery &);
     virtual ~XSqlQuery();
     XSqlQuery & operator=(const XSqlQuery &);
