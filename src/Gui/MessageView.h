@@ -85,9 +85,11 @@ private slots:
     void headerLinkActivated(QString);
     void partContextMenuRequested(const QPoint &point);
     void partLinkHovered(const QString &link, const QString &title, const QString &textContent);
+    void triggerSearchDialog();
 signals:
     void messageChanged();
     void linkHovered(const QString &url);
+    void searchRequestedBy(QWebView *webView);
 private:
     bool eventFilter(QObject *object, QEvent *event);
     Imap::Message::Envelope envelope() const;

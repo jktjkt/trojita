@@ -64,8 +64,10 @@ private slots:
     void slotMarkupPlainText();
 signals:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
+    void searchDialogRequested();
 private:
     QAction *saveAction;
+    QAction *m_findAction;
     Imap::Network::FileDownloadManager *fileDownloadManager;
     Composer::Util::FlowedFormat flowedFormat;
 

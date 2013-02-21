@@ -49,7 +49,8 @@ SOURCES += \
     ComposerAttachments.cpp \
     FromAddressProxyModel.cpp \
     MessageSourceWidget.cpp \
-    FindBar.cpp
+    FindBar.cpp \
+    CompleteMessageWidget.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -84,7 +85,8 @@ HEADERS += \
     ComposerAttachments.h \
     FromAddressProxyModel.h \
     MessageSourceWidget.h \
-    FindBar.h
+    FindBar.h \
+    CompleteMessageWidget.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \

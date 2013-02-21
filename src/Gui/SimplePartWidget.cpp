@@ -57,6 +57,11 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     connect(saveAction, SIGNAL(triggered()), fileDownloadManager, SLOT(slotDownloadNow()));
     this->addAction(saveAction);
 
+    m_findAction = new QAction(tr("Search..."), this);
+    m_findAction->setShortcut(tr("Ctrl+F"));
+    connect(m_findAction, SIGNAL(triggered()), this, SIGNAL(searchDialogRequested()));
+    addAction(m_findAction);
+
     setContextMenuPolicy(Qt::CustomContextMenu);
 }
 
@@ -143,7 +148,7 @@ void SimplePartWidget::reloadContents()
 
 QList<QAction *> SimplePartWidget::contextMenuSpecificActions() const
 {
-    return QList<QAction*>() << saveAction;
+    return QList<QAction*>() << saveAction << m_findAction;
 }
 
 /** @short Connect various signals which require a certain reaction from the rest of the GUI */
@@ -156,6 +161,8 @@ void SimplePartWidget::connectGuiInteractionEvents(QObject *guiInteractionTarget
     connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SIGNAL(linkHovered(QString,QString,QString)));
     connect(this, SIGNAL(linkHovered(QString,QString,QString)),
             guiInteractionTarget, SLOT(partLinkHovered(QString,QString,QString)));
+
+    connect(this, SIGNAL(searchDialogRequested()), guiInteractionTarget, SLOT(triggerSearchDialog()));
 }
 
 }

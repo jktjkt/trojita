@@ -573,6 +573,11 @@ void MessageView::partLinkHovered(const QString &link, const QString &title, con
     emit linkHovered(link);
 }
 
+void MessageView::triggerSearchDialog()
+{
+    emit searchRequestedBy(qobject_cast<QWebView*>(sender()));
+}
+
 QModelIndex MessageView::currentMessage() const
 {
     return message;
