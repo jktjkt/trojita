@@ -204,6 +204,12 @@ void FindBar::findNext()
     if (matchCase())
         options |= QWebPage::FindCaseSensitively;
 
+    // FIXME: there's a problem with scrolling. Because we're using the QWebView inside a QScrollArea container, the attempts
+    // to scroll the QWebView itself have no effect.
+    // The WebKit sources themselves contain a nice comment about MacOS's Mail application which embeds a web view into
+    // a scrollable container (now *this* looks familiar, doesn't it) and provides a special function, the scrollRectIntoView.
+    // Sadly, the Qt wrapper doesn't implement it :(.
+
     bool found = m_associatedWebView->page()->findText(_lastStringSearched, options);
     notifyMatch(found);
 
