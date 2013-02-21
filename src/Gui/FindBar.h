@@ -25,24 +25,19 @@
 * ============================================================ */
 
 
-#ifndef FINDBAR_H
-#define FINDBAR_H
+#ifndef GUI_FINDBAR_H
+#define GUI_FINDBAR_H
 
-
-// Rekonq Includes
-#include "rekonq_defines.h"
-
-// Qt Includes
 #include <QWidget>
 
-// Forward Declarations
-class KLineEdit;
-
-class QString;
 class QCheckBox;
+class QLineEdit;
+class QString;
+class QWebView;
 
+namespace Gui {
 
-class REKONQ_TESTS_EXPORT FindBar : public QWidget
+class FindBar : public QWidget
 {
     Q_OBJECT
 
@@ -54,26 +49,30 @@ public:
     bool highlightAllState() const;
 
     void setVisible(bool visible);
+    void setAssociatedWebView(QWebView *webView);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
 
-private Q_SLOTS:
+private slots:
     void find(const QString &);
     void matchCaseUpdate();
     void findNext();
     void findPrevious();
     void updateHighlight();
 
-Q_SIGNALS:
+signals:
     void searchString(const QString &);
 
 private:
-    KLineEdit *m_lineEdit;
+    QLineEdit *m_lineEdit;
     QCheckBox *m_matchCase;
     QCheckBox *m_highlightAll;
 
     QString _lastStringSearched;
+    QWebView *m_associatedWebView;
 };
+
+}
 
 #endif

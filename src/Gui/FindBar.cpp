@@ -25,37 +25,25 @@
 * ============================================================ */
 
 
-// Self Includes
-#include "findbar.h"
-#include "findbar.moc"
-
-// Local Includes
-#include "webtab.h"
-#include "webpage.h"
-#include "webwindow.h"
-
-// KDE Includes
-#include <KApplication>
-#include <KIcon>
-#include <KLineEdit>
-#include <KLocalizedString>
-#include <KPushButton>
-#include <KColorScheme>
-
-// Qt Includes
+#include "FindBar.h"
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QToolButton>
 #include <QWebFrame>
+#include <QWebView>
 
+namespace Gui {
 
 FindBar::FindBar(QWidget *parent)
     : QWidget(parent)
-    , m_lineEdit(new KLineEdit(this))
-    , m_matchCase(new QCheckBox(i18n("&Match case"), this))
-    , m_highlightAll(new QCheckBox(i18n("&Highlight all"), this))
+    , m_lineEdit(new QLineEdit(this))
+    , m_matchCase(new QCheckBox(tr("&Match case"), this))
+    , m_highlightAll(new QCheckBox(tr("&Highlight all"), this)),
+      m_associatedWebView(0)
 {
     QHBoxLayout *layout = new QHBoxLayout;
 
@@ -65,13 +53,13 @@ FindBar::FindBar(QWidget *parent)
     // hide button
     QToolButton *hideButton = new QToolButton(this);
     hideButton->setAutoRaise(true);
-    hideButton->setIcon(KIcon("dialog-close"));
+    hideButton->setIcon(QIcon::fromTheme(QLatin1String("dialog-close")));
     connect(hideButton, SIGNAL(clicked()), this, SLOT(hide()));
     layout->addWidget(hideButton);
     layout->setAlignment(hideButton, Qt::AlignLeft | Qt::AlignTop);
 
     // label
-    QLabel *label = new QLabel(i18n("Find:"));
+    QLabel *label = new QLabel(tr("Find:"));
     layout->addWidget(label);
 
     // Find Bar signal
@@ -84,8 +72,8 @@ FindBar::FindBar(QWidget *parent)
     layout->addWidget(m_lineEdit);
 
     // buttons
-    KPushButton *findNext = new KPushButton(KIcon("go-down"), i18n("&Next"), this);
-    KPushButton *findPrev = new KPushButton(KIcon("go-up"), i18n("&Previous"), this);
+    QPushButton *findNext = new QPushButton(QIcon::fromTheme(QLatin1String("go-down")), tr("&Next"), this);
+    QPushButton *findPrev = new QPushButton(QIcon::fromTheme(QLatin1String("go-up")), tr("&Previous"), this);
     connect(findNext, SIGNAL(clicked()), this, SLOT(findNext()));
     connect(findPrev, SIGNAL(clicked()), this, SLOT(findPrevious()));
     layout->addWidget(findNext);
@@ -115,14 +103,10 @@ FindBar::FindBar(QWidget *parent)
 
 void FindBar::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-    {
-        if (event->modifiers() == Qt::ShiftModifier)
-        {
+    if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter) {
+        if (event->modifiers() == Qt::ShiftModifier) {
             findPrevious();
-        }
-        else
-        {
+        } else {
             findNext();
         }
     }
@@ -145,43 +129,29 @@ bool FindBar::highlightAllState() const
 
 void FindBar::setVisible(bool visible)
 {
-    // parent webwindow
-    WebWindow *w = qobject_cast<WebWindow *>(parent());
-
-    if (visible
-            && w->page()->isOnRekonqPage()
-            && w->tabView()->part() != 0)
-    {
-        // findNext is the slot containing part integration code
-        findNext();
-        return;
-    }
-
     QWidget::setVisible(visible);
 
-    if (visible)
-    {
-        const QString selectedText = w->page()->selectedText();
-        if (!hasFocus() && !selectedText.isEmpty())
-        {
+    if (!m_associatedWebView)
+        return;
+
+    if (visible) {
+        const QString selectedText = m_associatedWebView->page()->selectedText();
+        if (!hasFocus() && !selectedText.isEmpty()) {
             const QString previousText = m_lineEdit->text();
             m_lineEdit->setText(selectedText);
 
-            if (m_lineEdit->text() != previousText)
+            if (m_lineEdit->text() != previousText) {
                 findPrevious();
-            else
+            } else {
                 updateHighlight();
-        }
-        else if (selectedText.isEmpty())
-        {
+            }
+        } else if (selectedText.isEmpty()) {
             emit searchString(m_lineEdit->text());
         }
 
         m_lineEdit->setFocus();
         m_lineEdit->selectAll();
-    }
-    else
-    {
+    } else {
         updateHighlight();
     }
 }
@@ -190,29 +160,20 @@ void FindBar::setVisible(bool visible)
 void FindBar::notifyMatch(bool match)
 {
     QPalette p = m_lineEdit->palette();
-    KColorScheme colorScheme(p.currentColorGroup());
 
-    if (m_lineEdit->text().isEmpty())
-    {
-        p.setColor(QPalette::Base, colorScheme.background(KColorScheme::NormalBackground).color());
-    }
-    else
-    {
-        if (match)
-        {
-            p.setColor(QPalette::Base, colorScheme.background(KColorScheme::PositiveBackground).color());
-        }
-        else
-        {
-            p.setColor(QPalette::Base, colorScheme.background(KColorScheme::NegativeBackground).color()); // previous were 247, 230, 230
+    if (m_lineEdit->text().isEmpty()) {
+        p.setColor(QPalette::Base, palette().color(QPalette::Window));
+    } else {
+        if (match) {
+            p.setColor(QPalette::Base, QColor(230, 247, 230));
+        } else {
+            p.setColor(QPalette::Base, QColor(247, 230, 230));
         }
     }
     m_lineEdit->setPalette(p);
 }
 
 
-
-// FIND RELATED -------------------------------------------------------------------------------------
 void FindBar::find(const QString & search)
 {
     _lastStringSearched = search;
@@ -224,26 +185,12 @@ void FindBar::find(const QString & search)
 
 void FindBar::findNext()
 {
-    // parent webwindow
-    WebWindow *w = qobject_cast<WebWindow *>(parent());
+    Q_ASSERT(m_associatedWebView);
 
-    if (w->page()->isOnRekonqPage())
-    {
-        // trigger part find action
-        KParts::ReadOnlyPart *p = w->tabView()->part();
-        if (p)
-        {
-//             connect(this, SIGNAL(triggerPartFind()), p, SLOT(slotFind()));
-//             emit triggerPartFind();
-            return;
-        }
-    }
-
-    if (isHidden())
-    {
-        QPoint previous_position = w->page()->currentFrame()->scrollPosition();
-        w->page()->focusNextPrevChild(true);
-        w->page()->currentFrame()->setScrollPosition(previous_position);
+    if (isHidden()) {
+        QPoint previous_position = m_associatedWebView->page()->currentFrame()->scrollPosition();
+        m_associatedWebView->page()->focusNextPrevChild(true);
+        m_associatedWebView->page()->currentFrame()->setScrollPosition(previous_position);
         return;
     }
 
@@ -251,38 +198,35 @@ void FindBar::findNext()
     if (matchCase())
         options |= QWebPage::FindCaseSensitively;
 
-    bool found = w->page()->findText(_lastStringSearched, options);
+    bool found = m_associatedWebView->page()->findText(_lastStringSearched, options);
     notifyMatch(found);
 
-    if (!found)
-    {
-        QPoint previous_position = w->page()->currentFrame()->scrollPosition();
-        w->page()->focusNextPrevChild(true);
-        w->page()->currentFrame()->setScrollPosition(previous_position);
+    if (!found) {
+        QPoint previous_position = m_associatedWebView->page()->currentFrame()->scrollPosition();
+        m_associatedWebView->page()->focusNextPrevChild(true);
+        m_associatedWebView->page()->currentFrame()->setScrollPosition(previous_position);
     }
 }
 
 
 void FindBar::findPrevious()
 {
-    // parent webwindow
-    WebWindow *w = qobject_cast<WebWindow *>(parent());
+    Q_ASSERT(m_associatedWebView);
 
     QWebPage::FindFlags options = QWebPage::FindBackward | QWebPage::FindWrapsAroundDocument;
     if (matchCase())
         options |= QWebPage::FindCaseSensitively;
 
-    bool found = w->page()->findText(_lastStringSearched, options);
+    bool found = m_associatedWebView->page()->findText(_lastStringSearched, options);
     notifyMatch(found);
 }
 
 
 void FindBar::matchCaseUpdate()
 {
-    // parent webwindow
-    WebWindow *w = qobject_cast<WebWindow *>(parent());
+    Q_ASSERT(m_associatedWebView);
 
-    w->page()->findText(_lastStringSearched, QWebPage::FindBackward);
+    m_associatedWebView->page()->findText(_lastStringSearched, QWebPage::FindBackward);
     findNext();
     updateHighlight();
 }
@@ -290,18 +234,24 @@ void FindBar::matchCaseUpdate()
 
 void FindBar::updateHighlight()
 {
-    // parent webwindow
-    WebWindow *w = qobject_cast<WebWindow *>(parent());
+    Q_ASSERT(m_associatedWebView);
 
     QWebPage::FindFlags options = QWebPage::HighlightAllOccurrences;
 
-    w->page()->findText(QL1S(""), options); //Clear an existing highlight
+    m_associatedWebView->page()->findText(QString(), options); //Clear an existing highlight
 
     if (!isHidden() && highlightAllState())
     {
         if (matchCase())
             options |= QWebPage::FindCaseSensitively;
 
-        w->page()->findText(_lastStringSearched, options);
+        m_associatedWebView->page()->findText(_lastStringSearched, options);
     }
+}
+
+void FindBar::setAssociatedWebView(QWebView *webView)
+{
+    m_associatedWebView = webView;
+}
+
 }
