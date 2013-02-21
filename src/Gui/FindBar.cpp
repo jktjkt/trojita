@@ -156,6 +156,9 @@ void FindBar::setVisible(bool visible)
         m_lineEdit->selectAll();
     } else {
         updateHighlight();
+
+        // Clear the selection
+        m_associatedWebView->page()->findText(QString());
     }
 }
 
