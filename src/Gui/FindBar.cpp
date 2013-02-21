@@ -54,6 +54,7 @@ FindBar::FindBar(QWidget *parent)
     QToolButton *hideButton = new QToolButton(this);
     hideButton->setAutoRaise(true);
     hideButton->setIcon(QIcon::fromTheme(QLatin1String("dialog-close")));
+    hideButton->setShortcut(tr("Esc"));
     connect(hideButton, SIGNAL(clicked()), this, SLOT(hide()));
     layout->addWidget(hideButton);
     layout->setAlignment(hideButton, Qt::AlignLeft | Qt::AlignTop);
@@ -73,7 +74,9 @@ FindBar::FindBar(QWidget *parent)
 
     // buttons
     QPushButton *findNext = new QPushButton(QIcon::fromTheme(QLatin1String("go-down")), tr("&Next"), this);
+    findNext->setShortcut(tr("F3"));
     QPushButton *findPrev = new QPushButton(QIcon::fromTheme(QLatin1String("go-up")), tr("&Previous"), this);
+    findPrev->setShortcut(tr("Shift+F3"));
     connect(findNext, SIGNAL(clicked()), this, SLOT(findNext()));
     connect(findPrev, SIGNAL(clicked()), this, SLOT(findPrevious()));
     layout->addWidget(findNext);
