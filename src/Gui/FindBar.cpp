@@ -165,7 +165,7 @@ void FindBar::notifyMatch(bool match)
     QPalette p = m_lineEdit->palette();
 
     if (m_lineEdit->text().isEmpty()) {
-        p.setColor(QPalette::Base, palette().color(QPalette::Window));
+        p.setColor(QPalette::Base, palette().color(QPalette::Base));
     } else {
         if (match) {
             p.setColor(QPalette::Base, QColor(230, 247, 230));
