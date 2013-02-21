@@ -124,6 +124,7 @@ QString MailAddress::prettyName(FormattingMode mode) const
         QString address = mailbox + QLatin1Char('@') + host;
         QString result;
         QString niceName;
+        bool hasNiceName = !name.isEmpty();
         if (name.isEmpty()) {
             result = address;
             niceName = address;
@@ -138,12 +139,16 @@ QString MailAddress::prettyName(FormattingMode mode) const
             target.setScheme(QLatin1String("mailto"));
             target.setPath(QString::fromUtf8("%1@%2").arg(mailbox, host));
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-            target.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
+            if (hasNiceName) {
+                target.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
+            }
             return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(Qt::escape(target.toString()), Qt::escape(niceName));
 #else
-            QUrlQuery q(target);
-            q.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
-            target.setQuery(q);
+            if (hasNiceName) {
+                QUrlQuery q(target);
+                q.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
+                target.setQuery(q);
+            }
             return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(target.toString().toHtmlEscaped(), niceName.toHtmlEscaped());
 #endif
         }
