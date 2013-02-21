@@ -63,6 +63,7 @@ namespace Gui
 {
 
 class AbstractAddressbook;
+class CompleteMessageWidget;
 class ComposeWidget;
 class MailBoxTreeView;
 class MessageView;
@@ -189,12 +190,11 @@ private:
     MailBoxTreeView *mboxTree;
     MessageListWidget *msgListWidget;
     QTreeView *allTree;
-    MessageView *msgView;
     QDockWidget *allDock;
     QTreeView *taskTree;
     QDockWidget *taskDock;
 
-    QScrollArea *area;
+    CompleteMessageWidget *m_messageWidget;
 
     ProtocolLoggerWidget *imapLogger;
     QDockWidget *imapLoggerDock;

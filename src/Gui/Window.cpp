@@ -59,6 +59,7 @@
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "AbookAddressbook.h"
+#include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
 #include "IconLoader.h"
 #include "MailBoxTreeView.h"
@@ -225,13 +226,13 @@ void MainWindow::createActions()
     m_nextMessage = new QAction(tr("Next Unread Message"), this);
     m_nextMessage->setShortcut(Qt::Key_N);
     msgListWidget->tree->addAction(m_nextMessage);
-    msgView->addAction(m_nextMessage);
+    m_messageWidget->messageView->addAction(m_nextMessage);
     connect(m_nextMessage, SIGNAL(triggered()), this, SLOT(slotNextUnread()));
 
     m_previousMessage = new QAction(tr("Previous Unread Message"), this);
     m_previousMessage->setShortcut(Qt::Key_P);
     msgListWidget->tree->addAction(m_previousMessage);
-    msgView->addAction(m_previousMessage);
+    m_messageWidget->messageView->addAction(m_previousMessage);
     connect(m_previousMessage, SIGNAL(triggered()), this, SLOT(slotPreviousUnread()));
 
     markAsDeleted = new QAction(loadIcon(QLatin1String("list-remove")),  tr("Mark as Deleted"), this);
@@ -496,23 +497,20 @@ void MainWindow::createWidgets()
     connect(msgListWidget->tree, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(msgListDoubleClicked(const QModelIndex &)));
     connect(msgListWidget, SIGNAL(requestingSearch(QStringList)), this, SLOT(slotSearchRequested(QStringList)));
 
-    msgView = new MessageView();
-    area = new QScrollArea();
-    area->setWidget(msgView);
-    area->setWidgetResizable(true);
-    connect(msgView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
-    connect(msgView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
-    connect(msgView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
+    m_messageWidget = new CompleteMessageWidget(this);
+    connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
+    connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
+    connect(m_messageWidget->messageView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
     if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
-        msgView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
+        m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
     }
 
     m_mainHSplitter = new QSplitter();
     m_mainVSplitter = new QSplitter();
     m_mainVSplitter->setOrientation(Qt::Vertical);
     m_mainVSplitter->addWidget(msgListWidget);
-    m_mainVSplitter->addWidget(area);
+    m_mainVSplitter->addWidget(m_messageWidget);
     m_mainHSplitter->addWidget(mboxTree);
     m_mainHSplitter->addWidget(m_mainVSplitter);
 
@@ -718,7 +716,7 @@ void MainWindow::msgListActivated(const QModelIndex &index)
         return;
 
     if (index.column() != Imap::Mailbox::MsgListModel::SEEN) {
-        msgView->setMessage(index);
+        m_messageWidget->messageView->setMessage(index);
         msgListWidget->tree->setCurrentIndex(index);
     }
 }
@@ -751,19 +749,16 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
 
-    MessageView *newView = new MessageView(0);
     QModelIndex realIndex;
     const Imap::Mailbox::Model *realModel;
     Imap::Mailbox::TreeItemMessage *message = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(
                 Imap::Mailbox::Model::realTreeItem(index, &realModel, &realIndex));
     Q_ASSERT(message);
     Q_ASSERT(realModel == model);
-    newView->setMessage(index);
 
-    QScrollArea *widget = new QScrollArea();
+    CompleteMessageWidget *widget = new CompleteMessageWidget();
+    widget->messageView->setMessage(index);
     widget->setFocusPolicy(Qt::StrongFocus);
-    widget->setWidget(newView);
-    widget->setWidgetResizable(true);
     widget->setWindowTitle(message->envelope(model).subject);
     widget->setAttribute(Qt::WA_DeleteOnClose);
     widget->resize(800, 600);
@@ -989,7 +984,7 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
 
 void MainWindow::nukeModels()
 {
-    msgView->setEmpty();
+    m_messageWidget->messageView->setEmpty();
     mboxTree->setModel(0);
     msgListWidget->tree->setModel(0);
     allTree->setModel(0);
@@ -1076,7 +1071,7 @@ void MainWindow::slotNextUnread()
     bool wrapped = false;
     while (current.isValid()) {
         if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListWidget->tree->currentIndex() != current) {
-            msgView->setMessage(current);
+            m_messageWidget->messageView->setMessage(current);
             msgListWidget->tree->setCurrentIndex(current);
             return;
         }
@@ -1112,7 +1107,7 @@ void MainWindow::slotPreviousUnread()
     bool wrapped = false;
     while (current.isValid()) {
         if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListWidget->tree->currentIndex() != current) {
-            msgView->setMessage(current);
+            m_messageWidget->messageView->setMessage(current);
             msgListWidget->tree->setCurrentIndex(current);
             return;
         }
@@ -1253,13 +1248,13 @@ void MainWindow::slotUpdateMessageActions()
 {
     Composer::RecipientList dummy;
     m_replyPrivate->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE, senderIdentitiesModel(),
-                                                                  msgView->currentMessage(), dummy));
+                                                                  m_messageWidget->messageView->currentMessage(), dummy));
     m_replyAllButMe->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL_BUT_ME, senderIdentitiesModel(),
-                                                                   msgView->currentMessage(), dummy));
+                                                                   m_messageWidget->messageView->currentMessage(), dummy));
     m_replyAll->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL, senderIdentitiesModel(),
-                                                              msgView->currentMessage(), dummy));
+                                                              m_messageWidget->messageView->currentMessage(), dummy));
     m_replyList->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_LIST, senderIdentitiesModel(),
-                                                               msgView->currentMessage(), dummy));
+                                                               m_messageWidget->messageView->currentMessage(), dummy));
     m_replyGuess->setEnabled(m_replyPrivate->isEnabled() || m_replyAllButMe->isEnabled()
                              || m_replyAll->isEnabled() || m_replyList->isEnabled());
 
@@ -1276,27 +1271,27 @@ void MainWindow::slotUpdateMessageActions()
 
 void MainWindow::scrollMessageUp()
 {
-    area->ensureVisible(0, 0, 0, 0);
+    m_messageWidget->area->ensureVisible(0, 0, 0, 0);
 }
 
 void MainWindow::slotReplyTo()
 {
-    msgView->reply(this, Composer::REPLY_PRIVATE);
+    m_messageWidget->messageView->reply(this, Composer::REPLY_PRIVATE);
 }
 
 void MainWindow::slotReplyAll()
 {
-    msgView->reply(this, Composer::REPLY_ALL);
+    m_messageWidget->messageView->reply(this, Composer::REPLY_ALL);
 }
 
 void MainWindow::slotReplyAllButMe()
 {
-    msgView->reply(this, Composer::REPLY_ALL_BUT_ME);
+    m_messageWidget->messageView->reply(this, Composer::REPLY_ALL_BUT_ME);
 }
 
 void MainWindow::slotReplyList()
 {
-    msgView->reply(this, Composer::REPLY_LIST);
+    m_messageWidget->messageView->reply(this, Composer::REPLY_LIST);
 }
 
 void MainWindow::slotReplyGuess()
@@ -1833,14 +1828,14 @@ void MainWindow::slotUpdateWindowTitle()
 
 void MainWindow::slotLayoutCompact()
 {
-    m_mainVSplitter->addWidget(area);
+    m_mainVSplitter->addWidget(m_messageWidget);
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
     setMinimumWidth(800);
 }
 
 void MainWindow::slotLayoutWide()
 {
-    m_mainHSplitter->addWidget(area);
+    m_mainHSplitter->addWidget(m_messageWidget);
     m_mainHSplitter->setStretchFactor(0, 0);
     m_mainHSplitter->setStretchFactor(1, 1);
     m_mainHSplitter->setStretchFactor(2, 1);
