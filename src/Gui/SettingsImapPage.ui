@@ -159,7 +159,7 @@ p, li { white-space: pre-wrap; }
        <string>IMAP Username</string>
       </property>
       <property name="whatsThis">
-       <string>User name to log in to the MAP server</string>
+       <string>User name to log in to the IMAP server</string>
       </property>
       <property name="text">
        <string/>
