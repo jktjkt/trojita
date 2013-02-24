@@ -16,9 +16,11 @@ TARGET = test_LibMailboxSync
 include(../../configh.pri)
 
 HEADERS += ../TagGenerator.h \
-    FakeCapabilitiesInjector.h
+    FakeCapabilitiesInjector.h \
+    ModelEvents.h
 HEADERS += test_LibMailboxSync.h
-SOURCES += test_LibMailboxSync.cpp
+SOURCES += test_LibMailboxSync.cpp \
+    ModelEvents.cpp
 
 # the upper makefile really wants to call `make check` in here...
 check.target = check

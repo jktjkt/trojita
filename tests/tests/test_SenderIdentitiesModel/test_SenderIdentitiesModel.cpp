@@ -23,6 +23,7 @@
 
 #include <QtTest>
 #include "test_SenderIdentitiesModel.h"
+#include "test_LibMailboxSync/ModelEvents.h"
 #include "../headless_test.h"
 
 #define COMPARE_ROWNUM(identity, rowNumber) \
@@ -36,71 +37,7 @@
   QCOMPARE(model->data(indexName).toString(), identity.realName); \
   QCOMPARE(model->data(indexSignature).toString(), identity.signature);
 
-Q_DECLARE_METATYPE(QModelIndex)
-
 using namespace Composer;
-
-namespace QTest
-{
-    template<>
-    char *toString(const ModelInsertRemoveEvent &event)
-    {
-        QString buf;
-        QDebug(&buf) << "parent:" << event.parent
-                     << "start:" << event.start
-                     << "end:" << event.end;
-        return qstrdup(buf.toUtf8().constData());
-    }
-
-    template<>
-    char *toString(const ModelMoveEvent &event)
-    {
-        QString buf;
-        QDebug(&buf) << "sourceParent:" << event.sourceParent << "sourceStart:" << event.sourceStart
-                     << "sourceEnd:" << event.sourceEnd << "destinationParent:" << event.destinationParent
-                     << "destinationRow:" << event.destinationRow;
-        return qstrdup(buf.toUtf8().constData());
-    }
-}
-
-ModelInsertRemoveEvent::ModelInsertRemoveEvent(const QVariantList &values)
-{
-    parent = qvariant_cast<QModelIndex>(values.at(0));
-    start = values.at(1).toInt();
-    end = values.at(2).toInt();
-}
-
-ModelInsertRemoveEvent::ModelInsertRemoveEvent(const QModelIndex &parent, int start, int end) :
-    parent(parent), start(start), end(end)
-{
-}
-
-bool ModelInsertRemoveEvent::operator==(const ModelInsertRemoveEvent &b) const
-{
-    return ((parent == b.parent) && (start == b.start) && (end == b.end));
-}
-
-ModelMoveEvent::ModelMoveEvent(const QVariantList &values)
-{
-    sourceParent = qvariant_cast<QModelIndex>(values.at(0));
-    sourceStart = values.at(1).toInt();
-    sourceEnd = values.at(2).toInt();
-    destinationParent = qvariant_cast<QModelIndex>(values.at(3));
-    destinationRow = values.at(4).toInt();
-}
-
-ModelMoveEvent::ModelMoveEvent(const QModelIndex &sourceParent, int sourceStart, int sourceEnd,
-                               const QModelIndex &destinationParent, int destinationRow) :
-    sourceParent(sourceParent), sourceStart(sourceStart), sourceEnd(sourceEnd),
-    destinationParent(destinationParent), destinationRow(destinationRow)
-{
-}
-
-bool ModelMoveEvent::operator==(const ModelMoveEvent &b) const
-{
-    return (sourceParent == b.sourceParent) && (sourceStart == b.sourceStart) && (sourceEnd == b.sourceEnd) &&
-      (destinationParent == b.destinationParent) && (destinationRow == b.destinationRow);
-}
 
 SenderIdentitiesModelTest::SenderIdentitiesModelTest() :
     identity1("test name #1", "test1@mail.org", "testing", "tester 1"),

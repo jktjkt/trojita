@@ -20,39 +20,43 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TEST_SENDERIDENTITIESMODEL
-#define TEST_SENDERIDENTITIESMODEL
+#ifndef TEST_MODEL_EVENTS
+#define TEST_MODEL_EVENTS
 
-#include <QTest>
-#include "Composer/SenderIdentitiesModel.h"
+#include <QModelIndex>
+Q_DECLARE_METATYPE(QModelIndex)
 
-using namespace Composer;
-
-class SenderIdentitiesModelTest : public QObject
+class ModelInsertRemoveEvent
 {
-    Q_OBJECT
 
- public:
-    SenderIdentitiesModelTest();
+public:
+    ModelInsertRemoveEvent(const QList<QVariant> &values);
+    ModelInsertRemoveEvent(const QModelIndex &parent, int start, int end);
 
-private slots:
-    void init();
-    void initTestCase();
-    void testPropertyStorage();
-    void testAddIdentity();
-    void testRemoveIdentity1();
-    void testRemoveIdentity2();
-    void testMoveFirstIdentity();
-    void testMoveLastIdentity();
-    void testMoveMiddleIdentity();
-    void cleanup();
-private:
-    SenderIdentitiesModel* model;
-    ItemSenderIdentity identity1;
-    ItemSenderIdentity identity2;
-    ItemSenderIdentity identity3;
+    bool operator==(const ModelInsertRemoveEvent &b) const;
+
+
+    QModelIndex parent;
+    int start;
+    int end;
 };
 
+class ModelMoveEvent
+{
 
+public:
+    ModelMoveEvent(const QVariantList &values);
+    ModelMoveEvent(const QModelIndex &sourceParent, int sourceStart, int sourceEnd, const QModelIndex &destinationparent,
+                   int destinationRow);
+
+    bool operator==(const ModelMoveEvent &b) const;
+
+
+    QModelIndex sourceParent;
+    int sourceStart;
+    int sourceEnd;
+    QModelIndex destinationParent;
+    int destinationRow;
+};
 
 #endif
