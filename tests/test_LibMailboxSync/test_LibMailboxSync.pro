@@ -17,8 +17,8 @@ include(../../configh.pri)
 
 HEADERS += ../TagGenerator.h \
     FakeCapabilitiesInjector.h \
+    test_LibMailboxSync.h \
     ModelEvents.h
-HEADERS += test_LibMailboxSync.h
 SOURCES += test_LibMailboxSync.cpp \
     ModelEvents.cpp
 
