@@ -19,6 +19,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <QApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -91,6 +92,13 @@ void SimplePartWidget::slotMarkupPlainText() {
         "span.shortquote > blockquote > label {display: none}"
     );
 
+    QPalette palette = QApplication::palette();
+    QString textColors;
+    if (palette.background().color().lightness() < 50) {
+        textColors = QString::fromUtf8("body { background-color: %1; color: %2 }").arg(palette.base().color().name(),
+                                                                                       palette.text().color().name());
+    }
+
     // build stylesheet and html header
     static QString stylesheet = defaultStyle;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -109,7 +117,7 @@ void SimplePartWidget::slotMarkupPlainText() {
             file.close();
         }
     }
-    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
+    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + textColors + "--></style></head><body><pre>");
     static QString htmlFooter("\n</pre></body></html>");
 
     QString markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);
