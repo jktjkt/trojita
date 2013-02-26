@@ -18,7 +18,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="std" docName="draft-kundrat-incthread-00" ipr="trust200902">
+<rfc category="std" docName="draft-kundrat-incthread-01" ipr="trust200902">
 
   <front>
     <title abbrev="IMAP INCTHREAD Extension">IMAP Extension for Incremental Threading (INCTHREAD)</title>
@@ -35,7 +35,7 @@
       </address>
     </author>
 
-    <date year="2012" month="August" day="25"/>
+    <date year="2013" month="February" day="26"/>
 
     <area>General</area>
     <workgroup>Internet Engineering Task Force</workgroup>
@@ -186,20 +186,20 @@
                         thread is inserted just behind a thread whose root message has UID specified in the "uid"
                         argument of the INCTHREAD response.</t>
 
-                    <t>If the client supports incremental threading, the INCTHREAD responses MUST be processed in order.
-                        In particular, inserting the newly formed threads to a proper location shall happen immediately
-                        as the new thread is created as the subsequent responses COULD refer to the root message of the
-                        just-inserted thread.  If the UID is said to be zero (0), it is interpreted specially to mean
-                        that the newly formed thread is the very first one among the list of threads in the mailbox.</t>
-
-                    <t>If valid, the UID of the previous thread root message MUST refer to the previous thread in a
+                    <t>If non-zero, the UID of the previous thread root message MUST refer to the previous thread in a
                         mapping which contains all messages from a mailbox.  In particular, no matter what additional
                         searching criteria the client has used, the previous thread MUST always be identified without
-                        any search criteria being applied.  In future, this might be changed to allow for a subsequent
-                        search specification to accommodate clients working on a subset of messages.</t>
+                        any search criteria being applied.</t>
 
-                    <t>Servers MUST NOT send a number which does not refer to any thread root UID unless the number is 0
-                        to indicate the very first thread.</t>
+                    <t>If the client supports incremental threading, the INCTHREAD blocks of an ESEARCH response MUST be
+                        processed in order.  In particular, inserting the newly formed threads to a proper location
+                        shall happen immediately when the new thread is created because the subsequent responses COULD
+                        refer to the root message of the just-inserted thread.</t>
+
+                    <t>If the UID is said to be zero (0), it is interpreted specially to mean that the newly formed
+                        thread is the very first one among the list of threads in the mailbox.  Servers MUST NOT send a
+                        number which does not refer to any thread root UID unless the number is 0 to indicate the very
+                        first thread.</t>
 
                     <t>Clients MUST deal with servers sending a UID which does not refer to any thread root or any
                         message in the mailbox.  Is is implementation-defined at which position such thread shall be
@@ -342,7 +342,7 @@ S: x2 OK Threading sent]]></artwork>
  |   |   +-- 2
  |   +-- 3       <-- previous thread #2
  |       +-- 4
- +-- 5           <-- previous thread #3 remains a standalone thread]]></artwork>
+ +-- 5           <-- previous thread #3 remains as a standalone thread]]></artwork>
             </figure>
         </section>
 
@@ -433,5 +433,14 @@ thread-return-opts  = SP "RETURN" SP "(" [thread-return-opt
     <references title="Informative References">
       &RFC5267;
     </references>
+
+    <section anchor="changelog" title="Changelog">
+        <section title="Changes in -01 since -00">
+            <t><list style="symbols">
+                <t>Added some clarifications that each INCTHREAD block MUST be processed immediately because the
+                    subsequent block might refer to its results</t>
+            </list></t>
+        </section>
+    </section>
   </back>
 </rfc>
