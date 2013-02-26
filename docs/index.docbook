@@ -85,10 +85,12 @@ all their messages, removing them from the server.  The disadvantage was that
 if you used any other computer, your messages were not available.  IMAP solves
 that problem by keeping the mail on the server.  The software you use on your
 local computer/cellphone simply issues instructions ("reply to this email,"
-"display this email," etc.) for the server to execute.</para>
+"display this email," &etc;) for the server to execute.</para>
 
 <para>First you need an IMAP account.  There are many providers;
-<ulink url="http://fastmail.fm" /> is one; <ulink url="http://tuffmail.com" /> and <ulink url ="http://pobox.com" /> are others. 
+<ulink url="http://fastmail.fm">http://fastmail.fm</ulink> is one; 
+<ulink url="http://tuffmail.com">http://tuffmail.com</ulink> and
+<ulink url ="http://pobox.com">http://pobox.com</ulink> are others. 
 Google's Gmail service provides IMAP access to your Gmail account (Outlook and
 others do not). And if the manager of your &Microsoft; <application>Exchange</application> server has
 configured it, you can access <application>Exchange</application> through IMAP as well.  If you've
