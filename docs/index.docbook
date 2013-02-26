@@ -36,7 +36,7 @@
 <abstract>
 <para>
 &trojita; is an email program ("client") for IMAP accounts.  It is a
-stand-alone program not associated with any Information Suites or equivalent. 
+stand-alone program not associated with any Information Suites or equivalent.
 It prioritizes efficient and fast data transfer, taking care not to re-download
 any information that has already been downloaded, and being conservative about
 network usage when you are paying by the minute.   Currently
@@ -88,12 +88,12 @@ local computer/cellphone simply issues instructions ("reply to this email,"
 "display this email," &etc;) for the server to execute.</para>
 
 <para>First you need an IMAP account.  There are many providers;
-<ulink url="http://fastmail.fm">http://fastmail.fm</ulink> is one; 
-<ulink url="http://tuffmail.com">http://tuffmail.com</ulink> and
-<ulink url ="http://pobox.com">http://pobox.com</ulink> are others. 
+<ulink url="http://fastmail.fm">FastMail</ulink> is one;
+<ulink url="http://tuffmail.com">Tuffmail</ulink> and
+<ulink url="http://pobox.com">Pobox</ulink> are others.
 Google's Gmail service provides IMAP access to your Gmail account (Outlook and
 others do not). And if the manager of your &Microsoft; <application>Exchange</application> server has
-configured it, you can access <application>Exchange</application> through IMAP as well.  If you've
+configured it, you can access <application>Exchange</application> through IMAP as well.  If you have
 got an IMAP account, a user name and password, that is all you should
 need to use &trojita; to access it.</para>
 
@@ -137,7 +137,7 @@ Generally, TCP or SSL are your two most likely choices.</para></listitem>
 <listitem><para>IMAP Server: is your provider's server (&eg;
 mail.host.com)</para></listitem>
 <listitem><para>Port: this parameter should change
-automatically depending on what you enter for "IMAP Server." 
+automatically depending on what you enter for "IMAP Server."
 Typically it is 143 for unencrypted connections and 993 for
 SSL connections.</para></listitem>
 <listitem><para>Username: your username</para></listitem>
@@ -175,13 +175,13 @@ connections, or "secure SMTP" if you prefer (and your
 provider accepts) mail sent over SSL.  If you choose
 "local sendmail-compatible" &trojita; will simply
 pass your mail to the sendmail app running on your local
-computer (and if you haven't got one, it will fail). 
+computer (and if you haven't got one, it will fail).
 Choosing this option requires you specify the sendmail
 parameters for using your local sendmail.</para></listitem>
 <listitem><para>SMTP server: the name of the server to
 which your mail should be sent.</para></listitem>
 <listitem><para>Port: This parameter should change
-automatically depending on what you choose for "Method." 
+automatically depending on what you choose for "Method."
 Typically, it's 587 for unencrypted mail, and 465 for mail
 sent over SSL.</para></listitem>
 <listitem><para>Sendmail Executable: is only required if
@@ -202,7 +202,7 @@ send unwanted messages through the server.</para></listitem>
 <listitem><para>Username: your user name.</para></listitem>
 <listitem><para>Your password.</para></listitem>
 <listitem><para>Save outgoing mail: if you check this box,
-&trojita; will save a copy of every mail you send. 
+&trojita; will save a copy of every mail you send.
 This has been the default setting for all email programs for
 so long now that few people even know it's possible to not do
 so!</para></listitem>
@@ -231,7 +231,7 @@ provider permits BURL, it's worth selecting this option.</para></listitem>
 anyone who has ever used email before.  On the left side is a list of all
 your email folders, probably INBOX and some others.  On the right side
 are two panes: the top pane shows the list of all messages in the current
-folder, and the bottom pane shows the message selected in the top pane. 
+folder, and the bottom pane shows the message selected in the top pane.
 &Microsoft; Outlook, &kmail; and many other email clients all use this
 same layout.  </para>
 
@@ -502,7 +502,7 @@ Documentation Copyright &copy; 2013 Randall Wood
 <title>Requirements</title>
 
 <para>
-&trojita; has been designed to have a minimum of dependencies. 
+&trojita; has been designed to have a minimum of dependencies.
 Currently, all you need are the Qt libraries.  You can find the source code and
 instructions for compilation at <ulink
 url="https://projects.flaska.net/projects/trojita">the &trojita; home
