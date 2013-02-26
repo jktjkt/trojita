@@ -249,8 +249,7 @@ toolbar, as no keystroke shortcuts are currently defined.  Choose
 <guibutton>Private Reply</guibutton> to respond only to the sender.  Choose <guibutton>Reply to All</guibutton> if
 you'd like to reply to the sender and everyone else on the To: or CC:
 lines.  If the message arrived through a properly-configured mailing
-list, the <guibutton>Reply to Mailing List</guibutton> option will also be made available. 
-Note that &trojita; tries to be </para>
+list, the <guibutton>Reply to Mailing List</guibutton> option will also be made available.</para>
 
 <note><para>At present, the "Forward message" function has not yet been
 included.</para></note>
