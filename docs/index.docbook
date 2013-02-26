@@ -88,10 +88,10 @@ local computer/cellphone simply issues instructions ("reply to this email,"
 "display this email," etc.) for the server to execute.</para>
 
 <para>First you need an IMAP account.  There are many providers;
-http://fastmail.fm is one; http://tuffmail.com and http://pobox.com are others. 
-Google's Gmail service provides IMAP access to your Gmail account (Hotmail and
-others do not). And if the manager of your Microsoft Exchange server has
-configured it, you can access Exchange through IMAP as well.  If you've
+<ulink url="http://fastmail.fm" /> is one; <ulink url="http://tuffmail.com" /> and <ulink url ="http://pobox.com" /> are others. 
+Google's Gmail service provides IMAP access to your Gmail account (Outlook and
+others do not). And if the manager of your &Microsoft; <application>Exchange</application> server has
+configured it, you can access <application>Exchange</application> through IMAP as well.  If you've
 got an IMAP account, a user name and password, that is all you should
 need to use &trojita; to access it.</para>
 
@@ -102,14 +102,14 @@ software, you'll be surprised how pleasant an experience it can be.</para>
 
 <sect1 id="configure-account">
 <title>Configuring your IMAP Account</title>
-<para>First, click on the "General" tab of the Settings box.  Add your IMAP
+<para>First, click on the <guilabel>General</guilabel> tab of the Settings box.  Add your IMAP
 account as a new account, using these parameters:
 
 <itemizedlist>
 <listitem><para>Real Name: the name you want to show on your
 emails (your own first and last name)</para></listitem>
 <listitem><para>Email: your email address</para></listitem>
-<listitem><para>Organization: your company name (optional)</para></listitem>
+<listitem><para>Organisation: your company name (optional)</para></listitem>
 <listitem><para>Signature: any text you want to appear at the
 bottom of your emails, like your website name or a slogan</para></listitem>
 </itemizedlist>
@@ -155,7 +155,7 @@ but does not actually provide, listing them here allows
 </itemizedlist>
 </para>
 
-<para>The Offline Mode tab is where you configure &trojita;'s
+<para>The <guilabel>Offline</guilabel> mode tab is where you configure &trojita;'s
 ability to store local copies of messages on your server.  The advantage
 of saving a copy locally is obvious: you can access it later without
 reconnecting.  The disadvantages include filling up your local hard disk,
@@ -166,7 +166,7 @@ certain number of days, or to not store at all.  Note that the code to
 clean the message cache has not yet been implemented, so at present you
 should assume the message cache will not be pruned.</para>
 
-<para>The SMTP tab is where you configure sending email.
+<para>The <guilabel>SMTP</guilabel> tab is where you configure sending email.
 <itemizedlist>
 <listitem><para>Method: choose SMTP for unencrypted
 connections, or "secure SMTP" if you prefer (and your
@@ -301,7 +301,7 @@ will auto-complete entries using it.</para></sect1>
 <term>
   <menuchoice>
     <guimenu>IMAP</guimenu>
-    <guimenuitem>Compose New ...</guimenuitem>
+    <guimenuitem>Compose Mail...</guimenuitem>
   </menuchoice>
 </term>
 <listitem><para><action>Opens a new message for
@@ -316,7 +316,7 @@ editing</action></para></listitem>
       <keycombo action="simul">&Ctrl;<keycap>E</keycap></keycombo>
     </shortcut>
     <guimenu>IMAP</guimenu>
-    <guimenuitem>Expunge Messages</guimenuitem>
+    <guimenuitem>Expunge Mailbox</guimenuitem>
   </menuchoice>
 </term>
 <listitem><para><action>Removes from the server any message already
@@ -343,7 +343,7 @@ won't be able to send them).</action></para></listitem>
 <term>
   <menuchoice>
     <guimenu>Network Access</guimenu>
-    <guimenuitem>Expensive</guimenuitem>
+    <guimenuitem>Expensive Connection</guimenuitem>
   </menuchoice>
 </term>
 <listitem><para><action>Use this if you're using
@@ -400,7 +400,7 @@ bottom.</action></para></listitem>
 <term>
   <menuchoice>
     <guimenu>View</guimenu>
-    <guimenuitem>Show messages in threads</guimenuitem>
+    <guimenuitem>Show Messages in Threads</guimenuitem>
   </menuchoice>
 </term>
 <listitem><para><action>Select this option to show
@@ -427,7 +427,7 @@ like only new messages to appear in the message list.</action></para></listitem>
 <term>
   <menuchoice>
     <guimenu>View</guimenu>
-    <guimenuitem>Show only subscribed folders</guimenuitem>
+    <guimenuitem>Show Only Subscribed Folders</guimenuitem>
   </menuchoice>
 </term>
 <listitem><para><action>Your mailbox may have more
