@@ -129,7 +129,12 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
 #endif
                 + QLatin1Char('/') + QLatin1String("Drafts/"));
     QDir().mkpath(m_autoSavePath);
+
+#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
+    m_autoSavePath += QString::number(QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0)).secsTo(QDateTime::currentDateTime())) + QLatin1String(".draft");
+#else
     m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + QLatin1String(".draft");
+#endif
 }
 
 ComposeWidget::~ComposeWidget()
