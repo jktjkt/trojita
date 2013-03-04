@@ -81,6 +81,7 @@ private slots:
     void testQresyncUnreportedNewArrivals();
     void testQresyncReportedNewArrivals();
     void testQresyncDeletionsNewArrivals();
+    void testQresyncSpuriousVanishedEarlier();
 
     void testSpuriousSearch();
     void testSpuriousESearch();

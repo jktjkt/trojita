@@ -2078,5 +2078,37 @@ void ImapModelObtainSynchronizedMailboxTest::testOfflineOpening()
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
 }
 
+/** @short VANISHED EARLIER which refers to meanwhile-arrived-and-deleted messages on an empty mailbox */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncSpuriousVanishedEarlier()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("ESEARCH");
+    injector.injectCapability("QRESYNC");
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(0);
+    sync.setUidValidity(1309542826);
+    sync.setUidNext(252);
+    sync.setHighestModSeq(10);
+    QList<uint> uidMap;
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (1309542826 10))\r\n"));
+    cServer("* 0 EXISTS\r\n"
+            "* OK [UIDVALIDITY 1309542826] UIDs valid\r\n"
+            "* OK [UIDNEXT 256] Predicted next UID\r\n"
+            "* OK [HIGHESTMODSEQ 22] Highest\r\n"
+            "* VANISHED (EARLIER) 252:255\r\n"
+            );
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cServer(t.last("OK selected\r\n"));
+    cEmpty();
+    sync.setUidNext(256);
+    sync.setHighestModSeq(22);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), 0);
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    justKeepTask();
+}
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

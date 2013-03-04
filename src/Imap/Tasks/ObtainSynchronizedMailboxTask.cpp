@@ -329,6 +329,14 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 return;
             }
 
+            if (syncState.exists() == 0) {
+                // This is a special case, the mailbox doesn't contain any messages now.
+                // Let's just save ourselves some work and reuse the "smart" code in the fullMboxSync() here, it will
+                // do the right thing.
+                fullMboxSync(mailbox, list);
+                return;
+            }
+
             if (syncState.uidNext() == oldSyncState.uidNext()) {
                 // No new messages
 
