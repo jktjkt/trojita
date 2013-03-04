@@ -249,7 +249,7 @@ inline bool operator!=(const Envelope &a, const Envelope &b) { return !(a == b);
 
 }
 
-QDebug operator<<(QDebug &dbg, const Imap::Message::Envelope &envelope);
+QDebug operator<<(QDebug dbg, const Imap::Message::Envelope &envelope);
 
 QDataStream &operator>>(QDataStream &stream, Imap::Message::Envelope &e);
 QDataStream &operator<<(QDataStream &stream, const Imap::Message::Envelope &e);

@@ -160,7 +160,7 @@ bool SyncState::completelyEqualTo(const SyncState &other) const
             m_hasFlags == other.m_hasFlags && m_hasPermanentFlags == other.m_hasPermanentFlags;
 }
 
-QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state)
+QDebug operator<<(QDebug dbg, const Imap::Mailbox::SyncState &state)
 {
     dbg << "UIDVALIDITY";
     if (state.m_hasUidValidity)
@@ -209,7 +209,7 @@ QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state)
 }
 
 
-QDebug operator<<(QDebug &dbg, const Imap::Mailbox::MailboxMetadata &metadata)
+QDebug operator<<(QDebug dbg, const Imap::Mailbox::MailboxMetadata &metadata)
 {
     return dbg << metadata.mailbox << metadata.separator << metadata.flags;
 }

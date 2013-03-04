@@ -51,7 +51,7 @@ class SyncState
     bool m_hasExists, m_hasRecent, m_hasUnSeenCount, m_hasUnSeenOffset, m_hasUidNext, m_hasUidValidity,
          m_hasHighestModSeq, m_hasFlags, m_hasPermanentFlags;
 
-    friend QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state);
+    friend QDebug operator<<(QDebug dbg, const Imap::Mailbox::SyncState &state);
 public:
     SyncState();
     uint exists() const;
@@ -92,12 +92,12 @@ public:
     bool completelyEqualTo(const SyncState &other) const;
 };
 
-QDebug operator<<(QDebug &dbg, const Imap::Mailbox::SyncState &state);
+QDebug operator<<(QDebug dbg, const Imap::Mailbox::SyncState &state);
 
 }
 }
 
-QDebug operator<<(QDebug &dbg, const Imap::Mailbox::MailboxMetadata &metadata);
+QDebug operator<<(QDebug dbg, const Imap::Mailbox::MailboxMetadata &metadata);
 
 QDataStream &operator>>(QDataStream &stream, Imap::Mailbox::SyncState &ss);
 QDataStream &operator<<(QDataStream &stream, const Imap::Mailbox::SyncState &ss);

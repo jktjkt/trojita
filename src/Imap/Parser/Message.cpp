@@ -801,7 +801,7 @@ QList<Mailbox::TreeItem *> MultiMessage::createTreeItems(Mailbox::TreeItem *pare
 }
 }
 
-QDebug operator<<(QDebug &dbg, const Imap::Message::Envelope &envelope)
+QDebug operator<<(QDebug dbg, const Imap::Message::Envelope &envelope)
 {
     using namespace Imap::Message;
     return dbg << "Envelope( FROM" << MailAddress::prettyList(envelope.from, MailAddress::FORMAT_READABLE) <<
