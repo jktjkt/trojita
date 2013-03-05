@@ -492,7 +492,7 @@ void MainWindow::createWidgets()
 
     connect(msgListWidget->tree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMsgListTree(const QPoint &)));
-    connect(msgListWidget->tree, SIGNAL(activated(const QModelIndex &)), this, SLOT(msgListActivated(const QModelIndex &)));
+    connect(msgListWidget->tree, SIGNAL(activated(const QModelIndex &)), this, SLOT(msgListClicked(const QModelIndex &)));
     connect(msgListWidget->tree, SIGNAL(clicked(const QModelIndex &)), this, SLOT(msgListClicked(const QModelIndex &)));
     connect(msgListWidget->tree, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(msgListDoubleClicked(const QModelIndex &)));
     connect(msgListWidget, SIGNAL(requestingSearch(QStringList)), this, SLOT(slotSearchRequested(QStringList)));
@@ -705,22 +705,6 @@ void MainWindow::setupModels()
     m_addressBook = new AbookAddressbook();
 }
 
-void MainWindow::msgListActivated(const QModelIndex &index)
-{
-    Q_ASSERT(index.isValid());
-
-    if (qApp->keyboardModifiers() & Qt::ShiftModifier || qApp->keyboardModifiers() & Qt::ControlModifier)
-        return;
-
-    if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
-        return;
-
-    if (index.column() != Imap::Mailbox::MsgListModel::SEEN) {
-        m_messageWidget->messageView->setMessage(index);
-        msgListWidget->tree->setCurrentIndex(index);
-    }
-}
-
 void MainWindow::msgListClicked(const QModelIndex &index)
 {
     Q_ASSERT(index.isValid());
@@ -739,6 +723,9 @@ void MainWindow::msgListClicked(const QModelIndex &index)
         Imap::Mailbox::FlagsOperation flagOp = translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() ?
                                                Imap::Mailbox::FLAG_REMOVE : Imap::Mailbox::FLAG_ADD;
         model->markMessagesRead(QModelIndexList() << translated, flagOp);
+    } else {
+        m_messageWidget->messageView->setMessage(index);
+        msgListWidget->tree->setCurrentIndex(index);
     }
 }
 

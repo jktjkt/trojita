@@ -122,7 +122,6 @@ private slots:
     void handleMarkAsDeleted(bool);
     void slotNextUnread();
     void slotPreviousUnread();
-    void msgListActivated(const QModelIndex &);
     void msgListClicked(const QModelIndex &);
     void msgListDoubleClicked(const QModelIndex &);
     void slotCreateMailboxBelowCurrent();
