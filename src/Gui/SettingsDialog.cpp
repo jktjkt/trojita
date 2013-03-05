@@ -65,16 +65,16 @@ SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel 
     stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     general = new GeneralPage(this, s, m_senderIdentities);
-    stack->addTab(general, tr("General"));
+    stack->addTab(general, tr("&General"));
     imap = new ImapPage(stack, s);
-    stack->addTab(imap, tr("IMAP"));
+    stack->addTab(imap, tr("I&MAP"));
     cache = new CachePage(this, s);
-    stack->addTab(cache, tr("Offline"));
+    stack->addTab(cache, tr("&Offline"));
     outgoing = new OutgoingPage(this, s);
-    stack->addTab(outgoing, tr("SMTP"));
+    stack->addTab(outgoing, tr("&SMTP"));
 #ifdef XTUPLE_CONNECT
     xtConnect = new XtConnectPage(this, s, imap);
-    stack->addTab(xtConnect, tr("xTuple"));
+    stack->addTab(xtConnect, tr("&xTuple"));
 #endif
 
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, Qt::Horizontal, this);

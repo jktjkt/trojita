@@ -143,13 +143,13 @@ void MainWindow::createActions()
 
     m_mainToolbar = addToolBar(tr("Navigation"));
 
-    reloadMboxList = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), tr("Update List of Child Mailboxes"), this);
+    reloadMboxList = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), tr("&Update List of Child Mailboxes"), this);
     connect(reloadMboxList, SIGNAL(triggered()), this, SLOT(slotReloadMboxList()));
 
-    resyncMbox = new QAction(loadIcon(QLatin1String("view-refresh")), tr("Check for New Messages"), this);
+    resyncMbox = new QAction(loadIcon(QLatin1String("view-refresh")), tr("Check for &New Messages"), this);
     connect(resyncMbox, SIGNAL(triggered()), this, SLOT(slotResyncMbox()));
 
-    reloadAllMailboxes = new QAction(tr("Reload Everything"), this);
+    reloadAllMailboxes = new QAction(tr("&Reload Everything"), this);
     // connect later
 
     exitAction = new QAction(loadIcon(QLatin1String("application-exit")), tr("E&xit"), this);
@@ -159,143 +159,143 @@ void MainWindow::createActions()
 
     QActionGroup *netPolicyGroup = new QActionGroup(this);
     netPolicyGroup->setExclusive(true);
-    netOffline = new QAction(loadIcon(QLatin1String("network-offline")), tr("Offline"), netPolicyGroup);
+    netOffline = new QAction(loadIcon(QLatin1String("network-offline")), tr("&Offline"), netPolicyGroup);
     netOffline->setCheckable(true);
     // connect later
-    netExpensive = new QAction(loadIcon(QLatin1String("network-expensive")), tr("Expensive Connection"), netPolicyGroup);
+    netExpensive = new QAction(loadIcon(QLatin1String("network-expensive")), tr("&Expensive Connection"), netPolicyGroup);
     netExpensive->setCheckable(true);
     // connect later
-    netOnline = new QAction(loadIcon(QLatin1String("network-online")), tr("Free Access"), netPolicyGroup);
+    netOnline = new QAction(loadIcon(QLatin1String("network-online")), tr("&Free Access"), netPolicyGroup);
     netOnline->setCheckable(true);
     // connect later
 
-    showFullView = new QAction(loadIcon(QLatin1String("edit-find-mail")), tr("Show Full Tree Window"), this);
+    showFullView = new QAction(loadIcon(QLatin1String("edit-find-mail")), tr("Show Full &Tree Window"), this);
     showFullView->setCheckable(true);
     connect(showFullView, SIGNAL(triggered(bool)), allDock, SLOT(setVisible(bool)));
     connect(allDock, SIGNAL(visibilityChanged(bool)), showFullView, SLOT(setChecked(bool)));
 
-    showTaskView = new QAction(tr("Show ImapTask tree"), this);
+    showTaskView = new QAction(tr("Show ImapTask t&ree"), this);
     showTaskView->setCheckable(true);
     connect(showTaskView, SIGNAL(triggered(bool)), taskDock, SLOT(setVisible(bool)));
     connect(taskDock, SIGNAL(visibilityChanged(bool)), showTaskView, SLOT(setChecked(bool)));
 
-    showImapLogger = new QAction(tr("Show IMAP protocol log"), this);
+    showImapLogger = new QAction(tr("Show IMAP protocol &log"), this);
     showImapLogger->setCheckable(true);
     connect(showImapLogger, SIGNAL(toggled(bool)), imapLoggerDock, SLOT(setVisible(bool)));
     connect(imapLoggerDock, SIGNAL(visibilityChanged(bool)), showImapLogger, SLOT(setChecked(bool)));
 
-    logPersistent = new QAction(tr("Log into %1").arg(Imap::Mailbox::persistentLogFileName()), this);
+    logPersistent = new QAction(tr("Log &into %1").arg(Imap::Mailbox::persistentLogFileName()), this);
     logPersistent->setCheckable(true);
     connect(logPersistent, SIGNAL(triggered(bool)), imapLogger, SLOT(slotSetPersistentLogging(bool)));
 
-    showImapCapabilities = new QAction(tr("IMAP Server Information..."), this);
+    showImapCapabilities = new QAction(tr("IMAP Server In&formation..."), this);
     connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapInfo()));
 
-    showMenuBar = new QAction(loadIcon(QLatin1String("view-list-text")),  tr("Show Main Menu Bar"), this);
+    showMenuBar = new QAction(loadIcon(QLatin1String("view-list-text")),  tr("Show Main Menu &Bar"), this);
     showMenuBar->setCheckable(true);
     showMenuBar->setChecked(true);
     showMenuBar->setShortcut(tr("Ctrl+M"));
     addAction(showMenuBar);   // otherwise it won't work with hidden menu bar
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
 
-    showToolBar = new QAction(tr("Show Toolbar"), this);
+    showToolBar = new QAction(tr("Show &Toolbar"), this);
     showToolBar->setCheckable(true);
     showToolBar->setChecked(true);
     connect(showToolBar, SIGNAL(triggered(bool)), m_mainToolbar, SLOT(setVisible(bool)));
 
-    configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("Settings..."), this);
+    configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
-    composeMail = new QAction(loadIcon(QLatin1String("document-edit")),  tr("Compose Mail..."), this);
+    composeMail = new QAction(loadIcon(QLatin1String("document-edit")),  tr("&Compose Mail..."), this);
     composeMail->setShortcut(tr("Ctrl+N"));
     connect(composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()));
 
-    m_editDraft = new QAction(loadIcon(QLatin1String("document-edit")),  tr("Edit draft..."), this);
+    m_editDraft = new QAction(loadIcon(QLatin1String("document-edit")),  tr("&Edit draft..."), this);
     connect(m_editDraft, SIGNAL(triggered()), this, SLOT(slotEditDraft()));
 
-    expunge = new QAction(loadIcon(QLatin1String("trash-empty")),  tr("Expunge Mailbox"), this);
+    expunge = new QAction(loadIcon(QLatin1String("trash-empty")),  tr("Exp&unge Mailbox"), this);
     expunge->setShortcut(tr("Ctrl+E"));
     connect(expunge, SIGNAL(triggered()), this, SLOT(slotExpunge()));
 
-    markAsRead = new QAction(loadIcon(QLatin1String("mail-mark-read")),  tr("Mark as Read"), this);
+    markAsRead = new QAction(loadIcon(QLatin1String("mail-mark-read")),  tr("Mark as &Read"), this);
     markAsRead->setCheckable(true);
     markAsRead->setShortcut(Qt::Key_M);
     msgListWidget->tree->addAction(markAsRead);
     connect(markAsRead, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsRead(bool)));
 
-    m_nextMessage = new QAction(tr("Next Unread Message"), this);
+    m_nextMessage = new QAction(tr("&Next Unread Message"), this);
     m_nextMessage->setShortcut(Qt::Key_N);
     msgListWidget->tree->addAction(m_nextMessage);
     m_messageWidget->messageView->addAction(m_nextMessage);
     connect(m_nextMessage, SIGNAL(triggered()), this, SLOT(slotNextUnread()));
 
-    m_previousMessage = new QAction(tr("Previous Unread Message"), this);
+    m_previousMessage = new QAction(tr("&Previous Unread Message"), this);
     m_previousMessage->setShortcut(Qt::Key_P);
     msgListWidget->tree->addAction(m_previousMessage);
     m_messageWidget->messageView->addAction(m_previousMessage);
     connect(m_previousMessage, SIGNAL(triggered()), this, SLOT(slotPreviousUnread()));
 
-    markAsDeleted = new QAction(loadIcon(QLatin1String("list-remove")),  tr("Mark as Deleted"), this);
+    markAsDeleted = new QAction(loadIcon(QLatin1String("list-remove")),  tr("Mark as &Deleted"), this);
     markAsDeleted->setCheckable(true);
     markAsDeleted->setShortcut(Qt::Key_Delete);
     msgListWidget->tree->addAction(markAsDeleted);
     connect(markAsDeleted, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsDeleted(bool)));
 
-    saveWholeMessage = new QAction(loadIcon(QLatin1String("file-save")), tr("Save Message..."), this);
+    saveWholeMessage = new QAction(loadIcon(QLatin1String("file-save")), tr("&Save Message..."), this);
     msgListWidget->tree->addAction(saveWholeMessage);
     connect(saveWholeMessage, SIGNAL(triggered()), this, SLOT(slotSaveCurrentMessageBody()));
 
-    viewMsgSource = new QAction(tr("View Message Source..."), this);
+    viewMsgSource = new QAction(tr("View Message &Source..."), this);
     //viewMsgHeaders->setShortcut(tr("Ctrl+U"));
     msgListWidget->tree->addAction(viewMsgSource);
     connect(viewMsgSource, SIGNAL(triggered()), this, SLOT(slotViewMsgSource()));
 
-    viewMsgHeaders = new QAction(tr("View Message Headers..."), this);
+    viewMsgHeaders = new QAction(tr("View Message &Headers..."), this);
     viewMsgHeaders->setShortcut(tr("Ctrl+U"));
     msgListWidget->tree->addAction(viewMsgHeaders);
     connect(viewMsgHeaders, SIGNAL(triggered()), this, SLOT(slotViewMsgHeaders()));
 
-    createChildMailbox = new QAction(tr("Create Child Mailbox..."), this);
+    createChildMailbox = new QAction(tr("Create &Child Mailbox..."), this);
     connect(createChildMailbox, SIGNAL(triggered()), this, SLOT(slotCreateMailboxBelowCurrent()));
 
-    createTopMailbox = new QAction(tr("Create New Mailbox..."), this);
+    createTopMailbox = new QAction(tr("Create &New Mailbox..."), this);
     connect(createTopMailbox, SIGNAL(triggered()), this, SLOT(slotCreateTopMailbox()));
 
-    deleteCurrentMailbox = new QAction(tr("Delete Mailbox"), this);
+    deleteCurrentMailbox = new QAction(tr("&Delete Mailbox"), this);
     connect(deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()));
 
 #ifdef XTUPLE_CONNECT
-    xtIncludeMailboxInSync = new QAction(tr("Synchronize with xTuple"), this);
+    xtIncludeMailboxInSync = new QAction(tr("&Synchronize with xTuple"), this);
     xtIncludeMailboxInSync->setCheckable(true);
     connect(xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()));
 #endif
 
-    m_replyPrivate = new QAction(tr("Private Reply"), this);
+    m_replyPrivate = new QAction(tr("&Private Reply"), this);
     m_replyPrivate->setEnabled(false);
     m_replyPrivate->setShortcut(tr("Ctrl+Shift+A"));
     connect(m_replyPrivate, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
 
-    m_replyAllButMe = new QAction(tr("Reply to All but Me"), this);
+    m_replyAllButMe = new QAction(tr("Reply to All &but Me"), this);
     m_replyAllButMe->setEnabled(false);
     m_replyAllButMe->setShortcut(tr("Ctrl+Shift+R"));
     connect(m_replyAllButMe, SIGNAL(triggered()), this, SLOT(slotReplyAllButMe()));
 
-    m_replyAll = new QAction(tr("Reply to All"), this);
+    m_replyAll = new QAction(tr("Reply to &All"), this);
     m_replyAll->setEnabled(false);
     m_replyAll->setShortcut(tr("Ctrl+Alt+Shift+R"));
     connect(m_replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()));
 
-    m_replyList = new QAction(tr("Reply to Mailing List"), this);
+    m_replyList = new QAction(tr("Reply to &Mailing List"), this);
     m_replyList->setEnabled(false);
     m_replyList->setShortcut(tr("Ctrl+L"));
     connect(m_replyList, SIGNAL(triggered()), this, SLOT(slotReplyList()));
 
-    m_replyGuess = new QAction(tr("Reply by Guess"), this);
+    m_replyGuess = new QAction(tr("Reply by &Guess"), this);
     m_replyGuess->setEnabled(true);
     m_replyGuess->setShortcut(tr("Ctrl+R"));
     connect(m_replyGuess, SIGNAL(triggered()), this, SLOT(slotReplyGuess()));
 
-    actionThreadMsgList = new QAction(tr("Show Messages in Threads"), this);
+    actionThreadMsgList = new QAction(tr("Show Messages in &Threads"), this);
     actionThreadMsgList->setCheckable(true);
     // This action is enabled/disabled by model's capabilities
     actionThreadMsgList->setEnabled(false);
@@ -306,36 +306,36 @@ void MainWindow::createActions()
     connect(actionThreadMsgList, SIGNAL(triggered(bool)), this, SLOT(slotThreadMsgList()));
 
     QActionGroup *sortOrderGroup = new QActionGroup(this);
-    m_actionSortAscending = new QAction(tr("Ascending"), sortOrderGroup);
+    m_actionSortAscending = new QAction(tr("&Ascending"), sortOrderGroup);
     m_actionSortAscending->setCheckable(true);
     m_actionSortAscending->setChecked(true);
-    m_actionSortDescending = new QAction(tr("Descending"), sortOrderGroup);
+    m_actionSortDescending = new QAction(tr("&Descending"), sortOrderGroup);
     m_actionSortDescending->setCheckable(true);
     connect(sortOrderGroup, SIGNAL(triggered(QAction*)), this, SLOT(slotSortingPreferenceChanged()));
 
     QActionGroup *sortColumnGroup = new QActionGroup(this);
-    m_actionSortNone = new QAction(tr("No sorting"), sortColumnGroup);
+    m_actionSortNone = new QAction(tr("&No sorting"), sortColumnGroup);
     m_actionSortNone->setCheckable(true);
-    m_actionSortThreading = new QAction(tr("Sorted by Threading"), sortColumnGroup);
+    m_actionSortThreading = new QAction(tr("Sorted by &Threading"), sortColumnGroup);
     m_actionSortThreading->setCheckable(true);
-    m_actionSortByArrival = new QAction(tr("Arrival"), sortColumnGroup);
+    m_actionSortByArrival = new QAction(tr("A&rrival"), sortColumnGroup);
     m_actionSortByArrival->setCheckable(true);
-    m_actionSortByCc = new QAction(tr("Cc (Carbon Copy)"), sortColumnGroup);
+    m_actionSortByCc = new QAction(tr("&Cc (Carbon Copy)"), sortColumnGroup);
     m_actionSortByCc->setCheckable(true);
-    m_actionSortByDate = new QAction(tr("Date from Message Headers"), sortColumnGroup);
+    m_actionSortByDate = new QAction(tr("Date from &Message Headers"), sortColumnGroup);
     m_actionSortByDate->setCheckable(true);
-    m_actionSortByFrom = new QAction(tr("From Address"), sortColumnGroup);
+    m_actionSortByFrom = new QAction(tr("&From Address"), sortColumnGroup);
     m_actionSortByFrom->setCheckable(true);
-    m_actionSortBySize = new QAction(tr("Size"), sortColumnGroup);
+    m_actionSortBySize = new QAction(tr("&Size"), sortColumnGroup);
     m_actionSortBySize->setCheckable(true);
-    m_actionSortBySubject = new QAction(tr("Subject"), sortColumnGroup);
+    m_actionSortBySubject = new QAction(tr("S&ubject"), sortColumnGroup);
     m_actionSortBySubject->setCheckable(true);
-    m_actionSortByTo = new QAction(tr("To Address"), sortColumnGroup);
+    m_actionSortByTo = new QAction(tr("T&o Address"), sortColumnGroup);
     m_actionSortByTo->setCheckable(true);
     connect(sortColumnGroup, SIGNAL(triggered(QAction*)), this, SLOT(slotSortingPreferenceChanged()));
     slotSortingConfirmed(-1, Qt::AscendingOrder);
 
-    actionHideRead = new QAction(tr("Hide Read Messages"), this);
+    actionHideRead = new QAction(tr("&Hide Read Messages"), this);
     actionHideRead->setCheckable(true);
     addAction(actionHideRead);
     if (QSettings().value(Common::SettingsNames::guiMsgListHideRead).toBool()) {
@@ -345,11 +345,11 @@ void MainWindow::createActions()
     connect(actionHideRead, SIGNAL(triggered(bool)), this, SLOT(slotHideRead()));
 
     QActionGroup *layoutGroup = new QActionGroup(this);
-    m_actionLayoutCompact = new QAction(tr("Compact"), layoutGroup);
+    m_actionLayoutCompact = new QAction(tr("&Compact"), layoutGroup);
     m_actionLayoutCompact->setCheckable(true);
     m_actionLayoutCompact->setChecked(true);
     connect(m_actionLayoutCompact, SIGNAL(triggered()), this, SLOT(slotLayoutCompact()));
-    m_actionLayoutWide = new QAction(tr("Wide"), layoutGroup);
+    m_actionLayoutWide = new QAction(tr("&Wide"), layoutGroup);
     m_actionLayoutWide->setCheckable(true);
     connect(m_actionLayoutWide, SIGNAL(triggered()), this, SLOT(slotLayoutWide()));
 
@@ -358,19 +358,19 @@ void MainWindow::createActions()
         slotLayoutWide();
     }
 
-    m_actionShowOnlySubscribed = new QAction(tr("Show Only Subscribed Folders"), this);
+    m_actionShowOnlySubscribed = new QAction(tr("Show Only S&ubscribed Folders"), this);
     m_actionShowOnlySubscribed->setCheckable(true);
     m_actionShowOnlySubscribed->setEnabled(false);
     connect(m_actionShowOnlySubscribed, SIGNAL(toggled(bool)), this, SLOT(slotShowOnlySubscribed()));
-    m_actionSubscribeMailbox = new QAction(tr("Subscribed"), this);
+    m_actionSubscribeMailbox = new QAction(tr("Su&bscribed"), this);
     m_actionSubscribeMailbox->setCheckable(true);
     m_actionSubscribeMailbox->setEnabled(false);
     connect(m_actionSubscribeMailbox, SIGNAL(triggered()), this, SLOT(slotSubscribeCurrentMailbox()));
 
-    aboutTrojita = new QAction(trUtf8("About Trojitá..."), this);
+    aboutTrojita = new QAction(trUtf8("&About Trojitá..."), this);
     connect(aboutTrojita, SIGNAL(triggered()), this, SLOT(slotShowAboutTrojita()));
 
-    donateToTrojita = new QAction(tr("Donate to the project"), this);
+    donateToTrojita = new QAction(tr("&Donate to the project"), this);
     connect(donateToTrojita, SIGNAL(triggered()), this, SLOT(slotDonateToTrojita()));
 
     connectModelActions();
@@ -414,7 +414,7 @@ void MainWindow::connectModelActions()
 
 void MainWindow::createMenus()
 {
-    QMenu *imapMenu = menuBar()->addMenu(tr("IMAP"));
+    QMenu *imapMenu = menuBar()->addMenu(tr("&IMAP"));
     imapMenu->addAction(composeMail);
     imapMenu->addAction(m_replyGuess);
     imapMenu->addAction(m_replyPrivate);
@@ -423,11 +423,11 @@ void MainWindow::createMenus()
     imapMenu->addAction(m_replyList);
     imapMenu->addAction(expunge);
     imapMenu->addSeparator()->setText(tr("Network Access"));
-    QMenu *netPolicyMenu = imapMenu->addMenu(tr("Network Access"));
+    QMenu *netPolicyMenu = imapMenu->addMenu(tr("&Network Access"));
     netPolicyMenu->addAction(netOffline);
     netPolicyMenu->addAction(netExpensive);
     netPolicyMenu->addAction(netOnline);
-    QMenu *debugMenu = imapMenu->addMenu(tr("Debugging"));
+    QMenu *debugMenu = imapMenu->addMenu(tr("&Debugging"));
     debugMenu->addAction(showFullView);
     debugMenu->addAction(showTaskView);
     debugMenu->addAction(showImapLogger);
@@ -438,17 +438,17 @@ void MainWindow::createMenus()
     imapMenu->addSeparator();
     imapMenu->addAction(exitAction);
 
-    QMenu *viewMenu = menuBar()->addMenu(tr("View"));
+    QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
     viewMenu->addAction(showMenuBar);
     viewMenu->addAction(showToolBar);
-    QMenu *layoutMenu = viewMenu->addMenu(tr("Layout"));
+    QMenu *layoutMenu = viewMenu->addMenu(tr("&Layout"));
     layoutMenu->addAction(m_actionLayoutCompact);
     layoutMenu->addAction(m_actionLayoutWide);
     viewMenu->addSeparator();
     viewMenu->addAction(m_previousMessage);
     viewMenu->addAction(m_nextMessage);
     viewMenu->addSeparator();
-    QMenu *sortMenu = viewMenu->addMenu(tr("Sorting"));
+    QMenu *sortMenu = viewMenu->addMenu(tr("S&orting"));
     sortMenu->addAction(m_actionSortNone);
     sortMenu->addAction(m_actionSortThreading);
     sortMenu->addAction(m_actionSortByArrival);
@@ -466,12 +466,12 @@ void MainWindow::createMenus()
     viewMenu->addAction(actionHideRead);
     viewMenu->addAction(m_actionShowOnlySubscribed);
 
-    QMenu *mailboxMenu = menuBar()->addMenu(tr("Mailbox"));
+    QMenu *mailboxMenu = menuBar()->addMenu(tr("&Mailbox"));
     mailboxMenu->addAction(resyncMbox);
     mailboxMenu->addSeparator();
     mailboxMenu->addAction(reloadAllMailboxes);
 
-    QMenu *helpMenu = menuBar()->addMenu(tr("Help"));
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(donateToTrojita);
     helpMenu->addSeparator();
     helpMenu->addAction(aboutTrojita);

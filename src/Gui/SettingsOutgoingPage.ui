@@ -16,7 +16,7 @@
     <item row="0" column="0">
      <widget class="QLabel" name="methodLabel">
       <property name="text">
-       <string>Method</string>
+       <string>M&amp;ethod</string>
       </property>
       <property name="buddy">
        <cstring>method</cstring>
@@ -29,7 +29,7 @@
     <item row="1" column="0">
      <widget class="QLabel" name="smtpHostLabel">
       <property name="text">
-       <string>SMTP Server</string>
+       <string>SMTP Ser&amp;ver</string>
       </property>
       <property name="buddy">
        <cstring>smtpHost</cstring>
@@ -39,7 +39,7 @@
     <item row="2" column="0">
      <widget class="QLabel" name="smtpPortLabel">
       <property name="text">
-       <string>Port</string>
+       <string>&amp;Port</string>
       </property>
       <property name="buddy">
        <cstring>smtpPort</cstring>
@@ -49,7 +49,7 @@
     <item row="4" column="0">
      <widget class="QLabel" name="smtpAuthLabel">
       <property name="text">
-       <string>SMTP Auth</string>
+       <string>SMTP &amp;Auth</string>
       </property>
       <property name="buddy">
        <cstring>smtpAuth</cstring>
@@ -59,7 +59,7 @@
     <item row="5" column="0">
      <widget class="QLabel" name="smtpUserLabel">
       <property name="text">
-       <string>Username</string>
+       <string>&amp;Username</string>
       </property>
       <property name="buddy">
        <cstring>smtpUser</cstring>
@@ -69,7 +69,7 @@
     <item row="6" column="0">
      <widget class="QLabel" name="smtpPassLabel">
       <property name="text">
-       <string>Password</string>
+       <string>Pass&amp;word</string>
       </property>
       <property name="buddy">
        <cstring>smtpPass</cstring>
@@ -79,7 +79,7 @@
     <item row="7" column="0">
      <widget class="QLabel" name="sendmailLabel">
       <property name="text">
-       <string>Sendmail Executable</string>
+       <string>Sendmail E&amp;xecutable</string>
       </property>
       <property name="buddy">
        <cstring>sendmail</cstring>
@@ -115,7 +115,7 @@
     <item row="3" column="0">
      <widget class="QLabel" name="smtpStartTlsLabel">
       <property name="text">
-       <string>Perform STARTTLS</string>
+       <string>Perform &amp;STARTTLS</string>
       </property>
       <property name="buddy">
        <cstring>smtpStartTls</cstring>
@@ -135,7 +135,7 @@
     <item row="8" column="0">
      <widget class="QLabel" name="saveToImapLabel">
       <property name="text">
-       <string>Save Outgoing Mail</string>
+       <string>Save Ou&amp;tgoing Mail</string>
       </property>
       <property name="buddy">
        <cstring>saveToImap</cstring>
@@ -145,7 +145,7 @@
     <item row="9" column="0">
      <widget class="QLabel" name="saveFolderLabel">
       <property name="text">
-       <string>Sent Folder Name</string>
+       <string>Sent &amp;Folder Name</string>
       </property>
       <property name="buddy">
        <cstring>saveFolderName</cstring>
@@ -158,7 +158,7 @@
     <item row="10" column="0">
      <widget class="QLabel" name="smtpBurlLabel">
       <property name="text">
-       <string>Send with BURL</string>
+       <string>Send with &amp;BURL</string>
       </property>
       <property name="buddy">
        <cstring>smtpBurl</cstring>

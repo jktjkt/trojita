@@ -37,7 +37,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Don't use cache</string>
+          <string>&amp;Don't use cache</string>
          </property>
         </widget>
        </item>
@@ -50,7 +50,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Remember messages for X days</string>
+          <string>&amp;Remember messages for X days</string>
          </property>
         </widget>
        </item>
@@ -79,7 +79,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Store forever</string>
+          <string>Store &amp;forever</string>
          </property>
         </widget>
        </item>
