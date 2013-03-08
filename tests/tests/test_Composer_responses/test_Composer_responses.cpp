@@ -124,6 +124,11 @@ void ComposerResponsesTest::testSubjectMangling_data()
     QTest::newRow("re-brackets-end") << QString::fromUtf8("Re: blesmrt [test]") << QString::fromUtf8("Re: blesmrt [test]");
     QTest::newRow("re-brackets-re-end") << QString::fromUtf8("Re: blesmrt Re: [test]") << QString::fromUtf8("Re: blesmrt Re: [test]");
     QTest::newRow("brackets-re-end") << QString::fromUtf8("blesmrt Re: [test]") << QString::fromUtf8("Re: blesmrt Re: [test]");
+
+    // real-world bugs
+    QTest::newRow("extra-space-in-0.3.92")
+        << QString::fromUtf8("[imapext]  Re: Proposal for a new IMAP Working Group to revise CONDSTORE & QRESYNC")
+        << QString::fromUtf8("[imapext] Re: Proposal for a new IMAP Working Group to revise CONDSTORE & QRESYNC");
 }
 
 /** @short Test that conversion of plaintext mail to HTML works reasonably well */

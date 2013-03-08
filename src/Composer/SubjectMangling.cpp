@@ -34,8 +34,8 @@ QString replySubject(const QString &subject)
 {
     // These operations should *not* check for internationalized variants of "Re"; these are evil.
 
-#define RE_PREFIX_RE "(?:(?:Re:\\s?)*)"
-#define RE_PREFIX_ML "(?:(\\[[^\\]]+\\]\\s?)?)"
+#define RE_PREFIX_RE "(?:(?:Re:\\s*)*)"
+#define RE_PREFIX_ML "(?:(\\[[^\\]]+\\]\\s*)?)"
 
     static QRegExp rePrefixMatcher(QLatin1String("^"
                                                  RE_PREFIX_RE // a sequence of "Re: " prefixes
@@ -61,10 +61,10 @@ QString replySubject(const QString &subject)
             oldPos = pos;
         }
 
-        QString mlPrefix = listPrefixes.join(QString());
+        QString mlPrefix = listPrefixes.join(QString()).trimmed();
         QString baseSubject = subject.mid(oldPos + qMax(0, rePrefixMatcher.matchedLength()));
 
-        if (!mlPrefix.isEmpty() && !mlPrefix.endsWith(QLatin1Char(' ')))
+        if (!mlPrefix.isEmpty())
             mlPrefix += QLatin1Char(' ');
 
         return mlPrefix + correctedPrefix + baseSubject;
