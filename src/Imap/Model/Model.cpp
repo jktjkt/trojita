@@ -1125,8 +1125,16 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     accessParser(parser).capabilities = uppercaseCaps;
     accessParser(parser).capabilitiesFresh = true;
     parser->enableLiteralPlus(uppercaseCaps.contains(QLatin1String("LITERAL+")));
-    if (m_parsers.begin().key() == parser)
-        emit capabilitiesUpdated(uppercaseCaps);
+
+    for (QMap<Parser *,ParserState>::const_iterator it = m_parsers.constBegin(); it != m_parsers.constEnd(); ++it) {
+        if (it->connState == CONN_STATE_LOGOUT) {
+            // Skip all parsers which are currently stuck in LOGOUT
+            continue;
+        } else {
+            // The CAPABILITIES were received by a first "usable" parser; let's treat this one as the authoritative one
+            emit capabilitiesUpdated(uppercaseCaps);
+        }
+    }
 
     if (!uppercaseCaps.contains(QLatin1String("IMAP4REV1"))) {
         changeConnectionState(parser, CONN_STATE_LOGOUT);
