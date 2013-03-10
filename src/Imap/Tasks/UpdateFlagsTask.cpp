@@ -47,9 +47,9 @@ UpdateFlagsTask::UpdateFlagsTask(Model *model, const QModelIndexList &messages_,
     conn->addDependentTask(this);
 }
 
-UpdateFlagsTask::UpdateFlagsTask(Model *_model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &_messages,
-                                 const FlagsOperation _flagOperation, const QString &_flags):
-    ImapTask(_model), conn(0), copyMove(copyTask), messages(_messages), flagOperation(_flagOperation), flags(_flags)
+UpdateFlagsTask::UpdateFlagsTask(Model *model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &messages,
+                                 const FlagsOperation flagOperation, const QString &flags):
+    ImapTask(model), conn(0), copyMove(copyTask), messages(messages), flagOperation(flagOperation), flags(flags)
 {
     copyTask->addDependentTask(this);
 }

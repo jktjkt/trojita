@@ -45,15 +45,15 @@ class UpdateFlagsTask : public ImapTask
 public:
     /** @short Change flags for a message set
 
-    IMAP flags for the @arg _messages message set are changed -- the @arg _flagOperation
+    IMAP flags for the @arg messages message set are changed -- the @arg flagOperation
     should be FLAGS, +FLAGS or -FLAGS (all of them optionally with the ".silent" modifier),
-    and the desired change (actual flags) is passed in the @arg _flags argument.
+    and the desired change (actual flags) is passed in the @arg flags argument.
     */
-    UpdateFlagsTask(Model *model, const QModelIndexList &messages_, const FlagsOperation flagOperation, const QString &flags);
+    UpdateFlagsTask(Model *model, const QModelIndexList &messages, const FlagsOperation flagOperation, const QString &flags);
 
     /** @short Marking moved messages as deleted */
-    UpdateFlagsTask(Model *_model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &_messages,
-                    const FlagsOperation _flagOperation, const QString &_flags);
+    UpdateFlagsTask(Model *model, CopyMoveMessagesTask *copyTask, const QList<QPersistentModelIndex> &messages,
+                    const FlagsOperation flagOperation, const QString &flags);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
