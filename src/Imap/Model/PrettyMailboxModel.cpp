@@ -79,7 +79,7 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
         // We also deliberately put an emphasis on the "unread count", even to an extent where there's no special information
         // for mailboxes with some recent, but no unread messages.
         if (recentCount && unreadCount) {
-            return tr("%1 (%2 + %3)")
+            return tr("%1 (%2/%3)")
                    .arg(QSortFilterProxyModel::data(index, RoleShortMailboxName).toString(),
                         QString::number(recentCount), QString::number(unreadCount));
         } else if (unreadCount) {
