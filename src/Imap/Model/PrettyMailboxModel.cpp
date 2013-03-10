@@ -60,12 +60,35 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
     {
         QModelIndex translated = mapToSource(index);
         qlonglong unreadCount = translated.data(RoleUnreadMessageCount).toLongLong();
-        if (unreadCount)
+        qlonglong recentCount = translated.data(RoleRecentMessageCount).toLongLong();
+        // The "problem" is that the \Recent and (lack of) \Seen flags are orthogonal states.
+        //
+        // There is no rule saying that a recent message is still unseen (trivial example: an already-read message being copied),
+        // or that an unread message is recent.
+        //
+        // That's not really so much of a problem after the mailbox has been synced because we have all flags for each and every
+        // message, and can therefore easily compute the difference. The problem, however, is that there is no such feature
+        // in the SELECT command (and before you ask, SEARCH requires a selected mailbox, and "selected" is very close to
+        // "synchronized" in Trojita). Trojita tries to satisfy all requests for "message numbers" at once, via the STATUS command
+        // for unselected mailboxes, or through the already-known and cached information in the message flags for the recently
+        // synchronized ones. In theory, it is possible to implement a workaround involving EXAMINE and (E)SEARCH, but even that
+        // has its drawbacks (like the neccessary serialization of requests and the requirement for a ton of new code).
+        //
+        // So in short, this is why there's no "(1 + 5)" result with six unread an one recent message.
+        //
+        // We also deliberately put an emphasis on the "unread count", even to an extent where there's no special information
+        // for mailboxes with some recent, but no unread messages.
+        if (recentCount && unreadCount) {
+            return tr("%1 (%2 + %3)")
+                   .arg(QSortFilterProxyModel::data(index, RoleShortMailboxName).toString(),
+                        QString::number(recentCount), QString::number(unreadCount));
+        } else if (unreadCount) {
             return tr("%1 (%2)")
                    .arg(QSortFilterProxyModel::data(index, RoleShortMailboxName).toString(),
                         QString::number(unreadCount));
-        else
+        } else {
             return QSortFilterProxyModel::data(index, RoleShortMailboxName);
+        }
     }
     case Qt::FontRole:
     {
@@ -101,9 +124,9 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole:
     {
         QModelIndex translated = mapToSource(index);
-        return tr("<p>%1</p>\n<p>%2 messages<br/>%3 unread</p>")
+        return tr("<p>%1</p>\n<p>%2 messages<br/>%3 unread<br/>%4 recent</p>")
                .arg(translated.data(RoleShortMailboxName).toString(), translated.data(RoleTotalMessageCount).toString(),
-                    translated.data(RoleUnreadMessageCount).toString());
+                    translated.data(RoleUnreadMessageCount).toString(), translated.data(RoleRecentMessageCount).toString());
     }
     default:
         return QSortFilterProxyModel::data(index, role);
