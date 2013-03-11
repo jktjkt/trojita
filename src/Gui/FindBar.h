@@ -28,6 +28,7 @@
 #ifndef GUI_FINDBAR_H
 #define GUI_FINDBAR_H
 
+#include <QPointer>
 #include <QWidget>
 
 class QCheckBox;
@@ -70,7 +71,7 @@ private:
     QCheckBox *m_highlightAll;
 
     QString _lastStringSearched;
-    QWebView *m_associatedWebView;
+    QPointer<QWebView> m_associatedWebView;
 };
 
 }
