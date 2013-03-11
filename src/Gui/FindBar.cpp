@@ -263,7 +263,12 @@ void FindBar::updateHighlight()
 
 void FindBar::setAssociatedWebView(QWebView *webView)
 {
+    if (m_associatedWebView)
+        disconnect(m_associatedWebView, 0, this, 0);
     m_associatedWebView = webView;
+
+    // Automatically hide this FindBar widget when the underlying webview goes away
+    connect(m_associatedWebView, SIGNAL(destroyed(QObject*)), this, SLOT(hide()));
 }
 
 }
