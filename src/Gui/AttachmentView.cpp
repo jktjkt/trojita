@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AttachmentView.h"
+#include "IconLoader.h"
 #include "Common/DeleteAfter.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/MailboxTree.h"
@@ -49,11 +50,30 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 {
     m_fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
-    QLabel *lbl = new QLabel(tr("Attachment %1 (%2, %3)").arg(partIndex.data(Imap::Mailbox::RolePartFileName).toString(),
-                             partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
-                             Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
-                                                                   Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX)));
+    // Icon on the left
+    QLabel *lbl = new QLabel();
+    lbl->setPixmap(loadIcon(QLatin1String("mail-attachment")).pixmap(22, 22));
     layout->addWidget(lbl);
+    QWidget *labelArea = new QWidget();
+    QVBoxLayout *subLayout = new QVBoxLayout(labelArea);
+    // The file name shall be mouse-selectable
+    lbl = new QLabel();
+    lbl->setTextFormat(Qt::PlainText);
+    lbl->setText(partIndex.data(Imap::Mailbox::RolePartFileName).toString());
+    lbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    subLayout->addWidget(lbl);
+    // Some metainformation -- the MIME type and the file size
+    lbl = new QLabel(tr("%2, %3").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
+                                      Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
+                                                                            Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX)));
+    QFont f = lbl->font();
+    f.setItalic(true);
+    f.setPointSizeF(f.pointSizeF() * 0.8);
+    lbl->setFont(f);
+    subLayout->addWidget(lbl);
+    layout->addWidget(labelArea);
+    layout->addStretch();
+    // Download/Open buttons
     m_downloadButton = new QToolButton();
     m_downloadButton->setPopupMode(QToolButton::MenuButtonPopup);
     m_downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
