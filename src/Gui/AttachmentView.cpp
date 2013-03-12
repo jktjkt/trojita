@@ -40,6 +40,9 @@
 #include <QLabel>
 #include <QTemporaryFile>
 #include <QToolButton>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QMimeDatabase>
+#endif
 
 namespace Gui
 {
@@ -50,10 +53,26 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 {
     m_fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
+
     // Icon on the left
     QLabel *lbl = new QLabel();
+
+    QString mimeDescription = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
+    QString rawMime = mimeDescription;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QMimeType mimeType = QMimeDatabase().mimeTypeForName(mimeDescription);
+    if (mimeType.isValid() && !mimeType.isDefault()) {
+        mimeDescription = mimeType.comment();
+        QIcon icon = QIcon::fromTheme(mimeType.iconName(), loadIcon(QLatin1String("mail-attachment")));
+        lbl->setPixmap(icon.pixmap(22, 22));
+    } else {
+        lbl->setPixmap(loadIcon(QLatin1String("mail-attachment")).pixmap(22, 22));
+    }
+#else
     lbl->setPixmap(loadIcon(QLatin1String("mail-attachment")).pixmap(22, 22));
+#endif
     layout->addWidget(lbl);
+
     QWidget *labelArea = new QWidget();
     QVBoxLayout *subLayout = new QVBoxLayout(labelArea);
     // The file name shall be mouse-selectable
@@ -63,9 +82,12 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     lbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
     subLayout->addWidget(lbl);
     // Some metainformation -- the MIME type and the file size
-    lbl = new QLabel(tr("%2, %3").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
+    lbl = new QLabel(tr("%2, %3").arg(mimeDescription,
                                       Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
                                                                             Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX)));
+    if (rawMime != mimeDescription) {
+        lbl->setToolTip(rawMime);
+    }
     QFont f = lbl->font();
     f.setItalic(true);
     f.setPointSizeF(f.pointSizeF() * 0.8);
@@ -73,6 +95,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     subLayout->addWidget(lbl);
     layout->addWidget(labelArea);
     layout->addStretch();
+
     // Download/Open buttons
     m_downloadButton = new QToolButton();
     m_downloadButton->setPopupMode(QToolButton::MenuButtonPopup);
