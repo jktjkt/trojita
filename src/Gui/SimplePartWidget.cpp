@@ -72,6 +72,10 @@ void SimplePartWidget::slotMarkupPlainText() {
 
     static const QString defaultStyle = QString::fromUtf8(
         "pre{word-wrap: break-word; white-space: pre-wrap;}"
+        // The following line, sadly, produces a warning "QFont::setPixelSize: Pixel size <= 0 (0)".
+        // However, if it is not in place or if the font size is set higher, even to 0.1px, WebKit reserves space for the
+        // quotation characters and therefore a weird white area appears. Even width: 0px doesn't help, so it looks like
+        // we will have to live with this warning for the time being.
         ".quotemarks{color:transparent;font-size:0px;}"
         "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
         // Stop the font size from getting smaller after reaching two levels of quotes
