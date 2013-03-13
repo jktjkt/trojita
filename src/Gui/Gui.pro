@@ -108,7 +108,7 @@ XtConnect:RESOURCES += ../xtconnect-icons.qrc
 include(../po2qm.prf)
 PO_FILES = $$files(../../po/trojita_common_*.po)
 
-unix:!trojita_harmattan {
+unix {
     INSTALLS += desktop iconsvg icon32
 
     desktop.path = $$DATADIR/applications
@@ -133,16 +133,4 @@ unix:!trojita_harmattan {
         translations.path = $$PKGDATADIR
         translations.files += locale
     }
-}
-
-trojita_harmattan {
-    desktopfile.files = trojita.desktop
-    desktopfile.path = /usr/share/applications
-    INSTALLS += desktopfile
-}
-
-trojita_harmattan {
-    icon.files = ../icons/trojita.png
-    icon.path = /usr/share/icons/hicolor/64x64/apps
-    INSTALLS += icon
 }
