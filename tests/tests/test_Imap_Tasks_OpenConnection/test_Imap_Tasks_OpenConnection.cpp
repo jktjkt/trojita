@@ -67,6 +67,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     completedSpy = new QSignalSpy(task, SIGNAL(completed(Imap::Mailbox::ImapTask*)));
     failedSpy = new QSignalSpy(task, SIGNAL(failed(QString)));
     authSpy = new QSignalSpy(model, SIGNAL(authRequested()));
+    connErrorSpy = new QSignalSpy(model, SIGNAL(connectionError(QString)));
 }
 
 void ImapModelOpenConnectionTest::acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors)
@@ -617,6 +618,50 @@ void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
+}
+
+/** @short Test that we respect an initial BYE and don't proceed with login */
+void ImapModelOpenConnectionTest::testInitialBye()
+{
+    model->rowCount(QModelIndex());
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    SOCK->fakeReading("* BYE Sorry, we're offline\r\n");
+    for (int i = 0; i < 10; ++i)
+        QCoreApplication::processEvents();
+    QCOMPARE(failedSpy->size(), 1);
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(connErrorSpy->isEmpty());
+}
+
+/** @short Test how we react on some crazy garbage instead of a proper IMAP4 greeting */
+void ImapModelOpenConnectionTest::testInitialGarbage()
+{
+    QFETCH(QByteArray, greetings);
+
+    model->rowCount(QModelIndex());
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    SOCK->fakeReading(greetings);
+    for (int i = 0; i < 10; ++i)
+        QCoreApplication::processEvents();
+    //qDebug() << QList<QVariantList>(*connErrorSpy);
+    QCOMPARE(connErrorSpy->size(), 1);
+    QCOMPARE(failedSpy->size(), 1);
+    QVERIFY(completedSpy->isEmpty());
+}
+
+void ImapModelOpenConnectionTest::testInitialGarbage_data()
+{
+    QTest::addColumn<QByteArray>("greetings");
+
+    QTest::newRow("utter-garbage")
+        << QByteArray("blesmrt trojita\r\n");
+
+    QTest::newRow("pop3")
+        << QByteArray("+OK InterMail POP3 server ready.\r\n");
 }
 
 // FIXME: verify how LOGINDISABLED even after STARTLS ends up
