@@ -90,7 +90,7 @@ Parser::Parser(QObject *parent, Socket *socket, const uint myId):
     QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
     literalPlus(false), waitingForContinuation(false), startTlsInProgress(false), compressDeflateInProgress(false),
     waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), waitingForSslPolicy(false),
-    readingMode(ReadingLine), oldLiteralPosition(0), m_parserId(myId)
+    m_expectsInitialGreeting(true), readingMode(ReadingLine), oldLiteralPosition(0), m_parserId(myId)
 {
     connect(socket, SIGNAL(disconnected(const QString &)),
             this, SLOT(handleDisconnected(const QString &)));
@@ -906,7 +906,10 @@ void Parser::processLine(QByteArray line)
         qDebug() << m_parserId << "<<<" << debugLine;
 #endif
     emit lineReceived(this, line);
-    if (line.startsWith("* ")) {
+    if (m_expectsInitialGreeting && !line.startsWith("* ")) {
+        throw NotAnImapServerError(std::string(), line, -1);
+    } else if (line.startsWith("* ")) {
+        m_expectsInitialGreeting = false;
         queueResponse(parseUntagged(line));
     } else if (line.startsWith("+ ")) {
         if (waitingForContinuation) {
@@ -1134,6 +1137,9 @@ void Parser::slotSocketStateChanged(const Imap::ConnectionState connState, const
         emit lineReceived(this, "*** Connection established");
         waitingForConnection = false;
         QTimer::singleShot(0, this, SLOT(executeCommands()));
+    } else if (connState == CONN_STATE_AUTHENTICATED) {
+        // unit tests: don't wait for the initial untagged response greetings
+        m_expectsInitialGreeting = false;
     }
     emit lineReceived(this, "*** " + message.toUtf8());
     emit connectionStateChanged(this, connState);

@@ -114,6 +114,9 @@ ECBODY(ContinuationRequest, ParserException)
 /** @short Invalid Response Code */
 ECBODY(InvalidResponseCode, ParseError)
 
+/** @short This is not an IMAP4 server */
+ECBODY(NotAnImapServerError, ParseError)
+
 #undef ECBODY
 
 /** @short Parent for all exceptions thrown by Imap::Mailbox-related classes */

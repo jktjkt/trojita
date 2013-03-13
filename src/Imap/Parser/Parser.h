@@ -381,6 +381,7 @@ private:
     bool waitingForConnection;
     bool waitingForEncryption;
     bool waitingForSslPolicy;
+    bool m_expectsInitialGreeting;
 
     enum { ReadingLine, ReadingNumberOfBytes } readingMode;
     QByteArray currentLine;

@@ -1089,13 +1089,30 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
     emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
     QByteArray details = (position == -1) ? QByteArray() : QByteArray(position, ' ') + QByteArray("^ here");
     logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, line, details));
-    emit connectionError(trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
-                                "This might either mean that there's a bug in Trojiá's code, or "
-                                "that the IMAP server you are connected to is broken. Please "
-                                "report this as a bug anyway. Here are the details:</p>"
-                                "<p><b>%1</b>: %2</p>"
-                                "<pre>%3\n%4</pre>"
-                               ).arg(exceptionClass, errorMessage, line, details));
+    if (exceptionClass == QLatin1String("NotAnImapServerError")) {
+        QString service;
+        if (line.startsWith("+OK") || line.startsWith("-ERR")) {
+            service = tr("a POP3");
+        } else if (line.startsWith("220 ") || line.startsWith("220-")) {
+            service = tr("an SMTP");
+        }
+        if (!service.isEmpty())
+            service = tr("<p>It appears that you are connecting to %1 server. That won't work here.</p>").arg(service);
+        emit connectionError(trUtf8("<h2>This is not an IMAP server</h2>"
+                                    "%1"
+                                    "<p>Please check your settings to make sure you are connecting to the IMAP service. "
+                                    "A typical port number for IMAP is 143 or 993.</p>"
+                                    "<p>The server said:</p>"
+                                    "<pre>%2</pre>").arg(service, QString::fromUtf8(line.constData())));
+    } else {
+        emit connectionError(trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
+                                    "This might either mean that there's a bug in Trojiá's code, or "
+                                    "that the IMAP server you are connected to is broken. Please "
+                                    "report this as a bug anyway. Here are the details:</p>"
+                                    "<p><b>%1</b>: %2</p>"
+                                    "<pre>%3\n%4</pre>"
+                                   ).arg(exceptionClass, errorMessage, line, details));
+    }
     setNetworkOffline();
 }
 
