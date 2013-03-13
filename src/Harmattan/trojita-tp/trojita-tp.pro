@@ -27,8 +27,7 @@ symbian:TARGET.CAPABILITY += NetworkServices
 # CONFIG += qtquickcomponents
 
 # The .cpp file which was generated for your project. Feel free to hack it.
-SOURCES += main.cpp \
-    ImapAccess.cpp
+SOURCES += main.cpp
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)
@@ -45,13 +44,15 @@ OTHER_FILES += \
 INCLUDEPATH += ../../
 DEPENDPATH += ../../
 
-trojita_libs = Imap MSA Streams qwwsmtpclient Common
+trojita_libs = ModelGlue
+myprefix = ../../QmlSupport/
+include(../../linking.pri)
+
+trojita_libs = Imap Streams Common
 myprefix = ../../
 include(../../linking.pri)
+
 include(../../../configh.pri)
 include(../../Streams/ZlibLinking.pri)
 
 QT += network sql webkit
-
-HEADERS += \
-    ImapAccess.h

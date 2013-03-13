@@ -23,8 +23,8 @@
 #include <QtGui/QApplication>
 #include <QDeclarativeContext>
 #include "qmlapplicationviewer.h"
-#include "ImapAccess.h"
 #include "Common/SetCoreApplication.h"
+#include "QmlSupport/ModelGlue/ImapAccess.h"
 
 int main(int argc, char *argv[])
 {

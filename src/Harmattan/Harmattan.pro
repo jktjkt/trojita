@@ -1,2 +1,2 @@
 TEMPLATE = subdirs
-SUBDIRS  = QNAMWebView trojita-tp
+SUBDIRS  = trojita-tp
