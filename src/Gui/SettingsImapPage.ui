@@ -61,7 +61,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="3" column="0">
+    <item row="4" column="0">
      <widget class="QLabel" name="startTlsLabel">
       <property name="text">
        <string>Perform S&amp;TARTTLS</string>
@@ -71,7 +71,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
+    <item row="5" column="0">
      <widget class="QLabel" name="imapUserLabel">
       <property name="text">
        <string>&amp;Username</string>
@@ -81,7 +81,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="5" column="0">
+    <item row="6" column="0">
      <widget class="QLabel" name="imapPassLabel">
       <property name="text">
        <string>Pass&amp;word</string>
@@ -91,7 +91,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="7" column="0">
+    <item row="8" column="0">
      <widget class="QLabel" name="processPathLabel">
       <property name="text">
        <string>Path to Server &amp;Binary</string>
@@ -101,7 +101,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="8" column="0">
+    <item row="9" column="0">
      <widget class="QLabel" name="startOfflineLabel">
       <property name="text">
        <string>Start in O&amp;ffline Mode</string>
@@ -134,7 +134,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
+    <item row="4" column="1">
      <widget class="QCheckBox" name="startTls">
       <property name="toolTip">
        <string>Transparently upgrade the plaintext connection to an encrypted one</string>
@@ -153,7 +153,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="4" column="1">
+    <item row="5" column="1">
      <widget class="QLineEdit" name="imapUser">
       <property name="toolTip">
        <string>IMAP Username</string>
@@ -166,7 +166,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
+    <item row="6" column="1">
      <widget class="QLineEdit" name="imapPass">
       <property name="toolTip">
        <string>IMAP Password</string>
@@ -190,7 +190,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="7" column="1">
+    <item row="8" column="1">
      <widget class="QLineEdit" name="processPath">
       <property name="whatsThis">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -206,7 +206,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="9" column="1">
      <widget class="QCheckBox" name="startOffline">
       <property name="toolTip">
        <string>Don't connect to the IMAP server upon startup</string>
@@ -219,7 +219,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="6" column="0" colspan="2">
+    <item row="7" column="0" colspan="2">
      <widget class="QLabel" name="passwordWarning">
       <property name="text">
        <string>This password will be saved on disk in clear text. If you do not enter password here, Trojitá will prompt for one when needed.</string>
@@ -229,7 +229,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="9" column="1">
+    <item row="10" column="1">
      <widget class="QCheckBox" name="imapEnableId">
       <property name="toolTip">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -245,7 +245,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="9" column="0">
+    <item row="10" column="0">
      <widget class="QLabel" name="imapEnableIdLabel">
       <property name="text">
        <string>Ask for IMAP &amp;ID</string>
@@ -255,7 +255,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
+    <item row="11" column="0">
      <widget class="QLabel" name="imapCapabilitiesBlacklistLabel">
       <property name="text">
        <string>Blacklisted &amp;Capabilities</string>
@@ -265,8 +265,18 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="10" column="1">
+    <item row="11" column="1">
      <widget class="QLineEdit" name="imapCapabilitiesBlacklist"/>
+    </item>
+    <item row="3" column="0" colspan="2">
+     <widget class="QLabel" name="portWarning">
+      <property name="text">
+       <string>This port number looks suspicious. The usual numbers for IMAP are 143 (with the TCP connection method or with STARTTLS) and 993 (when using SSL).</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

@@ -293,6 +293,9 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     imapHost->setText(s.value(SettingsNames::imapHostKey).toString());
     imapPort->setText(s.value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP)).toString());
     imapPort->setValidator(new QIntValidator(1, 65535, this));
+    connect(imapPort, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPortWarning()));
+    connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(maybeShowPortWarning()));
+    portWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
     passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
     connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPasswordWarning()));
     startTls->setChecked(s.value(SettingsNames::imapStartTlsKey, true).toBool());
@@ -397,6 +400,21 @@ void ImapPage::maybeShowPasswordWarning()
 {
     passwordWarning->setVisible(!imapPass->text().isEmpty());
 }
+
+void ImapPage::maybeShowPortWarning()
+{
+    switch (method->currentIndex()) {
+    case TCP:
+        portWarning->setVisible(imapPort->text() != QLatin1String("143"));
+        break;
+    case SSL:
+        portWarning->setVisible(imapPort->text() != QLatin1String("993"));
+        break;
+    default:
+        portWarning->setVisible(false);
+    }
+}
+
 
 CachePage::CachePage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_CachePage()
 {
