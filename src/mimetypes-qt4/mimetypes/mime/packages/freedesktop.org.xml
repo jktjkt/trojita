@@ -1,0 +1,1228 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+  <link rel="icon" href="http://qt.nokia.com/favicon.ico" type="image/x-icon" />
+  <link rel="shortcut icon" href="http://qt.nokia.com/favicon.ico" type="image/x-icon" />
+  
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>qtbase in Qt - Qt by Nokia</title>
+<link href="/stylesheets/gts-common.css?1339069040" media="screen" rel="stylesheet" type="text/css" />
+<link href="//fonts.googleapis.com/css?family=Nobile&amp;v1" type="text/css" rel="stylesheet">
+
+<script src="/javascripts/all.js?1339069067" type="text/javascript"></script>  <link href="/qt/qtbase.atom" rel="alternate" title="ATOM" type="application/atom+xml" /><link rel="vcs-git" href="git://gitorious.org/qt/qtbase.git" title="qtbase in Qt" /><link rel="vcs-http" href="https://git.gitorious.org/qt/qtbase.git" title="qtbase in Qt" /><!--[if IE 8]><link rel="stylesheet" href="/stylesheets/ie8.css" type="text/css"><![endif]-->
+<!--[if IE 7]><link rel="stylesheet" href="/stylesheets/ie7.css" type="text/css"><![endif]-->
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-52238-3']);
+_gaq.push(['_setDomainName', '.gitorious.org'])
+_gaq.push(['_trackPageview']);
+(function() {
+   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+   ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+})();
+</script>
+  <link href="/stylesheets/sites/qt/qt.css?1339069050" media="screen" rel="stylesheet" type="text/css" /></head>
+
+<body id="repositories">
+<div id="wrapper">
+    <ul id="user-nav">
+	<li><a href="/">Dashboard</a></li>
+	
+          <li class="secondary"><a href="/users/new">Register</a></li>
+    <li class="secondary"><a href="/login">Login</a></li>
+  </ul>
+  <div id="header">
+    <h1 id="logo">
+      <a href="/"><img alt="Logo" src="/images/sites/qt/logo.png?1339069050" /></a>    </h1>
+
+    <ul id="menu">
+              <li class="activity"><a href="/activities">Activities</a></li>
+        <li class="projects"><a href="/projects">Projects</a></li>
+        <li class="teams"><a href="/teams">Teams</a></li>
+          </ul>
+
+  </div>
+
+	<div id="top-bar">
+    <ul id="breadcrumbs">
+      <li class="project"><a href="/qt">Qt</a></li><li class="repository"><a href="/qt/qtbase">qtbase</a></li>    </ul>
+          <div id="searchbox">
+        
+
+
+<div class="search_bar">
+  <form action="/search" method="get">    <p>
+      <input class="text search-field round-5" id="q" name="q" type="text" />      <input type="submit" value="Search" class="search-submit round-5" />
+    </p>
+    <p class="hint search-hint" style="display: none;">
+      eg. 'wrapper', 'category:python' or '"document database"'
+          </p>
+  </form></div>
+      </div>
+      </div>
+
+  <div id="container" class="">
+    <div id="content" class="with_sidebar">
+      <div class="flash_message error"><p>Blob is too big (1752228 bytes). Clone the repository locally to see it</p></div>
+      
+
+
+<div class="content-container" id="repositories">
+
+
+
+
+<div class="repository_meta">
+	<div class="repository-info">
+    		<h3 mainline>
+      		        		    <a href="/qt">qt</a>      		    <img alt="Arrow_right" src="/images/silk/arrow_right.png?1339069040" />      		        		  <a href="/qt/qtbase">qtbase</a>                                  </h3>
+    
+
+      <div class="repository-description page">
+	
+      <p>The Qt Base repository.</p>     </div>
+    <div class="infobox">
+    
+
+<ul>
+  <li>
+    <div class="clone_urls">
+      <form class="clone_urls_form">
+        <p><strong>Clone &amp; push urls</strong></p>
+              <p class="clone_radio">
+        <label for="git-76828">
+          <input type="radio" id="git-76828" name="url-76828" value="git://gitorious.org/qt/qtbase.git" checked="checked">GIT
+        </label>
+      </p>
+
+              <p class="clone_radio">
+        <label for="http-76828">
+          <input type="radio" id="http-76828" name="url-76828" value="https://git.gitorious.org/qt/qtbase.git" >HTTP
+        </label>
+      </p>
+
+        
+
+        <p class="clone-copy git_http">
+          <input type="text" readonly="readonly" id="clone-url-76828" value="" />
+          <a href="#help" id="clone-help-76828" class="clone-help-toggler">?</a>
+        </p>
+      </form>
+    </div>
+    <div id="clone-help-76828-box" class="clone-help-text" style="display:none;">
+                  <p>Cloning this repository:
+<pre>
+git clone git://gitorious.org/qt/qtbase.git qtbase
+cd qtbase</pre></p>
+      <p>Add this repository as a remote to an existing local repository:
+<pre>
+git remote add qtbase git://gitorious.org/qt/qtbase.git
+git fetch qtbase
+git checkout -b my-local-tracking-branch qtbase/master_or_other_branch
+</pre>
+      </p>
+    </div>
+  </li>
+</ul>
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+        var standard = $("#git-76828:checked, #http-76828:checked, #ssh-76828:checked").val();
+
+        $('#clone-url-76828').val(standard);
+
+        $('#git-76828').click(function () {
+            var text = $('#git-76828').val();
+            $('#clone-url-76828').val(text);
+        });
+
+        $('#http-76828').click(function () {
+            var text = $('#http-76828').val();
+            $('#clone-url-76828').val(text);
+        });
+        $('#ssh-76828').click(function () {
+            var text = $('#ssh-76828').val();
+            $('#clone-url-76828').val(text);
+        });
+
+        $('#clone-url-76828').click(function () {
+            this.select();
+        });
+    });
+</script>
+
+ </div>
+    <div class="branches">
+     <ul class="branch_list">
+       <li><strong>Branches:</strong></li>
+       <li class="head"><a href="/qt/qtbase/commits/master" title="master (HEAD)">master</a></li>
+<li class=""><a href="/qt/qtbase/commits/api_changes" title="api_changes">api_changes</a></li>
+<li class=""><a href="/qt/qtbase/commits/buildsystem" title="buildsystem">buildsystem</a></li>
+<li class=""><a href="/qt/qtbase/commits/cli_parser" title="cli_parser">cli_parser</a></li>
+<li class=""><a href="/qt/qtbase/commits/containers" title="containers">containers</a></li>
+<li class=""><a href="/qt/qtbase/commits/docs-refactoring" title="docs-refactoring">docs-refactoring</a></li>
+<li class="rest-of-branches">
+                        <small>and 2 more&hellip;</small>
+                      </li>     </ul>
+   </div>
+ 
+ 	</div> <!-- End of repository-description -->
+
+	<div class="repository-links">
+				
+	  	<ul>
+	    	<li class="repository-link commit">
+	      	<a href="/qt/qtbase/commits">Commit log</a>	    	</li>
+	    	<li class="repository-link tree">
+	      	<a href="/qt/qtbase/trees">Source tree</a>	    	</li>
+
+					<li class="repository-link clone_repository">
+				<a href="/qt/qtbase/clone">Clone repository</a>			</li>
+		 	  </ul>	
+		
+	</div>
+
+</div>
+</div>
+<div class="content-container">
+  </div>
+  <h2>Activities <a href="/qt/qtbase.atom" alt="Atom feed" title="Atom feed"><img alt="Feed" class="feed_icon" src="/images/silk/feed.png?1339069040" /></a></h2>
+  
+
+
+
+
+<ul class="events w-750">
+  <li>
+    <p class="date">Saturday August 11 2012</p>
+    <ul class="event_instances">
+      
+
+
+<li class="event_instance  push_summary" id="event_43235992">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">23:01</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43235992" gts:url="/events/43235992/commits" id="commits_in_event_43235992_toggler">2 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/b603fd36c256e91beff758363d6943cf2f8294d8/diffs/d370b365daff7d3fa9927559ddfbb17a2d5f3e29">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from b603fd3 to d370b36</p>
+    </div>
+    
+              <div id="commits_in_event_43235992" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43235499">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">11:11</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43235499" gts:url="/events/43235499/commits" id="commits_in_event_43235499_toggler">2 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/522e892ff4233ccc6c0523ae806cdaba67ac7a3d/diffs/b603fd36c256e91beff758363d6943cf2f8294d8">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 522e892 to b603fd3</p>
+    </div>
+    
+              <div id="commits_in_event_43235499" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43235383">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">08:02</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43235383" gts:url="/events/43235383/commits" id="commits_in_event_43235383_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/0fc4f2b4cfc940a899578990a664ece874aa3a84/diffs/522e892ff4233ccc6c0523ae806cdaba67ac7a3d">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 0fc4f2b to 522e892</p>
+    </div>
+    
+              <div id="commits_in_event_43235383" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43235197">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">01:22</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43235197" gts:url="/events/43235197/commits" id="commits_in_event_43235197_toggler">4 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/c1df856d6b7fbbf3f21e294cdb481aeaec8110e4/diffs/0fc4f2b4cfc940a899578990a664ece874aa3a84">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from c1df856 to 0fc4f2b</p>
+    </div>
+    
+              <div id="commits_in_event_43235197" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+    </ul>
+  </li>
+  <li>
+    <p class="date">Friday August 10 2012</p>
+    <ul class="event_instances">
+      
+
+
+<li class="event_instance  push_summary" id="event_43235096">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">22:41</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43235096" gts:url="/events/43235096/commits" id="commits_in_event_43235096_toggler">6 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/06ca4e38cf52e5c5ddad8497fa72d2d28d81b2a9/diffs/c1df856d6b7fbbf3f21e294cdb481aeaec8110e4">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 06ca4e3 to c1df856</p>
+    </div>
+    
+              <div id="commits_in_event_43235096" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43234797">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">17:51</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43234797" gts:url="/events/43234797/commits" id="commits_in_event_43234797_toggler">3 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/478c21239a97b521e1f515ddbb0b73b0b493a738/diffs/06ca4e38cf52e5c5ddad8497fa72d2d28d81b2a9">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 478c212 to 06ca4e3</p>
+    </div>
+    
+              <div id="commits_in_event_43234797" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43234284">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">12:52</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43234284" gts:url="/events/43234284/commits" id="commits_in_event_43234284_toggler">2 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/8ec3a419d12294c07ae4ea7970caa21a22f82182/diffs/478c21239a97b521e1f515ddbb0b73b0b493a738">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 8ec3a41 to 478c212</p>
+    </div>
+    
+              <div id="commits_in_event_43234284" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43234041">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">09:11</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43234041" gts:url="/events/43234041/commits" id="commits_in_event_43234041_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/fa08b143f3deb1db11984a88aa34d541c19c9fc5/diffs/8ec3a419d12294c07ae4ea7970caa21a22f82182">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from fa08b14 to 8ec3a41</p>
+    </div>
+    
+              <div id="commits_in_event_43234041" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+    </ul>
+  </li>
+  <li>
+    <p class="date">Thursday August 09 2012</p>
+    <ul class="event_instances">
+      
+
+
+<li class="event_instance  push_summary" id="event_43233592">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">23:21</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43233592" gts:url="/events/43233592/commits" id="commits_in_event_43233592_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/977441f61cc42b7f29e48980577105323fbd3b47/diffs/fa08b143f3deb1db11984a88aa34d541c19c9fc5">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 977441f to fa08b14</p>
+    </div>
+    
+              <div id="commits_in_event_43233592" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43232872">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">14:11</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43232872" gts:url="/events/43232872/commits" id="commits_in_event_43232872_toggler">6 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/d7ddd92d153794c4c49441e26e9fa9eb7bc3299c/diffs/977441f61cc42b7f29e48980577105323fbd3b47">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from d7ddd92 to 977441f</p>
+    </div>
+    
+              <div id="commits_in_event_43232872" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43232513">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">09:11</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43232513" gts:url="/events/43232513/commits" id="commits_in_event_43232513_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/6a8537356be5766fcdc5cf8fcb5fabb81abd09e7/diffs/d7ddd92d153794c4c49441e26e9fa9eb7bc3299c">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 6a85373 to d7ddd92</p>
+    </div>
+    
+              <div id="commits_in_event_43232513" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43232246">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">04:21</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43232246" gts:url="/events/43232246/commits" id="commits_in_event_43232246_toggler">14 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/63eb5b5a798bd4d5de57243f79fde06b17233820/diffs/6a8537356be5766fcdc5cf8fcb5fabb81abd09e7">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 63eb5b5 to 6a85373</p>
+    </div>
+    
+              <div id="commits_in_event_43232246" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+    </ul>
+  </li>
+  <li>
+    <p class="date">Wednesday August 08 2012</p>
+    <ul class="event_instances">
+      
+
+
+<li class="event_instance  push_summary" id="event_43231569">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">17:02</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43231569" gts:url="/events/43231569/commits" id="commits_in_event_43231569_toggler">4 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/ef5dd56eb93c89e0ebd61ddb260f01afa950c195/diffs/63eb5b5a798bd4d5de57243f79fde06b17233820">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from ef5dd56 to 63eb5b5</p>
+    </div>
+    
+              <div id="commits_in_event_43231569" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43231023">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">12:25</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43231023" gts:url="/events/43231023/commits" id="commits_in_event_43231023_toggler">11 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/ebbd8e66717e7bf400b395e240569e72409c9959/diffs/ef5dd56eb93c89e0ebd61ddb260f01afa950c195">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from ebbd8e6 to ef5dd56</p>
+    </div>
+    
+              <div id="commits_in_event_43231023" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43230859">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">10:12</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43230859" gts:url="/events/43230859/commits" id="commits_in_event_43230859_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/6820f1716e991ef5e3e83d3f09658197417e4db5/diffs/ebbd8e66717e7bf400b395e240569e72409c9959">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 6820f17 to ebbd8e6</p>
+    </div>
+    
+              <div id="commits_in_event_43230859" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43230713">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">07:43</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/containers" class="commit_event_toggler" gts:id="43230713" gts:url="/events/43230713/commits" id="commits_in_event_43230713_toggler">624 commits</a>  to <a href="/qt/qtbase/commits/containers">qt/qtbase:containers</a>. <a href="/qt/qtbase/commit/7a0b8d580df8d6b0012d11f61299046682f4d18a/diffs/6820f1716e991ef5e3e83d3f09658197417e4db5">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>containers changed from 7a0b8d5 to 6820f17</p>
+    </div>
+    
+              <div id="commits_in_event_43230713" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+    </ul>
+  </li>
+  <li>
+    <p class="date">Tuesday August 07 2012</p>
+    <ul class="event_instances">
+      
+
+
+<li class="event_instance  push_summary" id="event_43230445">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">23:51</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43230445" gts:url="/events/43230445/commits" id="commits_in_event_43230445_toggler">8 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/f829ab5573f7146785c79d83182757043b0e6ce9/diffs/6820f1716e991ef5e3e83d3f09658197417e4db5">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from f829ab5 to 6820f17</p>
+    </div>
+    
+              <div id="commits_in_event_43230445" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43230340">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">21:31</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43230340" gts:url="/events/43230340/commits" id="commits_in_event_43230340_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/46212d657e2e989dddd361a732e65b05748e8e91/diffs/f829ab5573f7146785c79d83182757043b0e6ce9">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 46212d6 to f829ab5</p>
+    </div>
+    
+              <div id="commits_in_event_43230340" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43230207">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">19:21</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43230207" gts:url="/events/43230207/commits" id="commits_in_event_43230207_toggler">7 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/bfabd0de511336abf50594b5e98f94d3eb36cb73/diffs/46212d657e2e989dddd361a732e65b05748e8e91">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from bfabd0d to 46212d6</p>
+    </div>
+    
+              <div id="commits_in_event_43230207" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43230050">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">17:03</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43230050" gts:url="/events/43230050/commits" id="commits_in_event_43230050_toggler">16 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/1dca602122d551475354fed2a2673a0f61cf618f/diffs/bfabd0de511336abf50594b5e98f94d3eb36cb73">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 1dca602 to bfabd0d</p>
+    </div>
+    
+              <div id="commits_in_event_43230050" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43229606">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">11:41</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43229606" gts:url="/events/43229606/commits" id="commits_in_event_43229606_toggler">4 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/39c2fdd9070f81705f1de927694b8589f69da149/diffs/49278dc5a77b84c06d2456a4eafde39e6cae735c">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 39c2fdd to 49278dc</p>
+    </div>
+    
+              <div id="commits_in_event_43229606" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43229376">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">09:21</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43229376" gts:url="/events/43229376/commits" id="commits_in_event_43229376_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/4ec169a60f9270a9ba673857de90e3b38ac94e7c/diffs/39c2fdd9070f81705f1de927694b8589f69da149">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 4ec169a to 39c2fdd</p>
+    </div>
+    
+              <div id="commits_in_event_43229376" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43229075">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">02:11</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43229075" gts:url="/events/43229075/commits" id="commits_in_event_43229075_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/0ec953c93688ec0de74cda43b91f66f4cf879e5f/diffs/4ec169a60f9270a9ba673857de90e3b38ac94e7c">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 0ec953c to 4ec169a</p>
+    </div>
+    
+              <div id="commits_in_event_43229075" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+    </ul>
+  </li>
+  <li>
+    <p class="date">Monday August 06 2012</p>
+    <ul class="event_instances">
+      
+
+
+<li class="event_instance  push_summary" id="event_43228902">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">21:41</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43228902" gts:url="/events/43228902/commits" id="commits_in_event_43228902_toggler">3 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/96bc8835ebbbbc545b7cefd41f01512fc0d271c1/diffs/0ec953c93688ec0de74cda43b91f66f4cf879e5f">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 96bc883 to 0ec953c</p>
+    </div>
+    
+              <div id="commits_in_event_43228902" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43228631">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">17:51</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43228631" gts:url="/events/43228631/commits" id="commits_in_event_43228631_toggler">13 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/a87006d4d2c7547d7de5c8ca5664a2197abcb78e/diffs/96bc8835ebbbbc545b7cefd41f01512fc0d271c1">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from a87006d to 96bc883</p>
+    </div>
+    
+              <div id="commits_in_event_43228631" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43228078">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">11:31</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43228078" gts:url="/events/43228078/commits" id="commits_in_event_43228078_toggler">4 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/054645c846e94eb9aa14772685340ddb5d9a505f/diffs/a87006d4d2c7547d7de5c8ca5664a2197abcb78e">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 054645c to a87006d</p>
+    </div>
+    
+              <div id="commits_in_event_43228078" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43227663">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">03:31</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43227663" gts:url="/events/43227663/commits" id="commits_in_event_43227663_toggler">5 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/702788f4adef6c4dbc3144083c515a60274a3164/diffs/054645c846e94eb9aa14772685340ddb5d9a505f">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 702788f to 054645c</p>
+    </div>
+    
+              <div id="commits_in_event_43227663" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+    </ul>
+  </li>
+  <li>
+    <p class="date">Sunday August 05 2012</p>
+    <ul class="event_instances">
+      
+
+
+<li class="event_instance  push_summary" id="event_43226761">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">07:41</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43226761" gts:url="/events/43226761/commits" id="commits_in_event_43226761_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/b7db596590ff0cc31c56338684970d835840fdaa/diffs/702788f4adef6c4dbc3144083c515a60274a3164">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from b7db596 to 702788f</p>
+    </div>
+    
+              <div id="commits_in_event_43226761" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+    </ul>
+  </li>
+  <li>
+    <p class="date">Saturday August 04 2012</p>
+    <ul class="event_instances">
+      
+
+
+<li class="event_instance  push_summary" id="event_43225940">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">08:31</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43225940" gts:url="/events/43225940/commits" id="commits_in_event_43225940_toggler">4 commits</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/20b7f028cf959c0853c51d72fd4da5d48cfaee67/diffs/b7db596590ff0cc31c56338684970d835840fdaa">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 20b7f02 to b7db596</p>
+    </div>
+    
+              <div id="commits_in_event_43225940" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+
+
+
+<li class="event_instance  push_summary" id="event_43225804">
+	  <p class="event_category push">Push</p>
+      <p class="event_date">03:11</p>
+    <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+
+  <div class="event_meta">
+    <p class="event_action">
+        
+      
+        <strong><a href="/~qtbynokia" class="event-author">The Qt Project</a></strong>
+      
+      pushed <a href="/qt/qtbase/commits/master" class="commit_event_toggler" gts:id="43225804" gts:url="/events/43225804/commits" id="commits_in_event_43225804_toggler">1 commit</a>  to <a href="/qt/qtbase/commits/master">qt/qtbase:master</a>. <a href="/qt/qtbase/commit/95d3380d229b479837296a3790e947c698350b40/diffs/20b7f028cf959c0853c51d72fd4da5d48cfaee67">View diff</a>
+    
+    </p>
+    <div class=" commit_message">
+      <p>master changed from 95d3380 to 20b7f02</p>
+    </div>
+    
+              <div id="commits_in_event_43225804" style="display:none">
+        <img alt="Spinner" src="/images/spinner.gif?1339069040" />      </div>
+    
+  </div>
+</li>
+    </ul>
+  </li>
+</ul>
+<div class="pagination"><span class="disabled prev_page">Previous</span> <span class="current">1</span> <a href="/qt/qtbase?page=2" rel="next">2</a> <a href="/qt/qtbase?page=3">3</a> <a href="/qt/qtbase?page=4">4</a> <a href="/qt/qtbase?page=5">5</a> <a href="/qt/qtbase?page=6">6</a> <a href="/qt/qtbase?page=7">7</a> <a href="/qt/qtbase?page=8">8</a> <a href="/qt/qtbase?page=9">9</a> <span class="gap">&hellip;</span> <a href="/qt/qtbase?page=86">86</a> <a href="/qt/qtbase?page=87">87</a> <a href="/qt/qtbase?page=2" class="next_page" rel="next">Next</a></div>
+    </div>
+        <div id="sidebar">
+
+        <ul class="sidebar-meta">
+    <li>
+      <strong>Project:</strong>
+      <a href="/qt">qt</a>    </li>
+    <li>
+      <strong>Owner:</strong>
+      <a href="/+qt-developers">+qt-developers</a>            <small class="hint">
+        (through <a href="/~qtbynokia">~qtbynokia</a>)
+      </small>
+          </li>
+        <li>
+      <strong>Created:</strong>
+      09 May 10:39    </li>
+  </ul>
+
+  <ul class="links navigation">
+          <li class="clone_repository"><a href="/qt/qtbase/clone">Clone repository</a></li>
+          </ul>
+
+  <ul class="links navigation">
+      </ul>
+
+  
+<h4>Committers</h4>    
+<ul class="committers">
+  <li>
+    <div class="user">
+      <img alt="avatar" height="16" src="/system/avatars/qtbynokia/thumb/qt-logo-small.png?1241893660" width="16" />
+      <a href="/~qtbynokia">The Qt Project</a>              <small class="hint">(creator)</small>
+          </div>
+  </li>
+</ul>
+
+  
+      
+
+<h4>Repository clones</h4>
+
+  
+
+<div id="repo_search" 
+     gts:searchUri="/qt/qtbase/search_clones">
+  <form>
+  <input name="filter" type="text" class="search" autocomplete="off" />
+  <span class="reset"><img alt="Cancel_grey" src="/images/cancel_grey.png?1339069040" /></span>
+  </form>
+  <div class="no-results-found">
+    No results
+  </div>
+  <ul class="repository_list"></ul>
+</div>
+
+  <div class="team_clones">
+    <h5>Team clones (5)</h5>
+    <ul class="repository_list">
+            
+<li class="clone">
+  <div class="name">
+    <a href="/+cambridgehackers/qt/cambridge-qtbase">cambridge-qtbase</a>  </div>
+      <div class="group">
+      <img alt="Default_group_avatar" height="16" src="/images/default_group_avatar.png?1339069040" width="16" />
+      <a href="/+cambridgehackers">cambridgehackers</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/+qt-developers/qt/nebulons-qtbase">nebulons-qtbase</a>  </div>
+      <div class="group">
+      <img alt="Qt-logo-small" height="16" src="/system/group_avatars/qt-developers/thumb/qt-logo-small.png?1251380503" width="16" />
+      <a href="/+qt-developers">qt-developers</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/+qt-developers/qt/phartmans-qtbase-fixes">phartmans-qtbase-fixes</a>  </div>
+      <div class="group">
+      <img alt="Qt-logo-small" height="16" src="/system/group_avatars/qt-developers/thumb/qt-logo-small.png?1251380503" width="16" />
+      <a href="/+qt-developers">qt-developers</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/+kdab-developers/qt/kdab-developers-qtbase">kdab-developers-qtbase</a>  </div>
+      <div class="group">
+      <img alt="New" height="16" src="/system/group_avatars/kdab-developers/thumb/new.png?1288893008" width="16" />
+      <a href="/+kdab-developers">kdab-developers</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/+qt-developers/qt/qtbase-staging">qtbase-staging</a>  </div>
+      <div class="group">
+      <img alt="Qt-logo-small" height="16" src="/system/group_avatars/qt-developers/thumb/qt-logo-small.png?1251380503" width="16" />
+      <a href="/+qt-developers">qt-developers</a>    </div>
+  </li>          </ul>
+  </div>
+    <div class="personal_clones">
+    <h5>Personal clones (70)</h5>
+    <ul class="repository_list">
+            
+<li class="clone">
+  <div class="name">
+    <a href="/~alexandrosdermenakis/qt/qtbase-colorprofiles">qtbase-colorprofiles</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=41dd78db4a109c98769958536e437c49&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~alexandrosdermenakis">alexandrosdermenakis</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~lauromoura/qt/lauromoura-qtbase">lauromoura-qtbase</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=1a958229b35d4f1699942d24dacf2268&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~lauromoura">Lauro Moura</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~tlg/qt/tlgs-qtbase">tlgs-qtbase</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=8740d026f5b7e7e93183bda2d74c65f5&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~tlg">tlg</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~jvihrial-home/qt/jvihrial-homes-qtbase">jvihrial-homes-qtbase</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=57a9d62b9636dd536a00e396b9af642b&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~jvihrial-home">jvihrial-home</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~syntheticpp/qt/qt5base">qt5base</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="/system/avatars/syntheticpp/tiny/x_green_zoomed.jpg?1251496759" width="16" />
+      <a href="/~syntheticpp">Peter Kümmel</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~jturcotte/qt/jturcottes-qtbase">jturcottes-qtbase</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=401ae8af059f10912147c332b22e8c5d&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~jturcotte">Jocelyn Turcotte</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~anselmolsm/qt/anselmolsm-qtbase">anselmolsm-qtbase</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=564c8e47a6ace87eab092d78b0fb0708&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~anselmolsm">Anselmo L. S. Melo</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~xuhdev/qt/xuhdevs-qtbase">xuhdevs-qtbase</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=3bc8fbe8e22f92cb19ffb347a05f72a3&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~xuhdev">Hong Xu</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~miniak/qt/qtbase-miniak">qtbase-miniak</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=7bee72bcf55597b84032efe9314043f9&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~miniak">Milan Burda</a>    </div>
+  </li>            
+<li class="clone">
+  <div class="name">
+    <a href="/~thiago-intel/qt/thiago-intels-qtbase">thiago-intels-qtbase</a>  </div>
+      <div class="user">
+      <img alt="avatar" height="16" src="http://www.gravatar.com/avatar.php?gravatar_id=c6d4a8a3c611427d35b1e6fb66ca4fec&amp;default=http%3A%2F%2Fgitorious.org%2Fimages%2Fdefault_face.gif&amp;version=tiny&amp;size=16" width="16" />
+      <a href="/~thiago-intel">thiago-intel</a>    </div>
+  </li>            <ul>
+  </div>
+
+      </div>
+      </div>
+	<div id="footer">
+      
+<div class="powered-by">
+  <a href="http://gitorious.org"><img alt="Poweredby" src="/images/../img/poweredby.png?1294322727" title="Powered by Gitorious" /></a></div>
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-52238-3']);
+_gaq.push(['_setDomainName', '.gitorious.org'])
+_gaq.push(['_trackPageview']);
+(function() {
+   var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+   ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(ga);
+})();
+</script><script src="/javascripts/onload.js?1339069040" type="text/javascript"></script>
+	<div id="footer-links">
+		<h3>Gitorious</h3>
+		<ul>
+      <li><a href="/">Home</a></li>
+      <li><a href="/about/faq">FAQ</a></li>
+      <li><a href="/contact">Contact</a></li>
+      <li><a href="http://qt.nokia.com/">Qt by Nokia</a></li>
+    </ul>
+          <ul>
+        <li><a href="http://en.gitorious.org/tos">Terms of Service</a></li>
+        <li><a href="http://en.gitorious.org/privacy_policy">Privacy Policy</a></li>
+      </ul>
+    	</div>
+
+      <div class="clear"></div>
+    </div>
+</div>
+</body>
+</html>
