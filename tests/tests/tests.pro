@@ -14,6 +14,7 @@ SUBDIRS  = \
     test_Imap_DisappearingMailboxes \
     test_Imap_Threading \
     test_Composer_responses \
+    test_Html_formatting \
     test_Rfc5322 \
     test_SenderIdentitiesModel
 
