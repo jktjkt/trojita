@@ -2,6 +2,10 @@ TEMPLATE = subdirs
 SUBDIRS  = Imap MSA Streams qwwsmtpclient Common Composer
 CONFIG += ordered
 
+lessThan(QT_MAJOR_VERSION, 5) {
+    SUBDIRS += mimetypes-qt4
+}
+
 trojita_harmattan {
     SUBDIRS += QmlSupport Harmattan
 } else {
