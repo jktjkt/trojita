@@ -41,7 +41,9 @@
 #include <QTemporaryFile>
 #include <QToolButton>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <QMimeDatabase>
+#  include <QMimeDatabase>
+#else
+#  include "mimetypes-qt4/include/QMimeDatabase"
 #endif
 
 namespace Gui
@@ -59,7 +61,6 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 
     QString mimeDescription = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
     QString rawMime = mimeDescription;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QMimeType mimeType = QMimeDatabase().mimeTypeForName(mimeDescription);
     if (mimeType.isValid() && !mimeType.isDefault()) {
         mimeDescription = mimeType.comment();
@@ -68,9 +69,6 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     } else {
         lbl->setPixmap(loadIcon(QLatin1String("mail-attachment")).pixmap(22, 22));
     }
-#else
-    lbl->setPixmap(loadIcon(QLatin1String("mail-attachment")).pixmap(22, 22));
-#endif
     layout->addWidget(lbl);
 
     QWidget *labelArea = new QWidget();
