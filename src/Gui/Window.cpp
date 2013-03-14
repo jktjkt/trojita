@@ -435,6 +435,7 @@ void MainWindow::createMenus()
     debugMenu->addAction(showImapCapabilities);
     imapMenu->addSeparator();
     imapMenu->addAction(configSettings);
+    imapMenu->addAction(ShortcutHandler::instance()->shortcutConfigAction());
     imapMenu->addSeparator();
     imapMenu->addAction(exitAction);
 
@@ -470,9 +471,6 @@ void MainWindow::createMenus()
     mailboxMenu->addAction(resyncMbox);
     mailboxMenu->addSeparator();
     mailboxMenu->addAction(reloadAllMailboxes);
-
-    QMenu *settingsMenu = menuBar()->addMenu(tr("&Settings"));
-    settingsMenu->addAction(ShortcutHandler::instance()->shortcutConfigAction());
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(donateToTrojita);
