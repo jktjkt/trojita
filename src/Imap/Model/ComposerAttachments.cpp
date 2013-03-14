@@ -26,6 +26,11 @@
 #include <QMimeData>
 #include <QProcess>
 #include <QUrl>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  include <QMimeDatabase>
+#else
+#  include "mimetypes-qt4/include/QMimeDatabase"
+#endif
 #include "Imap/Encoders.h"
 #include "Imap/Model/FullMessageCombiner.h"
 #include "Imap/Model/MailboxTree.h"
@@ -86,34 +91,8 @@ QByteArray FileAttachmentItem::mimeType() const
     if (!m_cachedMime.isEmpty())
         return m_cachedMime;
 
-    // At first, try to guess through the xdg-mime lookup
-    QProcess p;
-    p.start(QLatin1String("xdg-mime"), QStringList() << QLatin1String("query") << QLatin1String("filetype") << fileName);
-    p.waitForFinished();
-    m_cachedMime = p.readAllStandardOutput();
-
-    // If the lookup fails, consult a list of hard-coded extensions (nope, I'm not going to bundle mime.types with Trojita)
-    if (m_cachedMime.isEmpty()) {
-        QFileInfo info(fileName);
-
-        QMap<QByteArray,QByteArray> knownTypes;
-        if (knownTypes.isEmpty()) {
-            knownTypes["txt"] = "text/plain";
-            knownTypes["jpg"] = "image/jpeg";
-            knownTypes["jpeg"] = "image/jpeg";
-            knownTypes["png"] = "image/png";
-        }
-        QMap<QByteArray,QByteArray>::const_iterator it = knownTypes.constFind(info.suffix().toLower().toLocal8Bit());
-
-        if (it == knownTypes.constEnd()) {
-            // A catch-all thing
-            m_cachedMime = "application/octet-stream";
-        } else {
-            m_cachedMime = *it;
-        }
-    } else {
-        m_cachedMime = m_cachedMime.split('\n')[0].trimmed();
-    }
+    QMimeDatabase mimeDb;
+    m_cachedMime = mimeDb.mimeTypeForFile(fileName).name().toUtf8();
     return m_cachedMime;
 }
 
