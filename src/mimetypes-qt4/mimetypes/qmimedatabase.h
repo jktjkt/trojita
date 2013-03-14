@@ -54,7 +54,7 @@ class QIODevice;
 class QUrl;
 
 class QMimeDatabasePrivate;
-class Q_CORE_EXPORT QMimeDatabase
+class QMimeDatabase
 {
     Q_DISABLE_COPY(QMimeDatabase)
 

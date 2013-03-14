@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
 
 class QStringList;
 
-class Q_CORE_EXPORT QStandardPaths
+class QStandardPaths
 {
 public:
     // Do not re-order, must match QDesktopServices
