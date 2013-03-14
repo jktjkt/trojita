@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ShortcutConfigWidget</class>
+ <widget class="QWidget" name="ShortcutConfigWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>350</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Configure Shortcuts</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0" colspan="3">
+    <widget class="QLabel" name="descriptionLabel">
+     <property name="text">
+      <string>Select an action and press a key combination to change its shortcut:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="3">
+    <widget class="QTreeWidget" name="shortcutTreeWidget">
+     <property name="whatsThis">
+      <string>&lt;p&gt;Select an action (with the mouse or the arrow keys). Its shortcut can then be changed by simply pressing the new shortcut.&lt;/p&gt;&lt;p&gt;Note that a few shortcuts cannot be used: &quot;Up&quot;, &quot;Down&quot;, &quot;Left&quot;, &quot;Right&quot;, &quot;Page Up&quot;, &quot;Page Down&quot;, &quot;Tab&quot;, &quot;Shift+Tab&quot;, &quot;Enter&quot; and &quot;Escape&quot;.&lt;/p&gt;</string>
+     </property>
+     <column>
+      <property name="text">
+       <string>Action</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Shortcut</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="3">
+    <layout class="QHBoxLayout" name="searchHorizontalLayout">
+     <item>
+      <widget class="QLabel" name="searchLabel">
+       <property name="whatsThis">
+        <string>&lt;p&gt;Search interactively for shortcut names (e.g. Copy) or combination of keys (e.g. Ctrl+C) by typing them.&lt;/p&gt;</string>
+       </property>
+       <property name="text">
+        <string comment="Label of search field">Search:</string>
+       </property>
+       <property name="buddy">
+        <cstring>searchLineEdit</cstring>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="LineEdit" name="searchLineEdit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="whatsThis">
+        <string>&lt;p&gt;Search interactively for shortcut names (e.g. Copy) or combination of keys (e.g. Ctrl+C) by typing them.&lt;/p&gt;</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QPushButton" name="clearPushButton">
+     <property name="whatsThis">
+      <string>&lt;p&gt;Remove the shortcut of the currently highlighted action.&lt;/p&gt;</string>
+     </property>
+     <property name="text">
+      <string comment="Action for clearing shortcut">Clear</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="useDefaultPushButton">
+     <property name="whatsThis">
+      <string>&lt;p&gt;Restore the default shortcut for the currently highlighted action.&lt;/p&gt;</string>
+     </property>
+     <property name="text">
+      <string comment="Action for restoring default shortcut">Default</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>LineEdit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

@@ -162,6 +162,7 @@ private slots:
     void slotLayoutWide();
 
 private:
+    void defineActions();
     void createMenus();
     void createActions();
     void createWidgets();

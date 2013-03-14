@@ -31,5 +31,12 @@
         <file>icons/imap-search-details.png</file>
         <file>icons/arrow-down.png</file>
         <file>icons/arrow-up.png</file>
+        <file>icons/arrow-left.png</file>
+        <file>icons/arrow-right.png</file>
+        <file>icons/configure-shortcuts.png</file>
+        <file>icons/edit-clear-locationbar-rtl.png</file>
+        <file>icons/mail-reply-all.png</file>
+        <file>icons/mail-reply-list.png</file>
+        <file>icons/mail-reply-sender.png</file>
     </qresource>
 </RCC>

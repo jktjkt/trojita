@@ -74,6 +74,7 @@
 #include "TaskProgressIndicator.h"
 #include "Util.h"
 #include "Window.h"
+#include "ShortcutHandler/ShortcutHandler.h"
 
 #include "ui_CreateMailboxDialog.h"
 
@@ -94,6 +95,12 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
     createWidgets();
+
+    ShortcutHandler *shortcutHandler = new ShortcutHandler(this);
+    QSettings *settingsObject = new QSettings(this);
+    shortcutHandler->setSettingsObject(settingsObject);
+    defineActions();
+    shortcutHandler->readSettings(); // must happen after defineActions()
 
     migrateSettings();
     QSettings s;
@@ -116,6 +123,27 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     slotUpdateWindowTitle();
 
     recoverDrafts();
+}
+
+void MainWindow::defineActions()
+{
+    ShortcutHandler *shortcutHandler = ShortcutHandler::instance();
+    shortcutHandler->defineAction(QLatin1String("action_application_exit"), QLatin1String("application-exit"), tr("E&xit"), QKeySequence::Quit);
+    shortcutHandler->defineAction(QLatin1String("action_compose_mail"), QLatin1String("document-edit"), tr("&Compose Mail..."), QKeySequence::New);
+    shortcutHandler->defineAction(QLatin1String("action_show_menubar"), QLatin1String("view-list-text"), tr("Show Main Menu &Bar"), tr("Ctrl+M"));
+    shortcutHandler->defineAction(QLatin1String("action_expunge"), QLatin1String("trash-empty"), tr("Exp&unge"), tr("Ctrl+E"));
+    shortcutHandler->defineAction(QLatin1String("action_mark_as_read"), QLatin1String("mail-mark-read"), tr("Mark as &Read"), QLatin1String("M"));
+    shortcutHandler->defineAction(QLatin1String("action_go_to_next_unread"), QLatin1String("arrow-right"), tr("&Next Unread Message"), QLatin1String("N"));
+    shortcutHandler->defineAction(QLatin1String("action_go_to_previous_unread"), QLatin1String("arrow-left"), tr("&Previous Unread Message"), QLatin1String("P"));
+    shortcutHandler->defineAction(QLatin1String("action_mark_as_deleted"), QLatin1String("list-remove"), tr("Mark as &Deleted"), QKeySequence(Qt::Key_Delete).toString());
+    shortcutHandler->defineAction(QLatin1String("action_save_message_as"), QLatin1String("document-save"), tr("&Save Message..."));
+    shortcutHandler->defineAction(QLatin1String("action_view_message_source"), QString(), tr("View Message &Source..."));
+    shortcutHandler->defineAction(QLatin1String("action_view_message_headers"), QString(), tr("View Message &Headers..."), tr("Ctrl+U"));
+    shortcutHandler->defineAction(QLatin1String("action_reply_private"), QLatin1String("mail-reply-sender"), tr("&Private Reply"), tr("Ctrl+Shift+A"));
+    shortcutHandler->defineAction(QLatin1String("action_reply_all_but_me"), QLatin1String("mail-reply-all"), tr("Reply to All &but Me"), tr("Ctrl+Shift+R"));
+    shortcutHandler->defineAction(QLatin1String("action_reply_all"), QLatin1String("mail-reply-all"), tr("Reply to &All"), tr("Ctrl+Alt+Shift+R"));
+    shortcutHandler->defineAction(QLatin1String("action_reply_list"), QLatin1String("mail-reply-list"), tr("Reply to &Mailing List"), tr("Ctrl+L"));
+    shortcutHandler->defineAction(QLatin1String("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
 }
 
 void MainWindow::createActions()
@@ -152,10 +180,8 @@ void MainWindow::createActions()
     reloadAllMailboxes = new QAction(tr("&Reload Everything"), this);
     // connect later
 
-    exitAction = new QAction(loadIcon(QLatin1String("application-exit")), tr("E&xit"), this);
-    exitAction->setShortcut(tr("Ctrl+Q"));
+    exitAction = ShortcutHandler::instance()->createAction(QLatin1String("action_application_exit"), this, SLOT(close()), this);
     exitAction->setStatusTip(tr("Exit the application"));
-    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
     QActionGroup *netPolicyGroup = new QActionGroup(this);
     netPolicyGroup->setExclusive(true);
@@ -191,10 +217,9 @@ void MainWindow::createActions()
     showImapCapabilities = new QAction(tr("IMAP Server In&formation..."), this);
     connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapInfo()));
 
-    showMenuBar = new QAction(loadIcon(QLatin1String("view-list-text")),  tr("Show Main Menu &Bar"), this);
+    showMenuBar = ShortcutHandler::instance()->createAction(QLatin1String("action_show_menubar"), this);
     showMenuBar->setCheckable(true);
     showMenuBar->setChecked(true);
-    showMenuBar->setShortcut(tr("Ctrl+M"));
     addAction(showMenuBar);   // otherwise it won't work with hidden menu bar
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
 
@@ -206,54 +231,39 @@ void MainWindow::createActions()
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
-    composeMail = new QAction(loadIcon(QLatin1String("document-edit")),  tr("&Compose Mail..."), this);
-    composeMail->setShortcut(tr("Ctrl+N"));
-    connect(composeMail, SIGNAL(triggered()), this, SLOT(slotComposeMail()));
+    composeMail = ShortcutHandler::instance()->createAction("action_compose_mail", this, SLOT(slotComposeMail()), this);
 
     m_editDraft = new QAction(loadIcon(QLatin1String("document-edit")),  tr("&Edit draft..."), this);
     connect(m_editDraft, SIGNAL(triggered()), this, SLOT(slotEditDraft()));
 
-    expunge = new QAction(loadIcon(QLatin1String("trash-empty")),  tr("Exp&unge Mailbox"), this);
-    expunge->setShortcut(tr("Ctrl+E"));
-    connect(expunge, SIGNAL(triggered()), this, SLOT(slotExpunge()));
+    expunge = ShortcutHandler::instance()->createAction(QLatin1String("action_expunge"), this, SLOT(slotExpunge()), this);
 
-    markAsRead = new QAction(loadIcon(QLatin1String("mail-mark-read")),  tr("Mark as &Read"), this);
+    markAsRead = ShortcutHandler::instance()->createAction(QLatin1String("action_mark_as_read"), this);
     markAsRead->setCheckable(true);
-    markAsRead->setShortcut(Qt::Key_M);
     msgListWidget->tree->addAction(markAsRead);
     connect(markAsRead, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsRead(bool)));
 
-    m_nextMessage = new QAction(tr("&Next Unread Message"), this);
-    m_nextMessage->setShortcut(Qt::Key_N);
+    m_nextMessage = ShortcutHandler::instance()->createAction(QLatin1String("action_go_to_next_unread"), this, SLOT(slotNextUnread()), this);
     msgListWidget->tree->addAction(m_nextMessage);
     m_messageWidget->messageView->addAction(m_nextMessage);
-    connect(m_nextMessage, SIGNAL(triggered()), this, SLOT(slotNextUnread()));
 
-    m_previousMessage = new QAction(tr("&Previous Unread Message"), this);
-    m_previousMessage->setShortcut(Qt::Key_P);
+    m_previousMessage = ShortcutHandler::instance()->createAction(QLatin1String("action_go_to_previous_unread"), this, SLOT(slotPreviousUnread()), this);
     msgListWidget->tree->addAction(m_previousMessage);
     m_messageWidget->messageView->addAction(m_previousMessage);
-    connect(m_previousMessage, SIGNAL(triggered()), this, SLOT(slotPreviousUnread()));
 
-    markAsDeleted = new QAction(loadIcon(QLatin1String("list-remove")),  tr("Mark as &Deleted"), this);
+    markAsDeleted = ShortcutHandler::instance()->createAction(QLatin1String("action_mark_as_deleted"), this);
     markAsDeleted->setCheckable(true);
-    markAsDeleted->setShortcut(Qt::Key_Delete);
     msgListWidget->tree->addAction(markAsDeleted);
     connect(markAsDeleted, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsDeleted(bool)));
 
-    saveWholeMessage = new QAction(loadIcon(QLatin1String("file-save")), tr("&Save Message..."), this);
+    saveWholeMessage = ShortcutHandler::instance()->createAction(QLatin1String("action_save_message_as"), this, SLOT(slotSaveCurrentMessageBody()), this);
     msgListWidget->tree->addAction(saveWholeMessage);
-    connect(saveWholeMessage, SIGNAL(triggered()), this, SLOT(slotSaveCurrentMessageBody()));
 
-    viewMsgSource = new QAction(tr("View Message &Source..."), this);
-    //viewMsgHeaders->setShortcut(tr("Ctrl+U"));
+    viewMsgSource = ShortcutHandler::instance()->createAction(QLatin1String("action_view_message_source"), this, SLOT(slotViewMsgSource()), this);
     msgListWidget->tree->addAction(viewMsgSource);
-    connect(viewMsgSource, SIGNAL(triggered()), this, SLOT(slotViewMsgSource()));
 
-    viewMsgHeaders = new QAction(tr("View Message &Headers..."), this);
-    viewMsgHeaders->setShortcut(tr("Ctrl+U"));
+    viewMsgHeaders = ShortcutHandler::instance()->createAction(QLatin1String("action_view_message_headers"), this, SLOT(slotViewMsgHeaders()), this);
     msgListWidget->tree->addAction(viewMsgHeaders);
-    connect(viewMsgHeaders, SIGNAL(triggered()), this, SLOT(slotViewMsgHeaders()));
 
     createChildMailbox = new QAction(tr("Create &Child Mailbox..."), this);
     connect(createChildMailbox, SIGNAL(triggered()), this, SLOT(slotCreateMailboxBelowCurrent()));
@@ -270,30 +280,20 @@ void MainWindow::createActions()
     connect(xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()));
 #endif
 
-    m_replyPrivate = new QAction(tr("&Private Reply"), this);
+    m_replyPrivate = ShortcutHandler::instance()->createAction(QLatin1String("action_reply_private"), this, SLOT(slotReplyTo()), this);
     m_replyPrivate->setEnabled(false);
-    m_replyPrivate->setShortcut(tr("Ctrl+Shift+A"));
-    connect(m_replyPrivate, SIGNAL(triggered()), this, SLOT(slotReplyTo()));
 
-    m_replyAllButMe = new QAction(tr("Reply to All &but Me"), this);
+    m_replyAllButMe = ShortcutHandler::instance()->createAction(QLatin1String("action_reply_all_but_me"), this, SLOT(slotReplyAllButMe()), this);
     m_replyAllButMe->setEnabled(false);
-    m_replyAllButMe->setShortcut(tr("Ctrl+Shift+R"));
-    connect(m_replyAllButMe, SIGNAL(triggered()), this, SLOT(slotReplyAllButMe()));
 
-    m_replyAll = new QAction(tr("Reply to &All"), this);
+    m_replyAll = ShortcutHandler::instance()->createAction(QLatin1String("action_reply_all"), this, SLOT(slotReplyAll()), this);
     m_replyAll->setEnabled(false);
-    m_replyAll->setShortcut(tr("Ctrl+Alt+Shift+R"));
-    connect(m_replyAll, SIGNAL(triggered()), this, SLOT(slotReplyAll()));
 
-    m_replyList = new QAction(tr("Reply to &Mailing List"), this);
+    m_replyList = ShortcutHandler::instance()->createAction(QLatin1String("action_reply_list"), this, SLOT(slotReplyList()), this);
     m_replyList->setEnabled(false);
-    m_replyList->setShortcut(tr("Ctrl+L"));
-    connect(m_replyList, SIGNAL(triggered()), this, SLOT(slotReplyList()));
 
-    m_replyGuess = new QAction(tr("Reply by &Guess"), this);
+    m_replyGuess = ShortcutHandler::instance()->createAction(QLatin1String("action_reply_guess"), this, SLOT(slotReplyGuess()), this);
     m_replyGuess->setEnabled(true);
-    m_replyGuess->setShortcut(tr("Ctrl+R"));
-    connect(m_replyGuess, SIGNAL(triggered()), this, SLOT(slotReplyGuess()));
 
     actionThreadMsgList = new QAction(tr("Show Messages in &Threads"), this);
     actionThreadMsgList->setCheckable(true);
@@ -435,6 +435,7 @@ void MainWindow::createMenus()
     debugMenu->addAction(showImapCapabilities);
     imapMenu->addSeparator();
     imapMenu->addAction(configSettings);
+    imapMenu->addAction(ShortcutHandler::instance()->shortcutConfigAction());
     imapMenu->addSeparator();
     imapMenu->addAction(exitAction);
 
