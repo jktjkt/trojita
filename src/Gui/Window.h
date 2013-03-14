@@ -24,10 +24,11 @@
 #define TROJITA_WINDOW_H
 
 #include <QMainWindow>
+#include <QModelIndex>
 
+#include "Composer/Recipients.h"
 #include "Imap/ConnectionState.h"
 #include "Imap/Model/Cache.h"
-#include "Imap/Model/MessageComposer.h"
 
 class QAuthenticator;
 class QItemSelection;

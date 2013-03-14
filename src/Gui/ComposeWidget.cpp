@@ -39,6 +39,7 @@
 #include "Window.h"
 #include "ui_ComposeWidget.h"
 
+#include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Common/SettingsNames.h"
@@ -70,7 +71,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     Q_ASSERT(m_mainWindow);
-    m_composer = new Imap::Mailbox::MessageComposer(m_mainWindow->imapModel(), this);
+    m_composer = new Composer::MessageComposer(m_mainWindow->imapModel(), this);
     m_composer->setPreloadEnabled(shouldBuildMessageLocally());
 
     ui->setupUi(this);

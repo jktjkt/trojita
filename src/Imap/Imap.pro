@@ -85,8 +85,6 @@ SOURCES += Parser/Parser.cpp \
     Model/SubtreeModel.cpp \
     Model/OneMessageModel.cpp \
     Model/FindInterestingPart.cpp \
-    Model/MessageComposer.cpp \
-    Model/ComposerAttachments.cpp \
     Model/FullMessageCombiner.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
@@ -165,8 +163,6 @@ HEADERS += Parser/Parser.h \
     Model/SubtreeModel.h \
     Model/OneMessageModel.h \
     Model/FindInterestingPart.h \
-    Model/MessageComposer.h \
-    Model/ComposerAttachments.h \
     Model/CatenateData.h \
     Model/UidSubmitData.h \
     Parser/Rfc5322HeaderParser.h \

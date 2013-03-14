@@ -20,8 +20,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAP_COMPOSERATTACHMENTS_H
-#define IMAP_COMPOSERATTACHMENTS_H
+#ifndef COMPOSER_COMPOSERATTACHMENTS_H
+#define COMPOSER_COMPOSERATTACHMENTS_H
 
 #include <QIODevice>
 #include <QPointer>
@@ -34,6 +34,11 @@ class Model;
 class FullMessageCombiner;
 class TreeItemMessage;
 class TreeItemPart;
+
+}
+}
+
+namespace Composer {
 
 /** @short A generic item to be used as an attachment */
 class AttachmentItem {
@@ -93,7 +98,7 @@ public:
 /** @short Part of a message stored in an IMAP server */
 class ImapMessageAttachmentItem: public AttachmentItem {
 public:
-    ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid);
+    ImapMessageAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid);
     ~ImapMessageAttachmentItem();
 
     virtual QString caption() const;
@@ -107,10 +112,10 @@ public:
     virtual void preload() const;
     virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
-    FullMessageCombiner *fullMessageCombiner;
-    TreeItemMessage *messagePtr() const;
+    Imap::Mailbox::FullMessageCombiner *fullMessageCombiner;
+    Imap::Mailbox::TreeItemMessage *messagePtr() const;
 
-    QPointer<Model> model;
+    QPointer<Imap::Mailbox::Model> model;
     QString mailbox;
     uint uidValidity;
     uint uid;
@@ -119,7 +124,7 @@ private:
 /** @short Part of a message stored in an IMAP server */
 class ImapPartAttachmentItem: public AttachmentItem {
 public:
-    ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
+    ImapPartAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
                            const QString &imapPartId, const QString &trojitaPath);
     ~ImapPartAttachmentItem();
 
@@ -134,9 +139,9 @@ public:
     virtual void preload() const;
     virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
-    TreeItemPart *partPtr() const;
+    Imap::Mailbox::TreeItemPart *partPtr() const;
 
-    QPointer<Model> model;
+    QPointer<Imap::Mailbox::Model> model;
     QString mailbox;
     uint uidValidity;
     uint uid;
@@ -166,6 +171,5 @@ private:
 };
 
 }
-}
 
-#endif // IMAP_COMPOSERATTACHMENTS_H
+#endif // COMPOSER_COMPOSERATTACHMENTS_H

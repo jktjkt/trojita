@@ -1,4 +1,5 @@
 CONFIG += staticlib
+QT += network
 TEMPLATE = lib
 TARGET = Composer
 SOURCES += \
@@ -6,13 +7,17 @@ SOURCES += \
     PlainTextFormatter.cpp \
     SenderIdentitiesModel.cpp \
     ReplaceSignature.cpp \
-    Recipients.cpp
+    Recipients.cpp \
+    MessageComposer.cpp \
+    ComposerAttachments.cpp
 HEADERS += \
     SubjectMangling.h \
     PlainTextFormatter.h \
     SenderIdentitiesModel.h \
     ReplaceSignature.h \
-    Recipients.h
+    Recipients.h \
+    MessageComposer.h \
+    ComposerAttachments.h
 
 INCLUDEPATH += ../
 DEPENDPATH += ../

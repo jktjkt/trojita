@@ -31,16 +31,15 @@
 #else
 #  include "mimetypes-qt4/include/QMimeDatabase"
 #endif
+#include "Composer/MessageComposer.h"
 #include "Imap/Encoders.h"
 #include "Imap/Model/FullMessageCombiner.h"
 #include "Imap/Model/MailboxTree.h"
-#include "Imap/Model/MessageComposer.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Composer {
 
 AttachmentItem::~AttachmentItem()
 {
@@ -132,13 +131,13 @@ void FileAttachmentItem::asDroppableMimeData(QDataStream &stream) const
 }
 
 
-ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
+ImapMessageAttachmentItem::ImapMessageAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
     fullMessageCombiner(0), model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid)
 {
     Q_ASSERT(model);
-    TreeItemMessage *msg = messagePtr();
+    Imap::Mailbox::TreeItemMessage *msg = messagePtr();
     Q_ASSERT(msg);
-    fullMessageCombiner = new FullMessageCombiner(msg->toIndex(model));
+    fullMessageCombiner = new Imap::Mailbox::FullMessageCombiner(msg->toIndex(model));
 }
 
 ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
@@ -148,7 +147,7 @@ ImapMessageAttachmentItem::~ImapMessageAttachmentItem()
 
 QString ImapMessageAttachmentItem::caption() const
 {
-    TreeItemMessage *msg = messagePtr();
+    Imap::Mailbox::TreeItemMessage *msg = messagePtr();
     if (!msg || !model)
         return MessageComposer::tr("Message not available: /%1;UIDVALIDITY=%2;UID=%3")
                 .arg(mailbox, QString::number(uidValidity), QString::number(uid));
@@ -157,7 +156,7 @@ QString ImapMessageAttachmentItem::caption() const
 
 QString ImapMessageAttachmentItem::tooltip() const
 {
-    TreeItemMessage *msg = messagePtr();
+    Imap::Mailbox::TreeItemMessage *msg = messagePtr();
     if (!msg || !model)
         return QString();
     return MessageComposer::tr("IMAP message %1").arg(QString::fromUtf8(imapUrl()));
@@ -165,7 +164,7 @@ QString ImapMessageAttachmentItem::tooltip() const
 
 QByteArray ImapMessageAttachmentItem::contentDispositionHeader() const
 {
-    TreeItemMessage *msg = messagePtr();
+    Imap::Mailbox::TreeItemMessage *msg = messagePtr();
     if (!msg || !model)
         return QByteArray();
     // FIXME: this header "sanitization" is so crude, ugly, buggy and non-compliant that I shall feel deeply ashamed
@@ -180,7 +179,7 @@ QByteArray ImapMessageAttachmentItem::mimeType() const
 
 bool ImapMessageAttachmentItem::isAvailableLocally() const
 {
-    TreeItemMessage *msg = messagePtr();
+    Imap::Mailbox::TreeItemMessage *msg = messagePtr();
     if (!msg)
         return false;
 
@@ -189,7 +188,7 @@ bool ImapMessageAttachmentItem::isAvailableLocally() const
 
 QSharedPointer<QIODevice> ImapMessageAttachmentItem::rawData() const
 {
-    TreeItemMessage *msg = messagePtr();
+    Imap::Mailbox::TreeItemMessage *msg = messagePtr();
     if (!msg)
         return QSharedPointer<QIODevice>();
 
@@ -200,19 +199,19 @@ QSharedPointer<QIODevice> ImapMessageAttachmentItem::rawData() const
     return io;
 }
 
-TreeItemMessage *ImapMessageAttachmentItem::messagePtr() const
+Imap::Mailbox::TreeItemMessage *ImapMessageAttachmentItem::messagePtr() const
 {
     if (!model)
         return 0;
 
-    TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
+    Imap::Mailbox::TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
     if (!mboxPtr)
         return 0;
 
     if (mboxPtr->syncState.uidValidity() != uidValidity)
         return 0;
 
-    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
+    QList<Imap::Mailbox::TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
     if (messages.isEmpty())
         return 0;
 
@@ -243,7 +242,7 @@ void ImapMessageAttachmentItem::asDroppableMimeData(QDataStream &stream) const
 }
 
 
-ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
+ImapPartAttachmentItem::ImapPartAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
                                                const QString &pathToPart, const QString &trojitaPath):
     model(model), mailbox(mailbox), uidValidity(uidValidity), uid(uid), imapPartId(pathToPart), trojitaPath(trojitaPath)
 {
@@ -253,19 +252,19 @@ ImapPartAttachmentItem::~ImapPartAttachmentItem()
 {
 }
 
-TreeItemPart *ImapPartAttachmentItem::partPtr() const
+Imap::Mailbox::TreeItemPart *ImapPartAttachmentItem::partPtr() const
 {
     if (!model)
         return 0;
 
-    TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
+    Imap::Mailbox::TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
     if (!mboxPtr)
         return 0;
 
     if (mboxPtr->syncState.uidValidity() != uidValidity)
         return 0;
 
-    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
+    QList<Imap::Mailbox::TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
     if (messages.isEmpty())
         return 0;
 
@@ -276,7 +275,7 @@ TreeItemPart *ImapPartAttachmentItem::partPtr() const
 
 QString ImapPartAttachmentItem::caption() const
 {
-    TreeItemPart *part = partPtr();
+    Imap::Mailbox::TreeItemPart *part = partPtr();
     if (part && !part->fileName().isEmpty()) {
         return part->fileName();
     } else {
@@ -286,15 +285,15 @@ QString ImapPartAttachmentItem::caption() const
 
 QString ImapPartAttachmentItem::tooltip() const
 {
-    TreeItemPart *part = partPtr();
+    Imap::Mailbox::TreeItemPart *part = partPtr();
     if (!part)
         return QString();
-    return MessageComposer::tr("%1, %2").arg(part->mimeType(), PrettySize::prettySize(part->octets()));
+    return MessageComposer::tr("%1, %2").arg(part->mimeType(), Imap::Mailbox::PrettySize::prettySize(part->octets()));
 }
 
 QByteArray ImapPartAttachmentItem::mimeType() const
 {
-    TreeItemPart *part = partPtr();
+    Imap::Mailbox::TreeItemPart *part = partPtr();
     if (!part)
         return QByteArray();
     return part->mimeType().toUtf8();
@@ -302,7 +301,7 @@ QByteArray ImapPartAttachmentItem::mimeType() const
 
 QByteArray ImapPartAttachmentItem::contentDispositionHeader() const
 {
-    TreeItemPart *part = partPtr();
+    Imap::Mailbox::TreeItemPart *part = partPtr();
     if (!part)
         return QByteArray();
     return "Content-Disposition: attachment;\r\n\tfilename=\"" + part->fileName().toUtf8() + "\"\r\n";
@@ -316,7 +315,7 @@ AttachmentItem::ContentTransferEncoding ImapPartAttachmentItem::suggestedCTE() c
 
 QSharedPointer<QIODevice> ImapPartAttachmentItem::rawData() const
 {
-    TreeItemPart *part = partPtr();
+    Imap::Mailbox::TreeItemPart *part = partPtr();
     if (!part || !part->fetched())
         return QSharedPointer<QIODevice>();
 
@@ -328,7 +327,7 @@ QSharedPointer<QIODevice> ImapPartAttachmentItem::rawData() const
 
 bool ImapPartAttachmentItem::isAvailableLocally() const
 {
-    TreeItemPart *part = partPtr();
+    Imap::Mailbox::TreeItemPart *part = partPtr();
     return part ? part->fetched() : false;
 }
 
@@ -340,7 +339,7 @@ QByteArray ImapPartAttachmentItem::imapUrl() const
 
 void ImapPartAttachmentItem::preload() const
 {
-    TreeItemPart *part = partPtr();
+    Imap::Mailbox::TreeItemPart *part = partPtr();
     if (part) {
         part->fetch(model);
     }
@@ -351,5 +350,4 @@ void ImapPartAttachmentItem::asDroppableMimeData(QDataStream &stream) const
     stream << ATTACHMENT_IMAP_PART << mailbox << uidValidity << uid << imapPartId << trojitaPath;
 }
 
-}
 }

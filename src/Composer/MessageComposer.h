@@ -32,8 +32,11 @@
 
 namespace Imap {
 namespace Mailbox {
-
 class Model;
+}
+}
+
+namespace Composer {
 
 class AttachmentItem;
 
@@ -43,7 +46,7 @@ class MessageComposer : public QAbstractListModel
     Q_OBJECT
 public:
 
-    explicit MessageComposer(Model *model, QObject *parent = 0);
+    explicit MessageComposer(Imap::Mailbox::Model *model, QObject *parent = 0);
     ~MessageComposer();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -54,8 +57,8 @@ public:
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
 
-    void setFrom(const Message::MailAddress &from);
-    void setRecipients(const QList<QPair<Composer::RecipientKind, Message::MailAddress> > &recipients);
+    void setFrom(const Imap::Message::MailAddress &from);
+    void setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &recipients);
     void setInReplyTo(const QList<QByteArray> &inReplyTo);
     void setReferences(const QList<QByteArray> &references);
     void setTimestamp(const QDateTime &timestamp);
@@ -65,7 +68,7 @@ public:
 
     bool isReadyForSerialization() const;
     bool asRawMessage(QIODevice *target, QString *errorMessage) const;
-    bool asCatenateData(QList<CatenatePair> &target, QString *errorMessage) const;
+    bool asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const;
 
     QDateTime timestamp() const;
     QList<QByteArray> inReplyTo() const;
@@ -95,8 +98,8 @@ private:
     bool dropImapPart(QDataStream &stream);
     bool dropAttachmentList(QDataStream &stream);
 
-    Message::MailAddress m_from;
-    QList<QPair<Composer::RecipientKind, Message::MailAddress> > m_recipients;
+    Imap::Message::MailAddress m_from;
+    QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > m_recipients;
     QList<QByteArray> m_inReplyTo;
     QList<QByteArray> m_references;
     QDateTime m_timestamp;
@@ -105,11 +108,10 @@ private:
     QString m_text;
 
     QList<AttachmentItem *> m_attachments;
-    QPointer<Model> m_model;
+    QPointer<Imap::Mailbox::Model> m_model;
     bool m_shouldPreload;
 };
 
-}
 }
 
 #endif // IMAP_MESSAGECOMPOSER_H

@@ -46,6 +46,12 @@ class QSslError;
 class FakeCapabilitiesInjector;
 class ImapModelIdleTest;
 
+namespace Composer {
+class ImapMessageAttachmentItem;
+class ImapPartAttachmentItem;
+class MessageComposer;
+}
+
 /** @short Namespace for IMAP interaction */
 namespace Imap
 {
@@ -471,9 +477,9 @@ private:
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing
     friend class TaskPresentationModel; // needs access to the ParserState
 
-    friend class ImapMessageAttachmentItem; // needs access to findMailboxByName and findMessagesByUids
-    friend class ImapPartAttachmentItem; // dtto
-    friend class MessageComposer; // dtto
+    friend class Composer::ImapMessageAttachmentItem; // needs access to findMailboxByName and findMessagesByUids
+    friend class Composer::ImapPartAttachmentItem; // dtto
+    friend class Composer::MessageComposer; // dtto
 
     void askForChildrenOfMailbox(TreeItemMailbox *item, bool forceReload);
     void askForMessagesInMailbox(TreeItemMsgList *item);

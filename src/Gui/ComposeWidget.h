@@ -23,10 +23,11 @@
 #define COMPOSEWIDGET_H
 
 #include <QList>
+#include <QPersistentModelIndex>
 #include <QUrl>
 #include <QWidget>
 
-#include "Imap/Model/MessageComposer.h"
+#include "Composer/Recipients.h"
 
 namespace Ui
 {
@@ -38,6 +39,10 @@ class QComboBox;
 class QLineEdit;
 class QMenu;
 class QPushButton;
+
+namespace Composer {
+class MessageComposer;
+}
 
 namespace Gui
 {
@@ -134,7 +139,7 @@ private:
 
     MainWindow *m_mainWindow;
 
-    Imap::Mailbox::MessageComposer *m_composer;
+    Composer::MessageComposer *m_composer;
     QAction *m_actionRemoveAttachment;
 
     QMenu *m_completionPopup;

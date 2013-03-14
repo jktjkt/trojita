@@ -26,15 +26,14 @@
 #include <QMimeData>
 #include <QUrl>
 #include <QUuid>
+#include "Composer/ComposerAttachments.h"
 #include "Imap/Encoders.h"
-#include "Imap/Model/ComposerAttachments.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 
-namespace Imap {
-namespace Mailbox {
+namespace Composer {
 
-MessageComposer::MessageComposer(Model *model, QObject *parent) :
+MessageComposer::MessageComposer(Imap::Mailbox::Model *model, QObject *parent) :
     QAbstractListModel(parent), m_model(model), m_shouldPreload(false)
 {
 }
@@ -257,7 +256,7 @@ bool MessageComposer::validateDropImapMessage(QDataStream &stream, QString &mail
         return false;
     }
 
-    TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
+    Imap::Mailbox::TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
     if (!mboxPtr) {
         qDebug() << "drag-and-drop: mailbox not found";
         return false;
@@ -313,7 +312,7 @@ bool MessageComposer::validateDropImapPart(QDataStream &stream, QString &mailbox
         qDebug() << "drag-and-drop: stream failed:" << stream.status();
         return false;
     }
-    TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
+    Imap::Mailbox::TreeItemMailbox *mboxPtr = m_model->findMailboxByName(mailbox);
     if (!mboxPtr) {
         qDebug() << "drag-and-drop: mailbox not found";
         return false;
@@ -363,12 +362,12 @@ QStringList MessageComposer::mimeTypes() const
                             QLatin1String("text/uri-list");
 }
 
-void MessageComposer::setFrom(const Message::MailAddress &from)
+void MessageComposer::setFrom(const Imap::Message::MailAddress &from)
 {
     m_from = from;
 }
 
-void MessageComposer::setRecipients(const QList<QPair<Composer::RecipientKind, Message::MailAddress> > &recipients)
+void MessageComposer::setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &recipients)
 {
     m_recipients = recipients;
 }
@@ -625,8 +624,9 @@ bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) con
     return true;
 }
 
-bool MessageComposer::asCatenateData(QList<CatenatePair> &target, QString *errorMessage) const
+bool MessageComposer::asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const
 {
+    using namespace Imap::Mailbox;
     target.clear();
     QByteArray boundary(generateMimeBoundary());
     target.append(qMakePair(CATENATE_TEXT, QByteArray()));
@@ -728,5 +728,4 @@ void MessageComposer::setPreloadEnabled(const bool preload)
     m_shouldPreload = preload;
 }
 
-}
 }
