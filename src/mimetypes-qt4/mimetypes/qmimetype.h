@@ -39,6 +39,11 @@
 **
 ****************************************************************************/
 
+#include <qglobal.h>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#error This file should not ever be used under Qt5 -- this is a backport only for Qt4!
+#endif
+
 #ifndef QMIMETYPE_H
 #define QMIMETYPE_H
 
