@@ -30,10 +30,10 @@
     attachement is added to the @see Imap::Mailbox::MessageComposer model.
   */
 
-class ComposerAttachments : public QListView {
+class ComposerAttachmentsList : public QListView {
     Q_OBJECT
 public:
-    explicit ComposerAttachments(QWidget *parent = 0);
+    explicit ComposerAttachmentsList(QWidget *parent = 0);
 signals:
     void itemDroppedOut();
 protected:

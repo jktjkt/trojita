@@ -20,11 +20,11 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ComposerAttachments.h"
+#include "ComposerAttachmentsList.h"
 #include <QDragEnterEvent>
 #include <QDebug>
 
-ComposerAttachments::ComposerAttachments(QWidget *parent) : QListView(parent), m_dragging(false), m_dragInside(false)
+ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent) : QListView(parent), m_dragging(false), m_dragInside(false)
 {
     setMouseTracking( true );
     setAcceptDrops(true);
@@ -35,7 +35,7 @@ ComposerAttachments::ComposerAttachments(QWidget *parent) : QListView(parent), m
 }
 
 
-void ComposerAttachments::startDrag(Qt::DropActions da)
+void ComposerAttachmentsList::startDrag(Qt::DropActions da)
 {
     m_dragging = true;
     m_dragInside = true;
@@ -50,14 +50,14 @@ void ComposerAttachments::startDrag(Qt::DropActions da)
 }
 
 
-void ComposerAttachments::dragEnterEvent(QDragEnterEvent *de)
+void ComposerAttachmentsList::dragEnterEvent(QDragEnterEvent *de)
 {
     if (m_dragging)
         m_dragInside = true;
     QListView::dragEnterEvent(de);
 }
 
-void ComposerAttachments::dragLeaveEvent(QDragLeaveEvent *de)
+void ComposerAttachmentsList::dragLeaveEvent(QDragLeaveEvent *de)
 {
     if (m_dragging)
         m_dragInside = false;

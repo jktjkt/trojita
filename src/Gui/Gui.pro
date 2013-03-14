@@ -46,7 +46,7 @@ SOURCES += \
     LocalAddressbook.cpp \
     AbookAddressbook.cpp \
     ComposerTextEdit.cpp \
-    ComposerAttachments.cpp \
+    ComposerAttachmentsList.cpp \
     FromAddressProxyModel.cpp \
     MessageSourceWidget.cpp \
     FindBar.cpp \
@@ -86,7 +86,7 @@ HEADERS += \
     LocalAddressbook.h \
     AbookAddressbook.h \
     ComposerTextEdit.h \
-    ComposerAttachments.h \
+    ComposerAttachmentsList.h \
     FromAddressProxyModel.h \
     MessageSourceWidget.h \
     FindBar.h \

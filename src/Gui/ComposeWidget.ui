@@ -79,7 +79,7 @@
          </widget>
         </item>
         <item>
-         <widget class="ComposerAttachments" name="attachmentsView">
+         <widget class="ComposerAttachmentsList" name="attachmentsView">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
             <horstretch>0</horstretch>
@@ -159,9 +159,9 @@
    <header>ComposerTextEdit.h</header>
   </customwidget>
   <customwidget>
-   <class>ComposerAttachments</class>
+   <class>ComposerAttachmentsList</class>
    <extends>QListView</extends>
-   <header>ComposerAttachments.h</header>
+   <header>ComposerAttachmentsList.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
