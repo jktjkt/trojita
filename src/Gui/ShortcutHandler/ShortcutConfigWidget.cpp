@@ -39,8 +39,13 @@ ShortcutConfigWidget::ShortcutConfigWidget(QWidget *parent)
     ui.setupUi(this);
     setWindowTitle(tr("Configure Shortcuts") + QLatin1String(" - ") + QApplication::applicationName());
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    ui.shortcutTreeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
+    ui.shortcutTreeWidget->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+#else
     ui.shortcutTreeWidget->header()->setResizeMode(0, QHeaderView::ResizeToContents);
     ui.shortcutTreeWidget->header()->setResizeMode(1, QHeaderView::Stretch);
+#endif
     ui.shortcutTreeWidget->setUniformRowHeights(true); // all rows have the same height
     ui.shortcutTreeWidget->installEventFilter(this);
 
