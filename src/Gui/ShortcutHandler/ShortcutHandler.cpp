@@ -18,13 +18,12 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QDebug>
 #include "ShortcutHandler.h"
 
 #ifndef QT_NO_SHORTCUT
 
-#include <QtGui/QAction>
-#include <QtCore/QSettings>
+#include <QAction>
+#include <QSettings>
 
 #include "IconLoader.h"
 #include "ShortcutConfigDialog.h"

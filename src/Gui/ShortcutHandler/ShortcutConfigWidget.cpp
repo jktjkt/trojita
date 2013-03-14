@@ -22,9 +22,9 @@
 
 #ifndef QT_NO_SHORTCUT
 
-#include <QtGui/QKeyEvent>
-#include <QtGui/QMessageBox>
-#include <QtCore/QSettings>
+#include <QKeyEvent>
+#include <QMessageBox>
+#include <QSettings>
 
 #include "IconLoader.h"
 #include "ShortcutHandler.h"

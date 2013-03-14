@@ -11,7 +11,7 @@
 #ifndef LINEEDIT_H
 #define LINEEDIT_H
 
-#include <QtGui/QLineEdit>
+#include <QLineEdit>
 
 class QToolButton;
 

@@ -22,7 +22,7 @@
 
 #ifndef QT_NO_SHORTCUT
 
-#include <QtGui/QDialogButtonBox>
+#include <QDialogButtonBox>
 
 #include "ShortcutConfigWidget.h"
 #include "ShortcutHandler.h"

@@ -10,8 +10,8 @@
 
 #include "LineEdit.h"
 
-#include <QtGui/QToolButton>
-#include <QtGui/QStyle>
+#include <QToolButton>
+#include <QStyle>
 
 LineEdit::LineEdit(const QString &text, QWidget *parent)
 	: QLineEdit(parent)

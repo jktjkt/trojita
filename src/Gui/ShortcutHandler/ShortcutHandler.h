@@ -23,11 +23,11 @@
 
 #ifndef QT_NO_SHORTCUT
 
-#include <QtCore/QObject>
-#include <QtCore/QHash>
-#include <QtCore/QPointer>
-#include <QtCore/QStringList>
-#include <QtGui/QKeySequence>
+#include <QHash>
+#include <QKeySequence>
+#include <QObject>
+#include <QPointer>
+#include <QStringList>
 
 class QAction;
 class QSettings;

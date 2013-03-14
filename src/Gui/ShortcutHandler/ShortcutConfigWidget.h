@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_SHORTCUT
 
-#include <QtGui/QWidget>
+#include <QWidget>
 #include "ui_ShortcutConfigWidget.h"
 
 class QAction;

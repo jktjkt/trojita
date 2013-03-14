@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_SHORTCUT
 
-#include <QtGui/QDialog>
+#include <QDialog>
 
 class QAction;
 class QKeySequence;
