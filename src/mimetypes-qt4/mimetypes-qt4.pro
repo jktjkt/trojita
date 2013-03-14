@@ -43,4 +43,6 @@ macx {
     SOURCES *= io/qstandardpaths_unix.cpp
 } else:win32 {
     SOURCES *= io/qstandardpaths_win.cpp
+} else:os2 {
+    SOURCES *= io/qstandardpaths_os2.cpp
 }
