@@ -42,7 +42,7 @@
 #ifndef QMIMEDATABASE_H
 #define QMIMEDATABASE_H
 
-#include <qmimetype.h>
+#include "qmimetype.h"
 #include <qstringlist.h>
 
 QT_BEGIN_HEADER
