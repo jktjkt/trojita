@@ -87,7 +87,9 @@ QAction *ShortcutHandler::createAction(const QString &actionName, QObject *recei
     ActionDescription actionDescription = m_actionDescriptions[actionName];
     QAction *action = new QAction(parent);
     action->setObjectName(actionName);
-    action->setIcon(loadIcon(actionDescription.iconName));
+    if (!actionDescription.iconName.isEmpty()) {
+        action->setIcon(loadIcon(actionDescription.iconName));
+    }
     action->setText(actionDescription.text);
     action->setShortcut(actionDescription.shortcut);
     if (receiver)

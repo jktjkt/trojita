@@ -143,7 +143,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QLatin1String("action_reply_all_but_me"), QLatin1String("mail-reply-all"), tr("Reply to All &but Me"), tr("Ctrl+Shift+R"));
     shortcutHandler->defineAction(QLatin1String("action_reply_all"), QLatin1String("mail-reply-all"), tr("Reply to &All"), tr("Ctrl+Alt+Shift+R"));
     shortcutHandler->defineAction(QLatin1String("action_reply_list"), QLatin1String("mail-reply-list"), tr("Reply to &Mailing List"), tr("Ctrl+L"));
-    shortcutHandler->defineAction(QLatin1String("action_reply_guess"), QLatin1String("mail-reply-sender"), tr("Reply by &Guess"), tr("Ctrl+R"));
+    shortcutHandler->defineAction(QLatin1String("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
 }
 
 void MainWindow::createActions()
