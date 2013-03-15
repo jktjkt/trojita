@@ -153,6 +153,7 @@ private slots:
 
     void slotMailboxDeleteFailed(const QString &mailbox, const QString &msg);
     void slotMailboxCreateFailed(const QString &mailbox, const QString &msg);
+    void slotMailboxChanged(const QModelIndex &mailbox);
 
     void slotDownloadMessageTransferError(const QString &errorString);
     void slotDownloadMessageFileNameRequested(QString *fileName);

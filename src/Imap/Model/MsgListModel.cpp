@@ -485,7 +485,7 @@ void MsgListModel::setMailbox(const QModelIndex &index)
         msgList = msgListPtr->toIndex(const_cast<Model*>(model));
         msgListPtr->resetWasUnreadState();
         RESET_MODEL;
-        emit mailboxChanged();
+        emit mailboxChanged(index);
         // We want to tell the Model that it should consider starting the IDLE command.
         const_cast<Model *>(model)->switchToMailbox(index);
     }

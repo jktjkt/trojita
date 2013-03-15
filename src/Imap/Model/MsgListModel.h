@@ -83,7 +83,7 @@ public slots:
 
 signals:
     void messageRemoved(void *);
-    void mailboxChanged();
+    void mailboxChanged(const QModelIndex &mailbox);
 
     /** @short Messages are available for the first time after selecting new mailbox */
     void messagesAvailable();

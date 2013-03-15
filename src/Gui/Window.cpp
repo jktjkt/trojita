@@ -655,6 +655,7 @@ void MainWindow::setupModels()
     connect(msgListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
     connect(msgListModel, SIGNAL(layoutChanged()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
     connect(msgListModel, SIGNAL(modelReset()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(msgListModel, SIGNAL(mailboxChanged(QModelIndex)), this, SLOT(slotMailboxChanged(QModelIndex)));
 
     connect(model, SIGNAL(alertReceived(const QString &)), this, SLOT(alertReceived(const QString &)));
     connect(model, SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
@@ -1349,6 +1350,29 @@ void MainWindow::slotMailboxCreateFailed(const QString &mailbox, const QString &
 {
     QMessageBox::warning(this, tr("Can't create mailbox"),
                          tr("Creating mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
+}
+
+void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
+{
+    using namespace Imap::Mailbox;
+    QString mailboxName = mailbox.data(RoleMailboxName).toString();
+    bool isSentMailbox = mailbox.isValid() && !mailboxName.isEmpty() &&
+            QSettings().value(Common::SettingsNames::composerSaveToImapKey).toBool() &&
+            mailboxName == QSettings().value(Common::SettingsNames::composerImapSentKey).toString();
+    QTreeView *tree = msgListWidget->tree;
+
+    // Automatically trigger visibility of the TO and FROM columns
+    if (isSentMailbox) {
+        if (tree->isColumnHidden(MsgListModel::TO) && !tree->isColumnHidden(MsgListModel::FROM)) {
+            tree->hideColumn(MsgListModel::FROM);
+            tree->showColumn(MsgListModel::TO);
+        }
+    } else {
+        if (tree->isColumnHidden(MsgListModel::FROM) && !tree->isColumnHidden(MsgListModel::TO)) {
+            tree->hideColumn(MsgListModel::TO);
+            tree->showColumn(MsgListModel::FROM);
+        }
+    }
 }
 
 void MainWindow::showConnectionStatus(QObject *parser, Imap::ConnectionState state)
