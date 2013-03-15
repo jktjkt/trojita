@@ -115,7 +115,7 @@ protected:
 
 #define cClient(data) \
 { \
-    for (int i=0; i<4; ++i) \
+    for (int i=0; i<5; ++i) \
         QCoreApplication::processEvents(); \
     QCOMPARE(QString::fromUtf8(SOCK->writtenStuff()), QString::fromUtf8(data));\
 }
