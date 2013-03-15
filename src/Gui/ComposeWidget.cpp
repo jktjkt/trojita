@@ -36,6 +36,7 @@
 #include "AutoCompletion.h"
 #include "ComposeWidget.h"
 #include "FromAddressProxyModel.h"
+#include "LineEdit.h"
 #include "Window.h"
 #include "ui_ComposeWidget.h"
 
@@ -545,7 +546,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     combo->addItem(tr("Cc"), Composer::ADDRESS_CC);
     combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
     combo->setCurrentIndex(combo->findData(kind));
-    QLineEdit *edit = new QLineEdit(address, this);
+    LineEdit *edit = new LineEdit(address, this);
     connect(edit, SIGNAL(textEdited(QString)), SLOT(completeRecipients(QString)));
     connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
     connect(edit, SIGNAL(textChanged(QString)), m_recipientListUpdateTimer, SLOT(start()));

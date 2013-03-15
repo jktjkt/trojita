@@ -112,7 +112,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QLineEdit" name="imapHost">
+     <widget class="LineEdit" name="imapHost">
       <property name="toolTip">
        <string>Hostname of the IMAP server</string>
       </property>
@@ -125,7 +125,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="2" column="1">
-     <widget class="QLineEdit" name="imapPort">
+     <widget class="LineEdit" name="imapPort">
       <property name="toolTip">
        <string>Port number of the IMAP server</string>
       </property>
@@ -154,7 +154,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="5" column="1">
-     <widget class="QLineEdit" name="imapUser">
+     <widget class="LineEdit" name="imapUser">
       <property name="toolTip">
        <string>IMAP Username</string>
       </property>
@@ -167,7 +167,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="6" column="1">
-     <widget class="QLineEdit" name="imapPass">
+     <widget class="LineEdit" name="imapPass">
       <property name="toolTip">
        <string>IMAP Password</string>
       </property>
@@ -191,7 +191,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="8" column="1">
-     <widget class="QLineEdit" name="processPath">
+     <widget class="LineEdit" name="processPath">
       <property name="whatsThis">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
@@ -266,7 +266,7 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="11" column="1">
-     <widget class="QLineEdit" name="imapCapabilitiesBlacklist"/>
+     <widget class="LineEdit" name="imapCapabilitiesBlacklist"/>
     </item>
     <item row="3" column="0" colspan="2">
      <widget class="QLabel" name="portWarning">
@@ -281,6 +281,13 @@ p, li { white-space: pre-wrap; }
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>LineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

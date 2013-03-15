@@ -31,7 +31,7 @@
     </widget>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="realNameLineEdit"/>
+    <widget class="LineEdit" name="realNameLineEdit"/>
    </item>
    <item row="1" column="0">
     <widget class="QLabel" name="emailLabel">
@@ -41,10 +41,10 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLineEdit" name="emailLineEdit"/>
+    <widget class="LineEdit" name="emailLineEdit"/>
    </item>
    <item row="2" column="1">
-    <widget class="QLineEdit" name="organisationLineEdit"/>
+    <widget class="LineEdit" name="organisationLineEdit"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="organisationLabel">
@@ -76,6 +76,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>LineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

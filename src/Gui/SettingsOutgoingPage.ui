@@ -87,10 +87,10 @@
      </widget>
     </item>
     <item row="1" column="1">
-     <widget class="QLineEdit" name="smtpHost"/>
+     <widget class="LineEdit" name="smtpHost"/>
     </item>
     <item row="2" column="1">
-     <widget class="QLineEdit" name="smtpPort"/>
+     <widget class="LineEdit" name="smtpPort"/>
     </item>
     <item row="4" column="1">
      <widget class="QCheckBox" name="smtpAuth">
@@ -100,17 +100,17 @@
      </widget>
     </item>
     <item row="5" column="1">
-     <widget class="QLineEdit" name="smtpUser"/>
+     <widget class="LineEdit" name="smtpUser"/>
     </item>
     <item row="6" column="1">
-     <widget class="QLineEdit" name="smtpPass">
+     <widget class="LineEdit" name="smtpPass">
       <property name="echoMode">
        <enum>QLineEdit::Password</enum>
       </property>
      </widget>
     </item>
     <item row="7" column="1">
-     <widget class="QLineEdit" name="sendmail"/>
+     <widget class="LineEdit" name="sendmail"/>
     </item>
     <item row="3" column="0">
      <widget class="QLabel" name="smtpStartTlsLabel">
@@ -153,7 +153,7 @@
      </widget>
     </item>
     <item row="9" column="1">
-     <widget class="QLineEdit" name="saveFolderName"/>
+     <widget class="LineEdit" name="saveFolderName"/>
     </item>
     <item row="10" column="0">
      <widget class="QLabel" name="smtpBurlLabel">
@@ -184,6 +184,13 @@
   <tabstop>saveFolderName</tabstop>
   <tabstop>smtpBurl</tabstop>
  </tabstops>
+ <customwidgets>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>LineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

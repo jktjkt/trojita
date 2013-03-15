@@ -19,7 +19,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLineEdit" name="mailboxName"/>
+      <widget class="LineEdit" name="mailboxName"/>
      </item>
     </layout>
    </item>
@@ -63,6 +63,13 @@
   <tabstop>buttonBox</tabstop>
  </tabstops>
  <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>LineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <connections>
   <connection>
    <sender>buttonBox</sender>
