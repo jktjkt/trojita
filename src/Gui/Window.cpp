@@ -717,6 +717,9 @@ void MainWindow::msgListClicked(const QModelIndex &index)
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
 
+    // Be sure to update the toolbar/actions with the state of the current message
+    updateMessageFlags();
+
     if (index.column() == Imap::Mailbox::MsgListModel::SEEN) {
         QModelIndex translated;
         Imap::Mailbox::Model::realTreeItem(index, 0, &translated);
