@@ -181,6 +181,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
 
             if (newArrivalsFetch.isEmpty()) {
                 saveSyncState(mailbox);
+                model->changeConnectionState(parser, CONN_STATE_SELECTED);
                 _completed();
             } else {
                 log("Pending new arrival fetching, not terminating yet", Common::LOG_MAILBOX_SYNC);
@@ -202,6 +203,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
                 TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
                 Q_ASSERT(mailbox);
                 saveSyncState(mailbox);
+                model->changeConnectionState(parser, CONN_STATE_SELECTED);
                 _completed();
             }
         } else {
@@ -280,6 +282,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             list->m_fetchStatus = TreeItem::DONE;
                             notifyInterestingMessages(mailbox);
                             saveSyncState(mailbox);
+                            model->changeConnectionState(parser, CONN_STATE_SELECTED);
                             _completed();
                         }
                         return;
@@ -316,6 +319,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             // All UIDs are known at this point, including the new arrivals, yay
                             notifyInterestingMessages(mailbox);
                             saveSyncState(mailbox);
+                            model->changeConnectionState(parser, CONN_STATE_SELECTED);
                             _completed();
                         }
                     } else {
@@ -323,6 +327,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                         list->m_fetchStatus = TreeItem::DONE;
                         notifyInterestingMessages(mailbox);
                         saveSyncState(mailbox);
+                        model->changeConnectionState(parser, CONN_STATE_SELECTED);
                         _completed();
                     }
                 }
@@ -413,6 +418,7 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         emit model->mailboxSyncingProgress(mailboxIndex, status);
         notifyInterestingMessages(mailbox);
         saveSyncState(mailbox);
+        model->changeConnectionState(parser, CONN_STATE_SELECTED);
         // Take care here: this call could invalidate our index (see test coverage)
         _completed();
     }
@@ -473,6 +479,7 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
 
         if (newArrivalsFetch.isEmpty()) {
             saveSyncState(mailbox);
+            model->changeConnectionState(parser, CONN_STATE_SELECTED);
             _completed();
         }
     }
@@ -554,6 +561,7 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
                     // No pending activity -> let's call it a day
                     status = STATE_DONE;
                     saveSyncState(mailbox);
+                    model->changeConnectionState(parser, CONN_STATE_SELECTED);
                     _completed();
                     return;
                 } else {

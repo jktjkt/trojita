@@ -45,6 +45,7 @@ class QSslError;
 
 class FakeCapabilitiesInjector;
 class ImapModelIdleTest;
+class LibMailboxSync;
 
 namespace Composer {
 class ImapMessageAttachmentItem;
@@ -476,6 +477,7 @@ private:
     friend class ::FakeCapabilitiesInjector; // for injecting fake capabilities
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing
     friend class TaskPresentationModel; // needs access to the ParserState
+    friend class ::LibMailboxSync; // needs access to accessParser/ParserState
 
     friend class Composer::ImapMessageAttachmentItem; // needs access to findMailboxByName and findMessagesByUids
     friend class Composer::ImapPartAttachmentItem; // dtto

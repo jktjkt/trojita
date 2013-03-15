@@ -513,6 +513,8 @@ void LibMailboxSync::justKeepTask()
     QModelIndex firstTask = parser1.child(0, 0);
     QVERIFY(firstTask.isValid());
     QVERIFY(!firstTask.child(0, 0).isValid());
+    QCOMPARE(model->accessParser(static_cast<Imap::Parser*>(parser1.internalPointer())).connState,
+             Imap::CONN_STATE_SELECTED);
 }
 
 
