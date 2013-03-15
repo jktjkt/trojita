@@ -309,6 +309,7 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     updateWidgets();
     maybeShowPasswordWarning();
+    maybeShowPortWarning();
 }
 
 void ImapPage::resizeEvent(QResizeEvent *event)
