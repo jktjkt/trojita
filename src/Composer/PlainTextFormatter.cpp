@@ -40,27 +40,38 @@ This function recognizes http and https links, e-mail addresses, *bold*, /italic
 QString helperHtmlifySingleLine(QString line)
 {
     // Static regexps for the engine construction
-    static const QRegExp linkRe("("
-                              "https?://" // scheme prefix
-                              "[;/?:@=&$\\-_.+!',0-9a-zA-Z%#~\\[\\]\\(\\)*]+" // allowed characters
-                              "[/@=&$\\-_+'0-9a-zA-Z%#~]" // termination
-                              ")");
-    static const QRegExp mailRe("([\\w!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9\\.\\-_]+)");
     static QString intro("(^|[\\s\\(\\[\\{])");
     static QString extro("($|[\\s\\),;.\\]\\}])");
-#define TROJITA_RE_BOLD "\\*((?!\\*)\\S+)\\*"
-#define TROJITA_RE_ITALIC "/((?!/)\\S+)/"
-#define TROJITA_RE_UNDERLINE "_((?!_)\\S+)_"
-    static const QRegExp boldRe(intro + TROJITA_RE_BOLD + extro);
-    static const QRegExp italicRe(intro + TROJITA_RE_ITALIC + extro);
-    static const QRegExp underlineRe(intro + TROJITA_RE_UNDERLINE + extro);
-    static const QRegExp anyFormattingRe(intro + "(" TROJITA_RE_BOLD "|" TROJITA_RE_ITALIC "|" TROJITA_RE_UNDERLINE ")" + extro);
-#undef TROJITA_RE_BOLD
-#undef TROJITA_RE_ITALIC
-#undef TROJITA_RE_UNDERLINE
+    static const QRegExp patternRe(
+                // hyperlinks
+                "(" // cap(1)
+                "https?://" // scheme prefix
+                "[;/?:@=&$\\-_.+!',0-9a-zA-Z%#~\\[\\]\\(\\)\\*]+" // allowed characters
+                "[/@=&$\\-_+'0-9a-zA-Z%#~]" // termination
+                ")"
+                // end of hyperlink
+                "|"
+                // e-mail pattern
+                "([a-zA-Z0-9_\\.!#$%&'\\*\\+\\-/=?^`\\{|\\}~]+@[a-zA-Z0-9\\.\\-_]+)" // cap(2)
+                // end of e-mail pattern
+                "|"
+                // formatting markup
+                "(" // cap(3)
+                // bold text
+                + intro /* cap(4) */ + "\\*((?!\\*)\\S+)\\*" /* cap(5) */ + extro /* cap(6) */
+                + "|"
+                // italics
+                + intro /* cap(7) */ + "/((?!/)\\S+)/" /* cap(8) */ + extro /* cap(9) */
+                + "|"
+                // underline
+                + intro /* cap(10) */ + "_((?!_)\\S+)_" /* cap(11) */ + extro /* cap(12) */
+                + ")"
+                // end of the formatting markup
+                , Qt::CaseSensitive, QRegExp::RegExp2
+                );
 
     // RE instances to work on
-    QRegExp link(linkRe), mail(mailRe), bold(boldRe), italic(italicRe), underline(underlineRe), anyFormatting(anyFormattingRe);
+    QRegExp pattern(patternRe);
 
     // Escape the HTML entities
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
@@ -75,62 +86,52 @@ QString helperHtmlifySingleLine(QString line)
     int start = 0;
     while (start < line.size()) {
         // Find the position of the first thing which matches
-        int posLink = link.indexIn(line, start, QRegExp::CaretAtOffset);
-        if (posLink == -1)
-            posLink = line.size();
-
-        int posMail = mail.indexIn(line, start, QRegExp::CaretAtOffset);
-        if (posMail == -1)
-            posMail = line.size();
-
-        int posFormatting = anyFormatting.indexIn(line, start, QRegExp::CaretAtOffset);
-        if (posFormatting == -1)
-            posFormatting = line.size();
-
-        const int firstSpecial = qMin(qMin(posLink, posMail), posFormatting);
-        if (firstSpecial == line.size()) {
+        int pos = pattern.indexIn(line, start, QRegExp::CaretAtOffset);
+        if (pos == -1 || pos == line.size()) {
             // No further matches for this line -> we're done
             break;
         }
 
-        if (firstSpecial == posLink) {
-            QString replacement = QString::fromUtf8("<a href=\"%1\">%1</a>").arg(link.cap(1));
-            line = line.left(firstSpecial) + replacement + line.mid(firstSpecial + link.matchedLength());
-            start = firstSpecial + replacement.size();
-        } else if (firstSpecial == posMail) {
-            QString replacement = QString::fromUtf8("<a href=\"mailto:%1\">%1</a>").arg(mail.cap(1));
-            line = line.left(firstSpecial) + replacement + line.mid(firstSpecial + mail.matchedLength());
-            start = firstSpecial + replacement.size();
-        } else if (firstSpecial == posFormatting) {
+        const QString &linkText = pattern.cap(1);
+        const QString &mailText = pattern.cap(2);
+        const QString &boldText = pattern.cap(5);
+        const QString &italicText = pattern.cap(8);
+        const QString &underlineText = pattern.cap(11);
+        bool isSpecialFormat = !boldText.isEmpty() || !italicText.isEmpty() || !underlineText.isEmpty();
+        QString replacement;
+
+        if (!linkText.isEmpty()) {
+            replacement = QString::fromUtf8("<a href=\"%1\">%1</a>").arg(linkText);
+        } else if (!mailText.isEmpty()) {
+            replacement = QString::fromUtf8("<a href=\"mailto:%1\">%1</a>").arg(mailText);
+        } else if (isSpecialFormat) {
             // Careful here; the inner contents of the current match shall be formatted as well which is why we need recursion
             QChar elementName;
             QChar markupChar;
-            const QRegExp *re = 0;
+            int whichOne = 0;
 
-            if (posFormatting == bold.indexIn(line, start, QRegExp::CaretAtOffset)) {
+            if (!boldText.isEmpty()) {
                 elementName = QLatin1Char('b');
                 markupChar = QLatin1Char('*');
-                re = &bold;
-            } else if (posFormatting == italic.indexIn(line, start, QRegExp::CaretAtOffset)) {
+                whichOne = 3;
+            } else if (!italicText.isEmpty()) {
                 elementName = QLatin1Char('i');
                 markupChar = QLatin1Char('/');
-                re = &italic;
-            } else if (posFormatting == underline.indexIn(line, start, QRegExp::CaretAtOffset)) {
+                whichOne = 6;
+            } else if (!underlineText.isEmpty()) {
                 elementName = QLatin1Char('u');
                 markupChar = QLatin1Char('_');
-                re = &underline;
+                whichOne = 9;
             }
-            Q_ASSERT(re);
-            QString replacement = QString::fromUtf8("%1<%2><span class=\"markup\">%3</span>%4<span class=\"markup\">%3</span></%2>%5")
-                        .arg(re->cap(1), elementName, markupChar, helperHtmlifySingleLine(re->cap(2)), re->cap(3));
-
-            line = line.left(firstSpecial) + replacement + line.mid(firstSpecial + re->matchedLength());
-            start = firstSpecial + replacement.size();
-        } else {
-            Q_ASSERT(false);
+            Q_ASSERT(whichOne);
+            replacement = QString::fromUtf8("%1<%2><span class=\"markup\">%3</span>%4<span class=\"markup\">%3</span></%2>%5")
+                    .arg(pattern.cap(whichOne + 1), elementName, markupChar,
+                         helperHtmlifySingleLine(pattern.cap(whichOne + 2)), pattern.cap(whichOne + 3));
         }
+        Q_ASSERT(!replacement.isEmpty());
+        line = line.left(pos) + replacement + line.mid(pos + pattern.matchedLength());
+        start = pos + replacement.size();
     }
-
     return line;
 }
 
