@@ -30,17 +30,17 @@
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
-#include <QLineEdit>
 #include <QPushButton>
 #include <QToolButton>
 #include <QWebFrame>
 #include <QWebView>
+#include "LineEdit.h"
 
 namespace Gui {
 
 FindBar::FindBar(QWidget *parent)
     : QWidget(parent)
-    , m_lineEdit(new QLineEdit(this))
+    , m_lineEdit(new LineEdit(this))
     , m_matchCase(new QCheckBox(tr("&Match case"), this))
     , m_highlightAll(new QCheckBox(tr("&Highlight all"), this)),
       m_associatedWebView(0)
