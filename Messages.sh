@@ -6,5 +6,5 @@
 
 rm -f "${podir}/trojita.ts"
 lupdate -silent -recursive src/ -ts "${podir}/trojita.ts"
-lconvert "${podir}/trojita.ts" --sort-contexts --output-format po -o - | python l10n-fix-old-lconvert.py > "${podir}/trojita_common.pot"
+lconvert "${podir}/trojita.ts" --sort-contexts --output-format pot -o "${podir}/trojita_common.pot"
 rm "${podir}/trojita.ts"
