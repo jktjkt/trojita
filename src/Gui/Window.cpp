@@ -1587,7 +1587,7 @@ void MainWindow::slotThreadMsgList()
     // doesn't report them, like in initial greetings. That's why we have to check for isEnabled() here.
     const bool useThreading = actionThreadMsgList->isChecked();
 
-    // Switching betweeb threaded/unthreaded view shall resert the sorting criteria. The goal is to make
+    // Switching between threaded/unthreaded view shall reset the sorting criteria. The goal is to make
     // sorting rather seldomly used as people shall instead use proper threading.
     if (useThreading) {
         m_actionSortThreading->setEnabled(true);
@@ -1615,7 +1615,7 @@ void MainWindow::slotThreadMsgList()
     if (currentItem.isValid()) {
         msgListWidget->tree->scrollTo(currentItem);
     } else {
-        // If we cannot determine current item, at least scroll to a predictable place. Without this, the view
+        // If we cannot determine the current item, at least scroll to a predictable place. Without this, the view
         // would jump to "weird" places, probably due to some heuristics about trying to show "roughly the same"
         // objects as what was visible before the reshuffling.
         msgListWidget->tree->scrollToBottom();
