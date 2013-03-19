@@ -195,11 +195,13 @@ void MainWindow::createActions()
     netOnline->setCheckable(true);
     // connect later
 
+    //: a debugging tool showing the full contents of the whole IMAP server; all folders, messages and their parts
     showFullView = new QAction(loadIcon(QLatin1String("edit-find-mail")), tr("Show Full &Tree Window"), this);
     showFullView->setCheckable(true);
     connect(showFullView, SIGNAL(triggered(bool)), allDock, SLOT(setVisible(bool)));
     connect(allDock, SIGNAL(visibilityChanged(bool)), showFullView, SLOT(setChecked(bool)));
 
+    //: list of active "tasks", entities which are performing certain action like downloading a message or syncing a mailbox
     showTaskView = new QAction(tr("Show ImapTask t&ree"), this);
     showTaskView->setCheckable(true);
     connect(showTaskView, SIGNAL(triggered(bool)), taskDock, SLOT(setVisible(bool)));
@@ -210,6 +212,7 @@ void MainWindow::createActions()
     connect(showImapLogger, SIGNAL(toggled(bool)), imapLoggerDock, SLOT(setVisible(bool)));
     connect(imapLoggerDock, SIGNAL(visibilityChanged(bool)), showImapLogger, SLOT(setChecked(bool)));
 
+    //: file to save the debug log into
     logPersistent = new QAction(tr("Log &into %1").arg(Imap::Mailbox::persistentLogFileName()), this);
     logPersistent->setCheckable(true);
     connect(logPersistent, SIGNAL(triggered(bool)), imapLogger, SLOT(slotSetPersistentLogging(bool)));
@@ -265,12 +268,15 @@ void MainWindow::createActions()
     viewMsgHeaders = ShortcutHandler::instance()->createAction(QLatin1String("action_view_message_headers"), this, SLOT(slotViewMsgHeaders()), this);
     msgListWidget->tree->addAction(viewMsgHeaders);
 
+    //: "mailbox" as a "folder of messages", not as a "mail account"
     createChildMailbox = new QAction(tr("Create &Child Mailbox..."), this);
     connect(createChildMailbox, SIGNAL(triggered()), this, SLOT(slotCreateMailboxBelowCurrent()));
 
+    //: "mailbox" as a "folder of messages", not as a "mail account"
     createTopMailbox = new QAction(tr("Create &New Mailbox..."), this);
     connect(createTopMailbox, SIGNAL(triggered()), this, SLOT(slotCreateTopMailbox()));
 
+    //: "mailbox" as a "folder of messages", not as a "mail account"
     deleteCurrentMailbox = new QAction(tr("&Delete Mailbox"), this);
     connect(deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()));
 
@@ -836,6 +842,7 @@ void MainWindow::slotResyncMbox()
 
 void MainWindow::alertReceived(const QString &message)
 {
+    //: "ALERT" is a special warning which we're required to show to the user
     QMessageBox::warning(this, tr("IMAP Alert"), message);
 }
 
@@ -1400,10 +1407,12 @@ void MainWindow::showConnectionStatus(QObject *parser, Imap::ConnectionState sta
 
 void MainWindow::slotShowLinkTarget(const QString &link)
 {
-    if (link.isEmpty())
+    if (link.isEmpty()) {
         statusBar()->clearMessage();
-    else
+    } else {
+        //: target of a hyperlink from the currently visible e-mail that the mouse is pointing to
         statusBar()->showMessage(tr("Link target: %1").arg(link));
+    }
 }
 
 void MainWindow::slotShowAboutTrojita()
