@@ -1560,8 +1560,8 @@ void MainWindow::slotSubscribeCurrentMailbox()
 
 void MainWindow::slotShowOnlySubscribed()
 {
-    QSettings().setValue(Common::SettingsNames::guiMailboxListShowOnlySubscribed, m_actionShowOnlySubscribed->isChecked());
     if (m_actionShowOnlySubscribed->isEnabled()) {
+        QSettings().setValue(Common::SettingsNames::guiMailboxListShowOnlySubscribed, m_actionShowOnlySubscribed->isChecked());
         prettyMboxModel->setShowOnlySubscribed(m_actionShowOnlySubscribed->isChecked());
     }
 }
