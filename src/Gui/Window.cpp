@@ -30,7 +30,6 @@
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QHeaderView>
-#include <QInputDialog>
 #include <QItemSelectionModel>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -67,6 +66,7 @@
 #include "MessageView.h"
 #include "MessageSourceWidget.h"
 #include "MsgListView.h"
+#include "PasswordDialog.h"
 #include "ProtocolLoggerWidget.h"
 #include "SettingsDialog.h"
 #include "SimplePartWidget.h"
@@ -916,10 +916,10 @@ void MainWindow::authenticationRequested()
     QString pass = s.value(Common::SettingsNames::imapPassKey).toString();
     if (m_ignoreStoredPassword || pass.isEmpty()) {
         bool ok;
-        pass = QInputDialog::getText(this, tr("IMAP Password"),
-                                     tr("Please provide password for %1 on %2:").arg(
-                                         user, QSettings().value(Common::SettingsNames::imapHostKey).toString()),
-                                     QLineEdit::Password, QString(), &ok);
+        pass = PasswordDialog::getPassword(this, tr("IMAP Password"), tr("<h3>Authentication required</h3>"),
+                                           tr("<p>Please provide password for %1 on %2.</p>").arg(
+                                               user, QSettings().value(Common::SettingsNames::imapHostKey).toString()),
+                                           QLineEdit::Password, QString(), &ok);
         if (ok) {
             model->setImapUser(user);
             model->setImapPassword(pass);

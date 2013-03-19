@@ -54,7 +54,8 @@ SOURCES += \
     ShortcutHandler/ShortcutConfigDialog.cpp \
     ShortcutHandler/ShortcutConfigWidget.cpp \
     ShortcutHandler/ShortcutHandler.cpp \
-    LineEdit.cpp
+    LineEdit.cpp \
+    PasswordDialog.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -94,7 +95,8 @@ HEADERS += \
     ShortcutHandler/ShortcutConfigDialog.h \
     ShortcutHandler/ShortcutConfigWidget.h \
     ShortcutHandler/ShortcutHandler.h \
-    LineEdit.h
+    LineEdit.h \
+    PasswordDialog.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \
@@ -102,7 +104,8 @@ FORMS += CreateMailboxDialog.ui \
     SettingsOutgoingPage.ui \
     SettingsGeneralPage.ui \
     EditIdentity.ui \
-    ShortcutHandler/ShortcutConfigWidget.ui
+    ShortcutHandler/ShortcutConfigWidget.ui \
+    PasswordDialog.ui
 
 RESOURCES += ../icons.qrc
 

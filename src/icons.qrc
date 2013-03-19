@@ -38,5 +38,6 @@
         <file>icons/mail-reply-all.png</file>
         <file>icons/mail-reply-list.png</file>
         <file>icons/mail-reply-sender.png</file>
+        <file>icons/dialog-password.png</file>
     </qresource>
 </RCC>
