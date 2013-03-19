@@ -25,13 +25,13 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QFrame>
-#include <QLineEdit>
 #include <QMenu>
 #include <QTimer>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidgetAction>
 #include "IconLoader.h"
+#include "LineEdit.h"
 #include "MsgListView.h"
 
 namespace Gui {
@@ -41,7 +41,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 {
     tree = new MsgListView(this);
 
-    m_quickSearchText = new QLineEdit(this);
+    m_quickSearchText = new LineEdit(this);
 #if QT_VERSION >= 0x040700
     m_quickSearchText->setPlaceholderText(tr("Quick Search / Leading \":=\" for direct IMAP search"));
 #endif
@@ -94,10 +94,12 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_searchOptions->setMenu(optionsMenu);
     connect (optionsMenu, SIGNAL(aboutToShow()), SLOT(slotDeActivateSimpleSearch()));
 
+	delete m_quickSearchText->layout();
     QHBoxLayout *hlayout = new QHBoxLayout(m_quickSearchText);
     hlayout->setContentsMargins(0, 0, 0, 0);
     hlayout->addWidget(m_searchOptions);
     hlayout->addStretch();
+	hlayout->addWidget(m_quickSearchText->clearButton());
     hlayout->activate(); // this processes the layout and ensures the toolbutton has it's final dimensions
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (QGuiApplication::isLeftToRight())

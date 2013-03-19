@@ -25,7 +25,7 @@
 
 #include <QWidget>
 
-class QLineEdit;
+class LineEdit;
 class QTimer;
 class QToolButton;
 
@@ -63,7 +63,7 @@ private slots:
     void slotUpdateSearchCursor();
 
 private:
-    QLineEdit *m_quickSearchText;
+    LineEdit *m_quickSearchText;
     QToolButton *m_searchOptions;
     QAction *m_searchInSubject;
     QAction *m_searchInBody;
