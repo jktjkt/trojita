@@ -44,7 +44,7 @@ p, li { white-space: pre-wrap; }
     <item row="1" column="0">
      <widget class="QLabel" name="imapHostLabel">
       <property name="text">
-       <string>IMAP Ser&amp;ver</string>
+       <string>Ser&amp;ver</string>
       </property>
       <property name="buddy">
        <cstring>imapHost</cstring>
@@ -156,7 +156,7 @@ p, li { white-space: pre-wrap; }
     <item row="5" column="1">
      <widget class="LineEdit" name="imapUser">
       <property name="toolTip">
-       <string>IMAP Username</string>
+       <string>Username</string>
       </property>
       <property name="whatsThis">
        <string>User name to log in to the IMAP server</string>
@@ -169,7 +169,7 @@ p, li { white-space: pre-wrap; }
     <item row="6" column="1">
      <widget class="LineEdit" name="imapPass">
       <property name="toolTip">
-       <string>IMAP Password</string>
+       <string>Password</string>
       </property>
       <property name="whatsThis">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -258,7 +258,7 @@ p, li { white-space: pre-wrap; }
     <item row="11" column="0">
      <widget class="QLabel" name="imapCapabilitiesBlacklistLabel">
       <property name="text">
-       <string>Blacklisted &amp;Capabilities</string>
+       <string>Extension &amp;Blacklist</string>
       </property>
       <property name="buddy">
        <cstring>imapCapabilitiesBlacklist</cstring>

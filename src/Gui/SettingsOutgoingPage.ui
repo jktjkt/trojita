@@ -29,7 +29,7 @@
     <item row="1" column="0">
      <widget class="QLabel" name="smtpHostLabel">
       <property name="text">
-       <string>SMTP Ser&amp;ver</string>
+       <string>Ser&amp;ver</string>
       </property>
       <property name="buddy">
        <cstring>smtpHost</cstring>
@@ -49,7 +49,7 @@
     <item row="4" column="0">
      <widget class="QLabel" name="smtpAuthLabel">
       <property name="text">
-       <string>SMTP &amp;Auth</string>
+       <string>&amp;Authenticate</string>
       </property>
       <property name="buddy">
        <cstring>smtpAuth</cstring>
