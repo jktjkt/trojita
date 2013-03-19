@@ -277,7 +277,7 @@ void MainWindow::createActions()
     connect(createTopMailbox, SIGNAL(triggered()), this, SLOT(slotCreateTopMailbox()));
 
     //: "mailbox" as a "folder of messages", not as a "mail account"
-    deleteCurrentMailbox = new QAction(tr("&Delete Mailbox"), this);
+    deleteCurrentMailbox = new QAction(tr("&Remove Mailbox"), this);
     connect(deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()));
 
 #ifdef XTUPLE_CONNECT
