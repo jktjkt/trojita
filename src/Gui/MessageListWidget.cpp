@@ -94,12 +94,12 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_searchOptions->setMenu(optionsMenu);
     connect (optionsMenu, SIGNAL(aboutToShow()), SLOT(slotDeActivateSimpleSearch()));
 
-	delete m_quickSearchText->layout();
+    delete m_quickSearchText->layout();
     QHBoxLayout *hlayout = new QHBoxLayout(m_quickSearchText);
     hlayout->setContentsMargins(0, 0, 0, 0);
     hlayout->addWidget(m_searchOptions);
     hlayout->addStretch();
-	hlayout->addWidget(m_quickSearchText->clearButton());
+    hlayout->addWidget(m_quickSearchText->clearButton());
     hlayout->activate(); // this processes the layout and ensures the toolbutton has it's final dimensions
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (QGuiApplication::isLeftToRight())

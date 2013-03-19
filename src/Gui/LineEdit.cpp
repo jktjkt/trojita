@@ -15,14 +15,14 @@
 #include <QStyle>
 
 LineEdit::LineEdit(const QString &text, QWidget *parent)
-	: QLineEdit(parent)
+    : QLineEdit(parent)
 {
     init();
     setText(text);
 }
 
 LineEdit::LineEdit(QWidget *parent)
-	: QLineEdit(parent)
+    : QLineEdit(parent)
 {
     init();
 }

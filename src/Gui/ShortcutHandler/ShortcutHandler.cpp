@@ -64,7 +64,7 @@ void ShortcutHandler::setSettingsObject(QSettings *settings)
 
 void ShortcutHandler::defineAction(const QString &actionName, const QString &iconName, const QString &text, const QString &defaultShortcut, const QString &parentId)
 {
-//	m_actionDescriptions[actionName] = {iconName, text, defaultShortcut, parentId}; // C++11 only, constructor in ActionDescription is then not needed
+//  m_actionDescriptions[actionName] = {iconName, text, defaultShortcut, parentId}; // C++11 only, constructor in ActionDescription is then not needed
     m_actionDescriptions[actionName] = ActionDescription(iconName, text, defaultShortcut, parentId);
 }
 
