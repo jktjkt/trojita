@@ -58,6 +58,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 
     // Icon on the left
     QLabel *lbl = new QLabel();
+    static const QSize iconSize(22, 22);
 
     QString mimeDescription = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
     QString rawMime = mimeDescription;
@@ -65,9 +66,9 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     if (mimeType.isValid() && !mimeType.isDefault()) {
         mimeDescription = mimeType.comment();
         QIcon icon = QIcon::fromTheme(mimeType.iconName(), loadIcon(QLatin1String("mail-attachment")));
-        lbl->setPixmap(icon.pixmap(22, 22));
+        lbl->setPixmap(icon.pixmap(iconSize));
     } else {
-        lbl->setPixmap(loadIcon(QLatin1String("mail-attachment")).pixmap(22, 22));
+        lbl->setPixmap(loadIcon(QLatin1String("mail-attachment")).pixmap(iconSize));
     }
     layout->addWidget(lbl);
 
