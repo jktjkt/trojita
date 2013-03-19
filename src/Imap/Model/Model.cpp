@@ -1106,7 +1106,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                                     "<pre>%2</pre>").arg(service, QString::fromUtf8(line.constData())));
     } else {
         emit connectionError(trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
-                                    "This might either mean that there's a bug in Trojiá's code, or "
+                                    "This might either mean that there's a bug in Trojitá's code, or "
                                     "that the IMAP server you are connected to is broken. Please "
                                     "report this as a bug anyway. Here are the details:</p>"
                                     "<p><b>%1</b>: %2</p>"
