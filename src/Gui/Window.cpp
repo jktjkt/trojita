@@ -916,8 +916,8 @@ void MainWindow::authenticationRequested()
     QString pass = s.value(Common::SettingsNames::imapPassKey).toString();
     if (m_ignoreStoredPassword || pass.isEmpty()) {
         bool ok;
-        pass = PasswordDialog::getPassword(this, tr("IMAP Password"), tr("<h3>Authentication required</h3>"),
-                                           tr("<p>Please provide password for %1 on %2.</p>").arg(
+        pass = PasswordDialog::getPassword(this, tr("Authentication Required"),
+                                           tr("<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
                                                user, QSettings().value(Common::SettingsNames::imapHostKey).toString()),
                                            QLineEdit::Password, QString(), &ok);
         if (ok) {

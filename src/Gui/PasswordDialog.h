@@ -39,7 +39,8 @@ public:
     ~PasswordDialog();
 
     QString password() const;
-    static QString getPassword(QWidget *parent, const QString &windowTitle, const QString &title, const QString &description, QLineEdit::EchoMode echo = QLineEdit::Normal, const QString &password = 0, bool *ok = 0);
+    static QString getPassword(QWidget *parent, const QString &windowTitle, const QString &description,
+                               QLineEdit::EchoMode echo = QLineEdit::Normal, const QString &password = 0, bool *ok = 0);
 
 protected:
     void showEvent(QShowEvent *event);
