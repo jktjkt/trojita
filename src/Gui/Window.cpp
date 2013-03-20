@@ -918,7 +918,14 @@ void MainWindow::authenticationRequested()
         bool ok;
         pass = PasswordDialog::getPassword(this, tr("Authentication Required"),
                                            tr("<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
-                                               user, QSettings().value(Common::SettingsNames::imapHostKey).toString()),
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                                               Qt::escape(user),
+                                               Qt::escape(QSettings().value(Common::SettingsNames::imapHostKey).toString())
+#else
+                                               user.toHtmlEscaped(),
+                                               QSettings().value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
+#endif
+                                               ),
                                            QLineEdit::Password, QString(), &ok);
         if (ok) {
             model->setImapUser(user);
