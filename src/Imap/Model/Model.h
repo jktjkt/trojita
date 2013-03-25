@@ -297,6 +297,10 @@ public:
     */
     void setCapabilitiesBlacklist(const QStringList &blacklist);
 
+    bool isCatenateSupported() const;
+    bool isGenUrlAuthSupported() const;
+    bool isImapSubmissionSupported() const;
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();

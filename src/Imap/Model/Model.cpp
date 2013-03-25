@@ -1992,5 +1992,23 @@ void Model::slotNetworkConnectivityStatusChanged(const bool online)
     }
 }
 
+
+bool Model::isCatenateSupported() const
+{
+    return capabilities().contains(QLatin1String("CATENATE"));
+}
+
+bool Model::isGenUrlAuthSupported() const
+{
+    return capabilities().contains(QLatin1String("URLAUTH"));
+}
+
+bool Model::isImapSubmissionSupported() const
+{
+    QStringList caps = capabilities();
+    return caps.contains(QLatin1String("UIDPLUS")) && caps.contains(QLatin1String("X-DRAFT-I01-SENDMAIL"));
+}
+
+
 }
 }

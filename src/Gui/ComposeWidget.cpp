@@ -268,7 +268,7 @@ void ComposeWidget::send()
     if (s.value(SettingsNames::composerSaveToImapKey, true).toBool()) {
         Q_ASSERT(m_mainWindow->imapModel());
 
-        if (m_mainWindow->isCatenateSupported()) {
+        if (m_mainWindow->imapModel()->isCatenateSupported()) {
             QList<Imap::Mailbox::CatenatePair> catenateable;
             if (!m_composer->asCatenateData(catenateable, &errorMessage)) {
                 gotError(tr("Cannot send right now -- saving (CATENATE) failed:\n %1").arg(errorMessage));
@@ -328,7 +328,7 @@ void ComposeWidget::send()
         QString appName = args.takeFirst();
         msaFactory = new MSA::SendmailFactory(appName, args);
     } else if (method == SettingsNames::methodImapSendmail) {
-        if (!m_mainWindow->isImapSubmissionSupported()) {
+        if (!m_mainWindow->imapModel()->isImapSubmissionSupported()) {
             QMessageBox::critical(this, tr("Error"), tr("The IMAP server does not support mail submission. Please reconfigure the application."));
             return;
         }
@@ -383,7 +383,7 @@ void ComposeWidget::send()
     }
 
     QPointer<Imap::Mailbox::GenUrlAuthTask> genUrlAuthTask;
-    if (m_appendUidReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool() && m_mainWindow->isGenUrlAuthSupported()) {
+    if (m_appendUidReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool() && m_mainWindow->imapModel()->isGenUrlAuthSupported()) {
         progress->setValue(1);
         progress->setLabelText(tr("Generating IMAP URL..."));
         genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
@@ -810,7 +810,7 @@ QString ComposeWidget::killDomainPartFromString(const QString &s)
 bool ComposeWidget::shouldBuildMessageLocally() const
 {
     // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
-    return ! (m_mainWindow->isCatenateSupported() && m_mainWindow->isGenUrlAuthSupported()
+    return ! (m_mainWindow->imapModel()->isCatenateSupported() && m_mainWindow->imapModel()->isGenUrlAuthSupported()
               && QSettings().value(Common::SettingsNames::smtpUseBurlKey, false).toBool());
 }
 
