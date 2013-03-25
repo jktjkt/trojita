@@ -14,7 +14,7 @@ before_install:
  - sh -c "if [[ -n \"${RAGEL}\" ]]; then sudo apt-get install -qq ragel; fi"
  - sh -c "if [[ -z \"${ZLIB}\" ]]; then sudo apt-get install -qq zlib1g-dev; fi"
  - sh -c "if [ '$QT' = 'qt4' ]; then sudo apt-get install -qq libqt4-dev qt4-dev-tools libqtwebkit-dev; fi"
- - sh -c "if [ '$QT' = 'qt5' ]; then sudo apt-add-repository -y ppa:beineri/opt-qt50; sudo apt-get update -qq; sudo apt-get install -qq qt5-meta-minimal libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev; fi"
+ - sh -c "if [ '$QT' = 'qt5' ]; then sudo apt-add-repository -y ppa:beineri/opt-qt501; sudo apt-get update -qq; sudo apt-get install -qq qt5-meta-minimal libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev; fi"
  - sudo apt-get install -qq xvfb xauth
 script: sh -c "mkdir _build; cd _build; if [ '$QT' = 'qt4' ] ; then export QMAKE=qmake; else export QMAKE=/opt/qt5/bin/qmake; fi; \$QMAKE QMAKE_CXX=$CXX CONFIG+=$CONFIG CONFIG+=${RAGEL:-_unused_disable_ragel} CONFIG+=${ZLIB:-_unused_zlib} PREFIX=/usr ../trojita.pro && make && xvfb-run -a make test && sudo make install"
 notifications:
