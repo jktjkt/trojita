@@ -46,4 +46,8 @@ void AbstractMSA::sendBurl(const QByteArray &from, const QList<QByteArray> &to, 
     emit error(tr("BURL is not supported by %1").arg(metaObject()->className()));
 }
 
+MSAFactory::~MSAFactory()
+{
+}
+
 }

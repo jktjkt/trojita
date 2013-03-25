@@ -48,6 +48,13 @@ signals:
     void progress(int num);
 };
 
+/** @short Factory producing AbstractMSA instances */
+class MSAFactory {
+public:
+    virtual ~MSAFactory();
+    virtual AbstractMSA *create(QObject *parent) const = 0;
+};
+
 }
 
 #endif // ABSTRACTMSA_H
