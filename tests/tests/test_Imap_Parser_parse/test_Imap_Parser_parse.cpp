@@ -869,6 +869,15 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("vanished-earlier-set")
             << QByteArray("* VANISHED (EARLIER) 300:303,405,411\r\n")
             << QSharedPointer<AbstractResponse>(new Vanished(Vanished::EARLIER, QList<uint>() << 300 << 301 << 302 << 303 << 405 << 411));
+
+    QTest::newRow("genurlauth-1")
+            << QByteArray("* GENURLAUTH \"imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038\"\r\n")
+            << QSharedPointer<AbstractResponse>(new GenUrlAuth(QLatin1String("imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038")));
+
+    QTest::newRow("genurlauth-2")
+            << QByteArray("* GENURLAUTH meh\r\n")
+            << QSharedPointer<AbstractResponse>(new GenUrlAuth(QLatin1String("meh")));
+
 }
 
 /** @short Test that parsing this garbage doesn't result in an expceiton

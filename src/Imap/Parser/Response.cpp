@@ -1103,7 +1103,7 @@ Vanished::Vanished(const QByteArray &line, int &start):
 GenUrlAuth::GenUrlAuth(const QByteArray &line, int &start):
     AbstractResponse(GENURLAUTH)
 {
-    url = QString::fromUtf8(LowLevelParser::getString(line, start).first);
+    url = QString::fromUtf8(LowLevelParser::getAString(line, start).first);
     if (start != line.size() - 2)
         throw TooMuchData(line, start);
 }
