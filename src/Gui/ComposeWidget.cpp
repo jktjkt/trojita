@@ -308,17 +308,17 @@ void ComposeWidget::send()
         }
     }
 
-    MSA::AbstractMSA *msa = 0;
+    MSA::MSAFactory *msaFactory = 0;
     QString method = s.value(SettingsNames::msaMethodKey).toString();
     if (method == SettingsNames::methodSMTP || method == SettingsNames::methodSSMTP) {
-        msa = new MSA::SMTP(this, s.value(SettingsNames::smtpHostKey).toString(),
-                            s.value(SettingsNames::smtpPortKey).toInt(),
-                            (method == SettingsNames::methodSSMTP),
-                            (method == SettingsNames::methodSMTP)
-                            && s.value(SettingsNames::smtpStartTlsKey).toBool(),
-                            s.value(SettingsNames::smtpAuthKey).toBool(),
-                            s.value(SettingsNames::smtpUserKey).toString(),
-                            s.value(SettingsNames::smtpPassKey).toString());
+        msaFactory = new MSA::SMTPFactory(s.value(SettingsNames::smtpHostKey).toString(),
+                                          s.value(SettingsNames::smtpPortKey).toInt(),
+                                          (method == SettingsNames::methodSSMTP),
+                                          (method == SettingsNames::methodSMTP)
+                                          && s.value(SettingsNames::smtpStartTlsKey).toBool(),
+                                          s.value(SettingsNames::smtpAuthKey).toBool(),
+                                          s.value(SettingsNames::smtpUserKey).toString(),
+                                          s.value(SettingsNames::smtpPassKey).toString());
     } else if (method == SettingsNames::methodSENDMAIL) {
         QStringList args = s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
@@ -326,7 +326,7 @@ void ComposeWidget::send()
             return;
         }
         QString appName = args.takeFirst();
-        msa = new MSA::Sendmail(this, appName, args);
+        msaFactory = new MSA::SendmailFactory(appName, args);
     } else if (method == SettingsNames::methodImapSendmail) {
         if (!m_mainWindow->isImapSubmissionSupported()) {
             QMessageBox::critical(this, tr("Error"), tr("The IMAP server does not support mail submission. Please reconfigure the application."));
@@ -404,6 +404,8 @@ void ComposeWidget::send()
     progress->setLabelText(tr("Sending mail..."));
     progress->setValue(2);
 
+    Q_ASSERT(msaFactory);
+    MSA::AbstractMSA *msa = msaFactory->create(this);
     connect(msa, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
     connect(msa, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
     connect(msa, SIGNAL(error(QString)), progress, SLOT(close()));
