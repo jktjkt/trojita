@@ -38,7 +38,7 @@ namespace Composer
 Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory) :
     QObject(parent),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
-    m_saveToSentFolder(false), m_useBurl(false),
+    m_saveToSentFolder(false), m_useBurl(false), m_state(STATE_INIT),
     m_composer(0), m_model(model), m_msaFactory(msaFactory)
 {
     m_composer = new Composer::MessageComposer(model, this);
@@ -52,6 +52,11 @@ MessageComposer *Submission::composer()
 
 Submission::~Submission()
 {
+}
+
+void Submission::changeConnectionState(const SubmissionProgress state)
+{
+    m_state = state;
 }
 
 void Submission::setImapOptions(const bool saveToSentFolder, const QString &sentFolderName, const QString &hostname)
@@ -69,18 +74,33 @@ void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
 
 void Submission::send()
 {
-    QByteArray rawMessageData;
-    QBuffer buf(&rawMessageData);
+    changeConnectionState(STATE_BUILDING_MESSAGE);
+    if (shouldBuildMessageLocally() && !m_composer->isReadyForSerialization()) {
+        // we have to wait until the data arrive
+        // FIXME: relax this to wait here
+        gotError(tr("Some data are not available yet"));
+    } else {
+        slotMessageDataAvailable();
+    }
+}
+
+
+void Submission::slotMessageDataAvailable()
+{
+    m_rawMessageData.clear();
+    QBuffer buf(&m_rawMessageData);
     buf.open(QIODevice::WriteOnly);
     QString errorMessage;
 
-    QPointer<Imap::Mailbox::AppendTask> appendTask = 0;
-    m_appendUidReceived = false;
-    m_genUrlAuthReceived = false;
     if (m_saveToSentFolder) {
         Q_ASSERT(m_model);
+        m_appendUidReceived = false;
+        m_genUrlAuthReceived = false;
 
-        if (m_model->capabilities().contains(QLatin1String("CATENATE"))) {
+        changeConnectionState(STATE_SAVING);
+        QPointer<Imap::Mailbox::AppendTask> appendTask = 0;
+
+        if (m_model->isCatenateSupported()) {
             QList<Imap::Mailbox::CatenatePair> catenateable;
             if (!m_composer->asCatenateData(catenateable, &errorMessage)) {
                 gotError(tr("Cannot send right now -- saving (CATENATE) failed:\n %1").arg(errorMessage));
@@ -104,68 +124,37 @@ void Submission::send()
             appendTask = QPointer<Imap::Mailbox::AppendTask>(
                         m_model->appendIntoMailbox(
                             m_sentFolderName,
-                            rawMessageData,
+                            m_rawMessageData,
                             QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
                             m_composer->timestamp()));
         }
 
         Q_ASSERT(appendTask);
         connect(appendTask.data(), SIGNAL(appendUid(uint,uint)), this, SLOT(slotAppendUidKnown(uint,uint)));
-    }
-
-    if (rawMessageData.isEmpty() && shouldBuildMessageLocally()) {
-        if (!m_composer->asRawMessage(&buf, &errorMessage)) {
-            gotError(tr("Cannot send right now:\n %1").arg(errorMessage));
-            return;
-        }
-    }
-
-#if 0
-    MSA::AbstractMSA *msa = 0;
-    QString method = s.value(SettingsNames::msaMethodKey).toString();
-    if (method == SettingsNames::methodSMTP || method == SettingsNames::methodSSMTP) {
-        msa = new MSA::SMTP(this, s.value(SettingsNames::smtpHostKey).toString(),
-                            s.value(SettingsNames::smtpPortKey).toInt(),
-                            (method == SettingsNames::methodSSMTP),
-                            (method == SettingsNames::methodSMTP)
-                            && s.value(SettingsNames::smtpStartTlsKey).toBool(),
-                            s.value(SettingsNames::smtpAuthKey).toBool(),
-                            s.value(SettingsNames::smtpUserKey).toString(),
-                            s.value(SettingsNames::smtpPassKey).toString());
-    } else if (method == SettingsNames::methodSENDMAIL) {
-        QStringList args = s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
-        if (args.isEmpty()) {
-            QMessageBox::critical(this, tr("Error"), tr("Please configure the SMTP or sendmail settings in application settings."));
-            return;
-        }
-        QString appName = args.takeFirst();
-        msa = new MSA::Sendmail(this, appName, args);
-    } else if (method == SettingsNames::methodImapSendmail) {
-        if (!m_mainWindow->isImapSubmissionSupported()) {
-            QMessageBox::critical(this, tr("Error"), tr("The IMAP server does not support mail submission. Please reconfigure the application."));
-            return;
-        }
-        // no particular preparation needed here
     } else {
-        QMessageBox::critical(this, tr("Error"), tr("Please configure e-mail delivery method in application settings."));
-        return;
+        slotInvokeMsaNow();
     }
-#endif
+}
 
-    // Message uploading through IMAP cannot really be terminated
-    emit progressMin(0);
-    emit progressMax(3);
-    emit updateCancellable(false);
+void Submission::slotAskForUrl()
+{
+    Q_ASSERT(m_appendUidReceived && m_useBurl);
+    changeConnectionState(STATE_PREPARING_URLAUTH);
+    Imap::Mailbox::GenUrlAuthTask *genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
+                m_model->generateUrlAuthForMessage(m_imapHostname,
+                                                   killDomainPartFromString(m_imapHostname),
+                                                   m_sentFolderName,
+                                                   m_appendUidValidity, m_appendUid, QString(),
+                                                   QString::fromUtf8("submit+%1").arg(
+                                                       killDomainPartFromString(m_smtpUsername))
+                                                   ));
+    connect(genUrlAuthTask, SIGNAL(gotAuth(QString)), this, SLOT(slotGenUrlAuthReceived(QString)));
+    connect(genUrlAuthTask, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
+}
 
-    if (appendTask) {
-        emit updateStatusMessage(tr("Saving message..."));
-    }
-
-    while (appendTask && !appendTask->isFinished()) {
-        // FIXME: get rid of this busy wait, eventually
-        QCoreApplication::processEvents();
-    }
-
+void Submission::slotInvokeMsaNow()
+{
+    changeConnectionState(STATE_SUBMITTING);
     if (!m_msaFactory) {
         // FIXME: this looks like a hack; null factory -> send via IMAP...
         if (!m_appendUidReceived) {
@@ -183,36 +172,8 @@ void Submission::send()
         Q_ASSERT(submitTask);
         connect(submitTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(sent()));
         connect(submitTask, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
-        emit updateStatusMessage(tr("Sending mail..."));
-        emit progress(2);
-        while (submitTask && !submitTask->isFinished()) {
-            QCoreApplication::processEvents();
-        }
-        emit succeeded();
         return;
     }
-
-    QPointer<Imap::Mailbox::GenUrlAuthTask> genUrlAuthTask;
-    if (m_appendUidReceived && m_useBurl && m_model->capabilities().contains(QLatin1String("GENURLAUTH"))) {
-        emit progress(1);
-        emit updateStatusMessage(tr("Generating IMAP URL..."));
-        genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
-                    m_model->
-                    generateUrlAuthForMessage(m_imapHostname,
-                                              killDomainPartFromString(m_imapHostname),
-                                              m_sentFolderName,
-                                              m_appendUidValidity, m_appendUid, QString(),
-                                              QString::fromUtf8("submit+%1").arg(
-                        killDomainPartFromString(m_smtpUsername))
-                                              ));
-        connect(genUrlAuthTask.data(), SIGNAL(gotAuth(QString)), this, SLOT(slotGenUrlAuthReceived(QString)));
-        while (genUrlAuthTask && !genUrlAuthTask->isFinished()) {
-            // FIXME: get rid of this busy wait, eventually
-            QCoreApplication::processEvents();
-        }
-    }
-    emit updateStatusMessage(tr("Sending mail..."));
-    emit progress(2);
 
     MSA::AbstractMSA *msa = m_msaFactory->create(this);
     connect(msa, SIGNAL(progressMax(int)), this, SIGNAL(progressMax(int)));
@@ -223,7 +184,7 @@ void Submission::send()
     if (m_genUrlAuthReceived && m_useBurl) {
         msa->sendBurl(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_urlauth.toUtf8());
     } else {
-        msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), rawMessageData);
+        msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_rawMessageData);
     }
 }
 
@@ -269,6 +230,17 @@ void Submission::slotAppendUidKnown(const uint uidValidity, const uint uid)
     if (m_appendUid && m_appendUidValidity) {
         // Only ever consider valid UIDVALIDITY/UID pair
         m_appendUidReceived = true;
+
+        if (m_useBurl) {
+            slotAskForUrl();
+        } else {
+            slotInvokeMsaNow();
+        }
+    } else {
+        // FIXME: proper logging
+        m_useBurl = false;
+        qDebug() << "APPEND does not contain APPENDUID or UIDVALIDITY, cannot use BURL or the SUBMIT command";
+        slotInvokeMsaNow();
     }
 }
 
@@ -278,6 +250,9 @@ void Submission::slotGenUrlAuthReceived(const QString &url)
     m_urlauth = url;
     if (!m_urlauth.isEmpty()) {
         m_genUrlAuthReceived = true;
+        slotInvokeMsaNow();
+    } else {
+        gotError(tr("The URLAUTH response does not contain a proper URL"));
     }
 }
 
@@ -290,10 +265,13 @@ QString Submission::killDomainPartFromString(const QString &s)
 /** @short Return true if the message payload shall be built locally */
 bool Submission::shouldBuildMessageLocally() const
 {
-    // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
-    return ! (m_model->capabilities().contains(QLatin1String("CATENATE"))
-              && m_model->capabilities().contains(QLatin1String("GENURLAUTH"))
-              && m_useBurl);
+    if (m_msaFactory) {
+        // sending via SMTP or Sendmail
+        // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
+        return ! (m_useBurl && m_model->isCatenateSupported() && m_model->isGenUrlAuthSupported());
+    } else {
+        return ! m_model->isCatenateSupported();
+    }
 }
 
 }

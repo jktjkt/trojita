@@ -59,12 +59,28 @@ public:
 
     void send();
 
+    /** @short Progress of the current submission */
+    typedef enum {
+        STATE_INIT, /**< Nothing is happening yet */
+        STATE_BUILDING_MESSAGE, /**< Waiting for data to become available */
+        STATE_SAVING, /**< Saving the message to the Sent folder */
+        STATE_PREPARING_URLAUTH, /**< Making the resulting message available via IMAP's URLAUTH */
+        STATE_SUBMITTING, /**< Submitting the message via an MSA */
+        STATE_UPDATING_FLAGS, /**< Updating flags of the relevant message(s) */
+        STATE_SENT, /**< All done, succeeded */
+        STATE_FAILED /**< Unable to send */
+    } SubmissionProgress;
+
 private slots:
     void gotError(const QString &error);
     void sent();
 
     void slotAppendUidKnown(const uint uidValidity, const uint uid);
     void slotGenUrlAuthReceived(const QString &url);
+
+    void slotMessageDataAvailable();
+    void slotAskForUrl();
+    void slotInvokeMsaNow();
 
 signals:
     void progressMin(const int min);
@@ -80,6 +96,8 @@ private:
 
     static QString killDomainPartFromString(const QString &s);
 
+    void changeConnectionState(const SubmissionProgress state);
+
     bool m_appendUidReceived;
     uint m_appendUidValidity;
     uint m_appendUid;
@@ -90,6 +108,9 @@ private:
     QString m_imapHostname;
     bool m_useBurl;
     QString m_smtpUsername;
+
+    SubmissionProgress m_state;
+    QByteArray m_rawMessageData;
 
     MessageComposer *m_composer;
     Imap::Mailbox::Model *m_model;
