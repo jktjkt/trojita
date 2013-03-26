@@ -404,6 +404,10 @@ void MessageComposer::setText(const QString &text)
 
 bool MessageComposer::isReadyForSerialization() const
 {
+    Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
+        if (!attachment->isAvailableLocally())
+            return false;
+    }
     return true;
 }
 
