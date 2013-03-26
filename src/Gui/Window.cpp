@@ -57,6 +57,8 @@
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/FileDownloadManager.h"
+#include "MSA/Sendmail.h"
+#include "MSA/SMTP.h"
 #include "AbookAddressbook.h"
 #include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
@@ -1020,7 +1022,8 @@ void MainWindow::recoverDrafts()
     QStringList drafts(draftPath.entryList(QStringList() << QLatin1String("*.draft")));
     Q_FOREACH(const QString &draft, drafts) {
         ComposeWidget *cw = invokeComposeDialog();
-        cw->loadDraft(draftPath.filePath(draft));
+        if (cw)
+            cw->loadDraft(draftPath.filePath(draft));
     }
 }
 
@@ -1042,7 +1045,8 @@ void MainWindow::slotEditDraft()
     path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + QLatin1String(" (*.draft)"));
     if (!path.isEmpty()) {
         ComposeWidget *cw = invokeComposeDialog();
-        cw->loadDraft(path);
+        if (cw)
+            cw->loadDraft(path);
     }
 }
 
@@ -1336,8 +1340,39 @@ ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QSt
                                                const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
                                                const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
+    using namespace Common;
     QSettings s;
-    ComposeWidget *w = new ComposeWidget(this);
+    QString method = s.value(SettingsNames::msaMethodKey).toString();
+    MSA::MSAFactory *msaFactory = 0;
+    if (method == SettingsNames::methodSMTP || method == SettingsNames::methodSSMTP) {
+        msaFactory = new MSA::SMTPFactory(s.value(SettingsNames::smtpHostKey).toString(),
+                                          s.value(SettingsNames::smtpPortKey).toInt(),
+                                          (method == SettingsNames::methodSSMTP),
+                                          (method == SettingsNames::methodSMTP)
+                                          && s.value(SettingsNames::smtpStartTlsKey).toBool(),
+                                          s.value(SettingsNames::smtpAuthKey).toBool(),
+                                          s.value(SettingsNames::smtpUserKey).toString(),
+                                          s.value(SettingsNames::smtpPassKey).toString());
+    } else if (method == SettingsNames::methodSENDMAIL) {
+        QStringList args = s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
+        if (args.isEmpty()) {
+            QMessageBox::critical(this, tr("Error"), tr("Please configure the SMTP or sendmail settings in application settings."));
+            return 0;
+        }
+        QString appName = args.takeFirst();
+        msaFactory = new MSA::SendmailFactory(appName, args);
+    } else if (method == SettingsNames::methodImapSendmail) {
+        if (!imapModel()->capabilities().contains(QLatin1String(""))) {
+            QMessageBox::critical(this, tr("Error"), tr("The IMAP server does not support mail submission. Please reconfigure the application."));
+            return 0;
+        }
+        // no particular preparation needed here
+    } else {
+        QMessageBox::critical(this, tr("Error"), tr("Please configure e-mail delivery method in application settings."));
+        return 0;
+    }
+
+    ComposeWidget *w = new ComposeWidget(this, msaFactory);
 
     // Trim the References header as per RFC 5537
     QList<QByteArray> trimmedReferences = references;

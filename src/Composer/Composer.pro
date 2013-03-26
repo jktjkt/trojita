@@ -9,7 +9,8 @@ SOURCES += \
     ReplaceSignature.cpp \
     Recipients.cpp \
     MessageComposer.cpp \
-    ComposerAttachments.cpp
+    ComposerAttachments.cpp \
+    Submission.cpp
 HEADERS += \
     SubjectMangling.h \
     PlainTextFormatter.h \
@@ -17,7 +18,8 @@ HEADERS += \
     ReplaceSignature.h \
     Recipients.h \
     MessageComposer.h \
-    ComposerAttachments.h
+    ComposerAttachments.h \
+    Submission.h
 
 INCLUDEPATH += ../
 DEPENDPATH += ../
