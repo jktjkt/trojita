@@ -33,7 +33,7 @@ class Fake : public AbstractMSA
 {
     Q_OBJECT
 public:
-    Fake(QObject *parent, FakeFactory *factory);
+    Fake(QObject *parent, FakeFactory *factory, const bool supportsBurl, const bool supportsImap);
     virtual ~Fake();
     virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
 public slots:
@@ -42,6 +42,8 @@ private:
     Fake(const Fake &); // don't implement
     Fake &operator=(const Fake &); // don't implement
     FakeFactory *m_factory;
+    bool m_supportsBurl;
+    bool m_supportsImap;
     friend class FakeFactory;
 };
 
@@ -58,6 +60,9 @@ public:
     virtual ~FakeFactory();
     virtual AbstractMSA *create(QObject *parent) const;
     Fake *lastMSA() const;
+
+    void setBurlSupport(const bool enabled);
+    void setImapSupport(const bool enabled);
 public slots:
     void doEmitConnecting();
     void doEmitSending();
@@ -79,6 +84,8 @@ signals:
 
 private:
     mutable QPointer<Fake> m_lastOne;
+    bool m_supportsBurl;
+    bool m_supportsImap;
     friend class Fake;
 };
 

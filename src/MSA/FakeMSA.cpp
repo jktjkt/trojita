@@ -24,7 +24,8 @@
 namespace MSA
 {
 
-Fake::Fake(QObject *parent, FakeFactory *factory): AbstractMSA(parent), m_factory(factory)
+Fake::Fake(QObject *parent, FakeFactory *factory, const bool supportsBurl, const bool supportsImap):
+    AbstractMSA(parent), m_factory(factory), m_supportsBurl(supportsBurl), m_supportsImap(supportsImap)
 {
 }
 
@@ -42,7 +43,7 @@ void Fake::cancel()
     emit m_factory->requestedCancelling();
 }
 
-FakeFactory::FakeFactory()
+FakeFactory::FakeFactory(): m_supportsBurl(false), m_supportsImap(false)
 {
 }
 
@@ -52,7 +53,7 @@ FakeFactory::~FakeFactory()
 
 AbstractMSA *FakeFactory::create(QObject *parent) const
 {
-    m_lastOne = new Fake(parent, const_cast<FakeFactory *>(this));
+    m_lastOne = new Fake(parent, const_cast<FakeFactory *>(this), m_supportsBurl, m_supportsImap);
     connect(m_lastOne, SIGNAL(connecting()), this, SIGNAL(connecting()));
     connect(m_lastOne, SIGNAL(sending()), this, SIGNAL(sending()));
     connect(m_lastOne, SIGNAL(sent()), this, SIGNAL(sent()));
@@ -95,6 +96,16 @@ void FakeFactory::doEmitProgressMax(int max)
 void FakeFactory::doEmitProgress(int num)
 {
     emit lastMSA()->progress(num);
+}
+
+void FakeFactory::setBurlSupport(const bool enabled)
+{
+    m_supportsBurl = enabled;
+}
+
+void FakeFactory::setImapSupport(const bool enabled)
+{
+    m_supportsImap = enabled;
 }
 
 }
