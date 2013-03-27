@@ -35,6 +35,29 @@
 namespace Composer
 {
 
+QString submissionProgressToString(const Submission::SubmissionProgress progress)
+{
+    switch (progress) {
+    case Submission::STATE_INIT:
+        return QLatin1String("STATE_INIT");
+    case Submission::STATE_BUILDING_MESSAGE:
+        return QLatin1String("STATE_BUILDING_MESSAGE");
+    case Submission::STATE_SAVING:
+        return QLatin1String("STATE_SAVING");
+    case Submission::STATE_PREPARING_URLAUTH:
+        return QLatin1String("STATE_PREPARING_URLAUTH");
+    case Submission::STATE_SUBMITTING:
+        return QLatin1String("STATE_SUBMITTING");
+    case Submission::STATE_UPDATING_FLAGS:
+        return QLatin1String("STATE_UPDATING_FLAGS");
+    case Submission::STATE_SENT:
+        return QLatin1String("STATE_SENT");
+    case Submission::STATE_FAILED:
+        return QLatin1String("STATE_FAILED");
+    }
+    return QString::fromUtf8("[unknown: %1]").arg(QString::number(static_cast<int>(progress)));
+}
+
 Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory) :
     QObject(parent),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
@@ -57,6 +80,7 @@ Submission::~Submission()
 void Submission::changeConnectionState(const SubmissionProgress state)
 {
     m_state = state;
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), submissionProgressToString(m_state));
 }
 
 void Submission::setImapOptions(const bool saveToSentFolder, const QString &sentFolderName, const QString &hostname)
@@ -190,6 +214,7 @@ void Submission::slotInvokeMsaNow()
 
 void Submission::gotError(const QString &error)
 {
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), QString::fromUtf8("gotError: %1").arg(error));
     emit failed(error);
 }
 

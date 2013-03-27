@@ -120,6 +120,8 @@ private:
     Submission &operator=(const Submission &); // don't implement
 };
 
+QString submissionProgressToString(const Submission::SubmissionProgress progress);
+
 }
 
 #endif // COMPOSER_SUBMISSION_H
