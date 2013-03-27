@@ -276,9 +276,9 @@ void Submission::slotAppendSucceeded()
             slotInvokeMsaNow();
         }
     } else {
-        // FIXME: proper logging
         m_useBurl = false;
-        qDebug() << "APPEND does not contain APPENDUID or UIDVALIDITY, cannot use BURL or the SUBMIT command";
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"),
+                          QLatin1String("APPEND does not contain APPENDUID or UIDVALIDITY, cannot use BURL or the SUBMIT command"));
         slotInvokeMsaNow();
     }
 }
