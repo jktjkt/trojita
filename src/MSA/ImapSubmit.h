@@ -19,44 +19,51 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef ABSTRACTMSA_H
-#define ABSTRACTMSA_H
+#ifndef TROJITA_MSA_IMAP_SUBMIT_H
+#define TROJITA_MSA_IMAP_SUBMIT_H
 
-#include <QByteArray>
-#include <QObject>
+#include "AbstractMSA.h"
+
+namespace Imap {
+namespace Mailbox {
+class Model;
+}
+}
 
 namespace MSA
 {
 
-class AbstractMSA : public QObject
+class ImapSubmit : public AbstractMSA
 {
     Q_OBJECT
 public:
-    explicit AbstractMSA(QObject *parent);
-    virtual ~AbstractMSA();
-    virtual bool supportsBurl() const;
+    ImapSubmit(QObject *parent, Imap::Mailbox::Model *model);
     virtual bool supportsImapSending() const;
-    virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
-    virtual void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
     virtual void sendImap(const QString &mailbox, const int uidValidity, const int uid);
+
 public slots:
-    virtual void cancel() = 0;
-signals:
-    void connecting();
-    void sending();
-    void sent();
-    void error(const QString &message);
-    void progressMax(int max);
-    void progress(int num);
+    virtual void cancel();
+
+private slots:
+    void slotEmitFailure();
+
+private:
+    Imap::Mailbox::Model *m_model;
+
+    ImapSubmit(const ImapSubmit &); // don't implement
+    ImapSubmit &operator=(const ImapSubmit &); // don't implement
 };
 
-/** @short Factory producing AbstractMSA instances */
-class MSAFactory {
+class ImapSubmitFactory: public MSAFactory
+{
 public:
-    virtual ~MSAFactory();
-    virtual AbstractMSA *create(QObject *parent) const = 0;
+    ImapSubmitFactory(Imap::Mailbox::Model *model);
+    virtual ~ImapSubmitFactory();
+    virtual AbstractMSA *create(QObject *parent) const;
+private:
+    Imap::Mailbox::Model *m_model;
 };
 
 }
 
-#endif // ABSTRACTMSA_H
+#endif // TROJITA_MSA_IMAP_SUBMIT_H

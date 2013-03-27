@@ -8,8 +8,10 @@ TEMPLATE = lib
 SOURCES += AbstractMSA.cpp \
     SMTP.cpp \
     Sendmail.cpp \
-    FakeMSA.cpp
+    FakeMSA.cpp \
+    ImapSubmit.cpp
 HEADERS += AbstractMSA.h \
     SMTP.h \
     Sendmail.h \
-    FakeMSA.h
+    FakeMSA.h \
+    ImapSubmit.h
