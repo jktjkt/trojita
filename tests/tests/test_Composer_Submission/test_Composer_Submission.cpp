@@ -132,7 +132,23 @@ void ComposerSubmissionTest::testSimpleSubmission()
     //qDebug() << requestedSendingSpy->front();
 }
 
-void ComposerSubmissionTest::testSimpleSubmissionWithSave()
+void ComposerSubmissionTest::testSimpleSubmissionWithAppendFailed()
+{
+    helperTestSimpleAppend(false, false);
+}
+
+
+void ComposerSubmissionTest::testSimpleSubmissionWithAppendNoAppenduid()
+{
+    helperTestSimpleAppend(true, false);
+}
+
+void ComposerSubmissionTest::testSimpleSubmissionWithAppendAppenduid()
+{
+    helperTestSimpleAppend(true, true);
+}
+
+void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUid)
 {
     // Don't bother with literal processing
     FakeCapabilitiesInjector injector(model);
@@ -157,8 +173,23 @@ void ComposerSubmissionTest::testSimpleSubmissionWithSave()
     cEmpty();
     QCOMPARE(requestedSendingSpy->size(), 0);
 
+    if (!appendOk) {
+        cServer(t.last("NO append failed\r\n"));
+        cEmpty();
+
+        QCOMPARE(submissionSucceededSpy->size(), 0);
+        QCOMPARE(submissionFailedSpy->size(), 1);
+        QCOMPARE(requestedSendingSpy->size(), 0);
+        justKeepTask();
+        return;
+    }
+
     // Assume the APPEND has suceeded
-    cServer(t.last("OK append done\r\n"));
+    if (appendUid) {
+        cServer(t.last("OK [APPENDUID 666333666 123] append done\r\n"));
+    } else {
+        cServer(t.last("OK append done\r\n"));
+    }
     cEmpty();
 
     QCOMPARE(requestedSendingSpy->size(), 1);

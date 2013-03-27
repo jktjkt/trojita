@@ -38,11 +38,15 @@ public:
 private slots:
     void testEmptySubmission();
     void testSimpleSubmission();
-    void testSimpleSubmissionWithSave();
+    void testSimpleSubmissionWithAppendFailed();
+    void testSimpleSubmissionWithAppendNoAppenduid();
+    void testSimpleSubmissionWithAppendAppenduid();
     void init();
     void cleanup();
 
 private:
+    void helperTestSimpleAppend(bool appendOk, bool appendUid);
+
     Composer::Submission *m_submission;
     MSA::FakeFactory *m_msaFactory;
 
