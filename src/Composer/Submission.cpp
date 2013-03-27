@@ -243,7 +243,7 @@ void Submission::sent()
 
     // FIXME: move back to the currently selected mailbox
 
-    QTimer::singleShot(0, this, SLOT(close()));
+    emit succeeded();
 }
 
 /** @short Remember the APPENDUID as reported by the APPEND operation */
