@@ -214,5 +214,61 @@ void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUi
     //qDebug() << requestedSendingSpy->front();
 }
 
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingFileAttachmentSmtpSave()
+{
+    helperMissingFileAttachment(true, false, false);
+}
+
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingFileAttachmentSmtpNoSave()
+{
+    helperMissingFileAttachment(false, false, false);
+}
+
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingFileAttachmentBurlSave()
+{
+    helperMissingFileAttachment(true, true, false);
+}
+
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingFileAttachmentBurlNoSave()
+{
+    helperMissingFileAttachment(false, true, false);
+}
+
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingFileAttachmentImap()
+{
+    helperMissingFileAttachment(true, false, true);
+}
+
+void ComposerSubmissionTest::helperMissingFileAttachment(bool save, bool burl, bool imap)
+{
+    helperSetupProperHeaders();
+
+    if (imap) {
+        Q_ASSERT(save);
+    }
+
+    m_submission->setImapOptions(save, QLatin1String("meh"), QLatin1String("pwn"), imap);
+    m_submission->setSmtpOptions(burl, QLatin1String("pwn"));
+    m_msaFactory->setBurlSupport(burl);
+    m_msaFactory->setImapSupport(imap);
+
+    {
+        // needs a special block for proper RAII-based removal
+        QTemporaryFile tempFile;
+        tempFile.open();
+        tempFile.write("Sample attachment for Trojita's ComposerSubmissionTest\r\n");
+        QCOMPARE(m_submission->composer()->addFileAttachment(tempFile.fileName()), true);
+    }
+
+    m_submission->send();
+    QCOMPARE(requestedSendingSpy->size(), 0);
+    QCOMPARE(submissionSucceededSpy->size(), 0);
+    QCOMPARE(submissionFailedSpy->size(), 1);
+}
 
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)

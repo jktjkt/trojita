@@ -41,12 +41,18 @@ private slots:
     void testSimpleSubmissionWithAppendFailed();
     void testSimpleSubmissionWithAppendNoAppenduid();
     void testSimpleSubmissionWithAppendAppenduid();
+    void testMissingFileAttachmentSmtpSave();
+    void testMissingFileAttachmentSmtpNoSave();
+    void testMissingFileAttachmentBurlSave();
+    void testMissingFileAttachmentBurlNoSave();
+    void testMissingFileAttachmentImap();
     void init();
     void cleanup();
 
 private:
     void helperTestSimpleAppend(bool appendOk, bool appendUid);
     void helperSetupProperHeaders();
+    void helperMissingFileAttachment(bool save, bool burl, bool imap);
 
     Composer::Submission *m_submission;
     MSA::FakeFactory *m_msaFactory;
