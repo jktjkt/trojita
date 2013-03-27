@@ -38,6 +38,7 @@ public:
 private slots:
     void testEmptySubmission();
     void testSimpleSubmission();
+    void testSimpleSubmissionWithSave();
     void init();
     void cleanup();
 

@@ -23,6 +23,7 @@
 #include <QtTest>
 #include "test_Composer_Submission.h"
 #include "../headless_test.h"
+#include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 #include "Composer/MessageComposer.h"
 #include "Streams/FakeSocket.h"
 
@@ -102,6 +103,7 @@ void ComposerSubmissionTest::testEmptySubmission()
 
     QCOMPARE(submissionSucceededSpy->size(), 1);
     QCOMPARE(submissionFailedSpy->size(), 0);
+    cEmpty();
 }
 
 void ComposerSubmissionTest::testSimpleSubmission()
@@ -125,8 +127,56 @@ void ComposerSubmissionTest::testSimpleSubmission()
     QVERIFY(requestedSendingSpy->size() == 1 &&
             requestedSendingSpy->at(0).size() == 3 &&
             requestedSendingSpy->at(0)[2].toByteArray().contains("Sample message"));
+    cEmpty();
 
     //qDebug() << requestedSendingSpy->front();
 }
+
+void ComposerSubmissionTest::testSimpleSubmissionWithSave()
+{
+    // Don't bother with literal processing
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("LITERAL+"));
+
+    m_submission->composer()->setFrom(
+                Imap::Message::MailAddress(QLatin1String("Foo Bar"), QString(),
+                                           QLatin1String("foo.bar"), QLatin1String("example.org")));
+    m_submission->composer()->setSubject(QLatin1String("testing"));
+    m_submission->composer()->setText(QLatin1String("Sample message"));
+    m_submission->setImapOptions(true, QLatin1String("outgoing"), QLatin1String("somehost"));
+
+    m_submission->send();
+    // We are waiting for APPEND to finish here
+    QCOMPARE(requestedSendingSpy->size(), 0);
+
+    for (int i=0; i<5; ++i)
+        QCoreApplication::processEvents();
+    QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
+    QString expected = t.mk("APPEND outgoing ($SubmitPending \\Seen) ");
+    QCOMPARE(sentSoFar.left(expected.size()), expected);
+    cEmpty();
+    QCOMPARE(requestedSendingSpy->size(), 0);
+
+    // Assume the APPEND has suceeded
+    cServer(t.last("OK append done\r\n"));
+    cEmpty();
+
+    QCOMPARE(requestedSendingSpy->size(), 1);
+    m_msaFactory->doEmitSending();
+    QCOMPARE(sendingSpy->size(), 1);
+    m_msaFactory->doEmitSent();
+    QCOMPARE(sentSpy->size(), 1);
+
+    QCOMPARE(submissionSucceededSpy->size(), 1);
+    QCOMPARE(submissionFailedSpy->size(), 0);
+
+    QVERIFY(requestedSendingSpy->size() == 1 &&
+            requestedSendingSpy->at(0).size() == 3 &&
+            requestedSendingSpy->at(0)[2].toByteArray().contains("Sample message"));
+    cEmpty();
+
+    //qDebug() << requestedSendingSpy->front();
+}
+
 
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)

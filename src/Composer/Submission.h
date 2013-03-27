@@ -77,6 +77,8 @@ private slots:
 
     void slotAppendUidKnown(const uint uidValidity, const uint uid);
     void slotGenUrlAuthReceived(const QString &url);
+    void slotAppendSucceeded();
+    void slotAppendFailed(const QString &error);
 
     void slotMessageDataAvailable();
     void slotAskForUrl();

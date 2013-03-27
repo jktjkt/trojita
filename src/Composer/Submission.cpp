@@ -157,6 +157,8 @@ void Submission::slotMessageDataAvailable()
 
         Q_ASSERT(appendTask);
         connect(appendTask.data(), SIGNAL(appendUid(uint,uint)), this, SLOT(slotAppendUidKnown(uint,uint)));
+        connect(appendTask.data(), SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(slotAppendSucceeded()));
+        connect(appendTask.data(), SIGNAL(failed(QString)), this, SLOT(slotAppendFailed(QString)));
     } else {
         slotInvokeMsaNow();
     }
@@ -255,7 +257,15 @@ void Submission::slotAppendUidKnown(const uint uidValidity, const uint uid)
 {
     m_appendUidValidity = uidValidity;
     m_appendUid = uid;
+}
 
+void Submission::slotAppendFailed(const QString &error)
+{
+    gotError(tr("APPEND failed: %1").arg(error));
+}
+
+void Submission::slotAppendSucceeded()
+{
     if (m_appendUid && m_appendUidValidity) {
         // Only ever consider valid UIDVALIDITY/UID pair
         m_appendUidReceived = true;
