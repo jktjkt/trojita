@@ -36,6 +36,7 @@ public:
     ComposerSubmissionTest();
 
 private slots:
+    void testEmptySubmission();
     void testSimpleSubmission();
     void init();
     void cleanup();
@@ -47,6 +48,9 @@ private:
     QSignalSpy *sendingSpy;
     QSignalSpy *sentSpy;
     QSignalSpy *requestedSendingSpy;
+
+    QSignalSpy *submissionSucceededSpy;
+    QSignalSpy *submissionFailedSpy;
 };
 
 #endif

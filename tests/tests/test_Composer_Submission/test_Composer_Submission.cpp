@@ -23,6 +23,7 @@
 #include <QtTest>
 #include "test_Composer_Submission.h"
 #include "../headless_test.h"
+#include "Composer/MessageComposer.h"
 #include "Streams/FakeSocket.h"
 
 Q_DECLARE_METATYPE(QList<QByteArray>)
@@ -54,6 +55,9 @@ void ComposerSubmissionTest::init()
     sendingSpy = new QSignalSpy(m_msaFactory, SIGNAL(sending()));
     sentSpy = new QSignalSpy(m_msaFactory, SIGNAL(sent()));
     requestedSendingSpy = new QSignalSpy(m_msaFactory, SIGNAL(requestedSending(QByteArray,QList<QByteArray>,QByteArray)));
+
+    submissionSucceededSpy = new QSignalSpy(m_submission, SIGNAL(succeeded()));
+    submissionFailedSpy = new QSignalSpy(m_submission, SIGNAL(failed(QString)));
 }
 
 void ComposerSubmissionTest::cleanup()
@@ -70,20 +74,52 @@ void ComposerSubmissionTest::cleanup()
     sentSpy = 0;
     delete requestedSendingSpy;
     requestedSendingSpy = 0;
+    delete submissionSucceededSpy;
+    submissionSucceededSpy = 0;
+    delete submissionFailedSpy;
+    submissionFailedSpy = 0;
 }
 
-/** @short Test that we can send a simple plaintext mail */
-void ComposerSubmissionTest::testSimpleSubmission()
+/** @short Test that we can send a very simple mail */
+void ComposerSubmissionTest::testEmptySubmission()
 {
+    // Try sending an empty mail
     m_submission->send();
 
     QVERIFY(sendingSpy->isEmpty());
     QVERIFY(sentSpy->isEmpty());
     QCOMPARE(requestedSendingSpy->size(), 1);
 
+    // This is a fake MSA implementation, so we have to confirm that sending has begun
     m_msaFactory->doEmitSending();
     QCOMPARE(sendingSpy->size(), 1);
     QCOMPARE(sentSpy->size(), 0);
+
+    m_msaFactory->doEmitSent();
+
+    QCOMPARE(sendingSpy->size(), 1);
+    QCOMPARE(sentSpy->size(), 1);
+
+    QCOMPARE(submissionSucceededSpy->size(), 1);
+    QCOMPARE(submissionFailedSpy->size(), 0);
+}
+
+void ComposerSubmissionTest::testSimpleSubmission()
+{
+    m_submission->composer()->setFrom(
+                Imap::Message::MailAddress(QLatin1String("Foo Bar"), QString(),
+                                           QLatin1String("foo.bar"), QLatin1String("example.org")));
+    m_submission->composer()->setSubject(QLatin1String("testing"));
+
+    m_submission->send();
+    QCOMPARE(requestedSendingSpy->size(), 1);
+    m_msaFactory->doEmitSending();
+    QCOMPARE(sendingSpy->size(), 1);
+    m_msaFactory->doEmitSent();
+    QCOMPARE(sentSpy->size(), 1);
+
+    QCOMPARE(submissionSucceededSpy->size(), 1);
+    QCOMPARE(submissionFailedSpy->size(), 0);
 }
 
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)
