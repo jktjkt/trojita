@@ -24,6 +24,7 @@
 
 #include <QByteArray>
 #include <QObject>
+#include "Imap/Model/UidSubmitData.h"
 
 namespace MSA
 {
@@ -38,7 +39,8 @@ public:
     virtual bool supportsImapSending() const;
     virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
     virtual void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
-    virtual void sendImap(const QString &mailbox, const int uidValidity, const int uid);
+    virtual void sendImap(const QString &mailbox, const int uidValidity, const int uid,
+                          const Imap::Mailbox::UidSubmitOptionsList options);
 public slots:
     virtual void cancel() = 0;
 signals:

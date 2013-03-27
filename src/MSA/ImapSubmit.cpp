@@ -21,6 +21,7 @@
 */
 #include "ImapSubmit.h"
 #include "Imap/Model/Model.h"
+#include "Imap/Tasks/UidSubmitTask.h"
 
 namespace MSA
 {
@@ -41,9 +42,14 @@ bool ImapSubmit::supportsImapSending() const
     return true;
 }
 
-void ImapSubmit::sendImap(const QString &mailbox, const int uidValidity, const int uid)
+void ImapSubmit::sendImap(const QString &mailbox, const int uidValidity, const int uid,
+                          const Imap::Mailbox::UidSubmitOptionsList options)
 {
-    // FIXME: implement me
+    Imap::Mailbox::UidSubmitTask *submitTask = m_model->sendMailViaUidSubmit(mailbox, uidValidity, uid, options);
+    Q_ASSERT(submitTask);
+    connect(submitTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SIGNAL(sent()));
+    connect(submitTask, SIGNAL(failed(QString)), this, SIGNAL(error(QString)));
+    QTimer::singleShot(0, this, SIGNAL(sending()));
 }
 
 ImapSubmitFactory::ImapSubmitFactory(Imap::Mailbox::Model *model):

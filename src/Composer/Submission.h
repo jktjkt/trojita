@@ -54,7 +54,7 @@ public:
 
     MessageComposer *composer();
 
-    void setImapOptions(const bool saveToSentFolder, const QString &sentFolderName, const QString &hostname);
+    void setImapOptions(const bool saveToSentFolder, const QString &sentFolderName, const QString &hostname, const bool useImapSubmit);
     void setSmtpOptions(const bool useBurl, const QString &smtpUsername);
 
     void send();
@@ -110,6 +110,7 @@ private:
     QString m_imapHostname;
     bool m_useBurl;
     QString m_smtpUsername;
+    bool m_useImapSubmit;
 
     SubmissionProgress m_state;
     QByteArray m_rawMessageData;

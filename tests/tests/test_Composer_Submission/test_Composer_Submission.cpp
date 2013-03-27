@@ -159,7 +159,7 @@ void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUi
                                            QLatin1String("foo.bar"), QLatin1String("example.org")));
     m_submission->composer()->setSubject(QLatin1String("testing"));
     m_submission->composer()->setText(QLatin1String("Sample message"));
-    m_submission->setImapOptions(true, QLatin1String("outgoing"), QLatin1String("somehost"));
+    m_submission->setImapOptions(true, QLatin1String("outgoing"), QLatin1String("somehost"), false);
 
     m_submission->send();
     // We are waiting for APPEND to finish here

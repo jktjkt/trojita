@@ -61,7 +61,7 @@ QString submissionProgressToString(const Submission::SubmissionProgress progress
 Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory) :
     QObject(parent),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
-    m_saveToSentFolder(false), m_useBurl(false), m_state(STATE_INIT),
+    m_saveToSentFolder(false), m_useBurl(false), m_useImapSubmit(false), m_state(STATE_INIT),
     m_composer(0), m_model(model), m_msaFactory(msaFactory)
 {
     m_composer = new Composer::MessageComposer(model, this);
@@ -83,11 +83,12 @@ void Submission::changeConnectionState(const SubmissionProgress state)
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), submissionProgressToString(m_state));
 }
 
-void Submission::setImapOptions(const bool saveToSentFolder, const QString &sentFolderName, const QString &hostname)
+void Submission::setImapOptions(const bool saveToSentFolder, const QString &sentFolderName, const QString &hostname, const bool useImapSubmit)
 {
     m_saveToSentFolder = saveToSentFolder;
     m_sentFolderName = sentFolderName;
     m_imapHostname = hostname;
+    m_useImapSubmit = useImapSubmit;
 }
 
 void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
@@ -183,33 +184,20 @@ void Submission::slotAskForUrl()
 void Submission::slotInvokeMsaNow()
 {
     changeConnectionState(STATE_SUBMITTING);
-    if (!m_msaFactory) {
-        // FIXME: this looks like a hack; null factory -> send via IMAP...
-        if (!m_appendUidReceived) {
-            emit failed(tr("Cannot send over IMAP, APPENDUID failed"));
-            return;
-        }
-        Imap::Mailbox::UidSubmitOptionsList options;
-        options.append(qMakePair<QByteArray,QVariant>("FROM", m_composer->rawFromAddress()));
-        Q_FOREACH(const QByteArray &recipient, m_composer->rawRecipientAddresses()) {
-            options.append(qMakePair<QByteArray,QVariant>("RECIPIENT", recipient));
-        }
-        Imap::Mailbox::UidSubmitTask *submitTask = m_model->sendMailViaUidSubmit(
-                    m_sentFolderName, m_appendUidValidity, m_appendUid,
-                    options);
-        Q_ASSERT(submitTask);
-        connect(submitTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(sent()));
-        connect(submitTask, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
-        return;
-    }
-
     MSA::AbstractMSA *msa = m_msaFactory->create(this);
     connect(msa, SIGNAL(progressMax(int)), this, SIGNAL(progressMax(int)));
     connect(msa, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
     connect(msa, SIGNAL(sent()), this, SLOT(sent()));
     connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
 
-    if (m_genUrlAuthReceived && m_useBurl) {
+    if (m_useImapSubmit && msa->supportsImapSending() && m_appendUidReceived) {
+        Imap::Mailbox::UidSubmitOptionsList options;
+        options.append(qMakePair<QByteArray,QVariant>("FROM", m_composer->rawFromAddress()));
+        Q_FOREACH(const QByteArray &recipient, m_composer->rawRecipientAddresses()) {
+            options.append(qMakePair<QByteArray,QVariant>("RECIPIENT", recipient));
+        }
+        msa->sendImap(m_sentFolderName, m_appendUidValidity, m_appendUid, options);
+    } else if (m_genUrlAuthReceived && m_useBurl) {
         msa->sendBurl(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_urlauth.toUtf8());
     } else {
         msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_rawMessageData);
@@ -304,7 +292,7 @@ QString Submission::killDomainPartFromString(const QString &s)
 /** @short Return true if the message payload shall be built locally */
 bool Submission::shouldBuildMessageLocally() const
 {
-    if (m_msaFactory) {
+    if (!m_useImapSubmit) {
         // sending via SMTP or Sendmail
         // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
         return ! (m_useBurl && m_model->isCatenateSupported() && m_model->isGenUrlAuthSupported());

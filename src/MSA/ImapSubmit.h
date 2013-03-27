@@ -39,7 +39,8 @@ class ImapSubmit : public AbstractMSA
 public:
     ImapSubmit(QObject *parent, Imap::Mailbox::Model *model);
     virtual bool supportsImapSending() const;
-    virtual void sendImap(const QString &mailbox, const int uidValidity, const int uid);
+    virtual void sendImap(const QString &mailbox, const int uidValidity, const int uid,
+                          const Imap::Mailbox::UidSubmitOptionsList options);
 
 public slots:
     virtual void cancel();

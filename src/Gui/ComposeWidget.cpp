@@ -254,7 +254,8 @@ void ComposeWidget::send()
     QSettings s;
     m_submission->setImapOptions(s.value(Common::SettingsNames::composerSaveToImapKey, true).toBool(),
                                  s.value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                                 s.value(Common::SettingsNames::imapHostKey).toString());
+                                 s.value(Common::SettingsNames::imapHostKey).toString(),
+                                 s.value(Common::SettingsNames::msaMethodKey).toString() == Common::SettingsNames::methodImapSendmail);
     m_submission->setSmtpOptions(s.value(Common::SettingsNames::smtpUseBurlKey, false).toBool(),
                                  s.value(Common::SettingsNames::smtpUserKey).toString());
 
