@@ -148,20 +148,25 @@ void ComposerSubmissionTest::testSimpleSubmissionWithAppendAppenduid()
     helperTestSimpleAppend(true, true);
 }
 
-void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUid)
+void ComposerSubmissionTest::helperSetupProperHeaders()
 {
-    // Don't bother with literal processing
-    FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("LITERAL+"));
-
     m_submission->composer()->setFrom(
                 Imap::Message::MailAddress(QLatin1String("Foo Bar"), QString(),
                                            QLatin1String("foo.bar"), QLatin1String("example.org")));
     m_submission->composer()->setSubject(QLatin1String("testing"));
     m_submission->composer()->setText(QLatin1String("Sample message"));
     m_submission->setImapOptions(true, QLatin1String("outgoing"), QLatin1String("somehost"), false);
+}
 
+void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUid)
+{
+    // Don't bother with literal processing
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("LITERAL+"));
+
+    helperSetupProperHeaders();
     m_submission->send();
+
     // We are waiting for APPEND to finish here
     QCOMPARE(requestedSendingSpy->size(), 0);
 

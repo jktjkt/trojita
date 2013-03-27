@@ -46,6 +46,7 @@ private slots:
 
 private:
     void helperTestSimpleAppend(bool appendOk, bool appendUid);
+    void helperSetupProperHeaders();
 
     Composer::Submission *m_submission;
     MSA::FakeFactory *m_msaFactory;
