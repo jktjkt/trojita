@@ -60,7 +60,7 @@ public:
     void send();
 
     /** @short Progress of the current submission */
-    typedef enum {
+    enum SubmissionProgress {
         STATE_INIT, /**< Nothing is happening yet */
         STATE_BUILDING_MESSAGE, /**< Waiting for data to become available */
         STATE_SAVING, /**< Saving the message to the Sent folder */
@@ -69,7 +69,7 @@ public:
         STATE_UPDATING_FLAGS, /**< Updating flags of the relevant message(s) */
         STATE_SENT, /**< All done, succeeded */
         STATE_FAILED /**< Unable to send */
-    } SubmissionProgress;
+    };
 
 private slots:
     void gotError(const QString &error);
