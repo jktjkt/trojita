@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS  = Imap MSA Streams qwwsmtpclient Common Composer
+SUBDIRS  = Imap MSA Streams qwwsmtpclient Common AppVersion Composer
 CONFIG += ordered
 
 lessThan(QT_MAJOR_VERSION, 5) {

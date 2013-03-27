@@ -23,7 +23,7 @@
 #include <QLibraryInfo>
 #include <QTranslator>
 
-#include "Common/SetCoreApplication.h"
+#include "AppVersion/SetCoreApplication.h"
 #include "Gui/Util.h"
 #include "Gui/Window.h"
 
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
     appDirectoryTranslator.load(localeName, app.applicationDirPath() + localeSuffix);
     app.installTranslator(&appDirectoryTranslator);
 
-    Common::setCoreApplicationData();
+    AppVersion::setCoreApplicationData();
     app.setWindowIcon(QIcon(QLatin1String(":/icons/trojita.png")));
     Gui::MainWindow win;
     win.show();

@@ -49,7 +49,7 @@ trojita_libs = ModelGlue
 myprefix = ../QmlSupport/
 include(../linking.pri)
 
-trojita_libs = Imap Streams Common
+trojita_libs = AppVersion Imap Streams Common
 myprefix = ../
 include(../linking.pri)
 

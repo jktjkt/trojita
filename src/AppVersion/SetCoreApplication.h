@@ -20,10 +20,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TROJITA_COMMON_SETCOREAPPLICATION_H
-#define TROJITA_COMMON_SETCOREAPPLICATION_H
+#ifndef TROJITA_APPVERSION_SETCOREAPPLICATION_H
+#define TROJITA_APPVERSION_SETCOREAPPLICATION_H
 
-namespace Common
+namespace AppVersion
 {
 
 /** @short Set application version, manufacturer etc etc */
@@ -31,4 +31,4 @@ void setCoreApplicationData();
 
 }
 
-#endif // TROJITA_COMMON_SETCOREAPPLICATION_H
+#endif // TROJITA_APPVERSION_SETCOREAPPLICATION_H

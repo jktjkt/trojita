@@ -29,7 +29,7 @@ extern const char *gitVersion;
 #include "../trojita-version.h"
 #endif
 
-namespace Common
+namespace AppVersion
 {
 
 void setCoreApplicationData()

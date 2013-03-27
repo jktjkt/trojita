@@ -109,7 +109,7 @@ FORMS += CreateMailboxDialog.ui \
 
 RESOURCES += ../icons.qrc
 
-trojita_libs = Imap MSA Streams qwwsmtpclient Common Composer
+trojita_libs = AppVersion Imap MSA Streams qwwsmtpclient Common Composer
 lessThan(QT_MAJOR_VERSION, 5) {
     trojita_libs += mimetypes-qt4
 }
