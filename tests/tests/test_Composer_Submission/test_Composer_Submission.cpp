@@ -110,6 +110,7 @@ void ComposerSubmissionTest::testSimpleSubmission()
                 Imap::Message::MailAddress(QLatin1String("Foo Bar"), QString(),
                                            QLatin1String("foo.bar"), QLatin1String("example.org")));
     m_submission->composer()->setSubject(QLatin1String("testing"));
+    m_submission->composer()->setText(QLatin1String("Sample message"));
 
     m_submission->send();
     QCOMPARE(requestedSendingSpy->size(), 1);
@@ -120,6 +121,12 @@ void ComposerSubmissionTest::testSimpleSubmission()
 
     QCOMPARE(submissionSucceededSpy->size(), 1);
     QCOMPARE(submissionFailedSpy->size(), 0);
+
+    QVERIFY(requestedSendingSpy->size() == 1 &&
+            requestedSendingSpy->at(0).size() == 3 &&
+            requestedSendingSpy->at(0)[2].toByteArray().contains("Sample message"));
+
+    //qDebug() << requestedSendingSpy->front();
 }
 
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)

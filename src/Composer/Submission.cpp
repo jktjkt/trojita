@@ -115,6 +115,19 @@ void Submission::slotMessageDataAvailable()
     QBuffer buf(&m_rawMessageData);
     buf.open(QIODevice::WriteOnly);
     QString errorMessage;
+    QList<Imap::Mailbox::CatenatePair> catenateable;
+
+    if (shouldBuildMessageLocally()) {
+        if (!m_composer->asRawMessage(&buf, &errorMessage)) {
+            gotError(tr("Cannot send right now -- saving failed:\n %1").arg(errorMessage));
+            return;
+        }
+    } else {
+        if (!m_composer->asCatenateData(catenateable, &errorMessage)) {
+            gotError(tr("Cannot send right now -- saving (CATENATE) failed:\n %1").arg(errorMessage));
+            return;
+        }
+    }
 
     if (m_saveToSentFolder) {
         Q_ASSERT(m_model);
@@ -124,13 +137,7 @@ void Submission::slotMessageDataAvailable()
         changeConnectionState(STATE_SAVING);
         QPointer<Imap::Mailbox::AppendTask> appendTask = 0;
 
-        if (m_model->isCatenateSupported()) {
-            QList<Imap::Mailbox::CatenatePair> catenateable;
-            if (!m_composer->asCatenateData(catenateable, &errorMessage)) {
-                gotError(tr("Cannot send right now -- saving (CATENATE) failed:\n %1").arg(errorMessage));
-                return;
-            }
-
+        if (m_model->isCatenateSupported() && !shouldBuildMessageLocally()) {
             // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
             appendTask = QPointer<Imap::Mailbox::AppendTask>(
                         m_model->appendIntoMailbox(
@@ -139,11 +146,6 @@ void Submission::slotMessageDataAvailable()
                             QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
                             m_composer->timestamp()));
         } else {
-            if (!m_composer->asRawMessage(&buf, &errorMessage)) {
-                gotError(tr("Cannot send right now -- saving failed:\n %1").arg(errorMessage));
-                return;
-            }
-
             // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
             appendTask = QPointer<Imap::Mailbox::AppendTask>(
                         m_model->appendIntoMailbox(
@@ -215,6 +217,7 @@ void Submission::slotInvokeMsaNow()
 void Submission::gotError(const QString &error)
 {
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), QString::fromUtf8("gotError: %1").arg(error));
+    changeConnectionState(STATE_FAILED);
     emit failed(error);
 }
 
@@ -243,6 +246,7 @@ void Submission::sent()
 
     // FIXME: move back to the currently selected mailbox
 
+    changeConnectionState(STATE_SENT);
     emit succeeded();
 }
 
