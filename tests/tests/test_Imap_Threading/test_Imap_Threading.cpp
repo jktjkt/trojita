@@ -768,7 +768,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     injector.injectCapability(QLatin1String("ESORT"));
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_FROM, Qt::AscendingOrder);
     cServer("* 4 EXISTS\r\n");
-    QByteArray sortReq = t.mk("UID SORT RETURN () (DISPLAYFROM) utf-8 ALL\r\n");
+    QByteArray sortReq = t.mk("UID SORT RETURN (ALL) (DISPLAYFROM) utf-8 ALL\r\n");
     QByteArray sortResp = t.last("OK sorted\r\n");
     QByteArray uidFetchReq = t.mk("UID FETCH 17:* (FLAGS)\r\n");
     delayedUidFetch = "* 4 FETCH (UID 17 FLAGS ())\r\n" + t.last("ok fetched\r\n");
@@ -1052,7 +1052,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     expectedUidOrder.clear();
     expectedUidOrder << 9;
 
-    cClient(t.mk("UID SEARCH RETURN () CHARSET utf-8 SUBJECT blah\r\n"));
+    cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT blah\r\n"));
     QByteArray searchTag = t.last();
     cServer("* ESEARCH (TAG \"" + searchTag + "\") UID ALL 9\r\n" + t.last("OK searched\r\n"));
     checkUidMapFromThreading(expectedUidOrder);
@@ -1061,7 +1061,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("foobar"),
                                                       threadingModel->currentSortCriterium(), threadingModel->currentSortOrder());
     expectedUidOrder.clear();
-    cClient(t.mk("UID SEARCH RETURN () CHARSET utf-8 SUBJECT foobar\r\n"));
+    cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT foobar\r\n"));
     searchTag = t.last();
     cServer("* ESEARCH (TAG \"" + searchTag + "\") UID\r\n" + t.last("OK searched\r\n"));
     checkUidMapFromThreading(expectedUidOrder);

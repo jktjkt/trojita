@@ -72,7 +72,7 @@ void SortTask::perform()
                                              QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
             } else {
                 // ESORT without CONTEXT is still worth the effort, if only for the tag reference
-                sortTag = parser->uidESearch("utf-8", searchConditions, QStringList());
+                sortTag = parser->uidESearch("utf-8", searchConditions, QStringList() << QLatin1String("ALL"));
             }
         } else {
             // Plain "old" SORT
@@ -90,7 +90,7 @@ void SortTask::perform()
                                        QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
             } else {
                 // ESORT without CONTEXT is still worth the effort, if only for the tag reference
-                sortTag = parser->uidESort(sortCriteria, "utf-8", searchConditions, QStringList());
+                sortTag = parser->uidESort(sortCriteria, "utf-8", searchConditions, QStringList() << QLatin1String("ALL"));
             }
         } else {
             // Plain "old" SORT

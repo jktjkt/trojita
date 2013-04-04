@@ -338,7 +338,7 @@ CommandHandle Parser::uidSearchUid(const QByteArray &sequence)
 
 CommandHandle Parser::uidESearchUid(const QByteArray &sequence)
 {
-    Commands::Command command("UID SEARCH RETURN ()");
+    Commands::Command command("UID SEARCH RETURN (ALL)");
     command << Commands::PartOfCommand(Commands::ATOM, sequence);
     return queueCommand(command);
 }

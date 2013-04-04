@@ -592,7 +592,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheArrivalRaceDuringUid(con
             "* OK [UIDNEXT 16] .\r\n");
     cServer(t.last("OK selected\r\n"));
     if (esearch == WITH_ESEARCH) {
-        cClient(t.mk("UID SEARCH RETURN () UID 15:*\r\n"));
+        cClient(t.mk("UID SEARCH RETURN (ALL) UID 15:*\r\n"));
         cServer(QByteArray("* 5 EXISTS\r\n* ESEARCH (TAG ") + t.last() + ") UID ALL 42:43\r\n");
     } else {
         cClient(t.mk("UID SEARCH UID 15:*\r\n"));
@@ -760,7 +760,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheExpunges(const ESearchMo
             "* OK [UIDNEXT 15] .\r\n");
     cServer(t.last("OK selected\r\n"));
     if (esearch == WITH_ESEARCH) {
-        cClient(t.mk("UID SEARCH RETURN () ALL\r\n"));
+        cClient(t.mk("UID SEARCH RETURN (ALL) ALL\r\n"));
         cServer(QByteArray("* ESEARCH (TAG ") + t.last() + ") UID ALL 6,10:12,14\r\n");
     } else {
         cClient(t.mk("UID SEARCH ALL\r\n"));
