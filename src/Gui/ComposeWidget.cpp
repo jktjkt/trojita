@@ -270,9 +270,7 @@ void ComposeWidget::send()
     connect(m_submission, SIGNAL(succeeded()), this, SLOT(sent()));
     connect(m_submission, SIGNAL(updateCancellable(bool)), progress, SLOT(setEnabled(bool)));
 
-    qDebug() << "Calling SEND!!!";
-
-    //m_submission->send();
+    m_submission->send();
 }
 
 
@@ -498,6 +496,7 @@ void ComposeWidget::sent()
 
     // FIXME: move back to the currently selected mailbox
 
+    m_sentMail = true;
     QTimer::singleShot(0, this, SLOT(close()));
 }
 
