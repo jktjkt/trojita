@@ -46,13 +46,18 @@ private slots:
     void testMissingFileAttachmentBurlSave();
     void testMissingFileAttachmentBurlNoSave();
     void testMissingFileAttachmentImap();
+    void testMissingImapAttachmentSmtpSave();
+    void testMissingImapAttachmentSmtpNoSave();
+    void testMissingImapAttachmentBurlSave();
+    void testMissingImapAttachmentBurlNoSave();
+    void testMissingImapAttachmentImap();
     void init();
     void cleanup();
 
 private:
     void helperTestSimpleAppend(bool appendOk, bool appendUid);
     void helperSetupProperHeaders();
-    void helperMissingFileAttachment(bool save, bool burl, bool imap);
+    void helperMissingAttachment(bool save, bool burl, bool imap, bool attachingFile);
 
     Composer::Submission *m_submission;
     MSA::FakeFactory *m_msaFactory;

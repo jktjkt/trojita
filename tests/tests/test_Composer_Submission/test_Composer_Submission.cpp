@@ -25,9 +25,11 @@
 #include "../headless_test.h"
 #include "test_LibMailboxSync/FakeCapabilitiesInjector.h"
 #include "Composer/MessageComposer.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Streams/FakeSocket.h"
 
-Q_DECLARE_METATYPE(QList<QByteArray>)
+// Already defined in ItemRoles.h!
+//Q_DECLARE_METATYPE(QList<QByteArray>)
 
 ComposerSubmissionTest::ComposerSubmissionTest():
     m_submission(0), sendingSpy(0), sentSpy(0), requestedSendingSpy(0)
@@ -38,6 +40,9 @@ ComposerSubmissionTest::ComposerSubmissionTest():
 void ComposerSubmissionTest::init()
 {
     LibMailboxSync::init();
+
+    // There's a default delay of 50ms which made the cEmpty() and justKeepTask() ignore these pending actions...
+    model->setProperty("trojita-imap-delayed-fetch-part", QVariant(0u));
 
     existsA = 5;
     uidValidityA = 333666;
@@ -217,34 +222,64 @@ void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUi
 /** @short Check that a missing file attachment prevents submission */
 void ComposerSubmissionTest::testMissingFileAttachmentSmtpSave()
 {
-    helperMissingFileAttachment(true, false, false);
+    helperMissingAttachment(true, false, false, true);
 }
 
 /** @short Check that a missing file attachment prevents submission */
 void ComposerSubmissionTest::testMissingFileAttachmentSmtpNoSave()
 {
-    helperMissingFileAttachment(false, false, false);
+    helperMissingAttachment(false, false, false, true);
 }
 
 /** @short Check that a missing file attachment prevents submission */
 void ComposerSubmissionTest::testMissingFileAttachmentBurlSave()
 {
-    helperMissingFileAttachment(true, true, false);
+    helperMissingAttachment(true, true, false, true);
 }
 
 /** @short Check that a missing file attachment prevents submission */
 void ComposerSubmissionTest::testMissingFileAttachmentBurlNoSave()
 {
-    helperMissingFileAttachment(false, true, false);
+    helperMissingAttachment(false, true, false, true);
 }
 
 /** @short Check that a missing file attachment prevents submission */
 void ComposerSubmissionTest::testMissingFileAttachmentImap()
 {
-    helperMissingFileAttachment(true, false, true);
+    helperMissingAttachment(true, false, true, true);
 }
 
-void ComposerSubmissionTest::helperMissingFileAttachment(bool save, bool burl, bool imap)
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingImapAttachmentSmtpSave()
+{
+    helperMissingAttachment(true, false, false, false);
+}
+
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingImapAttachmentSmtpNoSave()
+{
+    helperMissingAttachment(false, false, false, false);
+}
+
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingImapAttachmentBurlSave()
+{
+    helperMissingAttachment(true, true, false, false);
+}
+
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingImapAttachmentBurlNoSave()
+{
+    helperMissingAttachment(false, true, false, false);
+}
+
+/** @short Check that a missing file attachment prevents submission */
+void ComposerSubmissionTest::testMissingImapAttachmentImap()
+{
+    helperMissingAttachment(true, false, true, false);
+}
+
+void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool imap, bool attachingFile)
 {
     helperSetupProperHeaders();
 
@@ -257,18 +292,46 @@ void ComposerSubmissionTest::helperMissingFileAttachment(bool save, bool burl, b
     m_msaFactory->setBurlSupport(burl);
     m_msaFactory->setImapSupport(imap);
 
-    {
+    if (attachingFile) {
         // needs a special block for proper RAII-based removal
         QTemporaryFile tempFile;
         tempFile.open();
         tempFile.write("Sample attachment for Trojita's ComposerSubmissionTest\r\n");
         QCOMPARE(m_submission->composer()->addFileAttachment(tempFile.fileName()), true);
+        // The file gets deleted as soon as we leave this scope
+    } else {
+        // Attaching something which lives on the IMAP server
+
+        // Make sure the IMAP bits are ready
+        QPersistentModelIndex msgA10 = model->index(0, 0, msgListA);
+        QVERIFY(msgA10.isValid());
+        QCOMPARE(msgA10.data(Imap::Mailbox::RoleMessageUid).toUInt(), uidMapA[0]);
+        QCOMPARE(model->rowCount(msgA10), 1);
+        QPersistentModelIndex partData = model->index(0, 0, msgA10);
+        QVERIFY(partData.isValid());
+
+        QScopedPointer<QMimeData> mimeData(new QMimeData());
+        QByteArray encodedData;
+        QDataStream stream(&encodedData, QIODevice::WriteOnly);
+        stream.setVersion(QDataStream::Qt_4_6);
+        stream << QString::fromUtf8("a") << uidValidityA << uidMapA[0] << QString::fromUtf8("1") << QString::fromUtf8("0");
+        mimeData->setData(QLatin1String("application/x-trojita-imap-part"), encodedData);
+        QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
+        cClient(t.mk("UID FETCH ") + QByteArray::number(uidMapA[0]) + " (BODY.PEEK[1])\r\n");
     }
 
     m_submission->send();
+
+    if (!attachingFile) {
+        // Deliver the queued data to make the generic test prologue happy
+        cServer("* 1 FETCH (BODY[1] \"contents\")\r\n");
+        cServer(t.last("OK fetched\r\n"));
+    }
     QCOMPARE(requestedSendingSpy->size(), 0);
     QCOMPARE(submissionSucceededSpy->size(), 0);
     QCOMPARE(submissionFailedSpy->size(), 1);
+    cEmpty();
+    justKeepTask();
 }
 
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)

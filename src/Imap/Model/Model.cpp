@@ -954,6 +954,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
     // We are asking for a message part, which means that the structure of a message is already known.
     // If the UID was zero at this point, it would mean that we are completely doomed.
+    // FIXME: a malicious server could exploit this!
     uint uid = static_cast<TreeItemMessage *>(item->message())->uid();
     Q_ASSERT(uid);
 
