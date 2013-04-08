@@ -29,6 +29,7 @@
 
 class QTimer;
 class ImapModelIdleTest;
+class LibMailboxSync;
 
 namespace Imap
 {
@@ -257,6 +258,7 @@ protected:
     friend class UnSelectTask; // needs access to breakPossibleIdle()
     friend class TreeItemMailbox; // wants to know if our index is OK
     friend class ::ImapModelIdleTest;
+    friend class ::LibMailboxSync;
 
     QList<uint> uidMap;
     QMap<uint, QSet<QString> > requestedParts;

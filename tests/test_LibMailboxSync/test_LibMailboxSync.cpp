@@ -30,6 +30,7 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
+#include "Imap/Tasks/KeepMailboxOpenTask.h"
 
 ExpectSingleErrorHere::ExpectSingleErrorHere(LibMailboxSync *syncer):
     m_syncer(syncer)
@@ -515,6 +516,10 @@ void LibMailboxSync::justKeepTask()
     QVERIFY(!firstTask.child(0, 0).isValid());
     QCOMPARE(model->accessParser(static_cast<Imap::Parser*>(parser1.internalPointer())).connState,
              Imap::CONN_STATE_SELECTED);
+    Imap::Mailbox::KeepMailboxOpenTask *keepTask = dynamic_cast<Imap::Mailbox::KeepMailboxOpenTask*>(static_cast<Imap::Mailbox::ImapTask*>(firstTask.internalPointer()));
+    QVERIFY(keepTask);
+    QVERIFY(keepTask->requestedEnvelopes.isEmpty());
+    QVERIFY(keepTask->requestedParts.isEmpty());
 }
 
 
