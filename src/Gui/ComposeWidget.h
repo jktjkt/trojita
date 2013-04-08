@@ -146,7 +146,6 @@ private:
     QMenu *m_completionPopup;
     QLineEdit *m_completionReceiver;
     int m_completionCount;
-    QPersistentModelIndex m_replyingTo;
 
 
     ComposeWidget(const ComposeWidget &); // don't implement

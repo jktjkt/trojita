@@ -732,4 +732,14 @@ void MessageComposer::setPreloadEnabled(const bool preload)
     m_shouldPreload = preload;
 }
 
+void MessageComposer::setReplyingToMessage(const QModelIndex &index)
+{
+    m_replyingTo = index;
+}
+
+QModelIndex MessageComposer::replyingToMessage() const
+{
+    return m_replyingTo;
+}
+
 }

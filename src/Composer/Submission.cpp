@@ -62,7 +62,7 @@ Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFac
     QObject(parent),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_saveToSentFolder(false), m_useBurl(false), m_useImapSubmit(false), m_state(STATE_INIT),
-    m_composer(0), m_model(model), m_msaFactory(msaFactory)
+    m_composer(0), m_model(model), m_msaFactory(msaFactory), m_updateReplyingToMessageFlagsTask(0)
 {
     m_composer = new Composer::MessageComposer(model, this);
     m_composer->setPreloadEnabled(shouldBuildMessageLocally());
@@ -213,6 +213,18 @@ void Submission::gotError(const QString &error)
 
 void Submission::sent()
 {
+    if (m_composer->replyingToMessage().isValid()) {
+        m_updateReplyingToMessageFlagsTask = m_model->setMessageFlags(QModelIndexList() << m_composer->replyingToMessage(),
+                                                                      QLatin1String("\\Answered"), Imap::Mailbox::FLAG_ADD);
+        connect(m_updateReplyingToMessageFlagsTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)),
+                this, SLOT(onUpdatingFlagsOfReplyingToSucceded()));
+        connect(m_updateReplyingToMessageFlagsTask, SIGNAL(failed(QString)),
+                this, SLOT(onUpdatingFlagsOfReplyingToFailed()));
+        changeConnectionState(STATE_UPDATING_FLAGS);
+    } else {
+        changeConnectionState(STATE_SENT);
+        emit succeeded();
+    }
 #if 0
     if (m_appendUidReceived) {
         // FIXME: check the UIDVALIDITY!!!
@@ -226,18 +238,7 @@ void Submission::sent()
     }
 #endif
 
-    // FIXME: enable this again
-#if 0
-    if (m_replyingTo.isValid()) {
-        m_model->setMessageFlags(QModelIndexList() << m_replyingTo,
-                                                   QLatin1String("\\Answered"), Imap::Mailbox::FLAG_ADD);
-    }
-#endif
-
     // FIXME: move back to the currently selected mailbox
-
-    changeConnectionState(STATE_SENT);
-    emit succeeded();
 }
 
 /** @short Remember the APPENDUID as reported by the APPEND operation */
@@ -299,6 +300,22 @@ bool Submission::shouldBuildMessageLocally() const
     } else {
         return ! m_model->isCatenateSupported();
     }
+}
+
+void Submission::onUpdatingFlagsOfReplyingToSucceded()
+{
+    m_updateReplyingToMessageFlagsTask = 0;
+    changeConnectionState(STATE_SENT);
+    emit succeeded();
+}
+
+void Submission::onUpdatingFlagsOfReplyingToFailed()
+{
+    m_updateReplyingToMessageFlagsTask = 0;
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"),
+                      QLatin1String("Cannot update flags of the message we replied to -- interesting, but we cannot do anything at this point anyway"));
+    changeConnectionState(STATE_SENT);
+    emit succeeded();
 }
 
 }

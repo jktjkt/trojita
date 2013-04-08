@@ -28,6 +28,7 @@
 
 namespace Imap {
 namespace Mailbox {
+class ImapTask;
 class Model;
 }
 }
@@ -79,6 +80,8 @@ private slots:
     void slotGenUrlAuthReceived(const QString &url);
     void slotAppendSucceeded();
     void slotAppendFailed(const QString &error);
+    void onUpdatingFlagsOfReplyingToSucceded();
+    void onUpdatingFlagsOfReplyingToFailed();
 
     void slotMessageDataAvailable();
     void slotAskForUrl();
@@ -118,6 +121,8 @@ private:
     MessageComposer *m_composer;
     Imap::Mailbox::Model *m_model;
     MSA::MSAFactory *m_msaFactory;
+
+    Imap::Mailbox::ImapTask *m_updateReplyingToMessageFlagsTask;
 
     Submission(const Submission &); // don't implement
     Submission &operator=(const Submission &); // don't implement

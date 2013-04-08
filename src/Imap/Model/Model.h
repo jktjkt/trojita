@@ -184,7 +184,7 @@ public:
     void resyncMailbox(const QModelIndex &mbox);
 
     /** @short Add/Remove a flag for the indicated message */
-    void setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked);
+    ImapTask *setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked);
     /** @short Ask the server to set/unset the \\Deleted flag for the indicated messages */
     void markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked);
     /** @short Ask the server to set/unset the \\Seen flag for the indicated messages */

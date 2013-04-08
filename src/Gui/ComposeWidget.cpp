@@ -288,10 +288,10 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     m_messageEverEdited = wasEdited;
     m_submission->composer()->setInReplyTo(inReplyTo);
     m_submission->composer()->setReferences(references);
-    m_replyingTo = replyingToMessage;
+    m_submission->composer()->setReplyingToMessage(replyingToMessage);
 
     int row = -1;
-    bool ok = Composer::Util::chooseSenderIdentityForReply(m_mainWindow->senderIdentitiesModel(), m_replyingTo, row);
+    bool ok = Composer::Util::chooseSenderIdentityForReply(m_mainWindow->senderIdentitiesModel(), replyingToMessage, row);
     if (ok) {
         Q_ASSERT(row >= 0 && row < m_mainWindow->senderIdentitiesModel()->rowCount());
         ui->sender->setCurrentIndex(row);
@@ -476,24 +476,6 @@ void ComposeWidget::gotError(const QString &error)
 
 void ComposeWidget::sent()
 {
-#if 0
-    if (m_appendUidReceived) {
-        // FIXME: check the UIDVALIDITY!!!
-        // FIXME: doesn't work at all; the messageIndexByUid() only works on already selected mailboxes
-        QModelIndex message = m_mainWindow->imapModel()->
-                messageIndexByUid(QSettings().value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(), m_appendUid);
-        if (message.isValid()) {
-            m_mainWindow->imapModel()->setMessageFlags(QModelIndexList() << message,
-                                                       QLatin1String("\\Seen $Submitted"), Imap::Mailbox::FLAG_USE_THESE);
-        }
-    }
-#endif
-
-    if (m_replyingTo.isValid()) {
-        m_mainWindow->imapModel()->setMessageFlags(QModelIndexList() << m_replyingTo,
-                                                   QLatin1String("\\Answered"), Imap::Mailbox::FLAG_ADD);
-    }
-
     // FIXME: move back to the currently selected mailbox
 
     m_sentMail = true;
@@ -634,12 +616,13 @@ In case of an error, the original list of recipients is left as is.
 */
 bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
 {
-    if (!m_replyingTo.isValid())
+    if (!m_submission->composer()->replyingToMessage().isValid())
         return false;
 
     // Determine the new list of recipients
     Composer::RecipientList list;
-    if (!Composer::Util::replyRecipientList(mode, m_mainWindow->senderIdentitiesModel(), m_replyingTo, list)) {
+    if (!Composer::Util::replyRecipientList(mode, m_mainWindow->senderIdentitiesModel(),
+                                            m_submission->composer()->replyingToMessage(), list)) {
         return false;
     }
 

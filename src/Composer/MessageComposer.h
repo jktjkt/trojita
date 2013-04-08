@@ -65,6 +65,7 @@ public:
     void setSubject(const QString &subject);
     void setOrganization(const QString &organization);
     void setText(const QString &text);
+    void setReplyingToMessage(const QModelIndex &index);
 
     bool isReadyForSerialization() const;
     bool asRawMessage(QIODevice *target, QString *errorMessage) const;
@@ -75,6 +76,7 @@ public:
     QList<QByteArray> references() const;
     QByteArray rawFromAddress() const;
     QList<QByteArray> rawRecipientAddresses() const;
+    QModelIndex replyingToMessage() const;
 
     bool addFileAttachment(const QString &path);
     void removeAttachment(const QModelIndex &index);
@@ -106,6 +108,7 @@ private:
     QString m_subject;
     QString m_organization;
     QString m_text;
+    QPersistentModelIndex m_replyingTo;
 
     QList<AttachmentItem *> m_attachments;
     QPointer<Imap::Mailbox::Model> m_model;

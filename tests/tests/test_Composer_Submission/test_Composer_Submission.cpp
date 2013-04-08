@@ -139,18 +139,28 @@ void ComposerSubmissionTest::testSimpleSubmission()
 
 void ComposerSubmissionTest::testSimpleSubmissionWithAppendFailed()
 {
-    helperTestSimpleAppend(false, false);
+    helperTestSimpleAppend(false, false, false, false);
 }
 
 
 void ComposerSubmissionTest::testSimpleSubmissionWithAppendNoAppenduid()
 {
-    helperTestSimpleAppend(true, false);
+    helperTestSimpleAppend(true, false, false, false);
 }
 
 void ComposerSubmissionTest::testSimpleSubmissionWithAppendAppenduid()
 {
-    helperTestSimpleAppend(true, true);
+    helperTestSimpleAppend(true, true, false, false);
+}
+
+void ComposerSubmissionTest::testSimpleSubmissionReplyingToOk()
+{
+    helperTestSimpleAppend(true, true, true, true);
+}
+
+void ComposerSubmissionTest::testSimpleSubmissionReplyingToFailedFlags()
+{
+    helperTestSimpleAppend(true, true, true, false);
 }
 
 void ComposerSubmissionTest::helperSetupProperHeaders()
@@ -163,13 +173,21 @@ void ComposerSubmissionTest::helperSetupProperHeaders()
     m_submission->setImapOptions(true, QLatin1String("outgoing"), QLatin1String("somehost"), false);
 }
 
-void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUid)
+void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUid,
+                                                    bool shallUpdateReplyingTo, bool replyingToUpdateOk)
 {
     // Don't bother with literal processing
     FakeCapabilitiesInjector injector(model);
     injector.injectCapability(QLatin1String("LITERAL+"));
 
     helperSetupProperHeaders();
+
+    if (shallUpdateReplyingTo) {
+        QModelIndex msgA10 = model->index(0, 0, msgListA);
+        QVERIFY(msgA10.isValid());
+        QCOMPARE(msgA10.data(Imap::Mailbox::RoleMessageUid).toUInt(), uidMapA[0]);
+        m_submission->composer()->setReplyingToMessage(msgA10);
+    }
     m_submission->send();
 
     // We are waiting for APPEND to finish here
@@ -208,6 +226,18 @@ void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUi
     m_msaFactory->doEmitSent();
     QCOMPARE(sentSpy->size(), 1);
 
+    QCOMPARE(submissionFailedSpy->size(), 0);
+    if (shallUpdateReplyingTo) {
+        QCOMPARE(submissionSucceededSpy->size(), 0);
+        cClient(t.mk("UID STORE ") + QByteArray::number(uidMapA[0]) + " +FLAGS (\\Answered)\r\n");
+        if (replyingToUpdateOk) {
+            cServer(t.last("OK flags updated\r\n"));
+        } else {
+            cServer(t.last("NO you aren't going to update flags that easily\r\n"));
+        }
+        for (int i=0; i<5; ++i)
+            QCoreApplication::processEvents();
+    }
     QCOMPARE(submissionSucceededSpy->size(), 1);
     QCOMPARE(submissionFailedSpy->size(), 0);
 
@@ -287,8 +317,13 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
         Q_ASSERT(save);
     }
 
+    QPersistentModelIndex msgA10 = model->index(0, 0, msgListA);
+    QVERIFY(msgA10.isValid());
+    QCOMPARE(msgA10.data(Imap::Mailbox::RoleMessageUid).toUInt(), uidMapA[0]);
+
     m_submission->setImapOptions(save, QLatin1String("meh"), QLatin1String("pwn"), imap);
     m_submission->setSmtpOptions(burl, QLatin1String("pwn"));
+    m_submission->composer()->setReplyingToMessage(msgA10);
     m_msaFactory->setBurlSupport(burl);
     m_msaFactory->setImapSupport(imap);
 
@@ -303,9 +338,6 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
         // Attaching something which lives on the IMAP server
 
         // Make sure the IMAP bits are ready
-        QPersistentModelIndex msgA10 = model->index(0, 0, msgListA);
-        QVERIFY(msgA10.isValid());
-        QCOMPARE(msgA10.data(Imap::Mailbox::RoleMessageUid).toUInt(), uidMapA[0]);
         QCOMPARE(model->rowCount(msgA10), 1);
         QPersistentModelIndex partData = model->index(0, 0, msgA10);
         QVERIFY(partData.isValid());

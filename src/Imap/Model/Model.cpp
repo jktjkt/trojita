@@ -31,14 +31,15 @@
 #endif
 #include <QtAlgorithms>
 #include "Model.h"
-#include "AppendTask.h"
-#include "GetAnyConnectionTask.h"
-#include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
-#include "TaskPresentationModel.h"
-#include "OpenConnectionTask.h"
 #include "QAIM_reset.h"
+#include "TaskPresentationModel.h"
 #include "Common/FindWithUnknown.h"
+#include "Imap/Tasks/AppendTask.h"
+#include "Imap/Tasks/GetAnyConnectionTask.h"
+#include "Imap/Tasks/KeepMailboxOpenTask.h"
+#include "Imap/Tasks/OpenConnectionTask.h"
+#include "Imap/Tasks/UpdateFlagsTask.h"
 #include "Streams/SocketFactory.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
@@ -1162,11 +1163,11 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     }
 }
 
-void Model::setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked)
+ImapTask *Model::setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked)
 {
     Q_ASSERT(!messages.isEmpty());
     Q_ASSERT(messages.front().model() == this);
-    m_taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
+    return m_taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
 }
 
 void Model::markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked)

@@ -41,6 +41,8 @@ private slots:
     void testSimpleSubmissionWithAppendFailed();
     void testSimpleSubmissionWithAppendNoAppenduid();
     void testSimpleSubmissionWithAppendAppenduid();
+    void testSimpleSubmissionReplyingToOk();
+    void testSimpleSubmissionReplyingToFailedFlags();
     void testMissingFileAttachmentSmtpSave();
     void testMissingFileAttachmentSmtpNoSave();
     void testMissingFileAttachmentBurlSave();
@@ -55,7 +57,7 @@ private slots:
     void cleanup();
 
 private:
-    void helperTestSimpleAppend(bool appendOk, bool appendUid);
+    void helperTestSimpleAppend(bool appendOk, bool appendUid, bool shallUpdateReplyingTo, bool replyingToUpdateOk);
     void helperSetupProperHeaders();
     void helperMissingAttachment(bool save, bool burl, bool imap, bool attachingFile);
 
