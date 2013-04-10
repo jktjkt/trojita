@@ -1475,10 +1475,8 @@ void MainWindow::slotDownloadMessageTransferError(const QString &errorString)
 
 void MainWindow::slotDownloadMessageFileNameRequested(QString *fileName)
 {
-    *fileName = QFileDialog::getSaveFileName(this, tr("Save Message"),
-                *fileName, QString(),
-                0, QFileDialog::HideNameFilterDetails
-                                            );
+    *fileName = QFileDialog::getSaveFileName(this, tr("Save Message"), *fileName, QString(), 0,
+                                             QFileDialog::HideNameFilterDetails);
 }
 
 void MainWindow::slotViewMsgSource()
