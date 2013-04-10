@@ -55,7 +55,7 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     connect(fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
 
     saveAction = new QAction(tr("Save..."), this);
-    connect(saveAction, SIGNAL(triggered()), fileDownloadManager, SLOT(slotDownloadNow()));
+    connect(saveAction, SIGNAL(triggered()), fileDownloadManager, SLOT(downloadMessage()));
     this->addAction(saveAction);
 
     m_findAction = new QAction(tr("Search..."), this);

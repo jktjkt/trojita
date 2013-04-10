@@ -57,10 +57,10 @@ QVariant FileDownloadManager::data(int role) const
     return partIndex.data(role);
 }
 
-void FileDownloadManager::slotDownloadNow()
+void FileDownloadManager::downloadPart()
 {
     if (!partIndex.isValid()) {
-        emit transferError(tr("FileDownloadManager::slotDownloadNow(): part has disappeared"));
+        emit transferError(tr("FileDownloadManager::downloadPart(): part has disappeared"));
         return;
     }
     QString saveFileName = toRealFileName(partIndex);
@@ -78,43 +78,15 @@ void FileDownloadManager::slotDownloadNow()
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     request.setUrl(url);
     reply = manager->get(request);
-    connect(reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotTransferError()));
-    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(slotDeleteReply(QNetworkReply *)));
+    connect(reply, SIGNAL(finished()), this, SLOT(onPartDataTransfered()));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onTransferError()));
+    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(deleteReply(QNetworkReply *)));
 }
 
-void FileDownloadManager::slotDataTransfered()
-{
-    Q_ASSERT(reply);
-    if (reply->error() == QNetworkReply::NoError) {
-        saving.open(QIODevice::WriteOnly);
-        saving.write(reply->readAll());
-        saving.close();
-        saved = true;
-        emit succeeded();
-    }
-}
-
-void FileDownloadManager::slotDataSave()
-{
-    Q_ASSERT(m_combiner);
-    saving.open(QIODevice::WriteOnly);
-    saving.write((m_combiner->data()).data());
-    saving.close();
-    saved = true;
-    emit succeeded();
-}
-
-void FileDownloadManager::slotTransferError()
-{
-    Q_ASSERT(reply);
-    emit transferError(reply->errorString());
-}
-
-void FileDownloadManager::slotDownloadCompleteMessageNow()
+void FileDownloadManager::downloadMessage()
 {
     if (!partIndex.isValid()) {
-        emit transferError(tr("FileDownloadManager::slotDownloadCompleteMessageNow(): part has disappeared"));
+        emit transferError(tr("FileDownloadManager::downloadMessage(): message has disappeared"));
         return;
     }
     QString saveFileName = toRealFileName(partIndex);
@@ -126,16 +98,63 @@ void FileDownloadManager::slotDownloadCompleteMessageNow()
 
     saving.setFileName(saveFileName);
     saved = false;
-    connect(m_combiner, SIGNAL(completed()), this, SLOT(slotDataSave()));
-    m_combiner->load();//emits completed() upon completion
+    connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
+    m_combiner->load();
+}
+
+void FileDownloadManager::onPartDataTransfered()
+{
+    Q_ASSERT(reply);
+    if (reply->error() == QNetworkReply::NoError) {
+        saving.open(QIODevice::WriteOnly);
+        saving.write(reply->readAll());
+        saving.close();
+        saved = true;
+        emit succeeded();
+    }
+}
+
+void FileDownloadManager::onMessageDataTransferred()
+{
+    Q_ASSERT(m_combiner);
+    saving.open(QIODevice::WriteOnly);
+    saving.write((m_combiner->data()).data());
+    saving.close();
+    saved = true;
+    emit succeeded();
+}
+
+void FileDownloadManager::onTransferError()
+{
+    Q_ASSERT(reply);
+    emit transferError(reply->errorString());
+}
+
+void FileDownloadManager::downloadMessage()
+{
+    if (!partIndex.isValid()) {
+        emit transferError(tr("FileDownloadManager::slotDownloadCompleteMessageNow(): message has disappeared"));
+        return;
+    }
+    QString saveFileName = toRealFileName(partIndex);
+    m_combiner = new Imap::Mailbox::FullMessageCombiner(partIndex, this);
+
+    emit fileNameRequested(&saveFileName);
+    if (saveFileName.isEmpty())
+        return;
+
+    saving.setFileName(saveFileName);
+    saved = false;
+    connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
+    m_combiner->load();
 
 }
 
-void FileDownloadManager::slotDeleteReply(QNetworkReply *reply)
+void FileDownloadManager::deleteReply(QNetworkReply *reply)
 {
     if (reply == this->reply) {
         if (!saved)
-            slotDataTransfered();
+            onPartDataTransfered();
         delete reply;
         this->reply = 0;
     }

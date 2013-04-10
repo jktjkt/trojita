@@ -118,7 +118,7 @@ void AttachmentView::slotDownloadAttachment()
     disconnect(m_fileDownloadManager, 0, this, 0);
 
     connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
-    m_fileDownloadManager->slotDownloadNow();
+    m_fileDownloadManager->downloadPart();
 }
 
 void AttachmentView::slotOpenAttachment()
@@ -127,7 +127,7 @@ void AttachmentView::slotOpenAttachment()
 
     connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
     connect(m_fileDownloadManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
-    m_fileDownloadManager->slotDownloadNow();
+    m_fileDownloadManager->downloadPart();
 }
 
 void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)

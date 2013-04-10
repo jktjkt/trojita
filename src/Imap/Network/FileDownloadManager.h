@@ -47,13 +47,13 @@ public:
     static QString toRealFileName(const QModelIndex &index);
     QVariant data(int role) const;
 private slots:
-    void slotDataTransfered();
-    void slotTransferError();
-    void slotDeleteReply(QNetworkReply *reply);
+    void onPartDataTransfered();
+    void onTransferError();
+    void deleteReply(QNetworkReply *reply);
 public slots:
-    void slotDownloadNow();
-    void slotDownloadCompleteMessageNow();
-    void slotDataSave();
+    void downloadPart();
+    void downloadMessage();
+    void onMessageDataTransferred();
 signals:
     void transferError(const QString &errorMessage);
     void fileNameRequested(QString *fileName);

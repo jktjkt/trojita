@@ -1463,7 +1463,7 @@ void MainWindow::slotSaveCurrentMessageBody()
         connect(fileDownloadManager, SIGNAL(transferError(QString)),
                 this, SLOT(slotDownloadMessageTransferError(QString)));
         connect(fileDownloadManager, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
-        fileDownloadManager->slotDownloadCompleteMessageNow();
+        fileDownloadManager->downloadMessage();
     }
 }
 
