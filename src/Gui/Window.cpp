@@ -1455,8 +1455,7 @@ void MainWindow::slotSaveCurrentMessageBody()
         Imap::Network::MsgPartNetAccessManager *netAccess = new Imap::Network::MsgPartNetAccessManager(this);
         netAccess->setModelMessage(message->toIndex(model));
         Imap::Network::FileDownloadManager *fileDownloadManager =
-            new Imap::Network::FileDownloadManager(this, netAccess, messageIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER));
-        // FIXME: change from "header" into "whole message"
+            new Imap::Network::FileDownloadManager(this, netAccess, messageIndex);
         connect(fileDownloadManager, SIGNAL(succeeded()), fileDownloadManager, SLOT(deleteLater()));
         connect(fileDownloadManager, SIGNAL(transferError(QString)), fileDownloadManager, SLOT(deleteLater()));
         connect(fileDownloadManager, SIGNAL(fileNameRequested(QString *)),
@@ -1464,7 +1463,7 @@ void MainWindow::slotSaveCurrentMessageBody()
         connect(fileDownloadManager, SIGNAL(transferError(QString)),
                 this, SLOT(slotDownloadMessageTransferError(QString)));
         connect(fileDownloadManager, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
-        fileDownloadManager->slotDownloadNow();
+        fileDownloadManager->slotDownloadCompleteMessageNow();
     }
 }
 

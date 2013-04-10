@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FileDownloadManager.h"
+#include "Imap/Model/FullMessageCombiner.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
@@ -94,10 +95,40 @@ void FileDownloadManager::slotDataTransfered()
     }
 }
 
+void FileDownloadManager::slotDataSave()
+{
+    Q_ASSERT(m_combiner);
+    saving.open(QIODevice::WriteOnly);
+    saving.write((m_combiner->data()).data());
+    saving.close();
+    saved = true;
+    emit succeeded();
+}
+
 void FileDownloadManager::slotTransferError()
 {
     Q_ASSERT(reply);
     emit transferError(reply->errorString());
+}
+
+void FileDownloadManager::slotDownloadCompleteMessageNow()
+{
+    if (!partIndex.isValid()) {
+        emit transferError(tr("FileDownloadManager::slotDownloadCompleteMessageNow(): part has disappeared"));
+        return;
+    }
+    QString saveFileName = toRealFileName(partIndex);
+    m_combiner = new Imap::Mailbox::FullMessageCombiner(partIndex, this);
+
+    emit fileNameRequested(&saveFileName);
+    if (saveFileName.isEmpty())
+        return;
+
+    saving.setFileName(saveFileName);
+    saved = false;
+    connect(m_combiner, SIGNAL(completed()), this, SLOT(slotDataSave()));
+    m_combiner->load();//emits completed() upon completion
+
 }
 
 void FileDownloadManager::slotDeleteReply(QNetworkReply *reply)
