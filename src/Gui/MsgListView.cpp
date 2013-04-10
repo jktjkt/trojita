@@ -63,16 +63,18 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
     connect (m_naviActivationTimer, SIGNAL(timeout()), SLOT(slotCurrentActivated()));
 }
 
-// up and down perform controlled selection, where PgUP, PgDown, Home and End jump to an
-// usually unknown destination (-> no activation intended?!)
 // left might collapse a thread, question is whether ending there (on closing the thread) should be
 // taken as mail loading request (i don't think so, but it's sth. that needs to be figured over time)
 // NOTICE: reasonably Triggers should be a (non strict) subset of Blockers (user changed his mind)
 
 // the list of key events which pot. lead to loading a new message.
-static QList<int> gs_naviActivationTriggers = QList<int>() << Qt::Key_Up << Qt::Key_Down;
+static QList<int> gs_naviActivationTriggers = QList<int>() << Qt::Key_Up << Qt::Key_Down
+                                                           << Qt::Key_PageUp << Qt::Key_PageDown
+                                                           << Qt::Key_Home << Qt::Key_End;
 // the list of key events which cancel naviActivationTrigger induced action.
-static QList<int> gs_naviActivationBlockers = QList<int>() << Qt::Key_Up << Qt::Key_Down << Qt::Key_Left;
+static QList<int> gs_naviActivationBlockers = QList<int>() << Qt::Key_Up << Qt::Key_Down << Qt::Key_Left
+                                                           << Qt::Key_PageUp << Qt::Key_PageDown
+                                                           << Qt::Key_Home << Qt::Key_End;
 
 
 void MsgListView::keyPressEvent(QKeyEvent *ke)
