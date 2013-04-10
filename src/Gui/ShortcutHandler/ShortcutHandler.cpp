@@ -124,16 +124,6 @@ QAction *ShortcutHandler::action(const QString &actionName)
     return m_actionDescriptions[actionName].action;
 }
 
-void ShortcutHandler::addAction(QAction *action, const QString &parentId)
-{
-    Q_ASSERT_X(!action->objectName().isEmpty(), "ShortcutHandler", qPrintable("actions added to the shortcut handler should have an object name: " + action->text()));
-    const QString actionName = action->objectName();
-    if (!m_actionDescriptions.contains(actionName)) {
-        m_actionDescriptions[actionName] = ActionDescription(action->icon().name(), action->text(), action->shortcut().toString(QKeySequence::PortableText), parentId);
-        m_actionDescriptions[actionName].action = action;
-    }
-}
-
 /***************************************************************************/
 
 void ShortcutHandler::changeShortcuts(const QHash<QString, ActionDescription> &actionDescriptions)

@@ -322,7 +322,6 @@ public:
     void addExclusivityGroup(const QStringList &group);
     QSettings *settingsObject();
     QAction *action(const QString &actionName);
-    void addAction(QAction *action, const QString &parentId = tr("Main Window"));
     QAction *shortcutConfigAction();
     ShortcutConfigWidget *configWidget();
     void accept();
