@@ -45,11 +45,18 @@ FileDownloadManager::FileDownloadManager(QObject *parent, Imap::Network::MsgPart
 QString FileDownloadManager::toRealFileName(const QModelIndex &index)
 {
     QString fileName = index.data(Imap::Mailbox::RolePartFileName).toString();
+    if (!fileName.isEmpty())
+        return fileName;
+
     QString uid = index.data(Imap::Mailbox::RoleMessageUid).toString();
     QString partId = index.data(Imap::Mailbox::RolePartId).toString();
-    QString name = fileName.isEmpty() ? tr("msg_%1_%2").arg(uid, partId) : fileName;
-
-    return name;
+    if (partId.isEmpty()) {
+        // we're saving the complete message
+        return tr("msg_%1.eml").arg(uid);
+    } else {
+        // it's a message part
+        return tr("msg_%1_%2").arg(uid, partId);
+    }
 }
 
 QVariant FileDownloadManager::data(int role) const
