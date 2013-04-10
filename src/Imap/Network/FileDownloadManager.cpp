@@ -130,26 +130,6 @@ void FileDownloadManager::onTransferError()
     emit transferError(reply->errorString());
 }
 
-void FileDownloadManager::downloadMessage()
-{
-    if (!partIndex.isValid()) {
-        emit transferError(tr("FileDownloadManager::slotDownloadCompleteMessageNow(): message has disappeared"));
-        return;
-    }
-    QString saveFileName = toRealFileName(partIndex);
-    m_combiner = new Imap::Mailbox::FullMessageCombiner(partIndex, this);
-
-    emit fileNameRequested(&saveFileName);
-    if (saveFileName.isEmpty())
-        return;
-
-    saving.setFileName(saveFileName);
-    saved = false;
-    connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
-    m_combiner->load();
-
-}
-
 void FileDownloadManager::deleteReply(QNetworkReply *reply)
 {
     if (reply == this->reply) {
