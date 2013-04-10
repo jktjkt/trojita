@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "FileDownloadManager.h"
+#include "Imap/Model/FullMessageCombiner.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
@@ -44,11 +45,18 @@ FileDownloadManager::FileDownloadManager(QObject *parent, Imap::Network::MsgPart
 QString FileDownloadManager::toRealFileName(const QModelIndex &index)
 {
     QString fileName = index.data(Imap::Mailbox::RolePartFileName).toString();
+    if (!fileName.isEmpty())
+        return fileName;
+
     QString uid = index.data(Imap::Mailbox::RoleMessageUid).toString();
     QString partId = index.data(Imap::Mailbox::RolePartId).toString();
-    QString name = fileName.isEmpty() ? tr("msg_%1_%2").arg(uid, partId) : fileName;
-
-    return name;
+    if (partId.isEmpty()) {
+        // we're saving the complete message
+        return tr("msg_%1.eml").arg(uid);
+    } else {
+        // it's a message part
+        return tr("msg_%1_%2").arg(uid, partId);
+    }
 }
 
 QVariant FileDownloadManager::data(int role) const
@@ -56,10 +64,10 @@ QVariant FileDownloadManager::data(int role) const
     return partIndex.data(role);
 }
 
-void FileDownloadManager::slotDownloadNow()
+void FileDownloadManager::downloadPart()
 {
     if (!partIndex.isValid()) {
-        emit transferError(tr("FileDownloadManager::slotDownloadNow(): part has disappeared"));
+        emit transferError(tr("FileDownloadManager::downloadPart(): part has disappeared"));
         return;
     }
     QString saveFileName = toRealFileName(partIndex);
@@ -77,12 +85,31 @@ void FileDownloadManager::slotDownloadNow()
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     request.setUrl(url);
     reply = manager->get(request);
-    connect(reply, SIGNAL(finished()), this, SLOT(slotDataTransfered()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(slotTransferError()));
-    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(slotDeleteReply(QNetworkReply *)));
+    connect(reply, SIGNAL(finished()), this, SLOT(onPartDataTransfered()));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onTransferError()));
+    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(deleteReply(QNetworkReply *)));
 }
 
-void FileDownloadManager::slotDataTransfered()
+void FileDownloadManager::downloadMessage()
+{
+    if (!partIndex.isValid()) {
+        emit transferError(tr("FileDownloadManager::downloadMessage(): message has disappeared"));
+        return;
+    }
+    QString saveFileName = toRealFileName(partIndex);
+    m_combiner = new Imap::Mailbox::FullMessageCombiner(partIndex, this);
+
+    emit fileNameRequested(&saveFileName);
+    if (saveFileName.isEmpty())
+        return;
+
+    saving.setFileName(saveFileName);
+    saved = false;
+    connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
+    m_combiner->load();
+}
+
+void FileDownloadManager::onPartDataTransfered()
 {
     Q_ASSERT(reply);
     if (reply->error() == QNetworkReply::NoError) {
@@ -94,17 +121,27 @@ void FileDownloadManager::slotDataTransfered()
     }
 }
 
-void FileDownloadManager::slotTransferError()
+void FileDownloadManager::onMessageDataTransferred()
+{
+    Q_ASSERT(m_combiner);
+    saving.open(QIODevice::WriteOnly);
+    saving.write((m_combiner->data()).data());
+    saving.close();
+    saved = true;
+    emit succeeded();
+}
+
+void FileDownloadManager::onTransferError()
 {
     Q_ASSERT(reply);
     emit transferError(reply->errorString());
 }
 
-void FileDownloadManager::slotDeleteReply(QNetworkReply *reply)
+void FileDownloadManager::deleteReply(QNetworkReply *reply)
 {
     if (reply == this->reply) {
         if (!saved)
-            slotDataTransfered();
+            onPartDataTransfered();
         delete reply;
         this->reply = 0;
     }
