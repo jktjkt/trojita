@@ -950,6 +950,11 @@ void ImapParserParseTest::testParseFetchGarbageWithoutExceptions_data()
                           "(\"INLINE\" NIL) NIL) \"mixed\" (\"boundary\" "
                           "\"part1_d7.319e0427.30a0f44c_boundary\") NIL NIL)"
                           " )\r\n");
+
+    QTest::newRow("davmail-by-ashp")
+            << QByteArray("* 1125 FETCH (BODYSTRUCTURE ((\"TEXT\" \"HTML\" (\"CHARSET\" \"ISO-8859-1\") NIL NIL \"QUOTED-PRINTABLE\" 562 7)"
+                          "(\"APPLICATION\" \"OCTET-STREAM\" (\"NAME\" \"zzz.xml\") NIL "
+                          "\"ZZZ.XML\" \"BASE64\" NIL NIL) \"MIXED\"))\r\n");
 }
 
 void ImapParserParseTest::benchmark()

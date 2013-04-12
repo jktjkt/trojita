@@ -379,6 +379,9 @@ uint AbstractMessage::extractUInt(const QVariant &var, const QByteArray &line, c
                 qDebug() << "Parser warning:" << number << "is not an unsigned int";
                 return 0;
             }
+        } else if (var.toByteArray().isEmpty()) {
+            qDebug() << "Parser warning: expected unsigned int, but got NIL or an empty string instead, yuck";
+            return 0;
         } else {
             throw UnexpectedHere("extractUInt: not a number", line, start);
         }
