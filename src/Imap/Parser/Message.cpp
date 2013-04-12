@@ -379,6 +379,8 @@ uint AbstractMessage::extractUInt(const QVariant &var, const QByteArray &line, c
                 qDebug() << "Parser warning:" << number << "is not an unsigned int";
                 return 0;
             }
+        } else {
+            throw UnexpectedHere("extractUInt: not a number", line, start);
         }
     }
     throw UnexpectedHere("extractUInt: weird data type", line, start);
