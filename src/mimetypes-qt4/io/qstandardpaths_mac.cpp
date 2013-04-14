@@ -43,7 +43,6 @@
 
 #include "qstandardpaths.h"
 #include <qdir.h>
-#include <private/qcore_mac_p.h>
 #include <qcoreapplication.h>
 
 #include <ApplicationServices/ApplicationServices.h>
@@ -180,24 +179,6 @@ QStringList QStandardPaths::standardLocations(StandardLocation type)
     const QString localDir = writableLocation(type);
     dirs.prepend(localDir);
     return dirs;
-}
-
-QString QStandardPaths::displayName(StandardLocation type)
-{
-    if (QStandardPaths::HomeLocation == type)
-        return QCoreApplication::translate("QStandardPaths", "Home");
-
-    FSRef ref;
-    OSErr err = FSFindFolder(kOnAppropriateDisk, translateLocation(type), false, &ref);
-    if (err)
-        return QString();
-
-    QCFString displayName;
-    err = LSCopyDisplayNameForRef(&ref, &displayName);
-    if (err)
-        return QString();
-
-    return static_cast<QString>(displayName);
 }
 
 QT_END_NAMESPACE
