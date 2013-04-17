@@ -32,7 +32,8 @@
 //Q_DECLARE_METATYPE(QList<QByteArray>)
 
 ComposerSubmissionTest::ComposerSubmissionTest():
-    m_submission(0), sendingSpy(0), sentSpy(0), requestedSendingSpy(0)
+    m_submission(0), sendingSpy(0), sentSpy(0), requestedSendingSpy(0), requestedBurlSendingSpy(0),
+    submissionSucceededSpy(0), submissionFailedSpy(0)
 {
     qRegisterMetaType<QList<QByteArray> >();
 }
@@ -61,6 +62,7 @@ void ComposerSubmissionTest::init()
     sendingSpy = new QSignalSpy(m_msaFactory, SIGNAL(sending()));
     sentSpy = new QSignalSpy(m_msaFactory, SIGNAL(sent()));
     requestedSendingSpy = new QSignalSpy(m_msaFactory, SIGNAL(requestedSending(QByteArray,QList<QByteArray>,QByteArray)));
+    requestedBurlSendingSpy = new QSignalSpy(m_msaFactory, SIGNAL(requestedBurlSending(QByteArray,QList<QByteArray>,QByteArray)));
 
     submissionSucceededSpy = new QSignalSpy(m_submission, SIGNAL(succeeded()));
     submissionFailedSpy = new QSignalSpy(m_submission, SIGNAL(failed(QString)));
@@ -80,6 +82,8 @@ void ComposerSubmissionTest::cleanup()
     sentSpy = 0;
     delete requestedSendingSpy;
     requestedSendingSpy = 0;
+    delete requestedBurlSendingSpy;
+    requestedBurlSendingSpy = 0;
     delete submissionSucceededSpy;
     submissionSucceededSpy = 0;
     delete submissionFailedSpy;

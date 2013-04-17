@@ -67,6 +67,7 @@ private:
     QSignalSpy *sendingSpy;
     QSignalSpy *sentSpy;
     QSignalSpy *requestedSendingSpy;
+    QSignalSpy *requestedBurlSendingSpy;
 
     QSignalSpy *submissionSucceededSpy;
     QSignalSpy *submissionFailedSpy;

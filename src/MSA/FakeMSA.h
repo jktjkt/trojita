@@ -36,6 +36,7 @@ public:
     Fake(QObject *parent, FakeFactory *factory, const bool supportsBurl, const bool supportsImap);
     virtual ~Fake();
     virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
+    virtual void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
 public slots:
     virtual void cancel();
 private:
@@ -72,6 +73,7 @@ public slots:
     void doEmitProgress(int num);
 signals:
     void requestedSending(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
+    void requestedBurlSending(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
     void requestedCancelling();
 
     // forwarded from AbstractMSA

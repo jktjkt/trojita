@@ -38,6 +38,11 @@ void Fake::sendMail(const QByteArray &from, const QList<QByteArray> &to, const Q
     emit m_factory->requestedSending(from, to, data);
 }
 
+void Fake::sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl)
+{
+    emit m_factory->requestedBurlSending(from, to, imapUrl);
+}
+
 void Fake::cancel()
 {
     emit m_factory->requestedCancelling();
