@@ -91,12 +91,14 @@ void Submission::setImapOptions(const bool saveToSentFolder, const QString &sent
     m_imapHostname = hostname;
     m_imapUsername = username;
     m_useImapSubmit = useImapSubmit;
+    m_composer->setPreloadEnabled(shouldBuildMessageLocally());
 }
 
 void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
 {
     m_useBurl = useBurl;
     m_smtpUsername = smtpUsername;
+    m_composer->setPreloadEnabled(shouldBuildMessageLocally());
 }
 
 void Submission::send()
