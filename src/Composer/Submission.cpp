@@ -83,11 +83,13 @@ void Submission::changeConnectionState(const SubmissionProgress state)
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), submissionProgressToString(m_state));
 }
 
-void Submission::setImapOptions(const bool saveToSentFolder, const QString &sentFolderName, const QString &hostname, const bool useImapSubmit)
+void Submission::setImapOptions(const bool saveToSentFolder, const QString &sentFolderName,
+                                const QString &hostname, const QString &username, const bool useImapSubmit)
 {
     m_saveToSentFolder = saveToSentFolder;
     m_sentFolderName = sentFolderName;
     m_imapHostname = hostname;
+    m_imapUsername = username;
     m_useImapSubmit = useImapSubmit;
 }
 
@@ -171,7 +173,7 @@ void Submission::slotAskForUrl()
     changeConnectionState(STATE_PREPARING_URLAUTH);
     Imap::Mailbox::GenUrlAuthTask *genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
                 m_model->generateUrlAuthForMessage(m_imapHostname,
-                                                   killDomainPartFromString(m_imapHostname),
+                                                   killDomainPartFromString(m_imapUsername),
                                                    m_sentFolderName,
                                                    m_appendUidValidity, m_appendUid, QString(),
                                                    QString::fromUtf8("submit+%1").arg(
