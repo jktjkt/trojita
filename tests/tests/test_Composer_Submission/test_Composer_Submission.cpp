@@ -346,13 +346,7 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
         QPersistentModelIndex partData = model->index(0, 0, msgA10);
         QVERIFY(partData.isValid());
 
-        QScopedPointer<QMimeData> mimeData(new QMimeData());
-        QByteArray encodedData;
-        QDataStream stream(&encodedData, QIODevice::WriteOnly);
-        stream.setVersion(QDataStream::Qt_4_6);
-        stream << QString::fromUtf8("a") << uidValidityA << uidMapA[0] << QString::fromUtf8("1") << QString::fromUtf8("0");
-        mimeData->setData(QLatin1String("application/x-trojita-imap-part"), encodedData);
-        QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
+        helperAttachImapPart(uidMapA[0]);
         cClient(t.mk("UID FETCH ") + QByteArray::number(uidMapA[0]) + " (BODY.PEEK[1])\r\n");
     }
 
@@ -368,6 +362,17 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
     QCOMPARE(submissionFailedSpy->size(), 1);
     cEmpty();
     justKeepTask();
+}
+
+void ComposerSubmissionTest::helperAttachImapPart(const uint uid)
+{
+    QScopedPointer<QMimeData> mimeData(new QMimeData());
+    QByteArray encodedData;
+    QDataStream stream(&encodedData, QIODevice::WriteOnly);
+    stream.setVersion(QDataStream::Qt_4_6);
+    stream << QString::fromUtf8("a") << uidValidityA << uid << QString::fromUtf8("1") << QString::fromUtf8("0");
+    mimeData->setData(QLatin1String("application/x-trojita-imap-part"), encodedData);
+    QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }
 
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)

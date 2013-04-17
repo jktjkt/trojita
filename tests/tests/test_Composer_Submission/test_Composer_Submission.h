@@ -60,6 +60,7 @@ private:
     void helperTestSimpleAppend(bool appendOk, bool appendUid, bool shallUpdateReplyingTo, bool replyingToUpdateOk);
     void helperSetupProperHeaders();
     void helperMissingAttachment(bool save, bool burl, bool imap, bool attachingFile);
+    void helperAttachImapPart(const uint uid);
 
     Composer::Submission *m_submission;
     MSA::FakeFactory *m_msaFactory;
