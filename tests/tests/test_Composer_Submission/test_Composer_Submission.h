@@ -53,6 +53,7 @@ private slots:
     void testMissingImapAttachmentBurlSave();
     void testMissingImapAttachmentBurlNoSave();
     void testMissingImapAttachmentImap();
+    void testBurlSubmission();
     void init();
     void cleanup();
 

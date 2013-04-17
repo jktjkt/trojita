@@ -76,6 +76,7 @@ bool GenUrlAuthTask::handleStateHelper(const Imap::Responses::State *const resp)
 
 bool GenUrlAuthTask::handleGenUrlAuth(const Responses::GenUrlAuth *const resp)
 {
+    // FIXME: check whether the received URL matches what we expect and not aanything else; this is required for pipelining!
     emit gotAuth(resp->url);
     return true;
 }

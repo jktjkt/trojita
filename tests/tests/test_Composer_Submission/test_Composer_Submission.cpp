@@ -375,4 +375,76 @@ void ComposerSubmissionTest::helperAttachImapPart(const uint uid)
     QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }
 
+#define EXTRACT_TARILING_NUMBER(NUM) \
+{ \
+    QCOMPARE(sentSoFar.left(expected.size()), expected); \
+    bool numberOk = false; \
+    QString numericPart = sentSoFar.mid(expected.size()); \
+    QCOMPARE(numericPart.right(3), QString::fromUtf8("}\r\n")); \
+    int num = numericPart.left(numericPart.size() - 3).toInt(&numberOk); \
+    QVERIFY(numberOk); \
+    NUM = num; \
+}
+
+#define EAT_OCTETS(NUM, OUT) \
+{ \
+    for (int i=0; i<5; ++i) \
+        QCoreApplication::processEvents(); \
+    QString buf = QString::fromUtf8(SOCK->writtenStuff()); \
+    QVERIFY(buf.size() > NUM); \
+    OUT = buf.mid(NUM); \
+}
+
+
+
+void ComposerSubmissionTest::testBurlSubmission()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("CATENATE"));
+    injector.injectCapability(QLatin1String("URLAUTH"));
+    helperSetupProperHeaders();
+    m_submission->setImapOptions(true, QLatin1String("meh"), QLatin1String("host"), QLatin1String("usr"), false);
+    m_submission->setSmtpOptions(true, QLatin1String("smtpUser"));
+    m_msaFactory->setBurlSupport(true);
+
+    helperAttachImapPart(uidMapA[0]);
+    m_submission->send();
+
+    for (int i=0; i<5; ++i)
+        QCoreApplication::processEvents();
+    QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
+    QString expected = t.mk("APPEND meh ($SubmitPending \\Seen) CATENATE (TEXT {");
+    int octets;
+    EXTRACT_TARILING_NUMBER(octets);
+    cServer("+ carry on\r\n");
+    EAT_OCTETS(octets, sentSoFar);
+    expected = QLatin1String(" URL \"/a;UIDVALIDITY=333666/;UID=10/;SECTION=1\" TEXT {");
+    EXTRACT_TARILING_NUMBER(octets);
+    cServer("+ carry on\r\n");
+    EAT_OCTETS(octets, sentSoFar);
+    QCOMPARE(sentSoFar, QString::fromUtf8(")\r\n"));
+    cServer(t.last("OK [APPENDUID 666333666 123] append done\r\n"));
+    cClient(t.mk("GENURLAUTH \"imap://usr@host/meh;UIDVALIDITY=666333666/;UID=123;urlauth=submit+smtpUser\" INTERNAL\r\n"));
+    // This is an actual example from RFC 4467
+    QString genAuthUrl = "imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038";
+    cServer("* GENURLAUTH \"" + genAuthUrl.toUtf8() + "\"\r\n");
+    cServer(t.last("OK genurlauth\r\n"));
+    cEmpty();
+    QCOMPARE(requestedSendingSpy->size(), 0);
+    QCOMPARE(requestedBurlSendingSpy->size(), 1);
+    m_msaFactory->doEmitSending();
+    QCOMPARE(sendingSpy->size(), 1);
+    m_msaFactory->doEmitSent();
+    QCOMPARE(sentSpy->size(), 1);
+
+    QCOMPARE(submissionSucceededSpy->size(), 1);
+    QCOMPARE(submissionFailedSpy->size(), 0);
+
+    QCOMPARE(requestedBurlSendingSpy->size(), 1);
+    QCOMPARE(requestedBurlSendingSpy->at(0).size(), 3);
+    QCOMPARE(requestedBurlSendingSpy->at(0)[2].toString(), genAuthUrl);
+    cEmpty();
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)
