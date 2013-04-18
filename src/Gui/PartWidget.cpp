@@ -146,9 +146,9 @@ QString MultipartSignedWidget::quoteMe() const
 GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
         int recursionDepth):
-    QGroupBox(tr("Multipart Message"), parent)
+    QWidget(parent)
 {
-    setFlat(true);
+    setContentsMargins(0, 0, 0, 0);
     // multipart/mixed or anything else, as mandated by RFC 2046, Section 5.1.3
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
