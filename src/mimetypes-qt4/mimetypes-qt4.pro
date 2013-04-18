@@ -5,6 +5,10 @@ TARGET = mimetypes-qt4
 
 INCLUDEPATH += io
 
+macx {
+    LIBS += "-framework Carbon"
+}
+
 include( mimetypes/mimetypes.pri )
 
 HEADERS *= io/qstandardpaths.h
