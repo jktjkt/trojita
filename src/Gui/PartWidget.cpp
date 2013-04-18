@@ -169,7 +169,7 @@ QString GenericMultipartWidget::quoteMe() const
 Message822Widget::Message822Widget(QWidget *parent,
                                    PartWidgetFactory *factory, const QModelIndex &partIndex,
                                    int recursionDepth):
-    QGroupBox(tr("Message"), parent)
+    QGroupBox(tr("Attached Message"), parent)
 {
     setFlat(true);
     QVBoxLayout *layout = new QVBoxLayout(this);
