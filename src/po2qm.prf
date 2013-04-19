@@ -10,8 +10,18 @@ isEmpty(QMAKE_LRELEASE) {
     }
 }
 
+isEmpty(QMAKE_LCONVERT) {
+    win32|os2:QMAKE_LCONVERT = $$[QT_INSTALL_BINS]\lconvert.exe
+    else:QMAKE_LCONVERT = $$[QT_INSTALL_BINS]/lconvert
+    unix {
+        !exists($$QMAKE_LCONVERT) { QMAKE_LCONVERT = lconvert-qt4 }
+    } else {
+        !exists($$QMAKE_LCONVERT) { QMAKE_LCONVERT = lconvert }
+    }
+}
+
 po2qm.input = PO_FILES
 po2qm.output = locale/${QMAKE_FILE_BASE}.qm
-po2qm.commands = lconvert ${QMAKE_FILE_IN} -o ${QMAKE_FILE_BASE}.ts && $$QMAKE_LRELEASE -nounfinished ${QMAKE_FILE_BASE}.ts -qm locale/${QMAKE_FILE_BASE}.qm && rm ${QMAKE_FILE_BASE}.ts
+po2qm.commands = $$QMAKE_LCONVERT ${QMAKE_FILE_IN} -o ${QMAKE_FILE_BASE}.ts && $$QMAKE_LRELEASE -nounfinished ${QMAKE_FILE_BASE}.ts -qm locale/${QMAKE_FILE_BASE}.qm && rm ${QMAKE_FILE_BASE}.ts
 po2qm.CONFIG += no_link target_predeps
 QMAKE_EXTRA_COMPILERS += po2qm
