@@ -59,4 +59,16 @@ public:
     int destinationRow;
 };
 
+namespace QTest {
+
+/** @short Helper for pretty-printing in QCOMPARE */
+template<>
+char *toString(const ModelInsertRemoveEvent &event);
+
+/** @short Helper for pretty-printing in QCOMPARE */
+template<>
+char *toString(const ModelMoveEvent &event);
+
+}
+
 #endif
