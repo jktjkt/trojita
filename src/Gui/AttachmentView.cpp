@@ -162,6 +162,10 @@ void AttachmentView::slotTransferError(const QString &errorString)
 void AttachmentView::slotTransferSucceeded()
 {
     Q_ASSERT(m_tmpFile);
+
+    // Make sure that the file is read-only so that the launched application does not attempt to modify it
+    m_tmpFile->setPermissions(QFile::ReadOwner);
+
     QDesktopServices::openUrl(QUrl::fromLocalFile(m_tmpFile->fileName()));
 
     // This will delete the temporary file in ten seconds. It should give the application plenty of time to start and also prevent
