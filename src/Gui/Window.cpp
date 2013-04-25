@@ -381,11 +381,11 @@ void MainWindow::createActions()
 
     connectModelActions();
 
-    m_composeButton = new QToolButton(this);
-    m_composeButton->setPopupMode(QToolButton::MenuButtonPopup);
-    m_composeMenu = new QMenu(m_composeButton);
+    m_composeMenu = new QMenu(tr("Compose Mail"), this);
     m_composeMenu->addAction(composeMail);
     m_composeMenu->addAction(m_editDraft);
+    m_composeButton = new QToolButton(this);
+    m_composeButton->setPopupMode(QToolButton::MenuButtonPopup);
     m_composeButton->setMenu(m_composeMenu);
     m_composeButton->setDefaultAction(composeMail);
 
@@ -421,7 +421,7 @@ void MainWindow::connectModelActions()
 void MainWindow::createMenus()
 {
     QMenu *imapMenu = menuBar()->addMenu(tr("&IMAP"));
-    imapMenu->addAction(composeMail);
+    imapMenu->addMenu(m_composeMenu);
     imapMenu->addAction(m_replyGuess);
     imapMenu->addAction(m_replyPrivate);
     imapMenu->addAction(m_replyAll);
