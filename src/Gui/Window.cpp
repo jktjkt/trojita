@@ -129,7 +129,8 @@ void MainWindow::defineActions()
 {
     ShortcutHandler *shortcutHandler = ShortcutHandler::instance();
     shortcutHandler->defineAction(QLatin1String("action_application_exit"), QLatin1String("application-exit"), tr("E&xit"), QKeySequence::Quit);
-    shortcutHandler->defineAction(QLatin1String("action_compose_mail"), QLatin1String("document-edit"), tr("&Compose Mail..."), QKeySequence::New);
+    shortcutHandler->defineAction(QLatin1String("action_compose_mail"), QLatin1String("document-edit"), tr("&New Message..."), QKeySequence::New);
+    shortcutHandler->defineAction(QLatin1String("action_compose_draft"), QLatin1String("document-open-recent"), tr("&Edit Draft..."), QKeySequence::New);
     shortcutHandler->defineAction(QLatin1String("action_show_menubar"), QLatin1String("view-list-text"), tr("Show Main Menu &Bar"), tr("Ctrl+M"));
     shortcutHandler->defineAction(QLatin1String("action_expunge"), QLatin1String("trash-empty"), tr("Exp&unge"), tr("Ctrl+E"));
     shortcutHandler->defineAction(QLatin1String("action_mark_as_read"), QLatin1String("mail-mark-read"), tr("Mark as &Read"), QLatin1String("M"));
@@ -235,9 +236,7 @@ void MainWindow::createActions()
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
     composeMail = ShortcutHandler::instance()->createAction("action_compose_mail", this, SLOT(slotComposeMail()), this);
-
-    m_editDraft = new QAction(loadIcon(QLatin1String("document-edit")),  tr("&Edit draft..."), this);
-    connect(m_editDraft, SIGNAL(triggered()), this, SLOT(slotEditDraft()));
+    m_editDraft = ShortcutHandler::instance()->createAction("action_compose_draft", this, SLOT(slotEditDraft()), this);
 
     expunge = ShortcutHandler::instance()->createAction(QLatin1String("action_expunge"), this, SLOT(slotExpunge()), this);
 
