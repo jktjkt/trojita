@@ -262,14 +262,18 @@ void ComposeWidget::send()
     m_submission->setSmtpOptions(s.value(Common::SettingsNames::smtpUseBurlKey, false).toBool(),
                                  s.value(Common::SettingsNames::smtpUserKey).toString());
 
-    QProgressDialog *progress = new QProgressDialog(tr("Sending mail"), tr("Abort"), 0, 3, this);
+    QProgressDialog *progress = new QProgressDialog(tr("Sending mail"), tr("Abort"), 0, Composer::Submission::STATE_SENT, this);
     setEnabled(false);
     progress->setEnabled(true);
     connect(m_submission, SIGNAL(progressMin(int)), progress, SLOT(setMinimum(int)));
     connect(m_submission, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
+    connect(m_submission, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
     connect(m_submission, SIGNAL(updateStatusMessage(QString)), progress, SLOT(setLabelText(QString)));
-    connect(m_submission, SIGNAL(succeeded()), progress, SLOT(close()));
-    connect(m_submission, SIGNAL(updateCancellable(bool)), progress, SLOT(setEnabled(bool)));
+    connect(m_submission, SIGNAL(succeeded()), progress, SLOT(deleteLater()));
+    connect(m_submission, SIGNAL(failed(QString)), progress, SLOT(deleteLater()));
+    QPointer<QPushButton> progressCancelButton = new QPushButton(tr("Abort"));
+    connect(m_submission, SIGNAL(updateCancellable(bool)), progressCancelButton, SLOT(setEnabled(bool)));
+    progress->setCancelButton(progressCancelButton);
 
     m_submission->send();
 }
