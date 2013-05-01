@@ -35,6 +35,7 @@
 #include <QWebFrame>
 #include <QWebView>
 #include "LineEdit.h"
+#include "Gui/Util.h"
 
 namespace Gui {
 
@@ -165,18 +166,14 @@ void FindBar::setVisible(bool visible)
 
 void FindBar::notifyMatch(bool match)
 {
-    QPalette p = m_lineEdit->palette();
-
     if (m_lineEdit->text().isEmpty()) {
-        p.setColor(QPalette::Base, palette().color(QPalette::Base));
+        m_lineEdit->setPalette(QPalette());
     } else {
-        if (match) {
-            p.setColor(QPalette::Base, QColor(230, 247, 230));
-        } else {
-            p.setColor(QPalette::Base, QColor(247, 230, 230));
-        }
+        QColor backgroundTint = match ? QColor(0, 0xff, 0, 0x20) : QColor(0xff, 0, 0, 0x20);
+        QPalette p;
+        p.setColor(QPalette::Base, Gui::Util::tintColor(p.color(QPalette::Base), backgroundTint));
+        m_lineEdit->setPalette(p);
     }
-    m_lineEdit->setPalette(p);
 }
 
 
