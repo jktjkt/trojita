@@ -262,21 +262,28 @@ void ComposeWidget::send()
     m_submission->setSmtpOptions(s.value(Common::SettingsNames::smtpUseBurlKey, false).toBool(),
                                  s.value(Common::SettingsNames::smtpUserKey).toString());
 
-    QProgressDialog *progress = new QProgressDialog(tr("Sending mail"), tr("Abort"), 0, Composer::Submission::STATE_SENT, this);
+    QProgressDialog *progress = new QProgressDialog(this);
     setEnabled(false);
     progress->setEnabled(true);
     progress->setMinimumDuration(0);
+    progress->setRange(0, 0);
+    QPointer<QPushButton> progressCancelButton = new QPushButton(tr("Abort"));
+    connect(m_submission, SIGNAL(updateCancellable(bool)), progressCancelButton, SLOT(setEnabled(bool)));
+    progress->setCancelButton(progressCancelButton);
+
     connect(m_submission, SIGNAL(progressMin(int)), progress, SLOT(setMinimum(int)));
     connect(m_submission, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
     connect(m_submission, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
     connect(m_submission, SIGNAL(updateStatusMessage(QString)), progress, SLOT(setLabelText(QString)));
     connect(m_submission, SIGNAL(succeeded()), progress, SLOT(deleteLater()));
     connect(m_submission, SIGNAL(failed(QString)), progress, SLOT(deleteLater()));
-    QPointer<QPushButton> progressCancelButton = new QPushButton(tr("Abort"));
-    connect(m_submission, SIGNAL(updateCancellable(bool)), progressCancelButton, SLOT(setEnabled(bool)));
-    progress->setCancelButton(progressCancelButton);
 
     m_submission->send();
+
+    // Looks like the QProgressDialog is different that QProgressBar and is not really designed to work well with
+    // the generic "busy indicator" mode. Apparently, the conditions in QPD simply prevent it from appearing even
+    // though the setMinimumDuration() is properly called.
+    progress->show();
 }
 
 

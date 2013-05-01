@@ -103,13 +103,13 @@ void Submission::changeConnectionState(const SubmissionProgress state)
         emit updateStatusMessage(tr("Preparing to send"));
         break;
     case STATE_BUILDING_MESSAGE:
-        emit progress(0);
         emit progressMax(0);
+        emit progress(0);
         emit updateStatusMessage(tr("Creating message"));
         break;
     case STATE_SAVING:
-        emit progress(0);
         emit progressMax(0);
+        emit progress(0);
         emit updateStatusMessage(tr("Saving to the sent folder"));
         break;
     case STATE_PREPARING_URLAUTH:
