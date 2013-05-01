@@ -81,6 +81,34 @@ void Submission::changeConnectionState(const SubmissionProgress state)
 {
     m_state = state;
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), submissionProgressToString(m_state));
+
+    // Now broadcast a human-readable message
+    switch (state) {
+    case STATE_INIT:
+        emit updateStatusMessage(tr("Preparing to send"));
+        break;
+    case STATE_BUILDING_MESSAGE:
+        emit updateStatusMessage(tr("Creating message"));
+        break;
+    case STATE_SAVING:
+        emit updateStatusMessage(tr("Saving to the sent folder"));
+        break;
+    case STATE_PREPARING_URLAUTH:
+        emit updateStatusMessage(tr("Preparing message for delivery"));
+        break;
+    case STATE_SUBMITTING:
+        emit updateStatusMessage(tr("Submitting message"));
+        break;
+    case STATE_UPDATING_FLAGS:
+        emit updateStatusMessage(tr("Updating message keywords"));
+        break;
+    case STATE_SENT:
+        emit updateStatusMessage(tr("Message sent"));
+        break;
+    case STATE_FAILED:
+        emit updateStatusMessage(tr("Sending failed"));
+        break;
+    }
 }
 
 void Submission::setImapOptions(const bool saveToSentFolder, const QString &sentFolderName,
