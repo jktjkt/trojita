@@ -97,8 +97,11 @@ void SimplePartWidget::slotMarkupPlainText() {
     );
 
     QPalette palette = QApplication::palette();
-    QString textColors = QString::fromUtf8("body { background-color: %1; color: %2 }").arg(palette.base().color().name(),
-                                                                                           palette.text().color().name());
+    QString textColors = QString::fromUtf8("body { background-color: %1; color: %2 }"
+                                           "a:link { color: %3 } a:visited { color: %4 } a:hover { color: %3 }").arg(
+                palette.base().color().name(), palette.text().color().name(),
+                palette.link().color().name(), palette.linkVisited().color().name());
+    // looks like there's no special color for hovered links in Qt
 
     // build stylesheet and html header
     static QString stylesheet = defaultStyle;
