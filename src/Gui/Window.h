@@ -86,9 +86,6 @@ public:
     QSize sizeHint() const;
 
     Imap::Mailbox::Model *imapModel() const;
-    bool isCatenateSupported() const;
-    bool isGenUrlAuthSupported() const;
-    bool isImapSubmissionSupported() const;
 
     const AbstractAddressbook *addressBook() const { return m_addressBook; }
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
@@ -273,9 +270,6 @@ private:
     QToolButton *networkIndicator;
 
     bool m_ignoreStoredPassword;
-    bool m_supportsCatenate;
-    bool m_supportsGenUrlAuth;
-    bool m_supportsImapSubmission;
 
     AbstractAddressbook *m_addressBook;
 

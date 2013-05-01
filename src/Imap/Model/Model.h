@@ -184,7 +184,7 @@ public:
     void resyncMailbox(const QModelIndex &mbox);
 
     /** @short Add/Remove a flag for the indicated message */
-    void setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked);
+    ImapTask *setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked);
     /** @short Ask the server to set/unset the \\Deleted flag for the indicated messages */
     void markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked);
     /** @short Ask the server to set/unset the \\Seen flag for the indicated messages */
@@ -296,6 +296,10 @@ public:
     IMAP server. Calling this function while the connection is already open and kicking might have terrible consequences.
     */
     void setCapabilitiesBlacklist(const QStringList &blacklist);
+
+    bool isCatenateSupported() const;
+    bool isGenUrlAuthSupported() const;
+    bool isImapSubmissionSupported() const;
 
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */

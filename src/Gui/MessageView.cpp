@@ -437,6 +437,8 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
                 message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << messageId,
                 message
                 );
+    if (!w)
+        return;
 
     bool ok = w->setReplyMode(mode);
     if (!ok) {

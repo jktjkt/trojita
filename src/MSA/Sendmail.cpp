@@ -104,4 +104,18 @@ void Sendmail::handleFinished(const int exitCode)
                                                                        QString::fromUtf8(allStderr)));
 }
 
+SendmailFactory::SendmailFactory(const QString &command, const QStringList &args):
+    m_command(command), m_args(args)
+{
+}
+
+SendmailFactory::~SendmailFactory()
+{
+}
+
+AbstractMSA *SendmailFactory::create(QObject *parent) const
+{
+    return new Sendmail(parent, m_command, m_args);
+}
+
 }

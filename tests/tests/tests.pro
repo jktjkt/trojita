@@ -16,7 +16,8 @@ SUBDIRS  = \
     test_Composer_responses \
     test_Html_formatting \
     test_Rfc5322 \
-    test_SenderIdentitiesModel
+    test_SenderIdentitiesModel \
+    test_Composer_Submission
 
 # At first, we define the "check" target which simply propagates the "check" call below
 check.target = check

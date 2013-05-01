@@ -57,6 +57,23 @@ private:
     SMTP &operator=(const SMTP &); // don't implement
 };
 
+class SMTPFactory: public MSAFactory
+{
+public:
+    SMTPFactory(const QString &host, quint16 port, bool encryptedConnect, bool startTls, bool auth,
+         const QString &user, const QString &pass);
+    virtual ~SMTPFactory();
+    virtual AbstractMSA *create(QObject *parent) const;
+private:
+    QString m_host;
+    quint16 m_port;
+    bool m_encryptedConnect;
+    bool m_startTls;
+    bool m_auth;
+    QString m_user;
+    QString m_pass;
+};
+
 }
 
 #endif // SMTP_H

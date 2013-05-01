@@ -55,6 +55,17 @@ private:
     Sendmail &operator=(const Sendmail &); // don't implement
 };
 
+class SendmailFactory: public MSAFactory
+{
+public:
+    SendmailFactory(const QString &command, const QStringList &args);
+    virtual ~SendmailFactory();
+    virtual AbstractMSA *create(QObject *parent) const;
+private:
+    QString m_command;
+    QStringList m_args;
+};
+
 }
 
 #endif // SENDMAIL_H

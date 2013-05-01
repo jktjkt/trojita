@@ -38,12 +38,38 @@ bool AbstractMSA::supportsBurl() const
     return false;
 }
 
+bool AbstractMSA::supportsImapSending() const
+{
+    return false;
+}
+
+void AbstractMSA::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data)
+{
+    Q_UNUSED(from);
+    Q_UNUSED(to);
+    Q_UNUSED(data);
+    emit error(tr("Sending mail plaintext is not supported by %1").arg(metaObject()->className()));
+}
+
 void AbstractMSA::sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl)
 {
     Q_UNUSED(from);
     Q_UNUSED(to);
     Q_UNUSED(imapUrl);
     emit error(tr("BURL is not supported by %1").arg(metaObject()->className()));
+}
+
+void AbstractMSA::sendImap(const QString &mailbox, const int uidValidity, const int uid, const Imap::Mailbox::UidSubmitOptionsList options)
+{
+    Q_UNUSED(mailbox);
+    Q_UNUSED(uidValidity);
+    Q_UNUSED(uid);
+    Q_UNUSED(options);
+    emit error(tr("IMAP sending is not supported by %1").arg(metaObject()->className()));
+}
+
+MSAFactory::~MSAFactory()
+{
 }
 
 }

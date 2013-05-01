@@ -41,7 +41,11 @@ class QMenu;
 class QPushButton;
 
 namespace Composer {
-class MessageComposer;
+class Submission;
+}
+
+namespace MSA {
+class MSAFactory;
 }
 
 namespace Gui
@@ -59,7 +63,7 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ComposeWidget(MainWindow *mainWindow);
+    explicit ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory);
     ~ComposeWidget();
     void setData(const QList<QPair<Composer::RecipientKind, QString> > &recipients,
                  const QString &subject,
@@ -88,9 +92,6 @@ private slots:
     void slotAskForFileAttachment();
     void slotRemoveAttachment();
     void slotAttachFiles(QList<QUrl> urls);
-
-    void slotAppendUidKnown(const uint uidValidity, const uint uid);
-    void slotGenUrlAuthReceived(const QString &url);
 
     void slotUpdateSignature();
 
@@ -139,13 +140,12 @@ private:
 
     MainWindow *m_mainWindow;
 
-    Composer::MessageComposer *m_composer;
+    Composer::Submission *m_submission;
     QAction *m_actionRemoveAttachment;
 
     QMenu *m_completionPopup;
     QLineEdit *m_completionReceiver;
     int m_completionCount;
-    QPersistentModelIndex m_replyingTo;
 
 
     ComposeWidget(const ComposeWidget &); // don't implement

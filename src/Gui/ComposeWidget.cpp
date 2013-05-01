@@ -43,9 +43,8 @@
 #include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
+#include "Composer/Submission.h"
 #include "Common/SettingsNames.h"
-#include "MSA/Sendmail.h"
-#include "MSA/SMTP.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GenUrlAuthTask.h"
@@ -59,7 +58,7 @@ enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
 namespace Gui
 {
 
-ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
+ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory) :
     QWidget(0, Qt::Window),
     ui(new Ui::ComposeWidget),
     m_sentMail(false),
@@ -72,15 +71,16 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow) :
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     Q_ASSERT(m_mainWindow);
-    m_composer = new Composer::MessageComposer(m_mainWindow->imapModel(), this);
-    m_composer->setPreloadEnabled(shouldBuildMessageLocally());
+    m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory);
+    connect(m_submission, SIGNAL(succeeded()), this, SLOT(sent()));
+    connect(m_submission, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
 
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
     cancelButton = ui->buttonBox->addButton(QDialogButtonBox::Cancel);
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-    ui->attachmentsView->setModel(m_composer);
+    ui->attachmentsView->setModel(m_submission->composer());
     connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
     ui->attachmentsView->setContextMenuPolicy(Qt::ActionsContextMenu);
 
@@ -224,203 +224,65 @@ bool ComposeWidget::buildMessageData()
         gotError(tr("You haven't entered any recipients"));
         return false;
     }
-    m_composer->setRecipients(recipients);
+    m_submission->composer()->setRecipients(recipients);
 
     Imap::Message::MailAddress fromAddress;
     if (!Imap::Message::MailAddress::fromPrettyString(fromAddress, ui->sender->currentText())) {
         gotError(tr("The From: address does not look like a valid one"));
         return false;
     }
-    m_composer->setFrom(fromAddress);
+    m_submission->composer()->setFrom(fromAddress);
 
-    m_composer->setTimestamp(QDateTime::currentDateTime());
-    m_composer->setSubject(ui->subject->text());
+    m_submission->composer()->setTimestamp(QDateTime::currentDateTime());
+    m_submission->composer()->setSubject(ui->subject->text());
 
     QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
     Q_ASSERT(proxy);
     QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
     Q_ASSERT(proxyIndex.isValid());
-    m_composer->setOrganization(
+    m_submission->composer()->setOrganization(
                 proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION)
                 .data().toString());
-    m_composer->setText(ui->mailText->toPlainText());
+    m_submission->composer()->setText(ui->mailText->toPlainText());
 
-    return m_composer->isReadyForSerialization();
+    return m_submission->composer()->isReadyForSerialization();
 }
 
 void ComposeWidget::send()
 {
-
     if (!buildMessageData())
         return;
 
-    using Common::SettingsNames;
     QSettings s;
+    m_submission->setImapOptions(s.value(Common::SettingsNames::composerSaveToImapKey, true).toBool(),
+                                 s.value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                                 s.value(Common::SettingsNames::imapHostKey).toString(),
+                                 s.value(Common::SettingsNames::imapUserKey).toString(),
+                                 s.value(Common::SettingsNames::msaMethodKey).toString() == Common::SettingsNames::methodImapSendmail);
+    m_submission->setSmtpOptions(s.value(Common::SettingsNames::smtpUseBurlKey, false).toBool(),
+                                 s.value(Common::SettingsNames::smtpUserKey).toString());
 
-    QByteArray rawMessageData;
-    QBuffer buf(&rawMessageData);
-    buf.open(QIODevice::WriteOnly);
-    QString errorMessage;
-
-    QPointer<Imap::Mailbox::AppendTask> appendTask = 0;
-    m_appendUidReceived = false;
-    m_genUrlAuthReceived = false;
-    if (s.value(SettingsNames::composerSaveToImapKey, true).toBool()) {
-        Q_ASSERT(m_mainWindow->imapModel());
-
-        if (m_mainWindow->isCatenateSupported()) {
-            QList<Imap::Mailbox::CatenatePair> catenateable;
-            if (!m_composer->asCatenateData(catenateable, &errorMessage)) {
-                gotError(tr("Cannot send right now -- saving (CATENATE) failed:\n %1").arg(errorMessage));
-                return;
-            }
-
-            // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
-            appendTask = QPointer<Imap::Mailbox::AppendTask>(
-                        m_mainWindow->imapModel()->appendIntoMailbox(
-                            s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                            catenateable,
-                            QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
-                            m_composer->timestamp()));
-        } else {
-            if (!m_composer->asRawMessage(&buf, &errorMessage)) {
-                gotError(tr("Cannot send right now -- saving failed:\n %1").arg(errorMessage));
-                return;
-            }
-
-            // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
-            appendTask = QPointer<Imap::Mailbox::AppendTask>(
-                        m_mainWindow->imapModel()->appendIntoMailbox(
-                            s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                            rawMessageData,
-                            QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
-                            m_composer->timestamp()));
-        }
-
-        Q_ASSERT(appendTask);
-        connect(appendTask.data(), SIGNAL(appendUid(uint,uint)), this, SLOT(slotAppendUidKnown(uint,uint)));
-    }
-
-    if (rawMessageData.isEmpty() && shouldBuildMessageLocally()) {
-        if (!m_composer->asRawMessage(&buf, &errorMessage)) {
-            gotError(tr("Cannot send right now:\n %1").arg(errorMessage));
-            return;
-        }
-    }
-
-    MSA::AbstractMSA *msa = 0;
-    QString method = s.value(SettingsNames::msaMethodKey).toString();
-    if (method == SettingsNames::methodSMTP || method == SettingsNames::methodSSMTP) {
-        msa = new MSA::SMTP(this, s.value(SettingsNames::smtpHostKey).toString(),
-                            s.value(SettingsNames::smtpPortKey).toInt(),
-                            (method == SettingsNames::methodSSMTP),
-                            (method == SettingsNames::methodSMTP)
-                            && s.value(SettingsNames::smtpStartTlsKey).toBool(),
-                            s.value(SettingsNames::smtpAuthKey).toBool(),
-                            s.value(SettingsNames::smtpUserKey).toString(),
-                            s.value(SettingsNames::smtpPassKey).toString());
-    } else if (method == SettingsNames::methodSENDMAIL) {
-        QStringList args = s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
-        if (args.isEmpty()) {
-            QMessageBox::critical(this, tr("Error"), tr("Please configure the SMTP or sendmail settings in application settings."));
-            return;
-        }
-        QString appName = args.takeFirst();
-        msa = new MSA::Sendmail(this, appName, args);
-    } else if (method == SettingsNames::methodImapSendmail) {
-        if (!m_mainWindow->isImapSubmissionSupported()) {
-            QMessageBox::critical(this, tr("Error"), tr("The IMAP server does not support mail submission. Please reconfigure the application."));
-            return;
-        }
-        // no particular preparation needed here
-    } else {
-        QMessageBox::critical(this, tr("Error"), tr("Please configure e-mail delivery method in application settings."));
-        return;
-    }
-
-    QProgressDialog *progress = new QProgressDialog(
-        tr("Sending mail"), tr("Abort"), 0, rawMessageData.size(), this);
-    progress->setMinimumDuration(0);
-    progress->setMaximum(3);
-
-    // Message uploading through IMAP cannot really be terminated
+    QProgressDialog *progress = new QProgressDialog(this);
     setEnabled(false);
     progress->setEnabled(true);
+    progress->setMinimumDuration(0);
+    progress->setRange(0, 0);
+    progress->setCancelButton(0);
 
-    if (appendTask) {
-        progress->setLabelText(tr("Saving message..."));
-    }
+    connect(m_submission, SIGNAL(progressMin(int)), progress, SLOT(setMinimum(int)));
+    connect(m_submission, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
+    connect(m_submission, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
+    connect(m_submission, SIGNAL(updateStatusMessage(QString)), progress, SLOT(setLabelText(QString)));
+    connect(m_submission, SIGNAL(succeeded()), progress, SLOT(deleteLater()));
+    connect(m_submission, SIGNAL(failed(QString)), progress, SLOT(deleteLater()));
 
-    while (appendTask && !appendTask->isFinished()) {
-        // FIXME: get rid of this busy wait, eventually
-        QCoreApplication::processEvents();
-    }
+    m_submission->send();
 
-    if (method == SettingsNames::methodImapSendmail) {
-        if (!m_appendUidReceived) {
-            QMessageBox::critical(this, tr("Error"), tr("Cannot send over IMAP, APPENDUID failed"));
-            return;
-        }
-        Imap::Mailbox::UidSubmitOptionsList options;
-        options.append(qMakePair<QByteArray,QVariant>("FROM", m_composer->rawFromAddress()));
-        Q_FOREACH(const QByteArray &recipient, m_composer->rawRecipientAddresses()) {
-            options.append(qMakePair<QByteArray,QVariant>("RECIPIENT", recipient));
-        }
-        Imap::Mailbox::UidSubmitTask *submitTask = m_mainWindow->imapModel()->sendMailViaUidSubmit(
-                    s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(), m_appendUidValidity, m_appendUid,
-                    options);
-        Q_ASSERT(submitTask);
-        connect(submitTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(sent()));
-        connect(submitTask, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
-        progress->setLabelText(tr("Sending mail..."));
-        progress->setValue(2);
-        while (submitTask && !submitTask->isFinished()) {
-            QCoreApplication::processEvents();
-        }
-        progress->cancel();
-        m_sentMail = true;
-        return;
-    }
-
-    QPointer<Imap::Mailbox::GenUrlAuthTask> genUrlAuthTask;
-    if (m_appendUidReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool() && m_mainWindow->isGenUrlAuthSupported()) {
-        progress->setValue(1);
-        progress->setLabelText(tr("Generating IMAP URL..."));
-        genUrlAuthTask = QPointer<Imap::Mailbox::GenUrlAuthTask>(
-                    m_mainWindow->imapModel()->
-                    generateUrlAuthForMessage(s.value(SettingsNames::imapHostKey).toString(),
-                                              killDomainPartFromString(s.value(SettingsNames::imapUserKey).toString()),
-                                              s.value(SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                                              m_appendUidValidity, m_appendUid, QString(),
-                                              QString::fromUtf8("submit+%1").arg(
-                        killDomainPartFromString(s.value(SettingsNames::smtpUserKey).toString()))
-                                              ));
-        connect(genUrlAuthTask.data(), SIGNAL(gotAuth(QString)), this, SLOT(slotGenUrlAuthReceived(QString)));
-        while (genUrlAuthTask && !genUrlAuthTask->isFinished()) {
-            // FIXME: get rid of this busy wait, eventually
-            QCoreApplication::processEvents();
-        }
-    }
-    progress->setLabelText(tr("Sending mail..."));
-    progress->setValue(2);
-
-    connect(msa, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
-    connect(msa, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
-    connect(msa, SIGNAL(error(QString)), progress, SLOT(close()));
-    connect(msa, SIGNAL(sent()), progress, SLOT(close()));
-    connect(msa, SIGNAL(sent()), this, SLOT(sent()));
-    connect(progress, SIGNAL(canceled()), msa, SLOT(cancel()));
-    connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
-
-    if (m_genUrlAuthReceived && s.value(SettingsNames::smtpUseBurlKey, false).toBool()) {
-        msa->sendBurl(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_urlauth.toUtf8());
-    } else {
-        msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), rawMessageData);
-    }
-
-    m_sentMail = true;
+    // Looks like the QProgressDialog is different that QProgressBar and is not really designed to work well with
+    // the generic "busy indicator" mode. Apparently, the conditions in QPD simply prevent it from appearing even
+    // though the setMinimumDuration() is properly called.
+    progress->show();
 }
-
 
 
 void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> > &recipients,
@@ -435,12 +297,12 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     const bool wasEdited = m_messageEverEdited;
     ui->mailText->setText(body);
     m_messageEverEdited = wasEdited;
-    m_composer->setInReplyTo(inReplyTo);
-    m_composer->setReferences(references);
-    m_replyingTo = replyingToMessage;
+    m_submission->composer()->setInReplyTo(inReplyTo);
+    m_submission->composer()->setReferences(references);
+    m_submission->composer()->setReplyingToMessage(replyingToMessage);
 
     int row = -1;
-    bool ok = Composer::Util::chooseSenderIdentityForReply(m_mainWindow->senderIdentitiesModel(), m_replyingTo, row);
+    bool ok = Composer::Util::chooseSenderIdentityForReply(m_mainWindow->senderIdentitiesModel(), replyingToMessage, row);
     if (ok) {
         Q_ASSERT(row >= 0 && row < m_mainWindow->senderIdentitiesModel()->rowCount());
         ui->sender->setCurrentIndex(row);
@@ -625,26 +487,9 @@ void ComposeWidget::gotError(const QString &error)
 
 void ComposeWidget::sent()
 {
-#if 0
-    if (m_appendUidReceived) {
-        // FIXME: check the UIDVALIDITY!!!
-        // FIXME: doesn't work at all; the messageIndexByUid() only works on already selected mailboxes
-        QModelIndex message = m_mainWindow->imapModel()->
-                messageIndexByUid(QSettings().value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(), m_appendUid);
-        if (message.isValid()) {
-            m_mainWindow->imapModel()->setMessageFlags(QModelIndexList() << message,
-                                                       QLatin1String("\\Seen $Submitted"), Imap::Mailbox::FLAG_USE_THESE);
-        }
-    }
-#endif
-
-    if (m_replyingTo.isValid()) {
-        m_mainWindow->imapModel()->setMessageFlags(QModelIndexList() << m_replyingTo,
-                                                   QLatin1String("\\Answered"), Imap::Mailbox::FLAG_ADD);
-    }
-
     // FIXME: move back to the currently selected mailbox
 
+    m_sentMail = true;
     QTimer::singleShot(0, this, SLOT(close()));
 }
 
@@ -733,7 +578,7 @@ void ComposeWidget::slotAskForFileAttachment()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Attach File..."), QString(), QString(), 0,
                                                     QFileDialog::DontResolveSymlinks);
     if (!fileName.isEmpty()) {
-        m_composer->addFileAttachment(fileName);
+        m_submission->composer()->addFileAttachment(fileName);
     }
 }
 
@@ -746,35 +591,14 @@ void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
 #else
         if (url.scheme() == QLatin1String("file")) {
 #endif
-            m_composer->addFileAttachment(url.path());
+            m_submission->composer()->addFileAttachment(url.path());
         }
     }
 }
 
 void ComposeWidget::slotRemoveAttachment()
 {
-    m_composer->removeAttachment(ui->attachmentsView->currentIndex());
-}
-
-/** @short Remember the APPENDUID as reported by the APPEND operation */
-void ComposeWidget::slotAppendUidKnown(const uint uidValidity, const uint uid)
-{
-    m_appendUidValidity = uidValidity;
-    m_appendUid = uid;
-
-    if (m_appendUid && m_appendUidValidity) {
-        // Only ever consider valid UIDVALIDITY/UID pair
-        m_appendUidReceived = true;
-    }
-}
-
-/** @short Remember the GENURLAUTH response */
-void ComposeWidget::slotGenUrlAuthReceived(const QString &url)
-{
-    m_urlauth = url;
-    if (!m_urlauth.isEmpty()) {
-        m_genUrlAuthReceived = true;
-    }
+    m_submission->composer()->removeAttachment(ui->attachmentsView->currentIndex());
 }
 
 void ComposeWidget::slotUpdateSignature()
@@ -797,33 +621,19 @@ void ComposeWidget::slotUpdateSignature()
     m_messageEverEdited = wasEdited;
 }
 
-
-/** @short Remove the "@domain" from a string */
-QString ComposeWidget::killDomainPartFromString(const QString &s)
-{
-    return s.split(QLatin1Char('@'))[0];
-}
-
-/** @short Return true if the message payload shall be built locally */
-bool ComposeWidget::shouldBuildMessageLocally() const
-{
-    // Unless all of URLAUTH, CATENATE and BURL is present and enabled, we will still have to download the data in the end
-    return ! (m_mainWindow->isCatenateSupported() && m_mainWindow->isGenUrlAuthSupported()
-              && QSettings().value(Common::SettingsNames::smtpUseBurlKey, false).toBool());
-}
-
 /** @short Massage the list of recipients so that they match the desired type of reply
 
 In case of an error, the original list of recipients is left as is.
 */
 bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
 {
-    if (!m_replyingTo.isValid())
+    if (!m_submission->composer()->replyingToMessage().isValid())
         return false;
 
     // Determine the new list of recipients
     Composer::RecipientList list;
-    if (!Composer::Util::replyRecipientList(mode, m_mainWindow->senderIdentitiesModel(), m_replyingTo, list)) {
+    if (!Composer::Util::replyRecipientList(mode, m_mainWindow->senderIdentitiesModel(),
+                                            m_submission->composer()->replyingToMessage(), list)) {
         return false;
     }
 
@@ -863,7 +673,7 @@ void ComposeWidget::saveDraft(const QString &path)
         stream << m_recipients.at(i).first->itemData(m_recipients.at(i).first->currentIndex()).toInt();
         stream << m_recipients.at(i).second->text();
     }
-    stream << m_composer->timestamp() << m_composer->inReplyTo() << m_composer->references();
+    stream << m_submission->composer()->timestamp() << m_submission->composer()->inReplyTo() << m_submission->composer()->references();
     stream << ui->subject->text();
     stream << ui->mailText->toPlainText();
     // we spare attachments
@@ -910,9 +720,9 @@ void ComposeWidget::loadDraft(const QString &path)
         QDateTime timestamp;
         QList<QByteArray> inReplyTo, references;
         stream >> timestamp >> inReplyTo >> references;
-        m_composer->setTimestamp(timestamp);
-        m_composer->setInReplyTo(inReplyTo);
-        m_composer->setReferences(references);
+        m_submission->composer()->setTimestamp(timestamp);
+        m_submission->composer()->setInReplyTo(inReplyTo);
+        m_submission->composer()->setReferences(references);
     }
     stream >> string;
     ui->subject->setText(string);

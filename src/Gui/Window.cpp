@@ -57,6 +57,8 @@
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/FileDownloadManager.h"
+#include "MSA/Sendmail.h"
+#include "MSA/SMTP.h"
 #include "AbookAddressbook.h"
 #include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
@@ -89,8 +91,7 @@ Q_DECLARE_METATYPE(QList<QSslError>)
 namespace Gui
 {
 
-MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_supportsCatenate(false),
-    m_supportsGenUrlAuth(false), m_supportsImapSubmission(false)
+MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
@@ -1020,7 +1021,8 @@ void MainWindow::recoverDrafts()
     QStringList drafts(draftPath.entryList(QStringList() << QLatin1String("*.draft")));
     Q_FOREACH(const QString &draft, drafts) {
         ComposeWidget *cw = invokeComposeDialog();
-        cw->loadDraft(draftPath.filePath(draft));
+        if (cw)
+            cw->loadDraft(draftPath.filePath(draft));
     }
 }
 
@@ -1042,7 +1044,8 @@ void MainWindow::slotEditDraft()
     path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + QLatin1String(" (*.draft)"));
     if (!path.isEmpty()) {
         ComposeWidget *cw = invokeComposeDialog();
-        cw->loadDraft(path);
+        if (cw)
+            cw->loadDraft(path);
     }
 }
 
@@ -1336,8 +1339,39 @@ ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QSt
                                                const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
                                                const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
+    using namespace Common;
     QSettings s;
-    ComposeWidget *w = new ComposeWidget(this);
+    QString method = s.value(SettingsNames::msaMethodKey).toString();
+    MSA::MSAFactory *msaFactory = 0;
+    if (method == SettingsNames::methodSMTP || method == SettingsNames::methodSSMTP) {
+        msaFactory = new MSA::SMTPFactory(s.value(SettingsNames::smtpHostKey).toString(),
+                                          s.value(SettingsNames::smtpPortKey).toInt(),
+                                          (method == SettingsNames::methodSSMTP),
+                                          (method == SettingsNames::methodSMTP)
+                                          && s.value(SettingsNames::smtpStartTlsKey).toBool(),
+                                          s.value(SettingsNames::smtpAuthKey).toBool(),
+                                          s.value(SettingsNames::smtpUserKey).toString(),
+                                          s.value(SettingsNames::smtpPassKey).toString());
+    } else if (method == SettingsNames::methodSENDMAIL) {
+        QStringList args = s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
+        if (args.isEmpty()) {
+            QMessageBox::critical(this, tr("Error"), tr("Please configure the SMTP or sendmail settings in application settings."));
+            return 0;
+        }
+        QString appName = args.takeFirst();
+        msaFactory = new MSA::SendmailFactory(appName, args);
+    } else if (method == SettingsNames::methodImapSendmail) {
+        if (!imapModel()->capabilities().contains(QLatin1String(""))) {
+            QMessageBox::critical(this, tr("Error"), tr("The IMAP server does not support mail submission. Please reconfigure the application."));
+            return 0;
+        }
+        // no particular preparation needed here
+    } else {
+        QMessageBox::critical(this, tr("Error"), tr("Please configure e-mail delivery method in application settings."));
+        return 0;
+    }
+
+    ComposeWidget *w = new ComposeWidget(this, msaFactory);
 
     // Trim the References header as per RFC 5537
     QList<QByteArray> trimmedReferences = references;
@@ -1746,11 +1780,6 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
                                                Common::SettingsNames::guiMailboxListShowOnlySubscribed, false).toBool());
     m_actionSubscribeMailbox->setEnabled(m_actionShowOnlySubscribed->isEnabled());
 
-    m_supportsCatenate = capabilities.contains(QLatin1String("CATENATE"));
-    m_supportsGenUrlAuth = capabilities.contains(QLatin1String("URLAUTH"));
-    m_supportsImapSubmission = capabilities.contains(QLatin1String("UIDPLUS")) &&
-            capabilities.contains(QLatin1String("X-DRAFT-I01-SENDMAIL"));
-
     const QStringList supportedCapabilities = Imap::Mailbox::ThreadingMsgListModel::supportedCapabilities();
     Q_FOREACH(const QString &capability, capabilities) {
         if (supportedCapabilities.contains(capability)) {
@@ -1873,21 +1902,6 @@ void MainWindow::slotLayoutWide()
 Imap::Mailbox::Model *MainWindow::imapModel() const
 {
     return model;
-}
-
-bool MainWindow::isCatenateSupported() const
-{
-    return m_supportsCatenate;
-}
-
-bool MainWindow::isGenUrlAuthSupported() const
-{
-    return m_supportsGenUrlAuth;
-}
-
-bool MainWindow::isImapSubmissionSupported() const
-{
-    return m_supportsImapSubmission;
 }
 
 /** @short Deal with various obsolete settings */

@@ -404,6 +404,10 @@ void MessageComposer::setText(const QString &text)
 
 bool MessageComposer::isReadyForSerialization() const
 {
+    Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
+        if (!attachment->isAvailableLocally())
+            return false;
+    }
     return true;
 }
 
@@ -726,6 +730,16 @@ void MessageComposer::removeAttachment(const QModelIndex &index)
 void MessageComposer::setPreloadEnabled(const bool preload)
 {
     m_shouldPreload = preload;
+}
+
+void MessageComposer::setReplyingToMessage(const QModelIndex &index)
+{
+    m_replyingTo = index;
+}
+
+QModelIndex MessageComposer::replyingToMessage() const
+{
+    return m_replyingTo;
 }
 
 }

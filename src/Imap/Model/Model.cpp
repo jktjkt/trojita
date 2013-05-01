@@ -31,14 +31,15 @@
 #endif
 #include <QtAlgorithms>
 #include "Model.h"
-#include "AppendTask.h"
-#include "GetAnyConnectionTask.h"
-#include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
-#include "TaskPresentationModel.h"
-#include "OpenConnectionTask.h"
 #include "QAIM_reset.h"
+#include "TaskPresentationModel.h"
 #include "Common/FindWithUnknown.h"
+#include "Imap/Tasks/AppendTask.h"
+#include "Imap/Tasks/GetAnyConnectionTask.h"
+#include "Imap/Tasks/KeepMailboxOpenTask.h"
+#include "Imap/Tasks/OpenConnectionTask.h"
+#include "Imap/Tasks/UpdateFlagsTask.h"
 #include "Streams/SocketFactory.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
@@ -954,6 +955,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
     // We are asking for a message part, which means that the structure of a message is already known.
     // If the UID was zero at this point, it would mean that we are completely doomed.
+    // FIXME: a malicious server could exploit this!
     uint uid = static_cast<TreeItemMessage *>(item->message())->uid();
     Q_ASSERT(uid);
 
@@ -1161,11 +1163,11 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     }
 }
 
-void Model::setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked)
+ImapTask *Model::setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked)
 {
     Q_ASSERT(!messages.isEmpty());
     Q_ASSERT(messages.front().model() == this);
-    m_taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
+    return m_taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
 }
 
 void Model::markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked)
@@ -1991,6 +1993,24 @@ void Model::slotNetworkConnectivityStatusChanged(const bool online)
         }
     }
 }
+
+
+bool Model::isCatenateSupported() const
+{
+    return capabilities().contains(QLatin1String("CATENATE"));
+}
+
+bool Model::isGenUrlAuthSupported() const
+{
+    return capabilities().contains(QLatin1String("URLAUTH"));
+}
+
+bool Model::isImapSubmissionSupported() const
+{
+    QStringList caps = capabilities();
+    return caps.contains(QLatin1String("UIDPLUS")) && caps.contains(QLatin1String("X-DRAFT-I01-SENDMAIL"));
+}
+
 
 }
 }
