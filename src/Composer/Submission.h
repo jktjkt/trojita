@@ -95,7 +95,6 @@ signals:
     void progressMin(const int min);
     void progressMax(const int max);
     void progress(const int progress);
-    void updateCancellable(bool cancellable);
     void updateStatusMessage(const QString &message);
     void failed(const QString &message);
     void succeeded();

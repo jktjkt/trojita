@@ -267,9 +267,7 @@ void ComposeWidget::send()
     progress->setEnabled(true);
     progress->setMinimumDuration(0);
     progress->setRange(0, 0);
-    QPointer<QPushButton> progressCancelButton = new QPushButton(tr("Abort"));
-    connect(m_submission, SIGNAL(updateCancellable(bool)), progressCancelButton, SLOT(setEnabled(bool)));
-    progress->setCancelButton(progressCancelButton);
+    progress->setCancelButton(0);
 
     connect(m_submission, SIGNAL(progressMin(int)), progress, SLOT(setMinimum(int)));
     connect(m_submission, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
