@@ -30,6 +30,7 @@
 #include <QWebFrame>
 
 #include "SimplePartWidget.h"
+#include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Network/FileDownloadManager.h"
@@ -88,7 +89,7 @@ void SimplePartWidget::slotMarkupPlainText() {
         "input ~ span.short {display: none}"
         "input:checked ~ span.full {display: none}"
         "input:checked ~ span.short {display: block}"
-        "label {border: 1px solid #333333; border-radius: 5px; padding: 0px 4px 0px 4px; white-space: nowrap}"
+        "label {border: 1px solid %2; border-radius: 5px; padding: 0px 4px 0px 4px; white-space: nowrap}"
         // BLACK UP-POINTING SMALL TRIANGLE (U+25B4)
         // BLACK DOWN-POINTING SMALL TRIANGLE (U+25BE)
         "span.full > blockquote > label:before {content: \"\u25b4\"}"
@@ -104,7 +105,10 @@ void SimplePartWidget::slotMarkupPlainText() {
     // looks like there's no special color for hovered links in Qt
 
     // build stylesheet and html header
-    static QString stylesheet = defaultStyle.arg(palette.link().color().name());
+    QColor tintForQuoteIndicator = palette.base().color();
+    tintForQuoteIndicator.setAlpha(0x66);
+    static QString stylesheet = defaultStyle.arg(palette.link().color().name(),
+                                                 Gui::Util::tintColor(palette.text().color(), tintForQuoteIndicator).name());
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     static QFile file(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QLatin1String("message.css"));
 #else
