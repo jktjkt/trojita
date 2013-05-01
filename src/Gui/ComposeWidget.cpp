@@ -72,6 +72,8 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
 
     Q_ASSERT(m_mainWindow);
     m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory);
+    connect(m_submission, SIGNAL(succeeded()), this, SLOT(sent()));
+    connect(m_submission, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
 
     ui->setupUi(this);
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
@@ -266,9 +268,7 @@ void ComposeWidget::send()
     connect(m_submission, SIGNAL(progressMin(int)), progress, SLOT(setMinimum(int)));
     connect(m_submission, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
     connect(m_submission, SIGNAL(updateStatusMessage(QString)), progress, SLOT(setLabelText(QString)));
-    connect(m_submission, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
     connect(m_submission, SIGNAL(succeeded()), progress, SLOT(close()));
-    connect(m_submission, SIGNAL(succeeded()), this, SLOT(sent()));
     connect(m_submission, SIGNAL(updateCancellable(bool)), progress, SLOT(setEnabled(bool)));
 
     m_submission->send();
