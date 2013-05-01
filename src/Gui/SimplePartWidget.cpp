@@ -97,11 +97,8 @@ void SimplePartWidget::slotMarkupPlainText() {
     );
 
     QPalette palette = QApplication::palette();
-    QString textColors;
-    if (palette.background().color().lightness() < 50) {
-        textColors = QString::fromUtf8("body { background-color: %1; color: %2 }").arg(palette.base().color().name(),
-                                                                                       palette.text().color().name());
-    }
+    QString textColors = QString::fromUtf8("body { background-color: %1; color: %2 }").arg(palette.base().color().name(),
+                                                                                           palette.text().color().name());
 
     // build stylesheet and html header
     static QString stylesheet = defaultStyle;
