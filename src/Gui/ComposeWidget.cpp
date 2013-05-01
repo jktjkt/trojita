@@ -37,6 +37,8 @@
 #include "ComposeWidget.h"
 #include "FromAddressProxyModel.h"
 #include "LineEdit.h"
+#include "OverlayWidget.h"
+#include "ProgressPopUp.h"
 #include "Window.h"
 #include "ui_ComposeWidget.h"
 
@@ -262,26 +264,26 @@ void ComposeWidget::send()
     m_submission->setSmtpOptions(s.value(Common::SettingsNames::smtpUseBurlKey, false).toBool(),
                                  s.value(Common::SettingsNames::smtpUserKey).toString());
 
-    QProgressDialog *progress = new QProgressDialog(this);
-    setEnabled(false);
-    progress->setEnabled(true);
-    progress->setMinimumDuration(0);
-    progress->setRange(0, 0);
-    progress->setCancelButton(0);
+
+    ProgressPopUp *progress = new ProgressPopUp();
+    OverlayWidget *overlay = new OverlayWidget(progress, this);
+    overlay->show();
+    setUiWidgetsEnabled(false);
 
     connect(m_submission, SIGNAL(progressMin(int)), progress, SLOT(setMinimum(int)));
     connect(m_submission, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
     connect(m_submission, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
     connect(m_submission, SIGNAL(updateStatusMessage(QString)), progress, SLOT(setLabelText(QString)));
-    connect(m_submission, SIGNAL(succeeded()), progress, SLOT(deleteLater()));
-    connect(m_submission, SIGNAL(failed(QString)), progress, SLOT(deleteLater()));
+    connect(m_submission, SIGNAL(succeeded()), overlay, SLOT(deleteLater()));
+    connect(m_submission, SIGNAL(failed(QString)), overlay, SLOT(deleteLater()));
 
     m_submission->send();
+}
 
-    // Looks like the QProgressDialog is different that QProgressBar and is not really designed to work well with
-    // the generic "busy indicator" mode. Apparently, the conditions in QPD simply prevent it from appearing even
-    // though the setMinimumDuration() is properly called.
-    progress->show();
+void ComposeWidget::setUiWidgetsEnabled(const bool enabled)
+{
+    ui->splitter->setEnabled(enabled);
+    ui->buttonBox->setEnabled(enabled);
 }
 
 
@@ -482,7 +484,7 @@ void ComposeWidget::collapseRecipients()
 void ComposeWidget::gotError(const QString &error)
 {
     QMessageBox::critical(this, tr("Failed to Send Mail"), error);
-    setEnabled(true);
+    setUiWidgetsEnabled(true);
 }
 
 void ComposeWidget::sent()

@@ -98,6 +98,8 @@ private slots:
     void autoSaveDraft();
     void setMessageUpdated();
 
+    void setUiWidgetsEnabled(const bool enabled);
+
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     static Composer::RecipientKind recipientKindForNextRow(const Composer::RecipientKind kind);
