@@ -386,11 +386,8 @@ void Submission::onUpdatingFlagsOfReplyingToFailed()
 
 void Submission::onMsaProgressCurrentChanged(const int value)
 {
-    if (!m_msaMaximalProgress) {
-        // We don't have any usable information here
-        emit progressMax(0);
-        emit progress(0);
-    } else {
+    if (m_msaMaximalProgress > 0) {
+        // prevent division by zero or performing operations which do not make any sense
         int low = m_saveToSentFolder ? PROGRESS_DELIVERY_START_WITH_SAVING : PROGRESS_DELIVERY_START_WITHOUT_SAVING;
         int high = PROGRESS_DELIVERY_DONE;
         emit progress(1.0 * value / m_msaMaximalProgress * (high - low) + low);
