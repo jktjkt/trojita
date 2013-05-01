@@ -77,7 +77,7 @@ void SimplePartWidget::slotMarkupPlainText() {
         // quotation characters and therefore a weird white area appears. Even width: 0px doesn't help, so it looks like
         // we will have to live with this warning for the time being.
         ".quotemarks{color:transparent;font-size:0px;}"
-        "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
+        "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid %1;}"
         // Stop the font size from getting smaller after reaching two levels of quotes
         // (ie. starting on the third level, don't make the size any smaller than what it already is)
         "blockquote blockquote blockquote {font-size: 100%}"
@@ -104,7 +104,7 @@ void SimplePartWidget::slotMarkupPlainText() {
     // looks like there's no special color for hovered links in Qt
 
     // build stylesheet and html header
-    static QString stylesheet = defaultStyle;
+    static QString stylesheet = defaultStyle.arg(palette.link().color().name());
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     static QFile file(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QLatin1String("message.css"));
 #else
