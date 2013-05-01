@@ -265,6 +265,7 @@ void ComposeWidget::send()
     QProgressDialog *progress = new QProgressDialog(tr("Sending mail"), tr("Abort"), 0, Composer::Submission::STATE_SENT, this);
     setEnabled(false);
     progress->setEnabled(true);
+    progress->setMinimumDuration(0);
     connect(m_submission, SIGNAL(progressMin(int)), progress, SLOT(setMinimum(int)));
     connect(m_submission, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
     connect(m_submission, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
