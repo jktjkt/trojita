@@ -88,6 +88,9 @@ private slots:
     void slotAskForUrl();
     void slotInvokeMsaNow();
 
+    void onMsaProgressMaxChanged(const int max);
+    void onMsaProgressCurrentChanged(const int value);
+
 signals:
     void progressMin(const int min);
     void progressMax(const int max);
@@ -119,6 +122,7 @@ private:
 
     SubmissionProgress m_state;
     QByteArray m_rawMessageData;
+    int m_msaMaximalProgress;
 
     MessageComposer *m_composer;
     Imap::Mailbox::Model *m_model;

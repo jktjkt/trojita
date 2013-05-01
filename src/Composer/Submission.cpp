@@ -32,6 +32,17 @@
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
 
+namespace {
+const int PROGRESS_MAX = 1000;
+// We're very likely almost half-way there -- let's call it 45%
+const int PROGRESS_SAVING_DONE = PROGRESS_MAX * 0.45;
+// Updating flags might take roughly as much time as the URLAUTH
+const int PROGRESS_DELIVERY_DONE = PROGRESS_MAX * 0.95;
+
+const int PROGRESS_DELIVERY_START_WITHOUT_SAVING = PROGRESS_MAX * 0.10;
+const int PROGRESS_DELIVERY_START_WITH_SAVING = PROGRESS_MAX * 0.5;
+}
+
 namespace Composer
 {
 
@@ -62,6 +73,7 @@ Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFac
     QObject(parent),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_saveToSentFolder(false), m_useBurl(false), m_useImapSubmit(false), m_state(STATE_INIT),
+    m_msaMaximalProgress(0),
     m_composer(0), m_model(model), m_msaFactory(msaFactory), m_updateReplyingToMessageFlagsTask(0)
 {
     m_composer = new Composer::MessageComposer(model, this);
@@ -82,30 +94,49 @@ void Submission::changeConnectionState(const SubmissionProgress state)
     m_state = state;
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), submissionProgressToString(m_state));
 
-    // Now broadcast a human-readable message
+    // Now broadcast a human-readable message and update the progress dialog
     switch (state) {
     case STATE_INIT:
+        emit progressMin(0);
+        emit progressMax(0);
+        emit progress(0);
         emit updateStatusMessage(tr("Preparing to send"));
         break;
     case STATE_BUILDING_MESSAGE:
+        emit progress(0);
+        emit progressMax(0);
         emit updateStatusMessage(tr("Creating message"));
         break;
     case STATE_SAVING:
+        emit progress(0);
+        emit progressMax(0);
         emit updateStatusMessage(tr("Saving to the sent folder"));
         break;
     case STATE_PREPARING_URLAUTH:
+        emit progressMax(PROGRESS_MAX);
+        emit progress(PROGRESS_SAVING_DONE);
         emit updateStatusMessage(tr("Preparing message for delivery"));
         break;
     case STATE_SUBMITTING:
+        emit progressMax(PROGRESS_MAX);
+        emit progress(m_saveToSentFolder ? PROGRESS_DELIVERY_START_WITH_SAVING : PROGRESS_DELIVERY_START_WITHOUT_SAVING);
         emit updateStatusMessage(tr("Submitting message"));
         break;
     case STATE_UPDATING_FLAGS:
+        emit progressMax(PROGRESS_MAX);
+        emit progress(PROGRESS_DELIVERY_DONE);
         emit updateStatusMessage(tr("Updating message keywords"));
         break;
     case STATE_SENT:
+        emit progressMax(PROGRESS_MAX);
+        emit progress(PROGRESS_MAX);
         emit updateStatusMessage(tr("Message sent"));
         break;
     case STATE_FAILED:
+        // revert to the busy indicator
+        emit progressMin(0);
+        emit progressMax(0);
+        emit progress(0);
         emit updateStatusMessage(tr("Sending failed"));
         break;
     }
@@ -131,7 +162,10 @@ void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
 
 void Submission::send()
 {
+    // this double-updating is needed in case the same Submission attempts to send a message more than once
+    changeConnectionState(STATE_INIT);
     changeConnectionState(STATE_BUILDING_MESSAGE);
+
     if (shouldBuildMessageLocally() && !m_composer->isReadyForSerialization()) {
         // we have to wait until the data arrive
         // FIXME: relax this to wait here
@@ -217,8 +251,8 @@ void Submission::slotInvokeMsaNow()
 {
     changeConnectionState(STATE_SUBMITTING);
     MSA::AbstractMSA *msa = m_msaFactory->create(this);
-    connect(msa, SIGNAL(progressMax(int)), this, SIGNAL(progressMax(int)));
-    connect(msa, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
+    connect(msa, SIGNAL(progressMax(int)), this, SLOT(onMsaProgressMaxChanged(int)));
+    connect(msa, SIGNAL(progress(int)), this, SLOT(onMsaProgressCurrentChanged(int)));
     connect(msa, SIGNAL(sent()), this, SLOT(sent()));
     connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
 
@@ -348,6 +382,24 @@ void Submission::onUpdatingFlagsOfReplyingToFailed()
                       QLatin1String("Cannot update flags of the message we replied to -- interesting, but we cannot do anything at this point anyway"));
     changeConnectionState(STATE_SENT);
     emit succeeded();
+}
+
+void Submission::onMsaProgressCurrentChanged(const int value)
+{
+    if (!m_msaMaximalProgress) {
+        // We don't have any usable information here
+        emit progressMax(0);
+        emit progress(0);
+    } else {
+        int low = m_saveToSentFolder ? PROGRESS_DELIVERY_START_WITH_SAVING : PROGRESS_DELIVERY_START_WITHOUT_SAVING;
+        int high = PROGRESS_DELIVERY_DONE;
+        emit progress(1.0 * value / m_msaMaximalProgress * (high - low) + low);
+    }
+}
+
+void Submission::onMsaProgressMaxChanged(const int max)
+{
+    m_msaMaximalProgress = max;
 }
 
 }
