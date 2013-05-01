@@ -26,6 +26,7 @@
 
 #include <QString>
 
+class QColor;
 class QWidget;
 
 namespace Gui
@@ -38,6 +39,8 @@ namespace Util
 void centerWidgetOnScreen(QWidget *widget, bool centerOnCursorScreen=true);
 
 QString pkgDataDir();
+
+QColor tintColor(const QColor &color, const QColor &tintColor);
 
 } // namespace Util
 
