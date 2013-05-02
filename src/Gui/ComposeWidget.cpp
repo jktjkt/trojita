@@ -252,6 +252,11 @@ bool ComposeWidget::buildMessageData()
 
 void ComposeWidget::send()
 {
+    // Well, Trojita is of course rock solid and will never ever crash :), but experience has shown that every now and then,
+    // there is a subtle issue $somewhere. This means that it's probably a good idea to save the draft explicitly -- better
+    // than losing some work. It's cheap anyway.
+    saveDraft(m_autoSavePath);
+
     if (!buildMessageData())
         return;
 
