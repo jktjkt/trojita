@@ -395,6 +395,9 @@ signals:
     */
     void needsSslDecision(const QList<QSslCertificate> &certificates, const QList<QSslError> &sslErrors);
 
+    /** @short Inform the user that it is advised to enable STARTTLS in future connection attempts */
+    void requireStartTlsInFuture();
+
     /** @short The amount of messages in the indicated mailbox might have changed */
     void messageCountPossiblyChanged(const QModelIndex &mailbox);
 

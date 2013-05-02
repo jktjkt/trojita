@@ -669,6 +669,7 @@ void MainWindow::setupModels()
     connect(model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
     connect(model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(sslErrors(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
+    connect(model, SIGNAL(requireStartTlsInFuture()), this, SLOT(requireStartTlsInFuture()));
 
     connect(model, SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
     connect(model, SIGNAL(networkPolicyExpensive()), this, SLOT(networkPolicyExpensive()));
@@ -986,6 +987,11 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
     } else {
         model->setSslPolicy(certificateChain, errors, false);
     }
+}
+
+void MainWindow::requireStartTlsInFuture()
+{
+    QSettings().setValue(Common::SettingsNames::imapStartTlsKey, true);
 }
 
 void MainWindow::nukeModels()

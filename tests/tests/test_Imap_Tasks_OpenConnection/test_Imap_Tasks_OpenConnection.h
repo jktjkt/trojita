@@ -76,6 +76,7 @@ private:
     QSignalSpy* failedSpy;
     QSignalSpy* authSpy;
     QSignalSpy *connErrorSpy;
+    QSignalSpy *startTlsUpgradeSpy;
 
     bool m_enableAutoLogin;
 };

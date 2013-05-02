@@ -107,6 +107,7 @@ private slots:
     void authenticationRequested();
     void authenticationFailed(const QString &message);
     void sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors);
+    void requireStartTlsInFuture();
     void slotComposeMailUrl(const QUrl &url);
     void slotComposeMail();
     void slotEditDraft();

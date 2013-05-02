@@ -210,6 +210,13 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         if (resp->tag == startTlsCmd) {
             if (resp->kind == OK) {
                 model->changeConnectionState(parser, CONN_STATE_STARTTLS_HANDSHAKE);
+                if (!model->m_startTls) {
+                    // The model was not configured to perform STARTTLS, but we still did that for some reason.
+                    // As suggested by Mike Cardwell on the trojita ML (http://article.gmane.org/gmane.mail.trojita.general/299),
+                    // it makes sense to make this settings permanent, so that a user is not tricked into revealing their
+                    // password when a MITM removes the LOGINDISABLED in future.
+                    emit model->requireStartTlsInFuture();
+                }
             } else {
                 logout(tr("STARTTLS failed: %1").arg(resp->message));
             }

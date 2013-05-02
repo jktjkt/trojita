@@ -68,6 +68,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     failedSpy = new QSignalSpy(task, SIGNAL(failed(QString)));
     authSpy = new QSignalSpy(model, SIGNAL(authRequested()));
     connErrorSpy = new QSignalSpy(model, SIGNAL(connectionError(QString)));
+    startTlsUpgradeSpy = new QSignalSpy(model, SIGNAL(requireStartTlsInFuture()));
 }
 
 void ImapModelOpenConnectionTest::acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors)
@@ -86,6 +87,8 @@ void ImapModelOpenConnectionTest::cleanup()
     failedSpy = 0;
     delete authSpy;
     authSpy = 0;
+    delete startTlsUpgradeSpy;
+    startTlsUpgradeSpy = 0;
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
@@ -110,6 +113,7 @@ void ImapModelOpenConnectionTest::testPreauth()
     QCOMPARE( completedSpy->size(), 1 );
     QVERIFY(failedSpy->isEmpty());
     QVERIFY( authSpy->isEmpty() );
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test that we can obtain capability when embedded in PREAUTH */
@@ -126,6 +130,7 @@ void ImapModelOpenConnectionTest::testPreauthWithCapability()
     QCOMPARE( completedSpy->size(), 1 );
     QVERIFY(failedSpy->isEmpty());
     QVERIFY( authSpy->isEmpty() );
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test for obtaining capability and logging in without any STARTTLS */
@@ -154,6 +159,7 @@ void ImapModelOpenConnectionTest::testOk()
     QCOMPARE( completedSpy->size(), 1 );
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test with capability inside the OK greetings, no STARTTLS */
@@ -176,6 +182,7 @@ void ImapModelOpenConnectionTest::testOkWithCapability()
     QCOMPARE( completedSpy->size(), 1 );
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short See what happens when the capability response doesn't contain IMAP4rev1 capability */
@@ -190,6 +197,7 @@ void ImapModelOpenConnectionTest::testOkMissingImap4rev1()
     QCoreApplication::processEvents();
     QVERIFY(authSpy->isEmpty());
     QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test to honor embedded LOGINDISABLED */
@@ -227,6 +235,7 @@ void ImapModelOpenConnectionTest::testOkLogindisabled()
     QCOMPARE( completedSpy->size(), 1 );
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE(startTlsUpgradeSpy->size(), 1);
 }
 
 /** @short Test how LOGINDISABLED without a corresponding STARTTLS in the capabilities end up */
@@ -242,6 +251,7 @@ void ImapModelOpenConnectionTest::testOkLogindisabledWithoutStarttls()
     QVERIFY( authSpy->isEmpty() );
     // The capabilities do not contain STARTTLS but LOGINDISABLED is in there
     QCOMPARE(failedSpy->size(), 1);
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test for an explicit CAPABILITY retrieval and automatic STARTTLS when LOGINDISABLED */
@@ -285,6 +295,7 @@ void ImapModelOpenConnectionTest::testOkLogindisabledLater()
     QCOMPARE( completedSpy->size(), 1 );
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE(startTlsUpgradeSpy->size(), 1);
 }
 
 /** @short Test conf-requested STARTTLS when not faced with embedded capabilities in OK greetings */
@@ -329,6 +340,7 @@ void ImapModelOpenConnectionTest::testOkStartTls()
     QCOMPARE( completedSpy->size(), 1 );
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test that an untagged CAPABILITY after LOGIN prevents an extra CAPABILITY command */
@@ -374,6 +386,7 @@ void ImapModelOpenConnectionTest::testCapabilityAfterLogin()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
     QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test conf-requested STARTTLS when the server doesn't support STARTTLS at all */
@@ -396,6 +409,7 @@ void ImapModelOpenConnectionTest::testOkStartTlsForbidden()
     QCoreApplication::processEvents();
     QCOMPARE(failedSpy->size(), 1);
     QVERIFY(authSpy->isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test to re-request formerly embedded capabilities when launching STARTTLS */
@@ -435,6 +449,7 @@ void ImapModelOpenConnectionTest::testOkStartTlsDiscardCaps()
     QCOMPARE( completedSpy->size(), 1 );
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test how COMPRESS=DEFLATE gets activated and its interaction with further tasks */
@@ -474,6 +489,7 @@ void ImapModelOpenConnectionTest::testCompressDeflateOk()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test that denied COMPRESS=DEFLATE doesn't result in compression being active */
@@ -512,6 +528,7 @@ void ImapModelOpenConnectionTest::testCompressDeflateNo()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Make sure that as long as the OpenConnectionTask has not finished its job, nothing else will get queued */
@@ -551,6 +568,7 @@ void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test that no tasks can skip over a task which is blocking for login */
@@ -618,6 +636,7 @@ void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test that we respect an initial BYE and don't proceed with login */
@@ -633,6 +652,7 @@ void ImapModelOpenConnectionTest::testInitialBye()
     QCOMPARE(failedSpy->size(), 1);
     QVERIFY(completedSpy->isEmpty());
     QVERIFY(connErrorSpy->isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test how we react on some crazy garbage instead of a proper IMAP4 greeting */
@@ -651,6 +671,7 @@ void ImapModelOpenConnectionTest::testInitialGarbage()
     QCOMPARE(connErrorSpy->size(), 1);
     QCOMPARE(failedSpy->size(), 1);
     QVERIFY(completedSpy->isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 void ImapModelOpenConnectionTest::testInitialGarbage_data()
