@@ -25,7 +25,6 @@ SOURCES += \
     PartWidgetFactory.cpp \
     PartWidget.cpp \
     SimplePartWidget.cpp \
-    Rfc822HeaderView.cpp \
     AttachmentView.cpp \
     LoadablePartWidget.cpp \
     Window.cpp \
@@ -67,7 +66,6 @@ HEADERS += \
     AbstractPartWidget.h \
     EmbeddedWebView.h \
     Window.h \
-    Rfc822HeaderView.h \
     LoadablePartWidget.h \
     PartWidget.h \
     SettingsDialog.h \

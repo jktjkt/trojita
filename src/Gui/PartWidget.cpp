@@ -26,8 +26,8 @@
 #include <QVBoxLayout>
 #include <QTabBar>
 
+#include "EnvelopeView.h"
 #include "PartWidgetFactory.h"
-#include "Rfc822HeaderView.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
@@ -174,10 +174,9 @@ Message822Widget::Message822Widget(QWidget *parent,
     setFlat(true);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
-    QModelIndex headerIndex = partIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
-    Q_ASSERT(headerIndex.isValid());
-    QLabel *header = new Rfc822HeaderView(0, headerIndex);
-    layout->addWidget(header);
+    EnvelopeView *envelope = new EnvelopeView(0);
+    envelope->setMessage(partIndex);
+    layout->addWidget(envelope);
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
