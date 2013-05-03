@@ -1539,5 +1539,25 @@ QString TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) const
     return TreeItemPart::partIdForFetch(FETCH_PART_IMAP);
 }
 
+TreeItemPartMultipartMessage::TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope):
+    TreeItemPart(parent, QLatin1String("message/rfc822")), m_envelope(envelope)
+{
+}
+
+TreeItemPartMultipartMessage::~TreeItemPartMultipartMessage()
+{
+}
+
+/** @short Overriden from TreeItemPart::data with added support for RoleMessageEnvelope */
+QVariant TreeItemPartMultipartMessage::data(Model * const model, int role)
+{
+    if (role == RoleMessageEnvelope) {
+        fetch(model);
+        return QVariant::fromValue<Message::Envelope>(m_envelope);
+    } else {
+        return TreeItemPart::data(model, role);
+    }
+}
+
 }
 }

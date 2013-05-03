@@ -355,6 +355,16 @@ private:
     QString modifierToString() const;
 };
 
+/** @short Specialization of TreeItemPart for parts holding a multipart/message */
+class TreeItemPartMultipartMessage: public TreeItemPart
+{
+    Message::Envelope m_envelope;
+public:
+    TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope);
+    virtual ~TreeItemPartMultipartMessage();
+    virtual QVariant data(Model * const model, int role);
+};
+
 }
 
 }

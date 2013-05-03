@@ -783,7 +783,7 @@ QList<Mailbox::TreeItem *> BasicMessage::createTreeItems(Mailbox::TreeItem *pare
 QList<Mailbox::TreeItem *> MsgMessage::createTreeItems(Mailbox::TreeItem *parent) const
 {
     QList<Mailbox::TreeItem *> list;
-    Mailbox::TreeItemPart *part = new Mailbox::TreeItemPart(parent, QString("%1/%2").arg(mediaType, mediaSubType));
+    Mailbox::TreeItemPart *part = new Mailbox::TreeItemPartMultipartMessage(parent, envelope);
     part->setChildren(body->createTreeItems(part));     // always returns an empty list -> no need to qDeleteAll()
     storeInterestingFields(part);
     list << part;
