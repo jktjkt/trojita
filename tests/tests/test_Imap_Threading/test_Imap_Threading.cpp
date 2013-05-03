@@ -1220,4 +1220,51 @@ void ImapModelThreadingTest::testIncrementalThreading()
     cEmpty();
 }
 
+/** Test what happens when a thread root ceases to exist while the THREAD response is in flight */
+void ImapModelThreadingTest::testRemovingRootWithThreadingInFlight()
+{
+    // At first, add two standalone threads
+    initialMessages(2);
+    Mapping mapping;
+    mapping.clear();
+    mapping["0"] = 1;
+    mapping["0.0"] = 0;
+    mapping["1"] = 2;
+    mapping["1.0"] = 0;
+    mapping["2"] = 0;
+    cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    cServer(QByteArray("* THREAD (1)(2)\r\n") + t.last("OK thread\r\n"));
+    verifyMapping(mapping);
+    QCOMPARE(threadingModel->rowCount(QModelIndex()), 2);
+    verifyIndexMap(buildIndexMap(mapping), mapping);
+    QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2)"));
+
+    // Now let one more message arrive
+    cServer("* 3 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 3:* (FLAGS)\r\n"));
+    QByteArray fetchUntagged("* 3 FETCH (UID 3 FLAGS ())\r\n");
+    QByteArray fetchTagged(t.last("OK fetched\r\n"));
+    cServer(fetchUntagged);
+    cServer(fetchTagged);
+    // While the threading is requested, one thread root gets removed
+    cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    QByteArray threadUntagged("* THREAD (1)(2 3)\r\n");
+    QByteArray threadTagged(t.last("OK thread\r\n"));
+    cServer(threadUntagged);
+    // The important bit is EXPUNGE prior to the tagged OK for the threading. This is a difference which matters.
+    cServer("* 2 EXPUNGE\r\n");
+    cServer(threadTagged);
+    QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(1)(3)"));
+    mapping.clear();
+    mapping["0"] = 1;
+    mapping["0.0"] = 0;
+    mapping["1"] = 3;
+    mapping["1.0"] = 0;
+    mapping["2"] = 0;
+    verifyMapping(mapping);
+    QCOMPARE(threadingModel->rowCount(QModelIndex()), 2);
+    verifyIndexMap(buildIndexMap(mapping), mapping);
+    cEmpty();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )

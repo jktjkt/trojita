@@ -964,7 +964,15 @@ void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::Thr
 {
     Q_FOREACH(const Imap::Responses::ThreadingNode &node, mapping) {
         uint nodeId;
-        if (node.num == 0) {
+        QHash<uint,void *>::const_iterator ptrIt;
+        if (node.num == 0 ||
+                (ptrIt = uidToPtr.find(node.num)) == uidToPtr.constEnd()) {
+            // Either this is an empty node, or the THREAD response references a UID which is no longer in the mailbox.
+            // This is a valid scenario; it can happen e.g. when reusing data from cache, or when a message got
+            // expunged after the untagged THREAD was received, but before the tagged OK.
+            // We cannot just ignore this node, though, because it might have some children which we would otherwise
+            // simply hide.
+            // The ptrIt which is initialized by the condition is used in the else branch.
             ThreadNodeInfo fake;
             fake.internalId = ++threadingHelperLastId;
             fake.parent = parentId;
@@ -973,16 +981,6 @@ void ThreadingMsgListModel::registerThreading(const QVector<Imap::Responses::Thr
             threading[ fake.internalId ] = fake;
             nodeId = fake.internalId;
         } else {
-            QHash<uint,void *>::const_iterator ptrIt = uidToPtr.find(node.num);
-            if (ptrIt == uidToPtr.constEnd()) {
-                logTrace(QString::fromUtf8("The THREAD response references a message with UID %1, which is not recognized "
-                                            "at this point. More information is available in the IMAP protocol log.")
-                         .arg(node.num));
-                // It's possible that the THREAD response came from cache; in that case, it isn't pretty, but completely harmless
-                // FIXME: it'd be great to be able to distinguish between data sent by the IMAP server and a stale cache...
-                continue;
-            }
-
             QHash<void *,uint>::const_iterator nodeIt = ptrToInternal.constFind(*ptrIt);
             // The following assert would fail if there was a node with a valid UID, but not in our ptrToInternal mapping.
             // That is however non-issue, as we pre-create nodes for all messages beforehand.
