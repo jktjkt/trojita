@@ -1078,6 +1078,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     }
     case RoleMessageHeaderListPostNo:
         return m_hdrListPostNo;
+    case RoleMessageEnvelope:
+        return QVariant::fromValue<Message::Envelope>(envelope(model));
     default:
         return QVariant();
     }

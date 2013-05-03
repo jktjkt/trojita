@@ -27,7 +27,6 @@
 #include "Imap/Encoders.h"
 
 Q_DECLARE_METATYPE(Imap::Message::MailAddress)
-Q_DECLARE_METATYPE(Imap::Message::Envelope)
 Q_DECLARE_METATYPE(QVariantList)
 
     /*

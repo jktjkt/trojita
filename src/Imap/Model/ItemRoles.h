@@ -125,6 +125,8 @@ enum {
     RoleMessageHeaderListPost,
     /** @short Is the List-Post set to a special value of "NO"? */
     RoleMessageHeaderListPostNo,
+    /** @short A full message envelope */
+    RoleMessageEnvelope,
 
     /** @short Contents of a message part */
     RolePartData,

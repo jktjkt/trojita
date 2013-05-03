@@ -254,5 +254,6 @@ QDebug operator<<(QDebug dbg, const Imap::Message::Envelope &envelope);
 QDataStream &operator>>(QDataStream &stream, Imap::Message::Envelope &e);
 QDataStream &operator<<(QDataStream &stream, const Imap::Message::Envelope &e);
 
+Q_DECLARE_METATYPE(Imap::Message::Envelope)
 
 #endif /* IMAP_MESSAGE_H */
