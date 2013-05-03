@@ -23,15 +23,10 @@
 #include <QDesktopServices>
 #include <QHeaderView>
 #include <QKeyEvent>
-#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
-#include <QTextDocument>
 #include <QTimer>
 #include <QUrl>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <QUrlQuery>
-#endif
 #include <QVBoxLayout>
 #include <QWebFrame>
 #include <QWebHistory>
@@ -42,6 +37,7 @@
 #include "AbstractPartWidget.h"
 #include "Composer/SubjectMangling.h"
 #include "EmbeddedWebView.h"
+#include "EnvelopeView.h"
 #include "ExternalElementsWidget.h"
 #include "PartWidgetFactory.h"
 #include "SimplePartWidget.h"
@@ -93,14 +89,8 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     headerSection->setAutoFillBackground(true);
 
     // the actual mail header
-    header = new QLabel(headerSection);
-    header->setBackgroundRole(helpingHeader.backgroundRole());
-    header->setForegroundRole(helpingHeader.foregroundRole());
-    header->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-    header->setIndent(5);
-    header->setWordWrap(true);
-    connect(header, SIGNAL(linkHovered(QString)), this, SLOT(linkInTitleHovered(QString)));
-    connect(header, SIGNAL(linkActivated(QString)), this, SLOT(headerLinkActivated(QString)));
+    m_envelope = new EnvelopeView(headerSection);
+    connect(m_envelope, SIGNAL(linkActivated(QString)), this, SLOT(headerLinkActivated(QString)));
 
     // the tag bar
     tags = new TagListWidget(headerSection);
@@ -117,7 +107,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
 
     // layout the header
     layout = new QVBoxLayout(headerSection);
-    layout->addWidget(header, 1);
+    layout->addWidget(m_envelope, 1);
     layout->addWidget(tags, 3);
     layout->addWidget(externalElements, 1);
 
@@ -170,7 +160,7 @@ MessageView::~MessageView()
 void MessageView::setEmpty()
 {
     markAsReadTimer->stop();
-    header->setText(QString());
+    m_envelope->setMessage(QModelIndex());
     headerSection->hide();
     message = QModelIndex();
     disconnect(this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
@@ -229,7 +219,7 @@ void MessageView::setMessage(const QModelIndex &index)
         viewer->setParent(this);
         layout->addWidget(viewer);
         viewer->show();
-        header->setText(headerText());
+        m_envelope->setMessage(message);
 
         tags->show();
         tags->setTagList(messageIndex.data(Imap::Mailbox::RoleMessageFlags).toStringList());
@@ -289,70 +279,6 @@ bool MessageView::eventFilter(QObject *object, QEvent *event)
     }
 }
 
-Imap::Message::Envelope MessageView::envelope() const
-{
-    // Accessing the envelope via QVariant is just too much work here; it's way easier to just get the raw pointer
-    Imap::Mailbox::Model *model = dynamic_cast<Imap::Mailbox::Model *>(const_cast<QAbstractItemModel *>(message.model()));
-    Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(static_cast<Imap::Mailbox::TreeItem *>(message.internalPointer()));
-    return messagePtr->envelope(model);
-}
-
-QString MessageView::headerText()
-{
-    if (!message.isValid())
-        return QString();
-
-    const Imap::Message::Envelope &e = envelope();
-
-    QString res;
-    if (!e.from.isEmpty())
-        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.from, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-    if (!e.sender.isEmpty() && e.sender != e.from)
-        res += tr("<b>Sender:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.sender, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-    if (!e.replyTo.isEmpty() && e.replyTo != e.from)
-        res += tr("<b>Reply-To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.replyTo, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-    QVariantList headerListPost = message.data(Imap::Mailbox::RoleMessageHeaderListPost).toList();
-    if (!headerListPost.isEmpty()) {
-        QStringList buf;
-        Q_FOREACH(const QVariant &item, headerListPost) {
-            const QString scheme = item.toUrl().scheme().toLower();
-            if (scheme == QLatin1String("http") || scheme == QLatin1String("https") || scheme == QLatin1String("mailto")) {
-                QString target = item.toUrl().toString();
-                QString caption = item.toUrl().toString(scheme == QLatin1String("mailto") ? QUrl::RemoveScheme : QUrl::None);
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                target = Qt::escape(target);
-                caption = Qt::escape(caption);
-#else
-                target = target.toHtmlEscaped();
-                caption = caption.toHtmlEscaped();
-#endif
-                buf << tr("<a href=\"%1\">%2</a>").arg(target, caption);
-            } else {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                buf << Qt::escape(item.toUrl().toString());
-#else
-                buf << item.toUrl().toString().toHtmlEscaped();
-#endif
-            }
-        }
-        res += tr("<b>List-Post:</b>&nbsp;%1<br/>").arg(buf.join(tr(", ")));
-    }
-    if (!e.to.isEmpty())
-        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.to, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-    if (!e.cc.isEmpty())
-        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.cc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-    if (!e.bcc.isEmpty())
-        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(e.subject));
-#else
-    res += tr("<b>Subject:</b>&nbsp;%1").arg(e.subject.toHtmlEscaped());
-#endif
-    if (e.date.isValid())
-        res += tr("<br/><b>Date:</b>&nbsp;%1").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate));
-    return res;
-}
-
 QString MessageView::quoteText() const
 {
     if (const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer)) {
@@ -408,7 +334,7 @@ QString MessageView::quoteText() const
             }
             quote << quotemarks + line->mid(lastSpace);
         }
-        const Imap::Message::Envelope &e = envelope();
+        const Imap::Message::Envelope &e = message.data(Imap::Mailbox::RoleMessageEnvelope).value<Imap::Message::Envelope>();
         QString sender;
         if (!e.from.isEmpty())
             sender = e.from[0].prettyName(Imap::Message::MailAddress::FORMAT_JUST_NAME);
@@ -474,33 +400,6 @@ void MessageView::externalsEnabled()
     AbstractPartWidget *w = dynamic_cast<AbstractPartWidget *>(viewer);
     if (w)
         w->reloadContents();
-}
-
-void MessageView::linkInTitleHovered(const QString &target)
-{
-    QUrl url(target);
-
-    if (target.isEmpty() || url.scheme().toLower() != QLatin1String("mailto")) {
-        header->setToolTip(QString());
-        return;
-    }
-
-    QString frontOfAtSign, afterAtSign;
-    if (url.path().indexOf(QLatin1String("@")) != -1) {
-        QStringList chunks = url.path().split(QLatin1String("@"));
-        frontOfAtSign = chunks[0];
-        afterAtSign = QStringList(chunks.mid(1)).join(QLatin1String("@"));
-    }
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Imap::Message::MailAddress addr(url.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    frontOfAtSign, afterAtSign);
-    header->setToolTip(Qt::escape(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE)));
-#else
-    QUrlQuery q(url);
-    Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    frontOfAtSign, afterAtSign);
-    header->setToolTip(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped());
-#endif
 }
 
 void MessageView::newLabelAction(const QString &tag)

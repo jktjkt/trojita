@@ -48,6 +48,7 @@ class Envelope;
 namespace Gui
 {
 
+class EnvelopeView;
 class MainWindow;
 class PartWidgetFactory;
 class ExternalElementsWidget;
@@ -78,7 +79,6 @@ private slots:
     void markAsRead();
     void externalsRequested(const QUrl &url);
     void externalsEnabled();
-    void linkInTitleHovered(const QString &target);
     void newLabelAction(const QString &tag);
     void deleteLabelAction(const QString &tag);
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -93,12 +93,11 @@ signals:
 private:
     bool eventFilter(QObject *object, QEvent *event);
     Imap::Message::Envelope envelope() const;
-    QString headerText();
     QString quoteText() const;
 
     QWidget *viewer;
     QWidget *headerSection;
-    QLabel *header;
+    EnvelopeView *m_envelope;
     ExternalElementsWidget *externalElements;
     QBoxLayout *layout;
     TagListWidget *tags;

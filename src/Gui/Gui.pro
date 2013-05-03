@@ -57,7 +57,8 @@ SOURCES += \
     LineEdit.cpp \
     PasswordDialog.cpp \
     ProgressPopUp.cpp \
-    OverlayWidget.cpp
+    OverlayWidget.cpp \
+    EnvelopeView.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -100,7 +101,8 @@ HEADERS += \
     LineEdit.h \
     PasswordDialog.h \
     ProgressPopUp.h \
-    OverlayWidget.h
+    OverlayWidget.h \
+    EnvelopeView.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \
