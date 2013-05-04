@@ -381,33 +381,35 @@ void ImapModelThreadingTest::testDynamicThreading()
     // Check that we've registered that change
     QCOMPARE(msgListModel->rowCount(QModelIndex()), static_cast<int>(existsA));
 
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     // The UID haven't arrived yet
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
 
     if (1) {
         // Make the UID known
-        SOCK->fakeReading(fetchUntagged1 + delayedFetchResponse1);
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        QCOMPARE(SOCK->writtenStuff(), threadCommand1);
-        QCoreApplication::processEvents();
-        QCoreApplication::processEvents();
-        SOCK->fakeReading(threadUntagged1 + delayedThreadResponse1);
+        cServer(fetchUntagged1 + delayedFetchResponse1);
+        // After the UID got known, it is now time to ask for threading
+        cClient(threadCommand1);
+        // In the meanwhile, the message is temporarily visible as a standalone thread
+        QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(1)(3)(4 (5)(6))(7 (8)(9))(66)"));
         mapping["4"] = 66;
         indexMap["4"] = findItem("4");
-
         verifyMapping(mapping);
         verifyIndexMap(indexMap, mapping);
-        QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(3)(4 (5)(6))(7 (8)(9))(66)"));
+
+        // Move the message into its proper place now
+        cServer(threadUntagged1 + delayedThreadResponse1);
+        indexMap["3.2"] = indexMap["4"];
+        indexMap.remove("4");
+        mapping["3.2"] = mapping["4"];
+        mapping["3.2.0"] = 0;
+        mapping["3.3"] = 0;
+        mapping["4"] = 0;
+        QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(1)(3)(4 (5)(6))(7 (8)(9)(66))"));
+        verifyMapping(mapping);
+        verifyIndexMap(indexMap, mapping);
     }
 
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
     QVERIFY(errorSpy->isEmpty());
 }
 
