@@ -295,12 +295,12 @@ private:
 
     /** @short Is the cached result of SEARCH/SORT fresh enough? */
     typedef enum {
-        SEARCH_RESULT_ASKED, /**< We've asked for the data */
-        SEARCH_RESULT_FRESH, /**< The response has just arrived and didn't get invalidated since then */
-        SEARCH_RESULT_INVALIDATED /**< A new message has arrived, rendering our copy invalid */
-    } SearchResultValidity;
+        RESULT_ASKED, /**< We've asked for the data */
+        RESULT_FRESH, /**< The response has just arrived and didn't get invalidated since then */
+        RESULT_INVALIDATED /**< A new message has arrived, rendering our copy invalid */
+    } ResultValidity;
 
-    SearchResultValidity m_searchValidity;
+    ResultValidity m_searchValidity;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };
