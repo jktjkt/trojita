@@ -67,7 +67,6 @@ class AbstractAddressbook;
 class CompleteMessageWidget;
 class ComposeWidget;
 class MailBoxTreeView;
-class MessageView;
 class MessageListWidget;
 class ProtocolLoggerWidget;
 class TaskProgressIndicator;
