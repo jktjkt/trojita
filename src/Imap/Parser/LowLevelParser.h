@@ -57,6 +57,9 @@ enum ParsedAs {
 /** @short Read an unsigned integer from input */
 uint getUInt(const QByteArray &line, int &start);
 
+/** @short Read a 64bit unsigned integer from input */
+quint64 getUInt64(const QByteArray &line, int &start);
+
 /** @short Read an ATOM */
 QByteArray getAtom(const QByteArray &line, int &start);
 

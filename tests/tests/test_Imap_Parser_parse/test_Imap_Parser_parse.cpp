@@ -878,6 +878,18 @@ void ImapParserParseTest::testParseUntagged_data()
             << QByteArray("* GENURLAUTH meh\r\n")
             << QSharedPointer<AbstractResponse>(new GenUrlAuth(QLatin1String("meh")));
 
+    QSharedPointer<AbstractData> modSeqData(new RespData<quint64>(5875136264581852368ULL));
+    QTest::newRow("highestmodseq-64bit")
+            << QByteArray("* OK [HIGHESTMODSEQ 5875136264581852368] x\r\n")
+            << QSharedPointer<AbstractResponse>(new State("", OK, QLatin1String("x"), HIGHESTMODSEQ, modSeqData));
+
+    fetchData.clear();
+    fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(123));
+    fetchData["MODSEQ"] = QSharedPointer<AbstractData>(new RespData<quint64>(5875136264581852368ULL));
+    QTest::newRow("fetch-highestmodseq-64bit")
+            << QByteArray("* 33 FETCH (UID 123 MODSEQ (5875136264581852368))\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(33, fetchData));
+
 }
 
 /** @short Test that parsing this garbage doesn't result in an expceiton

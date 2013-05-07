@@ -60,6 +60,34 @@ uint getUInt(const QByteArray &line, int &start)
     return number;
 }
 
+quint64 getUInt64(const QByteArray &line, int &start)
+{
+    if (start == line.size())
+        throw NoData("getUInt64: no data", line, start);
+
+    QByteArray item;
+    bool breakIt = false;
+    while (!breakIt && start < line.size()) {
+        switch (line[start]) {
+        case '0': case '1': case '2': case '3': case '4':
+        case '5': case '6': case '7': case '8': case '9':
+            item.append(line[start]);
+            ++start;
+            break;
+        default:
+            breakIt = true;
+            break;
+        }
+    }
+
+    bool ok;
+    quint64 number = item.toULongLong(&ok);
+    if (!ok)
+        throw ParseError("getUInt64: not a number", line, start);
+    return number;
+}
+
+
 QByteArray getAtom(const QByteArray &line, int &start)
 {
     if (start == line.size())
@@ -252,8 +280,17 @@ QVariant getAnything(const QByteArray &line, int &start)
         switch (line.at(start)) {
         case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
-            return getUInt(line, start);
+        {
+            // getUInt clobbers the start argument, so we have to save it
+            int origStart(start);
+            try {
+                return getUInt(line, start);
+            } catch (ParseError &err) {
+                start = origStart;
+                return getUInt64(line, start);
+            }
             break;
+        }
         default:
         {
             QByteArray atom = getAtom(line, start);
