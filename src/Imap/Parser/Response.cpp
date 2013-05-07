@@ -937,7 +937,7 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
                                          new RespData<uint>(it->toUInt()));
             } else if (identifier == "MODSEQ") {
                 if (it->type() != QVariant::List)
-                    throw UnexpectedHere(line, start);
+                    throw UnexpectedHere("The MODSEQ entry in the FETCH response is not a list", line, start);
                 QVariantList items = it->toList();
                 if (items.size() != 1)
                     throw ParseError("MODSEQ should contain exactly one item", line, start); // FIXME: wrong offset
