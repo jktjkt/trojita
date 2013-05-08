@@ -89,6 +89,8 @@ private slots:
     void sent();
     void updateRecipientList();
 
+    void slotCheckAddress();
+
     void slotAskForFileAttachment();
     void slotRemoveAttachment();
     void slotAttachFiles(QList<QUrl> urls);

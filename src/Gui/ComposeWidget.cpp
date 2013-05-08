@@ -42,6 +42,7 @@
 #include "Gui/Util.h"
 #include "Window.h"
 #include "ui_ComposeWidget.h"
+#include "Gui/Util.h"
 
 #include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
@@ -413,6 +414,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
     combo->setCurrentIndex(combo->findData(kind));
     LineEdit *edit = new LineEdit(address, this);
+    connect(edit, SIGNAL(textChanged(QString)), this, SLOT(slotCheckAddress()));
     connect(edit, SIGNAL(textEdited(QString)), SLOT(completeRecipients(QString)));
     connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
     connect(edit, SIGNAL(textChanged(QString)), m_recipientListUpdateTimer, SLOT(start()));
@@ -420,6 +422,21 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     ui->envelopeLayout->insertRow(actualRow(ui->envelopeLayout, position + OFFSET_OF_FIRST_ADDRESSEE), combo, edit);
     setTabOrder(formPredecessor(ui->envelopeLayout, combo), combo);
     setTabOrder(combo, edit);
+}
+
+void ComposeWidget::slotCheckAddress()
+{
+    LineEdit *edit = qobject_cast<LineEdit*>(sender());
+    Q_ASSERT(edit);
+    QString errorMessage;
+    QList<QPair<Composer::RecipientKind,Imap::Message::MailAddress> > recipients;
+    if (edit->text().isEmpty() || parseRecipients(recipients, errorMessage)) {
+        edit->setPalette(QPalette());
+    } else {
+        QPalette p;
+        p.setColor(QPalette::Base, Gui::Util::tintColor(p.color(QPalette::Base), QColor(0xff, 0, 0, 0x20)));
+        edit->setPalette(p);
+    }
 }
 
 void ComposeWidget::removeRecipient(int pos)
