@@ -134,7 +134,7 @@ void SimplePartWidget::slotMarkupPlainText() {
             file.close();
         }
     }
-    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + textColors + fontSpecification + "--></style></head><body><pre>");
+    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + textColors + fontSpecification + stylesheet + "--></style></head><body><pre>");
     static QString htmlFooter("\n</pre></body></html>");
 
     QString markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);
