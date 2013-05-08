@@ -24,8 +24,40 @@
 #include <QApplication>
 #include <QCursor> // for Util::centerWidgetOnScreen
 #include <QDesktopWidget> // for Util::centerWidgetOnScreen
+#include <QDir>
+#include <QSettings>
 
 #include "Util.h"
+
+namespace {
+
+#ifdef Q_WS_X11
+
+/** @short Return full path to the $KDEHOME
+
+Shamelessly stolen from Qt4's src/gui/kernel/qkde.cpp (it's a private class) and adopted to check $KDE_SESSION_VERSION
+instead of yet another private class.
+*/
+QString kdeHome()
+{
+    static QString kdeHomePath;
+    if (kdeHomePath.isEmpty()) {
+        kdeHomePath = QString::fromLocal8Bit(qgetenv("KDEHOME"));
+        if (kdeHomePath.isEmpty()) {
+            QDir homeDir(QDir::homePath());
+            QString kdeConfDir(QLatin1String("/.kde"));
+            if (qgetenv("KDE_SESSION_VERSION") == "4" && homeDir.exists(QLatin1String(".kde4"))) {
+                kdeConfDir = QLatin1String("/.kde4");
+            }
+            kdeHomePath = QDir::homePath() + kdeConfDir;
+        }
+    }
+    return kdeHomePath;
+}
+
+#endif
+
+}
 
 namespace Gui
 {
@@ -90,6 +122,31 @@ QColor tintColor(const QColor &color, const QColor &tintColor)
                            a + inv_a * color.alphaF());
     }
     return finalColor;
+}
+
+
+/** @short Return the monospace font according to the systemwide settings */
+QFont systemMonospaceFont()
+{
+    QString fontDescription;
+    QFont font;
+#ifdef Q_WS_X11
+    // This part was shamelessly inspired by Qt4's src/gui/kernel/qapplication_x11.cpp
+    QSettings kdeSettings(::kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
+    QLatin1String confKey("fixed");
+    fontDescription = kdeSettings.value(confKey).toStringList().join(QLatin1String(","));
+    if (fontDescription.isEmpty())
+        fontDescription = kdeSettings.value(confKey).toString();
+#endif
+    if (fontDescription.isEmpty() || !font.fromString(fontDescription)) {
+        // Ok, that failed, let's create some fallback font.
+        // The problem is that these names wary acros platforms,
+        // but the following works well -- at first, we come up with a made-up name, and then
+        // let the Qt font substitution algorithm do its magic.
+        font = QFont(QLatin1String("x-trojita-terminus-like-fixed-width"));
+        font.setStyleHint(QFont::TypeWriter);
+    }
+    return font;
 }
 
 } // namespace Util

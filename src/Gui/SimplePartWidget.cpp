@@ -97,6 +97,15 @@ void SimplePartWidget::slotMarkupPlainText() {
         "span.shortquote > blockquote > label {display: none}"
     );
 
+    QFontInfo monospaceInfo(Gui::Util::systemMonospaceFont());
+    QString fontSpecification(QLatin1String("pre{"));
+    if (monospaceInfo.italic())
+        fontSpecification += QLatin1String("font-style: italic; ");
+    if (monospaceInfo.bold())
+        fontSpecification += QLatin1String("font-weight: bold; ");
+    fontSpecification += QString::fromUtf8("font-size: %1px; font-family: \"%2\", monospace }").arg(
+                QString::number(monospaceInfo.pixelSize()), monospaceInfo.family());
+
     QPalette palette = QApplication::palette();
     QString textColors = QString::fromUtf8("body { background-color: %1; color: %2 }"
                                            "a:link { color: %3 } a:visited { color: %4 } a:hover { color: %3 }").arg(
@@ -125,7 +134,7 @@ void SimplePartWidget::slotMarkupPlainText() {
             file.close();
         }
     }
-    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + textColors + "--></style></head><body><pre>");
+    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + textColors + fontSpecification + "--></style></head><body><pre>");
     static QString htmlFooter("\n</pre></body></html>");
 
     QString markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);

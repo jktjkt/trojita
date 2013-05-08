@@ -39,6 +39,7 @@
 #include "LineEdit.h"
 #include "OverlayWidget.h"
 #include "ProgressPopUp.h"
+#include "Gui/Util.h"
 #include "Window.h"
 #include "ui_ComposeWidget.h"
 
@@ -104,12 +105,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_recipientListUpdateTimer->setInterval(250);
     connect(m_recipientListUpdateTimer, SIGNAL(timeout()), SLOT(updateRecipientList()));
 
-    // Ask for a fixed-width font. The problem is that these names wary acros platforms,
-    // but the following works well -- at first, we come up with a made-up name, and then
-    // let the Qt font substitution algorithm do its magic.
-    QFont font(QLatin1String("x-trojita-terminus-like-fixed-width"));
-    font.setStyleHint(QFont::TypeWriter);
-    ui->mailText->setFont(font);
+    ui->mailText->setFont(Gui::Util::systemMonospaceFont());
 
     connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
     connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
