@@ -335,7 +335,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     socket->write(toBeWritten); // expecting data to be already escaped (CRLF.CRLF)
                     socket->write("\r\n.\r\n"); // termination token - CRLF.CRLF
                     cmd.extra=3;
-                } else if ((cmd.type == SMTPCommand::MailBurl && status==354 && stage==2)) {
+                } else if ((cmd.type == SMTPCommand::MailBurl && status==250 && stage==2)) {
                     // BURL succeeded
                     setState(QwwSmtpClient::Connected);
                     errorString.clear();
