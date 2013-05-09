@@ -165,6 +165,7 @@ QFont systemMonospaceFont()
                 if (!gconf.waitForFinished())
                     break;
                 fontDescription = gconf.readAllStandardOutput();
+                fontDescription = fontDescription.trimmed();
             } while (0);
 
             // This value is apparently supposed to be parsed via the pango_font_description_from_string function. We, of course,
