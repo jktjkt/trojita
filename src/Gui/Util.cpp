@@ -44,6 +44,11 @@ bool isRunningGnome()
     return qgetenv("DESKTOP_SESSION") == "gnome";
 }
 
+bool isRunningXfce()
+{
+    return qgetenv("DESKTOP_SESSION") == "xfce";
+}
+
 /** @short Return full path to the $KDEHOME
 
 Shamelessly stolen from Qt4's src/gui/kernel/qkde.cpp (it's a private class) and adopted to check $KDE_SESSION_VERSION
@@ -152,8 +157,8 @@ QFont systemMonospaceFont()
             if (fontDescription.isEmpty())
                 fontDescription = kdeSettings.value(confKey).toString();
             initialized = !fontDescription.isEmpty() && font.fromString(fontDescription);
-        } else if (isRunningGnome()) {
-            // Under Gnome, we can read the preferred font in yet another format via gconftool-2
+        } else if (isRunningGnome() || isRunningXfce()) {
+            // Under Gnome and Xfce, we can read the preferred font in yet another format via gconftool-2
             QByteArray fontDescription;
             do {
                 QProcess gconf;
