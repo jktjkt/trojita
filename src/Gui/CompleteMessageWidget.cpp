@@ -21,7 +21,10 @@
 */
 
 #include "CompleteMessageWidget.h"
+#include <QKeyEvent>
+#include <QPropertyAnimation>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QVBoxLayout>
 #include "FindBar.h"
 #include "MessageView.h"
@@ -37,6 +40,9 @@ CompleteMessageWidget::CompleteMessageWidget(QWidget *parent): QWidget(parent)
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(area);
+    animator = new QPropertyAnimation(area->verticalScrollBar(), "value", this);
+    animator->setDuration(250); // the default, maybe play with values
+    animator->setEasingCurve(QEasingCurve::InOutCubic); // InOutQuad?
 
     m_findBar = new FindBar(this);
     layout->addWidget(m_findBar);
@@ -52,6 +58,19 @@ void CompleteMessageWidget::searchRequestedBy(QWebView *webView)
     } else {
         m_findBar->setAssociatedWebView(webView);
         m_findBar->show();
+    }
+}
+
+void CompleteMessageWidget::keyPressEvent(QKeyEvent *ke)
+{
+    if (ke->key() == Qt::Key_Home) {
+        animator->setEndValue(area->verticalScrollBar()->minimum());
+        animator->start();
+    } else if (ke->key() == Qt::Key_End) {
+        animator->setEndValue(area->verticalScrollBar()->maximum());
+        animator->start();
+    } else { // noop, but hey.
+        QWidget::keyPressEvent(ke);
     }
 }
 

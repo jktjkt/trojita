@@ -26,6 +26,7 @@
 
 class QScrollArea;
 class QWebView;
+class QPropertyAnimation;
 
 namespace Gui
 {
@@ -41,6 +42,8 @@ public:
 
     MessageView *messageView;
     QScrollArea *area;
+protected:
+    void keyPressEvent(QKeyEvent *ke);
 
 private slots:
     void searchRequestedBy(QWebView *webView);
@@ -50,6 +53,7 @@ private:
     CompleteMessageWidget &operator=(const CompleteMessageWidget &); // don't implement
 
     FindBar *m_findBar;
+    QPropertyAnimation *animator;
 };
 
 }

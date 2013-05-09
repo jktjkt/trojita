@@ -267,10 +267,11 @@ bool MessageView::eventFilter(QObject *object, QEvent *event)
         case Qt::Key_Down:
         case Qt::Key_PageUp:
         case Qt::Key_PageDown:
-        case Qt::Key_Home:
-        case Qt::Key_End:
             MessageView::event(event);
             return true;
+        case Qt::Key_Home:
+        case Qt::Key_End:
+            return false;
         default:
             return QObject::eventFilter(object, event);
         }
