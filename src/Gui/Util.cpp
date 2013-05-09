@@ -25,6 +25,7 @@
 #include <QCursor> // for Util::centerWidgetOnScreen
 #include <QDesktopWidget> // for Util::centerWidgetOnScreen
 #include <QDir>
+#include <QProcess>
 #include <QSettings>
 
 #include "Util.h"
@@ -32,6 +33,16 @@
 namespace {
 
 #ifdef Q_WS_X11
+
+bool isRunningKde4()
+{
+    return qgetenv("KDE_SESSION_VERSION") == "4";
+}
+
+bool isRunningGnome()
+{
+    return qgetenv("DESKTOP_SESSION") == "gnome";
+}
 
 /** @short Return full path to the $KDEHOME
 
@@ -128,17 +139,51 @@ QColor tintColor(const QColor &color, const QColor &tintColor)
 /** @short Return the monospace font according to the systemwide settings */
 QFont systemMonospaceFont()
 {
-    QString fontDescription;
-    QFont font;
+    static bool initialized = false;
+    static QFont font;
+
+    if (!initialized) {
 #ifdef Q_WS_X11
-    // This part was shamelessly inspired by Qt4's src/gui/kernel/qapplication_x11.cpp
-    QSettings kdeSettings(::kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
-    QLatin1String confKey("fixed");
-    fontDescription = kdeSettings.value(confKey).toStringList().join(QLatin1String(","));
-    if (fontDescription.isEmpty())
-        fontDescription = kdeSettings.value(confKey).toString();
+        if (isRunningKde4()) {
+            // This part was shamelessly inspired by Qt4's src/gui/kernel/qapplication_x11.cpp
+            QSettings kdeSettings(::kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
+            QLatin1String confKey("fixed");
+            QString fontDescription = kdeSettings.value(confKey).toStringList().join(QLatin1String(","));
+            if (fontDescription.isEmpty())
+                fontDescription = kdeSettings.value(confKey).toString();
+            initialized = !fontDescription.isEmpty() && font.fromString(fontDescription);
+        } else if (isRunningGnome()) {
+            // Under Gnome, we can read the preferred font in yet another format via gconftool-2
+            QByteArray fontDescription;
+            do {
+                QProcess gconf;
+                gconf.start(QLatin1String("gconftool-2"),
+                            QStringList() << QLatin1String("--get") << QLatin1String("/desktop/gnome/interface/monospace_font_name"));
+                if (!gconf.waitForStarted())
+                    break;
+                gconf.closeWriteChannel();
+                if (!gconf.waitForFinished())
+                    break;
+                fontDescription = gconf.readAllStandardOutput();
+            } while (0);
+
+            // This value is apparently supposed to be parsed via the pango_font_description_from_string function. We, of course,
+            // do not link with Pango, so we attempt to do a very crude parsing experiment by hand.
+            // This code does *not* handle many fancy options like specifying the font size in pixels, parsing the bold/italics
+            // options etc. It will also very likely break when the user has specified preefrences for more than one font family.
+            // However, I hope it's better to try to do something than ignoring the problem altogether.
+            int lastSpace = fontDescription.lastIndexOf(' ');
+            bool ok;
+            double size = fontDescription.mid(lastSpace).toDouble(&ok);
+            if (lastSpace > 0 && ok) {
+                font = QFont(fontDescription.left(lastSpace), size);
+                initialized = true;
+            }
+        }
 #endif
-    if (fontDescription.isEmpty() || !font.fromString(fontDescription)) {
+    }
+
+    if (!initialized) {
         // Ok, that failed, let's create some fallback font.
         // The problem is that these names wary acros platforms,
         // but the following works well -- at first, we come up with a made-up name, and then
@@ -146,6 +191,7 @@ QFont systemMonospaceFont()
         font = QFont(QLatin1String("x-trojita-terminus-like-fixed-width"));
         font.setStyleHint(QFont::TypeWriter);
     }
+
     return font;
 }
 
