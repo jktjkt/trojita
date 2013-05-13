@@ -296,6 +296,7 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
         addRecipient(i, recipients.at(i).first, recipients.at(i).second);
     }
     updateRecipientList();
+    ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE, QFormLayout::FieldRole)->widget()->setFocus();
     ui->subject->setText(subject);
     const bool wasEdited = m_messageEverEdited;
     ui->mailText->setText(body);
@@ -648,6 +649,7 @@ bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
     }
 
     updateRecipientList();
+    ui->mailText->setFocus();
 
     return true;
 }
