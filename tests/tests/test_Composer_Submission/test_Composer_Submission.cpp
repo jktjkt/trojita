@@ -447,4 +447,58 @@ void ComposerSubmissionTest::testBurlSubmission()
     justKeepTask();
 }
 
+/** @short Chech that CATENATE is used and BURL disabled when the IMAP server cannot do URLAUTH */
+void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("CATENATE"));
+    // The URLAUTH is, however, not advertised by the IMAP server
+    helperSetupProperHeaders();
+    m_submission->setImapOptions(true, QLatin1String("meh"), QLatin1String("host"), QLatin1String("usr"), false);
+    m_submission->setSmtpOptions(true, QLatin1String("smtpUser"));
+    m_msaFactory->setBurlSupport(true);
+
+    helperAttachImapPart(uidMapA[0]);
+    cClient(t.mk("UID FETCH ") + QByteArray::number(uidMapA[0]) + " (BODY.PEEK[1])\r\n");
+    cServer("* 1 FETCH (BODY[1] \"contents fetched over IMAP\")\r\n");
+    cServer(t.last("OK fetched\r\n"));
+
+    m_submission->send();
+
+    for (int i=0; i<5; ++i)
+        QCoreApplication::processEvents();
+    QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
+    QString expected = t.mk("APPEND meh ($SubmitPending \\Seen) CATENATE (TEXT {");
+    int octets;
+    EXTRACT_TARILING_NUMBER(octets);
+    cServer("+ carry on\r\n");
+    EAT_OCTETS(octets, sentSoFar);
+    expected = QLatin1String(" URL \"/a;UIDVALIDITY=333666/;UID=10/;SECTION=1\" TEXT {");
+    EXTRACT_TARILING_NUMBER(octets);
+    cServer("+ carry on\r\n");
+    EAT_OCTETS(octets, sentSoFar);
+    QCOMPARE(sentSoFar, QString::fromUtf8(")\r\n"));
+    cServer(t.last("OK [APPENDUID 666333666 123] append done\r\n"));
+    cEmpty();
+    QCOMPARE(requestedSendingSpy->size(), 1);
+    QCOMPARE(requestedBurlSendingSpy->size(), 0);
+    m_msaFactory->doEmitSending();
+    QCOMPARE(sendingSpy->size(), 1);
+    m_msaFactory->doEmitSent();
+    QCOMPARE(sentSpy->size(), 1);
+
+    QCOMPARE(submissionSucceededSpy->size(), 1);
+    QCOMPARE(submissionFailedSpy->size(), 0);
+
+    QCOMPARE(requestedBurlSendingSpy->size(), 0);
+    QCOMPARE(requestedSendingSpy->size(), 1);
+    QCOMPARE(requestedSendingSpy->at(0).size(), 3);
+    QByteArray outgoingMessage = requestedSendingSpy->at(0)[2].toByteArray();
+    QVERIFY(outgoingMessage.contains("Subject: testing\r\n"));
+    QVERIFY(outgoingMessage.contains("Sample message\r\n"));
+    QVERIFY(outgoingMessage.contains(QByteArray("contents fetched over IMAP").toBase64()));
+    cEmpty();
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)

@@ -54,6 +54,7 @@ private slots:
     void testMissingImapAttachmentBurlNoSave();
     void testMissingImapAttachmentImap();
     void testBurlSubmission();
+    void testCatenateBurlWithoutUrlauth();
     void init();
     void cleanup();
 
