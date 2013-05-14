@@ -996,6 +996,7 @@ void MainWindow::requireStartTlsInFuture()
 
 void MainWindow::nukeModels()
 {
+    model->setNetworkOffline();
     m_messageWidget->messageView->setEmpty();
     mboxTree->setModel(0);
     msgListWidget->tree->setModel(0);
