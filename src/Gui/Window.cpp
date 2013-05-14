@@ -1001,17 +1001,17 @@ void MainWindow::nukeModels()
     msgListWidget->tree->setModel(0);
     allTree->setModel(0);
     taskTree->setModel(0);
-    prettyMsgListModel->deleteLater();
+    delete prettyMsgListModel;
     prettyMsgListModel = 0;
-    threadingMsgListModel->deleteLater();
+    delete threadingMsgListModel;
     threadingMsgListModel = 0;
-    msgListModel->deleteLater();
+    delete msgListModel;
     msgListModel = 0;
-    mboxModel->deleteLater();
+    delete mboxModel;
     mboxModel = 0;
-    prettyMboxModel->deleteLater();
+    delete prettyMboxModel;
     prettyMboxModel = 0;
-    model->deleteLater();
+    delete model;
     model = 0;
 }
 
