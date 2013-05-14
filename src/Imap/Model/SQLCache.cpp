@@ -96,6 +96,7 @@ SQLCache::~SQLCache()
 {
     timeToCommit();
     db.close();
+    QSqlDatabase::removeDatabase(db.connectionName());
 }
 
 #define TROJITA_SQL_CACHE_CREATE_THREADING \
