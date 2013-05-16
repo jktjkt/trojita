@@ -216,7 +216,7 @@ namespace {
         }
 
         // Copy anything left
-        out.append(str.mid(lastPos));
+        out.append(QString::fromUtf8(str.mid(lastPos)));
 
         return out;
     }
