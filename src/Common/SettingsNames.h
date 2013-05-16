@@ -44,7 +44,7 @@ struct SettingsNames {
     static QString guiMsgListHideRead;
     static QString guiMailboxListShowOnlySubscribed;
     static QString guiPreferPlaintextRendering;
-    static QString guiMainWindowLayout, guiMainWindowLayoutCompact, guiMainWindowLayoutWide;
+    static QString guiMainWindowLayout, guiMainWindowLayoutCompact, guiMainWindowLayoutWide, guiMainWindowLayoutSpaceConstrained;
     static QString appLoadHomepage;
     static QString knownEmailsKey;
 };

@@ -79,6 +79,7 @@ QString SettingsNames::guiMsgListHideRead = QLatin1String("gui/msgList.hideRead"
 QString SettingsNames::guiMailboxListShowOnlySubscribed = QLatin1String("gui/mailboxList.showOnlySubscribed");
 QString SettingsNames::guiMainWindowLayout = QLatin1String("gui/mainWindow.layout");
 QString SettingsNames::guiMainWindowLayoutCompact = QLatin1String("compact");
+QString SettingsNames::guiMainWindowLayoutSpaceConstrained = QLatin1String("spaceconstrained");
 QString SettingsNames::guiMainWindowLayoutWide = QLatin1String("wide");
 QString SettingsNames::guiPreferPlaintextRendering = QLatin1String("gui/preferPlaintextRendering");
 QString SettingsNames::appLoadHomepage = QLatin1String("app.updates.checkEnabled");
