@@ -183,6 +183,10 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
     QTest::newRow("QP-malformed-1")
         << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=xxt?=")
         << QString::fromUtf8("Jan Kundr=xxt");
+
+    QTest::newRow("unrecognized-encoding")
+        << QByteArray("=?trojitapwnedencoding?Q?=c4=9b=c5=a1=c4=8d?=")
+        << QString::fromUtf8("ěšč");
 }
 
 void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix()

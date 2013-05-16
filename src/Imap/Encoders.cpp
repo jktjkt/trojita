@@ -25,19 +25,6 @@
 
 namespace {
 
-    static void enumerateCodecs()
-    {
-        static bool enumerated = false;
-
-        if (!enumerated) {
-            qWarning() << "Available codecs:";
-            Q_FOREACH (const QByteArray& codec, QTextCodec::availableCodecs())
-                qWarning() << "  " << codec;
-
-            enumerated = true;
-        }
-    }
-
     static QTextCodec* codecForName(const QByteArray& charset, bool translateAscii = true)
     {
         QByteArray encoding(charset.toLower());
@@ -57,7 +44,6 @@ namespace {
             QTextCodec* codec = QTextCodec::codecForName(encoding);
             if (!codec) {
                 qWarning() << "QMailCodec::codecForName - Unable to find codec for charset" << encoding;
-                enumerateCodecs();
             }
 
             return codec;
@@ -72,7 +58,7 @@ namespace {
         if (QTextCodec *codec = codecForName(charset.toLatin1())) {
             return codec->toUnicode(encoded);
         }
-        return QString();
+        return QString::fromUtf8(encoded);
     }
 
     // ASCII character values used throughout
@@ -184,7 +170,7 @@ namespace {
 
         // Any idea why this isn't matching?
         //QRegExp encodedWord("\\b=\\?\\S+\\?\\S+\\?\\S*\\?=\\b");
-        QRegExp encodedWord("\"?=(\\?\\S+)\\?(\\S+)\\?(.*)\\?=\"?");
+        QRegExp encodedWord("\"?=\\?(\\S+)\\?(\\S+)\\?(.*)\\?=\"?");
 
         // set minimal=true, to match sequences which do not have whit space in between 2 encoded words; otherwise by default greedy matching is performed
         // eg. "Sm=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=sbord" will match "=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=" as a single encoded word without minimal=true
