@@ -732,12 +732,11 @@ void AbstractMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
     // Filename and content-disposition
     if (!bodyFldDsp.first.isNull()) {
         p->setBodyDisposition(bodyFldDsp.first);
-        it = bodyFldDsp.second.find("FILENAME");
-        if (it != bodyFldDsp.second.end()) {
-            p->setFileName(Imap::decodeRFC2047String(*it));
-        } else if ((it = bodyFldParam.find("NAME")) != bodyFldParam.end()) {
-            p->setFileName(Imap::decodeRFC2047String(*it));
+        QString filename = Imap::extractRfc2231Param(bodyFldDsp.second, "FILENAME");
+        if (filename.isEmpty()) {
+            filename = Imap::extractRfc2231Param(bodyFldParam, "NAME");
         }
+        p->setFileName(filename);
     }
 }
 

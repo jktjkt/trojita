@@ -149,6 +149,30 @@ namespace {
         return res;
     }
 
+
+    /** @short Translate a percent-encoded array of bytes into binary characters
+
+    The only transformation performed is RFC 2231 percent decoding.
+    */
+    static inline QByteArray translatePercentToBin(const QByteArray &input)
+    {
+        QByteArray res;
+        for (int i = 0; i < input.size(); ++i) {
+            if (input[i] == '%' && i < input.size() - 2) {
+                int hi = hexValueOfChar(input[++i]);
+                int lo = hexValueOfChar(input[++i]);
+                if (hi != -1 && lo != -1) {
+                    res += static_cast<char>((hi << 4) + lo);
+                } else {
+                    res += input.mid(i - 2, 3);
+                }
+            } else {
+                res += input[i];
+            }
+        }
+        return res;
+    }
+
     /** @short Decode an encoded-word as per RFC2047 into a unicode string */
     static QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
@@ -427,6 +451,55 @@ QByteArray encodeRFC2047Phrase( const QString &text )
     /* If the text has characters outside of the basic ASCII set, then
        it has to be encoded using the RFC2047 encoded-word syntax. */
     return encodeRFC2047String(text, RFC2047_STRING_UTF8);
+}
+
+/** @short Decode RFC2231-style eextended parameter values into a real Unicode string */
+QString extractRfc2231Param(const QMap<QByteArray, QByteArray> &parameters, const QByteArray &key)
+{
+    QMap<QByteArray, QByteArray>::const_iterator it = parameters.constFind(key);
+    if (it != parameters.constEnd()) {
+        // This parameter is not using the RFC 2231 syntax for extended parameters.
+        // I have no idea whether this is correct, but I *guess* that trying to use RFC2047 is not going to hurt.
+        return decodeRFC2047String(*it);
+    }
+
+    if (parameters.constFind(key + "*0") != parameters.constEnd()) {
+        // There's a 2231-style continuation *without* the language/charset extension
+        QByteArray raw;
+        int num = 0;
+        while ((it = parameters.constFind(key + '*' + QByteArray::number(num++))) != parameters.constEnd()) {
+            raw += *it;
+        }
+        return decodeRFC2047String(raw);
+    }
+
+    QByteArray raw;
+    if ((it = parameters.constFind(key + '*')) != parameters.constEnd()) {
+        // No continuation, but language/charset is present
+        raw = *it;
+    } else if (parameters.constFind(key + "*0*") != parameters.constEnd()) {
+        // Both continuation *and* the lang/charset extension are in there
+        int num = 0;
+        // The funny thing is that the other values might or might not end with the trailing star,
+        // at least according to the example in the RFC
+        do {
+            if ((it = parameters.constFind(key + '*' + QByteArray::number(num))) != parameters.constEnd())
+                raw += *it;
+            else if ((it = parameters.constFind(key + '*' + QByteArray::number(num) + '*')) != parameters.constEnd())
+                raw += *it;
+            ++num;
+        } while (it != parameters.constEnd());
+    }
+
+    // Process 2231-style language/charset continuation, if present
+    int pos1 = raw.indexOf('\'', 0);
+    int pos2 = raw.indexOf('\'', qMax(1, pos1 + 1));
+    if (pos1 != -1 && pos2 != -1) {
+        return decodeByteArray(translatePercentToBin(raw.mid(pos2 + 1)), raw.left(pos1));
+    }
+
+    // Fallback: it could be empty, or otherwise malformed. Just treat it as UTF-8 for compatibility
+    return QString::fromUtf8(raw);
 }
 
 }

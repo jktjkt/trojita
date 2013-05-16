@@ -22,6 +22,7 @@
 #ifndef IMAP_ENCODERS_H
 #define IMAP_ENCODERS_H
 
+#include <QMap>
 #include <QString>
 
 namespace Imap {
@@ -50,6 +51,8 @@ QString decodeImapFolderName(const QByteArray &raw);
 
 QByteArray quotedPrintableDecode(const QByteArray &raw);
 QByteArray quotedPrintableEncode(const QByteArray &raw);
+
+QString extractRfc2231Param(const QMap<QByteArray, QByteArray> &parameters, const QByteArray &key);
 
 }
 

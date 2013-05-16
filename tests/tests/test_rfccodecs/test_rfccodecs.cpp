@@ -25,6 +25,9 @@
 #include "Imap/Parser/3rdparty/rfccodecs.h"
 #include "Imap/Encoders.h"
 
+typedef QMap<QByteArray, QByteArray> MapByteArrayByteArray;
+Q_DECLARE_METATYPE(MapByteArrayByteArray)
+
 using namespace KIMAP;
 
 void RFCCodecsTest::testIMAPEncoding()
@@ -259,7 +262,64 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
                       " =?iso-8859-1?Q?seventy-six_bytes_has_been_used_before_the_'seventy'_word_?=\r\n"
                       " =?iso-8859-1?Q?appeared._Let's_force_Latin-1_now:_=E1?=");
 
+}
 
+void RFCCodecsTest::testRfc2231Decoding()
+{
+    QFETCH(MapByteArrayByteArray, params);
+    QFETCH(QByteArray, key);
+    QFETCH(QString, expected);
+
+    QCOMPARE(Imap::extractRfc2231Param(params, key), expected);
+}
+
+void RFCCodecsTest::testRfc2231Decoding_data()
+{
+    QTest::addColumn<MapByteArrayByteArray>("params");
+    QTest::addColumn<QByteArray>("key");
+    QTest::addColumn<QString>("expected");
+
+    MapByteArrayByteArray map;
+    // just continuation
+    map["URL*0"] = "ftp://";
+    map["URL*1"] = "cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar";
+    // nothing fancy
+    map["completeURL"] = "ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar";
+    // just the lang/encoding
+    map["completeTitle*"] = "us-ascii'en-us'This%20is%20%2A%2A%2Afun%2A%2A%2A";
+    // combined continuation and lang/encoding
+    map["title*0*"] = "us-ascii'en'This%20is%20even%20more%20";
+    map["title*1*"] = "%2A%2A%2Afun%2A%2A%2A%20";
+    map["title*2"] = "isn't it!";
+    // similar to the above, but all values end with a star
+    map["title2*0*"] = "us-ascii'en'This%20is%20even%20more%20";
+    map["title2*1*"] = "%2A%2A%2Afun%2A%2A%2A%20";
+    map["title2*2*"] = "isn't it!";
+    // the middle one is missing a star
+    map["title3*0*"] = "us-ascii'en'This%20is%20even%20more%20";
+    map["title3*1"] = "%2A%2A%2Afun%2A%2A%2A%20";
+    map["title3*2*"] = "isn't it!";
+    // some utf-8 bits
+    map["raw-utf8"] = "\xc4\x9b\xc5\xa1\xc4\x8d";
+    map["utf8-2047"] = "=?utf8?Q?=c4=9b=c5=a1=c4=8d?=";
+    map["utf8-wo-lang*"] = "utf8''%c4%9b%c5%a1%c4%8d";
+    map["utf8-wo-lang-wo-enc*"] = "''%c4%9b%c5%a1%c4%8d";
+    map["utf8-en*"] = "utf8'en'%c4%9b%c5%a1%c4%8d";
+    map["utf8-wo-enc-lang*"] = "'en'%c4%9b%c5%a1%c4%8d";
+
+    QTest::newRow("notfound") << map << QByteArray("notfound") << QString();
+    QTest::newRow("boring") << map << QByteArray("completeURL") << QString::fromUtf8("ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar");
+    QTest::newRow("continuation") << map << QByteArray("URL") << QString::fromUtf8("ftp://cs.utk.edu/pub/moore/bulk-mailer/bulk-mailer.tar");
+    QTest::newRow("lang") << map << QByteArray("completeTitle") << QString::fromUtf8("This is ***fun***");
+    QTest::newRow("continuation-lang-wo-stars") << map << QByteArray("title") << QString::fromUtf8("This is even more ***fun*** isn't it!");
+    QTest::newRow("continuation-lang-all-stars") << map << QByteArray("title2") << QString::fromUtf8("This is even more ***fun*** isn't it!");
+    QTest::newRow("continuation-lang-wo-star-in-the-middle") << map << QByteArray("title3") << QString::fromUtf8("This is even more ***fun*** isn't it!");
+    QTest::newRow("raw-utf8") << map << QByteArray("raw-utf8") << QString::fromUtf8("ěšč");
+    QTest::newRow("utf8-2047") << map << QByteArray("utf8-2047") << QString::fromUtf8("ěšč");
+    QTest::newRow("utf8-wo-lang") << map << QByteArray("utf8-wo-lang") << QString::fromUtf8("ěšč");
+    QTest::newRow("utf8-wo-lang-wo-enc") << map << QByteArray("utf8-wo-lang-wo-enc") << QString::fromUtf8("ěšč");
+    QTest::newRow("utf8-en") << map << QByteArray("utf8-en") << QString::fromUtf8("ěšč");
+    QTest::newRow("utf8-wo-enc-lang") << map << QByteArray("utf8-wo-enc-lang") << QString::fromUtf8("ěšč");
 }
 
 TROJITA_HEADLESS_TEST( RFCCodecsTest )
