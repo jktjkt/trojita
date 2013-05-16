@@ -80,6 +80,33 @@ namespace {
         return false;
     }
 
+    /** @short Check the given unicode code point if it has to be escaped according to RFC 2231
+
+    The rules might be a little stricter than required, actually.
+    */
+    static inline bool rfc2311NeedsEscaping(const int unicode)
+    {
+        const unsigned char Ascii_Zero = 0x30;
+        const unsigned char Ascii_Nine = 0x39;
+        const unsigned char Ascii_A = 0x41;
+        const unsigned char Ascii_Z = 0x5a;
+        const unsigned char Ascii_a = 0x61;
+        const unsigned char Ascii_z = 0x7a;
+        const unsigned char Ascii_Minus = 0x2d;
+        const unsigned char Ascii_Dot = 0x2e;
+        const unsigned char Ascii_Underscore = 0x5f;
+
+        if (unicode == Ascii_Minus || unicode == Ascii_Dot || unicode == Ascii_Underscore)
+            return false;
+        if (unicode >= Ascii_Zero && unicode <= Ascii_Nine)
+            return false;
+        if (unicode >= Ascii_A && unicode <= Ascii_Z)
+            return false;
+        if (unicode >= Ascii_a && unicode <= Ascii_z)
+            return false;
+        return true;
+    }
+
     /** @short Find the most efficient encoding for the given unicode string
 
     It can be either just plain ASCII, or ISO-Latin1 using the Quoted-Printable encoding, or
@@ -505,6 +532,37 @@ QString extractRfc2231Param(const QMap<QByteArray, QByteArray> &parameters, cons
 
     // Fallback: it could be empty, or otherwise malformed. Just treat it as UTF-8 for compatibility
     return QString::fromUtf8(raw);
+}
+
+/** @short Produce a parameter for a MIME message header */
+QByteArray encodeRfc2231Parameter(const QByteArray &key, const QString &value)
+{
+    if (value.isEmpty())
+        return key + "=\"\"";
+
+    bool safeAscii = true;
+
+    // Find "dangerous" characters
+    for (int i = 0; i < value.size(); ++i) {
+        if (rfc2311NeedsEscaping(value[i].unicode())) {
+            safeAscii = false;
+            break;
+        }
+    }
+
+    if (safeAscii)
+        return key + '=' + value.toUtf8();
+
+    QByteArray res = key + "*=\"utf-8''";
+    QByteArray encoded = value.toUtf8();
+    for (int i = 0; i < encoded.size(); ++i) {
+        char unicode = encoded[i];
+        if (rfc2311NeedsEscaping(unicode))
+            res += toHexChar(unicode, '%');
+        else
+            res += unicode;
+    }
+    return res + '"';
 }
 
 }

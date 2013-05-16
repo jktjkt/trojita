@@ -322,4 +322,24 @@ void RFCCodecsTest::testRfc2231Decoding_data()
     QTest::newRow("utf8-wo-enc-lang") << map << QByteArray("utf8-wo-enc-lang") << QString::fromUtf8("ěšč");
 }
 
+void RFCCodecsTest::testRfc2231Encoding()
+{
+    QFETCH(QString, unicode);
+    QFETCH(QByteArray, serialized);
+
+    QCOMPARE(QString::fromUtf8(Imap::encodeRfc2231Parameter("x", unicode)), QString::fromUtf8(serialized));
+}
+
+void RFCCodecsTest::testRfc2231Encoding_data()
+{
+    QTest::addColumn<QString>("unicode");
+    QTest::addColumn<QByteArray>("serialized");
+
+    QTest::newRow("empty") << QString() << QByteArray("x=\"\"");
+    QTest::newRow("ascii") << QString::fromUtf8("ahoj") << QByteArray("x=ahoj");
+    QTest::newRow("filename") << QString::fromUtf8("AhojZ-jak-se_masz-039.txt") << QByteArray("x=AhojZ-jak-se_masz-039.txt");
+    QTest::newRow("utf-8") << QString::fromUtf8("ěšč") << QByteArray("x*=\"utf-8''%C4%9B%C5%A1%C4%8D\"");
+    QTest::newRow("question-mark") << QString::fromUtf8("?") << QByteArray("x*=\"utf-8''%3F\"");
+}
+
 TROJITA_HEADLESS_TEST( RFCCodecsTest )

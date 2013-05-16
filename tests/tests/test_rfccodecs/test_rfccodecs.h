@@ -42,6 +42,9 @@ private Q_SLOTS:
 
   void testRfc2231Decoding();
   void testRfc2231Decoding_data();
+
+  void testRfc2231Encoding();
+  void testRfc2231Encoding_data();
 };
 
 #endif

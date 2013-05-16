@@ -53,6 +53,7 @@ QByteArray quotedPrintableDecode(const QByteArray &raw);
 QByteArray quotedPrintableEncode(const QByteArray &raw);
 
 QString extractRfc2231Param(const QMap<QByteArray, QByteArray> &parameters, const QByteArray &key);
+QByteArray encodeRfc2231Parameter(const QByteArray &key, const QString &value);
 
 }
 
