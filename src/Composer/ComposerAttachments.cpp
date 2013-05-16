@@ -101,11 +101,10 @@ QByteArray FileAttachmentItem::contentDispositionHeader() const
     // when they are not marked with the "filename" option.
     // Either I'm having a really, really bad day and I'm missing something, or they made a rather stupid bug.
 
-    // FIXME: support RFC 2231 and its internationalized file names
-    QByteArray shortFileName = QFileInfo(fileName).fileName().toUtf8();
+    QString shortFileName = QFileInfo(fileName).fileName();
     if (shortFileName.isEmpty())
-        shortFileName = "attachment";
-    return "Content-Disposition: attachment;\r\n\tfilename=\"" + shortFileName + "\"\r\n";
+        shortFileName = QLatin1String("attachment");
+    return "Content-Disposition: attachment;\r\n\t" + Imap::encodeRfc2231Parameter("filename", shortFileName) + "\r\n";
 }
 
 AttachmentItem::ContentTransferEncoding FileAttachmentItem::suggestedCTE() const
@@ -167,9 +166,9 @@ QByteArray ImapMessageAttachmentItem::contentDispositionHeader() const
     Imap::Mailbox::TreeItemMessage *msg = messagePtr();
     if (!msg || !model)
         return QByteArray();
-    // FIXME: this header "sanitization" is so crude, ugly, buggy and non-compliant that I shall feel deeply ashamed
-    return "Content-Disposition: attachment;\r\n\tfilename=\"" +
-            msg->envelope(model).subject.toUtf8().replace("\"", "'") + ".eml\"\r\n";
+    return "Content-Disposition: attachment;\r\n\t" +
+            Imap::encodeRfc2231Parameter("filname", msg->envelope(model).subject + QLatin1String(".eml")) +
+            "\r\n";
 }
 
 QByteArray ImapMessageAttachmentItem::mimeType() const
@@ -304,7 +303,7 @@ QByteArray ImapPartAttachmentItem::contentDispositionHeader() const
     Imap::Mailbox::TreeItemPart *part = partPtr();
     if (!part)
         return QByteArray();
-    return "Content-Disposition: attachment;\r\n\tfilename=\"" + part->fileName().toUtf8() + "\"\r\n";
+    return "Content-Disposition: attachment;\r\n\t" + Imap::encodeRfc2231Parameter("filename", part->fileName()) + "\r\n";
 }
 
 AttachmentItem::ContentTransferEncoding ImapPartAttachmentItem::suggestedCTE() const
