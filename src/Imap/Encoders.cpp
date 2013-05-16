@@ -231,6 +231,12 @@ namespace {
         return out;
     }
 
+    QByteArray toHexChar(const ushort unicode, char prefix)
+    {
+        const char hexChars[] = "0123456789ABCDEF";
+        return QByteArray() + prefix + hexChars[(unicode >> 4) & 0xf] + hexChars[unicode & 0xf];
+    }
+
 }
 
 namespace Imap {
@@ -291,8 +297,7 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
             } else if (!rfc2047QPNeedsEscpaing(unicode)) {
                 symbol += text[i].toLatin1();
             } else {
-                const char hexChars[] = "0123456789ABCDEF";
-                symbol = QByteArray("=") + hexChars[(unicode >> 4) & 0xf] + hexChars[unicode & 0xf];
+                symbol = toHexChar(unicode, '=');
             }
             currentLineLength += symbol.size();
             if (currentLineLength > maximumEncoded) {
