@@ -164,7 +164,7 @@ private slots:
     void slotLayoutCompact();
     void slotLayoutWide();
 
-    void slotIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void slotIconActivated(const QSystemTrayIcon::ActivationReason reason);
     void slotToggleSysTray();
 private:
     void defineActions();
@@ -267,8 +267,6 @@ private:
 
     QAction *m_actionSubscribeMailbox;
     QAction *m_actionShowOnlySubscribed;
-
-    QAction *m_quitAction;
 
     QToolBar *m_mainToolbar;
     QToolButton *m_replyButton;

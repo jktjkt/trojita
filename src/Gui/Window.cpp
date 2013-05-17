@@ -717,9 +717,8 @@ void MainWindow::setupModels()
 
 void MainWindow::createSysTray()
 {
-    if (m_trayIcon) {
+    if (m_trayIcon)
         return;
-    }
 
     m_trayIcon = new QSystemTrayIcon(this);
 
@@ -733,18 +732,17 @@ void MainWindow::createSysTray()
     m_trayIcon->setContextMenu(trayIconMenu);
 
     // QMenu cannot be a child of QSystemTrayIcon, and we don't want the QMenu in MainWindow scope.
-    connect(m_trayIcon, SIGNAL(destroyed()),
-        trayIconMenu, SLOT(deleteLater()));
+    connect(m_trayIcon, SIGNAL(destroyed()), trayIconMenu, SLOT(deleteLater()));
 
     connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-        this, SLOT(slotIconActivated(QSystemTrayIcon::ActivationReason)));
-    connect(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)),
-        this, SLOT(handleTrayIconChange()));
+            this, SLOT(slotIconActivated(QSystemTrayIcon::ActivationReason)));
+    connect(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)), this, SLOT(handleTrayIconChange()));
     m_trayIcon->setVisible(true);
     m_trayIcon->show();
 }
 
-void MainWindow::removeSysTray() {
+void MainWindow::removeSysTray()
+{
     if (!m_trayIcon)
         return;
 
@@ -753,7 +751,8 @@ void MainWindow::removeSysTray() {
     m_trayIcon = 0;
 }
 
-void MainWindow::slotToggleSysTray() {
+void MainWindow::slotToggleSysTray()
+{
     QSettings s;
     bool showSystray = s.value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool();
     if (showSystray && !m_trayIcon) {
@@ -763,7 +762,8 @@ void MainWindow::slotToggleSysTray() {
     }
 }
 
-void MainWindow::handleTrayIconChange() {
+void MainWindow::handleTrayIconChange()
+{
     QModelIndex mailbox = model->index(1, 0, QModelIndex());
 
     if (mailbox.isValid()) {
@@ -790,18 +790,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
-void MainWindow::slotIconActivated(QSystemTrayIcon::ActivationReason reason)
+void MainWindow::slotIconActivated(const QSystemTrayIcon::ActivationReason reason)
 {
-    switch (reason) {
-    case QSystemTrayIcon::Trigger:
+    if (reason == QSystemTrayIcon::Trigger)
         setVisible(!isVisible());
-    case QSystemTrayIcon::DoubleClick:
-        break;
-    case QSystemTrayIcon::MiddleClick:
-        break;
-    default:
-        ;
-    }
  }
 
 void MainWindow::msgListClicked(const QModelIndex &index)
