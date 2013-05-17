@@ -91,7 +91,7 @@ Q_DECLARE_METATYPE(QList<QSslError>)
 namespace Gui
 {
 
-MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false)
+MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_trayIcon(0)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
@@ -117,6 +117,7 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     setupModels();
     createActions();
     createMenus();
+    slotToggleSysTray();
 
     // Please note that Qt 4.6.1 really requires passing the method signature this way, *not* using the SLOT() macro
     QDesktopServices::setUrlHandler(QLatin1String("mailto"), this, "slotComposeMailUrl");
@@ -714,6 +715,95 @@ void MainWindow::setupModels()
     m_addressBook = new AbookAddressbook();
 }
 
+void MainWindow::createSysTray()
+{
+    if (m_trayIcon) {
+        return;
+    }
+
+    m_trayIcon = new QSystemTrayIcon(this);
+
+    m_trayIcon->setIcon(QIcon(QLatin1String(":/icons/trojita.png")));
+
+    QAction* quitAction = new QAction(tr("&Quit"), m_trayIcon);
+    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+
+    QMenu *trayIconMenu = new QMenu(this);
+    trayIconMenu->addAction(quitAction);
+    m_trayIcon->setContextMenu(trayIconMenu);
+
+    // QMenu cannot be a child of QSystemTrayIcon, and we don't want the QMenu in MainWindow scope.
+    connect(m_trayIcon, SIGNAL(destroyed()),
+        trayIconMenu, SLOT(deleteLater()));
+
+    connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
+        this, SLOT(slotIconActivated(QSystemTrayIcon::ActivationReason)));
+    connect(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)),
+        this, SLOT(handleTrayIconChange()));
+    m_trayIcon->setVisible(true);
+    m_trayIcon->show();
+}
+
+void MainWindow::removeSysTray() {
+    if (!m_trayIcon)
+        return;
+
+    m_trayIcon->hide();
+    delete m_trayIcon;
+    m_trayIcon = 0;
+}
+
+void MainWindow::slotToggleSysTray() {
+    QSettings s;
+    bool showSystray = s.value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool();
+    if (showSystray && !m_trayIcon) {
+        this->createSysTray();
+    } else if (!showSystray && m_trayIcon) {
+        this->removeSysTray();
+    }
+}
+
+void MainWindow::handleTrayIconChange() {
+    QModelIndex mailbox = model->index(1, 0, QModelIndex());
+
+    if (mailbox.isValid()) {
+        Q_ASSERT(mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX"));
+        QPixmap pixmap = QPixmap(QLatin1String(":/icons/trojita.png"));
+        if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
+            QPainter painter(&pixmap);
+            QFont f;
+            f.setPixelSize(pixmap.height() / 2);
+            f.setWeight(QFont::Bold);
+            painter.setFont(f);
+            painter.setPen(Qt::blue);
+            painter.drawText(pixmap.rect(), Qt::AlignCenter, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString());
+        }
+        m_trayIcon->setIcon(QIcon(pixmap));
+    }
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (m_trayIcon && m_trayIcon->isVisible()) {
+        hide();
+        event->ignore();
+    }
+}
+
+void MainWindow::slotIconActivated(QSystemTrayIcon::ActivationReason reason)
+{
+    switch (reason) {
+    case QSystemTrayIcon::Trigger:
+        setVisible(!isVisible());
+    case QSystemTrayIcon::DoubleClick:
+        break;
+    case QSystemTrayIcon::MiddleClick:
+        break;
+    default:
+        ;
+    }
+ }
+
 void MainWindow::msgListClicked(const QModelIndex &index)
 {
     Q_ASSERT(index.isValid());
@@ -907,6 +997,7 @@ void MainWindow::slotShowSettings()
         nukeModels();
         setupModels();
         connectModelActions();
+        slotToggleSysTray();
     }
 }
 

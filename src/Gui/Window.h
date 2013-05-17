@@ -25,12 +25,14 @@
 
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QSystemTrayIcon>
 
 #include "Composer/Recipients.h"
 #include "Imap/ConnectionState.h"
 #include "Imap/Model/Cache.h"
 
 class QAuthenticator;
+class QCloseEvent;
 class QItemSelection;
 class QModelIndex;
 class QScrollArea;
@@ -88,7 +90,8 @@ public:
 
     const AbstractAddressbook *addressBook() const { return m_addressBook; }
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
-
+protected:
+    void closeEvent(QCloseEvent *event);
 private slots:
     void showContextMenuMboxTree(const QPoint &position);
     void showContextMenuMsgListTree(const QPoint &position);
@@ -125,6 +128,7 @@ private slots:
     void slotCreateMailboxBelowCurrent();
     void slotCreateTopMailbox();
     void slotDeleteCurrentMailbox();
+    void handleTrayIconChange();
 #ifdef XTUPLE_CONNECT
     void slotXtSyncCurrentMailbox();
 #endif
@@ -160,6 +164,8 @@ private slots:
     void slotLayoutCompact();
     void slotLayoutWide();
 
+    void slotIconActivated(QSystemTrayIcon::ActivationReason reason);
+    void slotToggleSysTray();
 private:
     void defineActions();
     void createMenus();
@@ -177,6 +183,8 @@ private:
     void migrateSettings();
 
     void recoverDrafts();
+    void createSysTray();
+    void removeSysTray();
 
     Imap::Mailbox::Model *model;
     Imap::Mailbox::MailboxModel *mboxModel;
@@ -260,6 +268,8 @@ private:
     QAction *m_actionSubscribeMailbox;
     QAction *m_actionShowOnlySubscribed;
 
+    QAction *m_quitAction;
+
     QToolBar *m_mainToolbar;
     QToolButton *m_replyButton;
     QMenu *m_replyMenu;
@@ -275,6 +285,8 @@ private:
 
     MainWindow(const MainWindow &); // don't implement
     MainWindow &operator=(const MainWindow &); // don't implement
+
+    QSystemTrayIcon *m_trayIcon;
 };
 
 }
