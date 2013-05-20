@@ -305,17 +305,16 @@ QVariant MsgListModel::headerData(int section, Qt::Orientation orientation, int 
 
 Qt::ItemFlags MsgListModel::flags(const QModelIndex &index) const
 {
-    if (! index.isValid() || index.model() != this)
-        return QAbstractProxyModel::flags(index);
+    if (!index.isValid())
+        return Qt::NoItemFlags;
 
-    TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(
-                                   Model::realTreeItem(index));
+    TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(Model::realTreeItem(index));
     Q_ASSERT(message);
 
-    if (! message->fetched())
-        return QAbstractProxyModel::flags(index);
+    if (!message->uid())
+        return Qt::NoItemFlags;
 
-    return Qt::ItemIsDragEnabled | QAbstractProxyModel::flags(index);
+    return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled;
 }
 
 Qt::DropActions MsgListModel::supportedDropActions() const
@@ -347,7 +346,6 @@ QMimeData *MsgListModel::mimeData(const QModelIndexList &indexes) const
     for (QModelIndexList::const_iterator it = indexes.begin(); it != indexes.end(); ++it) {
         TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(Model::realTreeItem(*it));
         Q_ASSERT(message);
-        Q_ASSERT(message->fetched());   // should've been handled by flags()
         Q_ASSERT(message->parent()->parent() == mailbox);
         Q_ASSERT(message->uid() > 0);
         uids << message->uid();
