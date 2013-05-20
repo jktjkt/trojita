@@ -155,11 +155,14 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
         int maxWidth = qMax(400, screenWidth / 4);
         QSize size(maxWidth, 0);
 
+        // Show a "+ X more items" text after so many entries
+        const int maxItems = 20;
+
         QStyleOptionViewItem opt;
         opt.initFrom(this);
         opt.rect.setWidth(maxWidth);
         opt.rect.setHeight(itemDelegate()->sizeHint(opt, baseIndexes.at(0)).height());
-        size.setHeight(baseIndexes.size() * opt.rect.height());
+        size.setHeight(qMin(maxItems + 1, baseIndexes.size()) * opt.rect.height());
         // State_Selected provides for nice background of the items
         opt.state |= QStyle::State_Selected;
 
@@ -170,6 +173,12 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
 
         for (int i = 0; i < baseIndexes.size(); ++i) {
             opt.rect.moveTop(i * opt.rect.height());
+            if (i == maxItems) {
+                p.fillRect(opt.rect, palette().color(QPalette::Disabled, QPalette::Highlight));
+                p.setBrush(palette().color(QPalette::Disabled, QPalette::HighlightedText));
+                p.drawText(opt.rect, Qt::AlignRight, tr("+ %n additional item(s)", 0, baseIndexes.size() - maxItems));
+                break;
+            }
             itemDelegate()->paint(&p, opt, baseIndexes.at(i));
         }
 
