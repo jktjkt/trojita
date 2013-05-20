@@ -722,6 +722,7 @@ void MainWindow::createSysTray()
 
     m_trayIcon = new QSystemTrayIcon(this);
 
+    m_trayIcon->setToolTip(trUtf8("Trojitá"));
     m_trayIcon->setIcon(QIcon(QLatin1String(":/icons/trojita.png")));
 
     QAction* quitAction = new QAction(tr("&Quit"), m_trayIcon);
@@ -777,6 +778,9 @@ void MainWindow::handleTrayIconChange()
             painter.setFont(f);
             painter.setPen(Qt::blue);
             painter.drawText(pixmap.rect(), Qt::AlignCenter, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString());
+            m_trayIcon->setToolTip(trUtf8("Trojitá - %n unread message(s)", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()));
+        } else {
+            m_trayIcon->setToolTip(trUtf8("Trojitá"));
         }
         m_trayIcon->setIcon(QIcon(pixmap));
     }
