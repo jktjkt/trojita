@@ -45,6 +45,7 @@
 #include "Composer/SenderIdentitiesModel.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
+#include "Gui/Util.h"
 
 namespace Gui
 {
@@ -251,14 +252,7 @@ EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *ide
     connect(this, SIGNAL(accepted()), m_mapper, SLOT(submit()));
     connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
     setModal(true);
-
-    // See ComposeWidget.cpp for details on the selection of font
-    QFont font(QLatin1String("x-trojita-terminus-like-fixed-width"));
-    font.setStyleHint(QFont::TypeWriter);
-    signaturePlainTextEdit->setFont(font);
-    // The QFontMetrics prodocues weird results, unfortunately :(
-    /*QFontMetrics(font).boundingRect(
-        QLatin1String("A simple signature which spans 80 column is surprisingly hard to come up with...")).width()*/
+    signaturePlainTextEdit->setFont(Gui::Util::systemMonospaceFont());
 }
 
 void EditIdentity::enableButton()
