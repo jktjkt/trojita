@@ -824,6 +824,8 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
         }
         endInsertRows();
         item->m_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
+        // The list of messages was satisfied from cache. Do the same for the message counts, if applicable
+        item->recalcVariousMessageCounts(this);
     }
 
     if (networkPolicy() != NETWORK_OFFLINE) {
