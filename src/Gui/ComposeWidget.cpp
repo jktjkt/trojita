@@ -230,6 +230,11 @@ bool ComposeWidget::buildMessageData()
         gotError(tr("The From: address does not look like a valid one"));
         return false;
     }
+    if (ui->subject->text().isEmpty()) {
+        gotError(tr("You haven't entered any subject. Cannot send such a mail, sorry."));
+        ui->subject->setFocus();
+        return false;
+    }
     m_submission->composer()->setFrom(fromAddress);
 
     m_submission->composer()->setTimestamp(QDateTime::currentDateTime());
