@@ -284,8 +284,12 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
         method->setCurrentIndex(0);
     } else if (QSettings().value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
         method->setCurrentIndex(1);
-    } else {
+    } else if (QSettings().value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
         method->setCurrentIndex(2);
+    } else {
+        // Default settings -- let's assume SSL and hope that users who just press Cancel will configure when they see
+        // the network error...
+        method->setCurrentIndex(1);
     }
 
     imapHost->setText(s.value(SettingsNames::imapHostKey).toString());
