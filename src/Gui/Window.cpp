@@ -771,7 +771,7 @@ void MainWindow::handleTrayIconChange()
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
             QPainter painter(&pixmap);
             QFont f;
-            f.setPixelSize(pixmap.height() / 2);
+            f.setPixelSize(pixmap.height() * 0.59 );
             f.setWeight(QFont::Bold);
 
             QString text = mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString();
@@ -791,9 +791,9 @@ void MainWindow::handleTrayIconChange()
             boundingRect.setHeight(boundingRect.height() + 2);
             boundingRect.moveCenter(QPoint(pixmap.width() / 2, pixmap.height() / 2));
             boundingRect = boundingRect.intersected(pixmap.rect());
-            painter.setBrush(palette().color(QPalette::Base));
-            painter.setPen(palette().color(QPalette::Base));
-            painter.setOpacity(0.6);
+            painter.setBrush(Qt::white);
+            painter.setPen(Qt::white);
+            painter.setOpacity(0.7);
             painter.drawRoundedRect(boundingRect, 2.0, 2.0);
 
             painter.setOpacity(1.0);
