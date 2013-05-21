@@ -377,19 +377,31 @@ void ImapPage::save(QSettings &s)
     }
     switch (method->currentIndex()) {
     case TCP:
-        s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodTCP);
+        if (imapHost->text().isEmpty()) {
+            s.remove(SettingsNames::imapMethodKey);
+        } else {
+            s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodTCP);
+        }
         s.setValue(SettingsNames::imapHostKey, imapHost->text());
         s.setValue(SettingsNames::imapPortKey, imapPort->text());
         s.setValue(SettingsNames::imapStartTlsKey, startTls->isChecked());
         break;
     case SSL:
-        s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodSSL);
+        if (imapHost->text().isEmpty()) {
+            s.remove(SettingsNames::imapMethodKey);
+        } else {
+            s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodSSL);
+        }
         s.setValue(SettingsNames::imapHostKey, imapHost->text());
         s.setValue(SettingsNames::imapPortKey, imapPort->text());
         s.setValue(SettingsNames::imapStartTlsKey, startTls->isChecked());
         break;
     default:
-        s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodProcess);
+        if (processPath->text().isEmpty()) {
+            s.remove(SettingsNames::imapMethodKey);
+        } else {
+            s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodProcess);
+        }
         s.setValue(SettingsNames::imapProcessKey, processPath->text());
     }
     s.setValue(SettingsNames::imapUserKey, imapUser->text());
