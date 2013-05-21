@@ -183,7 +183,7 @@ void MainWindow::createActions()
     reloadAllMailboxes = new QAction(tr("&Reload Everything"), this);
     // connect later
 
-    exitAction = ShortcutHandler::instance()->createAction(QLatin1String("action_application_exit"), this, SLOT(close()), this);
+    exitAction = ShortcutHandler::instance()->createAction(QLatin1String("action_application_exit"), qApp, SLOT(quit()), this);
     exitAction->setStatusTip(tr("Exit the application"));
 
     QActionGroup *netPolicyGroup = new QActionGroup(this);
