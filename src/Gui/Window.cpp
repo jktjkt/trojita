@@ -574,7 +574,7 @@ void MainWindow::setupModels()
         factory.reset(new Imap::Mailbox::SslSocketFactory(
                           s.value(SettingsNames::imapHostKey).toString(),
                           s.value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAPS)).toUInt()));
-    } else {
+    } else if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
         QStringList args = s.value(SettingsNames::imapProcessKey).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
             // it's going to fail anyway
@@ -582,6 +582,8 @@ void MainWindow::setupModels()
         }
         QString appName = args.takeFirst();
         factory.reset(new Imap::Mailbox::ProcessSocketFactory(appName, args));
+    } else {
+        factory.reset(new Imap::Mailbox::FakeSocketFactory(Imap::CONN_STATE_LOGOUT));
     }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -1017,6 +1019,12 @@ void MainWindow::slotShowSettings()
         setupModels();
         connectModelActions();
         slotToggleSysTray();
+    }
+    QString method = QSettings().value(Common::SettingsNames::imapMethodKey).toString();
+    if (method != Common::SettingsNames::methodTCP && method != Common::SettingsNames::methodSSL &&
+            method != Common::SettingsNames::methodProcess ) {
+        QMessageBox::critical(this, tr("No Configuration"),
+                              trUtf8("No IMAP account is configured. Trojitá cannot do much without one."));
     }
 }
 

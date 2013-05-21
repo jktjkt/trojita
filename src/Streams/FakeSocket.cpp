@@ -43,6 +43,12 @@ FakeSocket::~FakeSocket()
 
 void FakeSocket::slotEmitConnected()
 {
+    if (m_initialState == CONN_STATE_LOGOUT) {
+        // Special case: a fake socket factory for unconfigured accounts.
+        emit disconnected(QString());
+        return;
+    }
+
     // We have to use both conventions for letting the world know that "we're finally usable"
     if (m_initialState != CONN_STATE_CONNECTED_PRETLS_PRECAPS)
         emit stateChanged(CONN_STATE_CONNECTED_PRETLS_PRECAPS, QString());
