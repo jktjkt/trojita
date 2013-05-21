@@ -775,9 +775,33 @@ void MainWindow::handleTrayIconChange()
             QFont f;
             f.setPixelSize(pixmap.height() / 2);
             f.setWeight(QFont::Bold);
+
+            QString text = mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString();
+            QFontMetrics fm(f);
+            if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toUInt() > 666) {
+                // You just have too many messages.
+                text = QString::fromUtf8("🐮");
+                fm = QFontMetrics(f);
+            } else if (fm.width(text) > pixmap.width()) {
+                f.setPixelSize(f.pixelSize() * pixmap.width() / fm.width(text));
+                fm = QFontMetrics(f);
+            }
             painter.setFont(f);
-            painter.setPen(Qt::blue);
-            painter.drawText(pixmap.rect(), Qt::AlignCenter, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString());
+
+            QRect boundingRect = fm.tightBoundingRect(text);
+            boundingRect.setWidth(boundingRect.width() + 2);
+            boundingRect.setHeight(boundingRect.height() + 2);
+            boundingRect.moveCenter(QPoint(pixmap.width() / 2, pixmap.height() / 2));
+            boundingRect = boundingRect.intersected(pixmap.rect());
+            painter.setBrush(palette().color(QPalette::Base));
+            painter.setPen(palette().color(QPalette::Base));
+            painter.setOpacity(0.6);
+            painter.drawRoundedRect(boundingRect, 2.0, 2.0);
+
+            painter.setOpacity(1.0);
+            painter.setBrush(Qt::NoBrush);
+            painter.setPen(Qt::darkBlue);
+            painter.drawText(boundingRect, Qt::AlignCenter, text);
             m_trayIcon->setToolTip(trUtf8("Trojitá - %n unread message(s)", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()));
         } else {
             m_trayIcon->setToolTip(trUtf8("Trojitá"));
