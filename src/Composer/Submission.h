@@ -23,6 +23,7 @@
 #define COMPOSER_SUBMISSION_H
 
 #include <QPersistentModelIndex>
+#include <QPointer>
 
 #include "Recipients.h"
 
@@ -124,7 +125,7 @@ private:
     int m_msaMaximalProgress;
 
     MessageComposer *m_composer;
-    Imap::Mailbox::Model *m_model;
+    QPointer<Imap::Mailbox::Model> m_model;
     MSA::MSAFactory *m_msaFactory;
 
     Imap::Mailbox::ImapTask *m_updateReplyingToMessageFlagsTask;

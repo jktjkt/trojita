@@ -92,7 +92,8 @@ Submission::~Submission()
 void Submission::changeConnectionState(const SubmissionProgress state)
 {
     m_state = state;
-    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), submissionProgressToString(m_state));
+    if (m_model)
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), submissionProgressToString(m_state));
 
     // Now broadcast a human-readable message and update the progress dialog
     switch (state) {
@@ -166,6 +167,15 @@ void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
 
 void Submission::send()
 {
+    if (!m_model) {
+        gotError(tr("The IMAP connection has disappeared. "
+                    "You'll have close the composer, save the draft and re-open it later. "
+                    "The attachments will have to be added later. Sorry for the trouble, "
+                    "please see <a href=\"https://projects.flaska.net/issues/640\">https://projects.flaska.net/issues/640</a> "
+                    "for details."));
+        return;
+    }
+
     // this double-updating is needed in case the same Submission attempts to send a message more than once
     changeConnectionState(STATE_INIT);
     changeConnectionState(STATE_BUILDING_MESSAGE);
@@ -273,7 +283,8 @@ void Submission::slotInvokeMsaNow()
 
 void Submission::gotError(const QString &error)
 {
-    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), QString::fromUtf8("gotError: %1").arg(error));
+    if (m_model)
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), QString::fromUtf8("gotError: %1").arg(error));
     changeConnectionState(STATE_FAILED);
     emit failed(error);
 }
