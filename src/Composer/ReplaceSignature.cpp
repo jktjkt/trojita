@@ -28,11 +28,12 @@
 namespace Composer {
 namespace Util {
 
-void replaceSignature(QTextDocument *document, const QString &newSignature)
+int replaceSignature(QTextDocument *document, const QString &newSignature)
 {
     // The QTextEdit is set up in such a way as to treat a fully terminated line as a standalone text block,
     // hence no newlines in the signature separator
     const QLatin1String signatureSeperator("-- ");
+    int pos = 0;
 
     QTextBlock block = document->lastBlock();
     while (block.isValid() && block.blockNumber() > 0) {
@@ -65,6 +66,8 @@ void replaceSignature(QTextDocument *document, const QString &newSignature)
         cursor.endEditBlock();
     }
 
+    pos = cursor.position();
+
     if (!newSignature.isEmpty()) {
         cursor.joinPreviousEditBlock();
         cursor.insertBlock();
@@ -73,6 +76,8 @@ void replaceSignature(QTextDocument *document, const QString &newSignature)
         cursor.insertText(newSignature);
         cursor.endEditBlock();
     }
+
+    return pos;
 }
 
 }
