@@ -22,6 +22,7 @@
 
 #include <QtTest>
 #include <QAction>
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QWebFrame>
 #include <QWebView>
@@ -496,7 +497,12 @@ void HtmlFormattingTest::testSignatures()
 
     QTextDocument doc;
     doc.setPlainText(original);
-    Composer::Util::replaceSignature(&doc, signature);
+
+    int currentPosition;
+    Composer::Util::replaceSignature(&doc, signature, &currentPosition);
+    QTextCursor cursor(&doc);
+    cursor.insertText("^");
+
     QCOMPARE(doc.toPlainText(), result);
 }
 

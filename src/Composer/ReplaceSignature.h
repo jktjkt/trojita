@@ -29,7 +29,7 @@ class QTextDocument;
 namespace Composer {
 namespace Util {
 
-int replaceSignature(QTextDocument *document, const QString &newSignature);
+void replaceSignature(QTextDocument *document, const QString &newSignature, int *currentPosition);
 
 }
 }
