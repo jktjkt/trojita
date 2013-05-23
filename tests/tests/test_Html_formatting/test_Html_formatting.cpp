@@ -501,6 +501,7 @@ void HtmlFormattingTest::testSignatures()
     int currentPosition;
     Composer::Util::replaceSignature(&doc, signature, &currentPosition);
     QTextCursor cursor(&doc);
+	cursor.setPosition(currentPosition, QTextCursor::MoveAnchor); 
     cursor.insertText("^");
 
     QCOMPARE(doc.toPlainText(), result);
