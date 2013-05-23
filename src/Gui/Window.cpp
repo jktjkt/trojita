@@ -1455,6 +1455,8 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
     Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
                                     list[0], list[1]);
 #endif
+    if (!addr.hasUsefulDisplayName())
+        addr.name.clear();
     RecipientsType recipients;
     recipients << qMakePair<Composer::RecipientKind,QString>(Composer::ADDRESS_TO, addr.asPrettyString());
     invokeComposeDialog(QString(), QString(), recipients);

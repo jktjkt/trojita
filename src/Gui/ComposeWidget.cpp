@@ -671,7 +671,9 @@ bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
     while (!m_recipients.isEmpty())
         removeRecipient(0);
 
-    Q_FOREACH(const Composer::RecipientList::value_type &recipient, list) {
+    Q_FOREACH(Composer::RecipientList::value_type recipient, list) {
+        if (!recipient.second.hasUsefulDisplayName())
+            recipient.second.name.clear();
         addRecipient(m_recipients.size(), recipient.first, recipient.second.asPrettyString());
     }
 
