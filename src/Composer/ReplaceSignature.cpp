@@ -65,8 +65,8 @@ void replaceSignature(QTextDocument *document, const QString &newSignature, int 
         cursor.endEditBlock();
     }
 
-	if (currentPosition)
-	    *currentPosition = cursor.position();
+    if (currentPosition)
+        *currentPosition = cursor.position();
 
     if (!newSignature.isEmpty()) {
         cursor.joinPreviousEditBlock();
