@@ -419,6 +419,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
     combo->setCurrentIndex(combo->findData(kind));
     LineEdit *edit = new LineEdit(address, this);
+    slotCheckAddress(edit);
     connect(edit, SIGNAL(textChanged(QString)), this, SLOT(slotCheckAddress()));
     connect(edit, SIGNAL(textEdited(QString)), SLOT(completeRecipients(QString)));
     connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
@@ -433,9 +434,13 @@ void ComposeWidget::slotCheckAddress()
 {
     LineEdit *edit = qobject_cast<LineEdit*>(sender());
     Q_ASSERT(edit);
-    QString errorMessage;
-    QList<QPair<Composer::RecipientKind,Imap::Message::MailAddress> > recipients;
-    if (edit->text().isEmpty() || parseRecipients(recipients, errorMessage)) {
+    slotCheckAddress(edit);
+}
+
+void ComposeWidget::slotCheckAddress(QLineEdit *edit)
+{
+    Imap::Message::MailAddress addr;
+    if (edit->text().isEmpty() || Imap::Message::MailAddress::fromPrettyString(addr, edit->text())) {
         edit->setPalette(QPalette());
     } else {
         QPalette p;

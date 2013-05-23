@@ -90,6 +90,7 @@ private slots:
     void updateRecipientList();
 
     void slotCheckAddress();
+    void slotCheckAddress(QLineEdit *edit);
 
     void slotAskForFileAttachment();
     void slotRemoveAttachment();
