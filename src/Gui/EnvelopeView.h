@@ -46,6 +46,10 @@ public:
 
     void connectWithMessageView(MessageView *messageView);
 
+signals:
+    /** Emitted when requesting a list of addresses for a given mail */
+    void addressDetailsRequested(const QString &mail, QStringList &addresses);
+
 private slots:
     void onLinkHovered(const QString &target);
 

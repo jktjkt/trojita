@@ -90,6 +90,7 @@ signals:
     void messageChanged();
     void linkHovered(const QString &url);
     void searchRequestedBy(QWebView *webView);
+    void addressDetailsRequested(const QString &mail, QStringList &addresses);
 private:
     bool eventFilter(QObject *object, QEvent *event);
     Imap::Message::Envelope envelope() const;

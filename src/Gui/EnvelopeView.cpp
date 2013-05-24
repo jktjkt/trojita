@@ -60,7 +60,10 @@ QString EnvelopeView::htmlizeAddresses(const QList<Imap::Message::MailAddress> &
     Q_ASSERT(!addresses.isEmpty());
     QStringList buf;
     Q_FOREACH(const Imap::Message::MailAddress &addr, addresses) {
-        buf << addr.prettyName(Imap::Message::MailAddress::FORMAT_CLICKABLE);
+        QStringList matchingDisplayNames;
+        emit addressDetailsRequested(addr.mailbox + QLatin1Char('@') + addr.host, matchingDisplayNames);
+        QString icon = matchingDisplayNames.isEmpty() ? " [unknown]" : " [in abook]";
+        buf << addr.prettyName(Imap::Message::MailAddress::FORMAT_CLICKABLE) + icon;
     }
     return buf.join(QLatin1String(", "));
 }
@@ -151,6 +154,8 @@ void EnvelopeView::onLinkHovered(const QString &target)
 void EnvelopeView::connectWithMessageView(MessageView *messageView)
 {
     connect(this, SIGNAL(linkActivated(QString)), messageView, SLOT(headerLinkActivated(QString)));
+    connect(this, SIGNAL(addressDetailsRequested(QString,QStringList&)),
+            messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)));
 }
 
 }
