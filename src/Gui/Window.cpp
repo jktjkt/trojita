@@ -120,6 +120,7 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
 
     // Please note that Qt 4.6.1 really requires passing the method signature this way, *not* using the SLOT() macro
     QDesktopServices::setUrlHandler(QLatin1String("mailto"), this, "slotComposeMailUrl");
+    QDesktopServices::setUrlHandler(QLatin1String("x-trojita-manage-contact"), this, "slotManageContact");
 
     slotUpdateWindowTitle();
 
@@ -1451,6 +1452,15 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
     RecipientsType recipients;
     recipients << qMakePair<Composer::RecipientKind,QString>(Composer::ADDRESS_TO, addr.asPrettyString());
     invokeComposeDialog(QString(), QString(), recipients);
+}
+
+void MainWindow::slotManageContact(const QUrl &url)
+{
+    Imap::Message::MailAddress addr;
+    if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("x-trojita-manage-contact")))
+        return;
+    // FIXME: launch the address book management,...
+    qDebug() << "Contact management not implemented yet" << addr.asPrettyString();
 }
 
 ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QString &body,

@@ -21,12 +21,14 @@
 */
 #include "EnvelopeView.h"
 #include <QHeaderView>
+#include <QFontMetrics>
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #  include <QTextDocument>
 #else
 #  include <QUrlQuery>
 #endif
 #include "MessageView.h"
+#include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
@@ -46,6 +48,11 @@ EnvelopeView::EnvelopeView(QWidget *parent): QLabel(parent)
     setIndent(5);
     setWordWrap(true);
     connect(this, SIGNAL(linkHovered(QString)), this, SLOT(onLinkHovered(QString)));
+
+    QFontMetrics fm(font());
+    int iconSize = fm.boundingRect(QLatin1Char('M')).height();
+    contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-known.svg"), iconSize);
+    contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-unknown.svgz"), iconSize);
 }
 
 /** @short */
@@ -62,7 +69,11 @@ QString EnvelopeView::htmlizeAddresses(const QList<Imap::Message::MailAddress> &
     Q_FOREACH(const Imap::Message::MailAddress &addr, addresses) {
         QStringList matchingDisplayNames;
         emit addressDetailsRequested(addr.mailbox + QLatin1Char('@') + addr.host, matchingDisplayNames);
-        QString icon = matchingDisplayNames.isEmpty() ? " [unknown]" : " [in abook]";
+        QUrl url = addr.asUrl();
+        QString icon = QString::fromUtf8("<span style='width: 4px;'>&nbsp;</span><a href='x-trojita-manage-contact:%1'>"
+                                         "<img src='%2' align='center'/></a>").arg(
+                    url.toString(QUrl::RemoveScheme),
+                    matchingDisplayNames.isEmpty() ? contactUnknownUrl : contactKnownUrl);
         buf << addr.prettyName(Imap::Message::MailAddress::FORMAT_CLICKABLE) + icon;
     }
     return buf.join(QLatin1String(", "));
@@ -129,19 +140,28 @@ void EnvelopeView::onLinkHovered(const QString &target)
     QUrl url(target);
 
     Imap::Message::MailAddress addr;
-    if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto"))) {
+    if (Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")) ||
+            Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("x-trojita-manage-contact"))) {
+        QStringList matchingIdentities;
+        emit addressDetailsRequested(addr.mailbox + QLatin1Char('@') + addr.host, matchingIdentities);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        QString link = Qt::escape(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE));
+        QString identities = Qt::escape(matchingIdentities.join(QLatin1String("<br/>\n")));
+#else
+        QString link = addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped();
+        QString identities = matchingIdentities.join(QLatin1String("<br/>\n")).toHtmlEscaped();
+#endif
+        if (matchingIdentities.isEmpty()) {
+            setToolTip(link);
+        } else {
+            setToolTip(link + tr("<hr/><b>Address Book:</b><br/>") + identities);
+        }
+    } else {
         setToolTip(QString());
         return;
     }
-
-    setToolTip(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                Qt::escape(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE))
-#else
-                addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped()
-#endif
-                );
 }
+
 
 void EnvelopeView::connectWithMessageView(MessageView *messageView)
 {

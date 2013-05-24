@@ -58,6 +58,8 @@ private:
 
     QString htmlizeAddresses(const QList<Imap::Message::MailAddress> &addresses);
 
+    QString contactKnownUrl, contactUnknownUrl;
+
     EnvelopeView(const EnvelopeView &); // don't implement
     EnvelopeView &operator=(const EnvelopeView &); // don't implement
 };
