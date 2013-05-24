@@ -22,9 +22,11 @@
 
 
 #include <QApplication>
+#include <QBuffer>
 #include <QCursor> // for Util::centerWidgetOnScreen
 #include <QDesktopWidget> // for Util::centerWidgetOnScreen
 #include <QDir>
+#include <QIcon>
 #include <QProcess>
 #include <QSettings>
 
@@ -199,6 +201,19 @@ QFont systemMonospaceFont()
     }
 
     return font;
+}
+
+/** @short Return image data from the specified filename as a self-contained URL of the data: scheme
+
+The imaeg is resized and always returned in the PNG format.
+*/
+QString resizedImageAsDataUrl(const QString &fileName, const int extent)
+{
+    QByteArray bdata;
+    QBuffer buf(&bdata);
+    buf.open(QIODevice::WriteOnly);
+    QIcon(fileName).pixmap(extent).toImage().save(&buf, "png");
+    return QLatin1String("data:image/png;base64,") + QString::fromUtf8(bdata.toBase64());
 }
 
 } // namespace Util

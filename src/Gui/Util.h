@@ -45,6 +45,8 @@ QColor tintColor(const QColor &color, const QColor &tintColor);
 
 QFont systemMonospaceFont();
 
+QString resizedImageAsDataUrl(const QString &fileName, const int extent);
+
 } // namespace Util
 
 } // namespace Gui
