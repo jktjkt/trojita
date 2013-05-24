@@ -205,7 +205,7 @@ QFont systemMonospaceFont()
 
 /** @short Return image data from the specified filename as a self-contained URL of the data: scheme
 
-The imaeg is resized and always returned in the PNG format.
+The image is resized and always returned in the PNG format.
 */
 QString resizedImageAsDataUrl(const QString &fileName, const int extent)
 {
