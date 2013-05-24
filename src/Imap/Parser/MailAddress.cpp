@@ -271,6 +271,30 @@ bool MailAddress::hasUsefulDisplayName() const
     return !name.isEmpty() && name.trimmed().toLower() != asSMTPMailbox().toLower();
 }
 
+/** @short Convert a QUrl into a MailAddress instance */
+bool MailAddress::fromUrl(MailAddress &into, const QUrl &url, const QString &expectedScheme)
+{
+    if (url.scheme().toLower() != expectedScheme.toLower())
+        return false;
+
+    QStringList list = url.path().split(QLatin1Char('@'));
+    if (list.size() != 2)
+        return false;
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    Imap::Message::MailAddress addr(url.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
+                                    list[0], list[1]);
+#else
+    QUrlQuery q(url);
+    Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
+                                    list[0], list[1]);
+#endif
+    if (!addr.hasUsefulDisplayName())
+        addr.name.clear();
+    into = addr;
+    return true;
+}
+
 QTextStream &operator<<(QTextStream &stream, const MailAddress &address)
 {
     stream << '"' << address.name << "\" <";

@@ -24,7 +24,6 @@
 #include <QDesktopServices>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #  include <QStandardPaths>
-#  include <QUrlQuery>
 #endif
 #include <QDir>
 #include <QDockWidget>
@@ -1446,21 +1445,9 @@ void MainWindow::slotReplyGuess()
 
 void MainWindow::slotComposeMailUrl(const QUrl &url)
 {
-    Q_ASSERT(url.scheme().toLower() == QLatin1String("mailto"));
-
-    QStringList list = url.path().split(QLatin1Char('@'));
-    if (list.size() != 2)
+    Imap::Message::MailAddress addr;
+    if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")))
         return;
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Imap::Message::MailAddress addr(url.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    list[0], list[1]);
-#else
-    QUrlQuery q(url);
-    Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    list[0], list[1]);
-#endif
-    if (!addr.hasUsefulDisplayName())
-        addr.name.clear();
     RecipientsType recipients;
     recipients << qMakePair<Composer::RecipientKind,QString>(Composer::ADDRESS_TO, addr.asPrettyString());
     invokeComposeDialog(QString(), QString(), recipients);

@@ -128,27 +128,19 @@ void EnvelopeView::onLinkHovered(const QString &target)
 {
     QUrl url(target);
 
-    if (target.isEmpty() || url.scheme().toLower() != QLatin1String("mailto")) {
+    Imap::Message::MailAddress addr;
+    if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto"))) {
         setToolTip(QString());
         return;
     }
 
-    QString frontOfAtSign, afterAtSign;
-    if (url.path().indexOf(QLatin1String("@")) != -1) {
-        QStringList chunks = url.path().split(QLatin1String("@"));
-        frontOfAtSign = chunks[0];
-        afterAtSign = QStringList(chunks.mid(1)).join(QLatin1String("@"));
-    }
+    setToolTip(
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Imap::Message::MailAddress addr(url.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    frontOfAtSign, afterAtSign);
-    setToolTip(Qt::escape(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE)));
+                Qt::escape(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE))
 #else
-    QUrlQuery q(url);
-    Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    frontOfAtSign, afterAtSign);
-    setToolTip(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped());
+                addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped()
 #endif
+                );
 }
 
 void EnvelopeView::connectWithMessageView(MessageView *messageView)

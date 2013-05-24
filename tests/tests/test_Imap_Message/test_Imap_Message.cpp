@@ -209,6 +209,10 @@ void ImapMessageTest::testMailAddressParsing()
     Imap::Message::MailAddress actual;
     QVERIFY(Imap::Message::MailAddress::fromPrettyString(actual, textInput));
     QCOMPARE(actual, expected);
+
+    Imap::Message::MailAddress afterUrlTransformation;
+    QVERIFY(Imap::Message::MailAddress::fromUrl(afterUrlTransformation, actual.asUrl(), QLatin1String("mailto")));
+    QCOMPARE(afterUrlTransformation, expected);
 }
 
 void ImapMessageTest::testMailAddressParsing_data()
