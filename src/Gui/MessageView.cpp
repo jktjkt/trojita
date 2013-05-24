@@ -63,7 +63,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
-    factory = new PartWidgetFactory(netAccess, this, this);
+    factory = new PartWidgetFactory(netAccess, this, this, this);
 
     emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
     emptyView->setFixedSize(450,300);
@@ -90,7 +90,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
 
     // the actual mail header
     m_envelope = new EnvelopeView(headerSection);
-    connect(m_envelope, SIGNAL(linkActivated(QString)), this, SLOT(headerLinkActivated(QString)));
+    m_envelope->connectWithMessageView(this);
 
     // the tag bar
     tags = new TagListWidget(headerSection);

@@ -26,6 +26,7 @@
 #else
 #  include <QUrlQuery>
 #endif
+#include "MessageView.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
@@ -134,6 +135,11 @@ void EnvelopeView::onLinkHovered(const QString &target)
                                     frontOfAtSign, afterAtSign);
     setToolTip(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped());
 #endif
+}
+
+void EnvelopeView::connectWithMessageView(MessageView *messageView)
+{
+    connect(this, SIGNAL(linkActivated(QString)), messageView, SLOT(headerLinkActivated(QString)));
 }
 
 }

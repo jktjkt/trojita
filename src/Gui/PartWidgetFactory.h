@@ -31,6 +31,8 @@ class QModelIndex;
 namespace Gui
 {
 
+class MessageView;
+
 class PartWidgetFactory
 {
     Q_DECLARE_TR_FUNCTIONS(PartWidgetFactory)
@@ -42,13 +44,16 @@ public:
         LOAD_ON_SHOW /**< @short Load the parts only after they have been shown to the user */
     } PartLoadingMode;
 
-    PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter, QObject *guiInteractionTarget);
+    PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter, QObject *guiInteractionTarget,
+                      MessageView *messageView);
     QWidget *create(const QModelIndex &partIndex);
     QWidget *create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingMode loadingMode = LOAD_IMMEDIATELY);
+    MessageView *messageView() const;
 private:
     Imap::Network::MsgPartNetAccessManager *manager;
     QObject *wheelEventFilter;
     QObject *guiInteractionTarget;
+    MessageView *m_messageView;
 
     PartWidgetFactory(const PartWidgetFactory &); // don't implement
     PartWidgetFactory &operator=(const PartWidgetFactory &); // don't implement

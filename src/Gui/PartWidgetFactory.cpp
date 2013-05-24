@@ -41,8 +41,9 @@
 namespace Gui
 {
 
-PartWidgetFactory::PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter, QObject *guiInteractionTarget):
-    manager(manager), wheelEventFilter(wheelEventFilter), guiInteractionTarget(guiInteractionTarget)
+PartWidgetFactory::PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter,
+                                     QObject *guiInteractionTarget, MessageView *messageView):
+    manager(manager), wheelEventFilter(wheelEventFilter), guiInteractionTarget(guiInteractionTarget), m_messageView(messageView)
 {
 }
 
@@ -171,6 +172,11 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     }
     QLabel *lbl = new QLabel(mimeType, 0);
     return lbl;
+}
+
+MessageView *PartWidgetFactory::messageView() const
+{
+    return m_messageView;
 }
 
 }

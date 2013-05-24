@@ -27,6 +27,8 @@
 
 namespace Gui {
 
+class MessageView;
+
 /** @short Widget displaying the message envelope */
 class EnvelopeView : public QLabel
 {
@@ -35,6 +37,8 @@ public:
     explicit EnvelopeView(QWidget *parent=0);
 
     void setMessage(const QModelIndex &index);
+
+    void connectWithMessageView(MessageView *messageView);
 
 private slots:
     void onLinkHovered(const QString &target);
