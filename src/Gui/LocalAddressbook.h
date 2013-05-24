@@ -35,6 +35,8 @@ class LocalAddressbook : public AbstractAddressbook {
 public:
     /** reimplemented - you only have to feed the contact list  from whereever*/
     QStringList complete(const QString &string, const QStringList &ignore, int max) const;
+    /** reimplemented */
+    QStringList prettyNamesForAddress(const QString &mail) const;
 protected:
     typedef QPair<QString, QStringList> Contact;
     QList<Contact> m_contacts;

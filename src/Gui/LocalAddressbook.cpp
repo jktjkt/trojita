@@ -62,3 +62,14 @@ QStringList LocalAddressbook::complete(const QString &string, const QStringList 
     }
     return list;
 }
+
+QStringList LocalAddressbook::prettyNamesForAddress(const QString &mail) const
+{
+    QStringList res;
+    Q_FOREACH(const Contact &contact, m_contacts) {
+        if (contact.second.contains(mail, Qt::CaseInsensitive)) {
+            res << contact.first;
+        }
+    }
+    return res;
+}
