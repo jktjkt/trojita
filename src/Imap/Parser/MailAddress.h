@@ -70,6 +70,7 @@ public:
     QByteArray asSMTPMailbox() const;
     QByteArray asMailHeader() const;
     QString asPrettyString() const;
+    QUrl asUrl() const;
 
     bool hasUsefulDisplayName() const;
 

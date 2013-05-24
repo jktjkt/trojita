@@ -113,43 +113,51 @@ MailAddress::MailAddress(const QVariantList &input, const QByteArray &line, cons
     host = Imap::decodeRFC2047String(input[3].toByteArray());
 }
 
+QUrl MailAddress::asUrl() const
+{
+    QUrl url;
+    url.setScheme(QLatin1String("mailto"));
+    url.setPath(QString::fromUtf8("%1@%2").arg(mailbox, host));
+    if (!name.isEmpty()) {
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        url.addQueryItem(QLatin1String("X-Trojita-DisplayName"), name);
+#else
+        QUrlQuery q(url);
+        q.addQueryItem(QLatin1String("X-Trojita-DisplayName"), name);
+        url.setQuery(q);
+#endif
+    }
+    return url;
+}
+
 QString MailAddress::prettyName(FormattingMode mode) const
 {
-    if (name.isEmpty() && mode == FORMAT_JUST_NAME)
+    bool hasNiceName = !name.isEmpty();
+
+    if (!hasNiceName && mode == FORMAT_JUST_NAME)
         mode = FORMAT_READABLE;
 
     if (mode == FORMAT_JUST_NAME) {
         return name;
     } else {
         QString address = mailbox + QLatin1Char('@') + host;
-        QString result;
         QString niceName;
-        bool hasNiceName = !name.isEmpty();
-        if (name.isEmpty()) {
-            result = address;
-            niceName = address;
-        } else {
-            result = name + QLatin1String(" <") + address + QLatin1Char('>');
+        if (hasNiceName) {
             niceName = name;
+        } else {
+            niceName = address;
         }
         if (mode == FORMAT_READABLE) {
-            return result;
+            if (hasNiceName) {
+                return name + QLatin1String(" <") + address + QLatin1Char('>');
+            } else {
+                return address;
+            }
         } else {
-            QUrl target;
-            target.setScheme(QLatin1String("mailto"));
-            target.setPath(QString::fromUtf8("%1@%2").arg(mailbox, host));
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-            if (hasNiceName) {
-                target.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
-            }
-            return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(Qt::escape(target.toString()), Qt::escape(niceName));
+            return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(Qt::escape(asUrl().toString()), Qt::escape(niceName));
 #else
-            if (hasNiceName) {
-                QUrlQuery q(target);
-                q.addQueryItem(QLatin1String("X-Trojita-DisplayName"), niceName);
-                target.setQuery(q);
-            }
-            return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(target.toString().toHtmlEscaped(), niceName.toHtmlEscaped());
+            return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(asUrl().toString().toHtmlEscaped(), niceName.toHtmlEscaped());
 #endif
         }
     }
