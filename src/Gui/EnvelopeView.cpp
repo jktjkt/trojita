@@ -54,6 +54,17 @@ void EnvelopeView::setMessage(const QModelIndex &index)
     setText(headerText(index));
 }
 
+/** @short Return a HTML representation of the address list */
+QString EnvelopeView::htmlizeAddresses(const QList<Imap::Message::MailAddress> &addresses)
+{
+    Q_ASSERT(!addresses.isEmpty());
+    QStringList buf;
+    Q_FOREACH(const Imap::Message::MailAddress &addr, addresses) {
+        buf << addr.prettyName(Imap::Message::MailAddress::FORMAT_CLICKABLE);
+    }
+    return buf.join(QLatin1String(", "));
+}
+
 QString EnvelopeView::headerText(const QModelIndex &index)
 {
     if (!index.isValid())
@@ -63,11 +74,11 @@ QString EnvelopeView::headerText(const QModelIndex &index)
 
     QString res;
     if (!e.from.isEmpty())
-        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.from, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.from));
     if (!e.sender.isEmpty() && e.sender != e.from)
-        res += tr("<b>Sender:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.sender, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>Sender:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.sender));
     if (!e.replyTo.isEmpty() && e.replyTo != e.from)
-        res += tr("<b>Reply-To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.replyTo, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>Reply-To:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.replyTo));
     QVariantList headerListPost = index.data(Imap::Mailbox::RoleMessageHeaderListPost).toList();
     if (!headerListPost.isEmpty()) {
         QStringList buf;
@@ -95,11 +106,11 @@ QString EnvelopeView::headerText(const QModelIndex &index)
         res += tr("<b>List-Post:</b>&nbsp;%1<br/>").arg(buf.join(tr(", ")));
     }
     if (!e.to.isEmpty())
-        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.to, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.to));
     if (!e.cc.isEmpty())
-        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.cc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.cc));
     if (!e.bcc.isEmpty())
-        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.bcc));
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(e.subject));
 #else

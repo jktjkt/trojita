@@ -25,6 +25,12 @@
 #include <QModelIndex>
 #include <QLabel>
 
+namespace Imap {
+namespace Message {
+class MailAddress;
+}
+}
+
 namespace Gui {
 
 class MessageView;
@@ -45,6 +51,8 @@ private slots:
 
 private:
     QString headerText(const QModelIndex &index);
+
+    QString htmlizeAddresses(const QList<Imap::Message::MailAddress> &addresses);
 
     EnvelopeView(const EnvelopeView &); // don't implement
     EnvelopeView &operator=(const EnvelopeView &); // don't implement
