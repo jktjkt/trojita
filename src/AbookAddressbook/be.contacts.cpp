@@ -174,7 +174,13 @@ bool BE::Contacts::eventFilter(QObject *o, QEvent *e)
         if (urls.isEmpty())
             return false;
         QUrl url = urls.first();
-        if (url.isLocalFile() && QImageReader(url.path()).canRead()) {
+        if (
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+                url.isLocalFile()
+#else
+                (url.scheme() == QLatin1String("file"))
+#endif
+                && QImageReader(url.path()).canRead()) {
             if (e->type() == QEvent::Drop)
                 importPhoto(url.path());
             else
