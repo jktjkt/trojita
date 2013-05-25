@@ -20,6 +20,7 @@
 
 #include "be.contacts.h"
 #include "ui_be.contacts.h"
+#include "ui_onecontact.h"
 
 int main(int argc, char **argv) {
     if (argc > 1 && argv[1][0] != '-') {
@@ -151,17 +152,19 @@ BE::Contacts::Contacts() : m_updateTimer(0) {
         m_incognitoPic = QPixmap::fromImage(img.scaled(160,160,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     m_ui = new Ui::Contacts;
     m_ui->setupUi(this);
+    m_ui2 = new Ui::OneContact;
+    m_ui2->setupUi(m_ui->oneContact);
 
     m_contacts = new QStandardItemModel(this);
 
-    fields <<   Field(Name, m_ui->name, "name") << Field(Mail, m_ui->mail, "email") <<
-                Field(Address, m_ui->address, "address") << Field(City, m_ui->city, "city") <<
-                Field(State, m_ui->state, "state") << Field(ZIP, m_ui->zip, "zip") <<
-                Field(Country, m_ui->country, "country") << Field(Phone, m_ui->phone, "phone") <<
-                Field(Workphone, m_ui->workphone, "workphone") << Field(Fax, m_ui->fax, "fax") <<
-                Field(Mobile, m_ui->mobile, "mobile") << Field(Nick, m_ui->nick, "nick") <<
-                Field(URL, m_ui->url, "url") << Field(Notes, m_ui->notes, "notes") <<
-                Field(Anniversary, m_ui->anniversary, "anniversary") << Field(Photo, m_ui->photo, "photo");
+    fields <<   Field(Name, m_ui2->name, "name") << Field(Mail, m_ui2->mail, "email") <<
+                Field(Address, m_ui2->address, "address") << Field(City, m_ui2->city, "city") <<
+                Field(State, m_ui2->state, "state") << Field(ZIP, m_ui2->zip, "zip") <<
+                Field(Country, m_ui2->country, "country") << Field(Phone, m_ui2->phone, "phone") <<
+                Field(Workphone, m_ui2->workphone, "workphone") << Field(Fax, m_ui2->fax, "fax") <<
+                Field(Mobile, m_ui2->mobile, "mobile") << Field(Nick, m_ui2->nick, "nick") <<
+                Field(URL, m_ui2->url, "url") << Field(Notes, m_ui2->notes, "notes") <<
+                Field(Anniversary, m_ui2->anniversary, "anniversary") << Field(Photo, m_ui2->photo, "photo");
 
     // read abook
     readAbook(false);
@@ -173,9 +176,9 @@ BE::Contacts::Contacts() : m_updateTimer(0) {
     connect (m_ui->filter, SIGNAL(textChanged(QString)), m_sortFilterProxy, SLOT(setFilterWildcard(QString)));
     m_ui->filter->installEventFilter(this);
 
-    QFont fnt = m_ui->name->font();
+    QFont fnt = m_ui2->name->font();
     fnt.setPointSize(fnt.pointSize()*2);
-    m_ui->name->setFont(fnt);
+    m_ui2->name->setFont(fnt);
     for (QList<Field>::const_iterator   it = fields.constBegin(),
                                         end = fields.constEnd(); it != end; ++it) {
         it->label->installEventFilter(this);
@@ -199,7 +202,7 @@ BE::Contacts::Contacts() : m_updateTimer(0) {
     connect (qApp, SIGNAL(aboutToQuit()), SLOT(saveContacts()));
 
     // cheat to correct the focuspolicies ;-)
-    updateFocusPolicy(m_ui->name, m_ui->filter);
+    updateFocusPolicy(m_ui2->name, m_ui->filter);
 }
 
 void BE::Contacts::ensureAbookPath() {
@@ -277,7 +280,7 @@ bool BE::Contacts::eventFilter(QObject *o, QEvent *e)
     case QEvent::DragEnter:
     case QEvent::DragMove:
     case QEvent::Drop: {
-        if (o != m_ui->photo)
+        if (o != m_ui2->photo)
             return false;
         QDropEvent *de = static_cast<QDropEvent*>(e);
         if (!de->mimeData())
@@ -296,12 +299,12 @@ bool BE::Contacts::eventFilter(QObject *o, QEvent *e)
     }
     case QEvent::KeyPress: {
         const int key = static_cast<QKeyEvent*>(e)->key();
-        if (key == Qt::Key_Delete && o == m_ui->photo) { // reset photo
+        if (key == Qt::Key_Delete && o == m_ui2->photo) { // reset photo
             if (m_currentContact)
                 m_currentContact->setData(QString(), Photo);
-            m_ui->photo->setPixmap(m_incognitoPic);
+            m_ui2->photo->setPixmap(m_incognitoPic);
         }
-        else if (key == Qt::Key_Escape && o != m_ui->photo)
+        else if (key == Qt::Key_Escape && o != m_ui2->photo)
         if (QLabel *l = qobject_cast<QLabel*>(o)) {
             setText(l, l->text());
             return true; // prevent closing the dialog!
@@ -430,7 +433,7 @@ void BE::Contacts::setContact(const QModelIndex &index)
         if (QFile::exists(photo) && setPhoto(photo))
             return;
     }
-    m_ui->photo->setPixmap(userPic);
+    m_ui2->photo->setPixmap(userPic);
 }
 
 bool BE::Contacts::setPhoto(const QString &path)
@@ -482,7 +485,7 @@ bool BE::Contacts::setPhoto(const QString &path)
     p.drawPath(glasPath);
     p.end();
 #endif
-    m_ui->photo->setPixmap( QPixmap::fromImage( img ) );
+    m_ui2->photo->setPixmap( QPixmap::fromImage( img ) );
     return true;
 }
 
@@ -529,7 +532,7 @@ void BE::Contacts::updateFocusPolicy(QWidget *oldFocus, QWidget *newFocus)
     for (QList<Field>::const_iterator it = fields.constBegin(), end = fields.constEnd(); it != end; ++it)
         it->label->setFocusPolicy(policy);
 
-    m_ui->photo->setFocusPolicy(Qt::ClickFocus);
+    m_ui2->photo->setFocusPolicy(Qt::ClickFocus);
 
     policy = isEdit ? Qt::ClickFocus : Qt::StrongFocus;
     m_ui->filter->setFocusPolicy(policy);

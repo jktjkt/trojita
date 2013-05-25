@@ -9,6 +9,7 @@ class QSortFilterProxyModel;
 
 namespace Ui {
     class Contacts;
+    class OneContact;
 }
 
 #include <QDialog>
@@ -41,6 +42,7 @@ namespace BE {
         QStandardItemModel *m_contacts;
         QSortFilterProxyModel *m_sortFilterProxy;
         Ui::Contacts *m_ui;
+        Ui::OneContact *m_ui2;
         QPixmap m_incognitoPic;
         QFileSystemWatcher *m_filesystemWatcher;
         QTimer *m_updateTimer;

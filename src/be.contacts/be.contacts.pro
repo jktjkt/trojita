@@ -1,6 +1,8 @@
 TARGET = be.contacts
 HEADERS = be.contacts.h
-FORMS = be.contacts.ui
+FORMS = \
+    be.contacts.ui \
+    onecontact.ui
 SOURCES = be.contacts.cpp
 CONFIG += qt
 QT += gui core
