@@ -53,13 +53,15 @@ public:
 
 public slots:
     void saveContacts();
+    void readAbook(bool update = false);
+    void updateAbook();
+
+private slots:
+    void scheduleAbookUpdate();
 
 private:
     void ensureAbookPath();
-    void scheduleAbookUpdate();
-    void updateAbook();
     void remonitorAdressbook();
-    void readAbook(bool update = false);
 
     QFileSystemWatcher *m_filesystemWatcher;
     QTimer *m_updateTimer;
