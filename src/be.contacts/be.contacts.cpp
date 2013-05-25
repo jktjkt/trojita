@@ -47,14 +47,6 @@ public:
 };
 
 static QList<Field> fields;
-QList<Field>::const_iterator findField(const QString &key)
-{
-    for (QList<Field>::const_iterator it = fields.constBegin(), end = fields.constEnd(); it != end; ++it)
-        if (it->key == key)
-            return it;
-    return fields.constEnd();
-}
-
 }
 
 BE::Contacts::Contacts()
