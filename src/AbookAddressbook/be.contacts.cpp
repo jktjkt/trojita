@@ -248,8 +248,12 @@ void BE::Contacts::removeCurrentContact()
 
 void BE::Contacts::setContact(const QModelIndex &index)
 {
+    QModelIndex translated = index;
+    if (index.model() == m_sortFilterProxy)
+        translated = m_sortFilterProxy->mapToSource(index);
+
     if (m_currentContact) {
-        if (m_abook->model()->itemFromIndex(m_sortFilterProxy->mapToSource(index)) == m_currentContact)
+        if (m_abook->model()->itemFromIndex(translated) == m_currentContact)
             return; // same one
         for (QList<Field>::const_iterator   it = fields.constBegin(),
                                             end = fields.constEnd(); it != end; ++it) {
@@ -269,7 +273,7 @@ void BE::Contacts::setContact(const QModelIndex &index)
         }
     }
 
-    m_currentContact = m_abook->model()->itemFromIndex(m_sortFilterProxy->mapToSource(index));
+    m_currentContact = m_abook->model()->itemFromIndex(translated);
     if (!m_currentContact)
         return;
 
@@ -294,6 +298,8 @@ void BE::Contacts::setContact(const QModelIndex &index)
             return;
     }
     m_ui2->photo->setPixmap(userPic);
+
+    m_ui->contacts->setCurrentIndex(m_sortFilterProxy->mapFromSource(translated));
 }
 
 bool BE::Contacts::setPhoto(const QString &path)
