@@ -9,7 +9,7 @@ lessThan(QT_MAJOR_VERSION, 5) {
 trojita_harmattan {
     SUBDIRS += QmlSupport Harmattan
 } else {
-    SUBDIRS += Gui be.contacts
+    SUBDIRS += be.contacts Gui
     XtConnect:SUBDIRS += XtConnect
 }
 

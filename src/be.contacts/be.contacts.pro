@@ -1,12 +1,24 @@
 TARGET = be.contacts
-HEADERS = be.contacts.h
+
+INCLUDEPATH += ../
+DEPENDPATH += ../
+
+HEADERS = \
+    be.contacts.h \
+    AbookAddressbook.h
+
 FORMS = \
     be.contacts.ui \
     onecontact.ui
+
 SOURCES = \
     be.contacts.cpp \
-    main.cpp
-CONFIG += qt
+    AbookAddressbook.cpp \
+    #main.cpp
+
+TEMPLATE = lib
+
+CONFIG += qt staticlib
 QT += gui core
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
