@@ -23,13 +23,16 @@
 
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QCursor> // for Util::centerWidgetOnScreen
 #include <QDesktopWidget> // for Util::centerWidgetOnScreen
 #include <QDir>
+#include <QGridLayout>
 #include <QProcess>
 #include <QSettings>
 
 #include "Util.h"
+#include "Window.h"
 
 namespace {
 
@@ -200,6 +203,32 @@ QFont systemMonospaceFont()
     }
 
     return font;
+}
+
+/** @short Ask for something and provide a facility to not ask again
+
+Check settings whether an option is already set to ignore this question. If not, ask the user and remember whether
+she wants to be asked again.
+*/
+int askForSomethingUnlessTold(const QString &title, const QString &message, const QString &settingsName,
+                              QMessageBox::StandardButtons buttons, QWidget *parent)
+{
+    int saved = QSettings().value(settingsName, -1).toInt();
+    if (saved != -1) {
+        // This means that we're not supposed to ask again
+        return saved;
+    }
+
+    QMessageBox box(QMessageBox::Question, title, message, QMessageBox::NoButton, parent);
+    box.setStandardButtons(buttons);
+    QCheckBox *checkbox = new QCheckBox(Gui::MainWindow::tr("Don't ask again"), &box);
+    QGridLayout *layout = qobject_cast<QGridLayout*>(box.layout());
+    Q_ASSERT(layout);
+    layout->addWidget(checkbox, 1, 1);
+    int res = box.exec();
+    if (checkbox->isChecked())
+        QSettings().setValue(settingsName, res);
+    return res;
 }
 
 } // namespace Util

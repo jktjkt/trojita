@@ -25,6 +25,7 @@
 #ifndef GUI_UTIL_H
 #define GUI_UTIL_H
 
+#include <QMessageBox>
 #include <QString>
 
 class QColor;
@@ -45,6 +46,9 @@ QString pkgDataDir();
 QColor tintColor(const QColor &color, const QColor &tintColor);
 
 QFont systemMonospaceFont();
+
+int askForSomethingUnlessTold(const QString &title, const QString &message, const QString &settingsName,
+                              QMessageBox::StandardButtons buttons, QWidget *parent);
 
 } // namespace Util
 

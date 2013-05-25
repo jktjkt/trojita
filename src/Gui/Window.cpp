@@ -814,6 +814,9 @@ void MainWindow::handleTrayIconChange()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (m_trayIcon && m_trayIcon->isVisible()) {
+        Util::askForSomethingUnlessTold(trUtf8("Trojitá"),
+                                        tr("The application will continue in systray. This can be disabled within the settings."),
+                                        Common::SettingsNames::guiOnSystrayClose, QMessageBox::Ok, this);
         hide();
         event->ignore();
     }

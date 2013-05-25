@@ -82,6 +82,7 @@ QString SettingsNames::guiMainWindowLayoutCompact = QLatin1String("compact");
 QString SettingsNames::guiMainWindowLayoutWide = QLatin1String("wide");
 QString SettingsNames::guiPreferPlaintextRendering = QLatin1String("gui/preferPlaintextRendering");
 QString SettingsNames::guiShowSystray = QLatin1String("gui/showSystray");
+QString SettingsNames::guiOnSystrayClose = QLatin1String("gui/onSystrayClose");
 QString SettingsNames::appLoadHomepage = QLatin1String("app.updates.checkEnabled");
 QString SettingsNames::knownEmailsKey = QLatin1String("addressBook/knownEmails");
 
