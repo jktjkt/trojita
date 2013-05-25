@@ -42,8 +42,6 @@ SOURCES += \
     UserAgentWebPage.cpp \
     MessageListWidget.cpp \
     MailBoxTreeView.cpp \
-    LocalAddressbook.cpp \
-    AbookAddressbook.cpp \
     ComposerTextEdit.cpp \
     ComposerAttachmentsList.cpp \
     FromAddressProxyModel.cpp \
@@ -85,8 +83,6 @@ HEADERS += \
     MessageListWidget.h \
     MailBoxTreeView.h \
     AbstractAddressbook.h \
-    LocalAddressbook.h \
-    AbookAddressbook.h \
     ComposerTextEdit.h \
     ComposerAttachmentsList.h \
     FromAddressProxyModel.h \
@@ -114,7 +110,7 @@ FORMS += CreateMailboxDialog.ui \
 
 RESOURCES += ../icons.qrc
 
-trojita_libs = AppVersion Imap MSA Streams qwwsmtpclient Common Composer
+trojita_libs = AppVersion Imap MSA Streams qwwsmtpclient Common Composer AbookAddressbook
 lessThan(QT_MAJOR_VERSION, 5) {
     trojita_libs += mimetypes-qt4
     macx {

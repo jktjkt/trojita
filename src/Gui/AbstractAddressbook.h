@@ -49,6 +49,9 @@ public:
     // one will then navigate for the address unlikely a real use case - so there's no point in presenting
     // more than <place random number here> entries (or look them up, or transmit them)
     virtual QStringList complete(const QString &string, const QStringList &ignore, int max = -1) const = 0;
+
+    /** @short Return a list of display names matching the given e-mail address */
+    virtual QStringList prettyNamesForAddress(const QString &mail) const = 0;
 };
 
 }

@@ -24,7 +24,6 @@
 #include <QDesktopServices>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #  include <QStandardPaths>
-#  include <QUrlQuery>
 #endif
 #include <QDir>
 #include <QDockWidget>
@@ -42,6 +41,8 @@
 #include <QToolButton>
 #include <QUrl>
 
+#include "AbookAddressbook/AbookAddressbook.h"
+#include "AbookAddressbook/be.contacts.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SenderIdentitiesModel.h"
@@ -59,7 +60,6 @@
 #include "Imap/Network/FileDownloadManager.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
-#include "AbookAddressbook.h"
 #include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
 #include "IconLoader.h"
@@ -121,6 +121,7 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
 
     // Please note that Qt 4.6.1 really requires passing the method signature this way, *not* using the SLOT() macro
     QDesktopServices::setUrlHandler(QLatin1String("mailto"), this, "slotComposeMailUrl");
+    QDesktopServices::setUrlHandler(QLatin1String("x-trojita-manage-contact"), this, "slotManageContact");
 
     slotUpdateWindowTitle();
 
@@ -147,6 +148,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QLatin1String("action_reply_all"), QLatin1String("mail-reply-all"), tr("Reply to &All"), tr("Ctrl+Alt+Shift+R"));
     shortcutHandler->defineAction(QLatin1String("action_reply_list"), QLatin1String("mail-reply-list"), tr("Reply to &Mailing List"), tr("Ctrl+L"));
     shortcutHandler->defineAction(QLatin1String("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
+    shortcutHandler->defineAction(QLatin1String("action_contact_editor"), QLatin1String("contact-unknown"), tr("Address Book..."));
 }
 
 void MainWindow::createActions()
@@ -423,6 +425,7 @@ void MainWindow::createMenus()
 {
     QMenu *imapMenu = menuBar()->addMenu(tr("&IMAP"));
     imapMenu->addMenu(m_composeMenu);
+    imapMenu->addAction(ShortcutHandler::instance()->createAction(QLatin1String("action_contact_editor"), this, SLOT(invokeContactEditor()), this));
     imapMenu->addAction(m_replyGuess);
     imapMenu->addAction(m_replyPrivate);
     imapMenu->addAction(m_replyAll);
@@ -509,6 +512,8 @@ void MainWindow::createWidgets()
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
     connect(m_messageWidget->messageView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
+    connect(m_messageWidget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
+            this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
         m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
@@ -870,6 +875,8 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     Q_ASSERT(realModel == model);
 
     CompleteMessageWidget *widget = new CompleteMessageWidget();
+    connect(widget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
+            this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     widget->messageView->setMessage(index);
     widget->setFocusPolicy(Qt::StrongFocus);
     widget->setWindowTitle(message->envelope(model).subject);
@@ -1445,24 +1452,32 @@ void MainWindow::slotReplyGuess()
 
 void MainWindow::slotComposeMailUrl(const QUrl &url)
 {
-    Q_ASSERT(url.scheme().toLower() == QLatin1String("mailto"));
-
-    QStringList list = url.path().split(QLatin1Char('@'));
-    if (list.size() != 2)
+    Imap::Message::MailAddress addr;
+    if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")))
         return;
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Imap::Message::MailAddress addr(url.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    list[0], list[1]);
-#else
-    QUrlQuery q(url);
-    Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    list[0], list[1]);
-#endif
-    if (!addr.hasUsefulDisplayName())
-        addr.name.clear();
     RecipientsType recipients;
     recipients << qMakePair<Composer::RecipientKind,QString>(Composer::ADDRESS_TO, addr.asPrettyString());
     invokeComposeDialog(QString(), QString(), recipients);
+}
+
+void MainWindow::slotManageContact(const QUrl &url)
+{
+    Imap::Message::MailAddress addr;
+    if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("x-trojita-manage-contact")))
+        return;
+
+    invokeContactEditor();
+    m_contactsWidget->manageContact(addr.mailbox + QLatin1Char('@') + addr.host, addr.name);
+}
+
+void MainWindow::invokeContactEditor()
+{
+    if (m_contactsWidget)
+        return;
+
+    m_contactsWidget = new BE::Contacts(dynamic_cast<AbookAddressbook*>(m_addressBook));
+    m_contactsWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+    m_contactsWidget->show();
 }
 
 ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
@@ -1583,6 +1598,11 @@ void MainWindow::slotShowLinkTarget(const QString &link)
         //: target of a hyperlink from the currently visible e-mail that the mouse is pointing to
         statusBar()->showMessage(tr("Link target: %1").arg(link));
     }
+}
+
+void MainWindow::fillMatchingAbookEntries(const QString &mail, QStringList &displayNames)
+{
+    displayNames = addressBook()->prettyNamesForAddress(mail);
 }
 
 void MainWindow::slotShowAboutTrojita()

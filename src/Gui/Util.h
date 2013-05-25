@@ -50,6 +50,8 @@ QFont systemMonospaceFont();
 int askForSomethingUnlessTold(const QString &title, const QString &message, const QString &settingsName,
                               QMessageBox::StandardButtons buttons, QWidget *parent);
 
+QString resizedImageAsDataUrl(const QString &fileName, const int extent);
+
 } // namespace Util
 
 } // namespace Gui

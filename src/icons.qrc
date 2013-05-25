@@ -39,5 +39,7 @@
         <file>icons/mail-reply-list.png</file>
         <file>icons/mail-reply-sender.png</file>
         <file>icons/dialog-password.png</file>
+        <file>icons/contact-known.svg</file>
+        <file>icons/contact-unknown.svgz</file>
     </qresource>
 </RCC>

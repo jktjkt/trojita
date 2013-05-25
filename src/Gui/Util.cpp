@@ -23,11 +23,13 @@
 
 
 #include <QApplication>
+#include <QBuffer>
 #include <QCheckBox>
 #include <QCursor> // for Util::centerWidgetOnScreen
 #include <QDesktopWidget> // for Util::centerWidgetOnScreen
 #include <QDir>
 #include <QGridLayout>
+#include <QIcon>
 #include <QProcess>
 #include <QSettings>
 
@@ -229,6 +231,19 @@ int askForSomethingUnlessTold(const QString &title, const QString &message, cons
     if (checkbox->isChecked())
         QSettings().setValue(settingsName, res);
     return res;
+}
+
+/** @short Return image data from the specified filename as a self-contained URL of the data: scheme
+
+The image is resized and always returned in the PNG format.
+*/
+QString resizedImageAsDataUrl(const QString &fileName, const int extent)
+{
+    QByteArray bdata;
+    QBuffer buf(&bdata);
+    buf.open(QIODevice::WriteOnly);
+    QIcon(fileName).pixmap(extent).toImage().save(&buf, "png");
+    return QLatin1String("data:image/png;base64,") + QString::fromUtf8(bdata.toBase64());
 }
 
 } // namespace Util

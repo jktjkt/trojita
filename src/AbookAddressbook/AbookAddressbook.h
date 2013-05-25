@@ -23,15 +23,51 @@
 #ifndef ABOOK_ADDRESSBOOK
 #define ABOOK_ADDRESSBOOK
 
-#include "LocalAddressbook.h"
+#include <QPair>
+#include "Gui/AbstractAddressbook.h"
+
+class QFileSystemWatcher;
+class QStandardItemModel;
+class QTimer;
 
 namespace Gui
 {
 
 /** @short A generic local adressbook interface*/
-class AbookAddressbook : public LocalAddressbook {
+class AbookAddressbook : public QObject, public AbstractAddressbook {
+    Q_OBJECT
 public:
     AbookAddressbook();
+    virtual ~AbookAddressbook();
+
+    enum Type { Name = Qt::DisplayRole, Mail = Qt::UserRole + 1,
+                Address, Address2, City, State, ZIP, Country,
+                Phone, Workphone, Fax, Mobile,
+                Nick, URL, Notes, Anniversary, Photo,
+                UnknownKeys, Dirty };
+
+    virtual QStringList complete(const QString &string, const QStringList &ignores, int max = -1) const;
+    virtual QStringList prettyNamesForAddress(const QString &mail) const;
+
+    QStandardItemModel *model() const;
+
+public slots:
+    void saveContacts();
+    void readAbook(bool update = false);
+    void updateAbook();
+
+private slots:
+    void scheduleAbookUpdate();
+
+private:
+    void ensureAbookPath();
+    void remonitorAdressbook();
+
+    QFileSystemWatcher *m_filesystemWatcher;
+    QTimer *m_updateTimer;
+    QStandardItemModel *m_contacts;
+
+    QList<QPair<Type,QString> > m_fields;
 };
 
 }

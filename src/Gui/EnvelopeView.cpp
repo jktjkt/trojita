@@ -21,12 +21,14 @@
 */
 #include "EnvelopeView.h"
 #include <QHeaderView>
+#include <QFontMetrics>
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #  include <QTextDocument>
 #else
 #  include <QUrlQuery>
 #endif
 #include "MessageView.h"
+#include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
@@ -46,12 +48,35 @@ EnvelopeView::EnvelopeView(QWidget *parent): QLabel(parent)
     setIndent(5);
     setWordWrap(true);
     connect(this, SIGNAL(linkHovered(QString)), this, SLOT(onLinkHovered(QString)));
+
+    QFontMetrics fm(font());
+    int iconSize = fm.boundingRect(QLatin1Char('M')).height();
+    contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-known.svg"), iconSize);
+    contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-unknown.svgz"), iconSize);
 }
 
 /** @short */
 void EnvelopeView::setMessage(const QModelIndex &index)
 {
     setText(headerText(index));
+}
+
+/** @short Return a HTML representation of the address list */
+QString EnvelopeView::htmlizeAddresses(const QList<Imap::Message::MailAddress> &addresses)
+{
+    Q_ASSERT(!addresses.isEmpty());
+    QStringList buf;
+    Q_FOREACH(const Imap::Message::MailAddress &addr, addresses) {
+        QStringList matchingDisplayNames;
+        emit addressDetailsRequested(addr.mailbox + QLatin1Char('@') + addr.host, matchingDisplayNames);
+        QUrl url = addr.asUrl();
+        QString icon = QString::fromUtf8("<span style='width: 4px;'>&nbsp;</span><a href='x-trojita-manage-contact:%1'>"
+                                         "<img src='%2' align='center'/></a>").arg(
+                    url.toString(QUrl::RemoveScheme),
+                    matchingDisplayNames.isEmpty() ? contactUnknownUrl : contactKnownUrl);
+        buf << addr.prettyName(Imap::Message::MailAddress::FORMAT_CLICKABLE) + icon;
+    }
+    return buf.join(QLatin1String(", "));
 }
 
 QString EnvelopeView::headerText(const QModelIndex &index)
@@ -63,11 +88,11 @@ QString EnvelopeView::headerText(const QModelIndex &index)
 
     QString res;
     if (!e.from.isEmpty())
-        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.from, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>From:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.from));
     if (!e.sender.isEmpty() && e.sender != e.from)
-        res += tr("<b>Sender:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.sender, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>Sender:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.sender));
     if (!e.replyTo.isEmpty() && e.replyTo != e.from)
-        res += tr("<b>Reply-To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.replyTo, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>Reply-To:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.replyTo));
     QVariantList headerListPost = index.data(Imap::Mailbox::RoleMessageHeaderListPost).toList();
     if (!headerListPost.isEmpty()) {
         QStringList buf;
@@ -95,11 +120,11 @@ QString EnvelopeView::headerText(const QModelIndex &index)
         res += tr("<b>List-Post:</b>&nbsp;%1<br/>").arg(buf.join(tr(", ")));
     }
     if (!e.to.isEmpty())
-        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.to, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>To:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.to));
     if (!e.cc.isEmpty())
-        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.cc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>Cc:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.cc));
     if (!e.bcc.isEmpty())
-        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(Imap::Message::MailAddress::prettyList(e.bcc, Imap::Message::MailAddress::FORMAT_CLICKABLE));
+        res += tr("<b>Bcc:</b>&nbsp;%1<br/>").arg(htmlizeAddresses(e.bcc));
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     res += tr("<b>Subject:</b>&nbsp;%1").arg(Qt::escape(e.subject));
 #else
@@ -114,32 +139,35 @@ void EnvelopeView::onLinkHovered(const QString &target)
 {
     QUrl url(target);
 
-    if (target.isEmpty() || url.scheme().toLower() != QLatin1String("mailto")) {
+    Imap::Message::MailAddress addr;
+    if (Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")) ||
+            Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("x-trojita-manage-contact"))) {
+        QStringList matchingIdentities;
+        emit addressDetailsRequested(addr.mailbox + QLatin1Char('@') + addr.host, matchingIdentities);
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+        QString link = Qt::escape(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE));
+        QString identities = Qt::escape(matchingIdentities.join(QLatin1String("<br/>\n")));
+#else
+        QString link = addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped();
+        QString identities = matchingIdentities.join(QLatin1String("<br/>\n")).toHtmlEscaped();
+#endif
+        if (matchingIdentities.isEmpty()) {
+            setToolTip(link);
+        } else {
+            setToolTip(link + tr("<hr/><b>Address Book:</b><br/>") + identities);
+        }
+    } else {
         setToolTip(QString());
         return;
     }
-
-    QString frontOfAtSign, afterAtSign;
-    if (url.path().indexOf(QLatin1String("@")) != -1) {
-        QStringList chunks = url.path().split(QLatin1String("@"));
-        frontOfAtSign = chunks[0];
-        afterAtSign = QStringList(chunks.mid(1)).join(QLatin1String("@"));
-    }
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Imap::Message::MailAddress addr(url.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    frontOfAtSign, afterAtSign);
-    setToolTip(Qt::escape(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE)));
-#else
-    QUrlQuery q(url);
-    Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    frontOfAtSign, afterAtSign);
-    setToolTip(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped());
-#endif
 }
+
 
 void EnvelopeView::connectWithMessageView(MessageView *messageView)
 {
     connect(this, SIGNAL(linkActivated(QString)), messageView, SLOT(headerLinkActivated(QString)));
+    connect(this, SIGNAL(addressDetailsRequested(QString,QStringList&)),
+            messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)));
 }
 
 }

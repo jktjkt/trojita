@@ -25,6 +25,12 @@
 #include <QModelIndex>
 #include <QLabel>
 
+namespace Imap {
+namespace Message {
+class MailAddress;
+}
+}
+
 namespace Gui {
 
 class MessageView;
@@ -40,11 +46,19 @@ public:
 
     void connectWithMessageView(MessageView *messageView);
 
+signals:
+    /** Emitted when requesting a list of addresses for a given mail */
+    void addressDetailsRequested(const QString &mail, QStringList &addresses);
+
 private slots:
     void onLinkHovered(const QString &target);
 
 private:
     QString headerText(const QModelIndex &index);
+
+    QString htmlizeAddresses(const QList<Imap::Message::MailAddress> &addresses);
+
+    QString contactKnownUrl, contactUnknownUrl;
 
     EnvelopeView(const EnvelopeView &); // don't implement
     EnvelopeView &operator=(const EnvelopeView &); // don't implement
