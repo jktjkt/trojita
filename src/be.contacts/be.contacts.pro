@@ -3,7 +3,9 @@ HEADERS = be.contacts.h
 FORMS = \
     be.contacts.ui \
     onecontact.ui
-SOURCES = be.contacts.cpp
+SOURCES = \
+    be.contacts.cpp \
+    main.cpp
 CONFIG += qt
 QT += gui core
 DEFINES += VERSION=0.1
