@@ -31,7 +31,7 @@
 
 using namespace Gui;
 
-AbookAddressbook::AbookAddressbook()
+AbookAddressbook::AbookAddressbook(): m_updateTimer(0)
 {
 #define ADD(TYPE, KEY) \
     m_fields << qMakePair<Type,QString>(TYPE, QLatin1String(KEY))
