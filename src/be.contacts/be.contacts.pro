@@ -12,15 +12,5 @@ INSTALLS += target
 unix {
     DATADIR = $$[QT_INSTALL_PREFIX]/share
     DEFINES += "DATADIR=$$DATADIR"
-    INSTALLS += desktop icon postinstall
-
-    desktop.path = $$DATADIR/applications
-    desktop.files += piQtureGLide.desktop
-
-    icon.path = $$DATADIR/icons/hicolor/128x128/apps
-    icon.files += piQtureGLide.png
-
-    postinstall.path =  $$[QT_INSTALL_BINS]
-    postinstall.extra = update-desktop-database
 }
 }
