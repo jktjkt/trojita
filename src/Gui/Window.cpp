@@ -41,6 +41,7 @@
 #include <QToolButton>
 #include <QUrl>
 
+#include "AbookAddressbook/AbookAddressbook.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SenderIdentitiesModel.h"
@@ -58,7 +59,6 @@
 #include "Imap/Network/FileDownloadManager.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
-#include "AbookAddressbook.h"
 #include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
 #include "IconLoader.h"

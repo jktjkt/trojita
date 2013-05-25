@@ -22,7 +22,7 @@
 #include "be.contacts.h"
 #include "ui_be.contacts.h"
 #include "ui_onecontact.h"
-#include "AbookAddressbook.h"
+#include "AbookAddressbook/AbookAddressbook.h"
 
 namespace BE {
 

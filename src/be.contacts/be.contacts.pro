@@ -5,7 +5,6 @@ DEPENDPATH += ../
 
 HEADERS = \
     be.contacts.h \
-    AbookAddressbook.h
 
 FORMS = \
     be.contacts.ui \
@@ -13,10 +12,7 @@ FORMS = \
 
 SOURCES = \
     be.contacts.cpp \
-    AbookAddressbook.cpp \
-    #main.cpp
-
-TEMPLATE = lib
+    main.cpp
 
 CONFIG += qt staticlib
 QT += gui core
@@ -33,3 +29,7 @@ unix {
     DEFINES += "DATADIR=$$DATADIR"
 }
 }
+
+trojita_libs = AbookAddressbook
+myprefix = ../
+include(../linking.pri)
