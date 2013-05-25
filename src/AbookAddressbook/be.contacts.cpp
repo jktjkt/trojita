@@ -1,7 +1,6 @@
 #include <QDateTime>
 #include <QDir>
 #include <QDropEvent>
-#include <QElapsedTimer>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QImageReader>
