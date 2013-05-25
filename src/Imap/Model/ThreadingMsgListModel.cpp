@@ -62,6 +62,10 @@ ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
     m_shallBeThreading(false), m_sortTask(0), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE),
     m_searchValidity(RESULT_INVALIDATED)
 {
+    m_delayedPrune = new QTimer(this);
+    m_delayedPrune->setSingleShot(true);
+    m_delayedPrune->setInterval(0);
+    connect(m_delayedPrune, SIGNAL(timeout()), this, SLOT(delayedPrune()));
 }
 
 void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
@@ -343,20 +347,24 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         it->uid = 0;
         it->ptr = 0;
     }
-    emit layoutAboutToBeChanged();
-    updatePersistentIndexesPhase1();
+    if (!m_delayedPrune->isActive()) {
+        // no such event is pedning
+        updatePersistentIndexesPhase1();
+    }
 }
 
 void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int end)
 {
     Q_ASSERT(!parent.isValid());
-
     Q_UNUSED(start);
     Q_UNUSED(end);
+    if (!m_delayedPrune->isActive())
+        m_delayedPrune->start();
+}
 
-    // It looks like this simplified approach won't really fly when model starts to issue interleaved rowsRemoved signals,
-    // as we'll just remove everything upon first rowsRemoved.  I'll just hope that it doesn't matter (much).
-
+void ThreadingMsgListModel::delayedPrune()
+{
+    emit layoutAboutToBeChanged();
     pruneTree();
     updatePersistentIndexesPhase2();
     emit layoutChanged();

@@ -182,6 +182,8 @@ public slots:
     void slotIncrementalThreadingAvailable(const Responses::ESearch::IncrementalThreadingData_t &data);
     void slotIncrementalThreadingFailed();
 
+    void delayedPrune();
+
 signals:
     void sortingFailed();
 
@@ -301,6 +303,8 @@ private:
     } ResultValidity;
 
     ResultValidity m_searchValidity;
+
+    QTimer *m_delayedPrune;
 
     friend class ::ImapModelThreadingTest; // needs access to wantThreading();
 };
