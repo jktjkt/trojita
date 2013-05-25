@@ -395,5 +395,10 @@ void BE::Contacts::manageContact(const QString &mail, const QString &prettyName)
     // no match -> create one
     addContact();
     m_ui2->mail->setText(mail);
-    m_ui2->name->setText(prettyName);
+    if (!prettyName.isEmpty()) {
+        m_ui2->name->setText(prettyName);
+        m_currentContact->setText(prettyName);
+    } else {
+        m_ui2->name->setText("[name]");
+    }
 }
