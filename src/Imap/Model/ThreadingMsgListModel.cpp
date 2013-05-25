@@ -314,8 +314,8 @@ Qt::ItemFlags ThreadingMsgListModel::flags(const QModelIndex &index) const
 
     QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(index.internalId());
     Q_ASSERT(it != threading.constEnd());
-    if (it->ptr)
-        return QAbstractProxyModel::flags(index);
+    if (it->ptr && it->uid)
+        return Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsEnabled;
 
     return Qt::NoItemFlags;
 
