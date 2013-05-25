@@ -48,6 +48,7 @@ namespace BE {
         Ui::OneContact *m_ui2;
         QPixmap m_incognitoPic;
         Gui::AbookAddressbook *m_abook;
+        QList<Field> fields;
         bool m_dirty;
     };
 } // namepsace

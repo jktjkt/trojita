@@ -46,8 +46,6 @@ public:
     Type type;
     QString key;
 };
-
-static QList<Field> fields;
 }
 
 BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(false)
@@ -103,7 +101,6 @@ BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(fa
 
 BE::Contacts::~Contacts()
 {
-    delete m_abook;
 }
 
 void BE::Contacts::closeEvent(QCloseEvent *)
