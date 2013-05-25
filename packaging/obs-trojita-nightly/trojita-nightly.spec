@@ -82,6 +82,7 @@ make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
 %defattr(-,root,root)
 %doc LICENSE README
 %{_bindir}/trojita
+%{_bindir}/trojita-contacts
 %{_datadir}/applications/trojita.desktop
 %dir %{_datadir}/icons/hicolor
 %dir %{_datadir}/icons/hicolor/*
