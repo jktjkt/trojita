@@ -8,6 +8,9 @@ SOURCES = \
     main.cpp
 CONFIG += qt
 QT += gui core
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
 DEFINES += VERSION=0.1
 target.path += $$[QT_INSTALL_BINS]
 INSTALLS += target

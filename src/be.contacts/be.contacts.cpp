@@ -7,6 +7,7 @@
 #include <QImageReader>
 #include <QKeyEvent>
 #include <QMetaProperty>
+#include <QMimeData>
 #include <QPainter>
 #include <QPainterPath>
 #include <QSettings>
