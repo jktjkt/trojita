@@ -207,7 +207,14 @@ void BE::Contacts::importPhoto(const QString &path)
         qWarning("CANNOT IMPORT PHOTO FOR INVALID CONTACT!");
         return;
     }
-    const QString photo = QString::number(QDateTime::currentMSecsSinceEpoch()) + "." + QFileInfo(path).suffix();
+    const QString photo = QString::number(
+#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
+                QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0)).secsTo(QDateTime::currentDateTime())
+#else
+                QDateTime::currentMSecsSinceEpoch()
+#endif
+                ) + "." + QFileInfo(path).suffix();
+
     const QString file = QDir::homePath() + "/.abook/" + photo;
     if (QFile::copy(path, file)) {
         m_currentContact->setData(photo, Gui::AbookAddressbook::Photo);
