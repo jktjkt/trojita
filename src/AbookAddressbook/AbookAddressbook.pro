@@ -5,9 +5,15 @@ INCLUDEPATH += ../
 DEPENDPATH += ../
 
 HEADERS = \
+    be.contacts.h \
     AbookAddressbook.h
 
 SOURCES = \
+    be.contacts.cpp \
     AbookAddressbook.cpp
+
+FORMS = \
+    be.contacts.ui \
+    onecontact.ui
 
 CONFIG += qt staticlib

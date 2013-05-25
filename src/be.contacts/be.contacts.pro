@@ -3,15 +3,7 @@ TARGET = be.contacts
 INCLUDEPATH += ../
 DEPENDPATH += ../
 
-HEADERS = \
-    be.contacts.h \
-
-FORMS = \
-    be.contacts.ui \
-    onecontact.ui
-
 SOURCES = \
-    be.contacts.cpp \
     main.cpp
 
 CONFIG += qt staticlib
