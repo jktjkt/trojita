@@ -56,6 +56,9 @@ BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(fa
         m_incognitoPic = QPixmap::fromImage(img.scaled(160,160,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     m_ui = new Ui::Contacts;
     m_ui->setupUi(this);
+#if QT_VERSION >= 0x040700
+    m_ui->filter->setPlaceholderText(tr("Filter"));
+#endif
     m_ui2 = new Ui::OneContact;
     m_ui2->setupUi(m_ui->oneContact);
 
