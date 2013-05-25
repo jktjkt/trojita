@@ -42,6 +42,7 @@
 #include <QUrl>
 
 #include "AbookAddressbook/AbookAddressbook.h"
+#include "AbookAddressbook/be.contacts.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SenderIdentitiesModel.h"
@@ -1459,8 +1460,10 @@ void MainWindow::slotManageContact(const QUrl &url)
     Imap::Message::MailAddress addr;
     if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("x-trojita-manage-contact")))
         return;
-    // FIXME: launch the address book management,...
-    qDebug() << "Contact management not implemented yet" << addr.asPrettyString();
+
+    BE::Contacts *contacts = new BE::Contacts(dynamic_cast<AbookAddressbook*>(m_addressBook));
+    contacts->show();
+    contacts->manageContact(addr.mailbox + QLatin1Char('@') + addr.host, addr.name);
 }
 
 ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QString &body,

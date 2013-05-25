@@ -26,6 +26,9 @@ namespace BE {
     public:
         explicit Contacts(Gui::AbookAddressbook *abook);
         virtual ~Contacts();
+
+        void manageContact(const QString &mail, const QString &prettyName);
+
     protected:
         bool eventFilter(QObject *o, QEvent *e);
     private slots:

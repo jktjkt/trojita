@@ -363,3 +363,19 @@ void BE::Contacts::updateFocusPolicy(QWidget *oldFocus, QWidget *newFocus)
     m_ui->remove->setFocusPolicy(policy);
 }
 
+void BE::Contacts::manageContact(const QString &mail, const QString &prettyName)
+{
+    QStandardItemModel *model = m_abook->model();
+    for (int i = 0; i < model->rowCount(); ++i) {
+        QStandardItem *item = model->item(i);
+        if (QString::compare(item->data(Gui::AbookAddressbook::Mail).toString(), mail, Qt::CaseInsensitive) == 0) {
+            setContact(model->index(i, 0));
+            return;
+        }
+    }
+
+    // no match -> create one
+    addContact();
+    m_ui2->mail->setText(mail);
+    m_ui2->name->setText(prettyName);
+}
