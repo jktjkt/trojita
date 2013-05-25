@@ -46,7 +46,7 @@ public:
                 Nick, URL, Notes, Anniversary, Photo,
                 UnknownKeys, Dirty };
 
-    virtual QStringList complete(const QString &string, const QStringList &ignore, int max = -1) const;
+    virtual QStringList complete(const QString &string, const QStringList &ignores, int max = -1) const;
     virtual QStringList prettyNamesForAddress(const QString &mail) const;
 
     QStandardItemModel *model() const;

@@ -26,6 +26,7 @@
 #include <QFileSystemWatcher>
 #include <QSettings>
 #include <QStandardItemModel>
+#include <QStringBuilder>
 #include <QTimer>
 
 using namespace Gui;
@@ -230,15 +231,54 @@ void AbookAddressbook::saveContacts()
     m_filesystemWatcher->blockSignals(false);
 }
 
-
-QStringList AbookAddressbook::complete(const QString &string, const QStringList &ignore, int max) const
+static inline bool ignore(const QString &string, const QStringList &ignores)
 {
-    // FIXME
-    return QStringList();
+    Q_FOREACH (const QString &ignore, ignores) {
+        if (ignore.contains(string, Qt::CaseInsensitive))
+            return true;
+    }
+    return false;
+}
+
+QStringList AbookAddressbook::complete(const QString &string, const QStringList &ignores, int max) const
+{
+    QStringList list;
+    for (int i = 0; i < m_contacts->rowCount(); ++i) {
+        QStandardItem *item = m_contacts->item(i);
+        QString contactName = item->data(Name).toString();
+        // FIXME: this is an adapted copy-paste from LocalAddressbook which worked with QStringLists for multiple mails
+        QStringList contactMails;
+        contactMails << item->data(Mail).toString();
+        if (contactName.startsWith(string, Qt::CaseInsensitive)) {
+            Q_FOREACH (const QString &mail, contactMails) {
+                if (ignore(mail, ignores))
+                    continue;
+                list << contactName % QString(" <") % mail % QString(">");
+                if (list.count() == max)
+                    return list;
+            }
+            continue;
+        }
+        Q_FOREACH (const QString &mail, contactMails) {
+            if (mail.startsWith(string, Qt::CaseInsensitive)) {
+                if (ignore(mail, ignores))
+                    continue;
+                list << contactName % QString(" <") % mail % QString(">");
+                if (list.count() == max)
+                    return list;
+            }
+        }
+    }
+    return list;
 }
 
 QStringList AbookAddressbook::prettyNamesForAddress(const QString &mail) const
 {
-    // FIXME
-    return QStringList();
+    QStringList res;
+    for (int i = 0; i < m_contacts->rowCount(); ++i) {
+        QStandardItem *item = m_contacts->item(i);
+        if (QString::compare(item->data(Mail).toString(), mail, Qt::CaseInsensitive) == 0)
+            res << item->data(Name).toString();
+    }
+    return res;
 }

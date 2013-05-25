@@ -42,7 +42,6 @@ SOURCES += \
     UserAgentWebPage.cpp \
     MessageListWidget.cpp \
     MailBoxTreeView.cpp \
-    LocalAddressbook.cpp \
     ComposerTextEdit.cpp \
     ComposerAttachmentsList.cpp \
     FromAddressProxyModel.cpp \
@@ -84,7 +83,6 @@ HEADERS += \
     MessageListWidget.h \
     MailBoxTreeView.h \
     AbstractAddressbook.h \
-    LocalAddressbook.h \
     ComposerTextEdit.h \
     ComposerAttachmentsList.h \
     FromAddressProxyModel.h \
