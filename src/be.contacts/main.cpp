@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QDir>
 #include <QSettings>
+#include "AbookAddressbook/AbookAddressbook.h"
 #include "AbookAddressbook/be.contacts.h"
 
 int main(int argc, char **argv) {
@@ -81,7 +82,7 @@ int main(int argc, char **argv) {
         return 0;
     }
     QApplication a(argc, argv);
-    BE::Contacts w;
+    BE::Contacts w(new Gui::AbookAddressbook());
     w.show();
     return a.exec();
 }

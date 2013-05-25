@@ -49,10 +49,8 @@ public:
 static QList<Field> fields;
 }
 
-BE::Contacts::Contacts()
+BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook)
 {
-    m_abook = new Gui::AbookAddressbook();
-
     m_currentContact = 0;
     QImage img(QDir::homePath() + "/.abook/incognito.png");
     if (!img.isNull())

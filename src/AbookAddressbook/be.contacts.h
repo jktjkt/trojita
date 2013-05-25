@@ -24,7 +24,7 @@ namespace BE {
     class Contacts : public QDialog {
         Q_OBJECT
     public:
-        Contacts();
+        explicit Contacts(Gui::AbookAddressbook *abook);
         virtual ~Contacts();
     protected:
         bool eventFilter(QObject *o, QEvent *e);
