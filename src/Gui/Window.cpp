@@ -148,6 +148,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QLatin1String("action_reply_all"), QLatin1String("mail-reply-all"), tr("Reply to &All"), tr("Ctrl+Alt+Shift+R"));
     shortcutHandler->defineAction(QLatin1String("action_reply_list"), QLatin1String("mail-reply-list"), tr("Reply to &Mailing List"), tr("Ctrl+L"));
     shortcutHandler->defineAction(QLatin1String("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
+    shortcutHandler->defineAction(QLatin1String("action_contact_editor"), QLatin1String("contact-unknown"), tr("Address Book..."));
 }
 
 void MainWindow::createActions()
@@ -424,6 +425,7 @@ void MainWindow::createMenus()
 {
     QMenu *imapMenu = menuBar()->addMenu(tr("&IMAP"));
     imapMenu->addMenu(m_composeMenu);
+    imapMenu->addAction(ShortcutHandler::instance()->createAction(QLatin1String("action_contact_editor"), this, SLOT(invokeContactEditor()), this));
     imapMenu->addAction(m_replyGuess);
     imapMenu->addAction(m_replyPrivate);
     imapMenu->addAction(m_replyAll);
@@ -1461,9 +1463,18 @@ void MainWindow::slotManageContact(const QUrl &url)
     if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("x-trojita-manage-contact")))
         return;
 
-    BE::Contacts *contacts = new BE::Contacts(dynamic_cast<AbookAddressbook*>(m_addressBook));
-    contacts->show();
-    contacts->manageContact(addr.mailbox + QLatin1Char('@') + addr.host, addr.name);
+    invokeContactEditor();
+    m_contactsWidget->manageContact(addr.mailbox + QLatin1Char('@') + addr.host, addr.name);
+}
+
+void MainWindow::invokeContactEditor()
+{
+    if (m_contactsWidget)
+        return;
+
+    m_contactsWidget = new BE::Contacts(dynamic_cast<AbookAddressbook*>(m_addressBook));
+    m_contactsWidget->setAttribute(Qt::WA_DeleteOnClose, true);
+    m_contactsWidget->show();
 }
 
 ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QString &body,

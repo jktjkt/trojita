@@ -25,6 +25,7 @@
 
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QPointer>
 #include <QSystemTrayIcon>
 
 #include "Composer/Recipients.h"
@@ -41,6 +42,10 @@ class QSslCertificate;
 class QSslError;
 class QToolButton;
 class QTreeView;
+
+namespace BE {
+class Contacts;
+}
 
 namespace Composer
 {
@@ -168,6 +173,7 @@ private slots:
 
     void slotIconActivated(const QSystemTrayIcon::ActivationReason reason);
     void slotToggleSysTray();
+    void invokeContactEditor();
 private:
     void defineActions();
     void createMenus();
@@ -282,6 +288,7 @@ private:
     bool m_ignoreStoredPassword;
 
     AbstractAddressbook *m_addressBook;
+    QPointer<BE::Contacts> m_contactsWidget;
 
     MainWindow(const MainWindow &); // don't implement
     MainWindow &operator=(const MainWindow &); // don't implement
