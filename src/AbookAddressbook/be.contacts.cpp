@@ -6,6 +6,7 @@
 #include <QFileSystemWatcher>
 #include <QImageReader>
 #include <QKeyEvent>
+#include <QMessageBox>
 #include <QMetaProperty>
 #include <QMimeData>
 #include <QPainter>
@@ -49,7 +50,7 @@ public:
 static QList<Field> fields;
 }
 
-BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook)
+BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(false)
 {
     m_currentContact = 0;
     QImage img(QDir::homePath() + "/.abook/incognito.png");
@@ -95,7 +96,6 @@ BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook)
     connect (m_ui->add, SIGNAL(clicked()), SLOT(addContact()));
     connect (m_ui->remove, SIGNAL(clicked()), SLOT(removeCurrentContact()));
     connect (qApp, SIGNAL(focusChanged(QWidget*, QWidget*)), SLOT(updateFocusPolicy(QWidget*, QWidget*)));
-    connect (qApp, SIGNAL(aboutToQuit()), SLOT(saveContacts()));
 
     // cheat to correct the focuspolicies ;-)
     updateFocusPolicy(m_ui2->name, m_ui->filter);
@@ -104,6 +104,18 @@ BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook)
 BE::Contacts::~Contacts()
 {
     delete m_abook;
+}
+
+void BE::Contacts::closeEvent(QCloseEvent *)
+{
+    if (m_dirty) {
+        if (QMessageBox::question(this, tr("Contacts"), tr("Save changes?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
+            saveContacts();
+        } else {
+            m_abook->model()->removeRows(0, m_abook->model()->rowCount());
+            m_abook->readAbook(false);
+        }
+    }
 }
 
 void BE::Contacts::saveContacts()
@@ -208,6 +220,7 @@ void BE::Contacts::importPhoto(const QString &path)
 
 void BE::Contacts::addContact()
 {
+    m_dirty = true;
     QStandardItem *item = new QStandardItem("[New Contact]");
     for (QList<Field>::const_iterator   it = fields.constBegin(),
                                         end = fields.constEnd(); it != end; ++it) {
@@ -224,6 +237,7 @@ void BE::Contacts::addContact()
 
 void BE::Contacts::removeCurrentContact()
 {
+    m_dirty = true;
     if (m_currentContact) {
         QModelIndex idx = m_sortFilterProxy->mapFromSource(m_currentContact->index());
         delete m_currentContact;
@@ -249,6 +263,7 @@ void BE::Contacts::setContact(const QModelIndex &index)
                         m_currentContact->setData( QVariant(), it->type ); // invalidate
                     else
                         m_currentContact->setData( s, it->type );
+                    m_dirty = true;
                 }
             }
         }

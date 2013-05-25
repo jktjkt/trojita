@@ -31,6 +31,7 @@ namespace BE {
 
     protected:
         bool eventFilter(QObject *o, QEvent *e);
+        virtual void closeEvent(QCloseEvent *);
     private slots:
         void addContact();
         void updateFocusPolicy(QWidget *oldFocus, QWidget *newFocus);
@@ -47,6 +48,7 @@ namespace BE {
         Ui::OneContact *m_ui2;
         QPixmap m_incognitoPic;
         Gui::AbookAddressbook *m_abook;
+        bool m_dirty;
     };
 } // namepsace
 
