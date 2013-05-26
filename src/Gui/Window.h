@@ -221,7 +221,7 @@ private:
     QAction *showMenuBar;
     QAction *showToolBar;
     QAction *configSettings;
-    QAction *showMailBoxTree;
+    QAction *m_showMailboxTree;
     QAction *composeMail;
     QAction *m_editDraft;
     QAction *m_replyPrivate;

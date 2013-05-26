@@ -236,8 +236,8 @@ void MainWindow::createActions()
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
-    showMailBoxTree = new QAction(loadIcon(QLatin1String("mail-folder-inbox")), tr("&Show MailBoxes..."), this);
-    connect(showMailBoxTree, SIGNAL(triggered()), this, SLOT(slotShowMailBoxTree()));
+    m_showMailboxTree = new QAction(loadIcon(QLatin1String("mail-folder-inbox")), tr("&Show MailBoxes..."), this);
+    connect(m_showMailboxTree, SIGNAL(triggered()), this, SLOT(slotShowMailBoxTree()));
 
     composeMail = ShortcutHandler::instance()->createAction("action_compose_mail", this, SLOT(slotComposeMail()), this);
     m_editDraft = ShortcutHandler::instance()->createAction("action_compose_draft", this, SLOT(slotEditDraft()), this);
@@ -1916,7 +1916,7 @@ void MainWindow::slotLayoutCompact()
 
 void MainWindow::slotSpaceConstrainedDisplayMessageList()
 {
-    m_mainToolbar->addAction(showMailBoxTree);
+    m_mainToolbar->addAction(m_showMailboxTree);
     m_mainVSplitter->show();
     mboxTree->hide();
     m_messageWidget->hide();
@@ -1925,7 +1925,7 @@ void MainWindow::slotSpaceConstrainedDisplayMessageList()
 
 void MainWindow::slotSpaceConstrainedDisplayMessage()
 {
-    m_mainToolbar->addAction(showMailBoxTree);
+    m_mainToolbar->addAction(m_showMailboxTree);
     m_mainVSplitter->show();
     msgListWidget->hide();
     mboxTree->hide();
@@ -1936,8 +1936,8 @@ void MainWindow::slotLayoutSpaceConstrained()
 {
     slotLayoutCompact();
     m_mainVSplitter->hide();
-    connect(msgListWidget->tree, SIGNAL(clicked( QModelIndex )), this, SLOT(slotSpaceConstrainedDisplayMessage()));
-    connect(mboxTree, SIGNAL(clicked( QModelIndex )), this, SLOT(slotSpaceConstrainedDisplayMessageList()));
+    connect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotSpaceConstrainedDisplayMessage()));
+    connect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotSpaceConstrainedDisplayMessageList()));
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutSpaceConstrained);
 }
 
@@ -1954,9 +1954,9 @@ void MainWindow::slotLayoutWide()
 
 void MainWindow::slotUndoSpaceConstrained()
 {
-    disconnect(msgListWidget->tree, SIGNAL(clicked( QModelIndex )), this, SLOT(slotSpaceConstrainedDisplayMessage()));
-    disconnect(mboxTree, SIGNAL(clicked( QModelIndex )), this, SLOT(slotSpaceConstrainedDisplayMessageList()));
-    m_mainToolbar->removeAction(showMailBoxTree);
+    disconnect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotSpaceConstrainedDisplayMessage()));
+    disconnect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotSpaceConstrainedDisplayMessageList()));
+    m_mainToolbar->removeAction(m_showMailboxTree);
     mboxTree->show();
     m_mainVSplitter->show();
     msgListWidget->show();
