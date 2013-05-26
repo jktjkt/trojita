@@ -31,6 +31,21 @@
 
 using namespace Gui;
 
+class SettingsCategoryGuard {
+private:
+    QSettings *m_settings;
+
+public:
+    SettingsCategoryGuard(QSettings *settings, const QString &prefix) {
+        m_settings = settings;
+        m_settings->beginGroup(prefix);
+    }
+
+    ~SettingsCategoryGuard() {
+        m_settings->endGroup();
+    }
+};
+
 AbookAddressbook::AbookAddressbook(): m_updateTimer(0)
 {
 #define ADD(TYPE, KEY) \
@@ -134,7 +149,7 @@ void AbookAddressbook::readAbook(bool update)
     abook.setIniCodec("UTF-8");
     QStringList contacts = abook.childGroups();
     foreach (const QString &contact, contacts) {
-        abook.beginGroup(contact);
+        SettingsCategoryGuard guard(&abook, contact);
         QStandardItem *item = 0;
         QStringList mails;
         if (update) {
@@ -152,7 +167,6 @@ void AbookAddressbook::readAbook(bool update)
                 }
             }
             if (item && item->data(Dirty).toBool()) {
-                abook.endGroup();
                 continue;
             }
         }
@@ -194,8 +208,6 @@ void AbookAddressbook::readAbook(bool update)
 
         if (add)
             m_contacts->appendRow( item );
-
-        abook.endGroup();
     }
 //     const qint64 elapsed = profile.elapsed();
 //     qDebug() << "reading too" << elapsed << "ms";
@@ -208,7 +220,7 @@ void AbookAddressbook::saveContacts()
     abook.setIniCodec("UTF-8");
     abook.clear();
     for (int i = 0; i < m_contacts->rowCount(); ++i) {
-        abook.beginGroup(QString::number(i));
+        SettingsCategoryGuard guard(&abook, QString::number(i));
         QStandardItem *item = m_contacts->item(i);
         for (QList<QPair<Type,QString> >::const_iterator   it = m_fields.constBegin(),
                                             end = m_fields.constEnd(); it != end; ++it) {
@@ -225,7 +237,6 @@ void AbookAddressbook::saveContacts()
                                                     end = unknownKeys.constEnd(); it != end; ++it) {
             abook.setValue(it.key(), it.value());
         }
-        abook.endGroup();
     }
     abook.sync();
     m_filesystemWatcher->blockSignals(false);
