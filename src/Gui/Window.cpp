@@ -153,7 +153,7 @@ MainWindow::MainWindow(): QMainWindow(), model(0),
     // Let's hope that this value is long enough for the output to settle, yet short enough to not be overly annoying
     delayedResize->setInterval(3000);
     connect(delayedResize, SIGNAL(timeout()), this, SLOT(desktopGeometryChanged()));
-    connect(qApp->desktop(), SIGNAL(resized(int)), delayedResize, SLOT(start()));
+    connect(qApp->desktop(), SIGNAL(workAreaResized(int)), delayedResize, SLOT(start()));
     m_skipSavingOfUI = false;
 }
 
