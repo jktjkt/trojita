@@ -80,9 +80,12 @@ QString SettingsNames::guiMailboxListShowOnlySubscribed = QLatin1String("gui/mai
 QString SettingsNames::guiMainWindowLayout = QLatin1String("gui/mainWindow.layout");
 QString SettingsNames::guiMainWindowLayoutCompact = QLatin1String("compact");
 QString SettingsNames::guiMainWindowLayoutWide = QLatin1String("wide");
+QString SettingsNames::guiMainWindowLayoutOneAtTime = QLatin1String("one-at-time");
 QString SettingsNames::guiPreferPlaintextRendering = QLatin1String("gui/preferPlaintextRendering");
 QString SettingsNames::guiShowSystray = QLatin1String("gui/showSystray");
 QString SettingsNames::guiOnSystrayClose = QLatin1String("gui/onSystrayClose");
+QString SettingsNames::guiSizesInMainWinWhenCompact = QLatin1String("gui/sizeInMainWinWhenCompact-%1");
+QString SettingsNames::guiSizesInMainWinWhenWide = QLatin1String("gui/sizeInMainWinWhenWide-%1");
 QString SettingsNames::appLoadHomepage = QLatin1String("app.updates.checkEnabled");
 QString SettingsNames::knownEmailsKey = QLatin1String("addressBook/knownEmails");
 

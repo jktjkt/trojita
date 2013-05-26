@@ -48,6 +48,8 @@ public:
     explicit MsgListView(QWidget *parent=0);
     virtual ~MsgListView() {}
     void setModel(QAbstractItemModel *model);
+    void setAutoActivateAfterKeyNavigation(bool enabled);
+    void updateActionsAfterRestoredState();
 protected:
     void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);
@@ -70,6 +72,8 @@ private:
 
     QSignalMapper *headerFieldsMapper;
     QTimer *m_naviActivationTimer;
+    bool m_autoActivateAfterKeyNavigation;
+    bool m_autoResizeSections;
 };
 
 }

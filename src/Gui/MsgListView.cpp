@@ -37,7 +37,7 @@
 namespace Gui
 {
 
-MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
+MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfterKeyNavigation(true), m_autoResizeSections(true)
 {
     connect(header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
@@ -93,7 +93,7 @@ void MsgListView::keyReleaseEvent(QKeyEvent *ke)
 
 void MsgListView::slotCurrentActivated()
 {
-    if (currentIndex().isValid())
+    if (currentIndex().isValid() && m_autoActivateAfterKeyNavigation)
         emit activated(currentIndex());
 }
 
@@ -241,12 +241,14 @@ void MsgListView::slotFixSize()
             resizeMode = QHeaderView::Fixed;
             break;
         }
-        setColumnWidth(i, sizeHintForColumn(i));
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         header()->setSectionResizeMode(i, resizeMode);
 #else
         header()->setResizeMode(i, resizeMode);
 #endif
+        if (m_autoResizeSections) {
+            setColumnWidth(i, sizeHintForColumn(i));
+        }
     }
 }
 
@@ -324,6 +326,15 @@ void MsgListView::slotHeaderSectionVisibilityToggled(int section)
     }
 }
 
+void MsgListView::updateActionsAfterRestoredState()
+{
+    m_autoResizeSections = false;
+    QList<QAction *> actions = header()->actions();
+    for (int i = 0; i < actions.size(); ++i) {
+        actions[i]->setChecked(!header()->isSectionHidden(i));
+    }
+}
+
 /** @short Overridden from QTreeView::setModel
 
 The whole point is that we have to listen for sortingPreferenceChanged to update your header view when sorting is requested
@@ -363,6 +374,11 @@ Imap::Mailbox::PrettyMsgListModel *MsgListView::findPrettyMsgListModel(QAbstract
             model = proxy->sourceModel();
     }
     return 0;
+}
+
+void MsgListView::setAutoActivateAfterKeyNavigation(bool enabled)
+{
+    m_autoActivateAfterKeyNavigation = enabled;
 }
 
 }

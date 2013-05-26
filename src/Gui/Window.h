@@ -40,6 +40,7 @@ class QScrollArea;
 class QSplitter;
 class QSslCertificate;
 class QSslError;
+class QStackedWidget;
 class QToolButton;
 class QTreeView;
 
@@ -82,6 +83,8 @@ class MainWindow: public QMainWindow
 {
     Q_OBJECT
     typedef QList<QPair<Composer::RecipientKind,QString> > RecipientsType;
+
+    typedef enum { LAYOUT_COMPACT, LAYOUT_WIDE, LAYOUT_ONE_AT_TIME } LayoutMode;
 public:
     MainWindow();
     ComposeWidget *invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
@@ -170,10 +173,21 @@ private slots:
 
     void slotLayoutCompact();
     void slotLayoutWide();
+    void slotLayoutOneAtTime();
+    void slotOneAtTimeGoBack();
+    void slotOneAtTimeGoDeeper();
+    void saveSizesAndState(const LayoutMode oldMode);
+    void saveSizesAndState();
+
+    void desktopGeometryChanged();
 
     void slotIconActivated(const QSystemTrayIcon::ActivationReason reason);
     void slotToggleSysTray();
     void invokeContactEditor();
+
+protected:
+    void resizeEvent(QResizeEvent *);
+
 private:
     void defineActions();
     void createMenus();
@@ -189,6 +203,8 @@ private:
     void updateActionsOnlineOffline(bool online);
 
     void migrateSettings();
+    void applySizesAndState();
+    QString settingsKeyForLayout(const LayoutMode layout);
 
     void recoverDrafts();
     void createSysTray();
@@ -214,8 +230,12 @@ private:
     ProtocolLoggerWidget *imapLogger;
     QDockWidget *imapLoggerDock;
 
-    QSplitter *m_mainHSplitter;
-    QSplitter *m_mainVSplitter;
+    QPointer<QSplitter> m_mainHSplitter;
+    QPointer<QSplitter> m_mainVSplitter;
+    QPointer<QStackedWidget> m_mainStack;
+
+    LayoutMode m_layoutMode;
+    bool m_skipSavingOfUI;
 
     QAction *reloadMboxList;
     QAction *reloadAllMailboxes;
@@ -232,6 +252,7 @@ private:
     QAction *showMenuBar;
     QAction *showToolBar;
     QAction *configSettings;
+    QAction *m_oneAtTimeGoBack;
     QAction *composeMail;
     QAction *m_editDraft;
     QAction *m_replyPrivate;
@@ -272,6 +293,7 @@ private:
     QAction *m_actionSortDescending;
     QAction *m_actionLayoutCompact;
     QAction *m_actionLayoutWide;
+    QAction *m_actionLayoutOneAtTime;
 
     QAction *m_actionSubscribeMailbox;
     QAction *m_actionShowOnlySubscribed;

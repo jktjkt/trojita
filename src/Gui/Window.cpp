@@ -22,6 +22,7 @@
 
 #include <QAuthenticator>
 #include <QDesktopServices>
+#include <QDesktopWidget>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #  include <QStandardPaths>
 #endif
@@ -35,6 +36,7 @@
 #include <QProgressBar>
 #include <QSplitter>
 #include <QSslError>
+#include <QStackedWidget>
 #include <QStatusBar>
 #include <QTextDocument>
 #include <QToolBar>
@@ -91,7 +93,14 @@ Q_DECLARE_METATYPE(QList<QSslError>)
 namespace Gui
 {
 
-MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_trayIcon(0)
+enum {
+    MINIMUM_WIDTH_NORMAL = 800,
+    MINIMUM_WIDTH_WIDE = 1250
+};
+
+MainWindow::MainWindow(): QMainWindow(), model(0),
+    m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true),
+    m_actionSortNone(0), m_ignoreStoredPassword(false), m_trayIcon(0)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
@@ -126,6 +135,28 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     slotUpdateWindowTitle();
 
     recoverDrafts();
+
+    if (m_actionLayoutWide->isEnabled() &&
+            QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
+        m_actionLayoutWide->trigger();
+    } else if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutOneAtTime) {
+        m_actionLayoutOneAtTime->trigger();
+    } else {
+        m_actionLayoutCompact->trigger();
+    }
+
+    // The problem with QDesktopWidget::resized is that (at least on jkt's box right now), it gets even before the screen size
+    // actually changes. This has a funny side effect of not disabling the wide mode on switching to tiny screen, and (which
+    // might be worse) not enabling the option of the wide layout when switching to a bigger screen.
+    // I have no idea whether it's a bug in Qt, in KWin, in my Xorg stack or somewhere else, but I know that I have to workaround
+    // it here, at least for now.
+    QTimer *delayedResize = new QTimer(this);
+    delayedResize->setSingleShot(true);
+    // Let's hope that this value is long enough for the output to settle, yet short enough to not be overly annoying
+    delayedResize->setInterval(3000);
+    connect(delayedResize, SIGNAL(timeout()), this, SLOT(desktopGeometryChanged()));
+    connect(qApp->desktop(), SIGNAL(workAreaResized(int)), delayedResize, SLOT(start()));
+    m_skipSavingOfUI = false;
 }
 
 void MainWindow::defineActions()
@@ -175,6 +206,7 @@ void MainWindow::createActions()
     // new: Ctrl+N
 
     m_mainToolbar = addToolBar(tr("Navigation"));
+    m_mainToolbar->setObjectName(QLatin1String("mainToolbar"));
 
     reloadMboxList = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), tr("&Update List of Child Mailboxes"), this);
     connect(reloadMboxList, SIGNAL(triggered()), this, SLOT(slotReloadMboxList()));
@@ -238,6 +270,11 @@ void MainWindow::createActions()
 
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
+
+    m_oneAtTimeGoBack = new QAction(loadIcon(QLatin1String("go-previous")), tr("Navigate Back"), this);
+    m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
+    m_oneAtTimeGoBack->setEnabled(false);
+    connect(m_oneAtTimeGoBack, SIGNAL(triggered()), this, SLOT(slotOneAtTimeGoBack()));
 
     composeMail = ShortcutHandler::instance()->createAction("action_compose_mail", this, SLOT(slotComposeMail()), this);
     m_editDraft = ShortcutHandler::instance()->createAction("action_compose_draft", this, SLOT(slotEditDraft()), this);
@@ -361,11 +398,10 @@ void MainWindow::createActions()
     m_actionLayoutWide = new QAction(tr("&Wide"), layoutGroup);
     m_actionLayoutWide->setCheckable(true);
     connect(m_actionLayoutWide, SIGNAL(triggered()), this, SLOT(slotLayoutWide()));
+    m_actionLayoutOneAtTime = new QAction(tr("&One At Time"), layoutGroup);
+    m_actionLayoutOneAtTime->setCheckable(true);
+    connect(m_actionLayoutOneAtTime, SIGNAL(triggered()), this, SLOT(slotLayoutOneAtTime()));
 
-    if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
-        m_actionLayoutWide->setChecked(true);
-        slotLayoutWide();
-    }
 
     m_actionShowOnlySubscribed = new QAction(tr("Show Only S&ubscribed Folders"), this);
     m_actionShowOnlySubscribed->setCheckable(true);
@@ -455,6 +491,7 @@ void MainWindow::createMenus()
     QMenu *layoutMenu = viewMenu->addMenu(tr("&Layout"));
     layoutMenu->addAction(m_actionLayoutCompact);
     layoutMenu->addAction(m_actionLayoutWide);
+    layoutMenu->addAction(m_actionLayoutOneAtTime);
     viewMenu->addSeparator();
     viewMenu->addAction(m_previousMessage);
     viewMenu->addAction(m_nextMessage);
@@ -519,22 +556,8 @@ void MainWindow::createWidgets()
         m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
     }
 
-    m_mainHSplitter = new QSplitter();
-    m_mainVSplitter = new QSplitter();
-    m_mainVSplitter->setOrientation(Qt::Vertical);
-    m_mainVSplitter->addWidget(msgListWidget);
-    m_mainVSplitter->addWidget(m_messageWidget);
-    m_mainHSplitter->addWidget(mboxTree);
-    m_mainHSplitter->addWidget(m_mainVSplitter);
-
-    // The mboxTree shall not expand...
-    m_mainHSplitter->setStretchFactor(0, 0);
-    // ...while the msgListTree shall consume all the remaining space
-    m_mainHSplitter->setStretchFactor(1, 1);
-
-    setCentralWidget(m_mainHSplitter);
-
     allDock = new QDockWidget("Everything", this);
+    allDock->setObjectName(QLatin1String("allDock"));
     allTree = new QTreeView(allDock);
     allDock->hide();
     allTree->setUniformRowHeights(true);
@@ -542,6 +565,7 @@ void MainWindow::createWidgets()
     allDock->setWidget(allTree);
     addDockWidget(Qt::LeftDockWidgetArea, allDock);
     taskDock = new QDockWidget("IMAP Tasks", this);
+    taskDock->setObjectName("taskDock");
     taskTree = new QTreeView(taskDock);
     taskDock->hide();
     taskTree->setHeaderHidden(true);
@@ -549,6 +573,7 @@ void MainWindow::createWidgets()
     addDockWidget(Qt::LeftDockWidgetArea, taskDock);
 
     imapLoggerDock = new QDockWidget(tr("IMAP Protocol"), this);
+    imapLoggerDock->setObjectName(QLatin1String("imapLoggerDock"));
     imapLogger = new ProtocolLoggerWidget(imapLoggerDock);
     imapLoggerDock->hide();
     imapLoggerDock->setWidget(imapLogger);
@@ -2034,19 +2059,123 @@ void MainWindow::slotUpdateWindowTitle()
 
 void MainWindow::slotLayoutCompact()
 {
+    saveSizesAndState();
+    if (!m_mainHSplitter) {
+        m_mainHSplitter = new QSplitter();
+        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+    }
+    if (!m_mainVSplitter) {
+        m_mainVSplitter = new QSplitter();
+        m_mainVSplitter->setOrientation(Qt::Vertical);
+        connect(m_mainVSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+    }
+
+    m_mainVSplitter->addWidget(msgListWidget);
     m_mainVSplitter->addWidget(m_messageWidget);
+    m_mainHSplitter->addWidget(mboxTree);
+    m_mainHSplitter->addWidget(m_mainVSplitter);
+
+    mboxTree->show();
+    msgListWidget->show();
+    m_messageWidget->show();
+    m_mainVSplitter->show();
+    m_mainHSplitter->show();
+
+    // The mboxTree shall not expand...
+    m_mainHSplitter->setStretchFactor(0, 0);
+    // ...while the msgListTree shall consume all the remaining space
+    m_mainHSplitter->setStretchFactor(1, 1);
+
+    setCentralWidget(m_mainHSplitter);
+    setMinimumWidth(MINIMUM_WIDTH_NORMAL);
+
+    delete m_mainStack;
+
+    m_layoutMode = LAYOUT_COMPACT;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
-    setMinimumWidth(800);
+    applySizesAndState();
 }
 
 void MainWindow::slotLayoutWide()
 {
+    saveSizesAndState();
+    if (!m_mainHSplitter) {
+        m_mainHSplitter = new QSplitter();
+        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+    }
+
+    m_mainHSplitter->addWidget(mboxTree);
+    m_mainHSplitter->addWidget(msgListWidget);
     m_mainHSplitter->addWidget(m_messageWidget);
     m_mainHSplitter->setStretchFactor(0, 0);
     m_mainHSplitter->setStretchFactor(1, 1);
     m_mainHSplitter->setStretchFactor(2, 1);
+
+    mboxTree->show();
+    msgListWidget->show();
+    m_messageWidget->show();
+    m_mainHSplitter->show();
+
+    setCentralWidget(m_mainHSplitter);
+    setMinimumWidth(MINIMUM_WIDTH_WIDE);
+
+    delete m_mainStack;
+    delete m_mainVSplitter;
+
+    m_layoutMode = LAYOUT_WIDE;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
-    setMinimumWidth(1250);
+    applySizesAndState();
+}
+
+void MainWindow::slotLayoutOneAtTime()
+{
+    saveSizesAndState();
+    if (m_mainStack)
+        return;
+
+    m_mainStack = new QStackedWidget();
+    m_mainStack->addWidget(mboxTree);
+    m_mainStack->addWidget(msgListWidget);
+    m_mainStack->addWidget(m_messageWidget);
+    m_mainStack->setCurrentWidget(mboxTree);
+    setCentralWidget(m_mainStack);
+    setMinimumWidth(MINIMUM_WIDTH_NORMAL);
+
+    delete m_mainHSplitter;
+    delete m_mainVSplitter;
+
+    // The list view is configured to auto-emit activated(QModelIndex) after a short while when the user has navigated
+    // to an index through keyboard. Of course, this doesn't play terribly well with this layout.
+    msgListWidget->tree->setAutoActivateAfterKeyNavigation(false);
+
+    connect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    connect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    connect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    connect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    m_mainToolbar->addAction(m_oneAtTimeGoBack);
+
+    m_layoutMode = LAYOUT_ONE_AT_TIME;
+    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
+    applySizesAndState();
+}
+
+void MainWindow::slotOneAtTimeGoBack()
+{
+    if (m_mainStack->currentIndex() > 0)
+        m_mainStack->setCurrentIndex(m_mainStack->currentIndex() - 1);
+
+    m_oneAtTimeGoBack->setEnabled(m_mainStack->currentIndex() > 0);
+}
+
+void MainWindow::slotOneAtTimeGoDeeper()
+{
+    // Careful here: some of the events are, unfortunately, emitted twice (one for clicked(), another time for activated())
+    if (sender() == msgListWidget->tree)
+        m_mainStack->setCurrentIndex(m_mainStack->indexOf(msgListWidget) + 1);
+    else if (sender() == mboxTree)
+        m_mainStack->setCurrentIndex(m_mainStack->indexOf(static_cast<QWidget*>(sender())) + 1);
+
+    m_oneAtTimeGoBack->setEnabled(m_mainStack->currentIndex() > 0);
 }
 
 Imap::Mailbox::Model *MainWindow::imapModel() const
@@ -2072,6 +2201,114 @@ void MainWindow::migrateSettings()
     }
 }
 
+void MainWindow::desktopGeometryChanged()
+{
+    QRect geometry = qApp->desktop()->availableGeometry(this);
+    m_actionLayoutWide->setEnabled(geometry.width() >= MINIMUM_WIDTH_WIDE);
+    if (m_layoutMode == LAYOUT_WIDE && !m_actionLayoutWide->isEnabled()) {
+        m_actionLayoutCompact->trigger();
+    }
+    saveSizesAndState();
 }
 
+void MainWindow::saveSizesAndState()
+{
+    saveSizesAndState(m_layoutMode);
+}
 
+QString MainWindow::settingsKeyForLayout(const LayoutMode layout)
+{
+    switch (layout) {
+    case LAYOUT_COMPACT:
+        return Common::SettingsNames::guiSizesInMainWinWhenCompact;
+    case LAYOUT_WIDE:
+        return Common::SettingsNames::guiSizesInMainWinWhenWide;
+    case LAYOUT_ONE_AT_TIME:
+        // nothing is saved here
+        break;
+    }
+    return QString();
+}
+
+void MainWindow::saveSizesAndState(const LayoutMode oldMode)
+{
+    if (m_skipSavingOfUI)
+        return;
+
+    QRect geometry = qApp->desktop()->availableGeometry(this);
+    QString key = settingsKeyForLayout(oldMode);
+    if (key.isEmpty())
+        return;
+
+    QList<QByteArray> items;
+    items << saveGeometry();
+    items << saveState();
+    items << (m_mainVSplitter ? m_mainVSplitter->saveState() : QByteArray());
+    items << (m_mainHSplitter ? m_mainHSplitter->saveState() : QByteArray());
+    items << msgListWidget->tree->header()->saveState();
+    QByteArray buf;
+    QDataStream stream(&buf, QIODevice::WriteOnly);
+    stream << items.size();
+    Q_FOREACH(const QByteArray &item, items) {
+        stream << item;
+    }
+
+    QSettings s;
+    s.setValue(key.arg(QString::number(geometry.width())), buf);
+}
+
+void MainWindow::applySizesAndState()
+{
+    QRect geometry = qApp->desktop()->availableGeometry(this);
+    QString key = settingsKeyForLayout(m_layoutMode);
+    if (key.isEmpty())
+        return;
+
+    QSettings s;
+    QByteArray buf = s.value(key.arg(QString::number(geometry.width()))).toByteArray();
+    if (buf.isEmpty())
+        return;
+
+    int size;
+    QDataStream stream(&buf, QIODevice::ReadOnly);
+    stream >> size;
+    QByteArray item;
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        restoreGeometry(item);
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        restoreState(item);
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        if (m_mainVSplitter) {
+            m_mainVSplitter->restoreState(item);
+        }
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        if (m_mainHSplitter) {
+            m_mainHSplitter->restoreState(item);
+        }
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        msgListWidget->tree->header()->restoreState(item);
+        // got to manually update the state of the actions which control the visibility state
+        msgListWidget->tree->updateActionsAfterRestoredState();
+    }
+}
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+    saveSizesAndState();
+}
+
+}
