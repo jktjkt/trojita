@@ -1924,6 +1924,9 @@ void MainWindow::slotLayoutWide()
 void MainWindow::slotLayoutOneAtTime()
 {
     slotLayoutCompact();
+    // The list view is configured to auto-emit activated(QModelIndex) after a short while when the user has navigated
+    // to an index through keyboard. Of course, this doesn't play terribly well with this layout.
+    msgListWidget->tree->setAutoActivateAfterKeyNavigation(false);
     m_mainVSplitter->hide();
     connect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
     connect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
@@ -1935,6 +1938,7 @@ void MainWindow::slotLayoutOneAtTime()
 
 void MainWindow::undoOneAtTimeLayout()
 {
+    msgListWidget->tree->setAutoActivateAfterKeyNavigation(true);
     disconnect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
     disconnect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
     disconnect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));

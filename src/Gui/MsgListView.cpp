@@ -37,7 +37,7 @@
 namespace Gui
 {
 
-MsgListView::MsgListView(QWidget *parent): QTreeView(parent)
+MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfterKeyNavigation(true)
 {
     connect(header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
@@ -93,7 +93,7 @@ void MsgListView::keyReleaseEvent(QKeyEvent *ke)
 
 void MsgListView::slotCurrentActivated()
 {
-    if (currentIndex().isValid())
+    if (currentIndex().isValid() && m_autoActivateAfterKeyNavigation)
         emit activated(currentIndex());
 }
 
@@ -354,6 +354,11 @@ Imap::Mailbox::PrettyMsgListModel *MsgListView::findPrettyMsgListModel(QAbstract
             model = proxy->sourceModel();
     }
     return 0;
+}
+
+void MsgListView::setAutoActivateAfterKeyNavigation(bool enabled)
+{
+    m_autoActivateAfterKeyNavigation = enabled;
 }
 
 }
