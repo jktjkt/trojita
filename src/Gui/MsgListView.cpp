@@ -232,7 +232,6 @@ void MsgListView::slotFixSize()
             resizeMode = QHeaderView::Fixed;
             break;
         }
-        setColumnWidth(i, sizeHintForColumn(i));
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         header()->setSectionResizeMode(i, resizeMode);
 #else

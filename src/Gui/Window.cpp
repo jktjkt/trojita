@@ -2102,6 +2102,7 @@ void MainWindow::saveSizesAndState(const LayoutMode oldMode)
     items << saveState();
     items << (m_mainVSplitter ? m_mainVSplitter->saveState() : QByteArray());
     items << (m_mainHSplitter ? m_mainHSplitter->saveState() : QByteArray());
+    items << msgListWidget->tree->header()->saveState();
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::WriteOnly);
     stream << items.size();
@@ -2152,6 +2153,11 @@ void MainWindow::applySizesAndState()
         if (m_mainHSplitter) {
             m_mainHSplitter->restoreState(item);
         }
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        msgListWidget->tree->header()->restoreState(item);
     }
 }
 
