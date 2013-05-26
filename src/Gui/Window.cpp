@@ -134,7 +134,6 @@ MainWindow::MainWindow(): QMainWindow(), model(0),
 
     recoverDrafts();
 
-    connect(qApp->desktop(), SIGNAL(resized(int)), this, SLOT(desktopGeometryChanged()));
     desktopGeometryChanged();
     if (m_actionLayoutWide->isEnabled() &&
             QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
@@ -144,6 +143,18 @@ MainWindow::MainWindow(): QMainWindow(), model(0),
     } else {
         m_actionLayoutCompact->trigger();
     }
+
+    // The problem with QDesktopWidget::resized is that (at least on jkt's box right now), it gets even before the screen size
+    // actually changes. This has a funny side effect of not disabling the wide mode on switching to tiny screen, and (which
+    // might be worse) not enabling the option of the wide layout when switching to a bigger screen.
+    // I have no idea whether it's a bug in Qt, in KWin, in my Xorg stack or somewhere else, but I know that I have to workaround
+    // it here, at least for now.
+    QTimer *delayedResize = new QTimer(this);
+    delayedResize->setSingleShot(true);
+    // Let's hope that this value is long enough for the output to settle, yet short enough to not be overly annoying
+    delayedResize->setInterval(3000);
+    connect(delayedResize, SIGNAL(timeout()), this, SLOT(desktopGeometryChanged()));
+    connect(qApp->desktop(), SIGNAL(resized(int)), delayedResize, SLOT(start()));
 }
 
 void MainWindow::defineActions()
