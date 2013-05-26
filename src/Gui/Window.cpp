@@ -236,8 +236,10 @@ void MainWindow::createActions()
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
-    m_showMailboxTree = new QAction(loadIcon(QLatin1String("mail-folder-inbox")), tr("&Show MailBoxes..."), this);
-    connect(m_showMailboxTree, SIGNAL(triggered()), this, SLOT(slotShowMailBoxTree()));
+    m_oneAtTimeGoBack = new QAction(loadIcon(QLatin1String("back")), tr("Navigate Back"), this);
+    m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
+    m_oneAtTimeGoBack->setEnabled(false);
+    connect(m_oneAtTimeGoBack, SIGNAL(triggered()), this, SLOT(slotOneAtTimeGoBack()));
 
     composeMail = ShortcutHandler::instance()->createAction("action_compose_mail", this, SLOT(slotComposeMail()), this);
     m_editDraft = ShortcutHandler::instance()->createAction("action_compose_draft", this, SLOT(slotEditDraft()), this);
@@ -361,16 +363,16 @@ void MainWindow::createActions()
     m_actionLayoutWide = new QAction(tr("&Wide"), layoutGroup);
     m_actionLayoutWide->setCheckable(true);
     connect(m_actionLayoutWide, SIGNAL(triggered()), this, SLOT(slotLayoutWide()));
-    m_actionLayoutSpaceConstrained = new QAction(tr("&Space Constrained"), layoutGroup);
-    m_actionLayoutSpaceConstrained->setCheckable(true);
-    connect(m_actionLayoutSpaceConstrained, SIGNAL(triggered()), this, SLOT(slotLayoutSpaceConstrained()));
+    m_actionLayoutOneAtTime = new QAction(tr("&One At Time"), layoutGroup);
+    m_actionLayoutOneAtTime->setCheckable(true);
+    connect(m_actionLayoutOneAtTime, SIGNAL(triggered()), this, SLOT(slotLayoutOneAtTime()));
 
     if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
         m_actionLayoutWide->setChecked(true);
         slotLayoutWide();
-    } else if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutSpaceConstrained) {
-        m_actionLayoutSpaceConstrained->setChecked(true);
-        slotLayoutSpaceConstrained();
+    } else if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutOneAtTime) {
+        m_actionLayoutOneAtTime->setChecked(true);
+        slotLayoutOneAtTime();
     }
 
     m_actionShowOnlySubscribed = new QAction(tr("Show Only S&ubscribed Folders"), this);
@@ -459,8 +461,8 @@ void MainWindow::createMenus()
     viewMenu->addAction(showToolBar);
     QMenu *layoutMenu = viewMenu->addMenu(tr("&Layout"));
     layoutMenu->addAction(m_actionLayoutCompact);
-    layoutMenu->addAction(m_actionLayoutSpaceConstrained);
     layoutMenu->addAction(m_actionLayoutWide);
+    layoutMenu->addAction(m_actionLayoutOneAtTime);
     viewMenu->addSeparator();
     viewMenu->addAction(m_previousMessage);
     viewMenu->addAction(m_nextMessage);
@@ -918,12 +920,6 @@ void MainWindow::slotShowSettings()
         setupModels();
         connectModelActions();
     }
-}
-
-void MainWindow::slotShowMailBoxTree()
-{
-    mboxTree->show();
-    m_mainVSplitter->hide();
 }
 
 void MainWindow::authenticationRequested()
@@ -1907,43 +1903,16 @@ void MainWindow::slotUpdateWindowTitle()
 
 void MainWindow::slotLayoutCompact()
 {
-    slotUndoSpaceConstrained();
+    undoOneAtTimeLayout();
     m_mainVSplitter->addWidget(msgListWidget);
     m_mainVSplitter->addWidget(m_messageWidget);
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
     setMinimumWidth(800);
 }
 
-void MainWindow::slotSpaceConstrainedDisplayMessageList()
-{
-    m_mainToolbar->addAction(m_showMailboxTree);
-    m_mainVSplitter->show();
-    mboxTree->hide();
-    m_messageWidget->hide();
-    msgListWidget->show();
-}
-
-void MainWindow::slotSpaceConstrainedDisplayMessage()
-{
-    m_mainToolbar->addAction(m_showMailboxTree);
-    m_mainVSplitter->show();
-    msgListWidget->hide();
-    mboxTree->hide();
-    m_messageWidget->show();
-}
-
-void MainWindow::slotLayoutSpaceConstrained()
-{
-    slotLayoutCompact();
-    m_mainVSplitter->hide();
-    connect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotSpaceConstrainedDisplayMessage()));
-    connect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotSpaceConstrainedDisplayMessageList()));
-    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutSpaceConstrained);
-}
-
 void MainWindow::slotLayoutWide()
 {
-    slotUndoSpaceConstrained();
+    undoOneAtTimeLayout();
     m_mainHSplitter->addWidget(m_messageWidget);
     m_mainHSplitter->setStretchFactor(0, 0);
     m_mainHSplitter->setStretchFactor(1, 1);
@@ -1952,14 +1921,57 @@ void MainWindow::slotLayoutWide()
     setMinimumWidth(1250);
 }
 
-void MainWindow::slotUndoSpaceConstrained()
+void MainWindow::slotLayoutOneAtTime()
 {
-    disconnect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotSpaceConstrainedDisplayMessage()));
-    disconnect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotSpaceConstrainedDisplayMessageList()));
-    m_mainToolbar->removeAction(m_showMailboxTree);
+    slotLayoutCompact();
+    m_mainVSplitter->hide();
+    connect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
+    connect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
+    connect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));
+    connect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));
+    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
+    m_mainToolbar->addAction(m_oneAtTimeGoBack);
+}
+
+void MainWindow::undoOneAtTimeLayout()
+{
+    disconnect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
+    disconnect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
+    disconnect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));
+    disconnect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));
+    m_mainToolbar->removeAction(m_oneAtTimeGoBack);
     mboxTree->show();
     m_mainVSplitter->show();
     msgListWidget->show();
+    m_messageWidget->show();
+}
+
+void MainWindow::slotOneAtTimeGoBack()
+{
+    if (m_messageWidget->isVisible()) {
+        m_messageWidget->hide();
+        msgListWidget->show();
+        msgListWidget->tree->setFocus();
+    } else if (msgListWidget->isVisible()) {
+        mboxTree->show();
+        m_mainVSplitter->hide();
+        m_oneAtTimeGoBack->setEnabled(false);
+    }
+}
+
+void MainWindow::slotOneAtTimeMailboxesToMessages()
+{
+    m_oneAtTimeGoBack->setEnabled(true);
+    mboxTree->hide();
+    m_mainVSplitter->show();
+    m_messageWidget->hide();
+    msgListWidget->show();
+    msgListWidget->tree->setFocus();
+}
+
+void MainWindow::slotOneAtTimeMessagesToOne()
+{
+    msgListWidget->hide();
     m_messageWidget->show();
 }
 

@@ -99,7 +99,6 @@ private slots:
     void networkPolicyExpensive();
     void networkPolicyOnline();
     void slotShowSettings();
-    void slotShowMailBoxTree();
     void slotShowImapInfo();
     void slotExpunge();
     void connectionError(const QString &message);
@@ -160,11 +159,10 @@ private slots:
 
     void slotLayoutCompact();
     void slotLayoutWide();
-    void slotLayoutSpaceConstrained();
-
-    void slotSpaceConstrainedDisplayMessage();
-    void slotSpaceConstrainedDisplayMessageList();
-    void slotUndoSpaceConstrained();
+    void slotLayoutOneAtTime();
+    void slotOneAtTimeGoBack();
+    void slotOneAtTimeMailboxesToMessages();
+    void slotOneAtTimeMessagesToOne();
 private:
     void defineActions();
     void createMenus();
@@ -180,6 +178,7 @@ private:
     void updateActionsOnlineOffline(bool online);
 
     void migrateSettings();
+    void undoOneAtTimeLayout();
 
     void recoverDrafts();
 
@@ -221,7 +220,7 @@ private:
     QAction *showMenuBar;
     QAction *showToolBar;
     QAction *configSettings;
-    QAction *m_showMailboxTree;
+    QAction *m_oneAtTimeGoBack;
     QAction *composeMail;
     QAction *m_editDraft;
     QAction *m_replyPrivate;
@@ -262,7 +261,7 @@ private:
     QAction *m_actionSortDescending;
     QAction *m_actionLayoutCompact;
     QAction *m_actionLayoutWide;
-    QAction *m_actionLayoutSpaceConstrained;
+    QAction *m_actionLayoutOneAtTime;
 
     QAction *m_actionSubscribeMailbox;
     QAction *m_actionShowOnlySubscribed;
