@@ -2159,7 +2159,7 @@ void MainWindow::applySizesAndState()
         stream >> item;
         msgListWidget->tree->header()->restoreState(item);
         // got to manually update the state of the actions which control the visibility state
-        msgListWidget->tree->updateActions();
+        msgListWidget->tree->updateActionsAfterRestoredState();
     }
 }
 
@@ -2169,5 +2169,3 @@ void MainWindow::resizeEvent(QResizeEvent *)
 }
 
 }
-
-

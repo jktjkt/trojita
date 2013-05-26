@@ -37,7 +37,7 @@
 namespace Gui
 {
 
-MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfterKeyNavigation(true)
+MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfterKeyNavigation(true), m_autoResizeSections(true)
 {
     connect(header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
@@ -237,6 +237,9 @@ void MsgListView::slotFixSize()
 #else
         header()->setResizeMode(i, resizeMode);
 #endif
+        if (m_autoResizeSections) {
+            setColumnWidth(i, sizeHintForColumn(i));
+        }
     }
 }
 
@@ -314,8 +317,9 @@ void MsgListView::slotHeaderSectionVisibilityToggled(int section)
     }
 }
 
-void MsgListView::updateActions()
+void MsgListView::updateActionsAfterRestoredState()
 {
+    m_autoResizeSections = false;
     QList<QAction *> actions = header()->actions();
     for (int i = 0; i < actions.size(); ++i) {
         actions[i]->setChecked(!header()->isSectionHidden(i));
