@@ -2158,6 +2158,8 @@ void MainWindow::applySizesAndState()
     if (size-- && !stream.atEnd()) {
         stream >> item;
         msgListWidget->tree->header()->restoreState(item);
+        // got to manually update the state of the actions which control the visibility state
+        msgListWidget->tree->updateActions();
     }
 }
 

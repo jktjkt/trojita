@@ -314,6 +314,14 @@ void MsgListView::slotHeaderSectionVisibilityToggled(int section)
     }
 }
 
+void MsgListView::updateActions()
+{
+    QList<QAction *> actions = header()->actions();
+    for (int i = 0; i < actions.size(); ++i) {
+        actions[i]->setChecked(!header()->isSectionHidden(i));
+    }
+}
+
 /** @short Overridden from QTreeView::setModel
 
 The whole point is that we have to listen for sortingPreferenceChanged to update your header view when sorting is requested

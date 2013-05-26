@@ -49,6 +49,7 @@ public:
     virtual ~MsgListView() {}
     void setModel(QAbstractItemModel *model);
     void setAutoActivateAfterKeyNavigation(bool enabled);
+    void updateActions();
 protected:
     void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);
