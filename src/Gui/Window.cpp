@@ -36,6 +36,7 @@
 #include <QProgressBar>
 #include <QSplitter>
 #include <QSslError>
+#include <QStackedWidget>
 #include <QStatusBar>
 #include <QTextDocument>
 #include <QToolBar>
@@ -91,7 +92,8 @@ Q_DECLARE_METATYPE(QList<QSslError>)
 namespace Gui
 {
 
-MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignoreStoredPassword(false)
+MainWindow::MainWindow(): QMainWindow(), model(0), m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0),
+    m_actionSortNone(0), m_ignoreStoredPassword(false)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
@@ -131,6 +133,9 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     } else if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutOneAtTime) {
         m_actionLayoutOneAtTime->setChecked(true);
         slotLayoutOneAtTime();
+    } else {
+        m_actionLayoutCompact->setChecked(true);
+        slotLayoutCompact();
     }
 }
 
@@ -525,21 +530,6 @@ void MainWindow::createWidgets()
         !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
         m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
     }
-
-    m_mainHSplitter = new QSplitter();
-    m_mainVSplitter = new QSplitter();
-    m_mainVSplitter->setOrientation(Qt::Vertical);
-    m_mainVSplitter->addWidget(msgListWidget);
-    m_mainVSplitter->addWidget(m_messageWidget);
-    m_mainHSplitter->addWidget(mboxTree);
-    m_mainHSplitter->addWidget(m_mainVSplitter);
-
-    // The mboxTree shall not expand...
-    m_mainHSplitter->setStretchFactor(0, 0);
-    // ...while the msgListTree shall consume all the remaining space
-    m_mainHSplitter->setStretchFactor(1, 1);
-
-    setCentralWidget(m_mainHSplitter);
 
     allDock = new QDockWidget("Everything", this);
     allTree = new QTreeView(allDock);
@@ -1904,80 +1894,110 @@ void MainWindow::slotUpdateWindowTitle()
 
 void MainWindow::slotLayoutCompact()
 {
-    undoOneAtTimeLayout();
+    if (!m_mainHSplitter) {
+        m_mainHSplitter = new QSplitter();
+    }
+    if (!m_mainVSplitter) {
+        m_mainVSplitter = new QSplitter();
+        m_mainVSplitter->setOrientation(Qt::Vertical);
+    }
+
     m_mainVSplitter->addWidget(msgListWidget);
     m_mainVSplitter->addWidget(m_messageWidget);
-    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
+    m_mainHSplitter->addWidget(mboxTree);
+    m_mainHSplitter->addWidget(m_mainVSplitter);
+
+    mboxTree->show();
+    msgListWidget->show();
+    m_messageWidget->show();
+    m_mainVSplitter->show();
+    m_mainHSplitter->show();
+
+    // The mboxTree shall not expand...
+    m_mainHSplitter->setStretchFactor(0, 0);
+    // ...while the msgListTree shall consume all the remaining space
+    m_mainHSplitter->setStretchFactor(1, 1);
+
+    setCentralWidget(m_mainHSplitter);
     setMinimumWidth(800);
+
+    delete m_mainStack;
+
+    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
 }
 
 void MainWindow::slotLayoutWide()
 {
-    undoOneAtTimeLayout();
+    if (!m_mainHSplitter) {
+        m_mainHSplitter = new QSplitter();
+    }
+
+    m_mainHSplitter->addWidget(mboxTree);
+    m_mainHSplitter->addWidget(msgListWidget);
     m_mainHSplitter->addWidget(m_messageWidget);
     m_mainHSplitter->setStretchFactor(0, 0);
     m_mainHSplitter->setStretchFactor(1, 1);
     m_mainHSplitter->setStretchFactor(2, 1);
-    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
+
+    mboxTree->show();
+    msgListWidget->show();
+    m_messageWidget->show();
+    m_mainHSplitter->show();
+
+    setCentralWidget(m_mainHSplitter);
     setMinimumWidth(1250);
+
+    delete m_mainStack;
+    delete m_mainVSplitter;
+
+    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
 }
 
 void MainWindow::slotLayoutOneAtTime()
 {
-    slotLayoutCompact();
+    if (m_mainStack)
+        return;
+
+    m_mainStack = new QStackedWidget();
+    m_mainStack->addWidget(mboxTree);
+    m_mainStack->addWidget(msgListWidget);
+    m_mainStack->addWidget(m_messageWidget);
+    m_mainStack->setCurrentWidget(mboxTree);
+    setCentralWidget(m_mainStack);
+
+    delete m_mainHSplitter;
+    delete m_mainVSplitter;
+
     // The list view is configured to auto-emit activated(QModelIndex) after a short while when the user has navigated
     // to an index through keyboard. Of course, this doesn't play terribly well with this layout.
     msgListWidget->tree->setAutoActivateAfterKeyNavigation(false);
-    m_mainVSplitter->hide();
-    connect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
-    connect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
-    connect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));
-    connect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));
-    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
-    m_mainToolbar->addAction(m_oneAtTimeGoBack);
-}
 
-void MainWindow::undoOneAtTimeLayout()
-{
-    msgListWidget->tree->setAutoActivateAfterKeyNavigation(true);
-    disconnect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
-    disconnect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMessagesToOne()));
-    disconnect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));
-    disconnect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeMailboxesToMessages()));
-    m_mainToolbar->removeAction(m_oneAtTimeGoBack);
-    mboxTree->show();
-    m_mainVSplitter->show();
-    msgListWidget->show();
-    m_messageWidget->show();
+    connect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    connect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    connect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    connect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    m_mainToolbar->addAction(m_oneAtTimeGoBack);
+
+    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
 }
 
 void MainWindow::slotOneAtTimeGoBack()
 {
-    if (m_messageWidget->isVisible()) {
-        m_messageWidget->hide();
-        msgListWidget->show();
-        msgListWidget->tree->setFocus();
-    } else if (msgListWidget->isVisible()) {
-        mboxTree->show();
-        m_mainVSplitter->hide();
-        m_oneAtTimeGoBack->setEnabled(false);
-    }
+    if (m_mainStack->currentIndex() > 0)
+        m_mainStack->setCurrentIndex(m_mainStack->currentIndex() - 1);
+
+    m_oneAtTimeGoBack->setEnabled(m_mainStack->currentIndex() > 0);
 }
 
-void MainWindow::slotOneAtTimeMailboxesToMessages()
+void MainWindow::slotOneAtTimeGoDeeper()
 {
-    m_oneAtTimeGoBack->setEnabled(true);
-    mboxTree->hide();
-    m_mainVSplitter->show();
-    m_messageWidget->hide();
-    msgListWidget->show();
-    msgListWidget->tree->setFocus();
-}
+    // Careful here: some of the events are, unfortunately, emitted twice (one for clicked(), another time for activated())
+    if (sender() == msgListWidget->tree)
+        m_mainStack->setCurrentIndex(m_mainStack->indexOf(msgListWidget) + 1);
+    else if (sender() == mboxTree)
+        m_mainStack->setCurrentIndex(m_mainStack->indexOf(static_cast<QWidget*>(sender())) + 1);
 
-void MainWindow::slotOneAtTimeMessagesToOne()
-{
-    msgListWidget->hide();
-    m_messageWidget->show();
+    m_oneAtTimeGoBack->setEnabled(m_mainStack->currentIndex() > 0);
 }
 
 Imap::Mailbox::Model *MainWindow::imapModel() const

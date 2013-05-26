@@ -25,6 +25,7 @@
 
 #include <QMainWindow>
 #include <QModelIndex>
+#include <QPointer>
 
 #include "Composer/Recipients.h"
 #include "Imap/ConnectionState.h"
@@ -37,6 +38,7 @@ class QScrollArea;
 class QSplitter;
 class QSslCertificate;
 class QSslError;
+class QStackedWidget;
 class QToolButton;
 class QTreeView;
 
@@ -161,8 +163,7 @@ private slots:
     void slotLayoutWide();
     void slotLayoutOneAtTime();
     void slotOneAtTimeGoBack();
-    void slotOneAtTimeMailboxesToMessages();
-    void slotOneAtTimeMessagesToOne();
+    void slotOneAtTimeGoDeeper();
 private:
     void defineActions();
     void createMenus();
@@ -178,7 +179,6 @@ private:
     void updateActionsOnlineOffline(bool online);
 
     void migrateSettings();
-    void undoOneAtTimeLayout();
 
     void recoverDrafts();
 
@@ -202,8 +202,9 @@ private:
     ProtocolLoggerWidget *imapLogger;
     QDockWidget *imapLoggerDock;
 
-    QSplitter *m_mainHSplitter;
-    QSplitter *m_mainVSplitter;
+    QPointer<QSplitter> m_mainHSplitter;
+    QPointer<QSplitter> m_mainVSplitter;
+    QPointer<QStackedWidget> m_mainStack;
 
     QAction *reloadMboxList;
     QAction *reloadAllMailboxes;
