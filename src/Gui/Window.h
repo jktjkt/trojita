@@ -77,6 +77,8 @@ class MainWindow: public QMainWindow
 {
     Q_OBJECT
     typedef QList<QPair<Composer::RecipientKind,QString> > RecipientsType;
+
+    typedef enum { LAYOUT_COMPACT, LAYOUT_WIDE, LAYOUT_ONE_AT_TIME } LayoutMode;
 public:
     MainWindow();
     ComposeWidget *invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
@@ -164,8 +166,13 @@ private slots:
     void slotLayoutOneAtTime();
     void slotOneAtTimeGoBack();
     void slotOneAtTimeGoDeeper();
+    void saveSizesAndState(const LayoutMode oldMode);
+    void saveSizesAndState();
 
     void desktopGeometryChanged();
+
+protected:
+    void resizeEvent(QResizeEvent *);
 
 private:
     void defineActions();
@@ -182,6 +189,8 @@ private:
     void updateActionsOnlineOffline(bool online);
 
     void migrateSettings();
+    void applySizesAndState();
+    QString settingsKeyForLayout(const LayoutMode layout);
 
     void recoverDrafts();
 
@@ -209,7 +218,8 @@ private:
     QPointer<QSplitter> m_mainVSplitter;
     QPointer<QStackedWidget> m_mainStack;
 
-    enum { LAYOUT_COMPACT, LAYOUT_WIDE, LAYOUT_ONE_AT_TIME } m_layoutMode;
+    LayoutMode m_layoutMode;
+    bool m_skipSavingOfUI;
 
     QAction *reloadMboxList;
     QAction *reloadAllMailboxes;

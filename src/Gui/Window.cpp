@@ -99,7 +99,7 @@ enum {
 };
 
 MainWindow::MainWindow(): QMainWindow(), model(0),
-    m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT),
+    m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true),
     m_actionSortNone(0), m_ignoreStoredPassword(false)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
@@ -134,7 +134,6 @@ MainWindow::MainWindow(): QMainWindow(), model(0),
 
     recoverDrafts();
 
-    desktopGeometryChanged();
     if (m_actionLayoutWide->isEnabled() &&
             QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
         m_actionLayoutWide->trigger();
@@ -155,6 +154,7 @@ MainWindow::MainWindow(): QMainWindow(), model(0),
     delayedResize->setInterval(3000);
     connect(delayedResize, SIGNAL(timeout()), this, SLOT(desktopGeometryChanged()));
     connect(qApp->desktop(), SIGNAL(resized(int)), delayedResize, SLOT(start()));
+    m_skipSavingOfUI = false;
 }
 
 void MainWindow::defineActions()
@@ -203,6 +203,7 @@ void MainWindow::createActions()
     // new: Ctrl+N
 
     m_mainToolbar = addToolBar(tr("Navigation"));
+    m_mainToolbar->setObjectName(QLatin1String("mainToolbar"));
 
     reloadMboxList = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), tr("&Update List of Child Mailboxes"), this);
     connect(reloadMboxList, SIGNAL(triggered()), this, SLOT(slotReloadMboxList()));
@@ -550,6 +551,7 @@ void MainWindow::createWidgets()
     }
 
     allDock = new QDockWidget("Everything", this);
+    allDock->setObjectName(QLatin1String("allDock"));
     allTree = new QTreeView(allDock);
     allDock->hide();
     allTree->setUniformRowHeights(true);
@@ -557,6 +559,7 @@ void MainWindow::createWidgets()
     allDock->setWidget(allTree);
     addDockWidget(Qt::LeftDockWidgetArea, allDock);
     taskDock = new QDockWidget("IMAP Tasks", this);
+    taskDock->setObjectName("taskDock");
     taskTree = new QTreeView(taskDock);
     taskDock->hide();
     taskTree->setHeaderHidden(true);
@@ -564,6 +567,7 @@ void MainWindow::createWidgets()
     addDockWidget(Qt::LeftDockWidgetArea, taskDock);
 
     imapLoggerDock = new QDockWidget(tr("IMAP Protocol"), this);
+    imapLoggerDock->setObjectName(QLatin1String("imapLoggerDock"));
     imapLogger = new ProtocolLoggerWidget(imapLoggerDock);
     imapLoggerDock->hide();
     imapLoggerDock->setWidget(imapLogger);
@@ -1912,12 +1916,15 @@ void MainWindow::slotUpdateWindowTitle()
 
 void MainWindow::slotLayoutCompact()
 {
+    saveSizesAndState();
     if (!m_mainHSplitter) {
         m_mainHSplitter = new QSplitter();
+        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
     }
     if (!m_mainVSplitter) {
         m_mainVSplitter = new QSplitter();
         m_mainVSplitter->setOrientation(Qt::Vertical);
+        connect(m_mainVSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
     }
 
     m_mainVSplitter->addWidget(msgListWidget);
@@ -1943,12 +1950,15 @@ void MainWindow::slotLayoutCompact()
 
     m_layoutMode = LAYOUT_COMPACT;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
+    applySizesAndState();
 }
 
 void MainWindow::slotLayoutWide()
 {
+    saveSizesAndState();
     if (!m_mainHSplitter) {
         m_mainHSplitter = new QSplitter();
+        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
     }
 
     m_mainHSplitter->addWidget(mboxTree);
@@ -1971,10 +1981,12 @@ void MainWindow::slotLayoutWide()
 
     m_layoutMode = LAYOUT_WIDE;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
+    applySizesAndState();
 }
 
 void MainWindow::slotLayoutOneAtTime()
 {
+    saveSizesAndState();
     if (m_mainStack)
         return;
 
@@ -2001,6 +2013,7 @@ void MainWindow::slotLayoutOneAtTime()
 
     m_layoutMode = LAYOUT_ONE_AT_TIME;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
+    applySizesAndState();
 }
 
 void MainWindow::slotOneAtTimeGoBack()
@@ -2052,6 +2065,99 @@ void MainWindow::desktopGeometryChanged()
     if (m_layoutMode == LAYOUT_WIDE && !m_actionLayoutWide->isEnabled()) {
         m_actionLayoutCompact->trigger();
     }
+    saveSizesAndState();
+}
+
+void MainWindow::saveSizesAndState()
+{
+    saveSizesAndState(m_layoutMode);
+}
+
+QString MainWindow::settingsKeyForLayout(const LayoutMode layout)
+{
+    switch (layout) {
+    case LAYOUT_COMPACT:
+        return Common::SettingsNames::guiSizesInMainWinWhenCompact;
+    case LAYOUT_WIDE:
+        return Common::SettingsNames::guiSizesInMainWinWhenWide;
+    case LAYOUT_ONE_AT_TIME:
+        // nothing is saved here
+        break;
+    }
+    return QString();
+}
+
+void MainWindow::saveSizesAndState(const LayoutMode oldMode)
+{
+    if (m_skipSavingOfUI)
+        return;
+
+    QRect geometry = qApp->desktop()->availableGeometry(this);
+    QString key = settingsKeyForLayout(oldMode);
+    if (key.isEmpty())
+        return;
+
+    QList<QByteArray> items;
+    items << saveGeometry();
+    items << saveState();
+    items << (m_mainVSplitter ? m_mainVSplitter->saveState() : QByteArray());
+    items << (m_mainHSplitter ? m_mainHSplitter->saveState() : QByteArray());
+    QByteArray buf;
+    QDataStream stream(&buf, QIODevice::WriteOnly);
+    stream << items.size();
+    Q_FOREACH(const QByteArray &item, items) {
+        stream << item;
+    }
+
+    QSettings s;
+    s.setValue(key.arg(QString::number(geometry.width())), buf);
+}
+
+void MainWindow::applySizesAndState()
+{
+    QRect geometry = qApp->desktop()->availableGeometry(this);
+    QString key = settingsKeyForLayout(m_layoutMode);
+    if (key.isEmpty())
+        return;
+
+    QSettings s;
+    QByteArray buf = s.value(key.arg(QString::number(geometry.width()))).toByteArray();
+    if (buf.isEmpty())
+        return;
+
+    int size;
+    QDataStream stream(&buf, QIODevice::ReadOnly);
+    stream >> size;
+    QByteArray item;
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        restoreGeometry(item);
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        restoreState(item);
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        if (m_mainVSplitter) {
+            m_mainVSplitter->restoreState(item);
+        }
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        if (m_mainHSplitter) {
+            m_mainHSplitter->restoreState(item);
+        }
+    }
+}
+
+void MainWindow::resizeEvent(QResizeEvent *)
+{
+    saveSizesAndState();
 }
 
 }
