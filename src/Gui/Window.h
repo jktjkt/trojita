@@ -164,6 +164,9 @@ private slots:
     void slotLayoutOneAtTime();
     void slotOneAtTimeGoBack();
     void slotOneAtTimeGoDeeper();
+
+    void desktopGeometryChanged();
+
 private:
     void defineActions();
     void createMenus();
@@ -205,6 +208,8 @@ private:
     QPointer<QSplitter> m_mainHSplitter;
     QPointer<QSplitter> m_mainVSplitter;
     QPointer<QStackedWidget> m_mainStack;
+
+    enum { LAYOUT_COMPACT, LAYOUT_WIDE, LAYOUT_ONE_AT_TIME } m_layoutMode;
 
     QAction *reloadMboxList;
     QAction *reloadAllMailboxes;

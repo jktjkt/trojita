@@ -22,6 +22,7 @@
 
 #include <QAuthenticator>
 #include <QDesktopServices>
+#include <QDesktopWidget>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #  include <QStandardPaths>
 #  include <QUrlQuery>
@@ -92,7 +93,13 @@ Q_DECLARE_METATYPE(QList<QSslError>)
 namespace Gui
 {
 
-MainWindow::MainWindow(): QMainWindow(), model(0), m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0),
+enum {
+    MINIMUM_WIDTH_NORMAL = 800,
+    MINIMUM_WIDTH_WIDE = 1250
+};
+
+MainWindow::MainWindow(): QMainWindow(), model(0),
+    m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT),
     m_actionSortNone(0), m_ignoreStoredPassword(false)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
@@ -127,15 +134,15 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_mainHSplitter(0), m_mainVSp
 
     recoverDrafts();
 
-    if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
-        m_actionLayoutWide->setChecked(true);
-        slotLayoutWide();
+    connect(qApp->desktop(), SIGNAL(resized(int)), this, SLOT(desktopGeometryChanged()));
+    desktopGeometryChanged();
+    if (m_actionLayoutWide->isEnabled() &&
+            QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
+        m_actionLayoutWide->trigger();
     } else if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutOneAtTime) {
-        m_actionLayoutOneAtTime->setChecked(true);
-        slotLayoutOneAtTime();
+        m_actionLayoutOneAtTime->trigger();
     } else {
-        m_actionLayoutCompact->setChecked(true);
-        slotLayoutCompact();
+        m_actionLayoutCompact->trigger();
     }
 }
 
@@ -1919,10 +1926,11 @@ void MainWindow::slotLayoutCompact()
     m_mainHSplitter->setStretchFactor(1, 1);
 
     setCentralWidget(m_mainHSplitter);
-    setMinimumWidth(800);
+    setMinimumWidth(MINIMUM_WIDTH_NORMAL);
 
     delete m_mainStack;
 
+    m_layoutMode = LAYOUT_COMPACT;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
 }
 
@@ -1945,11 +1953,12 @@ void MainWindow::slotLayoutWide()
     m_mainHSplitter->show();
 
     setCentralWidget(m_mainHSplitter);
-    setMinimumWidth(1250);
+    setMinimumWidth(MINIMUM_WIDTH_WIDE);
 
     delete m_mainStack;
     delete m_mainVSplitter;
 
+    m_layoutMode = LAYOUT_WIDE;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
 }
 
@@ -1964,6 +1973,7 @@ void MainWindow::slotLayoutOneAtTime()
     m_mainStack->addWidget(m_messageWidget);
     m_mainStack->setCurrentWidget(mboxTree);
     setCentralWidget(m_mainStack);
+    setMinimumWidth(MINIMUM_WIDTH_NORMAL);
 
     delete m_mainHSplitter;
     delete m_mainVSplitter;
@@ -1978,6 +1988,7 @@ void MainWindow::slotLayoutOneAtTime()
     connect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
     m_mainToolbar->addAction(m_oneAtTimeGoBack);
 
+    m_layoutMode = LAYOUT_ONE_AT_TIME;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
 }
 
@@ -2020,6 +2031,15 @@ void MainWindow::migrateSettings()
         s.remove(QLatin1String("offline.sync"));
         s.remove(QLatin1String("offline.sync.days"));
         s.remove(QLatin1String("offline.sync.messages"));
+    }
+}
+
+void MainWindow::desktopGeometryChanged()
+{
+    QRect geometry = qApp->desktop()->availableGeometry(this);
+    m_actionLayoutWide->setEnabled(geometry.width() >= MINIMUM_WIDTH_WIDE);
+    if (m_layoutMode == LAYOUT_WIDE && !m_actionLayoutWide->isEnabled()) {
+        m_actionLayoutCompact->trigger();
     }
 }
 
