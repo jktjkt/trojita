@@ -124,6 +124,14 @@ MainWindow::MainWindow(): QMainWindow(), model(0), m_actionSortNone(0), m_ignore
     slotUpdateWindowTitle();
 
     recoverDrafts();
+
+    if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
+        m_actionLayoutWide->setChecked(true);
+        slotLayoutWide();
+    } else if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutOneAtTime) {
+        m_actionLayoutOneAtTime->setChecked(true);
+        slotLayoutOneAtTime();
+    }
 }
 
 void MainWindow::defineActions()
@@ -367,13 +375,6 @@ void MainWindow::createActions()
     m_actionLayoutOneAtTime->setCheckable(true);
     connect(m_actionLayoutOneAtTime, SIGNAL(triggered()), this, SLOT(slotLayoutOneAtTime()));
 
-    if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
-        m_actionLayoutWide->setChecked(true);
-        slotLayoutWide();
-    } else if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutOneAtTime) {
-        m_actionLayoutOneAtTime->setChecked(true);
-        slotLayoutOneAtTime();
-    }
 
     m_actionShowOnlySubscribed = new QAction(tr("Show Only S&ubscribed Folders"), this);
     m_actionShowOnlySubscribed->setCheckable(true);
