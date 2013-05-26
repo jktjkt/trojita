@@ -244,7 +244,7 @@ void MainWindow::createActions()
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
-    m_oneAtTimeGoBack = new QAction(loadIcon(QLatin1String("back")), tr("Navigate Back"), this);
+    m_oneAtTimeGoBack = new QAction(loadIcon(QLatin1String("go-previous")), tr("Navigate Back"), this);
     m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
     m_oneAtTimeGoBack->setEnabled(false);
     connect(m_oneAtTimeGoBack, SIGNAL(triggered()), this, SLOT(slotOneAtTimeGoBack()));
