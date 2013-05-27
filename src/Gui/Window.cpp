@@ -145,15 +145,16 @@ MainWindow::MainWindow(): QMainWindow(), model(0),
         m_actionLayoutCompact->trigger();
     }
 
-    // The problem with QDesktopWidget::resized is that (at least on jkt's box right now), it gets even before the screen size
-    // actually changes. This has a funny side effect of not disabling the wide mode on switching to tiny screen, and (which
-    // might be worse) not enabling the option of the wide layout when switching to a bigger screen.
-    // I have no idea whether it's a bug in Qt, in KWin, in my Xorg stack or somewhere else, but I know that I have to workaround
-    // it here, at least for now.
+    // Don't listen to QDesktopWidget::resized; that is emitted too early (when it gets fired, the screen size has changed, but
+    // the workspace area is still the old one). Instead, listen to workAreaResized which gets emitted at an appropriate time.
+    // The delay is still there to guarantee some smoothing; on jkt's box there are typically three events in a rapid sequence
+    // (some of them most likely due to the fact that at first, the actual desktop gets resized, the plasma panel reacts
+    // to that and only after the panel gets resized, the available size of "the rest" is correct again).
+    // Which is why it makes sense to introduce some delay in there. The 0.5s delay is my best guess and "should work" (especially
+    // because every change bumps the timer anyway, as Thomas pointed out).
     QTimer *delayedResize = new QTimer(this);
     delayedResize->setSingleShot(true);
-    // Let's hope that this value is long enough for the output to settle, yet short enough to not be overly annoying
-    delayedResize->setInterval(3000);
+    delayedResize->setInterval(500);
     connect(delayedResize, SIGNAL(timeout()), this, SLOT(desktopGeometryChanged()));
     connect(qApp->desktop(), SIGNAL(workAreaResized(int)), delayedResize, SLOT(start()));
     m_skipSavingOfUI = false;
