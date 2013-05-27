@@ -50,10 +50,10 @@ namespace Gui
 {
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-    QWidget(parent), m_partIndex(partIndex), m_openingManager(0), m_downloadButton(0), m_downloadAttachment(0),
-    m_openAttachment(0), m_tmpFile(0)
+    QWidget(parent), m_partIndex(partIndex), m_downloadButton(0), m_downloadAttachment(0),
+    m_openAttachment(0), m_netAccess(manager), m_openingManager(0), m_tmpFile(0)
 {
-    m_openingManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
+    m_openingManager = new Imap::Network::FileDownloadManager(this, m_netAccess, m_partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
 
     // Icon on the left
@@ -115,16 +115,16 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 
 void AttachmentView::slotDownloadAttachment()
 {
-    disconnect(m_openingManager, 0, this, 0);
-
-    connect(m_openingManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
-    m_openingManager->downloadPart();
+    Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(0, m_netAccess, m_partIndex);
+    connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+    connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
+    connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
+    manager->downloadPart();
 }
 
 void AttachmentView::slotOpenAttachment()
 {
     disconnect(m_openingManager, 0, this, 0);
-
     connect(m_openingManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
     connect(m_openingManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
     m_openingManager->downloadPart();
