@@ -1190,11 +1190,13 @@ bool ThreadingMsgListModel::threadContainsUnreadMessages(const uint root) const
         uint current = queue.takeFirst();
         QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(current);
         Q_ASSERT(it != threading.constEnd());
-        Q_ASSERT(it->ptr);
-        TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(it->ptr);
-        Q_ASSERT(message);
-        if (! message->isMarkedAsRead())
-            return true;
+        if (it->ptr) {
+            // Because of the delayed delete via pruneTree, we can hit a null pointer here
+            TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(it->ptr);
+            Q_ASSERT(message);
+            if (! message->isMarkedAsRead())
+                return true;
+        }
         queue.append(it->children);
     }
     return false;
