@@ -50,10 +50,10 @@ namespace Gui
 {
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-    QWidget(parent), m_partIndex(partIndex), m_fileDownloadManager(0), m_downloadButton(0), m_downloadAttachment(0),
+    QWidget(parent), m_partIndex(partIndex), m_openingManager(0), m_downloadButton(0), m_downloadAttachment(0),
     m_openAttachment(0), m_tmpFile(0)
 {
-    m_fileDownloadManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
+    m_openingManager = new Imap::Network::FileDownloadManager(this, manager, partIndex);
     QHBoxLayout *layout = new QHBoxLayout(this);
 
     // Icon on the left
@@ -115,19 +115,19 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 
 void AttachmentView::slotDownloadAttachment()
 {
-    disconnect(m_fileDownloadManager, 0, this, 0);
+    disconnect(m_openingManager, 0, this, 0);
 
-    connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
-    m_fileDownloadManager->downloadPart();
+    connect(m_openingManager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+    m_openingManager->downloadPart();
 }
 
 void AttachmentView::slotOpenAttachment()
 {
-    disconnect(m_fileDownloadManager, 0, this, 0);
+    disconnect(m_openingManager, 0, this, 0);
 
-    connect(m_fileDownloadManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
-    connect(m_fileDownloadManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
-    m_fileDownloadManager->downloadPart();
+    connect(m_openingManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
+    connect(m_openingManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
+    m_openingManager->downloadPart();
 }
 
 void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
@@ -182,17 +182,17 @@ void AttachmentView::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    if (m_fileDownloadManager->data(Imap::Mailbox::RoleMessageUid) == 0) {
+    if (m_openingManager->data(Imap::Mailbox::RoleMessageUid) == 0) {
         return;
     }
 
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::WriteOnly);
-    stream << m_fileDownloadManager->data(Imap::Mailbox::RoleMailboxName).toString() <<
-              m_fileDownloadManager->data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
-              m_fileDownloadManager->data(Imap::Mailbox::RoleMessageUid).toUInt() <<
-              m_fileDownloadManager->data(Imap::Mailbox::RolePartId).toString() <<
-              m_fileDownloadManager->data(Imap::Mailbox::RolePartPathToPart).toString();
+    stream << m_openingManager->data(Imap::Mailbox::RoleMailboxName).toString() <<
+              m_openingManager->data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
+              m_openingManager->data(Imap::Mailbox::RoleMessageUid).toUInt() <<
+              m_openingManager->data(Imap::Mailbox::RolePartId).toString() <<
+              m_openingManager->data(Imap::Mailbox::RolePartPathToPart).toString();
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(QLatin1String("application/x-trojita-imap-part"), buf);

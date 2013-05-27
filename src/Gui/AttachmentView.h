@@ -68,7 +68,7 @@ private slots:
 
 private:
     QModelIndex m_partIndex;
-    Imap::Network::FileDownloadManager *m_fileDownloadManager;
+    Imap::Network::FileDownloadManager *m_openingManager;
     QToolButton *m_downloadButton;
 
     QAction *m_downloadAttachment;
