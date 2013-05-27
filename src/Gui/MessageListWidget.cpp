@@ -43,8 +43,13 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     m_quickSearchText = new LineEdit(this);
 #if QT_VERSION >= 0x040700
-    m_quickSearchText->setPlaceholderText(tr("Quick Search / Leading \":=\" for direct IMAP search"));
+    m_quickSearchText->setPlaceholderText(tr("Quick Search"));
 #endif
+    m_quickSearchText->setToolTip(tr("Type in a text to search for within this mailbox. "
+                                     "The icon on the left can be used to limit the search options "
+                                     "(like whether to include addresses or message bodies, etc)."
+                                     "<br/><hr/>"
+                                     "Experts who have read RFC3501 can use the <code>:=</code> prefix and switch to a raw IMAP mode."));
     m_queryPlaceholder = tr("<query>");
 
     connect(m_quickSearchText, SIGNAL(returnPressed()), this, SLOT(slotApplySearch()));
