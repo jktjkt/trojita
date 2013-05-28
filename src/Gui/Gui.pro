@@ -55,7 +55,8 @@ SOURCES += \
     PasswordDialog.cpp \
     ProgressPopUp.cpp \
     OverlayWidget.cpp \
-    EnvelopeView.cpp
+    EnvelopeView.cpp \
+    ReplaceCharValidator.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -96,7 +97,8 @@ HEADERS += \
     PasswordDialog.h \
     ProgressPopUp.h \
     OverlayWidget.h \
-    EnvelopeView.h
+    EnvelopeView.h \
+    ReplaceCharValidator.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \
