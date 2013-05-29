@@ -43,8 +43,11 @@ private slots:
     void testDynamicSearch();
     void testIncrementalThreading();
     void testRemovingRootWithThreadingInFlight();
+    void testMultipleExpunges();
     void testThreadingPerformance();
     void testSortingPerformance();
+
+    void helper_multipleExpunges();
 protected slots:
     virtual void init();
 private:
@@ -59,6 +62,9 @@ private:
     QByteArray numListToString(const QList<uint> &seq);
 
     template<typename T> void reverseContainer(T &container);
+
+    QPersistentModelIndex helper_indexMultipleExpunges_1;
+    int helper_multipleExpunges_hit;
 };
 
 #endif

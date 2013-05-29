@@ -347,10 +347,6 @@ void ThreadingMsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent
         it->uid = 0;
         it->ptr = 0;
     }
-    if (!m_delayedPrune->isActive()) {
-        // no such event is pedning
-        updatePersistentIndexesPhase1();
-    }
 }
 
 void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int start, int end)
@@ -365,6 +361,7 @@ void ThreadingMsgListModel::handleRowsRemoved(const QModelIndex &parent, int sta
 void ThreadingMsgListModel::delayedPrune()
 {
     emit layoutAboutToBeChanged();
+    updatePersistentIndexesPhase1();
     pruneTree();
     updatePersistentIndexesPhase2();
     emit layoutChanged();

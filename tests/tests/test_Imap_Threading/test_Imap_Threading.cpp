@@ -537,6 +537,10 @@ void ImapModelThreadingTest::init()
 
     // Setup the threading model
     threadingModel->setUserWantsThreading(true);
+
+    // Deactivate the helper_multipleExpunges slot. We don't want QTestLib to run it,
+    // but I'm too lazy to add an extra QObject just for the slot.
+    helper_multipleExpunges_hit = -1;
 }
 
 /** @short Walk the model and output a THREAD-like responsde with the UIDs */
@@ -1267,6 +1271,68 @@ void ImapModelThreadingTest::testRemovingRootWithThreadingInFlight()
     QCOMPARE(threadingModel->rowCount(QModelIndex()), 2);
     verifyIndexMap(buildIndexMap(mapping), mapping);
     cEmpty();
+}
+
+/** @short Check that multiple messages being removed at once doesn't break stuff */
+void ImapModelThreadingTest::testMultipleExpunges()
+{
+    initialMessages(4);
+    Mapping mapping;
+    mapping["0"] = 1;
+    mapping["0.0"] = 0;
+    mapping["1"] = 2;
+    mapping["1.0"] = 0;
+    mapping["2"] = 3;
+    mapping["2.0"] = 0;
+    mapping["3"] = 4;
+    mapping["3.0"] = 0;
+    mapping["4"] = 0;
+    cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    cServer(QByteArray("* THREAD (1)(2)(3)(4)\r\n") + t.last("OK thread\r\n"));
+    verifyMapping(mapping);
+    QCOMPARE(threadingModel->rowCount(QModelIndex()), 4);
+    verifyIndexMap(buildIndexMap(mapping), mapping);
+    QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2)(3)(4)"));
+
+    QPersistentModelIndex m1 = findItem("0");
+    QPersistentModelIndex m2 = findItem("1");
+    QPersistentModelIndex m4 = findItem("3");
+    helper_multipleExpunges_hit = 0;
+
+    QVERIFY(m1.isValid());
+    QVERIFY(m2.isValid());
+    QVERIFY(!helper_indexMultipleExpunges_1.isValid());
+    QVERIFY(m4.isValid());
+
+    // The tricky part is here. The bug we want to test for was this: some code within QItemSelectionModel (?)
+    // grabbed a new persistent index most likely within a slot tied to layoutAboutToBeChanged signal. This persistent
+    // index was, however, not updated by the delayedPrune method, and therefore it was left dangling. In the GUI, this
+    // was apparent because some items were suddenly getting selected after some other messages were removed, and the visual
+    // position of the now bogous selection was conspicuously similar to the expunged messages.
+    connect(threadingModel, SIGNAL(layoutAboutToBeChanged()), this, SLOT(helper_multipleExpunges()));
+    cServer("* 2 EXPUNGE\r\n* 2 EXPUNGE\r\n");
+    disconnect(threadingModel, SIGNAL(layoutAboutToBeChanged()), this, SLOT(helper_multipleExpunges()));
+    QCOMPARE(helper_multipleExpunges_hit, 1);
+
+    QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(1)(4)"));
+    QCOMPARE(threadingModel->rowCount(QModelIndex()), 2);
+    QVERIFY(m1.isValid());
+    QVERIFY(!m2.isValid());
+    QVERIFY(!helper_indexMultipleExpunges_1.isValid());
+    QVERIFY(m4.isValid());
+
+    cEmpty();
+}
+
+void ImapModelThreadingTest::helper_multipleExpunges()
+{
+    if (helper_multipleExpunges_hit == -1) {
+        // hack: don't let the QTestLib "run" this method in a standalone manner
+        return;
+    }
+    helper_indexMultipleExpunges_1 = findItem("2");
+    QVERIFY(helper_indexMultipleExpunges_1.isValid());
+    ++helper_multipleExpunges_hit;
 }
 
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )
