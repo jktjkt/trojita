@@ -225,6 +225,9 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
 
 void MsgListView::slotFixSize()
 {
+    if (!m_autoResizeSections)
+        return;
+
     if (header()->visualIndex(Imap::Mailbox::MsgListModel::SEEN) == -1) {
         // calling setResizeMode() would assert()
         return;
@@ -246,9 +249,7 @@ void MsgListView::slotFixSize()
 #else
         header()->setResizeMode(i, resizeMode);
 #endif
-        if (m_autoResizeSections) {
-            setColumnWidth(i, sizeHintForColumn(i));
-        }
+        setColumnWidth(i, sizeHintForColumn(i));
     }
 }
 
