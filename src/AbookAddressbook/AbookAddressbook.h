@@ -64,6 +64,7 @@ private slots:
 private:
     void ensureAbookPath();
     void remonitorAdressbook();
+    static QString formatAddress(const QString &contactName, const QString &mail);
 
     QFileSystemWatcher *m_filesystemWatcher;
     QTimer *m_updateTimer;

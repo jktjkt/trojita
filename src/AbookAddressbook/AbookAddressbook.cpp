@@ -266,7 +266,7 @@ QStringList AbookAddressbook::complete(const QString &string, const QStringList 
             Q_FOREACH (const QString &mail, contactMails) {
                 if (ignore(mail, ignores))
                     continue;
-                list << contactName % QString(" <") % mail % QString(">");
+                list << formatAddress(contactName, mail);
                 if (list.count() == max)
                     return list;
             }
@@ -276,13 +276,21 @@ QStringList AbookAddressbook::complete(const QString &string, const QStringList 
             if (mail.startsWith(string, Qt::CaseInsensitive)) {
                 if (ignore(mail, ignores))
                     continue;
-                list << contactName % QString(" <") % mail % QString(">");
+                list << formatAddress(contactName, mail);
                 if (list.count() == max)
                     return list;
             }
         }
     }
     return list;
+}
+
+QString AbookAddressbook::formatAddress(const QString &contactName, const QString &mail)
+{
+    if (contactName.isEmpty() || contactName == mail)
+        return mail;
+    else
+        return contactName % QLatin1String(" <") % mail % QLatin1String(">");
 }
 
 QStringList AbookAddressbook::prettyNamesForAddress(const QString &mail) const
