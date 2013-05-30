@@ -2171,6 +2171,14 @@ void MainWindow::undoLayoutOneAtTimeCraziness()
     disconnect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
     m_mainToolbar->removeAction(m_oneAtTimeGoBack);
     msgListWidget->tree->setAutoActivateAfterKeyNavigation(true);
+
+    // The size of the widgets is still wrong. Let's fix this.
+    if (isMaximized()) {
+        showNormal();
+        showMaximized();
+    } else {
+        resize(sizeHint());
+    }
 }
 
 void MainWindow::slotOneAtTimeGoBack()
