@@ -255,14 +255,21 @@ static inline bool ignore(const QString &string, const QStringList &ignores)
 
 QStringList AbookAddressbook::complete(const QString &string, const QStringList &ignores, int max) const
 {
+    if (string.isEmpty())
+        return QStringList();
     QStringList list;
+    // In e-mail addresses, dot, dash, _ and @ shall be treated as delimiters
+    QRegExp mailMatch = QRegExp(QString::fromUtf8("[\\.\\-_@]%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
+    // In human readable names, match on word boundaries
+    QRegExp nameMatch = QRegExp(QString::fromUtf8("\\b%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
+    // These REs are still not perfect, they won't match on e.g. ".net" or "-project", but screw these I say
     for (int i = 0; i < m_contacts->rowCount(); ++i) {
         QStandardItem *item = m_contacts->item(i);
         QString contactName = item->data(Name).toString();
         // FIXME: this is an adapted copy-paste from LocalAddressbook which worked with QStringLists for multiple mails
         QStringList contactMails;
         contactMails << item->data(Mail).toString();
-        if (contactName.startsWith(string, Qt::CaseInsensitive)) {
+        if (contactName.contains(nameMatch)) {
             Q_FOREACH (const QString &mail, contactMails) {
                 if (ignore(mail, ignores))
                     continue;
@@ -273,7 +280,9 @@ QStringList AbookAddressbook::complete(const QString &string, const QStringList 
             continue;
         }
         Q_FOREACH (const QString &mail, contactMails) {
-            if (mail.startsWith(string, Qt::CaseInsensitive)) {
+            if (mail.startsWith(string, Qt::CaseInsensitive) ||
+                    // don't match on the TLD
+                    mail.section(QLatin1Char('.'), 0, -2).contains(mailMatch)) {
                 if (ignore(mail, ignores))
                     continue;
                 list << formatAddress(contactName, mail);
