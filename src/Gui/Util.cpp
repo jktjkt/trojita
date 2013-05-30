@@ -38,8 +38,6 @@
 
 namespace {
 
-#ifdef Q_WS_X11
-
 bool isRunningKde4()
 {
     return qgetenv("KDE_SESSION_VERSION") == "4";
@@ -76,8 +74,6 @@ QString kdeHome()
     }
     return kdeHomePath;
 }
-
-#endif
 
 }
 
@@ -154,7 +150,6 @@ QFont systemMonospaceFont()
     static QFont font;
 
     if (!initialized) {
-#ifdef Q_WS_X11
         if (isRunningKde4()) {
             // This part was shamelessly inspired by Qt4's src/gui/kernel/qapplication_x11.cpp
             QSettings kdeSettings(::kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
@@ -192,7 +187,6 @@ QFont systemMonospaceFont()
                 initialized = true;
             }
         }
-#endif
     }
 
     if (!initialized) {
@@ -201,7 +195,18 @@ QFont systemMonospaceFont()
         // but the following works well -- at first, we come up with a made-up name, and then
         // let the Qt font substitution algorithm do its magic.
         font = QFont(QLatin1String("x-trojita-terminus-like-fixed-width"));
+        // Using QFont::Monospace results in a proportional font on jkt's system
         font.setStyleHint(QFont::TypeWriter);
+
+        // Gnome, Mac and perhaps everyone else uses 10pt as the default font size, so let's use that as well
+        int defaultPointSize = 10;
+        if (isRunningKde4()) {
+            // kdeui/kernel/kglobalsettings.cpp from KDELIBS sets default fixed font size to 9 on X11. Let's hope nobody runs
+            // this desktop-GUI-specific code *with KDE* under Harmattan or Mac. Seriously.
+            defaultPointSize = 9;
+
+        }
+        font.setPointSize(defaultPointSize);
     }
 
     return font;
