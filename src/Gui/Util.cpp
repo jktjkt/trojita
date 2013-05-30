@@ -38,8 +38,6 @@
 
 namespace {
 
-#ifdef Q_WS_X11
-
 bool isRunningKde4()
 {
     return qgetenv("KDE_SESSION_VERSION") == "4";
@@ -76,8 +74,6 @@ QString kdeHome()
     }
     return kdeHomePath;
 }
-
-#endif
 
 }
 
@@ -154,7 +150,6 @@ QFont systemMonospaceFont()
     static QFont font;
 
     if (!initialized) {
-#ifdef Q_WS_X11
         if (isRunningKde4()) {
             // This part was shamelessly inspired by Qt4's src/gui/kernel/qapplication_x11.cpp
             QSettings kdeSettings(::kdeHome() + QLatin1String("/share/config/kdeglobals"), QSettings::IniFormat);
@@ -192,7 +187,6 @@ QFont systemMonospaceFont()
                 initialized = true;
             }
         }
-#endif
     }
 
     if (!initialized) {
