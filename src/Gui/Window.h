@@ -205,6 +205,7 @@ private:
     void migrateSettings();
     void applySizesAndState();
     QString settingsKeyForLayout(const LayoutMode layout);
+    void undoLayoutOneAtTimeCraziness();
 
     void recoverDrafts();
     void createSysTray();

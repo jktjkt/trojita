@@ -2091,6 +2091,7 @@ void MainWindow::slotLayoutCompact()
     setMinimumWidth(MINIMUM_WIDTH_NORMAL);
 
     delete m_mainStack;
+    undoLayoutOneAtTimeCraziness();
 
     m_layoutMode = LAYOUT_COMPACT;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
@@ -2122,6 +2123,7 @@ void MainWindow::slotLayoutWide()
 
     delete m_mainStack;
     delete m_mainVSplitter;
+    undoLayoutOneAtTimeCraziness();
 
     m_layoutMode = LAYOUT_WIDE;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
@@ -2158,6 +2160,17 @@ void MainWindow::slotLayoutOneAtTime()
     m_layoutMode = LAYOUT_ONE_AT_TIME;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
     applySizesAndState();
+}
+
+/** @short Undo whatever crazy modification were required for the "one at a time" layout madness */
+void MainWindow::undoLayoutOneAtTimeCraziness()
+{
+    disconnect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    disconnect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    disconnect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    disconnect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
+    m_mainToolbar->removeAction(m_oneAtTimeGoBack);
+    msgListWidget->tree->setAutoActivateAfterKeyNavigation(true);
 }
 
 void MainWindow::slotOneAtTimeGoBack()
