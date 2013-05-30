@@ -56,7 +56,8 @@ SOURCES += \
     ProgressPopUp.cpp \
     OverlayWidget.cpp \
     EnvelopeView.cpp \
-    ReplaceCharValidator.cpp
+    ReplaceCharValidator.cpp \
+    OnePanelAtTimeWidget.cpp
 HEADERS += \
     ../Imap/Model/ModelTest/modeltest.h \
     ComposeWidget.h \
@@ -98,7 +99,8 @@ HEADERS += \
     ProgressPopUp.h \
     OverlayWidget.h \
     EnvelopeView.h \
-    ReplaceCharValidator.h
+    ReplaceCharValidator.h \
+    OnePanelAtTimeWidget.h
 FORMS += CreateMailboxDialog.ui \
     ComposeWidget.ui \
     SettingsImapPage.ui \

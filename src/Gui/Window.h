@@ -174,8 +174,6 @@ private slots:
     void slotLayoutCompact();
     void slotLayoutWide();
     void slotLayoutOneAtTime();
-    void slotOneAtTimeGoBack();
-    void slotOneAtTimeGoDeeper();
     void saveSizesAndState(const LayoutMode oldMode);
     void saveSizesAndState();
 
@@ -205,7 +203,6 @@ private:
     void migrateSettings();
     void applySizesAndState();
     QString settingsKeyForLayout(const LayoutMode layout);
-    void undoLayoutOneAtTimeCraziness();
 
     void recoverDrafts();
     void createSysTray();
