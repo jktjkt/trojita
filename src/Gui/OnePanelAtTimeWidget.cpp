@@ -84,11 +84,15 @@ void OnePanelAtTimeWidget::slotOneAtTimeGoBack()
 
 void OnePanelAtTimeWidget::slotOneAtTimeGoDeeper()
 {
+    QWidget *w = qobject_cast<QWidget*>(sender());
+    Q_ASSERT(w);
+
     // Careful here: some of the events are, unfortunately, emitted twice (one for clicked(), another time for activated())
-    if (sender() == m_msgListWidget->tree)
-        setCurrentIndex(indexOf(m_msgListWidget) + 1);
-    else if (sender() == m_mboxTree)
-        setCurrentIndex(indexOf(static_cast<QWidget*>(sender())) + 1);
+    if (!w->isVisible())
+        return;
+
+    if (currentIndex() < count() - 1)
+        setCurrentIndex(currentIndex() + 1);
 
     m_actionGoBack->setEnabled(currentIndex() > 0);
 }
