@@ -35,7 +35,7 @@
 
 namespace Gui {
 
-EnvelopeView::EnvelopeView(QWidget *parent): QLabel(parent)
+EnvelopeView::EnvelopeView(QWidget *parent, MessageView *messageView): QLabel(parent)
 {
     // we create a dummy header, pass it through the style and the use it's color roles so we
     // know what headers in general look like in the system
@@ -53,6 +53,10 @@ EnvelopeView::EnvelopeView(QWidget *parent): QLabel(parent)
     int iconSize = fm.boundingRect(QLatin1Char('M')).height();
     contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-known.svg"), iconSize);
     contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-unknown.svgz"), iconSize);
+
+    connect(this, SIGNAL(linkActivated(QString)), messageView, SLOT(headerLinkActivated(QString)));
+    connect(this, SIGNAL(addressDetailsRequested(QString,QStringList&)),
+            messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)));
 }
 
 /** @short */
@@ -160,14 +164,6 @@ void EnvelopeView::onLinkHovered(const QString &target)
         setToolTip(QString());
         return;
     }
-}
-
-
-void EnvelopeView::connectWithMessageView(MessageView *messageView)
-{
-    connect(this, SIGNAL(linkActivated(QString)), messageView, SLOT(headerLinkActivated(QString)));
-    connect(this, SIGNAL(addressDetailsRequested(QString,QStringList&)),
-            messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)));
 }
 
 }

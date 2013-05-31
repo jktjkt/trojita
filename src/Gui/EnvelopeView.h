@@ -40,11 +40,9 @@ class EnvelopeView : public QLabel
 {
     Q_OBJECT
 public:
-    explicit EnvelopeView(QWidget *parent=0);
+    EnvelopeView(QWidget *parent, MessageView *messageView);
 
     void setMessage(const QModelIndex &index);
-
-    void connectWithMessageView(MessageView *messageView);
 
 signals:
     /** Emitted when requesting a list of addresses for a given mail */

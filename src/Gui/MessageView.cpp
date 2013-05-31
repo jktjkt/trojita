@@ -89,8 +89,7 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     headerSection->setAutoFillBackground(true);
 
     // the actual mail header
-    m_envelope = new EnvelopeView(headerSection);
-    m_envelope->connectWithMessageView(this);
+    m_envelope = new EnvelopeView(headerSection, this);
 
     // the tag bar
     tags = new TagListWidget(headerSection);
