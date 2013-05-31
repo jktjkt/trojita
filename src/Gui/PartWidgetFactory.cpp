@@ -21,6 +21,7 @@
 */
 #include "PartWidgetFactory.h"
 #include "AttachmentView.h"
+#include "MessageView.h" // so that the ocmpiler knows that it's an QObject
 #include "LoadablePartWidget.h"
 #include "PartWidget.h"
 #include "SimplePartWidget.h"
@@ -41,9 +42,8 @@
 namespace Gui
 {
 
-PartWidgetFactory::PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter,
-                                     QObject *guiInteractionTarget, MessageView *messageView):
-    manager(manager), wheelEventFilter(wheelEventFilter), guiInteractionTarget(guiInteractionTarget), m_messageView(messageView)
+PartWidgetFactory::PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, MessageView *messageView):
+    manager(manager), m_messageView(messageView)
 {
 }
 
@@ -154,17 +154,17 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             QWidget *widget = 0;
             if (showDirectly) {
                 widget = new SimplePartWidget(0, manager, partIndex);
-                static_cast<SimplePartWidget*>(widget)->connectGuiInteractionEvents(guiInteractionTarget);
+                static_cast<SimplePartWidget*>(widget)->connectGuiInteractionEvents(m_messageView);
 
             } else if (model->isNetworkAvailable()) {
-                widget = new LoadablePartWidget(0, manager, partIndex, wheelEventFilter, guiInteractionTarget,
+                widget = new LoadablePartWidget(0, manager, partIndex, m_messageView,
                                                 loadingMode == LOAD_ON_SHOW && part->octets() <= ExpensiveFetchThreshold ?
                                                     LoadablePartWidget::LOAD_ON_SHOW :
                                                     LoadablePartWidget::LOAD_ON_CLICK);
             } else {
                 widget = new QLabel(tr("Offline"), 0);
             }
-            widget->installEventFilter(wheelEventFilter);
+            widget->installEventFilter(m_messageView);
             return widget;
         } else {
             return new AttachmentView(0, manager, partIndex);

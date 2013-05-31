@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "LoadablePartWidget.h"
+#include "Gui/MessageView.h" // so that the ocmpiler knows that it's an QObject
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Utils.h"
 
@@ -29,9 +30,9 @@ namespace Gui
 {
 
 LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex  &part,
-                                       QObject *wheelEventFilter, QObject *guiInteractionTarget, const LoadingTriggerMode mode):
-    QStackedWidget(parent), manager(manager), partIndex(part), realPart(0), wheelEventFilter(wheelEventFilter),
-    guiInteractionTarget(guiInteractionTarget), loadButton(0), m_loadOnShow(mode == LOAD_ON_SHOW)
+                                       MessageView *messageView, const LoadingTriggerMode mode):
+    QStackedWidget(parent), manager(manager), partIndex(part), m_messageView(messageView), realPart(0),
+    loadButton(0), m_loadOnShow(mode == LOAD_ON_SHOW)
 {
     Q_ASSERT(partIndex.isValid());
     if (mode == LOAD_ON_CLICK) {
@@ -56,8 +57,8 @@ void LoadablePartWidget::loadClicked()
         loadButton = 0;
     }
     realPart = new SimplePartWidget(this, manager, partIndex);
-    realPart->installEventFilter(wheelEventFilter);
-    realPart->connectGuiInteractionEvents(guiInteractionTarget);
+    realPart->installEventFilter(m_messageView);
+    realPart->connectGuiInteractionEvents(m_messageView);
     addWidget(realPart);
     setCurrentIndex(1);
 }

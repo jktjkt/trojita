@@ -44,15 +44,12 @@ public:
         LOAD_ON_SHOW /**< @short Load the parts only after they have been shown to the user */
     } PartLoadingMode;
 
-    PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, QObject *wheelEventFilter, QObject *guiInteractionTarget,
-                      MessageView *messageView);
+    PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, MessageView *messageView);
     QWidget *create(const QModelIndex &partIndex);
     QWidget *create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingMode loadingMode = LOAD_IMMEDIATELY);
     MessageView *messageView() const;
 private:
     Imap::Network::MsgPartNetAccessManager *manager;
-    QObject *wheelEventFilter;
-    QObject *guiInteractionTarget;
     MessageView *m_messageView;
 
     PartWidgetFactory(const PartWidgetFactory &); // don't implement
