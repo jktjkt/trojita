@@ -30,6 +30,7 @@
 #include <QWebFrame>
 
 #include "SimplePartWidget.h"
+#include "Gui/MessageView.h" // so that the compiler knows that it's a QObject
 #include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
@@ -39,7 +40,8 @@
 namespace Gui
 {
 
-SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
+SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
+                                   const QModelIndex &partIndex, MessageView *messageView):
     EmbeddedWebView(parent, manager), m_partIndex(partIndex), m_netAccessManager(manager),
     flowedFormat(Composer::Util::FORMAT_PLAIN)
 {
@@ -68,6 +70,16 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     addAction(m_findAction);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
+
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), messageView, SLOT(partContextMenuRequested(QPoint)));
+    connect(this, SIGNAL(searchDialogRequested()), messageView, SLOT(triggerSearchDialog()));
+    // The targets expect the sender() of the signal to be a SimplePartWidget, not a QWebPage,
+    // which means we have to do this indirection
+    connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SIGNAL(linkHovered(QString,QString,QString)));
+    connect(this, SIGNAL(linkHovered(QString,QString,QString)),
+            messageView, SLOT(partLinkHovered(QString,QString,QString)));
+
+    installEventFilter(messageView);
 }
 
 void SimplePartWidget::slotMarkupPlainText() {
@@ -177,20 +189,6 @@ void SimplePartWidget::reloadContents()
 QList<QAction *> SimplePartWidget::contextMenuSpecificActions() const
 {
     return QList<QAction*>() << m_savePart << m_saveMessage << m_findAction;
-}
-
-/** @short Connect various signals which require a certain reaction from the rest of the GUI */
-void SimplePartWidget::connectGuiInteractionEvents(QObject *guiInteractionTarget)
-{
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), guiInteractionTarget, SLOT(partContextMenuRequested(QPoint)));
-
-    // The targets expect the sender() of the signal to be a SimplePartWidget, not a QWebPage,
-    // which means we have to do this indirection
-    connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SIGNAL(linkHovered(QString,QString,QString)));
-    connect(this, SIGNAL(linkHovered(QString,QString,QString)),
-            guiInteractionTarget, SLOT(partLinkHovered(QString,QString,QString)));
-
-    connect(this, SIGNAL(searchDialogRequested()), guiInteractionTarget, SLOT(triggerSearchDialog()));
 }
 
 void SimplePartWidget::slotDownloadPart()

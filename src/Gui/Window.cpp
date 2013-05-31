@@ -1728,7 +1728,8 @@ void MainWindow::slotViewMsgHeaders()
         netAccess->setModelMessage(messageIndex);
 
         SimplePartWidget *headers = new SimplePartWidget(0, netAccess,
-                                        messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex));
+                                        messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex),
+                                                         0);
         headers->setAttribute(Qt::WA_DeleteOnClose);
         connect(headers, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
         QAction *close = new QAction(loadIcon(QLatin1String("window-close")), tr("Close"), headers);

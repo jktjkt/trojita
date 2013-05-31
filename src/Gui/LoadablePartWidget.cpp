@@ -56,9 +56,7 @@ void LoadablePartWidget::loadClicked()
         loadButton->deleteLater();
         loadButton = 0;
     }
-    realPart = new SimplePartWidget(this, manager, partIndex);
-    realPart->installEventFilter(m_messageView);
-    realPart->connectGuiInteractionEvents(m_messageView);
+    realPart = new SimplePartWidget(this, manager, partIndex, m_messageView);
     addWidget(realPart);
     setCurrentIndex(1);
 }

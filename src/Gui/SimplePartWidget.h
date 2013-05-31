@@ -43,6 +43,8 @@ class MsgPartNetAccessManager;
 namespace Gui
 {
 
+class MessageView;
+
 /** @short Widget that handles display of primitive message parts
 
 More complicated parts are handled by other widgets. Role of this one is to
@@ -53,11 +55,11 @@ class SimplePartWidget : public EmbeddedWebView, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex);
+    SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex,
+                     MessageView *messageView);
     virtual QString quoteMe() const;
     virtual void reloadContents();
     QList<QAction *> contextMenuSpecificActions() const;
-    void connectGuiInteractionEvents(QObject *guiInteractionTarget);
 private slots:
     void slotTransferError(const QString &errorString);
     void slotFileNameRequested(QString *fileName);

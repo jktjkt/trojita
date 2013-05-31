@@ -153,9 +153,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
 
             QWidget *widget = 0;
             if (showDirectly) {
-                widget = new SimplePartWidget(0, manager, partIndex);
-                static_cast<SimplePartWidget*>(widget)->connectGuiInteractionEvents(m_messageView);
-
+                widget = new SimplePartWidget(0, manager, partIndex, m_messageView);
             } else if (model->isNetworkAvailable()) {
                 widget = new LoadablePartWidget(0, manager, partIndex, m_messageView,
                                                 loadingMode == LOAD_ON_SHOW && part->octets() <= ExpensiveFetchThreshold ?
@@ -164,7 +162,6 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             } else {
                 widget = new QLabel(tr("Offline"), 0);
             }
-            widget->installEventFilter(m_messageView);
             return widget;
         } else {
             return new AttachmentView(0, manager, partIndex);
