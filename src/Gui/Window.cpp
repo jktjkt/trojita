@@ -70,6 +70,7 @@
 #include "MessageView.h"
 #include "MessageSourceWidget.h"
 #include "MsgListView.h"
+#include "OnePanelAtTimeWidget.h"
 #include "PasswordDialog.h"
 #include "ProtocolLoggerWidget.h"
 #include "SettingsDialog.h"
@@ -275,7 +276,6 @@ void MainWindow::createActions()
     m_oneAtTimeGoBack = new QAction(loadIcon(QLatin1String("go-previous")), tr("Navigate Back"), this);
     m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
     m_oneAtTimeGoBack->setEnabled(false);
-    connect(m_oneAtTimeGoBack, SIGNAL(triggered()), this, SLOT(slotOneAtTimeGoBack()));
 
     composeMail = ShortcutHandler::instance()->createAction("action_compose_mail", this, SLOT(slotComposeMail()), this);
     m_editDraft = ShortcutHandler::instance()->createAction("action_compose_draft", this, SLOT(slotEditDraft()), this);
@@ -2134,49 +2134,16 @@ void MainWindow::slotLayoutOneAtTime()
     if (m_mainStack)
         return;
 
-    m_mainStack = new QStackedWidget();
-    m_mainStack->addWidget(mboxTree);
-    m_mainStack->addWidget(msgListWidget);
-    m_mainStack->addWidget(m_messageWidget);
-    m_mainStack->setCurrentWidget(mboxTree);
+    m_mainStack = new OnePanelAtTimeWidget(this, mboxTree, msgListWidget, m_messageWidget, m_mainToolbar, m_oneAtTimeGoBack);
     setCentralWidget(m_mainStack);
     setMinimumWidth(MINIMUM_WIDTH_NORMAL);
 
     delete m_mainHSplitter;
     delete m_mainVSplitter;
 
-    // The list view is configured to auto-emit activated(QModelIndex) after a short while when the user has navigated
-    // to an index through keyboard. Of course, this doesn't play terribly well with this layout.
-    msgListWidget->tree->setAutoActivateAfterKeyNavigation(false);
-
-    connect(msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
-    connect(msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
-    connect(mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
-    connect(mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
-    m_mainToolbar->addAction(m_oneAtTimeGoBack);
-
     m_layoutMode = LAYOUT_ONE_AT_TIME;
     QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
     applySizesAndState();
-}
-
-void MainWindow::slotOneAtTimeGoBack()
-{
-    if (m_mainStack->currentIndex() > 0)
-        m_mainStack->setCurrentIndex(m_mainStack->currentIndex() - 1);
-
-    m_oneAtTimeGoBack->setEnabled(m_mainStack->currentIndex() > 0);
-}
-
-void MainWindow::slotOneAtTimeGoDeeper()
-{
-    // Careful here: some of the events are, unfortunately, emitted twice (one for clicked(), another time for activated())
-    if (sender() == msgListWidget->tree)
-        m_mainStack->setCurrentIndex(m_mainStack->indexOf(msgListWidget) + 1);
-    else if (sender() == mboxTree)
-        m_mainStack->setCurrentIndex(m_mainStack->indexOf(static_cast<QWidget*>(sender())) + 1);
-
-    m_oneAtTimeGoBack->setEnabled(m_mainStack->currentIndex() > 0);
 }
 
 Imap::Mailbox::Model *MainWindow::imapModel() const

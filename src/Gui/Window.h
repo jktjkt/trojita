@@ -174,8 +174,6 @@ private slots:
     void slotLayoutCompact();
     void slotLayoutWide();
     void slotLayoutOneAtTime();
-    void slotOneAtTimeGoBack();
-    void slotOneAtTimeGoDeeper();
     void saveSizesAndState(const LayoutMode oldMode);
     void saveSizesAndState();
 
