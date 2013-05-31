@@ -2247,6 +2247,10 @@ void MainWindow::saveSizesAndState(const LayoutMode oldMode)
     items << (m_mainVSplitter ? m_mainVSplitter->saveState() : QByteArray());
     items << (m_mainHSplitter ? m_mainHSplitter->saveState() : QByteArray());
     items << msgListWidget->tree->header()->saveState();
+    items << QByteArray::number(msgListWidget->tree->header()->count());
+    for (int i = 0; i < msgListWidget->tree->header()->count(); ++i) {
+        items << QByteArray::number(msgListWidget->tree->header()->sectionSize(i));
+    }
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::WriteOnly);
     stream << items.size();
@@ -2304,6 +2308,20 @@ void MainWindow::applySizesAndState()
         msgListWidget->tree->header()->restoreState(item);
         // got to manually update the state of the actions which control the visibility state
         msgListWidget->tree->updateActionsAfterRestoredState();
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        bool ok;
+        int columns = item.toInt(&ok);
+        if (ok) {
+            for (int i = 0; i < columns && size-- && !stream.atEnd(); ++i) {
+                stream >> item;
+                int sectionSize = item.toInt();
+                // fun fact: user cannot resize by mouse when size <= 0
+                msgListWidget->tree->setColumnWidth(i, sectionSize > 0 ? sectionSize : msgListWidget->tree->sizeHintForColumn(i));
+            }
+        }
     }
 }
 

@@ -50,10 +50,10 @@ public:
     void setModel(QAbstractItemModel *model);
     void setAutoActivateAfterKeyNavigation(bool enabled);
     void updateActionsAfterRestoredState();
+    virtual int sizeHintForColumn(int column) const;
 protected:
     void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);
-    virtual int sizeHintForColumn(int column) const;
     virtual void startDrag(Qt::DropActions supportedActions);
 private slots:
     void slotFixSize();
