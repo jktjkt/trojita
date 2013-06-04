@@ -124,6 +124,9 @@ MainWindow::MainWindow(): QMainWindow(), model(0),
     }
 
 
+    // TODO write more addressbook backends and make this configurable
+    m_addressBook = new AbookAddressbook();
+
     setupModels();
     createActions();
     createMenus();
@@ -743,9 +746,6 @@ void MainWindow::setupModels()
     connect(model->taskModel(), SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)), taskTree, SLOT(expandAll()));
 
     busyParsersIndicator->setImapModel(model);
-
-    // TODO write more addressbook backends and make this configurable
-    m_addressBook = new AbookAddressbook();
 }
 
 void MainWindow::createSysTray()
