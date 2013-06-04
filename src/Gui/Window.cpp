@@ -1062,6 +1062,7 @@ void MainWindow::slotShowSettings()
         QMessageBox::critical(this, tr("No Configuration"),
                               trUtf8("No IMAP account is configured. Trojitá cannot do much without one."));
     }
+    applySizesAndState();
 }
 
 void MainWindow::authenticationRequested()
