@@ -81,15 +81,6 @@ public:
     QMimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device) const;
     QMimeType mimeTypeForFileNameAndData(const QString &fileName, const QByteArray &data) const;
 
-#if true == false
-    QT_DEPRECATED QMimeType mimeTypeForNameAndData(const QString &fileName, QIODevice *device) const {
-        return mimeTypeForFileNameAndData(fileName, device);
-    }
-    QT_DEPRECATED QMimeType mimeTypeForNameAndData(const QString &fileName, const QByteArray &data) const {
-        return mimeTypeForFileNameAndData(fileName, data);
-    }
-#endif
-
     QString suffixForFileName(const QString &fileName) const;
 
     QList<QMimeType> allMimeTypes() const;
