@@ -1054,6 +1054,8 @@ void MainWindow::slotShowSettings()
         nukeModels();
         setupModels();
         connectModelActions();
+        // The systray is still connected to the old model -- got to make sure it's getting updated
+        removeSysTray();
         slotToggleSysTray();
     }
     QString method = QSettings().value(Common::SettingsNames::imapMethodKey).toString();
