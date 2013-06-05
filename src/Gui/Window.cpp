@@ -851,8 +851,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::slotIconActivated(const QSystemTrayIcon::ActivationReason reason)
 {
-    if (reason == QSystemTrayIcon::Trigger)
+    if (reason == QSystemTrayIcon::Trigger) {
         setVisible(!isVisible());
+        if (isVisible()) {
+            activateWindow();
+            raise();
+        }
+    }
  }
 
 void MainWindow::msgListClicked(const QModelIndex &index)
