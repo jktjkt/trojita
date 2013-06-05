@@ -775,10 +775,6 @@ void MainWindow::createSysTray()
 
 void MainWindow::removeSysTray()
 {
-    if (!m_trayIcon)
-        return;
-
-    m_trayIcon->hide();
     delete m_trayIcon;
     m_trayIcon = 0;
 }
