@@ -775,10 +775,6 @@ void MainWindow::createSysTray()
 
 void MainWindow::removeSysTray()
 {
-    if (!m_trayIcon)
-        return;
-
-    m_trayIcon->hide();
     delete m_trayIcon;
     m_trayIcon = 0;
 }
@@ -1054,6 +1050,8 @@ void MainWindow::slotShowSettings()
         nukeModels();
         setupModels();
         connectModelActions();
+        // The systray is still connected to the old model -- got to make sure it's getting updated
+        removeSysTray();
         slotToggleSysTray();
     }
     QString method = QSettings().value(Common::SettingsNames::imapMethodKey).toString();
