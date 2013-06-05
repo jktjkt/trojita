@@ -174,7 +174,6 @@ private slots:
     void slotLayoutCompact();
     void slotLayoutWide();
     void slotLayoutOneAtTime();
-    void saveSizesAndState(const LayoutMode oldMode);
     void saveSizesAndState();
 
     void desktopGeometryChanged();

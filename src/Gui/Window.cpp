@@ -1065,6 +1065,7 @@ void MainWindow::slotShowSettings()
         QMessageBox::critical(this, tr("No Configuration"),
                               trUtf8("No IMAP account is configured. Trojitá cannot do much without one."));
     }
+    applySizesAndState();
 }
 
 void MainWindow::authenticationRequested()
@@ -2183,11 +2184,6 @@ void MainWindow::desktopGeometryChanged()
     saveSizesAndState();
 }
 
-void MainWindow::saveSizesAndState()
-{
-    saveSizesAndState(m_layoutMode);
-}
-
 QString MainWindow::settingsKeyForLayout(const LayoutMode layout)
 {
     switch (layout) {
@@ -2202,13 +2198,13 @@ QString MainWindow::settingsKeyForLayout(const LayoutMode layout)
     return QString();
 }
 
-void MainWindow::saveSizesAndState(const LayoutMode oldMode)
+void MainWindow::saveSizesAndState()
 {
     if (m_skipSavingOfUI)
         return;
 
     QRect geometry = qApp->desktop()->availableGeometry(this);
-    QString key = settingsKeyForLayout(oldMode);
+    QString key = settingsKeyForLayout(m_layoutMode);
     if (key.isEmpty())
         return;
 
