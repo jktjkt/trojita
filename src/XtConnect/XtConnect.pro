@@ -16,7 +16,7 @@ SOURCES += \
     SqlStorage.cpp \
     XtCache.cpp \
     xsqlquery.cpp
-HEADERS += ComposeWidget.h \
+HEADERS += \
     MailSynchronizer.h \
     MailboxFinder.h \
     XtConnect.h \
@@ -25,7 +25,7 @@ HEADERS += ComposeWidget.h \
     XtCache.h \
     xsqlquery.h
 
-trojita_libs = Imap MSA Streams Common
+trojita_libs = Imap MSA Streams Common AppVersion
 
 myprefix = ../
 include(../linking.pri)
