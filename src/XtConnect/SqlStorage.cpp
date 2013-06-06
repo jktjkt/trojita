@@ -113,7 +113,9 @@ SqlStorage::ResultType SqlStorage::insertMail( const QDateTime &dateTime, const 
     }
 
     _queryInsertMail.bindValue( ":eml_hash", hashValue );
-    _queryInsertMail.bindValue( ":eml_date", dateTime );
+    // Use ISODate, because it will specify that the time is in UTC.
+    // Otherwise time is assumed to be local which would be bad
+    _queryInsertMail.bindValue( ":eml_date", dateTime.toString(Qt::ISODate));
     _queryInsertMail.bindValue( ":eml_subj", subject );
     _queryInsertMail.bindValue( ":eml_body", readableText );
     _queryInsertMail.bindValue( ":eml_msg", headers + body);
