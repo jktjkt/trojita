@@ -154,7 +154,7 @@ void MailSynchronizer::slotMessageDataReady( const QModelIndex &message, const Q
                           QString::fromUtf8("Warning: unknown timestamp for UID %1 in %2 - using current one").arg(
                               message.data(Imap::Mailbox::RoleMessageUid).toString(),
                               message.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()));
-        dateTime = QDateTime::currentDateTime();
+        dateTime = QDateTime::currentDateTimeUtc();
     }
 
     quint64 emlId;
