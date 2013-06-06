@@ -25,6 +25,7 @@
 
 #include <QByteArray>
 #include <QPair>
+#include <QVariant>
 
 namespace Imap {
 namespace Mailbox {
