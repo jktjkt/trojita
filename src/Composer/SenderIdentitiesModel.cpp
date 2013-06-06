@@ -58,7 +58,7 @@ int SenderIdentitiesModel::rowCount(const QModelIndex &parent) const
     return m_identities.size();
 }
 
-QVariant SenderIdentitiesModel::data(const QModelIndex &index, const int role) const
+QVariant SenderIdentitiesModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= m_identities.size() || index.column() >= COLUMN_LAST)
         return QVariant();
