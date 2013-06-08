@@ -124,6 +124,7 @@ private:
 
     mutable QSqlQuery queryChildMailboxes;
     mutable QSqlQuery queryChildMailboxesFresh;
+    mutable QSqlQuery queryRemoveChildMailboxes;
     mutable QSqlQuery querySetChildMailboxes;
     mutable QSqlQuery queryMailboxSyncState;
     mutable QSqlQuery querySetMailboxSyncState;

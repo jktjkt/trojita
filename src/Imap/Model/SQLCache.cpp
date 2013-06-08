@@ -297,6 +297,12 @@ bool SQLCache::prepareQueries()
         return false;
     }
 
+    queryRemoveChildMailboxes = QSqlQuery(db);
+    if (!queryRemoveChildMailboxes.prepare(QLatin1String("DELETE FROM child_mailboxes WHERE parent = ?"))) {
+        emitError(tr("Failed to prepare queryRemoveChildMailboxes"), queryRemoveChildMailboxes);
+        return false;
+    }
+
     querySetChildMailboxes = QSqlQuery(db);
     if (! querySetChildMailboxes.prepare(QLatin1String("INSERT OR REPLACE INTO child_mailboxes ( mailbox, parent, separator, flags ) VALUES (?, ?, ?, ?)"))) {
         emitError(tr("Failed to prepare querySetChildMailboxes"), querySetChildMailboxes);
@@ -498,6 +504,11 @@ void SQLCache::setChildMailboxes(const QString &mailbox, const QList<MailboxMeta
         stream.setVersion(streamVersion);
         stream << item.flags;
         flagsFelds << buf;
+    }
+    queryRemoveChildMailboxes.bindValue(0, myMailbox);
+    if (!queryRemoveChildMailboxes.exec()) {
+        emitError(tr("Query queryRemoveChildMailboxes failed"), queryRemoveChildMailboxes);
+        return;
     }
     querySetChildMailboxes.bindValue(0, mailboxFields);
     querySetChildMailboxes.bindValue(1, parentFields);

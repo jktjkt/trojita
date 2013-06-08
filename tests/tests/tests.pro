@@ -17,7 +17,8 @@ SUBDIRS  = \
     test_Html_formatting \
     test_Rfc5322 \
     test_SenderIdentitiesModel \
-    test_Composer_Submission
+    test_Composer_Submission \
+    test_SqlCache
 
 # At first, we define the "check" target which simply propagates the "check" call below
 check.target = check
