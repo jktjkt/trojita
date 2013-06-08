@@ -41,6 +41,16 @@ struct MailboxMetadata {
     MailboxMetadata() {}
 };
 
+inline bool operator==(const MailboxMetadata &a, const MailboxMetadata &b)
+{
+    return a.mailbox == b.mailbox && a.separator == b.separator && a.flags == b.flags;
+}
+
+inline bool operator!=(const MailboxMetadata &a, const MailboxMetadata &b)
+{
+    return ! (a == b);
+}
+
 /** @short Class for keeping track of information from the SELECT command */
 class SyncState
 {
