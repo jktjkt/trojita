@@ -389,6 +389,12 @@ bool SQLCache::prepareQueries()
         return false;
     }
 
+    queryClearAllMessages4 = QSqlQuery(db);
+    if (! queryClearAllMessages4.prepare(QLatin1String("DELETE FROM msg_threading WHERE mailbox = ?"))) {
+        emitError(tr("Failed to prepare queryClearAllMessages4"), queryClearAllMessages4);
+        return false;
+    }
+
     queryClearMessage1 = QSqlQuery(db);
     if (! queryClearMessage1.prepare(QLatin1String("DELETE FROM msg_metadata WHERE mailbox = ? AND uid = ?"))) {
         emitError(tr("Failed to prepare queryClearMessage1"), queryClearMessage1);
@@ -610,6 +616,7 @@ void SQLCache::clearAllMessages(const QString &mailbox)
     queryClearAllMessages1.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     queryClearAllMessages2.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     queryClearAllMessages3.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
+    queryClearAllMessages4.bindValue(0, mailbox.isEmpty() ? QLatin1String("") : mailbox);
     if (! queryClearAllMessages1.exec()) {
         emitError(tr("Query queryClearAllMessages1 failed"), queryClearAllMessages1);
     }
@@ -619,6 +626,10 @@ void SQLCache::clearAllMessages(const QString &mailbox)
     if (! queryClearAllMessages3.exec()) {
         emitError(tr("Query queryClearAllMessages3 failed"), queryClearAllMessages3);
     }
+    if (! queryClearAllMessages4.exec()) {
+        emitError(tr("Query queryClearAllMessages4 failed"), queryClearAllMessages4);
+    }
+    clearUidMapping(mailbox);
 }
 
 void SQLCache::clearMessage(const QString mailbox, uint uid)

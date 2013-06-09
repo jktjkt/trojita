@@ -139,6 +139,7 @@ private:
     mutable QSqlQuery queryClearAllMessages1;
     mutable QSqlQuery queryClearAllMessages2;
     mutable QSqlQuery queryClearAllMessages3;
+    mutable QSqlQuery queryClearAllMessages4;
     mutable QSqlQuery queryClearMessage1;
     mutable QSqlQuery queryClearMessage2;
     mutable QSqlQuery queryClearMessage3;

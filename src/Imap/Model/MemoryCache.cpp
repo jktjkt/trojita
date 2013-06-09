@@ -90,6 +90,7 @@ void MemoryCache::clearAllMessages(const QString &mailbox)
     flags.remove(mailbox);
     msgMetadata.remove(mailbox);
     parts.remove(mailbox);
+    threads.remove(mailbox);
 }
 
 void MemoryCache::clearMessage(const QString mailbox, uint uid)
