@@ -51,13 +51,6 @@ void RFCCodecsTest::testIMAPEncoding()
   QVERIFY( decoded == "Test.Cl&AOE-udio" );
 }
 
-void RFCCodecsTest::testQuotes()
-{
-  QVERIFY( quoteIMAP( "tom\"allen" ) == "tom\\\"allen" );
-  QVERIFY( quoteIMAP( "tom\'allen" ) == "tom\'allen" );
-  QVERIFY( quoteIMAP( "tom\\allen" ) == "tom\\\\allen" );
-}
-
 void RFCCodecsTest::testDecodeRFC2047String()
 {
     QFETCH( QByteArray, raw );
