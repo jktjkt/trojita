@@ -24,6 +24,7 @@
 #include "test_Imap_Tasks_ListChildMailboxes.h"
 #include "../headless_test.h"
 #include "Streams/FakeSocket.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/Fake_ListChildMailboxesTask.h"
@@ -126,6 +127,25 @@ void ImapModelListChildMailboxesTest::testFakeListing()
     QCOMPARE( model->rowCount( idxA ), 3 );
     QCOMPARE( model->rowCount( idxB ), 1 );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
+}
+
+void ImapModelListChildMailboxesTest::testBackslashes()
+{
+    model->rowCount(QModelIndex());
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer("* LIST (\\HasNoChildren) \"/\" Drafts\r\n"
+            "* LIST (\\HasNoChildren) \"/\" {13}\r\nMail\\Papelera\r\n"
+            "* LIST () \"/\" INBOX\r\n"
+            + t.last("OK LIST completed\r\n"));
+    QCOMPARE(model->rowCount(QModelIndex()), 4);
+    QModelIndex withBackSlash = model->index(3, 0, QModelIndex());
+    QVERIFY(withBackSlash.isValid());
+    QCOMPARE(withBackSlash.data(Imap::Mailbox::RoleMailboxName).toString(), QString::fromUtf8("Mail\\Papelera"));
+    QCOMPARE(withBackSlash.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 0);
+    cClient(t.mk("STATUS \"Mail\\\\Papelera\" (MESSAGES UNSEEN RECENT)\r\n"));
+    cServer("* STATUS {13}\r\nMail\\Papelera (MESSAGES 1 RECENT 1 UNSEEN 1)\r\n" + t.last("OK status done\r\n"));
+    QCOMPARE(withBackSlash.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
+    cEmpty();
 }
 
 TROJITA_HEADLESS_TEST( ImapModelListChildMailboxesTest )

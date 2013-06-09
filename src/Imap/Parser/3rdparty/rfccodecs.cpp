@@ -264,5 +264,5 @@ QString KIMAP::encodeImapFolderName( const QString &inSrc )
     }
     dst += '-';
   }
-  return quoteIMAP( dst );
+  return dst;
 }
