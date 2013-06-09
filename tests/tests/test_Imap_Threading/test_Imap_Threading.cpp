@@ -1087,10 +1087,8 @@ void ImapModelThreadingTest::testDynamicSearch()
     justKeepTask();
 }
 
-void ImapModelThreadingTest::testThreadingPerformance()
+QByteArray ImapModelThreadingTest::prepareHugeUntaggedThread(const uint num)
 {
-    const uint num = 100000;
-    initialMessages(num);
     QString sampleThread = QLatin1String("(%1 (%2 %3 (%4)(%5 %6 %7))(%8 %9 %10))");
     QString linearThread = QLatin1String("(%1 %2 %3 %4 %5 %6 %7 %8 %9 %10)");
     QString flatThread = QLatin1String("(%1 (%2)(%3)(%4)(%5)(%6)(%7)(%8)(%9)(%10))");
@@ -1122,8 +1120,14 @@ void ImapModelThreadingTest::testThreadingPerformance()
                                 QString::number(i+8)).arg(QString::number(i+9));
     }
     response += QLatin1String("\r\n");
-    QByteArray untaggedThread = response.toUtf8();
+    return response.toUtf8();
+}
 
+void ImapModelThreadingTest::testThreadingPerformance()
+{
+    const uint num = 100000;
+    initialMessages(num);
+    QByteArray untaggedThread = prepareHugeUntaggedThread(num);
     QBENCHMARK {
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
         SOCK->fakeReading(untaggedThread + t.last("OK thread\r\n"));
