@@ -115,6 +115,8 @@ private:
     /** @short Initialize the database */
     void init();
 
+    static QString mailboxName(const QString &mailbox);
+
 private slots:
     /** @short We haven't committed for a while */
     void timeToCommit();
