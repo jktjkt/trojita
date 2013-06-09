@@ -352,8 +352,14 @@ CommandHandle Parser::sortHelper(const QByteArray &command, const QStringList &s
         Commands::PartOfCommand(Commands::ATOM, "(" + sortCriteria.join(QLatin1String(" ")).toUtf8() + ")" ) <<
         charset;
 
-    for (QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it)
-        cmd << it->toUtf8();
+    if (searchCriteria.size() == 1) {
+        // Hack: if it's just a single item, let's assume it's already well-formatted by the caller.
+        // This is required in the current shape of the API if we want to allow the user to type in their queries directly.
+        cmd << Commands::PartOfCommand(Commands::ATOM, searchCriteria.front().toUtf8());
+    } else {
+        for (QStringList::const_iterator it = searchCriteria.begin(); it != searchCriteria.end(); ++it)
+            cmd << it->toUtf8();
+    }
 
     return queueCommand(cmd);
 }
