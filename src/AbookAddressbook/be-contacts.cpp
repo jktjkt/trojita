@@ -43,8 +43,8 @@
 
 #include <QtDebug>
 
-#include "be.contacts.h"
-#include "ui_be.contacts.h"
+#include "be-contacts.h"
+#include "ui_be-contacts.h"
 #include "ui_onecontact.h"
 #include "AbookAddressbook/AbookAddressbook.h"
 

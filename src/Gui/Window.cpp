@@ -44,7 +44,7 @@
 #include <QUrl>
 
 #include "AbookAddressbook/AbookAddressbook.h"
-#include "AbookAddressbook/be.contacts.h"
+#include "AbookAddressbook/be-contacts.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SenderIdentitiesModel.h"
