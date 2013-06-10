@@ -21,15 +21,15 @@
 */
 
 #include "TaskPresentationModel.h"
-#include "GetAnyConnectionTask.h"
+#include "Imap/Tasks/GetAnyConnectionTask.h"
+#include "Imap/Tasks/KeepMailboxOpenTask.h"
+#include "Imap/Tasks/NoopTask.h"
+#include "Imap/Tasks/OpenConnectionTask.h"
+#include "Imap/Tasks/SortTask.h"
+#include "Imap/Tasks/UnSelectTask.h"
 #include "ItemRoles.h"
-#include "KeepMailboxOpenTask.h"
 #include "Model.h"
-#include "NoopTask.h"
-#include "OpenConnectionTask.h"
 #include "QAIM_reset.h"
-#include "SortTask.h"
-#include "UnSelectTask.h"
 
 #ifdef TROJITA_DEBUG_TASK_TREE
 #undef CHECK_TASK_TREE

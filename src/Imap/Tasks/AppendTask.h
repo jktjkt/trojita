@@ -23,8 +23,8 @@
 #ifndef IMAP_APPENDTASK_H
 #define IMAP_APPENDTASK_H
 
-#include "ImapTask.h"
 #include "Imap/Model/CatenateData.h"
+#include "ImapTask.h"
 
 namespace Imap
 {

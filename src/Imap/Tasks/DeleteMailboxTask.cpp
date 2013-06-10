@@ -22,10 +22,10 @@
 
 
 #include "DeleteMailboxTask.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/MailboxTree.h"
 #include "GetAnyConnectionTask.h"
-#include "ItemRoles.h"
-#include "Model.h"
-#include "MailboxTree.h"
 
 namespace Imap
 {

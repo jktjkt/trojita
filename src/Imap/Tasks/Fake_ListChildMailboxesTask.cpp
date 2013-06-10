@@ -22,10 +22,10 @@
 
 
 #include "Fake_ListChildMailboxesTask.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/TaskFactory.h"
 #include "GetAnyConnectionTask.h"
-#include "Model.h"
-#include "MailboxTree.h"
-#include "TaskFactory.h"
 
 namespace Imap
 {

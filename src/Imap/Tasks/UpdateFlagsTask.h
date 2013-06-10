@@ -24,7 +24,7 @@
 #define IMAP_UPDATEFLAGS_TASK_H
 
 #include <QPersistentModelIndex>
-#include "FlagsOperation.h"
+#include "Imap/Model/FlagsOperation.h"
 #include "ImapTask.h"
 
 namespace Imap

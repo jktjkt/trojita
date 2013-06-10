@@ -22,11 +22,11 @@
 
 #include "SortTask.h"
 #include <algorithm>
-#include "ItemRoles.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/TaskPresentationModel.h"
 #include "KeepMailboxOpenTask.h"
-#include "Model.h"
-#include "MailboxTree.h"
-#include "TaskPresentationModel.h"
 
 namespace Imap
 {

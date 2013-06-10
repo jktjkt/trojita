@@ -24,10 +24,10 @@
 #include <algorithm>
 #include <sstream>
 #include <QTimer>
-#include "ItemRoles.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
 #include "KeepMailboxOpenTask.h"
-#include "MailboxTree.h"
-#include "Model.h"
 #include "UnSelectTask.h"
 
 namespace Imap

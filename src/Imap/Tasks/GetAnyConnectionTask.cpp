@@ -22,8 +22,8 @@
 
 #include "GetAnyConnectionTask.h"
 #include <QTimer>
+#include "Imap/Model/MailboxTree.h"
 #include "KeepMailboxOpenTask.h"
-#include "MailboxTree.h"
 #include "OfflineConnectionTask.h"
 #include "OpenConnectionTask.h"
 

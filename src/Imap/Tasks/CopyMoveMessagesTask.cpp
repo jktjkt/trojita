@@ -22,12 +22,12 @@
 
 
 #include "CopyMoveMessagesTask.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/MailboxTree.h"
 #include "ExpungeMessagesTask.h"
-#include "ItemRoles.h"
 #include "KeepMailboxOpenTask.h"
 #include "UpdateFlagsTask.h"
-#include "Model.h"
-#include "MailboxTree.h"
 
 namespace Imap
 {

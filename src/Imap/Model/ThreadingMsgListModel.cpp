@@ -24,12 +24,12 @@
 #include <algorithm>
 #include <QBuffer>
 #include <QDebug>
+#include "Imap/Tasks/SortTask.h"
+#include "Imap/Tasks/ThreadTask.h"
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "MsgListModel.h"
 #include "QAIM_reset.h"
-#include "SortTask.h"
-#include "ThreadTask.h"
 
 #if 0
 namespace

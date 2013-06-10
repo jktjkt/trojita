@@ -22,16 +22,16 @@
 
 #include<sstream>
 #include "KeepMailboxOpenTask.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/TaskFactory.h"
 #include "FetchMsgMetadataTask.h"
 #include "FetchMsgPartTask.h"
+#include "IdleLauncher.h"
 #include "OpenConnectionTask.h"
 #include "ObtainSynchronizedMailboxTask.h"
 #include "OfflineConnectionTask.h"
-#include "IdleLauncher.h"
-#include "MailboxTree.h"
-#include "Model.h"
 #include "SortTask.h"
-#include "TaskFactory.h"
 #include "NoopTask.h"
 #include "UnSelectTask.h"
 

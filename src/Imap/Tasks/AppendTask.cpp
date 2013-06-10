@@ -22,9 +22,9 @@
 
 
 #include "AppendTask.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/Model.h"
 #include "GetAnyConnectionTask.h"
-#include "ItemRoles.h"
-#include "Model.h"
 
 namespace Imap
 {

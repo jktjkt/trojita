@@ -21,9 +21,9 @@
 */
 
 #include "ImapTask.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/TaskPresentationModel.h"
 #include "KeepMailboxOpenTask.h"
-#include "Model.h"
-#include "TaskPresentationModel.h"
 
 namespace Imap
 {

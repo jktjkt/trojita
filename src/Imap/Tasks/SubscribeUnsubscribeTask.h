@@ -24,8 +24,8 @@
 #define IMAP_SUBSCRIBEUNSUBSCRIBETASK_H
 
 #include <QPersistentModelIndex>
+#include "Imap/Model/SubscribeUnSubscribeOperation.h"
 #include "ImapTask.h"
-#include "SubscribeUnSubscribeOperation.h"
 
 namespace Imap
 {

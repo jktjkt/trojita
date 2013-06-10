@@ -24,8 +24,8 @@
 #define IMAP_COPYMOVEMESSAGES_TASK_H
 
 #include <QPersistentModelIndex>
+#include "Imap/Model/Model.h"
 #include "ImapTask.h"
-#include "Model/Model.h"
 
 namespace Imap
 {
