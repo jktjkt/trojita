@@ -506,16 +506,19 @@ OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), 
     smtpAuth->setChecked(s.value(SettingsNames::smtpAuthKey, false).toBool());
     smtpUser->setText(s.value(SettingsNames::smtpUserKey).toString());
     smtpPass->setText(s.value(SettingsNames::smtpPassKey).toString());
+    passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
     sendmail->setText(s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString());
     saveToImap->setChecked(s.value(SettingsNames::composerSaveToImapKey, true).toBool());
     // Would be cool to support the special-use mailboxes
     saveFolderName->setText(s.value(SettingsNames::composerImapSentKey, QLatin1String("Sent")).toString());
     smtpBurl->setChecked(s.value(SettingsNames::smtpUseBurlKey, false).toBool());
 
+    connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPasswordWarning()));
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     connect(smtpAuth, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
     connect(saveToImap, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
     updateWidgets();
+    maybeShowPasswordWarning();
 }
 
 void OutgoingPage::resizeEvent(QResizeEvent *event)
@@ -634,6 +637,11 @@ void OutgoingPage::save(QSettings &s)
         // BURL depends on having that message available on IMAP somewhere
         s.setValue(SettingsNames::smtpUseBurlKey, false);
     }
+}
+
+void OutgoingPage::maybeShowPasswordWarning()
+{
+    passwordWarning->setVisible(!smtpPass->text().isEmpty());
 }
 
 #ifdef XTUPLE_CONNECT

@@ -106,6 +106,7 @@ private:
 
 private slots:
     void updateWidgets();
+    void maybeShowPasswordWarning();
 
 private:
     OutgoingPage(const OutgoingPage &); // don't implement
