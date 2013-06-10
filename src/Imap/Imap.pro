@@ -41,6 +41,7 @@ SOURCES += Parser/Parser.cpp \
     Model/SQLCache.cpp \
     Model/DiskPartCache.cpp \
     Model/CombinedCache.cpp \
+    Model/Cache.cpp \
     Model/Utils.cpp \
     Model/TaskFactory.cpp \
     Model/DelayedPopulation.cpp \
