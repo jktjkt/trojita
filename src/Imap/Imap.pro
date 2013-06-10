@@ -45,6 +45,7 @@ SOURCES += Parser/Parser.cpp \
     Model/TaskFactory.cpp \
     Model/DelayedPopulation.cpp \
     Model/ParserState.cpp \
+    Model/FlagsOperation.cpp \
     Tasks/ImapTask.cpp \
     Tasks/FetchMsgPartTask.cpp \
     Tasks/FetchMsgMetadataTask.cpp \

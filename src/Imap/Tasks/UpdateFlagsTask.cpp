@@ -119,27 +119,7 @@ void UpdateFlagsTask::perform()
         _failed("All messages got removed before we could've updated their flags");
         return;
     }
-
-    QString op;
-    switch (flagOperation) {
-    case FLAG_ADD:
-        op = QLatin1String("+FLAGS");
-        break;
-    case FLAG_REMOVE:
-        op = QLatin1String("-FLAGS");
-        break;
-    case FLAG_ADD_SILENT:
-        op = QLatin1String("+FLAGS.SILENT");
-        break;
-    case FLAG_REMOVE_SILENT:
-        op = QLatin1String("-FLAGS.SILENT");
-        break;
-    case FLAG_USE_THESE:
-        op = QLatin1String("FLAGS");
-        break;
-    }
-    Q_ASSERT(!op.isEmpty());
-    tag = parser->uidStore(seq, op, flags);
+    tag = parser->uidStore(seq, toImapString(flagOperation), flags);
 }
 
 bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State *const resp)
