@@ -1190,6 +1190,45 @@ void ImapModelThreadingTest::testSortingPerformance()
     }
 }
 
+void ImapModelThreadingTest::testSearchingPerformance()
+{
+    threadingModel->setUserWantsThreading(false);
+
+    using namespace Imap::Mailbox;
+
+    const int num = 100000;
+    initialMessages(num);
+
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+
+    threadingModel->setUserSearchingSortingPreference(QStringList(), ThreadingMsgListModel::SORT_NONE, Qt::DescendingOrder);
+    /*cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    QByteArray untaggedThread = prepareHugeUntaggedThread(num);
+    cServer(untaggedThread + t.last("OK thread\r\n"));*/
+
+    QList<uint> result;
+    result << 1 << 5 << 59 << 666;
+    QStringList buf;
+    Q_FOREACH(const int uid, result)
+        buf << QString::number(uid);
+    QByteArray sortResult = buf.join(QLatin1String(" ")).toUtf8();
+
+    QBENCHMARK {
+        threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("x"),
+                                                          ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
+        cClient(t.mk("UID SEARCH CHARSET utf-8 SUBJECT x\r\n"));
+        cServer("* SEARCH " + sortResult + "\r\n");
+        cServer(t.last("OK sorted\r\n"));
+    }
+    QCOMPARE(threadingModel->rowCount(), result.size());
+    for (int i = 0; i < result.size(); ++i) {
+        QModelIndex index = threadingModel->index(i, 0);
+        QVERIFY(index.isValid());
+        QCOMPARE(index.data(Imap::Mailbox::RoleMessageUid).toUInt(), result[i]);
+    }
+}
+
 /** @short Test that the INCTHREAD extension works as advertized */
 void ImapModelThreadingTest::testIncrementalThreading()
 {
