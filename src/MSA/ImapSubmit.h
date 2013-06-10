@@ -45,9 +45,6 @@ public:
 public slots:
     virtual void cancel();
 
-private slots:
-    void slotEmitFailure();
-
 private:
     Imap::Mailbox::Model *m_model;
 
