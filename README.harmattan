@@ -1,0 +1,7 @@
+How to build the Harmattan version:
+
+1) change directory into the top-level directory of trojita's repository
+2) `mkdir _build_harmattan && cd _build_harmattan`
+3) `cp -a ../qtc_packaging/debian_harmattan debian`
+4) `~/QtSDK/Madde/bin/mad -t harmattan_10.2011.34-1_rt1.2 dpkg-buildpackage -j4 -b -nc`
+5) profit!
