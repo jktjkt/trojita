@@ -135,6 +135,7 @@ private slots:
     void msgListClicked(const QModelIndex &);
     void msgListDoubleClicked(const QModelIndex &);
     void slotCreateMailboxBelowCurrent();
+    void slotMarkCurrentMailboxRead();
     void slotCreateTopMailbox();
     void slotDeleteCurrentMailbox();
     void handleTrayIconChange();
@@ -291,6 +292,7 @@ private:
     QAction *m_actionLayoutCompact;
     QAction *m_actionLayoutWide;
     QAction *m_actionLayoutOneAtTime;
+    QAction *m_actionMarkMailboxAsRead;
 
     QAction *m_actionSubscribeMailbox;
     QAction *m_actionShowOnlySubscribed;

@@ -1177,6 +1177,19 @@ void Model::markMessagesDeleted(const QModelIndexList &messages, const FlagsOper
     this->setMessageFlags(messages, "\\Deleted", marked);
 }
 
+void Model::markMailboxAsRead(const QModelIndex &mailbox)
+{
+    if (!mailbox.isValid())
+        return;
+
+    QModelIndex index;
+    realTreeItem(mailbox, 0, &index);
+    Q_ASSERT(index.isValid());
+    Q_ASSERT(index.model() == this);
+    Q_ASSERT(dynamic_cast<TreeItemMailbox*>(static_cast<TreeItem*>(index.internalPointer())));
+    m_taskFactory->createUpdateFlagsOfAllMessagesTask(this, index, Imap::Mailbox::FLAG_ADD_SILENT, QLatin1String("\\Seen"));
+}
+
 void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked)
 {
     this->setMessageFlags(messages, "\\Seen", marked);

@@ -183,6 +183,8 @@ public:
     */
     void resyncMailbox(const QModelIndex &mbox);
 
+    /** @short Mark all messages in a given mailbox as read */
+    void markMailboxAsRead(const QModelIndex &mailbox);
     /** @short Add/Remove a flag for the indicated message */
     ImapTask *setMessageFlags(const QModelIndexList &messages, const QString flag, const FlagsOperation marked);
     /** @short Ask the server to set/unset the \\Deleted flag for the indicated messages */
@@ -454,6 +456,7 @@ private:
     friend class ImapTask;
     friend class FetchMsgPartTask;
     friend class UpdateFlagsTask;
+    friend class UpdateFlagsOfAllMessagesTask;
     friend class ListChildMailboxesTask;
     friend class NumberOfMessagesTask;
     friend class FetchMsgMetadataTask;
