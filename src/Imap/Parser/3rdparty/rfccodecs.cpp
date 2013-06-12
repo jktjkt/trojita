@@ -153,22 +153,6 @@ QString KIMAP::decodeImapFolderName( const QString &inSrc )
 }
 
 //-----------------------------------------------------------------------------
-QString KIMAP::quoteIMAP( const QString &src )
-{
-  uint len = src.length();
-  QString result;
-  result.reserve( 2 * len );
-  for ( unsigned int i = 0; i < len; i++ ) {
-    if ( src[i] == QLatin1Char('"') || src[i] == QLatin1Char('\\') ) {
-      result += QLatin1Char('\\');
-    }
-    result += src[i];
-  }
-  //result.squeeze(); - unnecessary and slow
-  return result;
-}
-
-//-----------------------------------------------------------------------------
 QString KIMAP::encodeImapFolderName( const QString &inSrc )
 {
   unsigned int utf8pos, utf8total, c, utf7mode, bitstogo, utf16flag;
@@ -264,5 +248,5 @@ QString KIMAP::encodeImapFolderName( const QString &inSrc )
     }
     dst += '-';
   }
-  return quoteIMAP( dst );
+  return dst;
 }

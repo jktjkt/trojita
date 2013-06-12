@@ -58,11 +58,6 @@ namespace KIMAP {
   */
   KIMAP_EXPORT QString decodeImapFolderName( const QString &inSrc );
 
-  /**
-    Replaces " with \" and \ with \\ " and \ characters.
-    @param src is the QString to quote.
-  */
-  KIMAP_EXPORT QString quoteIMAP( const QString &src );
 }
 
 #endif

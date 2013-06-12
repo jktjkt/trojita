@@ -23,13 +23,14 @@
 #ifndef TEST_IMAP_TASKS_OBTAINSYNCHRONIZEDMAILBOXTASK
 #define TEST_IMAP_TASKS_OBTAINSYNCHRONIZEDMAILBOXTASK
 
+#include "test_LibMailboxSync/test_LibMailboxSync.h"
 #include "Imap/Tasks/ListChildMailboxesTask.h"
 #include "Streams/SocketFactory.h"
 #include "Imap/Model/TaskFactory.h"
 
 class QSignalSpy;
 
-class ImapModelListChildMailboxesTest : public QObject
+class ImapModelListChildMailboxesTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
@@ -39,6 +40,8 @@ private slots:
 
     void testSimpleListing();
     void testFakeListing();
+
+    void testBackslashes();
 
 private:
     Imap::Mailbox::Model* model;
