@@ -1398,14 +1398,15 @@ void ThreadingMsgListModel::applySort()
     }
 
     // Now remove everything which is no longer reachable from the root of the thread mapping
-    newlyUnreachable -= threading[0].children.toSet();
-    while (!newlyUnreachable.isEmpty()) {
-        QSet<uint>::iterator it = newlyUnreachable.begin();
-        uint item = *it;
-        newlyUnreachable.erase(it);
-        QHash<uint,ThreadNodeInfo>::iterator threadingIt = threading.find(item);
+    // Start working on the top-level orphans
+    Q_FOREACH(const uint uid, threading[0].children) {
+        newlyUnreachable.remove(uid);
+    }
+    std::vector<uint> queue(newlyUnreachable.constBegin(), newlyUnreachable.constEnd());
+    for (std::vector<uint>::size_type i = 0; i < queue.size(); ++i) {
+        QHash<uint,ThreadNodeInfo>::iterator threadingIt = threading.find(queue[i]);
         Q_ASSERT(threadingIt != threading.end());
-        newlyUnreachable += threadingIt->children.toSet();
+        queue.insert(queue.end(), threadingIt->children.constBegin(), threadingIt->children.constEnd());
         threading.erase(threadingIt);
     }
 

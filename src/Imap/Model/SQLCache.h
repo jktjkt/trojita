@@ -115,6 +115,8 @@ private:
     /** @short Initialize the database */
     void init();
 
+    static QString mailboxName(const QString &mailbox);
+
 private slots:
     /** @short We haven't committed for a while */
     void timeToCommit();
@@ -139,6 +141,7 @@ private:
     mutable QSqlQuery queryClearAllMessages1;
     mutable QSqlQuery queryClearAllMessages2;
     mutable QSqlQuery queryClearAllMessages3;
+    mutable QSqlQuery queryClearAllMessages4;
     mutable QSqlQuery queryClearMessage1;
     mutable QSqlQuery queryClearMessage2;
     mutable QSqlQuery queryClearMessage3;

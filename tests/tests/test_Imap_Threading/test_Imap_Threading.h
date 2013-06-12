@@ -46,12 +46,14 @@ private slots:
     void testMultipleExpunges();
     void testThreadingPerformance();
     void testSortingPerformance();
+    void testSearchingPerformance();
 
     void helper_multipleExpunges();
 protected slots:
     virtual void init();
 private:
     void complexMapping(Mapping &m, QByteArray &response);
+    static QByteArray prepareHugeUntaggedThread(const uint num);
 
     void verifyMapping(const Mapping &mapping);
     QModelIndex findItem(const QList<int> &where);
