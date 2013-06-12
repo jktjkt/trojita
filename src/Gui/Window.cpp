@@ -882,7 +882,10 @@ void MainWindow::msgListClicked(const QModelIndex &index)
                                                Imap::Mailbox::FLAG_REMOVE : Imap::Mailbox::FLAG_ADD;
         model->markMessagesRead(QModelIndexList() << translated, flagOp);
     } else {
-        m_messageWidget->messageView->setMessage(index);
+        if (m_messageWidget->isVisible() && !m_messageWidget->size().isEmpty()) {
+            // isVisible() won't work, the splitter manipulates width, not the visibility state
+            m_messageWidget->messageView->setMessage(index);
+        }
         msgListWidget->tree->setCurrentIndex(index);
     }
 }
@@ -2069,11 +2072,13 @@ void MainWindow::slotLayoutCompact()
     if (!m_mainHSplitter) {
         m_mainHSplitter = new QSplitter();
         connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(possiblyLoadMessageOnSplittersChanged()));
     }
     if (!m_mainVSplitter) {
         m_mainVSplitter = new QSplitter();
         m_mainVSplitter->setOrientation(Qt::Vertical);
         connect(m_mainVSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+        connect(m_mainVSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(possiblyLoadMessageOnSplittersChanged()));
     }
 
     m_mainVSplitter->addWidget(msgListWidget);
@@ -2108,6 +2113,7 @@ void MainWindow::slotLayoutWide()
     if (!m_mainHSplitter) {
         m_mainHSplitter = new QSplitter();
         connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(possiblyLoadMessageOnSplittersChanged()));
     }
 
     m_mainHSplitter->addWidget(mboxTree);
@@ -2295,6 +2301,20 @@ void MainWindow::applySizesAndState()
 void MainWindow::resizeEvent(QResizeEvent *)
 {
     saveSizesAndState();
+}
+
+/** @short Make sure that the message gets loaded after the splitters have changed their position */
+void MainWindow::possiblyLoadMessageOnSplittersChanged()
+{
+    if (m_messageWidget->isVisible() && !m_messageWidget->size().isEmpty()) {
+        // We do not have to check whether it's a different message; the setMessage() will do this or us
+        // and there are multiple proxy models involved anyway
+        QModelIndex index = msgListWidget->tree->currentIndex();
+        if (index.isValid()) {
+            // OTOH, setting an invalid QModelIndex would happily assert-fail
+            m_messageWidget->messageView->setMessage(msgListWidget->tree->currentIndex());
+        }
+    }
 }
 
 }

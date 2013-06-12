@@ -175,6 +175,7 @@ private slots:
     void slotLayoutWide();
     void slotLayoutOneAtTime();
     void saveSizesAndState();
+    void possiblyLoadMessageOnSplittersChanged();
 
     void desktopGeometryChanged();
 
