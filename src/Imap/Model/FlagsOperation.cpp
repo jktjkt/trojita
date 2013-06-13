@@ -20,21 +20,29 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAP_MODEL_FLAGS_H
-#define IMAP_MODEL_FLAGS_H
+#include "FlagsOperation.h"
 
-#include <QString>
+namespace Imap {
+namespace Mailbox {
 
-namespace Imap
+/** @short Return the text representation to be used in the IMAP STORE command */
+QString toImapString(const Imap::Mailbox::FlagsOperation flagOperation)
 {
-namespace Mailbox
-{
-
-typedef enum { FLAG_ADD, FLAG_REMOVE, FLAG_ADD_SILENT, FLAG_REMOVE_SILENT, FLAG_USE_THESE } FlagsOperation;
-
-QString toImapString(const Imap::Mailbox::FlagsOperation flagOperation);
+    switch (flagOperation) {
+    case FLAG_ADD:
+        return QLatin1String("+FLAGS");
+    case FLAG_REMOVE:
+        return QLatin1String("-FLAGS");
+    case FLAG_ADD_SILENT:
+        return QLatin1String("+FLAGS.SILENT");
+    case FLAG_REMOVE_SILENT:
+        return QLatin1String("-FLAGS.SILENT");
+    case FLAG_USE_THESE:
+        return QLatin1String("FLAGS");
+    }
+    Q_ASSERT(false);
+    return QString();
+}
 
 }
 }
-
-#endif /* IMAP_MODEL_FLAGS_H */

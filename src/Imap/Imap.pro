@@ -45,6 +45,7 @@ SOURCES += Parser/Parser.cpp \
     Model/TaskFactory.cpp \
     Model/DelayedPopulation.cpp \
     Model/ParserState.cpp \
+    Model/FlagsOperation.cpp \
     Tasks/ImapTask.cpp \
     Tasks/FetchMsgPartTask.cpp \
     Tasks/FetchMsgMetadataTask.cpp \
@@ -85,7 +86,8 @@ SOURCES += Parser/Parser.cpp \
     Model/SubtreeModel.cpp \
     Model/OneMessageModel.cpp \
     Model/FindInterestingPart.cpp \
-    Model/FullMessageCombiner.cpp
+    Model/FullMessageCombiner.cpp \
+    Tasks/UpdateFlagsOfAllMessagesTask.cpp
 HEADERS += Parser/Parser.h \
     Parser/Command.h \
     Parser/Response.h \
@@ -166,7 +168,8 @@ HEADERS += Parser/Parser.h \
     Model/CatenateData.h \
     Model/UidSubmitData.h \
     Parser/Rfc5322HeaderParser.h \
-    Model/FullMessageCombiner.h
+    Model/FullMessageCombiner.h \
+    Tasks/UpdateFlagsOfAllMessagesTask.h
 
 ragel {
     include(../ragel.prf)

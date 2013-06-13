@@ -40,6 +40,7 @@
 #include "OpenConnectionTask.h"
 #include "UidSubmitTask.h"
 #include "UpdateFlagsTask.h"
+#include "UpdateFlagsOfAllMessagesTask.h"
 #include "ThreadTask.h"
 #include "NoopTask.h"
 #include "UnSelectTask.h"
@@ -129,6 +130,12 @@ ObtainSynchronizedMailboxTask *TaskFactory::createObtainSynchronizedMailboxTask(
         ImapTask *parentTask, KeepMailboxOpenTask *keepTask)
 {
     return new ObtainSynchronizedMailboxTask(model, mailboxIndex, parentTask, keepTask);
+}
+
+UpdateFlagsOfAllMessagesTask *TaskFactory::createUpdateFlagsOfAllMessagesTask(Model *model, const QModelIndex &mailbox,
+        const FlagsOperation flagOperation, const QString &flags)
+{
+    return new UpdateFlagsOfAllMessagesTask(model, mailbox, flagOperation, flags);
 }
 
 UpdateFlagsTask *TaskFactory::createUpdateFlagsTask(Model *model, const QModelIndexList &messages, const FlagsOperation flagOperation, const QString &flags)

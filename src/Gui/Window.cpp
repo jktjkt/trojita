@@ -320,6 +320,9 @@ void MainWindow::createActions()
     createTopMailbox = new QAction(tr("Create &New Mailbox..."), this);
     connect(createTopMailbox, SIGNAL(triggered()), this, SLOT(slotCreateTopMailbox()));
 
+    m_actionMarkMailboxAsRead = new QAction(tr("&Mark Mailbox as Read"), this);
+    connect(m_actionMarkMailboxAsRead, SIGNAL(triggered()), this, SLOT(slotMarkCurrentMailboxRead()));
+
     //: "mailbox" as a "folder of messages", not as a "mail account"
     deleteCurrentMailbox = new QAction(tr("&Remove Mailbox"), this);
     connect(deleteCurrentMailbox, SIGNAL(triggered()), this, SLOT(slotDeleteCurrentMailbox()));
@@ -918,6 +921,7 @@ void MainWindow::showContextMenuMboxTree(const QPoint &position)
     if (mboxTree->indexAt(position).isValid()) {
         actionList.append(createChildMailbox);
         actionList.append(deleteCurrentMailbox);
+        actionList.append(m_actionMarkMailboxAsRead);
         actionList.append(resyncMbox);
         actionList.append(reloadMboxList);
 
@@ -946,6 +950,7 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         updateMessageFlags(index);
         actionList.append(markAsRead);
         actionList.append(markAsDeleted);
+        actionList.append(m_actionMarkMailboxAsRead);
         actionList.append(saveWholeMessage);
         actionList.append(viewMsgSource);
         actionList.append(viewMsgHeaders);
@@ -1333,6 +1338,11 @@ void MainWindow::slotExpunge()
     model->expungeMailbox(msgListModel->currentMailbox());
 }
 
+void MainWindow::slotMarkCurrentMailboxRead()
+{
+    model->markMailboxAsRead(mboxTree->currentIndex());
+}
+
 void MainWindow::slotCreateMailboxBelowCurrent()
 {
     createMailboxBelow(mboxTree->currentIndex());
@@ -1405,6 +1415,7 @@ void MainWindow::updateActionsOnlineOffline(bool online)
     createChildMailbox->setEnabled(online);
     createTopMailbox->setEnabled(online);
     deleteCurrentMailbox->setEnabled(online);
+    m_actionMarkMailboxAsRead->setEnabled(online);
     markAsDeleted->setEnabled(online);
     markAsRead->setEnabled(online);
     showImapCapabilities->setEnabled(online);

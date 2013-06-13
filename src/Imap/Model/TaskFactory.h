@@ -55,6 +55,7 @@ class NumberOfMessagesTask;
 class ObtainSynchronizedMailboxTask;
 class OpenConnectionTask;
 class UpdateFlagsTask;
+class UpdateFlagsOfAllMessagesTask;
 class ThreadTask;
 class NoopTask;
 class UnSelectTask;
@@ -88,6 +89,8 @@ public:
     virtual ObtainSynchronizedMailboxTask *createObtainSynchronizedMailboxTask(Model *model, const QModelIndex &mailboxIndex,
             ImapTask *parentTask, KeepMailboxOpenTask *keepTask);
     virtual OpenConnectionTask *createOpenConnectionTask(Model *model);
+    virtual UpdateFlagsOfAllMessagesTask *createUpdateFlagsOfAllMessagesTask(Model *model, const QModelIndex &mailbox,
+            const FlagsOperation flagOperation, const QString &flags);
     virtual UpdateFlagsTask *createUpdateFlagsTask(Model *model, const QModelIndexList &messages, const FlagsOperation flagOperation,
             const QString &flags);
     virtual UpdateFlagsTask *createUpdateFlagsTask(Model *model, CopyMoveMessagesTask *copyTask,

@@ -29,6 +29,7 @@
 #include <QPointer>
 #include "Common/Logging.h"
 #include "../Parser/Parser.h"
+#include "../Model/FlagsOperation.h"
 
 namespace Imap
 {

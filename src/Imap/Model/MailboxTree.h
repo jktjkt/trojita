@@ -51,6 +51,7 @@ class TreeItem
     friend class KeepMailboxOpenTask; // for direct access to m_children
     friend class MsgListModel; // for direct access to m_children
     friend class ThreadingMsgListModel; // for direct access to m_children
+    friend class UpdateFlagsOfAllMessagesTask; // for direct access to m_children
 
 protected:
     /** @short Availability of an item */
@@ -212,6 +213,7 @@ class TreeItemMessage: public TreeItem
     friend class ObtainSynchronizedMailboxTask; // needs access to m_offset
     friend class KeepMailboxOpenTask; // needs access to m_offset
     friend class UpdateFlagsTask; // needs access to m_flags
+    friend class UpdateFlagsOfAllMessagesTask; // needs access to m_flags
     Message::Envelope m_envelope;
     QDateTime m_internalDate;
     uint m_size;
