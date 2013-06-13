@@ -157,9 +157,8 @@ bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State *const resp
             // FIXME: error handling
         }
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 QVariant UpdateFlagsTask::taskData(const int role) const
