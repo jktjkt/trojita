@@ -39,6 +39,8 @@ typedef enum {
     RFC2047_STRING_UTF8
 } Rfc2047StringCharacterSetType;
 
+QString decodeByteArray(const QByteArray &encoded, const QString &charset);
+
 QByteArray quotedString(const QByteArray &unquoted, QuotedStringStyle style = DoubleQuoted);
 QByteArray encodeRFC2047Phrase(const QString &text);
 

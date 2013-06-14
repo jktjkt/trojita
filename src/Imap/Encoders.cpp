@@ -52,15 +52,6 @@ namespace {
         return 0;
     }
 
-    /** @short Interpret the raw byte array as a sequence of bytes in the given encoding */
-    static QString decodeByteArray(const QByteArray &encoded, const QString &charset)
-    {
-        if (QTextCodec *codec = codecForName(charset.toLatin1())) {
-            return codec->toUnicode(encoded);
-        }
-        return QString::fromUtf8(encoded);
-    }
-
     // ASCII character values used throughout
     const unsigned char MaxPrintableRange = 0x7e;
     const unsigned char Space = 0x20;
@@ -204,9 +195,9 @@ namespace {
     static QString decodeWord(const QByteArray &fullWord, const QByteArray &charset, const QByteArray &encoding, const QByteArray &encoded)
     {
         if (encoding == "Q") {
-            return decodeByteArray(translateQuotedPrintableToBin(encoded), charset);
+            return Imap::decodeByteArray(translateQuotedPrintableToBin(encoded), charset);
         } else if (encoding == "B") {
-            return decodeByteArray(QByteArray::fromBase64(encoded), charset);
+            return Imap::decodeByteArray(QByteArray::fromBase64(encoded), charset);
         } else {
             return fullWord;
         }
@@ -339,6 +330,14 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
     }
 }
 
+/** @short Interpret the raw byte array as a sequence of bytes in the given encoding */
+QString decodeByteArray(const QByteArray &encoded, const QString &charset)
+{
+    if (QTextCodec *codec = codecForName(charset.toLatin1())) {
+        return codec->toUnicode(encoded);
+    }
+    return QString::fromUtf8(encoded);
+}
 
 /** @short Encode the given string into RFC2047 form, preserving the ASCII leading part if possible */
 QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
