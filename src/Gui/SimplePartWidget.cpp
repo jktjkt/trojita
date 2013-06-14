@@ -32,6 +32,7 @@
 #include "SimplePartWidget.h"
 #include "Gui/MessageView.h" // so that the compiler knows that it's a QObject
 #include "Gui/Util.h"
+#include "Imap/Encoders.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
@@ -85,6 +86,10 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
 void SimplePartWidget::slotMarkupPlainText() {
     // NOTICE "single shot", we get a recursion otherwise!
     disconnect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
+
+    // If there's no data, don't try to "fix it up"
+    if (!m_partIndex.isValid() || !m_partIndex.data(Imap::Mailbox::RoleIsFetched).toBool())
+        return;
 
     static const QString defaultStyle = QString::fromUtf8(
         "pre{word-wrap: break-word; white-space: pre-wrap;}"
@@ -152,7 +157,11 @@ void SimplePartWidget::slotMarkupPlainText() {
     QString htmlHeader("<html><head><style type=\"text/css\"><!--" + textColors + fontSpecification + stylesheet + "--></style></head><body><pre>");
     static QString htmlFooter("\n</pre></body></html>");
 
-    QString markup = Composer::Util::plainTextToHtml(page()->mainFrame()->toPlainText(), flowedFormat);
+    // We cannot rely on the QWebFrame's toPlainText because of https://bugs.kde.org/show_bug.cgi?id=321160
+    QString markup = Composer::Util::plainTextToHtml(
+                Imap::decodeByteArray(m_partIndex.data(Imap::Mailbox::RolePartData).toByteArray(),
+                                      m_partIndex.data(Imap::Mailbox::RolePartCharset).toString()),
+                flowedFormat);
 
     // and finally set the marked up page.
     page()->mainFrame()->setHtml(htmlHeader + markup + htmlFooter);
