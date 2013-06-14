@@ -336,7 +336,7 @@ QString decodeByteArray(const QByteArray &encoded, const QString &charset)
     if (QTextCodec *codec = codecForName(charset.toLatin1())) {
         return codec->toUnicode(encoded);
     }
-    return QString::fromUtf8(encoded);
+    return QString::fromUtf8(encoded, encoded.size());
 }
 
 /** @short Encode the given string into RFC2047 form, preserving the ASCII leading part if possible */
