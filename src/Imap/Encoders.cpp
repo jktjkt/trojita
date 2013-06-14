@@ -43,7 +43,7 @@ namespace {
 
             QTextCodec* codec = QTextCodec::codecForName(encoding);
             if (!codec) {
-                qWarning() << "QMailCodec::codecForName - Unable to find codec for charset" << encoding;
+                qWarning() << "codecForName: Unable to find codec for charset" << encoding;
             }
 
             return codec;
