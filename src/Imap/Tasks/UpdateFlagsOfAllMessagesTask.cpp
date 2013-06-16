@@ -34,7 +34,7 @@ namespace Mailbox
 
 UpdateFlagsOfAllMessagesTask::UpdateFlagsOfAllMessagesTask(Model *model, const QModelIndex &mailboxIndex,
                                                            const FlagsOperation flagOperation, const QString &flags):
-    ImapTask(model), mailboxIndex(mailboxIndex), flagOperation(flagOperation), flags(flags)
+    ImapTask(model), flagOperation(flagOperation), flags(flags), mailboxIndex(mailboxIndex)
 {
     Q_ASSERT(mailboxIndex.isValid());
     Q_ASSERT(flagOperation == Imap::Mailbox::FLAG_ADD || flagOperation == Imap::Mailbox::FLAG_ADD_SILENT);
