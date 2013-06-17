@@ -46,9 +46,14 @@ void SMTP::cancel()
 
 void SMTP::handleDone(bool ok)
 {
-    if (ok)
+    if (failed) {
+        // This is a duplicate notification. The QwwSmtpClient is known to send contradicting results, see e.g. bug 321272.
+        return;
+    }
+    if (ok) {
         emit sent();
-    else if (! failed) {
+    } else {
+        failed = true;
         if (qwwSmtp->errorString().isEmpty())
             emit error(tr("Sending of the message failed."));
         else
