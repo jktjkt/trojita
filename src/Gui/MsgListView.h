@@ -22,6 +22,7 @@
 #ifndef MSGLISTVIEW_H
 #define MSGLISTVIEW_H
 
+#include <QHeaderView>
 #include <QTreeView>
 
 class QSignalMapper;
@@ -51,6 +52,7 @@ public:
     void setAutoActivateAfterKeyNavigation(bool enabled);
     void updateActionsAfterRestoredState();
     virtual int sizeHintForColumn(int column) const;
+    QHeaderView::ResizeMode resizeModeForColumn(const int column) const;
 protected:
     void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);

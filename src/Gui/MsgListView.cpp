@@ -232,24 +232,28 @@ void MsgListView::slotFixSize()
         // calling setResizeMode() would assert()
         return;
     }
-    header()->setStretchLastSection(false);
 
+    header()->setStretchLastSection(false);
     for (int i = 0; i < Imap::Mailbox::MsgListModel::COLUMN_COUNT; ++i) {
-        QHeaderView::ResizeMode resizeMode = QHeaderView::Interactive;
-        switch (i) {
-        case Imap::Mailbox::MsgListModel::SUBJECT:
-            resizeMode = QHeaderView::Stretch;
-            break;
-        case Imap::Mailbox::MsgListModel::SEEN:
-            resizeMode = QHeaderView::Fixed;
-            break;
-        }
+        QHeaderView::ResizeMode resizeMode = resizeModeForColumn(i);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         header()->setSectionResizeMode(i, resizeMode);
 #else
         header()->setResizeMode(i, resizeMode);
 #endif
         setColumnWidth(i, sizeHintForColumn(i));
+    }
+}
+
+QHeaderView::ResizeMode MsgListView::resizeModeForColumn(const int column) const
+{
+    switch (column) {
+    case Imap::Mailbox::MsgListModel::SUBJECT:
+        return QHeaderView::Stretch;
+    case Imap::Mailbox::MsgListModel::SEEN:
+        return QHeaderView::Fixed;
+    default:
+        return QHeaderView::Interactive;
     }
 }
 

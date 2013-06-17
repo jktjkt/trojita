@@ -2299,11 +2299,22 @@ void MainWindow::applySizesAndState()
         bool ok;
         int columns = item.toInt(&ok);
         if (ok) {
+            msgListWidget->tree->header()->setStretchLastSection(false);
             for (int i = 0; i < columns && size-- && !stream.atEnd(); ++i) {
                 stream >> item;
                 int sectionSize = item.toInt();
-                // fun fact: user cannot resize by mouse when size <= 0
-                msgListWidget->tree->setColumnWidth(i, sectionSize > 0 ? sectionSize : msgListWidget->tree->sizeHintForColumn(i));
+                QHeaderView::ResizeMode resizeMode = msgListWidget->tree->resizeModeForColumn(i);
+                if (sectionSize > 0 && resizeMode == QHeaderView::Interactive) {
+                    // fun fact: user cannot resize by mouse when size <= 0
+                    msgListWidget->tree->setColumnWidth(i, sectionSize);
+                } else {
+                    msgListWidget->tree->setColumnWidth(i, msgListWidget->tree->sizeHintForColumn(i));
+                }
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                msgListWidget->tree->header()->setSectionResizeMode(i, resizeMode);
+#else
+                msgListWidget->tree->header()->setResizeMode(i, resizeMode);
+#endif
             }
         }
     }
