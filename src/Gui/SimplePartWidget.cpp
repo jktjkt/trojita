@@ -22,7 +22,6 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QNetworkReply>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #  include <QStandardPaths>
@@ -43,7 +42,7 @@ namespace Gui
 
 SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
                                    const QModelIndex &partIndex, MessageView *messageView):
-    EmbeddedWebView(parent, manager), m_partIndex(partIndex), m_netAccessManager(manager),
+    EmbeddedWebView(parent, manager), m_partIndex(partIndex), m_netAccessManager(manager), m_messageView(messageView),
     flowedFormat(Composer::Util::FORMAT_PLAIN)
 {
     Q_ASSERT(partIndex.isValid());
@@ -175,12 +174,6 @@ void SimplePartWidget::slotFileNameRequested(QString *fileName)
                                             );
 }
 
-void SimplePartWidget::slotTransferError(const QString &errorString)
-{
-    QMessageBox::critical(this, tr("Can't save attachment"),
-                          tr("Unable to save the attachment. Error:\n%1").arg(errorString));
-}
-
 QString SimplePartWidget::quoteMe() const
 {
     QString selection = selectedText();
@@ -204,7 +197,7 @@ void SimplePartWidget::slotDownloadPart()
 {
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccessManager, m_partIndex);
     connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
-    connect(manager, SIGNAL(transferError(QString)), this, SLOT(slotTransferError(QString)));
+    connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
     connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
     connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
     manager->downloadPart();
@@ -225,7 +218,7 @@ void SimplePartWidget::slotDownloadMessage()
 
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccessManager, index);
     connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
-    connect(manager, SIGNAL(transferError(QString)), this, SLOT(slotTransferError(QString)));
+    connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
     connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
     connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
     manager->downloadMessage();

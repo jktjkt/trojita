@@ -164,7 +164,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             }
             return widget;
         } else {
-            return new AttachmentView(0, manager, partIndex);
+            return new AttachmentView(0, manager, partIndex, m_messageView);
         }
     }
     QLabel *lbl = new QLabel(mimeType, 0);

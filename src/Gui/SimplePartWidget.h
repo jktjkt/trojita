@@ -61,7 +61,6 @@ public:
     virtual void reloadContents();
     QList<QAction *> contextMenuSpecificActions() const;
 private slots:
-    void slotTransferError(const QString &errorString);
     void slotFileNameRequested(QString *fileName);
     void slotMarkupPlainText();
     void slotDownloadPart();
@@ -74,6 +73,7 @@ private:
     QAction *m_savePart;
     QAction *m_saveMessage;
     QAction *m_findAction;
+    MessageView *m_messageView;
     Imap::Network::MsgPartNetAccessManager *m_netAccessManager;
     Composer::Util::FlowedFormat flowedFormat;
 

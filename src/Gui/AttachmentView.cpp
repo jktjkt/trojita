@@ -21,6 +21,7 @@
 */
 #include "AttachmentView.h"
 #include "IconLoader.h"
+#include "MessageView.h" // so that the compiler knows it's a QObject
 #include "Common/DeleteAfter.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/MailboxTree.h"
@@ -33,7 +34,6 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QMenu>
-#include <QMessageBox>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPushButton>
@@ -49,8 +49,9 @@
 namespace Gui
 {
 
-AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
-    QWidget(parent), m_partIndex(partIndex), m_downloadButton(0), m_downloadAttachment(0),
+AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
+                               const QModelIndex &partIndex, MessageView *messageView):
+    QWidget(parent), m_partIndex(partIndex), m_messageView(messageView), m_downloadButton(0), m_downloadAttachment(0),
     m_openAttachment(0), m_netAccess(manager), m_openingManager(0), m_tmpFile(0)
 {
     m_openingManager = new Imap::Network::FileDownloadManager(this, m_netAccess, m_partIndex);
@@ -119,6 +120,7 @@ void AttachmentView::slotDownloadAttachment()
     connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
     connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
     connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
+    connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
     manager->downloadPart();
 }
 
@@ -126,6 +128,7 @@ void AttachmentView::slotOpenAttachment()
 {
     disconnect(m_openingManager, 0, this, 0);
     connect(m_openingManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
+    connect(m_openingManager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
     connect(m_openingManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
     m_openingManager->downloadPart();
 }
@@ -152,11 +155,6 @@ void AttachmentView::slotFileNameRequested(QString *fileName)
 
 
     *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), fileLocation, QString(), 0, QFileDialog::HideNameFilterDetails);
-}
-
-void AttachmentView::slotTransferError(const QString &errorString)
-{
-    QMessageBox::critical(this, tr("Can't save attachment"), tr("Unable to save the attachment. Error:\n%1").arg(errorString));
 }
 
 void AttachmentView::slotTransferSucceeded()

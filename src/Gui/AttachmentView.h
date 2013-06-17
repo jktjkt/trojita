@@ -43,6 +43,8 @@ class MsgPartNetAccessManager;
 namespace Gui
 {
 
+class MessageView;
+
 /** @short Widget depicting an attachment
 
   This widget provides a graphical representation about an e-mail attachment,
@@ -54,14 +56,14 @@ class AttachmentView : public QWidget
 {
     Q_OBJECT
 public:
-    AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex);
+    AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex,
+                   MessageView *messageView);
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
 private slots:
     void slotDownloadAttachment();
     void slotOpenAttachment();
 
-    void slotTransferError(const QString &errorString);
     void slotFileNameRequestedOnOpen(QString *fileName);
     void slotFileNameRequested(QString *fileName);
     void slotTransferSucceeded();
@@ -69,6 +71,8 @@ private slots:
 private:
     QModelIndex m_partIndex;
     QToolButton *m_downloadButton;
+
+    MessageView *m_messageView;
 
     QAction *m_downloadAttachment;
     QAction *m_openAttachment;
