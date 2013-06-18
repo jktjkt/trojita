@@ -337,8 +337,8 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                             // Find the closest level which got collapsed
                             int closestDepth = std::numeric_limits<int>::max();
-                            QList<QPair<int, QString> >::const_iterator depthRunner = it;
-                            while (depthRunner != runner) {
+                            QList<QPair<int, QString> >::const_iterator depthRunner(it);
+                            while (depthRunner != QList<QPair<int, QString> >::const_iterator(runner)) {
                                 closestDepth = std::min(closestDepth, depthRunner->first);
                                 ++depthRunner;
                             }
