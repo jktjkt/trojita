@@ -33,14 +33,14 @@ Source:         trojita-nightly-%{version}.tar.bz2
 %if 0%{?fedora}
 BuildRequires: qt-webkit-devel >= 4.6
 BuildRequires: libstdc++-devel gcc-c++
+BuildRequires: cmake >= 2.8.7
 BuildRequires: xorg-x11-server-Xvfb
-%define qmake_command qmake-qt4
 %endif
 %if 0%{?rhel_version} || 0%{?centos_version}
 BuildRequires: qtwebkit-devel >= 2.1
 BuildRequires: libstdc++-devel gcc-c++
+BuildRequires: cmake >= 2.8.7
 BuildRequires: xorg-x11-server-Xvfb
-%define qmake_command qmake-qt4
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
 BuildRequires: pkgconfig(QtGui) >= 4.6
@@ -48,7 +48,7 @@ BuildRequires: pkgconfig(QtWebKit) >= 4.6
 BuildRequires: libQtWebKit-devel
 BuildRequires: update-desktop-files
 BuildRequires: xorg-x11-Xvfb xkeyboard-config
-%define qmake_command qmake
+BuildRequires: cmake >= 2.8.7
 %endif
 %define         X_display         ":98"
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -66,11 +66,11 @@ Trojita is a Qt IMAP e-mail client which:
 %setup -q
  
 %build
-%qmake_command CONFIG+=debug PREFIX=/usr
-make %{?_smp_mflags}
+cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=%{_prefix}
+make %{?_smp_mflags} VERBOSE=1
  
 %install
-make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
+make %{?_smp_mflags} DESTDIR=%{buildroot} install
 %if 0%{?suse_version} || 0%{?sles_version}
 %suse_update_desktop_file %{buildroot}/%{_datadir}/applications/trojita.desktop
 %endif
@@ -82,7 +82,7 @@ make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
 %defattr(-,root,root)
 %doc LICENSE README
 %{_bindir}/trojita
-%{_bindir}/trojita-contacts
+%{_bindir}/be.contacts
 %{_datadir}/applications/trojita.desktop
 %dir %{_datadir}/icons/hicolor
 %dir %{_datadir}/icons/hicolor/*
@@ -94,6 +94,6 @@ make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
 export DISPLAY=%{X_display}
 Xvfb %{X_display} &
 trap "kill $! || true" EXIT
-make test
+ctest --output-on-failure
 
 %changelog

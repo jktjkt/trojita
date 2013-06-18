@@ -17,8 +17,7 @@ configure: configure-stamp
 configure-stamp:
 	dh_testdir
 	#tar -xjvf *.tar.bz2
-	#cd trojita-* && 
-	qmake CONFIG+=debug PREFIX=/usr # Uncomment this line for use without Qt Creator
+	cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=/usr
 	touch configure-stamp
 
 
@@ -30,8 +29,7 @@ build-stamp: configure-stamp
 	ls
 	#cd trojita-* && 
 	ls
-	qmake && make  # Uncomment this line for use without Qt Creator
-	#docbook-to-man debian/trojita-tp.sgml > trojita-tp.1
+	make VERBOSE=1
 	touch $@
 
 clean: 
@@ -52,11 +50,7 @@ install: build
 	#cd trojita-* && 
 	ls
 	mkdir -p $(CURDIR)/debian/tmp
-	#make INSTALL_ROOT=$(CURDIR)/debian/tmp install
-	make INSTALL_ROOT=$(CURDIR)/debian/tmp install
-	mv $(CURDIR)/debian/tmp/usr/local/* $(CURDIR)/debian/tmp/usr/
-	rmdir $(CURDIR)/debian/tmp/usr/local
-	#cp -rv $(CURDIR)/trojitabuild/* $(CURDIR)/debian/tmp/
+	make DESTDIR=$(CURDIR)/debian/tmp install
 
 
 # Build architecture-independent files here.
