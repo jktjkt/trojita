@@ -51,6 +51,7 @@
       <h3>Dependencies</h3>
       <ul>
        <li><a href="http://qt.nokia.com/">Qt framework</a> (&gt;= 4.6, Qt5 is supported as well)</li>
+       <li><a href="http://cmake.org/">CMake</a> (&gt;= 2.8.7)</li>
        <li>Optional: the <a href="http://zlib.net/">zlib</a> library for the <a href="http://tools.ietf.org/html/rfc4978">IMAP COMPRESS</a> extension</li>
        <li>Optional: <a href="http://www.complang.org/ragel/">ragel</a> (not required, a pregenerated file is shipped)</li>
       </ul>
@@ -58,11 +59,12 @@
       <h3>Compilation</h3>
       <p>Go to the directory created by Git (or unpacked from the archive) and run:</p>
       <code>$ mkdir _build; cd _build <br/>
-      $ qmake CONFIG+=debug ../trojita.pro <br/>
-      $ make -j4</code>
+      $ cmake -DCMAKE_BUILD_TYPE=debug ..<br/>
+      $ make -j4<br/>
+      $ ctest -j 4 --output-on-failure</code>
     <h2>Running Trojitá</h2>
       <p>After successful compilation, you can run Trojitá from the build directory:</p>
-      <code>$ ./src/Gui/trojita</code>
+      <code>$ ./trojita</code>
     <h2>Reporting bugs &amp; requesting features</h2>
 
       <h3>Issue Tracker</h3>
