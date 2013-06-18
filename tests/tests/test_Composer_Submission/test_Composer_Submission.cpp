@@ -501,4 +501,49 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     justKeepTask();
 }
 
+/** @short Make sure that failed mail delivery prevents marking the original as answered, etc */
+void ComposerSubmissionTest::testFailedMsa()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QLatin1String("LITERAL+"));
+
+    helperSetupProperHeaders();
+
+    QModelIndex msgA10 = model->index(0, 0, msgListA);
+    QVERIFY(msgA10.isValid());
+    QCOMPARE(msgA10.data(Imap::Mailbox::RoleMessageUid).toUInt(), uidMapA[0]);
+    m_submission->composer()->setReplyingToMessage(msgA10);
+    m_submission->send();
+
+    // We are waiting for APPEND to finish here
+    QCOMPARE(requestedSendingSpy->size(), 0);
+
+    for (int i=0; i<5; ++i)
+        QCoreApplication::processEvents();
+    QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
+    QString expected = t.mk("APPEND outgoing ($SubmitPending \\Seen) ");
+    QCOMPARE(sentSoFar.left(expected.size()), expected);
+    cEmpty();
+    QCOMPARE(requestedSendingSpy->size(), 0);
+
+    // Assume the APPEND has suceeded
+    cServer(t.last("OK [APPENDUID 666333666 123] append done\r\n"));
+    cEmpty();
+
+    QCOMPARE(requestedSendingSpy->size(), 1);
+    m_msaFactory->doEmitSending();
+    QCOMPARE(sendingSpy->size(), 1);
+    m_msaFactory->doEmitError(QLatin1String("error"));
+    QCOMPARE(sentSpy->size(), 0);
+
+    QCOMPARE(submissionFailedSpy->size(), 1);
+    QCOMPARE(submissionSucceededSpy->size(), 0);
+
+    QVERIFY(requestedSendingSpy->size() == 1 &&
+            requestedSendingSpy->at(0).size() == 3 &&
+            requestedSendingSpy->at(0)[2].toByteArray().contains("Sample message"));
+    cEmpty();
+
+}
+
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)
