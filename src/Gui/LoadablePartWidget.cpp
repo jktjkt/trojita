@@ -75,4 +75,10 @@ void LoadablePartWidget::showEvent(QShowEvent *event)
     }
 }
 
+void LoadablePartWidget::reloadContents()
+{
+    if (AbstractPartWidget *w = dynamic_cast<AbstractPartWidget*>(realPart))
+        w->reloadContents();
+}
+
 }
