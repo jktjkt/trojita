@@ -22,11 +22,11 @@
 
 #include "OpenConnectionTask.h"
 #include <QTimer>
-#include "ItemRoles.h"
-#include "Model/TaskPresentationModel.h"
+#include "Common/ConnectionId.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/TaskPresentationModel.h"
 #include "Streams/SocketFactory.h"
 #include "Streams/TrojitaZlibStatus.h"
-#include "Common/ConnectionId.h"
 
 namespace Imap
 {

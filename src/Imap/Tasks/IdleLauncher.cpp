@@ -22,8 +22,8 @@
 
 #include <QTimer>
 #include "IdleLauncher.h"
+#include "Imap/Model/Model.h"
 #include "KeepMailboxOpenTask.h"
-#include "Model.h"
 
 namespace Imap
 {

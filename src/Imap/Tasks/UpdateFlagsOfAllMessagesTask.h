@@ -25,7 +25,7 @@
 
 
 #include <QPersistentModelIndex>
-#include "FlagsOperation.h"
+#include "Imap/Model/FlagsOperation.h"
 #include "ImapTask.h"
 
 namespace Imap

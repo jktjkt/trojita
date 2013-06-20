@@ -22,10 +22,10 @@
 
 #include "OfflineConnectionTask.h"
 #include <QTimer>
-#include "Streams/FakeSocket.h"
-#include "ItemRoles.h"
-#include "TaskPresentationModel.h"
 #include "Common/ConnectionId.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/TaskPresentationModel.h"
+#include "Streams/FakeSocket.h"
 
 namespace Imap
 {

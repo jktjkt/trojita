@@ -21,11 +21,11 @@
 */
 
 
-#include <QUuid>
 #include "UnSelectTask.h"
+#include <QUuid>
+#include "Imap/Model/Model.h"
+#include "Imap/Model/MailboxTree.h"
 #include "KeepMailboxOpenTask.h"
-#include "Model.h"
-#include "MailboxTree.h"
 
 namespace Imap
 {

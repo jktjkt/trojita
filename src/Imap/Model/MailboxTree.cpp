@@ -23,13 +23,13 @@
 #include <algorithm>
 #include <QTextStream>
 #include "Common/FindWithUnknown.h"
+#include "Imap/Encoders.h"
+#include "Imap/Parser/Rfc5322HeaderParser.h"
+#include "Imap/Tasks/KeepMailboxOpenTask.h"
 #include "DelayedPopulation.h"
 #include "ItemRoles.h"
-#include "Imap/Encoders.h"
-#include "KeepMailboxOpenTask.h"
 #include "MailboxTree.h"
 #include "Model.h"
-#include "Parser/Rfc5322HeaderParser.h"
 #include <QtDebug>
 
 namespace

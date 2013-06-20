@@ -20,39 +20,18 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAP_SUBSCRIBEUNSUBSCRIBETASK_H
-#define IMAP_SUBSCRIBEUNSUBSCRIBETASK_H
+#include "Cache.h"
 
-#include <QPersistentModelIndex>
-#include "Imap/Model/SubscribeUnSubscribeOperation.h"
-#include "ImapTask.h"
+namespace Imap {
+namespace Mailbox {
 
-namespace Imap
+AbstractCache::AbstractCache(QObject *parent): QObject(parent)
 {
-namespace Mailbox
+}
+
+AbstractCache::~AbstractCache()
 {
-
-/** @short Ask for number of messages in a certain mailbox */
-class SubscribeUnsubscribeTask : public ImapTask
-{
-    Q_OBJECT
-public:
-    SubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox, SubscribeUnsubscribeOperation operation);
-    virtual void perform();
-
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-
-    virtual QString debugIdentification() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
-private:
-    CommandHandle tag;
-    ImapTask *conn;
-    SubscribeUnsubscribeOperation operation;
-    QPersistentModelIndex mailboxIndex;
-};
+}
 
 }
 }
-
-#endif // IMAP_SUBSCRIBEUNSUBSCRIBETASK_H

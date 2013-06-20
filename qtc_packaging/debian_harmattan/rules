@@ -16,7 +16,7 @@
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	# qmake PREFIX=/usr# Uncomment this line for use without Qt Creator
+	GCCWRAPPER_PATHMANGLE=/usr ~/QtSDK/Madde/bin/mad -t harmattan_10.2011.34-1_rt1.2 cmake .. -DHARMATTAN=1 -DCMAKE_INSTALL_PREFIX=$(CURDIR)/debian/trojita-tp/
 
 	touch configure-stamp
 
@@ -26,9 +26,7 @@ build: build-stamp
 build-stamp: configure-stamp  
 	dh_testdir
 
-	# Add here commands to compile the package.
-	# $(MAKE) # Uncomment this line for use without Qt Creator
-	#docbook-to-man debian/trojita-tp.sgml > trojita-tp.1
+	$(MAKE)
 
 	touch $@
 

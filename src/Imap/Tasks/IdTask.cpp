@@ -23,10 +23,10 @@
 
 #include "IdTask.h"
 #include <QCoreApplication>
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/Utils.h"
 #include "GetAnyConnectionTask.h"
-#include "ItemRoles.h"
-#include "Model.h"
-#include "../Model/Utils.h"
 
 namespace Imap
 {

@@ -24,7 +24,7 @@
 #include "SetCoreApplication.h"
 
 #ifdef HAS_GITVERSION
-extern const char *gitVersion;
+#include "gitversion.hpp"
 #else
 #include "../trojita-version.h"
 #endif
