@@ -154,7 +154,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             QWidget *widget = 0;
             if (showDirectly) {
                 widget = new SimplePartWidget(0, manager, partIndex, m_messageView);
-            } else if (model->isNetworkAvailable()) {
+            } else if (model->isNetworkAvailable() || part->fetched()) {
                 widget = new LoadablePartWidget(0, manager, partIndex, m_messageView,
                                                 loadingMode == LOAD_ON_SHOW && part->octets() <= ExpensiveFetchThreshold ?
                                                     LoadablePartWidget::LOAD_ON_SHOW :

@@ -54,7 +54,7 @@ public:
     LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
                        MessageView *messageView, const LoadingTriggerMode mode);
     QString quoteMe() const;
-    virtual void reloadContents() {}
+    virtual void reloadContents();
 protected:
     virtual void showEvent(QShowEvent *event);
 private slots:
