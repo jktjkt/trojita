@@ -71,6 +71,8 @@ AbookAddressbook::AbookAddressbook(): m_updateTimer(0)
 
     m_contacts = new QStandardItemModel(this);
 
+    ensureAbookPath();
+
     // read abook
     readAbook(false);
 
@@ -122,6 +124,10 @@ void AbookAddressbook::ensureAbookPath()
             file.write(abookrc.join("\n").toLocal8Bit());
         }
         file.close();
+    }
+    QFile abookFile(abook.filePath(QLatin1String("addressbook")));
+    if (!abookFile.exists()) {
+        abookFile.open(QIODevice::WriteOnly);
     }
 }
 
