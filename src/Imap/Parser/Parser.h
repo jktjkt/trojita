@@ -390,6 +390,7 @@ private:
     QByteArray startTlsCommand;
     QByteArray startTlsReply;
     QByteArray compressDeflateCommand;
+    QByteArray literalCommandTag;
 
     /** @short Unique-id for debugging purposes */
     uint m_parserId;

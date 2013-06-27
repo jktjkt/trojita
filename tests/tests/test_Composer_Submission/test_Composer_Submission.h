@@ -56,6 +56,7 @@ private slots:
     void testBurlSubmission();
     void testCatenateBurlWithoutUrlauth();
     void testFailedMsa();
+    void testNoImapContinuation();
     void init();
     void cleanup();
 

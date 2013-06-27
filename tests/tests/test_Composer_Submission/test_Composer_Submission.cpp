@@ -546,4 +546,32 @@ void ComposerSubmissionTest::testFailedMsa()
 
 }
 
+/** @short Test the Parser that a missing continuation request effectively cancels out the processing of the current command
+
+We're testing it on this level because it is easy to trigger sending a literal this way.
+*/
+void ComposerSubmissionTest::testNoImapContinuation()
+{
+    helperSetupProperHeaders();
+    m_submission->send();
+    QCOMPARE(requestedSendingSpy->size(), 0);
+
+    // Also queue a couple of another IMAP commands
+    model->switchToMailbox(idxB);
+    model->switchToMailbox(idxC);
+
+    // A command sending the literal string will be rejected.
+    cClient(t.mk("APPEND outgoing ($SubmitPending \\Seen) {307}\r\n"));
+    cServer(t.last("NO rejected\r\n"));
+    // The Parser shall detect this and proceed towards sending other IMAP commands
+    cClient(t.mk("SELECT b\r\n"));
+    cServer("* 0 exists\r\n" + t.last("OK selected\r\n"));
+    cClient(t.mk("SELECT c\r\n"));
+    cServer("* 0 exists\r\n" + t.last("OK selected\r\n"));
+    cEmpty();
+    QCOMPARE(submissionFailedSpy->size(), 1);
+    QCOMPARE(submissionSucceededSpy->size(), 0);
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)

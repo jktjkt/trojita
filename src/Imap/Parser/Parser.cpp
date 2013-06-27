@@ -617,6 +617,22 @@ void Parser::queueResponse(const QSharedPointer<Responses::AbstractResponse> &re
     if (respQueue.size() == 1) {
         emit responseReceived(this);
     }
+
+    if (waitingForContinuation) {
+        // Check whether this is the server's way of informing us that the continuation request is not going to arrive
+        QSharedPointer<Responses::State> stateResponse = resp.dynamicCast<Responses::State>();
+        Q_ASSERT(!literalCommandTag.isEmpty());
+        if (stateResponse && stateResponse->tag == literalCommandTag) {
+            literalCommandTag.clear();
+            waitingForContinuation = false;
+            cmdQueue.pop_front();
+            QTimer::singleShot(0, this, SLOT(executeCommands()));
+            if (stateResponse->kind != Responses::NO && stateResponse->kind != Responses::BAD) {
+                // FIXME: use parserWarning when it's adapted throughout the code
+                qDebug() << "Synchronized literal rejected but response is neither NO nor BAD";
+            }
+        }
+    }
 }
 
 bool Parser::hasResponse() const
@@ -834,6 +850,9 @@ void Parser::executeACommand()
                 socket->write(buf);
                 part.numberSent = true;
                 waitingForContinuation = true;
+                Q_ASSERT(literalCommandTag.isEmpty());
+                literalCommandTag = cmd.cmds.first().text;
+                Q_ASSERT(!literalCommandTag.isEmpty());
                 emit lineSent(this, sensitiveCommand ? privateMessage : buf);
                 return; // and wait for continuation request
             }
@@ -920,6 +939,7 @@ void Parser::processLine(QByteArray line)
     } else if (line.startsWith("+ ")) {
         if (waitingForContinuation) {
             waitingForContinuation = false;
+            literalCommandTag.clear();
             QTimer::singleShot(0, this, SLOT(executeCommands()));
         } else if (waitForInitialIdle) {
             waitForInitialIdle = false;
