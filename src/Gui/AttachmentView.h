@@ -64,8 +64,11 @@ private slots:
     void slotDownloadAttachment();
     void slotOpenAttachment();
 
+    void slotDeleteTemporaryFile(); // XXX: better name?
     void slotFileNameRequestedOnOpen(QString *fileName);
     void slotFileNameRequested(QString *fileName);
+    void slotTransferError(const QString &errorString);
+    void slotTransferStarted();
     void slotTransferSucceeded();
 
 private:

@@ -55,6 +55,12 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     m_openAttachment(0), m_netAccess(manager), m_openingManager(0), m_tmpFile(0)
 {
     m_openingManager = new Imap::Network::FileDownloadManager(this, m_netAccess, m_partIndex);
+    connect(m_openingManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
+    connect(m_openingManager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
+    connect(m_openingManager, SIGNAL(transferError(QString)), this, SLOT(slotTransferError(QString)));
+    connect(m_openingManager, SIGNAL(started()), this, SLOT(slotTransferStarted()));
+    connect(m_openingManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
+    connect(m_openingManager, SIGNAL(succeeded()), this, SLOT(slotDeleteTemporaryFile()));
     QHBoxLayout *layout = new QHBoxLayout(this);
 
     // Icon on the left
@@ -118,19 +124,19 @@ void AttachmentView::slotDownloadAttachment()
 {
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(0, m_netAccess, m_partIndex);
     connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
+    connect(manager, SIGNAL(started()), this, SLOT(slotTransferStarted()));
     connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
     connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
     connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
+    connect(manager, SIGNAL(transferError(QString)), this, SLOT(slotTransferError(QString)));
+    connect(manager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
     manager->downloadPart();
 }
 
 void AttachmentView::slotOpenAttachment()
 {
-    disconnect(m_openingManager, 0, this, 0);
-    connect(m_openingManager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
-    connect(m_openingManager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
-    connect(m_openingManager, SIGNAL(succeeded()), this, SLOT(slotTransferSucceeded()));
-    m_openingManager->downloadPart();
+    if (!m_tmpFile)
+        m_openingManager->downloadPart();
 }
 
 void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
@@ -157,7 +163,23 @@ void AttachmentView::slotFileNameRequested(QString *fileName)
     *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), fileLocation, QString(), 0, QFileDialog::HideNameFilterDetails);
 }
 
+void AttachmentView::slotTransferError(const QString &errorString)
+{
+    m_downloadButton->setEnabled(true);
+}
+
+void AttachmentView::slotTransferStarted()
+{
+    m_downloadButton->setEnabled(false);
+}
+
 void AttachmentView::slotTransferSucceeded()
+{
+    m_downloadButton->setEnabled(true);
+}
+
+// XXX: better name?
+void AttachmentView::slotDeleteTemporaryFile()
 {
     Q_ASSERT(m_tmpFile);
 

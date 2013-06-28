@@ -57,6 +57,7 @@ public slots:
 signals:
     void transferError(const QString &errorMessage);
     void fileNameRequested(QString *fileName);
+    void started();
     void succeeded();
 private:
     Imap::Network::MsgPartNetAccessManager *manager;

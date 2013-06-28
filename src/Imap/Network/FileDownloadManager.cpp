@@ -78,6 +78,7 @@ void FileDownloadManager::downloadPart()
     saving.setFileName(saveFileName);
     saved = false;
 
+    emit started();
     QNetworkRequest request;
     QUrl url;
     url.setScheme(QLatin1String("trojita-imap"));
@@ -105,6 +106,7 @@ void FileDownloadManager::downloadMessage()
 
     saving.setFileName(saveFileName);
     saved = false;
+    emit started();
     connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
     m_combiner->load();
 }
