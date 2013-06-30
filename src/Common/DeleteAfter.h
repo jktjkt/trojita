@@ -28,7 +28,7 @@
 namespace Common
 {
 
-/** @short Delete an QObject after a specified timeout */
+/** @short Delete a QObject after a specified timeout */
 class DeleteAfter: public QObject
 {
     Q_OBJECT

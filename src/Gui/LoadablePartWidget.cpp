@@ -20,7 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "LoadablePartWidget.h"
-#include "Gui/MessageView.h" // so that the ocmpiler knows that it's an QObject
+#include "Gui/MessageView.h" // so that the compiler knows that it's a QObject
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Utils.h"
 

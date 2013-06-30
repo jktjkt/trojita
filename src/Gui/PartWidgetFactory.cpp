@@ -21,7 +21,7 @@
 */
 #include "PartWidgetFactory.h"
 #include "AttachmentView.h"
-#include "MessageView.h" // so that the ocmpiler knows that it's an QObject
+#include "MessageView.h" // so that the compiler knows that it's a QObject
 #include "LoadablePartWidget.h"
 #include "PartWidget.h"
 #include "SimplePartWidget.h"

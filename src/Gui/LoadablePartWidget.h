@@ -49,7 +49,7 @@ public:
     /** @short Load when the widget becomes visible, or wait until the user clicks a button? */
     typedef enum {
         LOAD_ON_SHOW, /**< @short Load as soon as the widget becomes visible */
-        LOAD_ON_CLICK /**< @short Load onlt after the user has clicked a button */
+        LOAD_ON_CLICK /**< @short Load only after the user has clicked a button */
     } LoadingTriggerMode;
     LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
                        MessageView *messageView, const LoadingTriggerMode mode);
