@@ -51,12 +51,12 @@ QString PasswordDialog::password() const
 }
 
 QString PasswordDialog::getPassword(QWidget *parent, const QString &windowTitle, const QString &description,
-                                    QLineEdit::EchoMode echo, const QString &password, bool *ok)
+                                    const QString &password, bool *ok)
 {
     PasswordDialog dialog(parent);
     dialog.setWindowTitle(windowTitle);
     dialog.ui.descriptionLabel->setText(description);
-    dialog.ui.passwordLineEdit->setEchoMode(echo);
+    dialog.ui.passwordLineEdit->setEchoMode(QLineEdit::Password);
     dialog.ui.passwordLineEdit->setText(password);
 
     int ret = dialog.exec();
