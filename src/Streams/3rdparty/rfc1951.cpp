@@ -68,7 +68,7 @@ Rfc1951Compressor::Rfc1951Compressor(int chunkSize)
 
 Rfc1951Compressor::~Rfc1951Compressor()
 {
-    delete _buffer;
+    delete[] _buffer;
     deflateEnd(&_zStream);
 }
 
