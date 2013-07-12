@@ -552,6 +552,8 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpPass)->setEnabled(authEnabled);
         sendmail->setEnabled(false);
         lay->labelForField(sendmail)->setEnabled(false);
+        saveToImap->setEnabled(true);
+        lay->labelForField(saveToImap)->setEnabled(true);
         smtpBurl->setEnabled(saveToImap->isChecked());
         lay->labelForField(smtpBurl)->setEnabled(saveToImap->isChecked());
 
