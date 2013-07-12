@@ -561,7 +561,15 @@ void ComposerSubmissionTest::testNoImapContinuation()
     model->switchToMailbox(idxC);
 
     // A command sending the literal string will be rejected.
-    cClient(t.mk("APPEND outgoing ($SubmitPending \\Seen) {307}\r\n"));
+    // The number of octets is platform-dependent, so we cannot just use cClient() here.
+    for (int i=0; i<5; ++i)
+        QCoreApplication::processEvents();
+    QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
+    QString expected = t.mk("APPEND outgoing ($SubmitPending \\Seen) {");
+    int octets;
+    EXTRACT_TARILING_NUMBER(octets);
+    Q_UNUSED(octets);
+    cEmpty();
     cServer(t.last("NO rejected\r\n"));
     // The Parser shall detect this and proceed towards sending other IMAP commands
     cClient(t.mk("SELECT b\r\n"));
