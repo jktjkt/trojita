@@ -110,7 +110,7 @@ Rfc1951Decompressor::Rfc1951Decompressor(int chunkSize)
 Rfc1951Decompressor::~Rfc1951Decompressor()
 {
     inflateEnd(&_zStream);
-    delete _stagingBuffer;
+    delete[] _stagingBuffer;
 }
 
 bool Rfc1951Decompressor::consume(QIODevice *in)
