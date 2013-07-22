@@ -272,6 +272,8 @@ void MainWindow::createActions()
     showToolBar->setCheckable(true);
     showToolBar->setChecked(true);
     connect(showToolBar, SIGNAL(triggered(bool)), m_mainToolbar, SLOT(setVisible(bool)));
+    connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), showToolBar, SLOT(setChecked(bool)));
+    connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), this, SLOT(saveSizesAndState()));
 
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
