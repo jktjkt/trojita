@@ -99,6 +99,7 @@ class MainWindow: public QMainWindow
     typedef enum { LAYOUT_COMPACT, LAYOUT_WIDE, LAYOUT_ONE_AT_TIME } LayoutMode;
 public:
     MainWindow(QSettings *settings);
+    void showMainWindow();
     QSize sizeHint() const;
 
     Imap::Mailbox::Model *imapModel() const;

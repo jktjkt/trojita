@@ -896,12 +896,17 @@ void MainWindow::slotIconActivated(const QSystemTrayIcon::ActivationReason reaso
 {
     if (reason == QSystemTrayIcon::Trigger) {
         setVisible(!isVisible());
-        if (isVisible()) {
-            activateWindow();
-            raise();
-        }
+        if (isVisible())
+            showMainWindow();
     }
- }
+}
+
+void MainWindow::showMainWindow()
+{
+    setVisible(true);
+    activateWindow();
+    raise();
+}
 
 void MainWindow::msgListClicked(const QModelIndex &index)
 {
