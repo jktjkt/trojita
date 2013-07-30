@@ -610,21 +610,21 @@ else()
     message(STATUS "Qt Linguist (lupdate/lrelease/lconvert) not found, disabling localization support")
 endif()
 
-if(GIT_FOUND AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
-    add_custom_target(git_version DEPENDS git_version_fake_file)
-    add_custom_command(OUTPUT git_version_fake_file ${CMAKE_CURRENT_BINARY_DIR}/gitversion.hpp
-        COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DGIT_EXECUTABLE=${GIT_EXECUTABLE} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/GitVersion.cmake)
-    set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/gitversion.hpp
-        PROPERTIES GENERATED TRUE
-        HEADER_FILE_ONLY TRUE)
+set(version_files ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.h ${CMAKE_CURRENT_BINARY_DIR}/trojita-git-version.h)
+if(WIN32 AND WITH_NSIS AND MAKENSIS)
+    set(version_files ${version_files} ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.nsi)
+    set(NSIS TRUE)
 endif()
+
+add_custom_target(version DEPENDS version_fake_file)
+add_custom_command(OUTPUT version_fake_file ${version_files}
+    COMMAND ${CMAKE_COMMAND} -DGIT_EXECUTABLE=${GIT_EXECUTABLE} -DNSIS=${NSIS} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/TrojitaVersion.cmake)
+set_source_files_properties(${version_files}
+    PROPERTIES GENERATED TRUE
+    HEADER_FILE_ONLY TRUE)
 
 add_library(AppVersion ${libAppVersion_SOURCES})
-
-if(GIT_FOUND AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
-    set_property(TARGET AppVersion APPEND PROPERTY COMPILE_DEFINITIONS HAS_GITVERSION)
-    add_dependencies(AppVersion git_version git_version_fake_file)
-endif()
+add_dependencies(AppVersion version version_fake_file)
 
 add_library(Common ${libCommon_SOURCES})
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})

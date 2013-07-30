@@ -24,17 +24,15 @@
 #include "SetCoreApplication.h"
 #include "Common/Application.h"
 
-#ifdef HAS_GITVERSION
-#include "gitversion.hpp"
-#endif
+#include "trojita-git-version.h"
 
 namespace AppVersion
 {
 
 void setGitVersion()
 {
-#ifdef HAS_GITVERSION
-    Common::Application::version = QLatin1String(gitVersion);
+#ifdef TROJITA_GIT_VERSION
+    Common::Application::version = QLatin1String(TROJITA_GIT_VERSION);
 #endif
 }
 
