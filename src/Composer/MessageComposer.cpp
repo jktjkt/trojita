@@ -522,7 +522,7 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     target->write("Content-Type: text/plain; charset=utf-8; format=flowed\r\n"
                   "Content-Transfer-Encoding: quoted-printable\r\n"
                   "\r\n");
-    target->write(Imap::quotedPrintableEncode(m_text.toUtf8()));
+    target->write(Imap::quotedPrintableEncode(Imap::wrapFormatFlowed(m_text).toUtf8()));
 }
 
 /** @short Write a header consisting of a list of message-ids
