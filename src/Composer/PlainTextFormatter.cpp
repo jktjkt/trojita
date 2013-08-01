@@ -243,13 +243,20 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         if (prev->first == it->first) {
             // empty lines must not be removed
 
-            QString separator;
+            QString separator = QLatin1String("\n");
             switch (flowed) {
             case FORMAT_PLAIN:
-                separator = QLatin1Char('\n');
+                // nothing fancy to do here
                 break;
             case FORMAT_FLOWED:
-                separator = prev->second.endsWith(QLatin1Char(' ')) ? QLatin1String("") : QLatin1String("\n");
+                // Now the trailing \n is striped already; we only have to check for stuff ending with " " or " \r".
+                if (prev->second.endsWith(QLatin1Char(' '))) {
+                    separator = QString();
+                } else if (prev->second.endsWith(QLatin1String(" \r"))) {
+                    separator = QString();
+                    // Remove that extra \r
+                    prev->second.chop(1);
+                }
                 break;
             }
             prev->second += separator + it->second;

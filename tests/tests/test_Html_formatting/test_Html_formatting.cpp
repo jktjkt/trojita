@@ -59,6 +59,14 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed_data()
 
     QTest::newRow("minimal") << QString("ahoj") << QString("ahoj") << QString("ahoj");
 
+    QTest::newRow("multiline-trivial-LF") << QString("Sample \ntext") << QString("Sample text") << QString("Sample \ntext");
+    QTest::newRow("multiline-trivial-CR") << QString("Sample \rtext") << QString("Sample \rtext") << QString("Sample \rtext");
+    QTest::newRow("multiline-trivial-CRLF") << QString("Sample \r\ntext") << QString("Sample text") << QString("Sample \r\ntext");
+    QTest::newRow("multiline-with-empty-lines")
+            << QString("Sample \ntext.\n\nYay!")
+            << QString("Sample text.\n\nYay!")
+            << QString("Sample \ntext.\n\nYay!");
+
     QTest::newRow("signature-LF")
             << QString("Yay.\n-- \nMeh.\n")
             << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>")
