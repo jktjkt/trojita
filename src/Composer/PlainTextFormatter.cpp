@@ -182,7 +182,7 @@ QRegExp signatureSeparator()
 {
     // "-- " is the standards-compliant signature separator.
     // "Line of underscores" is non-standard garbage which Mailman happily generates. Yes, it's nasty and ugly.
-    return QRegExp(QLatin1String("-- |_{45,}"));
+    return QRegExp(QLatin1String("(-- |_{45,})(\\r)?"));
 }
 
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
