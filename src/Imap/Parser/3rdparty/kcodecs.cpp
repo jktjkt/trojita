@@ -47,7 +47,7 @@ static const char hexChars[16] =
   '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
 };
 
-static const unsigned int maxQPLineLength = 70;
+static const unsigned int maxQPLineLength = 76;
 
 } // namespace KCodecs
 
