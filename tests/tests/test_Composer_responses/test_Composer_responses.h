@@ -38,6 +38,9 @@ private slots:
 
     void testResponseAddresses();
     void testResponseAddresses_data();
+
+    void testFormatFlowedComposition();
+    void testFormatFlowedComposition_data();
 };
 
 #endif

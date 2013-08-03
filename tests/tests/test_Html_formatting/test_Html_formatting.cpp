@@ -58,6 +58,23 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed_data()
     QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n") << QString("\n\n");
 
     QTest::newRow("minimal") << QString("ahoj") << QString("ahoj") << QString("ahoj");
+
+    QTest::newRow("multiline-trivial-LF") << QString("Sample \ntext") << QString("Sample text") << QString("Sample \ntext");
+    QTest::newRow("multiline-trivial-CR") << QString("Sample \rtext") << QString("Sample \rtext") << QString("Sample \rtext");
+    QTest::newRow("multiline-trivial-CRLF") << QString("Sample \r\ntext") << QString("Sample text") << QString("Sample \r\ntext");
+    QTest::newRow("multiline-with-empty-lines")
+            << QString("Sample \ntext.\n\nYay!")
+            << QString("Sample text.\n\nYay!")
+            << QString("Sample \ntext.\n\nYay!");
+
+    QTest::newRow("signature-LF")
+            << QString("Yay.\n-- \nMeh.\n")
+            << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>")
+            << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>");
+    QTest::newRow("signature-CRLF")
+            << QString("Yay.\r\n-- \r\nMeh.\r\n")
+            << QString("Yay.\r\n<span class=\"signature\">-- \r\nMeh.\r\n</span>")
+            << QString("Yay.\r\n<span class=\"signature\">-- \r\nMeh.\r\n</span>");
 }
 
 void HtmlFormattingTest::testPlainTextFormattingViaHtml()

@@ -31,6 +31,7 @@
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Composer/SubjectMangling.h"
+#include "Imap/Encoders.h"
 
 Q_DECLARE_METATYPE(Composer::RecipientList)
 Q_DECLARE_METATYPE(QList<QUrl>)
@@ -426,6 +427,81 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (QStringList() << QString::fromUtf8("j@k")) << QString::fromUtf8("j@k");
 
     // FIXME: more tests!
+}
+
+void ComposerResponsesTest::testFormatFlowedComposition()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, split);
+
+    QCOMPARE(Imap::wrapFormatFlowed(input), split);
+}
+
+void ComposerResponsesTest::testFormatFlowedComposition_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("split");
+
+    QTest::newRow("empty") << QString() << QString();
+    QTest::newRow("one-line") << QString("ahoj") << QString("ahoj");
+    QTest::newRow("one-line-LF") << QString("ahoj\n") << QString("ahoj\r\n");
+    QTest::newRow("one-line-CR") << QString("ahoj\r") << QString("ahoj");
+    QTest::newRow("one-line-CRLF") << QString("ahoj\r\n") << QString("ahoj\r\n");
+    QTest::newRow("two-lines") << QString("ahoj\ncau") << QString("ahoj\r\ncau");
+    QTest::newRow("two-lines-LF") << QString("ahoj\ncau\n") << QString("ahoj\r\ncau\r\n");
+
+    QTest::newRow("wrapping-real")
+            << QString("I'm typing some random stuff right here; I'm courious to see how the word wrapping ends up. "
+                       "Perhaps it's going to be relevant for implementation within Trojita: we'll see about that. "
+                       "Johoho, let's see how it ends up.\n\n"
+                       "And in a signed mail, as a nice bonus. Perhaps try adding some Unicode: ěščřžýáíé for the lulz.\n\n"
+                       "-- \nTrojita, a fast e-mail client -- http://trojita.flaska.net/\n")
+            << QString("I'm typing some random stuff right here; I'm courious to see how the word \r\nwrapping ends up. "
+                       "Perhaps it's going to be relevant for implementation \r\nwithin Trojita: we'll see about that. "
+                       "Johoho, let's see how it ends up.\r\n\r\n"
+                       "And in a signed mail, as a nice bonus. Perhaps try adding some Unicode: \r\něščřžýáíé for the lulz.\r\n\r\n"
+                       "-- \r\nTrojita, a fast e-mail client -- http://trojita.flaska.net/\r\n");
+
+    QTest::newRow("wrapping-longword-1")
+            << QString("HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.")
+            << QString("HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. \r\nGood.");
+
+    QTest::newRow("wrapping-longword-2")
+            << QString("Now this is nicer, suppose that here is AnOverlyLongWordWhichStartsInTheMiddleOfALine. Good.")
+            << QString("Now this is nicer, suppose that here is \r\nAnOverlyLongWordWhichStartsInTheMiddleOfALine. Good.");
+
+    QTest::newRow("wrapping-longword-3")
+            << QString("Now this is nicer, suppose that here is AnOverlyLongWordWhichStartsInTheMiddleOfALineAndContinuesWellOverTheLineSize. Good.")
+            << QString("Now this is nicer, suppose that here is \r\nAnOverlyLongWordWhichStartsInTheMiddleOfALineAndContinuesWellOverTheLineSize. \r\nGood.");
+
+    QTest::newRow("wrapping-longword-4")
+            << QString("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.")
+            << QString("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. \r\nGood.");
+
+    QTest::newRow("wrapping-longword-5")
+            << QString("> NowDoTheSameWithSomeWordThatIsTooLongToFitInThisParagraphThisWillBeEnoughIHopeBecauseItIsAnnoyingToType, \n"
+                       "> isn't it?\n")
+            << QString("> NowDoTheSameWithSomeWordThatIsTooLongToFitInThisParagraphThisWillBeEnoughIHopeBecauseItIsAnnoyingToType, \r\n"
+                       "> isn't it?\r\n");
+
+    QString longline("velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat6 XYZ");
+    Q_ASSERT(longline.length() == 76 + QString("XYZ").length());
+    QTest::newRow("wrapping-longline")
+            << QString(longline)
+            << QString("velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat6 \r\nXYZ");
+
+    QTest::newRow("some-lines-with-spaces-1")
+            << QString("foo\n \nbar")
+            << QString("foo\r\n \r\nbar");
+    QTest::newRow("some-lines-with-spaces-2")
+            << QString("foo\n \nbar\n")
+            << QString("foo\r\n \r\nbar\r\n");
+    QTest::newRow("some-lines-with-spaces-3")
+            << QString("foo\n \nbar\n\n")
+            << QString("foo\r\n \r\nbar\r\n\r\n");
+    QTest::newRow("some-lines-with-spaces-4")
+            << QString("foo\n \nbar\n\n ")
+            << QString("foo\r\n \r\nbar\r\n\r\n ");
 }
 
 TROJITA_HEADLESS_TEST(ComposerResponsesTest)

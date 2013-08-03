@@ -564,4 +564,92 @@ QByteArray encodeRfc2231Parameter(const QByteArray &key, const QString &value)
     return res + '"';
 }
 
+/** @short Insert extra spaces to match the SHOULD from RFC3676
+
+The format=flowed specification contains a SHOULD provision that long paragraphs are to be wrapped so that they are no longer
+than 78 characters. This function will insert line breaks (with the appropriate space guards) so that the lines of text are no
+longer than a certain amount of *characters*. Please note that this limit is about Unicode code points as provided by QString
+and hence not a limit on the number of actual bytes that the line will occupy after being encoded into UTF-8 and the result
+encoded in quoted-printable.
+
+This function also pretends that "space" is only the ASCII space; it will not attempt to insert any spacing into the middle of
+a sequence of other characters, even if that sequence contained something which can be considered a "word boundary" in some
+non-Latin script. I guess that violating a SHOULD by producing slightly longer chunk of bytes is better than breaking a foreign
+script which I know nothing about.
+*/
+QString wrapFormatFlowed(const QString &input)
+{
+    QRegExp justQuotationAndSpaces(QLatin1String("[> ]"));
+
+    // Determining a proper cutoff is not easy. The Q-P allows for at most 76 chars per line, not counting the trailing CR LF.
+    // Suppose there's exactly one multibyte character which gets decoded into two bytes in UTF-8. After these two bytes are
+    // encoded via quoted-printable, they will take up six bytes together (each byte is converted to hex and prepended by "=").
+    // This means that such a line could contain only 70 ASCII characters and one non-ASCII one (assuming it gets encoded as a
+    // two-byte sequence in UTF-8) and it will still fit into a single line in Q-P.
+    //
+    // However, the only points for making this guess right are:
+    // a) to fit the SHOULD requirement in RFC 3676 [1] which says that line lengths should be <= 78 characters,
+    // b) to avoid Q-P doing excessive line wrapping later on
+    //
+    // If the text contain non-ASCII characters, these are not going to be readable without a proper Q-P decoder. As such, the
+    // argument for not triggering "useless" breaks at the QP time has much lower weight in such situations -- the aesthetics of
+    // the raw, QP-encoded form are not terribly relevant IMHO.
+    //
+    // The b) leads us to 76 characters, while yet another sentence in RFC 3676 suggests wrapping at 72, and even speaks about
+    // 66 as aestheticaly pleasing.
+    //
+    // Finally, because these "76 characters" have to include the trailing space, we're now at 75.
+    //
+    // [1] http://tools.ietf.org/html/rfc3676#section-4.2
+    const int defaultCutof = 75;
+
+    QStringList res;
+    Q_FOREACH(QString line, input.split(QLatin1Char('\n'), QString::KeepEmptyParts)) {
+        line.remove(QLatin1Char('\r'));
+        if (line.isEmpty()) {
+            res << line;
+            continue;
+        }
+
+        int previousBreak = 0;
+        while (previousBreak < line.size()) {
+            // Find a place to insert the line break
+            int size = defaultCutof;
+            if (line.size() <= previousBreak + size) {
+                // We can safely use this chunk
+            } else if (line.at(previousBreak + size) == QLatin1Char(' ')) {
+                // We've found our space -- let's just use it and be done here
+            } else {
+                // OK, let's find a place to break the words at. At first, go back and try to find any possibility of reusing
+                // an existing space.
+                while (size > 0 && line.at(previousBreak + size) != QLatin1Char(' ')) {
+                    --size;
+                    if (justQuotationAndSpaces.exactMatch(line.left(size))) {
+                        // Too bad; there is nothing but quotation at the beginning of this line. We cannot break the line here!
+                        // Doing so would create line which look like this:
+                        //   >[space]
+                        //   quoted text goes here
+                        size = 0;
+                    }
+                }
+                if (size == 0) {
+                    size = defaultCutof;
+                    while (previousBreak + size < line.size() && line.at(previousBreak + size) != QLatin1Char(' ')) {
+                        ++size;
+                    }
+                }
+            }
+
+            Q_ASSERT(previousBreak + size >= line.size() || line.at(previousBreak + size) == QLatin1Char(' '));
+
+            // Now we want to insert the newline *after* the space
+            ++size;
+
+            res << line.mid(previousBreak, size);
+            previousBreak += size;
+        }
+    }
+    return res.join(QLatin1String("\r\n"));
+}
+
 }
