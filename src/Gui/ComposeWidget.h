@@ -113,8 +113,6 @@ private:
     bool buildMessageData();
     bool shouldBuildMessageLocally() const;
 
-    static QString killDomainPartFromString(const QString &s);
-
     void saveDraft(const QString &path);
 
     Ui::ComposeWidget *ui;
