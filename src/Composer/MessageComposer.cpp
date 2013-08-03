@@ -34,6 +34,7 @@
 #include "Composer/ComposerAttachments.h"
 #include "Gui/IconLoader.h"
 #include "Imap/Encoders.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 
@@ -75,6 +76,8 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
             return Gui::loadIcon(QLatin1String("mail-attachment"));
         }
     }
+    case Imap::Mailbox::RoleAttachmentContentDispositionMode:
+        return static_cast<int>(m_attachments[index.row()]->contentDispositionMode());
     }
     return QVariant();
 }
@@ -742,6 +745,24 @@ void MessageComposer::removeAttachment(const QModelIndex &index)
     beginRemoveRows(QModelIndex(), index.row(), index.row());
     delete m_attachments.takeAt(index.row());
     endRemoveRows();
+}
+
+void MessageComposer::setAttachmentName(const QModelIndex &index, const QString &newName)
+{
+    if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_attachments.size())
+        return;
+
+    if (m_attachments[index.row()]->setPreferredFileName(newName))
+        emit dataChanged(index, index);
+}
+
+void MessageComposer::setAttachmentContentDisposition(const QModelIndex &index, const ContentDisposition disposition)
+{
+    if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_attachments.size())
+        return;
+
+    if (m_attachments[index.row()]->setContentDispositionMode(disposition))
+        emit dataChanged(index, index);
 }
 
 void MessageComposer::setPreloadEnabled(const bool preload)

@@ -24,7 +24,9 @@
 #include <QAction>
 #include <QDragEnterEvent>
 #include <QDebug>
+#include <QInputDialog>
 #include "Composer/MessageComposer.h"
+#include "Imap/Model/ItemRoles.h"
 
 ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
     QListView(parent), m_dragging(false), m_dragInside(false), m_composer(0)
@@ -37,11 +39,22 @@ ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
     setDropIndicatorShown(false);
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
+    m_actionSendInline = new QAction(tr("Send Inline"), this);
+    m_actionSendInline->setCheckable(true);
+    connect(m_actionSendInline, SIGNAL(toggled(bool)), this, SLOT(slotToggledContentDispositionInline(bool)));
+    addAction(m_actionSendInline);
+
+    m_actionRename = new QAction(tr("Rename..."), this);
+    connect(m_actionRename, SIGNAL(triggered()), this, SLOT(slotRenameAttachment()));
+    addAction(m_actionRename);
+
     m_actionRemoveAttachment = new QAction(tr("Remove"), this);
     connect(m_actionRemoveAttachment, SIGNAL(triggered()), this, SLOT(slotRemoveAttachment()));
     addAction(m_actionRemoveAttachment);
 
     connect(this, SIGNAL(itemDroppedOut()), this, SLOT(slotRemoveAttachment()));
+    connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onCurrentChanged()));
+    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(onCurrentChanged()));
 }
 
 void ComposerAttachmentsList::setComposer(Composer::MessageComposer *composer)
@@ -93,8 +106,47 @@ void ComposerAttachmentsList::slotRemoveAttachment()
     m_composer->removeAttachment(currentIndex());
 }
 
+void ComposerAttachmentsList::slotToggledContentDispositionInline(bool checked)
+{
+    m_composer->setAttachmentContentDisposition(currentIndex(), checked ? Composer::CDN_INLINE : Composer::CDN_ATTACHMENT);
+}
+
+void ComposerAttachmentsList::slotRenameAttachment()
+{
+    bool ok;
+    QString newName = QInputDialog::getText(this, tr("Rename Attachment"), tr("New Name"), QLineEdit::Normal,
+                                            currentIndex().data().toString(), &ok);
+    if (ok) {
+        m_composer->setAttachmentName(currentIndex(), newName);
+    }
+}
+
 void ComposerAttachmentsList::onAttachmentNumberChanged()
 {
     Q_ASSERT(model());
-    m_actionRemoveAttachment->setEnabled(model()->rowCount() > 0);
+    bool hasAttachments = model()->rowCount() > 0;
+    m_actionRemoveAttachment->setEnabled(hasAttachments);
+    m_actionSendInline->setEnabled(hasAttachments);
+    m_actionRename->setEnabled(hasAttachments);
+    onCurrentChanged();
+}
+
+void ComposerAttachmentsList::onCurrentChanged()
+{
+    m_actionSendInline->setChecked(false);
+
+    // This is needed because the QVariant::toInt returns zero when faced with null QVariant
+    bool ok;
+    int res = currentIndex().data(Imap::Mailbox::RoleAttachmentContentDispositionMode).toInt(&ok);
+    if (!ok)
+        return;
+
+    switch (static_cast<Composer::ContentDisposition>(res)) {
+    case Composer::CDN_INLINE:
+        m_actionSendInline->setChecked(true);
+        break;
+    case Composer::CDN_ATTACHMENT:
+        // nothing is needed here
+        break;
+    }
 }

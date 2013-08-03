@@ -47,9 +47,14 @@ protected:
     void dragLeaveEvent(QDragLeaveEvent *de);
 public slots:
     void slotRemoveAttachment();
+    void slotToggledContentDispositionInline(bool checked);
+    void slotRenameAttachment();
     void onAttachmentNumberChanged();
+    void onCurrentChanged();
 private:
     bool m_dragging, m_dragInside;
     Composer::MessageComposer *m_composer;
     QAction *m_actionRemoveAttachment;
+    QAction *m_actionSendInline;
+    QAction *m_actionRename;
 };

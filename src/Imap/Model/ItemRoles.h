@@ -166,6 +166,12 @@ enum {
     /** @short A short explanaiton of the task -- what is it doing? */
     RoleTaskCompactName,
 
+    /** @short Content-Disposition (inline or attachment) of an attachment within MessageComposer
+
+    The enum value is converted to int.
+    */
+    RoleAttachmentContentDispositionMode,
+
     /** @short The very last role */
     RoleInvalidLastOne
 };

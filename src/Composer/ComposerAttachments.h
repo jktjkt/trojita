@@ -26,6 +26,7 @@
 #include <QIODevice>
 #include <QPointer>
 #include <QSharedPointer>
+#include "Composer/ContentDisposition.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -43,12 +44,17 @@ namespace Composer {
 /** @short A generic item to be used as an attachment */
 class AttachmentItem {
 public:
+    AttachmentItem();
     virtual ~AttachmentItem();
 
     virtual QString caption() const = 0;
     virtual QString tooltip() const = 0;
     virtual QByteArray mimeType() const = 0;
-    virtual QByteArray contentDispositionHeader() const = 0;
+    virtual QByteArray contentDispositionHeader() const;
+    virtual ContentDisposition contentDispositionMode() const;
+    virtual bool setContentDispositionMode(const ContentDisposition contentDisposition);
+    virtual QString contentDispositionFilename() const = 0;
+    virtual bool setPreferredFileName(const QString &name) = 0;
 
     /** @short Return shared pointer to QIODevice which is ready to return data for this part
 
@@ -93,6 +99,9 @@ public:
 
     /** @short Describe the data for use in a drag-and-drop operation */
     virtual void asDroppableMimeData(QDataStream &stream) const = 0;
+
+protected:
+    ContentDisposition m_contentDisposition;
 };
 
 /** @short Part of a message stored in an IMAP server */
@@ -104,7 +113,8 @@ public:
     virtual QString caption() const;
     virtual QString tooltip() const;
     virtual QByteArray mimeType() const;
-    virtual QByteArray contentDispositionHeader() const;
+    virtual QString contentDispositionFilename() const;
+    virtual bool setPreferredFileName(const QString &name);
     virtual QSharedPointer<QIODevice> rawData() const;
     virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
@@ -119,6 +129,7 @@ private:
     QString mailbox;
     uint uidValidity;
     uint uid;
+    QString preferredName;
 };
 
 /** @short Part of a message stored in an IMAP server */
@@ -131,7 +142,8 @@ public:
     virtual QString caption() const;
     virtual QString tooltip() const;
     virtual QByteArray mimeType() const;
-    virtual QByteArray contentDispositionHeader() const;
+    virtual QString contentDispositionFilename() const;
+    virtual bool setPreferredFileName(const QString &name);
     virtual QSharedPointer<QIODevice> rawData() const;
     virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
@@ -147,6 +159,7 @@ private:
     uint uid;
     QString imapPartId;
     QString trojitaPath;
+    QString preferredName;
 };
 
 /** @short On-disk file */
@@ -158,7 +171,8 @@ public:
     virtual QString caption() const;
     virtual QString tooltip() const;
     virtual QByteArray mimeType() const;
-    virtual QByteArray contentDispositionHeader() const;
+    virtual QString contentDispositionFilename() const;
+    virtual bool setPreferredFileName(const QString &name);
     virtual QSharedPointer<QIODevice> rawData() const;
     virtual bool isAvailableLocally() const;
     virtual ContentTransferEncoding suggestedCTE() const;
@@ -167,6 +181,7 @@ public:
     virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
     QString fileName;
+    QString preferredName;
     mutable QByteArray m_cachedMime;
 };
 
