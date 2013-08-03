@@ -46,8 +46,17 @@ ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
 
 void ComposerAttachmentsList::setComposer(Composer::MessageComposer *composer)
 {
+    // prevent double connections etc
+    Q_ASSERT(!m_composer);
+
     m_composer = composer;
     setModel(m_composer);
+    connect(model(), SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(onAttachmentNumberChanged()));
+    connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onAttachmentNumberChanged()));
+    connect(model(), SIGNAL(layoutChanged()), this, SLOT(onAttachmentNumberChanged()));
+    connect(model(), SIGNAL(modelReset()), this, SLOT(onAttachmentNumberChanged()));
+
+    onAttachmentNumberChanged();
 }
 
 void ComposerAttachmentsList::startDrag(Qt::DropActions da)
@@ -82,4 +91,10 @@ void ComposerAttachmentsList::dragLeaveEvent(QDragLeaveEvent *de)
 void ComposerAttachmentsList::slotRemoveAttachment()
 {
     m_composer->removeAttachment(currentIndex());
+}
+
+void ComposerAttachmentsList::onAttachmentNumberChanged()
+{
+    Q_ASSERT(model());
+    m_actionRemoveAttachment->setEnabled(model()->rowCount() > 0);
 }
