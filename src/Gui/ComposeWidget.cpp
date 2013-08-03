@@ -80,19 +80,12 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     connect(m_submission, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
 
     ui->setupUi(this);
+    ui->attachmentsView->setComposer(m_submission->composer());
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
     cancelButton = ui->buttonBox->addButton(QDialogButtonBox::Cancel);
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-    ui->attachmentsView->setModel(m_submission->composer());
     connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
-    ui->attachmentsView->setContextMenuPolicy(Qt::ActionsContextMenu);
-
-    m_actionRemoveAttachment = new QAction(tr("Remove"), this);
-    connect(m_actionRemoveAttachment, SIGNAL(triggered()), this, SLOT(slotRemoveAttachment()));
-    ui->attachmentsView->addAction(m_actionRemoveAttachment);
-
-    connect(ui->attachmentsView, SIGNAL(itemDroppedOut()), SLOT(slotRemoveAttachment()));
 
     m_completionPopup = new QMenu(this);
     m_completionPopup->installEventFilter(this);
@@ -625,11 +618,6 @@ void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
             m_submission->composer()->addFileAttachment(url.path());
         }
     }
-}
-
-void ComposeWidget::slotRemoveAttachment()
-{
-    m_submission->composer()->removeAttachment(ui->attachmentsView->currentIndex());
 }
 
 void ComposeWidget::slotUpdateSignature()

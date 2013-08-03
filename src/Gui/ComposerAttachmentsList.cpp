@@ -21,10 +21,13 @@
 */
 
 #include "ComposerAttachmentsList.h"
+#include <QAction>
 #include <QDragEnterEvent>
 #include <QDebug>
+#include "Composer/MessageComposer.h"
 
-ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent) : QListView(parent), m_dragging(false), m_dragInside(false)
+ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
+    QListView(parent), m_dragging(false), m_dragInside(false), m_composer(0)
 {
     setMouseTracking( true );
     setAcceptDrops(true);
@@ -32,8 +35,20 @@ ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent) : QListView(pa
     setDragDropOverwriteMode( false );
     setDragEnabled(true);
     setDropIndicatorShown(false);
+    setContextMenuPolicy(Qt::ActionsContextMenu);
+
+    m_actionRemoveAttachment = new QAction(tr("Remove"), this);
+    connect(m_actionRemoveAttachment, SIGNAL(triggered()), this, SLOT(slotRemoveAttachment()));
+    addAction(m_actionRemoveAttachment);
+
+    connect(this, SIGNAL(itemDroppedOut()), this, SLOT(slotRemoveAttachment()));
 }
 
+void ComposerAttachmentsList::setComposer(Composer::MessageComposer *composer)
+{
+    m_composer = composer;
+    setModel(m_composer);
+}
 
 void ComposerAttachmentsList::startDrag(Qt::DropActions da)
 {
@@ -62,4 +77,9 @@ void ComposerAttachmentsList::dragLeaveEvent(QDragLeaveEvent *de)
     if (m_dragging)
         m_dragInside = false;
     QListView::dragLeaveEvent(de);
+}
+
+void ComposerAttachmentsList::slotRemoveAttachment()
+{
+    m_composer->removeAttachment(currentIndex());
 }

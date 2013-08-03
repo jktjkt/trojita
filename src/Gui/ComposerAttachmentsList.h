@@ -24,6 +24,10 @@
 #include <QListView>
 #include <QUrl>
 
+namespace Composer {
+class MessageComposer;
+}
+
 /** @short
     This class is used inside the ComposeWidget. @see GUI::ComposeWidget. It is positioned below
     the "Attach" button at the right of the ComposeWidget. When an item is dropped inside it an
@@ -33,13 +37,18 @@
 class ComposerAttachmentsList : public QListView {
     Q_OBJECT
 public:
-    explicit ComposerAttachmentsList(QWidget *parent = 0);
+    explicit ComposerAttachmentsList(QWidget *parent);
+    void setComposer(Composer::MessageComposer *composer);
 signals:
     void itemDroppedOut();
 protected:
     void startDrag(Qt::DropActions da);
     void dragEnterEvent(QDragEnterEvent *de);
     void dragLeaveEvent(QDragLeaveEvent *de);
+public slots:
+    void slotRemoveAttachment();
 private:
     bool m_dragging, m_dragInside;
+    Composer::MessageComposer *m_composer;
+    QAction *m_actionRemoveAttachment;
 };
