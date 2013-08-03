@@ -69,7 +69,9 @@ QString FileAttachmentItem::tooltip() const
     if (!f.isReadable())
         return MessageComposer::tr("File is not readable");
 
-    return MessageComposer::tr("%1: %2, %3").arg(fileName, QString::fromUtf8(mimeType()), QString::number(f.size()));
+    return MessageComposer::tr("%1: %2, %3")
+            .arg(fileName, QString::fromUtf8(mimeType()),
+                 Imap::Mailbox::PrettySize::prettySize(f.size(), Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX));
 }
 
 bool FileAttachmentItem::isAvailableLocally() const
