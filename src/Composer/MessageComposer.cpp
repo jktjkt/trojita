@@ -24,9 +24,15 @@
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QMimeData>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  include <QMimeDatabase>
+#else
+#  include "mimetypes-qt4/include/QMimeDatabase"
+#endif
 #include <QUrl>
 #include <QUuid>
 #include "Composer/ComposerAttachments.h"
+#include "Gui/IconLoader.h"
 #include "Imap/Encoders.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
@@ -58,6 +64,17 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
         return m_attachments[index.row()]->caption();
     case Qt::ToolTipRole:
         return m_attachments[index.row()]->tooltip();
+    case Qt::DecorationRole:
+    {
+        // This is more or less copy-pasted from Gui/AttachmentView.cpp. Unfortunately, sharing the implementation
+        // is not trivial due to the way how the static libraries are currently built.
+        QMimeType mimeType = QMimeDatabase().mimeTypeForName(m_attachments[index.row()]->mimeType());
+        if (mimeType.isValid() && !mimeType.isDefault()) {
+            return QIcon::fromTheme(mimeType.iconName(), Gui::loadIcon(QLatin1String("mail-attachment")));
+        } else {
+            return Gui::loadIcon(QLatin1String("mail-attachment"));
+        }
+    }
     }
     return QVariant();
 }
