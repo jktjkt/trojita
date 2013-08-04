@@ -54,7 +54,8 @@ class AttachmentView : public QWidget
 {
     Q_OBJECT
 public:
-    AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex);
+    AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex,
+                   QWidget *contentWidget);
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
 private slots:
@@ -72,11 +73,13 @@ private:
 
     QAction *m_downloadAttachment;
     QAction *m_openAttachment;
+    QAction *m_showHideAttachment;
 
     Imap::Network::MsgPartNetAccessManager *m_netAccess;
     Imap::Network::FileDownloadManager *m_openingManager;
 
     QTemporaryFile *m_tmpFile;
+    QWidget *m_contentWidget;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement

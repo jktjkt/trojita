@@ -49,12 +49,22 @@
 namespace Gui
 {
 
-AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex):
+AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
+                               const QModelIndex &partIndex, QWidget *contentWidget):
     QWidget(parent), m_partIndex(partIndex), m_downloadButton(0), m_downloadAttachment(0),
-    m_openAttachment(0), m_netAccess(manager), m_openingManager(0), m_tmpFile(0)
+    m_openAttachment(0), m_showHideAttachment(0), m_netAccess(manager), m_openingManager(0), m_tmpFile(0),
+    m_contentWidget(contentWidget)
 {
     m_openingManager = new Imap::Network::FileDownloadManager(this, m_netAccess, m_partIndex);
-    QHBoxLayout *layout = new QHBoxLayout(this);
+
+    QVBoxLayout *contentLayout = new QVBoxLayout(this);
+    QWidget *attachmentControls = new QWidget();
+    contentLayout->addWidget(attachmentControls);
+    if (m_contentWidget) {
+        contentLayout->addWidget(m_contentWidget);
+    }
+
+    QHBoxLayout *layout = new QHBoxLayout(attachmentControls);
 
     // Icon on the left
     QLabel *lbl = new QLabel();
@@ -105,6 +115,12 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     m_openAttachment = menu->addAction(tr("Open Directly"));
     connect(m_downloadAttachment, SIGNAL(triggered()), this, SLOT(slotDownloadAttachment()));
     connect(m_openAttachment, SIGNAL(triggered()), this, SLOT(slotOpenAttachment()));
+    if (m_contentWidget) {
+        m_showHideAttachment = menu->addAction(loadIcon(QLatin1String("view-preview")), tr("Show Preview"));
+        m_showHideAttachment->setCheckable(true);
+        m_showHideAttachment->setChecked(!m_contentWidget->isHidden());
+        connect(m_showHideAttachment, SIGNAL(triggered(bool)), m_contentWidget, SLOT(setVisible(bool)));
+    }
 
     m_downloadButton->setMenu(menu);
     m_downloadButton->setDefaultAction(m_downloadAttachment);
