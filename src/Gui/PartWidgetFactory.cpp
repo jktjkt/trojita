@@ -33,6 +33,11 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  include <QMimeDatabase>
+#else
+#  include "mimetypes-qt4/include/QMimeDatabase"
+#endif
 #include <QPushButton>
 #include <QSettings>
 #include <QTabWidget>
@@ -134,14 +139,29 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
         QStringList allowedMimeTypes;
         allowedMimeTypes << "text/html" << "text/plain" << "image/jpeg" <<
                          "image/jpg" << "image/pjpeg" << "image/png" << "image/gif";
-        // The problem is that some nasty MUAs (hint hint Thunderbird) would
-        // happily attach a .tar.gz and call it "inline"
+
         // From section 2.8 of RFC 2183: "Unrecognized disposition types should be treated as `attachment'."
         QByteArray contentDisposition = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower();
-        bool showInline = (contentDisposition.isEmpty() || contentDisposition == "inline") &&
-                          allowedMimeTypes.contains(mimeType);
+        bool showInline = contentDisposition.isEmpty() || contentDisposition == "inline";
 
-        if (showInline) {
+        bool recognizedMimeType = allowedMimeTypes.contains(mimeType);
+        if (!recognizedMimeType) {
+            // QMimeType's docs say that one shall use inherit() to check for "is this a recognized MIME type".
+            // E.g. text/x-csrc inherits text/plain.
+            QMimeType partType = QMimeDatabase().mimeTypeForName(mimeType);
+            Q_FOREACH(const QString &candidate, allowedMimeTypes) {
+                if (partType.isValid() && !partType.isDefault() && partType.inherits(candidate)) {
+                    // Looks like we shall be able to show this
+                    recognizedMimeType = true;
+                    manager->registerMimeTypeTranslation(mimeType, candidate);
+                    break;
+                }
+            }
+        }
+
+        // The problem is that some nasty MUAs (hint hint Thunderbird) would
+        // happily attach a .tar.gz and call it "inline"
+        if (showInline && recognizedMimeType) {
             const Imap::Mailbox::Model *constModel = 0;
             Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
             Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model *>(constModel);
