@@ -177,13 +177,11 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             QWidget *widget = 0;
             if (showDirectly) {
                 widget = new SimplePartWidget(0, manager, partIndex, m_messageView);
-            } else if (model->isNetworkAvailable() || part->fetched()) {
+            } else {
                 widget = new LoadablePartWidget(0, manager, partIndex, m_messageView,
                                                 loadingMode == LOAD_ON_SHOW && part->octets() <= ExpensiveFetchThreshold ?
                                                     LoadablePartWidget::LOAD_ON_SHOW :
                                                     LoadablePartWidget::LOAD_ON_CLICK);
-            } else {
-                widget = new QLabel(tr("Offline"), 0);
             }
             return widget;
         } else {
