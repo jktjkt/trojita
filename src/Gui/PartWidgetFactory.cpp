@@ -159,16 +159,17 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             }
         }
 
+        const Imap::Mailbox::Model *constModel = 0;
+        Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
+        Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model *>(constModel);
+        Q_ASSERT(model);
+        Q_ASSERT(part);
+        part->fetchFromCache(model);
+
         // The problem is that some nasty MUAs (hint hint Thunderbird) would
         // happily attach a .tar.gz and call it "inline"
         if (showInline && recognizedMimeType && partIndex.data(Imap::Mailbox::RolePartFileName).toString().isEmpty()) {
             // showing inline without any decorations whatsoever
-            const Imap::Mailbox::Model *constModel = 0;
-            Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
-            Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model *>(constModel);
-            Q_ASSERT(model);
-            Q_ASSERT(part);
-            part->fetchFromCache(model);
 
             bool showDirectly = loadingMode == LOAD_IMMEDIATELY;
             if (!part->fetched())
@@ -188,6 +189,9 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             QWidget *contentWidget = recognizedMimeType ?
                         new LoadablePartWidget(0, manager, partIndex, m_messageView, LoadablePartWidget::LOAD_ON_SHOW) : 0;
             if (contentWidget && !showInline) {
+                contentWidget->hide();
+            }
+            if (contentWidget && !part->fetched() && !model->isNetworkOnline() && part->octets() > ExpensiveFetchThreshold) {
                 contentWidget->hide();
             }
             return new AttachmentView(0, manager, partIndex, contentWidget);
