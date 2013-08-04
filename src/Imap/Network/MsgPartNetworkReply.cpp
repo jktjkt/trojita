@@ -27,6 +27,7 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
+#include "Imap/Network/MsgPartNetAccessManager.h"
 
 namespace Imap
 {
@@ -34,7 +35,7 @@ namespace Imap
 namespace Network
 {
 
-MsgPartNetworkReply::MsgPartNetworkReply(QObject *parent, const QPersistentModelIndex &part):
+MsgPartNetworkReply::MsgPartNetworkReply(MsgPartNetAccessManager *parent, const QPersistentModelIndex &part):
     QNetworkReply(parent), part(part)
 {
     QUrl url;
@@ -89,21 +90,13 @@ void MsgPartNetworkReply::slotMyDataChanged()
     if (!part.data(Mailbox::RoleIsFetched).toBool())
         return;
 
-    QString mimeType = part.data(Mailbox::RolePartMimeType).toString();
+    QString mimeType = qobject_cast<MsgPartNetAccessManager*>(parent())->translateToSupportedMimeType(
+                part.data(Mailbox::RolePartMimeType).toString());
     QString charset = part.data(Mailbox::RolePartCharset).toString();
     if (mimeType.startsWith(QLatin1String("text/"))) {
         setHeader(QNetworkRequest::ContentTypeHeader,
                   charset.isEmpty() ? mimeType : QString::fromUtf8("%1; charset=%2").arg(mimeType, charset)
                  );
-    } else if (mimeType == QLatin1String("image/pjpeg")) {
-        // The "image/pjpeg" nonsense is non-standard kludge produced by Micorosft Internet Explorer
-        // (http://msdn.microsoft.com/en-us/library/ms775147(VS.85).aspx#_replace). As of May 2011, it is not listed in
-        // the official list of assigned MIME types (http://www.iana.org/assignments/media-types/image/index.html), but generated
-        // by MSIE nonetheless. Users of e-mail can see it for example in messages produced by webmails which do not check the
-        // client-provided MIME types. QWebView would (arguably correctly) refuse to display such a blob, but the damned users
-        // typically want to see their images (I certainly do), even though they are not standards-compliant. Hence we fix the
-        // header here.
-        setHeader(QNetworkRequest::ContentTypeHeader, QLatin1String("image/jpeg"));
     } else {
         setHeader(QNetworkRequest::ContentTypeHeader, mimeType);
     }

@@ -55,6 +55,8 @@ public:
     void setModelMessage(const QModelIndex &message);
     static Imap::Mailbox::TreeItemPart *pathToPart(const QModelIndex &message, const QString &path);
     static Imap::Mailbox::TreeItemPart *cidToPart(const QByteArray &cid, Mailbox::Model *model, Mailbox::TreeItem *root);
+    QString translateToSupportedMimeType(const QString &originalMimeType) const;
+    void registerMimeTypeTranslation(const QString &originalMimeType, const QString &translatedMimeType);
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &req, QIODevice *outgoingData=0);
 signals:
@@ -66,6 +68,7 @@ private:
     QPersistentModelIndex message;
 
     bool externalsEnabled;
+    QMap<QString, QString> m_mimeTypeFixups;
 
     MsgPartNetAccessManager(const MsgPartNetAccessManager &); // don't implement
     MsgPartNetAccessManager &operator=(const MsgPartNetAccessManager &); // don't implement

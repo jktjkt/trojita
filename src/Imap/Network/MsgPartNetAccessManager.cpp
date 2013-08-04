@@ -39,6 +39,14 @@ namespace Network
 MsgPartNetAccessManager::MsgPartNetAccessManager(QObject *parent):
     QNetworkAccessManager(parent), externalsEnabled(false)
 {
+    // The "image/pjpeg" nonsense is non-standard kludge produced by Micorosft Internet Explorer
+    // (http://msdn.microsoft.com/en-us/library/ms775147(VS.85).aspx#_replace). As of May 2011, it is not listed in
+    // the official list of assigned MIME types (http://www.iana.org/assignments/media-types/image/index.html), but generated
+    // by MSIE nonetheless. Users of e-mail can see it for example in messages produced by webmails which do not check the
+    // client-provided MIME types. QWebView would (arguably correctly) refuse to display such a blob, but the damned users
+    // typically want to see their images (I certainly do), even though they are not standards-compliant. Hence we fix the
+    // header here.
+    registerMimeTypeTranslation(QLatin1String("image/pjpeg"), QLatin1String("image/jpeg"));
 }
 
 void MsgPartNetAccessManager::setModelMessage(const QModelIndex &message_)
@@ -179,6 +187,27 @@ fetching contents via HTTP and FTP protocols.
 void MsgPartNetAccessManager::setExternalsEnabled(bool enabled)
 {
     externalsEnabled = enabled;
+}
+
+/** @short Look for registered translations of MIME types
+
+Certain renderers (the QWebView, most notably) are rather picky about the content they can render.
+For example, a C++ header file's MIME type inherits from text/plain, but QWebView would still treat
+it as a file to download. The image/pjpeg "type" is another example.
+
+This MIME type translation apparently has to happen at the QNetworkReply layer, so it makes sense to
+track the registered translations within the QNAM subclass.
+*/
+QString MsgPartNetAccessManager::translateToSupportedMimeType(const QString &originalMimeType) const
+{
+    QMap<QString, QString>::const_iterator it = m_mimeTypeFixups.constFind(originalMimeType);
+    return it == m_mimeTypeFixups.constEnd() ? originalMimeType : *it;
+}
+
+/** @short Register a MIME type for an automatic translation to one that is recognized by the renderers */
+void MsgPartNetAccessManager::registerMimeTypeTranslation(const QString &originalMimeType, const QString &translatedMimeType)
+{
+    m_mimeTypeFixups[originalMimeType] = translatedMimeType;
 }
 
 }
