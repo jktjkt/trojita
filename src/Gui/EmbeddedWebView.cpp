@@ -21,12 +21,14 @@
 */
 #include "EmbeddedWebView.h"
 #include "MessageView.h"
+#include "Gui/Util.h"
 
 #include <QAbstractScrollArea>
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
 #include <QLayout>
+#include <QNetworkReply>
 #include <QStyle>
 #include <QStyleFactory>
 #include <QWebFrame>
@@ -43,6 +45,7 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     // set to expanding, ie. "freely" - this is important so the widget will attempt to shrink below the sizehint!
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
+    setPage(new ErrorCheckingPage(this));
     page()->setNetworkAccessManager(networkManager);
 
     QWebSettings *s = settings();
@@ -196,6 +199,46 @@ void EmbeddedWebView::showEvent(QShowEvent *se)
 QSize EmbeddedWebView::sizeHint() const
 {
     return QSize(32,32); // QWebView returns 800x600 what will lead to too wide pages for our implementation
+}
+
+ErrorCheckingPage::ErrorCheckingPage(QObject *parent): QWebPage(parent)
+{
+}
+
+bool ErrorCheckingPage::supportsExtension(Extension extension) const
+{
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+    if (extension == ErrorPageExtension)
+        return true;
+    else
+#endif
+        return false;
+}
+
+bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *option, ExtensionReturn *output)
+{
+#if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)
+    return false;
+#else
+    if (extension != ErrorPageExtension)
+        return false;
+
+    const ErrorPageExtensionOption *input = static_cast<const ErrorPageExtensionOption *>(option);
+    ErrorPageExtensionReturn *res = static_cast<ErrorPageExtensionReturn *>(output);
+    if (input && res) {
+        if (input->url.scheme() == QLatin1String("trojita-imap")) {
+            if (input->domain == QtNetwork && input->error == QNetworkReply::TimeoutError) {
+                res->content = tr("<img src='%2'/><span style='font-family: sans-serif; color: gray'>"
+                                  "Uncached data not available when offline</span>")
+                        .arg(Util::resizedImageAsDataUrl(QLatin1String(":/icons/network-offline.png"), 32)).toUtf8();
+                return true;
+            }
+        }
+        res->content = input->errorString.toUtf8();
+        res->contentType = QLatin1String("text/plain");
+    }
+    return true;
+#endif
 }
 
 }
