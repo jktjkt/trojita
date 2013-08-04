@@ -37,6 +37,12 @@ namespace Network
 MsgPartNetworkReply::MsgPartNetworkReply(QObject *parent, const QPersistentModelIndex &part):
     QNetworkReply(parent), part(part)
 {
+    QUrl url;
+    url.setScheme(QLatin1String("trojita-imap"));
+    url.setHost(QLatin1String("msg"));
+    url.setPath(part.data(Imap::Mailbox::RolePartPathToPart).toString());
+    setUrl(url);
+
     setOpenMode(QIODevice::ReadOnly | QIODevice::Unbuffered);
     Q_ASSERT(part.isValid());
     const Mailbox::Model *model = 0;
@@ -50,9 +56,8 @@ MsgPartNetworkReply::MsgPartNetworkReply(QObject *parent, const QPersistentModel
 
     // We have to ask for contents before we check whether it's already fetched
     partPtr->fetch(const_cast<Mailbox::Model *>(model));
-    if (partPtr->fetched()) {
-        QTimer::singleShot(0, this, SLOT(slotMyDataChanged()));
-    }
+    // The part data might be already unavailable or already fetched
+    QTimer::singleShot(0, this, SLOT(slotMyDataChanged()));
 
     buffer.setBuffer(partPtr->dataPtr());
     buffer.open(QIODevice::ReadOnly);
@@ -74,6 +79,16 @@ void MsgPartNetworkReply::slotModelDataChanged(const QModelIndex &topLeft, const
 /** @short Data for the current message part are available now */
 void MsgPartNetworkReply::slotMyDataChanged()
 {
+    if (part.data(Mailbox::RoleIsUnavailable).toBool()) {
+        setError(TimeoutError, tr("Offline"));
+        emit error(TimeoutError);
+        emit finished();
+        return;
+    }
+
+    if (!part.data(Mailbox::RoleIsFetched).toBool())
+        return;
+
     QString mimeType = part.data(Mailbox::RolePartMimeType).toString();
     QString charset = part.data(Mailbox::RolePartCharset).toString();
     if (mimeType.startsWith(QLatin1String("text/"))) {
