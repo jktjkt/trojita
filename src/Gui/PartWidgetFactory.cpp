@@ -136,7 +136,9 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                          "image/jpg" << "image/pjpeg" << "image/png" << "image/gif";
         // The problem is that some nasty MUAs (hint hint Thunderbird) would
         // happily attach a .tar.gz and call it "inline"
-        bool showInline = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower() != "attachment" &&
+        // From section 2.8 of RFC 2183: "Unrecognized disposition types should be treated as `attachment'."
+        QByteArray contentDisposition = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower();
+        bool showInline = (contentDisposition.isEmpty() || contentDisposition == "inline") &&
                           allowedMimeTypes.contains(mimeType);
 
         if (showInline) {
