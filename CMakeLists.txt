@@ -86,6 +86,8 @@ else()
     message(STATUS "Disabling COMPRESS=DEFLATE, zlib is not available")
 endif()
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/configure.cmake.h)
 
 set(path_Common ${CMAKE_CURRENT_SOURCE_DIR}/src/Common)
 set(libCommon_HEADERS

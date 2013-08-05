@@ -33,6 +33,7 @@
 #include <QProcess>
 #include <QSettings>
 
+#include "configure.cmake.h"
 #include "Util.h"
 #include "Window.h"
 
