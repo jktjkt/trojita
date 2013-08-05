@@ -80,9 +80,10 @@ if(NOT WITHOUT_ZLIB)
 endif()
 
 if(ZLIB_FOUND)
-    add_definitions(-DTROJITA_HAVE_ZLIB)
+    set(TROJITA_HAVE_ZLIB True)
     message(STATUS "Support for COMPRESS=DEFLATE enabled")
 else()
+    set(TROJITA_HAVE_ZLIB False)
     message(STATUS "Disabling COMPRESS=DEFLATE, zlib is not available")
 endif()
 

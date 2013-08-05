@@ -22,6 +22,7 @@
 #ifndef TROJITA_STREAMS_ZLIB_STATUS_H
 #define TROJITA_STREAMS_ZLIB_STATUS_H
 
+#include "configure.cmake.h"
 #ifdef TROJITA_HAVE_ZLIB
 #define TROJITA_COMPRESS_DEFLATE 1
 #else
