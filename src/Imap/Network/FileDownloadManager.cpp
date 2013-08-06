@@ -59,11 +59,6 @@ QString FileDownloadManager::toRealFileName(const QModelIndex &index)
     }
 }
 
-QVariant FileDownloadManager::data(int role) const
-{
-    return partIndex.data(role);
-}
-
 void FileDownloadManager::downloadPart()
 {
     if (!partIndex.isValid()) {

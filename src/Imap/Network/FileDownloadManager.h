@@ -45,7 +45,6 @@ class FileDownloadManager : public QObject
 public:
     FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex);
     static QString toRealFileName(const QModelIndex &index);
-    QVariant data(int role) const;
 private slots:
     void onPartDataTransfered();
     void onTransferError();

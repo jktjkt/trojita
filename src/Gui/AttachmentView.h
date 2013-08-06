@@ -72,7 +72,7 @@ private slots:
     void slotTransferSucceeded();
 
 private:
-    QModelIndex m_partIndex;
+    QPersistentModelIndex m_partIndex;
     QToolButton *m_downloadButton;
 
     MessageView *m_messageView;

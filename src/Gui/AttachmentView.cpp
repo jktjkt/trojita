@@ -202,17 +202,17 @@ void AttachmentView::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    if (m_openingManager->data(Imap::Mailbox::RoleMessageUid) == 0) {
+    if (m_partIndex.data(Imap::Mailbox::RoleMessageUid) == 0) {
         return;
     }
 
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::WriteOnly);
-    stream << m_openingManager->data(Imap::Mailbox::RoleMailboxName).toString() <<
-              m_openingManager->data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
-              m_openingManager->data(Imap::Mailbox::RoleMessageUid).toUInt() <<
-              m_openingManager->data(Imap::Mailbox::RolePartId).toString() <<
-              m_openingManager->data(Imap::Mailbox::RolePartPathToPart).toString();
+    stream << m_partIndex.data(Imap::Mailbox::RoleMailboxName).toString() <<
+              m_partIndex.data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
+              m_partIndex.data(Imap::Mailbox::RoleMessageUid).toUInt() <<
+              m_partIndex.data(Imap::Mailbox::RolePartId).toString() <<
+              m_partIndex.data(Imap::Mailbox::RolePartPathToPart).toString();
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(QLatin1String("application/x-trojita-imap-part"), buf);
