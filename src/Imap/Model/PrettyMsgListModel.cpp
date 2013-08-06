@@ -101,7 +101,12 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             return PrettySize::prettySize(size.toUInt());
         }
         case MsgListModel::SUBJECT:
-            return translated.data(RoleIsFetched).toBool() ? translated.data(RoleMessageSubject) : tr("Loading...");
+        {
+            if (!translated.data(RoleIsFetched).toBool())
+                return tr("Loading...");
+            QString subject = translated.data(RoleMessageSubject).toString();
+            return subject.isEmpty() ? tr("(no subject)") : subject;
+        }
         }
         break;
 
@@ -171,6 +176,10 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             // If this node is not marked as read, is a root of some thread and that thread
             // contains unread messages, display the thread's root underlined
             font.setUnderline(true);
+        }
+
+        if (index.column() == MsgListModel::SUBJECT && translated.data(RoleMessageSubject).toString().isEmpty()) {
+            font.setItalic(true);
         }
 
         return font;
