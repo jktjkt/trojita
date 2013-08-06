@@ -42,7 +42,7 @@ namespace Gui
 
 SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
                                    const QModelIndex &partIndex, MessageView *messageView):
-    EmbeddedWebView(parent, manager), m_partIndex(partIndex), m_netAccessManager(manager), m_messageView(messageView),
+    EmbeddedWebView(parent, manager), m_partIndex(partIndex), m_messageView(messageView), m_netAccessManager(manager),
     flowedFormat(Composer::Util::FORMAT_PLAIN)
 {
     Q_ASSERT(partIndex.isValid());
