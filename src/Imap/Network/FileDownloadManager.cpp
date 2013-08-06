@@ -67,13 +67,14 @@ void FileDownloadManager::downloadPart()
     }
     QString saveFileName = toRealFileName(partIndex);
     emit fileNameRequested(&saveFileName);
-    if (saveFileName.isEmpty())
+    if (saveFileName.isEmpty()) {
+        emit cancelled();
         return;
+    }
 
     saving.setFileName(saveFileName);
     saved = false;
 
-    emit started();
     QNetworkRequest request;
     QUrl url;
     url.setScheme(QLatin1String("trojita-imap"));
@@ -96,12 +97,13 @@ void FileDownloadManager::downloadMessage()
     m_combiner = new Imap::Mailbox::FullMessageCombiner(partIndex, this);
 
     emit fileNameRequested(&saveFileName);
-    if (saveFileName.isEmpty())
+    if (saveFileName.isEmpty()) {
+        emit cancelled();
         return;
+    }
 
     saving.setFileName(saveFileName);
     saved = false;
-    emit started();
     connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
     m_combiner->load();
 }

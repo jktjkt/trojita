@@ -56,8 +56,8 @@ public slots:
 signals:
     void transferError(const QString &errorMessage);
     void fileNameRequested(QString *fileName);
-    void started();
     void succeeded();
+    void cancelled();
 private:
     Imap::Network::MsgPartNetAccessManager *manager;
     QPersistentModelIndex partIndex;

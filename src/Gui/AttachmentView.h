@@ -35,7 +35,6 @@ namespace Imap
 {
 namespace Network
 {
-class FileDownloadManager;
 class MsgPartNetAccessManager;
 }
 }
@@ -64,12 +63,11 @@ private slots:
     void slotDownloadAttachment();
     void slotOpenAttachment();
 
-    void slotDeleteTemporaryFile(); // XXX: better name?
+    void openDownloadedAttachment();
     void slotFileNameRequestedOnOpen(QString *fileName);
     void slotFileNameRequested(QString *fileName);
-    void slotTransferError(const QString &errorString);
-    void slotTransferStarted();
-    void slotTransferSucceeded();
+    void enableDownloadAgain();
+    void onOpenFailed();
 
 private:
     QPersistentModelIndex m_partIndex;
@@ -81,7 +79,6 @@ private:
     QAction *m_openAttachment;
 
     Imap::Network::MsgPartNetAccessManager *m_netAccess;
-    Imap::Network::FileDownloadManager *m_openingManager;
 
     QTemporaryFile *m_tmpFile;
 
