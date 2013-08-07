@@ -99,9 +99,10 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     m_downloadButton = new QToolButton();
     m_downloadButton->setPopupMode(QToolButton::MenuButtonPopup);
     m_downloadButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    m_downloadButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
     QMenu *menu = new QMenu(this);
-    m_downloadAttachment = menu->addAction(tr("Download"));
+    m_downloadAttachment = menu->addAction(loadIcon(QLatin1String("document-save-as")), tr("Download"));
     m_openAttachment = menu->addAction(tr("Open Directly"));
     connect(m_downloadAttachment, SIGNAL(triggered()), this, SLOT(slotDownloadAttachment()));
     connect(m_openAttachment, SIGNAL(triggered()), this, SLOT(slotOpenAttachment()));
