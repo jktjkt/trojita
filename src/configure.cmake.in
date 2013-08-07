@@ -1,0 +1,2 @@
+#define PKGDATADIR "@CMAKE_INSTALL_PREFIX@/share/trojita"
+#cmakedefine TROJITA_HAVE_ZLIB
