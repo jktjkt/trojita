@@ -25,6 +25,7 @@
 #include <QDragEnterEvent>
 #include <QDebug>
 #include <QInputDialog>
+#include <QMenu>
 #include "Composer/MessageComposer.h"
 #include "Imap/Model/ItemRoles.h"
 
@@ -37,11 +38,12 @@ ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
     setDragDropOverwriteMode( false );
     setDragEnabled(true);
     setDropIndicatorShown(false);
-    setContextMenuPolicy(Qt::ActionsContextMenu);
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
 
     m_actionSendInline = new QAction(tr("Send Inline"), this);
     m_actionSendInline->setCheckable(true);
-    connect(m_actionSendInline, SIGNAL(toggled(bool)), this, SLOT(slotToggledContentDispositionInline(bool)));
+    connect(m_actionSendInline, SIGNAL(triggered(bool)), this, SLOT(slotToggledContentDispositionInline(bool)));
     addAction(m_actionSendInline);
 
     m_actionRename = new QAction(tr("Rename..."), this);
@@ -124,10 +126,10 @@ void ComposerAttachmentsList::slotRenameAttachment()
 void ComposerAttachmentsList::onAttachmentNumberChanged()
 {
     Q_ASSERT(model());
-    bool hasAttachments = model()->rowCount() > 0;
-    m_actionRemoveAttachment->setEnabled(hasAttachments);
-    m_actionSendInline->setEnabled(hasAttachments);
-    m_actionRename->setEnabled(hasAttachments);
+    bool current = currentIndex().isValid();
+    m_actionRemoveAttachment->setEnabled(current);
+    m_actionSendInline->setEnabled(current);
+    m_actionRename->setEnabled(current);
     onCurrentChanged();
 }
 
@@ -149,4 +151,11 @@ void ComposerAttachmentsList::onCurrentChanged()
         // nothing is needed here
         break;
     }
+}
+
+void ComposerAttachmentsList::showContextMenu(const QPoint &pos)
+{
+    // Sometimes currentChanged() is not enough -- we really want to to have these actions to reflect the current selection, if any
+    onAttachmentNumberChanged();
+    QMenu::exec(actions(), mapToGlobal(pos), 0, this);
 }

@@ -51,6 +51,7 @@ public slots:
     void slotRenameAttachment();
     void onAttachmentNumberChanged();
     void onCurrentChanged();
+    void showContextMenu(const QPoint &pos);
 private:
     bool m_dragging, m_dragInside;
     Composer::MessageComposer *m_composer;
