@@ -316,6 +316,7 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
     beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
     Q_FOREACH(const uint uid, uids) {
         m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
+        m_attachments.last()->setContentDispositionMode(CDN_INLINE);
         if (m_shouldPreload)
             m_attachments.back()->preload();
     }
