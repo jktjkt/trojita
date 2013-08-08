@@ -171,9 +171,8 @@ QString GenericMultipartWidget::quoteMe() const
 Message822Widget::Message822Widget(QWidget *parent,
                                    PartWidgetFactory *factory, const QModelIndex &partIndex,
                                    int recursionDepth):
-    QGroupBox(tr("Attached Message"), parent)
+    QWidget(parent)
 {
-    setFlat(true);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     EnvelopeView *envelope = new EnvelopeView(0, factory->messageView());
