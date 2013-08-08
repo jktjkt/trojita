@@ -126,7 +126,11 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             } else if (!isCompoundMimeType) {
                 // This is to prevent a clickthrough when the data can be already shown
                 part->fetchFromCache(model);
+            } else {
+                // A compound type -> make sure we disable clickthrough
+                options |= PART_IGNORE_CLICKTHROUGH;
             }
+
             if (!model->isNetworkAvailable()) {
                 // This is to prevent a clickthrough when offline
                 options |= PART_IGNORE_CLICKTHROUGH;
