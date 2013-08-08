@@ -24,7 +24,7 @@
 
 #include <QModelIndex>
 #include <QWidget>
-
+#include "Gui/AbstractPartWidget.h"
 
 class QNetworkReply;
 class QPushButton;
@@ -50,12 +50,14 @@ namespace Gui
   type of the body part and the download button.  It also includes code for
   handling the actual download.
 */
-class AttachmentView : public QWidget
+class AttachmentView : public QWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
     AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex,
                    QWidget *contentWidget);
+    virtual QString quoteMe() const;
+    virtual void reloadContents();
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
 private slots:

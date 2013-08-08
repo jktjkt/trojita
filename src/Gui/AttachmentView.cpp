@@ -218,6 +218,17 @@ void AttachmentView::mousePressEvent(QMouseEvent *event)
     drag->exec(Qt::CopyAction, Qt::CopyAction);
 }
 
+QString AttachmentView::quoteMe() const
+{
+    const AbstractPartWidget *widget = dynamic_cast<const AbstractPartWidget *>(m_contentWidget);
+    return widget && !m_contentWidget->isHidden() ? widget->quoteMe() : QString();
+}
+
+void AttachmentView::reloadContents()
+{
+    if (AbstractPartWidget *w = dynamic_cast<AbstractPartWidget*>(m_contentWidget))
+        w->reloadContents();
+}
 
 }
 
