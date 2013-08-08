@@ -51,7 +51,7 @@ namespace Gui
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
                                const QModelIndex &partIndex, QWidget *contentWidget):
-    QWidget(parent), m_partIndex(partIndex), m_downloadButton(0), m_downloadAttachment(0),
+    QFrame(parent), m_partIndex(partIndex), m_downloadButton(0), m_downloadAttachment(0),
     m_openAttachment(0), m_showHideAttachment(0), m_netAccess(manager), m_openingManager(0), m_tmpFile(0),
     m_contentWidget(contentWidget)
 {
@@ -127,6 +127,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 
     layout->addWidget(m_downloadButton);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 }
 
 void AttachmentView::slotDownloadAttachment()

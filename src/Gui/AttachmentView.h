@@ -22,8 +22,8 @@
 #ifndef ATTACHMENTVIEW_H
 #define ATTACHMENTVIEW_H
 
+#include <QFrame>
 #include <QModelIndex>
-#include <QWidget>
 #include "Gui/AbstractPartWidget.h"
 
 class QNetworkReply;
@@ -50,7 +50,7 @@ namespace Gui
   type of the body part and the download button.  It also includes code for
   handling the actual download.
 */
-class AttachmentView : public QWidget, public AbstractPartWidget
+class AttachmentView : public QFrame, public AbstractPartWidget
 {
     Q_OBJECT
 public:
