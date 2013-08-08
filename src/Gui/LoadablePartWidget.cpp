@@ -29,13 +29,21 @@
 namespace Gui
 {
 
-LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex  &part,
-                                       MessageView *messageView, const LoadingTriggerMode mode):
-    QStackedWidget(parent), manager(manager), partIndex(part), m_messageView(messageView), realPart(0),
-    loadButton(0), m_loadOnShow(mode == LOAD_ON_SHOW)
+LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
+                                       MessageView *messageView, PartWidgetFactory *factory, int recursionDepth,
+                                       const PartWidgetFactory::PartLoadingOptions loadingMode):
+    QStackedWidget(parent), manager(manager), partIndex(part), m_messageView(messageView), m_factory(factory),
+    m_recursionDepth(recursionDepth), m_loadingMode(loadingMode), realPart(0), loadButton(0), m_loadOnShow(false)
 {
     Q_ASSERT(partIndex.isValid());
-    if (mode == LOAD_ON_CLICK) {
+
+    QString mimeType = partIndex.data(Imap::Mailbox::RolePartMimeType).toString().toLower();
+
+    if ((loadingMode & PartWidgetFactory::PART_IS_HIDDEN) ||
+            (loadingMode & PartWidgetFactory::PART_IGNORE_CLICKTHROUGH) ||
+            partIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
+        m_loadOnShow = true;
+    } else {
         loadButton = new QPushButton(tr("Load %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
                                      Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt())),
                                      this);
@@ -56,14 +64,19 @@ void LoadablePartWidget::loadClicked()
         loadButton->deleteLater();
         loadButton = 0;
     }
-    realPart = new SimplePartWidget(this, manager, partIndex, m_messageView);
+
+    // We have to disable any flags which might cause recursion here
+    realPart = m_factory->create(partIndex, m_recursionDepth + 1,
+                                 (m_loadingMode | PartWidgetFactory::PART_IGNORE_CLICKTHROUGH
+                                  | PartWidgetFactory::PART_IGNORE_LOAD_ON_SHOW) ^ PartWidgetFactory::PART_IS_HIDDEN);
     addWidget(realPart);
     setCurrentIndex(1);
 }
 
 QString LoadablePartWidget::quoteMe() const
 {
-    return realPart ? realPart->quoteMe() : QString();
+    AbstractPartWidget *part = dynamic_cast<AbstractPartWidget*>(realPart);
+    return part ? part->quoteMe() : QString();
 }
 
 void LoadablePartWidget::showEvent(QShowEvent *event)
