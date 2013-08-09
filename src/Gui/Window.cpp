@@ -1095,7 +1095,7 @@ void MainWindow::authenticationRequested()
                                                QSettings().value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
 #endif
                                                ),
-                                           QLineEdit::Password, QString(), &ok);
+                                           QString(), &ok);
         if (ok) {
             model->setImapUser(user);
             model->setImapPassword(pass);
