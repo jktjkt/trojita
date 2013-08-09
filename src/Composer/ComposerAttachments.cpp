@@ -41,8 +41,49 @@
 
 namespace Composer {
 
+QByteArray contentDispositionToByteArray(const ContentDisposition cdn)
+{
+    switch (cdn) {
+    case CDN_INLINE:
+        return "inline";
+    case CDN_ATTACHMENT:
+        return "attachment";
+    }
+    Q_ASSERT(false);
+    // failsafe from RFC 2183
+    return "attachment";
+}
+
+AttachmentItem::AttachmentItem(): m_contentDisposition(CDN_ATTACHMENT)
+{
+}
+
 AttachmentItem::~AttachmentItem()
 {
+}
+
+QByteArray AttachmentItem::contentDispositionHeader() const
+{
+    // Looks like Thunderbird ignores attachments with funky MIME type sent with "Content-Disposition: attachment"
+    // when they are not marked with the "filename" option.
+    // Either I'm having a really, really bad day and I'm missing something, or they made a rather stupid bug.
+
+    QString shortFileName = contentDispositionFilename();
+    if (shortFileName.isEmpty())
+        shortFileName = QLatin1String("attachment");
+    return "Content-Disposition: " + contentDispositionToByteArray(m_contentDisposition) + ";\r\n\t" +
+            Imap::encodeRfc2231Parameter("filename", shortFileName) + "\r\n";
+}
+
+ContentDisposition AttachmentItem::contentDispositionMode() const
+{
+    return m_contentDisposition;
+}
+
+bool AttachmentItem::setContentDispositionMode(const ContentDisposition contentDisposition)
+{
+    m_contentDisposition = contentDisposition;
+    return true;
 }
 
 FileAttachmentItem::FileAttachmentItem(const QString &fileName):
@@ -56,7 +97,12 @@ FileAttachmentItem::~FileAttachmentItem()
 
 QString FileAttachmentItem::caption() const
 {
-    return QFileInfo(fileName).fileName();
+    QString realFileName = QFileInfo(fileName).fileName();
+    if (!preferredName.isEmpty() && realFileName != preferredName) {
+        return MessageComposer::tr("%1\n(from %2)").arg(preferredName, realFileName);
+    } else {
+        return realFileName;
+    }
 }
 
 QString FileAttachmentItem::tooltip() const
@@ -69,7 +115,9 @@ QString FileAttachmentItem::tooltip() const
     if (!f.isReadable())
         return MessageComposer::tr("File is not readable");
 
-    return MessageComposer::tr("%1: %2, %3").arg(fileName, QString::fromUtf8(mimeType()), QString::number(f.size()));
+    return MessageComposer::tr("%1: %2, %3")
+            .arg(fileName, QString::fromUtf8(mimeType()),
+                 Imap::Mailbox::PrettySize::prettySize(f.size(), Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX));
 }
 
 bool FileAttachmentItem::isAvailableLocally() const
@@ -95,16 +143,20 @@ QByteArray FileAttachmentItem::mimeType() const
     return m_cachedMime;
 }
 
-QByteArray FileAttachmentItem::contentDispositionHeader() const
+QString FileAttachmentItem::contentDispositionFilename() const
 {
-    // Looks like Thunderbird ignores attachments with funky MIME type sent with "Content-Disposition: attachment"
-    // when they are not marked with the "filename" option.
-    // Either I'm having a really, really bad day and I'm missing something, or they made a rather stupid bug.
-
+    if (!preferredName.isEmpty())
+        return preferredName;
     QString shortFileName = QFileInfo(fileName).fileName();
     if (shortFileName.isEmpty())
         shortFileName = QLatin1String("attachment");
-    return "Content-Disposition: attachment;\r\n\t" + Imap::encodeRfc2231Parameter("filename", shortFileName) + "\r\n";
+    return shortFileName;
+}
+
+bool FileAttachmentItem::setPreferredFileName(const QString &name)
+{
+    preferredName = name;
+    return true;
 }
 
 AttachmentItem::ContentTransferEncoding FileAttachmentItem::suggestedCTE() const
@@ -150,7 +202,12 @@ QString ImapMessageAttachmentItem::caption() const
     if (!msg || !model)
         return MessageComposer::tr("Message not available: /%1;UIDVALIDITY=%2;UID=%3")
                 .arg(mailbox, QString::number(uidValidity), QString::number(uid));
-    return msg->envelope(model).subject;
+    QString subject = msg->envelope(model).subject;
+    if (!preferredName.isEmpty() && subject + QLatin1String(".eml") != preferredName) {
+        return MessageComposer::tr("%1\n(%2)").arg(preferredName, subject);
+    } else {
+        return subject;
+    }
 }
 
 QString ImapMessageAttachmentItem::tooltip() const
@@ -161,14 +218,20 @@ QString ImapMessageAttachmentItem::tooltip() const
     return MessageComposer::tr("IMAP message %1").arg(QString::fromUtf8(imapUrl()));
 }
 
-QByteArray ImapMessageAttachmentItem::contentDispositionHeader() const
+QString ImapMessageAttachmentItem::contentDispositionFilename() const
 {
+    if (!preferredName.isEmpty())
+        return preferredName;
     Imap::Mailbox::TreeItemMessage *msg = messagePtr();
     if (!msg || !model)
-        return QByteArray();
-    return "Content-Disposition: attachment;\r\n\t" +
-            Imap::encodeRfc2231Parameter("filname", msg->envelope(model).subject + QLatin1String(".eml")) +
-            "\r\n";
+        return QLatin1String("attachment.eml");
+    return msg->envelope(model).subject + QLatin1String(".eml");
+}
+
+bool ImapMessageAttachmentItem::setPreferredFileName(const QString &name)
+{
+    preferredName = name;
+    return true;
 }
 
 QByteArray ImapMessageAttachmentItem::mimeType() const
@@ -275,10 +338,12 @@ Imap::Mailbox::TreeItemPart *ImapPartAttachmentItem::partPtr() const
 QString ImapPartAttachmentItem::caption() const
 {
     Imap::Mailbox::TreeItemPart *part = partPtr();
-    if (part && !part->fileName().isEmpty()) {
-        return part->fileName();
-    } else {
+    if (!part || (preferredName.isEmpty() && part->fileName().isEmpty())) {
         return MessageComposer::tr("IMAP part %1").arg(QString::fromUtf8(imapUrl()));
+    } else if (!preferredName.isEmpty()) {
+        return preferredName;
+    } else {
+        return part->fileName();
     }
 }
 
@@ -298,12 +363,20 @@ QByteArray ImapPartAttachmentItem::mimeType() const
     return part->mimeType().toUtf8();
 }
 
-QByteArray ImapPartAttachmentItem::contentDispositionHeader() const
+QString ImapPartAttachmentItem::contentDispositionFilename() const
 {
+    if (!preferredName.isEmpty())
+        return preferredName;
     Imap::Mailbox::TreeItemPart *part = partPtr();
     if (!part)
-        return QByteArray();
-    return "Content-Disposition: attachment;\r\n\t" + Imap::encodeRfc2231Parameter("filename", part->fileName()) + "\r\n";
+        return QLatin1String("attachment");
+    return part->fileName();
+}
+
+bool ImapPartAttachmentItem::setPreferredFileName(const QString &name)
+{
+    preferredName = name;
+    return true;
 }
 
 AttachmentItem::ContentTransferEncoding ImapPartAttachmentItem::suggestedCTE() const

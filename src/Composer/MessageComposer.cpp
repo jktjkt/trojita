@@ -24,10 +24,17 @@
 #include <QBuffer>
 #include <QCoreApplication>
 #include <QMimeData>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  include <QMimeDatabase>
+#else
+#  include "mimetypes-qt4/include/QMimeDatabase"
+#endif
 #include <QUrl>
 #include <QUuid>
 #include "Composer/ComposerAttachments.h"
+#include "Gui/IconLoader.h"
 #include "Imap/Encoders.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 
@@ -58,6 +65,19 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
         return m_attachments[index.row()]->caption();
     case Qt::ToolTipRole:
         return m_attachments[index.row()]->tooltip();
+    case Qt::DecorationRole:
+    {
+        // This is more or less copy-pasted from Gui/AttachmentView.cpp. Unfortunately, sharing the implementation
+        // is not trivial due to the way how the static libraries are currently built.
+        QMimeType mimeType = QMimeDatabase().mimeTypeForName(m_attachments[index.row()]->mimeType());
+        if (mimeType.isValid() && !mimeType.isDefault()) {
+            return QIcon::fromTheme(mimeType.iconName(), Gui::loadIcon(QLatin1String("mail-attachment")));
+        } else {
+            return Gui::loadIcon(QLatin1String("mail-attachment"));
+        }
+    }
+    case Imap::Mailbox::RoleAttachmentContentDispositionMode:
+        return static_cast<int>(m_attachments[index.row()]->contentDispositionMode());
     }
     return QVariant();
 }
@@ -296,6 +316,7 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
     beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
     Q_FOREACH(const uint uid, uids) {
         m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
+        m_attachments.last()->setContentDispositionMode(CDN_INLINE);
         if (m_shouldPreload)
             m_attachments.back()->preload();
     }
@@ -725,6 +746,24 @@ void MessageComposer::removeAttachment(const QModelIndex &index)
     beginRemoveRows(QModelIndex(), index.row(), index.row());
     delete m_attachments.takeAt(index.row());
     endRemoveRows();
+}
+
+void MessageComposer::setAttachmentName(const QModelIndex &index, const QString &newName)
+{
+    if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_attachments.size())
+        return;
+
+    if (m_attachments[index.row()]->setPreferredFileName(newName))
+        emit dataChanged(index, index);
+}
+
+void MessageComposer::setAttachmentContentDisposition(const QModelIndex &index, const ContentDisposition disposition)
+{
+    if (!index.isValid() || index.column() != 0 || index.row() < 0 || index.row() >= m_attachments.size())
+        return;
+
+    if (m_attachments[index.row()]->setContentDispositionMode(disposition))
+        emit dataChanged(index, index);
 }
 
 void MessageComposer::setPreloadEnabled(const bool preload)

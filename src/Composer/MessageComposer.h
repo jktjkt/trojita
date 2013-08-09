@@ -26,6 +26,7 @@
 #include <QAbstractListModel>
 #include <QPointer>
 
+#include "Composer/ContentDisposition.h"
 #include "Composer/Recipients.h"
 #include "Imap/Model/CatenateData.h"
 #include "Imap/Parser/Message.h"
@@ -80,6 +81,8 @@ public:
 
     bool addFileAttachment(const QString &path);
     void removeAttachment(const QModelIndex &index);
+    void setAttachmentContentDisposition(const QModelIndex &index, const ContentDisposition disposition);
+    void setAttachmentName(const QModelIndex &index, const QString &newName);
 
     void setPreloadEnabled(const bool preload);
 

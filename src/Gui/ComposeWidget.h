@@ -93,7 +93,6 @@ private slots:
     void slotCheckAddress(QLineEdit *edit);
 
     void slotAskForFileAttachment();
-    void slotRemoveAttachment();
     void slotAttachFiles(QList<QUrl> urls);
 
     void slotUpdateSignature();
@@ -144,7 +143,6 @@ private:
     MainWindow *m_mainWindow;
 
     Composer::Submission *m_submission;
-    QAction *m_actionRemoveAttachment;
 
     QMenu *m_completionPopup;
     QLineEdit *m_completionReceiver;
