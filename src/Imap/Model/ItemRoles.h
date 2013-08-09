@@ -43,6 +43,8 @@ enum {
 
     /** @short Is the item already fetched? */
     RoleIsFetched,
+    /** @short The item is not available -- perhaps we're offline and it isn't cached */
+    RoleIsUnavailable,
 
     /** @short Name of the mailbox */
     RoleMailboxName,

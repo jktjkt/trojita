@@ -33,6 +33,11 @@
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#  include <QMimeDatabase>
+#else
+#  include "mimetypes-qt4/include/QMimeDatabase"
+#endif
 #include <QPushButton>
 #include <QSettings>
 #include <QTabWidget>
@@ -52,7 +57,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex)
     return create(partIndex, 0);
 }
 
-QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingMode loadingMode)
+QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode)
 {
     using namespace Imap::Mailbox;
     Q_ASSERT(partIndex.isValid());
@@ -63,9 +68,88 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                              "the top-most thousand items or so are shown."), 0);
     }
 
+    QString mimeType = partIndex.data(Imap::Mailbox::RolePartMimeType).toString().toLower();
+    bool isCompoundMimeType = mimeType.startsWith(QLatin1String("multipart/")) || mimeType == QLatin1String("message/rfc822");
+
+    if (loadingMode & PART_IS_HIDDEN) {
+        return new LoadablePartWidget(0, manager, partIndex, m_messageView, this, recursionDepth + 1,
+                                      loadingMode | PART_IGNORE_CLICKTHROUGH);
+    }
+
+    // Check whether we can render this MIME type at all
+    QStringList allowedMimeTypes;
+    allowedMimeTypes << "text/html" << "text/plain" << "image/jpeg" <<
+                     "image/jpg" << "image/pjpeg" << "image/png" << "image/gif";
+    bool recognizedMimeType = isCompoundMimeType || allowedMimeTypes.contains(mimeType);
+    bool isDerivedMimeType = false;
+    if (!recognizedMimeType) {
+        // QMimeType's docs say that one shall use inherit() to check for "is this a recognized MIME type".
+        // E.g. text/x-csrc inherits text/plain.
+        QMimeType partType = QMimeDatabase().mimeTypeForName(mimeType);
+        Q_FOREACH(const QString &candidate, allowedMimeTypes) {
+            if (partType.isValid() && !partType.isDefault() && partType.inherits(candidate)) {
+                // Looks like we shall be able to show this
+                recognizedMimeType = true;
+                // If it's a derived MIME type, it makes sense to not block inline display, yet still make it possible to hide it
+                // using the regular attachment controls
+                isDerivedMimeType = true;
+                manager->registerMimeTypeTranslation(mimeType, candidate);
+                break;
+            }
+        }
+    }
+
+    const Imap::Mailbox::Model *constModel = 0;
+    Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
+    Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model *>(constModel);
+    Q_ASSERT(model);
+    Q_ASSERT(part);
+
+    // Check whether it shall be wrapped inside an AttachmentView
+    // From section 2.8 of RFC 2183: "Unrecognized disposition types should be treated as `attachment'."
+    const QByteArray contentDisposition = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower();
+    const bool isInline = contentDisposition.isEmpty() || contentDisposition == "inline";
+    const bool looksLikeAttachment = !partIndex.data(Imap::Mailbox::RolePartFileName).toString().isEmpty();
+    const bool wrapInAttachmentView = !(loadingMode & PART_IGNORE_DISPOSITION_ATTACHMENT)
+            && (looksLikeAttachment || !isInline || !recognizedMimeType || isDerivedMimeType);
+    if (wrapInAttachmentView) {
+        // The problem is that some nasty MUAs (hint hint Thunderbird) would
+        // happily attach a .tar.gz and call it "inline"
+        QWidget *contentWidget = 0;
+        if (recognizedMimeType) {
+            PartLoadingOptions options = loadingMode | PART_IGNORE_DISPOSITION_ATTACHMENT;
+            if (!isInline) {
+                // The widget will be hidden by default, i.e. the "inline preview" will be deactivated.
+                // If the user clicks that action in the AttachmentView, it makes sense to load the plugin without any further ado,
+                // without requiring an extra clickthrough
+                options |= PART_IS_HIDDEN;
+            } else if (!isCompoundMimeType) {
+                // This is to prevent a clickthrough when the data can be already shown
+                part->fetchFromCache(model);
+            } else {
+                // A compound type -> make sure we disable clickthrough
+                options |= PART_IGNORE_CLICKTHROUGH;
+            }
+
+            if (!model->isNetworkAvailable()) {
+                // This is to prevent a clickthrough when offline
+                options |= PART_IGNORE_CLICKTHROUGH;
+            }
+            contentWidget = new LoadablePartWidget(0, manager, partIndex, m_messageView, this, recursionDepth + 1, options);
+            if (!isInline) {
+                contentWidget->hide();
+            }
+        }
+        // Previously, we would also hide an attachment if the current policy was "expensive network", the part was too big
+        // and not fetched yet. Arguably, that's a bug -- an item which is marked online shall not be hidden.
+        // Wrapping via a clickthrough is fine, though; the user is clearly informed that this item *should* be visible,
+        // yet the bandwidth is not excessively trashed.
+        return new AttachmentView(0, manager, partIndex, contentWidget);
+    }
+
+    // Now we know for sure that it's not supposed to be wrapped in an AttachmentView, cool.
     bool userPrefersPlaintext = QSettings().value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool();
 
-    QString mimeType = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
     if (mimeType.startsWith(QLatin1String("multipart/"))) {
         // it's a compound part
         if (mimeType == QLatin1String("multipart/alternative")) {
@@ -131,40 +215,15 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     } else if (mimeType == QLatin1String("message/rfc822")) {
         return new Message822Widget(0, this, partIndex, recursionDepth);
     } else {
-        QStringList allowedMimeTypes;
-        allowedMimeTypes << "text/html" << "text/plain" << "image/jpeg" <<
-                         "image/jpg" << "image/pjpeg" << "image/png" << "image/gif";
-        // The problem is that some nasty MUAs (hint hint Thunderbird) would
-        // happily attach a .tar.gz and call it "inline"
-        bool showInline = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower() != "attachment" &&
-                          allowedMimeTypes.contains(mimeType);
+        part->fetchFromCache(model);
 
-        if (showInline) {
-            const Imap::Mailbox::Model *constModel = 0;
-            Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
-            Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model *>(constModel);
-            Q_ASSERT(model);
-            Q_ASSERT(part);
-            part->fetchFromCache(model);
-
-            bool showDirectly = loadingMode == LOAD_IMMEDIATELY;
-            if (!part->fetched())
-                showDirectly &= model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold;
-
-            QWidget *widget = 0;
-            if (showDirectly) {
-                widget = new SimplePartWidget(0, manager, partIndex, m_messageView);
-            } else if (model->isNetworkAvailable() || part->fetched()) {
-                widget = new LoadablePartWidget(0, manager, partIndex, m_messageView,
-                                                loadingMode == LOAD_ON_SHOW && part->octets() <= ExpensiveFetchThreshold ?
-                                                    LoadablePartWidget::LOAD_ON_SHOW :
-                                                    LoadablePartWidget::LOAD_ON_CLICK);
-            } else {
-                widget = new QLabel(tr("Offline"), 0);
-            }
-            return widget;
+        if ((loadingMode & PART_IGNORE_CLICKTHROUGH) || (loadingMode & PART_IGNORE_LOAD_ON_SHOW) ||
+                part->fetched() || model->isNetworkOnline() || part->octets() < ExpensiveFetchThreshold) {
+            // Show it directly without any fancy wrapping
+            return new SimplePartWidget(0, manager, partIndex, m_messageView);
         } else {
-            return new AttachmentView(0, manager, partIndex);
+            return new LoadablePartWidget(0, manager, partIndex, m_messageView, this, recursionDepth + 1,
+                                          model->isNetworkAvailable() ? loadingMode : loadingMode | PART_IGNORE_CLICKTHROUGH);
         }
     }
     QLabel *lbl = new QLabel(mimeType, 0);

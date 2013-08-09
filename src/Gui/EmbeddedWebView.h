@@ -64,6 +64,15 @@ private:
     int m_scrollParentPadding;
 };
 
+class ErrorCheckingPage: public QWebPage
+{
+public:
+    explicit ErrorCheckingPage(QObject *parent);
+
+    virtual bool extension(Extension extension, const ExtensionOption *option, ExtensionReturn *output);
+    virtual bool supportsExtension(Extension extension) const;
+};
+
 }
 
 #endif // EMBEDDEDWEBVIEW_H

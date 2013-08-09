@@ -22,9 +22,9 @@
 #ifndef ATTACHMENTVIEW_H
 #define ATTACHMENTVIEW_H
 
+#include <QFrame>
 #include <QModelIndex>
-#include <QWidget>
-
+#include "Gui/AbstractPartWidget.h"
 
 class QNetworkReply;
 class QPushButton;
@@ -50,11 +50,14 @@ namespace Gui
   type of the body part and the download button.  It also includes code for
   handling the actual download.
 */
-class AttachmentView : public QWidget
+class AttachmentView : public QFrame, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex);
+    AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex,
+                   QWidget *contentWidget);
+    virtual QString quoteMe() const;
+    virtual void reloadContents();
 protected:
     virtual void mousePressEvent(QMouseEvent *event);
 private slots:
@@ -72,11 +75,13 @@ private:
 
     QAction *m_downloadAttachment;
     QAction *m_openAttachment;
+    QAction *m_showHideAttachment;
 
     Imap::Network::MsgPartNetAccessManager *m_netAccess;
     Imap::Network::FileDownloadManager *m_openingManager;
 
     QTemporaryFile *m_tmpFile;
+    QWidget *m_contentWidget;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement

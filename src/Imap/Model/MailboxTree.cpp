@@ -215,6 +215,8 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
     }
     case RoleIsFetched:
         return fetched();
+    case RoleIsUnavailable:
+        return isUnavailable(model);
     case RoleShortMailboxName:
         return separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
     case RoleMailboxName:
@@ -793,6 +795,8 @@ QVariant TreeItemMsgList::data(Model *const model, int role)
 {
     if (role == RoleIsFetched)
         return fetched();
+    if (role == RoleIsUnavailable)
+        return isUnavailable(model);
 
     if (role != Qt::DisplayRole)
         return QVariant();
@@ -968,6 +972,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return m_uid ? QVariant(m_uid) : QVariant();
     case RoleIsFetched:
         return fetched();
+    case RoleIsUnavailable:
+        return isUnavailable(model);
     case RoleMessageFlags:
         // The flags are already sorted by Model::normalizeFlags()
         return m_flags;
@@ -1269,6 +1275,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
     switch (role) {
     case RoleIsFetched:
         return fetched();
+    case RoleIsUnavailable:
+        return isUnavailable(model);
     case RolePartMimeType:
         return m_mimeType;
     case RolePartCharset:

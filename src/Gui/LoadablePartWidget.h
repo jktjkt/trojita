@@ -25,8 +25,8 @@
 #include <QPersistentModelIndex>
 #include <QStackedWidget>
 
-#include "AbstractPartWidget.h"
-#include "SimplePartWidget.h"
+#include "Gui/AbstractPartWidget.h"
+#include "Gui/PartWidgetFactory.h"
 
 class QPushButton;
 
@@ -46,13 +46,9 @@ class LoadablePartWidget : public QStackedWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    /** @short Load when the widget becomes visible, or wait until the user clicks a button? */
-    typedef enum {
-        LOAD_ON_SHOW, /**< @short Load as soon as the widget becomes visible */
-        LOAD_ON_CLICK /**< @short Load only after the user has clicked a button */
-    } LoadingTriggerMode;
     LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
-                       MessageView *messageView, const LoadingTriggerMode mode);
+                       MessageView *messageView, PartWidgetFactory *factory, int recursionDepth,
+                       const PartWidgetFactory::PartLoadingOptions loadingMode);
     QString quoteMe() const;
     virtual void reloadContents();
 protected:
@@ -63,7 +59,10 @@ private:
     Imap::Network::MsgPartNetAccessManager *manager;
     QPersistentModelIndex partIndex;
     MessageView *m_messageView;
-    SimplePartWidget *realPart;
+    PartWidgetFactory *m_factory;
+    int m_recursionDepth;
+    PartWidgetFactory::PartLoadingOptions m_loadingMode;
+    QWidget *realPart;
     QPushButton *loadButton;
     bool m_loadOnShow;
 

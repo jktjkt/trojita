@@ -68,7 +68,7 @@ public:
 };
 
 /** @short Message quoting support for generic multipart/ * */
-class Message822Widget: public QGroupBox, public AbstractPartWidget
+class Message822Widget: public QWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:

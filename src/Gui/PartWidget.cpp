@@ -27,6 +27,7 @@
 #include <QTabBar>
 
 #include "EnvelopeView.h"
+#include "LoadablePartWidget.h"
 #include "MessageView.h"
 #include "PartWidgetFactory.h"
 #include "Imap/Model/ItemRoles.h"
@@ -74,8 +75,8 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         // I can live with that.
         QWidget *item = factory->create(anotherPart, recursionDepth + 1,
                                         i == preferredIndex ?
-                                            PartWidgetFactory::LOAD_IMMEDIATELY :
-                                            PartWidgetFactory::LOAD_ON_SHOW);
+                                            PartWidgetFactory::PartLoadingOptions() :
+                                            PartWidgetFactory::PartLoadingOptions() | PartWidgetFactory::PART_IS_HIDDEN);
         QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
         addTab(item, mimeType);
     }
@@ -170,9 +171,8 @@ QString GenericMultipartWidget::quoteMe() const
 Message822Widget::Message822Widget(QWidget *parent,
                                    PartWidgetFactory *factory, const QModelIndex &partIndex,
                                    int recursionDepth):
-    QGroupBox(tr("Attached Message"), parent)
+    QWidget(parent)
 {
-    setFlat(true);
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     EnvelopeView *envelope = new EnvelopeView(0, factory->messageView());
