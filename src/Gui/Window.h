@@ -167,7 +167,7 @@ private slots:
     void slotMailboxCreateFailed(const QString &mailbox, const QString &msg);
     void slotMailboxChanged(const QModelIndex &mailbox);
 
-    void slotDownloadMessageTransferError(const QString &errorString);
+    void slotDownloadTransferError(const QString &errorString);
     void slotDownloadMessageFileNameRequested(QString *fileName);
     void slotScrollToUnseenMessage(const QModelIndex &mailbox, const QModelIndex &message);
     void slotUpdateWindowTitle();

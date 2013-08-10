@@ -560,6 +560,7 @@ void MainWindow::createWidgets()
     connect(m_messageWidget->messageView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
     connect(m_messageWidget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
             this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
+    connect(m_messageWidget->messageView, SIGNAL(transferError(QString)), this, SLOT(slotDownloadTransferError(QString)));
     if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
         m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
@@ -1690,16 +1691,16 @@ void MainWindow::slotSaveCurrentMessageBody()
         connect(fileDownloadManager, SIGNAL(fileNameRequested(QString *)),
                 this, SLOT(slotDownloadMessageFileNameRequested(QString *)));
         connect(fileDownloadManager, SIGNAL(transferError(QString)),
-                this, SLOT(slotDownloadMessageTransferError(QString)));
+                this, SLOT(slotDownloadTransferError(QString)));
         connect(fileDownloadManager, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
         fileDownloadManager->downloadMessage();
     }
 }
 
-void MainWindow::slotDownloadMessageTransferError(const QString &errorString)
+void MainWindow::slotDownloadTransferError(const QString &errorString)
 {
-    QMessageBox::critical(this, tr("Can't save message"),
-                          tr("Unable to save the attachment. Error:\n%1").arg(errorString));
+    QMessageBox::critical(this, tr("Can't save into file"),
+                          tr("Unable to save into file. Error:\n%1").arg(errorString));
 }
 
 void MainWindow::slotDownloadMessageFileNameRequested(QString *fileName)

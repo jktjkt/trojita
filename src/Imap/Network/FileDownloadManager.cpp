@@ -59,11 +59,6 @@ QString FileDownloadManager::toRealFileName(const QModelIndex &index)
     }
 }
 
-QVariant FileDownloadManager::data(int role) const
-{
-    return partIndex.data(role);
-}
-
 void FileDownloadManager::downloadPart()
 {
     if (!partIndex.isValid()) {
@@ -72,8 +67,10 @@ void FileDownloadManager::downloadPart()
     }
     QString saveFileName = toRealFileName(partIndex);
     emit fileNameRequested(&saveFileName);
-    if (saveFileName.isEmpty())
+    if (saveFileName.isEmpty()) {
+        emit cancelled();
         return;
+    }
 
     saving.setFileName(saveFileName);
     saved = false;
@@ -100,8 +97,10 @@ void FileDownloadManager::downloadMessage()
     m_combiner = new Imap::Mailbox::FullMessageCombiner(partIndex, this);
 
     emit fileNameRequested(&saveFileName);
-    if (saveFileName.isEmpty())
+    if (saveFileName.isEmpty()) {
+        emit cancelled();
         return;
+    }
 
     saving.setFileName(saveFileName);
     saved = false;
@@ -113,8 +112,18 @@ void FileDownloadManager::onPartDataTransfered()
 {
     Q_ASSERT(reply);
     if (reply->error() == QNetworkReply::NoError) {
-        saving.open(QIODevice::WriteOnly);
-        saving.write(reply->readAll());
+        if (!saving.open(QIODevice::WriteOnly)) {
+            emit transferError(saving.errorString());
+            return;
+        }
+        if (saving.write(reply->readAll()) == -1) {
+            emit transferError(saving.errorString());
+            return;
+        }
+        if (!saving.flush()) {
+            emit transferError(saving.errorString());
+            return;
+        }
         saving.close();
         saved = true;
         emit succeeded();
@@ -124,8 +133,18 @@ void FileDownloadManager::onPartDataTransfered()
 void FileDownloadManager::onMessageDataTransferred()
 {
     Q_ASSERT(m_combiner);
-    saving.open(QIODevice::WriteOnly);
-    saving.write((m_combiner->data()).data());
+    if (!saving.open(QIODevice::WriteOnly)) {
+        emit transferError(saving.errorString());
+        return;
+    }
+    if (saving.write(m_combiner->data().data()) == -1) {
+        emit transferError(saving.errorString());
+        return;
+    }
+    if (!saving.flush()) {
+        emit transferError(saving.errorString());
+        return;
+    }
     saving.close();
     saved = true;
     emit succeeded();

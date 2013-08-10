@@ -149,7 +149,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
         // and not fetched yet. Arguably, that's a bug -- an item which is marked online shall not be hidden.
         // Wrapping via a clickthrough is fine, though; the user is clearly informed that this item *should* be visible,
         // yet the bandwidth is not excessively trashed.
-        return new AttachmentView(0, manager, partIndex, contentWidget);
+        return new AttachmentView(0, manager, partIndex, m_messageView, contentWidget);
     }
 
     // Now we know for sure that it's not supposed to be wrapped in an AttachmentView, cool.

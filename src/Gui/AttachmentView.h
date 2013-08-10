@@ -35,13 +35,14 @@ namespace Imap
 {
 namespace Network
 {
-class FileDownloadManager;
 class MsgPartNetAccessManager;
 }
 }
 
 namespace Gui
 {
+
+class MessageView;
 
 /** @short Widget depicting an attachment
 
@@ -55,7 +56,7 @@ class AttachmentView : public QFrame, public AbstractPartWidget
     Q_OBJECT
 public:
     AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex,
-                   QWidget *contentWidget);
+                   MessageView *messageView, QWidget *contentWidget);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 protected:
@@ -64,21 +65,23 @@ private slots:
     void slotDownloadAttachment();
     void slotOpenAttachment();
 
-    void slotTransferError(const QString &errorString);
+    void openDownloadedAttachment();
     void slotFileNameRequestedOnOpen(QString *fileName);
     void slotFileNameRequested(QString *fileName);
-    void slotTransferSucceeded();
+    void enableDownloadAgain();
+    void onOpenFailed();
 
 private:
-    QModelIndex m_partIndex;
+    QPersistentModelIndex m_partIndex;
     QToolButton *m_downloadButton;
+
+    MessageView *m_messageView;
 
     QAction *m_downloadAttachment;
     QAction *m_openAttachment;
     QAction *m_showHideAttachment;
 
     Imap::Network::MsgPartNetAccessManager *m_netAccess;
-    Imap::Network::FileDownloadManager *m_openingManager;
 
     QTemporaryFile *m_tmpFile;
     QWidget *m_contentWidget;
