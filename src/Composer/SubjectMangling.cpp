@@ -64,10 +64,10 @@ QString replySubject(const QString &subject)
         QString mlPrefix = listPrefixes.join(QString()).trimmed();
         QString baseSubject = subject.mid(oldPos + qMax(0, rePrefixMatcher.matchedLength()));
 
-        if (!mlPrefix.isEmpty())
+        if (!mlPrefix.isEmpty() && !baseSubject.isEmpty())
             mlPrefix += QLatin1Char(' ');
 
-        return mlPrefix + correctedPrefix + baseSubject;
+        return correctedPrefix + mlPrefix + baseSubject;
     }
 }
 
