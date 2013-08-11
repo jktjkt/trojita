@@ -23,14 +23,24 @@ public:
     explicit LineEdit(const QString &text, QWidget *parent = 0);
     explicit LineEdit(QWidget *parent = 0);
     QToolButton *clearButton();
+    bool isHistoryEnabled();
+    void setHistoryEnabled(bool enabled = true);
     virtual QSize sizeHint() const;
+
+protected:
+    bool eventFilter(QObject *o, QEvent *e);
+    void keyReleaseEvent(QKeyEvent *ke);
 
 private Q_SLOTS:
     void updateClearButton(const QString &text);
+    void learnEntry();
+    void restoreInlineCompletion();
 
 private:
     void init();
-
+    bool m_historyEnabled;
+    int m_historyPosition;
+    QString m_currentText;
     QToolButton *m_clearButton;
 };
 

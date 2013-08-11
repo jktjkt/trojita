@@ -43,6 +43,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     tree = new MsgListView(this);
 
     m_quickSearchText = new LineEdit(this);
+    m_quickSearchText->setHistoryEnabled(true);
     // Filter out newline. It will wreak havoc into the direct IMAP passthrough and could lead to data loss.
     QValidator *validator = new ReplaceCharValidator(QLatin1Char('\n'), QLatin1Char(' '), m_quickSearchText);
     m_quickSearchText->setValidator(validator);
