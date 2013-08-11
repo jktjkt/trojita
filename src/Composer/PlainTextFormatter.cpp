@@ -39,20 +39,21 @@ This function recognizes http and https links, e-mail addresses, *bold*, /italic
 */
 QString helperHtmlifySingleLine(QString line)
 {
-    // Static regexps for the engine construction
+    // Static regexps for the engine construction.
+    // Warning, these operate on the *escaped* HTML!
     static QString intro("(^|[\\s\\(\\[\\{])");
     static QString extro("($|[\\s\\),;.\\]\\}])");
     static const QRegExp patternRe(
                 // hyperlinks
                 "(" // cap(1)
                 "https?://" // scheme prefix
-                "[;/?:@=&$\\-_.+!',0-9a-zA-Z%#~\\[\\]\\(\\)\\*]+" // allowed characters
-                "[/@=&$\\-_+'0-9a-zA-Z%#~]" // termination
+                "(?:[;/?:@=$\\-_.+!',0-9a-zA-Z%#~\\[\\]\\(\\)\\*]|&amp;)+" // allowed characters
+                "(?:[/@=$\\-_+'0-9a-zA-Z%#~]|&amp;)" // termination
                 ")"
                 // end of hyperlink
                 "|"
                 // e-mail pattern
-                "([a-zA-Z0-9_\\.!#$%&'\\*\\+\\-/=?^`\\{|\\}~]+@[a-zA-Z0-9\\.\\-_]+)" // cap(2)
+                "((?:[a-zA-Z0-9_\\.!#$%'\\*\\+\\-/=?^`\\{|\\}~]|&amp;)+@[a-zA-Z0-9\\.\\-_]+)" // cap(2)
                 // end of e-mail pattern
                 "|"
                 // formatting markup

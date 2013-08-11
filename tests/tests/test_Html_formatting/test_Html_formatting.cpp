@@ -119,6 +119,13 @@ void HtmlFormattingTest::testPlainTextFormattingViaHtml_data()
     QTest::newRow("escaping-1")
             << QString::fromUtf8("<>&&gt; § §gt; §para;\n")
             << QString::fromUtf8("&lt;&gt;&amp;&amp;gt; § §gt; §para;\n");
+    // A plaintext actually containing some HTML code -- bug 323390
+    QTest::newRow("escaping-html-url-bug-323390")
+            << QString("<a href=\"http://trojita.flaska.net\">Trojita</a>")
+            << QString("&lt;a href=&quot;<a href=\"http://trojita.flaska.net\">http://trojita.flaska.net</a>&quot;&gt;Trojita&lt;/a&gt;");
+    QTest::newRow("escaping-html-mail-bug-323390")
+            << QString("some-mail&ad'dr@foo")
+            << QString("<a href=\"mailto:some-mail&amp;ad'dr@foo\">some-mail&amp;ad'dr@foo</a>");
 
     QTest::newRow("mailto-1")
             << QString("ble.smrt-1_2+3@example.org")
