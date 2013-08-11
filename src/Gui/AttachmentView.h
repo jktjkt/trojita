@@ -26,6 +26,7 @@
 #include <QModelIndex>
 #include "Gui/AbstractPartWidget.h"
 
+class QGridLayout;
 class QNetworkReply;
 class QPushButton;
 class QTemporaryFile;
@@ -57,6 +58,7 @@ class AttachmentView : public QFrame, public AbstractPartWidget
 public:
     AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex,
                    MessageView *messageView, QWidget *contentWidget);
+    bool embed(AttachmentView *other);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 protected:
@@ -85,6 +87,7 @@ private:
 
     QTemporaryFile *m_tmpFile;
     QWidget *m_contentWidget;
+    QGridLayout *m_gridLayout;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement
