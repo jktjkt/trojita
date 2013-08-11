@@ -98,7 +98,12 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     complexMenu->addSeparator();
     complexMenu->addAction(tr("Has been seen"))->setData("SEEN");
 
-    optionsMenu->addMenu(complexMenu);
+    m_rawSearch = optionsMenu->addAction(tr("Allow raw IMAP search"));
+    m_rawSearch->setCheckable(true);
+    QAction *rawSearchMenu = optionsMenu->addMenu(complexMenu);
+    rawSearchMenu->setVisible(false);
+    connect (m_rawSearch, SIGNAL(toggled(bool)), rawSearchMenu, SLOT(setVisible(bool)));
+    connect (m_rawSearch, SIGNAL(toggled(bool)), SIGNAL(rawSearchSettingChanged(bool)));
 
     m_searchOptions->setMenu(optionsMenu);
     connect (optionsMenu, SIGNAL(aboutToShow()), SLOT(slotDeActivateSimpleSearch()));
@@ -130,6 +135,23 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     connect(m_searchResetTimer, SIGNAL(timeout()), SLOT(slotApplySearch()));
 
     slotAutoEnableDisableSearch();
+}
+
+void MessageListWidget::focusSearch()
+{
+    if (!m_quickSearchText->isEnabled() || m_quickSearchText->hasFocus())
+        return;
+    m_quickSearchText->setFocus(Qt::ShortcutFocusReason);
+}
+
+void MessageListWidget::focusRawSearch()
+{
+    if (!m_quickSearchText->isEnabled() || m_quickSearchText->hasFocus() || !m_rawSearch->isChecked())
+        return;
+    m_quickSearchText->setFocus(Qt::ShortcutFocusReason);
+    m_quickSearchText->setText(":=");
+    m_quickSearchText->deselect();
+    m_quickSearchText->setCursorPosition(m_quickSearchText->text().length());
 }
 
 void MessageListWidget::slotApplySearch()
@@ -222,7 +244,7 @@ void MessageListWidget::slotComplexSearchInput(QAction *act)
 
 void MessageListWidget::slotDeActivateSimpleSearch()
 {
-    const bool isEnabled = !m_quickSearchText->text().startsWith(QLatin1String(":="));
+    const bool isEnabled = !(m_rawSearch->isChecked() && m_quickSearchText->text().startsWith(QLatin1String(":=")));
     m_searchInSubject->setEnabled(isEnabled);
     m_searchInBody->setEnabled(isEnabled);
     m_searchInSenders->setEnabled(isEnabled);
@@ -237,7 +259,7 @@ QStringList MessageListWidget::searchConditions() const
 
     static QString rawPrefix = QLatin1String(":=");
 
-    if (m_quickSearchText->text().startsWith(rawPrefix)) {
+    if (m_rawSearch->isChecked() && m_quickSearchText->text().startsWith(rawPrefix)) {
         // It's a "raw" IMAP search, let's simply pass it through
         return QStringList() << m_quickSearchText->text().mid(rawPrefix.size());
     }
@@ -277,6 +299,11 @@ void MessageListWidget::setFuzzySearchSupported(bool supported)
     m_supportsFuzzySearch = supported;
     m_searchFuzzy->setEnabled(supported);
     m_searchFuzzy->setChecked(supported);
+}
+
+void MessageListWidget::setRawSearchEnabled(bool enabled)
+{
+    m_rawSearch->setChecked(enabled);
 }
 
 }

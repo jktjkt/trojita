@@ -278,6 +278,16 @@ void MainWindow::createActions()
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
+    QAction *triggerSearch = new QAction(this);
+    addAction(triggerSearch);
+    triggerSearch->setShortcut(QKeySequence(QLatin1String(":, =")));
+    connect(triggerSearch, SIGNAL(triggered()), msgListWidget, SLOT(focusRawSearch()));
+
+    triggerSearch = new QAction(this);
+    addAction(triggerSearch);
+    triggerSearch->setShortcut(QKeySequence(QLatin1String("/")));
+    connect(triggerSearch, SIGNAL(triggered()), msgListWidget, SLOT(focusSearch()));
+
     m_oneAtTimeGoBack = new QAction(loadIcon(QLatin1String("go-previous")), tr("Navigate Back"), this);
     m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
     m_oneAtTimeGoBack->setEnabled(false);
@@ -546,6 +556,8 @@ void MainWindow::createWidgets()
     msgListWidget = new MessageListWidget();
     msgListWidget->tree->setContextMenuPolicy(Qt::CustomContextMenu);
     msgListWidget->tree->setAlternatingRowColors(true);
+    msgListWidget->setRawSearchEnabled(QSettings().value(Common::SettingsNames::guiAllowRawSearch).toBool());
+    connect (msgListWidget, SIGNAL(rawSearchSettingChanged(bool)), SLOT(saveRawStateSetting(bool)));
 
     connect(msgListWidget->tree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMsgListTree(const QPoint &)));
@@ -2247,6 +2259,11 @@ void MainWindow::saveSizesAndState()
 
     QSettings s;
     s.setValue(key.arg(QString::number(geometry.width())), buf);
+}
+
+void MainWindow::saveRawStateSetting(bool enabled)
+{
+    QSettings().setValue(Common::SettingsNames::guiAllowRawSearch, enabled);
 }
 
 void MainWindow::applySizesAndState()

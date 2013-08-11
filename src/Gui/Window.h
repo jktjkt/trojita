@@ -176,6 +176,7 @@ private slots:
     void slotLayoutWide();
     void slotLayoutOneAtTime();
     void saveSizesAndState();
+    void saveRawStateSetting(bool enabled);
     void possiblyLoadMessageOnSplittersChanged();
 
     void desktopGeometryChanged();

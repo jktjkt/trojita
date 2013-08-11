@@ -46,6 +46,7 @@ struct SettingsNames {
     static QString guiPreferPlaintextRendering;
     static QString guiMainWindowLayout, guiMainWindowLayoutCompact, guiMainWindowLayoutWide, guiMainWindowLayoutOneAtTime;
     static QString guiSizesInMainWinWhenCompact, guiSizesInMainWinWhenWide;
+    static QString guiAllowRawSearch;
     static QString appLoadHomepage;
     static QString guiShowSystray, guiOnSystrayClose;
     static QString knownEmailsKey;

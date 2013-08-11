@@ -86,6 +86,7 @@ QString SettingsNames::guiShowSystray = QLatin1String("gui/showSystray");
 QString SettingsNames::guiOnSystrayClose = QLatin1String("gui/onSystrayClose");
 QString SettingsNames::guiSizesInMainWinWhenCompact = QLatin1String("gui/sizeInMainWinWhenCompact-%1");
 QString SettingsNames::guiSizesInMainWinWhenWide = QLatin1String("gui/sizeInMainWinWhenWide-%1");
+QString SettingsNames::guiAllowRawSearch = QLatin1String("gui/allowRawSearch");
 QString SettingsNames::appLoadHomepage = QLatin1String("app.updates.checkEnabled");
 QString SettingsNames::knownEmailsKey = QLatin1String("addressBook/knownEmails");
 

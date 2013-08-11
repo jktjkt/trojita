@@ -41,14 +41,20 @@ public:
     explicit MessageListWidget(QWidget *parent = 0);
 
     void setFuzzySearchSupported(bool supported);
+    void setRawSearchEnabled(bool enabled);
 
     QStringList searchConditions() const;
 
     // FIXME: consider making this private and moving the logic from Window with it
     MsgListView *tree;
 
+public slots:
+    void focusSearch();
+    void focusRawSearch();
+
 signals:
     void requestingSearch(const QStringList &conditions);
+    void rawSearchSettingChanged(bool enabled);
 
 protected slots:
     void slotApplySearch();
@@ -70,6 +76,7 @@ private:
     QAction *m_searchInSenders;
     QAction *m_searchInRecipients;
     QAction *m_searchFuzzy;
+    QAction *m_rawSearch;
     bool m_supportsFuzzySearch;
     QTimer *m_searchResetTimer;
     QString m_queryPlaceholder;
