@@ -36,6 +36,7 @@
 #include <QProgressBar>
 #include <QSplitter>
 #include <QSslError>
+#include <QSslKey>
 #include <QStackedWidget>
 #include <QStatusBar>
 #include <QTextDocument>
@@ -1151,26 +1152,28 @@ void MainWindow::authenticationFailed(const QString &message)
 void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors)
 {
     QSettings s;
+    QByteArray lastKnownPubKey = s.value(Common::SettingsNames::imapSslPemPubKey).toByteArray();
+    if (!certificateChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == certificateChain[0].publicKey().toPem()) {
+        // This certificate chain contains the same public keys as the last time; we should accept that
+        model->setSslPolicy(certificateChain, errors, true);
+        return;
+    }
+
     QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
-    QList<QSslCertificate> lastKnownCerts = lastKnownCertPem.isEmpty() ?
-                QList<QSslCertificate>() :
-                QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
-    if (!certificateChain.isEmpty()) {
-        if (!lastKnownCerts.isEmpty()) {
-            if (certificateChain == lastKnownCerts) {
-                // It's the same certificate as the last time; we should accept that
-                model->setSslPolicy(certificateChain, errors, true);
-                return;
-            }
-        }
+    QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
+    lastKnownPubKey = oldChain.isEmpty() ? QByteArray() : oldChain[0].publicKey().toPem();
+    if (!certificateChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == certificateChain[0].publicKey().toPem()) {
+        // Older configuration, but the public keys match nevertheless
+        model->setSslPolicy(certificateChain, errors, true);
+        s.setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
+        s.remove(Common::SettingsNames::imapSslPemCertificate);
+        return;
     }
 
     QString message;
     QString title;
     Imap::Mailbox::CertificateUtils::IconType icon;
-
-    Imap::Mailbox::CertificateUtils::formatSslState(certificateChain, lastKnownCerts, lastKnownCertPem, errors,
-                                                    &title, &message, &icon);
+    Imap::Mailbox::CertificateUtils::formatSslState(certificateChain, lastKnownPubKey, errors, &title, &message, &icon);
 
     if (QMessageBox(static_cast<QMessageBox::Icon>(icon), title, message, QMessageBox::Yes | QMessageBox::No, this).exec() == QMessageBox::Yes) {
         if (!certificateChain.isEmpty()) {
@@ -1178,11 +1181,12 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
             Q_FOREACH(const QSslCertificate &cert, certificateChain) {
                 buf.append(cert.toPem());
             }
-            s.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
+            s.setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
+            s.remove(Common::SettingsNames::imapSslPemCertificate);
 
 #ifdef XTUPLE_CONNECT
             QSettings xtSettings(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
-            xtSettings.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
+            xtSettings.setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
 #endif
         }
         model->setSslPolicy(certificateChain, errors, true);

@@ -66,9 +66,8 @@ public:
         Question = 4
     } IconType;
 
-    static void formatSslState(const QList<QSslCertificate> &sslChain, const QList<QSslCertificate> &oldSslChain,
-                               const QByteArray &oldCertificatePem, const QList<QSslError> &sslErrors,
-                               QString *title, QString *message, IconType *icon);
+    static void formatSslState(const QList<QSslCertificate> &sslChain, const QByteArray &oldPubKey,
+                               const QList<QSslError> &sslErrors, QString *title, QString *message, IconType *icon);
 
     static QByteArray htmlHexifyByteArray(const QByteArray &rawInput);
 };

@@ -31,6 +31,7 @@
 #include <QLocale>
 #include <QProcess>
 #include <QSslError>
+#include <QSslKey>
 #include <QSysInfo>
 #include <QTextDocument>
 
@@ -403,71 +404,28 @@ QString CertificateUtils::errorsToHtml(const QList<QSslError> &sslErrors)
                 tr("<p>The connection triggered the following SSL errors:</p>\n<ul>%1</ul>\n").arg(sslErrorStrings.join(tr("\n")));
 }
 
-void CertificateUtils::formatSslState(const QList<QSslCertificate> &sslChain, const QList<QSslCertificate> &oldSslChain,
-                                      const QByteArray &oldCertificatePem, const QList<QSslError> &sslErrors,
-                                      QString *title, QString *message, IconType *icon)
+void CertificateUtils::formatSslState(const QList<QSslCertificate> &sslChain, const QByteArray &oldPubKey,
+                                      const QList<QSslError> &sslErrors, QString *title, QString *message, IconType *icon)
 {
-    bool certificateHasChanged = sslChain != oldSslChain && ! oldCertificatePem.isEmpty();
-    bool wasAboutToExpire = sslChain.first().expiryDate() < QDateTime::currentDateTime().addDays(14);
-    bool sameTrustChain = sslChain.size() > 1 && sslChain.size() == oldSslChain.size() &&
-            std::equal(sslChain.constBegin() + 1, sslChain.constEnd(), oldSslChain.constBegin() + 1);
+    bool pubKeyHasChanged = !oldPubKey.isEmpty() && (sslChain.isEmpty() || sslChain[0].publicKey().toPem() != oldPubKey);
 
-    if (certificateHasChanged) {
+    if (pubKeyHasChanged) {
         if (sslErrors.isEmpty()) {
-            if (sameTrustChain) {
-                // The only difference is in the first certificate of the chain
-                if (wasAboutToExpire) {
-                    // It was going to expire in two weeks; it's probably fair to assume that this is a regular replacement
-                    *icon = Information;
-                    *title = tr("Renewed SSL certificate");
-                    *message = tr("<p>The IMAP server got a new SSL certificate from the same Certificate Authority; "
-                                  "the old one was about to expire soon.  It is probably safe to trust this certificate."
-                                  "</p>\n%1\n<p>Would you like to proceed and remember the new certificate?</p>").
-                            arg(chainToHtml(sslChain));
-                } else {
-                    // The old one was not about to expire; that doesn't mean that there's a problem, though
-                    *icon = Question;
-                    *title = tr("Renewed SSL certificate");
-                    *message = tr("<p>The IMAP server got a new SSL certificate from the same Certificate Authority (CA), "
-                                  "even though the old one was still valid.</p>\n"
-                                  "%1\n<p>Would you like to proceed and remember the new certificate?</p>").
-                            arg(chainToHtml(sslChain));
-                }
-            } else {
-                // Another certificate with completely different CA, but trusted anyway
-                *icon = Warning;
-                *title = tr("Different SSL certificate");
-                *message = tr("<p>The SSL certificate has changed and is issued by another Certificate Authority (CA). "
-                              "Your system configuration is set to accept such certificates anyway.</p>\n%1\n"
-                              "<p>Would you like to connect and remember the new certificate?</p>")
-                        .arg(chainToHtml(sslChain));
-            }
+            *icon = Warning;
+            *title = tr("Different SSL certificate");
+            *message = tr("<p>The public key of the SSL certificate has changed. "
+                          "This should only happen when there was a security incident on the remote server. "
+                          "Your system configuration is set to accept such certificates anyway.</p>\n%1\n"
+                          "<p>Would you like to connect and remember the new certificate?</p>")
+                    .arg(chainToHtml(sslChain));
         } else {
             // changed certificate which is not trusted per systemwide policy
-            if (sameTrustChain) {
-                if (wasAboutToExpire) {
-                    *icon = Information;
-                    *title = tr("Renewed SSL certificate");
-                    *message = tr("<p>The IMAP server got a new SSL certificate from the same Certificate Authority; "
-                                  "the old one was about to expire soon.</p>\n%1\n%2\n"
-                                  "<p>Would you like to proceed and remember the new certificate?</p>").
-                            arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
-                } else {
-                    *icon = Question;
-                    *title = tr("Renewed SSL certificate");
-                    *message = tr("<p>The IMAP server got a new SSL certificate from the same Certificate Authority (CA), "
-                                  "even though the old one was still valid.</p>\n%1\n%2\n"
-                                  "<p>Would you like to proceed and remember the new certificate?</p>").
-                            arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
-                }
-            } else {
-                *title = tr("SSL looks fishy");
-                *message = tr("<p>The SSL certificate of the IMAP server has changed since the last time and your system doesn't "
-                              "believe that the new certificate is genuine.</p>\n%1\n%2\n"
-                              "<p>Would you like to connect anyway and remember the new certificate?</p>").
-                        arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
-                *icon = Critical;
-            }
+            *title = tr("SSL certificate looks fishy");
+            *message = tr("<p>The public key of the SSL certificate of the IMAP server has changed since the last time "
+                          "and your system doesn't believe that the new certificate is genuine.</p>\n%1\n%2\n"
+                          "<p>Would you like to connect anyway and remember the new certificate?</p>").
+                    arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
+            *icon = Critical;
         }
     } else {
         if (sslErrors.isEmpty()) {
@@ -475,14 +433,14 @@ void CertificateUtils::formatSslState(const QList<QSslCertificate> &sslChain, co
             *title = tr("Accept SSL connection?");
             *message = tr("<p>This is the first time you're connecting to this IMAP server; the certificate is trusted "
                           "by this system.</p>\n%1\n%2\n"
-                          "<p>Would you like to connect and remember this certificate for the next time?</p>")
+                          "<p>Would you like to connect and remember this certificate's public key for the next time?</p>")
                     .arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
             *icon = Information;
         } else {
             *title = tr("Accept SSL connection?");
             *message = tr("<p>This is the first time you're connecting to this IMAP server and the server certificate failed "
                           "validation test.</p>\n%1\n\n%2\n"
-                          "<p>Would you like to connect and remember this certificate for the next time?</p>")
+                          "<p>Would you like to connect and remember this certificate's public key for the next time?</p>")
                     .arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
             *icon = Question;
         }

@@ -22,6 +22,7 @@
 
 #include "ImapAccess.h"
 #include <QAuthenticator>
+#include <QSslKey>
 #include <QSettings>
 #include "Common/SettingsNames.h"
 #include "Imap/Model/MemoryCache.h"
@@ -217,16 +218,25 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
     m_sslChain = sslCertificateChain;
     m_sslErrors = sslErrors;
     QSettings s;
-    QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
-    QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
-    if (!sslCertificateChain.isEmpty() && !lastKnownCertPem.isEmpty() &&
-            sslCertificateChain == oldChain) {
+
+    QByteArray lastKnownPubKey = s.value(Common::SettingsNames::imapSslPemPubKey).toByteArray();
+    if (!m_sslChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == m_sslChain[0].publicKey().toPem()) {
+        // This certificate chain contains the same public keys as the last time; we should accept that
         m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
     } else {
-        Imap::Mailbox::CertificateUtils::IconType icon;
-        Imap::Mailbox::CertificateUtils::formatSslState(
-                    m_sslChain, oldChain, lastKnownCertPem, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &icon);
-        emit checkSslPolicy();
+        QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+        QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
+        lastKnownPubKey = oldChain.isEmpty() ? QByteArray() : oldChain[0].publicKey().toPem();
+        if (!m_sslChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == m_sslChain[0].publicKey().toPem()) {
+            m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
+            s.setValue(Common::SettingsNames::imapSslPemPubKey, m_sslChain[0].publicKey().toPem());
+            s.remove(Common::SettingsNames::imapSslPemCertificate);
+        } else {
+            Imap::Mailbox::CertificateUtils::IconType icon;
+            Imap::Mailbox::CertificateUtils::formatSslState(
+                        m_sslChain, lastKnownPubKey, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &icon);
+            emit checkSslPolicy();
+        }
     }
 }
 
@@ -234,11 +244,8 @@ void ImapAccess::setSslPolicy(bool accept)
 {
     if (accept && !m_sslChain.isEmpty()) {
         QSettings s;
-        QByteArray buf;
-        Q_FOREACH(const QSslCertificate &cert, m_sslChain) {
-            buf.append(cert.toPem());
-        }
-        s.setValue(Common::SettingsNames::imapSslPemCertificate, buf);
+        s.setValue(Common::SettingsNames::imapSslPemPubKey, m_sslChain[0].publicKey().toPem());
+        s.remove(Common::SettingsNames::imapSslPemCertificate);
     }
     m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, accept);
 }

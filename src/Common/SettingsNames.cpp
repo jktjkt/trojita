@@ -58,6 +58,7 @@ QString SettingsNames::imapProcessKey = QLatin1String("imap.process");
 QString SettingsNames::imapStartOffline = QLatin1String("imap.offline");
 QString SettingsNames::imapEnableId = QLatin1String("imap.enableId");
 QString SettingsNames::imapSslPemCertificate = QLatin1String("imap.ssl.pemCertificate");
+QString SettingsNames::imapSslPemPubKey = QLatin1String("imap.ssl.pemPubKey");
 QString SettingsNames::imapBlacklistedCapabilities = QLatin1String("imap.capabilities.blacklist");
 QString SettingsNames::composerSaveToImapKey = QLatin1String("composer/saveToImapEnabled");
 QString SettingsNames::composerImapSentKey = QLatin1String("composer/imapSentName");

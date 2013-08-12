@@ -34,7 +34,7 @@ struct SettingsNames {
            sendmailKey, sendmailDefaultCmd;
     static QString imapMethodKey, methodTCP, methodSSL, methodProcess, imapHostKey,
            imapPortKey, imapStartTlsKey, imapUserKey, imapPassKey, imapProcessKey,
-           imapStartOffline, imapEnableId, imapSslPemCertificate, imapBlacklistedCapabilities;
+           imapStartOffline, imapEnableId, imapSslPemCertificate, imapSslPemPubKey, imapBlacklistedCapabilities;
     static QString composerSaveToImapKey, composerImapSentKey, smtpUseBurlKey;
     static QString cacheMetadataKey, cacheMetadataMemory,
            cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineAll, cacheOfflineNumberDaysKey;
