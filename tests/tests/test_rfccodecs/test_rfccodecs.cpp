@@ -104,6 +104,10 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
         << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=E1t?=")
         << QString::fromUtf8("Jan Kundrát");
 
+    QTest::newRow("Q-iso-3-with-lang")
+        << QByteArray("=?ISO-8859-2*CS?Q?Jan_Kundr=E1t?=")
+        << QString::fromUtf8("Jan Kundrát");
+
     QTest::newRow("buggy-no-space-between-encoded-words")
         << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=E1t?=XX=?ISO-8859-2?Q?Jan_Kundr=E1t?=")
         << QString::fromUtf8("Jan KundrátXXJan Kundrát");
