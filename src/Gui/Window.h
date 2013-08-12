@@ -100,6 +100,7 @@ public:
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
 protected:
     void closeEvent(QCloseEvent *event);
+    bool eventFilter(QObject *o, QEvent *e);
 private slots:
     void showContextMenuMboxTree(const QPoint &position);
     void showContextMenuMsgListTree(const QPoint &position);

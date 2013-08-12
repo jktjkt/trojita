@@ -867,6 +867,23 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+bool MainWindow::eventFilter(QObject *o, QEvent *e)
+{
+    if (msgListWidget && msgListWidget->tree && o == msgListWidget->tree->header()->viewport()) {
+        // installed if sorting is not really possible.
+        if ((e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) &&
+            static_cast<QMouseEvent*>(e)->button() == Qt::LeftButton) {
+            if (e->type() == QEvent::MouseButtonRelease) { // fake order swap on release
+                m_actionSortDescending->toggle();
+                Qt::SortOrder order = m_actionSortDescending->isChecked() ? Qt::DescendingOrder : Qt::AscendingOrder;
+                msgListWidget->tree->header()->setSortIndicator(-1, order);
+            }
+            return true; // suck away press and release
+        }
+    }
+    return false;
+}
+
 void MainWindow::slotIconActivated(const QSystemTrayIcon::ActivationReason reason)
 {
     if (reason == QSystemTrayIcon::Trigger) {
@@ -1976,10 +1993,12 @@ void MainWindow::slotHideRead()
 
 void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
 {
+    msgListWidget->tree->header()->viewport()->removeEventFilter(this);
     if (capabilities.contains(QLatin1String("SORT"))) {
         m_actionSortByDate->actionGroup()->setEnabled(true);
     } else {
         m_actionSortByDate->actionGroup()->setEnabled(false);
+        msgListWidget->tree->header()->viewport()->installEventFilter(this);
     }
 
     msgListWidget->setFuzzySearchSupported(capabilities.contains(QLatin1String("SEARCH=FUZZY")));
