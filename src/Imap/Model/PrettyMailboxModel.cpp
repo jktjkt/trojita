@@ -72,7 +72,7 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
         // "synchronized" in Trojita). Trojita tries to satisfy all requests for "message numbers" at once, via the STATUS command
         // for unselected mailboxes, or through the already-known and cached information in the message flags for the recently
         // synchronized ones. In theory, it is possible to implement a workaround involving EXAMINE and (E)SEARCH, but even that
-        // has its drawbacks (like the neccessary serialization of requests and the requirement for a ton of new code).
+        // has its drawbacks (like the necessary serialization of requests and the requirement for a ton of new code).
         //
         // So in short, this is why there's no "(1 + 5)" result with six unread an one recent message.
         //

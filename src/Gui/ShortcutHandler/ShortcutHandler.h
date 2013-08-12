@@ -42,7 +42,7 @@ class ShortcutConfigWidget;
 class ActionDescription
 {
 public:
-    ActionDescription(const QString &iconName = 0, const QString &text = 0, const QString &defaultShortcut = 0, const QString &parentId = QObject::tr("Main Window")) : iconName(iconName), text(text), defaultShortcut(defaultShortcut), shortcut(defaultShortcut), parentId(parentId) {}
+    explicit ActionDescription(const QString &iconName = 0, const QString &text = 0, const QString &defaultShortcut = 0, const QString &parentId = QObject::tr("Main Window")) : iconName(iconName), text(text), defaultShortcut(defaultShortcut), shortcut(defaultShortcut), parentId(parentId) {}
     QString iconName;
     QString text;
     QString defaultShortcut;

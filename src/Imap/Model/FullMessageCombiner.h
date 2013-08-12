@@ -41,7 +41,7 @@ class TreeItemPart;
 /** @short Combines both the header and the body parts of a message into one part.
 
 Use FullMessageCombiner::load() to start loading the message, and when finished a SIGNAL(completed()) will be emitted
-then you can retrieve the the combined parts using FullMessageCombiner::data(). If both parts are already fetched a SIGNAL(completed())
+then you can retrieve the combined parts using FullMessageCombiner::data(). If both parts are already fetched a SIGNAL(completed())
 will also be emitted.
 */
 

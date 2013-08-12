@@ -36,7 +36,7 @@ int main(int argc, char **argv) {
             return 1;
         }
         if (argc == 2) {
-            qWarning("you must specify an adress string to import, eg.\n"
+            qWarning("you must specify an address string to import, eg.\n"
             "%s import \"Joe User <joe@users.com>\"", argv[0]);
             return 2;
         }

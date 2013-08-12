@@ -55,7 +55,7 @@ private:
 class ImapSubmitFactory: public MSAFactory
 {
 public:
-    ImapSubmitFactory(Imap::Mailbox::Model *model);
+    explicit ImapSubmitFactory(Imap::Mailbox::Model *model);
     virtual ~ImapSubmitFactory();
     virtual AbstractMSA *create(QObject *parent) const;
 private:

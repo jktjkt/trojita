@@ -66,6 +66,7 @@ private:
 
 class ErrorCheckingPage: public QWebPage
 {
+    Q_OBJECT
 public:
     explicit ErrorCheckingPage(QObject *parent);
 

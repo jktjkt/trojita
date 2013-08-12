@@ -21,7 +21,7 @@ class LineEdit : public QLineEdit
 
 public:
     explicit LineEdit(const QString &text, QWidget *parent = 0);
-    LineEdit(QWidget *parent = 0);
+    explicit LineEdit(QWidget *parent = 0);
     QToolButton *clearButton();
     virtual QSize sizeHint() const;
 

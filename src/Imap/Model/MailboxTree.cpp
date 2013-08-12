@@ -1556,7 +1556,7 @@ TreeItemPartMultipartMessage::~TreeItemPartMultipartMessage()
 {
 }
 
-/** @short Overriden from TreeItemPart::data with added support for RoleMessageEnvelope */
+/** @short Overridden from TreeItemPart::data with added support for RoleMessageEnvelope */
 QVariant TreeItemPartMultipartMessage::data(Model * const model, int role)
 {
     if (role == RoleMessageEnvelope) {

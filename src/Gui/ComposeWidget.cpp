@@ -42,7 +42,6 @@
 #include "Gui/Util.h"
 #include "Window.h"
 #include "ui_ComposeWidget.h"
-#include "Gui/Util.h"
 
 #include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
