@@ -16,7 +16,7 @@
 configure: configure-stamp
 configure-stamp:
 	dh_testdir
-	GCCWRAPPER_PATHMANGLE=/usr ~/QtSDK/Madde/bin/mad -t harmattan_10.2011.34-1_rt1.2 cmake .. -DHARMATTAN=1 -DCMAKE_INSTALL_PREFIX=$(CURDIR)/debian/trojita-tp/
+	GCCWRAPPER_PATHMANGLE=/usr mad -t $(shell basename "${MA_SESSION_DIR}") cmake .. -DHARMATTAN=1 -DCMAKE_INSTALL_PREFIX=$(CURDIR)/debian/trojita-tp/
 
 	touch configure-stamp
 
