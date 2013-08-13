@@ -26,7 +26,6 @@
 #include <QVBoxLayout>
 #include <QTabBar>
 
-#include "AttachmentView.h"
 #include "EnvelopeView.h"
 #include "LoadablePartWidget.h"
 #include "MessageView.h"
@@ -160,22 +159,7 @@ GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
         QWidget *res = factory->create(anotherPart, recursionDepth + 1);
-        // try to reparent attachments into a present direct attachment child
-        AttachmentView *attachment = qobject_cast<AttachmentView *>(res);
-        AttachmentView *other(NULL);
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        foreach (const QObject *kid, children()) {
-            if (qobject_cast<const AttachmentView*>(kid)) {
-                other = const_cast<AttachmentView*>(static_cast<const AttachmentView*>(kid));
-                break;
-            }
-        }
-#else
-        if (attachment)
-            other = findChild<AttachmentView*>(QString(), Qt::FindDirectChildOnly);
-#endif
-        if (!(other && other->embed(attachment)))
-            layout->addWidget(res);
+        layout->addWidget(res);
     }
 }
 
