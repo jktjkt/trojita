@@ -5,3 +5,9 @@ How to build the Harmattan version:
 3) `cp -a ../qtc_packaging/debian_harmattan debian`
 4) `~/QtSDK/Madde/bin/mad -t harmattan_10.2011.34-1_rt1.2 dpkg-buildpackage -j4 -b -nc`
 5) profit!
+
+For compiling with clang, make sure that it's built with the reuired targets
+(Gentoo: USE=multitarget) and provide a custom "profile" for madde. Instructions
+for that are in packaging/harmattan-rm680-madde-c++ . New enough clang is
+required (tested with 3.3) because the support for exceptions on ARM is not
+enabled by default.
