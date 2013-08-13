@@ -43,8 +43,10 @@ public:
                           const Imap::Mailbox::UidSubmitOptionsList options);
 public slots:
     virtual void cancel() = 0;
+    virtual void setPassword(const QString &password);
 signals:
     void connecting();
+    void passwordRequested(const QString &user, const QString &host);
     void sending();
     void sent();
     void error(const QString &message);

@@ -68,6 +68,12 @@ void AbstractMSA::sendImap(const QString &mailbox, const int uidValidity, const 
     emit error(tr("IMAP sending is not supported by %1").arg(metaObject()->className()));
 }
 
+void AbstractMSA::setPassword(const QString &password)
+{
+    Q_UNUSED(password);
+    emit error(tr("Setting password is not supported by %1").arg(metaObject()->className()));
+}
+
 MSAFactory::~MSAFactory()
 {
 }

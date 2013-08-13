@@ -42,6 +42,7 @@
 #include "Gui/Util.h"
 #include "Window.h"
 #include "ui_ComposeWidget.h"
+#include "Gui/PasswordDialog.h"
 
 #include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
@@ -77,6 +78,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory);
     connect(m_submission, SIGNAL(succeeded()), this, SLOT(sent()));
     connect(m_submission, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
+    connect(m_submission, SIGNAL(passwordRequested(QString,QString)), this, SLOT(passwordRequested(QString,QString)), Qt::QueuedConnection);
 
     ui->setupUi(this);
     ui->attachmentsView->setComposer(m_submission->composer());
@@ -133,6 +135,26 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
 ComposeWidget::~ComposeWidget()
 {
     delete ui;
+}
+
+void ComposeWidget::passwordRequested(const QString &user, const QString &host)
+{
+    bool ok;
+    const QString &password = Gui::PasswordDialog::getPassword(this, tr("Authentication Required"),
+                                           tr("<p>Please provide SMTP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+                                               Qt::escape(user),
+                                               Qt::escape(host)
+#else
+                                               user.toHtmlEscaped(),
+                                               host.toHtmlEscaped()
+#endif
+                                               ),
+                                           QString(), &ok);
+    if (ok)
+        m_submission->setPassword(password);
+    else
+        m_submission->cancelPassword();
 }
 
 void ComposeWidget::changeEvent(QEvent *e)

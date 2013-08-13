@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2013 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -28,7 +29,7 @@ SMTP::SMTP(QObject *parent, const QString &host, quint16 port, bool encryptedCon
            const QString &user, const QString &pass):
     AbstractMSA(parent), host(host), port(port),
     encryptedConnect(encryptedConnect), startTls(startTls), auth(auth),
-    user(user), pass(pass), failed(false)
+    user(user), pass(pass), failed(false), isWaitingForPassword(false), sendingMode(MODE_SMTP_INVALID)
 {
     qwwSmtp = new QwwSmtpClient(this);
     // FIXME: handle SSL errors properly
@@ -42,6 +43,10 @@ SMTP::SMTP(QObject *parent, const QString &host, quint16 port, bool encryptedCon
 void SMTP::cancel()
 {
     qwwSmtp->disconnectFromHost();
+    if (!failed) {
+        failed = true;
+        emit error(tr("Sending of the message was cancelled"));
+    }
 }
 
 void SMTP::handleDone(bool ok)
@@ -68,11 +73,33 @@ void SMTP::handleError(QAbstractSocket::SocketError err, const QString &msg)
     emit error(msg);
 }
 
+void SMTP::setPassword(const QString &password)
+{
+    pass = password;
+    if (isWaitingForPassword)
+        sendContinueGotPassword();
+}
+
 void SMTP::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data)
 {
+    this->from = from;
+    this->to = to;
+    this->data = data;
+    this->sendingMode = MODE_SMTP_DATA;
+    this->isWaitingForPassword = true;
     emit progressMax(data.size());
     emit progress(0);
     emit connecting();
+    if (!auth || !pass.isEmpty()) {
+        sendContinueGotPassword();
+        return;
+    }
+    emit passwordRequested(user, host);
+}
+
+void SMTP::sendContinueGotPassword()
+{
+    isWaitingForPassword = false;
     if (encryptedConnect)
         qwwSmtp->connectToHostEncrypted(host, port);
     else
@@ -85,7 +112,18 @@ void SMTP::sendMail(const QByteArray &from, const QList<QByteArray> &to, const Q
                                QwwSmtpClient::AuthPlain :
                                QwwSmtpClient::AuthAny);
     emit sending(); // FIXME: later
-    qwwSmtp->sendMail(from, to, QString::fromUtf8(data));
+    switch (sendingMode) {
+    case MODE_SMTP_DATA:
+        qwwSmtp->sendMail(from, to, QString::fromUtf8(data));
+        break;
+    case MODE_SMTP_BURL:
+        qwwSmtp->sendMailBurl(from, to, data);
+        break;
+    default:
+        failed = true;
+        emit error(tr("Unknown SMTP mode"));
+        break;
+    }
     qwwSmtp->disconnectFromHost();
 }
 
@@ -96,23 +134,19 @@ bool SMTP::supportsBurl() const
 
 void SMTP::sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl)
 {
+    this->from = from;
+    this->to = to;
+    this->data = imapUrl;
+    this->sendingMode = MODE_SMTP_BURL;
+    this->isWaitingForPassword = true;
     emit progressMax(1);
     emit progress(0);
     emit connecting();
-    if (encryptedConnect)
-        qwwSmtp->connectToHostEncrypted(host, port);
-    else
-        qwwSmtp->connectToHost(host, port);
-    if (startTls)
-        qwwSmtp->startTls();
-    if (auth)
-        qwwSmtp->authenticate(user, pass,
-                               (startTls || encryptedConnect) ?
-                               QwwSmtpClient::AuthPlain :
-                               QwwSmtpClient::AuthAny);
-    emit sending(); // FIXME: later
-    qwwSmtp->sendMailBurl(from, to, imapUrl);
-    qwwSmtp->disconnectFromHost();
+    if (!auth || !pass.isEmpty()) {
+        sendContinueGotPassword();
+        return;
+    }
+    emit passwordRequested(user, host);
 }
 
 SMTPFactory::SMTPFactory(const QString &host, quint16 port, bool encryptedConnect, bool startTls,

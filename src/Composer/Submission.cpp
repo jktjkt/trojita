@@ -266,6 +266,9 @@ void Submission::slotInvokeMsaNow()
     connect(msa, SIGNAL(progress(int)), this, SLOT(onMsaProgressCurrentChanged(int)));
     connect(msa, SIGNAL(sent()), this, SLOT(sent()));
     connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
+    connect(msa, SIGNAL(passwordRequested(QString,QString)), this, SIGNAL(passwordRequested(QString,QString)));
+    connect(this, SIGNAL(gotPassword(QString)), msa, SLOT(setPassword(QString)));
+    connect(this, SIGNAL(canceled()), msa, SLOT(cancel()));
 
     if (m_useImapSubmit && msa->supportsImapSending() && m_appendUidReceived) {
         Imap::Mailbox::UidSubmitOptionsList options;
@@ -279,6 +282,16 @@ void Submission::slotInvokeMsaNow()
     } else {
         msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_rawMessageData);
     }
+}
+
+void Submission::setPassword(const QString &password)
+{
+    emit gotPassword(password);
+}
+
+void Submission::cancelPassword()
+{
+    emit canceled();
 }
 
 void Submission::gotError(const QString &error)

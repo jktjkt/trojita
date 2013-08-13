@@ -74,6 +74,10 @@ public:
         STATE_FAILED /**< Unable to send */
     };
 
+public slots:
+    void setPassword(const QString &password);
+    void cancelPassword();
+
 private slots:
     void gotError(const QString &error);
     void sent();
@@ -99,6 +103,9 @@ signals:
     void updateStatusMessage(const QString &message);
     void failed(const QString &message);
     void succeeded();
+    void passwordRequested(const QString &user, const QString &host);
+    void gotPassword(const QString &password);
+    void canceled();
 
 private:
     bool shouldBuildMessageLocally() const;

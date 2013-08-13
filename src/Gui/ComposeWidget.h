@@ -102,6 +102,8 @@ private slots:
 
     void setUiWidgetsEnabled(const bool enabled);
 
+    void passwordRequested(const QString &user, const QString &host);
+
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     static Composer::RecipientKind recipientKindForNextRow(const Composer::RecipientKind kind);

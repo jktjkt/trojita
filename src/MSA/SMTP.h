@@ -40,6 +40,7 @@ public:
     virtual void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
 public slots:
     virtual void cancel();
+    virtual void setPassword(const QString &password);
     void handleDone(bool ok);
     void handleError(QAbstractSocket::SocketError err, const QString &msg);
 private:
@@ -52,6 +53,13 @@ private:
     QString user;
     QString pass;
     bool failed;
+    QByteArray from;
+    QList<QByteArray> to;
+    QByteArray data;
+    bool isWaitingForPassword;
+    enum { MODE_SMTP_INVALID, MODE_SMTP_DATA, MODE_SMTP_BURL } sendingMode;
+
+    void sendContinueGotPassword();
 
     SMTP(const SMTP &); // don't implement
     SMTP &operator=(const SMTP &); // don't implement
