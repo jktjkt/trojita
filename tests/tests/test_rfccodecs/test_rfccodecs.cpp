@@ -104,6 +104,10 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
         << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=E1t?=")
         << QString::fromUtf8("Jan Kundrát");
 
+    QTest::newRow("Q-iso-3-with-lang")
+        << QByteArray("=?ISO-8859-2*CS?Q?Jan_Kundr=E1t?=")
+        << QString::fromUtf8("Jan Kundrát");
+
     QTest::newRow("buggy-no-space-between-encoded-words")
         << QByteArray("=?ISO-8859-2?Q?Jan_Kundr=E1t?=XX=?ISO-8859-2?Q?Jan_Kundr=E1t?=")
         << QString::fromUtf8("Jan KundrátXXJan Kundrát");
@@ -133,6 +137,13 @@ void RFCCodecsTest::testDecodeRFC2047String_data()
     QTest::newRow("Q-utf8-multiword-csa")
         << QByteArray("=?utf-8?Q?HOLIDAYS Czech Airlines?=")
         << QString::fromUtf8("HOLIDAYS Czech Airlines");
+
+    // No spaces around the encoded-word
+    // Vaguely inspired by http://notmuchmail.org/pipermail/notmuch/2013/015594.html, except that this check for both
+    // leading and trailing space. Looks like GMime is said to support both of these as well.
+    QTest::newRow("no-space-around-encoded-words")
+        << QByteArray("From=?UTF-8?Q?Thomas=20L=C3=BCbking=20?=<thomas.luebking@gmail.com>")
+        << QString::fromUtf8("FromThomas Lübking <thomas.luebking@gmail.com>");
 
     QTest::newRow("unescaped")
         << QByteArray("blesmrt")
