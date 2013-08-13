@@ -272,9 +272,8 @@ QStringList AbookAddressbook::complete(const QString &string, const QStringList 
     for (int i = 0; i < m_contacts->rowCount(); ++i) {
         QStandardItem *item = m_contacts->item(i);
         QString contactName = item->data(Name).toString();
-        // FIXME: this is an adapted copy-paste from LocalAddressbook which worked with QStringLists for multiple mails
-        QStringList contactMails;
-        contactMails << item->data(Mail).toString();
+        // several mail addresses per contact are stored newline delimited
+        QStringList contactMails(item->data(Mail).toString().split(QLatin1Char('\n'), QString::SkipEmptyParts));
         if (contactName.contains(nameMatch)) {
             Q_FOREACH (const QString &mail, contactMails) {
                 if (ignore(mail, ignores))
