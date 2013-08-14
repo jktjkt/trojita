@@ -46,6 +46,10 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     flowedFormat(Composer::Util::FORMAT_PLAIN)
 {
     Q_ASSERT(partIndex.isValid());
+
+    connect(this, SIGNAL(loadStarted()), m_messageView, SLOT(onWebViewLoadStarted()));
+    connect(this, SIGNAL(loadFinished(bool)), m_messageView, SLOT(onWebViewLoadFinished()));
+
     QUrl url;
     url.setScheme(QLatin1String("trojita-imap"));
     url.setHost(QLatin1String("msg"));

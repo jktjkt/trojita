@@ -25,6 +25,7 @@
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
+#include <QProgressBar>
 #include <QTimer>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -35,17 +36,17 @@
 
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
-#include "Composer/SubjectMangling.h"
+#include "ComposeWidget.h"
 #include "EmbeddedWebView.h"
 #include "EnvelopeView.h"
 #include "ExternalElementsWidget.h"
+#include "OverlayWidget.h"
 #include "PartWidgetFactory.h"
 #include "SimplePartWidget.h"
 #include "TagListWidget.h"
 #include "UserAgentWebPage.h"
 #include "Window.h"
-#include "ComposeWidget.h"
-
+#include "Composer/SubjectMangling.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
@@ -53,7 +54,7 @@
 namespace Gui
 {
 
-MessageView::MessageView(QWidget *parent): QWidget(parent)
+MessageView::MessageView(QWidget *parent): QWidget(parent), m_loadingItemCount(0)
 {
     QPalette pal = palette();
     pal.setColor(backgroundRole(), palette().color(QPalette::Active, QPalette::Base));
@@ -140,6 +141,13 @@ MessageView::MessageView(QWidget *parent): QWidget(parent)
     markAsReadTimer = new QTimer(this);
     markAsReadTimer->setSingleShot(true);
     connect(markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()));
+
+    QProgressBar *progress = new QProgressBar();
+    progress->setRange(0, 0);
+    progress->setEnabled(false);
+    OverlayWidget *overlay = new OverlayWidget(progress, this);
+    m_progress = overlay;
+    m_progress->hide();
 }
 
 MessageView::~MessageView()
@@ -171,6 +179,8 @@ void MessageView::setEmpty()
         viewer->show();
         layout->addWidget(viewer);
         emit messageChanged();
+        m_loadingItemCount = 0;
+        m_progress->hide();
     }
 }
 
@@ -213,6 +223,9 @@ void MessageView::setMessage(const QModelIndex &index)
         externalElements->hide();
 
         netAccess->setModelMessage(message);
+
+        m_loadingItemCount = 0;
+        m_progress->hide();
 
         viewer = factory->create(rootPartIndex);
         viewer->setParent(this);
@@ -482,6 +495,18 @@ void MessageView::triggerSearchDialog()
 QModelIndex MessageView::currentMessage() const
 {
     return message;
+}
+
+void MessageView::onWebViewLoadStarted()
+{
+    ++m_loadingItemCount;
+    m_progress->show();
+}
+
+void MessageView::onWebViewLoadFinished()
+{
+    if (--m_loadingItemCount == 0)
+        m_progress->hide();
 }
 
 }

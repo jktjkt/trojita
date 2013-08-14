@@ -86,6 +86,8 @@ private slots:
     void partContextMenuRequested(const QPoint &point);
     void partLinkHovered(const QString &link, const QString &title, const QString &textContent);
     void triggerSearchDialog();
+    void onWebViewLoadStarted();
+    void onWebViewLoadFinished();
 signals:
     void messageChanged();
     void linkHovered(const QString &url);
@@ -108,6 +110,8 @@ private:
     QTimer *markAsReadTimer;
     QWebView *emptyView;
     PartWidgetFactory *factory;
+    QWidget *m_progress;
+    int m_loadingItemCount;
 
     MessageView(const MessageView &); // don't implement
     MessageView &operator=(const MessageView &); // don't implement
