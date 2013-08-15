@@ -5,7 +5,7 @@ else()
     cmake_minimum_required(VERSION 2.8.7)
 endif()
 project(trojita)
-SET(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 if(HARMATTAN)
     set(BUILD_DESKTOP_GUI false)
@@ -51,8 +51,13 @@ else()
 endif()
 find_package(Git)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g")
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual")
+if(NOT WIN32 AND NOT MSVC)
+    # Check if we are NOT on Windows and don't use MSVC since -g is not supported by VC
+    # and Wall makes the build very noisy.
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual")
+endif(NOT WIN32 AND NOT MSVC)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 # The following is required so that the moc_*.cpp and ui_*.h are found
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -78,7 +83,42 @@ if(WITH_RAGEL)
 endif()
 
 if(NOT WITHOUT_ZLIB)
-    find_package(ZLIB)
+
+    if(NOT WIN32) # Check if we are NOT on Windows
+        find_package(ZLIB)
+    else(NOT WIN32)
+        # On win32, qt can statically link to zlib and export their symbols.
+        # We check if we can find the string " zlib " in the QT_CONFIG list in
+        # ${QT_MKSPECS_DIR}/qconfig.pri and include on success ${QT_QTCORE_LIBRARY}
+        # and ${QTDIR}/src/3rdparty/zlib as lib and include folder
+        if(QT_QTCORE_FOUND)
+            message(STATUS "We are on Windows with Qt. Checking if zlib is built into Qt")
+
+            if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
+                file(READ ${QT_MKSPECS_DIR}/qconfig.pri _qconfig_FILE_contents_ZLIB_CHECK)
+                string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG_ZLIB_CHECK ${_qconfig_FILE_contents_ZLIB_CHECK})
+
+                if(QT_CONFIG_ZLIB_CHECK)
+                    if(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
+                        message(STATUS "Found zlib in QT_QCONFIG. zlib seems to be built into Qt")
+                        set(ZLIB_LIBRARY_RELEASE ${QT_QTCORE_LIBRARY_RELEASE})
+                        set(ZLIB_LIBRARY_DEBUG ${QT_QTCORE_LIBRARY_DEBUG})
+                        set(ZLIB_LIBRARY ${QT_QTCORE_LIBRARY})
+
+                        string(REGEX REPLACE "\\\\" "/" QTDIR $ENV{QTDIR})
+                        set(ZLIB_INCLUDE_DIR "${QTDIR}/src/3rdparty/zlib")
+
+                        set(ZLIB_FOUND TRUE)
+                        set(ZLIB_LIBRARIES ${ZLIB_LIBRARY} )
+                        mark_as_advanced(ZLIB_LIBRARY ZLIB_INCLUDE_DIR ZLIB_FOUND)
+                    else(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
+                        message(STATUS "Could not determine if Qt was built with zlib support.")
+                    endif(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
+
+                endif(QT_CONFIG_ZLIB_CHECK)
+            endif(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
+        endif(QT_QTCORE_FOUND)
+    endif(NOT WIN32)
 endif()
 
 if(ZLIB_FOUND)
@@ -163,6 +203,7 @@ set(libStreams_SOURCES
 if(ZLIB_FOUND)
     set(libStreams_SOURCES ${libStreams_SOURCES}
         ${path_Streams}/3rdparty/rfc1951.cpp)
+    include_directories(${ZLIB_INCLUDE_DIR})
 endif()
 
 set(path_mimetypesqt4 ${CMAKE_CURRENT_SOURCE_DIR}/src/mimetypes-qt4)
@@ -632,7 +673,14 @@ if(BUILD_DESKTOP_GUI)
     endif()
     target_link_libraries(DesktopGui Common Composer Imap MSA Streams qwwsmtpclient AbookAddressbook)
 
-    add_executable(trojita ${trojita_desktop_SOURCES} ${trojita_QM})
+    if(WIN32) # Check if we are on Windows
+        # build a real Win32 GUI application. Hide the console window
+        add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
+        target_link_libraries(trojita ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES})
+    else()
+        add_executable(trojita ${trojita_desktop_SOURCES} ${trojita_QM})
+    endif()
+
     target_link_libraries(trojita AppVersion Imap MSA Streams qwwsmtpclient Common Composer AbookAddressbook DesktopGui
         ${QT_QTSQL_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTWEBKIT_LIBRARY})
     if(NOT WITH_QT5)
@@ -751,6 +799,16 @@ if(NOT WITHOUT_TESTS)
     trojita_test(SqlCache)
     trojita_test(algorithms)
     trojita_test(rfccodecs)
+endif()
+
+if(WIN32) # Check if we are on Windows
+    if(MSVC10) # Check if we are using the Visual Studio compiler 2010
+        # Because of linker errors (see http://stackoverflow.com/questions/5625884/conversion-of-stdwstring-to-qstring-throws-linker-error)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:wchar_t-")
+    else(MSVC10)
+        message(WARNING "You are using a compiler which we have not tested yet (not MSVC10).")
+        message(WARNING "Please let us know how well it works.")
+    endif(MSVC10)
 endif()
 
 # FIXME: fix build warnings
