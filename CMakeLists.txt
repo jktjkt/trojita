@@ -54,6 +54,8 @@ if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO)
 endif()
 
+trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
+
 if(WITH_QT5)
     message(STATUS "Building the Qt5 version")
     find_package(Qt5Core 5.2 REQUIRED)
@@ -607,6 +609,11 @@ if(NOT WITH_QT5)
             ${QT_MKSPECS_DIR}/default ${path_mimetypesqt4}/io/)
     endif()
     target_link_libraries(MimetypesQt4 ${QT_QTCORE_LIBRARY})
+endif()
+
+## ClearText password plugin
+if(WITH_CLEARTEXT_PLUGIN)
+    trojita_add_plugin(trojita_plugin_cleartextpassword WITH_CLEARTEXT_PLUGIN src/Plugins/ClearTextPassword/ClearTextPassword.cpp)
 endif()
 
 # Generate file static_plugins.h.in
