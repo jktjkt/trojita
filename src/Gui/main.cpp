@@ -29,6 +29,8 @@
 #include "Gui/Util.h"
 #include "Gui/Window.h"
 
+#include "static_plugins.h"
+
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);

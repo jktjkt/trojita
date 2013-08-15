@@ -52,6 +52,12 @@ BuildRequires: cmake >= 2.8.7
 %endif
 %define         X_display         ":98"
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+
+%if "%{?_lib}" == "lib64"
+%define my_cmake_lib_suffix "-DLIB_SUFFIX=64"
+%else
+%define my_cmake_lib_suffix "-ULIB_SUFFIX"
+%endif
  
 %description
 Trojita is a Qt IMAP e-mail client which:
@@ -66,8 +72,13 @@ Trojita is a Qt IMAP e-mail client which:
 %setup -q
  
 %build
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=%{_prefix}
-make %{?_smp_mflags} VERBOSE=1
+cmake \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_VERBOSE_MAKEFILE=ON \
+    -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
+    -DCMAKE_INSTALL_LIBDIR:PATH=%{_libdir} %{my_cmake_lib_suffix} \
+    -DSHARE_INSTALL_PREFIX:PATH=%{_datadir}
+make %{?_smp_mflags}
  
 %install
 make %{?_smp_mflags} DESTDIR=%{buildroot} install
@@ -81,6 +92,7 @@ make %{?_smp_mflags} DESTDIR=%{buildroot} install
 %files
 %defattr(-,root,root)
 %doc LICENSE README
+%{_libdir}/libtrojita_plugins.so
 %{_bindir}/trojita
 %{_bindir}/be.contacts
 %{_datadir}/applications/trojita.desktop

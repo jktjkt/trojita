@@ -50,6 +50,7 @@ struct SettingsNames {
     static const QString appLoadHomepage;
     static const QString guiShowSystray, guiOnSystrayClose;
     static const QString knownEmailsKey;
+    static const QString addressbookPlugin, passwordPlugin;
 };
 
 }

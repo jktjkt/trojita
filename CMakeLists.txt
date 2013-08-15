@@ -7,6 +7,18 @@ endif()
 project(trojita)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+# POSITION_INDEPENDENT_CODE is only available on cmake 2.8.9 or later
+# Add needed flags for supported compilers which simulate POSITION_INDEPENDENT_CODE property
+if(CMAKE_VERSION VERSION_LESS "2.8.9")
+    if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+    else()
+        message(FATAL_ERROR "Needs GNU or Clang C++ compiler or CMake 2.8.9 (or later)")
+    endif()
+else()
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+endif()
+
 include(FindCXXFeatures)
 if(NOT CXXFeatures_auto_FOUND)
     message(SEND_ERROR "Your compiler doesn't support C++11's auto")
@@ -20,6 +32,7 @@ trojita_option(WITH_HARMATTAN "Build MeeGo Harmattan version" OFF "NOT WITH_DESK
 trojita_option(WITH_QT5 "Build with Qt5 library" OFF)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
+trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
 trojita_option(WITH_TESTS "Build tests" ON "NOT WITH_HARMATTAN")
 
 if(WIN32)
@@ -37,7 +50,6 @@ if(WITH_QT5)
     if(WITH_TESTS)
         find_package(Qt5Test REQUIRED)
     endif()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
     if(Qt5LinguistTools_FOUND)
         find_package(Qt5LinguistForTrojita)
     endif()
@@ -80,6 +92,11 @@ if(WIN32)
     endif()
 endif()
 
+if(NOT PLUGIN_DIR)
+    set(PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/lib/trojita")
+endif()
+mark_as_advanced(PLUGIN_DIR)
+
 if(NOT WIN32 AND NOT MSVC)
     # Check if we are NOT on Windows and don't use MSVC since -g is not supported by VC
     # and Wall makes the build very noisy.
@@ -91,6 +108,10 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 # The following is required so that the moc_*.cpp and ui_*.h are found
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(-DQT_STRICT_ITERATORS)
+
+# Make sure that plugins not export all symbols, only that which are explicitly marked
+include(GenerateExportHeader)
+add_compiler_export_flags()
 
 if(NOT WITH_QT5 AND CMAKE_VERSION VERSION_LESS 2.8.10)
     set(SUPPORTS_TARGET_INCLUDES 0)
@@ -163,6 +184,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
 
 feature_summary(FATAL_ON_MISSING_REQUIRED_PACKAGES DESCRIPTION "\n" WHAT ALL)
 
+if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}")
+endif()
 
 set(path_Common ${CMAKE_CURRENT_SOURCE_DIR}/src/Common)
 set(libCommon_HEADERS
@@ -180,6 +204,21 @@ set(libCommon_SOURCES
     ${path_Common}/FileLogger.cpp
     ${path_Common}/Paths.cpp
     ${path_Common}/SettingsNames.cpp
+)
+
+set(path_Plugins ${CMAKE_CURRENT_SOURCE_DIR}/src/Plugins)
+set(libPlugins_HEADERS
+    ${path_Plugins}/AddressbookPlugin.h
+    ${path_Plugins}/PasswordPlugin.h
+    ${path_Plugins}/PluginJob.h
+    ${path_Plugins}/PluginManager.h
+    ${path_Plugins}/TrojitaPluginInterface.h
+)
+set(libPlugins_SOURCES
+    ${path_Plugins}/AddressbookPlugin.cpp
+    ${path_Plugins}/PasswordPlugin.cpp
+    ${path_Plugins}/PluginJob.cpp
+    ${path_Plugins}/PluginManager.cpp
 )
 
 set(path_Composer ${CMAKE_CURRENT_SOURCE_DIR}/src/Composer)
@@ -669,6 +708,19 @@ add_library(AppVersion ${libAppVersion_SOURCES})
 add_dependencies(AppVersion version)
 target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
 
+if(WITH_SHARED_PLUGINS)
+    add_library(Plugins SHARED ${libPlugins_SOURCES})
+else()
+    add_library(Plugins STATIC ${libPlugins_SOURCES})
+    set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS QT_STATICPLUGIN)
+endif()
+set_target_properties(Plugins PROPERTIES OUTPUT_NAME trojita_plugins)
+if(WITH_QT5)
+    qt5_use_modules(Plugins Core)
+else()
+    target_link_libraries(Plugins ${QT_QTCORE_LIBRARY})
+endif()
+
 add_library(Streams ${libStreams_SOURCES})
 target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
@@ -702,6 +754,14 @@ if(NOT WITH_QT5)
     target_link_libraries(MimetypesQt4 ${QT_QTCORE_LIBRARY})
 endif()
 
+# Generate file static_plugins.h.in
+get_property(STATIC_PLUGINS GLOBAL PROPERTY TROJITA_STATIC_PLUGINS)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h.in "#include <QtPlugin>\n")
+foreach(PLUGIN ${STATIC_PLUGINS})
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h.in "Q_IMPORT_PLUGIN(${PLUGIN})\n")
+endforeach()
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h.in ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h)
+
 if(WITH_DESKTOP)
     if(WITH_QT5)
         qt5_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
@@ -722,12 +782,12 @@ if(WITH_DESKTOP)
     if(SUPPORTS_TARGET_INCLUDES)
         set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
     endif()
-    target_link_libraries(DesktopGui Common Composer Imap MSA Streams qwwsmtpclient AbookAddressbook ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(DesktopGui Common Composer Imap MSA Plugins Streams qwwsmtpclient AbookAddressbook ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
-    target_link_libraries(trojita AppVersion Common DesktopGui ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(trojita AppVersion Common DesktopGui ${STATIC_PLUGINS} ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
     if(NOT WITH_QT5)
         target_link_libraries(trojita MimetypesQt4)
     endif()
@@ -761,6 +821,10 @@ if(WITH_QT5)
     qt5_use_modules(AbookAddressbook Widgets)
     qt5_use_modules(be.contacts Widgets)
     qt5_use_modules(trojita Widgets)
+endif()
+
+if(WITH_SHARED_PLUGINS)
+    install(TARGETS Plugins LIBRARY DESTINATION "${CMAKE_INSTALL_LIBDIR}")
 endif()
 
 if(WITH_DESKTOP)

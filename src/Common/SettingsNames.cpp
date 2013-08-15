@@ -90,5 +90,7 @@ const QString SettingsNames::guiSizesInMainWinWhenWide = QLatin1String("gui/size
 const QString SettingsNames::guiAllowRawSearch = QLatin1String("gui/allowRawSearch");
 const QString SettingsNames::appLoadHomepage = QLatin1String("app.updates.checkEnabled");
 const QString SettingsNames::knownEmailsKey = QLatin1String("addressBook/knownEmails");
+const QString SettingsNames::addressbookPlugin = QLatin1String("plugin/addressbook");
+const QString SettingsNames::passwordPlugin = QLatin1String("plugin/password");
 
 }

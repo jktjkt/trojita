@@ -69,6 +69,11 @@ class PrettyMsgListModel;
 }
 }
 
+namespace Plugins
+{
+class PluginManager;
+}
+
 namespace Gui
 {
 
@@ -99,6 +104,7 @@ public:
 
     const AbstractAddressbook *addressBook() const { return m_addressBook; }
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
+    Plugins::PluginManager *pluginManager() { return m_pluginManager; }
 protected:
     void closeEvent(QCloseEvent *event);
     bool eventFilter(QObject *o, QEvent *e);
@@ -313,6 +319,7 @@ private:
     bool m_ignoreStoredPassword;
 
     QSettings *m_settings;
+    Plugins::PluginManager *m_pluginManager;
 
     AbstractAddressbook *m_addressBook;
     QPointer<BE::Contacts> m_contactsWidget;

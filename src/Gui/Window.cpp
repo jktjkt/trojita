@@ -62,6 +62,7 @@
 #include "Imap/Network/FileDownloadManager.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
+#include "Plugins/PluginManager.h"
 #include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
 #include "IconLoader.h"
@@ -101,10 +102,14 @@ enum {
 
 MainWindow::MainWindow(QSettings *settings): QMainWindow(), model(0),
     m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true),
-    m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_trayIcon(0)
+    m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_trayIcon(0)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
+
+    // m_pluginManager must be created before calling createWidgets
+    m_pluginManager = new Plugins::PluginManager(m_settings, Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin, this);
+
     createWidgets();
 
     ShortcutHandler *shortcutHandler = new ShortcutHandler(this);
