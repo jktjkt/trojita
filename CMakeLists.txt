@@ -55,6 +55,7 @@ if(WIN32)
 endif()
 
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
+trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin")
 
 if(WITH_QT5)
     message(STATUS "Building the Qt5 version")
@@ -118,6 +119,8 @@ if(WIN32)
         set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
     endif()
 endif()
+
+trojita_find_package(QtKeychain "" "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}")
@@ -614,6 +617,13 @@ endif()
 ## ClearText password plugin
 if(WITH_CLEARTEXT_PLUGIN)
     trojita_add_plugin(trojita_plugin_ClearTextPasswordPlugin WITH_CLEARTEXT_PLUGIN src/Plugins/ClearTextPassword/ClearTextPassword.cpp)
+endif()
+
+## QtKeyChain plugin
+if(WITH_QTKEYCHAIN_PLUGIN)
+    include_directories(${QTKEYCHAIN_INCLUDE_DIRS})
+    trojita_add_plugin(trojita_plugin_qtkeychainpassword WITH_QTKEYCHAIN_PLUGIN src/Plugins/QtKeyChain/QtKeyChainPassword.cpp)
+    target_link_libraries(trojita_plugin_qtkeychainpassword ${QT_QTCORE_LIBRARY} ${QTKEYCHAIN_LIBRARIES})
 endif()
 
 # Generate file static_plugins.h.in
