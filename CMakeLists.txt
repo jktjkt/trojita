@@ -675,7 +675,7 @@ if(BUILD_DESKTOP_GUI)
 
     if(WIN32) # Check if we are on Windows
         # build a real Win32 GUI application. Hide the console window
-        add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
+        add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM} ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_ico_win32.rc)
         target_link_libraries(trojita ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES})
     else()
         add_executable(trojita ${trojita_desktop_SOURCES} ${trojita_QM})
