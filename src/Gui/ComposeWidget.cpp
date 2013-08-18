@@ -657,7 +657,12 @@ void ComposeWidget::slotUpdateSignature()
             .data().toString();
 
     const bool wasEdited = m_messageEverEdited;
-    Composer::Util::replaceSignature(ui->mailText->document(), newSignature);
+    int currentPosition;
+    Composer::Util::replaceSignature(ui->mailText->document(), newSignature, &currentPosition);
+    QTextCursor cursor = ui->mailText->textCursor();
+    cursor.setPosition(currentPosition, QTextCursor::MoveAnchor);
+    ui->mailText->setTextCursor(cursor);
+
     m_messageEverEdited = wasEdited;
 }
 

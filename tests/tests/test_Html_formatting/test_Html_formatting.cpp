@@ -22,6 +22,7 @@
 
 #include <QtTest>
 #include <QAction>
+#include <QTextCursor>
 #include <QTextDocument>
 #include <QWebFrame>
 #include <QWebView>
@@ -520,7 +521,13 @@ void HtmlFormattingTest::testSignatures()
 
     QTextDocument doc;
     doc.setPlainText(original);
-    Composer::Util::replaceSignature(&doc, signature);
+
+    int currentPosition;
+    Composer::Util::replaceSignature(&doc, signature, &currentPosition);
+    QTextCursor cursor(&doc);
+    cursor.setPosition(currentPosition, QTextCursor::MoveAnchor); 
+    cursor.insertText("^");
+
     QCOMPARE(doc.toPlainText(), result);
 }
 
@@ -530,21 +537,21 @@ void HtmlFormattingTest::testSignatures_data()
     QTest::addColumn<QString>("signature");
     QTest::addColumn<QString>("result");
 
-    QTest::newRow("empty-all") << QString() << QString() << QString();
-    QTest::newRow("empty-signature-1") << QString("foo") << QString() << QString("foo");
-    QTest::newRow("empty-signature-2") << QString("foo\n") << QString() << QString("foo\n");
-    QTest::newRow("empty-signature-3") << QString("foo\n-- ") << QString() << QString("foo");
-    QTest::newRow("empty-signature-4") << QString("foo\n-- \n") << QString() << QString("foo");
-    QTest::newRow("empty-signature-5") << QString("foo\n\n-- \n") << QString() << QString("foo\n");
+    QTest::newRow("empty-all") << QString() << QString() << QString("^");
+    QTest::newRow("empty-signature-1") << QString("foo") << QString() << QString("foo^");
+    QTest::newRow("empty-signature-2") << QString("foo\n") << QString() << QString("foo\n^");
+    QTest::newRow("empty-signature-3") << QString("foo\n-- ") << QString() << QString("foo^");
+    QTest::newRow("empty-signature-4") << QString("foo\n-- \n") << QString() << QString("foo^");
+    QTest::newRow("empty-signature-5") << QString("foo\n\n-- \n") << QString() << QString("foo\n^");
 
-    QTest::newRow("no-signature-1") << QString("foo") << QString("meh") << QString("foo\n-- \nmeh");
-    QTest::newRow("no-signature-2") << QString("foo\n") << QString("meh") << QString("foo\n\n-- \nmeh");
-    QTest::newRow("no-signature-3") << QString("foo\n\n") << QString("meh") << QString("foo\n\n\n-- \nmeh");
-    QTest::newRow("no-signature-4") << QString("foo\nbar\nbaz") << QString("meh") << QString("foo\nbar\nbaz\n-- \nmeh");
-    QTest::newRow("no-signature-5") << QString("foo\n--") << QString("meh") << QString("foo\n--\n-- \nmeh");
+    QTest::newRow("no-signature-1") << QString("foo") << QString("meh") << QString("foo^\n-- \nmeh");
+    QTest::newRow("no-signature-2") << QString("foo\n") << QString("meh") << QString("foo\n^\n-- \nmeh");
+    QTest::newRow("no-signature-3") << QString("foo\n\n") << QString("meh") << QString("foo\n\n^\n-- \nmeh");
+    QTest::newRow("no-signature-4") << QString("foo\nbar\nbaz") << QString("meh") << QString("foo\nbar\nbaz^\n-- \nmeh");
+    QTest::newRow("no-signature-5") << QString("foo\n--") << QString("meh") << QString("foo\n--^\n-- \nmeh");
 
-    QTest::newRow("replacement") << QString("foo\n-- \njohoho") << QString("sig") << QString("foo\n-- \nsig");
-    QTest::newRow("replacement-of-multiline") << QString("foo\n-- \njohoho\nwtf\nbar") << QString("sig") << QString("foo\n-- \nsig");
+    QTest::newRow("replacement") << QString("foo\n-- \njohoho") << QString("sig") << QString("foo^\n-- \nsig");
+    QTest::newRow("replacement-of-multiline") << QString("foo\n-- \njohoho\nwtf\nbar") << QString("sig") << QString("foo^\n-- \nsig");
 }
 
 QTEST_MAIN(HtmlFormattingTest)

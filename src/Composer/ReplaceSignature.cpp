@@ -28,7 +28,7 @@
 namespace Composer {
 namespace Util {
 
-void replaceSignature(QTextDocument *document, const QString &newSignature)
+void replaceSignature(QTextDocument *document, const QString &newSignature, int *currentPosition)
 {
     // The QTextEdit is set up in such a way as to treat a fully terminated line as a standalone text block,
     // hence no newlines in the signature separator
@@ -64,6 +64,9 @@ void replaceSignature(QTextDocument *document, const QString &newSignature)
         cursor.beginEditBlock();
         cursor.endEditBlock();
     }
+
+    if (currentPosition)
+        *currentPosition = cursor.position();
 
     if (!newSignature.isEmpty()) {
         cursor.joinPreviousEditBlock();
