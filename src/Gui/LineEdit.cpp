@@ -26,7 +26,7 @@ LineEdit::LineEdit(const QString &text, QWidget *parent)
 }
 
 LineEdit::LineEdit(QWidget *parent)
-    : QLineEdit(parent)
+    : QLineEdit(parent), m_historyEnabled(false), m_historyPosition(0)
 {
     init();
 }
