@@ -53,6 +53,7 @@ class EnvelopeView;
 class MainWindow;
 class PartWidgetFactory;
 class ExternalElementsWidget;
+class Spinner;
 class TagListWidget;
 
 
@@ -111,7 +112,7 @@ private:
     QTimer *markAsReadTimer;
     QWebView *emptyView;
     PartWidgetFactory *factory;
-    QWidget *m_progress;
+    Spinner *m_loadingSpinner;
     QSettings *m_settings;
     int m_loadingItemCount;
 

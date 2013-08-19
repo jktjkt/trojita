@@ -44,6 +44,7 @@
 #include "OverlayWidget.h"
 #include "PartWidgetFactory.h"
 #include "SimplePartWidget.h"
+#include "Spinner.h"
 #include "TagListWidget.h"
 #include "UserAgentWebPage.h"
 #include "Window.h"
@@ -144,12 +145,9 @@ MessageView::MessageView(QWidget *parent, QSettings *settings): QWidget(parent),
     markAsReadTimer->setSingleShot(true);
     connect(markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()));
 
-    QProgressBar *progress = new QProgressBar();
-    progress->setRange(0, 0);
-    progress->setEnabled(false);
-    OverlayWidget *overlay = new OverlayWidget(progress, this);
-    m_progress = overlay;
-    m_progress->hide();
+    m_loadingSpinner = new Spinner(this);
+    m_loadingSpinner->setText(tr("Fetching\nMessage"));
+    m_loadingSpinner->setType(Spinner::Sun);
 }
 
 MessageView::~MessageView()
@@ -182,7 +180,7 @@ void MessageView::setEmpty()
         layout->addWidget(viewer);
         emit messageChanged();
         m_loadingItemCount = 0;
-        m_progress->hide();
+        m_loadingSpinner->stop();
     }
 }
 
@@ -227,7 +225,7 @@ void MessageView::setMessage(const QModelIndex &index)
         netAccess->setModelMessage(message);
 
         m_loadingItemCount = 0;
-        m_progress->hide();
+        m_loadingSpinner->stop();
 
         PartWidgetFactory::PartLoadingOptions loadingMode;
         if (m_settings->value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool())
@@ -505,13 +503,13 @@ QModelIndex MessageView::currentMessage() const
 void MessageView::onWebViewLoadStarted()
 {
     ++m_loadingItemCount;
-    m_progress->show();
+    m_loadingSpinner->start(250);
 }
 
 void MessageView::onWebViewLoadFinished()
 {
     if (--m_loadingItemCount == 0)
-        m_progress->hide();
+        m_loadingSpinner->stop();
 }
 
 }

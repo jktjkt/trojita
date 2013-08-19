@@ -276,6 +276,7 @@ set(libDesktopGui_HEADERS
     ${path_DesktopGui}/ReplaceCharValidator.h
     ${path_DesktopGui}/SettingsDialog.h
     ${path_DesktopGui}/SimplePartWidget.h
+    ${path_DesktopGui}/Spinner.h
     ${path_DesktopGui}/TagListWidget.h
     ${path_DesktopGui}/TagWidget.h
     ${path_DesktopGui}/TaskProgressIndicator.h
@@ -316,6 +317,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/ReplaceCharValidator.cpp
     ${path_DesktopGui}/SettingsDialog.cpp
     ${path_DesktopGui}/SimplePartWidget.cpp
+    ${path_DesktopGui}/Spinner.cpp
     ${path_DesktopGui}/TagListWidget.cpp
     ${path_DesktopGui}/TagWidget.cpp
     ${path_DesktopGui}/TaskProgressIndicator.cpp
