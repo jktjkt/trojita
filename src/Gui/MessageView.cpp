@@ -26,6 +26,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QProgressBar>
+#include <QSettings>
 #include <QTimer>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -46,6 +47,7 @@
 #include "TagListWidget.h"
 #include "UserAgentWebPage.h"
 #include "Window.h"
+#include "Common/SettingsNames.h"
 #include "Composer/SubjectMangling.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
@@ -227,7 +229,10 @@ void MessageView::setMessage(const QModelIndex &index)
         m_loadingItemCount = 0;
         m_progress->hide();
 
-        viewer = factory->create(rootPartIndex, 0);
+        PartWidgetFactory::PartLoadingOptions loadingMode;
+        if (QSettings().value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool())
+            loadingMode |= PartWidgetFactory::PART_PREFER_PLAINTEXT_OVER_HTML;
+        viewer = factory->create(rootPartIndex, 0, loadingMode);
         viewer->setParent(this);
         layout->addWidget(viewer);
         viewer->show();

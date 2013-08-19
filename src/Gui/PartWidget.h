@@ -26,6 +26,7 @@
 #include <QTabWidget>
 
 #include "AbstractPartWidget.h"
+#include "PartWidgetFactory.h"
 
 class QModelIndex;
 
@@ -40,7 +41,7 @@ class MultipartAlternativeWidget: public QTabWidget, public AbstractPartWidget
     Q_OBJECT
 public:
     MultipartAlternativeWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex,
-                               const int recursionDepth, const QString &preferredMimeType);
+                               const int recursionDepth, const PartWidgetFactory::PartLoadingOptions options);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 protected:
@@ -52,7 +53,8 @@ class MultipartSignedWidget: public QGroupBox, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    MultipartSignedWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth);
+    MultipartSignedWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth,
+                          const PartWidgetFactory::PartLoadingOptions loadingOptions);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 };
@@ -62,7 +64,8 @@ class GenericMultipartWidget: public QWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    GenericMultipartWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth);
+    GenericMultipartWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth,
+                           const PartWidgetFactory::PartLoadingOptions loadingOptions);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 };
@@ -72,7 +75,8 @@ class Message822Widget: public QWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    Message822Widget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth);
+    Message822Widget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth,
+                     const PartWidgetFactory::PartLoadingOptions loadingOptions);
     virtual QString quoteMe() const;
     virtual void reloadContents();
 };

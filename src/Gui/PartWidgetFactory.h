@@ -43,12 +43,13 @@ public:
         PART_IGNORE_DISPOSITION_ATTACHMENT = 1 << 0, /**< @short Don't wrap the part in an AttachmentView */
         PART_IGNORE_CLICKTHROUGH = 1 << 1, /**< @short Ignore any heuristics which lead to wrapping in an LoadablePartWidget with a clickthrough */
         PART_IGNORE_LOAD_ON_SHOW = 1 << 2, /**< @short Ignore wrapping in a LoadablePartWidget set up to load on first show event */
-        PART_IS_HIDDEN = 1 << 3 /**< @short Request wrapping this part in a LoadablePartWidget */
+        PART_IS_HIDDEN = 1 << 3, /**< @short Request wrapping this part in a LoadablePartWidget */
+        PART_PREFER_PLAINTEXT_OVER_HTML = 1 << 4 /**< @short The user's preferences indicate that a text/plain part shall be shown instead of a text/html if available */
     } PartLoadingFlag;
     typedef QFlags<PartLoadingFlag> PartLoadingOptions;
 
     PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, MessageView *messageView);
-    QWidget *create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode = PartLoadingOptions());
+    QWidget *create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode);
 
     MessageView *messageView() const;
 private:

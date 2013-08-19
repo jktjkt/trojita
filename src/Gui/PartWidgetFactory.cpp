@@ -148,17 +148,12 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     }
 
     // Now we know for sure that it's not supposed to be wrapped in an AttachmentView, cool.
-    bool userPrefersPlaintext = QSettings().value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool();
-
     if (mimeType.startsWith(QLatin1String("multipart/"))) {
         // it's a compound part
         if (mimeType == QLatin1String("multipart/alternative")) {
-            return new MultipartAlternativeWidget(0, this, partIndex, recursionDepth,
-                                                  userPrefersPlaintext ?
-                                                      QLatin1String("text/plain") :
-                                                      QLatin1String("text/html"));
+            return new MultipartAlternativeWidget(0, this, partIndex, recursionDepth, loadingMode);
         } else if (mimeType == QLatin1String("multipart/signed")) {
-            return new MultipartSignedWidget(0, this, partIndex, recursionDepth);
+            return new MultipartSignedWidget(0, this, partIndex, recursionDepth, loadingMode);
         } else if (mimeType == QLatin1String("multipart/related")) {
             // The purpose of this section is to find a text/html e-mail, along with its associated body parts, and hide
             // everything else than the HTML widget.
@@ -196,24 +191,24 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
 
             if (mainPartIndex.isValid()) {
                 if (mainPartIndex.data(RolePartMimeType).toString() == QLatin1String("text/html")) {
-                    return PartWidgetFactory::create(mainPartIndex, recursionDepth+1);
+                    return PartWidgetFactory::create(mainPartIndex, recursionDepth+1, loadingMode);
                 } else {
                     // Sorry, but anything else than text/html is by definition suspicious here. Better than picking some random
                     // choice, let's just show everything.
-                    return new GenericMultipartWidget(0, this, partIndex, recursionDepth);
+                    return new GenericMultipartWidget(0, this, partIndex, recursionDepth, loadingMode);
                 }
             } else {
                 // The RFC2387's wording is clear that in absence of an explicit START argument, the first part is the starting one.
                 // On the other hand, I've seen real-world messages whose first part is some utter garbage (an image sent as
                 // application/octet-stream, for example) and some *other* part is an HTML text. In that case (and if we somehow
                 // failed to pick the HTML part by a heuristic), it's better to show everything.
-                return new GenericMultipartWidget(0, this, partIndex, recursionDepth);
+                return new GenericMultipartWidget(0, this, partIndex, recursionDepth, loadingMode);
             }
         } else {
-            return new GenericMultipartWidget(0, this, partIndex, recursionDepth);
+            return new GenericMultipartWidget(0, this, partIndex, recursionDepth, loadingMode);
         }
     } else if (mimeType == QLatin1String("message/rfc822")) {
-        return new Message822Widget(0, this, partIndex, recursionDepth);
+        return new Message822Widget(0, this, partIndex, recursionDepth, loadingMode);
     } else {
         part->fetchFromCache(model);
 
