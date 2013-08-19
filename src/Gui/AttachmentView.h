@@ -26,6 +26,8 @@
 #include <QModelIndex>
 #include "Gui/AbstractPartWidget.h"
 
+class QLabel;
+class QMenu;
 class QNetworkReply;
 class QPushButton;
 class QTemporaryFile;
@@ -60,31 +62,41 @@ public:
     virtual QString quoteMe() const;
     virtual void reloadContents();
 protected:
+    virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);
+    virtual void paintEvent(QPaintEvent *event);
 private slots:
     void slotDownloadAttachment();
     void slotOpenAttachment();
 
+    void indicateHover();
     void openDownloadedAttachment();
     void slotFileNameRequestedOnOpen(QString *fileName);
     void slotFileNameRequested(QString *fileName);
     void enableDownloadAgain();
     void onOpenFailed();
+    void updateShowHideAttachmentState();
+    void showMenu();
+    void toggleIconCursor();
 
 private:
     QPersistentModelIndex m_partIndex;
-    QToolButton *m_downloadButton;
 
     MessageView *m_messageView;
 
     QAction *m_downloadAttachment;
     QAction *m_openAttachment;
     QAction *m_showHideAttachment;
+    QMenu *m_menu;
+    QToolButton *m_icon;
+    QLabel *m_fileName;
 
     Imap::Network::MsgPartNetAccessManager *m_netAccess;
 
     QTemporaryFile *m_tmpFile;
     QWidget *m_contentWidget;
+
+    QPoint m_dragStartPos;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement
