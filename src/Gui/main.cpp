@@ -30,6 +30,7 @@
 #include "Common/SettingsNames.h"
 #include "Gui/Util.h"
 #include "Gui/Window.h"
+#include "IPC/IPC.h"
 
 #include "static_plugins.h"
 
@@ -65,6 +66,10 @@ int main(int argc, char **argv)
     AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
     app.setWindowIcon(QIcon(QLatin1String(":/icons/trojita.png")));
+    if (IPC::Instance::isRunning()) {
+        IPC::Instance::showMainWindow();
+        return 0;
+    }
 
     // Hack: support multiple "profiles"
     QString profileName;
@@ -84,6 +89,11 @@ int main(int argc, char **argv)
     QSettings settings(Common::Application::organization,
                        profileName.isEmpty() ? Common::Application::name : Common::Application::name + QLatin1Char('-') + profileName);
     Gui::MainWindow win(&settings);
+    if (!IPC::registerInstance(&win)) {
+        QTextStream qErr(stderr, QIODevice::WriteOnly);
+        qErr << QObject::tr("Error: Registering IPC instance failed. Maybe application is already running?") << endl;
+        return 1;
+    }
     if ( settings.value(Common::SettingsNames::guiStartMinimized, QVariant(false)).toBool() ) {
         if ( !settings.value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool() ) {
             win.show();

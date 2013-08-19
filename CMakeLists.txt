@@ -282,6 +282,19 @@ set(libUiUtils_SOURCES
     ${path_UiUtils}/PlainTextFormatter.cpp
 )
 
+set(path_IPC ${CMAKE_CURRENT_SOURCE_DIR}/src/IPC)
+
+if(WITH_DBUS)
+    set(libIPC_SOURCES
+        ${path_IPC}/DBusInterface.cpp
+        ${path_IPC}/MainWindowBridge.cpp
+    )
+else()
+    set(libIPC_SOURCES
+        ${path_IPC}/None.cpp
+    )
+endif()
+
 set(path_Composer ${CMAKE_CURRENT_SOURCE_DIR}/src/Composer)
 set(libComposer_SOURCES
     ${path_Composer}/ComposerAttachments.cpp
@@ -625,6 +638,15 @@ if(WITH_ZLIB)
     target_link_libraries(Streams ${ZLIB_LIBRARIES})
 endif()
 
+add_library(IPC STATIC ${libIPC_SOURCES})
+set_property(TARGET IPC APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
+if(WITH_DBUS)
+    target_link_libraries(IPC ${QT_QTDBUS_LIBRARY})
+    if(WITH_QT5)
+        qt5_use_modules(IPC DBus Widgets)
+    endif()
+endif()
+
 add_library(qwwsmtpclient STATIC ${libqwwsmtpclient_SOURCES})
 target_link_libraries(qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
@@ -710,7 +732,7 @@ if(WITH_DESKTOP)
     if(SUPPORTS_TARGET_INCLUDES)
         set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
     endif()
-    target_link_libraries(DesktopGui Common UiUtils Composer Imap MSA Plugins Streams qwwsmtpclient AbookAddressbook ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(DesktopGui Common UiUtils Composer Imap IPC MSA Plugins Streams qwwsmtpclient AbookAddressbook ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
