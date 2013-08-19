@@ -52,11 +52,6 @@ PartWidgetFactory::PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *man
 {
 }
 
-QWidget *PartWidgetFactory::create(const QModelIndex &partIndex)
-{
-    return create(partIndex, 0);
-}
-
 QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode)
 {
     using namespace Imap::Mailbox;

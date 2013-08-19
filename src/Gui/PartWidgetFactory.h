@@ -48,7 +48,6 @@ public:
     typedef QFlags<PartLoadingFlag> PartLoadingOptions;
 
     PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, MessageView *messageView);
-    QWidget *create(const QModelIndex &partIndex);
     QWidget *create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode = PartLoadingOptions());
 
     MessageView *messageView() const;

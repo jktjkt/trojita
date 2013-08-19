@@ -227,7 +227,7 @@ void MessageView::setMessage(const QModelIndex &index)
         m_loadingItemCount = 0;
         m_progress->hide();
 
-        viewer = factory->create(rootPartIndex);
+        viewer = factory->create(rootPartIndex, 0);
         viewer->setParent(this);
         layout->addWidget(viewer);
         viewer->show();
