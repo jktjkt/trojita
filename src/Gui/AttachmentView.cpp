@@ -73,7 +73,9 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     QMimeType mimeType = QMimeDatabase().mimeTypeForName(mimeDescription);
     if (mimeType.isValid() && !mimeType.isDefault()) {
         mimeDescription = mimeType.comment();
-        QIcon icon = QIcon::fromTheme(mimeType.iconName(), loadIcon(QLatin1String("mail-attachment")));
+        QIcon icon = QIcon::fromTheme(mimeType.iconName(),
+                                      QIcon::fromTheme(mimeType.genericIconName(), loadIcon(QLatin1String("mail-attachment")))
+                                      );
         lbl->setPixmap(icon.pixmap(iconSize));
     } else {
         lbl->setPixmap(loadIcon(QLatin1String("mail-attachment")).pixmap(iconSize));
