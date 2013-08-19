@@ -113,6 +113,10 @@ public:
     // FIXME: this should be changed to some wrapper when support for multiple accounts is available
     Imap::ImapAccess *imapAccess() const;
 
+public slots:
+    void slotComposeMailUrl(const QUrl &url);
+    void slotComposeMail();
+    void invokeContactEditor();
 protected:
     void closeEvent(QCloseEvent *event);
     bool eventFilter(QObject *o, QEvent *e);
@@ -134,9 +138,7 @@ private slots:
     void authenticationRequested();
     void authenticationContinue(const QString &pass = QString());
     void checkSslPolicy();
-    void slotComposeMailUrl(const QUrl &url);
     void slotManageContact(const QUrl &url);
-    void slotComposeMail();
     void slotEditDraft();
     void slotReplyTo();
     void slotReplyAllButMe();
@@ -203,7 +205,6 @@ private slots:
 
     void slotIconActivated(const QSystemTrayIcon::ActivationReason reason);
     void slotToggleSysTray();
-    void invokeContactEditor();
 
     void slotReconnectAttemptScheduled(const int timeout);
     void slotResetReconnectState();
