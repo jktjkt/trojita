@@ -484,9 +484,12 @@ void MsgListModel::setMailbox(const QModelIndex &index)
         msgListPtr->resetWasUnreadState();
         RESET_MODEL;
         emit mailboxChanged(index);
-        // We want to tell the Model that it should consider starting the IDLE command.
-        const_cast<Model *>(model)->switchToMailbox(index);
     }
+
+    // We want to tell the Model that it should consider starting the IDLE command.
+    // This shall happen regardless on what this model's idea about a "current mailbox" is because the IMAP connection might have
+    // switched to another mailbox behind the scenes.
+    const_cast<Model *>(model)->switchToMailbox(index);
 }
 
 /** @short Change mailbox to the one specified by its name */

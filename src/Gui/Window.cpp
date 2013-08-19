@@ -908,9 +908,13 @@ void MainWindow::msgListClicked(const QModelIndex &index)
     // Be sure to update the toolbar/actions with the state of the current message
     updateMessageFlags();
 
+    // Because it's quite possible that we have switched into another mailbox, make sure that we're in the "current" one so that
+    // user will be notified about new arrivals, etc.
+    QModelIndex translated;
+    Imap::Mailbox::Model::realTreeItem(index, 0, &translated);
+    model->switchToMailbox(translated.parent().parent());
+
     if (index.column() == Imap::Mailbox::MsgListModel::SEEN) {
-        QModelIndex translated;
-        Imap::Mailbox::Model::realTreeItem(index, 0, &translated);
         if (!translated.data(Imap::Mailbox::RoleIsFetched).toBool())
             return;
         Imap::Mailbox::FlagsOperation flagOp = translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() ?
