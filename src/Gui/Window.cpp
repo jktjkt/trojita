@@ -873,14 +873,22 @@ bool MainWindow::eventFilter(QObject *o, QEvent *e)
 {
     if (msgListWidget && msgListWidget->tree && o == msgListWidget->tree->header()->viewport()) {
         // installed if sorting is not really possible.
-        if ((e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease) &&
-            static_cast<QMouseEvent*>(e)->button() == Qt::LeftButton) {
-            if (e->type() == QEvent::MouseButtonRelease) { // fake order swap on release
-                m_actionSortDescending->toggle();
-                Qt::SortOrder order = m_actionSortDescending->isChecked() ? Qt::DescendingOrder : Qt::AscendingOrder;
-                msgListWidget->tree->header()->setSortIndicator(-1, order);
+        QWidget *header = static_cast<QWidget*>(o);
+        QMouseEvent *mouse = static_cast<QMouseEvent*>(e);
+        if (e->type() == QEvent::MouseButtonPress) {
+            if (mouse->button() == Qt::LeftButton && header->cursor().shape() == Qt::ArrowCursor) {
+                m_headerDragStart = mouse->pos();
             }
-            return true; // suck away press and release
+            return false;
+        }
+        if (e->type() == QEvent::MouseButtonRelease) {
+            if (mouse->button() == Qt::LeftButton && header->cursor().shape() == Qt::ArrowCursor &&
+               (m_headerDragStart - mouse->pos()).manhattanLength() < QApplication::startDragDistance()) {
+                    m_actionSortDescending->toggle();
+                    Qt::SortOrder order = m_actionSortDescending->isChecked() ? Qt::DescendingOrder : Qt::AscendingOrder;
+                    msgListWidget->tree->header()->setSortIndicator(-1, order);
+                    return true; // prevent regular click
+            }
         }
     }
     return false;

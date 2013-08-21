@@ -321,6 +321,7 @@ private:
     MainWindow &operator=(const MainWindow &); // don't implement
 
     QSystemTrayIcon *m_trayIcon;
+    QPoint m_headerDragStart;
 };
 
 }
