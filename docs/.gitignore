@@ -1,0 +1,19 @@
+# stuff related to the RFC drafts
+*.dtd
+*.xslt
+*.ent
+
+# LaTeX stuff
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+
+# stuff related to the thesis
+mff-logo.eps
+
+# the imported "subfiles" package
+subfiles.*
