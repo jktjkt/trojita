@@ -467,6 +467,8 @@ void MainWindow::createActions()
     m_mainToolbar->addSeparator();
     m_mainToolbar->addAction(showMenuBar);
     m_mainToolbar->addAction(configSettings);
+
+    updateMessageFlags();
 }
 
 void MainWindow::connectModelActions()
@@ -715,8 +717,11 @@ void MainWindow::setupModels()
     connect(msgListModel, SIGNAL(messagesAvailable()), msgListWidget->tree, SLOT(scrollToBottom()));
     connect(msgListModel, SIGNAL(rowsInserted(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
     connect(msgListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(msgListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateMessageFlags()));
     connect(msgListModel, SIGNAL(layoutChanged()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(msgListModel, SIGNAL(layoutChanged()), this, SLOT(updateMessageFlags()));
     connect(msgListModel, SIGNAL(modelReset()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(msgListModel, SIGNAL(modelReset()), this, SLOT(updateMessageFlags()));
     connect(msgListModel, SIGNAL(mailboxChanged(QModelIndex)), this, SLOT(slotMailboxChanged(QModelIndex)));
 
     connect(model, SIGNAL(alertReceived(const QString &)), this, SLOT(alertReceived(const QString &)));
@@ -1446,8 +1451,11 @@ void MainWindow::updateMessageFlags()
 
 void MainWindow::updateMessageFlags(const QModelIndex &index)
 {
-    markAsRead->setChecked(index.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
-    markAsDeleted->setChecked(index.data(Imap::Mailbox::RoleMessageIsMarkedDeleted).toBool());
+    bool okToModify = model->isNetworkAvailable() && index.isValid() && index.data(Imap::Mailbox::RoleMessageUid).toUInt() > 0;
+    markAsRead->setEnabled(okToModify);
+    markAsDeleted->setEnabled(okToModify);
+    markAsRead->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+    markAsDeleted->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedDeleted).toBool());
 }
 
 void MainWindow::updateActionsOnlineOffline(bool online)
@@ -1652,6 +1660,8 @@ void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
             tree->showColumn(MsgListModel::FROM);
         }
     }
+
+    updateMessageFlags();
 }
 
 void MainWindow::showConnectionStatus(QObject *parser, Imap::ConnectionState state)
