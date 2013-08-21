@@ -2320,6 +2320,11 @@ void MainWindow::applySizesAndState()
     stream >> size;
     QByteArray item;
 
+    // There are slots connected to various events triggered by both restoreGeometry() and restoreState() which would attempt to
+    // save our geometries and state, which is what we must avoid while this method is executing.
+    bool skipSaving = m_skipSavingOfUI;
+    m_skipSavingOfUI = true;
+
     if (size-- && !stream.atEnd()) {
         stream >> item;
         restoreGeometry(item);
@@ -2375,6 +2380,8 @@ void MainWindow::applySizesAndState()
             }
         }
     }
+
+    m_skipSavingOfUI = skipSaving;
 }
 
 void MainWindow::resizeEvent(QResizeEvent *)
