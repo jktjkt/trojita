@@ -2328,6 +2328,15 @@ void MainWindow::applySizesAndState()
     if (size-- && !stream.atEnd()) {
         stream >> item;
         restoreGeometry(item);
+
+        // Workaround for https://bugreports.qt-project.org/browse/QTBUG-30636
+        // The call to setGeometry() causes a mismatch between the widget's geometry() and the actual size when the widget was
+        // originally maximized and is also maximized after the restore.
+        // The interesting thing is that simply flipping the Qt::WindowMaximized WS bit does not help.
+        if (windowState() & Qt::WindowMaximized) {
+            showNormal();
+            showMaximized();
+        }
     }
 
     if (size-- && !stream.atEnd()) {
