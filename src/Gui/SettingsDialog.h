@@ -128,6 +128,8 @@ protected:
 
 private:
     enum { TCP, SSL, PROCESS };
+    quint16 m_imapPort;
+    bool m_imapStartTls;
 
 private slots:
     void updateWidgets();

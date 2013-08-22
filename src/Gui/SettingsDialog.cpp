@@ -280,8 +280,10 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     method->insertItem(1, tr("SSL"), QVariant(SSL));
     method->insertItem(2, tr("Local Process"), QVariant(PROCESS));
     using Common::SettingsNames;
+    int defaultImapPort = Common::PORT_IMAPS;
     if (QSettings().value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodTCP) {
         method->setCurrentIndex(0);
+        defaultImapPort = Common::PORT_IMAP;
     } else if (QSettings().value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
         method->setCurrentIndex(1);
     } else if (QSettings().value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
@@ -293,7 +295,7 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     }
 
     imapHost->setText(s.value(SettingsNames::imapHostKey).toString());
-    imapPort->setText(s.value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP)).toString());
+    imapPort->setText(s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).toString());
     imapPort->setValidator(new QIntValidator(1, 65535, this));
     connect(imapPort, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPortWarning()));
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(maybeShowPortWarning()));
@@ -307,6 +309,9 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     startOffline->setChecked(s.value(SettingsNames::imapStartOffline).toBool());
     imapEnableId->setChecked(s.value(SettingsNames::imapEnableId, true).toBool());
     imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QLatin1String(" ")));
+
+    m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
+    m_imapStartTls = s.value(SettingsNames::imapStartTlsKey, true).toBool();
 
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     updateWidgets();
@@ -333,11 +338,11 @@ void ImapPage::updateWidgets()
         imapPort->setEnabled(true);
         if (imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAPS))
             imapPort->setText(QString::number(Common::PORT_IMAP));
-        else if (QSettings().contains(Common::SettingsNames::imapPortKey))
-            imapPort->setText(QSettings().value(Common::SettingsNames::imapPortKey).toString());
+        else
+            imapPort->setText(QString::number(m_imapPort));
         lay->labelForField(imapPort)->setEnabled(true);
         startTls->setEnabled(true);
-        startTls->setChecked(QSettings().value(Common::SettingsNames::imapStartTlsKey, true).toBool());
+        startTls->setChecked(m_imapStartTls);
         lay->labelForField(startTls)->setEnabled(true);
         processPath->setEnabled(false);
         lay->labelForField(processPath)->setEnabled(false);
@@ -348,8 +353,8 @@ void ImapPage::updateWidgets()
         imapPort->setEnabled(true);
         if (imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAP))
             imapPort->setText(QString::number(Common::PORT_IMAPS));
-        else if (QSettings().contains(Common::SettingsNames::imapPortKey))
-            imapPort->setText(QSettings().value(Common::SettingsNames::imapPortKey).toString());
+        else
+            imapPort->setText(QString::number(m_imapPort));
         lay->labelForField(imapPort)->setEnabled(true);
         startTls->setEnabled(false);
         startTls->setChecked(true);
