@@ -2325,15 +2325,28 @@ void MainWindow::applySizesAndState()
 
     if (size-- && !stream.atEnd()) {
         stream >> item;
-        restoreGeometry(item);
 
-        // Workaround for https://bugreports.qt-project.org/browse/QTBUG-30636
-        // The call to setGeometry() causes a mismatch between the widget's geometry() and the actual size when the widget was
-        // originally maximized and is also maximized after the restore.
-        // The interesting thing is that simply flipping the Qt::WindowMaximized WS bit does not help.
+        // https://bugreports.qt-project.org/browse/QTBUG-30636
         if (windowState() & Qt::WindowMaximized) {
-            showNormal();
-            showMaximized();
+            // restoreGeometry(.) restores the wrong size for at least maximized window
+            // However, QWidget does also not notice that the configure request for this
+            // is ignored by many window managers (because users really don't like when windows
+            // drop themselves out of maximization) and has a wrong QWidget::geometry() idea from
+            // the wrong assumption the request would have been hononred.
+            //  So we just "fix" the internal geometry immediately afterwards to prevent
+            // mislayouting
+            // There's atm. no flicker due to this (and because Qt compresses events)
+            // In case it ever occurs, we can frame this in setUpdatesEnabled(false/true)
+            QRect oldGeometry = MainWindow::geometry();
+            restoreGeometry(item);
+            if (windowState() & Qt::WindowMaximized)
+                setGeometry(oldGeometry);
+        } else {
+            restoreGeometry(item);
+            if (windowState() & Qt::WindowMaximized) {
+                // ensure to try setting the proper geometry and have the WM constrain us
+                setGeometry(QApplication::desktop()->availableGeometry());
+            }
         }
     }
 
