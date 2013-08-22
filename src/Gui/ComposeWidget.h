@@ -39,6 +39,7 @@ class QComboBox;
 class QLineEdit;
 class QMenu;
 class QPushButton;
+class QSettings;
 
 namespace Composer {
 class Submission;
@@ -63,7 +64,7 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory);
+    ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::MSAFactory *msaFactory);
     ~ComposeWidget();
     void setData(const QList<QPair<Composer::RecipientKind, QString> > &recipients,
                  const QString &subject,
@@ -143,6 +144,7 @@ private:
     QString m_urlauth;
 
     MainWindow *m_mainWindow;
+    QSettings *m_settings;
 
     Composer::Submission *m_submission;
 

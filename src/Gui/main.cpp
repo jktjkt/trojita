@@ -21,6 +21,7 @@
 */
 #include <QApplication>
 #include <QLibraryInfo>
+#include <QSettings>
 #include <QTranslator>
 
 #include "AppVersion/SetCoreApplication.h"
@@ -55,7 +56,8 @@ int main(int argc, char **argv)
 
     AppVersion::setCoreApplicationData();
     app.setWindowIcon(QIcon(QLatin1String(":/icons/trojita.png")));
-    Gui::MainWindow win;
+    QSettings settings(QLatin1String("flaska.net"), QLatin1String("trojita"));
+    Gui::MainWindow win(&settings);
     win.show();
     return app.exec();
 }

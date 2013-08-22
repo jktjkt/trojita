@@ -31,9 +31,9 @@
 
 namespace Gui {
 
-CompleteMessageWidget::CompleteMessageWidget(QWidget *parent): QWidget(parent)
+CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *settings): QWidget(parent)
 {
-    messageView = new MessageView();
+    messageView = new MessageView(this, settings);
     area = new QScrollArea();
     area->setWidget(messageView);
     area->setWidgetResizable(true);

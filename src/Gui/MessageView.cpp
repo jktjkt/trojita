@@ -56,7 +56,7 @@
 namespace Gui
 {
 
-MessageView::MessageView(QWidget *parent): QWidget(parent), m_loadingItemCount(0)
+MessageView::MessageView(QWidget *parent, QSettings *settings): QWidget(parent), m_settings(settings), m_loadingItemCount(0)
 {
     QPalette pal = palette();
     pal.setColor(backgroundRole(), palette().color(QPalette::Active, QPalette::Base));
@@ -230,7 +230,7 @@ void MessageView::setMessage(const QModelIndex &index)
         m_progress->hide();
 
         PartWidgetFactory::PartLoadingOptions loadingMode;
-        if (QSettings().value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool())
+        if (m_settings->value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool())
             loadingMode |= PartWidgetFactory::PART_PREFER_PLAINTEXT_OVER_HTML;
         viewer = factory->create(rootPartIndex, 0, loadingMode);
         viewer->setParent(this);

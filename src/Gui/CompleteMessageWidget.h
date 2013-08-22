@@ -25,6 +25,7 @@
 #include <QWidget>
 
 class QScrollArea;
+class QSettings;
 class QWebView;
 class QPropertyAnimation;
 
@@ -38,7 +39,7 @@ class CompleteMessageWidget: public QWidget
 {
     Q_OBJECT
 public:
-    explicit CompleteMessageWidget(QWidget *parent=0);
+    CompleteMessageWidget(QWidget *parent, QSettings *settings);
 
     MessageView *messageView;
     QScrollArea *area;

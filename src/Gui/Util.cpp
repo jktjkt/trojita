@@ -219,9 +219,9 @@ Check settings whether an option is already set to ignore this question. If not,
 she wants to be asked again.
 */
 int askForSomethingUnlessTold(const QString &title, const QString &message, const QString &settingsName,
-                              QMessageBox::StandardButtons buttons, QWidget *parent)
+                              QMessageBox::StandardButtons buttons, QWidget *parent, QSettings *settings)
 {
-    int saved = QSettings().value(settingsName, -1).toInt();
+    int saved = settings->value(settingsName, -1).toInt();
     if (saved != -1) {
         // This means that we're not supposed to ask again
         return saved;
@@ -235,7 +235,7 @@ int askForSomethingUnlessTold(const QString &title, const QString &message, cons
     layout->addWidget(checkbox, 1, 1);
     int res = box.exec();
     if (checkbox->isChecked())
-        QSettings().setValue(settingsName, res);
+        settings->setValue(settingsName, res);
     return res;
 }
 

@@ -100,27 +100,25 @@ enum {
     MINIMUM_WIDTH_WIDE = 1250
 };
 
-MainWindow::MainWindow(): QMainWindow(), model(0),
+MainWindow::MainWindow(QSettings *settings): QMainWindow(), model(0),
     m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true),
-    m_actionSortNone(0), m_ignoreStoredPassword(false), m_trayIcon(0)
+    m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_trayIcon(0)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
     createWidgets();
 
     ShortcutHandler *shortcutHandler = new ShortcutHandler(this);
-    QSettings *settingsObject = new QSettings(this);
-    shortcutHandler->setSettingsObject(settingsObject);
+    shortcutHandler->setSettingsObject(m_settings);
     defineActions();
     shortcutHandler->readSettings(); // must happen after defineActions()
 
     migrateSettings();
-    QSettings s;
 
     m_senderIdentities = new Composer::SenderIdentitiesModel(this);
-    m_senderIdentities->loadFromSettings(s);
+    m_senderIdentities->loadFromSettings(*m_settings);
 
-    if (! s.contains(Common::SettingsNames::imapMethodKey)) {
+    if (! m_settings->contains(Common::SettingsNames::imapMethodKey)) {
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
     }
 
@@ -142,9 +140,9 @@ MainWindow::MainWindow(): QMainWindow(), model(0),
     recoverDrafts();
 
     if (m_actionLayoutWide->isEnabled() &&
-            QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
+            m_settings->value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {
         m_actionLayoutWide->trigger();
-    } else if (QSettings().value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutOneAtTime) {
+    } else if (m_settings->value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutOneAtTime) {
         m_actionLayoutOneAtTime->trigger();
     } else {
         m_actionLayoutCompact->trigger();
@@ -365,7 +363,7 @@ void MainWindow::createActions()
     actionThreadMsgList->setCheckable(true);
     // This action is enabled/disabled by model's capabilities
     actionThreadMsgList->setEnabled(false);
-    if (QSettings().value(Common::SettingsNames::guiMsgListShowThreading).toBool()) {
+    if (m_settings->value(Common::SettingsNames::guiMsgListShowThreading).toBool()) {
         actionThreadMsgList->setChecked(true);
         // The actual threading will be performed only when model updates its capabilities
     }
@@ -404,7 +402,7 @@ void MainWindow::createActions()
     actionHideRead = new QAction(tr("&Hide Read Messages"), this);
     actionHideRead->setCheckable(true);
     addAction(actionHideRead);
-    if (QSettings().value(Common::SettingsNames::guiMsgListHideRead).toBool()) {
+    if (m_settings->value(Common::SettingsNames::guiMsgListHideRead).toBool()) {
         actionHideRead->setChecked(true);
         prettyMsgListModel->setHideRead(true);
     }
@@ -559,7 +557,7 @@ void MainWindow::createWidgets()
     msgListWidget = new MessageListWidget();
     msgListWidget->tree->setContextMenuPolicy(Qt::CustomContextMenu);
     msgListWidget->tree->setAlternatingRowColors(true);
-    msgListWidget->setRawSearchEnabled(QSettings().value(Common::SettingsNames::guiAllowRawSearch).toBool());
+    msgListWidget->setRawSearchEnabled(m_settings->value(Common::SettingsNames::guiAllowRawSearch).toBool());
     connect (msgListWidget, SIGNAL(rawSearchSettingChanged(bool)), SLOT(saveRawStateSetting(bool)));
 
     connect(msgListWidget->tree, SIGNAL(customContextMenuRequested(const QPoint &)),
@@ -569,15 +567,15 @@ void MainWindow::createWidgets()
     connect(msgListWidget->tree, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(msgListDoubleClicked(const QModelIndex &)));
     connect(msgListWidget, SIGNAL(requestingSearch(QStringList)), this, SLOT(slotSearchRequested(QStringList)));
 
-    m_messageWidget = new CompleteMessageWidget(this);
+    m_messageWidget = new CompleteMessageWidget(this, m_settings);
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
     connect(m_messageWidget->messageView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
     connect(m_messageWidget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
             this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     connect(m_messageWidget->messageView, SIGNAL(transferError(QString)), this, SLOT(slotDownloadTransferError(QString)));
-    if (QSettings().value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
-        !QSettings().value(Common::SettingsNames::imapStartOffline).toBool()) {
+    if (m_settings->value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
+        !m_settings->value(Common::SettingsNames::imapStartOffline).toBool()) {
         m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
     }
 
@@ -617,20 +615,19 @@ void MainWindow::setupModels()
 {
     Imap::Mailbox::SocketFactoryPtr factory;
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
-    QSettings s;
 
     using Common::SettingsNames;
-    if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodTCP) {
+    if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodTCP) {
         factory.reset(new Imap::Mailbox::TlsAbleSocketFactory(
-                          s.value(SettingsNames::imapHostKey).toString(),
-                          s.value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP)).toUInt()));
-        factory->setStartTlsRequired(s.value(SettingsNames::imapStartTlsKey, true).toBool());
-    } else if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
+                          m_settings->value(SettingsNames::imapHostKey).toString(),
+                          m_settings->value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP)).toUInt()));
+        factory->setStartTlsRequired(m_settings->value(SettingsNames::imapStartTlsKey, true).toBool());
+    } else if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
         factory.reset(new Imap::Mailbox::SslSocketFactory(
-                          s.value(SettingsNames::imapHostKey).toString(),
-                          s.value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAPS)).toUInt()));
-    } else if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
-        QStringList args = s.value(SettingsNames::imapProcessKey).toString().split(QLatin1Char(' '));
+                          m_settings->value(SettingsNames::imapHostKey).toString(),
+                          m_settings->value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAPS)).toUInt()));
+    } else if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
+        QStringList args = m_settings->value(SettingsNames::imapProcessKey).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
             // it's going to fail anyway
             args << QLatin1String("");
@@ -650,7 +647,7 @@ void MainWindow::setupModels()
         cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
     Imap::Mailbox::AbstractCache *cache = 0;
 
-    bool shouldUsePersistentCache = s.value(SettingsNames::cacheOfflineKey).toString() != SettingsNames::cacheOfflineNone;
+    bool shouldUsePersistentCache = m_settings->value(SettingsNames::cacheOfflineKey).toString() != SettingsNames::cacheOfflineNone;
     if (shouldUsePersistentCache) {
         if (! QDir().mkpath(cacheDir)) {
             QMessageBox::critical(this, tr("Cache Error"), tr("Failed to create directory %1").arg(cacheDir));
@@ -680,21 +677,21 @@ void MainWindow::setupModels()
             cache->deleteLater();
             cache = new Imap::Mailbox::MemoryCache(this);
         } else {
-            if (s.value(SettingsNames::cacheOfflineKey).toString() == SettingsNames::cacheOfflineAll) {
+            if (m_settings->value(SettingsNames::cacheOfflineKey).toString() == SettingsNames::cacheOfflineAll) {
                 cache->setRenewalThreshold(0);
             } else {
                 bool ok;
-                int num = s.value(SettingsNames::cacheOfflineNumberDaysKey, 30).toInt(&ok);
+                int num = m_settings->value(SettingsNames::cacheOfflineNumberDaysKey, 30).toInt(&ok);
                 if (!ok)
                     num = 30;
                 cache->setRenewalThreshold(num);
             }
         }
     }
-    model = new Imap::Mailbox::Model(this, cache, factory, taskFactory, s.value(SettingsNames::imapStartOffline).toBool());
+    model = new Imap::Mailbox::Model(this, cache, factory, taskFactory, m_settings->value(SettingsNames::imapStartOffline).toBool());
     model->setObjectName(QLatin1String("model"));
-    model->setCapabilitiesBlacklist(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList());
-    if (s.value(SettingsNames::imapEnableId, true).toBool()) {
+    model->setCapabilitiesBlacklist(m_settings->value(SettingsNames::imapBlacklistedCapabilities).toStringList());
+    if (m_settings->value(SettingsNames::imapEnableId, true).toBool()) {
         model->setProperty("trojita-imap-enable-id", true);
     }
     mboxModel = new Imap::Mailbox::MailboxModel(this, model);
@@ -805,8 +802,7 @@ void MainWindow::removeSysTray()
 
 void MainWindow::slotToggleSysTray()
 {
-    QSettings s;
-    bool showSystray = s.value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool();
+    bool showSystray = m_settings->value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool();
     if (showSystray && !m_trayIcon) {
         createSysTray();
     } else if (!showSystray && m_trayIcon) {
@@ -867,7 +863,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     if (m_trayIcon && m_trayIcon->isVisible()) {
         Util::askForSomethingUnlessTold(trUtf8("Trojitá"),
                                         tr("The application will continue in systray. This can be disabled within the settings."),
-                                        Common::SettingsNames::guiOnSystrayClose, QMessageBox::Ok, this);
+                                        Common::SettingsNames::guiOnSystrayClose, QMessageBox::Ok, this, m_settings);
         hide();
         event->ignore();
     }
@@ -949,7 +945,7 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     Q_ASSERT(message);
     Q_ASSERT(realModel == model);
 
-    CompleteMessageWidget *widget = new CompleteMessageWidget();
+    CompleteMessageWidget *widget = new CompleteMessageWidget(0, m_settings);
     connect(widget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
             this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     widget->messageView->setMessage(index);
@@ -976,7 +972,7 @@ void MainWindow::showContextMenuMboxTree(const QPoint &position)
 #ifdef XTUPLE_CONNECT
         actionList.append(xtIncludeMailboxInSync);
         xtIncludeMailboxInSync->setChecked(
-            QSettings().value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
+            m_settings->value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
                 mboxTree->indexAt(position).data(Imap::Mailbox::RoleMailboxName).toString()));
 #endif
     } else {
@@ -1047,7 +1043,7 @@ void MainWindow::alertReceived(const QString &message)
 
 void MainWindow::connectionError(const QString &message)
 {
-    if (QSettings().contains(Common::SettingsNames::imapMethodKey)) {
+    if (m_settings->contains(Common::SettingsNames::imapMethodKey)) {
         QMessageBox::critical(this, tr("Connection Error"), message);
         // Show the IMAP logger -- maybe some user will take that as a hint that they shall include it in the bug report.
         // </joke>
@@ -1099,7 +1095,7 @@ void MainWindow::networkPolicyOnline()
 
 void MainWindow::slotShowSettings()
 {
-    SettingsDialog *dialog = new SettingsDialog(this, m_senderIdentities);
+    SettingsDialog *dialog = new SettingsDialog(this, m_senderIdentities, m_settings);
     if (dialog->exec() == QDialog::Accepted) {
         // FIXME: wipe cache in case we're moving between servers
         nukeModels();
@@ -1109,7 +1105,7 @@ void MainWindow::slotShowSettings()
         removeSysTray();
         slotToggleSysTray();
     }
-    QString method = QSettings().value(Common::SettingsNames::imapMethodKey).toString();
+    QString method = m_settings->value(Common::SettingsNames::imapMethodKey).toString();
     if (method != Common::SettingsNames::methodTCP && method != Common::SettingsNames::methodSSL &&
             method != Common::SettingsNames::methodProcess ) {
         QMessageBox::critical(this, tr("No Configuration"),
@@ -1120,19 +1116,18 @@ void MainWindow::slotShowSettings()
 
 void MainWindow::authenticationRequested()
 {
-    QSettings s;
-    QString user = s.value(Common::SettingsNames::imapUserKey).toString();
-    QString pass = s.value(Common::SettingsNames::imapPassKey).toString();
+    QString user = m_settings->value(Common::SettingsNames::imapUserKey).toString();
+    QString pass = m_settings->value(Common::SettingsNames::imapPassKey).toString();
     if (m_ignoreStoredPassword || pass.isEmpty()) {
         bool ok;
         pass = PasswordDialog::getPassword(this, tr("Authentication Required"),
                                            tr("<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
                                                Qt::escape(user),
-                                               Qt::escape(QSettings().value(Common::SettingsNames::imapHostKey).toString())
+                                               Qt::escape(m_settings->value(Common::SettingsNames::imapHostKey).toString())
 #else
                                                user.toHtmlEscaped(),
-                                               QSettings().value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
+                                               m_settings->value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
 #endif
                                                ),
                                            QString(), &ok);
@@ -1156,22 +1151,21 @@ void MainWindow::authenticationFailed(const QString &message)
 
 void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors)
 {
-    QSettings s;
-    QByteArray lastKnownPubKey = s.value(Common::SettingsNames::imapSslPemPubKey).toByteArray();
+    QByteArray lastKnownPubKey = m_settings->value(Common::SettingsNames::imapSslPemPubKey).toByteArray();
     if (!certificateChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == certificateChain[0].publicKey().toPem()) {
         // This certificate chain contains the same public keys as the last time; we should accept that
         model->setSslPolicy(certificateChain, errors, true);
         return;
     }
 
-    QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
+    QByteArray lastKnownCertPem = m_settings->value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
     QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
     lastKnownPubKey = oldChain.isEmpty() ? QByteArray() : oldChain[0].publicKey().toPem();
     if (!certificateChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == certificateChain[0].publicKey().toPem()) {
         // Older configuration, but the public keys match nevertheless
         model->setSslPolicy(certificateChain, errors, true);
-        s.setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
-        s.remove(Common::SettingsNames::imapSslPemCertificate);
+        m_settings->setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
+        m_settings->remove(Common::SettingsNames::imapSslPemCertificate);
         return;
     }
 
@@ -1186,8 +1180,8 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
             Q_FOREACH(const QSslCertificate &cert, certificateChain) {
                 buf.append(cert.toPem());
             }
-            s.setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
-            s.remove(Common::SettingsNames::imapSslPemCertificate);
+            m_settings->setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
+            m_settings->remove(Common::SettingsNames::imapSslPemCertificate);
 
 #ifdef XTUPLE_CONNECT
             QSettings xtSettings(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
@@ -1202,7 +1196,7 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
 
 void MainWindow::requireStartTlsInFuture()
 {
-    QSettings().setValue(Common::SettingsNames::imapStartTlsKey, true);
+    m_settings->setValue(Common::SettingsNames::imapStartTlsKey, true);
 }
 
 void MainWindow::nukeModels()
@@ -1577,20 +1571,19 @@ ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QSt
                                                const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
     using namespace Common;
-    QSettings s;
-    QString method = s.value(SettingsNames::msaMethodKey).toString();
+    QString method = m_settings->value(SettingsNames::msaMethodKey).toString();
     MSA::MSAFactory *msaFactory = 0;
     if (method == SettingsNames::methodSMTP || method == SettingsNames::methodSSMTP) {
-        msaFactory = new MSA::SMTPFactory(s.value(SettingsNames::smtpHostKey).toString(),
-                                          s.value(SettingsNames::smtpPortKey).toInt(),
+        msaFactory = new MSA::SMTPFactory(m_settings->value(SettingsNames::smtpHostKey).toString(),
+                                          m_settings->value(SettingsNames::smtpPortKey).toInt(),
                                           (method == SettingsNames::methodSSMTP),
                                           (method == SettingsNames::methodSMTP)
-                                          && s.value(SettingsNames::smtpStartTlsKey).toBool(),
-                                          s.value(SettingsNames::smtpAuthKey).toBool(),
-                                          s.value(SettingsNames::smtpUserKey).toString(),
-                                          s.value(SettingsNames::smtpPassKey).toString());
+                                          && m_settings->value(SettingsNames::smtpStartTlsKey).toBool(),
+                                          m_settings->value(SettingsNames::smtpAuthKey).toBool(),
+                                          m_settings->value(SettingsNames::smtpUserKey).toString(),
+                                          m_settings->value(SettingsNames::smtpPassKey).toString());
     } else if (method == SettingsNames::methodSENDMAIL) {
-        QStringList args = s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
+        QStringList args = m_settings->value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
             QMessageBox::critical(this, tr("Error"), tr("Please configure the SMTP or sendmail settings in application settings."));
             return 0;
@@ -1608,7 +1601,7 @@ ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QSt
         return 0;
     }
 
-    ComposeWidget *w = new ComposeWidget(this, msaFactory);
+    ComposeWidget *w = new ComposeWidget(this, m_settings, msaFactory);
 
     // Trim the References header as per RFC 5537
     QList<QByteArray> trimmedReferences = references;
@@ -1644,8 +1637,8 @@ void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
     using namespace Imap::Mailbox;
     QString mailboxName = mailbox.data(RoleMailboxName).toString();
     bool isSentMailbox = mailbox.isValid() && !mailboxName.isEmpty() &&
-            QSettings().value(Common::SettingsNames::composerSaveToImapKey).toBool() &&
-            mailboxName == QSettings().value(Common::SettingsNames::composerImapSentKey).toString();
+            m_settings->value(Common::SettingsNames::composerSaveToImapKey).toBool() &&
+            mailboxName == m_settings->value(Common::SettingsNames::composerImapSentKey).toString();
     QTreeView *tree = msgListWidget->tree;
 
     // Automatically trigger visibility of the TO and FROM columns
@@ -1852,7 +1845,7 @@ void MainWindow::slotSubscribeCurrentMailbox()
 void MainWindow::slotShowOnlySubscribed()
 {
     if (m_actionShowOnlySubscribed->isEnabled()) {
-        QSettings().setValue(Common::SettingsNames::guiMailboxListShowOnlySubscribed, m_actionShowOnlySubscribed->isChecked());
+        m_settings->setValue(Common::SettingsNames::guiMailboxListShowOnlySubscribed, m_actionShowOnlySubscribed->isChecked());
         prettyMboxModel->setShowOnlySubscribed(m_actionShowOnlySubscribed->isChecked());
     }
 }
@@ -1901,7 +1894,7 @@ void MainWindow::slotThreadMsgList()
         msgListWidget->tree->setRootIsDecorated(false);
         threadingMsgListModel->setUserWantsThreading(false);
     }
-    QSettings().setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
+    m_settings->setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
 
     if (currentItem.isValid()) {
         msgListWidget->tree->scrollTo(currentItem);
@@ -2006,7 +1999,7 @@ void MainWindow::slotHideRead()
 {
     const bool hideRead = actionHideRead->isChecked();
     prettyMsgListModel->setHideRead(hideRead);
-    QSettings().setValue(Common::SettingsNames::guiMsgListHideRead, QVariant(hideRead));
+    m_settings->setValue(Common::SettingsNames::guiMsgListHideRead, QVariant(hideRead));
 }
 
 void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
@@ -2023,7 +2016,7 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
 
     m_actionShowOnlySubscribed->setEnabled(capabilities.contains(QLatin1String("LIST-EXTENDED")));
     m_actionShowOnlySubscribed->setChecked(m_actionShowOnlySubscribed->isEnabled() &&
-                                           QSettings().value(
+                                           m_settings->value(
                                                Common::SettingsNames::guiMailboxListShowOnlySubscribed, false).toBool());
     m_actionSubscribeMailbox->setEnabled(m_actionShowOnlySubscribed->isEnabled());
 
@@ -2166,7 +2159,7 @@ void MainWindow::slotLayoutCompact()
     delete m_mainStack;
 
     m_layoutMode = LAYOUT_COMPACT;
-    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
+    m_settings->setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutCompact);
     applySizesAndState();
 }
 
@@ -2198,7 +2191,7 @@ void MainWindow::slotLayoutWide()
     delete m_mainVSplitter;
 
     m_layoutMode = LAYOUT_WIDE;
-    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
+    m_settings->setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutWide);
     applySizesAndState();
 }
 
@@ -2216,7 +2209,7 @@ void MainWindow::slotLayoutOneAtTime()
     delete m_mainVSplitter;
 
     m_layoutMode = LAYOUT_ONE_AT_TIME;
-    QSettings().setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
+    m_settings->setValue(Common::SettingsNames::guiMainWindowLayout, Common::SettingsNames::guiMainWindowLayoutOneAtTime);
     applySizesAndState();
 }
 
@@ -2229,17 +2222,16 @@ Imap::Mailbox::Model *MainWindow::imapModel() const
 void MainWindow::migrateSettings()
 {
     using Common::SettingsNames;
-    QSettings s;
 
     // Process the obsolete settings about the "cache backend". This has been changed to "offline stuff" after v0.3.
-    if (s.value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
-        s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
-        s.remove(SettingsNames::cacheMetadataKey);
+    if (m_settings->value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
+        m_settings->setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
+        m_settings->remove(SettingsNames::cacheMetadataKey);
 
         // Also remove the older values used for cache lifetime management which were not used, but set to zero by default
-        s.remove(QLatin1String("offline.sync"));
-        s.remove(QLatin1String("offline.sync.days"));
-        s.remove(QLatin1String("offline.sync.messages"));
+        m_settings->remove(QLatin1String("offline.sync"));
+        m_settings->remove(QLatin1String("offline.sync.days"));
+        m_settings->remove(QLatin1String("offline.sync.messages"));
     }
 }
 
@@ -2294,13 +2286,12 @@ void MainWindow::saveSizesAndState()
         stream << item;
     }
 
-    QSettings s;
-    s.setValue(key.arg(QString::number(geometry.width())), buf);
+    m_settings->setValue(key.arg(QString::number(geometry.width())), buf);
 }
 
 void MainWindow::saveRawStateSetting(bool enabled)
 {
-    QSettings().setValue(Common::SettingsNames::guiAllowRawSearch, enabled);
+    m_settings->setValue(Common::SettingsNames::guiAllowRawSearch, enabled);
 }
 
 void MainWindow::applySizesAndState()
@@ -2310,8 +2301,7 @@ void MainWindow::applySizesAndState()
     if (key.isEmpty())
         return;
 
-    QSettings s;
-    QByteArray buf = s.value(key.arg(QString::number(geometry.width()))).toByteArray();
+    QByteArray buf = m_settings->value(key.arg(QString::number(geometry.width()))).toByteArray();
     if (buf.isEmpty())
         return;
 

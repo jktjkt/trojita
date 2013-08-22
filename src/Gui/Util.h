@@ -30,6 +30,7 @@
 
 class QColor;
 class QFont;
+class QSettings;
 class QWidget;
 
 namespace Gui
@@ -48,7 +49,7 @@ QColor tintColor(const QColor &color, const QColor &tintColor);
 QFont systemMonospaceFont();
 
 int askForSomethingUnlessTold(const QString &title, const QString &message, const QString &settingsName,
-                              QMessageBox::StandardButtons buttons, QWidget *parent);
+                              QMessageBox::StandardButtons buttons, QWidget *parent, QSettings *settings);
 
 QString resizedImageAsDataUrl(const QString &fileName, const int extent);
 

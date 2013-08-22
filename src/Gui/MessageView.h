@@ -29,6 +29,7 @@
 class QBoxLayout;
 class QLabel;
 class QLayout;
+class QSettings;
 class QTimer;
 class QUrl;
 class QWebView;
@@ -64,7 +65,7 @@ class MessageView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MessageView(QWidget *parent=0);
+    MessageView(QWidget *parent, QSettings *settings);
     ~MessageView();
 
     void reply(MainWindow *mainWindow, Composer::ReplyMode mode);
@@ -111,6 +112,7 @@ private:
     QWebView *emptyView;
     PartWidgetFactory *factory;
     QWidget *m_progress;
+    QSettings *m_settings;
     int m_loadingItemCount;
 
     MessageView(const MessageView &); // don't implement

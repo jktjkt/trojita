@@ -62,7 +62,7 @@ enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
 namespace Gui
 {
 
-ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory) :
+ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::MSAFactory *msaFactory) :
     QWidget(0, Qt::Window),
     ui(new Ui::ComposeWidget),
     m_sentMail(false),
@@ -70,7 +70,8 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_messageEverEdited(false),
     m_explicitDraft(false),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
-    m_mainWindow(mainWindow)
+    m_mainWindow(mainWindow),
+    m_settings(settings)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
 
@@ -276,14 +277,13 @@ void ComposeWidget::send()
     if (!buildMessageData())
         return;
 
-    QSettings s;
-    m_submission->setImapOptions(s.value(Common::SettingsNames::composerSaveToImapKey, true).toBool(),
-                                 s.value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(),
-                                 s.value(Common::SettingsNames::imapHostKey).toString(),
-                                 s.value(Common::SettingsNames::imapUserKey).toString(),
-                                 s.value(Common::SettingsNames::msaMethodKey).toString() == Common::SettingsNames::methodImapSendmail);
-    m_submission->setSmtpOptions(s.value(Common::SettingsNames::smtpUseBurlKey, false).toBool(),
-                                 s.value(Common::SettingsNames::smtpUserKey).toString());
+    m_submission->setImapOptions(m_settings->value(Common::SettingsNames::composerSaveToImapKey, true).toBool(),
+                                 m_settings->value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                                 m_settings->value(Common::SettingsNames::imapHostKey).toString(),
+                                 m_settings->value(Common::SettingsNames::imapUserKey).toString(),
+                                 m_settings->value(Common::SettingsNames::msaMethodKey).toString() == Common::SettingsNames::methodImapSendmail);
+    m_submission->setSmtpOptions(m_settings->value(Common::SettingsNames::smtpUseBurlKey, false).toBool(),
+                                 m_settings->value(Common::SettingsNames::smtpUserKey).toString());
 
 
     ProgressPopUp *progress = new ProgressPopUp();

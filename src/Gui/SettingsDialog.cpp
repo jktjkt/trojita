@@ -54,27 +54,26 @@ QString SettingsDialog::warningStyleSheet = QLatin1String("border: 2px solid red
         "font-weight: bold; padding: 5px; margin: 5px; "
         "text-align: center;");
 
-SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel):
-    QDialog(parent), m_senderIdentities(identitiesModel)
+SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings):
+    QDialog(parent), m_senderIdentities(identitiesModel), m_settings(settings)
 {
     setWindowTitle(tr("Settings"));
-    QSettings s;
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     stack = new QTabWidget(this);
     layout->addWidget(stack);
     stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    general = new GeneralPage(this, s, m_senderIdentities);
+    general = new GeneralPage(this, *m_settings, m_senderIdentities);
     stack->addTab(general, tr("&General"));
-    imap = new ImapPage(stack, s);
+    imap = new ImapPage(stack, *m_settings);
     stack->addTab(imap, tr("I&MAP"));
-    cache = new CachePage(this, s);
+    cache = new CachePage(this, *m_settings);
     stack->addTab(cache, tr("&Offline"));
-    outgoing = new OutgoingPage(this, s);
+    outgoing = new OutgoingPage(this, *m_settings);
     stack->addTab(outgoing, tr("&SMTP"));
 #ifdef XTUPLE_CONNECT
-    xtConnect = new XtConnectPage(this, s, imap);
+    xtConnect = new XtConnectPage(this, *m_settings, imap);
     stack->addTab(xtConnect, tr("&xTuple"));
 #endif
 
@@ -86,20 +85,19 @@ SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel 
 
 void SettingsDialog::accept()
 {
-    QSettings s;
 #ifndef Q_OS_WIN
     // Try to wour around QSettings' inability to set umask for its file access. We don't want to set umask globally.
-    QFile settingsFile(s.fileName());
+    QFile settingsFile(m_settings->fileName());
     settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 #endif
-    general->save(s);
-    imap->save(s);
-    cache->save(s);
-    outgoing->save(s);
+    general->save(*m_settings);
+    imap->save(*m_settings);
+    cache->save(*m_settings);
+    outgoing->save(*m_settings);
 #ifdef XTUPLE_CONNECT
-    xtConnect->save(s);
+    xtConnect->save(*m_settings);
 #endif
-    s.sync();
+    m_settings->sync();
 #ifndef Q_OS_WIN
     settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 #endif
@@ -109,8 +107,7 @@ void SettingsDialog::accept()
 void SettingsDialog::reject()
 {
     // The changes were performed on the live data, so we have to make sure they are discarded when user cancels
-    QSettings s;
-    m_senderIdentities->loadFromSettings(s);
+    m_senderIdentities->loadFromSettings(*m_settings);
     QDialog::reject();
 }
 
@@ -281,12 +278,12 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     method->insertItem(2, tr("Local Process"), QVariant(PROCESS));
     using Common::SettingsNames;
     int defaultImapPort = Common::PORT_IMAPS;
-    if (QSettings().value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodTCP) {
+    if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodTCP) {
         method->setCurrentIndex(0);
         defaultImapPort = Common::PORT_IMAP;
-    } else if (QSettings().value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
+    } else if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
         method->setCurrentIndex(1);
-    } else if (QSettings().value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
+    } else if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
         method->setCurrentIndex(2);
     } else {
         // Default settings -- let's assume SSL and hope that users who just press Cancel will configure when they see
@@ -667,7 +664,7 @@ XtConnectPage::XtConnectPage(QWidget *parent, QSettings &s, ImapPage *imapPage):
     QGroupBox *box = new QGroupBox(tr("Mailboxes to synchronize"), this);
     QVBoxLayout *boxLayout = new QVBoxLayout(box);
     QListWidget *mailboxes = new QListWidget(box);
-    mailboxes->addItems(QSettings().value(Common::SettingsNames::xtSyncMailboxList).toStringList());
+    mailboxes->addItems(s.value(Common::SettingsNames::xtSyncMailboxList).toStringList());
     for (int i = 0; i < mailboxes->count(); ++i) {
         mailboxes->item(i)->setFlags(Qt::ItemIsEnabled);
     }

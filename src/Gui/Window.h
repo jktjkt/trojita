@@ -37,6 +37,7 @@ class QCloseEvent;
 class QItemSelection;
 class QModelIndex;
 class QScrollArea;
+class QSettings;
 class QSplitter;
 class QSslCertificate;
 class QSslError;
@@ -86,7 +87,7 @@ class MainWindow: public QMainWindow
 
     typedef enum { LAYOUT_COMPACT, LAYOUT_WIDE, LAYOUT_ONE_AT_TIME } LayoutMode;
 public:
-    MainWindow();
+    MainWindow(QSettings *settings);
     ComposeWidget *invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
                                        const RecipientsType &recipients = RecipientsType(),
                                        const QList<QByteArray> &inReplyTo = QList<QByteArray>(),
@@ -310,6 +311,8 @@ private:
     QToolButton *networkIndicator;
 
     bool m_ignoreStoredPassword;
+
+    QSettings *m_settings;
 
     AbstractAddressbook *m_addressBook;
     QPointer<BE::Contacts> m_contactsWidget;
