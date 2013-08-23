@@ -23,6 +23,7 @@
 #include "IconLoader.h"
 #include "MessageView.h" // so that the compiler knows it's a QObject
 #include "Common/DeleteAfter.h"
+#include "Common/Paths.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ItemRoles.h"
@@ -173,17 +174,7 @@ void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
 
 void AttachmentView::slotFileNameRequested(QString *fileName)
 {
-    QString fileLocation;
-
-    fileLocation = QDir(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation)
-#else
-                QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)
-#endif
-            ).filePath(*fileName);
-
-
+    QString fileLocation = QDir(Common::writablePath(Common::LOCATION_DOWNLOAD)).filePath(*fileName);
     *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), fileLocation, QString(), 0, QFileDialog::HideNameFilterDetails);
 }
 

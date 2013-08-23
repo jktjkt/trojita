@@ -23,9 +23,6 @@
 #include <QAuthenticator>
 #include <QDesktopServices>
 #include <QDesktopWidget>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#  include <QStandardPaths>
-#endif
 #include <QDir>
 #include <QDockWidget>
 #include <QFileDialog>
@@ -47,6 +44,7 @@
 #include "AbookAddressbook/AbookAddressbook.h"
 #include "AbookAddressbook/be-contacts.h"
 #include "Common/Application.h"
+#include "Common/Paths.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SenderIdentitiesModel.h"
@@ -639,13 +637,7 @@ void MainWindow::setupModels()
         factory.reset(new Imap::Mailbox::FakeSocketFactory(Imap::CONN_STATE_LOGOUT));
     }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    QString cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-#else
-    QString cacheDir = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
-#endif
-    if (cacheDir.isEmpty())
-        cacheDir = QDir::homePath() + QLatin1String("/.") + Common::Application::name;
+    QString cacheDir = Common::writablePath(Common::LOCATION_CACHE);
     Imap::Mailbox::AbstractCache *cache = 0;
 
     bool shouldUsePersistentCache = m_settings->value(SettingsNames::cacheOfflineKey).toString() != SettingsNames::cacheOfflineNone;
@@ -1232,13 +1224,7 @@ void MainWindow::nukeModels()
 
 void MainWindow::recoverDrafts()
 {
-    QDir draftPath(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                QDesktopServices::storageLocation(QDesktopServices::CacheLocation)
-#else
-                QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
-#endif
-                + QLatin1Char('/') + QLatin1String("Drafts/"));
+    QDir draftPath(Common::writablePath(Common::LOCATION_CACHE) + QLatin1String("Drafts/"));
     QStringList drafts(draftPath.entryList(QStringList() << QLatin1String("*.draft")));
     Q_FOREACH(const QString &draft, drafts) {
         ComposeWidget *cw = invokeComposeDialog();
@@ -1254,13 +1240,7 @@ void MainWindow::slotComposeMail()
 
 void MainWindow::slotEditDraft()
 {
-    QString path(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                QDesktopServices::storageLocation(QDesktopServices::DataLocation)
-#else
-                QStandardPaths::writableLocation(QStandardPaths::DataLocation)
-#endif
-                + QLatin1Char('/') + tr("Drafts"));
+    QString path(Common::writablePath(Common::LOCATION_DATA) + tr("Drafts"));
     QDir().mkpath(path);
     path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + QLatin1String(" (*.draft)"));
     if (!path.isEmpty()) {

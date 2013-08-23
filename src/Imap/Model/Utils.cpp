@@ -22,11 +22,6 @@
 #include "Utils.h"
 #include <cmath>
 #include <QDateTime>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#include <QDesktopServices>
-#else
-#include <QStandardPaths>
-#endif
 #include <QDir>
 #include <QLocale>
 #include <QProcess>
@@ -34,6 +29,8 @@
 #include <QSslKey>
 #include <QSysInfo>
 #include <QTextDocument>
+
+#include "Common/Paths.h"
 
 #ifdef TROJITA_MOBILITY_SYSTEMINFO
 #include <QSystemDeviceInfo>
@@ -74,11 +71,7 @@ QString PrettySize::prettySize(uint bytes, const ShowBytesSuffix compactUnitForm
 
 QString persistentLogFileName()
 {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QString logFileName = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
-#else
-    QString logFileName = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-#endif
+    QString logFileName = Common::writablePath(Common::LOCATION_CACHE);
     if (logFileName.isEmpty()) {
         logFileName = QDir::homePath() + QLatin1String("/.trojita-connection-log");
     } else {

@@ -22,7 +22,6 @@
 */
 #include <QCheckBox>
 #include <QComboBox>
-#include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFormLayout>
@@ -652,11 +651,7 @@ void OutgoingPage::maybeShowPasswordWarning()
 XtConnectPage::XtConnectPage(QWidget *parent, QSettings &s, ImapPage *imapPage): QWidget(parent), imap(imapPage)
 {
     // Take care not to clash with the cache of the GUI
-    QString cacheLocation = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
-    if (cacheLocation.isEmpty())
-        cacheLocation = QDir::homePath() + QLatin1String("/.xtconnect-trojita");
-    else
-        cacheLocation += QString::fromAscii("/xtconnect-trojita");
+    QString cacheLocation = Common::writablePath(Common::LOCATION_CACHE) + QString::fromAscii("xtconnect-trojita");
     QFormLayout *layout = new QFormLayout(this);
     cacheDir = new QLineEdit(s.value(Common::SettingsNames::xtConnectCacheDirectory, cacheLocation).toString(), this);
     layout->addRow(tr("Cache Directory"), cacheDir);

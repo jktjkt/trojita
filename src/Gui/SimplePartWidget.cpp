@@ -20,15 +20,12 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QApplication>
-#include <QDesktopServices>
 #include <QFileDialog>
 #include <QNetworkReply>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#  include <QStandardPaths>
-#endif
 #include <QWebFrame>
 
 #include "SimplePartWidget.h"
+#include "Common/Paths.h"
 #include "Gui/MessageView.h" // so that the compiler knows that it's a QObject
 #include "Gui/Util.h"
 #include "Imap/Encoders.h"
@@ -141,11 +138,7 @@ void SimplePartWidget::slotMarkupPlainText() {
     tintForQuoteIndicator.setAlpha(0x66);
     static QString stylesheet = defaultStyle.arg(palette.link().color().name(),
                                                  Gui::Util::tintColor(palette.text().color(), tintForQuoteIndicator).name());
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    static QFile file(QStandardPaths::writableLocation(QStandardPaths::DataLocation) + QLatin1String("message.css"));
-#else
-    static QFile file(QDesktopServices::storageLocation(QDesktopServices::DataLocation) + QLatin1String("/message.css"));
-#endif
+    static QFile file(Common::writablePath(Common::LOCATION_DATA) + QLatin1String("message.css"));
     static QDateTime lastVersion;
     QDateTime lastTouched(file.exists() ? QFileInfo(file).lastModified() : QDateTime());
     if (lastVersion < lastTouched) {

@@ -138,6 +138,7 @@ set(libCommon_HEADERS
     ${path_Common}/ConnectionId.h
     ${path_Common}/DeleteAfter.h
     ${path_Common}/FileLogger.h
+    ${path_Common}/Paths.h
     ${path_Common}/SettingsNames.h
 )
 set(libCommon_SOURCES
@@ -145,6 +146,7 @@ set(libCommon_SOURCES
     ${path_Common}/ConnectionId.cpp
     ${path_Common}/DeleteAfter.cpp
     ${path_Common}/FileLogger.cpp
+    ${path_Common}/Paths.cpp
     ${path_Common}/SettingsNames.cpp
 )
 

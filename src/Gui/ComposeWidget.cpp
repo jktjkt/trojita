@@ -22,7 +22,6 @@
 */
 #include <QAbstractProxyModel>
 #include <QBuffer>
-#include <QDesktopServices>
 #include <QFileDialog>
 #include <QKeyEvent>
 #include <QMenu>
@@ -48,6 +47,7 @@
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Composer/Submission.h"
+#include "Common/Paths.h"
 #include "Common/SettingsNames.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/AppendTask.h"
@@ -117,13 +117,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     connect(autoSaveTimer, SIGNAL(timeout()), SLOT(autoSaveDraft()));
     autoSaveTimer->start(30*1000);
 
-    m_autoSavePath = QString(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                QDesktopServices::storageLocation(QDesktopServices::CacheLocation)
-#else
-                QStandardPaths::writableLocation(QStandardPaths::CacheLocation)
-#endif
-                + QLatin1Char('/') + QLatin1String("Drafts/"));
+    m_autoSavePath = QString(Common::writablePath(Common::LOCATION_CACHE) + QLatin1String("Drafts/"));
     QDir().mkpath(m_autoSavePath);
 
 #if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
@@ -195,13 +189,7 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
             if (m_explicitDraft) { // editing a present draft - override it
                 saveDraft(m_autoSavePath);
             } else {
-                QString path(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                             QDesktopServices::storageLocation(QDesktopServices::DataLocation)
-#else
-                             QStandardPaths::writableLocation(QStandardPaths::DataLocation)
-#endif
-                                                                            + QLatin1Char('/') + tr("Drafts"));
+                QString path(Common::writablePath(Common::LOCATION_DATA) + tr("Drafts"));
                 QDir().mkpath(path);
                 path = QFileDialog::getSaveFileName(this, tr("Save as"), path + QLatin1Char('/') + ui->subject->text() + QLatin1String(".draft"), tr("Drafts") + QLatin1String(" (*.draft)"));
                 if (path.isEmpty()) { // cancelled save
