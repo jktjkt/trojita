@@ -134,12 +134,14 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
 
 set(path_Common ${CMAKE_CURRENT_SOURCE_DIR}/src/Common)
 set(libCommon_HEADERS
+    ${path_Common}/Application.h
     ${path_Common}/ConnectionId.h
     ${path_Common}/DeleteAfter.h
     ${path_Common}/FileLogger.h
     ${path_Common}/SettingsNames.h
 )
 set(libCommon_SOURCES
+    ${path_Common}/Application.cpp
     ${path_Common}/ConnectionId.cpp
     ${path_Common}/DeleteAfter.cpp
     ${path_Common}/FileLogger.cpp

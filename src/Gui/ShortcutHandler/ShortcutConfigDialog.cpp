@@ -34,7 +34,7 @@ ShortcutConfigDialog::ShortcutConfigDialog(QWidget *parent)
     : QDialog(parent)
 {
     setModal(true);
-    setWindowTitle(tr("Configure Shortcuts") + QLatin1String(" - ") + QApplication::applicationName());
+    setWindowTitle(tr("Configure Shortcuts") + QLatin1String(" - ") + trUtf8("Trojitá"));
 
     m_shortcutConfigWidget = new ShortcutConfigWidget(this);
     connect(m_shortcutConfigWidget, SIGNAL(shortcutsChanged(QHash<QString,ActionDescription>)), this, SIGNAL(shortcutsChanged(QHash<QString,ActionDescription>)));

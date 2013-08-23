@@ -24,12 +24,14 @@
 #include <QDeclarativeContext>
 #include "qmlapplicationviewer.h"
 #include "AppVersion/SetCoreApplication.h"
+#include "Common/Application.h"
 #include "QmlSupport/ModelGlue/ImapAccess.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QCoreApplication::setApplicationName(QString::fromAscii("trojita-tp"));
+    Common::Application::name = QString::fromAscii("trojita-tp");
+    AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
 
     QmlApplicationViewer viewer;

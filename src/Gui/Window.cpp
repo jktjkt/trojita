@@ -46,6 +46,7 @@
 
 #include "AbookAddressbook/AbookAddressbook.h"
 #include "AbookAddressbook/be-contacts.h"
+#include "Common/Application.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SenderIdentitiesModel.h"
@@ -576,7 +577,7 @@ void MainWindow::createWidgets()
     connect(m_messageWidget->messageView, SIGNAL(transferError(QString)), this, SLOT(slotDownloadTransferError(QString)));
     if (m_settings->value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         !m_settings->value(Common::SettingsNames::imapStartOffline).toBool()) {
-        m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(QCoreApplication::applicationVersion())));
+        m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(Common::Application::version)));
     }
 
     allDock = new QDockWidget("Everything", this);
@@ -644,7 +645,7 @@ void MainWindow::setupModels()
     QString cacheDir = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
 #endif
     if (cacheDir.isEmpty())
-        cacheDir = QDir::homePath() + QLatin1String("/.") + QCoreApplication::applicationName();
+        cacheDir = QDir::homePath() + QLatin1String("/.") + Common::Application::name;
     Imap::Mailbox::AbstractCache *cache = 0;
 
     bool shouldUsePersistentCache = m_settings->value(SettingsNames::cacheOfflineKey).toString() != SettingsNames::cacheOfflineNone;
@@ -1708,7 +1709,7 @@ void MainWindow::slotShowAboutTrojita()
                               "<a href=\"http://quickgit.kde.org/?p=trojita.git&amp;a=blob&amp;f=LICENSE\">others</a></p>"
                               "<p>More information at <a href=\"http://trojita.flaska.net/\">http://trojita.flaska.net/</a></p>"
                               "<p>You are using version %1.</p>").arg(
-                           QApplication::applicationVersion()));
+                           Common::Application::version));
 }
 
 void MainWindow::slotDonateToTrojita()
