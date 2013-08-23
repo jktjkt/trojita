@@ -51,6 +51,18 @@ else()
 endif()
 find_package(Git)
 
+if(WIN32 AND WITH_NSIS)
+    if(NOT MAKENSIS)
+        find_program(MAKENSIS makensis)
+        if(NOT MAKENSIS)
+            message(STATUS "makensis not found")
+        else()
+            message(STATUS "Found makensis: ${MAKENSIS}")
+        endif()
+        mark_as_advanced(MAKENSIS)
+    endif()
+endif()
+
 if(NOT WIN32 AND NOT MSVC)
     # Check if we are NOT on Windows and don't use MSVC since -g is not supported by VC
     # and Wall makes the build very noisy.
@@ -741,6 +753,27 @@ elseif(BUILD_HARMATTAN)
     install(DIRECTORY ${trojita_harmattan_path}/qml DESTINATION opt/trojita-tp/)
     install(FILES ${trojita_harmattan_path}/trojita-tp.desktop DESTINATION usr/share/applications/)
     install(FILES ${trojita_harmattan_path}/trojita-tp80.png DESTINATION usr/share/icons/hicolor/80x80/apps/)
+endif()
+
+if(WIN32 AND WITH_NSIS AND MAKENSIS)
+    if(CMAKE_SIZEOF_VOID_P STREQUAL 4)
+        set(MAKENSIS_OUTPUT Trojita-installer.exe)
+    else()
+        set(MAKENSIS_FLAGS -DX86_64 ${MAKENSIS_FLAGS})
+        set(MAKENSIS_OUTPUT Trojita-installer-x86_64.exe)
+    endif()
+
+    if(NOT CMAKE_VERBOSE_MAKEFILE)
+        set(MAKENSIS_FLAGS -V2 -DQUIET ${MAKENSIS_FLAGS})
+    endif()
+
+    set(MAKENSIS_FLAGS ${MAKENSIS_FLAGS} -NOCD)
+
+    add_custom_command(OUTPUT ${MAKENSIS_OUTPUT}
+        COMMAND ${MAKENSIS}
+        ARGS ${MAKENSIS_FLAGS} ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi ${CMAKE_CURRENT_BINARY_DIR}/trojita.exe)
+    add_custom_target(installer ALL DEPENDS ${MAKENSIS_OUTPUT})
 endif()
 
 
