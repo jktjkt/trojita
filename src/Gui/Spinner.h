@@ -68,10 +68,9 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
     void paintEvent(QPaintEvent *e);
     void timerEvent(QTimerEvent *e);
-private:
-    void updateGeometry();
 private slots:
     void updateAncestors();
+    void updateGeometry();
 private:
     uchar m_step;
     char m_fadeStep;
@@ -81,6 +80,7 @@ private:
     QString m_text;
     int m_textCols;
     Type m_type;
+    bool m_geometryDirty;
 };
 
 } // namespace

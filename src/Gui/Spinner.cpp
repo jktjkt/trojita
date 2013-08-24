@@ -34,7 +34,7 @@
 using namespace Gui;
 
 Spinner::Spinner(QWidget *parent) : QWidget(parent), m_step(0), m_fadeStep(0), m_timer(0),
-                                    m_startTimer(0), m_textCols(0), m_type(Sun)
+                                    m_startTimer(0), m_textCols(0), m_type(Sun), m_geometryDirty(false)
 {
     updateAncestors();
     hide();
@@ -114,7 +114,9 @@ void Spinner::stop()
 
 bool Spinner::event(QEvent *e)
 {
-    if (e->type() == QEvent::ParentChange) {
+    if (e->type() == QEvent::Show && m_geometryDirty) {
+        updateGeometry();
+    } else if (e->type() == QEvent::ParentChange) {
         updateAncestors();
     }
     return QWidget::event(e);
@@ -123,7 +125,10 @@ bool Spinner::event(QEvent *e)
 bool Spinner::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::Resize || e->type() == QEvent::Move) {
-        updateGeometry();
+        if (!m_geometryDirty && isVisible()) {
+            QMetaObject::invokeMethod(this, "updateGeometry", Qt::QueuedConnection);
+        }
+        m_geometryDirty = true;
     } else if (e->type() == QEvent::ChildAdded || e->type() == QEvent::ZOrderChange) {
         if (o == parentWidget())
             raise();
@@ -283,6 +288,10 @@ void Spinner::updateAncestors()
 
 void Spinner::updateGeometry()
 {
+    if (!isVisible()) {
+        m_geometryDirty = true;
+        return;
+    }
     QRect visibleRect(m_ancestors.last()->rect());
     QPoint offset;
     for (int i = m_ancestors.count() - 2; i > -1; --i) {
@@ -294,4 +303,5 @@ void Spinner::updateGeometry()
     QRect r(0, 0, size, size);
     r.moveCenter(visibleRect.center());
     setGeometry(r);
+    m_geometryDirty = false;
 }
