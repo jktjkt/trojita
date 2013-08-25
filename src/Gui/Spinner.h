@@ -49,7 +49,7 @@ public slots:
      * Set an optional text in the center of the rotating stuff
      * the text of course does not rotate ;-)
      */
-    void setText(const QString text);
+    void setText(const QString &text);
     /**
      * You can start the spinner as much as you want. If it's still visible, this will just keep it
      * alive (or do nothing)

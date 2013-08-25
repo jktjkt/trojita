@@ -40,7 +40,7 @@ Spinner::Spinner(QWidget *parent) : QWidget(parent), m_step(0), m_fadeStep(0), m
     hide();
 }
 
-void Spinner::setText(const QString text)
+void Spinner::setText(const QString &text)
 {
     static const QLatin1Char newLine('\n');
     m_text = text;
