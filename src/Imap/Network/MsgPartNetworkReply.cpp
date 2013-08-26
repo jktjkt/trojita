@@ -90,8 +90,9 @@ void MsgPartNetworkReply::slotMyDataChanged()
     if (!part.data(Mailbox::RoleIsFetched).toBool())
         return;
 
-    QString mimeType = qobject_cast<MsgPartNetAccessManager*>(parent())->translateToSupportedMimeType(
-                part.data(Mailbox::RolePartMimeType).toString());
+    MsgPartNetAccessManager *netAccess = qobject_cast<MsgPartNetAccessManager*>(manager());
+    Q_ASSERT(netAccess);
+    QString mimeType = netAccess->translateToSupportedMimeType(part.data(Mailbox::RolePartMimeType).toString());
     QString charset = part.data(Mailbox::RolePartCharset).toString();
     if (mimeType.startsWith(QLatin1String("text/"))) {
         setHeader(QNetworkRequest::ContentTypeHeader,
