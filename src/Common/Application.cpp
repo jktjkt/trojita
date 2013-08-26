@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2013 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -20,30 +20,16 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QCoreApplication>
-#include "SetCoreApplication.h"
-#include "Common/Application.h"
+#include <QObject>
+#include "Application.h"
+#include "../trojita-version.h"
 
-#ifdef HAS_GITVERSION
-#include "gitversion.hpp"
-#endif
-
-namespace AppVersion
+namespace Common
 {
 
-void setGitVersion()
-{
-#ifdef HAS_GITVERSION
-    Common::Application::version = QLatin1String(gitVersion);
-#endif
-}
-
-void setCoreApplicationData()
-{
-    QCoreApplication::setApplicationName(Common::Application::name);
-    QCoreApplication::setApplicationVersion(Common::Application::version);
-    QCoreApplication::setOrganizationDomain(Common::Application::organization);
-    QCoreApplication::setOrganizationName(Common::Application::organization);
-}
+/* default values, they can be changed by other backends, e.g. Kontact or AppVersion::setGitVersion() */
+QString Application::name = QLatin1String("trojita");
+QString Application::version = QLatin1String(trojitaVersion);
+QString Application::organization = QLatin1String("flaska.net");
 
 }

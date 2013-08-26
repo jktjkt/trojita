@@ -30,10 +30,12 @@
 #include <QSettings>
 #include "XtConnect.h"
 #include "AppVersion/SetCoreApplication.h"
+#include "Common/Application.h"
 
 int main( int argc, char** argv) {
     QCoreApplication app( argc, argv );
-    QCoreApplication::setApplicationName( QString::fromAscii("xtconnect-trojita") );
+    Common::Application::name = QString::fromAscii("xtconnect-trojita");
+    AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
     QCoreApplication::setOrganizationDomain( QString::fromAscii("xtuple.com") );
     QCoreApplication::setOrganizationName( QString::fromAscii("xtuple.com") );

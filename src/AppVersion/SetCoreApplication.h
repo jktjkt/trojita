@@ -26,7 +26,10 @@
 namespace AppVersion
 {
 
-/** @short Set application version, manufacturer etc etc */
+/** @short Set global application version from git */
+void setGitVersion();
+
+/** @short Set application version, manufacturer etc etc to QCoreApplication */
 void setCoreApplicationData();
 
 }

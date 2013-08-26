@@ -22,7 +22,6 @@
 
 #include "MessageComposer.h"
 #include <QBuffer>
-#include <QCoreApplication>
 #include <QMimeData>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #  include <QMimeDatabase>
@@ -31,6 +30,7 @@
 #endif
 #include <QUrl>
 #include <QUuid>
+#include "Common/Application.h"
 #include "Composer/ComposerAttachments.h"
 #include "Gui/IconLoader.h"
 #include "Imap/Encoders.h"
@@ -519,8 +519,8 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     target->write(encodeHeaderField(QLatin1String("Subject: ") + m_subject).append("\r\n").
             append("Date: ").append(Imap::dateTimeToRfc2822(m_timestamp)).append("\r\n").
             append("User-Agent: ").append(
-                QString::fromUtf8("%1/%2; %3")
-                .arg(qApp->applicationName(), qApp->applicationVersion(), Imap::Mailbox::systemPlatformVersion()).toUtf8()
+                QString::fromUtf8("Trojita/%1; %2")
+                .arg(Common::Application::version, Imap::Mailbox::systemPlatformVersion()).toUtf8()
                 ).append("\r\n").
             append("MIME-Version: 1.0\r\n"));
     QByteArray messageId = generateMessageId(m_from);

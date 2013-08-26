@@ -25,6 +25,7 @@
 #include <QTranslator>
 
 #include "AppVersion/SetCoreApplication.h"
+#include "Common/Application.h"
 #include "Gui/Util.h"
 #include "Gui/Window.h"
 
@@ -32,7 +33,6 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     Q_INIT_RESOURCE(icons);
-    QCoreApplication::setApplicationName(QLatin1String("trojita"));
 
     QTranslator qtTranslator;
     qtTranslator.load(QLatin1String("qt_") + QLocale::system().name(),
@@ -54,9 +54,10 @@ int main(int argc, char **argv)
     appDirectoryTranslator.load(localeName, app.applicationDirPath() + localeSuffix);
     app.installTranslator(&appDirectoryTranslator);
 
+    AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
     app.setWindowIcon(QIcon(QLatin1String(":/icons/trojita.png")));
-    QSettings settings(QLatin1String("flaska.net"), QLatin1String("trojita"));
+    QSettings settings(Common::Application::organization, Common::Application::name);
     Gui::MainWindow win(&settings);
     win.show();
     return app.exec();
