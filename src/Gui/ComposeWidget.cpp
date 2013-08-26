@@ -117,6 +117,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     connect(autoSaveTimer, SIGNAL(timeout()), SLOT(autoSaveDraft()));
     autoSaveTimer->start(30*1000);
 
+    // these are for the automatically saved drafts, i.e. no i18n for the dir name
     m_autoSavePath = QString(Common::writablePath(Common::LOCATION_CACHE) + QLatin1String("Drafts/"));
     QDir().mkpath(m_autoSavePath);
 
@@ -189,7 +190,9 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
             if (m_explicitDraft) { // editing a present draft - override it
                 saveDraft(m_autoSavePath);
             } else {
-                QString path(Common::writablePath(Common::LOCATION_DATA) + tr("Drafts"));
+                // Explicitly stored drafts should be saved in a location with proper i18n support, so let's make sure both main
+                // window and this code uses the same tr() calls
+                QString path(Common::writablePath(Common::LOCATION_DATA) + Gui::MainWindow::tr("Drafts"));
                 QDir().mkpath(path);
                 path = QFileDialog::getSaveFileName(this, tr("Save as"), path + QLatin1Char('/') + ui->subject->text() + QLatin1String(".draft"), tr("Drafts") + QLatin1String(" (*.draft)"));
                 if (path.isEmpty()) { // cancelled save
