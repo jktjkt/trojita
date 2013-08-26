@@ -1,4 +1,5 @@
 /* Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
+   Copyright (C) 2006 - 2013 Jan Kundrát <jkt@flaska.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -71,14 +72,11 @@ QString writablePath(const LocationType location)
         if (map[LOCATION_DOWNLOAD].isEmpty())
             map[LOCATION_DOWNLOAD] = QDir::homePath();
 
-        if (!map[LOCATION_CACHE].endsWith(QLatin1Char('/')))
-            map[LOCATION_CACHE] += QLatin1Char('/');
 
-        if (!map[LOCATION_DATA].endsWith(QLatin1Char('/')))
-            map[LOCATION_DATA] += QLatin1Char('/');
-
-        if (!map[LOCATION_DOWNLOAD].endsWith(QLatin1Char('/')))
-            map[LOCATION_DOWNLOAD] += QLatin1Char('/');
+        for (QMap<LocationType, QString>::iterator it = map.begin(); it != map.end(); ++it) {
+            if (!it->endsWith(QLatin1Char('/')))
+                *it += QLatin1Char('/');
+        }
 
         QCoreApplication::setApplicationName(origApplicationName);
         QCoreApplication::setApplicationVersion(origApplicationVersion);
