@@ -28,28 +28,28 @@ namespace Common
 {
 
 struct SettingsNames {
-    static QString identitiesKey, realNameKey, addressKey, organisationKey, signatureKey, obsRealNameKey, obsAddressKey;
-    static QString msaMethodKey, methodSMTP, methodSSMTP, methodSENDMAIL, methodImapSendmail, smtpHostKey,
+    static const QString identitiesKey, realNameKey, addressKey, organisationKey, signatureKey, obsRealNameKey, obsAddressKey;
+    static const QString msaMethodKey, methodSMTP, methodSSMTP, methodSENDMAIL, methodImapSendmail, smtpHostKey,
            smtpPortKey, smtpAuthKey, smtpStartTlsKey, smtpUserKey, smtpPassKey,
            sendmailKey, sendmailDefaultCmd;
-    static QString imapMethodKey, methodTCP, methodSSL, methodProcess, imapHostKey,
+    static const QString imapMethodKey, methodTCP, methodSSL, methodProcess, imapHostKey,
            imapPortKey, imapStartTlsKey, imapUserKey, imapPassKey, imapProcessKey,
            imapStartOffline, imapEnableId, imapSslPemCertificate, imapSslPemPubKey, imapBlacklistedCapabilities;
-    static QString composerSaveToImapKey, composerImapSentKey, smtpUseBurlKey;
-    static QString cacheMetadataKey, cacheMetadataMemory,
+    static const QString composerSaveToImapKey, composerImapSentKey, smtpUseBurlKey;
+    static const QString cacheMetadataKey, cacheMetadataMemory,
            cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineAll, cacheOfflineNumberDaysKey;
-    static QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
+    static const QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
            xtDbDbName, xtDbUser;
-    static QString guiMsgListShowThreading;
-    static QString guiMsgListHideRead;
-    static QString guiMailboxListShowOnlySubscribed;
-    static QString guiPreferPlaintextRendering;
-    static QString guiMainWindowLayout, guiMainWindowLayoutCompact, guiMainWindowLayoutWide, guiMainWindowLayoutOneAtTime;
-    static QString guiSizesInMainWinWhenCompact, guiSizesInMainWinWhenWide;
-    static QString guiAllowRawSearch;
-    static QString appLoadHomepage;
-    static QString guiShowSystray, guiOnSystrayClose;
-    static QString knownEmailsKey;
+    static const QString guiMsgListShowThreading;
+    static const QString guiMsgListHideRead;
+    static const QString guiMailboxListShowOnlySubscribed;
+    static const QString guiPreferPlaintextRendering;
+    static const QString guiMainWindowLayout, guiMainWindowLayoutCompact, guiMainWindowLayoutWide, guiMainWindowLayoutOneAtTime;
+    static const QString guiSizesInMainWinWhenCompact, guiSizesInMainWinWhenWide;
+    static const QString guiAllowRawSearch;
+    static const QString appLoadHomepage;
+    static const QString guiShowSystray, guiOnSystrayClose;
+    static const QString knownEmailsKey;
 };
 
 }
