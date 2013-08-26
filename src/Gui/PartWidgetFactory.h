@@ -46,6 +46,11 @@ public:
         PART_IS_HIDDEN = 1 << 3, /**< @short Request wrapping this part in a LoadablePartWidget */
         PART_PREFER_PLAINTEXT_OVER_HTML = 1 << 4 /**< @short The user's preferences indicate that a text/plain part shall be shown instead of a text/html if available */
     } PartLoadingFlag;
+    /** @short Which of these options shall be propagated to child widgets when embedding them, and which shall be filtered? */
+    enum {
+        MASK_PROPAGATE_WHEN_EMBEDDING =
+            PART_IS_HIDDEN | PART_PREFER_PLAINTEXT_OVER_HTML
+    };
     typedef QFlags<PartLoadingFlag> PartLoadingOptions;
 
     PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, MessageView *messageView);

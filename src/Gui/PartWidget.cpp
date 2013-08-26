@@ -33,6 +33,15 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
+namespace {
+
+    /** @short Unset flags which only make sense for one level of nesting */
+    Gui::PartWidgetFactory::PartLoadingOptions filteredForEmbedding(const Gui::PartWidgetFactory::PartLoadingOptions options)
+    {
+        return options & Gui::PartWidgetFactory::MASK_PROPAGATE_WHEN_EMBEDDING;
+    }
+}
+
 namespace Gui
 {
 
@@ -76,9 +85,9 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         // which is nested as a non-preferred part of another multipart/alternative actually gets loaded here.
         // I can live with that.
         QWidget *item = factory->create(anotherPart, recursionDepth + 1,
-                                        i == preferredIndex ?
+                                        filteredForEmbedding(i == preferredIndex ?
                                             options :
-                                            options | PartWidgetFactory::PART_IS_HIDDEN);
+                                            options | PartWidgetFactory::PART_IS_HIDDEN));
         QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
         addTab(item, mimeType);
     }
@@ -129,7 +138,7 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
         setTitle(tr("Malformed multipart/signed message: only one nested part"));
         QModelIndex anotherPart = partIndex.child(0, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        layout->addWidget(factory->create(anotherPart, recursionDepth + 1, options));
+        layout->addWidget(factory->create(anotherPart, recursionDepth + 1, filteredForEmbedding(options)));
     } else if (childrenCount != 2) {
         QLabel *lbl = new QLabel(tr("Malformed multipart/signed message: %1 nested parts").arg(QString::number(childrenCount)), this);
         layout->addWidget(lbl);
@@ -138,7 +147,7 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
         Q_ASSERT(childrenCount == 2); // from the if logic; FIXME: refactor
         QModelIndex anotherPart = partIndex.child(0, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        layout->addWidget(factory->create(anotherPart, recursionDepth + 1, options));
+        layout->addWidget(factory->create(anotherPart, recursionDepth + 1, filteredForEmbedding(options)));
     }
 }
 
@@ -160,7 +169,7 @@ GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        QWidget *res = factory->create(anotherPart, recursionDepth + 1, options);
+        QWidget *res = factory->create(anotherPart, recursionDepth + 1, filteredForEmbedding(options));
         layout->addWidget(res);
     }
 }
@@ -184,7 +193,7 @@ Message822Widget::Message822Widget(QWidget *parent,
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        QWidget *res = factory->create(anotherPart, recursionDepth + 1, options);
+        QWidget *res = factory->create(anotherPart, recursionDepth + 1, filteredForEmbedding(options));
         layout->addWidget(res);
     }
 }
