@@ -24,7 +24,7 @@
 <?rfc sortrefs="yes" ?>
 <?rfc compact="yes" ?>
 <?rfc subcompact="no" ?>
-<rfc category="std" docName="draft-kundrat-imap-submit-01" ipr="trust200902">
+<rfc category="std" docName="draft-kundrat-imap-submit-02" ipr="trust200902">
 
   <front>
     <title>IMAP SUBMIT Extension</title>
@@ -41,7 +41,7 @@
       </address>
     </author>
 
-    <date year="2013" month="February" day="26"/>
+    <date year="2013" month="August" day="27"/>
 
     <area>General</area>
     <workgroup>Internet Engineering Task Force</workgroup>
@@ -126,6 +126,8 @@
                 <t>Servers implementing this extension announce its presence through the SUBMIT capability.  If the
                     server supports this extension but message submission is unconditionally disabled by a security
                     policy or service configuration, this capability MUST NOT be announced.</t>
+                <t>When this capability is present, clients may assume that chances are high that submitting messages
+                    over IMAP will work.</t>
             </section>
 
             <section title="The SUBMIT= Capabilities Family">
@@ -148,14 +150,19 @@
 
             <section title="The POLICYDENIED Response Code">
                 <t>The POLICYDENIED response code SHOULD be used if the server rejects message submission as a result of
-                    a policy based decision which MAY take the message content, user's behavior and transaction history
-                    into account.</t>
+                    a policy based decision which MAY take the message content, submission options, user's behavior and
+                    transaction history into account.</t>
+                <t>Upon seeing the POLICYDENIED response code, the client MUST inform the user that message submission
+                    failed, and include the text of the response in the error message.  Clients MUST NOT attempt to
+                    automatically re-queue this message for sending over IMAP.  The clients MAY, however, choose to
+                    continue the message submission by another channel, perhaps over an ESMTP service.</t>
             </section>
 
             <section title="The SUBMISSIONRACE Response Code">
                 <t>The SUBMISSIONRACE response code MUST be sent in the tagged response if the client asks for
                     submission of a message that is either not marked with the $SubmitPending keyword or marked with the
                     $Submitted keyword.</t>
+                <t>The SUBMISSIONRACE response code could SHOULD have a preference over the POLICYDENIED response code.</t>
             </section>
         </section>
 
@@ -189,7 +196,7 @@
             <t>In the course of submission, servers MUST atomically add the $Submitted flag to the message, as
                 described in LEMONADE <xref target="RFC5550"/>.  A transient state where the message is temporarily
                 marked with both $Submitted and $SubmitPending flags MAY be hidden from any IMAP session or it MAY be
-                visible in all of them.</t>
+                visible in some or all of them.</t>
             
             <t>If the command succeeded, the message MUST be marked with the $Submitted keyword, the $SubmitPending
                 keyword MUST be cleared and a FETCH response containing the message UID and its new flags MUST be
@@ -264,8 +271,9 @@
                         present in the recipient list.</t>
 
                     <t>Servers MAY impose a local policy decision about always sending a copy of message to a certain
-                        address.  This operation MUST NOT affect the user-specified list of recipients passed through
-                        the RECIPIENTS delivery options.</t>
+                        address.  This operation MUST NOT remove any addresses from the list of recipients, as obtained
+                        either from the user-specified list of recipients passed through the RECIPIENTS delivery
+                        options, or inferred from the mail headers.</t>
 
                     <t>Message submission MUST be atomic -- message is either submitted for delivery to all recipients,
                         or it MUST NOT be submitted for delivery to anyone.  Actual delivery MAY still fail for certain
@@ -471,13 +479,21 @@ one-email-addr      = string
     </references>
 
     <section anchor="FIXME" title="FIXME Items">
-      <t>What's got higher priority, SUBMISSIONRACE or POLICYDENIED? :)</t>
       <t>IANA and the response codes</t>
       <t>"if the command fails, server MUST clear both $SubmitPending and $Submitted" -- what to do when there's
           something like a disk error?</t>
     </section>
 
     <section anchor="changelog" title="Changelog">
+        <section title="Changes in -02 since -01">
+            <t><list style="symbols">
+                <t>Clarified priorities of SUBMISSIONRACE and POLICYDENIED</t>
+                <t>Clarify failover procedure upon seeing a POLICYDENIED</t>
+                <t>Clarified message flag manipulation</t>
+                <t>Clarified recipient list mangling</t>
+                <t>More editorial work</t>
+            </list></t>
+        </section>
         <section title="Changes in -01 since -00">
             <t><list style="symbols">
                 <t>"Delivery options" is the new name for former "submission options"; changed the existing DSN options
