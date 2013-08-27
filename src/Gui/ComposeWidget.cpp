@@ -194,7 +194,16 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
                 // window and this code uses the same tr() calls
                 QString path(Common::writablePath(Common::LOCATION_DATA) + Gui::MainWindow::tr("Drafts"));
                 QDir().mkpath(path);
-                path = QFileDialog::getSaveFileName(this, tr("Save as"), path + QLatin1Char('/') + ui->subject->text() + QLatin1String(".draft"), tr("Drafts") + QLatin1String(" (*.draft)"));
+                QString filename = ui->subject->text();
+                if (filename.isEmpty()) {
+                    filename = QDateTime::currentDateTime().toString(Qt::ISODate);
+                }
+                // Some characters are best avoided in file names. This is probably not a definitive list, but the hope is that
+                // it's going to be more readable than an unformatted hash or similar stuff.  The list of characters was taken
+                // from http://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words .
+                filename.replace(QRegExp(QLatin1String("[/\\\\:\"|<>*?]")), QLatin1String("_"));
+                path = QFileDialog::getSaveFileName(this, tr("Save as"), path + QLatin1Char('/') + filename + QLatin1String(".draft"),
+                                                    tr("Drafts") + QLatin1String(" (*.draft)"));
                 if (path.isEmpty()) { // cancelled save
                     ret = QMessageBox::Cancel;
                 } else {
