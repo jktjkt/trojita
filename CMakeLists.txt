@@ -627,19 +627,22 @@ if(GIT_FOUND AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
 endif()
 
 add_library(Common ${libCommon_SOURCES})
+target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(Streams ${libStreams_SOURCES})
+target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(ZLIB_FOUND)
     target_link_libraries(Streams ${ZLIB_LIBRARIES})
 endif()
 
 add_library(qwwsmtpclient ${libqwwsmtpclient_SOURCES})
+target_link_libraries(qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(MSA ${libMSA_SOURCES})
-target_link_libraries(MSA Streams qwwsmtpclient)
+target_link_libraries(MSA Streams qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(Composer ${libComposer_SOURCES})
-target_link_libraries(Composer Common MSA Streams qwwsmtpclient)
+target_link_libraries(Composer Common MSA Streams qwwsmtpclient ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(NOT WITH_QT5)
     target_link_libraries(Composer MimetypesQt4)
 endif()
@@ -670,6 +673,7 @@ if(BUILD_DESKTOP_GUI)
     endif()
 
     add_library(AbookAddressbook ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
+    target_link_libraries(AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     add_library(DesktopGui ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
     # The following is needed for the LineEdit widget within the .ui files.
