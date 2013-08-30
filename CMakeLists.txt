@@ -859,10 +859,11 @@ if(WIN32) # Check if we are on Windows
     if(MSVC10) # Check if we are using the Visual Studio compiler 2010
         # Because of linker errors (see http://stackoverflow.com/questions/5625884/conversion-of-stdwstring-to-qstring-throws-linker-error)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:wchar_t-")
-    else(MSVC10)
-        message(WARNING "You are using a compiler which we have not tested yet (not MSVC10).")
+    elseif(MINGW)
+    else()
+        message(WARNING "You are using a compiler which we have not tested yet (not MSVC10 or MINGW).")
         message(WARNING "Please let us know how well it works.")
-    endif(MSVC10)
+    endif()
 endif()
 
 # FIXME: fix build warnings
