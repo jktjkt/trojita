@@ -40,9 +40,9 @@
 ****************************************************************************/
 
 #include "qstandardpaths.h"
+#include "qsystemlibrary_p.h"
 
 #include <qdir.h>
-#include <private/qsystemlibrary_p.h>
 #include <qstringlist.h>
 #include <qcoreapplication.h>
 
