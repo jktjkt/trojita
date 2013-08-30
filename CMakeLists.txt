@@ -63,6 +63,17 @@ if(WIN32 AND WITH_NSIS)
     endif()
 endif()
 
+# Add support for Mingw RC compiler
+if(WIN32)
+    enable_language(RC)
+    include(CMakeDetermineRCCompiler)
+
+    if(MINGW)
+        set(CMAKE_RC_COMPILER_INIT windres)
+        set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+    endif()
+endif()
+
 if(NOT WIN32 AND NOT MSVC)
     # Check if we are NOT on Windows and don't use MSVC since -g is not supported by VC
     # and Wall makes the build very noisy.
@@ -697,7 +708,7 @@ if(BUILD_DESKTOP_GUI)
 
     if(WIN32) # Check if we are on Windows
         # build a real Win32 GUI application. Hide the console window
-        add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM} ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_ico_win32.rc)
+        add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM} ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_win32.rc)
         target_link_libraries(trojita ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES})
     else()
         add_executable(trojita ${trojita_desktop_SOURCES} ${trojita_QM})
