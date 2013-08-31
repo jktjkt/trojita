@@ -126,7 +126,7 @@ private:
     Parser *newParser(Model *model);
 };
 
-typedef std::auto_ptr<TaskFactory> TaskFactoryPtr;
+typedef std::unique_ptr<TaskFactory> TaskFactoryPtr;
 
 }
 }

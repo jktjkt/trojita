@@ -33,7 +33,7 @@ class QBuffer;
 class ImapParserParseTest : public QObject
 {
     Q_OBJECT
-    std::auto_ptr<QByteArray> array;
+    std::unique_ptr<QByteArray> array;
     Imap::Parser* parser;
 private Q_SLOTS:
     /** @short Test parsing of various tagged responses */

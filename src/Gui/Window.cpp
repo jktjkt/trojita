@@ -681,7 +681,8 @@ void MainWindow::setupModels()
             }
         }
     }
-    model = new Imap::Mailbox::Model(this, cache, factory, taskFactory, m_settings->value(SettingsNames::imapStartOffline).toBool());
+    model = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory),
+                                     m_settings->value(SettingsNames::imapStartOffline).toBool());
     model->setObjectName(QLatin1String("model"));
     model->setCapabilitiesBlacklist(m_settings->value(SettingsNames::imapBlacklistedCapabilities).toStringList());
     if (m_settings->value(SettingsNames::imapEnableId, true).toBool()) {

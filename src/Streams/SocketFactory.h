@@ -52,8 +52,6 @@ signals:
     void error(const QString &);
 };
 
-typedef std::auto_ptr<SocketFactory> SocketFactoryPtr;
-
 /** @short Manufacture sockets based on QProcess */
 class ProcessSocketFactory: public SocketFactory
 {

@@ -35,7 +35,7 @@ void ImapModelCreateMailboxTest::init()
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
+    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
     createdSpy = new QSignalSpy( model, SIGNAL(mailboxCreationSucceded(QString)) );
     failedSpy = new QSignalSpy( model, SIGNAL(mailboxCreationFailed(QString,QString)) );
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );

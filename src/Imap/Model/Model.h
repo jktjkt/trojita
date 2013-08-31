@@ -76,7 +76,7 @@ class TaskPresentationModel;
 template <typename SourceModel> class SubtreeClassSpecificItem;
 
 class SocketFactory;
-typedef std::auto_ptr<SocketFactory> SocketFactoryPtr;
+typedef std::unique_ptr<SocketFactory> SocketFactoryPtr;
 
 /** @short Progress of mailbox synchronization with the IMAP server */
 typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active */
