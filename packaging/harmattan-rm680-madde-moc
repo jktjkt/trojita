@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Wrapper around moc which hack together a backport for qt4.git's b1696fab84c411da025d255fef82f64c78bd92b5
+# Written by Jan Kundrát <jkt@flaska.net>
+# Licensed under a three-clause BSD license
+
+# at first, invoke the original moc
+$(dirname $(readlink -f $(dirname "${BASH_SOURCE[0]}")/ld))/moc $@ || exit $?
+
+# then massage its output so that it actually works in C++11
+while [ "$#" != "0" ]; do
+    if [ x"$1" == x"-o" ]; then
+        sed -i 's/\(QMetaType::QReal << 24\)/((uint)QMetaType::QReal << 24)/' "${2}"
+        # we're done now
+        exit 0
+    fi
+    shift
+done
+echo "MOC wrapper: cannot find the -o option, so don't know what to sed, sorry"
+exit 666

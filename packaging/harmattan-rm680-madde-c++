@@ -31,7 +31,7 @@
 # |   |-- mgen -> ../../harmattan_10.2011.34-1_rt1.2/bin/mgen
 # |   |-- mmoc -> ../../harmattan_10.2011.34-1_rt1.2/bin/mmoc
 # |   |-- mmoc.pl -> ../../harmattan_10.2011.34-1_rt1.2/bin/mmoc.pl
-# |   |-- moc -> ../../harmattan_10.2011.34-1_rt1.2/bin/moc
+# |   |-- moc
 # |   |-- nm -> ../../harmattan_10.2011.34-1_rt1.2/bin/nm
 # |   |-- objcopy -> ../../harmattan_10.2011.34-1_rt1.2/bin/objcopy
 # |   |-- objdump -> ../../harmattan_10.2011.34-1_rt1.2/bin/objdump
@@ -49,7 +49,8 @@
 # |-- lib -> ../harmattan_10.2011.34-1_rt1.2/lib
 # `-- specs -> ../harmattan_10.2011.34-1_rt1.2/specs
 #
-# 3) Put this file into the bin/c++
+# 3) Put this file into the bin/c++ and the accompanying moc wrapper into
+# bin/moc (symlink is fine)
 #
 # 4) When building, use "clang-rm680" as the Madde target
 

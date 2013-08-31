@@ -1,0 +1,49 @@
+C++11 imposes stricter requirements on string concatenations due to the way how
+the user-defined literal suffixes work.
+
+Turns out that the Qt repo contains this already, but not the Harmattan version --
+see commits 91bf025444f13eb269ece6bb430a841638bb32a8 and
+6d9bdc5038644ccef2eb2da3cd46522de5904974.
+
+Also fix a build warning, see qt4.git's 0e595ad22db04141bfbd6093824cdcc775fd371d
+
+diff -Naurt include.orig/qt4/QtCore/qobjectdefs.h include/qt4/QtCore/qobjectdefs.h
+--- include.orig/qt4/QtCore/qobjectdefs.h	2013-08-31 00:02:54.240896132 +0200
++++ include/qt4/QtCore/qobjectdefs.h	2013-08-31 00:03:08.150053167 +0200
+@@ -216,7 +216,7 @@
+ #define QTOSTRING_HELPER(s) #s
+ #define QTOSTRING(s) QTOSTRING_HELPER(s)
+ #ifndef QT_NO_DEBUG
+-# define QLOCATION "\0"__FILE__":"QTOSTRING(__LINE__)
++# define QLOCATION "\0" __FILE__ ":" QTOSTRING(__LINE__)
+ # define METHOD(a)   qFlagLocation("0"#a QLOCATION)
+ # define SLOT(a)     qFlagLocation("1"#a QLOCATION)
+ # define SIGNAL(a)   qFlagLocation("2"#a QLOCATION)
+diff -Naurt include.orig/qt4/QtCore/qplugin.h include/qt4/QtCore/qplugin.h
+--- include.orig/qt4/QtCore/qplugin.h	2012-01-11 16:19:31.880151593 +0100
++++ include/qt4/QtCore/qplugin.h	2013-08-31 00:05:34.613694064 +0200
+@@ -112,9 +112,9 @@
+ #  define Q_PLUGIN_VERIFICATION_DATA \
+     static const char qt_plugin_verification_data[] = \
+       "pattern=""QT_PLUGIN_VERIFICATION_DATA""\n" \
+-      "version="QT_VERSION_STR"\n" \
+-      "debug="QPLUGIN_DEBUG_STR"\n" \
+-      "buildkey="QT_BUILD_KEY;
++      "version=" QT_VERSION_STR "\n" \
++      "debug=" QPLUGIN_DEBUG_STR "\n" \
++      "buildkey=" QT_BUILD_KEY;
+ 
+ #  if defined (Q_OS_WIN32) && defined(Q_CC_BOR)
+ #     define Q_STANDARD_CALL __stdcall
+diff -Naurt include.orig/qt4/QtCore/qsharedpointer_impl.h include/qt4/QtCore/qsharedpointer_impl.h
+--- include.orig/qt4/QtCore/qsharedpointer_impl.h	2012-01-11 16:19:31.862151592 +0100
++++ include/qt4/QtCore/qsharedpointer_impl.h	2013-08-31 10:56:15.184452104 +0200
+@@ -580,7 +580,7 @@
+ #ifndef QT_NO_QOBJECT
+     // special constructor that is enabled only if X derives from QObject
+     template <class X>
+-    inline QWeakPointer(X *ptr) : d(ptr ? d->getAndRef(ptr) : 0), value(ptr)
++    inline QWeakPointer(X *ptr) : d(ptr ? Data::getAndRef(ptr) : 0), value(ptr)
+     { }
+ #endif
+     template <class X>
