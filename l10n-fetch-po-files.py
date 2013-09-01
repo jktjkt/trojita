@@ -46,4 +46,4 @@ for lang in all_languages:
         print "No data for %s" % lang
 
 # Inform qmake about the updated file list
-os.utime("./src/Gui/Gui.pro", None)
+os.utime("CMakeLists.txt", None)
