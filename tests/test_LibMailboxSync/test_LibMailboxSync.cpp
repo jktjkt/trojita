@@ -71,7 +71,7 @@ void LibMailboxSync::init()
         QLatin1String("s") << QLatin1String("q") << QLatin1String("u") <<
         QLatin1String("v") << QLatin1String("w") << QLatin1String("x") <<
         QLatin1String("y") << QLatin1String("z");
-    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
+    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
     connect(model, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(modelLogged(uint,Common::LogMessage)));

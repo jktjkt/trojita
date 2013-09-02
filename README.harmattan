@@ -1,13 +1,35 @@
 How to build the Harmattan version:
 
-1) change directory into the top-level directory of trojita's repository
-2) `mkdir _build_harmattan && cd _build_harmattan`
-3) `cp -a ../qtc_packaging/debian_harmattan debian`
-4) `~/QtSDK/Madde/bin/mad -t harmattan_10.2011.34-1_rt1.2 dpkg-buildpackage -j4 -b -nc`-uc
-5) profit!
+This is going to be involved. Trojita now requires a compiler which speaks
+C++11, and GCC 4.4 which comes in the ancient Nokia's SDK is not one of these.
+The only known way of creating the Harmattan builds is the following setup which
+uses both the ancient toolchain and a recent clang.
 
-For compiling with clang, make sure that it's built with the reuired targets
-(Gentoo: USE=multitarget) and provide a custom "profile" for madde. Instructions
+For compiling with clang, make sure that it's built with the required targets
+(Gentoo: USE=multitarget) and provide a custom "profile" for Madde. Instructions
 for that are in packaging/harmattan-rm680-madde-c++ . New enough clang is
 required (tested with 3.3) because the support for exceptions on ARM is not
 enabled by default.
+
+You'll also need to patch the QtSDK's headers so that they work with clang, see
+[1]. A patch for the STL [2] shall be applied inside
+~/QtSDK/Madde/sysroots/harmattan_sysroot_10.2011.34-1_slim/usr/include/c++/4.4.
+and Qt needs to be patched not to concatenate string literals carelessly (see
+packaging/harmattan-qt4-c++11.patch). Finally, moc produces constructs which
+trigger the narrowing error in C++11 (Qt4 commit
+b1696fab84c411da025d255fef82f64c78bd92b5); we're "fixing" this by sed-ing the
+output of moc to add an explicit cast -- sweet, isn't it?
+
+After this initial setup is done (i.e. you have a toolchain capable of speaking
+C++11, supporting exceptions *and* creating Harmattan binaries at the same time,
+which in itself is an impressive accomplishment, you may proceed to the actual
+build:
+
+1) change directory into the top-level directory of trojita's repository
+2) `mkdir _build_harmattan && cd _build_harmattan`
+3) `cp -a ../qtc_packaging/debian_harmattan debian`
+4) `~/QtSDK/Madde/bin/mad -t clang-rm680 dpkg-buildpackage -j4 -b -nc -uc`
+5) profit!
+
+[1] http://stackoverflow.com/questions/15120004/compiling-with-clang-fails-with-libstdc4-4-7-and-std-c0x
+[2] http://clang.llvm.org/libstdc++4.4-clang0x.patch

@@ -490,8 +490,7 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     // All recipients
     // Got to group the headers so that both of (To, Cc) are present at most once
     QList<QByteArray> rcptTo, rcptCc;
-    for (QList<QPair<Composer::RecipientKind,Imap::Message::MailAddress> >::const_iterator it = m_recipients.begin();
-         it != m_recipients.end(); ++it) {
+    for (auto it = m_recipients.begin(); it != m_recipients.end(); ++it) {
         switch(it->first) {
         case Composer::ADDRESS_TO:
             rcptTo << it->second.asMailHeader();
@@ -717,8 +716,7 @@ QList<QByteArray> MessageComposer::rawRecipientAddresses() const
 {
     QList<QByteArray> res;
 
-    for (QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> >::const_iterator it = m_recipients.begin();
-         it != m_recipients.end(); ++it) {
+    for (auto it = m_recipients.begin(); it != m_recipients.end(); ++it) {
         res << it->second.asSMTPMailbox();
     }
 

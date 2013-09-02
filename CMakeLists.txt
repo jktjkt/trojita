@@ -7,6 +7,12 @@ endif()
 project(trojita)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
+include(FindCXXFeatures)
+if(NOT CXXFeatures_auto_FOUND)
+    message(SEND_ERROR "Your compiler doesn't support C++11's auto")
+endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
+
 if(HARMATTAN)
     set(BUILD_DESKTOP_GUI false)
     set(BUILD_HARMATTAN true)

@@ -35,7 +35,7 @@ void ImapModelDeleteMailboxTest::init()
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), taskFactory, false );
+    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
     deletedSpy = new QSignalSpy( model, SIGNAL(mailboxDeletionSucceded(QString)) );
     failedSpy = new QSignalSpy( model, SIGNAL(mailboxDeletionFailed(QString,QString)) );
 }

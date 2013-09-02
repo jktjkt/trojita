@@ -105,7 +105,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     // parent
     QAbstractItemModel(parent),
     // our tools
-    m_cache(cache), m_socketFactory(socketFactory), m_taskFactory(taskFactory), m_maxParsers(4), m_mailboxes(0),
+    m_cache(cache), m_socketFactory(std::move(socketFactory)), m_taskFactory(std::move(taskFactory)), m_maxParsers(4), m_mailboxes(0),
     m_netPolicy(NETWORK_OFFLINE),  m_taskModel(0), m_hasImapPassword(false),
     m_networkSession(0), m_userPreferredNetworkMode(m_netPolicy)
 {
