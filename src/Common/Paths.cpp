@@ -44,12 +44,10 @@ QString writablePath(const LocationType location)
     if (map.isEmpty()) {
 
         const QString &origApplicationName = QCoreApplication::applicationName();
-        const QString &origApplicationVersion = QCoreApplication::applicationVersion();
         const QString &origOrganizationDomain = QCoreApplication::organizationDomain();
         const QString &origOrganizationName = QCoreApplication::organizationName();
 
         QCoreApplication::setApplicationName(Common::Application::name);
-        QCoreApplication::setApplicationVersion(Common::Application::version);
         QCoreApplication::setOrganizationDomain(Common::Application::organization);
         QCoreApplication::setOrganizationName(Common::Application::organization);
 
@@ -79,7 +77,6 @@ QString writablePath(const LocationType location)
         }
 
         QCoreApplication::setApplicationName(origApplicationName);
-        QCoreApplication::setApplicationVersion(origApplicationVersion);
         QCoreApplication::setOrganizationDomain(origOrganizationDomain);
         QCoreApplication::setOrganizationName(origOrganizationName);
 
