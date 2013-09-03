@@ -106,7 +106,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     QAbstractItemModel(parent),
     // our tools
     m_cache(cache), m_socketFactory(std::move(socketFactory)), m_taskFactory(std::move(taskFactory)), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(NETWORK_OFFLINE),  m_taskModel(0), m_hasImapPassword(false),
+    m_netPolicy(offline ? NETWORK_OFFLINE : NETWORK_ONLINE),  m_taskModel(0), m_hasImapPassword(false),
     m_networkSession(0), m_userPreferredNetworkMode(m_netPolicy)
 {
     m_cache->setParent(this);
@@ -1043,20 +1043,22 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         emit networkPolicyOnline();
         break;
     }
-    if (networkReconnected) {
-        // We're connecting after being offline
 
 #ifdef TROJITA_HAS_QNETWORKSESSION
+    if (m_netPolicy != NETWORK_OFFLINE && !m_networkSession) {
         // Take care of the connectivity management
         m_networkSession = new QNetworkSession(m_networkConfigurationManager->defaultConfiguration(), this);
         m_networkSession->open();
+    }
 #endif
+
+    if (networkReconnected) {
+        // We're connecting after being offline
         if (m_mailboxes->m_fetchStatus != TreeItem::NONE) {
             // We should ask for an updated list of mailboxes
             // The main reason is that this happens after entering wrong password and going back online
             reloadMailboxList();
         }
-
     } else if (m_netPolicy == NETWORK_ONLINE) {
         // The connection is online after some time in a different mode. Let's use this opportunity to request
         // updated message counts from all visible mailboxes.
