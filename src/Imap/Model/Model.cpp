@@ -1896,8 +1896,7 @@ void Model::invalidateAllMessageCounts()
             // Ask only for data which were previously available
             // Also don't mess with a mailbox which is already being kept up-to-date because it's selected.
             list->m_numberFetchingStatus = TreeItem::NONE;
-            QModelIndex idx = createIndex(head->row(), 0, head);
-            emit dataChanged(idx, idx);
+            emitMessageCountChanged(head);
         }
     }
 }
