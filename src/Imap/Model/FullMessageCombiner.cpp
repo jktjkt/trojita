@@ -67,16 +67,10 @@ bool FullMessageCombiner::loaded() const
 void FullMessageCombiner::load()
 {
     Imap::Mailbox::TreeItemPart *headerPart = headerPartPtr();
-    Imap::Mailbox::TreeItemPart *bodyPart = bodyPartPtr();
-
-
     headerPart->fetch(const_cast<Mailbox::Model *>(m_model));
+    Imap::Mailbox::TreeItemPart *bodyPart = bodyPartPtr();
     bodyPart->fetch(const_cast<Mailbox::Model *>(m_model));
-
-    if (headerPart->fetched() && bodyPart->fetched()) {
-        emit completed();
-    }
-
+    slotDataChanged(QModelIndex(), QModelIndex());
 }
 
 TreeItemPart *FullMessageCombiner::headerPartPtr() const
