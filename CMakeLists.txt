@@ -104,7 +104,8 @@ if(NOT WITHOUT_ZLIB)
                 file(READ ${QT_MKSPECS_DIR}/qconfig.pri _qconfig_FILE_contents_ZLIB_CHECK)
                 string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG_ZLIB_CHECK ${_qconfig_FILE_contents_ZLIB_CHECK})
 
-                if(NOT "${ENV{QTDIR}")
+                set(ENV_QTDIR $ENV{QTDIR})
+                if(NOT DEFINED ENV_QTDIR)
                     message(STATUS "QTDIR not specified in environment, will not use zlib")
                 elseif(QT_CONFIG_ZLIB_CHECK)
                     if(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
@@ -113,7 +114,7 @@ if(NOT WITHOUT_ZLIB)
                         set(ZLIB_LIBRARY_DEBUG ${QT_QTCORE_LIBRARY_DEBUG})
                         set(ZLIB_LIBRARY ${QT_QTCORE_LIBRARY})
 
-                        string(REGEX REPLACE "\\\\" "/" QTDIR $ENV{QTDIR})
+                        string(REGEX REPLACE "\\\\" "/" QTDIR $ENV_QTDIR)
                         set(ZLIB_INCLUDE_DIR "${QTDIR}/src/3rdparty/zlib")
 
                         set(ZLIB_FOUND TRUE)
