@@ -315,6 +315,13 @@ void ComposerSubmissionTest::testMissingImapAttachmentImap()
 
 void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool imap, bool attachingFile)
 {
+#ifdef Q_OS_OS2
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QSKIP("Looks like QTemporaryFile is broken on OS/2");
+#else
+    QSKIP("Looks like QTemporaryFile is broken on OS/2", SkipSingle);
+#endif
+#endif
     helperSetupProperHeaders();
 
     if (imap) {
