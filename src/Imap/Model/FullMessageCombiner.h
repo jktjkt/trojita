@@ -56,6 +56,7 @@ public:
 
 signals:
     void completed();
+    void failed(const QString &message);
 
 private:
     TreeItemPart *headerPartPtr() const;

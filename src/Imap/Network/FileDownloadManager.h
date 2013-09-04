@@ -49,6 +49,7 @@ public:
 private slots:
     void onPartDataTransfered();
     void onReplyTransferError();
+    void onCombinerTransferError(const QString &message);
     void deleteReply(QNetworkReply *reply);
 public slots:
     void downloadPart();

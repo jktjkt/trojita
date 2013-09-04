@@ -96,6 +96,17 @@ void FullMessageCombiner::slotDataChanged(const QModelIndex &left, const QModelI
        // when dataChanged() is emitted and the parts are already fetched.
        disconnect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotDataChanged(QModelIndex,QModelIndex)));
     }
+
+    Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model*>(m_model);
+    bool headerOffline = headerPartPtr()->isUnavailable(model);
+    bool bodyOffline = bodyPartPtr()->isUnavailable(model);
+    if (headerOffline && bodyOffline) {
+        emit failed(tr("Offline mode: uncached message data not available"));
+    } else if (headerOffline) {
+        emit failed(tr("Offline mode: uncached header data not available"));
+    } else if (bodyOffline) {
+        emit failed(tr("Offline mode: uncached body data not available"));
+    }
 }
 
 }

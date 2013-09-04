@@ -101,6 +101,7 @@ void FileDownloadManager::downloadMessage()
     saving.setFileName(saveFileName);
     saved = false;
     connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
+    connect(m_combiner, SIGNAL(failed(QString)), this, SLOT(onCombinerTransferError(QString)));
     m_combiner->load();
 }
 
@@ -151,6 +152,13 @@ void FileDownloadManager::onReplyTransferError()
 {
     Q_ASSERT(reply);
     emit transferError(reply->errorString());
+}
+
+void FileDownloadManager::onCombinerTransferError(const QString &message)
+{
+    Q_ASSERT(m_combiner);
+    m_combiner->deleteLater();
+    emit transferError(message);
 }
 
 void FileDownloadManager::deleteReply(QNetworkReply *reply)
