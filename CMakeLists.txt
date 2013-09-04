@@ -114,7 +114,7 @@ if(NOT WITHOUT_ZLIB)
                         set(ZLIB_LIBRARY_DEBUG ${QT_QTCORE_LIBRARY_DEBUG})
                         set(ZLIB_LIBRARY ${QT_QTCORE_LIBRARY})
 
-                        string(REGEX REPLACE "\\\\" "/" QTDIR $ENV_QTDIR)
+                        string(REGEX REPLACE "\\\\" "/" QTDIR ${ENV_QTDIR})
                         set(ZLIB_INCLUDE_DIR "${QTDIR}/src/3rdparty/zlib")
 
                         set(ZLIB_FOUND TRUE)
