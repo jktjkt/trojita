@@ -1,0 +1,59 @@
+#include "winver.h"
+#include "trojita-git-version.h"
+
+#ifdef TROJITA_GIT_VERSION
+#define VERSION TROJITA_GIT_VERSION
+#define VERNUM1 TROJITA_GIT_VERNUM1
+#define VERNUM2 TROJITA_GIT_VERNUM2
+#define VERNUM3 TROJITA_GIT_VERNUM3
+#define VERNUM4 TROJITA_GIT_VERNUM4
+#else
+#include "trojita-version.h"
+#define VERSION TROJITA_VERSION
+#define VERNUM1 TROJITA_VERNUM1
+#define VERNUM2 TROJITA_VERNUM2
+#define VERNUM3 TROJITA_VERNUM3
+#define VERNUM4 TROJITA_VERNUM4
+#endif
+
+#define NAME "Trojita"
+#define DESCRIPTION "Qt IMAP e-mail client"
+#define HOMEPAGE "http://trojita.flaska.net/"
+#define LICENSE "GPLv2/GPLv3"
+#define COPYRIGHT "http://quickgit.kde.org/?p=trojita.git&a=blob&f=LICENSE"
+
+#define EXE "trojita.exe"
+#define ICO "icons/trojita.ico"
+
+IDI_ICON1	ICON	DISCARDABLE	ICO
+
+VS_VERSION_INFO	VERSIONINFO
+FILEVERSION	VERNUM1,VERNUM2,VERNUM3,VERNUM4
+PRODUCTVERSION	VERNUM1,VERNUM2,VERNUM3,VERNUM4
+FILEFLAGS	0
+FILEOS		VOS_NT_WINDOWS32
+FILETYPE	VFT_APP
+FILESUBTYPE	VFT2_UNKNOWN
+
+BEGIN
+	BLOCK "StringFileInfo"
+	BEGIN
+		BLOCK "040904E4"
+		BEGIN
+			VALUE "FileDescription",	DESCRIPTION
+			VALUE "FileVersion",		VERSION
+			VALUE "InternalName",		NAME
+			VALUE "LegalCopyright",		COPYRIGHT
+			VALUE "License",		LICENSE
+			VALUE "Homepage",		HOMEPAGE
+			VALUE "OriginalFilename",	EXE
+			VALUE "ProductName",		NAME
+			VALUE "ProductVersion",		VERSION
+		END
+	END
+
+	BLOCK "VarFileInfo"
+	BEGIN
+		VALUE "Translation", 0x409, 1252
+	END
+END

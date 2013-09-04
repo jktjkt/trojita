@@ -22,14 +22,15 @@
 
 #include <QObject>
 #include "Application.h"
-#include "../trojita-version.h"
+
+#include "trojita-version.h"
 
 namespace Common
 {
 
 /* default values, they can be changed by other backends, e.g. Kontact or AppVersion::setGitVersion() */
 QString Application::name = QLatin1String("trojita");
-QString Application::version = QLatin1String(trojitaVersion);
+QString Application::version = QLatin1String(TROJITA_VERSION);
 QString Application::organization = QLatin1String("flaska.net");
 
 }

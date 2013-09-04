@@ -57,6 +57,29 @@ else()
 endif()
 find_package(Git)
 
+if(WIN32 AND WITH_NSIS)
+    if(NOT MAKENSIS)
+        find_program(MAKENSIS makensis)
+        if(NOT MAKENSIS)
+            message(STATUS "makensis not found")
+        else()
+            message(STATUS "Found makensis: ${MAKENSIS}")
+        endif()
+        mark_as_advanced(MAKENSIS)
+    endif()
+endif()
+
+# Add support for Mingw RC compiler
+if(WIN32)
+    enable_language(RC)
+    include(CMakeDetermineRCCompiler)
+
+    if(MINGW)
+        set(CMAKE_RC_COMPILER_INIT windres)
+        set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
+    endif()
+endif()
+
 if(NOT WIN32 AND NOT MSVC)
     # Check if we are NOT on Windows and don't use MSVC since -g is not supported by VC
     # and Wall makes the build very noisy.
@@ -619,21 +642,21 @@ else()
     message(STATUS "Qt Linguist (lupdate/lrelease/lconvert) not found, disabling localization support")
 endif()
 
-if(GIT_FOUND AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
-    add_custom_target(git_version DEPENDS git_version_fake_file)
-    add_custom_command(OUTPUT git_version_fake_file ${CMAKE_CURRENT_BINARY_DIR}/gitversion.hpp
-        COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DGIT_EXECUTABLE=${GIT_EXECUTABLE} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/GitVersion.cmake)
-    set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/gitversion.hpp
-        PROPERTIES GENERATED TRUE
-        HEADER_FILE_ONLY TRUE)
+set(version_files ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.h ${CMAKE_CURRENT_BINARY_DIR}/trojita-git-version.h)
+if(WIN32 AND WITH_NSIS AND MAKENSIS)
+    set(version_files ${version_files} ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.nsi)
+    set(NSIS TRUE)
 endif()
+
+add_custom_target(version DEPENDS version_fake_file)
+add_custom_command(OUTPUT version_fake_file ${version_files}
+    COMMAND ${CMAKE_COMMAND} -DGIT_EXECUTABLE=${GIT_EXECUTABLE} -DNSIS=${NSIS} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/TrojitaVersion.cmake)
+set_source_files_properties(${version_files}
+    PROPERTIES GENERATED TRUE
+    HEADER_FILE_ONLY TRUE)
 
 add_library(AppVersion ${libAppVersion_SOURCES})
-
-if(GIT_FOUND AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.git)
-    set_property(TARGET AppVersion APPEND PROPERTY COMPILE_DEFINITIONS HAS_GITVERSION)
-    add_dependencies(AppVersion git_version git_version_fake_file)
-endif()
+add_dependencies(AppVersion version version_fake_file)
 
 add_library(Common ${libCommon_SOURCES})
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
@@ -694,7 +717,7 @@ if(BUILD_DESKTOP_GUI)
 
     if(WIN32) # Check if we are on Windows
         # build a real Win32 GUI application. Hide the console window
-        add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM} ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_ico_win32.rc)
+        add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM} ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_win32.rc)
         target_link_libraries(trojita ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES})
     else()
         add_executable(trojita ${trojita_desktop_SOURCES} ${trojita_QM})
@@ -750,6 +773,27 @@ elseif(BUILD_HARMATTAN)
     install(DIRECTORY ${trojita_harmattan_path}/qml DESTINATION opt/trojita-tp/)
     install(FILES ${trojita_harmattan_path}/trojita-tp.desktop DESTINATION usr/share/applications/)
     install(FILES ${trojita_harmattan_path}/trojita-tp80.png DESTINATION usr/share/icons/hicolor/80x80/apps/)
+endif()
+
+if(WIN32 AND WITH_NSIS AND MAKENSIS)
+    if(CMAKE_SIZEOF_VOID_P STREQUAL 4)
+        set(MAKENSIS_OUTPUT Trojita-installer.exe)
+    else()
+        set(MAKENSIS_FLAGS -DX86_64 ${MAKENSIS_FLAGS})
+        set(MAKENSIS_OUTPUT Trojita-installer-x86_64.exe)
+    endif()
+
+    if(NOT CMAKE_VERBOSE_MAKEFILE)
+        set(MAKENSIS_FLAGS -V2 -DQUIET ${MAKENSIS_FLAGS})
+    endif()
+
+    set(MAKENSIS_FLAGS ${MAKENSIS_FLAGS} -NOCD)
+
+    add_custom_command(OUTPUT ${MAKENSIS_OUTPUT}
+        COMMAND ${MAKENSIS}
+        ARGS ${MAKENSIS_FLAGS} ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi ${CMAKE_CURRENT_BINARY_DIR}/trojita.exe)
+    add_custom_target(installer ALL DEPENDS ${MAKENSIS_OUTPUT})
 endif()
 
 
@@ -824,10 +868,11 @@ if(WIN32) # Check if we are on Windows
     if(MSVC10) # Check if we are using the Visual Studio compiler 2010
         # Because of linker errors (see http://stackoverflow.com/questions/5625884/conversion-of-stdwstring-to-qstring-throws-linker-error)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Zc:wchar_t-")
-    else(MSVC10)
-        message(WARNING "You are using a compiler which we have not tested yet (not MSVC10).")
+    elseif(MINGW)
+    else()
+        message(WARNING "You are using a compiler which we have not tested yet (not MSVC10 or MINGW).")
         message(WARNING "Please let us know how well it works.")
-    endif(MSVC10)
+    endif()
 endif()
 
 # FIXME: fix build warnings
