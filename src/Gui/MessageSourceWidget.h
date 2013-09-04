@@ -38,6 +38,8 @@ namespace Mailbox
 namespace Gui
 {
 
+class Spinner;
+
 class MessageSourceWidget : public QWebView
 {
     Q_OBJECT
@@ -50,7 +52,7 @@ private slots:
 
 private:
     Imap::Mailbox::FullMessageCombiner *m_combiner;
-
+    Spinner *m_loadingSpinner;
 };
 
 }

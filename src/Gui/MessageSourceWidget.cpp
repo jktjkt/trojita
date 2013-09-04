@@ -22,16 +22,23 @@
 
 #include "MessageSourceWidget.h"
 #include <QModelIndex>
+#include "Gui/Spinner.h"
 #include "Imap/Model/FullMessageCombiner.h"
 
 namespace Gui
 {
 
 MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &messageIndex):
-    QWebView(parent)
+    QWebView(parent), m_combiner(0), m_loadingSpinner(0)
 {
     Q_ASSERT(messageIndex.isValid());
     page()->setNetworkAccessManager(0);
+
+    m_loadingSpinner = new Spinner(this);
+    m_loadingSpinner->setText(tr("Fetching\nMessage"));
+    m_loadingSpinner->setType(Spinner::Sun);
+    m_loadingSpinner->start(250);
+
     m_combiner = new Imap::Mailbox::FullMessageCombiner(messageIndex, this);
     connect(m_combiner, SIGNAL(completed()), this, SLOT(slotCompleted()));
     connect(m_combiner, SIGNAL(failed(QString)), this, SLOT(slotError(QString)));
@@ -40,11 +47,13 @@ MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &mes
 
 void MessageSourceWidget::slotCompleted()
 {
+    m_loadingSpinner->stop();
     setContent(m_combiner->data(), QLatin1String("text/plain"));
 }
 
 void MessageSourceWidget::slotError(const QString &message)
 {
+    m_loadingSpinner->stop();
     setContent(message.toUtf8(), QLatin1String("text/plain; charset=utf-8"));
 }
 
