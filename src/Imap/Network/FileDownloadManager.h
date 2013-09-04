@@ -24,6 +24,7 @@
 
 #include <QFile>
 #include <QPersistentModelIndex>
+#include <QPointer>
 #include <QNetworkReply>
 #include "Imap/Model/FullMessageCombiner.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
@@ -64,7 +65,7 @@ private:
     QNetworkReply *reply;
     QFile saving;
     bool saved;
-    Imap::Mailbox::FullMessageCombiner *m_combiner;
+    QPointer<Imap::Mailbox::FullMessageCombiner> m_combiner;
 
     FileDownloadManager(const FileDownloadManager &); // don't implement
     FileDownloadManager &operator=(const FileDownloadManager &); // don't implement

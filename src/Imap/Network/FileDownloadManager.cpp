@@ -89,6 +89,7 @@ void FileDownloadManager::downloadMessage()
         return;
     }
     QString saveFileName = toRealFileName(partIndex);
+    Q_ASSERT(!m_combiner);
     m_combiner = new Imap::Mailbox::FullMessageCombiner(partIndex, this);
 
     emit fileNameRequested(&saveFileName);
@@ -143,6 +144,7 @@ void FileDownloadManager::onMessageDataTransferred()
     saving.close();
     saved = true;
     emit succeeded();
+    m_combiner->deleteLater();
 }
 
 void FileDownloadManager::onReplyTransferError()
