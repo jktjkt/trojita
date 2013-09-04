@@ -34,12 +34,18 @@ MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &mes
     page()->setNetworkAccessManager(0);
     m_combiner = new Imap::Mailbox::FullMessageCombiner(messageIndex, this);
     connect(m_combiner, SIGNAL(completed()), this, SLOT(slotCompleted()));
+    connect(m_combiner, SIGNAL(failed(QString)), this, SLOT(slotError(QString)));
     m_combiner->load();
 }
 
 void MessageSourceWidget::slotCompleted()
 {
     setContent(m_combiner->data(), QLatin1String("text/plain"));
+}
+
+void MessageSourceWidget::slotError(const QString &message)
+{
+    setContent(message.toUtf8(), QLatin1String("text/plain; charset=utf-8"));
 }
 
 }

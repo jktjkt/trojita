@@ -46,6 +46,7 @@ public:
 
 private slots:
     void slotCompleted();
+    void slotError(const QString &message);
 
 private:
     Imap::Mailbox::FullMessageCombiner *m_combiner;
