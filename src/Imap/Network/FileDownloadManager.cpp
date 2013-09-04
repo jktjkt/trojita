@@ -78,7 +78,7 @@ void FileDownloadManager::downloadPart()
     request.setUrl(url);
     reply = manager->get(request);
     connect(reply, SIGNAL(finished()), this, SLOT(onPartDataTransfered()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onTransferError()));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onReplyTransferError()));
     connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(deleteReply(QNetworkReply *)));
 }
 
@@ -145,7 +145,7 @@ void FileDownloadManager::onMessageDataTransferred()
     emit succeeded();
 }
 
-void FileDownloadManager::onTransferError()
+void FileDownloadManager::onReplyTransferError()
 {
     Q_ASSERT(reply);
     emit transferError(reply->errorString());

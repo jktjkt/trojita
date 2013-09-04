@@ -47,7 +47,7 @@ public:
     static QString toRealFileName(const QModelIndex &index);
 private slots:
     void onPartDataTransfered();
-    void onTransferError();
+    void onReplyTransferError();
     void deleteReply(QNetworkReply *reply);
 public slots:
     void downloadPart();
