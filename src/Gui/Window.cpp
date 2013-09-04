@@ -768,6 +768,8 @@ void MainWindow::createSysTray()
     if (m_trayIcon)
         return;
 
+    qApp->setQuitOnLastWindowClosed(false);
+
     m_trayIcon = new QSystemTrayIcon(this);
     handleTrayIconChange();
 
@@ -792,6 +794,8 @@ void MainWindow::removeSysTray()
 {
     delete m_trayIcon;
     m_trayIcon = 0;
+
+    qApp->setQuitOnLastWindowClosed(true);
 }
 
 void MainWindow::slotToggleSysTray()
