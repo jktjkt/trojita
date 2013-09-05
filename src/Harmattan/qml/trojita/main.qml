@@ -165,6 +165,8 @@ PageStackWindow {
         }
 
         onAccepted: {
+            if (imapSettings.imapServer !== imapAccess.server || imapSettings.imapUserName !== imapAccess.username)
+                imapAccess.nukeCache()
             if (imapSettings.imapServer != imapAccess.server)
                 imapAccess.forgetSslCertificate()
             imapAccess.server = imapSettings.imapServer

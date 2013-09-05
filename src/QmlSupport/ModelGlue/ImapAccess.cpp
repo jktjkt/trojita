@@ -292,3 +292,13 @@ QString ImapAccess::mailboxListShortMailboxName() const
 {
     return m_mailboxSubtreeModel->rootIndex().data(Imap::Mailbox::RoleShortMailboxName).toString();
 }
+
+/** @short Persistently remove the local cache of IMAP data
+
+This method should be called by the UI when the user changes its connection details, i.e. when there's a big chance that we are
+connecting to a completely different server since the last time.
+*/
+void ImapAccess::nukeCache()
+{
+    QFile::remove(m_cacheFile);
+}
