@@ -78,7 +78,7 @@ void FileDownloadManager::downloadPart()
     request.setUrl(url);
     reply = manager->get(request);
     connect(reply, SIGNAL(finished()), this, SLOT(onPartDataTransfered()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onTransferError()));
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onReplyTransferError()));
     connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(deleteReply(QNetworkReply *)));
 }
 
@@ -89,6 +89,7 @@ void FileDownloadManager::downloadMessage()
         return;
     }
     QString saveFileName = toRealFileName(partIndex);
+    Q_ASSERT(!m_combiner);
     m_combiner = new Imap::Mailbox::FullMessageCombiner(partIndex, this);
 
     emit fileNameRequested(&saveFileName);
@@ -100,6 +101,9 @@ void FileDownloadManager::downloadMessage()
     saving.setFileName(saveFileName);
     saved = false;
     connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
+    connect(m_combiner, SIGNAL(failed(QString)), this, SLOT(onCombinerTransferError(QString)));
+    connect(m_combiner, SIGNAL(completed()), m_combiner, SLOT(deleteLater()), Qt::QueuedConnection);
+    connect(m_combiner, SIGNAL(failed(QString)), m_combiner, SLOT(deleteLater()), Qt::QueuedConnection);
     m_combiner->load();
 }
 
@@ -145,10 +149,15 @@ void FileDownloadManager::onMessageDataTransferred()
     emit succeeded();
 }
 
-void FileDownloadManager::onTransferError()
+void FileDownloadManager::onReplyTransferError()
 {
     Q_ASSERT(reply);
     emit transferError(reply->errorString());
+}
+
+void FileDownloadManager::onCombinerTransferError(const QString &message)
+{
+    emit transferError(message);
 }
 
 void FileDownloadManager::deleteReply(QNetworkReply *reply)

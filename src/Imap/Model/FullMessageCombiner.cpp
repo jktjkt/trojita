@@ -67,16 +67,10 @@ bool FullMessageCombiner::loaded() const
 void FullMessageCombiner::load()
 {
     Imap::Mailbox::TreeItemPart *headerPart = headerPartPtr();
-    Imap::Mailbox::TreeItemPart *bodyPart = bodyPartPtr();
-
-
     headerPart->fetch(const_cast<Mailbox::Model *>(m_model));
+    Imap::Mailbox::TreeItemPart *bodyPart = bodyPartPtr();
     bodyPart->fetch(const_cast<Mailbox::Model *>(m_model));
-
-    if (headerPart->fetched() && bodyPart->fetched()) {
-        emit completed();
-    }
-
+    slotDataChanged(QModelIndex(), QModelIndex());
 }
 
 TreeItemPart *FullMessageCombiner::headerPartPtr() const
@@ -101,6 +95,17 @@ void FullMessageCombiner::slotDataChanged(const QModelIndex &left, const QModelI
        // Disconnect this slot from its connected signal to prevent emitting completed() many times
        // when dataChanged() is emitted and the parts are already fetched.
        disconnect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotDataChanged(QModelIndex,QModelIndex)));
+    }
+
+    Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model*>(m_model);
+    bool headerOffline = headerPartPtr()->isUnavailable(model);
+    bool bodyOffline = bodyPartPtr()->isUnavailable(model);
+    if (headerOffline && bodyOffline) {
+        emit failed(tr("Offline mode: uncached message data not available"));
+    } else if (headerOffline) {
+        emit failed(tr("Offline mode: uncached header data not available"));
+    } else if (bodyOffline) {
+        emit failed(tr("Offline mode: uncached body data not available"));
     }
 }
 
