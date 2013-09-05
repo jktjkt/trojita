@@ -252,6 +252,7 @@ void ImapAccess::setSslPolicy(bool accept)
 
 void ImapAccess::forgetSslCertificate()
 {
+    QSettings().remove(Common::SettingsNames::imapSslPemPubKey);
     QSettings().remove(Common::SettingsNames::imapSslPemCertificate);
 }
 
