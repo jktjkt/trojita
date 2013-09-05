@@ -116,6 +116,9 @@ private:
     QList<QSslError> m_sslErrors;
     QString m_sslInfoTitle;
     QString m_sslInfoMessage;
+
+    QString m_cacheFile;
+    bool m_cacheError;
 };
 
 #endif // IMAPACCESS_H
