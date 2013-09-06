@@ -591,6 +591,10 @@ set(trojita_desktop_SOURCES
     ${path_DesktopGui}/main.cpp
 )
 
+if(WIN32)
+    list(APPEND trojita_desktop_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_win32.rc)
+endif()
+
 set(be_contacts_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/be.contacts/main.cpp
 )
@@ -655,12 +659,13 @@ set_source_files_properties(${version_files}
     PROPERTIES GENERATED TRUE
     HEADER_FILE_ONLY TRUE)
 
-add_library(AppVersion ${libAppVersion_SOURCES})
-add_dependencies(AppVersion version)
-
 add_library(Common ${libCommon_SOURCES})
 add_dependencies(Common version)
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+
+add_library(AppVersion ${libAppVersion_SOURCES})
+add_dependencies(AppVersion version)
+target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
 
 add_library(Streams ${libStreams_SOURCES})
 target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
@@ -672,7 +677,7 @@ add_library(qwwsmtpclient ${libqwwsmtpclient_SOURCES})
 target_link_libraries(qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(MSA ${libMSA_SOURCES})
-target_link_libraries(MSA Streams qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
+target_link_libraries(MSA Imap Streams qwwsmtpclient ${QT_QTCORE_LIBRARY})
 
 add_library(Composer ${libComposer_SOURCES})
 target_link_libraries(Composer Common MSA Streams qwwsmtpclient ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
@@ -692,6 +697,7 @@ if(NOT WITH_QT5)
         set_property(TARGET MimetypesQt4 APPEND PROPERTY INCLUDE_DIRECTORIES
             ${QT_MKSPECS_DIR}/default ${path_mimetypesqt4}/io/)
     endif()
+    target_link_libraries(MimetypesQt4 ${QT_QTCORE_LIBRARY})
 endif()
 
 if(BUILD_DESKTOP_GUI)
@@ -714,20 +720,14 @@ if(BUILD_DESKTOP_GUI)
     if(SUPPORTS_TARGET_INCLUDES)
         set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
     endif()
-    target_link_libraries(DesktopGui Common Composer Imap MSA Streams qwwsmtpclient AbookAddressbook)
+    target_link_libraries(DesktopGui Common Composer Imap MSA Streams qwwsmtpclient AbookAddressbook ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
-    if(WIN32) # Check if we are on Windows
-        # build a real Win32 GUI application. Hide the console window
-        add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM} ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_win32.rc)
-        target_link_libraries(trojita ${QT_QTMAIN_LIBRARY} ${QT_LIBRARIES})
-    else()
-        add_executable(trojita ${trojita_desktop_SOURCES} ${trojita_QM})
-    endif()
-
-    target_link_libraries(trojita AppVersion Imap MSA Streams qwwsmtpclient Common Composer AbookAddressbook DesktopGui
-        ${QT_QTSQL_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTWEBKIT_LIBRARY})
+    # On Windows build a real Win32 GUI application without console window
+    # On other platforms WIN32 flag is ignored
+    add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
+    target_link_libraries(trojita AppVersion Common DesktopGui ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
     if(NOT WITH_QT5)
-        target_link_libraries(trojita MimetypesQt4 ${QT_QTGUI_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
+        target_link_libraries(trojita MimetypesQt4)
     endif()
     if(ZLIB_FOUND)
         target_link_libraries(trojita ${ZLIB_LIBRARIES})
@@ -812,7 +812,7 @@ if(NOT WITHOUT_TESTS)
             ${CMAKE_CURRENT_SOURCE_DIR}/tests
             ${CMAKE_CURRENT_SOURCE_DIR}/tests/Utils)
     endif()
-    target_link_libraries(test_LibMailboxSync Imap MSA Streams Common Composer)
+    target_link_libraries(test_LibMailboxSync Imap MSA Streams Common Composer ${QT_QTTEST_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     macro(trojita_test dir fname)
         set(test_${fname}_SOURCES tests/${dir}/test_${fname}.cpp)
