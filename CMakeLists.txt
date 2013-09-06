@@ -656,9 +656,10 @@ set_source_files_properties(${version_files}
     HEADER_FILE_ONLY TRUE)
 
 add_library(AppVersion ${libAppVersion_SOURCES})
-add_dependencies(AppVersion version version_fake_file)
+add_dependencies(AppVersion version)
 
 add_library(Common ${libCommon_SOURCES})
+add_dependencies(Common version)
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(Streams ${libStreams_SOURCES})
@@ -792,7 +793,7 @@ if(WIN32 AND WITH_NSIS AND MAKENSIS)
     add_custom_command(OUTPUT ${MAKENSIS_OUTPUT}
         COMMAND ${MAKENSIS}
         ARGS ${MAKENSIS_FLAGS} ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi ${CMAKE_CURRENT_BINARY_DIR}/trojita.exe)
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi ${CMAKE_CURRENT_BINARY_DIR}/trojita.exe version)
     add_custom_target(installer ALL DEPENDS ${MAKENSIS_OUTPUT})
 endif()
 
