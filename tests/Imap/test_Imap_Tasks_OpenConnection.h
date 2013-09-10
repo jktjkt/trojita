@@ -70,7 +70,7 @@ private slots:
 
 private:
     Imap::Mailbox::Model* model;
-    Imap::Mailbox::FakeSocketFactory* factory;
+    Streams::FakeSocketFactory* factory;
     Imap::Mailbox::OpenConnectionTask* task;
     QSignalSpy* completedSpy;
     QSignalSpy* failedSpy;

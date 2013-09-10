@@ -30,7 +30,7 @@
 void ImapModelDeleteMailboxTest::init()
 {
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
-    factory = new Imap::Mailbox::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
+    factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
@@ -59,7 +59,7 @@ void ImapModelDeleteMailboxTest::initTestCase()
     failedSpy = 0;
 }
 
-#define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
+#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 void ImapModelDeleteMailboxTest::_initWithOne()
 {

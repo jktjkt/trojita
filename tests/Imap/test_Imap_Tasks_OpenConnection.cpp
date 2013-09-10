@@ -55,7 +55,7 @@ void ImapModelOpenConnectionTest::init()
 void ImapModelOpenConnectionTest::init( bool startTlsRequired )
 {
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
-    factory = new Imap::Mailbox::FakeSocketFactory(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
+    factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
     factory->setStartTlsRequired( startTlsRequired );
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
@@ -92,7 +92,7 @@ void ImapModelOpenConnectionTest::cleanup()
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
-#define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
+#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 /** @short Test for explicitly obtaining capability when greeted by PREAUTH */
 void ImapModelOpenConnectionTest::testPreauth()

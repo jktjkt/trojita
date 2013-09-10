@@ -78,7 +78,7 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     helperSyncBNoMessages();
 
     // Make sure the socket is present
-    QPointer<Imap::Socket> socketPtr(factory->lastSocket());
+    QPointer<Streams::Socket> socketPtr(factory->lastSocket());
     Q_ASSERT(!socketPtr.isNull());
 
     // Go offline
@@ -291,7 +291,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineMsgStructure()
     QVERIFY(msgListA.isValid());
     QModelIndex msg = msgListA.child(0, 0);
     QVERIFY(msg.isValid());
-    Imap::FakeSocket *origSocket = SOCK;
+    Streams::FakeSocket *origSocket = SOCK;
 
     // Switch the connection to an offline mode, but postpone the BYE response
     model->setNetworkOffline();
@@ -329,7 +329,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
     QVERIFY(msgListA.isValid());
     QModelIndex msg = msgListA.child(0, 0);
     QVERIFY(msg.isValid());
-    Imap::FakeSocket *origSocket = SOCK;
+    Streams::FakeSocket *origSocket = SOCK;
 
     // Switch the connection to an offline mode, but postpone the BYE response
     model->setNetworkOffline();
@@ -367,7 +367,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags2()
     QVERIFY(msgListA.isValid());
     QModelIndex msg = msgListA.child(0, 0);
     QVERIFY(msg.isValid());
-    Imap::FakeSocket *origSocket = SOCK;
+    Streams::FakeSocket *origSocket = SOCK;
 
     // Ask for the bodystructure of this message
     model->markMessagesDeleted(QModelIndexList() << msg, Imap::Mailbox::FLAG_ADD);
@@ -406,7 +406,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags3()
     QVERIFY(msgListA.isValid());
     QModelIndex msg = msgListA.child(0, 0);
     QVERIFY(msg.isValid());
-    Imap::FakeSocket *origSocket = SOCK;
+    Streams::FakeSocket *origSocket = SOCK;
 
     // Ask for the bodystructure of this message
     model->markMessagesDeleted(QModelIndexList() << msg, Imap::Mailbox::FLAG_ADD);

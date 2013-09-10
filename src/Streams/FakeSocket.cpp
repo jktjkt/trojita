@@ -24,10 +24,9 @@
 #include <QTimer>
 #include "FakeSocket.h"
 
-namespace Imap
-{
+namespace Streams {
 
-FakeSocket::FakeSocket(const ConnectionState initialState): m_initialState(initialState)
+FakeSocket::FakeSocket(const Imap::ConnectionState initialState): m_initialState(initialState)
 {
     readChannel = new QBuffer(&r, this);
     readChannel->open(QIODevice::ReadWrite);
@@ -43,15 +42,15 @@ FakeSocket::~FakeSocket()
 
 void FakeSocket::slotEmitConnected()
 {
-    if (m_initialState == CONN_STATE_LOGOUT) {
+    if (m_initialState == Imap::CONN_STATE_LOGOUT) {
         // Special case: a fake socket factory for unconfigured accounts.
         emit disconnected(QString());
         return;
     }
 
     // We have to use both conventions for letting the world know that "we're finally usable"
-    if (m_initialState != CONN_STATE_CONNECTED_PRETLS_PRECAPS)
-        emit stateChanged(CONN_STATE_CONNECTED_PRETLS_PRECAPS, QString());
+    if (m_initialState != Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS)
+        emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, QString());
     emit stateChanged(m_initialState, QString());
 }
 

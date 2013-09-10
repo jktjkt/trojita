@@ -90,7 +90,7 @@ protected:
     Imap::Mailbox::Model* model;
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingModel;
-    Imap::Mailbox::FakeSocketFactory* factory;
+    Streams::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
     QSignalSpy* errorSpy;
 
@@ -104,7 +104,7 @@ protected:
     friend class ExpectSingleErrorHere;
 };
 
-#define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
+#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 #define cServer(data) \
 { \

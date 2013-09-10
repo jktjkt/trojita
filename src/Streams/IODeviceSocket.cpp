@@ -20,18 +20,17 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <stdexcept>
 #include <QSslConfiguration>
 #include <QSslSocket>
 #include <QTimer>
 #include "IODeviceSocket.h"
-#include "Imap/Exceptions.h"
 #include "TrojitaZlibStatus.h"
 #if TROJITA_COMPRESS_DEFLATE
 #include "3rdparty/rfc1951.h"
 #endif
 
-namespace Imap
-{
+namespace Streams {
 
 IODeviceSocket::IODeviceSocket(QIODevice *device): d(device), m_compressor(0), m_decompressor(0)
 {
@@ -98,10 +97,10 @@ void IODeviceSocket::startTls()
 {
     QSslSocket *sock = qobject_cast<QSslSocket *>(d);
     if (! sock)
-        throw InvalidArgument("This IODeviceSocket is not a QSslSocket, and therefore doesn't support STARTTLS.");
+        throw std::invalid_argument("This IODeviceSocket is not a QSslSocket, and therefore doesn't support STARTTLS.");
 #if TROJITA_COMPRESS_DEFLATE
     if (m_compressor || m_decompressor)
-        throw InvalidArgument("DEFLATE is already active, cannot STARTTLS");
+        throw std::invalid_argument("DEFLATE is already active, cannot STARTTLS");
 #endif
     sock->startClientEncryption();
 }
@@ -109,13 +108,13 @@ void IODeviceSocket::startTls()
 void IODeviceSocket::startDeflate()
 {
     if (m_compressor || m_decompressor)
-        throw InvalidArgument("DEFLATE compression is already active");
+        throw std::invalid_argument("DEFLATE compression is already active");
 
 #if TROJITA_COMPRESS_DEFLATE
     m_compressor = new Rfc1951Compressor();
     m_decompressor = new Rfc1951Decompressor();
 #else
-    throw InvalidArgument("Trojita got built without zlib support");
+    throw std::invalid_argument("Trojita got built without zlib support");
 #endif
 }
 

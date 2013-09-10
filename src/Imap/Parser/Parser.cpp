@@ -86,7 +86,7 @@
 namespace Imap
 {
 
-Parser::Parser(QObject *parent, Socket *socket, const uint myId):
+Parser::Parser(QObject *parent, Streams::Socket *socket, const uint myId):
     QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
     literalPlus(false), waitingForContinuation(false), startTlsInProgress(false), compressDeflateInProgress(false),
     waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), waitingForSslPolicy(false),

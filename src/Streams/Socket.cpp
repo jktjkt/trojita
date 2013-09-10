@@ -22,8 +22,7 @@
 
 #include "Socket.h"
 
-namespace Imap
-{
+namespace Streams {
 
 Socket::~Socket()
 {

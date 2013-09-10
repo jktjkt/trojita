@@ -36,7 +36,7 @@ void ImapModelTest::initTestCase()
 void ImapModelTest::init()
 {
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
-    factory = new Imap::Mailbox::FakeSocketFactory(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
+    factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() );
     model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
     QCoreApplication::processEvents();
@@ -49,7 +49,7 @@ void ImapModelTest::cleanup()
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
-#define SOCK static_cast<Imap::FakeSocket*>( factory->lastSocket() )
+#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 void ImapModelTest::testSyncMailbox()
 {

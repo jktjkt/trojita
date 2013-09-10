@@ -53,6 +53,10 @@ class ImapPartAttachmentItem;
 class MessageComposer;
 }
 
+namespace Streams {
+class SocketFactory;
+}
+
 /** @short Namespace for IMAP interaction */
 namespace Imap
 {
@@ -74,9 +78,7 @@ class ImapTask;
 class KeepMailboxOpenTask;
 class TaskPresentationModel;
 template <typename SourceModel> class SubtreeClassSpecificItem;
-
-class SocketFactory;
-typedef std::unique_ptr<SocketFactory> SocketFactoryPtr;
+typedef std::unique_ptr<Streams::SocketFactory> SocketFactoryPtr;
 
 /** @short Progress of mailbox synchronization with the IMAP server */
 typedef enum { STATE_WAIT_FOR_CONN, /**< Waiting for connection to become active */

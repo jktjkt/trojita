@@ -22,6 +22,8 @@
 #include "DeletionWatcher.h"
 #include <QDebug>
 
+namespace Streams {
+
 DeletionWatcher::DeletionWatcher(QObject *parent, QObject *what) :
     QObject(parent)
 {
@@ -32,4 +34,6 @@ void DeletionWatcher::handleDeleted()
 {
     qDebug() << "DELETING" << sender() << sender()->objectName();
     deleteLater();
+}
+
 }

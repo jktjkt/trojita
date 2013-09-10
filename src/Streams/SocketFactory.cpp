@@ -26,10 +26,7 @@
 #include "IODeviceSocket.h"
 #include "FakeSocket.h"
 
-namespace Imap
-{
-namespace Mailbox
-{
+namespace Streams {
 
 SocketFactory::SocketFactory(): m_startTls(false)
 {
@@ -81,7 +78,7 @@ Socket *TlsAbleSocketFactory::create()
     return new SslTlsSocket(sslSock, host, port);
 }
 
-FakeSocketFactory::FakeSocketFactory(const ConnectionState initialState): SocketFactory(), m_initialState(initialState)
+FakeSocketFactory::FakeSocketFactory(const Imap::ConnectionState initialState): SocketFactory(), m_initialState(initialState)
 {
 }
 
@@ -96,7 +93,4 @@ Socket *FakeSocketFactory::lastSocket()
     return m_last;
 }
 
-
-
-}
 }

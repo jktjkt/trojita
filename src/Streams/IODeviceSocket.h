@@ -19,8 +19,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef IMAP_IODEVICE_SOCKET_H
-#define IMAP_IODEVICE_SOCKET_H
+#ifndef STREAMS_IODEVICE_SOCKET_H
+#define STREAMS_IODEVICE_SOCKET_H
 
 #include <QProcess>
 #include <QSslSocket>
@@ -28,16 +28,11 @@
 
 class QTimer;
 
-namespace Imap
-{
+namespace Streams {
 
 class Rfc1951Compressor;
 class Rfc1951Decompressor;
-
-namespace Mailbox
-{
 class SocketFactory;
-}
 
 /** @short Helper class for all sockets which are based on a QIODevice */
 class IODeviceSocket: public Socket
@@ -71,7 +66,7 @@ protected:
 class ProcessSocket: public IODeviceSocket
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ProcessSocket);
+    Q_DISABLE_COPY(ProcessSocket)
 public:
     ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args);
     ~ProcessSocket();
@@ -90,7 +85,7 @@ private:
 class SslTlsSocket: public IODeviceSocket
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SslTlsSocket);
+    Q_DISABLE_COPY(SslTlsSocket)
 public:
     /** Set the @arg startEncrypted to true if the wrapper is supposed to emit
     connected() only after it has established proper encryption */
@@ -112,4 +107,4 @@ private:
 
 };
 
-#endif /* IMAP_IODEVICE_SOCKET_H */
+#endif
