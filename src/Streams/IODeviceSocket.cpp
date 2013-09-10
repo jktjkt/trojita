@@ -30,8 +30,7 @@
 #include "3rdparty/rfc1951.h"
 #endif
 
-namespace Imap
-{
+namespace Streams {
 
 IODeviceSocket::IODeviceSocket(QIODevice *device): d(device), m_compressor(0), m_decompressor(0)
 {

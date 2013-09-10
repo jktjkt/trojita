@@ -141,16 +141,16 @@ void ImapAccess::setSslMode(const QString &sslMode)
 
     if (m_sslMode == QLatin1String("SSL")) {
         QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodSSL);
-        factory.reset(new Imap::Mailbox::SslSocketFactory(server(), port()));
+        factory.reset(new Streams::SslSocketFactory(server(), port()));
     } else if (m_sslMode == QLatin1String("StartTLS")) {
         QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
         QSettings().setValue(Common::SettingsNames::imapStartTlsKey, true);
-        factory.reset(new Imap::Mailbox::TlsAbleSocketFactory(server(), port()));
+        factory.reset(new Streams::TlsAbleSocketFactory(server(), port()));
         factory->setStartTlsRequired(true);
     } else {
         QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
         QSettings().setValue(Common::SettingsNames::imapStartTlsKey, false);
-        factory.reset(new Imap::Mailbox::TlsAbleSocketFactory(server(), port()));
+        factory.reset(new Streams::TlsAbleSocketFactory(server(), port()));
     }
 
     cache = new Imap::Mailbox::SQLCache(this);

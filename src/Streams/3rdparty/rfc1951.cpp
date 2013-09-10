@@ -45,7 +45,7 @@ These modifications are released into public domain.
 
 #include "rfc1951.h"
 
-namespace Imap {
+namespace Streams {
 
 Rfc1951Compressor::Rfc1951Compressor(int chunkSize)
 {

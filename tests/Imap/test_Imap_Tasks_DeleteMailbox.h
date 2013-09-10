@@ -42,7 +42,7 @@ private slots:
 
 private:
     Imap::Mailbox::Model* model;
-    Imap::Mailbox::FakeSocketFactory* factory;
+    Streams::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
 
     QSignalSpy* deletedSpy;

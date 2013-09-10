@@ -39,14 +39,14 @@
 **
 ****************************************************************************/
 
-#ifndef TROJITA_RFC1951_H
-#define TROJITA_RFC1951_H
+#ifndef STREAMS_RFC1951_H
+#define STREAMS_RFC1951_H
 
 #include <QIODevice>
 
 #include <zlib.h>
 
-namespace Imap {
+namespace Streams {
 
 /* From RFC4978 The IMAP COMPRESS:   
    "When using the zlib library (see [RFC1951]), the functions
@@ -96,4 +96,4 @@ private:
 
 }
 
-#endif // TROJITA_RFC1951_H
+#endif

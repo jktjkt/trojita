@@ -19,10 +19,12 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef DELETIONWATCHER_H
-#define DELETIONWATCHER_H
+#ifndef STREAMS_DELETIONWATCHER_H
+#define STREAMS_DELETIONWATCHER_H
 
 #include <QObject>
+
+namespace Streams {
 
 class DeletionWatcher : public QObject
 {
@@ -34,4 +36,6 @@ public slots:
 
 };
 
-#endif // DELETIONWATCHER_H
+}
+
+#endif

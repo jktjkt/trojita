@@ -617,12 +617,12 @@ void MainWindow::setupModels()
 
     using Common::SettingsNames;
     if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodTCP) {
-        factory.reset(new Imap::Mailbox::TlsAbleSocketFactory(
+        factory.reset(new Streams::TlsAbleSocketFactory(
                           m_settings->value(SettingsNames::imapHostKey).toString(),
                           m_settings->value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP)).toUInt()));
         factory->setStartTlsRequired(m_settings->value(SettingsNames::imapStartTlsKey, true).toBool());
     } else if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
-        factory.reset(new Imap::Mailbox::SslSocketFactory(
+        factory.reset(new Streams::SslSocketFactory(
                           m_settings->value(SettingsNames::imapHostKey).toString(),
                           m_settings->value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAPS)).toUInt()));
     } else if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
@@ -632,9 +632,9 @@ void MainWindow::setupModels()
             args << QLatin1String("");
         }
         QString appName = args.takeFirst();
-        factory.reset(new Imap::Mailbox::ProcessSocketFactory(appName, args));
+        factory.reset(new Streams::ProcessSocketFactory(appName, args));
     } else {
-        factory.reset(new Imap::Mailbox::FakeSocketFactory(Imap::CONN_STATE_LOGOUT));
+        factory.reset(new Streams::FakeSocketFactory(Imap::CONN_STATE_LOGOUT));
     }
 
     QString cacheDir = Common::writablePath(Common::LOCATION_CACHE);

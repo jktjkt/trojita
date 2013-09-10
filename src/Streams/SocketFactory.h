@@ -20,20 +20,14 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAP_SOCKETFACTORY_H
-#define IMAP_SOCKETFACTORY_H
+#ifndef STREAMS_SOCKETFACTORY_H
+#define STREAMS_SOCKETFACTORY_H
 
 #include <QPointer>
 #include <QStringList>
 #include "Socket.h"
 
-/** @short Namespace for IMAP interaction */
-namespace Imap
-{
-
-/** @short Classes for handling of mailboxes and connections */
-namespace Mailbox
-{
+namespace Streams {
 
 /** @short Abstract interface for creating new socket that is somehow connected
  * to the IMAP server */
@@ -105,9 +99,6 @@ private:
     Imap::ConnectionState m_initialState;
 };
 
-
 }
 
-}
-
-#endif /* IMAP_SOCKETFACTORY_H */
+#endif

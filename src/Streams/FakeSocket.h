@@ -20,8 +20,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAP_FAKE_SOCKET_H
-#define IMAP_FAKE_SOCKET_H
+#ifndef STREAMS_FAKE_SOCKET_H
+#define STREAMS_FAKE_SOCKET_H
 
 #include <QAbstractSocket>
 #include <QProcess>
@@ -29,8 +29,7 @@
 
 class QTimer;
 
-namespace Imap
-{
+namespace Streams {
 
 /** @short A fake socket implementation, useful for automated unit tests
 
@@ -40,7 +39,7 @@ class FakeSocket: public Socket
 {
     Q_OBJECT
 public:
-    explicit FakeSocket(const ConnectionState initialState);
+    explicit FakeSocket(const Imap::ConnectionState initialState);
     ~FakeSocket();
     virtual bool canReadLine();
     virtual QByteArray read(qint64 maxSize);
@@ -75,7 +74,7 @@ private:
 
     QByteArray r, w;
 
-    ConnectionState m_initialState;
+    Imap::ConnectionState m_initialState;
 
     FakeSocket(const FakeSocket &); // don't implement
     FakeSocket &operator=(const FakeSocket &); // don't implement
@@ -83,4 +82,4 @@ private:
 
 };
 
-#endif /* IMAP_FAKE_SOCKET_H */
+#endif

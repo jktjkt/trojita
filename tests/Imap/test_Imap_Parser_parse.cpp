@@ -36,7 +36,7 @@ Q_DECLARE_METATYPE(Imap::Sequence)
 void ImapParserParseTest::initTestCase()
 {
     array.reset( new QByteArray() );
-    Imap::Socket* sock( new Imap::FakeSocket(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS) );
+    Streams::Socket* sock(new Streams::FakeSocket(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS));
     parser = new Imap::Parser( this, sock, 666 );
 }
 

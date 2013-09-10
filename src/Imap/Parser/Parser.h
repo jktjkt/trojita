@@ -40,11 +40,13 @@
 
 class ImapParserParseTest;
 
+namespace Streams {
+class Socket;
+}
+
 /** @short Namespace for IMAP interaction */
 namespace Imap
 {
-
-class Socket;
 
 /** @short A handle identifying a command sent to the server */
 typedef QByteArray CommandHandle;
@@ -63,7 +65,7 @@ public:
     /** @short Constructor.
      *
      * Takes an QIODevice instance as a parameter. */
-    Parser(QObject *parent, Imap::Socket *socket, const uint myId);
+    Parser(QObject *parent, Streams::Socket *socket, const uint myId);
 
     ~Parser();
 
@@ -360,7 +362,7 @@ private:
     void queueResponse(const QSharedPointer<Responses::AbstractResponse> &resp);
 
     /** @short Connection to the IMAP server */
-    Socket *socket;
+    Streams::Socket *socket;
 
     /** @short Keeps track of the last-used command tag */
     unsigned int m_lastTagUsed;
