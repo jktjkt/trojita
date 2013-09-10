@@ -1,0 +1,11 @@
+How to build DEB package for Debian and Ubuntu:
+
+mkdir -p debian
+for file in packaging/obs-trojita/debian.*; do cp "$file" "debian/${file##*.}"; done
+chmod +x debian/rules
+echo 8 > debian/compat
+mkdir -p debian/source
+echo "3.0 (quilt)" > debian/source/format
+dpkg-buildpackage -b
+
+After successful call, there will be trojita DEB package in upper directory
