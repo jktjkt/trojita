@@ -309,6 +309,11 @@ QModelIndex SubtreeModel::rootIndex() const
     return m_rootIndex;
 }
 
+bool SubtreeModel::hasChildren(const QModelIndex &parent) const
+{
+    return rowCount(parent) > 0;
+}
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 QHash<int,QByteArray> SubtreeModel::roleNames() const
 {

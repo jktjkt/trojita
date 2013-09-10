@@ -21,12 +21,14 @@
 */
 
 #include "ImapAccess.h"
-#include <QAuthenticator>
+#include <QDir>
+#include <QFileInfo>
 #include <QSslKey>
 #include <QSettings>
+#include "Common/Paths.h"
 #include "Common/SettingsNames.h"
-#include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Utils.h"
+#include "Imap/Model/SQLCache.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/SocketFactory.h"
 
@@ -53,6 +55,14 @@ ImapAccess::ImapAccess(QObject *parent) :
     if (!m_port) {
         m_port = m_sslMode == QLatin1String("SSL") ? 993 : 143;
     }
+
+    QString cacheDir = Common::writablePath(Common::LOCATION_CACHE) + QLatin1String("defaultAccount/");
+    m_cacheError = !QDir().mkpath(cacheDir);
+    QFile::Permissions expectedPerms = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner;
+    if (QFileInfo(cacheDir).permissions() != expectedPerms) {
+        m_cacheError = !QFile::setPermissions(cacheDir, expectedPerms) || m_cacheError;
+    }
+    m_cacheFile = cacheDir + QLatin1String("/imap.cache.sqlite");
 }
 
 void ImapAccess::alertReceived(const QString &message)
@@ -143,8 +153,8 @@ void ImapAccess::setSslMode(const QString &sslMode)
         factory.reset(new Imap::Mailbox::TlsAbleSocketFactory(server(), port()));
     }
 
-    // FIXME: respect the settings about the cache
-    cache = new Imap::Mailbox::MemoryCache(this);
+    cache = new Imap::Mailbox::SQLCache(this);
+    bool ok = static_cast<Imap::Mailbox::SQLCache*>(cache)->open(QLatin1String("trojita-imap-cache"), m_cacheFile);
 
     m_imapModel = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory), false);
     m_imapModel->setProperty("trojita-imap-enable-id", true);
@@ -153,6 +163,13 @@ void ImapAccess::setSslMode(const QString &sslMode)
     connect(m_imapModel, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(slotLogged(uint,Common::LogMessage)));
     connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
+
+    if (!ok || m_cacheError) {
+        // Yes, this is a hack -- but it's better than adding yet another channel for error reporting, IMNSHO.
+        QMetaObject::invokeMethod(m_imapModel, "connectionError", Qt::QueuedConnection,
+                                  Q_ARG(QString, tr("Cache initialization failed")));
+        QMetaObject::invokeMethod(m_imapModel, "setNetworkOffline", Qt::QueuedConnection);
+    }
 
     m_imapModel->setImapUser(username());
     if (!m_password.isNull()) {
@@ -252,6 +269,7 @@ void ImapAccess::setSslPolicy(bool accept)
 
 void ImapAccess::forgetSslCertificate()
 {
+    QSettings().remove(Common::SettingsNames::imapSslPemPubKey);
     QSettings().remove(Common::SettingsNames::imapSslPemCertificate);
 }
 
@@ -273,4 +291,14 @@ QString ImapAccess::mailboxListMailboxName() const
 QString ImapAccess::mailboxListShortMailboxName() const
 {
     return m_mailboxSubtreeModel->rootIndex().data(Imap::Mailbox::RoleShortMailboxName).toString();
+}
+
+/** @short Persistently remove the local cache of IMAP data
+
+This method should be called by the UI when the user changes its connection details, i.e. when there's a big chance that we are
+connecting to a completely different server since the last time.
+*/
+void ImapAccess::nukeCache()
+{
+    QFile::remove(m_cacheFile);
 }

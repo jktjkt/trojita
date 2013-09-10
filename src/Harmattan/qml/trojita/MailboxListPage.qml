@@ -66,7 +66,6 @@ Page {
                     anchors.fill: parent
                     onClicked: {
                         view.positionViewAtIndex(model.index, ListView.Visible);
-                        view.currentIndex = model.index
                         if (mailboxIsSelectable) {
                             currentMailbox = shortMailboxName
                             currentMailboxLong = mailboxName
@@ -107,7 +106,6 @@ Page {
                         view.positionViewAtIndex(model.index, ListView.Visible);
                         currentMailbox = shortMailboxName
                         currentMailboxLong = mailboxName
-                        view.currentIndex = model.index
                         moveListViewLeft.start()
                         root.model.setRootItemByOffset(model.index)
                         ++nestingDepth

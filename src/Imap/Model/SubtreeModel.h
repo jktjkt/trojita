@@ -60,6 +60,7 @@ public:
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QModelIndex mapToSource(const QModelIndex &proxyIndex) const;
     virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
+    virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
     void setSourceModel(QAbstractItemModel *sourceModel);
     Q_INVOKABLE void setRootItem(QModelIndex rootIndex);
     Q_INVOKABLE void setRootItemByOffset(const int row);

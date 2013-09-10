@@ -165,6 +165,12 @@ PageStackWindow {
         }
 
         onAccepted: {
+            if (imapAccess.imapModel) {
+                // prevent assert failure in ImapAccess::setSslMode due to duplicate calls
+                break;
+            }
+            if (imapSettings.imapServer !== imapAccess.server || imapSettings.imapUserName !== imapAccess.username)
+                imapAccess.nukeCache()
             if (imapSettings.imapServer != imapAccess.server)
                 imapAccess.forgetSslCertificate()
             imapAccess.server = imapSettings.imapServer

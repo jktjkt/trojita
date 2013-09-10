@@ -82,6 +82,8 @@ public:
     Q_INVOKABLE void setSslPolicy(bool accept);
     Q_INVOKABLE void forgetSslCertificate();
 
+    Q_INVOKABLE void nukeCache();
+
     Q_INVOKABLE QString mailboxListShortMailboxName() const;
     Q_INVOKABLE QString mailboxListMailboxName() const;
 
@@ -116,6 +118,9 @@ private:
     QList<QSslError> m_sslErrors;
     QString m_sslInfoTitle;
     QString m_sslInfoMessage;
+
+    QString m_cacheFile;
+    bool m_cacheError;
 };
 
 #endif // IMAPACCESS_H
