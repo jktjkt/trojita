@@ -691,7 +691,7 @@ void MainWindow::setupModels()
     connect(mboxTree, SIGNAL(clicked(const QModelIndex &)), m_imapAccess->msgListModel(), SLOT(setMailbox(const QModelIndex &)));
     connect(mboxTree, SIGNAL(activated(const QModelIndex &)), m_imapAccess->msgListModel(), SLOT(setMailbox(const QModelIndex &)));
     connect(m_imapAccess->msgListModel(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMessageFlags()));
-    connect(m_imapAccess->msgListModel(), SIGNAL(messagesAvailable()), msgListWidget->tree, SLOT(scrollToBottom()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(messagesAvailable()), this, SLOT(slotScrollToUnseenMessage()));
     connect(m_imapAccess->msgListModel(), SIGNAL(rowsInserted(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
     connect(m_imapAccess->msgListModel(), SIGNAL(rowsRemoved(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
     connect(m_imapAccess->msgListModel(), SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateMessageFlags()));
@@ -723,7 +723,7 @@ void MainWindow::setupModels()
     connect(m_imapAccess->networkWatcher(), SIGNAL(reconnectAttemptScheduled(const int)), this, SLOT(slotReconnectAttemptScheduled(const int)));
     connect(m_imapAccess->networkWatcher(), SIGNAL(resetReconnectState()), this, SLOT(slotResetReconnectState()));
 
-    connect(imapModel(), SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)));
+    connect(imapModel(), SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage()));
 
     connect(imapModel(), SIGNAL(capabilitiesUpdated(QStringList)), this, SLOT(slotCapabilitiesUpdated(QStringList)));
 
@@ -1640,7 +1640,7 @@ void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
     }
 
     updateMessageFlags();
-    slotScrollToUnseenMessage(QModelIndex(), QModelIndex());
+    slotScrollToUnseenMessage();
 }
 
 void MainWindow::showConnectionStatus(uint parserId, Imap::ConnectionState state)
@@ -1850,11 +1850,9 @@ void MainWindow::slotShowOnlySubscribed()
     }
 }
 
-void MainWindow::slotScrollToUnseenMessage(const QModelIndex &mailbox, const QModelIndex &message)
+void MainWindow::slotScrollToUnseenMessage()
 {
     // Now this is much, much more reliable than messing around with finding out an "interesting message"...
-    Q_UNUSED(mailbox);
-    Q_UNUSED(message);
     if (!m_actionSortNone->isChecked() && !m_actionSortThreading->isChecked()) {
         // we're using some funky sorting, better don't scroll anywhere
     }
@@ -1910,7 +1908,7 @@ void MainWindow::slotThreadMsgList()
         // If we cannot determine the current item, at least scroll to a predictable place. Without this, the view
         // would jump to "weird" places, probably due to some heuristics about trying to show "roughly the same"
         // objects as what was visible before the reshuffling.
-        msgListWidget->tree->scrollToBottom();
+        slotScrollToUnseenMessage();
     }
 }
 
