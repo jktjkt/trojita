@@ -71,7 +71,7 @@ protected:
 class ProcessSocket: public IODeviceSocket
 {
     Q_OBJECT
-    Q_DISABLE_COPY(ProcessSocket);
+    Q_DISABLE_COPY(ProcessSocket)
 public:
     ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args);
     ~ProcessSocket();
@@ -90,7 +90,7 @@ private:
 class SslTlsSocket: public IODeviceSocket
 {
     Q_OBJECT
-    Q_DISABLE_COPY(SslTlsSocket);
+    Q_DISABLE_COPY(SslTlsSocket)
 public:
     /** Set the @arg startEncrypted to true if the wrapper is supposed to emit
     connected() only after it has established proper encryption */
