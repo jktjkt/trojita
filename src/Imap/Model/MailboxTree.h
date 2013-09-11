@@ -147,7 +147,7 @@ public:
 
     No network activity will be caused. If the answer is not known for sure, we return false (meaning "don't know").
     */
-    bool hasNoChildMaliboxesAlreadyKnown();
+    bool hasNoChildMailboxesAlreadyKnown();
 
     QString mailbox() const { return m_metadata.mailbox; }
     QString separator() const { return m_metadata.separator; }

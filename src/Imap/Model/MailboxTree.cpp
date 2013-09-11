@@ -167,7 +167,7 @@ void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload
     if (fetched() || isUnavailable(model))
         return;
 
-    if (hasNoChildMaliboxesAlreadyKnown()) {
+    if (hasNoChildMailboxesAlreadyKnown()) {
         m_fetchStatus = DONE;
         return;
     }
@@ -280,7 +280,7 @@ QLatin1String TreeItemMailbox::flagNoInferiors("\\NOINFERIORS");
 QLatin1String TreeItemMailbox::flagHasNoChildren("\\HASNOCHILDREN");
 QLatin1String TreeItemMailbox::flagHasChildren("\\HASCHILDREN");
 
-bool TreeItemMailbox::hasNoChildMaliboxesAlreadyKnown()
+bool TreeItemMailbox::hasNoChildMailboxesAlreadyKnown()
 {
     if (m_metadata.flags.contains(flagNoInferiors) ||
         (m_metadata.flags.contains(flagHasNoChildren) &&
@@ -294,7 +294,7 @@ bool TreeItemMailbox::hasChildMailboxes(Model *const model)
 {
     if (fetched() || isUnavailable(model)) {
         return m_children.size() > 1;
-    } else if (hasNoChildMaliboxesAlreadyKnown()) {
+    } else if (hasNoChildMailboxesAlreadyKnown()) {
         return false;
     } else if (m_metadata.flags.contains(flagHasChildren) && ! m_metadata.flags.contains(flagHasNoChildren)) {
         return true;

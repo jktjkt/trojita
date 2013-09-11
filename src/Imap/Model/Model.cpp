@@ -392,7 +392,7 @@ void Model::finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
         TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(*it);
         Q_ASSERT(mailbox);
         metadataToCache.append(mailbox->mailboxMetadata());
-        if (mailbox->hasNoChildMaliboxesAlreadyKnown()) {
+        if (mailbox->hasNoChildMailboxesAlreadyKnown()) {
             mailboxesWithoutChildren << mailbox;
         }
     }
