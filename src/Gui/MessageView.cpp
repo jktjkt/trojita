@@ -503,7 +503,11 @@ QModelIndex MessageView::currentMessage() const
 void MessageView::onWebViewLoadStarted()
 {
     ++m_loadingItemCount;
-    m_loadingSpinner->start(250);
+    QModelIndex messageIndex;
+    const Imap::Mailbox::Model *constModel = 0;
+    Imap::Mailbox::Model::realTreeItem(message, &constModel, &messageIndex);
+    if (constModel && constModel->isNetworkAvailable())
+        m_loadingSpinner->start(250);
 }
 
 void MessageView::onWebViewLoadFinished()
