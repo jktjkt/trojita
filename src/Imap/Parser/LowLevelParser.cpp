@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <limits>
 #include <QPair>
 #include <QStringList>
 #include <QVariant>
@@ -276,46 +277,34 @@ QVariant getAnything(const QByteArray &line, int &start)
             return QByteArray("\\*");
         }
         return QByteArray(1, '\\') + getAtom(line, start);
+    } else if (line[start] >= '0' && line[start] <= '9') {
+        quint64 res = getUInt64(line, start);
+        if (res <= std::numeric_limits<quint32>::max())
+            return static_cast<quint32>(res);
+        else
+            return res;
     } else {
-        switch (line.at(start)) {
-        case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
-        {
-            // getUInt clobbers the start argument, so we have to save it
-            int origStart(start);
-            try {
-                return getUInt(line, start);
-            } catch (ParseError &err) {
-                start = origStart;
-                return getUInt64(line, start);
-            }
-            break;
-        }
-        default:
-        {
-            QByteArray atom = getAtom(line, start);
-            if (atom.indexOf('[', 0) != -1) {
-                // "BODY[something]" -- there's no whitespace between "[" and
-                // next atom...
-                int pos = line.indexOf(']', start);
+        QByteArray atom = getAtom(line, start);
+        if (atom.indexOf('[', 0) != -1) {
+            // "BODY[something]" -- there's no whitespace between "[" and
+            // next atom...
+            int pos = line.indexOf(']', start);
+            if (pos == -1)
+                throw ParseError("getAnything: can't find ']' for the '['", line, start);
+            ++pos;
+            atom += line.mid(start, pos - start);
+            start = pos;
+            if (start < line.size() && line[start] == '<') {
+                // Let's check if it continues with "<range>"
+                pos = line.indexOf('>', start);
                 if (pos == -1)
-                    throw ParseError("getAnything: can't find ']' for the '['", line, start);
+                    throw ParseError("getAnything: can't find proper <range>", line, start);
                 ++pos;
                 atom += line.mid(start, pos - start);
                 start = pos;
-                if (start < line.size() && line[start] == '<') {
-                    // Let's check if it continues with "<range>"
-                    pos = line.indexOf('>', start);
-                    if (pos == -1)
-                        throw ParseError("getAnything: can't find proper <range>", line, start);
-                    ++pos;
-                    atom += line.mid(start, pos - start);
-                    start = pos;
-                }
             }
-            return atom;
         }
-        }
+        return atom;
     }
 }
 
