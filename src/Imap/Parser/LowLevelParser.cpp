@@ -34,58 +34,42 @@ namespace Imap
 namespace LowLevelParser
 {
 
+template<typename T> T extractNumber(const QByteArray &line, int &start)
+{
+    if (start >= line.size())
+        throw NoData("extractNumber: no data", line, start);
+
+    const char *c_str = line.constData();
+    c_str += start;
+
+    if (*c_str < '0' || *c_str > '9')
+        throw ParseError("extractNumber: not a number", line, start);
+
+    T res = 0;
+    // well, it's an inline function, but clang still won't cache its result by default
+    const T absoluteMax = std::numeric_limits<T>::max();
+    while (*c_str >= '0' && *c_str <= '9') {
+        if (res > absoluteMax / 10)
+            throw ParseError("extractNumber: out of range", line, start);
+        res *= 10;
+        auto digit = *c_str - '0';
+        if (res > absoluteMax - digit)
+            throw ParseError("extractNumber: out of range", line, start);
+        res += digit;
+        ++c_str;
+        ++start;
+    }
+    return res;
+}
+
 uint getUInt(const QByteArray &line, int &start)
 {
-    if (start == line.size())
-        throw NoData("getUInt: no data", line, start);
-
-    QByteArray item;
-    bool breakIt = false;
-    while (!breakIt && start < line.size()) {
-        switch (line[start]) {
-        case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
-            item.append(line[start]);
-            ++start;
-            break;
-        default:
-            breakIt = true;
-            break;
-        }
-    }
-
-    bool ok;
-    uint number = item.toUInt(&ok);
-    if (!ok)
-        throw ParseError("getUInt: not a number", line, start);
-    return number;
+    return extractNumber<uint>(line, start);
 }
 
 quint64 getUInt64(const QByteArray &line, int &start)
 {
-    if (start == line.size())
-        throw NoData("getUInt64: no data", line, start);
-
-    QByteArray item;
-    bool breakIt = false;
-    while (!breakIt && start < line.size()) {
-        switch (line[start]) {
-        case '0': case '1': case '2': case '3': case '4':
-        case '5': case '6': case '7': case '8': case '9':
-            item.append(line[start]);
-            ++start;
-            break;
-        default:
-            breakIt = true;
-            break;
-        }
-    }
-
-    bool ok;
-    quint64 number = item.toULongLong(&ok);
-    if (!ok)
-        throw ParseError("getUInt64: not a number", line, start);
-    return number;
+    return extractNumber<quint64>(line, start);
 }
 
 

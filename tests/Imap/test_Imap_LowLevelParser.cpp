@@ -223,6 +223,41 @@ void ImapLowLevelParserTest::testGetUInt()
     QCOMPARE( res, 333u );
 
     Q_ASSERT( pos == line.size() );
+
+    for (int i = 0; i < 20; ++i) {
+        quint32 num = std::numeric_limits<quint32>::max() - i;
+        QByteArray line = QByteArray::number(num);
+        int start = 0;
+        quint32 res = getUInt(line, start);
+        QCOMPARE(res, num);
+        QCOMPARE(start, line.size());
+    }
+    for (int i = 0; i < 20; ++i) {
+        quint64 num = std::numeric_limits<quint64>::max() - i;
+        QByteArray line = QByteArray::number(num);
+        int start = 0;
+        quint64 res = getUInt64(line, start);
+        QCOMPARE(res, num);
+        QCOMPARE(start, line.size());
+    }
+
+    try {
+        line = "4294967297";
+        pos = 0;
+        getUInt(line, pos);
+        QFAIL("exception not raised");
+    } catch (Imap::ParseError&) {
+        QCOMPARE(pos, line.size() - 1);
+    }
+
+    try {
+        line = "18446744073709551617";
+        pos = 0;
+        getUInt64(line, pos);
+        QFAIL("exception not raised");
+    } catch (Imap::ParseError&) {
+        QCOMPARE(pos, line.size() - 1);
+    }
 }
 
 void ImapLowLevelParserTest::testGetAtom()
