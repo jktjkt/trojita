@@ -25,6 +25,7 @@
 #include <QList>
 #include <QPersistentModelIndex>
 #include <QUrl>
+#include <QPointer>
 #include <QWidget>
 
 #include "Composer/Recipients.h"
@@ -89,6 +90,10 @@ private slots:
     void gotError(const QString &error);
     void sent();
     void updateRecipientList();
+    void scrollRecipients(int);
+    void handleFocusChange();
+    void scrollToFocus();
+    void slotFadeFinished();
 
     void slotCheckAddress();
     void slotCheckAddress(QLineEdit *edit);
@@ -111,6 +116,7 @@ private:
     void addRecipient(int position, Composer::RecipientKind kind, const QString &address);
     bool parseRecipients(QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &results, QString &errorMessage);
     void removeRecipient(int position);
+    void fadeIn(QWidget *w);
 
     bool buildMessageData();
     bool shouldBuildMessageLocally() const;
@@ -123,6 +129,7 @@ private:
     typedef QPair<QComboBox*, QLineEdit*> Recipient;
     QList<Recipient> m_recipients;
     QTimer *m_recipientListUpdateTimer;
+    QPointer<QWidget> m_lastFocusedRecipient;
 
     bool m_sentMail;
     /** @short Has it been updated since the last time we auto-saved it? */

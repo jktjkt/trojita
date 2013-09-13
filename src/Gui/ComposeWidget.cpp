@@ -23,10 +23,12 @@
 #include <QAbstractProxyModel>
 #include <QBuffer>
 #include <QFileDialog>
+#include <QGraphicsOpacityEffect>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProgressDialog>
+#include <QPropertyAnimation>
 #include <QPushButton>
 #include <QSettings>
 #include <QTimer>
@@ -56,11 +58,13 @@
 
 namespace
 {
-enum { OFFSET_OF_FIRST_ADDRESSEE = 1 };
+enum { OFFSET_OF_FIRST_ADDRESSEE = 1, MAX_VISIBLE_RECIPIENTS = 4 };
 }
 
 namespace Gui
 {
+
+static const QString trojita_opacityAnimation = QLatin1String("trojita_opacityAnimation");
 
 ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::MSAFactory *msaFactory) :
     QWidget(0, Qt::Window),
@@ -91,7 +95,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
 
     m_completionPopup = new QMenu(this);
     m_completionPopup->installEventFilter(this);
-    connect (m_completionPopup, SIGNAL(triggered(QAction*)), SLOT(completeRecipient(QAction*)));
+    connect(m_completionPopup, SIGNAL(triggered(QAction*)), SLOT(completeRecipient(QAction*)));
 
     // TODO: make this configurable?
     m_completionCount = 8;
@@ -100,6 +104,13 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     m_recipientListUpdateTimer->setSingleShot(true);
     m_recipientListUpdateTimer->setInterval(250);
     connect(m_recipientListUpdateTimer, SIGNAL(timeout()), SLOT(updateRecipientList()));
+
+    connect(ui->recipientSlider, SIGNAL(valueChanged(int)), SLOT(scrollRecipients(int)));
+    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(handleFocusChange()));
+    ui->recipientSlider->setMinimum(0);
+    ui->recipientSlider->setMaximum(0);
+    ui->recipientSlider->setVisible(false);
+    ui->envelopeWidget->installEventFilter(this);
 
     ui->mailText->setFont(Gui::Util::systemMonospaceFont());
 
@@ -439,9 +450,28 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
     connect(edit, SIGNAL(textChanged(QString)), m_recipientListUpdateTimer, SLOT(start()));
     m_recipients.insert(position, Recipient(combo, edit));
+    ui->envelopeWidget->setUpdatesEnabled(false);
     ui->envelopeLayout->insertRow(actualRow(ui->envelopeLayout, position + OFFSET_OF_FIRST_ADDRESSEE), combo, edit);
     setTabOrder(formPredecessor(ui->envelopeLayout, combo), combo);
     setTabOrder(combo, edit);
+    const int max = qMax(0, m_recipients.count() - MAX_VISIBLE_RECIPIENTS);
+    ui->recipientSlider->setMaximum(max);
+    ui->recipientSlider->setVisible(max > 0);
+    if (ui->recipientSlider->isVisible()) {
+        const int v = ui->recipientSlider->value();
+        int keepInSight = ++position;
+        for (int i = 0; i < m_recipients.count(); ++i) {
+            if (m_recipients.at(i).first->hasFocus() || m_recipients.at(i).second->hasFocus()) {
+                keepInSight = i;
+                break;
+            }
+        }
+        if (qAbs(keepInSight - position) < MAX_VISIBLE_RECIPIENTS)
+            ui->recipientSlider->setValue(position*max/m_recipients.count());
+        if (v == ui->recipientSlider->value()) // force scroll update
+            scrollRecipients(v);
+    }
+    ui->envelopeWidget->setUpdatesEnabled(true);
 }
 
 void ComposeWidget::slotCheckAddress()
@@ -468,11 +498,34 @@ void ComposeWidget::removeRecipient(int pos)
     // removing the widgets from the layout is important
     // a) not doing so leaks (minor)
     // b) deleteLater() crosses the evenchain and so our actualRow function would be tricked
+    QWidget *formerFocus = QApplication::focusWidget();
+    if (!formerFocus)
+        formerFocus = m_lastFocusedRecipient;
+
+    if (pos + 1 < m_recipients.count()) {
+        if (m_recipients.at(pos).first == formerFocus) {
+            m_recipients.at(pos + 1).first->setFocus();
+            formerFocus = m_recipients.at(pos + 1).first;
+        } else if (m_recipients.at(pos).second == formerFocus) {
+            m_recipients.at(pos + 1).second->setFocus();
+            formerFocus = m_recipients.at(pos + 1).second;
+        }
+    } else if (m_recipients.at(pos).first == formerFocus || m_recipients.at(pos).second == formerFocus) {
+            formerFocus = 0;
+    }
+
     ui->envelopeLayout->removeWidget(m_recipients.at(pos).first);
     ui->envelopeLayout->removeWidget(m_recipients.at(pos).second);
     m_recipients.at(pos).first->deleteLater();
     m_recipients.at(pos).second->deleteLater();
     m_recipients.removeAt(pos);
+    const int max = qMax(0, m_recipients.count() - MAX_VISIBLE_RECIPIENTS);
+    ui->recipientSlider->setMaximum(max);
+    ui->recipientSlider->setVisible(max > 0);
+    if (formerFocus) {
+        // skip event loop, remove might be triggered by imminent focus loss
+        QMetaObject::invokeMethod(formerFocus, "setFocus", Qt::QueuedConnection);
+    }
 }
 
 static inline Composer::RecipientKind currentRecipient(const QComboBox *box)
@@ -499,6 +552,127 @@ void ComposeWidget::updateRecipientList()
                          recipientKindForNextRow(currentRecipient(m_recipients.last().first)),
                      QString());
     }
+}
+
+void ComposeWidget::handleFocusChange()
+{
+    // got explicit focus on other widget - don't restore former focused recipient on scrolling
+    m_lastFocusedRecipient = QApplication::focusWidget();
+
+    if (m_lastFocusedRecipient)
+        QTimer::singleShot(150, this, SLOT(scrollToFocus())); // give user chance to notice the focus change disposition
+}
+
+void ComposeWidget::scrollToFocus()
+{
+    if (!ui->recipientSlider->isVisible())
+        return;
+
+    QWidget *focus = QApplication::focusWidget();
+    if (focus == ui->envelopeWidget)
+        focus = m_lastFocusedRecipient;
+    if (!focus)
+        return;
+
+    // if this is the first or last visible recipient, show one more (to hint there's more and allow tab progression)
+    for (int i = 0, pos = 0; i < m_recipients.count(); ++i) {
+        if (m_recipients.at(i).first->isVisible())
+            ++pos;
+        if (focus == m_recipients.at(i).first || focus == m_recipients.at(i).second) {
+            if (pos > 1 && pos < MAX_VISIBLE_RECIPIENTS) // prev & next are in sight
+                break;
+            if (pos == 1)
+                ui->recipientSlider->setValue(i - 1); // scroll to prev
+            else
+                ui->recipientSlider->setValue(i + 2 - MAX_VISIBLE_RECIPIENTS);  // scroll to next
+            break;
+        }
+    }
+    if (focus == m_lastFocusedRecipient)
+        focus->setFocus(); // in case we scrolled to m_lastFocusedRecipient
+}
+
+void ComposeWidget::fadeIn(QWidget *w)
+{
+    QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(w);
+    w->setGraphicsEffect(effect);
+    QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity", w);
+    connect(animation, SIGNAL(finished()), SLOT(slotFadeFinished()));
+    animation->setObjectName(trojita_opacityAnimation);
+    animation->setDuration(333);
+    animation->setStartValue(0.0);
+    animation->setEndValue(1.0);
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void ComposeWidget::slotFadeFinished()
+{
+    Q_ASSERT(sender());
+    QWidget *animatedEffectWidget = qobject_cast<QWidget*>(sender()->parent());
+    Q_ASSERT(animatedEffectWidget);
+    animatedEffectWidget->setGraphicsEffect(0); // deletes old one
+}
+
+void ComposeWidget::scrollRecipients(int value)
+{
+    // ignore focus changes caused by "scrolling"
+    disconnect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(handleFocusChange()));
+
+    QList<QWidget*> visibleWidgets;
+    for (int i = 0; i < m_recipients.count(); ++i) {
+        // remove all widgets from the form because of vspacing - causes spurious padding
+
+        QWidget *toCC = m_recipients.at(i).first;
+        QWidget *lineEdit = m_recipients.at(i).second;
+        if (!m_lastFocusedRecipient) { // apply only _once_
+            if (toCC->hasFocus())
+                m_lastFocusedRecipient = toCC;
+            else if (lineEdit->hasFocus())
+                m_lastFocusedRecipient = lineEdit;
+        }
+        if (toCC->isVisible())
+            visibleWidgets << toCC;
+        if (lineEdit->isVisible())
+            visibleWidgets << lineEdit;
+        ui->envelopeLayout->removeWidget(toCC);
+        ui->envelopeLayout->removeWidget(lineEdit);
+        toCC->hide();
+        lineEdit->hide();
+    }
+
+    const int begin = qMin(m_recipients.count(), value);
+    const int end   = qMin(m_recipients.count(), value + MAX_VISIBLE_RECIPIENTS);
+    for (int i = begin, j = 0; i < end; ++i, ++j) {
+        const int pos = actualRow(ui->envelopeLayout, j + OFFSET_OF_FIRST_ADDRESSEE);
+        QWidget *toCC = m_recipients.at(i).first;
+        QWidget *lineEdit = m_recipients.at(i).second;
+        ui->envelopeLayout->insertRow(pos, toCC, lineEdit);
+        if (!visibleWidgets.contains(toCC))
+            fadeIn(toCC);
+        visibleWidgets.removeOne(toCC);
+        if (!visibleWidgets.contains(lineEdit))
+            fadeIn(lineEdit);
+        visibleWidgets.removeOne(lineEdit);
+        toCC->show();
+        lineEdit->show();
+        setTabOrder(formPredecessor(ui->envelopeLayout, toCC), toCC);
+        setTabOrder(toCC, lineEdit);
+        if (toCC == m_lastFocusedRecipient)
+            toCC->setFocus();
+        else if (lineEdit == m_lastFocusedRecipient)
+            lineEdit->setFocus();
+    }
+
+    if (m_lastFocusedRecipient && !m_lastFocusedRecipient->hasFocus() && QApplication::focusWidget())
+        ui->envelopeWidget->setFocus();
+
+    Q_FOREACH (QWidget *w, visibleWidgets) {
+        // was visible, is no longer -> stop animation so it won't conflict later ones
+        w->setGraphicsEffect(0); // deletes old one
+        if (QPropertyAnimation *pa = w->findChild<QPropertyAnimation*>(trojita_opacityAnimation))
+            pa->stop();
+    }
+    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(handleFocusChange()));
 }
 
 void ComposeWidget::collapseRecipients()
@@ -614,6 +788,35 @@ bool ComposeWidget::eventFilter(QObject *o, QEvent *e)
         }
         return false;
     }
+
+    if (o == ui->envelopeWidget)  {
+        if (e->type() == QEvent::Wheel) {
+            int v = ui->recipientSlider->value();
+            if (static_cast<QWheelEvent*>(e)->delta() > 0)
+                --v;
+            else
+                ++v;
+            // just QApplication::sendEvent(ui->recipientSlider, e) will cause a recursion if
+            // ui->recipientSlider ignores the event (eg. because it would lead to an invalid value)
+            // since ui->recipientSlider is child of ui->envelopeWidget
+            // my guts tell me to not send events to children if it can be avoided, but its just a gut feeling
+            ui->recipientSlider->setValue(v);
+            e->accept();
+            return true;
+        }
+        if (e->type() == QEvent::KeyPress && ui->envelopeWidget->hasFocus()) {
+            scrollToFocus();
+            QWidget *focus = QApplication::focusWidget();
+            if (focus && focus != ui->envelopeWidget) {
+                int key = static_cast<QKeyEvent*>(e)->key();
+                if (!(key == Qt::Key_Tab || key == Qt::Key_Backtab)) // those alter the focus again
+                    QApplication::sendEvent(focus, e);
+            }
+            return true;
+        }
+        return false;
+    }
+
     return false;
 }
 

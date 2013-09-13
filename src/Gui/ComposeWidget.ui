@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>715</width>
-    <height>377</height>
+    <width>716</width>
+    <height>362</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,16 +15,16 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QSplitter" name="splitter">
+    <widget class="QSplitter" name="splitter_2">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="childrenCollapsible">
       <bool>false</bool>
      </property>
-     <widget class="QSplitter" name="splitter_2">
+     <widget class="QSplitter" name="splitter">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>1</verstretch>
        </sizepolicy>
@@ -42,42 +42,53 @@
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <layout class="QFormLayout" name="envelopeLayout">
-        <property name="fieldGrowthPolicy">
-         <enum>QFormLayout::ExpandingFieldsGrow</enum>
-        </property>
-        <item row="0" column="0">
-         <widget class="QLabel" name="fromLabel">
-          <property name="text">
-           <string>From</string>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <layout class="QFormLayout" name="envelopeLayout">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::ExpandingFieldsGrow</enum>
           </property>
-          <property name="buddy">
-           <cstring>sender</cstring>
+          <item row="0" column="0">
+           <widget class="QLabel" name="fromLabel">
+            <property name="text">
+             <string>From</string>
+            </property>
+            <property name="buddy">
+             <cstring>sender</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="sender">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="subjectLabel">
+            <property name="text">
+             <string>Subject</string>
+            </property>
+            <property name="buddy">
+             <cstring>subject</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="LineEdit" name="subject"/>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QScrollBar" name="recipientSlider">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
          </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QComboBox" name="sender">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="subjectLabel">
-          <property name="text">
-           <string>Subject</string>
-          </property>
-          <property name="buddy">
-           <cstring>subject</cstring>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="LineEdit" name="subject"/>
         </item>
        </layout>
       </widget>
@@ -161,7 +172,7 @@
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
-        <verstretch>3</verstretch>
+        <verstretch>100</verstretch>
        </sizepolicy>
       </property>
       <property name="minimumSize">
