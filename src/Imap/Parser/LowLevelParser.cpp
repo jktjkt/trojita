@@ -48,14 +48,20 @@ template<typename T> T extractNumber(const QByteArray &line, int &start)
     T res = 0;
     // well, it's an inline function, but clang still won't cache its result by default
     const T absoluteMax = std::numeric_limits<T>::max();
+    const T softLimit = (absoluteMax - 10) / 10;
     while (*c_str >= '0' && *c_str <= '9') {
-        if (res > absoluteMax / 10)
-            throw ParseError("extractNumber: out of range", line, start);
-        res *= 10;
         auto digit = *c_str - '0';
-        if (res > absoluteMax - digit)
-            throw ParseError("extractNumber: out of range", line, start);
-        res += digit;
+        if (res <= softLimit) {
+            res *= 10;
+            res += digit;
+        } else {
+            if (res > absoluteMax / 10)
+                throw ParseError("extractNumber: out of range", line, start);
+            res *= 10;
+            if (res > absoluteMax - digit)
+                throw ParseError("extractNumber: out of range", line, start);
+            res += digit;
+        }
         ++c_str;
         ++start;
     }
