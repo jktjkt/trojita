@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -20,30 +20,20 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TEST_COMPOSER_RESPONSES
-#define TEST_COMPOSER_RESPONSES
+#ifndef MAILTO_H
+#define MAILTO_H
 
-#include <QTest>
-#include "Composer/PlainTextFormatter.h"
+#include <QList>
+#include <QPair>
 
-class QWebView;
+#include "Recipients.h"
 
-/** @short Test sanity of data produced when responding to e-mail */
-class ComposerResponsesTest : public QObject
-{
-    Q_OBJECT
-private slots:
-    void testSubjectMangling();
-    void testSubjectMangling_data();
+namespace Composer {
 
-    void testResponseAddresses();
-    void testResponseAddresses_data();
+void parseRFC6068Mailto(const QUrl &url, QString &subject, QString &body,
+                        QList<QPair<Composer::RecipientKind, QString>> &recipients,
+                        QList<QByteArray> &inReplyTo, QList<QByteArray> &references);
 
-    void testFormatFlowedComposition();
-    void testFormatFlowedComposition_data();
+}
 
-    void testRFC6068Mailto();
-    void testRFC6068Mailto_data();
-};
-
-#endif
+#endif //MAILTO_H

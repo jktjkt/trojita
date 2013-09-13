@@ -40,6 +40,9 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QUrl>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
 
 #include "AbookAddressbook/AbookAddressbook.h"
 #include "AbookAddressbook/be-contacts.h"
@@ -47,6 +50,7 @@
 #include "Common/Paths.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
+#include "Composer/Mailto.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Imap/Model/ImapAccess.h"
 #include "Imap/Model/MailboxTree.h"
@@ -1422,12 +1426,38 @@ void MainWindow::slotReplyGuess()
 
 void MainWindow::slotComposeMailUrl(const QUrl &url)
 {
-    Imap::Message::MailAddress addr;
-    if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")))
-        return;
+    QString subject;
+    QString body;
     RecipientsType recipients;
-    recipients << qMakePair<Composer::RecipientKind,QString>(Composer::ADDRESS_TO, addr.asPrettyString());
-    invokeComposeDialog(QString(), QString(), recipients);
+    QList<QByteArray> inReplyTo;
+    QList<QByteArray> references;
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    const QUrl &q = url;
+#else
+    const QUrlQuery q(url);
+#endif
+
+    if (!q.queryItemValue(QLatin1String("X-Trojita-DisplayName")).isEmpty()) {
+        // There should be only single email address created by Imap::Message::MailAddress::asUrl()
+        Imap::Message::MailAddress addr;
+        if (Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")))
+            recipients << qMakePair(Composer::ADDRESS_TO, addr.asPrettyString());
+    } else {
+        // This should be real RFC 6068 mailto:
+        Composer::parseRFC6068Mailto(url, subject, body, recipients, inReplyTo, references);
+    }
+
+    // NOTE: invokeComposeDialog needs inReplyTo and references parameters without angle brackets, so remote them
+    for ( int i = 0; i < inReplyTo.size(); ++i )
+        if ( inReplyTo[i].startsWith('<') && inReplyTo[i].endsWith('>') )
+            inReplyTo[i] = inReplyTo[i].mid(1, inReplyTo[i].size()-2);
+
+    for ( int i = 0; i < references.size(); ++i )
+        if ( references[i].startsWith('<') && references[i].endsWith('>') )
+            references[i] = references[i].mid(1, references[i].size()-2);
+
+    invokeComposeDialog(subject, body, recipients, inReplyTo, references);
 }
 
 void MainWindow::slotManageContact(const QUrl &url)

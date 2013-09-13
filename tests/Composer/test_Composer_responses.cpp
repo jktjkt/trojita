@@ -27,14 +27,19 @@
 #include <QWebView>
 #include "test_Composer_responses.h"
 #include "Utils/headless_test.h"
+#include "Composer/Mailto.h"
 #include "Composer/Recipients.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Composer/SubjectMangling.h"
 #include "Imap/Encoders.h"
 
+typedef QList<QPair<Composer::RecipientKind,QString>> RecipientsType;
+
 Q_DECLARE_METATYPE(Composer::RecipientList)
+Q_DECLARE_METATYPE(RecipientsType)
 Q_DECLARE_METATYPE(QList<QUrl>)
+Q_DECLARE_METATYPE(QList<QByteArray>)
 
 QString recipientKindtoString(const Composer::RecipientKind kind)
 {
@@ -520,4 +525,133 @@ void ComposerResponsesTest::testFormatFlowedComposition_data()
             << QString("foo\r\n \r\nbar\r\n\r\n ");
 }
 
+void ComposerResponsesTest::testRFC6068Mailto()
+{
+    QFETCH(QUrl, original);
+    QFETCH(QString, subject);
+    QFETCH(QString, body);
+    QFETCH(RecipientsType, recipients);
+    QFETCH(QList<QByteArray>, inReplyTo);
+    QFETCH(QList<QByteArray>, references);
+
+    QString decodedSubject;
+    QString decodedBody;
+    RecipientsType decodedRecipients;
+    QList<QByteArray> decodedInReplyTo;
+    QList<QByteArray> decodedReferences;
+
+    Composer::parseRFC6068Mailto(original, decodedSubject, decodedBody, decodedRecipients, decodedInReplyTo, decodedReferences);
+
+    QCOMPARE(decodedSubject, subject);
+    QCOMPARE(decodedBody, body);
+    QCOMPARE(decodedRecipients, recipients);
+    QCOMPARE(decodedInReplyTo, inReplyTo);
+    QCOMPARE(decodedReferences, references);
+}
+
+void ComposerResponsesTest::testRFC6068Mailto_data()
+{
+    QTest::addColumn<QUrl>("original");
+    QTest::addColumn<QString>("subject");
+    QTest::addColumn<QString>("body");
+    QTest::addColumn<RecipientsType>("recipients");
+    QTest::addColumn<QList<QByteArray>>("inReplyTo");
+    QTest::addColumn<QList<QByteArray>>("references");
+
+    // RFC 6068 2. Syntax of a 'mailto' URI
+    QTest::newRow("rfc1") << QUrl::fromEncoded("mailto:addr1@an.example,addr2@an.example") << QString() << QString()
+            << ( RecipientsType()
+                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr1@an.example"))
+                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr2@an.example")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc2") << QUrl::fromEncoded("mailto:?to=addr1@an.example,addr2@an.example") << QString() << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr1@an.example"))
+                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr2@an.example")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc3") << QUrl::fromEncoded("mailto:addr1@an.example?to=addr2@an.example") << QString() << QString()
+            << ( RecipientsType()
+                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr1@an.example"))
+                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr2@an.example")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+
+    // RFC 6068 6.1. Basic Examples
+    QTest::newRow("rfc4") << QUrl::fromEncoded("mailto:chris@example.com") << QString() << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("chris@example.com")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc5") << QUrl::fromEncoded("mailto:infobot@example.com?subject=current-issue")
+            << QString("current-issue") << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("infobot@example.com")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc6") << QUrl::fromEncoded("mailto:infobot@example.com?body=send%20current-issue")
+            << QString() << QString("send current-issue")
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("infobot@example.com")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc7") << QUrl::fromEncoded("mailto:infobot@example.com?body=send%20current-issue%0D%0Asend%20index")
+            << QString() << QString("send current-issue\r\nsend index")
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("infobot@example.com")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc8") << QUrl::fromEncoded("mailto:list@example.org?In-Reply-To=%3C3469A91.D10AF4C@example.com%3E")
+            << QString() << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("list@example.org")) )
+            << ( QList<QByteArray>() << "<3469A91.D10AF4C@example.com>" ) << QList<QByteArray>();
+    QTest::newRow("rfc9") << QUrl::fromEncoded("mailto:majordomo@example.com?body=subscribe%20bamboo-l")
+            << QString() << QString("subscribe bamboo-l")
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("majordomo@example.com")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc10") << QUrl::fromEncoded("mailto:joe@example.com?cc=bob@example.com&body=hello") << QString() << QString("hello")
+            << ( RecipientsType()
+                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("joe@example.com"))
+                 << qMakePair(Composer::ADDRESS_CC, QString::fromUtf8("bob@example.com")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+
+    QTest::newRow("rfc11") << QUrl::fromEncoded("mailto:gorby%25kremvax@example.com") << QString() << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("gorby%kremvax@example.com")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc13") << QUrl::fromEncoded("mailto:Mike%26family@example.org") << QString() << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("Mike&family@example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+
+    // RFC 6068 6.2. Examples of Complicated Email Addresses
+    QTest::newRow("rfc14") << QUrl::fromEncoded("mailto:%22not%40me%22@example.org") << QString() << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("\"not@me\"@example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc15") << QUrl::fromEncoded("mailto:%22oh%5C%5Cno%22@example.org") << QString() << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("\"oh\\\\no\"@example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc16") << QUrl::fromEncoded("mailto:%22%5C%5C%5C%22it's%5C%20ugly%5C%5C%5C%22%22@example.org") << QString() << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("\"\\\\\\\"it's\\ ugly\\\\\\\"\"@example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+
+    // RFC 6068 6.3. Examples Using UTF-8-Based Percent-Encoding
+    QTest::newRow("rfc17") << QUrl::fromEncoded("mailto:user@example.org?subject=caf%C3%A9")
+            << QString::fromUtf8("café") << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc18") << QUrl::fromEncoded("mailto:user@example.org?subject=%3D%3Futf-8%3FQ%3Fcaf%3DC3%3DA9%3F%3D")
+            << QString::fromUtf8("café") << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc19") << QUrl::fromEncoded("mailto:user@example.org?subject=%3D%3Fiso-8859-1%3FQ%3Fcaf%3DE9%3F%3D")
+            << QString::fromUtf8("café") << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc20") << QUrl::fromEncoded("mailto:user@example.org?subject=caf%C3%A9&body=caf%C3%A9")
+            << QString::fromUtf8("café") << QString::fromUtf8("café")
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+    QTest::newRow("rfc21") << QUrl::fromEncoded("mailto:user@%E7%B4%8D%E8%B1%86.example.org?subject=Test&body=NATTO")
+            << QString("Test") << QString("NATTO")
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@納豆.example.org")) )
+            << QList<QByteArray>() << QList<QByteArray>(); // NOTE: Decoding 納豆.example.org to xn--99zt52a.example.org is done on other layer
+
+    // Another test for comma delimeter
+    QTest::newRow("test")
+            << QUrl::fromEncoded("mailto:user@example.org,user2@example%2Ctest.org?cc=user%40host.org%2Ctest@example%2Ctest.org")
+            << QString() << QString()
+            << ( RecipientsType()
+                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org"))
+                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user2@example,test.org"))
+                 << qMakePair(Composer::ADDRESS_CC, QString::fromUtf8("user@host.org,test@example,test.org")) )
+            << QList<QByteArray>() << QList<QByteArray>();
+}
 TROJITA_HEADLESS_TEST(ComposerResponsesTest)
