@@ -1758,6 +1758,9 @@ At the same time, some well-known flags are converted to their "canonical" form 
 QStringList Model::normalizeFlags(const QStringList &source) const
 {
     QStringList res;
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+    res.reserve(source.size());
+#endif
     for (QStringList::const_iterator flag = source.constBegin(); flag != source.constEnd(); ++flag) {
         // At first, perform a case-insensitive lookup in the (rather short) list of known special flags
         QString lowerCase = flag->toLower();
