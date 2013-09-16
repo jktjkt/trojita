@@ -13,15 +13,17 @@ if(NOT CXXFeatures_auto_FOUND)
 endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 
-if(HARMATTAN)
-    set(BUILD_DESKTOP_GUI false)
-    set(BUILD_HARMATTAN true)
-    set(WITHOUT_TESTS true)
-    message(STATUS "Building version for MeeGo Harmattan")
-else()
-    set(BUILD_DESKTOP_GUI true)
-    set(BUILD_HARMATTAN false)
-    message(STATUS "Building the desktop version")
+include(TrojitaOption)
+
+trojita_option(WITH_DESKTOP "Build desktop version" ON)
+trojita_option(WITH_HARMATTAN "Build MeeGo Harmattan version" OFF "NOT WITH_DESKTOP")
+trojita_option(WITH_QT5 "Build with Qt5 library" OFF)
+trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
+trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
+trojita_option(WITH_TESTS "Build tests" ON "NOT WITH_HARMATTAN")
+
+if(WIN32)
+    trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO)
 endif()
 
 if(WITH_QT5)
@@ -32,7 +34,7 @@ if(WITH_QT5)
     find_package(Qt5WebKitWidgets REQUIRED)
     find_package(Qt5Widgets REQUIRED)
     find_package(Qt5LinguistTools)
-    if(NOT WITHOUT_TESTS)
+    if(WITH_TESTS)
         find_package(Qt5Test REQUIRED)
     endif()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
@@ -44,29 +46,27 @@ else()
     set(QT_USE_QTNETWORK 1)
     set(QT_USE_QTSQL 1)
     set(QT_USE_QTWEBKIT 1)
-    if(NOT WITHOUT_TESTS)
+    if(WITH_TESTS)
         set(QT_USE_QTTEST 1)
     endif()
-    if(BUILD_HARMATTAN)
+    if(WITH_HARMATTAN)
         set(QT_USE_QTDECLARATIVE 1)
     endif()
-    find_package(Qt4 4.6 REQUIRED)
+    trojita_find_package(Qt4 4.6 "http://qt-project.org" "Qt4" "Needed for building" REQUIRED)
     include(${QT_USE_FILE})
-    add_definitions(${QT_DEFINITIONS})
-    find_package(LinguistForTrojita)
+    trojita_check_qt4_module(QTCORE REQUIRED)
+    trojita_check_qt4_module(QTGUI REQUIRED)
+    trojita_check_qt4_module(QTNETWORK REQUIRED)
+    trojita_check_qt4_module(QTSQL REQUIRED)
+    trojita_check_qt4_module(QTWEBKIT REQUIRED)
+    trojita_check_qt4_module(QTTEST WITH_TESTS)
+    trojita_check_qt4_module(QTDECLARATIVE WITH_HARMATTAN)
+    trojita_find_package(LinguistForTrojita "" "" "" "")
 endif()
-find_package(Git)
+trojita_find_package(Git "" "" "" "")
 
-if(WIN32 AND WITH_NSIS)
-    if(NOT MAKENSIS)
-        find_program(MAKENSIS makensis)
-        if(NOT MAKENSIS)
-            message(STATUS "makensis not found")
-        else()
-            message(STATUS "Found makensis: ${MAKENSIS}")
-        endif()
-        mark_as_advanced(MAKENSIS)
-    endif()
+if(WIN32)
+    trojita_find_package(MakeNSIS "" "http://nsis.sourceforge.net" "Nullsoft Scriptable Install System" "Needed for building Windows installer" WITH_NSIS)
 endif()
 
 # Add support for Mingw RC compiler
@@ -107,53 +107,50 @@ endif()
 
 set(CMAKE_AUTOMOC True)
 
-if(WITH_RAGEL)
-    find_package(RagelForTrojita)
+trojita_find_package(RagelForTrojita "" "" "" "" WITH_RAGEL)
+
+if(WIN32) # Check if we are on Windows
+    # On win32, qt can statically link to zlib and export their symbols.
+    # We check if we can find the string " zlib " in the QT_CONFIG list in
+    # ${QT_MKSPECS_DIR}/qconfig.pri and include on success ${QT_QTCORE_LIBRARY}
+    # and ${QTDIR}/src/3rdparty/zlib as lib and include folder
+    if(QT_QTCORE_FOUND)
+        message(STATUS "We are on Windows with Qt. Checking if zlib is built into Qt")
+
+        if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
+            file(READ ${QT_MKSPECS_DIR}/qconfig.pri _qconfig_FILE_contents_ZLIB_CHECK)
+            string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG_ZLIB_CHECK ${_qconfig_FILE_contents_ZLIB_CHECK})
+
+            set(ENV_QTDIR $ENV{QTDIR})
+            if(NOT DEFINED ENV_QTDIR)
+                message(STATUS "QTDIR not specified in environment, will not use zlib")
+            elseif(QT_CONFIG_ZLIB_CHECK)
+                if(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
+                    message(STATUS "Found zlib in QT_QCONFIG. zlib seems to be built into Qt")
+                    set(ZLIB_LIBRARY_RELEASE ${QT_QTCORE_LIBRARY_RELEASE})
+                    set(ZLIB_LIBRARY_DEBUG ${QT_QTCORE_LIBRARY_DEBUG})
+                    set(ZLIB_LIBRARY ${QT_QTCORE_LIBRARY})
+
+                    string(REGEX REPLACE "\\\\" "/" QTDIR ${ENV_QTDIR})
+                    set(ZLIB_INCLUDE_DIR "${QTDIR}/src/3rdparty/zlib")
+
+                    set(ZLIB_FOUND TRUE)
+                    set(ZLIB_LIBRARIES ${ZLIB_LIBRARY} )
+                    mark_as_advanced(ZLIB_LIBRARY ZLIB_INCLUDE_DIR ZLIB_FOUND)
+                else(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
+                    message(STATUS "Could not determine if Qt was built with zlib support.")
+                endif(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
+
+            endif()
+        endif(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
+    endif(QT_QTCORE_FOUND)
 endif()
 
-if(NOT WITHOUT_ZLIB)
-
-    if(NOT WIN32) # Check if we are NOT on Windows
-        find_package(ZLIB)
-    else(NOT WIN32)
-        # On win32, qt can statically link to zlib and export their symbols.
-        # We check if we can find the string " zlib " in the QT_CONFIG list in
-        # ${QT_MKSPECS_DIR}/qconfig.pri and include on success ${QT_QTCORE_LIBRARY}
-        # and ${QTDIR}/src/3rdparty/zlib as lib and include folder
-        if(QT_QTCORE_FOUND)
-            message(STATUS "We are on Windows with Qt. Checking if zlib is built into Qt")
-
-            if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
-                file(READ ${QT_MKSPECS_DIR}/qconfig.pri _qconfig_FILE_contents_ZLIB_CHECK)
-                string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG_ZLIB_CHECK ${_qconfig_FILE_contents_ZLIB_CHECK})
-
-                set(ENV_QTDIR $ENV{QTDIR})
-                if(NOT DEFINED ENV_QTDIR)
-                    message(STATUS "QTDIR not specified in environment, will not use zlib")
-                elseif(QT_CONFIG_ZLIB_CHECK)
-                    if(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
-                        message(STATUS "Found zlib in QT_QCONFIG. zlib seems to be built into Qt")
-                        set(ZLIB_LIBRARY_RELEASE ${QT_QTCORE_LIBRARY_RELEASE})
-                        set(ZLIB_LIBRARY_DEBUG ${QT_QTCORE_LIBRARY_DEBUG})
-                        set(ZLIB_LIBRARY ${QT_QTCORE_LIBRARY})
-
-                        string(REGEX REPLACE "\\\\" "/" QTDIR ${ENV_QTDIR})
-                        set(ZLIB_INCLUDE_DIR "${QTDIR}/src/3rdparty/zlib")
-
-                        set(ZLIB_FOUND TRUE)
-                        set(ZLIB_LIBRARIES ${ZLIB_LIBRARY} )
-                        mark_as_advanced(ZLIB_LIBRARY ZLIB_INCLUDE_DIR ZLIB_FOUND)
-                    else(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
-                        message(STATUS "Could not determine if Qt was built with zlib support.")
-                    endif(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
-
-                endif()
-            endif(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
-        endif(QT_QTCORE_FOUND)
-    endif(NOT WIN32)
+if(NOT ZLIB_FOUND)
+    trojita_find_package(ZLIB "" "" "" "" WITH_ZLIB)
 endif()
 
-if(ZLIB_FOUND)
+if(WITH_ZLIB)
     set(TROJITA_HAVE_ZLIB True)
     message(STATUS "Support for COMPRESS=DEFLATE enabled")
 else()
@@ -163,6 +160,9 @@ endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/configure.cmake.h)
+
+feature_summary(FATAL_ON_MISSING_REQUIRED_PACKAGES DESCRIPTION "\n" WHAT ALL)
+
 
 set(path_Common ${CMAKE_CURRENT_SOURCE_DIR}/src/Common)
 set(libCommon_HEADERS
@@ -236,7 +236,7 @@ set(libStreams_SOURCES
     ${path_Streams}/SocketFactory.cpp
 )
 
-if(ZLIB_FOUND)
+if(WITH_ZLIB)
     set(libStreams_SOURCES ${libStreams_SOURCES}
         ${path_Streams}/3rdparty/rfc1951.cpp)
     include_directories(${ZLIB_INCLUDE_DIR})
@@ -564,7 +564,7 @@ set(libImap_SOURCES
     ${path_Imap}/Tasks/UpdateFlagsOfAllMessagesTask.cpp
 )
 
-if(WITH_RAGEL AND RagelForTrojita_FOUND)
+if(WITH_RAGEL)
     message(STATUS "Using Ragel for the RFC 5322 parser")
     ragel_parser(${path_Imap}/Parser/Rfc5322HeaderParser.cpp)
     set(libImap_SOURCES ${libImap_SOURCES}
@@ -638,7 +638,7 @@ if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
     list(LENGTH language_summary num_languages)
     if(num_languages)
         message(STATUS "Available languages: ${language_summary}")
-        if(BUILD_DESKTOP_GUI)
+        if(WITH_DESKTOP)
            install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/locale/ DESTINATION share/trojita/locale FILES_MATCHING PATTERN *.qm)
         endif()
     else()
@@ -649,7 +649,7 @@ else()
 endif()
 
 set(version_files ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.h ${CMAKE_CURRENT_BINARY_DIR}/trojita-git-version.h)
-if(WIN32 AND WITH_NSIS AND MAKENSIS)
+if(WITH_NSIS)
     set(version_files ${version_files} ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.nsi)
     set(NSIS TRUE)
 endif()
@@ -671,7 +671,7 @@ target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
 
 add_library(Streams ${libStreams_SOURCES})
 target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
-if(ZLIB_FOUND)
+if(WITH_ZLIB)
     target_link_libraries(Streams ${ZLIB_LIBRARIES})
 endif()
 
@@ -689,7 +689,7 @@ endif()
 
 add_library(Imap ${libImap_SOURCES})
 target_link_libraries(Imap Common Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
-if(ZLIB_FOUND)
+if(WITH_ZLIB)
     target_link_libraries(Imap ${ZLIB_LIBRARIES})
 endif()
 
@@ -702,7 +702,7 @@ if(NOT WITH_QT5)
     target_link_libraries(MimetypesQt4 ${QT_QTCORE_LIBRARY})
 endif()
 
-if(BUILD_DESKTOP_GUI)
+if(WITH_DESKTOP)
     if(WITH_QT5)
         qt5_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
         qt5_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
@@ -731,13 +731,13 @@ if(BUILD_DESKTOP_GUI)
     if(NOT WITH_QT5)
         target_link_libraries(trojita MimetypesQt4)
     endif()
-    if(ZLIB_FOUND)
+    if(WITH_ZLIB)
         target_link_libraries(trojita ${ZLIB_LIBRARIES})
     endif()
 
     add_executable(be.contacts ${be_contacts_SOURCES})
     target_link_libraries(be.contacts AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
-elseif(BUILD_HARMATTAN)
+elseif(WITH_HARMATTAN)
     add_library(QmlModelGlue ${libQmlModelGlue_SOURCES})
     add_library(trojitaqnamwebviewplugin SHARED ${libQNAMWebView_SOURCES})
     add_executable(trojita-tp ${trojitaHarmattan_SOURCES})
@@ -763,12 +763,12 @@ if(WITH_QT5)
     qt5_use_modules(trojita Widgets)
 endif()
 
-if(BUILD_DESKTOP_GUI)
+if(WITH_DESKTOP)
     install(TARGETS trojita be.contacts RUNTIME DESTINATION bin)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/trojita.desktop DESTINATION share/applications/)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.png DESTINATION share/icons/hicolor/32x32/apps/)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.svg DESTINATION share/icons/hicolor/scalable/apps/)
-elseif(BUILD_HARMATTAN)
+elseif(WITH_HARMATTAN)
     set(trojita_harmattan_path ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan)
     install(TARGETS trojita-tp RUNTIME DESTINATION opt/trojita-tp/bin)
     install(TARGETS trojitaqnamwebviewplugin LIBRARY DESTINATION opt/trojita-tp/bin/net/flaska/QNAMWebView)
@@ -778,7 +778,7 @@ elseif(BUILD_HARMATTAN)
     install(FILES ${trojita_harmattan_path}/trojita-tp80.png DESTINATION usr/share/icons/hicolor/80x80/apps/)
 endif()
 
-if(WIN32 AND WITH_NSIS AND MAKENSIS)
+if(WITH_NSIS)
     if(CMAKE_SIZEOF_VOID_P STREQUAL 4)
         set(MAKENSIS_OUTPUT Trojita-installer.exe)
     else()
@@ -800,7 +800,7 @@ if(WIN32 AND WITH_NSIS AND MAKENSIS)
 endif()
 
 
-if(NOT WITHOUT_TESTS)
+if(WITH_TESTS)
     set(test_LibMailboxSync_SOURCES
         tests/Utils/ModelEvents.cpp
         tests/Utils/LibMailboxSync.cpp
@@ -825,7 +825,7 @@ if(NOT WITHOUT_TESTS)
         else()
             target_link_libraries(test_${fname} ${QT_QTSQL_LIBRARY} ${QT_QTTEST_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
         endif()
-        if(ZLIB_FOUND)
+        if(WITH_ZLIB)
             target_link_libraries(test_${fname} ${ZLIB_LIBRARIES})
         endif()
         if(SUPPORTS_TARGET_INCLUDES)
