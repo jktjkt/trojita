@@ -242,43 +242,45 @@ if(ZLIB_FOUND)
     include_directories(${ZLIB_INCLUDE_DIR})
 endif()
 
-set(path_mimetypesqt4 ${CMAKE_CURRENT_SOURCE_DIR}/src/mimetypes-qt4)
-set(libMimetypesQt4_HEADERS
-    ${path_mimetypesqt4}/io/qstandardpaths.h
-    ${path_mimetypesqt4}/mimetypes/qmimedatabase_p.h
-    ${path_mimetypesqt4}/mimetypes/qmimeglobpattern_p.h
-    ${path_mimetypesqt4}/mimetypes/qmimemagicrule_p.h
-    ${path_mimetypesqt4}/mimetypes/qmimemagicrulematcher_p.h
-    ${path_mimetypesqt4}/mimetypes/qmimeprovider_p.h
-    ${path_mimetypesqt4}/mimetypes/qmimetype_p.h
-    ${path_mimetypesqt4}/mimetypes/qmimetypeparser_p.h
-    ${path_mimetypesqt4}/mimetypes/qmimetype.h
-    ${path_mimetypesqt4}/mimetypes/qmimedatabase.h
-)
-set(libMimetypesQt4_SOURCES
-    ${path_mimetypesqt4}/io/qstandardpaths.cpp
-    ${path_mimetypesqt4}/mimetypes/qmimedatabase.cpp
-    ${path_mimetypesqt4}/mimetypes/qmimeglobpattern.cpp
-    ${path_mimetypesqt4}/mimetypes/qmimemagicrule.cpp
-    ${path_mimetypesqt4}/mimetypes/qmimemagicrulematcher.cpp
-    ${path_mimetypesqt4}/mimetypes/qmimetype.cpp
-    ${path_mimetypesqt4}/mimetypes/qmimetypeparser.cpp
-    ${path_mimetypesqt4}/mimetypes/qmimeprovider.cpp
-)
-if(WIN32)
-    set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
-        ${path_mimetypesqt4}/io/qstandardpaths_win.cpp)
-elseif(APPLE)
-    set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
-        ${path_mimetypesqt4}/io/qstandardpaths_mac.cpp)
-elseif (OS2)
-    set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
-        ${path_mimetypesqt4}/io/qstandardpaths_os2.cpp)
-elseif (UNIX)
-    set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
-        ${path_mimetypesqt4}/io/qstandardpaths_unix.cpp)
-else()
-    message(FATAL_ERROR "Unsupported platform -- mimetypes-Qt4 support only Unix, MacOSX, Windows and OS/2")
+if(NOT WITH_QT5)
+    set(path_mimetypesqt4 ${CMAKE_CURRENT_SOURCE_DIR}/src/mimetypes-qt4)
+    set(libMimetypesQt4_HEADERS
+        ${path_mimetypesqt4}/io/qstandardpaths.h
+        ${path_mimetypesqt4}/mimetypes/qmimedatabase_p.h
+        ${path_mimetypesqt4}/mimetypes/qmimeglobpattern_p.h
+        ${path_mimetypesqt4}/mimetypes/qmimemagicrule_p.h
+        ${path_mimetypesqt4}/mimetypes/qmimemagicrulematcher_p.h
+        ${path_mimetypesqt4}/mimetypes/qmimeprovider_p.h
+        ${path_mimetypesqt4}/mimetypes/qmimetype_p.h
+        ${path_mimetypesqt4}/mimetypes/qmimetypeparser_p.h
+        ${path_mimetypesqt4}/mimetypes/qmimetype.h
+        ${path_mimetypesqt4}/mimetypes/qmimedatabase.h
+    )
+    set(libMimetypesQt4_SOURCES
+        ${path_mimetypesqt4}/io/qstandardpaths.cpp
+        ${path_mimetypesqt4}/mimetypes/qmimedatabase.cpp
+        ${path_mimetypesqt4}/mimetypes/qmimeglobpattern.cpp
+        ${path_mimetypesqt4}/mimetypes/qmimemagicrule.cpp
+        ${path_mimetypesqt4}/mimetypes/qmimemagicrulematcher.cpp
+        ${path_mimetypesqt4}/mimetypes/qmimetype.cpp
+        ${path_mimetypesqt4}/mimetypes/qmimetypeparser.cpp
+        ${path_mimetypesqt4}/mimetypes/qmimeprovider.cpp
+    )
+    if(WIN32)
+        set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
+            ${path_mimetypesqt4}/io/qstandardpaths_win.cpp)
+    elseif(APPLE)
+        set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
+            ${path_mimetypesqt4}/io/qstandardpaths_mac.cpp)
+    elseif (OS2)
+        set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
+            ${path_mimetypesqt4}/io/qstandardpaths_os2.cpp)
+    elseif (UNIX)
+        set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
+            ${path_mimetypesqt4}/io/qstandardpaths_unix.cpp)
+    else()
+        message(FATAL_ERROR "Unsupported platform -- mimetypes-Qt4 support only Unix, MacOSX, Windows and OS/2")
+    endif()
 endif()
 
 set(path_DesktopGui ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui)
