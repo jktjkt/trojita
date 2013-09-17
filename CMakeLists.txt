@@ -620,7 +620,7 @@ set(trojitaHarmattan_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan/qmlapplicationviewer/qmlapplicationviewer.cpp
 )
 
-if(Linguist_FOUND)
+if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
     file(GLOB_RECURSE lang_PO "${CMAKE_CURRENT_SOURCE_DIR}/po/trojita_common_*.po")
     if(WITH_QT5)
         qt5_wrap_po(trojita_QM ${lang_PO})
