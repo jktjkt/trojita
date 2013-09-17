@@ -562,7 +562,7 @@ set(libImap_SOURCES
     ${path_Imap}/Tasks/UpdateFlagsOfAllMessagesTask.cpp
 )
 
-if(WITH_RAGEL AND RAGEL_FOUND)
+if(WITH_RAGEL AND RagelForTrojita_FOUND)
     message(STATUS "Using Ragel for the RFC 5322 parser")
     ragel_parser(${path_Imap}/Parser/Rfc5322HeaderParser.cpp)
     set(libImap_SOURCES ${libImap_SOURCES}
