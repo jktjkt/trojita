@@ -33,7 +33,7 @@ namespace LowLevelParser {
 
 
 #line 36 "Rfc5322HeaderParser.generated.cpp"
-static const char _rfc5322_actions[] = {
+static const int8_t _rfc5322_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
 	7, 1, 8, 1, 9, 1, 10, 2, 
@@ -43,7 +43,7 @@ static const char _rfc5322_actions[] = {
 	8, 4
 };
 
-static const short _rfc5322_key_offsets[] = {
+static const int16_t _rfc5322_key_offsets[] = {
 	0, 0, 1, 4, 7, 11, 16, 20, 
 	25, 30, 35, 40, 45, 49, 54, 59, 
 	64, 67, 86, 105, 106, 108, 126, 127, 
@@ -139,7 +139,7 @@ static const short _rfc5322_key_offsets[] = {
 	5689, 5704, 5719, 5734
 };
 
-static const char _rfc5322_trans_keys[] = {
+static const int8_t _rfc5322_trans_keys[] = {
 	10, 58, 33, 126, 13, 0, 127, 10, 
 	13, 0, 127, 58, 78, 110, 33, 126, 
 	45, 58, 33, 126, 58, 82, 114, 33, 
@@ -861,7 +861,7 @@ static const char _rfc5322_trans_keys[] = {
 	114, 33, 57, 59, 126, 0
 };
 
-static const char _rfc5322_single_lengths[] = {
+static const int8_t _rfc5322_single_lengths[] = {
 	0, 1, 1, 1, 2, 3, 2, 3, 
 	3, 3, 3, 3, 2, 3, 3, 3, 
 	3, 9, 9, 1, 2, 8, 1, 3, 
@@ -957,7 +957,7 @@ static const char _rfc5322_single_lengths[] = {
 	11, 11, 11, 11
 };
 
-static const char _rfc5322_range_lengths[] = {
+static const int8_t _rfc5322_range_lengths[] = {
 	0, 0, 1, 1, 1, 1, 1, 1, 
 	1, 1, 1, 1, 1, 1, 1, 1, 
 	0, 5, 5, 0, 0, 5, 0, 1, 
@@ -1053,7 +1053,7 @@ static const char _rfc5322_range_lengths[] = {
 	2, 2, 2, 2
 };
 
-static const short _rfc5322_index_offsets[] = {
+static const int16_t _rfc5322_index_offsets[] = {
 	0, 0, 2, 5, 8, 12, 17, 21, 
 	26, 31, 36, 41, 46, 50, 55, 60, 
 	65, 69, 84, 99, 101, 104, 118, 120, 
@@ -1149,7 +1149,7 @@ static const short _rfc5322_index_offsets[] = {
 	5366, 5380, 5394, 5408
 };
 
-static const short _rfc5322_indicies[] = {
+static const int16_t _rfc5322_indicies[] = {
 	0, 1, 4, 3, 2, 5, 4, 2, 
 	6, 5, 4, 2, 4, 7, 7, 3, 
 	2, 8, 4, 3, 2, 4, 9, 9, 
@@ -1830,7 +1830,7 @@ static const short _rfc5322_indicies[] = {
 	967, 968, 969, 965, 965, 1, 0
 };
 
-static const short _rfc5322_trans_targs[] = {
+static const int16_t _rfc5322_trans_targs[] = {
 	633, 0, 0, 2, 3, 4, 634, 6, 
 	7, 8, 9, 10, 11, 12, 13, 14, 
 	15, 16, 557, 17, 18, 556, 21, 481, 
@@ -1957,7 +1957,7 @@ static const short _rfc5322_trans_targs[] = {
 	5, 23, 34, 81, 389, 409, 425, 472
 };
 
-static const char _rfc5322_trans_actions[] = {
+static const int8_t _rfc5322_trans_actions[] = {
 	0, 0, 21, 0, 0, 0, 0, 0, 
 	0, 0, 0, 0, 0, 0, 0, 0, 
 	0, 0, 9, 9, 3, 3, 1, 0, 
@@ -2084,7 +2084,7 @@ static const char _rfc5322_trans_actions[] = {
 	47, 47, 47, 47, 0, 0, 0, 0
 };
 
-static const char _rfc5322_eof_actions[] = {
+static const int8_t _rfc5322_eof_actions[] = {
 	0, 0, 21, 21, 21, 21, 21, 21, 
 	21, 21, 21, 21, 21, 21, 21, 21, 
 	21, 21, 21, 21, 21, 21, 21, 21, 
@@ -2229,9 +2229,9 @@ bool Rfc5322HeaderParser::parse(const QByteArray &data)
 	{
 	int _klen;
 	unsigned int _trans;
-	const char *_acts;
+	const int8_t *_acts;
 	unsigned int _nacts;
-	const char *_keys;
+	const int8_t *_keys;
 
 	if ( p == pe )
 		goto _test_eof;
@@ -2243,9 +2243,9 @@ _resume:
 
 	_klen = _rfc5322_single_lengths[cs];
 	if ( _klen > 0 ) {
-		const char *_lower = _keys;
-		const char *_mid;
-		const char *_upper = _keys + _klen - 1;
+		const int8_t *_lower = _keys;
+		const int8_t *_mid;
+		const int8_t *_upper = _keys + _klen - 1;
 		while (1) {
 			if ( _upper < _lower )
 				break;
@@ -2266,9 +2266,9 @@ _resume:
 
 	_klen = _rfc5322_range_lengths[cs];
 	if ( _klen > 0 ) {
-		const char *_lower = _keys;
-		const char *_mid;
-		const char *_upper = _keys + (_klen<<1) - 2;
+		const int8_t *_lower = _keys;
+		const int8_t *_mid;
+		const int8_t *_upper = _keys + (_klen<<1) - 2;
 		while (1) {
 			if ( _upper < _lower )
 				break;
@@ -2433,7 +2433,7 @@ _again:
 	_test_eof: {}
 	if ( p == eof )
 	{
-	const char *__acts = _rfc5322_actions + _rfc5322_eof_actions[cs];
+	const int8_t *__acts = _rfc5322_actions + _rfc5322_eof_actions[cs];
 	unsigned int __nacts = (unsigned int) *__acts++;
 	while ( __nacts-- > 0 ) {
 		switch ( *__acts++ ) {
