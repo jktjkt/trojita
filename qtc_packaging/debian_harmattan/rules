@@ -18,7 +18,7 @@ configure-stamp:
 	dh_testdir
 	GCCWRAPPER_PATHMANGLE=/usr mad -t $(shell basename "${MA_SESSION_DIR}") cmake .. \
 						  -DWITH_HARMATTAN=ON -DWITH_DESKTOP=OFF -DCMAKE_BUILD_TYPE=Debug \
-						  -DCMAKE_INSTALL_PREFIX=$(CURDIR)/debian/trojita-tp/ \
+						  -DCMAKE_INSTALL_PREFIX=/opt/trojita-tp \
 						  -DWITH_RAGEL=OFF \
 						  -DQT_MOC_EXECUTABLE=${MA_SESSION_DIR}/bin/moc
 	touch configure-stamp
@@ -50,7 +50,11 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/trojita-tp.
-	$(MAKE) INSTALL_ROOT="$(CURDIR)"/debian/trojita-tp install
+	$(MAKE) DESTDIR=$(CURDIR)/debian/trojita-tp install
+
+	# Move share files from /opt to /usr
+	mkdir -p $(CURDIR)/debian/trojita-tp/usr/
+	mv $(CURDIR)/debian/trojita-tp/opt/trojita-tp/share $(CURDIR)/debian/trojita-tp/usr/
 
 
 # Build architecture-independent files here.
