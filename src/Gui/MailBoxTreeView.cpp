@@ -25,6 +25,7 @@
 #include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QMenu>
+#include "IconLoader.h"
 
 namespace Gui {
 
@@ -75,10 +76,9 @@ void MailBoxTreeView::dropEvent(QDropEvent *event)
         event->setDropAction(Qt::MoveAction);
     } else {
         QMenu menu;
-        // TODO: provide icons for copy and move actions
-        QAction *moveAction = menu.addAction(tr("Move here"));
-        menu.addAction(tr("Copy here"));
-        QAction *cancelAction = menu.addAction(style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Cancel"));
+        QAction *moveAction = menu.addAction(loadIcon(QLatin1String("go-jump")), tr("Move here\tShift"));
+        menu.addAction(loadIcon(QLatin1String("edit-copy")), tr("Copy here\tCtrl"));
+        QAction *cancelAction = menu.addAction(loadIcon(QLatin1String("process-stop")), tr("Cancel"));
 
         QAction *selectedAction = menu.exec(QCursor::pos());
 
