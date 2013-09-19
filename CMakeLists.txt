@@ -95,8 +95,18 @@ if(WIN32)
     endif()
 endif()
 
+if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}")
+endif()
+mark_as_advanced(CMAKE_INSTALL_LIBDIR)
+
+if(NOT CMAKE_INSTALL_PLUGIN_DIR)
+    set(CMAKE_INSTALL_PLUGIN_DIR "${CMAKE_INSTALL_LIBDIR}/trojita")
+endif()
+mark_as_advanced(CMAKE_INSTALL_PLUGIN_DIR)
+
 if(NOT PLUGIN_DIR)
-    set(PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/lib/trojita")
+    set(PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_PLUGIN_DIR}")
 endif()
 mark_as_advanced(PLUGIN_DIR)
 
@@ -191,10 +201,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/configure.cmake.h)
 
 feature_summary(FATAL_ON_MISSING_REQUIRED_PACKAGES DESCRIPTION "\n" WHAT ALL)
-
-if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}")
-endif()
 
 set(path_Common ${CMAKE_CURRENT_SOURCE_DIR}/src/Common)
 set(libCommon_SOURCES
