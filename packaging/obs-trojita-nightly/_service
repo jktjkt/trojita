@@ -2,7 +2,7 @@
   <service name="tar_scm">
     <param name="scm">git</param>
     <param name="url">git://anongit.kde.org/trojita</param>
-    <param name="versionprefix">0.3.93.git</param>
+    <param name="versionprefix">0.3.96.git</param>
     <param name="filename">trojita-nightly</param>
   </service>
   <service name="recompress">

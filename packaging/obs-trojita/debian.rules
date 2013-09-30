@@ -8,91 +8,9 @@
 
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
-MAKE=qmake
 
+%:
+	dh $@
 
-
-
-configure: configure-stamp
-configure-stamp:
-	dh_testdir
-	#tar -xjvf *.tar.bz2
-	#cd trojita-* && 
-	qmake CONFIG+=debug PREFIX=/usr # Uncomment this line for use without Qt Creator
-	touch configure-stamp
-
-
-build: build-stamp
-
-build-stamp: configure-stamp  
-	dh_testdir
-	# Add here commands to compile the package.
-	ls
-	#cd trojita-* && 
-	ls
-	qmake && make  # Uncomment this line for use without Qt Creator
-	#docbook-to-man debian/trojita-tp.sgml > trojita-tp.1
-	touch $@
-
-clean: 
-	dh_testdir
-	dh_testroot
-	rm -f build-stamp configure-stamp
-	# Add here commands to clean up after the build process.
-	#make clean
-	dh_clean
-
-install: build
+override_dh_auto_test:
 	xvfb-run -a dh_auto_test
-	dh_testdir
-	dh_testroot
-	dh_clean -k 
-	dh_installdirs
-	# Add here commands to install the package into debian/trojita-tp.
-	#cd trojita-* && 
-	ls
-	mkdir -p $(CURDIR)/debian/tmp
-	#make INSTALL_ROOT=$(CURDIR)/debian/tmp install
-	make INSTALL_ROOT=$(CURDIR)/debian/tmp install
-	mv $(CURDIR)/debian/tmp/usr/local/* $(CURDIR)/debian/tmp/usr/
-	rmdir $(CURDIR)/debian/tmp/usr/local
-	#cp -rv $(CURDIR)/trojitabuild/* $(CURDIR)/debian/tmp/
-
-
-# Build architecture-independent files here.
-binary-indep: build install
-# We have nothing to do by default.
-
-# Build architecture-dependent files here.
-binary-arch: build install
-	dh_testdir
-	dh_testroot
-#	dh_installchangelogs 
-#	dh_installdocs
-#	dh_installexamples
-	dh_install
-#	dh_installmenu
-#	dh_installdebconf	
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_python
-#	dh_installinit
-#	dh_installcron
-#	dh_installinfo
-	dh_installman
-	dh_link
-	dh_strip
-	dh_compress
-	dh_fixperms
-#	dh_perl
-#	dh_makeshlibs
-	dh_installdeb
-	dh_shlibdeps # Uncomment this line for use without Qt Creator
-	dh_gencontrol
-	dh_md5sums
-	dh_builddeb
-
-binary: binary-indep binary-arch
-.PHONY: build clean binary-indep binary-arch binary install configure

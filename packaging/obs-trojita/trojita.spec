@@ -16,7 +16,7 @@
 #
  
 Name:           trojita
-Version:        0.3.93
+Version:        0.3.96
 Release:        1
 # Almost everything: dual-licensed under the GPLv2 or GPLv3
 # (with KDE e.V. provision for relicensing)
@@ -33,14 +33,14 @@ Source:         http://sourceforge.net/projects/trojita/files/src/%{name}-%{vers
 %if 0%{?fedora}
 BuildRequires: qt-webkit-devel >= 4.6
 BuildRequires: libstdc++-devel gcc-c++
+BuildRequires: cmake >= 2.8.7
 BuildRequires: xorg-x11-server-Xvfb
-%define qmake_command qmake-qt4
 %endif
 %if 0%{?rhel_version} || 0%{?centos_version}
 BuildRequires: qtwebkit-devel >= 2.1
 BuildRequires: libstdc++-devel gcc-c++
+BuildRequires: cmake >= 2.8.7
 BuildRequires: xorg-x11-server-Xvfb
-%define qmake_command qmake-qt4
 %endif
 %if 0%{?suse_version} || 0%{?sles_version}
 BuildRequires: pkgconfig(QtGui) >= 4.6
@@ -48,10 +48,16 @@ BuildRequires: pkgconfig(QtWebKit) >= 4.6
 BuildRequires: libQtWebKit-devel
 BuildRequires: update-desktop-files
 BuildRequires: xorg-x11-Xvfb xkeyboard-config
-%define qmake_command qmake
+BuildRequires: cmake >= 2.8.7
 %endif
 %define         X_display         ":98"
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+
+%if "%{?_lib}" == "lib64"
+%define my_cmake_lib_suffix "-DLIB_SUFFIX=64"
+%else
+%define my_cmake_lib_suffix "-ULIB_SUFFIX"
+%endif
  
 %description
 Trojita is a Qt IMAP e-mail client which:
@@ -66,11 +72,16 @@ Trojita is a Qt IMAP e-mail client which:
 %setup -q
  
 %build
-%qmake_command CONFIG+=debug PREFIX=/usr
+cmake \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_VERBOSE_MAKEFILE=ON \
+    -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
+    -DCMAKE_INSTALL_LIBDIR:PATH=%{_libdir} %{my_cmake_lib_suffix} \
+    -DSHARE_INSTALL_PREFIX:PATH=%{_datadir}
 make %{?_smp_mflags}
  
 %install
-make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
+make %{?_smp_mflags} DESTDIR=%{buildroot} install
 %if 0%{?suse_version} || 0%{?sles_version}
 %suse_update_desktop_file %{buildroot}/%{_datadir}/applications/trojita.desktop
 %endif
@@ -81,7 +92,9 @@ make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
 %files
 %defattr(-,root,root)
 %doc LICENSE README
+%{_libdir}/libtrojita_plugins.so
 %{_bindir}/trojita
+%{_bindir}/be.contacts
 %{_datadir}/applications/trojita.desktop
 %dir %{_datadir}/icons/hicolor
 %dir %{_datadir}/icons/hicolor/*
@@ -96,6 +109,6 @@ make %{?_smp_mflags} INSTALL_ROOT=%{buildroot} install
 export DISPLAY=%{X_display}
 Xvfb %{X_display} &
 trap "kill $! || true" EXIT
-make test
+ctest --output-on-failure
 
 %changelog
