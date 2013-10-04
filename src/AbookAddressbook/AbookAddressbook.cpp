@@ -30,23 +30,9 @@
 #include <QStandardItemModel>
 #include <QStringBuilder>
 #include <QTimer>
+#include "Common/SettingsCategoryGuard.h"
 
 using namespace Gui;
-
-class SettingsCategoryGuard {
-private:
-    QSettings *m_settings;
-
-public:
-    SettingsCategoryGuard(QSettings *settings, const QString &prefix) {
-        m_settings = settings;
-        m_settings->beginGroup(prefix);
-    }
-
-    ~SettingsCategoryGuard() {
-        m_settings->endGroup();
-    }
-};
 
 AbookAddressbook::AbookAddressbook(): m_updateTimer(0)
 {
@@ -157,7 +143,7 @@ void AbookAddressbook::readAbook(bool update)
     abook.setIniCodec("UTF-8");
     QStringList contacts = abook.childGroups();
     foreach (const QString &contact, contacts) {
-        SettingsCategoryGuard guard(&abook, contact);
+        Common::SettingsCategoryGuard guard(&abook, contact);
         QStandardItem *item = 0;
         QStringList mails;
         if (update) {
@@ -228,7 +214,7 @@ void AbookAddressbook::saveContacts()
     abook.setIniCodec("UTF-8");
     abook.clear();
     for (int i = 0; i < m_contacts->rowCount(); ++i) {
-        SettingsCategoryGuard guard(&abook, QString::number(i));
+        Common::SettingsCategoryGuard guard(&abook, QString::number(i));
         QStandardItem *item = m_contacts->item(i);
         for (QList<QPair<Type,QString> >::const_iterator   it = m_fields.constBegin(),
                                             end = m_fields.constEnd(); it != end; ++it) {
