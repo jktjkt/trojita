@@ -696,4 +696,25 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivalsBlockingFurtherAct
     cEmpty();
 }
 
+/** @short Make sure that a UIDVALIDITY update which does not actually change is value is handled properly */
+void ImapModelSelectedMailboxUpdatesTest::testInnocentUidValidityChange()
+{
+    initialMessages(6);
+    cServer("* OK [UIDVALIDITY " + QByteArray::number(uidValidityA) + "] foo\r\n");
+    cEmpty();
+    QVERIFY(model->isNetworkOnline());
+}
+
+/** @short Check that an unexpected change to the UIDVALIDITY while a mailbox is open is handled */
+void ImapModelSelectedMailboxUpdatesTest::testUnexpectedUidValidityChange()
+{
+    initialMessages(6);
+    {
+        ExpectSingleErrorHere blocker(this);
+        cServer("* OK [UIDVALIDITY " + QByteArray::number(uidValidityA + 333) + "] foo\r\n");
+    }
+    cClient(t.mk("LOGOUT\r\n"));
+    QVERIFY(!model->isNetworkAvailable());
+}
+
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

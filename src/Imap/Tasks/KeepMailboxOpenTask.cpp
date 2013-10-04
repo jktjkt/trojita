@@ -790,6 +790,28 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         // We shouldn't yeat tagged responses from this context
         return resp->tag.isEmpty();
     }
+    case Responses::UIDVALIDITY:
+    {
+        if (dieIfInvalidMailbox())
+            return resp->tag.isEmpty();
+
+        TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
+        Q_ASSERT(mailbox);
+        const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
+        Q_ASSERT(num);
+        if (mailbox->syncState.uidValidity() == num->data) {
+            // this is a harmless and useless message
+            return resp->tag.isEmpty();
+        } else {
+            // On the other hand, this a serious condition -- the server is telling us that the UIDVALIDITY has changed while
+            // a mailbox is open. There isn't much we could do here; having code for handling this gracefuly is just too much
+            // work for little to no benefit.
+            // The sane thing is to disconnect from this mailbox.
+            emit model->connectionError(tr("The UIDVALIDITY has changed while mailbox is open. Please reconnect."));
+            model->setNetworkOffline();
+            return resp->tag.isEmpty();
+        }
+    }
     default:
         // Do nothing here
         break;
