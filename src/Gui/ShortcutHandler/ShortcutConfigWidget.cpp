@@ -28,6 +28,7 @@
 
 #include "IconLoader.h"
 #include "ShortcutHandler.h"
+#include "Common/SettingsCategoryGuard.h"
 
 namespace Gui
 {
@@ -294,7 +295,7 @@ void ShortcutConfigWidget::writeSettings()
 {
     QSettings *settings = ShortcutHandler::instance()->settingsObject();
     Q_ASSERT_X(settings, "ShortcutHandler", "no QSettings object found: a settings object should first be set using setSettingsObject() and then readSettings() should be called when initializing your program; note that this QSettings object should exist during the entire lifetime of the ShortcutHandler object and therefore not be deleted first");
-    settings->beginGroup(QLatin1String("ShortcutHandler"));
+    Common::SettingsCategoryGuard guard(settings, QLatin1String("ShortcutHandler"));
     settings->remove(QString());
     settings->beginWriteArray(QLatin1String("Shortcuts"));
     int index = 0;
@@ -309,7 +310,6 @@ void ShortcutConfigWidget::writeSettings()
         }
     }
     settings->endArray();
-    settings->endGroup();
 }
 
 } // namespace Gui

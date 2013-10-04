@@ -27,6 +27,7 @@
 #include <QSettings>
 #include "AbookAddressbook/AbookAddressbook.h"
 #include "AbookAddressbook/be-contacts.h"
+#include "Common/SettingsCategoryGuard.h"
 
 int main(int argc, char **argv) {
     if (argc > 1 && argv[1][0] != '-') {
@@ -71,7 +72,7 @@ int main(int argc, char **argv) {
         abook.setIniCodec("UTF-8");
         QStringList contacts = abook.childGroups();
         foreach (const QString &contact, contacts) {
-            abook.beginGroup(contact);
+            Common::SettingsCategoryGuard guard(&abook, contact);
             int id = contact.toInt();
             if (id > lastContact)
                 lastContact = id;
@@ -91,15 +92,13 @@ int main(int argc, char **argv) {
                 else
                     ++it;
             }
-            abook.endGroup();
         }
         QMap<QString,QString>::const_iterator it = imports.constBegin(), end = imports.constEnd();
         while (it != end) {
             ++adds;
-            abook.beginGroup(QString::number(++lastContact));
+            Common::SettingsCategoryGuard guard(&abook, QString::number(++lastContact));
             abook.setValue("name", it.key());
             abook.setValue("email", it.value());
-            abook.endGroup();
             ++it;
         }
         qWarning("updated %d and added %d contacts", updates, adds);

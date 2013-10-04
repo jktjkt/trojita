@@ -28,6 +28,7 @@
 #include "IconLoader.h"
 #include "ShortcutConfigDialog.h"
 #include "ShortcutConfigWidget.h"
+#include "Common/SettingsCategoryGuard.h"
 
 namespace Gui
 {
@@ -186,7 +187,7 @@ void ShortcutHandler::reject()
 void ShortcutHandler::readSettings()
 {
     Q_ASSERT_X(m_settings, "ShortcutHandler", "a settings object should be set using setSettingsObject() prior to using readSettings()");
-    m_settings->beginGroup(QLatin1String("ShortcutHandler"));
+    Common::SettingsCategoryGuard guard(m_settings, QLatin1String("ShortcutHandler"));
     const int size = m_settings->beginReadArray(QLatin1String("Shortcuts"));
     for (int i = 0; i < size; ++i) {
         m_settings->setArrayIndex(i);
@@ -198,7 +199,6 @@ void ShortcutHandler::readSettings()
             action->setShortcut(QKeySequence(m_settings->value(QLatin1String("Shortcut")).toString()));
     }
     m_settings->endArray();
-    m_settings->endGroup();
 }
 
 } // namespace Gui
