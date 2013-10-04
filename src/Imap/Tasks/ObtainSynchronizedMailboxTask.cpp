@@ -435,15 +435,12 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
     log("No arrivals or deletions since the last time", Common::LOG_MAILBOX_SYNC);
     if (mailbox->syncState.exists()) {
         // Verify that we indeed have all UIDs and not need them anymore
-        bool uidsOk = true;
+#ifndef QT_NO_DEBUG
         for (int i = 0; i < list->m_children.size(); ++i) {
-            if (! static_cast<TreeItemMessage *>(list->m_children[i])->uid()) {
-                uidsOk = false;
-                break;
-            }
+            // FIXME: This assert can fail if the mailbox contained messages with missing UIDs even before we opened it now.
+            Q_ASSERT(static_cast<TreeItemMessage *>(list->m_children[i])->uid());
         }
-        // FIXME: This assert can fail if the mailbox contained messages with missing UIDs even before we opened it now.
-        Q_ASSERT(uidsOk);
+#endif
     } else {
         list->m_unreadMessageCount = 0;
         list->m_totalMessageCount = 0;
