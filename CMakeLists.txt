@@ -554,7 +554,6 @@ set(libImap_SOURCES
     ${path_Imap}/Model/MailboxTree.cpp
     ${path_Imap}/Model/MemoryCache.cpp
     ${path_Imap}/Model/Model.cpp
-    ${path_Imap}/Model/ModelWatcher.cpp
     ${path_Imap}/Model/MsgListModel.cpp
     ${path_Imap}/Model/OneMessageModel.cpp
     ${path_Imap}/Model/ParserState.cpp
@@ -568,7 +567,11 @@ set(libImap_SOURCES
     ${path_Imap}/Model/Utils.cpp
     ${path_Imap}/Model/VisibleTasksModel.cpp
 
-    ${path_Imap}/Model/ModelTest/modeltest.cpp
+    # The ModelTest is only needed when debugging manually
+    #${path_Imap}/Model/ModelTest/modeltest.cpp
+    # The ModelWatcher is another debugging aid
+    ${path_Imap}/Model/ModelWatcher.cpp
+
     ${path_Imap}/Model/kdeui-itemviews/kdescendantsproxymodel.cpp
 
     ${path_Imap}/Tasks/AppendTask.cpp
