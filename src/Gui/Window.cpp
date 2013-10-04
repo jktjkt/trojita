@@ -117,7 +117,7 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), model(0),
     defineActions();
     shortcutHandler->readSettings(); // must happen after defineActions()
 
-    migrateSettings();
+    Imap::migrateSettings(m_settings);
 
     m_senderIdentities = new Composer::SenderIdentitiesModel(this);
     m_senderIdentities->loadFromSettings(*m_settings);
@@ -1166,17 +1166,6 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
         return;
     }
 
-    QByteArray lastKnownCertPem = m_settings->value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
-    QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
-    lastKnownPubKey = oldChain.isEmpty() ? QByteArray() : oldChain[0].publicKey().toPem();
-    if (!certificateChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == certificateChain[0].publicKey().toPem()) {
-        // Older configuration, but the public keys match nevertheless
-        model->setSslPolicy(certificateChain, errors, true);
-        m_settings->setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
-        m_settings->remove(Common::SettingsNames::imapSslPemCertificate);
-        return;
-    }
-
     QString message;
     QString title;
     Imap::Mailbox::CertificateUtils::IconType icon;
@@ -1189,8 +1178,6 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
                 buf.append(cert.toPem());
             }
             m_settings->setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
-            m_settings->remove(Common::SettingsNames::imapSslPemCertificate);
-
 #ifdef XTUPLE_CONNECT
             QSettings xtSettings(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
             xtSettings.setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
@@ -2212,23 +2199,6 @@ void MainWindow::slotLayoutOneAtTime()
 Imap::Mailbox::Model *MainWindow::imapModel() const
 {
     return model;
-}
-
-/** @short Deal with various obsolete settings */
-void MainWindow::migrateSettings()
-{
-    using Common::SettingsNames;
-
-    // Process the obsolete settings about the "cache backend". This has been changed to "offline stuff" after v0.3.
-    if (m_settings->value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
-        m_settings->setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
-        m_settings->remove(SettingsNames::cacheMetadataKey);
-
-        // Also remove the older values used for cache lifetime management which were not used, but set to zero by default
-        m_settings->remove(QLatin1String("offline.sync"));
-        m_settings->remove(QLatin1String("offline.sync.days"));
-        m_settings->remove(QLatin1String("offline.sync.messages"));
-    }
 }
 
 void MainWindow::desktopGeometryChanged()

@@ -374,7 +374,7 @@ void ImapPage::save(QSettings &s)
 {
     using Common::SettingsNames;
     if (s.value(SettingsNames::imapHostKey) != imapHost->text()) {
-        s.remove(Common::SettingsNames::imapSslPemCertificate);
+        s.remove(Common::SettingsNames::imapSslPemPubKey);
     }
     switch (method->currentIndex()) {
     case TCP:
@@ -735,7 +735,7 @@ void XtConnectPage::saveXtConfig()
                        Common::SettingsNames::xtDbPort <<
                        Common::SettingsNames::xtDbDbName <<
                        Common::SettingsNames::xtDbUser <<
-                       Common::SettingsNames::imapSslPemCertificate;
+                       Common::SettingsNames::imapSslPemPubKey;
     Q_FOREACH(const QString &key, keys) {
         s.setValue(key, QSettings().value(key));
     }

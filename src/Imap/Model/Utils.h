@@ -25,6 +25,7 @@
 #include <QDateTime>
 #include <QObject>
 
+class QSettings;
 class QSslCertificate;
 class QSslError;
 
@@ -77,6 +78,8 @@ public:
 QString formatDateTimeWithTimeZoneAtEnd(const QDateTime &now, const QString &format);
 QString dateTimeToRfc2822(const QDateTime &now);
 QString dateTimeToInternalDate(const QDateTime &now);
+
+void migrateSettings(QSettings *settings);
 
 }
 
