@@ -143,8 +143,7 @@ protected:
 { \
     QModelIndex index = msgListA.child(OFFSET, 0); \
     Q_ASSERT(index.isValid()); \
-    uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt(); \
-    Q_ASSERT(uid); \
+    Q_ASSERT(index.data(Imap::Mailbox::RoleMessageUid).toUInt()); \
     QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString::fromUtf8(SUBJECT)); \
 }
 

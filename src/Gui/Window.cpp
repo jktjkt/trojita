@@ -1038,10 +1038,7 @@ void MainWindow::slotResyncMbox()
         Q_ASSERT(item.isValid());
         if (item.column() != 0)
             continue;
-        Imap::Mailbox::TreeItemMailbox *mbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox *>(
-                Imap::Mailbox::Model::realTreeItem(item)
-                                               );
-        Q_ASSERT(mbox);
+        Q_ASSERT(dynamic_cast<Imap::Mailbox::TreeItemMailbox *>(Imap::Mailbox::Model::realTreeItem(item)));
         model->resyncMailbox(item);
     }
 }

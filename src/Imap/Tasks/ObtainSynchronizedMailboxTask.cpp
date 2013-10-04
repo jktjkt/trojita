@@ -86,8 +86,7 @@ void ObtainSynchronizedMailboxTask::perform()
 
     msgList->m_fetchStatus = TreeItem::LOADING;
 
-    QMap<Parser *,ParserState>::iterator it = model->m_parsers.find(parser);
-    Q_ASSERT(it != model->m_parsers.end());
+    Q_ASSERT(model->m_parsers.contains(parser));
 
     oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
     if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) && oldSyncState.isUsableForCondstore()) {
@@ -861,8 +860,7 @@ bool ObtainSynchronizedMailboxTask::handleSearch(const Imap::Responses::Search *
     if (uidSyncingCmd.isEmpty())
         return false;
 
-    TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
-    Q_ASSERT(mailbox);
+    Q_ASSERT(Model::mailboxForSomeItem(mailboxIndex));
 
     uidMap += resp->items;
 
