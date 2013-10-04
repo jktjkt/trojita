@@ -36,8 +36,7 @@ namespace Mailbox
 NumberOfMessagesTask::NumberOfMessagesTask(Model *model, const QModelIndex &mailbox):
     ImapTask(model), mailboxIndex(mailbox)
 {
-    TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer()));
-    Q_ASSERT(mailboxPtr);
+    Q_ASSERT(dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer())));
     conn = model->m_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
 }

@@ -1528,7 +1528,7 @@ QString TreeItemModifiedPart::pathToPart() const
     if (parentPart) {
         return QString::fromUtf8("%1/%2").arg(parentPart->pathToPart(), modifierToString());
     } else {
-        Q_ASSERT(parentMessage);
+        Q_ASSERT(parentMessage); Q_UNUSED(parentMessage);
         return QString::fromUtf8("/%1").arg(modifierToString());
     }
 }

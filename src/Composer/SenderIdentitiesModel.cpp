@@ -143,7 +143,7 @@ void SenderIdentitiesModel::moveIdentity(const int from, const int to)
     }
 
     bool ok = beginMoveRows(QModelIndex(), from, from, QModelIndex(), targetOffset);
-    Q_ASSERT(ok);
+    Q_ASSERT(ok); Q_UNUSED(ok);
 
     m_identities.move(from, to);
     endMoveRows();
