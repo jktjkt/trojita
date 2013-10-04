@@ -171,33 +171,16 @@ void SenderIdentitiesModel::loadFromSettings(QSettings &s)
     m_identities.clear();
 
     int num = s.beginReadArray(Common::SettingsNames::identitiesKey);
-    if (num == 0) {
-        s.endArray();
-        // Load from the older format where only one identity was supported
-
-        QString realName = s.value(Common::SettingsNames::obsRealNameKey).toString();
-        QString email = s.value(Common::SettingsNames::obsAddressKey).toString();
-        if (!realName.isEmpty() || !email.isEmpty()) {
-            // Don't add empty identities
-            m_identities << ItemSenderIdentity(realName, email,
-                                               // Old format had no support for signatures/organizations
-                                               QString(), QString());
-        }
-
-        // Thrash the old settings, replace with the new format
-        saveToSettings(s);
-    } else {
-        // The new format with multiple identities
-        for (int i = 0; i < num; ++i) {
-            s.setArrayIndex(i);
-            m_identities << ItemSenderIdentity(
-                                s.value(Common::SettingsNames::realNameKey).toString(),
-                                s.value(Common::SettingsNames::addressKey).toString(),
-                                s.value(Common::SettingsNames::organisationKey).toString(),
-                                s.value(Common::SettingsNames::signatureKey).toString());
-        }
-        s.endArray();
+    // The new format with multiple identities
+    for (int i = 0; i < num; ++i) {
+        s.setArrayIndex(i);
+        m_identities << ItemSenderIdentity(
+                            s.value(Common::SettingsNames::realNameKey).toString(),
+                            s.value(Common::SettingsNames::addressKey).toString(),
+                            s.value(Common::SettingsNames::organisationKey).toString(),
+                            s.value(Common::SettingsNames::signatureKey).toString());
     }
+    s.endArray();
     endResetModel();
 }
 
@@ -212,8 +195,6 @@ void SenderIdentitiesModel::saveToSettings(QSettings &s) const
         s.setValue(Common::SettingsNames::signatureKey, m_identities[i].signature);
     }
     s.endArray();
-    s.remove(Common::SettingsNames::obsRealNameKey);
-    s.remove(Common::SettingsNames::obsAddressKey);
 }
 
 }

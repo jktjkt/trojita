@@ -508,6 +508,23 @@ void migrateSettings(QSettings *settings)
         }
     }
     settings->remove(SettingsNames::imapSslPemCertificate);
+
+    // Migration of the sender identities
+    bool needsIdentityMigration = settings->beginReadArray(SettingsNames::identitiesKey) == 0;
+    settings->endArray();
+    if (needsIdentityMigration) {
+        QString realName = settings->value(SettingsNames::obsRealNameKey).toString();
+        QString email = settings->value(SettingsNames::obsAddressKey).toString();
+        if (!realName.isEmpty() || !email.isEmpty()) {
+            settings->beginWriteArray(SettingsNames::identitiesKey);
+            settings->setArrayIndex(0);
+            settings->setValue(SettingsNames::realNameKey, realName);
+            settings->setValue(SettingsNames::addressKey, email);
+            settings->endArray();
+            settings->remove(Common::SettingsNames::obsRealNameKey);
+            settings->remove(Common::SettingsNames::obsAddressKey);
+        }
+    }
 }
 
 }
