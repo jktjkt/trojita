@@ -189,14 +189,6 @@ if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
 endif()
 
 set(path_Common ${CMAKE_CURRENT_SOURCE_DIR}/src/Common)
-set(libCommon_HEADERS
-    ${path_Common}/Application.h
-    ${path_Common}/ConnectionId.h
-    ${path_Common}/DeleteAfter.h
-    ${path_Common}/FileLogger.h
-    ${path_Common}/Paths.h
-    ${path_Common}/SettingsNames.h
-)
 set(libCommon_SOURCES
     ${path_Common}/Application.cpp
     ${path_Common}/ConnectionId.cpp
@@ -207,13 +199,6 @@ set(libCommon_SOURCES
 )
 
 set(path_Plugins ${CMAKE_CURRENT_SOURCE_DIR}/src/Plugins)
-set(libPlugins_HEADERS
-    ${path_Plugins}/AddressbookPlugin.h
-    ${path_Plugins}/PasswordPlugin.h
-    ${path_Plugins}/PluginJob.h
-    ${path_Plugins}/PluginManager.h
-    ${path_Plugins}/TrojitaPluginInterface.h
-)
 set(libPlugins_SOURCES
     ${path_Plugins}/AddressbookPlugin.cpp
     ${path_Plugins}/PasswordPlugin.cpp
@@ -222,16 +207,6 @@ set(libPlugins_SOURCES
 )
 
 set(path_Composer ${CMAKE_CURRENT_SOURCE_DIR}/src/Composer)
-set(libComposer_HEADERS
-    ${path_Composer}/ComposerAttachments.h
-    ${path_Composer}/MessageComposer.h
-    ${path_Composer}/PlainTextFormatter.h
-    ${path_Composer}/Recipients.h
-    ${path_Composer}/ReplaceSignature.h
-    ${path_Composer}/SenderIdentitiesModel.h
-    ${path_Composer}/SubjectMangling.h
-    ${path_Composer}/Submission.h
-)
 set(libComposer_SOURCES
     ${path_Composer}/ComposerAttachments.cpp
     ${path_Composer}/MessageComposer.cpp
@@ -244,13 +219,6 @@ set(libComposer_SOURCES
 )
 
 set(path_MSA ${CMAKE_CURRENT_SOURCE_DIR}/src/MSA)
-set(libMSA_HEADERS
-    ${path_MSA}/AbstractMSA.h
-    ${path_MSA}/FakeMSA.h
-    ${path_MSA}/ImapSubmit.h
-    ${path_MSA}/SMTP.h
-    ${path_MSA}/Sendmail.h
-)
 set(libMSA_SOURCES
     ${path_MSA}/AbstractMSA.cpp
     ${path_MSA}/FakeMSA.cpp
@@ -260,13 +228,6 @@ set(libMSA_SOURCES
 )
 
 set(path_Streams ${CMAKE_CURRENT_SOURCE_DIR}/src/Streams)
-set(libStreams_HEADERS
-    ${path_Streams}/DeletionWatcher.h
-    ${path_Streams}/FakeSocket.h
-    ${path_Streams}/IODeviceSocket.h
-    ${path_Streams}/Socket.h
-    ${path_Streams}/SocketFactory.h
-)
 set(libStreams_SOURCES
     ${path_Streams}/DeletionWatcher.cpp
     ${path_Streams}/FakeSocket.cpp
@@ -283,18 +244,6 @@ endif()
 
 if(NOT WITH_QT5)
     set(path_mimetypesqt4 ${CMAKE_CURRENT_SOURCE_DIR}/src/mimetypes-qt4)
-    set(libMimetypesQt4_HEADERS
-        ${path_mimetypesqt4}/io/qstandardpaths.h
-        ${path_mimetypesqt4}/mimetypes/qmimedatabase_p.h
-        ${path_mimetypesqt4}/mimetypes/qmimeglobpattern_p.h
-        ${path_mimetypesqt4}/mimetypes/qmimemagicrule_p.h
-        ${path_mimetypesqt4}/mimetypes/qmimemagicrulematcher_p.h
-        ${path_mimetypesqt4}/mimetypes/qmimeprovider_p.h
-        ${path_mimetypesqt4}/mimetypes/qmimetype_p.h
-        ${path_mimetypesqt4}/mimetypes/qmimetypeparser_p.h
-        ${path_mimetypesqt4}/mimetypes/qmimetype.h
-        ${path_mimetypesqt4}/mimetypes/qmimedatabase.h
-    )
     set(libMimetypesQt4_SOURCES
         ${path_mimetypesqt4}/io/qstandardpaths.cpp
         ${path_mimetypesqt4}/mimetypes/qmimedatabase.cpp
@@ -323,47 +272,6 @@ if(NOT WITH_QT5)
 endif()
 
 set(path_DesktopGui ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui)
-set(libDesktopGui_HEADERS
-    ${path_DesktopGui}/AttachmentView.h
-    ${path_DesktopGui}/AutoCompletion.h
-    ${path_DesktopGui}/CompleteMessageWidget.h
-    ${path_DesktopGui}/ComposeWidget.h
-    ${path_DesktopGui}/ComposerAttachmentsList.h
-    ${path_DesktopGui}/ComposerTextEdit.h
-    ${path_DesktopGui}/EmbeddedWebView.h
-    ${path_DesktopGui}/EnvelopeView.h
-    ${path_DesktopGui}/ExternalElementsWidget.h
-    ${path_DesktopGui}/FindBar.h
-    ${path_DesktopGui}/FlowLayout.h
-    ${path_DesktopGui}/FromAddressProxyModel.h
-    ${path_DesktopGui}/LineEdit.h
-    ${path_DesktopGui}/LoadablePartWidget.h
-    ${path_DesktopGui}/MailBoxTreeView.h
-    ${path_DesktopGui}/MessageListWidget.h
-    ${path_DesktopGui}/MessageSourceWidget.h
-    ${path_DesktopGui}/MessageView.h
-    ${path_DesktopGui}/MsgListView.h
-    ${path_DesktopGui}/OnePanelAtTimeWidget.h
-    ${path_DesktopGui}/OverlayWidget.h
-    ${path_DesktopGui}/PartWidget.h
-    ${path_DesktopGui}/PartWidgetFactory.h
-    ${path_DesktopGui}/PasswordDialog.h
-    ${path_DesktopGui}/ProgressPopUp.h
-    ${path_DesktopGui}/ProtocolLoggerWidget.h
-    ${path_DesktopGui}/ReplaceCharValidator.h
-    ${path_DesktopGui}/SettingsDialog.h
-    ${path_DesktopGui}/SimplePartWidget.h
-    ${path_DesktopGui}/Spinner.h
-    ${path_DesktopGui}/TagListWidget.h
-    ${path_DesktopGui}/TagWidget.h
-    ${path_DesktopGui}/TaskProgressIndicator.h
-    ${path_DesktopGui}/UserAgentWebPage.h
-    ${path_DesktopGui}/Util.h
-    ${path_DesktopGui}/Window.h
-    ${path_DesktopGui}/ShortcutHandler/ShortcutConfigDialog.h
-    ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.h
-    ${path_DesktopGui}/ShortcutHandler/ShortcutHandler.h
-    )
 set(libDesktopGui_SOURCES
     ${path_DesktopGui}/AttachmentView.cpp
     ${path_DesktopGui}/AutoCompletion.cpp
@@ -422,104 +330,11 @@ set(libDesktopGui_RESOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/icons.qrc
 )
 
-set(libqwwsmtpclient_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/qwwsmtpclient/qwwsmtpclient.h)
 set(libqwwsmtpclient_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/qwwsmtpclient/qwwsmtpclient.cpp)
 
-set(libAppVersion_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/AppVersion/SetCoreApplication.h)
 set(libAppVersion_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/AppVersion/SetCoreApplication.cpp)
 
 set(path_Imap ${CMAKE_CURRENT_SOURCE_DIR}/src/Imap)
-set(libImap_HEADERS
-    ${path_Imap}/ConnectionState.h
-    ${path_Imap}/Exceptions.h
-    ${path_Imap}/Encoders.h
-    ${path_Imap}/Parser/3rdparty/kcodecs.h
-    ${path_Imap}/Parser/3rdparty/rfccodecs.h
-
-    ${path_Imap}/Parser/Command.h
-    ${path_Imap}/Parser/Data.h
-    ${path_Imap}/Parser/LowLevelParser.h
-    ${path_Imap}/Parser/MailAddress.h
-    ${path_Imap}/Parser/Message.h
-    ${path_Imap}/Parser/Parser.h
-    ${path_Imap}/Parser/Response.h
-    ${path_Imap}/Parser/Rfc5322HeaderParser.h
-    ${path_Imap}/Parser/Sequence.h
-    ${path_Imap}/Parser/ThreadingNode.h
-
-    ${path_Imap}/Network/FileDownloadManager.h
-    ${path_Imap}/Network/ForbiddenReply.h
-    ${path_Imap}/Network/MsgPartNetAccessManager.h
-    ${path_Imap}/Network/MsgPartNetworkReply.h
-
-    ${path_Imap}/Model/Cache.h
-    ${path_Imap}/Model/CatenateData.h
-    ${path_Imap}/Model/CombinedCache.h
-    ${path_Imap}/Model/CopyMoveOperation.h
-    ${path_Imap}/Model/DelayedPopulation.h
-    ${path_Imap}/Model/DiskPartCache.h
-    ${path_Imap}/Model/FindInterestingPart.h
-    ${path_Imap}/Model/FlagsOperation.h
-    ${path_Imap}/Model/FullMessageCombiner.h
-    ${path_Imap}/Model/ItemRoles.h
-    ${path_Imap}/Model/MailboxMetadata.h
-    ${path_Imap}/Model/MailboxModel.h
-    ${path_Imap}/Model/MailboxTree.h
-    ${path_Imap}/Model/MemoryCache.h
-    ${path_Imap}/Model/Model.h
-    ${path_Imap}/Model/ModelTest/modeltest.h
-    ${path_Imap}/Model/ModelWatcher.h
-    ${path_Imap}/Model/MsgListModel.h
-    ${path_Imap}/Model/OneMessageModel.h
-    ${path_Imap}/Model/ParserState.h
-    ${path_Imap}/Model/PrettyMailboxModel.h
-    ${path_Imap}/Model/PrettyMsgListModel.h
-    ${path_Imap}/Model/QAIM_reset.h
-    ${path_Imap}/Model/SQLCache.h
-    ${path_Imap}/Model/SubscribeUnSubscribeOperation.h
-    ${path_Imap}/Model/SubtreeModel.h
-    ${path_Imap}/Model/TaskFactory.h
-    ${path_Imap}/Model/TaskPresentationModel.h
-    ${path_Imap}/Model/ThreadingMsgListModel.h
-    ${path_Imap}/Model/UidSubmitData.h
-    ${path_Imap}/Model/Utils.h
-    ${path_Imap}/Model/VisibleTasksModel.h
-
-    ${path_Imap}/Model/kdeui-itemviews/kbihash_p.h
-    # this file is left out intentionally; otherwise cmake's automoc won't work with it
-    #${path_Imap}/Model/kdeui-itemviews/kdescendantsproxymodel.h
-
-    ${path_Imap}/Tasks/AppendTask.h
-    ${path_Imap}/Tasks/CopyMoveMessagesTask.h
-    ${path_Imap}/Tasks/CreateMailboxTask.h
-    ${path_Imap}/Tasks/DeleteMailboxTask.h
-    ${path_Imap}/Tasks/EnableTask.h
-    ${path_Imap}/Tasks/ExpungeMailboxTask.h
-    ${path_Imap}/Tasks/ExpungeMessagesTask.h
-    ${path_Imap}/Tasks/Fake_ListChildMailboxesTask.h
-    ${path_Imap}/Tasks/Fake_OpenConnectionTask.h
-    ${path_Imap}/Tasks/FetchMsgMetadataTask.h
-    ${path_Imap}/Tasks/FetchMsgPartTask.h
-    ${path_Imap}/Tasks/GenUrlAuthTask.h
-    ${path_Imap}/Tasks/GetAnyConnectionTask.h
-    ${path_Imap}/Tasks/IdTask.h
-    ${path_Imap}/Tasks/IdleLauncher.h
-    ${path_Imap}/Tasks/ImapTask.h
-    ${path_Imap}/Tasks/KeepMailboxOpenTask.h
-    ${path_Imap}/Tasks/ListChildMailboxesTask.h
-    ${path_Imap}/Tasks/NoopTask.h
-    ${path_Imap}/Tasks/NumberOfMessagesTask.h
-    ${path_Imap}/Tasks/ObtainSynchronizedMailboxTask.h
-    ${path_Imap}/Tasks/OfflineConnectionTask.h
-    ${path_Imap}/Tasks/OpenConnectionTask.h
-    ${path_Imap}/Tasks/SortTask.h
-    ${path_Imap}/Tasks/SubscribeUnsubscribeTask.h
-    ${path_Imap}/Tasks/ThreadTask.h
-    ${path_Imap}/Tasks/UidSubmitTask.h
-    ${path_Imap}/Tasks/UnSelectTask.h
-    ${path_Imap}/Tasks/UpdateFlagsTask.h
-    ${path_Imap}/Tasks/UpdateFlagsOfAllMessagesTask.h
-)
 set(libImap_SOURCES
     ${path_Imap}/ConnectionState.cpp
     ${path_Imap}/Encoders.cpp
@@ -615,10 +430,6 @@ else()
 endif()
 
 set(path_AbookAddressbook ${CMAKE_CURRENT_SOURCE_DIR}/src/AbookAddressbook)
-set(libAbookAddressbook_HEADERS
-    ${path_AbookAddressbook}/AbookAddressbook.h
-    ${path_AbookAddressbook}/be-contacts.h
-)
 set(libAbookAddressbook_SOURCES
     ${path_AbookAddressbook}/AbookAddressbook.cpp
     ${path_AbookAddressbook}/be-contacts.cpp
@@ -643,17 +454,10 @@ set(be_contacts_SOURCES
 set(libQmlModelGlue_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/ModelGlue/ImapAccess.cpp
 )
-set(libQmlModelGlue_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/ModelGlue/ImapAccess.h
-)
 
 set(libQNAMWebView_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/QNAMWebView/plugin.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/QNAMWebView/qdeclarativewebview.cpp
-)
-set(libQNAMWebView_HEADERS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/QNAMWebView/plugin.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/QNAMWebView/qdeclarativewebview_p.h
 )
 
 set(trojitaHarmattan_SOURCES
