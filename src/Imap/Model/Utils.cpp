@@ -498,6 +498,16 @@ void migrateSettings(QSettings *settings)
         settings->remove(QLatin1String("offline.sync.days"));
         settings->remove(QLatin1String("offline.sync.messages"));
     }
+
+    // Migrate the "last known certificate" from the full PEM format to just the pubkey
+    QByteArray lastKnownCertPem = settings->value(SettingsNames::imapSslPemCertificate).toByteArray();
+    if (!lastKnownCertPem.isEmpty()) {
+        QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
+        if (!oldChain.isEmpty()) {
+            settings->setValue(SettingsNames::imapSslPemPubKey, oldChain[0].publicKey().toPem());
+        }
+    }
+    settings->remove(SettingsNames::imapSslPemCertificate);
 }
 
 }

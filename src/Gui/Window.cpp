@@ -1169,17 +1169,6 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
         return;
     }
 
-    QByteArray lastKnownCertPem = m_settings->value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
-    QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
-    lastKnownPubKey = oldChain.isEmpty() ? QByteArray() : oldChain[0].publicKey().toPem();
-    if (!certificateChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == certificateChain[0].publicKey().toPem()) {
-        // Older configuration, but the public keys match nevertheless
-        model->setSslPolicy(certificateChain, errors, true);
-        m_settings->setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
-        m_settings->remove(Common::SettingsNames::imapSslPemCertificate);
-        return;
-    }
-
     QString message;
     QString title;
     Imap::Mailbox::CertificateUtils::IconType icon;
@@ -1192,8 +1181,6 @@ void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const
                 buf.append(cert.toPem());
             }
             m_settings->setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
-            m_settings->remove(Common::SettingsNames::imapSslPemCertificate);
-
 #ifdef XTUPLE_CONNECT
             QSettings xtSettings(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
             xtSettings.setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());

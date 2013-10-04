@@ -42,6 +42,7 @@ ImapAccess::ImapAccess(QObject *parent) :
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
     QSettings s;
+    Imap::migrateSettings(&s);
     m_server = s.value(Common::SettingsNames::imapHostKey).toString();
     m_username = s.value(Common::SettingsNames::imapUserKey).toString();
     if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodSSL) {
@@ -241,19 +242,10 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
         // This certificate chain contains the same public keys as the last time; we should accept that
         m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
     } else {
-        QByteArray lastKnownCertPem = s.value(Common::SettingsNames::imapSslPemCertificate).toByteArray();
-        QList<QSslCertificate> oldChain = QSslCertificate::fromData(lastKnownCertPem, QSsl::Pem);
-        lastKnownPubKey = oldChain.isEmpty() ? QByteArray() : oldChain[0].publicKey().toPem();
-        if (!m_sslChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == m_sslChain[0].publicKey().toPem()) {
-            m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
-            s.setValue(Common::SettingsNames::imapSslPemPubKey, m_sslChain[0].publicKey().toPem());
-            s.remove(Common::SettingsNames::imapSslPemCertificate);
-        } else {
-            Imap::Mailbox::CertificateUtils::IconType icon;
-            Imap::Mailbox::CertificateUtils::formatSslState(
-                        m_sslChain, lastKnownPubKey, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &icon);
-            emit checkSslPolicy();
-        }
+        Imap::Mailbox::CertificateUtils::IconType icon;
+        Imap::Mailbox::CertificateUtils::formatSslState(
+                    m_sslChain, lastKnownPubKey, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &icon);
+        emit checkSslPolicy();
     }
 }
 
@@ -262,7 +254,6 @@ void ImapAccess::setSslPolicy(bool accept)
     if (accept && !m_sslChain.isEmpty()) {
         QSettings s;
         s.setValue(Common::SettingsNames::imapSslPemPubKey, m_sslChain[0].publicKey().toPem());
-        s.remove(Common::SettingsNames::imapSslPemCertificate);
     }
     m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, accept);
 }
@@ -270,7 +261,6 @@ void ImapAccess::setSslPolicy(bool accept)
 void ImapAccess::forgetSslCertificate()
 {
     QSettings().remove(Common::SettingsNames::imapSslPemPubKey);
-    QSettings().remove(Common::SettingsNames::imapSslPemCertificate);
 }
 
 QString ImapAccess::sslInfoTitle() const
