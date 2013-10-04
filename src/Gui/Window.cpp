@@ -117,7 +117,7 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), model(0),
     defineActions();
     shortcutHandler->readSettings(); // must happen after defineActions()
 
-    migrateSettings();
+    Imap::migrateSettings(m_settings);
 
     m_senderIdentities = new Composer::SenderIdentitiesModel(this);
     m_senderIdentities->loadFromSettings(*m_settings);
@@ -2215,23 +2215,6 @@ void MainWindow::slotLayoutOneAtTime()
 Imap::Mailbox::Model *MainWindow::imapModel() const
 {
     return model;
-}
-
-/** @short Deal with various obsolete settings */
-void MainWindow::migrateSettings()
-{
-    using Common::SettingsNames;
-
-    // Process the obsolete settings about the "cache backend". This has been changed to "offline stuff" after v0.3.
-    if (m_settings->value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
-        m_settings->setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
-        m_settings->remove(SettingsNames::cacheMetadataKey);
-
-        // Also remove the older values used for cache lifetime management which were not used, but set to zero by default
-        m_settings->remove(QLatin1String("offline.sync"));
-        m_settings->remove(QLatin1String("offline.sync.days"));
-        m_settings->remove(QLatin1String("offline.sync.messages"));
-    }
 }
 
 void MainWindow::desktopGeometryChanged()

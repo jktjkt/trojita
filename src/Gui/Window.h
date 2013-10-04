@@ -210,7 +210,6 @@ private:
 
     void updateActionsOnlineOffline(bool online);
 
-    void migrateSettings();
     void applySizesAndState();
     QString settingsKeyForLayout(const LayoutMode layout);
 

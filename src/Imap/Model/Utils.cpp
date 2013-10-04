@@ -25,12 +25,14 @@
 #include <QDir>
 #include <QLocale>
 #include <QProcess>
+#include <QSettings>
 #include <QSslError>
 #include <QSslKey>
 #include <QSysInfo>
 #include <QTextDocument>
 
 #include "Common/Paths.h"
+#include "Common/SettingsNames.h"
 
 #ifdef TROJITA_MOBILITY_SYSTEMINFO
 #include <QSystemDeviceInfo>
@@ -479,6 +481,23 @@ QString dateTimeToRfc2822(const QDateTime &now)
 QString dateTimeToInternalDate(const QDateTime &now)
 {
     return formatDateTimeWithTimeZoneAtEnd(now, QLatin1String("dd-MMM-yyyy hh:mm:ss "));
+}
+
+/** @short Migrate old application settings to the new format */
+void migrateSettings(QSettings *settings)
+{
+    using Common::SettingsNames;
+
+    // Process the obsolete settings about the "cache backend". This has been changed to "offline stuff" after v0.3.
+    if (settings->value(SettingsNames::cacheMetadataKey).toString() == SettingsNames::cacheMetadataMemory) {
+        settings->setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
+        settings->remove(SettingsNames::cacheMetadataKey);
+
+        // Also remove the older values used for cache lifetime management which were not used, but set to zero by default
+        settings->remove(QLatin1String("offline.sync"));
+        settings->remove(QLatin1String("offline.sync.days"));
+        settings->remove(QLatin1String("offline.sync.messages"));
+    }
 }
 
 }
