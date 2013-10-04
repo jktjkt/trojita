@@ -374,7 +374,7 @@ void ImapPage::save(QSettings &s)
 {
     using Common::SettingsNames;
     if (s.value(SettingsNames::imapHostKey) != imapHost->text()) {
-        s.remove(Common::SettingsNames::imapSslPemCertificate);
+        s.remove(Common::SettingsNames::imapSslPemPubKey);
     }
     switch (method->currentIndex()) {
     case TCP:
