@@ -33,6 +33,7 @@
 #include "Model.h"
 #include "MailboxTree.h"
 #include "QAIM_reset.h"
+#include "SpecialFlagNames.h"
 #include "TaskPresentationModel.h"
 #include "Common/FindWithUnknown.h"
 #include "Imap/Tasks/AppendTask.h"
@@ -132,11 +133,11 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 
     m_taskModel = new TaskPresentationModel(this);
 
-    m_specialFlagNames[QLatin1String("\\seen")] = QLatin1String("\\Seen");
-    m_specialFlagNames[QLatin1String("\\deleted")] = QLatin1String("\\Deleted");
-    m_specialFlagNames[QLatin1String("\\answered")] = QLatin1String("\\Answered");
-    m_specialFlagNames[QLatin1String("\\recent")] = QLatin1String("\\Recent");
-    m_specialFlagNames[QLatin1String("$forwarded")] = QLatin1String("$Forwarded");
+    m_specialFlagNames[QLatin1String("\\seen")] = FlagNames::seen;
+    m_specialFlagNames[QLatin1String("\\deleted")] = FlagNames::deleted;
+    m_specialFlagNames[QLatin1String("\\answered")] = FlagNames::answered;
+    m_specialFlagNames[QLatin1String("\\recent")] = FlagNames::recent;
+    m_specialFlagNames[QLatin1String("$forwarded")] = FlagNames::forwarded;
 
     m_periodicMailboxNumbersRefresh = new QTimer(this);
     // polling every five minutes

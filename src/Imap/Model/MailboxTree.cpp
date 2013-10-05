@@ -30,6 +30,7 @@
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "Model.h"
+#include "SpecialFlagNames.h"
 #include <QtDebug>
 
 namespace
@@ -1093,27 +1094,27 @@ QVariant TreeItemMessage::data(Model *const model, int role)
 
 bool TreeItemMessage::isMarkedAsDeleted() const
 {
-    return m_flags.contains(QLatin1String("\\Deleted"));
+    return m_flags.contains(FlagNames::deleted);
 }
 
 bool TreeItemMessage::isMarkedAsRead() const
 {
-    return m_flags.contains(QLatin1String("\\Seen"));
+    return m_flags.contains(FlagNames::seen);
 }
 
 bool TreeItemMessage::isMarkedAsReplied() const
 {
-    return m_flags.contains(QLatin1String("\\Answered"));
+    return m_flags.contains(FlagNames::answered);
 }
 
 bool TreeItemMessage::isMarkedAsForwarded() const
 {
-    return m_flags.contains(QLatin1String("$Forwarded"));
+    return m_flags.contains(FlagNames::forwarded);
 }
 
 bool TreeItemMessage::isMarkedAsRecent() const
 {
-    return m_flags.contains(QLatin1String("\\Recent"));
+    return m_flags.contains(FlagNames::recent);
 }
 
 uint TreeItemMessage::uid() const
