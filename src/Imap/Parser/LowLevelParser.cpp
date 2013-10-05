@@ -84,27 +84,24 @@ QByteArray getAtom(const QByteArray &line, int &start)
     if (start == line.size())
         throw NoData("getAtom: no data", line, start);
 
-    int old(start);
-    bool breakIt = false;
-    while (!breakIt && start < line.size()) {
-        if (line[start] <= '\x1f') {
-            // CTL characters (excluding 0x7f) as defined in ABNF
-            breakIt = true;
-            break;
-        }
-        switch (line[start]) {
-        case '(': case ')': case '{': case '\x20': case '\x7f':
-        case '%': case '*': case '"': case '\\': case ']':
-            breakIt  = true;
-            break;
-        default:
-            ++start;
-        }
+    const char *c_str = line.constData();
+    c_str += start;
+    const char * const old_str = c_str;
+
+    while (*c_str > '\x20' && *c_str != '\x7f' // SP and CTL
+            && *c_str != '(' && *c_str != ')' && *c_str != '{' // explicitly forbidden
+            && *c_str != '%' && *c_str != '*' // list-wildcards
+            && *c_str != '"' && *c_str != '\\' // quoted-specials
+            && *c_str != ']' // resp-specials
+          ) {
+        ++c_str;
     }
 
-    if (old == start)
+    auto size = c_str - old_str;
+    if (!size)
         throw ParseError("getAtom: did not read anything", line, start);
-    return line.mid(old, start - old);
+    start += size;
+    return QByteArray(old_str, size);
 }
 
 QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
