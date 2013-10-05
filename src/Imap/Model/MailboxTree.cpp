@@ -416,6 +416,21 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         if (it.key() == "UID") {
             // established above
             Q_ASSERT(dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data == message->uid());
+        } else if (it.key() == "FLAGS") {
+            // Only emit signals when the flags have actually changed
+            QStringList newFlags = model->normalizeFlags(dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data);
+            bool forceChange = (message->m_flags != newFlags);
+            message->setFlags(list, newFlags, forceChange);
+            if (forceChange) {
+                updatedFlags = true;
+                changedMessage = message;
+            }
+        } else if (it.key() == "MODSEQ") {
+            quint64 num = dynamic_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
+            if (num > syncState.highestModSeq()) {
+                syncState.setHighestModSeq(num);
+                // FIXME: when shall we save this one to the persistent cache?
+            }
         } else if (it.key() == "ENVELOPE") {
             message->m_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data;
             message->m_fetchStatus = DONE;
@@ -467,24 +482,9 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             if (message->uid())
                 model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->m_data);
             changedParts.append(part);
-        } else if (it.key() == "FLAGS") {
-            // Only emit signals when the flags have actually changed
-            QStringList newFlags = model->normalizeFlags(dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data);
-            bool forceChange = (message->m_flags != newFlags);
-            message->setFlags(list, newFlags, forceChange);
-            if (forceChange) {
-                updatedFlags = true;
-                changedMessage = message;
-            }
         } else if (it.key() == "INTERNALDATE") {
             message->m_internalDate = dynamic_cast<const Responses::RespData<QDateTime>&>(*(it.value())).data;
             gotInternalDate = true;
-        } else if (it.key() == "MODSEQ") {
-            quint64 num = dynamic_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
-            if (num > syncState.highestModSeq()) {
-                syncState.setHighestModSeq(num);
-                // FIXME: when shall we save this one to the persistent cache?
-            }
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
