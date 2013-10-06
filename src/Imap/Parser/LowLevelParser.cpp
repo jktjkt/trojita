@@ -78,6 +78,12 @@ quint64 getUInt64(const QByteArray &line, int &start)
     return extractNumber<quint64>(line, start);
 }
 
+#define C_STR_CHECK_FOR_ATOM_CHARS \
+    *c_str > '\x20' && *c_str != '\x7f' /* SP and CTL */ \
+        && *c_str != '(' && *c_str != ')' && *c_str != '{' /* explicitly forbidden */ \
+        && *c_str != '%' && *c_str != '*' /* list-wildcards */ \
+        && *c_str != '"' && *c_str != '\\' /* quoted-specials */ \
+        && *c_str != ']' /* resp-specials */
 
 QByteArray getAtom(const QByteArray &line, int &start)
 {
@@ -88,12 +94,7 @@ QByteArray getAtom(const QByteArray &line, int &start)
     c_str += start;
     const char * const old_str = c_str;
 
-    while (*c_str > '\x20' && *c_str != '\x7f' // SP and CTL
-            && *c_str != '(' && *c_str != ')' && *c_str != '{' // explicitly forbidden
-            && *c_str != '%' && *c_str != '*' // list-wildcards
-            && *c_str != '"' && *c_str != '\\' // quoted-specials
-            && *c_str != ']' // resp-specials
-          ) {
+    while (C_STR_CHECK_FOR_ATOM_CHARS) {
         ++c_str;
     }
 
