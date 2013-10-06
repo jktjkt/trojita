@@ -205,12 +205,12 @@ QPair<QByteArray,ParsedAs> getAString(const QByteArray &line, int &start)
 
 QPair<QByteArray,ParsedAs> getNString(const QByteArray &line, int &start)
 {
-    QPair<QByteArray,ParsedAs> r = getAString(line, start);
-    if (r.second == ATOM && r.first.toUpper() == "NIL") {
-        r.first.clear();
-        r.second = NIL;
+    if (startsWithNil(line, start)) {
+        start += 3;
+        return qMakePair<>(QByteArray(), NIL);
+    } else {
+        return getAString(line, start);
     }
-    return r;
 }
 
 QString getMailbox(const QByteArray &line, int &start)
