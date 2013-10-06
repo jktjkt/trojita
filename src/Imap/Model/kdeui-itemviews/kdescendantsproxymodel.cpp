@@ -574,8 +574,7 @@ void KDescendantsProxyModelPrivate::sourceRowsInserted(const QModelIndex &parent
 {
   Q_Q(KDescendantsProxyModel);
 
-  const QModelIndex sourceStart = q->sourceModel()->index(start, 0, parent);
-  Q_ASSERT(sourceStart.isValid());
+  Q_ASSERT(q->sourceModel()->index(start, 0, parent).isValid());
 
   const int rowCount = q->sourceModel()->rowCount(parent);
   Q_ASSERT(rowCount > 0);
