@@ -242,6 +242,8 @@ QVariant getAnything(const QByteArray &line, int &start)
     if (start >= line.size())
         throw NoData("getAnything: no data", line, start);
 
+    const char * c_str = line.constData() + start;
+
     if (line[start] == '[') {
         QVariant res = parseList('[', ']', line, start);
         return res;
@@ -251,7 +253,10 @@ QVariant getAnything(const QByteArray &line, int &start)
     } else if (line[start] == '"' || line[start] == '{' || line[start] == '~') {
         QPair<QByteArray,ParsedAs> res = getString(line, start);
         return res.first;
-    } else if (line.mid(start, 3).toUpper() == "NIL") {
+    } else if (start <= line.size() + 3 && (*c_str == 'N' || *c_str == 'n') && (*(c_str+1) == 'I' || *(c_str+1) == 'i')
+            && (*(c_str+2) == 'L' || *(c_str+2) == 'l')) {
+        // Case-insensitive NIL. We cannot use strncasecmp because that function respects locale settings which is absolutely not
+        // something we want to do here.
         start += 3;
         return QByteArray();
     } else if (line[start] == '\\') {
