@@ -85,6 +85,27 @@ quint64 getUInt64(const QByteArray &line, int &start)
         && *c_str != '"' && *c_str != '\\' /* quoted-specials */ \
         && *c_str != ']' /* resp-specials */
 
+bool startsWithNil(const QByteArray &line, int start)
+{
+    const char *c_str = line.constData();
+    c_str += start;
+    // Case-insensitive NIL. We cannot use strncasecmp because that function respects locale settings which
+    // is absolutely not something we want to do here.
+    if (!(start <= line.size() + 3 && (*c_str == 'N' || *c_str == 'n') && (*(c_str+1) == 'I' || *(c_str+1) == 'i')
+            && (*(c_str+2) == 'L' || *(c_str+2) == 'l'))) {
+        return false;
+    }
+    // At this point we know that it starts with a NIL. To prevent parsing ambiguity with atoms, we have to
+    // check the next character.
+    c_str += 3;
+    // That macro already checks for NULL bytes and the input is guaranteed to be null-terminated, so we're safe here
+    if (C_STR_CHECK_FOR_ATOM_CHARS) {
+        // The next character is apparently a valid atom-char, so this cannot possibly be a NIL
+        return false;
+    }
+    return true;
+}
+
 QByteArray getAtom(const QByteArray &line, int &start)
 {
     if (start == line.size())
@@ -243,8 +264,6 @@ QVariant getAnything(const QByteArray &line, int &start)
     if (start >= line.size())
         throw NoData("getAnything: no data", line, start);
 
-    const char * c_str = line.constData() + start;
-
     if (line[start] == '[') {
         QVariant res = parseList('[', ']', line, start);
         return res;
@@ -254,10 +273,7 @@ QVariant getAnything(const QByteArray &line, int &start)
     } else if (line[start] == '"' || line[start] == '{' || line[start] == '~') {
         QPair<QByteArray,ParsedAs> res = getString(line, start);
         return res.first;
-    } else if (start <= line.size() + 3 && (*c_str == 'N' || *c_str == 'n') && (*(c_str+1) == 'I' || *(c_str+1) == 'i')
-            && (*(c_str+2) == 'L' || *(c_str+2) == 'l')) {
-        // Case-insensitive NIL. We cannot use strncasecmp because that function respects locale settings which is absolutely not
-        // something we want to do here.
+    } else if (startsWithNil(line, start)) {
         start += 3;
         return QByteArray();
     } else if (line[start] == '\\') {
