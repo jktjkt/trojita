@@ -2101,16 +2101,19 @@ QSize MainWindow::sizeHint() const
 void MainWindow::slotUpdateWindowTitle()
 {
     QModelIndex mailbox = msgListModel->currentMailbox();
+    QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+    if (!profileName.isEmpty())
+        profileName = QLatin1String(" [") + profileName + QLatin1Char(']');
     if (mailbox.isValid()) {
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()) {
             setWindowTitle(trUtf8("%1 - %2 unread - Trojitá")
                            .arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString(),
-                                mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString()));
+                                mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString()) + profileName);
         } else {
-            setWindowTitle(trUtf8("%1 - Trojitá").arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()));
+            setWindowTitle(trUtf8("%1 - Trojitá").arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()) + profileName);
         }
     } else {
-        setWindowTitle(trUtf8("Trojitá"));
+        setWindowTitle(trUtf8("Trojitá") + profileName);
     }
 }
 

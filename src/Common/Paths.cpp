@@ -76,6 +76,10 @@ QString writablePath(const LocationType location)
                 *it += QLatin1Char('/');
         }
 
+        QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+        if (!profileName.isEmpty())
+            map[LOCATION_CACHE] += profileName + QLatin1Char('/');
+
         QCoreApplication::setApplicationName(origApplicationName);
         QCoreApplication::setOrganizationDomain(origOrganizationDomain);
         QCoreApplication::setOrganizationName(origOrganizationName);

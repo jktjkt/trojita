@@ -59,7 +59,20 @@ int main(int argc, char **argv)
     AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
     app.setWindowIcon(QIcon(QLatin1String(":/icons/trojita.png")));
-    QSettings settings(Common::Application::organization, Common::Application::name);
+
+    // Hack: support multiple "profiles"
+    QString profileName;
+    if (argc == 3 && argv[1] == QByteArray("--profile")) {
+        profileName = QString::fromLocal8Bit(argv[2]);
+        // We are abusing the env vars here. Yes, it's a hidden global. Yes, it's ugly.
+        // Take it or leave it, this is a time-limited hack.
+        // The env var is also in UTF-8. I like UTF-8.
+        qputenv("TROJITA_PROFILE", profileName.toUtf8());
+    } else {
+        unsetenv("TROJITA_PROFILE");
+    }
+    QSettings settings(Common::Application::organization,
+                       profileName.isEmpty() ? Common::Application::name : Common::Application::name + QLatin1Char('-') + profileName);
     Gui::MainWindow win(&settings);
     win.show();
     return app.exec();
