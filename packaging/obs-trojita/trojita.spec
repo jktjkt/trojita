@@ -58,7 +58,11 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 %else
 %define my_cmake_lib_suffix "-ULIB_SUFFIX"
 %endif
- 
+
+%if 0%{?fedora} || 0%{?rhel_version} || 0%{?centos_version}
+%global _hardened_build 1
+%endif
+
 %description
 Trojita is a Qt IMAP e-mail client which:
   * Enables you to access your mail anytime, anywhere.
@@ -72,6 +76,12 @@ Trojita is a Qt IMAP e-mail client which:
 %setup -q
  
 %build
+%if 0%{?suse_version} || 0%{?sles_version}
+export CXXFLAGS="${RPM_OPT_FLAGS} -fPIC"
+export LDFLAGS="-pie"
+%else
+export CXXFLAGS="${CXXFLAGS:-%optflags}"
+%endif
 cmake \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
