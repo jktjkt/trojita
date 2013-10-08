@@ -19,6 +19,27 @@ else()
     set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 endif()
 
+if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    # Enable hardening flags for build
+    # This is inspired by Fedora's defaults (as of redhat-rpm-config9.1.0-54.fc21) etc.
+    #
+    # * -fPIC/-fPIE is already applied, see the cmake block above. PIE is required on Qt5 for executables,
+    #   PIC is needed for shared libraries, and it isn't exactly trivial to use one for executables and the other for
+    #   libraries with cmake, so we just turn PIC globally.
+    # * -D_FORTIFY_SOURCE=2: see http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
+    # * -fstack-protector & the ssp-buffer-size: blindly copied from Debian's guide (and the Fedora's macros). We don't use
+    #   stack-protector-strong because that's not a widely recognized GCC option.
+    # * -Wl,-z,relro -Wl,-z,now: https://lists.fedoraproject.org/pipermail/devel-announce/2011-August/000821.html
+    #   Unfortunately, this flag is not recognized by the clang's linker.
+
+    add_definitions(-D_FORTIFY_SOURCE=2)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fstack-protector --param=ssp-buffer-size=4")
+    if(CMAKE_COMPILER_IS_GNUCXX)
+        # sadly, clang chokes on this
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,-z,relro -Wl,-z,now")
+    endif()
+endif()
+
 include(FindCXXFeatures)
 if(NOT CXXFeatures_auto_FOUND)
     message(SEND_ERROR "Your compiler doesn't support C++11's auto")
