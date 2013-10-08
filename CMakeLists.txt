@@ -100,8 +100,13 @@ mark_as_advanced(PLUGIN_DIR)
 if(NOT WIN32 AND NOT MSVC)
     # Check if we are NOT on Windows and don't use MSVC since -g is not supported by VC
     # and Wall makes the build very noisy.
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g")
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wnon-virtual-dtor -Wold-style-cast -Woverloaded-virtual")
+    # At first, enable optimizations. In my testing, these do *not* make debugging any harder than no optimization and
+    # they (of course) optimize away stuff like QByteArray::operator[] etc.
+    # We put the user's CXXFLAGS *after* that so that they take priority.
+    set(CMAKE_CXX_FLAGS "-O2 -g ${CMAKE_CXX_FLAGS}")
+    # Now enable build warnings; these are useful tools (and Trojita should be warning-free anyway). We do not set
+    # -Werror for sanity reasons, though (one cannot know what warnings a future compiler might bring along).
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif(NOT WIN32 AND NOT MSVC)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
