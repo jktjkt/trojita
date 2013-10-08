@@ -381,6 +381,26 @@ void ImapLowLevelParserTest::testGetAnything()
     res = getAnything( line, pos );
     QCOMPARE( QByteArray("Blesmrt[trojita (666 333 1337)]<1337>"), res.toByteArray() );
     QCOMPARE( line.mid(pos), QByteArray(" z666") );
+
+    line = "NilAtom"; pos = 0;
+    res = getAnything(line, pos);
+    QCOMPARE(res.toByteArray(), line);
+    QCOMPARE(pos, line.size());
+
+    line = "Ni"; pos = 0;
+    res = getAnything(line, pos);
+    QCOMPARE(res.toByteArray(), line);
+    QCOMPARE(pos, line.size());
+
+    line = "nil"; pos = 0;
+    res = getAnything(line, pos);
+    QCOMPARE(res.toByteArray(), QByteArray());
+    QCOMPARE(pos, line.size());
+
+    line = "Nil Atom"; pos = 0;
+    res = getAnything(line, pos);
+    QCOMPARE(res.toByteArray(), QByteArray());
+    QCOMPARE(pos, 3);
 }
 
 void ImapLowLevelParserTest::testGetRFC2822DateTime()

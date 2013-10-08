@@ -78,33 +78,52 @@ quint64 getUInt64(const QByteArray &line, int &start)
     return extractNumber<quint64>(line, start);
 }
 
+#define C_STR_CHECK_FOR_ATOM_CHARS \
+    *c_str > '\x20' && *c_str != '\x7f' /* SP and CTL */ \
+        && *c_str != '(' && *c_str != ')' && *c_str != '{' /* explicitly forbidden */ \
+        && *c_str != '%' && *c_str != '*' /* list-wildcards */ \
+        && *c_str != '"' && *c_str != '\\' /* quoted-specials */ \
+        && *c_str != ']' /* resp-specials */
+
+bool startsWithNil(const QByteArray &line, int start)
+{
+    const char *c_str = line.constData();
+    c_str += start;
+    // Case-insensitive NIL. We cannot use strncasecmp because that function respects locale settings which
+    // is absolutely not something we want to do here.
+    if (!(start <= line.size() + 3 && (*c_str == 'N' || *c_str == 'n') && (*(c_str+1) == 'I' || *(c_str+1) == 'i')
+            && (*(c_str+2) == 'L' || *(c_str+2) == 'l'))) {
+        return false;
+    }
+    // At this point we know that it starts with a NIL. To prevent parsing ambiguity with atoms, we have to
+    // check the next character.
+    c_str += 3;
+    // That macro already checks for NULL bytes and the input is guaranteed to be null-terminated, so we're safe here
+    if (C_STR_CHECK_FOR_ATOM_CHARS) {
+        // The next character is apparently a valid atom-char, so this cannot possibly be a NIL
+        return false;
+    }
+    return true;
+}
 
 QByteArray getAtom(const QByteArray &line, int &start)
 {
     if (start == line.size())
         throw NoData("getAtom: no data", line, start);
 
-    int old(start);
-    bool breakIt = false;
-    while (!breakIt && start < line.size()) {
-        if (line[start] <= '\x1f') {
-            // CTL characters (excluding 0x7f) as defined in ABNF
-            breakIt = true;
-            break;
-        }
-        switch (line[start]) {
-        case '(': case ')': case '{': case '\x20': case '\x7f':
-        case '%': case '*': case '"': case '\\': case ']':
-            breakIt  = true;
-            break;
-        default:
-            ++start;
-        }
+    const char *c_str = line.constData();
+    c_str += start;
+    const char * const old_str = c_str;
+
+    while (C_STR_CHECK_FOR_ATOM_CHARS) {
+        ++c_str;
     }
 
-    if (old == start)
+    auto size = c_str - old_str;
+    if (!size)
         throw ParseError("getAtom: did not read anything", line, start);
-    return line.mid(old, start - old);
+    start += size;
+    return QByteArray(old_str, size);
 }
 
 QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
@@ -186,12 +205,12 @@ QPair<QByteArray,ParsedAs> getAString(const QByteArray &line, int &start)
 
 QPair<QByteArray,ParsedAs> getNString(const QByteArray &line, int &start)
 {
-    QPair<QByteArray,ParsedAs> r = getAString(line, start);
-    if (r.second == ATOM && r.first.toUpper() == "NIL") {
-        r.first.clear();
-        r.second = NIL;
+    if (startsWithNil(line, start)) {
+        start += 3;
+        return qMakePair<>(QByteArray(), NIL);
+    } else {
+        return getAString(line, start);
     }
-    return r;
 }
 
 QString getMailbox(const QByteArray &line, int &start)
@@ -254,7 +273,7 @@ QVariant getAnything(const QByteArray &line, int &start)
     } else if (line[start] == '"' || line[start] == '{' || line[start] == '~') {
         QPair<QByteArray,ParsedAs> res = getString(line, start);
         return res.first;
-    } else if (line.mid(start, 3).toUpper() == "NIL") {
+    } else if (startsWithNil(line, start)) {
         start += 3;
         return QByteArray();
     } else if (line[start] == '\\') {
