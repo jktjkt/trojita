@@ -56,7 +56,6 @@ private:
     static QByteArray prepareHugeUntaggedThread(const uint num);
 
     void verifyMapping(const Mapping &mapping);
-    QModelIndex findItem(const QList<int> &where);
     QModelIndex findItem(const QString &where);
     IndexMapping buildIndexMap(const Mapping &mapping);
     void verifyIndexMap(const IndexMapping &indexMap, const Mapping &map);

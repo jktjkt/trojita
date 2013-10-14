@@ -438,32 +438,10 @@ void ImapModelThreadingTest::complexMapping(Mapping &m, QByteArray &response)
     response = QByteArray("(1)(2 3)(4 (5)(6))((7)(8)(9 10))");
 }
 
-/** @short Prepare an index to a threaded message */
-QModelIndex ImapModelThreadingTest::findItem(const QList<int> &where)
-{
-    QModelIndex index = QModelIndex();
-    for (QList<int>::const_iterator it = where.begin(); it != where.end(); ++it) {
-        index = threadingModel->index(*it, 0, index);
-        if (it + 1 != where.end()) {
-            // this index is an intermediate one in the path, hence it should not really fail
-            Q_ASSERT(index.isValid());
-        }
-    }
-    return index;
-}
-
 /** @short Prepare an index to a threaded message based on a compressed text index description */
 QModelIndex ImapModelThreadingTest::findItem(const QString &where)
 {
-    QStringList list = where.split(QLatin1Char('.'));
-    Q_ASSERT(!list.isEmpty());
-    QList<int> items;
-    Q_FOREACH(const QString &number, list) {
-        bool ok;
-        items << number.toInt(&ok);
-        Q_ASSERT(ok);
-    }
-    return findItem(items);
+    return findIndexByPosition(threadingModel, where);
 }
 
 /** @short Make sure that the specified indexes resolve to proper UIDs */
