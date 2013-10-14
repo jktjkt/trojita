@@ -1349,7 +1349,7 @@ bool TreeItemPart::isTopLevelMultiPart() const
 {
     TreeItemMessage *msg = dynamic_cast<TreeItemMessage *>(parent());
     TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent());
-    return  m_mimeType.startsWith("multipart/") && (msg || (part && part->m_mimeType.startsWith("message/")));
+    return m_mimeType.startsWith("multipart/") && (msg || (part && part->m_mimeType.startsWith("message/")));
 }
 
 QString TreeItemPart::partId() const
