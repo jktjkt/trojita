@@ -38,6 +38,12 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 
+namespace {
+    static QString xTrojitaAttachmentList = QLatin1String("application/x-trojita-attachments-list");
+    static QString xTrojitaMessageList = QLatin1String("application/x-trojita-message-list");
+    static QString xTrojitaImapPart = QLatin1String("application/x-trojita-imap-part");
+}
+
 namespace Composer {
 
 MessageComposer::MessageComposer(Imap::Mailbox::Model *model, QObject *parent) :
@@ -140,9 +146,6 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
     Q_UNUSED(parent);
     // FIXME: would be cool to support attachment reshuffling and to respect the desired drop position
 
-    static QString xTrojitaAttachmentList = QLatin1String("application/x-trojita-attachments-list");
-    static QString xTrojitaMessageList = QLatin1String("application/x-trojita-message-list");
-    static QString xTrojitaImapPart = QLatin1String("application/x-trojita-imap-part");
 
     if (data->hasFormat(xTrojitaAttachmentList)) {
         QByteArray encodedData = data->data(xTrojitaAttachmentList);
@@ -377,10 +380,7 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
 
 QStringList MessageComposer::mimeTypes() const
 {
-    return QStringList() << QLatin1String("application/x-trojita-message-list") <<
-                            QLatin1String("application/x-trojita-imap-part") <<
-                            QLatin1String("application/x-trojita-attachments-list") <<
-                            QLatin1String("text/uri-list");
+    return QStringList() << xTrojitaMessageList << xTrojitaImapPart << xTrojitaAttachmentList << QLatin1String("text/uri-list");
 }
 
 void MessageComposer::setFrom(const Imap::Message::MailAddress &from)
