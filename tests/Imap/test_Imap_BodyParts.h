@@ -33,6 +33,9 @@ class BodyPartsTest : public LibMailboxSync
 private slots:
     void testPartIds();
     void testPartIds_data();
+
+    void testInvalidPartFetch();
+    void testInvalidPartFetch_data();
 };
 
 #endif

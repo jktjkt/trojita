@@ -139,4 +139,49 @@ void BodyPartsTest::testPartIds_data()
                 );
 }
 
+/** @short Check that we catch responses which refer to invalid data */
+void BodyPartsTest::testInvalidPartFetch()
+{
+    QFETCH(QByteArray, bodystructure);
+    QFETCH(QString, partId);
+
+    // By default, there's a 50ms delay between the time we request a part download and the time it actually happens.
+    // That's too long for a unit test.
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bodystructure + "))\r\n" + t.last("OK fetched\r\n"));
+    QVERIFY(model->rowCount(msg) > 0);
+
+    {
+        ExpectSingleErrorHere blocker(this);
+        cServer("* 1 FETCH (UID 333 BODY[" + partId.toUtf8() + "] \"pwn\")\r\n");
+    }
+    QVERIFY(errorSpy->isEmpty());
+}
+
+void BodyPartsTest::testInvalidPartFetch_data()
+{
+    QTest::addColumn<QByteArray>("bodystructure");
+    // QString allows us to use string literals
+    QTest::addColumn<QString>("partId");
+
+    QTest::newRow("extra-part-1") << bsPlaintext << "2";
+    QTest::newRow("extra-part-2") << bsPlaintext << "1.1";
+    QTest::newRow("extra-part-3") << bsPlaintext << "0";
+    QTest::newRow("extra-part-4") << bsMultipartSignedTextPlain << "0";
+    QTest::newRow("extra-part-5") << bsMultipartSignedTextPlain << "1.0";
+    QTest::newRow("extra-part-6") << bsMultipartSignedTextPlain << "2.0";
+    QTest::newRow("extra-part-7") << bsMultipartSignedTextPlain << "3";
+}
+
 TROJITA_HEADLESS_TEST(BodyPartsTest)
