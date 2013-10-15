@@ -531,16 +531,25 @@ QModelIndex LibMailboxSync::findIndexByPosition(const QAbstractItemModel *model,
 {
     QStringList list = where.split(QLatin1Char('.'));
     Q_ASSERT(!list.isEmpty());
-    QList<int> items;
-    Q_FOREACH(const QString &number, list) {
+    QList<QPair<int,int>> items;
+    Q_FOREACH(const QString &item, list) {
+        QStringList rowColumn = item.split(QLatin1Char('c'));
+        Q_ASSERT(rowColumn.size() >= 1);
+        Q_ASSERT(rowColumn.size() <= 2);
         bool ok;
-        items << number.toInt(&ok);
+        int row = rowColumn[0].toInt(&ok);
         Q_ASSERT(ok);
+        int column = 0;
+        if (rowColumn.size() == 2) {
+            column = rowColumn[1].toInt(&ok);
+            Q_ASSERT(ok);
+        }
+        items << qMakePair(row, column);
     }
 
     QModelIndex index = QModelIndex();
-    for (QList<int>::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
-        index = model->index(*it, 0, index);
+    for (auto it = items.constBegin(); it != items.constEnd(); ++it) {
+        index = model->index(it->first, it->second, index);
         if (it + 1 != items.constEnd()) {
             // this index is an intermediate one in the path, hence it should not really fail
             Q_ASSERT(index.isValid());

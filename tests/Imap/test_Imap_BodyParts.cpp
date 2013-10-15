@@ -26,6 +26,7 @@
 #include "Utils/headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxTree.h"
 
 struct Data {
     QString key;
@@ -101,11 +102,17 @@ void BodyPartsTest::testPartIds_data()
     QTest::addColumn<QByteArray>("bodystructure");
     QTest::addColumn<QList<Data>>("mapping");
 
+#define COLUMN_HEADER ("c" + QByteArray::number(Imap::Mailbox::TreeItem::OFFSET_HEADER))
+#define COLUMN_TEXT ("c" + QByteArray::number(Imap::Mailbox::TreeItem::OFFSET_TEXT))
+#define COLUMN_MIME ("c" + QByteArray::number(Imap::Mailbox::TreeItem::OFFSET_MIME))
+
     QTest::newRow("plaintext")
         << QByteArray("\"text\" \"plain\" () NIL NIL NIL 19 2 NIL NIL NIL NIL")
         << (QList<Data>()
             // Part 1, a text/plain thing
             << Data("0", "1", "blesmrt")
+            // The MIME header of the whole message
+            << Data("0" + COLUMN_HEADER, "HEADER", "raw headers")
             // No other items
             << Data("0.1")
             << Data("1")
