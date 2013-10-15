@@ -97,6 +97,12 @@ void BodyPartsTest::testPartIds()
     QVERIFY(errorSpy->isEmpty());
 }
 
+const QByteArray bsPlaintext("\"text\" \"plain\" () NIL NIL NIL 19 2 NIL NIL NIL NIL");
+const QByteArray bsMultipartSignedTextPlain(
+        "(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"quoted-printable\" 539 16)"
+        "(\"application\" \"pgp-signature\" (\"name\" \"signature.asc\") NIL \"Digital signature\" \"7bit\" 205)"
+        " \"signed\"");
+
 void BodyPartsTest::testPartIds_data()
 {
     QTest::addColumn<QByteArray>("bodystructure");
@@ -107,7 +113,7 @@ void BodyPartsTest::testPartIds_data()
 #define COLUMN_MIME ("c" + QByteArray::number(Imap::Mailbox::TreeItem::OFFSET_MIME))
 
     QTest::newRow("plaintext")
-        << QByteArray("\"text\" \"plain\" () NIL NIL NIL 19 2 NIL NIL NIL NIL")
+        << bsPlaintext
         << (QList<Data>()
             // Part 1, a text/plain thing
             << Data("0", "1", "blesmrt")
@@ -119,9 +125,7 @@ void BodyPartsTest::testPartIds_data()
             );
 
     QTest::newRow("multipart-signed")
-            << QByteArray("(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"quoted-printable\" 539 16)"
-                          "(\"application\" \"pgp-signature\" (\"name\" \"signature.asc\") NIL \"Digital signature\" \"7bit\" 205)"
-                          " \"signed\"")
+            << bsMultipartSignedTextPlain
             << (QList<Data>()
                 //<< Data("0", "1", "blesmrt")
                 << Data("0.0", "1", "blesmrt")
