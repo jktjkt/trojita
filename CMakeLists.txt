@@ -367,6 +367,7 @@ set(libImap_SOURCES
 
     ${path_Imap}/Model/Cache.cpp
     ${path_Imap}/Model/CombinedCache.cpp
+    ${path_Imap}/Model/DragAndDrop.cpp
     ${path_Imap}/Model/DelayedPopulation.cpp
     ${path_Imap}/Model/DiskPartCache.cpp
     ${path_Imap}/Model/FindInterestingPart.cpp
