@@ -1355,19 +1355,27 @@ bool TreeItemPart::isTopLevelMultiPart() const
 QString TreeItemPart::partId() const
 {
     if (isTopLevelMultiPart()) {
-        TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent());
-        if (part)
-            return part->partId();
-        else
-            return QString();
+        return QString();
     } else if (dynamic_cast<TreeItemMessage *>(parent())) {
         return QString::number(row() + 1);
     } else {
-        QString parentId = dynamic_cast<TreeItemPart *>(parent())->partId();
-        if (parentId.isNull())
-            return QString::number(row() + 1);
-        else
-            return parentId + QChar('.') + QString::number(row() + 1);
+        QString parentId;
+        TreeItemPart *parentPart = dynamic_cast<TreeItemPart *>(parent());
+        Q_ASSERT(parentPart);
+        if (parentPart->isTopLevelMultiPart()) {
+            if (TreeItemPart *parentOfParent = dynamic_cast<TreeItemPart *>(parentPart->parent())) {
+                Q_ASSERT(!parentOfParent->isTopLevelMultiPart());
+                // grand parent: message/rfc822 with a part-id, parent: top-level multipart
+                parentId = parentOfParent->partId();
+            } else {
+                // grand parent: TreeItemMessage, parent: some multipart, me: some part
+                return QString::number(row() + 1);
+            }
+        } else {
+            parentId = parentPart->partId();
+        }
+        Q_ASSERT(!parentId.isEmpty());
+        return parentId + QChar('.') + QString::number(row() + 1);
     }
 }
 
@@ -1495,8 +1503,19 @@ QString TreeItemModifiedPart::partId() const
 {
     QString parentId;
 
-    if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent()))
-        parentId = part->partId() + QLatin1Char('.');
+    if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent())) {
+        if (part->isTopLevelMultiPart()) {
+            // special case: the parent does not have a "part id" in IMAP, so we have to go up and ask for one there
+            part = dynamic_cast<TreeItemPart*>(part->parent());
+        }
+        if (part) {
+            Q_ASSERT(!part->isTopLevelMultiPart());
+            parentId = part->partId() + QLatin1Char('.');
+        } else {
+            // our parent is a message/rfc822, and it's definitely not nested -> no need for parent id here
+            Q_ASSERT(dynamic_cast<TreeItemMessage*>(part));
+        }
+    }
 
     return parentId + modifierToString();
 }

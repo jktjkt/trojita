@@ -327,10 +327,10 @@ public:
     QByteArray multipartRelatedStartPart() const { return m_multipartRelatedStartPart; }
     void setMultipartRelatedStartPart(const QByteArray &start) { m_multipartRelatedStartPart = start; }
     virtual TreeItem *specialColumnPtr(int row, int column) const;
+    virtual bool isTopLevelMultiPart() const;
 
     void silentlyReleaseMemoryRecursive();
 protected:
-    virtual bool isTopLevelMultiPart() const;
     TreeItemPart(TreeItem *parent);
 };
 
