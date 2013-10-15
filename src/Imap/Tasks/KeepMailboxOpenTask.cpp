@@ -20,7 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include<sstream>
+#include <sstream>
 #include "KeepMailboxOpenTask.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
