@@ -24,6 +24,7 @@
 #define COMPOSER_COMPOSERATTACHMENTS_H
 
 #include <QIODevice>
+#include <QPersistentModelIndex>
 #include <QPointer>
 #include <QSharedPointer>
 #include "Composer/ContentDisposition.h"
@@ -123,12 +124,7 @@ public:
     virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
     Imap::Mailbox::FullMessageCombiner *fullMessageCombiner;
-    Imap::Mailbox::TreeItemMessage *messagePtr() const;
-
-    QPointer<Imap::Mailbox::Model> model;
-    QString mailbox;
-    uint uidValidity;
-    uint uid;
+    QPersistentModelIndex index;
     QString preferredName;
 };
 
@@ -151,14 +147,7 @@ public:
     virtual void preload() const;
     virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
-    Imap::Mailbox::TreeItemPart *partPtr() const;
-
-    QPointer<Imap::Mailbox::Model> model;
-    QString mailbox;
-    uint uidValidity;
-    uint uid;
-    QString imapPartId;
-    QString trojitaPath;
+    QPersistentModelIndex index;
     QString preferredName;
 };
 
