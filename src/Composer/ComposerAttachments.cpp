@@ -21,7 +21,6 @@
 */
 
 #include "ComposerAttachments.h"
-#include <stdexcept>
 #include <QBuffer>
 #include <QFileInfo>
 #include <QMimeData>
@@ -188,24 +187,20 @@ void FileAttachmentItem::asDroppableMimeData(QDataStream &stream) const
 ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid):
     fullMessageCombiner(0)
 {
-    try {
-        Q_ASSERT(model);
-        TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
-        if (!mboxPtr)
-            throw std::runtime_error("No such mailbox");
+    Q_ASSERT(model);
+    TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
+    if (!mboxPtr)
+        throw Imap::UnknownMessageIndex("No such mailbox");
 
-        if (mboxPtr->syncState.uidValidity() != uidValidity)
-            throw std::runtime_error("UIDVALIDITY mismatch");
+    if (mboxPtr->syncState.uidValidity() != uidValidity)
+        throw Imap::UnknownMessageIndex("UIDVALIDITY mismatch");
 
-        QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
-        if (messages.isEmpty())
-            throw std::runtime_error("No such UID");
+    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
+    if (messages.isEmpty())
+        throw Imap::UnknownMessageIndex("No such UID");
 
-        Q_ASSERT(messages.size() == 1);
-        index = messages.front()->toIndex(model);
-    } catch (std::runtime_error &) {
-        // FIXME: what to do here?
-    }
+    Q_ASSERT(messages.size() == 1);
+    index = messages.front()->toIndex(model);
     fullMessageCombiner = new FullMessageCombiner(index);
 }
 
@@ -300,28 +295,23 @@ ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mail
                                                const QString &pathToPart, const QString &trojitaPath)
 {
     Q_UNUSED(pathToPart);
-    try {
-        TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
-        if (!mboxPtr)
-            throw std::runtime_error("No such mailbox");
+    TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
+    if (!mboxPtr)
+        throw Imap::UnknownMessageIndex("No such mailbox");
 
-        if (mboxPtr->syncState.uidValidity() != uidValidity)
-            throw std::runtime_error("UIDVALIDITY mismatch");
+    if (mboxPtr->syncState.uidValidity() != uidValidity)
+        throw Imap::UnknownMessageIndex("UIDVALIDITY mismatch");
 
-        QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
-        if (messages.isEmpty())
-            throw std::runtime_error("UID not found");
+    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
+    if (messages.isEmpty())
+        throw Imap::UnknownMessageIndex("UID not found");
 
-        Q_ASSERT(messages.size() == 1);
+    Q_ASSERT(messages.size() == 1);
 
-        TreeItemPart *part = Imap::Network::MsgPartNetAccessManager::pathToPart(messages.front()->toIndex(model), trojitaPath);
-        if (!part)
-            throw std::runtime_error("No such part");
-        index = part->toIndex(model);
-    } catch (std::runtime_error &) {
-        // That part was not found
-        // FIXME: it would be cool to be able to either throw from here, or add reasonable error handling
-    }
+    TreeItemPart *part = Imap::Network::MsgPartNetAccessManager::pathToPart(messages.front()->toIndex(model), trojitaPath);
+    if (!part)
+        throw Imap::UnknownMessageIndex("No such part");
+    index = part->toIndex(model);
 }
 
 ImapPartAttachmentItem::~ImapPartAttachmentItem()

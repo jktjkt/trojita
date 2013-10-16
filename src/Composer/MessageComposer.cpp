@@ -228,7 +228,12 @@ bool MessageComposer::dropAttachmentList(QDataStream &stream)
                 qDebug() << "drag-and-drop: malformed data for a single message in a mixed list: too many UIDs";
                 return false;
             }
-            items.d << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uids.front());
+            try {
+                items.d << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uids.front());
+            } catch (Imap::UnknownMessageIndex &) {
+                return false;
+            }
+
             break;
         }
 
@@ -241,7 +246,12 @@ bool MessageComposer::dropAttachmentList(QDataStream &stream)
             QString trojitaPath;
             if (!validateDropImapPart(stream, mailbox, uidValidity, uid, partId, trojitaPath))
                 return false;
-            items.d << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
+            try {
+                items.d << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
+            } catch (Imap::UnknownMessageIndex &) {
+                return false;
+            }
+
             break;
         }
 
@@ -316,13 +326,22 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
         return false;
     }
 
-    beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
+    WillDeleteAll<QList<AttachmentItem*> > items;
     Q_FOREACH(const uint uid, uids) {
-        m_attachments << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
-        m_attachments.last()->setContentDispositionMode(CDN_INLINE);
-        if (m_shouldPreload)
-            m_attachments.back()->preload();
+        try {
+            items.d << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
+        } catch (Imap::UnknownMessageIndex &) {
+            return false;
+        }
+        items.d.last()->setContentDispositionMode(CDN_INLINE);
     }
+    beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + uids.size() - 1);
+    Q_FOREACH(AttachmentItem *attachment, items.d) {
+        if (m_shouldPreload)
+            attachment->preload();
+        m_attachments << attachment;
+    }
+    items.d.clear();
     endInsertRows();
 
     return true;
@@ -369,8 +388,15 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
         return false;
     }
 
+    AttachmentItem *item;
+    try {
+        item = new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
+    } catch (Imap::UnknownMessageIndex &) {
+        return false;
+    }
+
     beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size());
-    m_attachments << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
+    m_attachments << item;
     if (m_shouldPreload)
         m_attachments.back()->preload();
     endInsertRows();
