@@ -268,7 +268,7 @@ class TreeItemPart: public TreeItem
     QString m_fileName;
     uint m_octets;
     QByteArray m_multipartRelatedStartPart;
-    TreeItemPart *m_partMime;
+    mutable TreeItemPart *m_partMime;
 public:
     TreeItemPart(TreeItem *parent, const QString &mimeType);
     ~TreeItemPart();
@@ -359,8 +359,8 @@ private:
 class TreeItemPartMultipartMessage: public TreeItemPart
 {
     Message::Envelope m_envelope;
-    TreeItemPart *m_partHeader;
-    TreeItemPart *m_partText;
+    mutable TreeItemPart *m_partHeader;
+    mutable TreeItemPart *m_partText;
 public:
     TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope);
     virtual ~TreeItemPartMultipartMessage();

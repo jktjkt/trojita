@@ -942,17 +942,16 @@ TreeItem *TreeItemMessage::specialColumnPtr(int row, int column) const
     if (row != 0)
         return 0;
 
-    if (!m_partText) {
-        m_partText = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_TEXT);
-    }
-    if (!m_partHeader) {
-        m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_HEADER);
-    }
-
     switch (column) {
     case OFFSET_TEXT:
+        if (!m_partText) {
+            m_partText = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_TEXT);
+        }
         return m_partText;
     case OFFSET_HEADER:
+        if (!m_partHeader) {
+            m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_HEADER);
+        }
         return m_partHeader;
     default:
         return 0;
@@ -1199,14 +1198,14 @@ void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &r
 }
 
 
-TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0)
+TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType):
+    TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0), m_partMime(0)
 {
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
         // can't be fetched. That's why we have to update the status here.
         m_fetchStatus = DONE;
     }
-    m_partMime = new TreeItemModifiedPart(this, OFFSET_MIME);
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
@@ -1428,6 +1427,9 @@ unsigned int TreeItemPart::columnCount()
 TreeItem *TreeItemPart::specialColumnPtr(int row, int column) const
 {
     if (row == 0 && column == OFFSET_MIME && !isTopLevelMultiPart()) {
+        if (!m_partMime) {
+            m_partMime = new TreeItemModifiedPart(const_cast<TreeItemPart*>(this), OFFSET_MIME);
+        }
         return m_partMime;
     }
     return 0;
@@ -1546,10 +1548,8 @@ QString TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) const
 }
 
 TreeItemPartMultipartMessage::TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope):
-    TreeItemPart(parent, QLatin1String("message/rfc822")), m_envelope(envelope)
+    TreeItemPart(parent, QLatin1String("message/rfc822")), m_envelope(envelope), m_partHeader(0), m_partText(0)
 {
-    m_partHeader = new TreeItemModifiedPart(this, OFFSET_HEADER);
-    m_partText = new TreeItemModifiedPart(this, OFFSET_TEXT);
 }
 
 TreeItemPartMultipartMessage::~TreeItemPartMultipartMessage()
@@ -1573,8 +1573,14 @@ TreeItem *TreeItemPartMultipartMessage::specialColumnPtr(int row, int column) co
         return 0;
     switch (column) {
     case OFFSET_HEADER:
+        if (!m_partHeader) {
+            m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemPartMultipartMessage*>(this), OFFSET_HEADER);
+        }
         return m_partHeader;
     case OFFSET_TEXT:
+        if (!m_partText) {
+            m_partText = new TreeItemModifiedPart(const_cast<TreeItemPartMultipartMessage*>(this), OFFSET_TEXT);
+        }
         return m_partText;
     default:
         return TreeItemPart::specialColumnPtr(row, column);
@@ -1584,12 +1590,16 @@ TreeItem *TreeItemPartMultipartMessage::specialColumnPtr(int row, int column) co
 void TreeItemPartMultipartMessage::silentlyReleaseMemoryRecursive()
 {
     TreeItemPart::silentlyReleaseMemoryRecursive();
-    m_partHeader->silentlyReleaseMemoryRecursive();
-    delete m_partHeader;
-    m_partHeader = 0;
-    m_partText->silentlyReleaseMemoryRecursive();
-    delete m_partText;
-    m_partText = 0;
+    if (m_partHeader) {
+        m_partHeader->silentlyReleaseMemoryRecursive();
+        delete m_partHeader;
+        m_partHeader = 0;
+    }
+    if (m_partText) {
+        m_partText->silentlyReleaseMemoryRecursive();
+        delete m_partText;
+        m_partText = 0;
+    }
 }
 
 }
