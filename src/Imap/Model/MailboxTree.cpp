@@ -928,7 +928,10 @@ unsigned int TreeItemMessage::rowCount(Model *const model)
 
 unsigned int TreeItemMessage::columnCount()
 {
-    return 3;
+    static_assert(OFFSET_HEADER < OFFSET_TEXT && OFFSET_MIME == OFFSET_TEXT + 1,
+                  "We need column 0 for regular children and columns 1 and 2 for OFFSET_HEADER and OFFSET_TEXT.");
+    // Oh, and std::max is not constexpr in C++11.
+    return OFFSET_MIME;
 }
 
 TreeItem *TreeItemMessage::specialColumnPtr(int row, int column) const
@@ -1417,7 +1420,8 @@ QByteArray *TreeItemPart::dataPtr()
 
 unsigned int TreeItemPart::columnCount()
 {
-    return 4; // This one includes the OFFSET_MIME
+    // This one includes the OFFSET_MIME, unlike the TreeItemMessage
+    return OFFSET_MIME + 1;
 }
 
 TreeItem *TreeItemPart::specialColumnPtr(int row, int column) const
