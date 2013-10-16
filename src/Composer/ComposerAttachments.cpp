@@ -57,6 +57,26 @@ QByteArray contentDispositionToByteArray(const ContentDisposition cdn)
     return "attachment";
 }
 
+/** @short Return a CTE suitable for transmission of the specified MIME container */
+AttachmentItem::ContentTransferEncoding CTEForContainers(const QModelIndex &index)
+{
+    QByteArray cte = index.data(RolePartEncoding).toByteArray();
+    if (cte == "7bit") {
+        return AttachmentItem::CTE_7BIT;
+    } else if (cte == "8bit") {
+        return AttachmentItem::CTE_8BIT;
+    } else if (cte == "binary") {
+        return AttachmentItem::CTE_BINARY;
+    } else {
+        // Well, we're pretty screwed here :(, the original message is either gone now (which is the better outcome),
+        // or it does not specify a valid an allowed content encoding.
+        // The composite types, and message/rfc822 is one of them, are not allowed to be encoded in anything but
+        // 7bit, 8bit and binary (http://tools.ietf.org/html/rfc2045#page-17).
+        // Let's assume "7bit", which is the default in RFC 2045.
+        return AttachmentItem::CTE_7BIT;
+    }
+}
+
 AttachmentItem::AttachmentItem(): m_contentDisposition(CDN_ATTACHMENT)
 {
 }
@@ -267,8 +287,21 @@ QSharedPointer<QIODevice> ImapMessageAttachmentItem::rawData() const
 
 AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE() const
 {
-    // FIXME?
-    return CTE_7BIT;
+    // The relevant thing is the CTE of the root MIME part, not the message itself.
+    // It's not even supported by Trojita for TreeItemMessage.
+
+    QModelIndex rootPart = index.child(0, 0);
+    if (rootPart.data(RolePartIsTopLevelMultipart).toBool()) {
+        // This was a desperate attempt; the BODYSTRUCTURE does *not* contain the body-fld-enc field for multiparts,
+        // so if our message happens to have a top-level multipart, we're out of luck and will produce an invalid result.
+        // See http://mailman2.u.washington.edu/pipermail/imap-protocol/2013-October/002109.html for details.
+        // Let's try to "play it safe" and assume that the children *might* contain 8bit data. We are still hoping for
+        // the best (i.e. if the message was actually using the "binary" CTE, we would be screwed), but I guess this is
+        // better than potentially lying by claiming that this is just a 7bit message. Suggestions welcome.
+        return CTE_8BIT;
+    } else {
+        return CTEForContainers(rootPart);
+    }
 }
 
 QByteArray ImapMessageAttachmentItem::imapUrl() const
@@ -358,8 +391,12 @@ bool ImapPartAttachmentItem::setPreferredFileName(const QString &name)
 
 AttachmentItem::ContentTransferEncoding ImapPartAttachmentItem::suggestedCTE() const
 {
-    // FIXME?
-    return CTE_BASE64;
+    if (index.data(RolePartMimeType).toString() == QLatin1String("message/rfc822")) {
+        return CTEForContainers(index);
+    } else {
+        // FIXME: it would be cool to improve this so that we could e.g. use a quoted-printable for text files, etc
+        return CTE_BASE64;
+    }
 }
 
 QSharedPointer<QIODevice> ImapPartAttachmentItem::rawData() const
