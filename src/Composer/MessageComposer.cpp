@@ -127,7 +127,7 @@ QMimeData *MessageComposer::mimeData(const QModelIndexList &indexes) const
         attachment->asDroppableMimeData(stream);
     }
     QMimeData *res = new QMimeData();
-    res->setData(QLatin1String("application/x-trojita-attachments-list"), encodedData);
+    res->setData(xTrojitaAttachmentList, encodedData);
     return res;
 }
 
@@ -242,12 +242,11 @@ bool MessageComposer::dropAttachmentList(QDataStream &stream)
             QString mailbox;
             uint uidValidity;
             uint uid;
-            QString partId;
             QString trojitaPath;
-            if (!validateDropImapPart(stream, mailbox, uidValidity, uid, partId, trojitaPath))
+            if (!validateDropImapPart(stream, mailbox, uidValidity, uid, trojitaPath))
                 return false;
             try {
-                items.d << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
+                items.d << new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, trojitaPath);
             } catch (Imap::UnknownMessageIndex &) {
                 return false;
             }
@@ -348,9 +347,9 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
 }
 
 /** @short Check that the data representing a single message part are correct */
-bool MessageComposer::validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QString &partId, QString &trojitaPath) const
+bool MessageComposer::validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QString &trojitaPath) const
 {
-    stream >> mailbox >> uidValidity >> uid >> partId >> trojitaPath;
+    stream >> mailbox >> uidValidity >> uid >> trojitaPath;
     if (stream.status() != QDataStream::Ok) {
         qDebug() << "drag-and-drop: stream failed:" << stream.status();
         return false;
@@ -361,7 +360,7 @@ bool MessageComposer::validateDropImapPart(QDataStream &stream, QString &mailbox
         return false;
     }
 
-    if (!uidValidity || !uid || partId.isEmpty()) {
+    if (!uidValidity || !uid || trojitaPath.isEmpty()) {
         qDebug() << "drag-and-drop: invalid data";
         return false;
     }
@@ -379,9 +378,8 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
     QString mailbox;
     uint uidValidity;
     uint uid;
-    QString partId;
     QString trojitaPath;
-    if (!validateDropImapPart(stream, mailbox, uidValidity, uid, partId, trojitaPath))
+    if (!validateDropImapPart(stream, mailbox, uidValidity, uid, trojitaPath))
         return false;
     if (!stream.atEnd()) {
         qDebug() << "drag-and-drop: cannot decode data: too much data";
@@ -390,7 +388,7 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
 
     AttachmentItem *item;
     try {
-        item = new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, partId, trojitaPath);
+        item = new ImapPartAttachmentItem(m_model, mailbox, uidValidity, uid, trojitaPath);
     } catch (Imap::UnknownMessageIndex &) {
         return false;
     }

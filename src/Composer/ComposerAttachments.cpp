@@ -292,9 +292,8 @@ void ImapMessageAttachmentItem::asDroppableMimeData(QDataStream &stream) const
 
 
 ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
-                                               const QString &pathToPart, const QString &trojitaPath)
+                                               const QString &trojitaPath)
 {
-    Q_UNUSED(pathToPart);
     TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
     if (!mboxPtr)
         throw Imap::UnknownMessageIndex("No such mailbox");
@@ -398,7 +397,7 @@ void ImapPartAttachmentItem::asDroppableMimeData(QDataStream &stream) const
 {
     Q_ASSERT(index.isValid());
     stream << ATTACHMENT_IMAP_PART << index.data(RoleMailboxName).toString() << index.data(RoleMailboxUidValidity).toUInt() <<
-              index.data(RoleMessageUid).toUInt() << index.data(RolePartId).toString() << index.data(RolePartPathToPart).toString();
+              index.data(RoleMessageUid).toUInt() << index.data(RolePartPathToPart).toString();
 }
 
 }

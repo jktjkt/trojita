@@ -39,7 +39,6 @@ QMimeData *mimeDataForDragAndDrop(const QModelIndex &index)
     stream << index.data(RoleMailboxName).toString() <<
               index.data(RoleMailboxUidValidity).toUInt() <<
               index.data(RoleMessageUid).toUInt() <<
-              index.data(RolePartId).toString() <<
               index.data(RolePartPathToPart).toString();
 
     QMimeData *mimeData = new QMimeData;
