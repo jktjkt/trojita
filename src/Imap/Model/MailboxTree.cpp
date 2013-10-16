@@ -1206,21 +1206,17 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(
         // can't be fetched. That's why we have to update the status here.
         m_fetchStatus = DONE;
     }
-    m_partHeader = new TreeItemModifiedPart(this, OFFSET_HEADER);
     m_partMime = new TreeItemModifiedPart(this, OFFSET_MIME);
-    m_partText = new TreeItemModifiedPart(this, OFFSET_TEXT);
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
-    TreeItem(parent), m_mimeType(QLatin1String("text/plain")), m_octets(0), m_partHeader(0), m_partText(0), m_partMime(0)
+    TreeItem(parent), m_mimeType(QLatin1String("text/plain")), m_octets(0), m_partMime(0)
 {
 }
 
 TreeItemPart::~TreeItemPart()
 {
-    delete m_partHeader;
     delete m_partMime;
-    delete m_partText;
 }
 
 unsigned int TreeItemPart::childrenCount(Model *const model)
@@ -1420,26 +1416,21 @@ QByteArray *TreeItemPart::dataPtr()
 
 unsigned int TreeItemPart::columnCount()
 {
+    if (isTopLevelMultiPart()) {
+        // Because a top-level multipart doesn't have its own part number, one cannot really fetch from it
+        return 1;
+    }
+
     // This one includes the OFFSET_MIME, unlike the TreeItemMessage
     return OFFSET_MIME + 1;
 }
 
 TreeItem *TreeItemPart::specialColumnPtr(int row, int column) const
 {
-    // No extra columns on other rows
-    if (row != 0)
-        return 0;
-
-    switch (column) {
-    case OFFSET_HEADER:
-        return m_partHeader;
-    case OFFSET_TEXT:
-        return m_partText;
-    case OFFSET_MIME:
+    if (row == 0 && column == OFFSET_MIME && !isTopLevelMultiPart()) {
         return m_partMime;
-    default:
-        return 0;
     }
+    return 0;
 }
 
 void TreeItemPart::silentlyReleaseMemoryRecursive()
@@ -1448,16 +1439,6 @@ void TreeItemPart::silentlyReleaseMemoryRecursive()
         TreeItemPart *part = dynamic_cast<TreeItemPart *>(item);
         Q_ASSERT(part);
         part->silentlyReleaseMemoryRecursive();
-    }
-    if (m_partHeader) {
-        m_partHeader->silentlyReleaseMemoryRecursive();
-        delete m_partHeader;
-        m_partHeader = 0;
-    }
-    if (m_partText) {
-        m_partText->silentlyReleaseMemoryRecursive();
-        delete m_partText;
-        m_partText = 0;
     }
     if (m_partMime) {
         m_partMime->silentlyReleaseMemoryRecursive();
@@ -1505,23 +1486,16 @@ unsigned int TreeItemModifiedPart::columnCount()
 
 QString TreeItemModifiedPart::partId() const
 {
-    QString parentId;
-
     if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent())) {
-        if (part->isTopLevelMultiPart()) {
-            // special case: the parent does not have a "part id" in IMAP, so we have to go up and ask for one there
-            part = dynamic_cast<TreeItemPart*>(part->parent());
-        }
-        if (part) {
-            Q_ASSERT(!part->isTopLevelMultiPart());
-            parentId = part->partId() + QLatin1Char('.');
-        } else {
-            // our parent is a message/rfc822, and it's definitely not nested -> no need for parent id here
-            Q_ASSERT(dynamic_cast<TreeItemMessage*>(part));
-        }
+        // The TreeItemPart is supposed to prevent creation of any special subparts if it's a top-level multipart
+        Q_ASSERT(!part->isTopLevelMultiPart());
+        return part->partId() + QLatin1Char('.') + modifierToString();
+    } else {
+        // Our parent is a message/rfc822, and it's definitely not nested -> no need for parent id here
+        // Cannot assert() on a dynamic_cast<TreeItemMessage*> at this point because the part is already nullptr at this time
+        Q_ASSERT(dynamic_cast<TreeItemMessage*>(parent()));
+        return modifierToString();
     }
-
-    return parentId + modifierToString();
 }
 
 TreeItem::PartModifier TreeItemModifiedPart::kind() const
@@ -1574,6 +1548,8 @@ QString TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) const
 TreeItemPartMultipartMessage::TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope):
     TreeItemPart(parent, QLatin1String("message/rfc822")), m_envelope(envelope)
 {
+    m_partHeader = new TreeItemModifiedPart(this, OFFSET_HEADER);
+    m_partText = new TreeItemModifiedPart(this, OFFSET_TEXT);
 }
 
 TreeItemPartMultipartMessage::~TreeItemPartMultipartMessage()
@@ -1589,6 +1565,31 @@ QVariant TreeItemPartMultipartMessage::data(Model * const model, int role)
     } else {
         return TreeItemPart::data(model, role);
     }
+}
+
+TreeItem *TreeItemPartMultipartMessage::specialColumnPtr(int row, int column) const
+{
+    if (row != 0)
+        return 0;
+    switch (column) {
+    case OFFSET_HEADER:
+        return m_partHeader;
+    case OFFSET_TEXT:
+        return m_partText;
+    default:
+        return TreeItemPart::specialColumnPtr(row, column);
+    }
+}
+
+void TreeItemPartMultipartMessage::silentlyReleaseMemoryRecursive()
+{
+    TreeItemPart::silentlyReleaseMemoryRecursive();
+    m_partHeader->silentlyReleaseMemoryRecursive();
+    delete m_partHeader;
+    m_partHeader = 0;
+    m_partText->silentlyReleaseMemoryRecursive();
+    delete m_partText;
+    m_partText = 0;
 }
 
 }

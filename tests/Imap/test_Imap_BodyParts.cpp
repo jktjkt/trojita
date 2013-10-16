@@ -234,7 +234,18 @@ void BodyPartsTest::testPartIds_data()
                 // it's a "top-level multipart", i.e. a multipart which is a child of a message/rfc822.
                 << Data("0", Data::NO_FETCHING, "multipart/mixed")
                 << Data("0" + COLUMN_TEXT, "TEXT", "meh")
+                << Data("0" + COLUMN_HEADER, "HEADER", "meh")
+                // There's no MIME modifier for the root message/rfc822
+                << Data("0" + COLUMN_MIME)
+                // The multipart/mixed is a top-level multipart, and as such it doesn't have the special children
+                << Data("0.0" + COLUMN_TEXT)
+                << Data("0.0" + COLUMN_HEADER)
+                << Data("0.0" + COLUMN_MIME)
                 << Data("0.0", "1", "plaintext", "text/plain")
+                << Data("0.0.0" + COLUMN_MIME, "1.MIME", "Content-Type: blabla", "text/plain")
+                // A text/plain part does not, however, support the TEXT and HEADER modifiers
+                << Data("0.0.0" + COLUMN_TEXT)
+                << Data("0.0.0" + COLUMN_HEADER)
                 << Data("0.1.0.0", "2.1", "plaintext another", "text/plain")
                 << Data("0.1.0.1", "2.2", "multipart mixed", "multipart/mixed")
                 << Data("0.1.0.1.0", "2.2.1", "text richtext", "text/richtext")
@@ -289,13 +300,16 @@ void BodyPartsTest::testInvalidPartFetch_data()
     // QString allows us to use string literals
     QTest::addColumn<QString>("partId");
 
-    QTest::newRow("extra-part-1") << bsPlaintext << "2";
-    QTest::newRow("extra-part-2") << bsPlaintext << "1.1";
-    QTest::newRow("extra-part-3") << bsPlaintext << "0";
-    QTest::newRow("extra-part-4") << bsMultipartSignedTextPlain << "0";
-    QTest::newRow("extra-part-5") << bsMultipartSignedTextPlain << "1.0";
-    QTest::newRow("extra-part-6") << bsMultipartSignedTextPlain << "2.0";
-    QTest::newRow("extra-part-7") << bsMultipartSignedTextPlain << "3";
+    QTest::newRow("extra-part-plaintext") << bsPlaintext << "2";
+    QTest::newRow("extra-part-plaintext-child") << bsPlaintext << "1.1";
+    QTest::newRow("extra-part-plaintext-zero") << bsPlaintext << "0";
+    QTest::newRow("extra-part-signed-zero") << bsMultipartSignedTextPlain << "0";
+    QTest::newRow("extra-part-signed-child-1") << bsMultipartSignedTextPlain << "1.0";
+    QTest::newRow("extra-part-signed-child-2") << bsMultipartSignedTextPlain << "2.0";
+    QTest::newRow("extra-part-signed-extra") << bsMultipartSignedTextPlain << "3";
+    QTest::newRow("extra-part-signed-MIME") << bsMultipartSignedTextPlain << "MIME";
+    QTest::newRow("extra-part-signed-1-TEXT") << bsMultipartSignedTextPlain << "1.TEXT";
+    QTest::newRow("extra-part-signed-1-HEADER") << bsMultipartSignedTextPlain << "1.HEADER";
 }
 
 TROJITA_HEADLESS_TEST(BodyPartsTest)
