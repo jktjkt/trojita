@@ -1309,6 +1309,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
         return message()->parent()->parent()->data(model, role);
     case RoleMessageUid:
         return message()->uid();
+    case RolePartIsTopLevelMultipart:
+        return isTopLevelMultiPart();
     }
 
 

@@ -154,6 +154,8 @@ enum {
     RolePartPathToPart,
     /** @short CID of the main part of a multipart/related message */
     RolePartMultipartRelatedMainCid,
+    /** @short Is this a top-level multipart, i.e. a multipart/... and a child of a message/rfc822? See isTopLevelMultipart. */
+    RolePartIsTopLevelMultipart,
 
     /** @short True if the item in the tasks list is actually a ParserState
 
