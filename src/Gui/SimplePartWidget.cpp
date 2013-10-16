@@ -44,8 +44,10 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
 {
     Q_ASSERT(partIndex.isValid());
 
-    connect(this, SIGNAL(loadStarted()), m_messageView, SLOT(onWebViewLoadStarted()));
-    connect(this, SIGNAL(loadFinished(bool)), m_messageView, SLOT(onWebViewLoadFinished()));
+    if (m_messageView) {
+        connect(this, SIGNAL(loadStarted()), m_messageView, SLOT(onWebViewLoadStarted()));
+        connect(this, SIGNAL(loadFinished(bool)), m_messageView, SLOT(onWebViewLoadFinished()));
+    }
 
     QUrl url;
     url.setScheme(QLatin1String("trojita-imap"));
@@ -72,15 +74,19 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
 
     setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), messageView, SLOT(partContextMenuRequested(QPoint)));
-    connect(this, SIGNAL(searchDialogRequested()), messageView, SLOT(triggerSearchDialog()));
-    // The targets expect the sender() of the signal to be a SimplePartWidget, not a QWebPage,
-    // which means we have to do this indirection
-    connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SIGNAL(linkHovered(QString,QString,QString)));
-    connect(this, SIGNAL(linkHovered(QString,QString,QString)),
-            messageView, SLOT(partLinkHovered(QString,QString,QString)));
+    // It is actually OK to construct this widget without any connection to a messageView -- this is often used when
+    // displaying message source or message headers. Let's silence the QObject::connect warning.
+    if (m_messageView) {
+        connect(this, SIGNAL(customContextMenuRequested(QPoint)), m_messageView, SLOT(partContextMenuRequested(QPoint)));
+        connect(this, SIGNAL(searchDialogRequested()), m_messageView, SLOT(triggerSearchDialog()));
+        // The targets expect the sender() of the signal to be a SimplePartWidget, not a QWebPage,
+        // which means we have to do this indirection
+        connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SIGNAL(linkHovered(QString,QString,QString)));
+        connect(this, SIGNAL(linkHovered(QString,QString,QString)),
+                m_messageView, SLOT(partLinkHovered(QString,QString,QString)));
 
-    installEventFilter(messageView);
+        installEventFilter(m_messageView);
+    }
 }
 
 void SimplePartWidget::slotMarkupPlainText() {
