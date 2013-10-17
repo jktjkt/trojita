@@ -64,7 +64,8 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     }
 
     QString mimeType = partIndex.data(Imap::Mailbox::RolePartMimeType).toString().toLower();
-    bool isCompoundMimeType = mimeType.startsWith(QLatin1String("multipart/")) || mimeType == QLatin1String("message/rfc822");
+    bool isMessageRfc822 = mimeType == QLatin1String("message/rfc822");
+    bool isCompoundMimeType = mimeType.startsWith(QLatin1String("multipart/")) || isMessageRfc822;
 
     if (loadingMode & PART_IS_HIDDEN) {
         return new LoadablePartWidget(0, manager, partIndex, m_messageView, this, recursionDepth + 1,
@@ -106,7 +107,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     const bool isInline = contentDisposition.isEmpty() || contentDisposition == "inline";
     const bool looksLikeAttachment = !partIndex.data(Imap::Mailbox::RolePartFileName).toString().isEmpty();
     const bool wrapInAttachmentView = !(loadingMode & PART_IGNORE_DISPOSITION_ATTACHMENT)
-            && (looksLikeAttachment || !isInline || !recognizedMimeType || isDerivedMimeType);
+            && (looksLikeAttachment || !isInline || !recognizedMimeType || isDerivedMimeType || isMessageRfc822);
     if (wrapInAttachmentView) {
         // The problem is that some nasty MUAs (hint hint Thunderbird) would
         // happily attach a .tar.gz and call it "inline"

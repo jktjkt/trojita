@@ -25,6 +25,7 @@
 #include "Common/DeleteAfter.h"
 #include "Common/Paths.h"
 #include "Imap/Network/FileDownloadManager.h"
+#include "Imap/Model/DragAndDrop.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Utils.h"
@@ -214,20 +215,9 @@ void AttachmentView::mousePressEvent(QMouseEvent *event)
         return;
     }
 
-    if (m_partIndex.data(Imap::Mailbox::RoleMessageUid) == 0) {
+    QMimeData *mimeData = Imap::Mailbox::mimeDataForDragAndDrop(m_partIndex);
+    if (!mimeData)
         return;
-    }
-
-    QByteArray buf;
-    QDataStream stream(&buf, QIODevice::WriteOnly);
-    stream << m_partIndex.data(Imap::Mailbox::RoleMailboxName).toString() <<
-              m_partIndex.data(Imap::Mailbox::RoleMailboxUidValidity).toUInt() <<
-              m_partIndex.data(Imap::Mailbox::RoleMessageUid).toUInt() <<
-              m_partIndex.data(Imap::Mailbox::RolePartId).toString() <<
-              m_partIndex.data(Imap::Mailbox::RolePartPathToPart).toString();
-
-    QMimeData *mimeData = new QMimeData;
-    mimeData->setData(QLatin1String("application/x-trojita-imap-part"), buf);
     QDrag *drag = new QDrag(this);
     drag->setMimeData(mimeData);
     drag->setHotSpot(event->pos());

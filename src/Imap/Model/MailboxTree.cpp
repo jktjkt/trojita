@@ -928,7 +928,10 @@ unsigned int TreeItemMessage::rowCount(Model *const model)
 
 unsigned int TreeItemMessage::columnCount()
 {
-    return 3;
+    static_assert(OFFSET_HEADER < OFFSET_TEXT && OFFSET_MIME == OFFSET_TEXT + 1,
+                  "We need column 0 for regular children and columns 1 and 2 for OFFSET_HEADER and OFFSET_TEXT.");
+    // Oh, and std::max is not constexpr in C++11.
+    return OFFSET_MIME;
 }
 
 TreeItem *TreeItemMessage::specialColumnPtr(int row, int column) const
@@ -939,17 +942,16 @@ TreeItem *TreeItemMessage::specialColumnPtr(int row, int column) const
     if (row != 0)
         return 0;
 
-    if (!m_partText) {
-        m_partText = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_TEXT);
-    }
-    if (!m_partHeader) {
-        m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_HEADER);
-    }
-
     switch (column) {
     case OFFSET_TEXT:
+        if (!m_partText) {
+            m_partText = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_TEXT);
+        }
         return m_partText;
     case OFFSET_HEADER:
+        if (!m_partHeader) {
+            m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_HEADER);
+        }
         return m_partHeader;
     default:
         return 0;
@@ -1018,6 +1020,9 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         // This one doesn't really make much sense here, but we do want to catch it to prevent a fetch request from this context
         qDebug() << "Warning: asked for RoleThreadRootWithUnreadMessages on TreeItemMessage. This does not make sense.";
         return QVariant();
+    case RoleMailboxName:
+    case RoleMailboxUidValidity:
+        return parent()->parent()->data(model, role);
     }
 
     // Any other roles will result in fetching the data
@@ -1196,28 +1201,24 @@ void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &r
 }
 
 
-TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType): TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0)
+TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType):
+    TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0), m_partMime(0)
 {
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
         // can't be fetched. That's why we have to update the status here.
         m_fetchStatus = DONE;
     }
-    m_partHeader = new TreeItemModifiedPart(this, OFFSET_HEADER);
-    m_partMime = new TreeItemModifiedPart(this, OFFSET_MIME);
-    m_partText = new TreeItemModifiedPart(this, OFFSET_TEXT);
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
-    TreeItem(parent), m_mimeType(QLatin1String("text/plain")), m_octets(0), m_partHeader(0), m_partText(0), m_partMime(0)
+    TreeItem(parent), m_mimeType(QLatin1String("text/plain")), m_octets(0), m_partMime(0)
 {
 }
 
 TreeItemPart::~TreeItemPart()
 {
-    delete m_partHeader;
     delete m_partMime;
-    delete m_partText;
 }
 
 unsigned int TreeItemPart::childrenCount(Model *const model)
@@ -1308,6 +1309,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
         return message()->parent()->parent()->data(model, role);
     case RoleMessageUid:
         return message()->uid();
+    case RolePartIsTopLevelMultipart:
+        return isTopLevelMultiPart();
     }
 
 
@@ -1349,25 +1352,33 @@ bool TreeItemPart::isTopLevelMultiPart() const
 {
     TreeItemMessage *msg = dynamic_cast<TreeItemMessage *>(parent());
     TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent());
-    return  m_mimeType.startsWith("multipart/") && (msg || (part && part->m_mimeType.startsWith("message/")));
+    return m_mimeType.startsWith("multipart/") && (msg || (part && part->m_mimeType.startsWith("message/")));
 }
 
 QString TreeItemPart::partId() const
 {
     if (isTopLevelMultiPart()) {
-        TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent());
-        if (part)
-            return part->partId();
-        else
-            return QString();
+        return QString();
     } else if (dynamic_cast<TreeItemMessage *>(parent())) {
         return QString::number(row() + 1);
     } else {
-        QString parentId = dynamic_cast<TreeItemPart *>(parent())->partId();
-        if (parentId.isNull())
-            return QString::number(row() + 1);
-        else
-            return parentId + QChar('.') + QString::number(row() + 1);
+        QString parentId;
+        TreeItemPart *parentPart = dynamic_cast<TreeItemPart *>(parent());
+        Q_ASSERT(parentPart);
+        if (parentPart->isTopLevelMultiPart()) {
+            if (TreeItemPart *parentOfParent = dynamic_cast<TreeItemPart *>(parentPart->parent())) {
+                Q_ASSERT(!parentOfParent->isTopLevelMultiPart());
+                // grand parent: message/rfc822 with a part-id, parent: top-level multipart
+                parentId = parentOfParent->partId();
+            } else {
+                // grand parent: TreeItemMessage, parent: some multipart, me: some part
+                return QString::number(row() + 1);
+            }
+        } else {
+            parentId = parentPart->partId();
+        }
+        Q_ASSERT(!parentId.isEmpty());
+        return parentId + QChar('.') + QString::number(row() + 1);
     }
 }
 
@@ -1409,25 +1420,24 @@ QByteArray *TreeItemPart::dataPtr()
 
 unsigned int TreeItemPart::columnCount()
 {
-    return 4; // This one includes the OFFSET_MIME
+    if (isTopLevelMultiPart()) {
+        // Because a top-level multipart doesn't have its own part number, one cannot really fetch from it
+        return 1;
+    }
+
+    // This one includes the OFFSET_MIME, unlike the TreeItemMessage
+    return OFFSET_MIME + 1;
 }
 
 TreeItem *TreeItemPart::specialColumnPtr(int row, int column) const
 {
-    // No extra columns on other rows
-    if (row != 0)
-        return 0;
-
-    switch (column) {
-    case OFFSET_HEADER:
-        return m_partHeader;
-    case OFFSET_TEXT:
-        return m_partText;
-    case OFFSET_MIME:
+    if (row == 0 && column == OFFSET_MIME && !isTopLevelMultiPart()) {
+        if (!m_partMime) {
+            m_partMime = new TreeItemModifiedPart(const_cast<TreeItemPart*>(this), OFFSET_MIME);
+        }
         return m_partMime;
-    default:
-        return 0;
     }
+    return 0;
 }
 
 void TreeItemPart::silentlyReleaseMemoryRecursive()
@@ -1436,16 +1446,6 @@ void TreeItemPart::silentlyReleaseMemoryRecursive()
         TreeItemPart *part = dynamic_cast<TreeItemPart *>(item);
         Q_ASSERT(part);
         part->silentlyReleaseMemoryRecursive();
-    }
-    if (m_partHeader) {
-        m_partHeader->silentlyReleaseMemoryRecursive();
-        delete m_partHeader;
-        m_partHeader = 0;
-    }
-    if (m_partText) {
-        m_partText->silentlyReleaseMemoryRecursive();
-        delete m_partText;
-        m_partText = 0;
     }
     if (m_partMime) {
         m_partMime->silentlyReleaseMemoryRecursive();
@@ -1493,12 +1493,16 @@ unsigned int TreeItemModifiedPart::columnCount()
 
 QString TreeItemModifiedPart::partId() const
 {
-    QString parentId;
-
-    if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent()))
-        parentId = part->partId() + QLatin1Char('.');
-
-    return parentId + modifierToString();
+    if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent())) {
+        // The TreeItemPart is supposed to prevent creation of any special subparts if it's a top-level multipart
+        Q_ASSERT(!part->isTopLevelMultiPart());
+        return part->partId() + QLatin1Char('.') + modifierToString();
+    } else {
+        // Our parent is a message/rfc822, and it's definitely not nested -> no need for parent id here
+        // Cannot assert() on a dynamic_cast<TreeItemMessage*> at this point because the part is already nullptr at this time
+        Q_ASSERT(dynamic_cast<TreeItemMessage*>(parent()));
+        return modifierToString();
+    }
 }
 
 TreeItem::PartModifier TreeItemModifiedPart::kind() const
@@ -1549,7 +1553,7 @@ QString TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) const
 }
 
 TreeItemPartMultipartMessage::TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope):
-    TreeItemPart(parent, QLatin1String("message/rfc822")), m_envelope(envelope)
+    TreeItemPart(parent, QLatin1String("message/rfc822")), m_envelope(envelope), m_partHeader(0), m_partText(0)
 {
 }
 
@@ -1565,6 +1569,41 @@ QVariant TreeItemPartMultipartMessage::data(Model * const model, int role)
         return QVariant::fromValue<Message::Envelope>(m_envelope);
     } else {
         return TreeItemPart::data(model, role);
+    }
+}
+
+TreeItem *TreeItemPartMultipartMessage::specialColumnPtr(int row, int column) const
+{
+    if (row != 0)
+        return 0;
+    switch (column) {
+    case OFFSET_HEADER:
+        if (!m_partHeader) {
+            m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemPartMultipartMessage*>(this), OFFSET_HEADER);
+        }
+        return m_partHeader;
+    case OFFSET_TEXT:
+        if (!m_partText) {
+            m_partText = new TreeItemModifiedPart(const_cast<TreeItemPartMultipartMessage*>(this), OFFSET_TEXT);
+        }
+        return m_partText;
+    default:
+        return TreeItemPart::specialColumnPtr(row, column);
+    }
+}
+
+void TreeItemPartMultipartMessage::silentlyReleaseMemoryRecursive()
+{
+    TreeItemPart::silentlyReleaseMemoryRecursive();
+    if (m_partHeader) {
+        m_partHeader->silentlyReleaseMemoryRecursive();
+        delete m_partHeader;
+        m_partHeader = 0;
+    }
+    if (m_partText) {
+        m_partText->silentlyReleaseMemoryRecursive();
+        delete m_partText;
+        m_partText = 0;
     }
 }
 

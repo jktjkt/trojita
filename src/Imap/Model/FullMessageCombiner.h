@@ -24,8 +24,8 @@
 #ifndef FULLMESSAGEDOWNLOADER_H
 #define FULLMESSAGEDOWNLOADER_H
 
-#include <QModelIndex>
 #include <QObject>
+#include <QPersistentModelIndex>
 
 
 namespace Imap
@@ -67,9 +67,9 @@ private slots:
 
 private:
     const Imap::Mailbox::Model *m_model;
-    QModelIndex m_bodyPartIndex;
-    QModelIndex m_headerPartIndex;
-    QModelIndex m_messageIndex;
+    QPersistentModelIndex m_bodyPartIndex;
+    QPersistentModelIndex m_headerPartIndex;
+    QPersistentModelIndex m_messageIndex;
 };
 
 

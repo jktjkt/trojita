@@ -268,9 +268,7 @@ class TreeItemPart: public TreeItem
     QString m_fileName;
     uint m_octets;
     QByteArray m_multipartRelatedStartPart;
-    TreeItemPart *m_partHeader;
-    TreeItemPart *m_partText;
-    TreeItemPart *m_partMime;
+    mutable TreeItemPart *m_partMime;
 public:
     TreeItemPart(TreeItem *parent, const QString &mimeType);
     ~TreeItemPart();
@@ -327,10 +325,10 @@ public:
     QByteArray multipartRelatedStartPart() const { return m_multipartRelatedStartPart; }
     void setMultipartRelatedStartPart(const QByteArray &start) { m_multipartRelatedStartPart = start; }
     virtual TreeItem *specialColumnPtr(int row, int column) const;
-
-    void silentlyReleaseMemoryRecursive();
-protected:
     virtual bool isTopLevelMultiPart() const;
+
+    virtual void silentlyReleaseMemoryRecursive();
+protected:
     TreeItemPart(TreeItem *parent);
 };
 
@@ -361,10 +359,14 @@ private:
 class TreeItemPartMultipartMessage: public TreeItemPart
 {
     Message::Envelope m_envelope;
+    mutable TreeItemPart *m_partHeader;
+    mutable TreeItemPart *m_partText;
 public:
     TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope);
     virtual ~TreeItemPartMultipartMessage();
     virtual QVariant data(Model * const model, int role);
+    virtual TreeItem *specialColumnPtr(int row, int column) const;
+    virtual void silentlyReleaseMemoryRecursive();
 };
 
 }

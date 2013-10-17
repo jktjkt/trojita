@@ -24,6 +24,7 @@
 #define COMPOSER_COMPOSERATTACHMENTS_H
 
 #include <QIODevice>
+#include <QPersistentModelIndex>
 #include <QPointer>
 #include <QSharedPointer>
 #include "Composer/ContentDisposition.h"
@@ -123,20 +124,14 @@ public:
     virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
     Imap::Mailbox::FullMessageCombiner *fullMessageCombiner;
-    Imap::Mailbox::TreeItemMessage *messagePtr() const;
-
-    QPointer<Imap::Mailbox::Model> model;
-    QString mailbox;
-    uint uidValidity;
-    uint uid;
+    QPersistentModelIndex index;
     QString preferredName;
 };
 
 /** @short Part of a message stored in an IMAP server */
 class ImapPartAttachmentItem: public AttachmentItem {
 public:
-    ImapPartAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
-                           const QString &imapPartId, const QString &trojitaPath);
+    ImapPartAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid, const QString &trojitaPath);
     ~ImapPartAttachmentItem();
 
     virtual QString caption() const;
@@ -151,14 +146,7 @@ public:
     virtual void preload() const;
     virtual void asDroppableMimeData(QDataStream &stream) const;
 private:
-    Imap::Mailbox::TreeItemPart *partPtr() const;
-
-    QPointer<Imap::Mailbox::Model> model;
-    QString mailbox;
-    uint uidValidity;
-    uint uid;
-    QString imapPartId;
-    QString trojitaPath;
+    QPersistentModelIndex index;
     QString preferredName;
 };
 

@@ -522,6 +522,41 @@ void LibMailboxSync::justKeepTask()
     QVERIFY(keepTask->requestedParts.isEmpty());
 }
 
+/** @short Find an item within a tree identified by a "path"
+
+Based on a textual "path" like "1.2.3" or "6", find an index within the model which corresponds to that location.
+Indexing is zero-based, so "6" means model->index(6, 0) while "1.2.3" actually refers to model->index(1, 0).child(2, 0).child(3, 0).
+*/
+QModelIndex LibMailboxSync::findIndexByPosition(const QAbstractItemModel *model, const QString &where)
+{
+    QStringList list = where.split(QLatin1Char('.'));
+    Q_ASSERT(!list.isEmpty());
+    QList<QPair<int,int>> items;
+    Q_FOREACH(const QString &item, list) {
+        QStringList rowColumn = item.split(QLatin1Char('c'));
+        Q_ASSERT(rowColumn.size() >= 1);
+        Q_ASSERT(rowColumn.size() <= 2);
+        bool ok;
+        int row = rowColumn[0].toInt(&ok);
+        Q_ASSERT(ok);
+        int column = 0;
+        if (rowColumn.size() == 2) {
+            column = rowColumn[1].toInt(&ok);
+            Q_ASSERT(ok);
+        }
+        items << qMakePair(row, column);
+    }
+
+    QModelIndex index = QModelIndex();
+    for (auto it = items.constBegin(); it != items.constEnd(); ++it) {
+        index = model->index(it->first, it->second, index);
+        if (it + 1 != items.constEnd()) {
+            // this index is an intermediate one in the path, hence it should not really fail
+            Q_ASSERT(index.isValid());
+        }
+    }
+    return index;
+}
 
 namespace Imap {
 namespace Mailbox {

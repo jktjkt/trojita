@@ -23,6 +23,9 @@ include(FindCXXFeatures)
 if(NOT CXXFeatures_auto_FOUND)
     message(SEND_ERROR "Your compiler doesn't support C++11's auto")
 endif()
+if(NOT CXXFeatures_static_assert_FOUND)
+    message(SEND_ERROR "Your compiler doesn't support C++11's static_assert")
+endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 
 include(TrojitaOption)
@@ -364,6 +367,7 @@ set(libImap_SOURCES
 
     ${path_Imap}/Model/Cache.cpp
     ${path_Imap}/Model/CombinedCache.cpp
+    ${path_Imap}/Model/DragAndDrop.cpp
     ${path_Imap}/Model/DelayedPopulation.cpp
     ${path_Imap}/Model/DiskPartCache.cpp
     ${path_Imap}/Model/FindInterestingPart.cpp
@@ -744,6 +748,7 @@ if(WITH_TESTS)
     trojita_test(Imap Imap_Tasks_ObtainSynchronizedMailbox)
     trojita_test(Imap Imap_Tasks_OpenConnection)
     trojita_test(Imap Imap_Threading)
+    trojita_test(Imap Imap_BodyParts)
     trojita_test(Misc Rfc5322)
     trojita_test(Misc RingBuffer)
     trojita_test(Misc SenderIdentitiesModel)
