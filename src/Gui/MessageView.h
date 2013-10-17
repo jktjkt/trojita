@@ -23,6 +23,7 @@
 #define VIEW_MESSAGEVIEW_H
 
 #include <QPersistentModelIndex>
+#include <QSet>
 #include <QWidget>
 #include "Composer/Recipients.h"
 
@@ -114,7 +115,7 @@ private:
     PartWidgetFactory *factory;
     Spinner *m_loadingSpinner;
     QSettings *m_settings;
-    int m_loadingItemCount;
+    QSet<QWebView*> m_loadingItems;
 
     MessageView(const MessageView &); // don't implement
     MessageView &operator=(const MessageView &); // don't implement

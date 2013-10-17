@@ -57,7 +57,7 @@
 namespace Gui
 {
 
-MessageView::MessageView(QWidget *parent, QSettings *settings): QWidget(parent), m_settings(settings), m_loadingItemCount(0)
+MessageView::MessageView(QWidget *parent, QSettings *settings): QWidget(parent), m_settings(settings)
 {
     QPalette pal = palette();
     pal.setColor(backgroundRole(), palette().color(QPalette::Active, QPalette::Base));
@@ -179,7 +179,7 @@ void MessageView::setEmpty()
         viewer->show();
         layout->addWidget(viewer);
         emit messageChanged();
-        m_loadingItemCount = 0;
+        m_loadingItems.clear();
         m_loadingSpinner->stop();
     }
 }
@@ -224,7 +224,7 @@ void MessageView::setMessage(const QModelIndex &index)
 
         netAccess->setModelMessage(message);
 
-        m_loadingItemCount = 0;
+        m_loadingItems.clear();
         m_loadingSpinner->stop();
 
         PartWidgetFactory::PartLoadingOptions loadingMode;
@@ -502,17 +502,23 @@ QModelIndex MessageView::currentMessage() const
 
 void MessageView::onWebViewLoadStarted()
 {
-    ++m_loadingItemCount;
+    QWebView *wv = qobject_cast<QWebView*>(sender());
+    Q_ASSERT(wv);
     QModelIndex messageIndex;
     const Imap::Mailbox::Model *constModel = 0;
     Imap::Mailbox::Model::realTreeItem(message, &constModel, &messageIndex);
-    if (constModel && constModel->isNetworkAvailable())
+    if (constModel && constModel->isNetworkAvailable()) {
+        m_loadingItems << wv;
         m_loadingSpinner->start(250);
+    }
 }
 
 void MessageView::onWebViewLoadFinished()
 {
-    if (--m_loadingItemCount == 0)
+    QWebView *wv = qobject_cast<QWebView*>(sender());
+    Q_ASSERT(wv);
+    m_loadingItems.remove(wv);
+    if (m_loadingItems.isEmpty())
         m_loadingSpinner->stop();
 }
 
