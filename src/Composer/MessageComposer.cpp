@@ -209,7 +209,7 @@ bool MessageComposer::dropAttachmentList(QDataStream &stream)
     }
 
     // A crude RAII here; there are many places where the validation might fail even though we have already allocated memory
-    WillDeleteAll<QList<AttachmentItem*> > items;
+    WillDeleteAll<QList<AttachmentItem*>> items;
 
     for (int i = 0; i < num; ++i) {
         int kind = -1;
@@ -325,7 +325,7 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
         return false;
     }
 
-    WillDeleteAll<QList<AttachmentItem*> > items;
+    WillDeleteAll<QList<AttachmentItem*>> items;
     Q_FOREACH(const uint uid, uids) {
         try {
             items.d << new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid);
