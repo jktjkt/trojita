@@ -59,6 +59,7 @@ QByteArray encodeRfc2231Parameter(const QByteArray &key, const QString &value);
 
 QString wrapFormatFlowed(const QString &input);
 
+void decodeContentTransferEncoding(const QByteArray &rawData, const QByteArray &encoding, QByteArray *outputData);
 }
 
 #endif // IMAP_ENCODERS_H

@@ -36,21 +36,6 @@
 namespace
 {
 
-void decodeMessagePartTransportEncoding(const QByteArray &rawData, const QByteArray &encoding, QByteArray *outputData)
-{
-    Q_ASSERT(outputData);
-    if (encoding == "quoted-printable") {
-        *outputData = Imap::quotedPrintableDecode(rawData);
-    } else if (encoding == "base64") {
-        *outputData = QByteArray::fromBase64(rawData);
-    } else if (encoding.isEmpty() || encoding == "7bit" || encoding == "8bit" || encoding == "binary") {
-        *outputData = rawData;
-    } else {
-        qDebug() << "Warning: unknown encoding" << encoding;
-        *outputData = rawData;
-    }
-}
-
 QVariantList addresListToQVariant(const QList<Imap::Message::MailAddress> &addressList)
 {
     QVariantList res;
@@ -473,7 +458,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             const QByteArray &data = dynamic_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
             if (it.key().startsWith("BODY[")) {
                 // got to decode the part data by hand
-                decodeMessagePartTransportEncoding(data, part->encoding(), part->dataPtr());
+                Imap::decodeContentTransferEncoding(data, part->encoding(), part->dataPtr());
 
                 // Check whether we are supposed to be loading the raw, undecoded part as well.
                 // The check has to be done via a direct pointer access to m_partRaw to make sure that it does not

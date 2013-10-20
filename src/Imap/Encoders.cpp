@@ -652,4 +652,19 @@ QString wrapFormatFlowed(const QString &input)
     return res.join(QLatin1String("\r\n"));
 }
 
+void decodeContentTransferEncoding(const QByteArray &rawData, const QByteArray &encoding, QByteArray *outputData)
+{
+    Q_ASSERT(outputData);
+    if (encoding == "quoted-printable") {
+        *outputData = quotedPrintableDecode(rawData);
+    } else if (encoding == "base64") {
+        *outputData = QByteArray::fromBase64(rawData);
+    } else if (encoding.isEmpty() || encoding == "7bit" || encoding == "8bit" || encoding == "binary") {
+        *outputData = rawData;
+    } else {
+        qDebug() << "Warning: unknown encoding" << encoding;
+        *outputData = rawData;
+    }
+}
+
 }
