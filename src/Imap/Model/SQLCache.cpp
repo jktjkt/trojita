@@ -654,7 +654,7 @@ void SQLCache::clearMessage(const QString mailbox, uint uid)
     }
 }
 
-QStringList SQLCache::msgFlags(const QString &mailbox, uint uid) const
+QStringList SQLCache::msgFlags(const QString &mailbox, const uint uid) const
 {
     QStringList res;
     queryMessageFlags.bindValue(0, mailboxName(mailbox));
@@ -672,7 +672,7 @@ QStringList SQLCache::msgFlags(const QString &mailbox, uint uid) const
     return res;
 }
 
-void SQLCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags)
+void SQLCache::setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Updating flags for" << mailbox << uid;
@@ -723,7 +723,7 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbo
     return res;
 }
 
-void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata)
+void SQLCache::setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Setting message metadata for" << uid << mailbox;
@@ -744,7 +744,7 @@ void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const Messag
     }
 }
 
-QByteArray SQLCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const
+QByteArray SQLCache::messagePart(const QString &mailbox, const uint uid, const QString &partId) const
 {
     QByteArray res;
     queryMessagePart.bindValue(0, mailboxName(mailbox));
@@ -761,7 +761,7 @@ QByteArray SQLCache::messagePart(const QString &mailbox, uint uid, const QString
     return res;
 }
 
-void SQLCache::setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data)
+void SQLCache::setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Saving message part" << partId << uid << mailbox;

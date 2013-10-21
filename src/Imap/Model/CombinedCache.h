@@ -72,16 +72,16 @@ public:
     virtual QList<uint> uidMapping(const QString &mailbox) const;
 
     virtual void clearAllMessages(const QString &mailbox);
-    virtual void clearMessage(const QString mailbox, uint uid);
+    virtual void clearMessage(const QString mailbox, const uint uid);
 
-    virtual MessageDataBundle messageMetadata(const QString &mailbox, uint uid) const;
-    virtual void setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata);
+    virtual MessageDataBundle messageMetadata(const QString &mailbox, const uint uid) const;
+    virtual void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata);
 
-    virtual QStringList msgFlags(const QString &mailbox, uint uid) const;
-    virtual void setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags);
+    virtual QStringList msgFlags(const QString &mailbox, const uint uid) const;
+    virtual void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags);
 
-    virtual QByteArray messagePart(const QString &mailbox, uint uid, const QString &partId) const;
-    virtual void setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data);
+    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const;
+    virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data);
 
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);

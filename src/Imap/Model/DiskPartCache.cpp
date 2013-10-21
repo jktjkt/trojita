@@ -86,7 +86,7 @@ void DiskPartCache::clearAllMessages(const QString &mailbox)
     }
 }
 
-void DiskPartCache::clearMessage(const QString mailbox, uint uid)
+void DiskPartCache::clearMessage(const QString mailbox, const uint uid)
 {
     QDir dir(dirForMailbox(mailbox));
     Q_FOREACH(const QString& fname, dir.entryList(QStringList() << QString::fromUtf8("%1_*.cache").arg(QString::number(uid)))) {
@@ -96,7 +96,7 @@ void DiskPartCache::clearMessage(const QString mailbox, uint uid)
     }
 }
 
-QByteArray DiskPartCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const
+QByteArray DiskPartCache::messagePart(const QString &mailbox, const uint uid, const QString &partId) const
 {
     QFile buf(QString::fromUtf8("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), partId));
     if (! buf.open(QIODevice::ReadOnly)) {
@@ -105,7 +105,7 @@ QByteArray DiskPartCache::messagePart(const QString &mailbox, uint uid, const QS
     return qUncompress(buf.readAll());
 }
 
-void DiskPartCache::setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data)
+void DiskPartCache::setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data)
 {
     QString myPath = dirForMailbox(mailbox);
     QDir dir(myPath);

@@ -47,12 +47,12 @@ public:
     /** @short Delete all data of message parts which belongs to that particular mailbox */
     virtual void clearAllMessages(const QString &mailbox);
     /** @short Delete all data for a particular message in the given mailbox */
-    virtual void clearMessage(const QString mailbox, uint uid);
+    virtual void clearMessage(const QString mailbox, const uint uid);
 
     /** @short Return data for some message part, or a null QByteArray if not found */
-    virtual QByteArray messagePart(const QString &mailbox, uint uid, const QString &partId) const;
+    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const;
     /** @short Store the data for a specified message part */
-    virtual void setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data);
+    virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data);
 
 signals:
     /** @short An error has occurred while performing cache operations */
