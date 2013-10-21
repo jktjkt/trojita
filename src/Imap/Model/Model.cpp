@@ -949,7 +949,6 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
 
 void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 {
-    // FIXME: fetch parts in chunks, not at once
     Q_ASSERT(item->message());   // TreeItemMessage
     Q_ASSERT(item->message()->parent());   // TreeItemMsgList
     Q_ASSERT(item->message()->parent()->parent());   // TreeItemMailbox
@@ -958,7 +957,6 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
     // We are asking for a message part, which means that the structure of a message is already known.
     // If the UID was zero at this point, it would mean that we are completely doomed.
-    // FIXME: a malicious server could exploit this!
     uint uid = static_cast<TreeItemMessage *>(item->message())->uid();
     Q_ASSERT(uid);
 
