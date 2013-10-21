@@ -205,6 +205,9 @@ QByteArray bsSignedInsideMessageInsideMessage("\"message\" \"rfc822\" NIL NIL NI
         "(\"application\" \"pgp-signature\" (\"name\" \"signature.asc\") NIL \"This is a digitally signed message part.\" \"7bit\" 205) \"signed\") 51");
 QByteArray bsManyPlaintexts("(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
                             "(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
+                            "(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
+                            "(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
+                            "(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
                             " \"mixed\"");
 
 void BodyPartsTest::testPartIds_data()
@@ -352,7 +355,7 @@ void BodyPartsTest::testFetchingRawParts()
     QCOMPARE(model->rowCount(msg), 1);
     QModelIndex rootMultipart = msg.child(0, 0);
     QVERIFY(rootMultipart.isValid());
-    QCOMPARE(model->rowCount(rootMultipart), 2);
+    QCOMPARE(model->rowCount(rootMultipart), 5);
 
     QSignalSpy dataChangedSpy(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 
@@ -371,14 +374,12 @@ void BodyPartsTest::testFetchingRawParts()
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
     cClient(t.mk("UID FETCH 333 (BODY.PEEK[1])\r\n"));
     cServer("* 1 FETCH (UID 333 BODY[1] \"" + fakePartData.toBase64() + "\")\r\n" + t.last("OK fetched\r\n"));
-    QCOMPARE(dataChangedSpy.size(), 2);
+    QCOMPARE(dataChangedSpy.size(), 1);
     CHECK_DATACHANGED(0, rawPart);
-    CHECK_DATACHANGED(1, part);
-    QVERIFY(part.data(RoleIsFetched).toBool());
+    QVERIFY(!part.data(RoleIsFetched).toBool());
     QVERIFY(rawPart.data(RoleIsFetched).toBool());
-    QCOMPARE(part.data(RolePartData).toByteArray(), fakePartData);
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), fakePartData.toBase64());
-    QCOMPARE(model->cache()->messagePart("b", 333, "1"), fakePartData);
+    QVERIFY(model->cache()->messagePart("b", 333, "1").isNull());
     QCOMPARE(model->cache()->messagePart("b", 333, "1.X-RAW"), fakePartData.toBase64());
     cEmpty();
     dataChangedSpy.clear();
@@ -399,22 +400,85 @@ void BodyPartsTest::testFetchingRawParts()
     QCOMPARE(part.data(RolePartData).toString(), QString("ahoj"));
     QCOMPARE(model->cache()->messagePart("b", 333, "2"), QByteArray("ahoj"));
     QCOMPARE(model->cache()->messagePart("b", 333, "2.X-RAW").isNull(), true);
-    // Trigger fetching of the raw data and make sure that the decoded data got overriden and signals were emited
-    fakePartData = "Canary 3";
+    // Trigger fetching of the raw data.
+    // Make sure that we do *not* overwite the already decoded data needlessly.
+    // If the server is broken and performs the CTE decoding in a wrong way, let's just silenty ignore this.
+    fakePartData = "Canary 2";
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
     cClient(t.mk("UID FETCH 333 (BODY.PEEK[2])\r\n"));
     cServer("* 1 FETCH (UID 333 BODY[2] \"" + fakePartData.toBase64() + "\")\r\n" + t.last("OK fetched\r\n"));
-    QCOMPARE(dataChangedSpy.size(), 2);
+    QCOMPARE(dataChangedSpy.size(), 1);
     CHECK_DATACHANGED(0, rawPart);
-    CHECK_DATACHANGED(1, part);
     QVERIFY(part.data(RoleIsFetched).toBool());
     QVERIFY(rawPart.data(RoleIsFetched).toBool());
-    QCOMPARE(part.data(RolePartData).toByteArray(), fakePartData);
+    QCOMPARE(part.data(RolePartData).toString(), QString("ahoj"));
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), fakePartData.toBase64());
-    QCOMPARE(model->cache()->messagePart("b", 333, "2"), fakePartData);
+    QCOMPARE(model->cache()->messagePart("b", 333, "2"), QByteArray("ahoj"));
     QCOMPARE(model->cache()->messagePart("b", 333, "2.X-RAW"), fakePartData.toBase64());
     cEmpty();
     dataChangedSpy.clear();
+
+    // Make sure that requests for part whose raw form was already loaded is accomodated locally
+    fakePartData = "Canary 3";
+    part = rootMultipart.child(2, 0);
+    QCOMPARE(part.data(RolePartId).toString(), QString("3"));
+    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    QVERIFY(rawPart.isValid());
+    QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
+    cClient(t.mk("UID FETCH 333 (BODY.PEEK[3])\r\n"));
+    cServer("* 1 FETCH (UID 333 BODY[3] \"" + fakePartData.toBase64() + "\")\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(dataChangedSpy.size(), 1);
+    CHECK_DATACHANGED(0, rawPart);
+    QVERIFY(!part.data(RoleIsFetched).toBool());
+    QVERIFY(rawPart.data(RoleIsFetched).toBool());
+    QCOMPARE(rawPart.data(RolePartData).toByteArray(), fakePartData.toBase64());
+    QCOMPARE(model->cache()->messagePart("b", 333, "3").isNull(), true);
+    QCOMPARE(model->cache()->messagePart("b", 333, "3.X-RAW"), fakePartData.toBase64());
+    cEmpty();
+    dataChangedSpy.clear();
+    // Now the request for actual part data shall be accomodated from the cache.
+    // As this is a first request ever, there's no need to emit dataChanged. The on-disk cache is not populated.
+    QCOMPARE(part.data(RolePartData).toByteArray(), fakePartData);
+    QVERIFY(part.data(RoleIsFetched).toBool());
+    QCOMPARE(dataChangedSpy.size(), 0);
+    QCOMPARE(model->cache()->messagePart("b", 333, "3").isNull(), true);
+
+    // Make sure that requests for already processed part are accomodated from the cache if possible
+    fakePartData = "Canary 4";
+    part = rootMultipart.child(3, 0);
+    QCOMPARE(part.data(RolePartId).toString(), QString("4"));
+    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    QVERIFY(rawPart.isValid());
+    model->cache()->setMsgPart("b", 333, "4.X-RAW", fakePartData.toBase64());
+    QVERIFY(!part.data(RoleIsFetched).toBool());
+    QVERIFY(!rawPart.data(RoleIsFetched).toBool());
+    QCOMPARE(part.data(RolePartData).toByteArray(), fakePartData);
+    QCOMPARE(dataChangedSpy.size(), 0);
+    QCOMPARE(model->cache()->messagePart("b", 333, "4").isNull(), true);
+    cEmpty();
+    dataChangedSpy.clear();
+
+    // Make sure that requests for already processed part and the raw data are merged if they happen close enough and in the correct order
+    fakePartData = "Canary 5";
+    part = rootMultipart.child(4, 0);
+    QCOMPARE(part.data(RolePartId).toString(), QString("5"));
+    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    QVERIFY(rawPart.isValid());
+    QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
+    QCOMPARE(part.data(RolePartData).toByteArray(), QByteArray());
+    cClient(t.mk("UID FETCH 333 (BODY.PEEK[5])\r\n"));
+    cServer("* 1 FETCH (UID 333 BODY[5] \"" + fakePartData.toBase64() + "\")\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(dataChangedSpy.size(), 2);
+    CHECK_DATACHANGED(0, rawPart);
+    CHECK_DATACHANGED(1, part);
+    dataChangedSpy.clear();
+    QVERIFY(part.data(RoleIsFetched).toBool());
+    QVERIFY(rawPart.data(RoleIsFetched).toBool());
+    QCOMPARE(part.data(RolePartData).toString(), QString(fakePartData));
+    QCOMPARE(rawPart.data(RolePartData).toByteArray(), fakePartData.toBase64());
+    QVERIFY(model->cache()->messagePart("b", 333, "5").isNull());
+    QCOMPARE(model->cache()->messagePart("b", 333, "5.X-RAW"), fakePartData.toBase64());
+    cEmpty();
 }
 
 TROJITA_HEADLESS_TEST(BodyPartsTest)

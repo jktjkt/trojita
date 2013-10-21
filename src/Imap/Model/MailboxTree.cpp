@@ -457,8 +457,6 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 throw UnknownMessageIndex("Got BODY[]/BINARY[] fetch that did not resolve to any known part", response);
             const QByteArray &data = dynamic_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
             if (it.key().startsWith("BODY[")) {
-                // got to decode the part data by hand
-                Imap::decodeContentTransferEncoding(data, part->encoding(), part->dataPtr());
 
                 // Check whether we are supposed to be loading the raw, undecoded part as well.
                 // The check has to be done via a direct pointer access to m_partRaw to make sure that it does not
@@ -471,14 +469,31 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                         model->cache()->setMsgPart(mailbox(), message->uid(), part->partId() + QLatin1String(".X-RAW"), data);
                     }
                 }
+
+                // Do not overwrite the part data if we were not asked to fetch it.
+                // One possibility is that it's already there because it was fetched before. The second option is that
+                // we were in fact asked to only fetch the raw data and the user is not itnerested in the processed data at all.
+                if (part->loading()) {
+                    // got to decode the part data by hand
+                    Imap::decodeContentTransferEncoding(data, part->encoding(), part->dataPtr());
+                    part->m_fetchStatus = DONE;
+                    changedParts.append(part);
+                    if (message->uid()
+                            && model->cache()->messagePart(mailbox(), message->uid(), part->partId() + QLatin1String(".X-RAW")).isNull()) {
+                        // Do not store the data into cache if the raw data are already there
+                        model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->m_data);
+                    }
+                }
+
             } else {
                 // A BINARY FETCH item is already decoded for us, yay
                 part->m_data = data;
+                part->m_fetchStatus = DONE;
+                changedParts.append(part);
+                if (message->uid()) {
+                    model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->m_data);
+                }
             }
-            part->m_fetchStatus = DONE;
-            if (message->uid())
-                model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->m_data);
-            changedParts.append(part);
         } else if (it.key() == "INTERNALDATE") {
             message->m_internalDate = dynamic_cast<const Responses::RespData<QDateTime>&>(*(it.value())).data;
             gotInternalDate = true;

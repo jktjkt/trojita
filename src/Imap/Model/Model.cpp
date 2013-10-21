@@ -36,6 +36,7 @@
 #include "SpecialFlagNames.h"
 #include "TaskPresentationModel.h"
 #include "Common/FindWithUnknown.h"
+#include "Imap/Encoders.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GetAnyConnectionTask.h"
 #include "Imap/Tasks/KeepMailboxOpenTask.h"
@@ -977,6 +978,23 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
         item->m_data = data;
         item->m_fetchStatus = TreeItem::DONE;
         return;
+    }
+
+    if (!isSpecialRawPart) {
+        const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid,
+                                                      itemForFetchOperation->partId() + QLatin1String(".X-RAW"));
+
+        if (!data.isNull()) {
+            Imap::decodeContentTransferEncoding(data, item->encoding(), item->dataPtr());
+            item->m_fetchStatus = TreeItem::DONE;
+            return;
+        }
+
+        if (item->m_partRaw && item->m_partRaw->loading()) {
+            // There's already a request for the raw data. Let's use it and don't queue an extra fetch here.
+            item->m_fetchStatus = TreeItem::LOADING;
+            return;
+        }
     }
 
     if (networkPolicy() == NETWORK_OFFLINE) {
