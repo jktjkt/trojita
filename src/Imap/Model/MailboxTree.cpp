@@ -474,6 +474,18 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             if (it.key().startsWith("BODY[")) {
                 // got to decode the part data by hand
                 decodeMessagePartTransportEncoding(data, part->encoding(), part->dataPtr());
+
+                // Check whether we are supposed to be loading the raw, undecoded part as well.
+                // The check has to be done via a direct pointer access to m_partRaw to make sure that it does not
+                // get instantiated when not actually needed.
+                if (part->m_partRaw && part->m_partRaw->loading()) {
+                    part->m_partRaw->m_data = data;
+                    part->m_partRaw->m_fetchStatus = DONE;
+                    changedParts.append(part->m_partRaw);
+                    if (message->uid()) {
+                        model->cache()->setMsgPart(mailbox(), message->uid(), part->partId() + QLatin1String(".X-RAW"), data);
+                    }
+                }
             } else {
                 // A BINARY FETCH item is already decoded for us, yay
                 part->m_data = data;
@@ -1202,7 +1214,7 @@ void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &r
 
 
 TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType):
-    TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0), m_partMime(0)
+    TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0), m_partMime(0), m_partRaw(0)
 {
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
@@ -1212,13 +1224,14 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType):
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
-    TreeItem(parent), m_mimeType(QLatin1String("text/plain")), m_octets(0), m_partMime(0)
+    TreeItem(parent), m_mimeType(QLatin1String("text/plain")), m_octets(0), m_partMime(0), m_partRaw(0)
 {
 }
 
 TreeItemPart::~TreeItemPart()
 {
     delete m_partMime;
+    delete m_partRaw;
 }
 
 unsigned int TreeItemPart::childrenCount(Model *const model)
@@ -1425,17 +1438,26 @@ unsigned int TreeItemPart::columnCount()
         return 1;
     }
 
-    // This one includes the OFFSET_MIME, unlike the TreeItemMessage
-    return OFFSET_MIME + 1;
+    // This one includes the OFFSET_MIME and OFFSET_RAW_CONTENTS, unlike the TreeItemMessage
+    static_assert(OFFSET_MIME < OFFSET_RAW_CONTENTS, "The OFFSET_RAW_CONTENTS shall be the biggest one for tree invariants to work");
+    return OFFSET_RAW_CONTENTS + 1;
 }
 
 TreeItem *TreeItemPart::specialColumnPtr(int row, int column) const
 {
-    if (row == 0 && column == OFFSET_MIME && !isTopLevelMultiPart()) {
-        if (!m_partMime) {
-            m_partMime = new TreeItemModifiedPart(const_cast<TreeItemPart*>(this), OFFSET_MIME);
+    if (row == 0 && !isTopLevelMultiPart()) {
+        switch (column) {
+        case OFFSET_MIME:
+            if (!m_partMime) {
+                m_partMime = new TreeItemModifiedPart(const_cast<TreeItemPart*>(this), OFFSET_MIME);
+            }
+            return m_partMime;
+        case OFFSET_RAW_CONTENTS:
+            if (!m_partRaw) {
+                m_partRaw = new TreeItemModifiedPart(const_cast<TreeItemPart*>(this), OFFSET_RAW_CONTENTS);
+            }
+            return m_partRaw;
         }
-        return m_partMime;
     }
     return 0;
 }
@@ -1451,6 +1473,11 @@ void TreeItemPart::silentlyReleaseMemoryRecursive()
         m_partMime->silentlyReleaseMemoryRecursive();
         delete m_partMime;
         m_partMime = 0;
+    }
+    if (m_partRaw) {
+        m_partRaw->silentlyReleaseMemoryRecursive();
+        delete m_partRaw;
+        m_partRaw = 0;
     }
     m_data.clear();
     m_fetchStatus = NONE;
@@ -1493,7 +1520,11 @@ unsigned int TreeItemModifiedPart::columnCount()
 
 QString TreeItemModifiedPart::partId() const
 {
-    if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent())) {
+    if (m_modifier == OFFSET_RAW_CONTENTS) {
+        // This item is not directly fetcheable, so it does *not* make sense to ask for it.
+        // We cannot really assert at this point, though, because this function is published via the MVC interface.
+        return QLatin1String("application-bug-dont-fetch-this");
+    } else if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent())) {
         // The TreeItemPart is supposed to prevent creation of any special subparts if it's a top-level multipart
         Q_ASSERT(!part->isTopLevelMultiPart());
         return part->partId() + QLatin1Char('.') + modifierToString();
@@ -1519,6 +1550,9 @@ QString TreeItemModifiedPart::modifierToString() const
         return QLatin1String("TEXT");
     case OFFSET_MIME:
         return QLatin1String("MIME");
+    case OFFSET_RAW_CONTENTS:
+        Q_ASSERT(!"Cannot get the fetch modifier for an OFFSET_RAW_CONTENTS item");
+        // fall through
     default:
         Q_ASSERT(false);
         return QString();

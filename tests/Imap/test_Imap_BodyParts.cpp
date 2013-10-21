@@ -24,6 +24,7 @@
 #include <QtTest>
 #include "test_Imap_BodyParts.h"
 #include "Utils/headless_test.h"
+#include "Utils/FakeCapabilitiesInjector.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
@@ -49,6 +50,19 @@ struct Data {
 };
 
 Q_DECLARE_METATYPE(QList<Data>)
+Q_DECLARE_METATYPE(QModelIndex)
+
+namespace QTest {
+template <>
+char *toString(const QModelIndex &index)
+{
+    QString buf;
+    QDebug(&buf) << index;
+    return qstrdup(buf.toUtf8().constData());
+}
+}
+
+using namespace Imap::Mailbox;
 
 /** @short Check that the part numbering works properly */
 void BodyPartsTest::testPartIds()
@@ -189,6 +203,9 @@ QByteArray bsSignedInsideMessageInsideMessage("\"message\" \"rfc822\" NIL NIL NI
         "((\"Jan\" NIL \"jkt\" \"flaska.net\")) NIL NIL NIL \"<201308080902.51071@pali>\") "
         "((\"Text\" \"Plain\" (\"charset\" \"utf-8\") NIL NIL \"quoted-printable\" 632 20)"
         "(\"application\" \"pgp-signature\" (\"name\" \"signature.asc\") NIL \"This is a digitally signed message part.\" \"7bit\" 205) \"signed\") 51");
+QByteArray bsManyPlaintexts("(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
+                            "(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
+                            " \"mixed\"");
 
 void BodyPartsTest::testPartIds_data()
 {
@@ -198,6 +215,7 @@ void BodyPartsTest::testPartIds_data()
 #define COLUMN_HEADER ("c" + QByteArray::number(Imap::Mailbox::TreeItem::OFFSET_HEADER))
 #define COLUMN_TEXT ("c" + QByteArray::number(Imap::Mailbox::TreeItem::OFFSET_TEXT))
 #define COLUMN_MIME ("c" + QByteArray::number(Imap::Mailbox::TreeItem::OFFSET_MIME))
+#define COLUMN_RAW_CONTENTS ("c" + QByteArray::number(Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS))
 
     QTest::newRow("plaintext")
         << bsPlaintext
@@ -235,12 +253,14 @@ void BodyPartsTest::testPartIds_data()
                 << Data("0", Data::NO_FETCHING, "multipart/mixed")
                 << Data("0" + COLUMN_TEXT, "TEXT", "meh")
                 << Data("0" + COLUMN_HEADER, "HEADER", "meh")
-                // There's no MIME modifier for the root message/rfc822
+                // There are no MIME or RAW modifier for the root message/rfc822
                 << Data("0" + COLUMN_MIME)
+                << Data("0" + COLUMN_RAW_CONTENTS)
                 // The multipart/mixed is a top-level multipart, and as such it doesn't have the special children
                 << Data("0.0" + COLUMN_TEXT)
                 << Data("0.0" + COLUMN_HEADER)
                 << Data("0.0" + COLUMN_MIME)
+                << Data("0.0" + COLUMN_RAW_CONTENTS)
                 << Data("0.0", "1", "plaintext", "text/plain")
                 << Data("0.0.0" + COLUMN_MIME, "1.MIME", "Content-Type: blabla", "text/plain")
                 // A text/plain part does not, however, support the TEXT and HEADER modifiers
@@ -310,6 +330,91 @@ void BodyPartsTest::testInvalidPartFetch_data()
     QTest::newRow("extra-part-signed-MIME") << bsMultipartSignedTextPlain << "MIME";
     QTest::newRow("extra-part-signed-1-TEXT") << bsMultipartSignedTextPlain << "1.TEXT";
     QTest::newRow("extra-part-signed-1-HEADER") << bsMultipartSignedTextPlain << "1.HEADER";
+}
+
+/** @short Check how fetching the raw part data is handled */
+void BodyPartsTest::testFetchingRawParts()
+{
+    qRegisterMetaType<QModelIndex>();
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("BINARY");
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bsManyPlaintexts + "))\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msg), 1);
+    QModelIndex rootMultipart = msg.child(0, 0);
+    QVERIFY(rootMultipart.isValid());
+    QCOMPARE(model->rowCount(rootMultipart), 2);
+
+    QSignalSpy dataChangedSpy(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
+
+#define CHECK_DATACHANGED(ROW, INDEX) \
+    QCOMPARE(dataChangedSpy[ROW][0].value<QModelIndex>(), INDEX); \
+    QCOMPARE(dataChangedSpy[ROW][1].value<QModelIndex>(), INDEX);
+
+    QModelIndex part, rawPart;
+    QByteArray fakePartData = "Canary 1";
+
+    // First make sure that we cam fetch the raw version of a simple part which has not been fetched before.
+    part = rootMultipart.child(0, 0);
+    QCOMPARE(part.data(RolePartId).toString(), QString("1"));
+    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    QVERIFY(rawPart.isValid());
+    QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
+    cClient(t.mk("UID FETCH 333 (BODY.PEEK[1])\r\n"));
+    cServer("* 1 FETCH (UID 333 BODY[1] \"" + fakePartData.toBase64() + "\")\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(dataChangedSpy.size(), 2);
+    CHECK_DATACHANGED(0, rawPart);
+    CHECK_DATACHANGED(1, part);
+    QVERIFY(part.data(RoleIsFetched).toBool());
+    QVERIFY(rawPart.data(RoleIsFetched).toBool());
+    QCOMPARE(part.data(RolePartData).toByteArray(), fakePartData);
+    QCOMPARE(rawPart.data(RolePartData).toByteArray(), fakePartData.toBase64());
+    QCOMPARE(model->cache()->messagePart("b", 333, "1"), fakePartData);
+    QCOMPARE(model->cache()->messagePart("b", 333, "1.X-RAW"), fakePartData.toBase64());
+    cEmpty();
+    dataChangedSpy.clear();
+
+    // Check that the same fetch is repeated when a request for raw, unprocessed data is made again
+    part = rootMultipart.child(1, 0);
+    QCOMPARE(part.data(RolePartId).toString(), QString("2"));
+    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    QVERIFY(rawPart.isValid());
+    QCOMPARE(part.data(RolePartData).toByteArray(), QByteArray());
+    cClient(t.mk("UID FETCH 333 (BINARY.PEEK[2])\r\n"));
+    cServer("* 1 FETCH (UID 333 BINARY[2] \"ahoj\")\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(dataChangedSpy.size(), 1);
+    CHECK_DATACHANGED(0, part);
+    dataChangedSpy.clear();
+    QVERIFY(part.data(RoleIsFetched).toBool());
+    QVERIFY(!rawPart.data(RoleIsFetched).toBool());
+    QCOMPARE(part.data(RolePartData).toString(), QString("ahoj"));
+    QCOMPARE(model->cache()->messagePart("b", 333, "2"), QByteArray("ahoj"));
+    QCOMPARE(model->cache()->messagePart("b", 333, "2.X-RAW").isNull(), true);
+    // Trigger fetching of the raw data and make sure that the decoded data got overriden and signals were emited
+    fakePartData = "Canary 3";
+    QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
+    cClient(t.mk("UID FETCH 333 (BODY.PEEK[2])\r\n"));
+    cServer("* 1 FETCH (UID 333 BODY[2] \"" + fakePartData.toBase64() + "\")\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(dataChangedSpy.size(), 2);
+    CHECK_DATACHANGED(0, rawPart);
+    CHECK_DATACHANGED(1, part);
+    QVERIFY(part.data(RoleIsFetched).toBool());
+    QVERIFY(rawPart.data(RoleIsFetched).toBool());
+    QCOMPARE(part.data(RolePartData).toByteArray(), fakePartData);
+    QCOMPARE(rawPart.data(RolePartData).toByteArray(), fakePartData.toBase64());
+    QCOMPARE(model->cache()->messagePart("b", 333, "2"), fakePartData);
+    QCOMPARE(model->cache()->messagePart("b", 333, "2.X-RAW"), fakePartData.toBase64());
+    cEmpty();
+    dataChangedSpy.clear();
 }
 
 TROJITA_HEADLESS_TEST(BodyPartsTest)

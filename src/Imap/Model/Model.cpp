@@ -960,7 +960,19 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
     uint uid = static_cast<TreeItemMessage *>(item->message())->uid();
     Q_ASSERT(uid);
 
-    const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid, item->partId());
+    // Check whether this is a request for fetching the special item representing the raw contents prior to any CTE undoing
+    TreeItemPart *itemForFetchOperation = item;
+    TreeItemModifiedPart *modifiedPart = dynamic_cast<TreeItemModifiedPart*>(item);
+    bool isSpecialRawPart = modifiedPart && modifiedPart->kind() == TreeItem::OFFSET_RAW_CONTENTS;
+    if (isSpecialRawPart) {
+        itemForFetchOperation = dynamic_cast<TreeItemPart*>(item->parent());
+        Q_ASSERT(itemForFetchOperation);
+    }
+
+    const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid,
+                                                  isSpecialRawPart ?
+                                                      itemForFetchOperation->partId() + QLatin1String(".X-RAW")
+                                                    : item->partId());
     if (! data.isNull()) {
         item->m_data = data;
         item->m_fetchStatus = TreeItem::DONE;
@@ -973,14 +985,14 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
     } else if (! onlyFromCache) {
         KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
         TreeItemPart::PartFetchingMode fetchingMode = TreeItemPart::FETCH_PART_IMAP;
-        if (keepTask->parser && accessParser(keepTask->parser).capabilitiesFresh &&
+        if (!isSpecialRawPart && keepTask->parser && accessParser(keepTask->parser).capabilitiesFresh &&
                 accessParser(keepTask->parser).capabilities.contains(QLatin1String("BINARY"))) {
             if (!item->hasChildren(0)) {
                 // The BINARY only actually makes sense on leaf MIME nodes
                 fetchingMode = TreeItemPart::FETCH_PART_BINARY;
             }
         }
-        keepTask->requestPartDownload(item->message()->m_uid, item->partIdForFetch(fetchingMode), item->octets());
+        keepTask->requestPartDownload(item->message()->m_uid, itemForFetchOperation->partIdForFetch(fetchingMode), item->octets());
     }
 }
 
