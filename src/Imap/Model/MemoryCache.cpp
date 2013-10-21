@@ -50,12 +50,12 @@ void MemoryCache::setChildMailboxes(const QString &mailbox, const QList<MailboxM
 #ifdef CACHE_DEBUG
     qDebug() << "setting child mailboxes for" << mailbox << "to" << data;
 #endif
-    mailboxes[ mailbox ] = data;
+    mailboxes[mailbox] = data;
 }
 
 SyncState MemoryCache::mailboxSyncState(const QString &mailbox) const
 {
-    return syncState[ mailbox ];
+    return syncState[mailbox];
 }
 
 void MemoryCache::setMailboxSyncState(const QString &mailbox, const SyncState &state)
@@ -63,7 +63,7 @@ void MemoryCache::setMailboxSyncState(const QString &mailbox, const SyncState &s
 #ifdef CACHE_DEBUG
     qDebug() << "setting mailbox sync state of" << mailbox << "to" << state;
 #endif
-    syncState[ mailbox ] = state;
+    syncState[mailbox] = state;
 }
 
 void MemoryCache::setUidMapping(const QString &mailbox, const QList<uint> &mapping)
@@ -71,7 +71,7 @@ void MemoryCache::setUidMapping(const QString &mailbox, const QList<uint> &mappi
 #ifdef CACHE_DEBUG
     qDebug() << "saving UID mapping for" << mailbox << "to" << mapping;
 #endif
-    seqToUid[ mailbox ] = mapping;
+    seqToUid[mailbox] = mapping;
 }
 
 void MemoryCache::clearUidMapping(const QString &mailbox)
@@ -99,11 +99,11 @@ void MemoryCache::clearMessage(const QString mailbox, const uint uid)
     qDebug() << "pruging all info for message" << mailbox << uid;
 #endif
     if (flags.contains(mailbox))
-        flags[ mailbox ].remove(uid);
+        flags[mailbox].remove(uid);
     if (msgMetadata.contains(mailbox))
-        msgMetadata[ mailbox ].remove(uid);
+        msgMetadata[mailbox].remove(uid);
     if (parts.contains(mailbox))
-        parts[ mailbox ].remove(uid);
+        parts[mailbox].remove(uid);
 }
 
 void MemoryCache::setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data)
@@ -111,7 +111,7 @@ void MemoryCache::setMsgPart(const QString &mailbox, const uint uid, const QStri
 #ifdef CACHE_DEBUG
     qDebug() << "set message part" << mailbox << uid << partId << data.size();
 #endif
-    parts[ mailbox ][ uid ][ partId ] = data;
+    parts[mailbox][uid][partId] = data;
 }
 
 void MemoryCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &newFlags)
