@@ -425,6 +425,12 @@ bool SQLCache::prepareQueries()
         return false;
     }
 
+    queryForgetMessagePart = QSqlQuery(db);
+    if (! queryForgetMessagePart.prepare(QLatin1String("DELETE FROM parts WHERE mailbox = ? AND uid = ? AND part_id = ?"))) {
+        emitError(tr("Failed to prepare queryForgetMessagePart"), queryForgetMessagePart);
+        return false;
+    }
+
     queryMessageThreading = QSqlQuery(db);
     if (! queryMessageThreading.prepare(QLatin1String("SELECT threading FROM msg_threading WHERE mailbox = ?"))) {
         emitError(tr("Failed to prepare queryMessageThreading"), queryMessageThreading);
@@ -773,6 +779,20 @@ void SQLCache::setMsgPart(const QString &mailbox, const uint uid, const QString 
     querySetMessagePart.bindValue(3, qCompress(data));
     if (! querySetMessagePart.exec()) {
         emitError(tr("Query querySetMessagePart failed"), querySetMessagePart);
+    }
+}
+
+void SQLCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "Forgetting message part" << partId << uid << mailbox;
+#endif
+    touchingDB();
+    queryForgetMessagePart.bindValue(0, mailboxName(mailbox));
+    queryForgetMessagePart.bindValue(1, uid);
+    queryForgetMessagePart.bindValue(2, partId);
+    if (! queryForgetMessagePart.exec()) {
+        emitError(tr("Query queryForgetMessagePart failed"), queryForgetMessagePart);
     }
 }
 

@@ -53,6 +53,7 @@ public:
     virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const;
     /** @short Store the data for a specified message part */
     virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data);
+    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId);
 
 signals:
     /** @short An error has occurred while performing cache operations */

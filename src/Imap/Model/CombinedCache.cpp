@@ -137,6 +137,12 @@ void CombinedCache::setMsgPart(const QString &mailbox, const uint uid, const QSt
     }
 }
 
+void CombinedCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+{
+    sqlCache->forgetMessagePart(mailbox, uid, partId);
+    diskPartCache->forgetMessagePart(mailbox, uid, partId);
+}
+
 QVector<Imap::Responses::ThreadingNode> CombinedCache::messageThreading(const QString &mailbox)
 {
     return sqlCache->messageThreading(mailbox);

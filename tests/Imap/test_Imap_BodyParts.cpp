@@ -413,7 +413,7 @@ void BodyPartsTest::testFetchingRawParts()
     QVERIFY(rawPart.data(RoleIsFetched).toBool());
     QCOMPARE(part.data(RolePartData).toString(), QString("ahoj"));
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), fakePartData.toBase64());
-    QCOMPARE(model->cache()->messagePart("b", 333, "2"), QByteArray("ahoj"));
+    QVERIFY(model->cache()->messagePart("b", 333, "2").isNull());
     QCOMPARE(model->cache()->messagePart("b", 333, "2.X-RAW"), fakePartData.toBase64());
     cEmpty();
     dataChangedSpy.clear();

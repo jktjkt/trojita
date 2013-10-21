@@ -466,6 +466,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                     part->m_partRaw->m_fetchStatus = DONE;
                     changedParts.append(part->m_partRaw);
                     if (message->uid()) {
+                        model->cache()->forgetMessagePart(mailbox(), message->uid(), part->partId());
                         model->cache()->setMsgPart(mailbox(), message->uid(), part->partId() + QLatin1String(".X-RAW"), data);
                     }
                 }

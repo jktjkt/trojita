@@ -120,6 +120,8 @@ public:
     virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const = 0;
     /** @short Save data for one message part */
     virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data) = 0;
+    /** @short Drop the data for a message part which is no longer needed */
+    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId) = 0;
 
     /** @short Return cached threading info for a given mailbox */
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox) = 0;

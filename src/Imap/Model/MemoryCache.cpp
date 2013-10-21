@@ -114,6 +114,15 @@ void MemoryCache::setMsgPart(const QString &mailbox, const uint uid, const QStri
     parts[mailbox][uid][partId] = data;
 }
 
+void MemoryCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "forget message part" << mailbox << uid << partId;
+#endif
+    parts[mailbox][uid].remove(partId);
+
+}
+
 void MemoryCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &newFlags)
 {
 #ifdef CACHE_DEBUG

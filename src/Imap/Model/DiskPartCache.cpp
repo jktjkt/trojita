@@ -119,6 +119,11 @@ void DiskPartCache::setMsgPart(const QString &mailbox, const uint uid, const QSt
     buf.write(qCompress(data));
 }
 
+void DiskPartCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+{
+    QFile(QString::fromUtf8("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), partId)).remove();
+}
+
 QString DiskPartCache::dirForMailbox(const QString &mailbox) const
 {
     return cacheDir + mailbox.toUtf8().toBase64();
