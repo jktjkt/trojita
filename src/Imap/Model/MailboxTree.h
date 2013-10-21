@@ -76,7 +76,7 @@ public:
         /** @short The MIME fetch modifier for individual message parts
 
           In constrast to OFFSET_HEADER and OFFSET_TEXT, this one applies
-          only to TreeItemPart, simply because using the MIME modiifer on
+          only to TreeItemPart, simply because using the MIME modifier on
           a top-level message is not allowed as per RFC 3501.
         */
         OFFSET_MIME=3
