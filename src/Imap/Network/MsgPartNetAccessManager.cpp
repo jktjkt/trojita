@@ -144,11 +144,12 @@ Imap::Mailbox::TreeItemPart *MsgPartNetAccessManager::pathToPart(const QModelInd
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
             else if (*it == QLatin1String("MIME"))
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
-            break;
+            else
+                return 0;
+            continue;
         }
         if (offset >= target->childrenCount(const_cast<Mailbox::Model *>(model))) {
-            ok = false;
-            break;
+            return 0;
         }
         target = target->child(offset, const_cast<Mailbox::Model *>(model));
     }
