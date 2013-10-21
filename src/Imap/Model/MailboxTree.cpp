@@ -1527,13 +1527,10 @@ QString TreeItemModifiedPart::modifierToString() const
 
 QString TreeItemModifiedPart::pathToPart() const
 {
-    TreeItemPart *parentPart = dynamic_cast<TreeItemPart *>(parent());
-    TreeItemMessage *parentMessage = dynamic_cast<TreeItemMessage *>(parent());
-    Q_ASSERT(parentPart || parentMessage);
-    if (parentPart) {
+    if (TreeItemPart *parentPart = dynamic_cast<TreeItemPart *>(parent())) {
         return QString::fromUtf8("%1/%2").arg(parentPart->pathToPart(), modifierToString());
     } else {
-        Q_ASSERT(parentMessage); Q_UNUSED(parentMessage);
+        Q_ASSERT(dynamic_cast<TreeItemMessage *>(parent()));
         return QString::fromUtf8("/%1").arg(modifierToString());
     }
 }
