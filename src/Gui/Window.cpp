@@ -577,6 +577,8 @@ void MainWindow::createWidgets()
     connect(msgListWidget->tree, SIGNAL(clicked(const QModelIndex &)), this, SLOT(msgListClicked(const QModelIndex &)));
     connect(msgListWidget->tree, SIGNAL(doubleClicked(const QModelIndex &)), this, SLOT(msgListDoubleClicked(const QModelIndex &)));
     connect(msgListWidget, SIGNAL(requestingSearch(QStringList)), this, SLOT(slotSearchRequested(QStringList)));
+    connect(msgListWidget->tree->header(), SIGNAL(sectionMoved(int,int,int)), m_delayedStateSaving, SLOT(start()));
+    connect(msgListWidget->tree->header(), SIGNAL(sectionResized(int,int,int)), m_delayedStateSaving, SLOT(start()));
 
     m_messageWidget = new CompleteMessageWidget(this, m_settings);
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
