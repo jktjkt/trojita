@@ -243,6 +243,7 @@ private:
 
     LayoutMode m_layoutMode;
     bool m_skipSavingOfUI;
+    QTimer *m_delayedStateSaving;
 
     QAction *reloadMboxList;
     QAction *reloadAllMailboxes;

@@ -102,7 +102,7 @@ enum {
 
 MainWindow::MainWindow(QSettings *settings): QMainWindow(), model(0),
     m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true),
-    m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_trayIcon(0)
+    m_delayedStateSaving(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_trayIcon(0)
 {
     qRegisterMetaType<QList<QSslCertificate> >();
     qRegisterMetaType<QList<QSslError> >();
@@ -276,7 +276,7 @@ void MainWindow::createActions()
     showToolBar->setChecked(true);
     connect(showToolBar, SIGNAL(triggered(bool)), m_mainToolbar, SLOT(setVisible(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), showToolBar, SLOT(setChecked(bool)));
-    connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), this, SLOT(saveSizesAndState()));
+    connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), m_delayedStateSaving, SLOT(start()));
 
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
@@ -554,6 +554,13 @@ void MainWindow::createMenus()
 
 void MainWindow::createWidgets()
 {
+    // The state of the GUI is only saved after a certain time has passed. This is just an optimization to make sure
+    // we do not hit the disk continually when e.g. resizing some random widget.
+    m_delayedStateSaving = new QTimer(this);
+    m_delayedStateSaving->setInterval(1000);
+    m_delayedStateSaving->setSingleShot(true);
+    connect(m_delayedStateSaving, SIGNAL(timeout()), this, SLOT(saveSizesAndState()));
+
     mboxTree = new MailBoxTreeView();
     connect(mboxTree, SIGNAL(customContextMenuRequested(const QPoint &)),
             this, SLOT(showContextMenuMboxTree(const QPoint &)));
@@ -2110,13 +2117,13 @@ void MainWindow::slotLayoutCompact()
     saveSizesAndState();
     if (!m_mainHSplitter) {
         m_mainHSplitter = new QSplitter();
-        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), m_delayedStateSaving, SLOT(start()));
         connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(possiblyLoadMessageOnSplittersChanged()));
     }
     if (!m_mainVSplitter) {
         m_mainVSplitter = new QSplitter();
         m_mainVSplitter->setOrientation(Qt::Vertical);
-        connect(m_mainVSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+        connect(m_mainVSplitter, SIGNAL(splitterMoved(int,int)), m_delayedStateSaving, SLOT(start()));
         connect(m_mainVSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(possiblyLoadMessageOnSplittersChanged()));
     }
 
@@ -2151,7 +2158,7 @@ void MainWindow::slotLayoutWide()
     saveSizesAndState();
     if (!m_mainHSplitter) {
         m_mainHSplitter = new QSplitter();
-        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(saveSizesAndState()));
+        connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), m_delayedStateSaving, SLOT(start()));
         connect(m_mainHSplitter, SIGNAL(splitterMoved(int,int)), this, SLOT(possiblyLoadMessageOnSplittersChanged()));
     }
 
@@ -2364,7 +2371,7 @@ void MainWindow::applySizesAndState()
 
 void MainWindow::resizeEvent(QResizeEvent *)
 {
-    saveSizesAndState();
+    m_delayedStateSaving->start();
 }
 
 /** @short Make sure that the message gets loaded after the splitters have changed their position */
