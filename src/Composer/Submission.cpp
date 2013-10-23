@@ -221,7 +221,7 @@ void Submission::slotMessageDataAvailable()
                         m_model->appendIntoMailbox(
                             m_sentFolderName,
                             catenateable,
-                            QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
+                            QStringList() << QLatin1String("\\Seen"),
                             m_composer->timestamp()));
         } else {
             // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
@@ -229,7 +229,7 @@ void Submission::slotMessageDataAvailable()
                         m_model->appendIntoMailbox(
                             m_sentFolderName,
                             m_rawMessageData,
-                            QStringList() << QLatin1String("$SubmitPending") << QLatin1String("\\Seen"),
+                            QStringList() << QLatin1String("\\Seen"),
                             m_composer->timestamp()));
         }
 

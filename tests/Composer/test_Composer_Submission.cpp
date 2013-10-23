@@ -200,7 +200,7 @@ void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUi
     for (int i=0; i<5; ++i)
         QCoreApplication::processEvents();
     QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
-    QString expected = t.mk("APPEND outgoing ($SubmitPending \\Seen) ");
+    QString expected = t.mk("APPEND outgoing (\\Seen) ");
     QCOMPARE(sentSoFar.left(expected.size()), expected);
     cEmpty();
     QCOMPARE(requestedSendingSpy->size(), 0);
@@ -420,7 +420,7 @@ void ComposerSubmissionTest::testBurlSubmission()
     for (int i=0; i<5; ++i)
         QCoreApplication::processEvents();
     QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
-    QString expected = t.mk("APPEND meh ($SubmitPending \\Seen) CATENATE (TEXT {");
+    QString expected = t.mk("APPEND meh (\\Seen) CATENATE (TEXT {");
     int octets;
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
@@ -475,7 +475,7 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     for (int i=0; i<5; ++i)
         QCoreApplication::processEvents();
     QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
-    QString expected = t.mk("APPEND meh ($SubmitPending \\Seen) CATENATE (TEXT {");
+    QString expected = t.mk("APPEND meh (\\Seen) CATENATE (TEXT {");
     int octets;
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
@@ -528,7 +528,7 @@ void ComposerSubmissionTest::testFailedMsa()
     for (int i=0; i<5; ++i)
         QCoreApplication::processEvents();
     QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
-    QString expected = t.mk("APPEND outgoing ($SubmitPending \\Seen) ");
+    QString expected = t.mk("APPEND outgoing (\\Seen) ");
     QCOMPARE(sentSoFar.left(expected.size()), expected);
     cEmpty();
     QCOMPARE(requestedSendingSpy->size(), 0);
@@ -572,7 +572,7 @@ void ComposerSubmissionTest::testNoImapContinuation()
     for (int i=0; i<5; ++i)
         QCoreApplication::processEvents();
     QString sentSoFar = QString::fromUtf8(SOCK->writtenStuff());
-    QString expected = t.mk("APPEND outgoing ($SubmitPending \\Seen) {");
+    QString expected = t.mk("APPEND outgoing (\\Seen) {");
     int octets;
     EXTRACT_TARILING_NUMBER(octets);
     Q_UNUSED(octets);
