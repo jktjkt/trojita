@@ -76,10 +76,12 @@ public:
         /** @short The MIME fetch modifier for individual message parts
 
           In constrast to OFFSET_HEADER and OFFSET_TEXT, this one applies
-          only to TreeItemPart, simply because using the MIME modiifer on
+          only to TreeItemPart, simply because using the MIME modifier on
           a top-level message is not allowed as per RFC 3501.
         */
-        OFFSET_MIME=3
+        OFFSET_MIME=3,
+        /** @short Obtain the raw data without any kind of Content-Transfer-Encoding decoding */
+        OFFSET_RAW_CONTENTS = 4
     } PartModifier;
 
 protected:
@@ -269,6 +271,7 @@ class TreeItemPart: public TreeItem
     uint m_octets;
     QByteArray m_multipartRelatedStartPart;
     mutable TreeItemPart *m_partMime;
+    mutable TreeItemPart *m_partRaw;
 public:
     TreeItemPart(TreeItem *parent, const QString &mimeType);
     ~TreeItemPart();

@@ -425,6 +425,12 @@ bool SQLCache::prepareQueries()
         return false;
     }
 
+    queryForgetMessagePart = QSqlQuery(db);
+    if (! queryForgetMessagePart.prepare(QLatin1String("DELETE FROM parts WHERE mailbox = ? AND uid = ? AND part_id = ?"))) {
+        emitError(tr("Failed to prepare queryForgetMessagePart"), queryForgetMessagePart);
+        return false;
+    }
+
     queryMessageThreading = QSqlQuery(db);
     if (! queryMessageThreading.prepare(QLatin1String("SELECT threading FROM msg_threading WHERE mailbox = ?"))) {
         emitError(tr("Failed to prepare queryMessageThreading"), queryMessageThreading);
@@ -654,7 +660,7 @@ void SQLCache::clearMessage(const QString mailbox, uint uid)
     }
 }
 
-QStringList SQLCache::msgFlags(const QString &mailbox, uint uid) const
+QStringList SQLCache::msgFlags(const QString &mailbox, const uint uid) const
 {
     QStringList res;
     queryMessageFlags.bindValue(0, mailboxName(mailbox));
@@ -672,7 +678,7 @@ QStringList SQLCache::msgFlags(const QString &mailbox, uint uid) const
     return res;
 }
 
-void SQLCache::setMsgFlags(const QString &mailbox, uint uid, const QStringList &flags)
+void SQLCache::setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Updating flags for" << mailbox << uid;
@@ -723,7 +729,7 @@ AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbo
     return res;
 }
 
-void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const MessageDataBundle &metadata)
+void SQLCache::setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Setting message metadata for" << uid << mailbox;
@@ -744,7 +750,7 @@ void SQLCache::setMessageMetadata(const QString &mailbox, uint uid, const Messag
     }
 }
 
-QByteArray SQLCache::messagePart(const QString &mailbox, uint uid, const QString &partId) const
+QByteArray SQLCache::messagePart(const QString &mailbox, const uint uid, const QString &partId) const
 {
     QByteArray res;
     queryMessagePart.bindValue(0, mailboxName(mailbox));
@@ -761,7 +767,7 @@ QByteArray SQLCache::messagePart(const QString &mailbox, uint uid, const QString
     return res;
 }
 
-void SQLCache::setMsgPart(const QString &mailbox, uint uid, const QString &partId, const QByteArray &data)
+void SQLCache::setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Saving message part" << partId << uid << mailbox;
@@ -773,6 +779,20 @@ void SQLCache::setMsgPart(const QString &mailbox, uint uid, const QString &partI
     querySetMessagePart.bindValue(3, qCompress(data));
     if (! querySetMessagePart.exec()) {
         emitError(tr("Query querySetMessagePart failed"), querySetMessagePart);
+    }
+}
+
+void SQLCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "Forgetting message part" << partId << uid << mailbox;
+#endif
+    touchingDB();
+    queryForgetMessagePart.bindValue(0, mailboxName(mailbox));
+    queryForgetMessagePart.bindValue(1, uid);
+    queryForgetMessagePart.bindValue(2, partId);
+    if (! queryForgetMessagePart.exec()) {
+        emitError(tr("Query queryForgetMessagePart failed"), queryForgetMessagePart);
     }
 }
 

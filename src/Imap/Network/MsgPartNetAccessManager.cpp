@@ -127,7 +127,6 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
 /** @short Find a message body part through its slash-separated string path */
 Imap::Mailbox::TreeItemPart *MsgPartNetAccessManager::pathToPart(const QModelIndex &message, const QString &path)
 {
-    Imap::Mailbox::TreeItemPart *part = 0;
     QStringList items = path.split('/', QString::SkipEmptyParts);
     const Mailbox::Model *model = 0;
     Imap::Mailbox::TreeItem *target = Mailbox::Model::realTreeItem(message, &model);
@@ -145,18 +144,16 @@ Imap::Mailbox::TreeItemPart *MsgPartNetAccessManager::pathToPart(const QModelInd
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
             else if (*it == QLatin1String("MIME"))
                 target = target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
-            break;
+            else
+                return 0;
+            continue;
         }
         if (offset >= target->childrenCount(const_cast<Mailbox::Model *>(model))) {
-            ok = false;
-            break;
+            return 0;
         }
         target = target->child(offset, const_cast<Mailbox::Model *>(model));
     }
-    part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(target);
-    if (ok)
-        Q_ASSERT(part);
-    return part;
+    return dynamic_cast<Imap::Mailbox::TreeItemPart *>(target);
 }
 
 /** @short Convert a CID-formatted specification of a MIME part to a TreeItemPart*

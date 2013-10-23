@@ -36,6 +36,8 @@ private slots:
 
     void testInvalidPartFetch();
     void testInvalidPartFetch_data();
+
+    void testFetchingRawParts();
 };
 
 #endif
