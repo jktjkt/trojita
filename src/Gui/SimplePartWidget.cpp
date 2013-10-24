@@ -53,8 +53,10 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     url.setScheme(QLatin1String("trojita-imap"));
     url.setHost(QLatin1String("msg"));
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
-    if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == QLatin1String("text/plain"))
+    if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == QLatin1String("text/plain")
+            && partIndex.data(Imap::Mailbox::RolePartOctets).toUInt() < 100 * 1024) {
         connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
+    }
     if (partIndex.data(Imap::Mailbox::RolePartContentFormat).toString().toLower() == QLatin1String("flowed"))
         flowedFormat = Composer::Util::FORMAT_FLOWED;
     load(url);
