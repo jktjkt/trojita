@@ -89,7 +89,8 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     }
 }
 
-void SimplePartWidget::slotMarkupPlainText() {
+void SimplePartWidget::slotMarkupPlainText()
+{
     // NOTICE "single shot", we get a recursion otherwise!
     disconnect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
 
