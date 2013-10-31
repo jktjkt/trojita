@@ -332,7 +332,6 @@ set(libDesktopGui_UI
     ${path_DesktopGui}/SettingsOutgoingPage.ui
     ${path_DesktopGui}/SettingsGeneralPage.ui
     ${path_DesktopGui}/ComposeWidget.ui
-    ${path_DesktopGui}/ProgressPopUpOld.ui
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
     ${path_DesktopGui}/SettingsImapPage.ui
     ${path_DesktopGui}/PasswordDialog.ui
