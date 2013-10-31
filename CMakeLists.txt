@@ -328,16 +328,16 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/ShortcutHandler/ShortcutHandler.cpp
 )
 set(libDesktopGui_UI
-    ${path_DesktopGui}/CreateMailboxDialog.ui
-    ${path_DesktopGui}/SettingsOutgoingPage.ui
-    ${path_DesktopGui}/SettingsGeneralPage.ui
     ${path_DesktopGui}/ComposeWidget.ui
-    ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
-    ${path_DesktopGui}/SettingsImapPage.ui
-    ${path_DesktopGui}/PasswordDialog.ui
-    ${path_DesktopGui}/SettingsCachePage.ui
+    ${path_DesktopGui}/CreateMailboxDialog.ui
     ${path_DesktopGui}/EditIdentity.ui
+    ${path_DesktopGui}/PasswordDialog.ui
     ${path_DesktopGui}/ProgressPopUp.ui
+    ${path_DesktopGui}/SettingsCachePage.ui
+    ${path_DesktopGui}/SettingsGeneralPage.ui
+    ${path_DesktopGui}/SettingsImapPage.ui
+    ${path_DesktopGui}/SettingsOutgoingPage.ui
+    ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
 )
 set(libDesktopGui_RESOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/icons.qrc
