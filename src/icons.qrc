@@ -41,5 +41,6 @@
         <file>icons/dialog-password.png</file>
         <file>icons/contact-known.svg</file>
         <file>icons/contact-unknown.svgz</file>
+        <file>icons/trojita-144.png</file>
     </qresource>
 </RCC>

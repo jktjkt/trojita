@@ -328,6 +328,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/ShortcutHandler/ShortcutHandler.cpp
 )
 set(libDesktopGui_UI
+    ${path_DesktopGui}/AboutDialog.ui
     ${path_DesktopGui}/ComposeWidget.ui
     ${path_DesktopGui}/CreateMailboxDialog.ui
     ${path_DesktopGui}/EditIdentity.ui
@@ -341,6 +342,7 @@ set(libDesktopGui_UI
 )
 set(libDesktopGui_RESOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/icons.qrc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/license.qrc
 )
 
 set(libqwwsmtpclient_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/qwwsmtpclient/qwwsmtpclient.cpp)

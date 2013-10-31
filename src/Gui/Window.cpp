@@ -83,6 +83,7 @@
 #include "ShortcutHandler/ShortcutHandler.h"
 
 #include "ui_CreateMailboxDialog.h"
+#include "ui_AboutDialog.h"
 
 #include "Imap/Model/ModelTest/modeltest.h"
 
@@ -1686,13 +1687,29 @@ void MainWindow::fillMatchingAbookEntries(const QString &mail, QStringList &disp
 
 void MainWindow::slotShowAboutTrojita()
 {
-    QMessageBox::about(this, trUtf8("About Trojitá"),
-                       trUtf8("<p>This is <b>Trojitá</b>, a fast Qt IMAP e-mail client</p>"
-                              "<p>Copyright &copy; 2006 - 2013 Jan Kundrát &lt;jkt@flaska.net&gt; and "
-                              "<a href=\"http://quickgit.kde.org/?p=trojita.git&amp;a=blob&amp;f=LICENSE\">others</a></p>"
-                              "<p>More information at <a href=\"http://trojita.flaska.net/\">http://trojita.flaska.net/</a></p>"
-                              "<p>You are using version %1.</p>").arg(
-                           Common::Application::version));
+    Ui::AboutDialog ui;
+    QDialog *widget = new QDialog(this);
+    widget->setAttribute(Qt::WA_DeleteOnClose);
+    ui.setupUi(widget);
+    ui.versionLabel->setText(Common::Application::version);
+    QStringList copyright;
+    {
+        // Find the names of the authors and remove date codes from there
+        QFile license(QLatin1String(":/LICENSE"));
+        license.open(QFile::ReadOnly);
+        const QString prefix(QLatin1String("Copyright (C) "));
+        Q_FOREACH(const QString &line, QString::fromUtf8(license.readAll()).split(QLatin1Char('\n'))) {
+            if (line.startsWith(prefix)) {
+                const int pos = prefix.size();
+                copyright << QChar(0xa9 /* COPYRIGHT SIGN */) + QLatin1Char(' ') +
+                             line.mid(pos).replace(QRegExp(QLatin1String("(\\d) - (\\d)")),
+                                                   QLatin1String("\\1") + QChar(0x2014 /* EM DASH */) + QLatin1String("\\2"));
+            }
+        }
+    }
+    ui.credits->setTextFormat(Qt::PlainText);
+    ui.credits->setText(copyright.join(QLatin1String("\n")));
+    widget->show();
 }
 
 void MainWindow::slotDonateToTrojita()

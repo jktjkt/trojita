@@ -35,6 +35,7 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
     Q_INIT_RESOURCE(icons);
+    Q_INIT_RESOURCE(license);
 
     QTranslator qtTranslator;
     qtTranslator.load(QLatin1String("qt_") + QLocale::system().name(),
