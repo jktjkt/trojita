@@ -69,7 +69,11 @@ int main(int argc, char **argv)
         // The env var is also in UTF-8. I like UTF-8.
         qputenv("TROJITA_PROFILE", profileName.toUtf8());
     } else {
+#ifndef Q_OS_WIN32
         unsetenv("TROJITA_PROFILE");
+#else
+        putenv("TROJITA_PROFILE=");
+#endif
     }
     QSettings settings(Common::Application::organization,
                        profileName.isEmpty() ? Common::Application::name : Common::Application::name + QLatin1Char('-') + profileName);
