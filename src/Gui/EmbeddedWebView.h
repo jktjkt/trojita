@@ -62,6 +62,7 @@ private slots:
 private:
     QWidget *m_scrollParent;
     int m_scrollParentPadding;
+    int m_resizeInProgress;
 };
 
 class ErrorCheckingPage: public QWebPage

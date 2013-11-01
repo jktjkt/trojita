@@ -36,11 +36,30 @@
 
 #include <QDebug>
 
+namespace {
+
+/** @short RAII pattern for counter manipulation */
+class Incrementor {
+    int *m_int;
+public:
+    Incrementor(int *what): m_int(what)
+    {
+        ++(*m_int);
+    }
+    ~Incrementor()
+    {
+        --(*m_int);
+        Q_ASSERT(*m_int >= 0);
+    }
+};
+
+}
+
 namespace Gui
 {
 
 EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager):
-    QWebView(parent), m_scrollParent(0L)
+    QWebView(parent), m_scrollParent(0L), m_resizeInProgress(0)
 {
     // set to expanding, ie. "freely" - this is important so the widget will attempt to shrink below the sizehint!
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -88,8 +107,16 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
 
 void EmbeddedWebView::constrainSize()
 {
+    Incrementor dummy(&m_resizeInProgress);
+
     if (!(m_scrollParent && page() && page()->mainFrame()))
         return; // should not happen but who knows
+
+    // Prevent expensive operation where a resize triggers one extra resizing operation.
+    // This is very visible on large attachments, and in fact could possibly lead to recursion as the
+    // contentsSizeChanged signal is connected to handlePageLoadFinished.
+    if (m_resizeInProgress > 1)
+        return;
 
     // the m_scrollParentPadding measures the summed up horizontal paddings of this view compared to
     // its m_scrollParent
