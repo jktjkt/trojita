@@ -76,6 +76,7 @@ public slots:
     void setMessage(const QModelIndex &index);
     void setEmpty();
     void setHomepageUrl(const QUrl &homepage);
+    void stopAutoMarkAsRead();
 protected:
     void showEvent(QShowEvent *se);
 private slots:

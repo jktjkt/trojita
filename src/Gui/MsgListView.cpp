@@ -91,6 +91,18 @@ void MsgListView::keyReleaseEvent(QKeyEvent *ke)
     QTreeView::keyReleaseEvent(ke);
 }
 
+bool MsgListView::event(QEvent *event)
+{
+    if (event->type() == QEvent::ShortcutOverride
+            && !gs_naviActivationBlockers.contains(static_cast<QKeyEvent*>(event)->key())
+            && m_naviActivationTimer->isActive()) {
+        // Make sure that the delayed timer is broken ASAP when the key looks like something which might possibly be a shortcut
+        m_naviActivationTimer->stop();
+        slotCurrentActivated();
+    }
+    return QTreeView::event(event);
+}
+
 void MsgListView::slotCurrentActivated()
 {
     if (currentIndex().isValid() && m_autoActivateAfterKeyNavigation) {

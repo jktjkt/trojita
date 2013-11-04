@@ -33,8 +33,7 @@ class PrettyMsgListModel;
 }
 }
 
-namespace Gui
-{
+namespace Gui {
 
 /** @short A slightly tweaked QTreeView optimized for showing a list of messages in one mailbox
 
@@ -57,6 +56,7 @@ protected:
     void keyPressEvent(QKeyEvent *ke);
     void keyReleaseEvent(QKeyEvent *ke);
     virtual void startDrag(Qt::DropActions supportedActions);
+    bool event(QEvent *event);
 private slots:
     void slotFixSize();
     /** @short Expand all items below current root index */

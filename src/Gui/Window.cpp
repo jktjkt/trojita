@@ -942,6 +942,10 @@ void MainWindow::msgListClicked(const QModelIndex &index)
         Imap::Mailbox::FlagsOperation flagOp = translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() ?
                                                Imap::Mailbox::FLAG_REMOVE : Imap::Mailbox::FLAG_ADD;
         model->markMessagesRead(QModelIndexList() << translated, flagOp);
+
+        if (translated == m_messageWidget->messageView->currentMessage()) {
+            m_messageWidget->messageView->stopAutoMarkAsRead();
+        }
     } else {
         if (m_messageWidget->isVisible() && !m_messageWidget->size().isEmpty()) {
             // isVisible() won't work, the splitter manipulates width, not the visibility state
@@ -1263,6 +1267,9 @@ void MainWindow::handleMarkAsRead(bool value)
             model->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_ADD);
         else
             model->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
+        if (translatedIndexes.contains(m_messageWidget->messageView->currentMessage())) {
+            m_messageWidget->messageView->stopAutoMarkAsRead();
+        }
     }
 }
 

@@ -263,6 +263,17 @@ void MessageView::markAsRead()
         model->markMessagesRead(QModelIndexList() << message, Imap::Mailbox::FLAG_ADD);
 }
 
+/** @short Inhibit the automatic marking of the current message as already read
+
+The user might have e.g. explicitly marked a previously read message as unread again immediately after navigating back to it
+in the message listing. In that situation, the message viewer shall respect this decision and inhibit the helper which would
+otherwise mark the current message as read after a short timeout.
+*/
+void MessageView::stopAutoMarkAsRead()
+{
+    markAsReadTimer->stop();
+}
+
 bool MessageView::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Wheel) {
