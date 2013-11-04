@@ -60,7 +60,7 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfte
 
     m_naviActivationTimer = new QTimer(this);
     m_naviActivationTimer->setSingleShot(true);
-    connect (m_naviActivationTimer, SIGNAL(timeout()), SLOT(slotCurrentActivated()));
+    connect(m_naviActivationTimer, SIGNAL(timeout()), SLOT(slotCurrentActivated()));
 }
 
 // left might collapse a thread, question is whether ending there (on closing the thread) should be
@@ -93,8 +93,13 @@ void MsgListView::keyReleaseEvent(QKeyEvent *ke)
 
 void MsgListView::slotCurrentActivated()
 {
-    if (currentIndex().isValid() && m_autoActivateAfterKeyNavigation)
-        emit activated(currentIndex());
+    if (currentIndex().isValid() && m_autoActivateAfterKeyNavigation) {
+        // The "current index" is the one with that funny dot which only triggers the read/unread status toggle.
+        // If we don't do anything, subsequent pressing of key_up or key_down will move the cursor up/down one row
+        // while preserving the column which will lead to toggling the read/unread state of *that* message.
+        // That's unexpected; the key shall just move the cursor and change the current message.
+        emit activated(currentIndex().sibling(currentIndex().row(), Imap::Mailbox::MsgListModel::SUBJECT));
+    }
 }
 
 int MsgListView::sizeHintForColumn(int column) const
