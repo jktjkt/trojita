@@ -23,6 +23,7 @@
 #define IMAP_MAILBOX_UTILS_H
 
 #include <QDateTime>
+#include <QModelIndex>
 #include <QObject>
 
 class QSettings;
@@ -80,6 +81,8 @@ QString dateTimeToRfc2822(const QDateTime &now);
 QString dateTimeToInternalDate(const QDateTime &now);
 
 void migrateSettings(QSettings *settings);
+
+QModelIndex deproxifiedIndex(const QModelIndex index);
 
 }
 

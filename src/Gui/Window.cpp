@@ -933,8 +933,7 @@ void MainWindow::msgListClicked(const QModelIndex &index)
 
     // Because it's quite possible that we have switched into another mailbox, make sure that we're in the "current" one so that
     // user will be notified about new arrivals, etc.
-    QModelIndex translated;
-    Imap::Mailbox::Model::realTreeItem(index, 0, &translated);
+    QModelIndex translated = Imap::deproxifiedIndex(index);
     model->switchToMailbox(translated.parent().parent());
 
     if (index.column() == Imap::Mailbox::MsgListModel::SEEN) {
@@ -959,19 +958,12 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
 
-    QModelIndex realIndex;
-    const Imap::Mailbox::Model *realModel;
-    Imap::Mailbox::TreeItemMessage *message = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(
-                Imap::Mailbox::Model::realTreeItem(index, &realModel, &realIndex));
-    Q_ASSERT(message);
-    Q_ASSERT(realModel == model);
-
     CompleteMessageWidget *widget = new CompleteMessageWidget(0, m_settings);
     connect(widget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
             this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     widget->messageView->setMessage(index);
     widget->setFocusPolicy(Qt::StrongFocus);
-    widget->setWindowTitle(message->envelope(model).subject);
+    widget->setWindowTitle(index.data(Imap::Mailbox::RoleMessageSubject).toString());
     widget->setAttribute(Qt::WA_DeleteOnClose);
     widget->resize(800, 600);
     widget->show();
@@ -1048,7 +1040,6 @@ void MainWindow::slotResyncMbox()
         Q_ASSERT(item.isValid());
         if (item.column() != 0)
             continue;
-        Q_ASSERT(dynamic_cast<Imap::Mailbox::TreeItemMailbox *>(Imap::Mailbox::Model::realTreeItem(item)));
         model->resyncMailbox(item);
     }
 }
@@ -1263,9 +1254,7 @@ void MainWindow::handleMarkAsRead(bool value)
             continue;
         if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
-        QModelIndex translated;
-        Imap::Mailbox::Model::realTreeItem(item, 0, &translated);
-        translatedIndexes << translated;
+        translatedIndexes << Imap::deproxifiedIndex(item);
     }
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsRead: no valid messages";
@@ -1354,9 +1343,7 @@ void MainWindow::handleMarkAsDeleted(bool value)
             continue;
         if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
-        QModelIndex translated;
-        Imap::Mailbox::Model::realTreeItem(item, 0, &translated);
-        translatedIndexes << translated;
+        translatedIndexes << Imap::deproxifiedIndex(item);
     }
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsDeleted: no valid messages";
@@ -1420,14 +1407,14 @@ void MainWindow::slotDeleteCurrentMailbox()
     if (! mboxTree->currentIndex().isValid())
         return;
 
-    Imap::Mailbox::TreeItemMailbox *mailbox = dynamic_cast<Imap::Mailbox::TreeItemMailbox *>(
-                Imap::Mailbox::Model::realTreeItem(mboxTree->currentIndex()));
-    Q_ASSERT(mailbox);
+    QModelIndex mailbox = Imap::deproxifiedIndex(mboxTree->currentIndex());
+    Q_ASSERT(mailbox.isValid());
+    QString name = mailbox.data(Imap::Mailbox::RoleMailboxName).toString();
 
     if (QMessageBox::question(this, tr("Delete Mailbox"),
-                              tr("Are you sure to delete mailbox %1?").arg(mailbox->mailbox()),
+                              tr("Are you sure to delete mailbox %1?").arg(name),
                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-        model->deleteMailbox(mailbox->mailbox());
+        model->deleteMailbox(name);
     }
 }
 
@@ -1725,14 +1712,11 @@ void MainWindow::slotSaveCurrentMessageBody()
             continue;
         if (! item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
-        QModelIndex messageIndex;
-        Imap::Mailbox::TreeItemMessage *message = dynamic_cast<Imap::Mailbox::TreeItemMessage *>(
-                    Imap::Mailbox::Model::realTreeItem(item, 0, &messageIndex)
-                );
-        Q_ASSERT(message);
+
+        QModelIndex messageIndex = Imap::deproxifiedIndex(item);
 
         Imap::Network::MsgPartNetAccessManager *netAccess = new Imap::Network::MsgPartNetAccessManager(this);
-        netAccess->setModelMessage(message->toIndex(model));
+        netAccess->setModelMessage(messageIndex);
         Imap::Network::FileDownloadManager *fileDownloadManager =
             new Imap::Network::FileDownloadManager(this, netAccess, messageIndex);
         connect(fileDownloadManager, SIGNAL(succeeded()), fileDownloadManager, SLOT(deleteLater()));
@@ -1766,8 +1750,7 @@ void MainWindow::slotViewMsgSource()
             continue;
         if (! item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
-        QModelIndex messageIndex;
-        Imap::Mailbox::Model::realTreeItem(item, 0, &messageIndex);
+        QModelIndex messageIndex = Imap::deproxifiedIndex(item);
 
         MessageSourceWidget *sourceWidget = new MessageSourceWidget(0, messageIndex);
         sourceWidget->setAttribute(Qt::WA_DeleteOnClose);
@@ -1791,8 +1774,7 @@ void MainWindow::slotViewMsgHeaders()
             continue;
         if (! item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
-        QModelIndex messageIndex;
-        Imap::Mailbox::Model::realTreeItem(item, 0, &messageIndex);
+        QModelIndex messageIndex = Imap::deproxifiedIndex(item);
 
         Imap::Network::MsgPartNetAccessManager *netAccess = new Imap::Network::MsgPartNetAccessManager(this);
         netAccess->setModelMessage(messageIndex);

@@ -33,6 +33,7 @@
 
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
+#include "Imap/Model/Model.h"
 
 #ifdef TROJITA_MOBILITY_SYSTEMINFO
 #include <QSystemDeviceInfo>
@@ -525,6 +526,14 @@ void migrateSettings(QSettings *settings)
             settings->remove(Common::SettingsNames::obsAddressKey);
         }
     }
+}
+
+/** @short Return the matching QModelIndex after stripping all proxy layers */
+QModelIndex deproxifiedIndex(const QModelIndex index)
+{
+    QModelIndex res;
+    Imap::Mailbox::Model::realTreeItem(index, 0, &res);
+    return res;
 }
 
 }

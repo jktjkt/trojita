@@ -33,6 +33,7 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Network/FileDownloadManager.h"
+#include "Imap/Model/Utils.h"
 
 namespace Gui
 {
@@ -213,13 +214,7 @@ void SimplePartWidget::slotDownloadMessage()
 {
     QModelIndex index;
     if (m_partIndex.isValid()) {
-        const Imap::Mailbox::Model *model = 0;
-        Imap::Mailbox::TreeItem *item = Imap::Mailbox::Model::realTreeItem(m_partIndex, &model);
-        Q_ASSERT(model);
-        Q_ASSERT(item);
-        Imap::Mailbox::TreeItemMessage *messagePtr = dynamic_cast<Imap::Mailbox::TreeItemPart*>(item)->message();
-        Q_ASSERT(messagePtr);
-        index = messagePtr->toIndex(const_cast<Imap::Mailbox::Model*>(model));
+        index = Imap::Mailbox::Model::findMessageForItem(Imap::deproxifiedIndex(m_partIndex));
     }
 
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccessManager, index);
