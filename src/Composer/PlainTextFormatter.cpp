@@ -233,6 +233,15 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         // Remove the quotemarks
         it->second.remove(quotemarks);
 
+        if (flowed == FORMAT_FLOWED_DELSP) {
+            if (it->second.endsWith(QLatin1String(" \r"))) {
+                it->second.chop(2);
+                it->second += QLatin1Char('\r');
+            } else if (it->second.endsWith(QLatin1Char(' '))) {
+                it->second.chop(1);
+            }
+        }
+
         if (it == lineBuffer.begin()) {
             // No "previous line"
             ++it;
@@ -250,6 +259,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 // nothing fancy to do here
                 break;
             case FORMAT_FLOWED:
+            case FORMAT_FLOWED_DELSP:
                 // Now the trailing \n is striped already; we only have to check for stuff ending with " " or " \r".
                 if (prev->second.endsWith(QLatin1Char(' '))) {
                     separator = QString();

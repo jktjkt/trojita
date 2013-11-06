@@ -138,6 +138,8 @@ enum {
     RolePartCharset,
     /** @short The format= parameter of the message part's Content-Type */
     RolePartContentFormat,
+    /** @short The delsp= parameter of the message part's Content-Type */
+    RolePartContentDelSp,
     /** @short Encoding of a message part */
     RolePartEncoding,
     /** @short The body-fld-id field from BODYSTRUCTURE */

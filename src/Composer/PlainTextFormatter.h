@@ -30,8 +30,9 @@ namespace Util {
 
 /** @short Enable decoding of format=flowed, RFC 3676 */
 typedef enum {
-    FORMAT_FLOWED,
-    FORMAT_PLAIN
+    FORMAT_PLAIN, /**< @short No value, use default */
+    FORMAT_FLOWED, /**< @short format=flowed, but DelSp is not active */
+    FORMAT_FLOWED_DELSP, /**< @short format=flowed; delsp=yes (see RFC 3676 for details */
 } FlowedFormat;
 
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed);

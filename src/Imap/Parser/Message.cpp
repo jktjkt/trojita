@@ -727,6 +727,11 @@ void AbstractMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
     it = bodyFldParam.find("FORMAT");
     if (it != bodyFldParam.end()) {
         p->setContentFormat(*it);
+
+        it = bodyFldParam.find("DELSP");
+        if (it != bodyFldParam.end()) {
+            p->setContentDelSp(*it);
+        }
     }
 
     // Filename and content-disposition

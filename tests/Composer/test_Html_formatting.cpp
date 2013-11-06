@@ -45,7 +45,7 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed()
     QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_PLAIN), htmlNotFlowed);
 }
 
-/** @short Data for testPlainTextFormatting */
+/** @short Data for testPlainTextFormattingFlowed */
 void HtmlFormattingTest::testPlainTextFormattingFlowed_data()
 {
     QTest::addColumn<QString>("plaintext");
@@ -75,6 +75,31 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed_data()
             << QString("Yay.\r\n-- \r\nMeh.\r\n")
             << QString("Yay.\r\n<span class=\"signature\">-- \r\nMeh.\r\n</span>")
             << QString("Yay.\r\n<span class=\"signature\">-- \r\nMeh.\r\n</span>");
+}
+
+/** @short Corner cases of the DelSp formatting */
+void HtmlFormattingTest::testPlainTextFormattingFlowedDelSp()
+{
+    QFETCH(QString, plaintext);
+    QFETCH(QString, htmlFlowedDelSp);
+
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED_DELSP), htmlFlowedDelSp);
+}
+
+/** @short Data for testPlainTextFormattingFlowedDelSp */
+void HtmlFormattingTest::testPlainTextFormattingFlowedDelSp_data()
+{
+    QTest::addColumn<QString>("plaintext");
+    QTest::addColumn<QString>("htmlFlowedDelSp");
+
+    QTest::newRow("delsp-canonical") << QString("abc  \r\ndef") << QString("abc def");
+    QTest::newRow("delsp-just-lf") << QString("abc  \ndef") << QString("abc def");
+    QTest::newRow("delsp-borked-crlf") << QString("abc\r\ndef") << QString("abc\r\ndef");
+    QTest::newRow("delsp-borked-lf") << QString("abc\ndef") << QString("abc\ndef");
+    QTest::newRow("delsp-single-line-no-crlf") << QString("abc ") << QString("abc");
+    QTest::newRow("delsp-single-line-crlf") << QString("abc \r\n") << QString("abc\r\n");
+    QTest::newRow("delsp-single-line-lf") << QString("abc \n") << QString("abc\n");
+    QTest::newRow("delsp-single-line-cr") << QString("abc \r") << QString("abc\r");
 }
 
 void HtmlFormattingTest::testPlainTextFormattingViaHtml()

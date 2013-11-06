@@ -58,8 +58,12 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
             && partIndex.data(Imap::Mailbox::RolePartOctets).toUInt() < 100 * 1024) {
         connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
     }
-    if (partIndex.data(Imap::Mailbox::RolePartContentFormat).toString().toLower() == QLatin1String("flowed"))
+    if (partIndex.data(Imap::Mailbox::RolePartContentFormat).toString().toLower() == QLatin1String("flowed")) {
         flowedFormat = Composer::Util::FORMAT_FLOWED;
+
+        if (partIndex.data(Imap::Mailbox::RolePartContentDelSp).toString().toLower() == QLatin1String("yes"))
+            flowedFormat = Composer::Util::FORMAT_FLOWED_DELSP;
+    }
     load(url);
 
     m_savePart = new QAction(tr("Save this message part..."), this);

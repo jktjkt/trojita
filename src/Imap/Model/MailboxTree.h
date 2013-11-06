@@ -263,6 +263,7 @@ class TreeItemPart: public TreeItem
     QString m_mimeType;
     QString m_charset;
     QString m_contentFormat;
+    QString m_delSp;
     QByteArray m_encoding;
     QByteArray m_data;
     QByteArray m_bodyFldId;
@@ -312,8 +313,8 @@ public:
     QString mimeType() const { return m_mimeType; }
     QString charset() const { return m_charset; }
     void setCharset(const QString &ch) { m_charset = ch; }
-    QString contentFormat() const { return m_contentFormat; }
     void setContentFormat(const QString &format) { m_contentFormat = format; }
+    void setContentDelSp(const QString &delSp) { m_delSp = delSp; }
     void setEncoding(const QByteArray &encoding) { m_encoding = encoding; }
     QByteArray encoding() const { return m_encoding; }
     void setBodyFldId(const QByteArray &id) { m_bodyFldId = id; }

@@ -35,6 +35,8 @@ class HtmlFormattingTest : public QObject
 private slots:
     void testPlainTextFormattingFlowed();
     void testPlainTextFormattingFlowed_data();
+    void testPlainTextFormattingFlowedDelSp();
+    void testPlainTextFormattingFlowedDelSp_data();
 
     void testPlainTextFormattingViaHtml();
     void testPlainTextFormattingViaHtml_data();
