@@ -58,7 +58,7 @@
 
 namespace
 {
-enum { OFFSET_OF_FIRST_ADDRESSEE = 1, MAX_VISIBLE_RECIPIENTS = 4 };
+enum { OFFSET_OF_FIRST_ADDRESSEE = 1, MIN_MAX_VISIBLE_RECIPIENTS = 4 };
 }
 
 namespace Gui
@@ -69,6 +69,7 @@ static const QString trojita_opacityAnimation = QLatin1String("trojita_opacityAn
 ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::MSAFactory *msaFactory) :
     QWidget(0, Qt::Window),
     ui(new Ui::ComposeWidget),
+    m_maxVisibleRecipients(MIN_MAX_VISIBLE_RECIPIENTS),
     m_sentMail(false),
     m_messageUpdated(false),
     m_messageEverEdited(false),
@@ -104,6 +105,9 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     m_recipientListUpdateTimer->setSingleShot(true);
     m_recipientListUpdateTimer->setInterval(250);
     connect(m_recipientListUpdateTimer, SIGNAL(timeout()), SLOT(updateRecipientList()));
+
+    connect(ui->verticalSplitter, SIGNAL(splitterMoved(int, int)), SLOT(calculateMaxVisibleRecipients()));
+    calculateMaxVisibleRecipients();
 
     connect(ui->recipientSlider, SIGNAL(valueChanged(int)), SLOT(scrollRecipients(int)));
     connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(handleFocusChange()));
@@ -435,6 +439,44 @@ static QWidget* formPredecessor(QFormLayout *form, QWidget *w)
 
 //END QFormLayout workarounds
 
+void ComposeWidget::calculateMaxVisibleRecipients()
+{
+    const int oldMaxVisibleRecipients = m_maxVisibleRecipients;
+    int spacing, bottom;
+    ui->envelopeLayout->getContentsMargins(&spacing, &spacing, &spacing, &bottom);
+    // we abuse the fact that there's always an addressee and that they all look the same
+    QRect itemRects[2];
+    for (int i = 0; i < 2; ++i) {
+        if (QLayoutItem *li = ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE - i, QFormLayout::LabelRole)) {
+            itemRects[i] |= li->geometry();
+        }
+        if (QLayoutItem *li = ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE - i, QFormLayout::FieldRole)) {
+            itemRects[i] |= li->geometry();
+        }
+        if (QLayoutItem *li = ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE - i, QFormLayout::SpanningRole)) {
+            itemRects[i] |= li->geometry();
+        }
+    }
+    int itemHeight = itemRects[0].height();
+    spacing = qMax(0, itemRects[0].top() - itemRects[1].bottom() - 1); // QFormLayout::[vertical]spacing() is useless ...
+    int firstTop = itemRects[0].top();
+    const int subjectHeight = ui->subject->height();
+    const int height = ui->verticalSplitter->sizes().at(0) - // entire splitter area
+                       firstTop - // offset of first recipient
+                       (subjectHeight + spacing) - // for the subject
+                       bottom - // layout bottom padding
+                       2; // extra pixels padding to detect that the user wants to shrink
+    m_maxVisibleRecipients = height / (itemHeight + spacing);
+    if (m_maxVisibleRecipients < MIN_MAX_VISIBLE_RECIPIENTS)
+        m_maxVisibleRecipients = MIN_MAX_VISIBLE_RECIPIENTS; // allow up to 4 recipients w/o need for a sliding
+    if (oldMaxVisibleRecipients != m_maxVisibleRecipients) {
+        const int max = qMax(0, m_recipients.count() - m_maxVisibleRecipients);
+        int v = qRound(1.0f*(ui->recipientSlider->value()*m_maxVisibleRecipients)/oldMaxVisibleRecipients);
+        ui->recipientSlider->setMaximum(max);
+        ui->recipientSlider->setVisible(max > 0);
+        scrollRecipients(qMin(qMax(0, v), max));
+    }
+}
 
 void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, const QString &address)
 {
@@ -454,7 +496,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     ui->envelopeLayout->insertRow(actualRow(ui->envelopeLayout, position + OFFSET_OF_FIRST_ADDRESSEE), combo, edit);
     setTabOrder(formPredecessor(ui->envelopeLayout, combo), combo);
     setTabOrder(combo, edit);
-    const int max = qMax(0, m_recipients.count() - MAX_VISIBLE_RECIPIENTS);
+    const int max = qMax(0, m_recipients.count() - m_maxVisibleRecipients);
     ui->recipientSlider->setMaximum(max);
     ui->recipientSlider->setVisible(max > 0);
     if (ui->recipientSlider->isVisible()) {
@@ -466,7 +508,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
                 break;
             }
         }
-        if (qAbs(keepInSight - position) < MAX_VISIBLE_RECIPIENTS)
+        if (qAbs(keepInSight - position) < m_maxVisibleRecipients)
             ui->recipientSlider->setValue(position*max/m_recipients.count());
         if (v == ui->recipientSlider->value()) // force scroll update
             scrollRecipients(v);
@@ -519,7 +561,7 @@ void ComposeWidget::removeRecipient(int pos)
     m_recipients.at(pos).first->deleteLater();
     m_recipients.at(pos).second->deleteLater();
     m_recipients.removeAt(pos);
-    const int max = qMax(0, m_recipients.count() - MAX_VISIBLE_RECIPIENTS);
+    const int max = qMax(0, m_recipients.count() - m_maxVisibleRecipients);
     ui->recipientSlider->setMaximum(max);
     ui->recipientSlider->setVisible(max > 0);
     if (formerFocus) {
@@ -579,12 +621,12 @@ void ComposeWidget::scrollToFocus()
         if (m_recipients.at(i).first->isVisible())
             ++pos;
         if (focus == m_recipients.at(i).first || focus == m_recipients.at(i).second) {
-            if (pos > 1 && pos < MAX_VISIBLE_RECIPIENTS) // prev & next are in sight
+            if (pos > 1 && pos < m_maxVisibleRecipients) // prev & next are in sight
                 break;
             if (pos == 1)
                 ui->recipientSlider->setValue(i - 1); // scroll to prev
             else
-                ui->recipientSlider->setValue(i + 2 - MAX_VISIBLE_RECIPIENTS);  // scroll to next
+                ui->recipientSlider->setValue(i + 2 - m_maxVisibleRecipients);  // scroll to next
             break;
         }
     }
@@ -641,7 +683,7 @@ void ComposeWidget::scrollRecipients(int value)
     }
 
     const int begin = qMin(m_recipients.count(), value);
-    const int end   = qMin(m_recipients.count(), value + MAX_VISIBLE_RECIPIENTS);
+    const int end   = qMin(m_recipients.count(), value + m_maxVisibleRecipients);
     for (int i = begin, j = 0; i < end; ++i, ++j) {
         const int pos = actualRow(ui->envelopeLayout, j + OFFSET_OF_FIRST_ADDRESSEE);
         QWidget *toCC = m_recipients.at(i).first;
@@ -813,6 +855,12 @@ bool ComposeWidget::eventFilter(QObject *o, QEvent *e)
                     QApplication::sendEvent(focus, e);
             }
             return true;
+        }
+        if (e->type() == QEvent::Resize) {
+            QResizeEvent *re = static_cast<QResizeEvent*>(e);
+            if (re->size().height() != re->oldSize().height())
+                calculateMaxVisibleRecipients();
+            return false;
         }
         return false;
     }

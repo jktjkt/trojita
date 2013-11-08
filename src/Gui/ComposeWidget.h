@@ -83,6 +83,7 @@ public slots:
     bool setReplyMode(const Composer::ReplyMode mode);
 
 private slots:
+    void calculateMaxVisibleRecipients();
     void collapseRecipients();
     void completeRecipient(QAction *act);
     void completeRecipients(const QString &text);
@@ -130,6 +131,7 @@ private:
     QList<Recipient> m_recipients;
     QTimer *m_recipientListUpdateTimer;
     QPointer<QWidget> m_lastFocusedRecipient;
+    int m_maxVisibleRecipients;
 
     bool m_sentMail;
     /** @short Has it been updated since the last time we auto-saved it? */
