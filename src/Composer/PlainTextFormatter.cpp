@@ -186,12 +186,21 @@ QRegExp signatureSeparator()
     return QRegExp(QLatin1String("(-- |_{45,})(\\r)?"));
 }
 
+struct TextInfo {
+    int depth;
+    QString text;
+
+    TextInfo(const int depth, const QString &text): depth(depth), text(text)
+    {
+    }
+};
+
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
     static QRegExp quotemarks("^>[>\\s]*");
     const int SIGNATURE_SEPARATOR = -2;
 
-    QList<QPair<int, QString> > lineBuffer;
+    QList<TextInfo> lineBuffer;
 
     // First pass: determine the quote level for each source line.
     // The quote level is ignored for the signature.
@@ -200,13 +209,13 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
         // Fast path for empty lines
         if (line.isEmpty()) {
-            lineBuffer << qMakePair(0, line);
+            lineBuffer << TextInfo(0, line);
             continue;
         }
 
         // Special marker for the signature separator
         if (signatureSeparator().exactMatch(line)) {
-            lineBuffer << qMakePair(SIGNATURE_SEPARATOR, line);
+            lineBuffer << TextInfo(SIGNATURE_SEPARATOR, line);
             signatureSeparatorSeen = true;
             continue;
         }
@@ -220,25 +229,25 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 quoteLevel += line.at(j++) == '>';
         }
 
-        lineBuffer << qMakePair(quoteLevel, line);
+        lineBuffer << TextInfo(quoteLevel, line);
     }
 
     // Second pass:
     // - Remove the quotemarks for everything prior to the signature separator.
     // - Collapse the lines with the same quoting level into a single block
     //   (optionally into a single line if format=flowed is active)
-    QList<QPair<int, QString> >::iterator it = lineBuffer.begin();
-    while (it < lineBuffer.end() && it->first != SIGNATURE_SEPARATOR) {
+    auto it = lineBuffer.begin();
+    while (it < lineBuffer.end() && it->depth != SIGNATURE_SEPARATOR) {
 
         // Remove the quotemarks
-        it->second.remove(quotemarks);
+        it->text.remove(quotemarks);
 
         if (flowed == FORMAT_FLOWED_DELSP) {
-            if (it->second.endsWith(QLatin1String(" \r"))) {
-                it->second.chop(2);
-                it->second += QLatin1Char('\r');
-            } else if (it->second.endsWith(QLatin1Char(' '))) {
-                it->second.chop(1);
+            if (it->text.endsWith(QLatin1String(" \r"))) {
+                it->text.chop(2);
+                it->text += QLatin1Char('\r');
+            } else if (it->text.endsWith(QLatin1Char(' '))) {
+                it->text.chop(1);
             }
         }
 
@@ -249,8 +258,8 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         }
 
         // Check for the line joining
-        QList<QPair<int, QString> >::iterator prev = it - 1;
-        if (prev->first == it->first) {
+        auto prev = it - 1;
+        if (prev->depth == it->depth) {
             // empty lines must not be removed
 
             QString separator = QLatin1String("\n");
@@ -261,16 +270,16 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             case FORMAT_FLOWED:
             case FORMAT_FLOWED_DELSP:
                 // Now the trailing \n is striped already; we only have to check for stuff ending with " " or " \r".
-                if (prev->second.endsWith(QLatin1Char(' '))) {
+                if (prev->text.endsWith(QLatin1Char(' '))) {
                     separator = QString();
-                } else if (prev->second.endsWith(QLatin1String(" \r"))) {
+                } else if (prev->text.endsWith(QLatin1String(" \r"))) {
                     separator = QString();
                     // Remove that extra \r
-                    prev->second.chop(1);
+                    prev->text.chop(1);
                 }
                 break;
             }
-            prev->second += separator + it->second;
+            prev->text += separator + it->text;
             it = lineBuffer.erase(it);
         } else {
             ++it;
@@ -285,36 +294,36 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
     QStack<QPair<int,int> > controlStack;
     for (it = lineBuffer.begin(); it != lineBuffer.end(); ++it) {
 
-        if (it->first == SIGNATURE_SEPARATOR && !signatureSeparatorSeen) {
+        if (it->depth == SIGNATURE_SEPARATOR && !signatureSeparatorSeen) {
             // The first signature separator
             signatureSeparatorSeen = true;
             closeQuotesUpTo(markup, controlStack, quoteLevel, 0);
-            markup << QLatin1String("<span class=\"signature\">") + helperHtmlifySingleLine(it->second);
+            markup << QLatin1String("<span class=\"signature\">") + helperHtmlifySingleLine(it->text);
             markup << QLatin1String("\n");
             continue;
         }
 
         if (signatureSeparatorSeen) {
             // Just copy the data
-            markup << helperHtmlifySingleLine(it->second);
+            markup << helperHtmlifySingleLine(it->text);
             if (it+1 != lineBuffer.end())
                 markup << QLatin1String("\n");
             continue;
         }
 
-        Q_ASSERT(quoteLevel == 0 || quoteLevel != it->first);
+        Q_ASSERT(quoteLevel == 0 || quoteLevel != it->depth);
 
-        if (quoteLevel > it->first) {
+        if (quoteLevel > it->depth) {
             // going back in the quote hierarchy
-            closeQuotesUpTo(markup, controlStack, quoteLevel, it->first);
+            closeQuotesUpTo(markup, controlStack, quoteLevel, it->depth);
         }
 
         // Pretty-formatted block of the ">>>" characters
         QString quotemarks;
 
-        if (it->first) {
+        if (it->depth) {
             quotemarks += QLatin1String("<span class=\"quotemarks\">");
-            for (int i = 0; i < it->first; ++i) {
+            for (int i = 0; i < it->depth; ++i) {
                 quotemarks += QLatin1String("&gt;");
             }
             quotemarks += QLatin1String(" </span>");
@@ -324,10 +333,10 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         static const int charsPerLineEquivalent = 160;
         static const int forceCollapseAfterLines = 10;
 
-        if (quoteLevel < it->first) {
+        if (quoteLevel < it->depth) {
             // We're going deeper in the quote hierarchy
             QString line;
-            while (quoteLevel < it->first) {
+            while (quoteLevel < it->depth) {
                 ++quoteLevel;
 
                 // Check whether there is anything at the newly entered level of nesting
@@ -336,9 +345,9 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 // A short summary of the quotation
                 QString preview;
 
-                QList<QPair<int, QString> >::iterator runner = it;
+                auto runner = it;
                 while (runner != lineBuffer.end()) {
-                    if (runner->first == quoteLevel) {
+                    if (runner->depth == quoteLevel) {
                         anythingOnJustThisLevel = true;
 
                         ++interactiveControlsId;
@@ -346,7 +355,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                         QString omittedStuff;
                         QString previewPrefix, previewSuffix;
-                        QString currentChunk = firstNLines(runner->second, previewLines, charsPerLineEquivalent);
+                        QString currentChunk = firstNLines(runner->text, previewLines, charsPerLineEquivalent);
                         QString omittedPrefix, omittedSuffix;
                         QString previewQuotemarks;
 
@@ -355,9 +364,9 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                             // Find the closest level which got collapsed
                             int closestDepth = std::numeric_limits<int>::max();
-                            QList<QPair<int, QString> >::const_iterator depthRunner(it);
-                            while (depthRunner != QList<QPair<int, QString> >::const_iterator(runner)) {
-                                closestDepth = std::min(closestDepth, depthRunner->first);
+                            auto depthRunner(it);
+                            while (depthRunner != runner) {
+                                closestDepth = std::min(closestDepth, depthRunner->depth);
                                 ++depthRunner;
                             }
 
@@ -366,21 +375,21 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             for (int i = 0; i < closestDepth; ++i) {
                                 omittedStuff += QLatin1String("&gt;");
                             }
-                            for (int i = runner->first; i < closestDepth; ++i) {
+                            for (int i = runner->depth; i < closestDepth; ++i) {
                                 omittedPrefix += QLatin1String("<blockquote>");
                                 omittedSuffix += QLatin1String("</blockquote>");
                             }
                             omittedStuff += QString::fromUtf8(" </span><label for=\"q%1\">...</label>").arg(interactiveControlsId);
 
                             // Now produce the proper quotation for the preview itself
-                            for (int i = quoteLevel; i < runner->first; ++i) {
+                            for (int i = quoteLevel; i < runner->depth; ++i) {
                                 previewPrefix.append(QLatin1String("<blockquote>"));
                                 previewSuffix.append(QLatin1String("</blockquote>"));
                             }
                         }
 
                         previewQuotemarks = QLatin1String("<span class=\"quotemarks\">");
-                        for (int i = 0; i < runner->first; ++i) {
+                        for (int i = 0; i < runner->depth; ++i) {
                             previewQuotemarks += QLatin1String("&gt;");
                         }
                         previewQuotemarks += QLatin1String(" </span>");
@@ -394,7 +403,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
                         break;
                     }
-                    if (runner->first < quoteLevel) {
+                    if (runner->depth < quoteLevel) {
                         // This means that we have left the current level of nesting, so there cannot possible be anything else
                         // at the current level of nesting *and* in the current quote block
                         break;
@@ -406,11 +415,11 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 bool nothingButQuotesAndSpaceTillSignature = true;
                 runner = it;
                 while (++runner != lineBuffer.end()) {
-                    if (runner->first == SIGNATURE_SEPARATOR)
+                    if (runner->depth == SIGNATURE_SEPARATOR)
                         break;
-                    if (runner->first > 0)
+                    if (runner->depth > 0)
                         continue;
-                    if (runner->first == 0 && !runner->second.isEmpty()) {
+                    if (runner->depth == 0 && !runner->text.isEmpty()) {
                         nothingButQuotesAndSpaceTillSignature = false;
                         break;
                     }
@@ -420,10 +429,10 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 int currentLevelCharCount = 0;
                 int currentLevelLineCount = 0;
                 runner = it;
-                while (runner != lineBuffer.end() && runner->first >= quoteLevel) {
-                    currentLevelCharCount += runner->second.size();
+                while (runner != lineBuffer.end() && runner->depth >= quoteLevel) {
+                    currentLevelCharCount += runner->text.size();
                     // one for the actual block
-                    currentLevelLineCount += runner->second.count(QLatin1Char('\n')) + 1;
+                    currentLevelLineCount += runner->text.count(QLatin1Char('\n')) + 1;
                     ++runner;
                 }
 
@@ -434,13 +443,13 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                     continue;
                 }
 
-                if (quoteLevel == it->first
+                if (quoteLevel == it->depth
                         && currentLevelCharCount <= charsPerLineEquivalent * previewLines
                         && currentLevelLineCount <= previewLines) {
                     // special case: the quote is very short, no point in making it collapsible
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
                             + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
-                            + helperHtmlifySingleLine(it->second).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
+                            + helperHtmlifySingleLine(it->text).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
                 } else {
 #if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)
                     // old WebKit doesn't really support the dynamic updates of the :checked pseudoclass
@@ -461,9 +470,9 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                               + QString::fromUtf8(" <label for=\"q%1\">...</label>").arg(interactiveControlsId)
                               + QLatin1String("</blockquote></span>")
                             + QLatin1String("<span class=\"full\"><blockquote>");
-                    if (quoteLevel == it->first) {
+                    if (quoteLevel == it->depth) {
                         // We're now finally on the correct level of nesting so we can output the current line
-                        line += quotemarks + helperHtmlifySingleLine(it->second)
+                        line += quotemarks + helperHtmlifySingleLine(it->text)
                                 .replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
                     }
                 }
@@ -471,16 +480,16 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             markup << line;
         } else {
             // Either no quotation or we're continuing an old quote block and there was a nested quotation before
-            markup << quotemarks + helperHtmlifySingleLine(it->second)
+            markup << quotemarks + helperHtmlifySingleLine(it->text)
                       .replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
         }
 
-        QList<QPair<int, QString> >::iterator next = it + 1;
+        auto next = it + 1;
         if (next != lineBuffer.end()) {
-            if (next->first >= 0 && next->first < it->first) {
+            if (next->depth >= 0 && next->depth < it->depth) {
                 // Decreasing the quotation level -> no starting <blockquote>
                 markup << QLatin1String("\n");
-            } else if (it->first == 0) {
+            } else if (it->depth == 0) {
                 // Non-quoted block which is not enclosed in a <blockquote>
                 markup << QLatin1String("\n");
             }
