@@ -112,11 +112,16 @@ void SimplePartWidget::slotMarkupPlainText()
         // quotation characters and therefore a weird white area appears. Even width: 0px doesn't help, so it looks like
         // we will have to live with this warning for the time being.
         ".quotemarks{color:transparent;font-size:0px;}"
-        "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid %1;}"
+
+        // Cannot really use the :dir(rtl) selector for putting the quote indicator to the "correct" side.
+        // It's CSS4 and it isn't supported yet.
+        "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid %1; unicode-bidi: -webkit-plaintext}"
+
         // Stop the font size from getting smaller after reaching two levels of quotes
         // (ie. starting on the third level, don't make the size any smaller than what it already is)
         "blockquote blockquote blockquote {font-size: 100%}"
         ".signature{opacity: 0.6;}"
+
         // Dynamic quote collapsing via pure CSS, yay
         "input {display: none}"
         "input ~ span.full {display: block}"
@@ -164,7 +169,12 @@ void SimplePartWidget::slotMarkupPlainText()
             file.close();
         }
     }
-    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + textColors + fontSpecification + stylesheet + "--></style></head><body><pre>");
+
+    // The dir="auto" is required for WebKit to treat all paragraphs as entities with possibly different text direction.
+    // The individual paragraphs unfortunately share the same text alignment, though, as per
+    // https://bugs.webkit.org/show_bug.cgi?id=71194 (fixed in Blink already).
+    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + textColors + fontSpecification + stylesheet +
+                       "--></style></head><body><pre dir=\"auto\">");
     static QString htmlFooter("\n</pre></body></html>");
 
     // We cannot rely on the QWebFrame's toPlainText because of https://bugs.kde.org/show_bug.cgi?id=321160
