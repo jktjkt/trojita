@@ -38,6 +38,7 @@
 #include <QResizeEvent>
 #include <QDebug>
 #include <QStandardItemModel>
+#include <QToolTip>
 #include <QMessageBox>
 #include <QDataWidgetMapper>
 #include "SettingsDialog.h"
@@ -52,6 +53,18 @@ namespace Gui
 QString SettingsDialog::warningStyleSheet = QLatin1String("border: 2px solid red; background-color: #E7C575; color: black; "
         "font-weight: bold; padding: 5px; margin: 5px; "
         "text-align: center;");
+
+/** @short Check a text field for being non empty. If it's empty, show an error to the user. */
+template<typename T>
+bool checkProblemWithEmptyTextField(T *field, const QString &message)
+{
+    if (field->text().isEmpty()) {
+        QToolTip::showText(field->mapToGlobal(QPoint(10, field->height() / 2)), message, 0);
+        return true;
+    } else {
+        return false;
+    }
+}
 
 SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings):
     QDialog(parent), m_senderIdentities(identitiesModel), m_settings(settings)
@@ -80,6 +93,13 @@ SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel 
 
 void SettingsDialog::accept()
 {
+    Q_FOREACH(ConfigurationWidgetInterface *page, pages) {
+        if (!page->checkValidity()) {
+            stack->setCurrentWidget(page->asWidget());
+            return;
+        }
+    }
+
 #ifndef Q_OS_WIN
     // Try to wour around QSettings' inability to set umask for its file access. We don't want to set umask globally.
     QFile settingsFile(m_settings->fileName());
@@ -230,6 +250,16 @@ void GeneralPage::save(QSettings &s)
 QWidget *GeneralPage::asWidget()
 {
     return this;
+}
+
+bool GeneralPage::checkValidity() const
+{
+    if (m_identitiesModel->rowCount() < 1) {
+        QToolTip::showText(identityTabelView->mapToGlobal(QPoint(10, identityTabelView->height() / 2)),
+                           tr("Please define some identities here"), 0);
+        return false;
+    }
+    return true;
 }
 
 EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, const QModelIndex &currentIndex):
@@ -423,6 +453,26 @@ QWidget *ImapPage::asWidget()
     return this;
 }
 
+bool ImapPage::checkValidity() const
+{
+    switch (method->currentIndex()) {
+    case TCP:
+    case SSL:
+        // We don't require the username, and that's on purpose. Some servers *could* possibly support PREAUTH :)
+        if (checkProblemWithEmptyTextField(imapHost, tr("The IMAP server hostname is missing here")))
+            return false;
+        break;
+    default:
+        // PREAUTH must definitely be supported here -- think imap-over-ssh-with-ssh-keys etc.
+        if (checkProblemWithEmptyTextField(processPath,
+                               tr("The command line to the IMAP server is missing here. Perhaps you need to use SSL or TCP?"))) {
+            return false;
+        }
+        break;
+    }
+    return true;
+}
+
 void ImapPage::maybeShowPasswordWarning()
 {
     passwordWarning->setVisible(!imapPass->text().isEmpty());
@@ -495,6 +545,12 @@ void CachePage::save(QSettings &s)
 QWidget *CachePage::asWidget()
 {
     return this;
+}
+
+bool CachePage::checkValidity() const
+{
+    // Nothing really special for this class
+    return true;
 }
 
 OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_OutgoingPage()
@@ -661,6 +717,30 @@ void OutgoingPage::save(QSettings &s)
 QWidget *OutgoingPage::asWidget()
 {
     return this;
+}
+
+bool OutgoingPage::checkValidity() const
+{
+    switch (method->currentIndex()) {
+    case SMTP:
+    case SSMTP:
+        if (checkProblemWithEmptyTextField(smtpHost, tr("The SMTP server hostname is missing here")))
+            return false;
+        if (smtpAuth->isChecked() && checkProblemWithEmptyTextField(smtpUser, tr("The SMTP username is missing here")))
+            return false;
+        break;
+    case SENDMAIL:
+        if (checkProblemWithEmptyTextField(sendmail, tr("The SMTP server hostname is missing here")))
+            return false;
+        break;
+    case IMAP_SENDMAIL:
+        break;
+    }
+
+    if (saveToImap->isChecked() && checkProblemWithEmptyTextField(saveFolderName, tr("Please specify the folder name here")))
+        return false;
+
+    return true;
 }
 
 void OutgoingPage::maybeShowPasswordWarning()

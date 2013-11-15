@@ -53,6 +53,7 @@ class ConfigurationWidgetInterface {
 public:
     virtual void save(QSettings &s) = 0;
     virtual QWidget *asWidget() = 0;
+    virtual bool checkValidity() const = 0;
 };
 
 
@@ -63,6 +64,7 @@ public:
     GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
+    virtual bool checkValidity() const;
 
 private slots:
     void updateWidgets();
@@ -107,6 +109,7 @@ public:
     OutgoingPage(QWidget *parent, QSettings &s);
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
+    virtual bool checkValidity() const;
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
@@ -130,6 +133,7 @@ public:
     ImapPage(QWidget *parent, QSettings &s);
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
+    virtual bool checkValidity() const;
 #ifdef XTUPLE_CONNECT
     bool hasPassword() const;
 #endif
@@ -159,6 +163,7 @@ public:
     CachePage(QWidget *parent, QSettings &s);
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
+    virtual bool checkValidity() const;
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
