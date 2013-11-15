@@ -25,6 +25,8 @@
 #include "Common/ConnectionId.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/TaskPresentationModel.h"
+#include "Imap/Tasks/EnableTask.h"
+#include "Imap/Tasks/IdTask.h"
 #include "Streams/SocketFactory.h"
 #include "Streams/TrojitaZlibStatus.h"
 
@@ -397,12 +399,15 @@ void OpenConnectionTask::onComplete()
 {
     // Optionally issue the ID command
     if (model->accessParser(parser).capabilities.contains(QLatin1String("ID"))) {
-        model->m_taskFactory->createIdTask(model, this);
+        Imap::Mailbox::ImapTask *task = model->m_taskFactory->createIdTask(model, this);
+        task->perform();
     }
     // Optionally enable QRESYNC
     if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) &&
             model->accessParser(parser).capabilities.contains(QLatin1String("ENABLE"))) {
-        model->m_taskFactory->createEnableTask(model, this, QList<QByteArray>() << QByteArray("QRESYNC"));
+        Imap::Mailbox::ImapTask *task = model->m_taskFactory->createEnableTask(model, this,
+                                                                               QList<QByteArray>() << QByteArray("QRESYNC"));
+        task->perform();
     }
 
     // But do terminate this task

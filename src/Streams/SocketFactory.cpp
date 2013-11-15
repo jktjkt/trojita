@@ -93,4 +93,9 @@ Socket *FakeSocketFactory::lastSocket()
     return m_last;
 }
 
+void FakeSocketFactory::setInitialState(const Imap::ConnectionState initialState)
+{
+    m_initialState = initialState;
+}
+
 }

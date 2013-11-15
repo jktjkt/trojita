@@ -2078,6 +2078,56 @@ void ImapModelObtainSynchronizedMailboxTest::testOfflineOpening()
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
 }
 
+/** @short Check that ENABLE QRESYNC always gets sent prior to SELECT QRESYNC
+
+See Redmine #611 for details.
+*/
+void ImapModelObtainSynchronizedMailboxTest::testQresyncEnabling()
+{
+    using namespace Imap::Mailbox;
+
+    model->setNetworkOffline();
+    cClient(t.mk("LOGOUT\r\n"));
+    cServer(t.last("OK logged out\r\n"));
+
+    // this one is important, otherwise the index would get invalidated "too fast"
+    taskFactoryUnsafe->fakeListChildMailboxes = false;
+    // we need to tap into the whole connection establishing process; otherwise KeepMailboxOpenTask asserts on line 80
+    taskFactoryUnsafe->fakeOpenConnectionTask = false;
+    factory->setInitialState(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
+    t.reset();
+
+    model->setNetworkOnline();
+    QCoreApplication::processEvents();
+    cServer("* OK [CAPABILITY IMAP4rev1] hi there\r\n");
+    QCOMPARE(model->rowCount(QModelIndex()), 26);
+    idxA = model->index(1, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QCOMPARE(idxA.data(RoleMailboxName).toString(), QString("a"));
+    msgListA = idxA.child(0, 0);
+    QVERIFY(idxA.isValid());
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cEmpty();
+    model->setImapUser(QLatin1String("user"));
+    model->setImapPassword(QLatin1String("pw"));
+    cClient(t.mk("LOGIN user pw\r\n"));
+    cServer(t.last("OK [CAPABILITY IMAP4rev1 ENABLE QRESYNC UNSELECT] logged in\r\n"));
+
+    QByteArray idCmd = t.mk("ENABLE QRESYNC\r\n");
+    QByteArray idRes = t.last("OK enabled\r\n");
+    QByteArray listCmd = t.mk("LIST \"\" \"%\"\r\n");
+    QByteArray listResp = t.last("OK listed\r\n");
+    QByteArray selectCmd = t.mk("SELECT a\r\n");
+    QByteArray selectResp = t.last("OK selected\r\n");
+
+    cClient(idCmd + listCmd + selectCmd);
+    cServer(idRes + "* LIST (\\HasNoChildren) \".\" \"a\"\r\n" + listResp);
+    cServer(selectResp);
+    cClient(t.mk("UNSELECT\r\n"));
+    cServer(t.last("OK whatever\r\n"));
+    cEmpty();
+}
+
 /** @short VANISHED EARLIER which refers to meanwhile-arrived-and-deleted messages on an empty mailbox */
 void ImapModelObtainSynchronizedMailboxTest::testQresyncSpuriousVanishedEarlier()
 {

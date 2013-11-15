@@ -88,6 +88,8 @@ private slots:
 
     void testOfflineOpening();
 
+    void testQresyncEnabling();
+
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();
 };

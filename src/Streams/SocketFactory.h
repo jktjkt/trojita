@@ -94,6 +94,7 @@ public:
     virtual Socket *create();
     /** @short Return the last created socket */
     Socket *lastSocket();
+    void setInitialState(const Imap::ConnectionState initialState);
 private:
     QPointer<Socket> m_last;
     Imap::ConnectionState m_initialState;

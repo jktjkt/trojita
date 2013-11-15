@@ -556,11 +556,11 @@ void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 LIST \"\" \"%\"\r\ny3 ID NIL\r\n"));
-    SOCK->fakeReading("* ID nil\r\ny3 OK you courious peer\r\ny2 OK listed, nothing like that in there\r\n");
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID NIL\r\ny3 LIST \"\" \"%\"\r\n"));
+    SOCK->fakeReading("* ID nil\r\ny3 OK listed, nothing like that in there\r\ny2 OK you courious peer\r\n");
 #else
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 LIST \"\" \"%\"\r\ny2 ID NIL\r\n"));
-    SOCK->fakeReading("* ID nil\r\ny2 OK you courious peer\r\ny1 OK listed, nothing like that in there\r\n");
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID NIL\r\ny2 LIST \"\" \"%\"\r\n"));
+    SOCK->fakeReading("* ID nil\r\ny2 OK listed, nothing like that in there\r\ny1 OK you courious peer\r\n");
 #endif
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
