@@ -43,6 +43,7 @@ private slots:
     void testMultipleArrivalsBlockingFurtherActivity();
     void testInnocentUidValidityChange();
     void testUnexpectedUidValidityChange();
+    void testHighestModseqFlags();
 private:
     void helperTestExpungeImmediatelyAfterArrival(bool sendUidNext);
     void helperGenericTraffic(bool askForEnvelopes);

@@ -43,6 +43,7 @@ class ObtainSynchronizedMailboxTask;
 class IdleLauncher;
 class FetchMsgMetadataTask;
 class FetchMsgPartTask;
+class TreeItemMailbox;
 class UnSelectTask;
 
 /** @short Maintain a connection to a mailbox
@@ -213,6 +214,8 @@ private:
     void detachFromMailbox();
 
     bool canRunIdleRightNow() const;
+
+    void saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox *mailbox);
 
 protected:
     virtual void killAllPendingTasks();

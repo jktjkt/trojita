@@ -163,13 +163,15 @@ public:
                              const Responses::Fetch &response,
                              QList<TreeItemPart *> &changedParts,
                              TreeItemMessage *&changedMessage,
-                             bool canSaveSyncStateDirectly,
                              bool usingQresync);
     void rescanForChildMailboxes(Model *const model);
     void handleExpunge(Model *const model, const Responses::NumberResponse &resp);
     void handleExists(Model *const model, const Responses::NumberResponse &resp);
     void handleVanished(Model *const model, const Responses::Vanished &resp);
     bool isSelectable() const;
+
+    void saveSyncStateAndUids(Model *model);
+
 private:
     TreeItemPart *partIdToPtr(Model *model, TreeItemMessage *message, const QString &msgId);
 

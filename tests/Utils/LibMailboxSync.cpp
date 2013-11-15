@@ -454,18 +454,29 @@ void LibMailboxSync::helperVerifyUidMapA()
 /** @short Helper: verify that values recorded in the cache are valid */
 void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
 {
+    using namespace Imap::Mailbox;
+
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
-    QCOMPARE( syncState.exists(), existsA );
-    QCOMPARE( syncState.isUsableForSyncing(), true );
-    if ( ! ignoreUidNext ) {
-        QCOMPARE( syncState.uidNext(), uidNextA );
+    SyncState syncState = model->cache()->mailboxSyncState(QLatin1String("a"));
+    QCOMPARE(syncState.exists(), existsA);
+    QCOMPARE(syncState.isUsableForSyncing(), true);
+    if (!ignoreUidNext) {
+        QCOMPARE(syncState.uidNext(), uidNextA);
     }
-    QCOMPARE( syncState.uidValidity(), uidValidityA );
-    QCOMPARE( model->cache()->uidMapping( QLatin1String("a") ), uidMapA );
+    QCOMPARE(syncState.uidValidity(), uidValidityA);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), uidMapA);
+    QCOMPARE(static_cast<uint>(uidMapA.size()), existsA);
+
+    SyncState ssFromTree = model->findMailboxByName(QLatin1String("a"))->syncState;
+    SyncState ssFromCache = syncState;
+    if (ignoreUidNext) {
+        ssFromTree.setUidNext(0);
+        ssFromCache.setUidNext(0);
+    }
+    QCOMPARE(ssFromCache, ssFromTree);
 
     cEmpty();
-    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY(errorSpy->isEmpty());
 }
 
 void LibMailboxSync::initialMessages(const uint exists)

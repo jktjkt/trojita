@@ -75,7 +75,6 @@ private:
 
     void syncUids(TreeItemMailbox *mailbox, const uint lowestUidToQuery=0);
     void syncFlags(TreeItemMailbox *mailbox);
-    void saveSyncState(TreeItemMailbox *mailbox);
     void updateHighestKnownUid(TreeItemMailbox *mailbox, const TreeItemMsgList *list) const;
 
     void notifyInterestingMessages(TreeItemMailbox *mailbox);

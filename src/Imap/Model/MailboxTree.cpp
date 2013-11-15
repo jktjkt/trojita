@@ -321,18 +321,23 @@ QList<TreeItem *> TreeItemMailbox::setChildren(const QList<TreeItem *> items)
 void TreeItemMailbox::handleFetchResponse(Model *const model,
         const Responses::Fetch &response,
         QList<TreeItemPart *> &changedParts,
-        TreeItemMessage *&changedMessage, bool canSaveSyncStateDirectly, bool usingQresync)
+        TreeItemMessage *&changedMessage, bool usingQresync)
 {
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(list);
-    if (! list->fetched() && !usingQresync) {
-        QByteArray buf;
-        QTextStream ss(&buf);
-        ss << response;
-        ss.flush();
-        qDebug() << "Ignoring FETCH response to a mailbox that isn't synced yet:" << buf;
-        return;
-    }
+
+    Responses::Fetch::dataType::const_iterator uidRecord = response.data.find("UID");
+
+    // Previously, we would ignore any FETCH responses until we are fully synced. This is rather hard do to "properly",
+    // though.
+    // What we want to achieve is to never store data into a "wrong" message. Theoretically, we are prone to just this
+    // in case the server sends us unsolicited data before we are fully synced. When this happens for flags, it's a pretty
+    // harmless operation as we're going to re-fetch the flags for the concerned part of mailbox anyway (even with CONDSTORE,
+    // and this is never an issue with QRESYNC).
+    // It's worse when the data refer to some immutable piece of information like the bodystructure or body parts.
+    // If that happens, then we have to actively prevent the data from being stored because we cannot know whether we would
+    // be putting it into a correct bucket^Hmessage.
+    bool ignoreImmutableData = !list->fetched() && uidRecord == response.data.constEnd();
 
     int number = response.number - 1;
     if (number < 0 || number >= list->m_children.size())
@@ -343,7 +348,6 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     Q_ASSERT(message);   // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
 
     // At first, have a look at the response and check the UID of the message
-    Responses::Fetch::dataType::const_iterator uidRecord = response.data.find("UID");
     if (uidRecord != response.data.constEnd()) {
         uint receivedUid = dynamic_cast<const Responses::RespData<uint>&>(*(uidRecord.value())).data;
         if (message->uid() == receivedUid) {
@@ -364,7 +368,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 message->m_fetchStatus = NONE;
                 message->fetch(model);
             }
-            if (canSaveSyncStateDirectly && syncState.uidNext() <= receivedUid) {
+            if (syncState.uidNext() <= receivedUid) {
                 // Try to guess the UIDNEXT. We have to take an educated guess here, and I believe that this approach
                 // at least is not wrong. The server won't tell us the UIDNEXT (well, it could, but it doesn't have to),
                 // the only way of asking for it is via STATUS which is not allowed to reference the current mailbox and
@@ -374,8 +378,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 // Not guessing the UIDNEXT correctly would result at decreased performance at the next sync, and we
                 // can't really do better -> let's just set it now, along with the UID mapping.
                 syncState.setUidNext(receivedUid + 1);
-                model->cache()->setMailboxSyncState(mailbox(), syncState);
-                model->saveUidMap(list);
+                list->m_fetchStatus = LOADING;
             }
         } else {
             throw MailboxException(QString::fromUtf8("FETCH response: UID consistency error for message #%1 -- expected UID %2, got UID %3").arg(
@@ -414,8 +417,21 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             quint64 num = dynamic_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
             if (num > syncState.highestModSeq()) {
                 syncState.setHighestModSeq(num);
-                // FIXME: when shall we save this one to the persistent cache?
+                if (list->m_fetchStatus == DONE) {
+                    // This means that everything is known already, so we are by definition OK to save stuff to disk.
+                    // We can also skip rebuilding the UID map and save just the HIGHESTMODSEQ, i.e. the SyncState.
+                    model->cache()->setMailboxSyncState(mailbox(), syncState);
+                } else {
+                    // it's already marked as dirty -> nothing to do here
+                }
             }
+        } else if (ignoreImmutableData) {
+            QByteArray buf;
+            QTextStream ss(&buf);
+            ss << response;
+            ss.flush();
+            qDebug() << "Ignoring FETCH response to a mailbox that isn't synced yet:" << buf;
+            continue;
         } else if (it.key() == "ENVELOPE") {
             message->m_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data;
             message->m_fetchStatus = DONE;
@@ -521,6 +537,25 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     }
 }
 
+/** @short Save the sync state and the UID mapping into the cache
+
+Please note that FLAGS are still being updated "asynchronously", i.e. immediately when an update arrives. The motivation
+behind this is that both SyncState and UID mapping just absolutely have to be kept in sync due to the way they are used where
+our syncing code simply expects both to match each other. There cannot ever be any 0 UIDs in the saved UID mapping, and the
+number in EXISTS and the amount of cached UIDs is not supposed to differ or all bets are off.
+
+The flags, on the other hand, are not critical -- if a message gets saved with the correct flags "too early", i.e. before
+the corresponding SyncState and/or UIDs are saved, the wors case which could possibly happen are data which do not match the
+old state any longer. But the old state is not important anyway because it's already gone on the server.
+*/
+void TreeItemMailbox::saveSyncStateAndUids(Model * model)
+{
+    model->cache()->setMailboxSyncState(mailbox(), syncState);
+    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(m_children[0]);
+    model->saveUidMap(list);
+    list->m_fetchStatus = DONE;
+}
+
 /** @short Process the EXPUNGE response when the UIDs are already synced */
 void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberResponse &resp)
 {
@@ -543,6 +578,11 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
 
     --list->m_totalMessageCount;
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
+
+    if (list->m_fetchStatus == DONE) {
+        // Previously, we were synced, so we got to save this update
+        saveSyncStateAndUids(model);
+    }
 }
 
 void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanished &resp)
@@ -667,6 +707,11 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
     list->m_totalMessageCount = list->m_children.size();
     syncState.setExists(list->m_totalMessageCount);
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
+
+    if (list->m_fetchStatus == DONE) {
+        // Previously, we were synced, so we got to save this update
+        saveSyncStateAndUids(model);
+    }
 }
 
 /** @short Process the EXISTS response
@@ -702,6 +747,7 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
     }
     model->endInsertRows();
     list->m_totalMessageCount = resp.number;
+    list->m_fetchStatus = LOADING;
     model->emitMessageCountChanged(this);
 }
 

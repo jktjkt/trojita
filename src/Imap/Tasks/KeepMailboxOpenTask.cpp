@@ -382,8 +382,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
     if (resp->kind == Imap::Responses::EXPUNGE) {
         mailbox->handleExpunge(model, *resp);
         mailbox->syncState.setExists(mailbox->syncState.exists() - 1);
-        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-        model->saveUidMap(list);
+        saveSyncStateNowOrLater(mailbox);
         return true;
     } else if (resp->kind == Imap::Responses::EXISTS) {
 
@@ -393,8 +392,6 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         }
 
         mailbox->handleExists(model, *resp);
-        model->cache()->clearUidMapping(mailbox->mailbox());
-        model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
 
         breakOrCancelPossibleIdle();
 
@@ -421,6 +418,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
         mailbox->syncState.setRecent(resp->number);
         list->m_recentMessageCount = resp->number;
         model->emitMessageCountChanged(mailbox);
+        saveSyncStateNowOrLater(mailbox);
         return true;
     } else {
         return false;
@@ -448,6 +446,7 @@ bool KeepMailboxOpenTask::handleVanished(const Responses::Vanished *const resp)
     Q_ASSERT(mailbox);
 
     mailbox->handleVanished(model, *resp);
+    saveSyncStateNowOrLater(mailbox);
     return true;
 }
 
@@ -516,6 +515,14 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         return true;
     } else if (newArrivalsFetch.contains(resp->tag)) {
         newArrivalsFetch.removeOne(resp->tag);
+
+        if (newArrivalsFetch.isEmpty() && mailboxIndex.isValid()) {
+            // No pending commands for fetches of the mailbox state -> we have a consistent and accurate, up-to-date view
+            // -> we should save this
+            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
+            Q_ASSERT(mailbox);
+            mailbox->saveSyncStateAndUids(model);
+        }
 
         if (resp->kind == Responses::OK) {
             // FIXME: anything to do here?
@@ -748,8 +755,8 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setUidNext(num->data);
-            model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-            // We shouldn't yeat tagged responses from this context
+            saveSyncStateNowOrLater(mailbox);
+            // We shouldn't eat tagged responses from this context
             return resp->tag.isEmpty();
         } else {
             throw CantHappen("State response has invalid UIDNEXT respCodeData", *resp);
@@ -768,7 +775,7 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         const Responses::RespData<QStringList> *const num = dynamic_cast<const Responses::RespData<QStringList>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setPermanentFlags(num->data);
-            // We shouldn't yeat tagged responses from this context
+            // We shouldn't eat tagged responses from this context
             return resp->tag.isEmpty();
         } else {
             throw CantHappen("State response has invalid PERMANENTFLAGS respCodeData", *resp);
@@ -785,9 +792,7 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
         const Responses::RespData<quint64> *const num = dynamic_cast<const Responses::RespData<quint64>* const>(resp->respCodeData.data());
         Q_ASSERT(num);
         mailbox->syncState.setHighestModSeq(num->data);
-        // FIXME: set the UID mapping *and* the HIGHESTMODSEQ at once
-        // model->cache()->setMailboxSyncState(mailbox->mailbox(), mailbox->syncState);
-        // We shouldn't yeat tagged responses from this context
+        saveSyncStateNowOrLater(mailbox);
         return resp->tag.isEmpty();
     }
     case Responses::UIDVALIDITY:
@@ -903,6 +908,17 @@ void KeepMailboxOpenTask::feelFreeToAbortCaller(ImapTask *task)
 {
     abortableTasks.append(task);
 }
+
+void KeepMailboxOpenTask::saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox *mailbox)
+{
+    TreeItemMsgList *list = static_cast<TreeItemMsgList*>(mailbox->m_children[0]);
+    if (list->fetched()) {
+        mailbox->saveSyncStateAndUids(model);
+    } else {
+        list->m_fetchStatus = Imap::Mailbox::TreeItem::LOADING;
+    }
+}
+
 
 }
 }

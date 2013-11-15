@@ -70,6 +70,8 @@ private slots:
     void testCondstoreErrorUidNext();
     void testCondstoreUidValidity();
     void testCondstoreDecreasedHighestModSeq();
+    void testCacheDiscrepancyExistsUidsConstantHMS();
+    void testCacheDiscrepancyExistsUidsDifferentHMS();
 
     void testQresyncNoChanges();
     void testQresyncChangedFlags();
@@ -92,6 +94,8 @@ private slots:
 
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();
+
+    void helperCacheDiscrepancyExistsUids(bool constantHighestModSeq);
 };
 
 #endif

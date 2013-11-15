@@ -45,10 +45,16 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
     uidMapA << 1 << 7 << 9;
     uidNextA = 16;
     helperSyncAWithMessagesEmptyState();
+    helperCheckCache();
     cEmpty();
 
+    auto oldState = model->cache()->mailboxSyncState(("a"));
+    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     cServer(QString::fromUtf8("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toUtf8());
     cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number(qMax(uidMapA.last() + 1, uidNextA))).toUtf8());
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
 
     // Add message with this UID to our internal list
     uint addedUid = 33;
@@ -73,11 +79,17 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     uidMapA << 3 << 9;
     uidNextA = 33;
     helperSyncAWithMessagesEmptyState();
+    helperCheckCache();
     cEmpty();
 
+    auto oldState = model->cache()->mailboxSyncState(("a"));
+    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     cServer(QString::fromUtf8("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toUtf8());
     cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
                  QString::number(qMax(uidMapA.last() + 1, uidNextA))).toUtf8());
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
 
     // Add message with this UID to our internal list
     uint addedUid = 42;
@@ -174,10 +186,16 @@ of three brand new messages, A, B and C. This arrival will get noticed and proce
  */
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool askForEnvelopes)
 {
+    auto oldState = model->cache()->mailboxSyncState(("a"));
+    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     // Fake delivery of A, B and C
     cServer(QByteArray("* 3 EXISTS\r\n* 3 RECENT\r\n"));
     // This should trigger a request for flags
     cClient(t.mk("UID FETCH 12:* (FLAGS)\r\n"));
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
+
     // The messages sgould be there already
     QVERIFY(msgListA.child(0,0).isValid());
     QModelIndex msgB = msgListA.child(1, 0);
@@ -284,6 +302,9 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
 /** @short Fake delivery of D to a mailbox which already contains A, B and C */
 void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askForEnvelopes)
 {
+    auto oldState = model->cache()->mailboxSyncState(("a"));
+    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     // Fake delivery of D
     cServer(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
     // This should trigger a request for flags
@@ -308,6 +329,8 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
         // In the meanwhile, ask for ENVELOPE etc -- but it shouldn't be there yet
         QVERIFY( ! msgD.data(Imap::Mailbox::RoleMessageFrom).isValid() );
     }
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
 
     // FLAGS arrive, bringing the UID with them
     cServer(QByteArray("* 4 FETCH (UID 46 FLAGS (\\Recent))\r\n") +
@@ -371,7 +394,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteOneMessage(const uint seq,
     Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
     cServer(QString::fromUtf8("* %1 EXPUNGE\r\n* %2 RECENT\r\n").arg(QString::number(seq+1), QString::number(existsA)).toUtf8());
 
-    // Verify the model's idea about the current state
+    // Verify the model's idea about the current state. The cache is updated immediately.
     helperCheckSubjects(remainingSubjects);
     helperCheckCache();
     helperVerifyUidMapA();
@@ -388,7 +411,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteTwoMessages(const uint seq
     Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
     cServer(QString::fromUtf8("* %1 EXPUNGE\r\n* %2 EXPUNGE\r\n* %3 RECENT\r\n").arg(QString::number(seq1+1), QString::number(seq2+1), QString::number(existsA)).toUtf8());
 
-    // Verify the model's idea about the current state
+    // Verify the model's idea about the current state. The cache is updated immediately.
     helperCheckSubjects(remainingSubjects);
     helperCheckCache();
     helperVerifyUidMapA();
@@ -397,6 +420,9 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteTwoMessages(const uint seq
 /** @short Fake delivery of a completely new set of messages, the A, B, C and D */
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askForEnvelopes)
 {
+    auto oldState = model->cache()->mailboxSyncState(("a"));
+    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     // Fake the announcement of the delivery
     cServer(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
     // This should trigger a request for flags
@@ -422,6 +448,8 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
         // In the meanwhile, ask for ENVELOPE etc -- but it shouldn't be there yet
         QVERIFY( ! msgD.data(Imap::Mailbox::RoleMessageFrom).isValid() );
     }
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
 
     // FLAGS arrive, bringing the UID with them
     cServer(QByteArray("* 1 FETCH (UID 47 FLAGS (\\Recent))\r\n"
@@ -474,6 +502,8 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
 /** @short Fake delivery of three new messages, E, F and G, to a mailbox with A and D */
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askForEnvelopes)
 {
+    auto oldState = model->cache()->mailboxSyncState(("a"));
+    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
     // Fake the announcement of the delivery
     cServer(QByteArray("* 5 EXISTS\r\n* 5 RECENT\r\n"));
     // This should trigger a request for flags
@@ -496,6 +526,8 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
         // In the meanwhile, ask for ENVELOPE etc -- but it shouldn't be there yet
         QVERIFY( ! msgE.data(Imap::Mailbox::RoleMessageFrom).isValid() );
     }
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
 
     // FLAGS arrive, bringing the UID with them
     cServer(QByteArray("* 3 FETCH (UID 52 FLAGS (\\Recent))\r\n"
@@ -558,19 +590,25 @@ void ImapModelSelectedMailboxUpdatesTest::testVanishedUpdates()
     // Deleting a message in the middle of the range
     cServer("* VANISHED 9\r\n");
     uidMapA.removeOne(9);
+    --existsA;
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     // Deleting the last one
     cServer("* VANISHED 10\r\n");
     uidMapA.removeOne(10);
+    --existsA;
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     // Dleting three at the very start
     cServer("* VANISHED 1:3\r\n");
     uidMapA.removeOne(1);
     uidMapA.removeOne(2);
     uidMapA.removeOne(3);
+    existsA -= 3;
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     QCOMPARE(uidMapA, QList<uint>() << 4 << 5 << 6 << 7 << 8);
 
@@ -579,27 +617,46 @@ void ImapModelSelectedMailboxUpdatesTest::testVanishedUpdates()
     cClient(t.mk("UID FETCH 11:* (FLAGS)\r\n"));
     cServer("* 6 FETCH (UID 11 FLAGS (x))\r\n" + t.last("OK fetched\r\n"));
     uidMapA << 11;
+    ++existsA;
+    uidNextA = 12;
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     // Yet another arrival which, unfortunately, gets removed immediately
     cServer("* 7 EXISTS\r\n* VANISHED 12\r\n");
     cClient(t.mk("UID FETCH 12:* (FLAGS)\r\n"));
     cServer(t.last("OK fetched\r\n"));
+    uidNextA = 13;
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     // Two messages arrive, the server sends UID for the last of them and the first one gets expunged
     cServer("* 8 EXISTS\r\n");
+    // the on-disk cache is trashed, that's by design because it would otherwise have to contain zeros
     uidMapA << 0 << 0;
+    auto oldUidMap = uidMapA;
+    existsA += 2;
     helperCheckUidMapFromModel();
+    uidMapA.clear();
+    // FIXME: don't call this, existsA != uidMapA.size
+    // helperCheckCache();
+    uidMapA = oldUidMap;
     cServer("* 8 FETCH (UID 14 FLAGS ())\r\n");
     uidMapA[7] = 14;
+    uidNextA = 15;
     helperCheckUidMapFromModel();
+    // FIXME: don't call this -- early call to cEmpty()
+    // helperCheckCache();
     cServer("* VANISHED 13\r\n");
     uidMapA.removeAt(6);
+    --existsA;
     helperCheckUidMapFromModel();
+    // FIXME: don't call this: early call to cEmpty()
+    //helperCheckCache();
     cClient(t.mk("UID FETCH 13:* (FLAGS)\r\n"));
     cServer("* 7 FETCH (UID 14 FLAGS (x))\r\n" + t.last("OK fetched\r\n"));
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     cEmpty();
 }
@@ -619,15 +676,19 @@ void ImapModelSelectedMailboxUpdatesTest::testVanishedWithNonExisting()
     initialMessages(10);
     cServer("* VANISHED 0,2,4,6,6,6,8,2,0,10,12\r\n");
     uidMapA.erase(std::remove_if(uidMapA.begin(), uidMapA.end(), isEven), uidMapA.end());
+    existsA = uidMapA.size();
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     // This one has been already reported
     cServer("* VANISHED 2\r\n");
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     // This one wasn't there yet at all
     cServer("* VANISHED 666\r\n");
     helperCheckUidMapFromModel();
+    helperCheckCache();
 
     cEmpty();
 }
@@ -636,7 +697,11 @@ void ImapModelSelectedMailboxUpdatesTest::testVanishedWithNonExisting()
 void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivals()
 {
     initialMessages(1);
+    auto oldState = model->cache()->mailboxSyncState(("a"));
+    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
     cServer("* 2 EXISTS\r\n* 3 EXISTS\r\n");
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
     QByteArray req1 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
     QByteArray resp1 = t.last("OK fetched\r\n");
     // The UIDs are still unknown at this point, and at the same time the client pessimistically assumes that the first command
@@ -645,13 +710,23 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivals()
     QByteArray req2 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
     QByteArray resp2 = t.last("OK fetched\r\n");
     cClient(req1 + req2);
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
     // The server will, however, try to be smart in this case and will send the responses back just one time.
     // It's OK to do so per the relevant standards and Trojita won't care.
     cServer("* 2 FETCH (UID 2 FLAGS (m2))\r\n"
-            "* 3 FETCH (UID 3 FLAGS (m3))\r\n"
-            + resp1 + resp2);
+            "* 3 FETCH (UID 3 FLAGS (m3))\r\n")
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
+    cServer(resp1);
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+    QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
+    cServer(resp2);
     uidMapA << 2 << 3;
+    existsA = 3;
+    uidNextA = 4;
     helperCheckUidMapFromModel();
+    helperCheckCache();
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMapA.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMapA);
     // flags for UID 1 arre determined deep inside the test helpers, better not check that
@@ -683,6 +758,8 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivalsBlockingFurtherAct
             "* 3 FETCH (UID 3 FLAGS (m3))\r\n"
             + resp1 + resp2);
     uidMapA << 2 << 3;
+    existsA = 3;
+    uidNextA = 4;
     helperCheckUidMapFromModel();
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMapA.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMapA);
@@ -693,6 +770,7 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivalsBlockingFurtherAct
     // Only now the second SELECT shall be queued
     cClient(t.mk("SELECT b\r\n"));
     cServer(t.last("OK selected\r\n"));
+    helperCheckCache();
     cEmpty();
 }
 
@@ -715,6 +793,16 @@ void ImapModelSelectedMailboxUpdatesTest::testUnexpectedUidValidityChange()
     }
     cClient(t.mk("LOGOUT\r\n"));
     QVERIFY(!model->isNetworkAvailable());
+}
+
+void ImapModelSelectedMailboxUpdatesTest::testHighestModseqFlags()
+{
+    initialMessages(1);
+    cServer("* 1 FETCH (UID " + QByteArray::number(uidMapA[0]) + " MODSEQ (666) FLAGS ())\r\n");
+    helperCheckCache();
+    cServer("* 1 FETCH (UID " + QByteArray::number(uidMapA[0]) + " MODSEQ (668) FLAGS ())\r\n");
+    helperCheckCache();
+    cEmpty();
 }
 
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

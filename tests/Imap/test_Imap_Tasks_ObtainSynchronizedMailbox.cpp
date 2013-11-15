@@ -1485,6 +1485,73 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreDecreasedHighestModSeq
     justKeepTask();
 }
 
+
+/** @short Test that we deal with discrepancy between the EXISTS and the number of UIDs in the cache
+and that FLAGS are completely re-fetched even in presence of the HIGHESTMODSEQ */
+void ImapModelObtainSynchronizedMailboxTest::testCacheDiscrepancyExistsUidsConstantHMS()
+{
+    helperCacheDiscrepancyExistsUids(true);
+}
+
+/** @short Test that we deal with discrepancy between the EXISTS and the number of UIDs in the cache
+and that FLAGS are fetched even if the HIGHESTMODSEQ remains the same */
+void ImapModelObtainSynchronizedMailboxTest::testCacheDiscrepancyExistsUidsDifferentHMS()
+{
+    helperCacheDiscrepancyExistsUids(false);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::helperCacheDiscrepancyExistsUids(bool constantHighestModSeq)
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+
+    uidMapA << 5 << 6;
+    existsA = 2;
+    uidNextA = 10;
+    uidValidityA = 123;
+
+    helperSyncAWithMessagesEmptyState();
+    helperCheckCache();
+
+    helperSyncBNoMessages();
+
+    injector.injectCapability("ESEARCH");
+    model->switchToMailbox(idxA);
+
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(10);
+    sync.setHighestModSeq(111);
+    QList<uint> uidMap;
+    uidMap << 5 << 6 << 7 << 8;
+    model->cache()->setMailboxSyncState(QLatin1String("a"), sync);
+    model->cache()->setUidMapping(QLatin1String("a"), uidMap);
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (666 111 (3 7)))\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* 1 RECENT\r\n"
+            "* OK [UNSEEN 5] x\r\n"
+            "* OK [UIDVALIDITY 666] x\r\n"
+            "* OK [UIDNEXT 10] x\r\n"
+            "* OK [HIGHESTMODSEQ " + QByteArray::number(constantHighestModSeq ? 111 : 112) + "] x\r\n"
+            "* VANISHED (EARLIER) 8\r\n" +
+            t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH RETURN (ALL) ALL\r\n"));
+    cServer("* ESEARCH (TAG \"" + t.last() + "\") UID ALL 5:7\r\n");
+    cServer(t.last("OK fetched\r\n"));
+    // This test makes sure that the flags are synced after the UID mapping vs. EXISTS discrepancy is detected.
+    // Otherwise we might get some nonsense like all message marked as read, etc.
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS (a))\r\n"
+            "* 2 FETCH (FLAGS (\\Seen))\r\n"
+            "* 3 FETCH (FLAGS (c))\r\n" +
+            t.last("OK fetched\r\n"));
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 2);
+    cEmpty();
+    justKeepTask();
+}
+
 /** @short Test QRESYNC when there are no changes */
 void ImapModelObtainSynchronizedMailboxTest::testQresyncNoChanges()
 {
@@ -1635,7 +1702,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUidValidity()
     cServer(QByteArray("* SEARCH 6 9 10\r\n") + t.last("OK uids\r\n"));
     cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
-            "* 2 FETCH (FLAGS (y))\r\n"
+            "* 2 FETCH (FLAGS (\\Seen))\r\n"
             "* 3 FETCH (FLAGS (z))\r\n");
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
@@ -1644,8 +1711,9 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUidValidity()
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
-    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "\\Seen");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 2);
     justKeepTask();
 }
 
