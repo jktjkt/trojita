@@ -63,14 +63,10 @@ SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel 
     layout->addWidget(stack);
     stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    general = new GeneralPage(this, *m_settings, m_senderIdentities);
-    stack->addTab(general, tr("&General"));
-    imap = new ImapPage(stack, *m_settings);
-    stack->addTab(imap, tr("I&MAP"));
-    cache = new CachePage(this, *m_settings);
-    stack->addTab(cache, tr("&Offline"));
-    outgoing = new OutgoingPage(this, *m_settings);
-    stack->addTab(outgoing, tr("&SMTP"));
+    addPage(new GeneralPage(this, *m_settings, m_senderIdentities), tr("&General"));
+    addPage(new ImapPage(stack, *m_settings), tr("I&MAP"));
+    addPage(new CachePage(this, *m_settings), tr("&Offline"));
+    addPage(new OutgoingPage(this, *m_settings), tr("&SMTP"));
 #ifdef XTUPLE_CONNECT
     xtConnect = new XtConnectPage(this, *m_settings, imap);
     stack->addTab(xtConnect, tr("&xTuple"));
@@ -89,10 +85,9 @@ void SettingsDialog::accept()
     QFile settingsFile(m_settings->fileName());
     settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 #endif
-    general->save(*m_settings);
-    imap->save(*m_settings);
-    cache->save(*m_settings);
-    outgoing->save(*m_settings);
+    Q_FOREACH(ConfigurationWidgetInterface *page, pages) {
+        page->save(*m_settings);
+    }
 #ifdef XTUPLE_CONNECT
     xtConnect->save(*m_settings);
 #endif
@@ -108,6 +103,12 @@ void SettingsDialog::reject()
     // The changes were performed on the live data, so we have to make sure they are discarded when user cancels
     m_senderIdentities->loadFromSettings(*m_settings);
     QDialog::reject();
+}
+
+void SettingsDialog::addPage(ConfigurationWidgetInterface *page, const QString &title)
+{
+    stack->addTab(page->asWidget(), title);
+    pages << page;
 }
 
 GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
@@ -224,6 +225,11 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiPreferPlaintextRendering, preferPlaintextCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiShowSystray, guiSystrayCheckbox->isChecked());
+}
+
+QWidget *GeneralPage::asWidget()
+{
+    return this;
 }
 
 EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, const QModelIndex &currentIndex):
@@ -412,6 +418,11 @@ void ImapPage::save(QSettings &s)
     s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QChar(' ')));
 }
 
+QWidget *ImapPage::asWidget()
+{
+    return this;
+}
+
 void ImapPage::maybeShowPasswordWarning()
 {
     passwordWarning->setVisible(!imapPass->text().isEmpty());
@@ -479,6 +490,11 @@ void CachePage::save(QSettings &s)
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
 
     s.setValue(SettingsNames::cacheOfflineNumberDaysKey, offlineNumberOfDays->value());
+}
+
+QWidget *CachePage::asWidget()
+{
+    return this;
 }
 
 OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_OutgoingPage()
@@ -640,6 +656,11 @@ void OutgoingPage::save(QSettings &s)
         // BURL depends on having that message available on IMAP somewhere
         s.setValue(SettingsNames::smtpUseBurlKey, false);
     }
+}
+
+QWidget *OutgoingPage::asWidget()
+{
+    return this;
 }
 
 void OutgoingPage::maybeShowPasswordWarning()

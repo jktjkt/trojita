@@ -48,12 +48,21 @@ class SenderIdentitiesModel;
 namespace Gui
 {
 
-class GeneralPage : public QScrollArea, Ui_GeneralPage
+/** @short Common interface for any page of the settings dialogue */
+class ConfigurationWidgetInterface {
+public:
+    virtual void save(QSettings &s) = 0;
+    virtual QWidget *asWidget() = 0;
+};
+
+
+class GeneralPage : public QScrollArea, Ui_GeneralPage, public ConfigurationWidgetInterface
 {
     Q_OBJECT
 public:
     GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
-    void save(QSettings &s);
+    virtual void save(QSettings &s);
+    virtual QWidget *asWidget();
 
 private slots:
     void updateWidgets();
@@ -91,12 +100,13 @@ private:
 };
 
 
-class OutgoingPage : public QScrollArea, Ui_OutgoingPage
+class OutgoingPage : public QScrollArea, Ui_OutgoingPage, public ConfigurationWidgetInterface
 {
     Q_OBJECT
 public:
     OutgoingPage(QWidget *parent, QSettings &s);
-    void save(QSettings &s);
+    virtual void save(QSettings &s);
+    virtual QWidget *asWidget();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
@@ -113,12 +123,13 @@ private:
     OutgoingPage &operator=(const OutgoingPage &); // don't implement
 };
 
-class ImapPage : public QScrollArea, Ui_ImapPage
+class ImapPage : public QScrollArea, Ui_ImapPage, public ConfigurationWidgetInterface
 {
     Q_OBJECT
 public:
     ImapPage(QWidget *parent, QSettings &s);
-    void save(QSettings &s);
+    virtual void save(QSettings &s);
+    virtual QWidget *asWidget();
 #ifdef XTUPLE_CONNECT
     bool hasPassword() const;
 #endif
@@ -141,12 +152,13 @@ private:
     ImapPage &operator=(const ImapPage &); // don't implement
 };
 
-class CachePage : public QScrollArea, Ui_CachePage
+class CachePage : public QScrollArea, Ui_CachePage, public ConfigurationWidgetInterface
 {
     Q_OBJECT
 public:
     CachePage(QWidget *parent, QSettings &s);
-    void save(QSettings &s);
+    virtual void save(QSettings &s);
+    virtual QWidget *asWidget();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
@@ -203,10 +215,7 @@ public slots:
     void reject();
 private:
     QTabWidget *stack;
-    GeneralPage *general;
-    ImapPage *imap;
-    CachePage *cache;
-    OutgoingPage *outgoing;
+    QVector<ConfigurationWidgetInterface*> pages;
 #ifdef XTUPLE_CONNECT
     XtConnectPage *xtConnect;
 #endif
@@ -215,6 +224,8 @@ private:
 
     SettingsDialog(const SettingsDialog &); // don't implement
     SettingsDialog &operator=(const SettingsDialog &); // don't implement
+
+    void addPage(ConfigurationWidgetInterface *page, const QString &title);
 };
 
 }
