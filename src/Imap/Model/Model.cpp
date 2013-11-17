@@ -870,14 +870,14 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
     if (item->uid()) {
         AbstractCache::MessageDataBundle data = cache()->messageMetadata(mailboxPtr->mailbox(), item->uid());
         if (data.uid == item->uid()) {
-            item->m_envelope = data.envelope;
+            item->data()->m_envelope = data.envelope;
             QStringList flags = cache()->msgFlags(mailboxPtr->mailbox(), item->uid());
             flags.removeOne(QLatin1String("\\Recent"));
             item->m_flags = normalizeFlags(flags);
-            item->m_size = data.size;
-            item->m_hdrReferences = data.hdrReferences;
-            item->m_hdrListPost = data.hdrListPost;
-            item->m_hdrListPostNo = data.hdrListPostNo;
+            item->data()->m_size = data.size;
+            item->data()->m_hdrReferences = data.hdrReferences;
+            item->data()->m_hdrListPost = data.hdrListPost;
+            item->data()->m_hdrListPostNo = data.hdrListPostNo;
             QDataStream stream(&data.serializedBodyStructure, QIODevice::ReadOnly);
             stream.setVersion(QDataStream::Qt_4_6);
             QVariantList unserialized;
@@ -1692,25 +1692,22 @@ void Model::releaseMessageData(const QModelIndex &message)
         return;
 
     msg->m_fetchStatus = TreeItem::NONE;
-    msg->m_envelope.clear();
-    msg->m_hdrListPost.clear();
-    msg->m_hdrListPostNo = false;
-    msg->m_hdrReferences.clear();
-    msg->m_internalDate = QDateTime();
 
 #ifndef XTUPLE_CONNECT
     beginRemoveRows(realMessage, 0, msg->m_children.size() - 1);
 #endif
-    if (msg->m_partHeader) {
-        msg->m_partHeader->silentlyReleaseMemoryRecursive();
-        delete msg->m_partHeader;
-        msg->m_partHeader = 0;
+    if (msg->data()->m_partHeader) {
+        msg->data()->m_partHeader->silentlyReleaseMemoryRecursive();
+        delete msg->data()->m_partHeader;
+        msg->data()->m_partHeader = 0;
     }
-    if (msg->m_partText) {
-        msg->m_partText->silentlyReleaseMemoryRecursive();
-        delete msg->m_partText;
-        msg->m_partText = 0;
+    if (msg->data()->m_partText) {
+        msg->data()->m_partText->silentlyReleaseMemoryRecursive();
+        delete msg->data()->m_partText;
+        msg->data()->m_partText = 0;
     }
+    delete msg->m_data;
+    msg->m_data = 0;
     Q_FOREACH(TreeItem *item, msg->m_children) {
         TreeItemPart *part = dynamic_cast<TreeItemPart *>(item);
         Q_ASSERT(part);

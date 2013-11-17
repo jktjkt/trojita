@@ -208,6 +208,23 @@ public:
     bool numbersFetched() const;
 };
 
+class MessageDataPayload
+{
+public:
+    MessageDataPayload();
+    ~MessageDataPayload();
+
+    Message::Envelope m_envelope;
+    QDateTime m_internalDate;
+    uint m_size;
+    QList<QByteArray> m_hdrReferences;
+    QList<QUrl> m_hdrListPost;
+    bool m_hdrListPostNo;
+    // These are lazily-populated from a const method, so they got to be mutable
+    mutable TreeItemPart *m_partHeader;
+    mutable TreeItemPart *m_partText;
+};
+
 class TreeItemMessage: public TreeItem
 {
     void operator=(const TreeItem &);  // don't implement
@@ -218,23 +235,21 @@ class TreeItemMessage: public TreeItem
     friend class KeepMailboxOpenTask; // needs access to m_offset
     friend class UpdateFlagsTask; // needs access to m_flags
     friend class UpdateFlagsOfAllMessagesTask; // needs access to m_flags
-    Message::Envelope m_envelope;
-    QDateTime m_internalDate;
-    uint m_size;
-    uint m_uid;
-    QStringList m_flags;
-    QList<QByteArray> m_hdrReferences;
-    QList<QUrl> m_hdrListPost;
-    bool m_hdrListPostNo;
-    bool m_flagsHandled;
     int m_offset;
+    uint m_uid;
+    mutable MessageDataPayload *m_data;
+    QStringList m_flags;
+    bool m_flagsHandled;
     bool m_wasUnread;
-    // These are lazily-populated from a const method, so they got to be mutable
-    mutable TreeItemPart *m_partHeader;
-    mutable TreeItemPart *m_partText;
     /** @short Set FLAGS and maintain the unread message counter */
     void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
     void processAdditionalHeaders(Model *model, const QByteArray &rawHeaders);
+
+    MessageDataPayload *data() const
+    {
+        return m_data ? m_data : (m_data = new MessageDataPayload());
+    }
+
 public:
     explicit TreeItemMessage(TreeItem *parent);
     ~TreeItemMessage();
