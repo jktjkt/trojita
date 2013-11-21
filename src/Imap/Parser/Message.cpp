@@ -766,27 +766,27 @@ void MultiMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
     }
 }
 
-QList<Mailbox::TreeItem *> TextMessage::createTreeItems(Mailbox::TreeItem *parent) const
+Mailbox::TreeItemChildrenList TextMessage::createTreeItems(Mailbox::TreeItem *parent) const
 {
-    QList<Mailbox::TreeItem *> list;
+    Mailbox::TreeItemChildrenList list;
     Mailbox::TreeItemPart *p = new Mailbox::TreeItemPart(parent, QString("%1/%2").arg(mediaType, mediaSubType));
     storeInterestingFields(p);
     list << p;
     return list;
 }
 
-QList<Mailbox::TreeItem *> BasicMessage::createTreeItems(Mailbox::TreeItem *parent) const
+Mailbox::TreeItemChildrenList BasicMessage::createTreeItems(Mailbox::TreeItem *parent) const
 {
-    QList<Mailbox::TreeItem *> list;
+    Mailbox::TreeItemChildrenList list;
     Mailbox::TreeItemPart *p = new Mailbox::TreeItemPart(parent, QString("%1/%2").arg(mediaType, mediaSubType));
     storeInterestingFields(p);
     list << p;
     return list;
 }
 
-QList<Mailbox::TreeItem *> MsgMessage::createTreeItems(Mailbox::TreeItem *parent) const
+Mailbox::TreeItemChildrenList MsgMessage::createTreeItems(Mailbox::TreeItem *parent) const
 {
-    QList<Mailbox::TreeItem *> list;
+    Mailbox::TreeItemChildrenList list;
     Mailbox::TreeItemPart *part = new Mailbox::TreeItemPartMultipartMessage(parent, envelope);
     part->setChildren(body->createTreeItems(part));     // always returns an empty list -> no need to qDeleteAll()
     storeInterestingFields(part);
@@ -794,9 +794,9 @@ QList<Mailbox::TreeItem *> MsgMessage::createTreeItems(Mailbox::TreeItem *parent
     return list;
 }
 
-QList<Mailbox::TreeItem *> MultiMessage::createTreeItems(Mailbox::TreeItem *parent) const
+Mailbox::TreeItemChildrenList MultiMessage::createTreeItems(Mailbox::TreeItem *parent) const
 {
-    QList<Mailbox::TreeItem *> list, list2;
+    Mailbox::TreeItemChildrenList list, list2;
     Mailbox::TreeItemPart *part = new Mailbox::TreeItemPart(parent, QString("multipart/%1").arg(mediaSubType));
     for (QList<QSharedPointer<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it) {
         list2 << (*it)->createTreeItems(part);

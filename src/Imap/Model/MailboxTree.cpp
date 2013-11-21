@@ -83,9 +83,9 @@ int TreeItem::row() const
     return m_parent ? m_parent->m_children.indexOf(const_cast<TreeItem *>(this)) : 0;
 }
 
-QList<TreeItem *> TreeItem::setChildren(const QList<TreeItem *> items)
+TreeItemChildrenList TreeItem::setChildren(const TreeItemChildrenList &items)
 {
-    QList<TreeItem *> res = m_children;
+    auto res = m_children;
     m_children = items;
     m_fetchStatus = DONE;
     return res;
@@ -299,7 +299,7 @@ TreeItem *TreeItemMailbox::child(const int offset, Model *const model)
     return TreeItem::child(offset, model);
 }
 
-QList<TreeItem *> TreeItemMailbox::setChildren(const QList<TreeItem *> items)
+TreeItemChildrenList TreeItemMailbox::setChildren(const TreeItemChildrenList &items)
 {
     // This function has to be special because we want to preserve m_children[0]
 
@@ -307,7 +307,7 @@ QList<TreeItem *> TreeItemMailbox::setChildren(const QList<TreeItem *> items)
     Q_ASSERT(msgList);
     m_children.removeFirst();
 
-    QList<TreeItem *> list = TreeItem::setChildren(items);  // this also adjusts m_loading and m_fetched
+    auto list = TreeItem::setChildren(items);  // this also adjusts m_loading and m_fetched
 
     m_children.prepend(msgList);
 
@@ -442,15 +442,15 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 // The message structure is already known, so we are free to ignore it
             } else {
                 // We had no idea about the structure of the message
-                QList<TreeItem *> newChildren = dynamic_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
-                if (! message->m_children.isEmpty()) {
+                auto newChildren = dynamic_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
+                if (!message->m_children.isEmpty()) {
                     QModelIndex messageIdx = message->toIndex(model);
                     model->beginRemoveRows(messageIdx, 0, message->m_children.size() - 1);
-                    QList<TreeItem *> oldChildren = message->setChildren(newChildren);
+                    auto oldChildren = message->setChildren(newChildren);
                     model->endRemoveRows();
                     qDeleteAll(oldChildren);
                 } else {
-                    QList<TreeItem *> oldChildren = message->setChildren(newChildren);
+                    auto oldChildren = message->setChildren(newChildren);
                     Q_ASSERT(oldChildren.size() == 0);
                 }
                 savedBodyStructure = true;
@@ -596,7 +596,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
     // Remove duplicates -- even that garbage can be present in a perfectly valid VANISHED :(
     uids.erase(std::unique(uids.begin(), uids.end()), uids.end());
 
-    QList<TreeItem *>::iterator it = list->m_children.end();
+    auto it = list->m_children.end();
     while (!uids.isEmpty()) {
         // We have to process each UID separately because the UIDs in the mailbox are not necessarily present
         // in a continuous range; zeros might be present
@@ -673,7 +673,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
         Q_ASSERT(row == it - list->m_children.begin());
         model->beginRemoveRows(listIndex, row, row);
         it = list->m_children.erase(it);
-        for (QList<TreeItem*>::iterator furtherMessage = it; furtherMessage != list->m_children.end(); ++furtherMessage) {
+        for (auto furtherMessage = it; furtherMessage != list->m_children.end(); ++furtherMessage) {
             --static_cast<TreeItemMessage *>(*furtherMessage)->m_offset;
         }
         model->endRemoveRows();
@@ -1305,10 +1305,10 @@ TreeItem *TreeItemPart::child(const int offset, Model *const model)
         return 0;
 }
 
-QList<TreeItem *> TreeItemPart::setChildren(const QList<TreeItem *> items)
+TreeItemChildrenList TreeItemPart::setChildren(const TreeItemChildrenList &items)
 {
     FetchingState fetchStatus = m_fetchStatus;
-    QList<TreeItem *> res = TreeItem::setChildren(items);
+    auto res = TreeItem::setChildren(items);
     m_fetchStatus = fetchStatus;
     return res;
 }

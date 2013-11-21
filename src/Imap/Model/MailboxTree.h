@@ -86,7 +86,7 @@ public:
 
 protected:
     TreeItem *m_parent;
-    QList<TreeItem *> m_children;
+    TreeItemChildrenList m_children;
     FetchingState m_fetchStatus;
 public:
     explicit TreeItem(TreeItem *parent);
@@ -96,7 +96,7 @@ public:
     virtual ~TreeItem();
     virtual unsigned int childrenCount(Model *const model);
     virtual TreeItem *child(const int offset, Model *const model);
-    virtual QList<TreeItem *> setChildren(const QList<TreeItem *> items);
+    virtual TreeItemChildrenList setChildren(const TreeItemChildrenList &items);
     virtual void fetch(Model *const model) = 0;
     virtual unsigned int rowCount(Model *const model) = 0;
     virtual unsigned int columnCount();
@@ -130,7 +130,7 @@ public:
 
     static TreeItemMailbox *fromMetadata(TreeItem *parent, const MailboxMetadata &metadata);
 
-    virtual QList<TreeItem *> setChildren(const QList<TreeItem *> items);
+    virtual TreeItemChildrenList setChildren(const TreeItemChildrenList &items);
     virtual void fetch(Model *const model);
     virtual void fetchWithCacheControl(Model *const model, bool forceReload);
     virtual unsigned int rowCount(Model *const model);
@@ -296,7 +296,7 @@ public:
 
     virtual unsigned int childrenCount(Model *const model);
     virtual TreeItem *child(const int offset, Model *const model);
-    virtual QList<TreeItem *> setChildren(const QList<TreeItem *> items);
+    virtual TreeItemChildrenList setChildren(const TreeItemChildrenList &items);
 
     virtual void fetchFromCache(Model *const model);
     virtual void fetch(Model *const model);

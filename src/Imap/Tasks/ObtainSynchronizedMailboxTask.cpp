@@ -388,7 +388,7 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
     QModelIndex parent = list->toIndex(model);
     if (! list->m_children.isEmpty()) {
         model->beginRemoveRows(parent, 0, list->m_children.size() - 1);
-        QList<TreeItem*> oldItems = list->m_children;
+        auto oldItems = list->m_children;
         list->m_children.clear();
         model->endRemoveRows();
         qDeleteAll(oldItems);
@@ -448,7 +448,7 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
     }
 
     if (list->m_children.isEmpty()) {
-        QList<TreeItem *> messages;
+        TreeItemChildrenList messages;
         for (uint i = 0; i < mailbox->syncState.exists(); ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
             msg->m_offset = i;
@@ -1047,9 +1047,8 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
             }
             Q_ASSERT(pos > i);
             model->beginRemoveRows(parent, i, pos - 1);
-            QList<TreeItem*> removedItems;
-            for (int j = i; j < pos; ++j)
-                removedItems << list->m_children.takeAt(i);
+            TreeItemChildrenList removedItems = list->m_children.mid(i, pos - i);
+            list->m_children.erase(list->m_children.begin() + i, list->m_children.begin() + pos);
             model->endRemoveRows();
             // the m_offset of all subsequent messages will be updated later, at the time *they* are processed
             qDeleteAll(removedItems);
@@ -1067,14 +1066,10 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
     if (i != list->m_children.size()) {
         // remove items at the end
         model->beginRemoveRows(parent, i, list->m_children.size() - 1);
-        QList<TreeItem*> oldItems;
-        for (/* nothing */; i < list->m_children.size(); ++i) {
-            TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(i));
-            model->cache()->clearMessage(mailbox->mailbox(), message->uid());
-            oldItems << message;
-        }
+        TreeItemChildrenList removedItems = list->m_children.mid(i);
+        list->m_children.erase(list->m_children.begin() + i, list->m_children.end());
         model->endRemoveRows();
-        qDeleteAll(oldItems);
+        qDeleteAll(removedItems);
     }
 
     uidMap.clear();
