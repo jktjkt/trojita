@@ -305,7 +305,7 @@ TreeItemChildrenList TreeItemMailbox::setChildren(const TreeItemChildrenList &it
 
     TreeItemMsgList *msgList = dynamic_cast<TreeItemMsgList *>(m_children[0]);
     Q_ASSERT(msgList);
-    m_children.removeFirst();
+    m_children.erase(m_children.begin());
 
     auto list = TreeItem::setChildren(items);  // this also adjusts m_loading and m_fetched
 
@@ -568,7 +568,9 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     uint offset = resp.number - 1;
 
     model->beginRemoveRows(list->toIndex(model), offset, offset);
-    TreeItemMessage *message = static_cast<TreeItemMessage *>(list->m_children.takeAt(offset));
+    auto it = list->m_children.begin() + offset;
+    TreeItemMessage *message = static_cast<TreeItemMessage *>(*it);
+    list->m_children.erase(it);
     model->cache()->clearMessage(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), message->uid());
     for (int i = offset; i < list->m_children.size(); ++i) {
         --static_cast<TreeItemMessage *>(list->m_children[i])->m_offset;
