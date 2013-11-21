@@ -871,91 +871,87 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
     ++start;
 
     if (start >= line.size())
-        throw NoData(line, number);
+        throw NoData(line, start);
 
-    QVariantList list = LowLevelParser::parseList('(', ')', line, start);
+    if (line[start++] != '(')
+        throw UnexpectedHere("FETCH response should consist of a parenthesized list", line, start);
 
-    bool isIdentifier = true;
-    QByteArray identifier;
-    for (QVariantList::const_iterator it = list.constBegin(); it != list.constEnd();
-         ++it, isIdentifier = !isIdentifier) {
-        if (isIdentifier) {
-            identifier = it->toByteArray().toUpper();
-            if (identifier.isEmpty())
-                throw UnexpectedHere(line, start);   // FIXME: wrong offset
-            if (data.contains(identifier))
-                throw UnexpectedHere(line, start);   // FIXME: wrong offset
-        } else {
-            if (identifier == "BODY" || identifier == "BODYSTRUCTURE") {
-                if (it->type() != QVariant::List)
-                    throw UnexpectedHere(line, start);
-                data[identifier] = Message::AbstractMessage::fromList(it->toList(), line, start);
-                QByteArray buffer;
-                QDataStream stream(&buffer, QIODevice::WriteOnly);
-                stream.setVersion(QDataStream::Qt_4_6);
-                stream << it->toList();
-                data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(
-                                                      new RespData<QByteArray>(buffer));
-
-            } else if (identifier.startsWith("BODY[") || identifier.startsWith("BINARY[")) {
-                if (it->type() != QVariant::ByteArray)
-                    throw UnexpectedHere(line, start);
-                data[identifier] = QSharedPointer<AbstractData>(
-                                       new RespData<QByteArray>(it->toByteArray()));
-
-            } else if (identifier == "ENVELOPE") {
-                if (it->type() != QVariant::List)
-                    throw UnexpectedHere(line, start);
-                QVariantList items = it->toList();
-                data[identifier] = QSharedPointer<AbstractData>(
-                                       new RespData<Message::Envelope>(Message::Envelope::fromList(items, line, start)));
-
-            } else if (identifier == "FLAGS") {
-                if (! it->canConvert(QVariant::StringList))
-                    throw UnexpectedHere(line, start);   // FIXME: wrong offset
-
-                data[identifier] = QSharedPointer<AbstractData>(
-                                       new RespData<QStringList>(it->toStringList()));
-
-            } else if (identifier == "INTERNALDATE") {
-                if (it->type() != QVariant::ByteArray)
-                    throw UnexpectedHere(line, start);   // FIXME: wrong offset
-                QByteArray _str = it->toByteArray();
-                data[ identifier ] = QSharedPointer<AbstractData>(
-                                         new RespData<QDateTime>(dateify(_str, line, start)));
-
-            } else if (identifier == "RFC822" ||
-                       identifier == "RFC822.HEADER" || identifier == "RFC822.TEXT") {
-                if (it->type() != QVariant::ByteArray)
-                    throw UnexpectedHere(line, start);   // FIXME: wrong offset
-                data[ identifier ] = QSharedPointer<AbstractData>(
-                                         new RespData<QByteArray>(it->toByteArray()));
-            } else if (identifier == "RFC822.SIZE" || identifier == "UID") {
-                if (it->type() != QVariant::UInt)
-                    throw ParseError(line, start);   // FIXME: wrong offset
-                data[ identifier ] = QSharedPointer<AbstractData>(
-                                         new RespData<uint>(it->toUInt()));
-            } else if (identifier == "MODSEQ") {
-                if (it->type() != QVariant::List)
-                    throw UnexpectedHere("The MODSEQ entry in the FETCH response is not a list", line, start);
-                QVariantList items = it->toList();
-                if (items.size() != 1)
-                    throw ParseError("MODSEQ should contain exactly one item", line, start); // FIXME: wrong offset
-                bool ok = false;
-                quint64 num = items[0].toULongLong(&ok);
-                if (!ok)
-                    throw UnexpectedHere("MODSEQ not an 64bit unsigned integer", line, start); // FIXME: wrong offset
-                data[identifier] = QSharedPointer<AbstractData>(new RespData<quint64>(num));
-            } else {
-                throw UnexpectedHere(line, start);   // FIXME: wrong offset
-            }
-
+    while (start < line.size() && line[start] != ')') {
+        int posBeforeIdentifier = start;
+        QByteArray identifier = LowLevelParser::getAtom(line, start).toUpper();
+        if (identifier.contains('[')) {
+            // special case: these identifiers can contain spaces
+            int pos = line.indexOf(']', posBeforeIdentifier);
+            if (pos == -1)
+                throw UnexpectedHere("FETCH identifier contains \"[\", but no matching \"]\" was found", line, posBeforeIdentifier);
+            identifier = line.mid(posBeforeIdentifier, pos - posBeforeIdentifier + 1).toUpper();
+            start = pos + 1;
         }
+
+        if (data.contains(identifier))
+            throw UnexpectedHere("FETCH response contains duplicate data", line, start);
+
+        if (start >= line.size())
+            throw NoData(line, start);
+
+        LowLevelParser::eatSpaces(line, start);
+
+        if (identifier == "MODSEQ") {
+            if (line[start++] != '(')
+                throw UnexpectedHere("FETCH MODSEQ must be a list");
+            data[identifier] = QSharedPointer<AbstractData>(new RespData<quint64>(LowLevelParser::getUInt64(line, start)));
+            if (start >= line.size())
+                throw NoData(line, start);
+            if (line[start++] != ')')
+                throw UnexpectedHere("FETCH MODSEQ must be a list");
+        } else if (identifier == "FLAGS") {
+            if (line[start++] != '(')
+                throw UnexpectedHere("FETCH FLAGS must be a list");
+            QStringList flags;
+            while (start < line.size() && line[start] != ')') {
+                flags << QString::fromUtf8(LowLevelParser::getPossiblyBackslashedAtom(line, start));
+                LowLevelParser::eatSpaces(line, start);
+            }
+            data[identifier] = QSharedPointer<AbstractData>(new RespData<QStringList>(flags));
+            if (start >= line.size())
+                throw NoData(line, start);
+            if (line[start++] != ')')
+                throw UnexpectedHere("FETCH FLAGS must be a list");
+        } else if (identifier == "UID" || identifier == "RFC822.SIZE") {
+            data[identifier] = QSharedPointer<AbstractData>(new RespData<uint>(LowLevelParser::getUInt(line, start)));
+        } else if (identifier.startsWith("BODY[") || identifier.startsWith("BINARY[") || identifier.startsWith("RFC822")) {
+            data[identifier] = QSharedPointer<AbstractData>(new RespData<QByteArray>(LowLevelParser::getNString(line, start).first));
+        } else if (identifier == "ENVELOPE") {
+            QVariantList list = LowLevelParser::parseList('(', ')', line, start);
+            data[identifier] = QSharedPointer<AbstractData>(new RespData<Message::Envelope>(Message::Envelope::fromList(list, line, start)));
+        } else if (identifier == "INTERNALDATE") {
+            QByteArray buf = LowLevelParser::getNString(line, start).first;
+            data[identifier] = QSharedPointer<AbstractData>(new RespData<QDateTime>(dateify(buf, line, start)));
+        } else if (identifier == "BODY" || identifier == "BODYSTRUCTURE") {
+            QVariantList list = LowLevelParser::parseList('(', ')', line, start);
+            data[identifier] = Message::AbstractMessage::fromList(list, line, start);
+            QByteArray buffer;
+            QDataStream stream(&buffer, QIODevice::WriteOnly);
+            stream.setVersion(QDataStream::Qt_4_6);
+            stream << list;
+            data["x-trojita-bodystructure"] = QSharedPointer<AbstractData>(new RespData<QByteArray>(buffer));
+        } else {
+            // Unrecognized identifier, let's treat it as QByteArray so that we don't break needlessly
+            data[identifier] = QSharedPointer<AbstractData>(new RespData<QByteArray>(LowLevelParser::getNString(line, start).first));
+        }
+
+        if (start >= line.size())
+            throw NoData(line, start);
+
+        LowLevelParser::eatSpaces(line, start);
     }
 
+    if (start >= line.size())
+        throw NoData(line, start);
+    if (line[start] == ')')
+        ++start;
     if (start != line.size() - 2)
         throw TooMuchData(line, start);
-
 }
 
 Fetch::Fetch(const uint _number, const Fetch::dataType &_data):
