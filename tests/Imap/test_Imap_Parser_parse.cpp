@@ -817,7 +817,7 @@ void ImapParserParseTest::testParseUntagged_data()
     fetchData["BODY[HEADER.FIELDS (MESSAGE-ID IN-REPLY-TO REFERENCES DATE)]"] = QSharedPointer<AbstractData>(
                 new RespData<QByteArray>("01234567\r\n"));
     QTest::newRow("fetch-header-fields-1")
-            << QByteArray("* 81 FETCH (UID 81 BODY[HEADER.FIELDS (MESSAGE-ID In-REPLY-TO REFERENCES DATE)]{10}\r\n01234567\r\n)\r\n")
+            << QByteArray("* 81 FETCH (UID 81 BODY[HEADER.FIELDS (MESSAGE-ID In-REPLY-TO REFERENCES DATE)] {10}\r\n01234567\r\n)\r\n")
             << QSharedPointer<AbstractResponse>(new Fetch(81, fetchData));
 
     fetchData.clear();
