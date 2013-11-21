@@ -72,7 +72,7 @@ unsigned int TreeItem::childrenCount(Model *const model)
 TreeItem *TreeItem::child(int offset, Model *const model)
 {
     fetch(model);
-    if (offset >= 0 && offset < m_children.size())
+    if (offset >= 0 && static_cast<TreeItemChildrenList::size_type>(offset) < m_children.size())
         return m_children[ offset ];
     else
         return 0;
@@ -80,7 +80,10 @@ TreeItem *TreeItem::child(int offset, Model *const model)
 
 int TreeItem::row() const
 {
-    return m_parent ? m_parent->m_children.indexOf(const_cast<TreeItem *>(this)) : 0;
+    if (!m_parent)
+        return 0;
+    return std::distance(m_parent->m_children.cbegin(),
+                         std::find(m_parent->m_children.cbegin(), m_parent->m_children.cend(), this));
 }
 
 TreeItemChildrenList TreeItem::setChildren(const TreeItemChildrenList &items)
@@ -118,7 +121,7 @@ QModelIndex TreeItem::toIndex(Model *const model) const
 
 TreeItemMailbox::TreeItemMailbox(TreeItem *parent): TreeItem(parent), maintainingTask(0)
 {
-    m_children.prepend(new TreeItemMsgList(this));
+    m_children.insert(m_children.begin(), new TreeItemMsgList(this));
 }
 
 TreeItemMailbox::TreeItemMailbox(TreeItem *parent, Responses::List response):
@@ -126,7 +129,7 @@ TreeItemMailbox::TreeItemMailbox(TreeItem *parent, Responses::List response):
 {
     for (QStringList::const_iterator it = response.flags.constBegin(); it != response.flags.constEnd(); ++it)
         m_metadata.flags.append(it->toUpper());
-    m_children.prepend(new TreeItemMsgList(this));
+    m_children.insert(m_children.begin(), new TreeItemMsgList(this));
 }
 
 TreeItemMailbox::~TreeItemMailbox()
@@ -309,7 +312,7 @@ TreeItemChildrenList TreeItemMailbox::setChildren(const TreeItemChildrenList &it
 
     auto list = TreeItem::setChildren(items);  // this also adjusts m_loading and m_fetched
 
-    m_children.prepend(msgList);
+    m_children.insert(m_children.begin(), msgList);
 
     // FIXME: anything else required for \Noselect?
     if (! isSelectable())
@@ -340,7 +343,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     bool ignoreImmutableData = !list->fetched() && uidRecord == response.data.constEnd();
 
     int number = response.number - 1;
-    if (number < 0 || number >= list->m_children.size())
+    if (number < 0 || static_cast<TreeItemChildrenList::size_type>(number) >= list->m_children.size())
         throw UnknownMessageIndex(QString::fromUtf8("Got FETCH that is out of bounds -- got %1 messages").arg(
                                       QString::number(list->m_children.size())).toUtf8().constData(), response);
 
@@ -443,7 +446,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             } else {
                 // We had no idea about the structure of the message
                 auto newChildren = dynamic_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
-                if (!message->m_children.isEmpty()) {
+                if (!message->m_children.empty()) {
                     QModelIndex messageIdx = message->toIndex(model);
                     model->beginRemoveRows(messageIdx, 0, message->m_children.size() - 1);
                     auto oldChildren = message->setChildren(newChildren);
@@ -572,7 +575,7 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     TreeItemMessage *message = static_cast<TreeItemMessage *>(*it);
     list->m_children.erase(it);
     model->cache()->clearMessage(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), message->uid());
-    for (int i = offset; i < list->m_children.size(); ++i) {
+    for (TreeItemChildrenList::size_type i = offset; i < list->m_children.size(); ++i) {
         --static_cast<TreeItemMessage *>(list->m_children[i])->m_offset;
     }
     model->endRemoveRows();
@@ -611,7 +614,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
             break;
         }
 
-        if (list->m_children.isEmpty()) {
+        if (list->m_children.empty()) {
             // Well, it'd be cool to throw an exception here but VANISHED is free to contain references to UIDs which are not here
             // at all...
             qDebug() << "VANISHED attempted to remove too many messages";
@@ -700,7 +703,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
         for (int i = 0; i < newArrivals; ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
             msg->m_offset = i + offset;
-            list->m_children << msg;
+            list->m_children.push_back(msg);
             // yes, we really have to add this message with UID 0 :(
         }
         model->endInsertRows();
@@ -744,7 +747,7 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
     for (int i = 0; i < newArrivals; ++i) {
         TreeItemMessage *msg = new TreeItemMessage(list);
         msg->m_offset = i + offset;
-        list->m_children << msg;
+        list->m_children.push_back(msg);
         // yes, we really have to add this message with UID 0 :(
     }
     model->endInsertRows();
@@ -913,7 +916,7 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
 {
     m_unreadMessageCount = 0;
     m_recentMessageCount = 0;
-    for (int i = 0; i < m_children.size(); ++i) {
+    for (TreeItemChildrenList::size_type i = 0; i < m_children.size(); ++i) {
         TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
         if (!message->m_flagsHandled)
             message->m_wasUnread = ! message->isMarkedAsRead();
@@ -930,7 +933,7 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
 
 void TreeItemMsgList::resetWasUnreadState()
 {
-    for (int i = 0; i < m_children.size(); ++i) {
+    for (TreeItemChildrenList::size_type i = 0; i < m_children.size(); ++i) {
         TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
         message->m_wasUnread = ! message->isMarkedAsRead();
     }
@@ -1301,7 +1304,7 @@ unsigned int TreeItemPart::childrenCount(Model *const model)
 TreeItem *TreeItemPart::child(const int offset, Model *const model)
 {
     Q_UNUSED(model);
-    if (offset >= 0 && offset < m_children.size())
+    if (offset >= 0 && static_cast<TreeItemChildrenList::size_type>(offset) < m_children.size())
         return m_children[ offset ];
     else
         return 0;
@@ -1417,7 +1420,7 @@ bool TreeItemPart::hasChildren(Model *const model)
 {
     // no need to fetch() here
     Q_UNUSED(model);
-    return ! m_children.isEmpty();
+    return ! m_children.empty();
 }
 
 /** @short Returns true if we're a multipart, top-level item in the body of a message */

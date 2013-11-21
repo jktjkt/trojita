@@ -362,7 +362,7 @@ void Model::finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
             // rubbish, ignore
             it = listResponses.erase(it);
         } else if (it->mailbox.startsWith(prefix)) {
-            mailboxes << new TreeItemMailbox(mailboxPtr, *it);
+            mailboxes.push_back(new TreeItemMailbox(mailboxPtr, *it));
             it = listResponses.erase(it);
         } else {
             // it clearly is someone else's LIST response
@@ -390,16 +390,16 @@ void Model::finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
 
     QList<MailboxMetadata> metadataToCache;
     TreeItemChildrenList mailboxesWithoutChildren;
-    for (auto it = mailboxes.constBegin(); it != mailboxes.constEnd(); ++it) {
+    for (auto it = mailboxes.cbegin(); it != mailboxes.cend(); ++it) {
         TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(*it);
         Q_ASSERT(mailbox);
         metadataToCache.append(mailbox->mailboxMetadata());
         if (mailbox->hasNoChildMailboxesAlreadyKnown()) {
-            mailboxesWithoutChildren << mailbox;
+            mailboxesWithoutChildren.push_back(mailbox);
         }
     }
     cache()->setChildMailboxes(mailboxPtr->mailbox(), metadataToCache);
-    for (auto it = mailboxesWithoutChildren.constBegin(); it != mailboxesWithoutChildren.constEnd(); ++it)
+    for (auto it = mailboxesWithoutChildren.cbegin(); it != mailboxesWithoutChildren.cend(); ++it)
         cache()->setChildMailboxes(static_cast<TreeItemMailbox *>(*it)->mailbox(), QList<MailboxMetadata>());
     replaceChildMailboxes(mailboxPtr, mailboxes);
 }
@@ -500,14 +500,14 @@ void Model::replaceChildMailboxes(TreeItemMailbox *mailboxPtr, const TreeItemChi
         qDeleteAll(oldItems);
     }
 
-    if (! mailboxes.isEmpty()) {
+    if (! mailboxes.empty()) {
         beginInsertRows(parent, 1, mailboxes.size());
         auto dummy = mailboxPtr->setChildren(mailboxes);
         endInsertRows();
-        Q_ASSERT(dummy.isEmpty());
+        Q_ASSERT(dummy.empty());
     } else {
         auto dummy = mailboxPtr->setChildren(mailboxes);
-        Q_ASSERT(dummy.isEmpty());
+        Q_ASSERT(dummy.empty());
     }
     emit dataChanged(parent, parent);
 }
@@ -769,7 +769,7 @@ void Model::askForChildrenOfMailbox(TreeItemMailbox *item, bool forceReload)
         QList<MailboxMetadata> metadata = cache()->childMailboxes(item->mailbox());
         TreeItemChildrenList mailboxes;
         for (QList<MailboxMetadata>::const_iterator it = metadata.constBegin(); it != metadata.constEnd(); ++it) {
-            mailboxes << TreeItemMailbox::fromMetadata(item, *it);
+            mailboxes.push_back(TreeItemMailbox::fromMetadata(item, *it));
         }
         TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(item);
         Q_ASSERT(mailboxPtr);
@@ -811,7 +811,7 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
                  item->m_totalMessageCount << "as totalMessageCount)";
         item->m_fetchStatus = TreeItem::UNAVAILABLE;
     } else if (uidMapping.size()) {
-        Q_ASSERT(item->m_children.isEmpty());
+        Q_ASSERT(item->m_children.empty());
         Q_ASSERT(item->m_fetchStatus == TreeItem::LOADING);
         QModelIndex listIndex = item->toIndex(this);
         beginInsertRows(listIndex, 0, uidMapping.size() - 1);
@@ -819,7 +819,7 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
             TreeItemMessage *message = new TreeItemMessage(item);
             message->m_offset = seq;
             message->m_uid = uidMapping[ seq ];
-            item->m_children << message;
+            item->m_children.push_back(message);
             QStringList flags = cache()->msgFlags(mailbox, message->m_uid);
             flags.removeOne(QLatin1String("\\Recent"));
             message->m_flags = normalizeFlags(flags);
@@ -892,14 +892,14 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
                 item->m_fetchStatus = TreeItem::UNAVAILABLE;
             } else {
                 auto newChildren = abstractMessage->createTreeItems(item);
-                if (item->m_children.isEmpty()) {
+                if (item->m_children.empty()) {
                     TreeItemChildrenList oldChildren = item->setChildren(newChildren);
                     Q_ASSERT(oldChildren.size() == 0);
                 } else {
                     // The following assert guards against that crazy signal emitting we had when various askFor*()
                     // functions were not delayed. If it gets hit, it means that someone tried to call this function
                     // on an item which was already loaded.
-                    Q_ASSERT(item->m_children.isEmpty());
+                    Q_ASSERT(item->m_children.empty());
                     item->setChildren(newChildren);
                 }
                 item->m_fetchStatus = TreeItem::DONE;
@@ -933,7 +933,10 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
         if (! ok)
             preload = 50;
         int order = item->row();
-        for (int i = qMax(0, order - preload); i < qMin(list->m_children.size(), order + preload); ++i) {
+        for (int i = qMax(0, order - preload);
+             i < qMin(static_cast<TreeItemChildrenList::iterator::difference_type>(list->m_children.size()),
+                      static_cast<TreeItemChildrenList::iterator::difference_type>(order + preload));
+             ++i) {
             TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->m_children[i]);
             Q_ASSERT(message);
             if (item != message && !message->fetched() && !message->loading() && message->uid()) {
@@ -1252,7 +1255,7 @@ QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const 
     const TreeItemMsgList *const list = dynamic_cast<const TreeItemMsgList *const>(mailbox->m_children[0]);
     Q_ASSERT(list);
     QList<TreeItemMessage *> res;
-    auto it = list->m_children.constBegin();
+    auto it = list->m_children.cbegin();
     uint lastUid = 0;
     Q_FOREACH(const uint& uid, uids) {
         if (lastUid == uid) {
@@ -1260,7 +1263,7 @@ QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const 
             continue;
         }
         lastUid = uid;
-        it = Common::lowerBoundWithUnknownElements(it, list->m_children.constEnd(), uid, messageHasUidZero, uidComparator);
+        it = Common::lowerBoundWithUnknownElements(it, list->m_children.cend(), uid, messageHasUidZero, uidComparator);
         if (it != list->m_children.end() && static_cast<TreeItemMessage *>(*it)->uid() == uid) {
             res << static_cast<TreeItemMessage *>(*it);
         } else {
@@ -1287,10 +1290,10 @@ TreeItemMailbox *Model::findMailboxByName(const QString &name) const
 
 TreeItemMailbox *Model::findMailboxByName(const QString &name, const TreeItemMailbox *const root) const
 {
-    Q_ASSERT(!root->m_children.isEmpty());
+    Q_ASSERT(!root->m_children.empty());
     // Names are sorted, so linear search is not required. On the ohterhand, the mailbox sizes are typically small enough
     // so that this shouldn't matter at all, and linear search is simple enough.
-    for (int i = 1; i < root->m_children.size(); ++i) {
+    for (TreeItemChildrenList::size_type i = 1; i < root->m_children.size(); ++i) {
         TreeItemMailbox *mailbox = static_cast<TreeItemMailbox *>(root->m_children[i]);
         if (name == mailbox->mailbox())
             return mailbox;
@@ -1309,7 +1312,7 @@ TreeItemMailbox *Model::findParentMailboxByName(const QString &name) const
             break;
         }
         bool found = false;
-        for (int i = 1; !found && i < root->m_children.size(); ++i) {
+        for (TreeItemChildrenList::size_type i = 1; !found && i < root->m_children.size(); ++i) {
             TreeItemMailbox *const item = dynamic_cast<TreeItemMailbox *>(root->m_children[i]);
             Q_ASSERT(item);
             if (name.startsWith(item->mailbox() + item->separator())) {
@@ -1395,7 +1398,7 @@ void Model::unsubscribeMailbox(const QString &name)
 void Model::saveUidMap(TreeItemMsgList *list)
 {
     QList<uint> seqToUid;
-    for (int i = 0; i < list->m_children.size(); ++i)
+    for (TreeItemChildrenList::size_type i = 0; i < list->m_children.size(); ++i)
         seqToUid << static_cast<TreeItemMessage *>(list->m_children[ i ])->uid();
     cache()->setUidMapping(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), seqToUid);
 }
@@ -1914,10 +1917,8 @@ void Model::invalidateAllMessageCounts()
     while (!queue.isEmpty()) {
         TreeItemMailbox *head = queue.takeFirst();
         // ignore first child, the TreeItemMsgList
-        TreeItemChildrenList children = head->m_children.mid(1);
-        Q_FOREACH(TreeItem * item, children) {
-            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>(item);
-            queue.append(mailbox);
+        for (auto it = head->m_children.cbegin() + 1; it != head->m_children.cend(); ++it) {
+            queue.append(dynamic_cast<TreeItemMailbox*>(*it));
         }
         TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(head->m_children[0]);
 
