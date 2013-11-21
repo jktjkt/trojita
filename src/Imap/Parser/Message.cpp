@@ -30,6 +30,7 @@
 #include <QTextCodec>
 #include "Message.h"
 #include "MailAddress.h"
+#include "LowLevelParser.h"
 #include "../Model/MailboxTree.h"
 #include "../Encoders.h"
 #include "../Parser/Rfc5322HeaderParser.h"

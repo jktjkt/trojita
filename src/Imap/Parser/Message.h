@@ -32,7 +32,6 @@
 #include <QPair>
 #include "Data.h"
 #include "../Exceptions.h"
-#include "LowLevelParser.h"
 #include "MailAddress.h"
 #include "../Model/MailboxTreeFwd.h"
 
