@@ -323,8 +323,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         QList<TreeItemPart *> &changedParts,
         TreeItemMessage *&changedMessage, bool usingQresync)
 {
-    TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
-    Q_ASSERT(list);
+    TreeItemMsgList *list = static_cast<TreeItemMsgList *>(m_children[0]);
 
     Responses::Fetch::dataType::const_iterator uidRecord = response.data.find("UID");
 
@@ -344,12 +343,11 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         throw UnknownMessageIndex(QString::fromUtf8("Got FETCH that is out of bounds -- got %1 messages").arg(
                                       QString::number(list->m_children.size())).toUtf8().constData(), response);
 
-    TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->child(number, model));
-    Q_ASSERT(message);   // FIXME: this should be relaxed for allowing null pointers instead of "unfetched" TreeItemMessage
+    TreeItemMessage *message = static_cast<TreeItemMessage *>(list->child(number, model));
 
     // At first, have a look at the response and check the UID of the message
     if (uidRecord != response.data.constEnd()) {
-        uint receivedUid = dynamic_cast<const Responses::RespData<uint>&>(*(uidRecord.value())).data;
+        uint receivedUid = static_cast<const Responses::RespData<uint>&>(*(uidRecord.value())).data;
         if (message->uid() == receivedUid) {
             // That's what we expect -> do nothing
         } else if (message->uid() == 0) {
@@ -389,7 +387,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         qDebug() << "FETCH: received a FETCH response for message #" << response.number << "whose UID is not yet known. This sucks.";
         QList<uint> uidsInMailbox;
         Q_FOREACH(TreeItem *node, list->m_children) {
-            uidsInMailbox << dynamic_cast<TreeItemMessage *>(node)->uid();
+            uidsInMailbox << static_cast<TreeItemMessage *>(node)->uid();
         }
         qDebug() << "UIDs in the mailbox now: " << uidsInMailbox;
     }
@@ -403,10 +401,10 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     for (Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it) {
         if (it.key() == "UID") {
             // established above
-            Q_ASSERT(dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data == message->uid());
+            Q_ASSERT(static_cast<const Responses::RespData<uint>&>(*(it.value())).data == message->uid());
         } else if (it.key() == "FLAGS") {
             // Only emit signals when the flags have actually changed
-            QStringList newFlags = model->normalizeFlags(dynamic_cast<const Responses::RespData<QStringList>&>(*(it.value())).data);
+            QStringList newFlags = model->normalizeFlags(static_cast<const Responses::RespData<QStringList>&>(*(it.value())).data);
             bool forceChange = (message->m_flags != newFlags);
             message->setFlags(list, newFlags, forceChange);
             if (forceChange) {
@@ -414,7 +412,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 changedMessage = message;
             }
         } else if (it.key() == "MODSEQ") {
-            quint64 num = dynamic_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
+            quint64 num = static_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
             if (num > syncState.highestModSeq()) {
                 syncState.setHighestModSeq(num);
                 if (list->m_fetchStatus == DONE) {
@@ -433,7 +431,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             qDebug() << "Ignoring FETCH response to a mailbox that isn't synced yet:" << buf;
             continue;
         } else if (it.key() == "ENVELOPE") {
-            message->data()->m_envelope = dynamic_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data;
+            message->data()->m_envelope = static_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data;
             message->m_fetchStatus = DONE;
             gotEnvelope = true;
             changedMessage = message;
@@ -442,7 +440,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 // The message structure is already known, so we are free to ignore it
             } else {
                 // We had no idea about the structure of the message
-                auto newChildren = dynamic_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
+                auto newChildren = static_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
                 if (!message->m_children.isEmpty()) {
                     QModelIndex messageIdx = message->toIndex(model);
                     model->beginRemoveRows(messageIdx, 0, message->m_children.size() - 1);
@@ -458,11 +456,11 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         } else if (it.key() == "x-trojita-bodystructure") {
             // do nothing
         } else if (it.key() == "RFC822.SIZE") {
-            message->data()->m_size = dynamic_cast<const Responses::RespData<uint>&>(*(it.value())).data;
+            message->data()->m_size = static_cast<const Responses::RespData<uint>&>(*(it.value())).data;
             gotSize = true;
         } else if (it.key().startsWith("BODY[HEADER.FIELDS (")) {
             // Process any headers found in any such response bit
-            const QByteArray &rawHeaders = dynamic_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
+            const QByteArray &rawHeaders = static_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
             message->processAdditionalHeaders(model, rawHeaders);
             changedMessage = message;
         } else if (it.key().startsWith("BODY[") || it.key().startsWith("BINARY[")) {
@@ -471,7 +469,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             TreeItemPart *part = partIdToPtr(model, message, it.key());
             if (! part)
                 throw UnknownMessageIndex("Got BODY[]/BINARY[] fetch that did not resolve to any known part", response);
-            const QByteArray &data = dynamic_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
+            const QByteArray &data = static_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
             if (it.key().startsWith("BODY[")) {
 
                 // Check whether we are supposed to be loading the raw, undecoded part as well.
@@ -512,7 +510,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 }
             }
         } else if (it.key() == "INTERNALDATE") {
-            message->data()->m_internalDate = dynamic_cast<const Responses::RespData<QDateTime>&>(*(it.value())).data;
+            message->data()->m_internalDate = static_cast<const Responses::RespData<QDateTime>&>(*(it.value())).data;
             gotInternalDate = true;
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
@@ -522,7 +520,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         if (gotEnvelope && gotSize && savedBodyStructure && gotInternalDate) {
             Imap::Mailbox::AbstractCache::MessageDataBundle dataForCache;
             dataForCache.envelope = message->data()->m_envelope;
-            dataForCache.serializedBodyStructure = dynamic_cast<const Responses::RespData<QByteArray>&>(*(response.data[ "x-trojita-bodystructure" ])).data;
+            dataForCache.serializedBodyStructure = static_cast<const Responses::RespData<QByteArray>&>(*(response.data[ "x-trojita-bodystructure" ])).data;
             dataForCache.size = message->data()->m_size;
             dataForCache.uid = message->uid();
             dataForCache.internalDate = message->data()->m_internalDate;

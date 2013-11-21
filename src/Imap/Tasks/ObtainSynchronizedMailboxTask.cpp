@@ -1010,11 +1010,11 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
             model->endInsertRows();
             Q_ASSERT(i == list->m_children.size());
             Q_ASSERT(i == futureTotalMessages);
-        } else if (dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_uid == uidMap[uidOffset]) {
+        } else if (static_cast<TreeItemMessage *>(list->m_children[i])->m_uid == uidMap[uidOffset]) {
             // If the UID of the "current message" matches, we're okay
-            dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_offset = i;
+            static_cast<TreeItemMessage *>(list->m_children[i])->m_offset = i;
             ++i;
-        } else if (dynamic_cast<TreeItemMessage *>(list->m_children[i])->m_uid == 0) {
+        } else if (static_cast<TreeItemMessage *>(list->m_children[i])->m_uid == 0) {
             // If the UID of the "current message" is zero, replace that with this message
             TreeItemMessage *msg = static_cast<TreeItemMessage*>(list->m_children[i]);
             msg->m_uid = uidMap[uidOffset];
@@ -1036,8 +1036,7 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
                 // other message already in the mailbox. Just for the sake of completeness, should an evil server send us a
                 // malformed response, we wouldn't care (or notice at this point), we'd just "needlessly" delete many "innocent"
                 // messages due to that one out-of-place arrival -- but we'd still remain correct and not crash.
-                TreeItemMessage *otherMessage = dynamic_cast<TreeItemMessage*>(list->m_children[pos]);
-                Q_ASSERT(otherMessage);
+                TreeItemMessage *otherMessage = static_cast<TreeItemMessage*>(list->m_children[pos]);
                 if (otherMessage->m_uid != 0 && otherMessage->m_uid != uidMap[uidOffset]) {
                     model->cache()->clearMessage(mailbox->mailbox(), otherMessage->uid());
                     ++pos;

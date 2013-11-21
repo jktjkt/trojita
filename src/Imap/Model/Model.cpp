@@ -1914,10 +1914,8 @@ void Model::invalidateAllMessageCounts()
     while (!queue.isEmpty()) {
         TreeItemMailbox *head = queue.takeFirst();
         // ignore first child, the TreeItemMsgList
-        TreeItemChildrenList children = head->m_children.mid(1);
-        Q_FOREACH(TreeItem * item, children) {
-            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox*>(item);
-            queue.append(mailbox);
+        for (auto it = head->m_children.constBegin() + 1; it != head->m_children.constEnd(); ++it) {
+            queue.append(static_cast<TreeItemMailbox*>(*it));
         }
         TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(head->m_children[0]);
 
