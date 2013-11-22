@@ -915,7 +915,7 @@ void KeepMailboxOpenTask::saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox
     if (list->fetched()) {
         mailbox->saveSyncStateAndUids(model);
     } else {
-        list->m_fetchStatus = Imap::Mailbox::TreeItem::LOADING;
+        list->setFetchStatus(Imap::Mailbox::TreeItem::LOADING);
     }
 }
 

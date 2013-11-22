@@ -54,8 +54,17 @@ namespace Imap
 namespace Mailbox
 {
 
-TreeItem::TreeItem(TreeItem *parent): m_parent(parent), m_fetchStatus(NONE)
+TreeItem::TreeItem(TreeItem *parent): m_parent(parent)
 {
+    // These just have to be present in the context of TreeItem, otherwise they couldn't access the protected members
+#ifndef __clang__
+#   if (__GNUC__ == 4 && __GNUC_MINOR__ < 6)
+#       define alignof __alignof__
+#   endif
+#endif
+    static_assert(static_cast<intptr_t>(alignof(TreeItem)) > TreeItem::TagMask,
+                  "class TreeItem must be aligned at at least four bytes due to the FetchingState optimization");
+    static_assert(DONE <= TagMask, "Invalid masking for pointer tag access");
 }
 
 TreeItem::~TreeItem()
@@ -80,20 +89,20 @@ TreeItem *TreeItem::child(int offset, Model *const model)
 
 int TreeItem::row() const
 {
-    return m_parent ? m_parent->m_children.indexOf(const_cast<TreeItem *>(this)) : 0;
+    return parent() ? parent()->m_children.indexOf(const_cast<TreeItem *>(this)) : 0;
 }
 
 TreeItemChildrenList TreeItem::setChildren(const TreeItemChildrenList &items)
 {
     auto res = m_children;
     m_children = items;
-    m_fetchStatus = DONE;
+    setFetchStatus(DONE);
     return res;
 }
 
 bool TreeItem::isUnavailable(Model *const model) const
 {
-    return m_fetchStatus == UNAVAILABLE && model->networkPolicy() == Model::NETWORK_OFFLINE;
+    return accessFetchStatus() == UNAVAILABLE && model->networkPolicy() == Model::NETWORK_OFFLINE;
 }
 
 unsigned int TreeItem::columnCount()
@@ -154,12 +163,12 @@ void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload
         return;
 
     if (hasNoChildMailboxesAlreadyKnown()) {
-        m_fetchStatus = DONE;
+        setFetchStatus(DONE);
         return;
     }
 
     if (! loading()) {
-        m_fetchStatus = LOADING;
+        setFetchStatus(LOADING);
         // It's possible that we've got invoked in response to something relatively harmless like rowCount(),
         // that's why we have to delay the call to askForChildrenOfMailbox() until we re-enter the event
         // loop.
@@ -174,7 +183,7 @@ void TreeItemMailbox::rescanForChildMailboxes(Model *const model)
 {
     // FIXME: fix duplicate requests (ie. don't allow more when some are on their way)
     // FIXME: gotta be fixed in the Model, or spontaneous replies from server can break us
-    m_fetchStatus = NONE;
+    setFetchStatus(NONE);
     fetchWithCacheControl(model, true);
 }
 
@@ -186,7 +195,7 @@ unsigned int TreeItemMailbox::rowCount(Model *const model)
 
 QVariant TreeItemMailbox::data(Model *const model, int role)
 {
-    if (! m_parent)
+    if (!parent())
         return QVariant();
 
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(m_children[0]);
@@ -313,7 +322,7 @@ TreeItemChildrenList TreeItemMailbox::setChildren(const TreeItemChildrenList &it
 
     // FIXME: anything else required for \Noselect?
     if (! isSelectable())
-        msgList->m_fetchStatus = DONE;
+        msgList->setFetchStatus(DONE);
 
     return list;
 }
@@ -363,7 +372,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 // and at this place in code, only ask for the metadata when the UID is higher than the watermark.
                 // Optionally, simply ask for the ENVELOPE etc along with the FLAGS upon new message arrivals, maybe
                 // with some limit on the number of pending fetches. And make that dapandent on online/expensive modes.
-                message->m_fetchStatus = NONE;
+                message->setFetchStatus(NONE);
                 message->fetch(model);
             }
             if (syncState.uidNext() <= receivedUid) {
@@ -376,7 +385,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 // Not guessing the UIDNEXT correctly would result at decreased performance at the next sync, and we
                 // can't really do better -> let's just set it now, along with the UID mapping.
                 syncState.setUidNext(receivedUid + 1);
-                list->m_fetchStatus = LOADING;
+                list->setFetchStatus(LOADING);
             }
         } else {
             throw MailboxException(QString::fromUtf8("FETCH response: UID consistency error for message #%1 -- expected UID %2, got UID %3").arg(
@@ -415,7 +424,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             quint64 num = static_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
             if (num > syncState.highestModSeq()) {
                 syncState.setHighestModSeq(num);
-                if (list->m_fetchStatus == DONE) {
+                if (list->accessFetchStatus() == DONE) {
                     // This means that everything is known already, so we are by definition OK to save stuff to disk.
                     // We can also skip rebuilding the UID map and save just the HIGHESTMODSEQ, i.e. the SyncState.
                     model->cache()->setMailboxSyncState(mailbox(), syncState);
@@ -432,7 +441,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             continue;
         } else if (it.key() == "ENVELOPE") {
             message->data()->m_envelope = static_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data;
-            message->m_fetchStatus = DONE;
+            message->setFetchStatus(DONE);
             gotEnvelope = true;
             changedMessage = message;
         } else if (it.key() == "BODYSTRUCTURE") {
@@ -477,7 +486,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 // get instantiated when not actually needed.
                 if (part->m_partRaw && part->m_partRaw->loading()) {
                     part->m_partRaw->m_data = data;
-                    part->m_partRaw->m_fetchStatus = DONE;
+                    part->m_partRaw->setFetchStatus(DONE);
                     changedParts.append(part->m_partRaw);
                     if (message->uid()) {
                         model->cache()->forgetMessagePart(mailbox(), message->uid(), part->partId());
@@ -491,7 +500,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 if (part->loading()) {
                     // got to decode the part data by hand
                     Imap::decodeContentTransferEncoding(data, part->encoding(), part->dataPtr());
-                    part->m_fetchStatus = DONE;
+                    part->setFetchStatus(DONE);
                     changedParts.append(part);
                     if (message->uid()
                             && model->cache()->messagePart(mailbox(), message->uid(), part->partId() + QLatin1String(".X-RAW")).isNull()) {
@@ -503,7 +512,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             } else {
                 // A BINARY FETCH item is already decoded for us, yay
                 part->m_data = data;
-                part->m_fetchStatus = DONE;
+                part->setFetchStatus(DONE);
                 changedParts.append(part);
                 if (message->uid()) {
                     model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->m_data);
@@ -551,7 +560,7 @@ void TreeItemMailbox::saveSyncStateAndUids(Model * model)
     model->cache()->setMailboxSyncState(mailbox(), syncState);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(m_children[0]);
     model->saveUidMap(list);
-    list->m_fetchStatus = DONE;
+    list->setFetchStatus(DONE);
 }
 
 /** @short Process the EXPUNGE response when the UIDs are already synced */
@@ -579,7 +588,7 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
     --list->m_totalMessageCount;
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
 
-    if (list->m_fetchStatus == DONE) {
+    if (list->accessFetchStatus() == DONE) {
         // Previously, we were synced, so we got to save this update
         saveSyncStateAndUids(model);
     }
@@ -708,7 +717,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
     syncState.setExists(list->m_totalMessageCount);
     list->recalcVariousMessageCounts(const_cast<Model *>(model));
 
-    if (list->m_fetchStatus == DONE) {
+    if (list->accessFetchStatus() == DONE) {
         // Previously, we were synced, so we got to save this update
         saveSyncStateAndUids(model);
     }
@@ -747,7 +756,7 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
     }
     model->endInsertRows();
     list->m_totalMessageCount = resp.number;
-    list->m_fetchStatus = LOADING;
+    list->setFetchStatus(LOADING);
     model->emitMessageCountChanged(this);
 }
 
@@ -822,8 +831,8 @@ TreeItemMsgList::TreeItemMsgList(TreeItem *parent):
     TreeItem(parent), m_numberFetchingStatus(NONE), m_totalMessageCount(-1),
     m_unreadMessageCount(-1), m_recentMessageCount(-1)
 {
-    if (! parent->parent())
-        m_fetchStatus = DONE;
+    if (!parent->parent())
+        setFetchStatus(DONE);
 }
 
 void TreeItemMsgList::fetch(Model *const model)
@@ -831,8 +840,8 @@ void TreeItemMsgList::fetch(Model *const model)
     if (fetched() || isUnavailable(model))
         return;
 
-    if (! loading()) {
-        m_fetchStatus = LOADING;
+    if (!loading()) {
+        setFetchStatus(LOADING);
         // We can't ask right now, has to wait till the end of the event loop
         new DelayedAskForMessagesInMailbox(model, toIndex(model));
     }
@@ -861,7 +870,7 @@ QVariant TreeItemMsgList::data(Model *const model, int role)
     if (role != Qt::DisplayRole)
         return QVariant();
 
-    if (! m_parent)
+    if (!parent())
         return QVariant();
 
     if (loading())
@@ -984,7 +993,7 @@ void TreeItemMessage::fetch(Model *const model)
         //   yet shown) as usual; this could fail because the UIDs might not be known yet.
         // - The actual FETCH could be batched by the KeepMailboxOpenTask anyway
         // - Hence, this should be still pretty fast and efficient
-        m_fetchStatus = LOADING;
+        setFetchStatus(LOADING);
     }
 }
 
@@ -1034,7 +1043,7 @@ int TreeItemMessage::row() const
 
 QVariant TreeItemMessage::data(Model *const model, int role)
 {
-    if (! m_parent)
+    if (!parent())
         return QVariant();
 
     // Special item roles which should not trigger fetching of message metadata
@@ -1275,7 +1284,7 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType):
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
         // can't be fetched. That's why we have to update the status here.
-        m_fetchStatus = DONE;
+        setFetchStatus(DONE);
     }
 }
 
@@ -1307,9 +1316,9 @@ TreeItem *TreeItemPart::child(const int offset, Model *const model)
 
 TreeItemChildrenList TreeItemPart::setChildren(const TreeItemChildrenList &items)
 {
-    FetchingState fetchStatus = m_fetchStatus;
+    FetchingState fetchStatus = accessFetchStatus();
     auto res = TreeItem::setChildren(items);
-    m_fetchStatus = fetchStatus;
+    setFetchStatus(fetchStatus);
     return res;
 }
 
@@ -1318,7 +1327,7 @@ void TreeItemPart::fetch(Model *const model)
     if (fetched() || loading() || isUnavailable(model))
         return;
 
-    m_fetchStatus = LOADING;
+    setFetchStatus(LOADING);
     model->askForMsgPart(this);
 }
 
@@ -1339,7 +1348,7 @@ unsigned int TreeItemPart::rowCount(Model *const model)
 
 QVariant TreeItemPart::data(Model *const model, int role)
 {
-    if (! m_parent)
+    if (!parent())
         return QVariant();
 
     // these data are available immediately
@@ -1538,7 +1547,7 @@ void TreeItemPart::silentlyReleaseMemoryRecursive()
         m_partRaw = 0;
     }
     m_data.clear();
-    m_fetchStatus = NONE;
+    setFetchStatus(NONE);
     qDeleteAll(m_children);
     m_children.clear();
 }

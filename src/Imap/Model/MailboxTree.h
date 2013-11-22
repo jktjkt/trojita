@@ -85,12 +85,28 @@ public:
     } PartModifier;
 
 protected:
-    TreeItem *m_parent;
+    static const intptr_t TagMask = 0x3;
+    static const intptr_t PointerMask = ~TagMask;
+    union {
+        TreeItem *m_parent;
+        intptr_t m_parentAsBits;
+    };
     TreeItemChildrenList m_children;
-    FetchingState m_fetchStatus;
+
+    FetchingState accessFetchStatus() const
+    {
+        return static_cast<FetchingState>(m_parentAsBits & TagMask);
+    }
+    void setFetchStatus(const FetchingState fetchStatus)
+    {
+        m_parentAsBits = reinterpret_cast<intptr_t>(parent()) | fetchStatus;
+    }
 public:
     explicit TreeItem(TreeItem *parent);
-    TreeItem *parent() const { return m_parent; }
+    TreeItem *parent() const
+    {
+        return reinterpret_cast<TreeItem *>(m_parentAsBits & PointerMask);
+    }
     virtual int row() const;
 
     virtual ~TreeItem();
@@ -102,8 +118,8 @@ public:
     virtual unsigned int columnCount();
     virtual QVariant data(Model *const model, int role) = 0;
     virtual bool hasChildren(Model *const model) = 0;
-    virtual bool fetched() const { return m_fetchStatus == DONE; }
-    virtual bool loading() const { return m_fetchStatus == LOADING; }
+    virtual bool fetched() const { return accessFetchStatus() == DONE; }
+    virtual bool loading() const { return accessFetchStatus() == LOADING; }
     virtual bool isUnavailable(Model *const model) const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     virtual QModelIndex toIndex(Model *const model) const;

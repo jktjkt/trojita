@@ -529,7 +529,7 @@ void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenc
     Q_ASSERT(static_cast<TreeItemMsgList *>(item)->fetched());
     item = item->child(sequenceNo - 1, this);   // TreeItemMessage
     Q_ASSERT(item);   // FIXME: or rather throw an exception?
-    if (item->m_fetchStatus == TreeItem::NONE) {
+    if (item->accessFetchStatus() == TreeItem::NONE) {
         // ...and it indeed got released, so let's just return and don't try to check anything
         return;
     }
@@ -543,7 +543,7 @@ void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenc
         // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
         qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
                  part->message()->row() << "part" << part->partId();
-        part->m_fetchStatus = TreeItem::DONE;
+        part->setFetchStatus(TreeItem::DONE);
     }
 }
 
@@ -776,7 +776,7 @@ void Model::askForChildrenOfMailbox(TreeItemMailbox *item, bool forceReload)
         replaceChildMailboxes(mailboxPtr, mailboxes);
     } else if (networkPolicy() == NETWORK_OFFLINE) {
         // No cached data, no network -> fail
-        item->m_fetchStatus = TreeItem::UNAVAILABLE;
+        item->setFetchStatus(TreeItem::UNAVAILABLE);
         QModelIndex idx = item->toIndex(this);
         emit dataChanged(idx, idx);
         return;
@@ -809,10 +809,10 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
         qDebug() << "UID cache stale for mailbox" << mailbox <<
                  "(" << uidMapping.size() << "in UID cache vs." <<
                  item->m_totalMessageCount << "as totalMessageCount)";
-        item->m_fetchStatus = TreeItem::UNAVAILABLE;
+        item->setFetchStatus(TreeItem::UNAVAILABLE);
     } else if (uidMapping.size()) {
         Q_ASSERT(item->m_children.isEmpty());
-        Q_ASSERT(item->m_fetchStatus == TreeItem::LOADING);
+        Q_ASSERT(item->accessFetchStatus() == TreeItem::LOADING);
         QModelIndex listIndex = item->toIndex(this);
         beginInsertRows(listIndex, 0, uidMapping.size() - 1);
         for (uint seq = 0; seq < static_cast<uint>(uidMapping.size()); ++seq) {
@@ -825,7 +825,7 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
             message->m_flags = normalizeFlags(flags);
         }
         endInsertRows();
-        item->m_fetchStatus = TreeItem::DONE; // required for FETCH processing later on
+        item->setFetchStatus(TreeItem::DONE); // required for FETCH processing later on
         // The list of messages was satisfied from cache. Do the same for the message counts, if applicable
         item->recalcVariousMessageCounts(this);
     }
@@ -889,7 +889,7 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
                 qDebug() << "Error when parsing cached BODYSTRUCTURE" << e.what();
             }
             if (! abstractMessage) {
-                item->m_fetchStatus = TreeItem::UNAVAILABLE;
+                item->setFetchStatus(TreeItem::UNAVAILABLE);
             } else {
                 auto newChildren = abstractMessage->createTreeItems(item);
                 if (item->m_children.isEmpty()) {
@@ -902,26 +902,26 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
                     Q_ASSERT(item->m_children.isEmpty());
                     item->setChildren(newChildren);
                 }
-                item->m_fetchStatus = TreeItem::DONE;
+                item->setFetchStatus(TreeItem::DONE);
             }
         }
     }
 
     switch (networkPolicy()) {
     case NETWORK_OFFLINE:
-        if (item->m_fetchStatus != TreeItem::DONE)
-            item->m_fetchStatus = TreeItem::UNAVAILABLE;
+        if (item->accessFetchStatus() != TreeItem::DONE)
+            item->setFetchStatus(TreeItem::UNAVAILABLE);
         break;
     case NETWORK_EXPENSIVE:
-        if (item->m_fetchStatus != TreeItem::DONE) {
-            item->m_fetchStatus = TreeItem::LOADING;
+        if (item->accessFetchStatus() != TreeItem::DONE) {
+            item->setFetchStatus(TreeItem::LOADING);
             findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
         }
         break;
     case NETWORK_ONLINE:
     {
-        if (item->m_fetchStatus != TreeItem::DONE) {
-            item->m_fetchStatus = TreeItem::LOADING;
+        if (item->accessFetchStatus() != TreeItem::DONE) {
+            item->setFetchStatus(TreeItem::LOADING);
             findTaskResponsibleFor(mailboxPtr)->requestEnvelopeDownload(item->uid());
         }
 
@@ -937,7 +937,7 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
             TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(list->m_children[i]);
             Q_ASSERT(message);
             if (item != message && !message->fetched() && !message->loading() && message->uid()) {
-                message->m_fetchStatus = TreeItem::LOADING;
+                message->setFetchStatus(TreeItem::LOADING);
                 // cannot ask the KeepTask directly, that'd completely ignore the cache
                 // but we absolutely have to block the preload :)
                 askForMsgMetadata(message, PRELOAD_DISABLED);
@@ -976,7 +976,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
                                                     : item->partId());
     if (! data.isNull()) {
         item->m_data = data;
-        item->m_fetchStatus = TreeItem::DONE;
+        item->setFetchStatus(TreeItem::DONE);
         return;
     }
 
@@ -986,20 +986,20 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
         if (!data.isNull()) {
             Imap::decodeContentTransferEncoding(data, item->encoding(), item->dataPtr());
-            item->m_fetchStatus = TreeItem::DONE;
+            item->setFetchStatus(TreeItem::DONE);
             return;
         }
 
         if (item->m_partRaw && item->m_partRaw->loading()) {
             // There's already a request for the raw data. Let's use it and don't queue an extra fetch here.
-            item->m_fetchStatus = TreeItem::LOADING;
+            item->setFetchStatus(TreeItem::LOADING);
             return;
         }
     }
 
     if (networkPolicy() == NETWORK_OFFLINE) {
-        if (item->m_fetchStatus != TreeItem::DONE)
-            item->m_fetchStatus = TreeItem::UNAVAILABLE;
+        if (item->accessFetchStatus() != TreeItem::DONE)
+            item->setFetchStatus(TreeItem::UNAVAILABLE);
     } else if (! onlyFromCache) {
         KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
         TreeItemPart::PartFetchingMode fetchingMode = TreeItemPart::FETCH_PART_IMAP;
@@ -1083,7 +1083,7 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
 
     if (networkReconnected) {
         // We're connecting after being offline
-        if (m_mailboxes->m_fetchStatus != TreeItem::NONE) {
+        if (m_mailboxes->accessFetchStatus() != TreeItem::NONE) {
             // We should ask for an updated list of mailboxes
             // The main reason is that this happens after entering wrong password and going back online
             reloadMailboxList();
@@ -1691,7 +1691,7 @@ void Model::releaseMessageData(const QModelIndex &message)
     if (! msg)
         return;
 
-    msg->m_fetchStatus = TreeItem::NONE;
+    msg->setFetchStatus(TreeItem::NONE);
 
 #ifndef XTUPLE_CONNECT
     beginRemoveRows(realMessage, 0, msg->m_children.size() - 1);

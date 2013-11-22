@@ -84,7 +84,7 @@ void ObtainSynchronizedMailboxTask::perform()
     TreeItemMsgList *msgList = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(msgList);
 
-    msgList->m_fetchStatus = TreeItem::LOADING;
+    msgList->setFetchStatus(TreeItem::LOADING);
 
     Q_ASSERT(model->m_parsers.contains(parser));
 
@@ -279,7 +279,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                             fullMboxSync(mailbox, list);
                         } else {
                             // This should be enough
-                            list->m_fetchStatus = TreeItem::DONE;
+                            list->setFetchStatus(TreeItem::DONE);
                             notifyInterestingMessages(mailbox);
                             mailbox->saveSyncStateAndUids(model);
                             model->changeConnectionState(parser, CONN_STATE_SELECTED);
@@ -300,7 +300,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
 
 
                     if (oldSyncState.uidNext() < syncState.uidNext()) {
-                        list->m_fetchStatus = TreeItem::DONE;
+                        list->setFetchStatus(TreeItem::DONE);
                         int seqWithLowestUnknownUid = -1;
                         for (int i = 0; i < list->m_children.size(); ++i) {
                             TreeItemMessage *msg = static_cast<TreeItemMessage*>(list->m_children[i]);
@@ -324,7 +324,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                         }
                     } else {
                         // This should be enough, the server should've sent the data already
-                        list->m_fetchStatus = TreeItem::DONE;
+                        list->setFetchStatus(TreeItem::DONE);
                         notifyInterestingMessages(mailbox);
                         mailbox->saveSyncStateAndUids(model);
                         model->changeConnectionState(parser, CONN_STATE_SELECTED);
@@ -410,7 +410,7 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         list->m_totalMessageCount = 0;
         list->m_unreadMessageCount = 0;
         list->m_numberFetchingStatus = TreeItem::DONE;
-        list->m_fetchStatus = TreeItem::DONE;
+        list->setFetchStatus(TreeItem::DONE);
 
         // The remote mailbox is empty -> we're done now
         model->changeConnectionState(parser, CONN_STATE_SELECTED);
@@ -465,7 +465,7 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
         }
     }
 
-    list->m_fetchStatus = TreeItem::DONE;
+    list->setFetchStatus(TreeItem::DONE);
 
     if (mailbox->syncState.exists()) {
         syncFlags(mailbox);
@@ -1021,7 +1021,7 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
             msg->m_offset = i;
             QModelIndex idx = model->createIndex(i, 0, msg);
             emit model->dataChanged(idx, idx);
-            if (msg->m_fetchStatus == TreeItem::LOADING) {
+            if (msg->accessFetchStatus() == TreeItem::LOADING) {
                 // We've got to ask for the message metadata once again; the first attempt happened when the UID was still zero,
                 // so this is our chance
                 model->askForMsgMetadata(msg, Model::PRELOAD_PER_POLICY);
@@ -1074,7 +1074,7 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
     uidMap.clear();
 
     list->m_totalMessageCount = list->m_children.size();
-    list->m_fetchStatus = TreeItem::DONE;
+    list->setFetchStatus(TreeItem::DONE);
 
     model->emitMessageCountChanged(mailbox);
     model->changeConnectionState(parser, CONN_STATE_SELECTED);
