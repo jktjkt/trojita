@@ -771,7 +771,7 @@ Mailbox::TreeItemChildrenList TextMessage::createTreeItems(Mailbox::TreeItem *pa
     Mailbox::TreeItemChildrenList list;
     Mailbox::TreeItemPart *p = new Mailbox::TreeItemPart(parent, QString("%1/%2").arg(mediaType, mediaSubType));
     storeInterestingFields(p);
-    list.push_back(p);
+    list << p;
     return list;
 }
 
@@ -780,7 +780,7 @@ Mailbox::TreeItemChildrenList BasicMessage::createTreeItems(Mailbox::TreeItem *p
     Mailbox::TreeItemChildrenList list;
     Mailbox::TreeItemPart *p = new Mailbox::TreeItemPart(parent, QString("%1/%2").arg(mediaType, mediaSubType));
     storeInterestingFields(p);
-    list.push_back(p);
+    list << p;
     return list;
 }
 
@@ -790,7 +790,7 @@ Mailbox::TreeItemChildrenList MsgMessage::createTreeItems(Mailbox::TreeItem *par
     Mailbox::TreeItemPart *part = new Mailbox::TreeItemPartMultipartMessage(parent, envelope);
     part->setChildren(body->createTreeItems(part));     // always returns an empty list -> no need to qDeleteAll()
     storeInterestingFields(part);
-    list.push_back(part);
+    list << part;
     return list;
 }
 
@@ -799,12 +799,11 @@ Mailbox::TreeItemChildrenList MultiMessage::createTreeItems(Mailbox::TreeItem *p
     Mailbox::TreeItemChildrenList list, list2;
     Mailbox::TreeItemPart *part = new Mailbox::TreeItemPart(parent, QString("multipart/%1").arg(mediaSubType));
     for (QList<QSharedPointer<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it) {
-        auto newChildren = (*it)->createTreeItems(part);
-        list2.insert(list2.end(), newChildren.begin(), newChildren.end());
+        list2 << (*it)->createTreeItems(part);
     }
     part->setChildren(list2);   // always returns an empty list -> no need to qDeleteAll()
     storeInterestingFields(part);
-    list.push_back(part);
+    list << part;
     return list;
 }
 

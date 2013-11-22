@@ -23,13 +23,13 @@
 #ifndef IMAP_MODEL_MAILBOXTREE_FWD_H
 #define IMAP_MODEL_MAILBOXTREE_FWD_H
 
-#include <vector>
+#include <QVector>
 
 namespace Imap {
 namespace Mailbox {
 
 class TreeItem;
-typedef std::vector<TreeItem *> TreeItemChildrenList;
+typedef QVector<TreeItem *> TreeItemChildrenList;
 
 class TreeItemPart;
 class TreeItemMessage;

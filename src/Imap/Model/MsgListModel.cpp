@@ -144,7 +144,7 @@ QModelIndex MsgListModel::index(int row, int column, const QModelIndex &parent) 
     if (column < 0 || column >= COLUMN_COUNT)
         return QModelIndex();
 
-    if (row < 0 || static_cast<TreeItemChildrenList::size_type>(row) >= msgListPtr->m_children.size())
+    if (row >= msgListPtr->m_children.size() || row < 0)
         return QModelIndex();
 
     return createIndex(row, column, msgListPtr->m_children[row]);
