@@ -4,6 +4,7 @@
 #
 #  CXX11_COMPILER_FLAGS                   - the compiler flags needed to get C++11 features
 #
+#  CXXFeatures_alignof_FOUND              - alignof keyword
 #  CXXFeatures_auto_FOUND                 - auto keyword
 #  CXXFeatures_class_override_final_FOUND - override and final keywords for classes and methods
 #  CXXFeatures_constexpr_FOUND            - constexpr keyword
@@ -93,6 +94,7 @@ function(cxx_check_feature FEATURE_NAME)
 endfunction(cxx_check_feature)
 
 set(_CXX_ALL_FEATURES
+    alignof
     auto
     class_override_final
     constexpr
