@@ -34,6 +34,7 @@
 #include "../Exceptions.h"
 #include "LowLevelParser.h"
 #include "MailAddress.h"
+#include "../Model/MailboxTreeFwd.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap
@@ -111,7 +112,7 @@ public:
 
     virtual QTextStream &dump(QTextStream &s) const { return dump(s, 0); }
     virtual QTextStream &dump(QTextStream &s, const int indent) const = 0;
-    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const = 0;
+    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const = 0;
 
     AbstractMessage(const QString &_mediaType, const QString &_mediaSubType, const bodyFldParam_t &_bodyFldParam,
                     const bodyFldDsp_t &_bodyFldDsp, const QList<QByteArray> &_bodyFldLang, const QByteArray &_bodyFldLoc,
@@ -167,7 +168,7 @@ public:
     using OneMessage::dump;
     /* No need for "virtual bool eq( const AbstractData& other ) const" as
      * it's already implemented in OneMessage::eq() */
-    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const;
+    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const;
 };
 
 /** @short A message holding another RFC822 message (body-type-msg) */
@@ -192,7 +193,7 @@ public:
     virtual QTextStream &dump(QTextStream &s, const int indent) const;
     using OneMessage::dump;
     virtual bool eq(const AbstractData &other) const;
-    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const;
+    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const;
 };
 
 /** @short A text message (body-type-text) */
@@ -214,7 +215,7 @@ public:
     virtual QTextStream &dump(QTextStream &s, const int indent) const;
     using OneMessage::dump;
     virtual bool eq(const AbstractData &other) const;
-    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const;
+    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const;
 };
 
 /** @short Multipart message (body-type-mpart) */
@@ -232,7 +233,7 @@ public:
     virtual QTextStream &dump(QTextStream &s, const int indent) const;
     using AbstractMessage::dump;
     virtual bool eq(const AbstractData &other) const;
-    virtual QList<Mailbox::TreeItem *> createTreeItems(Mailbox::TreeItem *parent) const;
+    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const;
 protected:
     void storeInterestingFields(Mailbox::TreeItemPart *p) const;
 };

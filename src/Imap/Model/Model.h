@@ -509,7 +509,7 @@ private:
     void finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId);
     void genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::Fetch *const resp);
 
-    void replaceChildMailboxes(TreeItemMailbox *mailboxPtr, const QList<TreeItem *> mailboxes);
+    void replaceChildMailboxes(TreeItemMailbox *mailboxPtr, const TreeItemChildrenList &mailboxes);
     void updateCapabilities(Parser *parser, const QStringList capabilities);
 
     TreeItem *translatePtr(const QModelIndex &index) const;
@@ -520,7 +520,7 @@ private:
     TreeItemMailbox *findMailboxByName(const QString &name, const TreeItemMailbox *const root) const;
     TreeItemMailbox *findParentMailboxByName(const QString &name) const;
     QList<TreeItemMessage *> findMessagesByUids(const TreeItemMailbox *const mailbox, const QList<uint> &uids);
-    QList<TreeItem*>::iterator findMessageOrNextOneByUid(TreeItemMsgList *list, const uint uid);
+    TreeItemChildrenList::iterator findMessageOrNextOneByUid(TreeItemMsgList *list, const uint uid);
 
     static TreeItemMailbox *mailboxForSomeItem(QModelIndex index);
 

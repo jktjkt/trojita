@@ -558,8 +558,7 @@ void ThreadingMsgListModel::wantThreading(const SkipSortSearch skipSortSearch)
     } else {
         // There's apparently at least one known UID whose threading info we do not know; that means that we have to ask the
         // server here.
-        QList<TreeItem*>::iterator roughlyLastKnown =
-                const_cast<Model*>(realModel)->findMessageOrNextOneByUid(list, highestUidInThreadingLowerBound);
+        auto roughlyLastKnown = const_cast<Model*>(realModel)->findMessageOrNextOneByUid(list, highestUidInThreadingLowerBound);
         if (list->m_children.end() - roughlyLastKnown >= 50 || roughlyLastKnown == list->m_children.begin()) {
             askForThreading();
         } else {

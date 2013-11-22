@@ -63,7 +63,7 @@ bool DeleteMailboxTask::handleStateHelper(const Imap::Responses::State *const re
                 TreeItem *parentPtr = mailboxPtr->parent();
                 QModelIndex parentIndex = parentPtr == model->m_mailboxes ? QModelIndex() : parentPtr->toIndex(model);
                 model->beginRemoveRows(parentIndex, mailboxPtr->row(), mailboxPtr->row());
-                mailboxPtr->parent()->m_children.removeAt(mailboxPtr->row());
+                mailboxPtr->parent()->m_children.erase(mailboxPtr->parent()->m_children.begin() + mailboxPtr->row());
                 model->endRemoveRows();
                 delete mailboxPtr;
             } else {
