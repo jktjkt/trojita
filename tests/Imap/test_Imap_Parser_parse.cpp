@@ -813,11 +813,18 @@ void ImapParserParseTest::testParseUntagged_data()
             << QSharedPointer<AbstractResponse>(new Fetch(11235, fetchData));
 
     fetchData.clear();
+    fetchData["FLAGS"] = QSharedPointer<AbstractData>(
+                new RespData<QStringList>(QStringList() << QLatin1String("\\Seen") << QLatin1String("\\Answered")));
+    QTest::newRow("fetch-two-flags")
+            << QByteArray("* 2 FETCH (FLAGS (\\Seen \\Answered))\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(2, fetchData));
+
+    fetchData.clear();
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(81));
     fetchData["BODY[HEADER.FIELDS (MESSAGE-ID IN-REPLY-TO REFERENCES DATE)]"] = QSharedPointer<AbstractData>(
                 new RespData<QByteArray>("01234567\r\n"));
     QTest::newRow("fetch-header-fields-1")
-            << QByteArray("* 81 FETCH (UID 81 BODY[HEADER.FIELDS (MESSAGE-ID In-REPLY-TO REFERENCES DATE)]{10}\r\n01234567\r\n)\r\n")
+            << QByteArray("* 81 FETCH (UID 81 BODY[HEADER.FIELDS (MESSAGE-ID In-REPLY-TO REFERENCES DATE)] {10}\r\n01234567\r\n)\r\n")
             << QSharedPointer<AbstractResponse>(new Fetch(81, fetchData));
 
     fetchData.clear();

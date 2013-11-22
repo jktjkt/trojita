@@ -346,28 +346,29 @@ void LibMailboxSync::helperSyncFlags()
     cClient(expectedFetch);
     QByteArray buf;
     for (uint i = 1; i <= existsA; ++i) {
+        buf += "* " + QByteArray::number(i) + " FETCH (FLAGS (";
         switch (i % 10) {
         case 0:
         case 1:
-            buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen))\r\n").arg(i).toUtf8();
+            buf += "\\Seen";
             break;
         case 2:
         case 3:
         case 4:
-            buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen \\Answered))\r\n").arg(i).toUtf8();
+            buf += "\\Seen \\Answered";
             break;
         case 5:
-            buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen starred))\r\n").arg(i).toUtf8();
+            buf += "\\Seen starred";
             break;
         case 6:
         case 7:
         case 8:
-            buf += QString::fromUtf8("* %1 FETCH (FLAGS (\\Seen \\Answered $NotJunk))\r\n").arg(i).toUtf8();
+            buf += "\\Seen \\Answered $NotJunk";
             break;
         case 9:
-            buf += QString::fromUtf8("* %1 FETCH (FLAGS ())\r\n").arg(i).toUtf8();
             break;
         }
+        buf += "))\r\n";
         if (buf.size() > 10*1024) {
             // Flush the output buffer roughly every 10kB
             cServer(buf);

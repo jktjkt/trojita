@@ -126,6 +126,30 @@ QByteArray getAtom(const QByteArray &line, int &start)
     return QByteArray(old_str, size);
 }
 
+/** @short Special variation of getAtom which also accepts leading backslash */
+QByteArray getPossiblyBackslashedAtom(const QByteArray &line, int &start)
+{
+    if (start == line.size())
+        throw NoData("getPossiblyBackslashedAtom: no data", line, start);
+
+    const char *c_str = line.constData();
+    c_str += start;
+    const char * const old_str = c_str;
+
+    if (*c_str == '\\')
+        ++c_str;
+
+    while (C_STR_CHECK_FOR_ATOM_CHARS) {
+        ++c_str;
+    }
+
+    auto size = c_str - old_str;
+    if (!size)
+        throw ParseError("getPossiblyBackslashedAtom: did not read anything", line, start);
+    start += size;
+    return QByteArray(old_str, size);
+}
+
 QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
 {
     if (start == line.size())

@@ -62,6 +62,7 @@ quint64 getUInt64(const QByteArray &line, int &start);
 
 /** @short Read an ATOM */
 QByteArray getAtom(const QByteArray &line, int &start);
+QByteArray getPossiblyBackslashedAtom(const QByteArray &line, int &start);
 
 /** @short Read a quoted string or literal */
 QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start);
