@@ -394,6 +394,7 @@ void ObtainSynchronizedMailboxTask::fullMboxSync(TreeItemMailbox *mailbox, TreeI
         qDeleteAll(oldItems);
     }
     if (mailbox->syncState.exists()) {
+        list->m_children.reserve(mailbox->syncState.exists());
         model->beginInsertRows(parent, 0, mailbox->syncState.exists() - 1);
         for (uint i = 0; i < mailbox->syncState.exists(); ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
@@ -449,6 +450,7 @@ void ObtainSynchronizedMailboxTask::syncNoNewNoDeletions(TreeItemMailbox *mailbo
 
     if (list->m_children.isEmpty()) {
         TreeItemChildrenList messages;
+        list->m_children.reserve(mailbox->syncState.exists());
         for (uint i = 0; i < mailbox->syncState.exists(); ++i) {
             TreeItemMessage *msg = new TreeItemMessage(list);
             msg->m_offset = i;
@@ -702,6 +704,7 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
                     // We have to add empty messages here
                     QModelIndex parent = list->toIndex(model);
                     int offset = list->m_children.size();
+                    list->m_children.reserve(resp->number);
                     model->beginInsertRows(parent, offset, resp->number - 1);
                     for (int i = 0; i < newArrivals; ++i) {
                         TreeItemMessage *msg = new TreeItemMessage(list);
@@ -981,6 +984,7 @@ void ObtainSynchronizedMailboxTask::applyUids(TreeItemMailbox *mailbox)
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
     QModelIndex parent = list->toIndex(model);
+    list->m_children.reserve(mailbox->syncState.exists());
 
     int i = firstUnknownUidOffset;
     while (i < uidMap.size() + static_cast<int>(firstUnknownUidOffset)) {
