@@ -417,11 +417,20 @@ void MessageComposer::setRecipients(const QList<QPair<Composer::RecipientKind, I
     m_recipients = recipients;
 }
 
+/** @short Set the value for the In-Reply-To header as per RFC 5322, section 3.6.4
+
+The expected values to be passed here do *not* contain the angle brackets. This is in accordance with
+the very last sentence of that section which says that the angle brackets are not part of the msg-id.
+*/
 void MessageComposer::setInReplyTo(const QList<QByteArray> &inReplyTo)
 {
     m_inReplyTo = inReplyTo;
 }
 
+/** @short Set the value for the References header as per RFC 5322, section 3.6.4
+
+@see setInReplyTo
+*/
 void MessageComposer::setReferences(const QList<QByteArray> &references)
 {
     m_references = references;

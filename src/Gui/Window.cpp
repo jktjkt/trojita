@@ -1553,6 +1553,17 @@ void MainWindow::invokeContactEditor()
     m_contactsWidget->show();
 }
 
+/** @short Invoke the message composer, optionally with some data pre-filed form arguments
+
+The user is always able to tweak these values as she sees fit.
+
+The semantics of the @arg inReplyTo and @arg references are the same as described for the Composer::MessageComposer,
+i.e. the data are not supposed to contain the angle bracket.  If the @arg replyingToMessage is present, it will be used
+as an index to a message which will get marked as replied to.  This is needed because IMAP doesn't really support site-wide
+search by a Message-Id (and it cannot possibly support it in general, either), and because Trojita's lazy loading and lack
+of cross-session persistent indexes means that "mark as replied" and "extract message-id from" are effectively two separate
+operations.
+*/
 ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
                                                const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
                                                const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
