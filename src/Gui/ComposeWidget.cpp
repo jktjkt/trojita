@@ -79,6 +79,11 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
 
+    QIcon winIcon;
+    winIcon.addFile(QLatin1String(":/icons/trojita-edit-big.png"), QSize(128, 128));
+    winIcon.addFile(QLatin1String(":/icons/trojita-edit-small.png"), QSize(22, 22));
+    setWindowIcon(winIcon);
+
     Q_ASSERT(m_mainWindow);
     m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory);
     connect(m_submission, SIGNAL(succeeded()), this, SLOT(sent()));

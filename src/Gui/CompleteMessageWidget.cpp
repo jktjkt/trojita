@@ -27,12 +27,14 @@
 #include <QScrollBar>
 #include <QVBoxLayout>
 #include "Gui/FindBar.h"
+#include "Gui/IconLoader.h"
 #include "Gui/MessageView.h"
 
 namespace Gui {
 
 CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *settings): QWidget(parent)
 {
+    setWindowIcon(loadIcon(QLatin1String("mail-mark-read")));
     messageView = new MessageView(this, settings);
     area = new QScrollArea();
     area->setWidget(messageView);

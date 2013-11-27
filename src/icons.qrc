@@ -42,5 +42,7 @@
         <file>icons/contact-known.svg</file>
         <file>icons/contact-unknown.svgz</file>
         <file>icons/trojita-144.png</file>
+        <file>icons/trojita-edit-small.png</file>
+        <file>icons/trojita-edit-big.png</file>
     </qresource>
 </RCC>
