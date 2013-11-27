@@ -39,6 +39,7 @@ private Q_SLOTS:
     void init();
     void cleanup();
     void testMailboxOperation();
+    void testFlagBenchmark();
 
 private:
     Imap::Mailbox::SQLCache *cache;

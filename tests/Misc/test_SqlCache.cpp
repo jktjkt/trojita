@@ -92,4 +92,28 @@ void TestSqlCache::testMailboxOperation()
     QVERIFY(errorSpy->isEmpty());
 }
 
+/** @short Measure how fast our flag updates and lookups are */
+void TestSqlCache::testFlagBenchmark()
+{
+    using namespace Imap::Mailbox;
+
+    const int messages = 100000;
+    const QString mailbox = QLatin1String("blesmrt.333");
+
+    QBENCHMARK_ONCE {
+        for (auto i = 0; i < messages; ++i) {
+            cache->setMsgFlags(mailbox, i + 1,
+                               i % 2 ?
+                                   QStringList() << QLatin1String("\\Seen") :
+                                   QStringList() << QLatin1String("\\Seen") << QLatin1String("\\Answered"));
+        }
+        for (auto i = 0; i < messages; ++i) {
+            QStringList flags = cache->msgFlags(mailbox, i + 1);
+            QVERIFY(flags.size() >= 1);
+            QVERIFY(flags.size() <= 2);
+        }
+    }
+    cache->clearAllMessages(mailbox);
+}
+
 TROJITA_HEADLESS_TEST(TestSqlCache)
