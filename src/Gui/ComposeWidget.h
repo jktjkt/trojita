@@ -103,6 +103,7 @@ private slots:
     void slotAttachFiles(QList<QUrl> urls);
 
     void slotUpdateSignature();
+    void updateWindowTitle();
 
     void autoSaveDraft();
     void setMessageUpdated();

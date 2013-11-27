@@ -125,6 +125,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
     connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
     connect(ui->mailText, SIGNAL(textChanged()), SLOT(setMessageUpdated()));
+    connect(ui->subject, SIGNAL(textChanged(QString)), SLOT(updateWindowTitle()));
 
     FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
     proxy->setSourceModel(m_mainWindow->senderIdentitiesModel());
@@ -1051,6 +1052,15 @@ void ComposeWidget::autoSaveDraft()
 void ComposeWidget::setMessageUpdated()
 {
     m_messageEverEdited = m_messageUpdated = true;
+}
+
+void ComposeWidget::updateWindowTitle()
+{
+    if (ui->subject->text().isEmpty()) {
+        setWindowTitle(tr("Compose Mail"));
+    } else {
+        setWindowTitle(tr("%1 - Compose Mail").arg(ui->subject->text()));
+    }
 }
 
 }
