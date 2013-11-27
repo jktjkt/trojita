@@ -26,8 +26,8 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QVBoxLayout>
-#include "FindBar.h"
-#include "MessageView.h"
+#include "Gui/FindBar.h"
+#include "Gui/MessageView.h"
 
 namespace Gui {
 
