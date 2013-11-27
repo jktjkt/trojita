@@ -42,14 +42,14 @@ char *toString(const QList<Imap::Mailbox::MailboxMetadata> &items)
 }
 }
 
-void TestSqlCache::initTestCase()
+void TestSqlCache::init()
 {
     cache = new Imap::Mailbox::SQLCache(this);
     errorSpy = new QSignalSpy(cache, SIGNAL(error(QString)));
     QCOMPARE(cache->open(QLatin1String("meh"), QLatin1String(":memory:")), true);
 }
 
-void TestSqlCache::cleanupTestCase()
+void TestSqlCache::cleanup()
 {
     delete cache;
     cache = 0;
