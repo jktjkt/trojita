@@ -127,6 +127,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     ui->sender->setModel(proxy);
 
     connect(ui->sender, SIGNAL(currentIndexChanged(int)), SLOT(slotUpdateSignature()));
+    connect(ui->sender, SIGNAL(editTextChanged(QString)), SLOT(setMessageUpdated()));
 
     QTimer *autoSaveTimer = new QTimer(this);
     connect(autoSaveTimer, SIGNAL(timeout()), SLOT(autoSaveDraft()));
@@ -272,11 +273,14 @@ bool ComposeWidget::buildMessageData()
 
     QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
     Q_ASSERT(proxy);
-    QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
-    Q_ASSERT(proxyIndex.isValid());
-    m_submission->composer()->setOrganization(
-                proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION)
-                .data().toString());
+
+    if (ui->sender->findText(ui->sender->currentText()) != -1) {
+        QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
+        Q_ASSERT(proxyIndex.isValid());
+        m_submission->composer()->setOrganization(
+                    proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION)
+                    .data().toString());
+    }
     m_submission->composer()->setText(ui->mailText->toPlainText());
 
     return m_submission->composer()->isReadyForSerialization();
@@ -1003,7 +1007,12 @@ void ComposeWidget::loadDraft(const QString &path)
     stream >> version;
     stream >> m_explicitDraft;
     stream >> string >> recipientCount; // sender / amount of recipients
-    ui->sender->setCurrentIndex(ui->sender->findText(string));
+    int senderIndex = ui->sender->findText(string);
+    if (senderIndex != -1) {
+        ui->sender->setCurrentIndex(senderIndex);
+    } else {
+        ui->sender->setEditText(string);
+    }
     for (int i = 0; i < recipientCount; ++i) {
         int kind;
         stream >> kind >> string;

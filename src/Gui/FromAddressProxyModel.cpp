@@ -48,7 +48,7 @@ QVariant FromAddressProxyModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-    if (role != Qt::DisplayRole)
+    if (role != Qt::DisplayRole && role != Qt::EditRole)
         return QSortFilterProxyModel::data(index, role);
     QModelIndex sourceIndex = mapToSource(index);
     Q_ASSERT(sourceIndex.isValid());
