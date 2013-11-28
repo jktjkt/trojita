@@ -269,7 +269,6 @@ void MainWindow::createActions()
     showMenuBar = ShortcutHandler::instance()->createAction(QLatin1String("action_show_menubar"), this);
     showMenuBar->setCheckable(true);
     showMenuBar->setChecked(true);
-    addAction(showMenuBar);   // otherwise it won't work with hidden menu bar
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
     connect(showMenuBar, SIGNAL(triggered(bool)), m_delayedStateSaving, SLOT(start()));
 
@@ -407,7 +406,6 @@ void MainWindow::createActions()
 
     actionHideRead = new QAction(tr("&Hide Read Messages"), this);
     actionHideRead->setCheckable(true);
-    addAction(actionHideRead);
     if (m_settings->value(Common::SettingsNames::guiMsgListHideRead).toBool()) {
         actionHideRead->setChecked(true);
         prettyMsgListModel->setHideRead(true);
@@ -485,73 +483,80 @@ void MainWindow::connectModelActions()
 
 void MainWindow::createMenus()
 {
+#define ADD_ACTION(MENU, ACTION) \
+    MENU->addAction(ACTION); \
+    addAction(ACTION);
+
     QMenu *imapMenu = menuBar()->addMenu(tr("&IMAP"));
     imapMenu->addMenu(m_composeMenu);
-    imapMenu->addAction(ShortcutHandler::instance()->createAction(QLatin1String("action_contact_editor"), this, SLOT(invokeContactEditor()), this));
-    imapMenu->addAction(m_replyGuess);
-    imapMenu->addAction(m_replyPrivate);
-    imapMenu->addAction(m_replyAll);
-    imapMenu->addAction(m_replyAllButMe);
-    imapMenu->addAction(m_replyList);
-    imapMenu->addAction(expunge);
+    QAction *actionContactEditor = ShortcutHandler::instance()->createAction(QLatin1String("action_contact_editor"), this, SLOT(invokeContactEditor()), this);
+    ADD_ACTION(imapMenu, actionContactEditor);
+    ADD_ACTION(imapMenu, m_replyGuess);
+    ADD_ACTION(imapMenu, m_replyPrivate);
+    ADD_ACTION(imapMenu, m_replyAll);
+    ADD_ACTION(imapMenu, m_replyAllButMe);
+    ADD_ACTION(imapMenu, m_replyList);
+    ADD_ACTION(imapMenu, expunge);
     imapMenu->addSeparator()->setText(tr("Network Access"));
     QMenu *netPolicyMenu = imapMenu->addMenu(tr("&Network Access"));
-    netPolicyMenu->addAction(netOffline);
-    netPolicyMenu->addAction(netExpensive);
-    netPolicyMenu->addAction(netOnline);
+    ADD_ACTION(netPolicyMenu, netOffline);
+    ADD_ACTION(netPolicyMenu, netExpensive);
+    ADD_ACTION(netPolicyMenu, netOnline);
     QMenu *debugMenu = imapMenu->addMenu(tr("&Debugging"));
-    debugMenu->addAction(showFullView);
-    debugMenu->addAction(showTaskView);
-    debugMenu->addAction(showImapLogger);
-    debugMenu->addAction(logPersistent);
-    debugMenu->addAction(showImapCapabilities);
+    ADD_ACTION(debugMenu, showFullView);
+    ADD_ACTION(debugMenu, showTaskView);
+    ADD_ACTION(debugMenu, showImapLogger);
+    ADD_ACTION(debugMenu, logPersistent);
+    ADD_ACTION(debugMenu, showImapCapabilities);
     imapMenu->addSeparator();
-    imapMenu->addAction(configSettings);
-    imapMenu->addAction(ShortcutHandler::instance()->shortcutConfigAction());
+    ADD_ACTION(imapMenu, configSettings);
+    ADD_ACTION(imapMenu, ShortcutHandler::instance()->shortcutConfigAction());
     imapMenu->addSeparator();
-    imapMenu->addAction(exitAction);
+    ADD_ACTION(imapMenu, exitAction);
 
     QMenu *viewMenu = menuBar()->addMenu(tr("&View"));
-    viewMenu->addAction(showMenuBar);
-    viewMenu->addAction(showToolBar);
+    ADD_ACTION(viewMenu, showMenuBar);
+    ADD_ACTION(viewMenu, showToolBar);
     QMenu *layoutMenu = viewMenu->addMenu(tr("&Layout"));
-    layoutMenu->addAction(m_actionLayoutCompact);
-    layoutMenu->addAction(m_actionLayoutWide);
-    layoutMenu->addAction(m_actionLayoutOneAtTime);
+    ADD_ACTION(layoutMenu, m_actionLayoutCompact);
+    ADD_ACTION(layoutMenu, m_actionLayoutWide);
+    ADD_ACTION(layoutMenu, m_actionLayoutOneAtTime);
     viewMenu->addSeparator();
-    viewMenu->addAction(m_previousMessage);
-    viewMenu->addAction(m_nextMessage);
+    ADD_ACTION(viewMenu, m_previousMessage);
+    ADD_ACTION(viewMenu, m_nextMessage);
     viewMenu->addSeparator();
     QMenu *sortMenu = viewMenu->addMenu(tr("S&orting"));
-    sortMenu->addAction(m_actionSortNone);
-    sortMenu->addAction(m_actionSortThreading);
-    sortMenu->addAction(m_actionSortByArrival);
-    sortMenu->addAction(m_actionSortByCc);
-    sortMenu->addAction(m_actionSortByDate);
-    sortMenu->addAction(m_actionSortByFrom);
-    sortMenu->addAction(m_actionSortBySize);
-    sortMenu->addAction(m_actionSortBySubject);
-    sortMenu->addAction(m_actionSortByTo);
+    ADD_ACTION(sortMenu, m_actionSortNone);
+    ADD_ACTION(sortMenu, m_actionSortThreading);
+    ADD_ACTION(sortMenu, m_actionSortByArrival);
+    ADD_ACTION(sortMenu, m_actionSortByCc);
+    ADD_ACTION(sortMenu, m_actionSortByDate);
+    ADD_ACTION(sortMenu, m_actionSortByFrom);
+    ADD_ACTION(sortMenu, m_actionSortBySize);
+    ADD_ACTION(sortMenu, m_actionSortBySubject);
+    ADD_ACTION(sortMenu, m_actionSortByTo);
     sortMenu->addSeparator();
-    sortMenu->addAction(m_actionSortAscending);
-    sortMenu->addAction(m_actionSortDescending);
+    ADD_ACTION(sortMenu, m_actionSortAscending);
+    ADD_ACTION(sortMenu, m_actionSortDescending);
 
-    viewMenu->addAction(actionThreadMsgList);
-    viewMenu->addAction(actionHideRead);
-    viewMenu->addAction(m_actionShowOnlySubscribed);
+    ADD_ACTION(viewMenu, actionThreadMsgList);
+    ADD_ACTION(viewMenu, actionHideRead);
+    ADD_ACTION(viewMenu, m_actionShowOnlySubscribed);
 
     QMenu *mailboxMenu = menuBar()->addMenu(tr("&Mailbox"));
-    mailboxMenu->addAction(resyncMbox);
+    ADD_ACTION(mailboxMenu, resyncMbox);
     mailboxMenu->addSeparator();
-    mailboxMenu->addAction(reloadAllMailboxes);
+    ADD_ACTION(mailboxMenu, reloadAllMailboxes);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(donateToTrojita);
+    ADD_ACTION(helpMenu, donateToTrojita);
     helpMenu->addSeparator();
-    helpMenu->addAction(aboutTrojita);
+    ADD_ACTION(helpMenu, aboutTrojita);
 
     networkIndicator->setMenu(netPolicyMenu);
     networkIndicator->setDefaultAction(netOnline);
+
+#undef ADD_ACTION
 }
 
 void MainWindow::createWidgets()
