@@ -271,6 +271,7 @@ void MainWindow::createActions()
     showMenuBar->setChecked(true);
     addAction(showMenuBar);   // otherwise it won't work with hidden menu bar
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
+    connect(showMenuBar, SIGNAL(triggered(bool)), m_delayedStateSaving, SLOT(start()));
 
     showToolBar = new QAction(tr("Show &Toolbar"), this);
     showToolBar->setCheckable(true);
@@ -2274,6 +2275,8 @@ void MainWindow::saveSizesAndState()
     for (int i = 0; i < msgListWidget->tree->header()->count(); ++i) {
         items << QByteArray::number(msgListWidget->tree->header()->sectionSize(i));
     }
+    // a bool cannot be pushed directly onto a QByteArray so we must convert it to a number
+    items << QByteArray::number(menuBar()->isVisible());
     QByteArray buf;
     QDataStream stream(&buf, QIODevice::WriteOnly);
     stream << items.size();
@@ -2385,6 +2388,16 @@ void MainWindow::applySizesAndState()
                 msgListWidget->tree->header()->setResizeMode(i, resizeMode);
 #endif
             }
+        }
+    }
+
+    if (size-- && !stream.atEnd()) {
+        stream >> item;
+        bool ok;
+        bool visibility = item.toInt(&ok);
+        if (ok) {
+            menuBar()->setVisible(visibility);
+            showMenuBar->setChecked(visibility);
         }
     }
 
