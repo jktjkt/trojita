@@ -128,6 +128,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
 
     connect(ui->sender, SIGNAL(currentIndexChanged(int)), SLOT(slotUpdateSignature()));
     connect(ui->sender, SIGNAL(editTextChanged(QString)), SLOT(setMessageUpdated()));
+    connect(ui->sender->lineEdit(), SIGNAL(textChanged(QString)), SLOT(slotCheckAddress()));
 
     QTimer *autoSaveTimer = new QTimer(this);
     connect(autoSaveTimer, SIGNAL(timeout()), SLOT(autoSaveDraft()));
@@ -522,7 +523,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
 
 void ComposeWidget::slotCheckAddress()
 {
-    LineEdit *edit = qobject_cast<LineEdit*>(sender());
+    QLineEdit *edit = qobject_cast<QLineEdit*>(sender());
     Q_ASSERT(edit);
     slotCheckAddress(edit);
 }
