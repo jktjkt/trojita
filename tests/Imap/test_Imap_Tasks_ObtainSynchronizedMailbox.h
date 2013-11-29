@@ -93,8 +93,9 @@ private slots:
 
     void testQresyncEnabling();
 
-    // We put the benchmark to the last position as this one takes a long time
+    // We put the benchmarks to the last position as the take a long time
     void testFlagReSyncBenchmark();
+    void testFlagsFromSqlCache();
 
     void helperCacheDiscrepancyExistsUids(bool constantHighestModSeq);
 };

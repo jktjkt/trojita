@@ -27,6 +27,7 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/SQLCache.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Tasks/ObtainSynchronizedMailboxTask.h"
 
@@ -383,6 +384,45 @@ void ImapModelObtainSynchronizedMailboxTest::testFlagReSyncBenchmark()
         helperSyncBNoMessages();
         helperSyncAWithMessagesNoArrivals();
     }
+}
+
+/** @short How long does it take to read the flags from the cache upon mailbox sync with no state in memory? */
+void ImapModelObtainSynchronizedMailboxTest::testFlagsFromSqlCache()
+{
+    // Make sure that this runs with real, SQL-based cache
+    cleanup();
+    m_internalCachePtr = new Imap::Mailbox::SQLCache(this);
+    QCOMPARE(static_cast<Imap::Mailbox::SQLCache*>(m_internalCachePtr)
+             ->open(QLatin1String("meh"), QLatin1String(":memory:")), true);
+    initWithoutCache();
+
+    existsA = 100000;
+    uidValidityA = 333;
+    QString mailbox = QLatin1String("a");
+    for (uint i = 1; i <= existsA; ++i) {
+        uidMapA << i;
+        model->cache()->setMsgFlags(mailbox, i, QStringList() << QString::number(i));
+    }
+    model->cache()->setUidMapping(mailbox, uidMapA);
+    uidNextA = existsA + 2;
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(existsA);
+    sync.setUidValidity(uidValidityA);
+    sync.setUidNext(uidNextA);
+    model->cache()->setMailboxSyncState(mailbox, sync);
+
+    QBENCHMARK_ONCE {
+        model->resyncMailbox(idxA);
+        cClient(t.mk("SELECT a\r\n"));
+        cServer("* " + QByteArray::number(existsA) + " EXISTS\r\n"
+                "* OK [UIDVALIDITY " + QByteArray::number(uidValidityA) + "] UIDs valid\r\n"
+                "* OK [UIDNEXT " + QByteArray::number(uidNextA) + "] Predicted next UID\r\n"
+                + t.last("OK [READ-WRITE] Select completed.\r\n")
+                );
+        helperSyncFlags();
+    }
+    cEmpty();
+    justKeepTask();
 }
 
 /** @short Make sure that calling Model::resyncMailbox() preloads data from the cache */
