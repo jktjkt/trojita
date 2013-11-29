@@ -881,9 +881,6 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
         AbstractCache::MessageDataBundle data = cache()->messageMetadata(mailboxPtr->mailbox(), item->uid());
         if (data.uid == item->uid()) {
             item->data()->m_envelope = data.envelope;
-            QStringList flags = cache()->msgFlags(mailboxPtr->mailbox(), item->uid());
-            flags.removeOne(QLatin1String("\\Recent"));
-            item->m_flags = normalizeFlags(flags);
             item->data()->m_size = data.size;
             item->data()->m_hdrReferences = data.hdrReferences;
             item->data()->m_hdrListPost = data.hdrListPost;
