@@ -53,9 +53,13 @@ LibMailboxSync::~LibMailboxSync()
 
 void LibMailboxSync::init()
 {
+    m_internalCachePtr = new Imap::Mailbox::MemoryCache(this);
+    initWithoutCache();
+}
+void LibMailboxSync::initWithoutCache()
+{
     m_verbose = qgetenv("TROJITA_IMAP_DEBUG") == QByteArray("1");
     m_expectsError = false;
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
     factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
@@ -71,7 +75,7 @@ void LibMailboxSync::init()
         QLatin1String("s") << QLatin1String("q") << QLatin1String("u") <<
         QLatin1String("v") << QLatin1String("w") << QLatin1String("x") <<
         QLatin1String("y") << QLatin1String("z");
-    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
+    model = new Imap::Mailbox::Model( this, m_internalCachePtr, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
     errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
     connect(model, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(modelLogged(uint,Common::LogMessage)));

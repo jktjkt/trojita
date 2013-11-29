@@ -62,6 +62,7 @@ public:
 
 protected slots:
     virtual void init();
+    virtual void initWithoutCache();
     virtual void cleanup();
     virtual void cleanupTestCase();
     virtual void initTestCase();
@@ -90,6 +91,7 @@ protected:
     void initialMessages(const uint exists);
     void justKeepTask();
 
+    Imap::Mailbox::AbstractCache *m_internalCachePtr;
     Imap::Mailbox::Model* model;
     Imap::Mailbox::MsgListModel *msgListModel;
     Imap::Mailbox::ThreadingMsgListModel *threadingModel;
