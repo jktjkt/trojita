@@ -90,6 +90,7 @@ void ObtainSynchronizedMailboxTask::perform()
 
     oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
     if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) && oldSyncState.isUsableForCondstore()) {
+        m_usingQresync = true;
         QList<uint> oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
         if (oldUidMap.isEmpty()) {
             selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(),
@@ -103,7 +104,6 @@ void ObtainSynchronizedMailboxTask::perform()
                 knownUid.add(oldUidMap[i]);
                 i += (oldUidMap.size() - i) / 2 + 1;
             }
-            m_usingQresync = true;
             // We absolutely want to maintain a complete UID->seq mapping at all times, which is why the known-uids shall remain
             // empty to indicate "anything".
             selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(),

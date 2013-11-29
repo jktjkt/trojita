@@ -2229,4 +2229,44 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncSpuriousVanishedEarlier(
     justKeepTask();
 }
 
+/** @short QRESYNC synchronization of a formerly empty mailbox which now contains some messages
+
+This was reported by paalsteek as being broken.
+*/
+void ImapModelObtainSynchronizedMailboxTest::testQresyncAfterEmpty()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("ESEARCH");
+    injector.injectCapability("QRESYNC");
+    Imap::Mailbox::SyncState sync;
+    sync.setUidValidity(1336686200);
+    sync.setExists(0);
+    sync.setUidNext(1);
+    sync.setHighestModSeq(1);
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", QList<uint>());
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (1336686200 1))\r\n"));
+    cServer("* 6 EXISTS\r\n"
+            "* OK [UIDVALIDITY 1336686200] UIDs valid\r\n"
+            "* OK [UIDNEXT 7] Predicted next UID\r\n"
+            "* OK [HIGHESTMODSEQ 3] Highest\r\n"
+            "* 1 FETCH (MODSEQ (2) UID 1 FLAGS (\\Seen \\Recent))\r\n"
+            "* 2 FETCH (MODSEQ (2) UID 2 FLAGS (\\Seen \\Recent))\r\n"
+            "* 3 FETCH (MODSEQ (2) UID 3 FLAGS (\\Seen \\Recent))\r\n"
+            "* 4 FETCH (MODSEQ (2) UID 4 FLAGS (\\Seen \\Recent))\r\n"
+            "* 5 FETCH (MODSEQ (2) UID 5 FLAGS (\\Seen \\Recent))\r\n"
+            "* 6 FETCH (MODSEQ (2) UID 6 FLAGS (\\Seen \\Recent))\r\n"
+            + t.last("OK [READ-WRITE] Select completed.\r\n")
+            );
+    existsA = 6;
+    uidNextA = 7;
+    uidValidityA = 1336686200;
+    for (int i = 1; i <= existsA; ++i)
+        uidMapA << i;
+    helperCheckCache();
+    cEmpty();
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
