@@ -36,6 +36,22 @@ namespace Imap
 namespace Mailbox
 {
 
+/** @short Return data for stremed lookups of message flags */
+struct StreamedUidAndFlags
+{
+    bool isValid;
+    uint uid;
+    QStringList flags;
+
+    StreamedUidAndFlags(const uint uid, const QStringList &flags): isValid(true), uid(uid), flags(flags)
+    {
+    }
+
+    StreamedUidAndFlags(): isValid(false)
+    {
+    }
+};
+
 /** @short An abstract parent for all IMAP cache implementations */
 class AbstractCache: public QObject
 {
@@ -115,6 +131,22 @@ public:
     virtual QStringList msgFlags(const QString &mailbox, const uint uid) const = 0;
     /** @short Save flags for one message in mailbox */
     virtual void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags) = 0;
+
+    /** @short Prepare a streamed lookup for flags of all messages in a mailbox
+
+    Performing separate queries for each message in mailbox is rather slow on certain backends; it doesn't make sense to
+    repeat the index lookups for each message in the mailbox. This function instead prepares the cache for a stremed lookup
+    where we return data for each message, in order.
+    */
+    virtual void prepareStreamedFlags(const QString &mailbox) = 0;
+    /** @short Return message flags for the next message in the currently configured mailbox.
+
+    Only one mailbox can be queried at any time; there is no support for doing this across multiple mailboxes at once.
+    In other words, the state is per-cache.
+    */
+    virtual StreamedUidAndFlags iterateStreamedFlags() = 0;
+    /** @short Release the resources for the current streamed flags lookup */
+    virtual void freeStreamedFlags() = 0;
 
     /** @short Return part data or a null QByteArray if none available */
     virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const = 0;

@@ -136,6 +136,43 @@ QStringList MemoryCache::msgFlags(const QString &mailbox, const uint uid) const
     return flags[mailbox][uid];
 }
 
+void MemoryCache::prepareStreamedFlags(const QString &mailbox)
+{
+    streamingMailbox = mailbox;
+    auto it = flags[mailbox].constBegin();
+    if (it == flags[mailbox].constEnd()) {
+        streamedFlagsCurrentUid = 0;
+    } else {
+        streamedFlagsCurrentUid = it.key();
+    }
+}
+
+StreamedUidAndFlags MemoryCache::iterateStreamedFlags()
+{
+    const auto &flagMap = flags[streamingMailbox];
+    auto it = flagMap.lowerBound(streamedFlagsCurrentUid);
+    if (it == flagMap.end()) {
+        return StreamedUidAndFlags();
+    }
+    const uint uid = it.key();
+    const QStringList myFlags = *it;
+    ++it;
+    if (it == flagMap.end()) {
+        // This was the last UID -> increment it so that we won't find anything else next time.
+        // This is safe to do because that variable is (at least) a 32bit unsigned int.
+        ++streamedFlagsCurrentUid;
+    } else {
+        streamedFlagsCurrentUid = it.key();
+    }
+    return StreamedUidAndFlags(uid, myFlags);
+}
+
+void MemoryCache::freeStreamedFlags()
+{
+    streamingMailbox = QString();
+    streamedFlagsCurrentUid = 0;
+}
+
 QList<uint> MemoryCache::uidMapping(const QString &mailbox) const
 {
     return seqToUid[ mailbox ];

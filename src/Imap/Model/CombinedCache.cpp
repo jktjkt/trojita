@@ -109,6 +109,21 @@ void CombinedCache::setMsgFlags(const QString &mailbox, const uint uid, const QS
     sqlCache->setMsgFlags(mailbox, uid, flags);
 }
 
+void CombinedCache::prepareStreamedFlags(const QString &mailbox)
+{
+    sqlCache->prepareStreamedFlags(mailbox);
+}
+
+StreamedUidAndFlags CombinedCache::iterateStreamedFlags()
+{
+    return sqlCache->iterateStreamedFlags();
+}
+
+void CombinedCache::freeStreamedFlags()
+{
+    sqlCache->freeStreamedFlags();
+}
+
 AbstractCache::MessageDataBundle CombinedCache::messageMetadata(const QString &mailbox, const uint uid) const
 {
     return sqlCache->messageMetadata(mailbox, uid);

@@ -23,6 +23,7 @@
 #include <QTest>
 #include "test_SqlCache.h"
 #include "Utils/headless_test.h"
+#include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/SQLCache.h"
 
 Q_DECLARE_METATYPE(QList<Imap::Mailbox::MailboxMetadata>)
@@ -46,7 +47,7 @@ void TestSqlCache::init()
 {
     cache = new Imap::Mailbox::SQLCache(this);
     errorSpy = new QSignalSpy(cache, SIGNAL(error(QString)));
-    QCOMPARE(cache->open(QLatin1String("meh"), QLatin1String(":memory:")), true);
+    QCOMPARE(static_cast<Imap::Mailbox::SQLCache*>(cache)->open(QLatin1String("meh"), QLatin1String(":memory:")), true);
 }
 
 void TestSqlCache::cleanup()
@@ -107,13 +108,68 @@ void TestSqlCache::testFlagBenchmark()
                                    QStringList() << QLatin1String("\\Seen") :
                                    QStringList() << QLatin1String("\\Seen") << QLatin1String("\\Answered"));
         }
+        cache->prepareStreamedFlags(mailbox);
         for (auto i = 0; i < messages; ++i) {
-            QStringList flags = cache->msgFlags(mailbox, i + 1);
-            QVERIFY(flags.size() >= 1);
-            QVERIFY(flags.size() <= 2);
+            auto res = cache->iterateStreamedFlags();
+            QVERIFY(res.isValid);
+            QCOMPARE(res.uid, static_cast<uint>(i) + 1);
+            QCOMPARE(res.flags, i % 2 ?
+                                   QStringList() << QLatin1String("\\Seen") :
+                                   QStringList() << QLatin1String("\\Seen") << QLatin1String("\\Answered"));
         }
+        cache->freeStreamedFlags();
     }
     cache->clearAllMessages(mailbox);
+}
+
+/** @short Test streaming flags with the memory cache */
+void TestSqlCache::testStreamedCachingMemory()
+{
+    helperStreamedCaching(true);
+}
+
+/** @short Test streaming flags with the SQL cache */
+void TestSqlCache::testStreamedCachingSql()
+{
+    helperStreamedCaching(false);
+}
+
+/** @short Check whether the cache streaming works reasonably */
+void TestSqlCache::helperStreamedCaching(bool useMemoryCache)
+{
+    if (useMemoryCache) {
+        cleanup();
+        cache = new Imap::Mailbox::MemoryCache(this);
+        errorSpy = new QSignalSpy(cache, SIGNAL(error(QString)));
+    }
+    QString mbox = QLatin1String("a");
+    QStringList flags3 = QStringList() << QLatin1String("x");
+    QStringList flags66 = QStringList() << QLatin1String("yy");
+    QStringList flags333 = QStringList() << QLatin1String("zzz");
+    cache->setMsgFlags(mbox, 333, flags333);
+    cache->setMsgFlags(mbox, 3, flags3);
+    cache->setMsgFlags(mbox, 66, flags66);
+
+    cache->prepareStreamedFlags(mbox);
+    auto item = cache->iterateStreamedFlags();
+    QVERIFY(item.isValid);
+    QCOMPARE(item.uid, 3u);
+    QCOMPARE(item.flags, flags3);
+
+    item = cache->iterateStreamedFlags();
+    QVERIFY(item.isValid);
+    QCOMPARE(item.uid, 66u);
+    QCOMPARE(item.flags, flags66);
+
+    item = cache->iterateStreamedFlags();
+    QVERIFY(item.isValid);
+    QCOMPARE(item.uid, 333u);
+    QCOMPARE(item.flags, flags333);
+
+    item = cache->iterateStreamedFlags();
+    QVERIFY(!item.isValid);
+    item = cache->iterateStreamedFlags();
+    QVERIFY(!item.isValid);
 }
 
 TROJITA_HEADLESS_TEST(TestSqlCache)

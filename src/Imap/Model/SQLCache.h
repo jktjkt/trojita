@@ -85,6 +85,10 @@ public:
     virtual QStringList msgFlags(const QString &mailbox, const uint uid) const;
     virtual void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags);
 
+    virtual void prepareStreamedFlags(const QString &mailbox);
+    virtual StreamedUidAndFlags iterateStreamedFlags();
+    virtual void freeStreamedFlags();
+
     virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const;
     virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data);
     virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId);
@@ -139,6 +143,7 @@ private:
     mutable QSqlQuery querySetMessageMetadata;
     mutable QSqlQuery queryMessageFlags;
     mutable QSqlQuery querySetMessageFlags;
+    mutable QSqlQuery queryStreamedFlags;
     mutable QSqlQuery queryClearAllMessages1;
     mutable QSqlQuery queryClearAllMessages2;
     mutable QSqlQuery queryClearAllMessages3;

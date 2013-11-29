@@ -65,6 +65,10 @@ public:
     virtual QStringList msgFlags(const QString &mailbox, const uint uid) const;
     virtual void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &newFlags);
 
+    virtual void prepareStreamedFlags(const QString &mailbox);
+    virtual StreamedUidAndFlags iterateStreamedFlags();
+    virtual void freeStreamedFlags();
+
     virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const;
     virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data);
     virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId);
@@ -82,6 +86,8 @@ private:
     QMap<QString, QMap<uint, MessageDataBundle> > msgMetadata;
     QMap<QString, QMap<uint, QMap<QString, QByteArray> > > parts;
     QMap<QString, QVector<Imap::Responses::ThreadingNode> > threads;
+    QString streamingMailbox;
+    uint streamedFlagsCurrentUid;
 };
 
 }

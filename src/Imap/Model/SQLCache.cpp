@@ -371,6 +371,12 @@ bool SQLCache::prepareQueries()
         return false;
     }
 
+    queryStreamedFlags = QSqlQuery(db);
+    if (!queryStreamedFlags.prepare(QLatin1String("SELECT uid, flags FROM flags WHERE mailbox = ?"))) {
+        emitError(tr("Failed to prepare queryStreamedFlags"), queryStreamedFlags);
+        return false;
+    }
+
     queryClearAllMessages1 = QSqlQuery(db);
     if (! queryClearAllMessages1.prepare(QLatin1String("DELETE FROM msg_metadata WHERE mailbox = ?"))) {
         emitError(tr("Failed to prepare queryClearAllMessages1"), queryClearAllMessages1);
@@ -694,6 +700,37 @@ void SQLCache::setMsgFlags(const QString &mailbox, const uint uid, const QString
     if (! querySetMessageFlags.exec()) {
         emitError(tr("Query querySetMessageFlags failed"), querySetMessageFlags);
     }
+}
+
+void SQLCache::prepareStreamedFlags(const QString &mailbox)
+{
+#ifdef CACHE_DEBUG
+    qDebug() << "Streamed queries for " << mailbox;
+#endif
+    queryStreamedFlags.bindValue(0, mailboxName(mailbox));
+    if (!queryStreamedFlags.exec()) {
+        emitError(tr("Query queryStreamedFlags failed"), queryStreamedFlags);
+        return;
+    }
+}
+
+StreamedUidAndFlags SQLCache::iterateStreamedFlags()
+{
+    Q_ASSERT(queryStreamedFlags.isActive());
+    if (!queryStreamedFlags.next())
+        return StreamedUidAndFlags();
+
+    uint uid = queryStreamedFlags.value(0).toUInt();
+    QStringList flags;
+    QDataStream stream(queryStreamedFlags.value(1).toByteArray());
+    stream.setVersion(streamVersion);
+    stream >> flags;
+    return StreamedUidAndFlags(uid, flags);
+}
+
+void SQLCache::freeStreamedFlags()
+{
+    queryStreamedFlags.finish();
 }
 
 AbstractCache::MessageDataBundle SQLCache::messageMetadata(const QString &mailbox, uint uid) const

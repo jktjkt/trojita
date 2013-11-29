@@ -27,7 +27,7 @@
 
 namespace Imap {
 namespace Mailbox {
-class SQLCache;
+class AbstractCache;
 }
 }
 
@@ -40,9 +40,12 @@ private Q_SLOTS:
     void cleanup();
     void testMailboxOperation();
     void testFlagBenchmark();
+    void testStreamedCachingMemory();
+    void testStreamedCachingSql();
 
 private:
-    Imap::Mailbox::SQLCache *cache;
+    void helperStreamedCaching(bool useMemoryCache);
+    Imap::Mailbox::AbstractCache *cache;
     QSignalSpy *errorSpy;
 };
 
