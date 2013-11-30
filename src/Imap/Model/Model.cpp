@@ -805,12 +805,19 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
     Q_ASSERT(item->m_children.size() == 0);
 
     QList<uint> uidMapping = cache()->uidMapping(mailbox);
-    if (networkPolicy() == NETWORK_OFFLINE && item->m_totalMessageCount != -1 && uidMapping.size() != item->m_totalMessageCount) {
-        qDebug() << "UID cache stale for mailbox" << mailbox <<
-                 "(" << uidMapping.size() << "in UID cache vs." <<
-                 item->m_totalMessageCount << "as totalMessageCount)";
+    auto oldSyncState = cache()->mailboxSyncState(mailbox);
+    if (networkPolicy() == NETWORK_OFFLINE && oldSyncState.isUsableForSyncing()
+            && static_cast<uint>(uidMapping.size()) != oldSyncState.exists()) {
+        // Problem with the cached data
+        qDebug() << "UID cache stale for mailbox" << mailbox
+                 << "(" << uidMapping.size() << "in UID cache vs." << oldSyncState.exists() << "in the sync state and"
+                 << item->m_totalMessageCount << "as totalMessageCount (possibly updated by STATUS))";
         item->setFetchStatus(TreeItem::UNAVAILABLE);
-    } else if (uidMapping.size()) {
+    } else if (networkPolicy() == NETWORK_OFFLINE && !oldSyncState.isUsableForSyncing()) {
+        // Nothing in the cache
+        item->setFetchStatus(TreeItem::UNAVAILABLE);
+    } else if (oldSyncState.isUsableForSyncing()) {
+        // We can pre-populate the tree with data from cache
         Q_ASSERT(item->m_children.isEmpty());
         Q_ASSERT(item->accessFetchStatus() == TreeItem::LOADING);
         QModelIndex listIndex = item->toIndex(this);
@@ -825,6 +832,7 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
             message->m_flags = normalizeFlags(flags);
         }
         endInsertRows();
+        mailboxPtr->syncState = oldSyncState;
         item->setFetchStatus(TreeItem::DONE); // required for FETCH processing later on
         // The list of messages was satisfied from cache. Do the same for the message counts, if applicable
         item->recalcVariousMessageCounts(this);

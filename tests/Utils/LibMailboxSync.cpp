@@ -476,7 +476,11 @@ void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
     }
     QCOMPARE(ssFromCache, ssFromTree);
 
-    cEmpty();
+    if (model->isNetworkAvailable()) {
+        // when offline, calling cEmpty would assert fail
+        cEmpty();
+    }
+
     QVERIFY(errorSpy->isEmpty());
 }
 
