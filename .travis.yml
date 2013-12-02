@@ -16,7 +16,7 @@ before_install:
  - travis_retry bash -c "if [[ -z \"${QT5}\" ]]; then sudo apt-get install -qq libqt4-dev qt4-dev-tools libqtwebkit-dev libqt4-sql-sqlite; else sudo apt-add-repository -y ppa:beineri/opt-qt511; sudo apt-add-repository -y ppa:leppa/backports; sudo apt-get update -qq; sudo apt-get install -qq qt51base qt51webkit qt51tools libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev; fi"
  - travis_retry sudo apt-get install -qq xvfb xauth cmake
  - bash -c "cmake --version"
-script: bash -c "mkdir _build; cd _build; cmake -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_BUILD_TYPE=$CONFIG ${QT5:+-DCMAKE_PREFIX_PATH=/opt/qt51/lib/cmake} ${QT5:+-DWITH_QT5=ON} ${RAGEL:+-DWITH_RAGEL=${RAGEL}} ${ZLIB:+-DWITH_ZLIB=${ZLIB}} -DCMAKE_INSTALL_PREFIX=/usr -DDEV_FATAL_WARNINGS=ON .. && make VERBOSE=1 -j4 && xvfb-run -a ctest -j 4 --output-on-failure && sudo make install"
+script: bash -c "mkdir _build; cd _build; [[ \"${CXX}\" == clang++ && -z \"${QT5}\" ]] && export WERROR=OFF || export WERROR=ON; cmake -DCMAKE_CXX_COMPILER=$CXX -DCMAKE_BUILD_TYPE=$CONFIG ${QT5:+-DCMAKE_PREFIX_PATH=/opt/qt51/lib/cmake} ${QT5:+-DWITH_QT5=ON} ${RAGEL:+-DWITH_RAGEL=${RAGEL}} ${ZLIB:+-DWITH_ZLIB=${ZLIB}} -DCMAKE_INSTALL_PREFIX=/usr -DDEV_FATAL_WARNINGS=$WERROR .. && make VERBOSE=1 -j4 && xvfb-run -a ctest -j 4 --output-on-failure && sudo make install"
 notifications:
  irc:
   channels:
