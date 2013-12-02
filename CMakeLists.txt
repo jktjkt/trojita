@@ -42,6 +42,7 @@ trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
 trojita_option(WITH_TESTS "Build tests" ON "NOT WITH_HARMATTAN")
+trojita_option(DEV_FATAL_WARNINGS "Turn build warnings into errors (developers only)" OFF)
 
 if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO)
@@ -126,6 +127,9 @@ if(NOT WIN32 AND NOT MSVC)
     # -Werror for sanity reasons, though (one cannot know what warnings a future compiler might bring along).
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wsign-compare")
 endif(NOT WIN32 AND NOT MSVC)
+if(DEV_FATAL_WARNINGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 # The following is required so that the moc_*.cpp and ui_*.h are found
