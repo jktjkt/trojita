@@ -821,17 +821,19 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
         Q_ASSERT(item->m_children.isEmpty());
         Q_ASSERT(item->accessFetchStatus() == TreeItem::LOADING);
         QModelIndex listIndex = item->toIndex(this);
-        beginInsertRows(listIndex, 0, uidMapping.size() - 1);
-        for (uint seq = 0; seq < static_cast<uint>(uidMapping.size()); ++seq) {
-            TreeItemMessage *message = new TreeItemMessage(item);
-            message->m_offset = seq;
-            message->m_uid = uidMapping[ seq ];
-            item->m_children << message;
-            QStringList flags = cache()->msgFlags(mailbox, message->m_uid);
-            flags.removeOne(QLatin1String("\\Recent"));
-            message->m_flags = normalizeFlags(flags);
+        if (uidMapping.size()) {
+            beginInsertRows(listIndex, 0, uidMapping.size() - 1);
+            for (uint seq = 0; seq < static_cast<uint>(uidMapping.size()); ++seq) {
+                TreeItemMessage *message = new TreeItemMessage(item);
+                message->m_offset = seq;
+                message->m_uid = uidMapping[seq];
+                item->m_children << message;
+                QStringList flags = cache()->msgFlags(mailbox, message->m_uid);
+                flags.removeOne(QLatin1String("\\Recent"));
+                message->m_flags = normalizeFlags(flags);
+            }
+            endInsertRows();
         }
-        endInsertRows();
         mailboxPtr->syncState = oldSyncState;
         item->setFetchStatus(TreeItem::DONE); // required for FETCH processing later on
         // The list of messages was satisfied from cache. Do the same for the message counts, if applicable
