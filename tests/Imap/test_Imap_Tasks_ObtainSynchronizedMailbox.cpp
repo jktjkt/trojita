@@ -2262,7 +2262,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncAfterEmpty()
     existsA = 6;
     uidNextA = 7;
     uidValidityA = 1336686200;
-    for (int i = 1; i <= existsA; ++i)
+    for (uint i = 1; i <= existsA; ++i)
         uidMapA << i;
     helperCheckCache();
     cEmpty();

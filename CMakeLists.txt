@@ -124,7 +124,7 @@ if(NOT WIN32 AND NOT MSVC)
     set(CMAKE_CXX_FLAGS "-O2 -g ${CMAKE_CXX_FLAGS}")
     # Now enable build warnings; these are useful tools (and Trojita should be warning-free anyway). We do not set
     # -Werror for sanity reasons, though (one cannot know what warnings a future compiler might bring along).
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wsign-compare")
 endif(NOT WIN32 AND NOT MSVC)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
