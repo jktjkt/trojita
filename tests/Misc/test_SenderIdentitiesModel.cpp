@@ -71,7 +71,6 @@ void SenderIdentitiesModelTest::testPropertyStorage()
 
 void SenderIdentitiesModelTest::testAddIdentity()
 {
-    qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy spy(model, SIGNAL(rowsAboutToBeInserted(QModelIndex, int, int)));
     QSignalSpy spy2(model, SIGNAL(rowsInserted(QModelIndex, int, int)));
     model->appendIdentity(identity1);
@@ -88,7 +87,6 @@ void SenderIdentitiesModelTest::testRemoveIdentity1()
     model->appendIdentity(identity1);
     model->appendIdentity(identity2);
     QCOMPARE(model->rowCount(), 2);
-    qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy spy(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)));
     QSignalSpy spy2(model, SIGNAL(rowsRemoved(QModelIndex, int, int)));
     model->removeIdentityAt(1);
@@ -106,7 +104,6 @@ void SenderIdentitiesModelTest::testRemoveIdentity2()
     model->appendIdentity(identity1);
     model->appendIdentity(identity2);
     QCOMPARE(model->rowCount(), 2);
-    qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy spy(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex, int, int)));
     QSignalSpy spy2(model, SIGNAL(rowsRemoved(QModelIndex, int, int)));
     model->removeIdentityAt(0);
@@ -129,7 +126,6 @@ void SenderIdentitiesModelTest::testMoveFirstIdentity()
         model->index(0, SenderIdentitiesModel::COLUMN_NAME);
     QPersistentModelIndex signatureIndex =
         model->index(0, SenderIdentitiesModel::COLUMN_SIGNATURE);
-    qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy spy(model, SIGNAL(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int)));
     QSignalSpy spy2(model, SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)));
     model->moveIdentity(0, 2);
@@ -160,7 +156,6 @@ void SenderIdentitiesModelTest::testMoveLastIdentity()
         model->index(0, SenderIdentitiesModel::COLUMN_NAME);
     QPersistentModelIndex signatureIndex =
         model->index(0, SenderIdentitiesModel::COLUMN_SIGNATURE);
-    qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy spy(model, SIGNAL(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int)));
     QSignalSpy spy2(model, SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)));
     model->moveIdentity(2, 0);
@@ -191,7 +186,6 @@ void SenderIdentitiesModelTest::testMoveMiddleIdentity()
         model->index(0, SenderIdentitiesModel::COLUMN_NAME);
     QPersistentModelIndex signatureIndex =
         model->index(0, SenderIdentitiesModel::COLUMN_SIGNATURE);
-    qRegisterMetaType<QModelIndex>("QModelIndex");
     QSignalSpy spy(model, SIGNAL(rowsAboutToBeMoved(QModelIndex, int, int, QModelIndex, int)));
     QSignalSpy spy2(model, SIGNAL(rowsMoved(QModelIndex, int, int, QModelIndex, int)));
     model->moveIdentity(1, 2);
