@@ -23,6 +23,7 @@
 #include <QtTest>
 #include "test_Imap_Tasks_ListChildMailboxes.h"
 #include "Utils/headless_test.h"
+#include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MemoryCache.h"
@@ -51,6 +52,7 @@ void ImapModelListChildMailboxesTest::cleanup()
 
 void ImapModelListChildMailboxesTest::initTestCase()
 {
+    Common::registerMetaTypes();
     model = 0;
     task = 0;
 }

@@ -23,6 +23,7 @@
 #include <QtTest>
 #include "test_Imap_Tasks_CreateMailbox.h"
 #include "Utils/headless_test.h"
+#include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
@@ -57,6 +58,7 @@ void ImapModelCreateMailboxTest::cleanup()
 
 void ImapModelCreateMailboxTest::initTestCase()
 {
+    Common::registerMetaTypes();
     model = 0;
     createdSpy = 0;
     failedSpy = 0;

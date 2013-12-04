@@ -23,6 +23,7 @@
 #include <QtTest>
 #include "test_Imap_Tasks_DeleteMailbox.h"
 #include "Utils/headless_test.h"
+#include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
@@ -54,6 +55,7 @@ void ImapModelDeleteMailboxTest::cleanup()
 
 void ImapModelDeleteMailboxTest::initTestCase()
 {
+    Common::registerMetaTypes();
     model = 0;
     deletedSpy = 0;
     failedSpy = 0;

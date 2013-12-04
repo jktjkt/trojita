@@ -762,6 +762,31 @@ bool Model::hasChildren(const QModelIndex &parent) const
         return false;
 }
 
+void Model::askForTopLevelChildren(const CacheLoadingMode cacheMode)
+{
+    askForChildrenOfMailbox(m_mailboxes, cacheMode == LOAD_FORCE_RELOAD);
+}
+
+void Model::askForChildrenOfMailbox(const QModelIndex &index, const CacheLoadingMode cacheMode)
+{
+    if (!index.isValid())
+        return;
+    Q_ASSERT(index.model() == this);
+    auto mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(index.internalPointer()));
+    Q_ASSERT(mailbox);
+    askForChildrenOfMailbox(mailbox, cacheMode == LOAD_FORCE_RELOAD);
+}
+
+void Model::askForMessagesInMailbox(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+    Q_ASSERT(index.model() == this);
+    auto msgList = dynamic_cast<TreeItemMsgList *>(static_cast<TreeItem *>(index.internalPointer()));
+    Q_ASSERT(msgList);
+    askForMessagesInMailbox(msgList);
+}
+
 void Model::askForChildrenOfMailbox(TreeItemMailbox *item, bool forceReload)
 {
     if (!forceReload && cache()->childMailboxesFresh(item->mailbox())) {
@@ -2060,7 +2085,6 @@ bool Model::isImapSubmissionSupported() const
     QStringList caps = capabilities();
     return caps.contains(QLatin1String("UIDPLUS")) && caps.contains(QLatin1String("X-DRAFT-I01-SENDMAIL"));
 }
-
 
 }
 }

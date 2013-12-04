@@ -105,7 +105,6 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     model->setNetworkOnline();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    // The DelayedAskForChildrenOfMailbox::askNow runs at this point
     QCoreApplication::processEvents();
 
     // The trick here is that the reconnect resulted in querying a mailbox listing again

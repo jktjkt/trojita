@@ -27,7 +27,6 @@
 #include "Imap/Encoders.h"
 #include "Imap/Parser/Rfc5322HeaderParser.h"
 #include "Imap/Tasks/KeepMailboxOpenTask.h"
-#include "DelayedPopulation.h"
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "Model.h"
@@ -170,13 +169,14 @@ void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload
 
     if (! loading()) {
         setFetchStatus(LOADING);
-        // It's possible that we've got invoked in response to something relatively harmless like rowCount(),
-        // that's why we have to delay the call to askForChildrenOfMailbox() until we re-enter the event
-        // loop.
-        new DelayedAskForChildrenOfMailbox(model, toIndex(model),
-                                           forceReload ?
-                                               DelayedAskForChildrenOfMailbox::CACHE_FORCE_RELOAD :
-                                               DelayedAskForChildrenOfMailbox::CACHE_NORMAL);
+        QModelIndex mailboxIndex = toIndex(model);
+        if (mailboxIndex.isValid()) {
+            QMetaObject::invokeMethod(model, "askForChildrenOfMailbox", Qt::QueuedConnection, Q_ARG(QModelIndex, mailboxIndex),
+                                      Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
+        } else {
+            QMetaObject::invokeMethod(model, "askForTopLevelChildren", Qt::QueuedConnection,
+                                      Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
+        }
     }
 }
 
@@ -844,7 +844,7 @@ void TreeItemMsgList::fetch(Model *const model)
     if (!loading()) {
         setFetchStatus(LOADING);
         // We can't ask right now, has to wait till the end of the event loop
-        new DelayedAskForMessagesInMailbox(model, toIndex(model));
+        QMetaObject::invokeMethod(model, "askForMessagesInMailbox", Qt::QueuedConnection, Q_ARG(QModelIndex, toIndex(model)));
     }
 }
 

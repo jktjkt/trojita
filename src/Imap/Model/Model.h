@@ -31,6 +31,7 @@
 #include "Cache.h"
 #include "../ConnectionState.h"
 #include "../Parser/Parser.h"
+#include "CacheLoadingMode.h"
 #include "CopyMoveOperation.h"
 #include "FlagsOperation.h"
 #include "ParserState.h"
@@ -72,7 +73,6 @@ class TreeItemMessage;
 class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
-class DelayedAskForChildrenOfMailbox;
 
 class ImapTask;
 class KeepMailboxOpenTask;
@@ -451,8 +451,6 @@ private:
     friend class ThreadingMsgListModel; // needs access to taskFactory
     friend class SubtreeClassSpecificItem<Model>; // needs access to createIndex()
 
-    friend class DelayedAskForChildrenOfMailbox; // needs access to askForChildrenOfMailbox();
-    friend class DelayedAskForMessagesInMailbox; // needs access to askForMessagesInMailbox();
     friend class IdleLauncher;
 
     friend class ImapTask;
@@ -596,6 +594,9 @@ private:
 protected slots:
     void responseReceived();
     void responseReceived(Imap::Parser *parser);
+    void askForChildrenOfMailbox(const QModelIndex &index, const Imap::Mailbox::CacheLoadingMode cacheMode);
+    void askForTopLevelChildren(const Imap::Mailbox::CacheLoadingMode cacheMode);
+    void askForMessagesInMailbox(const QModelIndex &index);
 
     void runReadyTasks();
 

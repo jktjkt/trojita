@@ -23,12 +23,14 @@
 #include <QtTest>
 #include "test_Imap_Model.h"
 #include "Utils/headless_test.h"
+#include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
 
 void ImapModelTest::initTestCase()
 {
+    Common::registerMetaTypes();
     model = 0;
     mboxModel = 0;
 }

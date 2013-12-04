@@ -20,18 +20,23 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MetaTypes.h"
-#include "Imap/Model/CacheLoadingMode.h"
+#ifndef IMAP_MODEL_CACHELOADINGMODE_H
+#define IMAP_MODEL_CACHELOADINGMODE_H
 
-namespace Common {
+#include <QMetaTypeId2>
 
-void registerMetaTypes()
-{
-    qRegisterMetaType<QList<QByteArray>>();
-    qRegisterMetaType<QList<QSslCertificate>>();
-    qRegisterMetaType<QList<QSslError>>();
-    qRegisterMetaType<QModelIndex>();
-    qRegisterMetaType<Imap::Mailbox::CacheLoadingMode>();
+namespace Imap {
+namespace Mailbox {
+
+/** @short Are we forcing a reload from network, or are the cached data OK? */
+typedef enum {
+    LOAD_CACHED_IS_OK, /**< @short The cached data are OK */
+    LOAD_FORCE_RELOAD, /**< @short Force a reload from the remote source, bypassing the cache */
+} CacheLoadingMode;
+
+}
 }
 
-}
+Q_DECLARE_METATYPE(Imap::Mailbox::CacheLoadingMode)
+
+#endif
