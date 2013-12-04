@@ -1816,6 +1816,7 @@ void MainWindow::slotViewMsgHeaders()
                                     QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
                                     messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
                                     ));
+        headers->setWindowIcon(loadIcon(QLatin1String("text-x-hex")));
         headers->show();
     }
 }

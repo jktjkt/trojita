@@ -114,9 +114,18 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     QMimeType mimeType = QMimeDatabase().mimeTypeForName(mimeDescription);
     if (mimeType.isValid() && !mimeType.isDefault()) {
         mimeDescription = mimeType.comment();
-        QIcon icon = QIcon::fromTheme(mimeType.iconName(),
-                                      QIcon::fromTheme(mimeType.genericIconName(), loadIcon(QLatin1String("mail-attachment")))
-                                      );
+        QIcon icon;
+        if (rawMime == QLatin1String("message/rfc822")) {
+            // Special case for plain e-mail messages. Motivation for this is that most of the OSes ship these icons
+            // with a pixmap which shows something like a sheet of paper as the background. I find it rather dumb
+            // to do this in the context of a MUA where attached messages are pretty common, which is why this special
+            // case is in place. Comments welcome.
+            icon = loadIcon(QLatin1String("trojita"));
+        } else {
+            icon = QIcon::fromTheme(mimeType.iconName(),
+                                    QIcon::fromTheme(mimeType.genericIconName(), loadIcon(QLatin1String("mail-attachment")))
+                                    );
+        }
         m_icon->setIcon(icon);
     } else {
         m_icon->setIcon(loadIcon(QLatin1String("mail-attachment")));

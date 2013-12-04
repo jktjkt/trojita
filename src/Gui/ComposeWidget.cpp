@@ -33,24 +33,23 @@
 #include <QSettings>
 #include <QTimer>
 
-#include "AbstractAddressbook.h"
-#include "AutoCompletion.h"
-#include "ComposeWidget.h"
-#include "FromAddressProxyModel.h"
-#include "LineEdit.h"
-#include "OverlayWidget.h"
-#include "ProgressPopUp.h"
-#include "Gui/Util.h"
-#include "Window.h"
 #include "ui_ComposeWidget.h"
-#include "Gui/PasswordDialog.h"
-
 #include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Composer/Submission.h"
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
+#include "Gui/AbstractAddressbook.h"
+#include "Gui/AutoCompletion.h"
+#include "Gui/ComposeWidget.h"
+#include "Gui/FromAddressProxyModel.h"
+#include "Gui/LineEdit.h"
+#include "Gui/OverlayWidget.h"
+#include "Gui/PasswordDialog.h"
+#include "Gui/ProgressPopUp.h"
+#include "Gui/Util.h"
+#include "Gui/Window.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GenUrlAuthTask.h"
@@ -79,6 +78,11 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     m_settings(settings)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
+
+    QIcon winIcon;
+    winIcon.addFile(QLatin1String(":/icons/trojita-edit-big.png"), QSize(128, 128));
+    winIcon.addFile(QLatin1String(":/icons/trojita-edit-small.png"), QSize(22, 22));
+    setWindowIcon(winIcon);
 
     Q_ASSERT(m_mainWindow);
     m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory);
@@ -121,6 +125,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
     connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
     connect(ui->mailText, SIGNAL(textChanged()), SLOT(setMessageUpdated()));
+    connect(ui->subject, SIGNAL(textChanged(QString)), SLOT(updateWindowTitle()));
 
     FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
     proxy->setSourceModel(m_mainWindow->senderIdentitiesModel());
@@ -1047,6 +1052,15 @@ void ComposeWidget::autoSaveDraft()
 void ComposeWidget::setMessageUpdated()
 {
     m_messageEverEdited = m_messageUpdated = true;
+}
+
+void ComposeWidget::updateWindowTitle()
+{
+    if (ui->subject->text().isEmpty()) {
+        setWindowTitle(tr("Compose Mail"));
+    } else {
+        setWindowTitle(tr("%1 - Compose Mail").arg(ui->subject->text()));
+    }
 }
 
 }

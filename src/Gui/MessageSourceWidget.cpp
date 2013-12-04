@@ -22,6 +22,7 @@
 
 #include "MessageSourceWidget.h"
 #include <QModelIndex>
+#include "Gui/IconLoader.h"
 #include "Gui/Spinner.h"
 #include "Imap/Model/FullMessageCombiner.h"
 
@@ -31,6 +32,7 @@ namespace Gui
 MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &messageIndex):
     QWebView(parent), m_combiner(0), m_loadingSpinner(0)
 {
+    setWindowIcon(loadIcon(QLatin1String("text-x-hex")));
     Q_ASSERT(messageIndex.isValid());
     page()->setNetworkAccessManager(0);
 
