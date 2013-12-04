@@ -23,18 +23,8 @@
 #ifndef IMAP_MODEL_ITEMROLES_H
 #define IMAP_MODEL_ITEMROLES_H
 
-#include <QByteArray>
-#include <QList>
-#include <QMetaType>
-
-// The following is needed for RoleMessageHdrReferences
-Q_DECLARE_METATYPE(QList<QByteArray>)
-
-namespace Imap
-{
-
-namespace Mailbox
-{
+namespace Imap {
+namespace Mailbox {
 
 /** @short Custom item data roles for IMAP */
 enum {
@@ -181,8 +171,8 @@ enum {
     /** @short The very last role */
     RoleInvalidLastOne
 };
-}
 
+}
 }
 
 #endif // IMAP_MODEL_ITEMROLES_H

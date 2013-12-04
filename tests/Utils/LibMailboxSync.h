@@ -24,6 +24,7 @@
 #define TEST_IMAP_LIBMAILBOXSYNC
 
 #include <QtTest>
+#include "Common/MetaTypes.h"
 #include "Imap/Model/Model.h"
 #include "Streams/SocketFactory.h"
 #include "TagGenerator.h"

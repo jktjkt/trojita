@@ -26,6 +26,7 @@
 
 #include "AppVersion/SetCoreApplication.h"
 #include "Common/Application.h"
+#include "Common/MetaTypes.h"
 #include "Gui/Util.h"
 #include "Gui/Window.h"
 
@@ -33,6 +34,8 @@
 
 int main(int argc, char **argv)
 {
+    Common::registerMetaTypes();
+
     QApplication app(argc, argv);
     Q_INIT_RESOURCE(icons);
     Q_INIT_RESOURCE(license);

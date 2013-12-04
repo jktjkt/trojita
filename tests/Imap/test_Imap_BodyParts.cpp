@@ -50,7 +50,6 @@ struct Data {
 };
 
 Q_DECLARE_METATYPE(QList<Data>)
-Q_DECLARE_METATYPE(QModelIndex)
 
 namespace QTest {
 template <>
@@ -338,7 +337,6 @@ void BodyPartsTest::testInvalidPartFetch_data()
 /** @short Check how fetching the raw part data is handled */
 void BodyPartsTest::testFetchingRawParts()
 {
-    qRegisterMetaType<QModelIndex>();
     FakeCapabilitiesInjector injector(model);
     injector.injectCapability("BINARY");
     model->setProperty("trojita-imap-delayed-fetch-part", 0);

@@ -24,6 +24,7 @@
 #include <QTest>
 #include "test_Rfc5322.h"
 #include "Utils/headless_test.h"
+#include "Common/MetaTypes.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Parser/Rfc5322HeaderParser.h"
 
@@ -44,7 +45,7 @@ char *toString(const QList<QByteArray> &list)
 
 void Rfc5322Test::initTestCase()
 {
-    qRegisterMetaType<QList<QByteArray> >();
+    Common::registerMetaTypes();
 }
 
 void Rfc5322Test::testHeaders()

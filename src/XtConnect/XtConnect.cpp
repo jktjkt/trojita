@@ -44,17 +44,11 @@
 #include "SqlStorage.h"
 #include "Streams/SocketFactory.h"
 
-Q_DECLARE_METATYPE(QList<QSslCertificate>)
-Q_DECLARE_METATYPE(QList<QSslError>)
-
 namespace XtConnect {
 
 XtConnect::XtConnect(QObject *parent, QSettings *s) :
     QObject(parent), m_model(0), m_settings(s), m_cache(0)
 {
-    qRegisterMetaType<QList<QSslCertificate> >();
-    qRegisterMetaType<QList<QSslError> >();
-
     Q_ASSERT(m_settings);
     m_settings->setParent(this);
     if ( ! m_settings->contains( Common::SettingsNames::xtConnectCacheDirectory ) ) {

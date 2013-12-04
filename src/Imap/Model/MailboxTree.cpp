@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <QTextStream>
 #include "Common/FindWithUnknown.h"
+#include "Common/MetaTypes.h"
 #include "Imap/Encoders.h"
 #include "Imap/Parser/Rfc5322HeaderParser.h"
 #include "Imap/Tasks/KeepMailboxOpenTask.h"

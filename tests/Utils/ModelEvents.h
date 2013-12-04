@@ -24,7 +24,6 @@
 #define TEST_MODEL_EVENTS
 
 #include <QModelIndex>
-Q_DECLARE_METATYPE(QModelIndex)
 
 class ModelInsertRemoveEvent
 {

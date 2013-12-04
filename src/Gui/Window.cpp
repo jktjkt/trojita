@@ -87,11 +87,6 @@
 
 #include "Imap/Model/ModelTest/modeltest.h"
 
-Q_DECLARE_METATYPE(QList<QSslCertificate>)
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 1)
-Q_DECLARE_METATYPE(QList<QSslError>)
-#endif
-
 /** @short All user-facing widgets and related classes */
 namespace Gui
 {
@@ -105,9 +100,6 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), model(0),
     m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true),
     m_delayedStateSaving(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_trayIcon(0)
 {
-    qRegisterMetaType<QList<QSslCertificate> >();
-    qRegisterMetaType<QList<QSslError> >();
-
     // m_pluginManager must be created before calling createWidgets
     m_pluginManager = new Plugins::PluginManager(m_settings, Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin, this);
 

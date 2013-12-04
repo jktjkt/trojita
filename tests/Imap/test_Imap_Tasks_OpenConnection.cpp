@@ -24,6 +24,7 @@
 #include <QAuthenticator>
 #include "test_Imap_Tasks_OpenConnection.h"
 #include "Utils/headless_test.h"
+#include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Streams/TrojitaZlibStatus.h"
 #include "Imap/Model/ItemRoles.h"
@@ -31,24 +32,16 @@
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Tasks/OpenConnectionTask.h"
 
-Q_DECLARE_METATYPE(QList<QSslCertificate>)
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 1)
-Q_DECLARE_METATYPE(QList<QSslError>)
-#endif
-Q_DECLARE_METATYPE(Imap::Mailbox::ImapTask*)
-
 void ImapModelOpenConnectionTest::initTestCase()
 {
     model = 0;
     completedSpy = 0;
     m_enableAutoLogin = true;
-    qRegisterMetaType<QList<QSslCertificate> >();
-    qRegisterMetaType<QList<QSslError> >();
-    qRegisterMetaType<Imap::Mailbox::ImapTask*>();
 }
 
 void ImapModelOpenConnectionTest::init()
 {
+    Common::registerMetaTypes();
     init( false );
 }
 

@@ -28,14 +28,10 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Streams/FakeSocket.h"
 
-// Already defined in ItemRoles.h!
-//Q_DECLARE_METATYPE(QList<QByteArray>)
-
 ComposerSubmissionTest::ComposerSubmissionTest():
     m_submission(0), sendingSpy(0), sentSpy(0), requestedSendingSpy(0), requestedBurlSendingSpy(0),
     submissionSucceededSpy(0), submissionFailedSpy(0)
 {
-    qRegisterMetaType<QList<QByteArray> >();
 }
 
 void ComposerSubmissionTest::init()

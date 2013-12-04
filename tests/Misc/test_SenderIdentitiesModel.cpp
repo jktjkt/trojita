@@ -25,6 +25,7 @@
 #include "test_SenderIdentitiesModel.h"
 #include "Utils/ModelEvents.h"
 #include "Utils/headless_test.h"
+#include "Common/MetaTypes.h"
 
 #define COMPARE_ROWNUM(identity, rowNumber) \
   QVERIFY(model->index(rowNumber, SenderIdentitiesModel::COLUMN_NAME).isValid()); \
@@ -48,7 +49,7 @@ SenderIdentitiesModelTest::SenderIdentitiesModelTest() :
 
 void SenderIdentitiesModelTest::initTestCase()
 {
-    qRegisterMetaType<QModelIndex>();
+    Common::registerMetaTypes();
 }
 
 void SenderIdentitiesModelTest::init()

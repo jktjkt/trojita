@@ -217,6 +217,7 @@ set(libCommon_SOURCES
     ${path_Common}/ConnectionId.cpp
     ${path_Common}/DeleteAfter.cpp
     ${path_Common}/FileLogger.cpp
+    ${path_Common}/MetaTypes.cpp
     ${path_Common}/Paths.cpp
     ${path_Common}/SettingsNames.cpp
 )
@@ -644,7 +645,7 @@ endif()
 
 if(WITH_QT5)
     qt5_use_modules(AppVersion Core)
-    qt5_use_modules(Common Core)
+    qt5_use_modules(Common Core Network)
     qt5_use_modules(Streams Network)
     qt5_use_modules(qwwsmtpclient Network)
     qt5_use_modules(MSA Network)
@@ -653,7 +654,7 @@ if(WITH_QT5)
     qt5_use_modules(DesktopGui Network WebKitWidgets)
     qt5_use_modules(AbookAddressbook Widgets)
     qt5_use_modules(be.contacts Widgets)
-    qt5_use_modules(trojita Widgets)
+    qt5_use_modules(trojita Widgets Network)
 endif()
 
 if(WITH_SHARED_PLUGINS)

@@ -19,32 +19,23 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef COMMON_METATYPES_H
+#define COMMON_METATYPES_H
 
-#include <QtGui/QApplication>
-#include <QDeclarativeContext>
-#include "qmlapplicationviewer.h"
-#include "AppVersion/SetCoreApplication.h"
-#include "Common/Application.h"
-#include "Common/MetaTypes.h"
-#include "QmlSupport/ModelGlue/ImapAccess.h"
+#include <QMetaTypeId2>
+#include <QModelIndex>
+#include <QSslCertificate>
+#include <QSslError>
 
-int main(int argc, char *argv[])
-{
-    Common::registerMetaTypes();
-    QApplication app(argc, argv);
-    Common::Application::name = QString::fromAscii("trojita-tp");
-    AppVersion::setGitVersion();
-    AppVersion::setCoreApplicationData();
+Q_DECLARE_METATYPE(QList<QSslCertificate>)
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 1)
+Q_DECLARE_METATYPE(QList<QSslError>)
+#endif
+Q_DECLARE_METATYPE(QModelIndex)
+Q_DECLARE_METATYPE(QList<QByteArray>)
 
-    QmlApplicationViewer viewer;
-
-    ImapAccess imapAccess;
-    QDeclarativeContext *ctxt = viewer.rootContext();
-    ctxt->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
-
-    viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
-    viewer.setMainQmlFile(QLatin1String("qml/trojita/main.qml"));
-    viewer.showExpanded();
-
-    return app.exec();
+namespace Common {
+void registerMetaTypes();
 }
+
+#endif

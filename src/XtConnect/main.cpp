@@ -31,8 +31,10 @@
 #include "XtConnect.h"
 #include "AppVersion/SetCoreApplication.h"
 #include "Common/Application.h"
+#include "Common/MetaTypes.h"
 
 int main( int argc, char** argv) {
+    Common::registerMetaTypes();
     QCoreApplication app( argc, argv );
     Common::Application::name = QString::fromAscii("xtconnect-trojita");
     AppVersion::setGitVersion();

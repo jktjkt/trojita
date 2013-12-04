@@ -48,6 +48,7 @@
 #include "TagListWidget.h"
 #include "UserAgentWebPage.h"
 #include "Window.h"
+#include "Common/MetaTypes.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SubjectMangling.h"
 #include "Imap/Model/MailboxTree.h"

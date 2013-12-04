@@ -32,15 +32,10 @@
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/SocketFactory.h"
 
-Q_DECLARE_METATYPE(QList<QSslCertificate>)
-Q_DECLARE_METATYPE(QList<QSslError>)
-
 ImapAccess::ImapAccess(QObject *parent) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
     m_visibleTasksModel(0), m_oneMessageModel(0), m_msgQNAM(0), m_port(0)
 {
-    qRegisterMetaType<QList<QSslCertificate> >();
-    qRegisterMetaType<QList<QSslError> >();
     QSettings s;
     Imap::migrateSettings(&s);
     m_server = s.value(Common::SettingsNames::imapHostKey).toString();

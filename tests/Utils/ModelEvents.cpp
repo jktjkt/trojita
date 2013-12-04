@@ -22,6 +22,7 @@
 
 #include <QtTest>
 #include "ModelEvents.h"
+#include "Common/MetaTypes.h"
 
 namespace QTest
 {

@@ -20,31 +20,16 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QtGui/QApplication>
-#include <QDeclarativeContext>
-#include "qmlapplicationviewer.h"
-#include "AppVersion/SetCoreApplication.h"
-#include "Common/Application.h"
-#include "Common/MetaTypes.h"
-#include "QmlSupport/ModelGlue/ImapAccess.h"
+#include "MetaTypes.h"
 
-int main(int argc, char *argv[])
+namespace Common {
+
+void registerMetaTypes()
 {
-    Common::registerMetaTypes();
-    QApplication app(argc, argv);
-    Common::Application::name = QString::fromAscii("trojita-tp");
-    AppVersion::setGitVersion();
-    AppVersion::setCoreApplicationData();
+    qRegisterMetaType<QList<QByteArray>>();
+    qRegisterMetaType<QList<QSslCertificate>>();
+    qRegisterMetaType<QList<QSslError>>();
+    qRegisterMetaType<QModelIndex>();
+}
 
-    QmlApplicationViewer viewer;
-
-    ImapAccess imapAccess;
-    QDeclarativeContext *ctxt = viewer.rootContext();
-    ctxt->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
-
-    viewer.setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
-    viewer.setMainQmlFile(QLatin1String("qml/trojita/main.qml"));
-    viewer.showExpanded();
-
-    return app.exec();
 }

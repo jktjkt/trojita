@@ -23,6 +23,7 @@
 #include <QTest>
 #include "LibMailboxSync.h"
 #include "headless_test.h"
+#include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/Cache.h"
 #include "Imap/Model/ItemRoles.h"
@@ -150,6 +151,7 @@ void LibMailboxSync::cleanupTestCase()
 
 void LibMailboxSync::initTestCase()
 {
+    Common::registerMetaTypes();
     model = 0;
     msgListModel = 0;
     threadingModel = 0;
