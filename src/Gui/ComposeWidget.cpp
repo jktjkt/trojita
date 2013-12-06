@@ -38,6 +38,7 @@
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Composer/Submission.h"
+#include "Common/InvokeMethod.h"
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
 #include "Gui/AbstractAddressbook.h"
@@ -576,7 +577,7 @@ void ComposeWidget::removeRecipient(int pos)
     ui->recipientSlider->setVisible(max > 0);
     if (formerFocus) {
         // skip event loop, remove might be triggered by imminent focus loss
-        QMetaObject::invokeMethod(formerFocus, "setFocus", Qt::QueuedConnection);
+        CALL_LATER_NOARG(formerFocus, setFocus);
     }
 }
 

@@ -48,6 +48,7 @@
 #include "TagListWidget.h"
 #include "UserAgentWebPage.h"
 #include "Window.h"
+#include "Common/InvokeMethod.h"
 #include "Common/MetaTypes.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SubjectMangling.h"
@@ -72,7 +73,7 @@ MessageView::MessageView(QWidget *parent, QSettings *settings): QWidget(parent),
 
     emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
     emptyView->setFixedSize(450,300);
-    QMetaObject::invokeMethod(emptyView, "handlePageLoadFinished", Qt::QueuedConnection);
+    CALL_LATER_NOARG(emptyView, handlePageLoadFinished);
     emptyView->setPage(new UserAgentWebPage(emptyView));
     emptyView->installEventFilter(this);
     emptyView->setAutoFillBackground(false);

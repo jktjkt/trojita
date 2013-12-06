@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <QTextStream>
 #include "Common/FindWithUnknown.h"
+#include "Common/InvokeMethod.h"
 #include "Common/MetaTypes.h"
 #include "Imap/Encoders.h"
 #include "Imap/Parser/Rfc5322HeaderParser.h"
@@ -171,11 +172,10 @@ void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload
         setFetchStatus(LOADING);
         QModelIndex mailboxIndex = toIndex(model);
         if (mailboxIndex.isValid()) {
-            QMetaObject::invokeMethod(model, "askForChildrenOfMailbox", Qt::QueuedConnection, Q_ARG(QModelIndex, mailboxIndex),
-                                      Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
+            CALL_LATER(model, askForChildrenOfMailbox, Q_ARG(QModelIndex, mailboxIndex),
+                       Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
         } else {
-            QMetaObject::invokeMethod(model, "askForTopLevelChildren", Qt::QueuedConnection,
-                                      Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
+            CALL_LATER(model, askForTopLevelChildren, Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
         }
     }
 }
@@ -844,7 +844,7 @@ void TreeItemMsgList::fetch(Model *const model)
     if (!loading()) {
         setFetchStatus(LOADING);
         // We can't ask right now, has to wait till the end of the event loop
-        QMetaObject::invokeMethod(model, "askForMessagesInMailbox", Qt::QueuedConnection, Q_ARG(QModelIndex, toIndex(model)));
+        CALL_LATER(model, askForMessagesInMailbox, Q_ARG(QModelIndex, toIndex(model)));
     }
 }
 

@@ -17,6 +17,7 @@
 #include <QKeyEvent>
 #include <QToolButton>
 #include <QStyle>
+#include "Common/InvokeMethod.h"
 
 LineEdit::LineEdit(const QString &text, QWidget *parent)
     : QLineEdit(parent), m_historyEnabled(false), m_historyPosition(0)
@@ -97,7 +98,7 @@ bool LineEdit::eventFilter(QObject *o, QEvent *e)
     if (e->type() == QEvent::Hide && o == completer()->popup()) {
         // next event cycle, the popup is deleted by the change and "return true" does not help
         // connect queued to not manipulate the history *during* selection from popup, but *after*
-        QMetaObject::invokeMethod(this, "restoreInlineCompletion", Qt::QueuedConnection);
+        CALL_LATER_NOARG(this, restoreInlineCompletion);
     }
     return false;
 }
@@ -180,5 +181,5 @@ void LineEdit::restoreInlineCompletion()
 {
     m_currentText = text(); // this was probably just updated by seleting from combobox
     completer()->setCompletionMode(QCompleter::InlineCompletion);
-    QMetaObject::invokeMethod(this, "setFocus", Qt::QueuedConnection); // can't get in the second event cycle either
+    CALL_LATER_NOARG(this, setFocus); // can't get in the second event cycle either
 }

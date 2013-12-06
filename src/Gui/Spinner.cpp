@@ -21,7 +21,7 @@
 */
 
 #include "Spinner.h"
-
+#include "Common/InvokeMethod.h"
 #include "Util.h"
 
 #include <QFontMetricsF>
@@ -126,7 +126,7 @@ bool Spinner::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::Resize || e->type() == QEvent::Move) {
         if (!m_geometryDirty && isVisible()) {
-            QMetaObject::invokeMethod(this, "updateGeometry", Qt::QueuedConnection);
+            CALL_LATER_NOARG(this, updateGeometry);
         }
         m_geometryDirty = true;
     } else if (e->type() == QEvent::ChildAdded || e->type() == QEvent::ZOrderChange) {
