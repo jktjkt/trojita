@@ -205,4 +205,6 @@ protected:
 }
 }
 
+Q_DECLARE_METATYPE(Imap::Mailbox::ImapTask *)
+
 #endif // IMAP_IMAPTASK_H
