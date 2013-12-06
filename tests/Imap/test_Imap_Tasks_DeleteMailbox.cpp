@@ -110,6 +110,7 @@ void ImapModelDeleteMailboxTest::testDeleteFail()
 
     QCOMPARE( model->rowCount( QModelIndex() ), 2 );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QVERIFY( SOCK->writtenStuff().isEmpty() );
     QCOMPARE( failedSpy->size(), 1 );
     QVERIFY( deletedSpy->isEmpty() );

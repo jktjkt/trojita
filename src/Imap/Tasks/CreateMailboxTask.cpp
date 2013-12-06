@@ -22,6 +22,7 @@
 
 
 #include "CreateMailboxTask.h"
+#include "Common/InvokeMethod.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxTree.h"
@@ -57,7 +58,7 @@ bool CreateMailboxTask::handleStateHelper(const Imap::Responses::State *const re
 
     if (resp->tag == tagCreate) {
         if (resp->kind == Responses::OK) {
-            emit model->mailboxCreationSucceded(mailbox);
+            EMIT_LATER(model, mailboxCreationSucceded, Q_ARG(QString, mailbox));
             if (_dead) {
                 // Got to check if we're still allowed to execute before launching yet another command
                 _failed("Asked to die");
@@ -66,7 +67,7 @@ bool CreateMailboxTask::handleStateHelper(const Imap::Responses::State *const re
             tagList = parser->list(QLatin1String(""), mailbox);
             // Don't call _completed() yet, we're going to update mbox list before that
         } else {
-            emit model->mailboxCreationFailed(mailbox, resp->message);
+            EMIT_LATER(model, mailboxCreationFailed, Q_ARG(QString, mailbox), Q_ARG(QString, resp->message));
             _failed("Cannot create mailbox");
         }
         return true;

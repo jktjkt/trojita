@@ -22,6 +22,7 @@
 
 
 #include "DeleteMailboxTask.h"
+#include "Common/InvokeMethod.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxTree.h"
@@ -74,10 +75,10 @@ bool DeleteMailboxTask::handleStateHelper(const Imap::Responses::State *const re
                     resp->message;
                 log(buf);
             }
-            emit model->mailboxDeletionSucceded(mailbox);
+            EMIT_LATER(model, mailboxDeletionSucceded, Q_ARG(QString, mailbox));
             _completed();
         } else {
-            emit model->mailboxDeletionFailed(mailbox, resp->message);
+            EMIT_LATER(model, mailboxDeletionFailed, Q_ARG(QString, mailbox), Q_ARG(QString, resp->message));
             _failed("Couldn't delete mailbox");
         }
         return true;

@@ -162,6 +162,7 @@ void ImapModelCreateMailboxTest::testCreateFail()
 
     QCOMPARE( model->rowCount( QModelIndex() ), 1 );
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray() );
     QCOMPARE( failedSpy->size(), 1 );
     QVERIFY( createdSpy->isEmpty() );

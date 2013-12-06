@@ -36,6 +36,7 @@
 #include "SpecialFlagNames.h"
 #include "TaskPresentationModel.h"
 #include "Common/FindWithUnknown.h"
+#include "Common/InvokeMethod.h"
 #include "Imap/Encoders.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GetAnyConnectionTask.h"
@@ -178,7 +179,6 @@ void Model::responseReceived(Parser *parser)
 /** @short Process responses from the specified parser */
 void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
 {
-    ParserStateGuard guard(*it);
     Q_ASSERT(it->parser);
 
     int counter = 0;
@@ -266,7 +266,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
             logTrace(parserId, Common::LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QLatin1String("STARTTLS has failed"));
-            emit connectionError(tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>"));
+            EMIT_LATER(this, connectionError, Q_ARG(QString, tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>")));
             setNetworkOffline();
             break;
         } catch (Imap::ImapException &e) {
@@ -285,17 +285,10 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
     }
 
     if (!it->parser) {
-        // It's dead now
-
-        if (!guard.wasActive) {
-            // We really want to prevent the ParserStateGuard from accessing something which we'll delete very soon;
-            // teh easiest way is to fool the guard into thinking that it was active before
-            guard.wasActive = true;
-
-            killParser(it.key(), PARSER_JUST_DELETE_LATER);
-            m_parsers.erase(it);
-            RESET_MODEL_2(m_taskModel);
-        }
+        // He's dead, Jim
+        killParser(it.key(), PARSER_JUST_DELETE_LATER);
+        m_parsers.erase(it);
+        RESET_MODEL_2(m_taskModel);
     }
 }
 
@@ -326,7 +319,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 // going offline...
                 // ... but before that, expect that the connection will get closed soon
                 accessParser(ptr).connState = CONN_STATE_LOGOUT;
-                emit connectionError(resp->message);
+                EMIT_LATER(this, connectionError, Q_ARG(QString, resp->message));
                 setNetworkOffline();
             }
             if (accessParser(ptr).parser) {
@@ -1139,7 +1132,7 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
     } else {
         logTrace(ptr->parserId(), Common::LOG_PARSE_ERROR, QString(), resp->message);
         killParser(ptr, PARSER_KILL_EXPECTED);
-        emit connectionError(resp->message);
+        EMIT_LATER(this, connectionError, Q_ARG(QString, resp->message));
         setNetworkOffline();
     }
 }
@@ -1156,6 +1149,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
     emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
     QByteArray details = (position == -1) ? QByteArray() : QByteArray(position, ' ') + QByteArray("^ here");
     logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, line, details));
+    QString message;
     if (exceptionClass == QLatin1String("NotAnImapServerError")) {
         QString service;
         if (line.startsWith("+OK") || line.startsWith("-ERR")) {
@@ -1165,21 +1159,22 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
         }
         if (!service.isEmpty())
             service = tr("<p>It appears that you are connecting to %1 server. That won't work here.</p>").arg(service);
-        emit connectionError(trUtf8("<h2>This is not an IMAP server</h2>"
+        message = trUtf8("<h2>This is not an IMAP server</h2>"
                                     "%1"
                                     "<p>Please check your settings to make sure you are connecting to the IMAP service. "
                                     "A typical port number for IMAP is 143 or 993.</p>"
                                     "<p>The server said:</p>"
-                                    "<pre>%2</pre>").arg(service, QString::fromUtf8(line.constData())));
+                                    "<pre>%2</pre>").arg(service, QString::fromUtf8(line.constData()));
     } else {
-        emit connectionError(trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
+        message = trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
                                     "This might either mean that there's a bug in Trojitá's code, or "
                                     "that the IMAP server you are connected to is broken. Please "
                                     "report this as a bug anyway. Here are the details:</p>"
                                     "<p><b>%1</b>: %2</p>"
                                     "<pre>%3\n%4</pre>"
-                                   ).arg(exceptionClass, errorMessage, line, details));
+                                   ).arg(exceptionClass, errorMessage, line, details);
     }
+    EMIT_LATER(this, connectionError, Q_ARG(QString, message));
     setNetworkOffline();
 }
 
@@ -1223,7 +1218,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     if (!uppercaseCaps.contains(QLatin1String("IMAP4REV1"))) {
         changeConnectionState(parser, CONN_STATE_LOGOUT);
         accessParser(parser).logoutCmd = parser->logout();
-        emit connectionError(tr("We aren't talking to an IMAP4 server"));
+        EMIT_LATER(this, connectionError, Q_ARG(QString, tr("We aren't talking to an IMAP4 server")));
         setNetworkOffline();
     }
 }
@@ -1922,7 +1917,7 @@ void Model::processSslErrors(OpenConnectionTask *task)
         }
         ++it;
     }
-    emit needsSslDecision(task->sslCertificateChain(), task->sslErrors());
+    EMIT_LATER(this, needsSslDecision, Q_ARG(QList<QSslCertificate>, task->sslCertificateChain()), Q_ARG(QList<QSslError>, task->sslErrors()));
 }
 
 QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)

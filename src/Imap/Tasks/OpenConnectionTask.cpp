@@ -23,6 +23,7 @@
 #include "OpenConnectionTask.h"
 #include <QTimer>
 #include "Common/ConnectionId.h"
+#include "Common/InvokeMethod.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/TaskPresentationModel.h"
 #include "Imap/Tasks/EnableTask.h"
@@ -217,7 +218,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                     // As suggested by Mike Cardwell on the trojita ML (http://article.gmane.org/gmane.mail.trojita.general/299),
                     // it makes sense to make this settings permanent, so that a user is not tricked into revealing their
                     // password when a MITM removes the LOGINDISABLED in future.
-                    emit model->requireStartTlsInFuture();
+                    EMIT_LATER_NOARG(model, requireStartTlsInFuture);
                 }
             } else {
                 logout(tr("STARTTLS failed: %1").arg(resp->message));
@@ -314,7 +315,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 } else {
                     message = tr("%1\n\n%2").arg(message, resp->message);
                 }
-                emit model->authAttemptFailed(message);
+                EMIT_LATER(model, authAttemptFailed, Q_ARG(QString, message));
                 model->m_imapPassword.clear();
                 model->m_hasImapPassword = false;
                 if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
@@ -427,7 +428,7 @@ void OpenConnectionTask::askForAuth()
         loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
         model->accessParser(parser).capabilitiesFresh = false;
     } else {
-        emit model->authRequested();
+        EMIT_LATER_NOARG(model, authRequested);
     }
 }
 
