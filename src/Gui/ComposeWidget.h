@@ -147,6 +147,10 @@ private:
     bool m_explicitDraft;
     QString m_autoSavePath;
 
+    QList<QByteArray> m_inReplyTo;
+    QList<QByteArray> m_references;
+    QModelIndex m_replyingToMessage;
+
     bool m_appendUidReceived;
     uint m_appendUidValidity;
     uint m_appendUid;

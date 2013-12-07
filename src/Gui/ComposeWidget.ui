@@ -188,6 +188,19 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="markAsReply">
+     <property name="text">
+      <string>In-Reply-To: </string>
+     </property>
+     <property name="visible">
+         <bool>false</bool>
+     </property>
+     <property name="checked">
+         <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
       <set>QDialogButtonBox::NoButton</set>

@@ -51,6 +51,7 @@
 #include "Gui/ProgressPopUp.h"
 #include "Gui/Util.h"
 #include "Gui/Window.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GenUrlAuthTask.h"
@@ -290,6 +291,16 @@ bool ComposeWidget::buildMessageData()
     }
     m_submission->composer()->setText(ui->mailText->toPlainText());
 
+    if (ui->markAsReply->isChecked()) {
+        m_submission->composer()->setInReplyTo(m_inReplyTo);
+        m_submission->composer()->setReferences(m_references);
+        m_submission->composer()->setReplyingToMessage(m_replyingToMessage);
+    } else {
+        m_submission->composer()->setInReplyTo(QList<QByteArray>());
+        m_submission->composer()->setReferences(QList<QByteArray>());
+        m_submission->composer()->setReplyingToMessage(QModelIndex());
+    }
+
     return m_submission->composer()->isReadyForSerialization();
 }
 
@@ -347,9 +358,15 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     const bool wasEdited = m_messageEverEdited;
     ui->mailText->setText(body);
     m_messageEverEdited = wasEdited;
-    m_submission->composer()->setInReplyTo(inReplyTo);
-    m_submission->composer()->setReferences(references);
-    m_submission->composer()->setReplyingToMessage(replyingToMessage);
+    m_inReplyTo = inReplyTo;
+    m_references = references;
+    m_replyingToMessage = replyingToMessage;
+    if (m_replyingToMessage.isValid()) {
+        ui->markAsReply->setVisible(true);
+        ui->markAsReply->setText(tr("In-Reply-To: %1").arg(
+                                m_replyingToMessage.data(Imap::Mailbox::RoleMessageSubject).toString())
+                                );
+    }
 
     int row = -1;
     bool ok = Composer::Util::chooseSenderIdentityForReply(m_mainWindow->senderIdentitiesModel(), replyingToMessage, row);
@@ -929,13 +946,13 @@ In case of an error, the original list of recipients is left as is.
 */
 bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
 {
-    if (!m_submission->composer()->replyingToMessage().isValid())
+    if (!m_replyingToMessage.isValid())
         return false;
 
     // Determine the new list of recipients
     Composer::RecipientList list;
     if (!Composer::Util::replyRecipientList(mode, m_mainWindow->senderIdentitiesModel(),
-                                            m_submission->composer()->replyingToMessage(), list)) {
+                                            m_replyingToMessage, list)) {
         return false;
     }
 
@@ -966,7 +983,7 @@ bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
 
 void ComposeWidget::saveDraft(const QString &path)
 {
-    static const int trojitaDraftVersion = 2;
+    static const int trojitaDraftVersion = 3;
     QFile file(path);
     if (!file.open(QIODevice::WriteOnly))
         return; // TODO: error message?
@@ -978,7 +995,8 @@ void ComposeWidget::saveDraft(const QString &path)
         stream << m_recipients.at(i).first->itemData(m_recipients.at(i).first->currentIndex()).toInt();
         stream << m_recipients.at(i).second->text();
     }
-    stream << m_submission->composer()->timestamp() << m_submission->composer()->inReplyTo() << m_submission->composer()->references();
+    stream << m_submission->composer()->timestamp() << m_inReplyTo << m_references;
+    stream << ui->markAsReply->isChecked();
     stream << ui->subject->text();
     stream << ui->mailText->toPlainText();
     // we spare attachments
@@ -1026,13 +1044,19 @@ void ComposeWidget::loadDraft(const QString &path)
         if (!string.isEmpty())
             addRecipient(i, static_cast<Composer::RecipientKind>(kind), string);
     }
-    if (version == 2) {
+    if (version >= 2) {
         QDateTime timestamp;
-        QList<QByteArray> inReplyTo, references;
-        stream >> timestamp >> inReplyTo >> references;
+        stream >> timestamp >> m_inReplyTo >> m_references;
         m_submission->composer()->setTimestamp(timestamp);
-        m_submission->composer()->setInReplyTo(inReplyTo);
-        m_submission->composer()->setReferences(references);
+        if (!m_inReplyTo.isEmpty()) {
+            ui->markAsReply->setVisible(true);
+            ui->markAsReply->setText(tr("In-Reply-To: %1").arg(QString(m_inReplyTo[0])));
+        }
+    }
+    if (version >= 3) {
+        bool replyChecked;
+        stream >> replyChecked;
+        ui->markAsReply->setChecked(replyChecked);
     }
     stream >> string;
     ui->subject->setText(string);
