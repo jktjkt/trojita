@@ -1050,7 +1050,14 @@ void ComposeWidget::loadDraft(const QString &path)
         m_submission->composer()->setTimestamp(timestamp);
         if (!m_inReplyTo.isEmpty()) {
             ui->markAsReply->setVisible(true);
-            ui->markAsReply->setText(tr("In-Reply-To: %1").arg(QString(m_inReplyTo[0])));
+
+            // We do not have the message index at this point, but we can at least show the Message-Id here
+            QStringList inReplyTo;
+            Q_FOREACH(auto item, m_inReplyTo) {
+                // There's no HTML escaping to worry about
+                inReplyTo << QLatin1Char('<') + QString::fromUtf8(item.constData()) + QLatin1Char('>');
+            }
+            ui->markAsReply->setText(tr("In-Reply-To: %1").arg(inReplyTo.join(tr(", "))));
         }
     }
     if (version >= 3) {
