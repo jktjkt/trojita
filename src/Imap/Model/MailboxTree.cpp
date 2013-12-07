@@ -63,6 +63,9 @@ TreeItem::TreeItem(TreeItem *parent): m_parent(parent)
 #       define alignof __alignof__
 #   endif
 #endif
+#ifdef _MSC_VER
+#   define alignof __alignof
+#endif
     static_assert(static_cast<intptr_t>(alignof(TreeItem)) > TreeItem::TagMask,
                   "class TreeItem must be aligned at at least four bytes due to the FetchingState optimization");
     static_assert(DONE <= TagMask, "Invalid masking for pointer tag access");
