@@ -207,7 +207,7 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
         if (ui->attachmentsView->model()->rowCount() > 0)
             message += tr("<br><span style=\"color:red\">Warning: Attachments are <b>not</b> saved with the draft!</span>");
         msgBox.setText(message);
-        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Close | QMessageBox::Cancel);
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         msgBox.setDefaultButton(QMessageBox::Save);
         int ret = msgBox.exec();
         if (ret == QMessageBox::Save) {
