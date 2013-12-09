@@ -202,12 +202,12 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
     if (!noSaveRequired) {  // save is required
         QMessageBox msgBox(this);
         msgBox.setWindowModality(Qt::WindowModal);
-        msgBox.setWindowTitle(tr("Safe Draft?"));
+        msgBox.setWindowTitle(tr("Save Draft?"));
         QString message(tr("The mail has not been sent.<br>Do you want to save the draft?"));
         if (ui->attachmentsView->model()->rowCount() > 0)
             message += tr("<br><span style=\"color:red\">Warning: Attachments are <b>not</b> saved with the draft!</span>");
         msgBox.setText(message);
-        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Close | QMessageBox::Cancel);
+        msgBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
         msgBox.setDefaultButton(QMessageBox::Save);
         int ret = msgBox.exec();
         if (ret == QMessageBox::Save) {
