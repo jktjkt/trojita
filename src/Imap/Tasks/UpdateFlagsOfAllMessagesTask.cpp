@@ -81,6 +81,7 @@ bool UpdateFlagsOfAllMessagesTask::handleStateHelper(const Imap::Responses::Stat
                 if (!newFlags.contains(flags)) {
                     newFlags << flags;
                     message->setFlags(list, model->normalizeFlags(newFlags), true);
+                    model->cache()->setMsgFlags(mailbox->mailbox(), message->uid(), newFlags);
                     QModelIndex messageIndex = model->createIndex(message->m_offset, 0, message);
 
                     // emitting dataChanged() separately for each message in the mailbox:
