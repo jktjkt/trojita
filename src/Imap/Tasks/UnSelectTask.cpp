@@ -77,17 +77,19 @@ void UnSelectTask::doFakeSelect()
 
 bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
-    switch (resp->respCode) {
-    case Responses::UNSEEN:
-    case Responses::PERMANENTFLAGS:
-    case Responses::UIDNEXT:
-    case Responses::UIDVALIDITY:
-    case Responses::NOMODSEQ:
-    case Responses::HIGHESTMODSEQ:
-    case Responses::CLOSED:
-        return true;
-    default:
-        break;
+    if (resp->tag.isEmpty()) {
+        switch (resp->respCode) {
+        case Responses::UNSEEN:
+        case Responses::PERMANENTFLAGS:
+        case Responses::UIDNEXT:
+        case Responses::UIDVALIDITY:
+        case Responses::NOMODSEQ:
+        case Responses::HIGHESTMODSEQ:
+        case Responses::CLOSED:
+            return true;
+        default:
+            break;
+        }
     }
     if (!resp->tag.isEmpty()) {
         if (resp->tag == unSelectTag) {
