@@ -72,6 +72,7 @@ private slots:
     void testCondstoreDecreasedHighestModSeq();
     void testCacheDiscrepancyExistsUidsConstantHMS();
     void testCacheDiscrepancyExistsUidsDifferentHMS();
+    void testCondstoreQresyncNomodseqHighestmodseq();
 
     void testQresyncNoChanges();
     void testQresyncChangedFlags();

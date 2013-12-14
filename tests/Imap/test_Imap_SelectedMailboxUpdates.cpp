@@ -289,13 +289,14 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
         cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
                            helperCreateTrivialEnvelope(3, 45, QLatin1String("C")) +
-                           t.last("OK fetched\r\n"));
+                           t.last("OK [UIDNEXT 46] fetched\r\n"));
         QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >(), QList<QByteArray>());
         QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPost).toList(), QVariantList());
         QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPostNo).toBool(), true);
     }
     helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C"));
     cEmpty();
+    justKeepTask();
     QVERIFY( errorSpy->isEmpty() );
 }
 

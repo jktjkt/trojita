@@ -590,18 +590,17 @@ void ObtainSynchronizedMailboxTask::syncFlags(TreeItemMailbox *mailbox)
 bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Responses::State *const resp)
 {
     if (dieIfInvalidMailbox())
-        return true;
+        return resp->tag.isEmpty();
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
-    bool res = false;
     switch (resp->respCode) {
     case Responses::UNSEEN:
     {
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setUnSeenOffset(num->data);
-            res = true;
+            return resp->tag.isEmpty();
         } else {
             throw CantHappen("State response has invalid UNSEEN respCodeData", *resp);
         }
@@ -612,7 +611,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         const Responses::RespData<QStringList> *const num = dynamic_cast<const Responses::RespData<QStringList>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setPermanentFlags(num->data);
-            res = true;
+            return resp->tag.isEmpty();
         } else {
             throw CantHappen("State response has invalid PERMANENTFLAGS respCodeData", *resp);
         }
@@ -623,7 +622,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setUidNext(num->data);
-            res = true;
+            return resp->tag.isEmpty();
         } else {
             throw CantHappen("State response has invalid UIDNEXT respCodeData", *resp);
         }
@@ -634,7 +633,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         const Responses::RespData<uint> *const num = dynamic_cast<const Responses::RespData<uint>* const>(resp->respCodeData.data());
         if (num) {
             mailbox->syncState.setUidValidity(num->data);
-            res = true;
+            return resp->tag.isEmpty();
         } else {
             throw CantHappen("State response has invalid UIDVALIDITY respCodeData", *resp);
         }
@@ -645,7 +644,7 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         // the FETCH CHANGEDSINCE etc.
         mailbox->syncState.setHighestModSeq(0);
         m_usingQresync = false;
-        res = true;
+        return resp->tag.isEmpty();
         break;
 
     case Responses::HIGHESTMODSEQ:
@@ -653,17 +652,17 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         const Responses::RespData<quint64> *const num = dynamic_cast<const Responses::RespData<quint64>* const>(resp->respCodeData.data());
         Q_ASSERT(num);
         mailbox->syncState.setHighestModSeq(num->data);
-        res = true;
+        return resp->tag.isEmpty();
         break;
     }
     case Responses::CLOSED:
         // FIXME: handle when supporting the qresync
-        res = true;
+        return resp->tag.isEmpty();
         break;
     default:
         break;
     }
-    return res;
+    return false;
 }
 
 void ObtainSynchronizedMailboxTask::updateHighestKnownUid(TreeItemMailbox *mailbox, const TreeItemMsgList *list) const

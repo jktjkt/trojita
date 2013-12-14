@@ -538,6 +538,7 @@ void LibMailboxSync::justKeepTask()
     QVERIFY(keepTask);
     QVERIFY(keepTask->requestedEnvelopes.isEmpty());
     QVERIFY(keepTask->requestedParts.isEmpty());
+    QVERIFY(keepTask->newArrivalsFetch.isEmpty());
 }
 
 /** @short Find an item within a tree identified by a "path"

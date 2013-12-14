@@ -2269,4 +2269,60 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncAfterEmpty()
     justKeepTask();
 }
 
+/** @short Test QRESYNC/CONDSTORE initial sync on Devocot which reports NOMODSEQ followed by HIGHESTMODSEQ 1
+
+This is apparently a real-world issue.
+*/
+void ImapModelObtainSynchronizedMailboxTest::testCondstoreQresyncNomodseqHighestmodseq()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("ESEARCH");
+    injector.injectCapability("CONDSTORE");
+    injector.injectCapability("QRESYNC");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded)\r\n"
+            "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded \\*)] Flags permitted.\r\n"
+            "* 3 EXISTS\r\n"
+            "* 0 RECENT\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [NOMODSEQ] .\r\n"
+            );
+    cServer(t.last("OK [READ-WRITE] selected\r\n"));
+    cClient(t.mk("UID SEARCH RETURN (ALL) ALL\r\n"));
+    cServer("* ESEARCH (TAG \"" + t.last() + "\") UID ALL 1:3\r\n");
+    cServer(t.last("OK [HIGHESTMODSEQ 1] Searched\r\n"));
+    cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (MODSEQ (1) UID 1 FLAGS (\\Seen))\r\n"
+            "* 2 FETCH (MODSEQ (1) UID 2 FLAGS ())\r\n"
+            "* 3 FETCH (MODSEQ (1) UID 3 FLAGS (\\Answered))\r\n"
+            + t.last("OK flags fetched\r\n"));
+
+    existsA = 3;
+    uidNextA = 15;
+    uidValidityA = 666;
+    Imap::Mailbox::SyncState state;
+    state.setExists(existsA);
+    state.setUidNext(uidNextA);
+    state.setUidValidity(uidValidityA);
+    state.setRecent(0);
+    state.setFlags(QString::fromUtf8("\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded").split(QLatin1Char(' ')));
+    state.setPermanentFlags(QString::fromUtf8("\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded \\*").split(QLatin1Char(' ')));
+    state.setHighestModSeq(1);
+    uidMapA << 1 << 2 << 3;
+
+    helperCheckCache();
+    helperVerifyUidMapA();
+    QCOMPARE(model->cache()->mailboxSyncState("a"), state);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMapA.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMapA);
+    QCOMPARE(model->cache()->msgFlags("a", 1), QStringList() << QLatin1String("\\Seen"));
+    QCOMPARE(model->cache()->msgFlags("a", 2), QStringList());
+    QCOMPARE(model->cache()->msgFlags("a", 3), QStringList() << QLatin1String("\\Answered"));
+
+    cEmpty();
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
