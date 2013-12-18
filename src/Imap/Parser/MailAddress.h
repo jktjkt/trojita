@@ -108,6 +108,16 @@ public:
     result_type operator()(const MailAddress &a, const MailAddress &b) const;
 };
 
+/** @short Is the second domain a prefix of the first one?
+
+Insert the usual complaint about lack of C++11 support here.
+*/
+class MailAddressesEqualByDomainSuffix: public std::binary_function<MailAddress, MailAddress, bool>
+{
+public:
+    result_type operator()(const MailAddress &a, const MailAddress &b) const;
+};
+
 }
 
 }

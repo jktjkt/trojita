@@ -68,6 +68,12 @@ namespace QTest {
         }
         return qstrdup(buf.toUtf8().constData());
     }
+
+    template <>
+    char *toString(const Composer::RecipientList::value_type &item)
+    {
+        return qstrdup((recipientKindtoString(item.first).toUtf8() + ' ' + item.second.asSMTPMailbox()).constData());
+    }
 }
 
 /** @short Test that subjects remain sane in replied/forwarded messages */
@@ -425,6 +431,16 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("a@b"))
         << false << empty
         << true << (QStringList() << QString::fromUtf8("j@k")) << QString::fromUtf8("j@k");
+
+    // We have a @gentoo.org identity, mail was sent by someone else, but to something @lists.gentoo.org
+    QTest::newRow("lists-subdomain")
+        << (RecipientList() << mailFrom("alien@example.org") << mailTo("x@lists.gentoo.org"))
+        << (QList<QUrl>() << QUrl(QLatin1String("mailto:x@lists.gentoo.org"))) << false
+        << true << (RecipientList() << mailTo("alien@example.org"))
+        << true << (RecipientList() << mailTo("alien@example.org") << mailCc("x@lists.gentoo.org"))
+        << true << (RecipientList() << mailTo("alien@example.org") << mailCc("x@lists.gentoo.org"))
+        << true << (RecipientList() << mailTo("x@lists.gentoo.org"))
+        << true << (QStringList() << QString::fromUtf8("j@k") << QString::fromUtf8("test@gentoo.org")) << QString::fromUtf8("test@gentoo.org");
 
     // FIXME: more tests!
 }

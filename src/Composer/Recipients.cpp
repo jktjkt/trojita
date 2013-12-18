@@ -380,6 +380,17 @@ bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, con
         }
     }
 
+    // Check for situations where the identity's domain is the suffix of some address
+    for (int i = 0; i < identities.size(); ++i) {
+        auto it = std::find_if(addresses.constBegin(), addresses.constEnd(),
+                               std::bind2nd(Imap::Message::MailAddressesEqualByDomainSuffix(), identities[i]));
+        if (it != addresses.constEnd()) {
+            // Found a match because the domain suffix matches -> return that
+            row = i;
+            return true;
+        }
+    }
+
     // No other heuristic is there for now -> give up
     return false;
 }

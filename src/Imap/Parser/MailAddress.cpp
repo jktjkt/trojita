@@ -323,6 +323,15 @@ MailAddressesEqualByDomain::result_type MailAddressesEqualByDomain::operator()(c
     return a.host.toLower() == b.host.toLower();
 }
 
+
+MailAddressesEqualByDomainSuffix::result_type MailAddressesEqualByDomainSuffix::operator()(const MailAddress &a, const MailAddress &b) const
+{
+    // FIXME: fancy stuff like the IDN?
+    auto aHost = a.host.toLower();
+    auto bHost = b.host.toLower();
+    return aHost == bHost || aHost.endsWith(QLatin1Char('.') + bHost);
+}
+
 }
 }
 
