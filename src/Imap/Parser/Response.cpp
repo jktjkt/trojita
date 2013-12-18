@@ -301,18 +301,18 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         }
     }
 
-    QStringList _list;
+    QStringList list;
     QVariantList originalList;
     try {
         originalList = LowLevelParser::parseList('[', ']', line, start);
-        _list = QVariant(originalList).toStringList();
+        list = QVariant(originalList).toStringList();
         ++start;
     } catch (UnexpectedHere &) {
         // this is perfectly possible
     }
 
-    if (!_list.isEmpty()) {
-        const QString r = _list.first().toUpper();
+    if (!list.isEmpty()) {
+        const QString r = list.first().toUpper();
 #define CASE(X) else if (r == QLatin1String(#X)) respCode = Responses::X;
         if (r == QLatin1String("ALERT"))
             respCode = Responses::ALERT;
@@ -380,7 +380,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             respCode = Responses::ATOM;
 
         if (respCode != Responses::ATOM)
-            _list.pop_front();
+            list.pop_front();
 
         // now perform validity check and construct & store the storage object
         switch (respCode) {
@@ -419,7 +419,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         case Responses::POLICYDENIED:
         case Responses::SUBMISSIONRACE:
             // check for "no more stuff"
-            if (_list.count())
+            if (list.count())
                 throw InvalidResponseCode("Got a response code with extra data inside the brackets",
                                           line, start);
             respCodeData = QSharedPointer<AbstractData>(new RespData<void>());
@@ -431,10 +431,10 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         case Responses::MAXCONVERTPARTS:
             // check for "number only"
         {
-            if (_list.count() != 1)
+            if (list.count() != 1)
                 throw InvalidResponseCode(line, start);
             bool ok;
-            uint number = _list.first().toUInt(&ok);
+            uint number = list.first().toUInt(&ok);
             if (!ok)
                 throw InvalidResponseCode(line, start);
             respCodeData = QSharedPointer<AbstractData>(new RespData<uint>(number));
@@ -443,10 +443,10 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
         case Responses::HIGHESTMODSEQ:
             // similar to the above, but an unsigned 64bit int
         {
-            if (_list.count() != 1)
+            if (list.count() != 1)
                 throw InvalidResponseCode(line, start);
             bool ok;
-            quint64 number = _list.first().toULongLong(&ok);
+            quint64 number = list.first().toULongLong(&ok);
             if (!ok)
                 throw InvalidResponseCode(line, start);
             respCodeData = QSharedPointer<AbstractData>(new RespData<quint64>(number));
@@ -467,31 +467,31 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             } else {
                 // Well, we used to accept "* OK [PERMANENTFLAGS foo bar] xyz" for quite long time,
                 // so no need to break backwards compatibility here
-                respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(_list));
+                respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(list));
                 qDebug() << "Parser warning: obsolete format of BADCAHRSET/PERMANENTFLAGS/BADEVENT";
             }
             break;
         case Responses::CAPABILITIES:
             // no check here
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(_list));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QStringList>(list));
             break;
         case Responses::ATOM: // no sanity check here, just make a string
         case Responses::NONE: // this won't happen, but if we omit it, gcc warns us about that
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QLatin1String(" "))));
             break;
         case Responses::NEWNAME:
         case Responses::REFERRAL:
         case Responses::BADURL:
             // FIXME: check if indeed won't eat the spaces
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QLatin1String(" "))));
             break;
         case Responses::NOUPDATE:
             // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as a quoted string
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QLatin1String(" "))));
             break;
         case Responses::UNDEFINED_FILTER:
             // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as an atom
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(_list.join(QLatin1String(" "))));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QLatin1String(" "))));
             break;
         case Responses::APPENDUID:
         {
@@ -550,9 +550,9 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             break;
         case Responses::ANNOTATE:
         {
-            if (_list.count() != 1)
+            if (list.count() != 1)
                 throw InvalidResponseCode("ANNOTATE response code got weird number of elements", line, start);
-            QString token = _list.first().toUpper();
+            QString token = list.first().toUpper();
             if (token == QLatin1String("TOOBIG") || token == QLatin1String("TOOMANY"))
                 respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(token));
             else
