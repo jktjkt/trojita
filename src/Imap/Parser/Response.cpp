@@ -584,15 +584,15 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
     }
 }
 
-NumberResponse::NumberResponse(const Kind _kind, const uint _num) throw(UnexpectedHere):
-    AbstractResponse(_kind), number(_num)
+NumberResponse::NumberResponse(const Kind kind, const uint number) throw(UnexpectedHere):
+    kind(kind), number(number)
 {
     if (kind != EXISTS && kind != EXPUNGE && kind != RECENT)
         throw UnexpectedHere("Attempted to create NumberResponse of invalid kind");
 }
 
-List::List(const Kind _kind, const QByteArray &line, int &start):
-    AbstractResponse(LIST), kind(_kind)
+List::List(const Kind kind, const QByteArray &line, int &start):
+    kind(kind)
 {
     if (kind != LIST && kind != LSUB)
         throw UnexpectedHere(line, start);   // FIXME: well, "start" is too late here...
@@ -644,14 +644,14 @@ List::List(const Kind _kind, const QByteArray &line, int &start):
         throw TooMuchData(line, start);
 }
 
-Flags::Flags(const QByteArray &line, int &start): AbstractResponse(FLAGS)
+Flags::Flags(const QByteArray &line, int &start)
 {
     flags = QVariant(LowLevelParser::parseList('(', ')', line, start)).toStringList();
     if (start >= line.size())
         throw TooMuchData(line, start);
 }
 
-Search::Search(const QByteArray &line, int &start): AbstractResponse(SEARCH)
+Search::Search(const QByteArray &line, int &start)
 {
     while (start < line.size() - 2) {
         try {
@@ -664,7 +664,7 @@ Search::Search(const QByteArray &line, int &start): AbstractResponse(SEARCH)
     }
 }
 
-ESearch::ESearch(const QByteArray &line, int &start): AbstractResponse(ESEARCH), seqOrUids(SEQUENCE)
+ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
 {
     LowLevelParser::eatSpaces(line, start);
 
@@ -799,7 +799,7 @@ ESearch::ESearch(const QByteArray &line, int &start): AbstractResponse(ESEARCH),
     }
 }
 
-Status::Status(const QByteArray &line, int &start): AbstractResponse(STATUS)
+Status::Status(const QByteArray &line, int &start)
 {
     mailbox = LowLevelParser::getMailbox(line, start);
     ++start;
@@ -865,8 +865,7 @@ QDateTime Fetch::dateify(QByteArray str, const QByteArray &line, const int start
     return date;
 }
 
-Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
-    AbstractResponse(FETCH), number(_number)
+Fetch::Fetch(const uint number, const QByteArray &line, int &start): number(number)
 {
     ++start;
 
@@ -954,8 +953,7 @@ Fetch::Fetch(const uint _number, const QByteArray &line, int &start):
         throw TooMuchData(line, start);
 }
 
-Fetch::Fetch(const uint _number, const Fetch::dataType &_data):
-    AbstractResponse(FETCH), number(_number), data(_data)
+Fetch::Fetch(const uint number, const Fetch::dataType &data): number(number), data(data)
 {
 }
 
@@ -985,14 +983,14 @@ QList<NamespaceData> NamespaceData::listFromLine(const QByteArray &line, int &st
     return result;
 }
 
-Namespace::Namespace(const QByteArray &line, int &start): AbstractResponse(NAMESPACE)
+Namespace::Namespace(const QByteArray &line, int &start)
 {
     personal = NamespaceData::listFromLine(line, start);
     users = NamespaceData::listFromLine(line, start);
     other = NamespaceData::listFromLine(line, start);
 }
 
-Sort::Sort(const QByteArray &line, int &start): AbstractResponse(SORT)
+Sort::Sort(const QByteArray &line, int &start)
 {
     while (start < line.size() - 2) {
         try {
@@ -1006,7 +1004,7 @@ Sort::Sort(const QByteArray &line, int &start): AbstractResponse(SORT)
 }
 
 
-Thread::Thread(const QByteArray &line, int &start): AbstractResponse(THREAD)
+Thread::Thread(const QByteArray &line, int &start)
 {
     ThreadingNode node;
     while (start < line.size() - 2) {
@@ -1043,7 +1041,7 @@ static void threadingHelperInsertHere(ThreadingNode *where, const QVariantList &
     }
 }
 
-Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
+Id::Id(const QByteArray &line, int &start)
 {
     try {
         QVariantList list = LowLevelParser::parseList('(', ')', line, start);
@@ -1065,7 +1063,7 @@ Id::Id(const QByteArray &line, int &start): AbstractResponse(ID)
     }
 }
 
-Enabled::Enabled(const QByteArray &line, int &start): AbstractResponse(ENABLED)
+Enabled::Enabled(const QByteArray &line, int &start)
 {
     LowLevelParser::eatSpaces(line, start);
     while (start < line.size() - 2) {
@@ -1075,8 +1073,7 @@ Enabled::Enabled(const QByteArray &line, int &start): AbstractResponse(ENABLED)
     }
 }
 
-Vanished::Vanished(const QByteArray &line, int &start):
-    AbstractResponse(VANISHED), earlier(NOT_EARLIER)
+Vanished::Vanished(const QByteArray &line, int &start): earlier(NOT_EARLIER)
 {
     LowLevelParser::eatSpaces(line, start);
 
@@ -1096,8 +1093,7 @@ Vanished::Vanished(const QByteArray &line, int &start):
         throw TooMuchData(line, start);
 }
 
-GenUrlAuth::GenUrlAuth(const QByteArray &line, int &start):
-    AbstractResponse(GENURLAUTH)
+GenUrlAuth::GenUrlAuth(const QByteArray &line, int &start)
 {
     url = QString::fromUtf8(LowLevelParser::getAString(line, start).first);
     if (start != line.size() - 2)
