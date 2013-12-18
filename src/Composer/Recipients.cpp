@@ -360,9 +360,8 @@ bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, con
 
     // First of all, look for a full match of the sender among the addresses
     for (int i = 0; i < identities.size(); ++i) {
-        QList<MailAddress>::const_iterator it = std::find_if(
-                    addresses.constBegin(), addresses.constEnd(),
-                    std::bind2nd(Imap::Message::MailAddressesEqualByMail(), identities[i]));
+        auto it = std::find_if(addresses.constBegin(), addresses.constEnd(),
+                               std::bind2nd(Imap::Message::MailAddressesEqualByMail(), identities[i]));
         if (it != addresses.constEnd()) {
             // Found an exact match of one of our identities in the recipients -> return that
             row = i;
@@ -372,9 +371,8 @@ bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, con
 
     // Then look for the matching domain
     for (int i = 0; i < identities.size(); ++i) {
-        QList<MailAddress>::const_iterator it = std::find_if(
-                    addresses.constBegin(), addresses.constEnd(),
-                    std::bind2nd(Imap::Message::MailAddressesEqualByDomain(), identities[i]));
+        auto it = std::find_if(addresses.constBegin(), addresses.constEnd(),
+                               std::bind2nd(Imap::Message::MailAddressesEqualByDomain(), identities[i]));
         if (it != addresses.constEnd()) {
             // Found a match because the domain matches -> return that
             row = i;
