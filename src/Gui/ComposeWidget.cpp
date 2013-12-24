@@ -494,7 +494,11 @@ void ComposeWidget::calculateMaxVisibleRecipients()
                        (subjectHeight + spacing) - // for the subject
                        bottom - // layout bottom padding
                        2; // extra pixels padding to detect that the user wants to shrink
-    m_maxVisibleRecipients = height / (itemHeight + spacing);
+    if (itemHeight + spacing == 0) {
+        m_maxVisibleRecipients = MIN_MAX_VISIBLE_RECIPIENTS;
+    } else {
+        m_maxVisibleRecipients = height / (itemHeight + spacing);
+    }
     if (m_maxVisibleRecipients < MIN_MAX_VISIBLE_RECIPIENTS)
         m_maxVisibleRecipients = MIN_MAX_VISIBLE_RECIPIENTS; // allow up to 4 recipients w/o need for a sliding
     if (oldMaxVisibleRecipients != m_maxVisibleRecipients) {
