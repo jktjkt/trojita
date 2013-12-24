@@ -643,7 +643,7 @@ void Model::handleEnabled(Parser *ptr, const Responses::Enabled *const resp)
 {
     if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
         return;
-    throw UnexpectedResponseReceived("Unhandled ENABLE response", *resp);
+    throw UnexpectedResponseReceived("Unhandled ENABLED response", *resp);
 }
 
 void Model::handleVanished(Parser *ptr, const Responses::Vanished *const resp)
