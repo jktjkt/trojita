@@ -1552,8 +1552,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheDiscrepancyExistsUids(bo
     justKeepTask();
 }
 
-/** @short Test QRESYNC when there are no changes */
-void ImapModelObtainSynchronizedMailboxTest::testQresyncNoChanges()
+void ImapModelObtainSynchronizedMailboxTest::helperTestQresyncNoChanges(ModeForHelperTestQresyncNoChanges mode)
 {
     FakeCapabilitiesInjector injector(model);
     injector.injectCapability("QRESYNC");
@@ -1571,6 +1570,9 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNoChanges()
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
     cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+    if (mode == EXTRA_ENABLED) {
+        cServer("* ENABLED CONDSTORE QRESYNC\r\n");
+    }
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
             "* OK [UIDNEXT 15] .\r\n"
@@ -1588,6 +1590,12 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNoChanges()
     model->setNetworkExpensive();
     requestAndCheckSubject(0, "subject 6");
     justKeepTask();
+}
+
+/** @short Test QRESYNC when there are no changes */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncNoChanges()
+{
+    helperTestQresyncNoChanges(JUST_QRESYNC);
 }
 
 /** @short Test QRESYNC reporting changed flags */
@@ -2323,6 +2331,12 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreQresyncNomodseqHighest
 
     cEmpty();
     justKeepTask();
+}
+
+/** @short Bug #329204 -- spurious * ENABLED untagged responses from Kolab's IMAP servers */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncExtraEnabled()
+{
+    helperTestQresyncNoChanges(EXTRA_ENABLED);
 }
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

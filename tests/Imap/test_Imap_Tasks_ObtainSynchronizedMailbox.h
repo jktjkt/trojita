@@ -34,6 +34,9 @@ class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
     typedef enum {WITHOUT_ESEARCH, WITH_ESEARCH} ESearchMode;
     void helperCacheArrivalRaceDuringUid(const ESearchMode esearch);
     void helperCacheExpunges(const ESearchMode esearch);
+
+    typedef enum { JUST_QRESYNC, EXTRA_ENABLED } ModeForHelperTestQresyncNoChanges;
+    void helperTestQresyncNoChanges(ModeForHelperTestQresyncNoChanges mode);
 private slots:
     void init();
     void testSyncEmptyMinimal();
@@ -86,6 +89,7 @@ private slots:
     void testQresyncDeletionsNewArrivals();
     void testQresyncSpuriousVanishedEarlier();
     void testQresyncAfterEmpty();
+    void testQresyncExtraEnabled();
 
     void testSpuriousSearch();
     void testSpuriousESearch();
