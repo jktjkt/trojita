@@ -112,6 +112,8 @@ private slots:
 
     void passwordRequested(const QString &user, const QString &host);
 
+    void toggleInReplyTo(int mode);
+
 private:
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     static Composer::RecipientKind recipientKindForNextRow(const Composer::RecipientKind kind);

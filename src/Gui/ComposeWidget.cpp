@@ -60,6 +60,7 @@
 namespace
 {
 enum { OFFSET_OF_FIRST_ADDRESSEE = 1, MIN_MAX_VISIBLE_RECIPIENTS = 4 };
+enum { IN_REPLY_TO = 0, SUBJECT = 1 };
 }
 
 namespace Gui
@@ -121,6 +122,8 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     ui->recipientSlider->setMaximum(0);
     ui->recipientSlider->setVisible(false);
     ui->envelopeWidget->installEventFilter(this);
+
+    connect(ui->markAsReply, SIGNAL(currentIndexChanged(int)), this, SLOT(toggleInReplyTo(int)));
 
     ui->mailText->setFont(Gui::Util::systemMonospaceFont());
 
@@ -291,7 +294,7 @@ bool ComposeWidget::buildMessageData()
     }
     m_submission->composer()->setText(ui->mailText->toPlainText());
 
-    if (ui->markAsReply->isChecked()) {
+    if (ui->markAsReply->currentIndex() == IN_REPLY_TO) {
         m_submission->composer()->setInReplyTo(m_inReplyTo);
         m_submission->composer()->setReferences(m_references);
         m_submission->composer()->setReplyingToMessage(m_replyingToMessage);
@@ -362,10 +365,15 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     m_references = references;
     m_replyingToMessage = replyingToMessage;
     if (m_replyingToMessage.isValid()) {
-        ui->markAsReply->setVisible(true);
-        ui->markAsReply->setText(tr("In-Reply-To: %1").arg(
-                                m_replyingToMessage.data(Imap::Mailbox::RoleMessageSubject).toString())
-                                );
+        QVariant replySubject = m_replyingToMessage.data(Imap::Mailbox::RoleMessageSubject);
+        ui->markAsReply->setProperty("tooltip", replySubject);
+        ui->markAsReply->setToolTip(replySubject.toString());
+        ui->subjectLabel->hide();
+        ui->markAsReply->show();
+        ui->markAsReply->setCurrentIndex(IN_REPLY_TO);
+    } else {
+        ui->markAsReply->hide();
+        ui->subjectLabel->show();
     }
 
     int row = -1;
@@ -1000,7 +1008,7 @@ void ComposeWidget::saveDraft(const QString &path)
         stream << m_recipients.at(i).second->text();
     }
     stream << m_submission->composer()->timestamp() << m_inReplyTo << m_references;
-    stream << ui->markAsReply->isChecked();
+    stream << bool(ui->markAsReply->currentIndex() == IN_REPLY_TO);
     stream << ui->subject->text();
     stream << ui->mailText->toPlainText();
     // we spare attachments
@@ -1052,8 +1060,12 @@ void ComposeWidget::loadDraft(const QString &path)
         QDateTime timestamp;
         stream >> timestamp >> m_inReplyTo >> m_references;
         m_submission->composer()->setTimestamp(timestamp);
-        if (!m_inReplyTo.isEmpty()) {
-            ui->markAsReply->setVisible(true);
+        if (m_inReplyTo.isEmpty()) {
+            ui->markAsReply->hide();
+            ui->subjectLabel->show();
+        } else {
+            ui->subjectLabel->hide();
+            ui->markAsReply->show();
 
             // We do not have the message index at this point, but we can at least show the Message-Id here
             QStringList inReplyTo;
@@ -1061,13 +1073,13 @@ void ComposeWidget::loadDraft(const QString &path)
                 // There's no HTML escaping to worry about
                 inReplyTo << QLatin1Char('<') + QString::fromUtf8(item.constData()) + QLatin1Char('>');
             }
-            ui->markAsReply->setText(tr("In-Reply-To: %1").arg(inReplyTo.join(tr(", "))));
+            ui->markAsReply->setProperty("tooltip", tr("In-Reply-To: %1").arg(inReplyTo.join(tr(", "))));
         }
     }
     if (version >= 3) {
         bool replyChecked;
         stream >> replyChecked;
-        ui->markAsReply->setChecked(replyChecked);
+        ui->markAsReply->setCurrentIndex(replyChecked ? IN_REPLY_TO : SUBJECT);
     }
     stream >> string;
     ui->subject->setText(string);
@@ -1096,6 +1108,15 @@ void ComposeWidget::updateWindowTitle()
         setWindowTitle(tr("Compose Mail"));
     } else {
         setWindowTitle(tr("%1 - Compose Mail").arg(ui->subject->text()));
+    }
+}
+
+void ComposeWidget::toggleInReplyTo(int mode)
+{
+    if (mode == IN_REPLY_TO) {
+        ui->markAsReply->setToolTip(ui->markAsReply->property("tooltip").toString());
+    } else {
+        ui->markAsReply->setToolTip(tr("Change to preserve reply hierarchy"));
     }
 }
 
