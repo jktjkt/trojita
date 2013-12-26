@@ -34,10 +34,10 @@ void ImapModelListChildMailboxesTest::init()
 {
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
     factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
-    Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
-    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
+    Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
+    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
-    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
+    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory), false);
     QCoreApplication::processEvents();
     task = 0;
 }
