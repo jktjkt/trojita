@@ -103,7 +103,7 @@ TreeItemChildrenList TreeItem::setChildren(const TreeItemChildrenList &items)
 
 bool TreeItem::isUnavailable(Model *const model) const
 {
-    return accessFetchStatus() == UNAVAILABLE && model->networkPolicy() == Model::NETWORK_OFFLINE;
+    return accessFetchStatus() == UNAVAILABLE && model->networkPolicy() == NETWORK_OFFLINE;
 }
 
 unsigned int TreeItem::columnCount()

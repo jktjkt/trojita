@@ -48,7 +48,7 @@ GetAnyConnectionTask::GetAnyConnectionTask(Model *model) :
 
     if (it == model->m_parsers.end()) {
         // We're creating a completely new connection
-        if (model->networkPolicy() == Model::NETWORK_OFFLINE) {
+        if (model->networkPolicy() == NETWORK_OFFLINE) {
             // ...but we're offline -> too bad, got to fail
             newConn = new OfflineConnectionTask(model);
             newConn->addDependentTask(this);

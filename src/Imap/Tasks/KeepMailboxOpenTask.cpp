@@ -98,7 +98,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
         }
     } else {
         ImapTask *conn = 0;
-        if (model->networkPolicy() == Model::NETWORK_OFFLINE) {
+        if (model->networkPolicy() == NETWORK_OFFLINE) {
             // Well, except that we cannot really open a new connection now
             conn = new OfflineConnectionTask(model);
         } else {
