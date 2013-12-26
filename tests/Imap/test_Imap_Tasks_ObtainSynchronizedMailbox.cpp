@@ -1587,7 +1587,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperTestQresyncNoChanges(ModeForH
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
     // deactivate envelope preloading
-    model->setNetworkExpensive();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_EXPENSIVE);
     requestAndCheckSubject(0, "subject 6");
     justKeepTask();
 }
@@ -1637,7 +1637,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
     QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 2);
 
     // deactivate envelope preloading
-    model->setNetworkExpensive();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_EXPENSIVE);
     requestAndCheckSubject(0, "subject 6");
     justKeepTask();
 }
@@ -1941,7 +1941,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncReportedNewArrivals()
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
     // deactivate envelope preloading
-    model->setNetworkExpensive();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_EXPENSIVE);
     requestAndCheckSubject(0, "subject 6");
     justKeepTask();
 }
@@ -2107,7 +2107,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
 /** @short Test that we can open a mailbox using just the cached data when offline */
 void ImapModelObtainSynchronizedMailboxTest::testOfflineOpening()
 {
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
     cClient(t.mk("LOGOUT\r\n"));
     cServer(t.last("OK logged out\r\n"));
 
@@ -2162,7 +2162,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncEnabling()
 {
     using namespace Imap::Mailbox;
 
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
     cClient(t.mk("LOGOUT\r\n"));
     cServer(t.last("OK logged out\r\n"));
 
@@ -2173,7 +2173,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncEnabling()
     factory->setInitialState(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
     t.reset();
 
-    model->setNetworkOnline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     QCoreApplication::processEvents();
     cServer("* OK [CAPABILITY IMAP4rev1] hi there\r\n");
     QCOMPARE(model->rowCount(QModelIndex()), 26);

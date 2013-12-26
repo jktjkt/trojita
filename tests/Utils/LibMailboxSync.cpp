@@ -72,7 +72,7 @@ void LibMailboxSync::init()
         QLatin1String("s") << QLatin1String("q") << QLatin1String("u") <<
         QLatin1String("v") << QLatin1String("w") << QLatin1String("x") <<
         QLatin1String("y") << QLatin1String("z");
-    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory), false);
+    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
     errorSpy = new QSignalSpy(model, SIGNAL(connectionError(QString)));
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
     connect(model, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(modelLogged(uint,Common::LogMessage)));
@@ -109,6 +109,7 @@ void LibMailboxSync::modelLogged(uint parserId, const Common::LogMessage &messag
 
 void LibMailboxSync::helperInitialListing()
 {
+    model->setNetworkPolicy(Imap::Mailbox::NETWORK_ONLINE);
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -575,6 +576,12 @@ QModelIndex LibMailboxSync::findIndexByPosition(const QAbstractItemModel *model,
         }
     }
     return index;
+}
+
+/** @short Forwarding function which allows this to work without explicitly befriending each and every test */
+void LibMailboxSync::setModelNetworkPolicy(Imap::Mailbox::Model *model, const Imap::Mailbox::NetworkPolicy policy)
+{
+    model->setNetworkPolicy(policy);
 }
 
 namespace Imap {

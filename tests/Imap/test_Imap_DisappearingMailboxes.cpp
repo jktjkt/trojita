@@ -32,11 +32,11 @@
 void ImapModelDisappearingMailboxTest::testGoingOfflineOnline()
 {
     helperSyncBNoMessages();
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
-    model->setNetworkOnline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     t.reset();
 
     // We can't call helperSyncBNoMessages() here, it relies on msgListB's validity,
@@ -82,7 +82,7 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     Q_ASSERT(!socketPtr.isNull());
 
     // Go offline
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
 
@@ -102,7 +102,7 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     // Try a reconnect
     taskFactoryUnsafe->fakeListChildMailboxes = false;
     t.reset();
-    model->setNetworkOnline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -196,7 +196,7 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     helperSyncAWithMessagesEmptyState();
 
     // disable preload
-    model->setNetworkExpensive();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_EXPENSIVE);
 
     // and request some FETCH command
     QModelIndex messageIdx = msgListA.child(0, 0);
@@ -293,7 +293,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineMsgStructure()
     Streams::FakeSocket *origSocket = SOCK;
 
     // Switch the connection to an offline mode, but postpone the BYE response
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
@@ -331,7 +331,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
     Streams::FakeSocket *origSocket = SOCK;
 
     // Switch the connection to an offline mode, but postpone the BYE response
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
@@ -372,7 +372,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags2()
     model->markMessagesDeleted(QModelIndexList() << msg, Imap::Mailbox::FLAG_ADD);
 
     // Switch the connection to an offline mode, but postpone the BYE response
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(SOCK->writtenStuff(), t.mk("LOGOUT\r\n"));
@@ -412,7 +412,7 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags3()
 
     // Switch the connection to an offline mode, but postpone the BYE response
     QCoreApplication::processEvents();
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QByteArray writtenStuff = t.mk("UID STORE 1 +FLAGS (\\Deleted)\r\n");

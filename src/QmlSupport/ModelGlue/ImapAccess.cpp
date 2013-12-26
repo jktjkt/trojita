@@ -152,6 +152,7 @@ void ImapAccess::setSslMode(const QString &sslMode)
     cache = new Imap::Mailbox::SQLCache(this);
     bool ok = static_cast<Imap::Mailbox::SQLCache*>(cache)->open(QLatin1String("trojita-imap-cache"), m_cacheFile);
 
+    // FIXME: update me!
     m_imapModel = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory), false);
     m_imapModel->setProperty("trojita-imap-enable-id", true);
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
