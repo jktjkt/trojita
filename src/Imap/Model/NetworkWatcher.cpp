@@ -54,10 +54,21 @@ NetworkWatcher::NetworkWatcher(QObject *parent, Model *model):
 #ifdef TROJITA_HAS_QNETWORKSESSION
     m_netConfManager = new QNetworkConfigurationManager(this);
     resetSession();
-    connect(m_netConfManager, SIGNAL(onlineStateChanged(bool)), this, SLOT(reconnectModelNetwork()));
+    connect(m_netConfManager, SIGNAL(onlineStateChanged(bool)), this, SLOT(onGlobalOnlineStateChanged(bool)));
     connect(m_netConfManager, SIGNAL(configurationChanged(QNetworkConfiguration)),
             this, SLOT(networkConfigurationChanged(QNetworkConfiguration)));
 #endif
+}
+
+void NetworkWatcher::onGlobalOnlineStateChanged(const bool online)
+{
+    if (online) {
+        setDesiredNetworkPolicy(m_desiredPolicy);
+    } else {
+        m_model->setNetworkPolicy(NETWORK_OFFLINE);
+        // The session remains open, so that we indicate our intention to reconnect after the connectivity is restored
+        // (or when a configured AP comes back to range, etc).
+    }
 }
 
 /** @short Set the network access policy to "no access allowed" */

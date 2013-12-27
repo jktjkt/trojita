@@ -53,6 +53,7 @@ public slots:
     void setNetworkOnline();
 
     void reconnectModelNetwork();
+    void onGlobalOnlineStateChanged(const bool online);
 #ifdef TROJITA_HAS_QNETWORKSESSION
     void networkConfigurationChanged(const QNetworkConfiguration& conf);
 #endif
