@@ -24,11 +24,6 @@
 #include <QAuthenticator>
 #include <QCoreApplication>
 #include <QDebug>
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-#include <QNetworkConfigurationManager>
-#include <QNetworkSession>
-#define TROJITA_HAS_QNETWORKSESSION
-#endif
 #include <QtAlgorithms>
 #include "Model.h"
 #include "MailboxTree.h"
@@ -104,13 +99,12 @@ namespace Imap
 namespace Mailbox
 {
 
-Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory, bool offline):
+Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory):
     // parent
     QAbstractItemModel(parent),
     // our tools
     m_cache(cache), m_socketFactory(std::move(socketFactory)), m_taskFactory(std::move(taskFactory)), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(offline ? NETWORK_OFFLINE : NETWORK_ONLINE),  m_taskModel(0), m_hasImapPassword(false),
-    m_networkSession(0), m_userPreferredNetworkMode(m_netPolicy)
+    m_netPolicy(NETWORK_OFFLINE),  m_taskModel(0), m_hasImapPassword(false)
 {
     m_cache->setParent(this);
     m_startTls = m_socketFactory->startTlsRequired();
@@ -120,11 +114,8 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     onlineMessageFetch << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE") <<
                           QLatin1String("UID") << QLatin1String("FLAGS");
 
-    if (offline) {
-        QTimer::singleShot(0, this, SLOT(setNetworkOffline()));
-    } else {
-        QTimer::singleShot(0, this, SLOT(setNetworkOnline()));
-    }
+    EMIT_LATER_NOARG(this, networkPolicyOffline);
+    EMIT_LATER_NOARG(this, networkPolicyChanged);
 
 #ifdef DEBUG_PERIODICALLY_DUMP_TASKS
     QTimer *periodicTaskDumper = new QTimer(this);
@@ -145,11 +136,6 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     // polling every five minutes
     m_periodicMailboxNumbersRefresh->setInterval(5 * 60 * 1000);
     connect(m_periodicMailboxNumbersRefresh, SIGNAL(timeout()), this, SLOT(invalidateAllMessageCounts()));
-
-#ifdef TROJITA_HAS_QNETWORKSESSION
-    m_networkConfigurationManager = new QNetworkConfigurationManager(this);
-    connect(m_networkConfigurationManager, SIGNAL(onlineStateChanged(bool)), this, SLOT(slotNetworkConnectivityStatusChanged(bool)));
-#endif
 }
 
 Model::~Model()
@@ -267,7 +253,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
             killParser(it->parser, PARSER_KILL_HARD);
             logTrace(parserId, Common::LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QLatin1String("STARTTLS has failed"));
             EMIT_LATER(this, connectionError, Q_ARG(QString, tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>")));
-            setNetworkOffline();
+            setNetworkPolicy(NETWORK_OFFLINE);
             break;
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
@@ -320,7 +306,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 // ... but before that, expect that the connection will get closed soon
                 accessParser(ptr).connState = CONN_STATE_LOGOUT;
                 EMIT_LATER(this, connectionError, Q_ARG(QString, resp->message));
-                setNetworkOffline();
+                setNetworkPolicy(NETWORK_OFFLINE);
             }
             if (accessParser(ptr).parser) {
                 // previous block could enter the event loop and hence kill our parser; we shouldn't try to kill it twice
@@ -1046,9 +1032,6 @@ void Model::resyncMailbox(const QModelIndex &mbox)
 
 void Model::setNetworkPolicy(const NetworkPolicy policy)
 {
-    // Always reset this flag, this is likely called in response to human activity
-    m_userPreferredNetworkMode = policy;
-
     bool networkReconnected = m_netPolicy == NETWORK_OFFLINE && policy != NETWORK_OFFLINE;
     switch (policy) {
     case NETWORK_OFFLINE:
@@ -1074,14 +1057,6 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         emit networkPolicyChanged();
         emit networkPolicyOffline();
 
-#ifdef TROJITA_HAS_QNETWORKSESSION
-        if (m_networkSession) {
-            m_networkSession->close();
-            delete m_networkSession;
-            m_networkSession = 0;
-        }
-#endif
-
         // FIXME: kill the connection
         break;
     case NETWORK_EXPENSIVE:
@@ -1097,14 +1072,6 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
         emit networkPolicyOnline();
         break;
     }
-
-#ifdef TROJITA_HAS_QNETWORKSESSION
-    if (m_netPolicy != NETWORK_OFFLINE && !m_networkSession) {
-        // Take care of the connectivity management
-        m_networkSession = new QNetworkSession(m_networkConfigurationManager->defaultConfiguration(), this);
-        m_networkSession->open();
-    }
-#endif
 
     if (networkReconnected) {
         // We're connecting after being offline
@@ -1133,7 +1100,7 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
         logTrace(ptr->parserId(), Common::LOG_PARSE_ERROR, QString(), resp->message);
         killParser(ptr, PARSER_KILL_EXPECTED);
         EMIT_LATER(this, connectionError, Q_ARG(QString, resp->message));
-        setNetworkOffline();
+        setNetworkPolicy(NETWORK_OFFLINE);
     }
 }
 
@@ -1175,7 +1142,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                                    ).arg(exceptionClass, errorMessage, line, details);
     }
     EMIT_LATER(this, connectionError, Q_ARG(QString, message));
-    setNetworkOffline();
+    setNetworkPolicy(NETWORK_OFFLINE);
 }
 
 void Model::switchToMailbox(const QModelIndex &mbox)
@@ -1219,7 +1186,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
         changeConnectionState(parser, CONN_STATE_LOGOUT);
         accessParser(parser).logoutCmd = parser->logout();
         EMIT_LATER(this, connectionError, Q_ARG(QString, tr("We aren't talking to an IMAP4 server")));
-        setNetworkOffline();
+        setNetworkPolicy(NETWORK_OFFLINE);
     }
 }
 
@@ -2042,28 +2009,6 @@ void Model::setCapabilitiesBlacklist(const QStringList &blacklist)
 {
     m_capabilitiesBlacklist = blacklist;
 }
-
-/** @short React to changes in the network availability */
-void Model::slotNetworkConnectivityStatusChanged(const bool online)
-{
-    if (online) {
-        if (m_netPolicy == NETWORK_OFFLINE && m_userPreferredNetworkMode != NETWORK_OFFLINE) {
-            // The system is back online, we're disconnected and the current policy wasn't changed since we processed the
-            // "went offline" update.
-            // We shall therefore restore the connection status.
-            setNetworkPolicy(m_userPreferredNetworkMode);
-        }
-    } else {
-        if (m_netPolicy != NETWORK_OFFLINE) {
-            // The system has lost its network connectivity for some reason. Disconnect, but make sure to restore the status
-            // when some kind of a connection is available again
-            const NetworkPolicy previousPolicy(m_netPolicy);
-            setNetworkOffline();
-            m_userPreferredNetworkMode = previousPolicy;
-        }
-    }
-}
-
 
 bool Model::isCatenateSupported() const
 {

@@ -395,6 +395,7 @@ set(libImap_SOURCES
     ${path_Imap}/Model/MemoryCache.cpp
     ${path_Imap}/Model/Model.cpp
     ${path_Imap}/Model/MsgListModel.cpp
+    ${path_Imap}/Model/NetworkWatcher.cpp
     ${path_Imap}/Model/OneMessageModel.cpp
     ${path_Imap}/Model/ParserState.cpp
     ${path_Imap}/Model/PrettyMailboxModel.cpp
