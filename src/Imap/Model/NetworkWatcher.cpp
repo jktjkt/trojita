@@ -189,6 +189,7 @@ void NetworkWatcher::networkConfigurationChanged(const QNetworkConfiguration &co
     if (reconnect) {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
         resetSession();
+        m_session->open();
     }
 }
 
@@ -204,7 +205,6 @@ void NetworkWatcher::resetSession()
     ss << "Switched to network configuration " << conf.name() << " (" << conf.bearerTypeName() << ", " << conf.identifier() << ")";
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), buf);
     connect(m_session, SIGNAL(opened()), this, SLOT(reconnectModelNetwork()));
-    m_session->open();
 }
 
 QNetworkConfiguration NetworkWatcher::sessionsActiveConfiguration() const
