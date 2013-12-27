@@ -34,7 +34,7 @@
 
 ImapAccess::ImapAccess(QObject *parent) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
-    m_visibleTasksModel(0), m_oneMessageModel(0), m_msgQNAM(0), m_port(0)
+    m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0)
 {
     QSettings s;
     Imap::migrateSettings(&s);
@@ -152,8 +152,7 @@ void ImapAccess::setSslMode(const QString &sslMode)
     cache = new Imap::Mailbox::SQLCache(this);
     bool ok = static_cast<Imap::Mailbox::SQLCache*>(cache)->open(QLatin1String("trojita-imap-cache"), m_cacheFile);
 
-    // FIXME: update me!
-    m_imapModel = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory), false);
+    m_imapModel = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory));
     m_imapModel->setProperty("trojita-imap-enable-id", true);
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
@@ -166,6 +165,9 @@ void ImapAccess::setSslMode(const QString &sslMode)
         QMetaObject::invokeMethod(m_imapModel, "connectionError", Qt::QueuedConnection,
                                   Q_ARG(QString, tr("Cache initialization failed")));
         QMetaObject::invokeMethod(m_imapModel, "setNetworkOffline", Qt::QueuedConnection);
+    } else {
+        m_netWatcher = new Imap::Mailbox::NetworkWatcher(this, m_imapModel);
+        QMetaObject::invokeMethod(m_netWatcher, "setNetworkOnline", Qt::QueuedConnection);
     }
 
     m_imapModel->setImapUser(username());
@@ -208,6 +210,11 @@ QObject *ImapAccess::visibleTasksModel() const
 QObject *ImapAccess::oneMessageModel() const
 {
     return m_oneMessageModel;
+}
+
+QObject *ImapAccess::networkWatcher() const
+{
+    return m_netWatcher;
 }
 
 QNetworkAccessManager *ImapAccess::msgQNAM() const

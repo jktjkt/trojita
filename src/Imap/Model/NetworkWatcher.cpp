@@ -31,6 +31,20 @@
 namespace Imap {
 namespace Mailbox {
 
+QString policyToString(const NetworkPolicy policy)
+{
+    switch (policy) {
+    case NETWORK_OFFLINE:
+        return QLatin1String("NETWORK_OFFLINE");
+    case NETWORK_EXPENSIVE:
+        return QLatin1String("NETWORK_EXPENSIVE");
+    case NETWORK_ONLINE:
+        return QLatin1String("NETWORK_ONLINE");
+    }
+    Q_ASSERT(false);
+    return QString();
+}
+
 NetworkWatcher::NetworkWatcher(QObject *parent, Model *model):
     QObject(parent), m_model(model), m_desiredPolicy(NETWORK_OFFLINE), m_netConfManager(0), m_session(0)
 {
@@ -76,14 +90,18 @@ NetworkPolicy NetworkWatcher::effectiveNetworkPolicy() const
 
 void NetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 {
+    m_model->logTrace(0, Common::LOG_OTHER, tr("Network Session"),
+                      QString::fromUtf8("User's preference changed: %1").arg(policyToString(policy)));
     m_desiredPolicy = policy;
     if (m_model->networkPolicy() == NETWORK_OFFLINE && policy != NETWORK_OFFLINE) {
         // We are asked to connect, the model is not connected yet
         if (isOnline()) {
+            m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Network is online -> connecting"));
             reconnectModelNetwork();
         } else {
             // We aren't online yet, but we will become online at some point. When that happens, reconnectModelNetwork() will
             // be called, so there is nothing to do from this place.
+            m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Opening network session"));
 #ifdef TROJITA_HAS_QNETWORKSESSION
             m_session->open();
 #endif
@@ -91,6 +109,10 @@ void NetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
     } else if (m_model->networkPolicy() != NETWORK_OFFLINE && policy == NETWORK_OFFLINE) {
         // This is pretty easy -- just disconnect the model
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
+#ifdef TROJITA_HAS_QNETWORKSESSION
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Closing network session"));
+        m_session->close();
+#endif
     } else {
         // No need to connect/disconnect/reconnect, yay!
         m_model->setNetworkPolicy(m_desiredPolicy);
@@ -99,6 +121,14 @@ void NetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 
 void NetworkWatcher::reconnectModelNetwork()
 {
+#ifdef TROJITA_HAS_QNETWORKSESSION
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
+                      QString::fromUtf8("Session is %1 (configuration %2), online state: %3").arg(
+                          QLatin1String(m_session->isOpen() ? "open" : "not open"),
+                          m_session->configuration().name(),
+                          QLatin1String(m_netConfManager->isOnline() ? "online" : "offline")
+                          ));
+#endif
     if (!isOnline()) {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
         return;
@@ -123,16 +153,42 @@ bool NetworkWatcher::isOnline() const
 This can be some completely harmelss change, like user editting an inactive profile of some random WiFi network.
 Unfortunately, this is also the only method in which the Qt's NetworkManager plugin informs us about a switch
 from eth0 to wlan0.
+
+There's apparently no better signal, see http://lists.qt-project.org/pipermail/interest/2013-December/010374.html
+
 */
 void NetworkWatcher::networkConfigurationChanged(const QNetworkConfiguration &conf)
 {
-    if (conf.state().testFlag(QNetworkConfiguration::Active) || conf == m_session->configuration()) {
-        // We shall react to both changes of the "session's own configuration" (perhaps it is no longer available)
-        // as well as to changes of session which is now set to be the system's default one.
-        // There's apparently no better signal, see http://lists.qt-project.org/pipermail/interest/2013-December/010374.html
+    bool reconnect = false;
+
+    if (conf == sessionsActiveConfiguration() && !conf.state().testFlag(QNetworkConfiguration::Active)) {
+        // Change of the "session's own configuration" -- perhaps it is no longer available
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
+                          QString::fromUtf8("Change of configuration of the current session"));
+        reconnect = true;
+    } else if (conf.state().testFlag(QNetworkConfiguration::Active) && conf.type() == QNetworkConfiguration::InternetAccessPoint &&
+               conf != sessionsActiveConfiguration()) {
+        // We are going to interpret this as a subtle hint for switching to another session
+
+        if (m_session->configuration().type() == QNetworkConfiguration::UserChoice && !sessionsActiveConfiguration().isValid()) {
+            // No configuration has been assigned yet, just ignore this event. This happens on Harmattan when we get a change
+            // of e.g. an office WiFi connection in reply to us trying to open a session with the system's default configuration.
+            return;
+        }
+
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
+                          m_session->configuration().type() == QNetworkConfiguration::InternetAccessPoint ?
+                              QString::fromUtf8("Change of system's default configuration: %1. Currently using %2.")
+                              .arg(conf.name(), m_session->configuration().name())
+                            :
+                              QString::fromUtf8("Change of system's default configuration: %1. Currently using %2 (active: %3).")
+                              .arg(conf.name(), m_session->configuration().name(), sessionsActiveConfiguration().name()));
+        reconnect = true;
+    }
+
+    if (reconnect) {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
         resetSession();
-        reconnectModelNetwork();
     }
 }
 
@@ -140,9 +196,27 @@ void NetworkWatcher::networkConfigurationChanged(const QNetworkConfiguration &co
 void NetworkWatcher::resetSession()
 {
     delete m_session;
-    m_session = new QNetworkSession(m_netConfManager->defaultConfiguration(), this);
+    const auto conf = m_netConfManager->defaultConfiguration();
+    m_session = new QNetworkSession(conf, this);
+
+    QString buf;
+    QTextStream ss(&buf);
+    ss << "Switched to network configuration " << conf.name() << " (" << conf.bearerTypeName() << ", " << conf.identifier() << ")";
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), buf);
     connect(m_session, SIGNAL(opened()), this, SLOT(reconnectModelNetwork()));
     m_session->open();
+}
+
+QNetworkConfiguration NetworkWatcher::sessionsActiveConfiguration() const
+{
+    auto conf = m_session->configuration();
+    if (m_session->configuration().type() == QNetworkConfiguration::InternetAccessPoint) {
+        return conf;
+    } else {
+        QString activeConfId = m_session->sessionProperty(QLatin1String("ActiveConfiguration")).toString();
+        // yes, this can return an invalid session
+        return m_netConfManager->configurationFromIdentifier(activeConfId);
+    }
 }
 #endif
 

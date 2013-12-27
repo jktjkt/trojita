@@ -70,6 +70,7 @@ private:
     bool isOnline() const;
 #ifdef TROJITA_HAS_QNETWORKSESSION
     void resetSession();
+    QNetworkConfiguration sessionsActiveConfiguration() const;
 #endif
 };
 
