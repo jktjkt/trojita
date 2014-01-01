@@ -58,8 +58,8 @@ void LibMailboxSync::init()
     m_expectsError = false;
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
     factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
-    Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
-    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
+    Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
+    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     taskFactoryUnsafe->fakeListChildMailboxes = true;
     taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() <<
@@ -72,8 +72,8 @@ void LibMailboxSync::init()
         QLatin1String("s") << QLatin1String("q") << QLatin1String("u") <<
         QLatin1String("v") << QLatin1String("w") << QLatin1String("x") <<
         QLatin1String("y") << QLatin1String("z");
-    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
-    errorSpy = new QSignalSpy( model, SIGNAL(connectionError(QString)) );
+    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
+    errorSpy = new QSignalSpy(model, SIGNAL(connectionError(QString)));
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
     connect(model, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(modelLogged(uint,Common::LogMessage)));
 
@@ -109,6 +109,7 @@ void LibMailboxSync::modelLogged(uint parserId, const Common::LogMessage &messag
 
 void LibMailboxSync::helperInitialListing()
 {
+    model->setNetworkPolicy(Imap::Mailbox::NETWORK_ONLINE);
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -575,6 +576,12 @@ QModelIndex LibMailboxSync::findIndexByPosition(const QAbstractItemModel *model,
         }
     }
     return index;
+}
+
+/** @short Forwarding function which allows this to work without explicitly befriending each and every test */
+void LibMailboxSync::setModelNetworkPolicy(Imap::Mailbox::Model *model, const Imap::Mailbox::NetworkPolicy policy)
+{
+    model->setNetworkPolicy(policy);
 }
 
 namespace Imap {

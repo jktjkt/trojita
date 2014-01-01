@@ -62,6 +62,7 @@ namespace Mailbox
 class Model;
 class MailboxModel;
 class MsgListModel;
+class NetworkWatcher;
 class PrettyMailboxModel;
 class ThreadingMsgListModel;
 class PrettyMsgListModel;
@@ -221,6 +222,7 @@ private:
     Imap::Mailbox::MailboxModel *mboxModel;
     Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;
     Imap::Mailbox::MsgListModel *msgListModel;
+    Imap::Mailbox::NetworkWatcher *m_networkWatcher;
     Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
     Composer::SenderIdentitiesModel *m_senderIdentities;

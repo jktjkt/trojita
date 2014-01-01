@@ -66,7 +66,7 @@ void OfflineTest::testStatusVsExistsCached()
     cClient(t.mk("STATUS a (MESSAGES UNSEEN RECENT)\r\n"));
     cServer("* STATUS a (MESSAGES 42 UNSEEN 2 RECENT 3)\r\n" + t.last("OK status\r\n"));
     QCOMPARE(idxA.data(RoleTotalMessageCount).toInt(), 42);
-    model->setNetworkOffline();
+    LibMailboxSync::setModelNetworkPolicy(model, NETWORK_OFFLINE);
     cClient(t.mk("LOGOUT\r\n"));
     cServer(t.last("OK logged out\r\n") + "* BYE see ya\r\n");
     model->resyncMailbox(idxA);

@@ -23,6 +23,7 @@
 #include <QtTest>
 #include "test_Imap_Tasks_DeleteMailbox.h"
 #include "Utils/headless_test.h"
+#include "Utils/LibMailboxSync.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
@@ -32,13 +33,14 @@ void ImapModelDeleteMailboxTest::init()
 {
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
     factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
-    Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TestingTaskFactory() );
-    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>( taskFactory.get() );
+    Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
+    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    model = new Imap::Mailbox::Model( this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory), false );
-    deletedSpy = new QSignalSpy( model, SIGNAL(mailboxDeletionSucceded(QString)) );
-    failedSpy = new QSignalSpy( model, SIGNAL(mailboxDeletionFailed(QString,QString)) );
+    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
+    deletedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionSucceded(QString)));
+    failedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionFailed(QString,QString)));
 }
 
 void ImapModelDeleteMailboxTest::cleanup()

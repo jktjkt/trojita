@@ -55,6 +55,7 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/NetworkWatcher.h"
 #include "Imap/Model/PrettyMailboxModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
@@ -470,9 +471,9 @@ void MainWindow::createActions()
 void MainWindow::connectModelActions()
 {
     connect(reloadAllMailboxes, SIGNAL(triggered()), model, SLOT(reloadMailboxList()));
-    connect(netOffline, SIGNAL(triggered()), model, SLOT(setNetworkOffline()));
-    connect(netExpensive, SIGNAL(triggered()), model, SLOT(setNetworkExpensive()));
-    connect(netOnline, SIGNAL(triggered()), model, SLOT(setNetworkOnline()));
+    connect(netOffline, SIGNAL(triggered()), m_networkWatcher, SLOT(setNetworkOffline()));
+    connect(netExpensive, SIGNAL(triggered()), m_networkWatcher, SLOT(setNetworkExpensive()));
+    connect(netOnline, SIGNAL(triggered()), m_networkWatcher, SLOT(setNetworkOnline()));
 }
 
 void MainWindow::createMenus()
@@ -701,8 +702,12 @@ void MainWindow::setupModels()
             }
         }
     }
-    model = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory),
-                                     m_settings->value(SettingsNames::imapStartOffline).toBool());
+    model = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory));
+    m_networkWatcher = new Imap::Mailbox::NetworkWatcher(this, model);
+    QMetaObject::invokeMethod(m_networkWatcher,
+                              m_settings->value(SettingsNames::imapStartOffline).toBool() ?
+                                  "setNetworkOffline" : "setNetworkOnline",
+                              Qt::QueuedConnection);
     model->setObjectName(QLatin1String("model"));
     model->setCapabilitiesBlacklist(m_settings->value(SettingsNames::imapBlacklistedCapabilities).toStringList());
     if (m_settings->value(SettingsNames::imapEnableId, true).toBool()) {
@@ -1206,7 +1211,7 @@ void MainWindow::requireStartTlsInFuture()
 
 void MainWindow::nukeModels()
 {
-    model->setNetworkOffline();
+    m_networkWatcher->setNetworkOffline();
     m_messageWidget->messageView->setEmpty();
     mboxTree->setModel(0);
     msgListWidget->tree->setModel(0);

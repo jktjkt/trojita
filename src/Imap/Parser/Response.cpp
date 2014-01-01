@@ -1274,7 +1274,7 @@ QTextStream &Enabled::dump(QTextStream &s) const
 {
     s << "ENABLE ";
     Q_FOREACH(const QByteArray &extension, extensions) {
-        s << extension;
+        s << extension << ' ';
     }
     return s;
 }

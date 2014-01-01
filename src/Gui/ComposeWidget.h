@@ -149,7 +149,7 @@ private:
 
     QList<QByteArray> m_inReplyTo;
     QList<QByteArray> m_references;
-    QModelIndex m_replyingToMessage;
+    QPersistentModelIndex m_replyingToMessage;
 
     bool m_appendUidReceived;
     uint m_appendUidValidity;

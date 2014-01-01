@@ -898,6 +898,20 @@ bool ObtainSynchronizedMailboxTask::handleESearch(const Imap::Responses::ESearch
     return true;
 }
 
+bool ObtainSynchronizedMailboxTask::handleEnabled(const Responses::Enabled * const resp)
+{
+    if (dieIfInvalidMailbox())
+        return false;
+
+    // This function is needed to work around a bug in Kolab's version of Cyrus which sometimes sends out untagged ENABLED
+    // during the SELECT processing. RFC 5161 is pretty clear in saying that ENABLED shall be sent only in response to
+    // the ENABLE command; the log submitted at https://bugs.kde.org/show_bug.cgi?id=329204#c5 shows that Trojita receives
+    // an extra * ENABLED CONDSTORE QRESYNC even after we have issued the x ENABLE QRESYNC previously and the server already
+    // replied with * ENABLED QRESYNC to that.
+
+    return resp->extensions.contains("CONDSTORE") || resp->extensions.contains("QRESYNC");
+}
+
 /** @short Process the result of UID SEARCH or UID ESEARCH commands */
 void ObtainSynchronizedMailboxTask::finalizeSearch()
 {

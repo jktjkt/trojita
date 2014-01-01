@@ -98,7 +98,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
         }
     } else {
         ImapTask *conn = 0;
-        if (model->networkPolicy() == Model::NETWORK_OFFLINE) {
+        if (model->networkPolicy() == NETWORK_OFFLINE) {
             // Well, except that we cannot really open a new connection now
             conn = new OfflineConnectionTask(model);
         } else {
@@ -814,7 +814,7 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
             // work for little to no benefit.
             // The sane thing is to disconnect from this mailbox.
             EMIT_LATER(model, connectionError, Q_ARG(QString, tr("The UIDVALIDITY has changed while mailbox is open. Please reconnect.")));
-            model->setNetworkOffline();
+            model->setNetworkPolicy(NETWORK_OFFLINE);
             return resp->tag.isEmpty();
         }
     }

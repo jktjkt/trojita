@@ -61,6 +61,8 @@ public:
 
     static QModelIndex findIndexByPosition(const QAbstractItemModel *model, const QString &where);
 
+    static void setModelNetworkPolicy(Imap::Mailbox::Model *model, const Imap::Mailbox::NetworkPolicy policy);
+
 protected slots:
     virtual void init();
     virtual void cleanup();

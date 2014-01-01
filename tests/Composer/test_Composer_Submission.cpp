@@ -585,4 +585,67 @@ void ComposerSubmissionTest::testNoImapContinuation()
     justKeepTask();
 }
 
+/** @short Make sure that the original message is marked as replied to when replying */
+void ComposerSubmissionTest::testReplyingNormal()
+{
+    helperSetupProperHeaders();
+    m_submission->setImapOptions(false, QString(), QString(), QString(), false);
+    QModelIndex origMessage = msgListA.child(0, 0);
+    QVERIFY(origMessage.isValid());
+    QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
+    m_submission->composer()->setReplyingToMessage(origMessage);
+
+    m_submission->send();
+    cEmpty();
+
+    QCOMPARE(requestedSendingSpy->size(), 1);
+    m_msaFactory->doEmitSending();
+    QCOMPARE(sendingSpy->size(), 1);
+    m_msaFactory->doEmitSent();
+    QCOMPARE(sentSpy->size(), 1);
+    cClient(t.mk("UID STORE 10 +FLAGS (\\Answered)\r\n"));
+    cServer("* 1 FETCH (UID 10 FLAGS (\\Answered))\r\n"
+            + t.last("OK stored\r\n"));
+    cEmpty();
+
+    QCOMPARE(submissionSucceededSpy->size(), 1);
+    QCOMPARE(submissionFailedSpy->size(), 0);
+
+    QVERIFY(requestedSendingSpy->size() == 1 &&
+            requestedSendingSpy->at(0).size() == 3 &&
+            requestedSendingSpy->at(0)[2].toByteArray().contains("Sample message"));
+    cEmpty();
+}
+
+/** @short Make sure that replying to a removed message works reasonably well */
+void ComposerSubmissionTest::testReplyingToRemoved()
+{
+    helperSetupProperHeaders();
+    m_submission->setImapOptions(false, QString(), QString(), QString(), false);
+    QModelIndex origMessage = msgListA.child(0, 0);
+    QVERIFY(origMessage.isValid());
+    QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
+    m_submission->composer()->setReplyingToMessage(origMessage);
+    cServer("* 1 EXPUNGE\r\n");
+    QVERIFY(!m_submission->composer()->replyingToMessage().isValid());
+
+    m_submission->send();
+    cEmpty();
+
+    QCOMPARE(requestedSendingSpy->size(), 1);
+    m_msaFactory->doEmitSending();
+    QCOMPARE(sendingSpy->size(), 1);
+    m_msaFactory->doEmitSent();
+    QCOMPARE(sentSpy->size(), 1);
+    cEmpty();
+
+    QCOMPARE(submissionSucceededSpy->size(), 1);
+    QCOMPARE(submissionFailedSpy->size(), 0);
+
+    QVERIFY(requestedSendingSpy->size() == 1 &&
+            requestedSendingSpy->at(0).size() == 3 &&
+            requestedSendingSpy->at(0)[2].toByteArray().contains("Sample message"));
+    cEmpty();
+}
+
 TROJITA_HEADLESS_TEST(ComposerSubmissionTest)

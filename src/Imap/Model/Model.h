@@ -34,13 +34,13 @@
 #include "CacheLoadingMode.h"
 #include "CopyMoveOperation.h"
 #include "FlagsOperation.h"
+#include "NetworkPolicy.h"
 #include "ParserState.h"
 #include "TaskFactory.h"
 
 #include "Common/Logging.h"
 
 class QAuthenticator;
-class QNetworkConfigurationManager;
 class QNetworkSession;
 class QSslError;
 
@@ -73,6 +73,7 @@ class TreeItemMessage;
 class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
+class NetworkWatcher;
 
 class ImapTask;
 class KeepMailboxOpenTask;
@@ -104,27 +105,6 @@ class Model: public QAbstractItemModel
         ReadWrite /**< @short Invoke SELECT if necessarry */
     };
 
-    /** @short Policy for accessing network */
-    enum NetworkPolicy {
-        /**< @short No access to the network at all
-
-        All network activity is suspended. If an action requires network access,
-        it will either fail or be queued for later. */
-        NETWORK_OFFLINE,
-        /** @short Connections are possible, but expensive
-
-        Information that is cached is preferred, as long as it is usable.
-        Trojita will never miss a mail in this mode, but for example it won't
-        check for new mailboxes. */
-        NETWORK_EXPENSIVE,
-        /** @short Connections have zero cost
-
-        Normal mode of operation. All network activity is assumed to have zero
-        cost and Trojita is free to ask network as often as possible. It will
-        still use local cache when it makes sense, though. */
-        NETWORK_ONLINE
-    };
-
     mutable AbstractCache *m_cache;
     mutable SocketFactoryPtr m_socketFactory;
     TaskFactoryPtr m_taskFactory;
@@ -140,7 +120,7 @@ class Model: public QAbstractItemModel
 
 
 public:
-    Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr m_socketFactory, TaskFactoryPtr m_taskFactory, bool offline);
+    Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr m_socketFactory, TaskFactoryPtr m_taskFactory);
     ~Model();
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -309,13 +289,6 @@ public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();
 
-    /** @short Set the netowrk access policy to "no access allowed" */
-    void setNetworkOffline() { setNetworkPolicy(NETWORK_OFFLINE); }
-    /** @short Set the network access policy to "possible, but expensive" */
-    void setNetworkExpensive() { setNetworkPolicy(NETWORK_EXPENSIVE); }
-    /** @short Set the network access policy to "it's cheap to use it" */
-    void setNetworkOnline() { setNetworkPolicy(NETWORK_ONLINE); }
-
     /** @short Try to maintain a connection to the given mailbox
 
       This function informs the Model that the user is interested in receiving
@@ -350,8 +323,6 @@ private slots:
 
     /** @short A maintaining task is about to die */
     void slotTaskDying(QObject *obj);
-
-    void slotNetworkConnectivityStatusChanged(const bool online);
 
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
@@ -483,6 +454,7 @@ private:
     friend class UidSubmitTask;
 
     friend class TestingTaskFactory; // needs access to socketFactory
+    friend class NetworkWatcher; // needs access to the network policy manipulation
 
     friend class ::FakeCapabilitiesInjector; // for injecting fake capabilities
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing
@@ -585,11 +557,6 @@ private:
     QTimer *m_periodicMailboxNumbersRefresh;
 
     QStringList m_capabilitiesBlacklist;
-
-    QNetworkConfigurationManager *m_networkConfigurationManager;
-    QNetworkSession *m_networkSession;
-    /** @short True iff the application is temporarily offline due to the connectivity being lost */
-    NetworkPolicy m_userPreferredNetworkMode;
 
 protected slots:
     void responseReceived();

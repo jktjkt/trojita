@@ -47,11 +47,11 @@ ToolIcon {
 
     onClicked: {
         if (state == "offline") {
-            imapAccess.imapModel.setNetworkOnline()
+            imapAccess.networkWatcher.setNetworkOnline()
         } else if (state == "online") {
-            imapAccess.imapModel.setNetworkExpensive()
+            imapAccess.networkWatcher.setNetworkExpensive()
         } else if (state == "away") {
-            imapAccess.imapModel.setNetworkOffline()
+            imapAccess.networkWatcher.setNetworkOffline()
         } else {
             // The model is not set up yet -> show settings
             serverSettings.open()
