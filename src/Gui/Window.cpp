@@ -262,7 +262,9 @@ void MainWindow::createActions()
     showMenuBar->setCheckable(true);
     showMenuBar->setChecked(true);
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
+    connect(showMenuBar, SIGNAL(triggered(bool)), menuShow, SLOT(setHidden(bool)));
     connect(showMenuBar, SIGNAL(triggered(bool)), m_delayedStateSaving, SLOT(start()));
+    connect(menuShow, SIGNAL(clicked()), showMenuBar , SLOT(trigger()));
 
     showToolBar = new QAction(tr("Show &Toolbar"), this);
     showToolBar->setCheckable(true);
@@ -617,6 +619,11 @@ void MainWindow::createWidgets()
     busyParsersIndicator = new TaskProgressIndicator(this);
     statusBar()->addPermanentWidget(busyParsersIndicator);
     busyParsersIndicator->hide();
+
+    menuShow = new QToolButton(this);
+    menuShow->setText(tr("Show Menu Bar"));
+    statusBar()->addPermanentWidget(menuShow);
+    menuShow->hide();
 
     networkIndicator = new QToolButton(this);
     networkIndicator->setPopupMode(QToolButton::InstantPopup);
@@ -2396,6 +2403,7 @@ void MainWindow::applySizesAndState()
         if (ok) {
             menuBar()->setVisible(visibility);
             showMenuBar->setChecked(visibility);
+            menuShow->setVisible(!visibility);
         }
     }
 
@@ -2420,5 +2428,4 @@ void MainWindow::possiblyLoadMessageOnSplittersChanged()
         }
     }
 }
-
 }

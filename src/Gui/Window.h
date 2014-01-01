@@ -315,6 +315,7 @@ private:
 
     TaskProgressIndicator *busyParsersIndicator;
     QToolButton *networkIndicator;
+    QToolButton *menuShow;
 
     bool m_ignoreStoredPassword;
 
