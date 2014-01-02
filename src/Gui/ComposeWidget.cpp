@@ -46,6 +46,7 @@
 #include "Gui/AutoCompletion.h"
 #include "Gui/ComposeWidget.h"
 #include "Gui/FromAddressProxyModel.h"
+#include "Gui/IconLoader.h"
 #include "Gui/LineEdit.h"
 #include "Gui/OverlayWidget.h"
 #include "Gui/PasswordDialog.h"
@@ -125,16 +126,16 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
 
     m_markButton = new QToolButton(ui->buttonBox);
     m_markButton->setPopupMode(QToolButton::MenuButtonPopup);
-    m_markButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_markButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     m_markAsReply = new QActionGroup(m_markButton);
     m_markAsReply->setExclusive(true);
     auto *asReplyMenu = new QMenu(m_markButton);
     m_markButton->setMenu(asReplyMenu);
-    m_actionStandalone = asReplyMenu->addAction(tr("Standalone"));
+    m_actionStandalone = asReplyMenu->addAction(Gui::loadIcon(QLatin1String("mail-view-flat")), tr("New Thread"));
     m_actionStandalone->setActionGroup(m_markAsReply);
     m_actionStandalone->setCheckable(true);
     m_actionStandalone->setToolTip(tr("This mail will be sent as a standalone message.<hr/>Change to preserve the reply hierarchy."));
-    m_actionInReplyTo = asReplyMenu->addAction(tr("Threaded"));
+    m_actionInReplyTo = asReplyMenu->addAction(Gui::loadIcon(QLatin1String("mail-view-threaded")), tr("Threaded"));
     m_actionInReplyTo->setActionGroup(m_markAsReply);
     m_actionInReplyTo->setCheckable(true);
 
