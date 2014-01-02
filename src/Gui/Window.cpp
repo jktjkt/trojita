@@ -828,48 +828,55 @@ void MainWindow::slotToggleSysTray()
 
 void MainWindow::handleTrayIconChange()
 {
-    QModelIndex mailbox = model->index(1, 0, QModelIndex());
-
-    if (mailbox.isValid()) {
-        Q_ASSERT(mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX"));
-        QPixmap pixmap = QPixmap(QLatin1String(":/icons/trojita.png"));
-        if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
-            QPainter painter(&pixmap);
-            QFont f;
-            f.setPixelSize(pixmap.height() * 0.59 );
-            f.setWeight(QFont::Bold);
-
-            QString text = mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString();
-            QFontMetrics fm(f);
-            if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toUInt() > 666) {
-                // You just have too many messages.
-                text = QString::fromUtf8("🐮");
-                fm = QFontMetrics(f);
-            } else if (fm.width(text) > pixmap.width()) {
-                f.setPixelSize(f.pixelSize() * pixmap.width() / fm.width(text));
-                fm = QFontMetrics(f);
-            }
-            painter.setFont(f);
-
-            QRect boundingRect = fm.tightBoundingRect(text);
-            boundingRect.setWidth(boundingRect.width() + 2);
-            boundingRect.setHeight(boundingRect.height() + 2);
-            boundingRect.moveCenter(QPoint(pixmap.width() / 2, pixmap.height() / 2));
-            boundingRect = boundingRect.intersected(pixmap.rect());
-            painter.setBrush(Qt::white);
-            painter.setPen(Qt::white);
-            painter.setOpacity(0.7);
-            painter.drawRoundedRect(boundingRect, 2.0, 2.0);
-
-            painter.setOpacity(1.0);
-            painter.setBrush(Qt::NoBrush);
-            painter.setPen(Qt::darkBlue);
-            painter.drawText(boundingRect, Qt::AlignCenter, text);
-            m_trayIcon->setToolTip(trUtf8("Trojitá - %n unread message(s)", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()));
-            m_trayIcon->setIcon(QIcon(pixmap));
-            return;
-        }
+    int unreadCount = 0;
+    int rowCount = model->rowCount(QModelIndex());
+    // Iterate over inbox and all subscribed folders.
+    for (int i = 0; i < rowCount; i++) {
+        QModelIndex mailbox = model->index(i, 0, QModelIndex());
+        if (!mailbox.isValid() || !mailbox.data(Imap::Mailbox::RoleMailboxIsSubscribed).toBool())
+            continue;
+        
+        unreadCount += mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt();
     }
+    
+    QPixmap pixmap = QPixmap(QLatin1String(":/icons/trojita.png"));
+    if (unreadCount > 0) {
+    QPainter painter(&pixmap);
+    QFont f;
+    f.setPixelSize(pixmap.height() * 0.59 );
+    f.setWeight(QFont::Bold);
+
+    QString text = QString::number(unreadCount);
+    QFontMetrics fm(f);
+    if (unreadCount > 666) {
+        // You just have too many messages.
+        text = QString::fromUtf8("🐮");
+        fm = QFontMetrics(f);
+    } else if (fm.width(text) > pixmap.width()) {
+        f.setPixelSize(f.pixelSize() * pixmap.width() / fm.width(text));
+        fm = QFontMetrics(f);
+    }
+    painter.setFont(f);
+
+    QRect boundingRect = fm.tightBoundingRect(text);
+    boundingRect.setWidth(boundingRect.width() + 2);
+    boundingRect.setHeight(boundingRect.height() + 2);
+    boundingRect.moveCenter(QPoint(pixmap.width() / 2, pixmap.height() / 2));
+    boundingRect = boundingRect.intersected(pixmap.rect());
+    painter.setBrush(Qt::white);
+    painter.setPen(Qt::white);
+    painter.setOpacity(0.7);
+    painter.drawRoundedRect(boundingRect, 2.0, 2.0);
+
+    painter.setOpacity(1.0);
+    painter.setBrush(Qt::NoBrush);
+    painter.setPen(Qt::darkBlue);
+    painter.drawText(boundingRect, Qt::AlignCenter, text);
+    m_trayIcon->setToolTip(trUtf8("Trojitá - %n unread message(s)", 0, unreadCount));
+    m_trayIcon->setIcon(QIcon(pixmap));
+    return;
+    }
+
     m_trayIcon->setToolTip(trUtf8("Trojitá"));
     m_trayIcon->setIcon(QIcon(QLatin1String(":/icons/trojita.png")));
 }
