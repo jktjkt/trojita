@@ -32,6 +32,7 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QTimer>
+#include <QToolButton>
 
 #include "ui_ComposeWidget.h"
 #include "Composer/MessageComposer.h"
@@ -60,7 +61,6 @@
 namespace
 {
 enum { OFFSET_OF_FIRST_ADDRESSEE = 1, MIN_MAX_VISIBLE_RECIPIENTS = 4 };
-enum { IN_REPLY_TO = 0, SUBJECT = 1 };
 }
 
 namespace Gui
@@ -123,7 +123,34 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     ui->recipientSlider->setVisible(false);
     ui->envelopeWidget->installEventFilter(this);
 
-    connect(ui->markAsReply, SIGNAL(currentIndexChanged(int)), this, SLOT(toggleInReplyTo(int)));
+    m_markButton = new QToolButton(ui->buttonBox);
+    m_markButton->setPopupMode(QToolButton::MenuButtonPopup);
+    m_markButton->setToolButtonStyle(Qt::ToolButtonTextOnly);
+    m_markAsReply = new QActionGroup(m_markButton);
+    m_markAsReply->setExclusive(true);
+    auto *asReplyMenu = new QMenu(m_markButton);
+    m_markButton->setMenu(asReplyMenu);
+    m_actionStandalone = asReplyMenu->addAction(tr("Standalone"));
+    m_actionStandalone->setActionGroup(m_markAsReply);
+    m_actionStandalone->setCheckable(true);
+    m_actionStandalone->setToolTip(tr("This mail will be sent as a standalone message.<hr/>Change to preserve the reply hierarchy."));
+    m_actionInReplyTo = asReplyMenu->addAction(tr("Threaded"));
+    m_actionInReplyTo->setActionGroup(m_markAsReply);
+    m_actionInReplyTo->setCheckable(true);
+
+    // This is a "quick shortcut action". It shows the UI bits of the current option, but when the user clicks it,
+    // the *other* action is triggered.
+    m_actionToggleMarking = new QAction(m_markButton);
+    connect(m_actionToggleMarking, SIGNAL(triggered()), this, SLOT(toggleReplyMarking()));
+    m_markButton->setDefaultAction(m_actionToggleMarking);
+
+    // Unfortunately, there's no signal for toggled(QAction*), so we'll have to call QAction::trigger() to have this working
+    connect(m_markAsReply, SIGNAL(triggered(QAction*)), this, SLOT(updateReplyMarkingAction()));
+    m_actionStandalone->trigger();
+    // We want to have the button aligned to the left; the only "portable" way of this is the ResetRole
+    // (thanks to TL for mentioning this, and for the Qt's doc for providing pretty pictures on different platforms)
+    ui->buttonBox->addButton(m_markButton, QDialogButtonBox::ResetRole);
+    m_markButton->hide();
 
     ui->mailText->setFont(Gui::Util::systemMonospaceFont());
 
@@ -294,7 +321,7 @@ bool ComposeWidget::buildMessageData()
     }
     m_submission->composer()->setText(ui->mailText->toPlainText());
 
-    if (ui->markAsReply->currentIndex() == IN_REPLY_TO) {
+    if (m_actionInReplyTo->isChecked()) {
         m_submission->composer()->setInReplyTo(m_inReplyTo);
         m_submission->composer()->setReferences(m_references);
         m_submission->composer()->setReplyingToMessage(m_replyingToMessage);
@@ -365,15 +392,20 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     m_references = references;
     m_replyingToMessage = replyingToMessage;
     if (m_replyingToMessage.isValid()) {
-        QVariant replySubject = m_replyingToMessage.data(Imap::Mailbox::RoleMessageSubject);
-        ui->markAsReply->setProperty("tooltip", replySubject);
-        ui->markAsReply->setToolTip(replySubject.toString());
-        ui->subjectLabel->hide();
-        ui->markAsReply->show();
-        ui->markAsReply->setCurrentIndex(IN_REPLY_TO);
+        m_markButton->show();
+        // Got to use trigger() so that the default action of the QToolButton is updated
+        m_actionInReplyTo->setToolTip(tr("This mail will be marked as a response<hr/>%1").arg(
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                                          m_replyingToMessage.data(Imap::Mailbox::RoleMessageSubject).toString().toHtmlEscaped()
+#else
+                                          Qt::escape(m_replyingToMessage.data(Imap::Mailbox::RoleMessageSubject).toString())
+#endif
+                                          ));
+        m_actionInReplyTo->trigger();
     } else {
-        ui->markAsReply->hide();
-        ui->subjectLabel->show();
+        m_markButton->hide();
+        m_actionInReplyTo->setToolTip(QString());
+        m_actionStandalone->trigger();
     }
 
     int row = -1;
@@ -1008,7 +1040,7 @@ void ComposeWidget::saveDraft(const QString &path)
         stream << m_recipients.at(i).second->text();
     }
     stream << m_submission->composer()->timestamp() << m_inReplyTo << m_references;
-    stream << bool(ui->markAsReply->currentIndex() == IN_REPLY_TO);
+    stream << m_actionInReplyTo->isChecked();
     stream << ui->subject->text();
     stream << ui->mailText->toPlainText();
     // we spare attachments
@@ -1060,12 +1092,8 @@ void ComposeWidget::loadDraft(const QString &path)
         QDateTime timestamp;
         stream >> timestamp >> m_inReplyTo >> m_references;
         m_submission->composer()->setTimestamp(timestamp);
-        if (m_inReplyTo.isEmpty()) {
-            ui->markAsReply->hide();
-            ui->subjectLabel->show();
-        } else {
-            ui->subjectLabel->hide();
-            ui->markAsReply->show();
+        if (!m_inReplyTo.isEmpty()) {
+            m_markButton->show();
 
             // We do not have the message index at this point, but we can at least show the Message-Id here
             QStringList inReplyTo;
@@ -1073,13 +1101,28 @@ void ComposeWidget::loadDraft(const QString &path)
                 // There's no HTML escaping to worry about
                 inReplyTo << QLatin1Char('<') + QString::fromUtf8(item.constData()) + QLatin1Char('>');
             }
-            ui->markAsReply->setProperty("tooltip", tr("In-Reply-To: %1").arg(inReplyTo.join(tr(", "))));
+            m_actionInReplyTo->setToolTip(tr("This mail will be marked as a response<hr/>%1").arg(
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+                                              inReplyTo.join(tr("<br/>")).toHtmlEscaped()
+#else
+                                              Qt::escape(inReplyTo.join(tr("<br/>")))
+#endif
+                                              ));
+            if (version == 2) {
+                // it is always marked as a reply in v2
+                m_actionInReplyTo->trigger();
+            }
         }
     }
     if (version >= 3) {
         bool replyChecked;
         stream >> replyChecked;
-        ui->markAsReply->setCurrentIndex(replyChecked ? IN_REPLY_TO : SUBJECT);
+        // Got to use trigger() so that the default action of the QToolButton is updated
+        if (replyChecked) {
+            m_actionInReplyTo->trigger();
+        } else {
+            m_actionStandalone->trigger();
+        }
     }
     stream >> string;
     ui->subject->setText(string);
@@ -1111,13 +1154,17 @@ void ComposeWidget::updateWindowTitle()
     }
 }
 
-void ComposeWidget::toggleInReplyTo(int mode)
+void ComposeWidget::toggleReplyMarking()
 {
-    if (mode == IN_REPLY_TO) {
-        ui->markAsReply->setToolTip(ui->markAsReply->property("tooltip").toString());
-    } else {
-        ui->markAsReply->setToolTip(tr("Change to preserve reply hierarchy"));
-    }
+    (m_actionInReplyTo->isChecked() ? m_actionStandalone : m_actionInReplyTo)->trigger();
+}
+
+void ComposeWidget::updateReplyMarkingAction()
+{
+    auto action = m_markAsReply->checkedAction();
+    m_actionToggleMarking->setText(action->text());
+    m_actionToggleMarking->setIcon(action->icon());
+    m_actionToggleMarking->setToolTip(action->toolTip());
 }
 
 }
