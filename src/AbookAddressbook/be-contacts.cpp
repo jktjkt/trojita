@@ -1,6 +1,6 @@
 /* Copyright (C) 2012 Thomas Lübking <thomas.luebking@gmail.com>
    Copyright (C) 2013 Caspar Schutijser <caspar@schutijser.com>
-   Copyright (C) 2006 - 2013 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/

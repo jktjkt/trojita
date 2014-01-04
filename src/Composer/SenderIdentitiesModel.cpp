@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2013 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
    Copyright (C) 2012        Mohammed Nafees <nafees.technocool@gmail.com>
    Copyright (C) 2012 Peter Amidon <peter@picnicpark.org>
 
