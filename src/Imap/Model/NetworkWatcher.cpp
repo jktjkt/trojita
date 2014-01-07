@@ -228,6 +228,11 @@ QNetworkConfiguration NetworkWatcher::sessionsActiveConfiguration() const
         return m_netConfManager->configurationFromIdentifier(activeConfId);
     }
 }
+#else
+void NetworkWatcher::networkConfigurationChanged(const QNetworkConfiguration &)
+{
+    // We have to implement this, otherwise MOC complains loudly. Yes, even if the actual slot is #ifdef-ed out.
+}
 #endif
 
 }
