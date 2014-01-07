@@ -308,33 +308,46 @@ void EditIdentity::onReject()
 ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapPage()
 {
     Ui_ImapPage::setupUi(this);
-    method->insertItem(0, tr("TCP"), QVariant(TCP));
-    method->insertItem(1, tr("SSL"), QVariant(SSL));
-    method->insertItem(2, tr("Local Process"), QVariant(PROCESS));
+    method->insertItem(NETWORK, tr("Network Connection"));
+    method->insertItem(PROCESS, tr("Local Process"));
+
+    encryption->insertItem(NONE, tr("No encryption"));
+    encryption->insertItem(STARTTLS, tr("Use encryption (STARTTLS)"));
+    encryption->insertItem(SSL, tr("Force encryption (TLS)"));
     using Common::SettingsNames;
     int defaultImapPort = Common::PORT_IMAPS;
+
     if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodTCP) {
-        method->setCurrentIndex(0);
+        method->setCurrentIndex(NETWORK);
+
+        if (s.value(SettingsNames::imapStartTlsKey,true).toBool())
+            encryption->setCurrentIndex(STARTTLS);
+        else
+            encryption->setCurrentIndex(NONE);
+
         defaultImapPort = Common::PORT_IMAP;
     } else if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
-        method->setCurrentIndex(1);
+        method->setCurrentIndex(NETWORK);
+        encryption->setCurrentIndex(SSL);
     } else if (s.value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
-        method->setCurrentIndex(2);
+        method->setCurrentIndex(PROCESS);
     } else {
         // Default settings -- let's assume SSL and hope that users who just press Cancel will configure when they see
         // the network error...
-        method->setCurrentIndex(1);
+        method->setCurrentIndex(NETWORK);
+        encryption->setCurrentIndex(SSL);
     }
 
     imapHost->setText(s.value(SettingsNames::imapHostKey).toString());
     imapPort->setText(s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).toString());
     imapPort->setValidator(new QIntValidator(1, 65535, this));
     connect(imapPort, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPortWarning()));
+    connect(encryption, SIGNAL(currentIndexChanged(int)), this, SLOT(maybeShowPortWarning()));
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(maybeShowPortWarning()));
+    connect(encryption, SIGNAL(currentIndexChanged(int)), this, SLOT(changePort()));
     portWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
     passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
     connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPasswordWarning()));
-    startTls->setChecked(s.value(SettingsNames::imapStartTlsKey, true).toBool());
     imapUser->setText(s.value(SettingsNames::imapUserKey).toString());
     imapPass->setText(s.value(SettingsNames::imapPassKey).toString());
     processPath->setText(s.value(SettingsNames::imapProcessKey).toString());
@@ -343,7 +356,6 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QLatin1String(" ")));
 
     m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
-    m_imapStartTls = s.value(SettingsNames::imapStartTlsKey, true).toBool();
 
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     updateWidgets();
@@ -358,51 +370,47 @@ void ImapPage::resizeEvent(QResizeEvent *event)
     scrollAreaWidgetContents->adjustSize();
 }
 
+void ImapPage::changePort()
+{
+    imapPort->setText(QString::number(encryption->currentIndex() == SSL ? Common::PORT_IMAPS : Common::PORT_IMAP));
+}
+
 void ImapPage::updateWidgets()
 {
     QFormLayout *lay = formLayout;
     Q_ASSERT(lay);
 
-    switch (method->itemData(method->currentIndex()).toInt()) {
-    case TCP:
-        imapHost->setEnabled(true);
-        lay->labelForField(imapHost)->setEnabled(true);
-        imapPort->setEnabled(true);
-        if (imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAPS))
-            imapPort->setText(QString::number(Common::PORT_IMAP));
-        else
-            imapPort->setText(QString::number(m_imapPort));
-        lay->labelForField(imapPort)->setEnabled(true);
-        startTls->setEnabled(true);
-        startTls->setChecked(m_imapStartTls);
-        lay->labelForField(startTls)->setEnabled(true);
-        processPath->setEnabled(false);
-        lay->labelForField(processPath)->setEnabled(false);
-        break;
-    case SSL:
-        imapHost->setEnabled(true);
-        lay->labelForField(imapHost)->setEnabled(true);
-        imapPort->setEnabled(true);
-        if (imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAP))
-            imapPort->setText(QString::number(Common::PORT_IMAPS));
-        else
-            imapPort->setText(QString::number(m_imapPort));
-        lay->labelForField(imapPort)->setEnabled(true);
-        startTls->setEnabled(false);
-        startTls->setChecked(true);
-        lay->labelForField(startTls)->setEnabled(false);
-        processPath->setEnabled(false);
-        lay->labelForField(processPath)->setEnabled(false);
+    switch (method->currentIndex()) {
+    case NETWORK:
+        imapHost->setVisible(true);
+        imapPort->setVisible(true);
+        encryption->setVisible(true);
+        lay->labelForField(imapHost)->setVisible(true);
+        lay->labelForField(imapPort)->setVisible(true);
+        lay->labelForField(encryption)->setVisible(true);
+        processPath->setVisible(false);
+        lay->labelForField(processPath)->setVisible(false);
         break;
     default:
-        imapHost->setEnabled(false);
-        lay->labelForField(imapHost)->setEnabled(false);
-        imapPort->setEnabled(false);
-        lay->labelForField(imapPort)->setEnabled(false);
-        startTls->setEnabled(false);
-        lay->labelForField(startTls)->setEnabled(false);
-        processPath->setEnabled(true);
-        lay->labelForField(processPath)->setEnabled(true);
+        imapHost->setVisible(false);
+        imapPort->setVisible(false);
+        encryption->setVisible(false);
+        lay->labelForField(imapHost)->setVisible(false);
+        lay->labelForField(imapPort)->setVisible(false);
+        lay->labelForField(encryption)->setVisible(false);
+        processPath->setVisible(true);
+        lay->labelForField(processPath)->setVisible(true);
+    }
+
+    switch (encryption->currentIndex()) {
+    case NONE:
+    case STARTTLS:
+        if (imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAPS))
+            imapPort->setText(QString::number(Common::PORT_IMAP));
+        break;
+    default:
+        if (imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAP))
+            imapPort->setText(QString::number(Common::PORT_IMAPS));
     }
 }
 
@@ -413,25 +421,21 @@ void ImapPage::save(QSettings &s)
         s.remove(Common::SettingsNames::imapSslPemPubKey);
     }
     switch (method->currentIndex()) {
-    case TCP:
+    case NETWORK:
         if (imapHost->text().isEmpty()) {
             s.remove(SettingsNames::imapMethodKey);
-        } else {
+        } else if (encryption->currentIndex() == NONE){
             s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodTCP);
-        }
-        s.setValue(SettingsNames::imapHostKey, imapHost->text());
-        s.setValue(SettingsNames::imapPortKey, imapPort->text());
-        s.setValue(SettingsNames::imapStartTlsKey, startTls->isChecked());
-        break;
-    case SSL:
-        if (imapHost->text().isEmpty()) {
-            s.remove(SettingsNames::imapMethodKey);
+            s.setValue(SettingsNames::imapStartTlsKey, false);
+        } else if (encryption->currentIndex() == STARTTLS){
+            s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodTCP);
+            s.setValue(SettingsNames::imapStartTlsKey, true);
         } else {
             s.setValue(SettingsNames::imapMethodKey, SettingsNames::methodSSL);
+            s.setValue(SettingsNames::imapStartTlsKey, true);
         }
         s.setValue(SettingsNames::imapHostKey, imapHost->text());
         s.setValue(SettingsNames::imapPortKey, imapPort->text());
-        s.setValue(SettingsNames::imapStartTlsKey, startTls->isChecked());
         break;
     default:
         if (processPath->text().isEmpty()) {
@@ -456,8 +460,7 @@ QWidget *ImapPage::asWidget()
 bool ImapPage::checkValidity() const
 {
     switch (method->currentIndex()) {
-    case TCP:
-    case SSL:
+    case NETWORK:
         // We don't require the username, and that's on purpose. Some servers *could* possibly support PREAUTH :)
         if (checkProblemWithEmptyTextField(imapHost, tr("The IMAP server hostname is missing here")))
             return false;
@@ -480,16 +483,19 @@ void ImapPage::maybeShowPasswordWarning()
 
 void ImapPage::maybeShowPortWarning()
 {
-    switch (method->currentIndex()) {
-    case TCP:
-        portWarning->setVisible(imapPort->text() != QLatin1String("143"));
-        break;
-    case SSL:
-        portWarning->setVisible(imapPort->text() != QLatin1String("993"));
-        break;
-    default:
+    if (method->currentIndex() == PROCESS) {
         portWarning->setVisible(false);
+        return;
     }
+
+    if (encryption->currentIndex() == SSL) {
+        portWarning->setVisible(imapPort->text() != QString::number(Common::PORT_IMAPS));
+        portWarning->setText(tr("This port is nonstandard. The default port is 993."));
+    } else {
+        portWarning->setVisible(imapPort->text() != QString::number(Common::PORT_IMAP));
+        portWarning->setText(tr("This port is nonstandard. The default port is 143."));
+    }
+
 }
 
 
