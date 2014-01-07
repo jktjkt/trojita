@@ -25,7 +25,6 @@
 #include <QNetworkConfigurationManager>
 #include <QNetworkSession>
 #endif
-#include <QNetworkConfigurationManager>
 #include "Model.h"
 
 namespace Imap {
