@@ -142,7 +142,8 @@ protected:
     virtual void resizeEvent(QResizeEvent *event);
 
 private:
-    enum { TCP, SSL, PROCESS };
+    enum { NETWORK, PROCESS };
+    enum Encryption { NONE, STARTTLS, SSL };
     quint16 m_imapPort;
     bool m_imapStartTls;
 
@@ -150,6 +151,7 @@ private slots:
     void updateWidgets();
     void maybeShowPasswordWarning();
     void maybeShowPortWarning();
+    void changePort();
 
 private:
     ImapPage(const ImapPage &); // don't implement
