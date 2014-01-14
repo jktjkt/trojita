@@ -505,7 +505,6 @@ void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenc
     // At first, verify that the message itself is marked as loaded.
     // If it isn't, it's probably because of Model::releaseMessageData().
     TreeItem *item = mailbox->m_children[0]; // TreeItemMsgList
-    Q_ASSERT(static_cast<TreeItemMsgList *>(item)->fetched());
     item = item->child(sequenceNo - 1, this);   // TreeItemMessage
     Q_ASSERT(item);   // FIXME: or rather throw an exception?
     if (item->accessFetchStatus() == TreeItem::NONE) {

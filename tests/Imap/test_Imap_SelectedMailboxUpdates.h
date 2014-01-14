@@ -44,6 +44,7 @@ private slots:
     void testInnocentUidValidityChange();
     void testUnexpectedUidValidityChange();
     void testHighestModseqFlags();
+    void testFetchAndConcurrentArrival();
 private:
     void helperTestExpungeImmediatelyAfterArrival(bool sendUidNext);
     void helperGenericTraffic(bool askForEnvelopes);

@@ -806,4 +806,73 @@ void ImapModelSelectedMailboxUpdatesTest::testHighestModseqFlags()
     cEmpty();
 }
 
+/** @short Make sure that we handle newly arriving messages correctly even if metadata or part fetch is in progress
+
+See bug 329757 for details -- the old version asserted that the TreeItemMsgList was already marked as fetched, which
+is no longer true when new messages arrive.
+*/
+void ImapModelSelectedMailboxUpdatesTest::testFetchAndConcurrentArrival()
+{
+    using namespace Imap::Mailbox;
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+
+    initialMessages(1);
+    QModelIndex msg1 = msgListA.child(0, 0);
+    QVERIFY(msg1.isValid());
+    QCOMPARE(model->rowCount(msg1), 0);
+
+    // Check new arrivals while we're fetching the BODYSTRUCTURE
+    cClient(t.mk("UID FETCH 1 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer("* 2 EXISTS\r\n"
+            + helperCreateTrivialEnvelope(1, 1, QLatin1String("new"))
+            + "* 3 EXISTS\r\n"
+            + t.last("OK fetched\r\n"));
+
+    // Well, the current code is slightly substandard here; we *could* remember the number of messages for which
+    // we're already asked, and increment our lowest-UID estimate by one for each of them. However, this will not be
+    // absolutely safe (we might still get the duplicates because it's UID FETCH, not FETCH, and we're using UIDs as
+    // offsets, not sequence numbers), so I'm not doing this right now.
+    {
+        auto req1 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
+        auto resp1 = t.last("OK fetched\r\n");
+        auto req2 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
+        auto resp2 = t.last("OK fetched\r\n");
+        // so yup, these are two identical commands
+        cClient(req1 + req2);
+        cServer("* 2 FETCH (UID 2 FLAGS ())\r\n"
+                "* 3 FETCH (UID 3 FLAGS ())\r\n"
+                + resp1 + resp2);
+        cEmpty();
+    }
+
+    // Now check what happens when that number is incremented *once again* while our request for part data is in flight
+    QVERIFY(msg1.parent().data(RoleIsFetched).toBool());
+    QVERIFY(msg1.data(RoleIsFetched).toBool());
+    QModelIndex msg1p1 = msg1.child(0, 0);
+    QVERIFY(msg1p1.isValid());
+    QCOMPARE(msg1p1.data(RolePartData).toByteArray(), QByteArray());
+    cClient(t.mk("UID FETCH 1 (BODY.PEEK[1])\r\n"));
+    cServer("* 4 EXISTS\r\n"
+            "* 1 FETCH (UID 1 BODY[1] ahoj)\r\n"
+            "* 5 EXISTS\r\n"
+            + t.last("OK fetched\r\n"));
+    QCOMPARE(msg1p1.data(RolePartData).toByteArray(), QByteArray("ahoj"));
+
+    // Again, two identical responses -- see above
+    {
+        auto req1 = t.mk("UID FETCH 4:* (FLAGS)\r\n");
+        auto resp1 = t.last("OK fetched\r\n");
+        auto req2 = t.mk("UID FETCH 4:* (FLAGS)\r\n");
+        auto resp2 = t.last("OK fetched\r\n");
+        cClient(req1 + req2);
+        cServer("* 4 FETCH (UID 4 FLAGS ())\r\n"
+                "* 5 FETCH (UID 5 FLAGS ())\r\n"
+                + resp1 + resp2);
+        cEmpty();
+    }
+
+    justKeepTask();
+    cEmpty();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

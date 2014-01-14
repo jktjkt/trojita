@@ -778,7 +778,6 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
 
     TreeItem *item = message;
     Q_ASSERT(item);
-    Q_ASSERT(item->parent()->fetched());   // TreeItemMsgList
     QStringList separated = partIdentification.split('.');
     for (QStringList::const_iterator it = separated.constBegin(); it != separated.constEnd(); ++it) {
         bool ok;
