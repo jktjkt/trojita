@@ -1119,12 +1119,10 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
     if (exceptionClass == QLatin1String("NotAnImapServerError")) {
         QString service;
         if (line.startsWith("+OK") || line.startsWith("-ERR")) {
-            service = tr("a POP3");
+            service = tr("<p>It appears that you are connecting to a POP3 server. That won't work here.</p>");
         } else if (line.startsWith("220 ") || line.startsWith("220-")) {
-            service = tr("an SMTP");
+            service = tr("<p>It appears that you are connecting to an SMTP server. That won't work here.</p>");
         }
-        if (!service.isEmpty())
-            service = tr("<p>It appears that you are connecting to %1 server. That won't work here.</p>").arg(service);
         message = trUtf8("<h2>This is not an IMAP server</h2>"
                          "%1"
                          "<p>Please check your settings to make sure you are connecting to the IMAP service. "
