@@ -318,11 +318,11 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 // This one probably should not be logged at all; dovecot sends these reponses to keep NATted connections alive
                 break;
             } else {
-                logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), tr("Warning: unhandled untagged OK with a response code"));
+                logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), QLatin1String("Warning: unhandled untagged OK with a response code"));
                 break;
             }
         case NO:
-            logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), tr("Warning: unhandled untagged NO..."));
+            logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), QLatin1String("Warning: unhandled untagged NO..."));
             break;
         default:
             throw UnexpectedResponseReceived("Unhandled untagged response, sorry", *resp);

@@ -100,7 +100,7 @@ NetworkPolicy NetworkWatcher::effectiveNetworkPolicy() const
 
 void NetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 {
-    m_model->logTrace(0, Common::LOG_OTHER, tr("Network Session"),
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
                       QString::fromUtf8("User's preference changed: %1").arg(policyToString(policy)));
     m_desiredPolicy = policy;
     if (m_model->networkPolicy() == NETWORK_OFFLINE && policy != NETWORK_OFFLINE) {
