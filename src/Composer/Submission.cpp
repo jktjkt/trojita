@@ -158,7 +158,7 @@ void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
 {
     m_useBurl = useBurl;
     if (m_useBurl && !m_model->isGenUrlAuthSupported()) {
-        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), tr("Cannot BURL without the URLAUTH extension"));
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"), QLatin1String("Cannot BURL without the URLAUTH extension"));
         m_useBurl = false;
     }
     m_smtpUsername = smtpUsername;

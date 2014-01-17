@@ -96,7 +96,7 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
         connect(this, SIGNAL(destroyed(QObject*)), model->accessParser(parser).maintainingTask, SLOT(slotTaskDeleted(QObject*)));
     }
 
-    log(tr("Activated"));
+    log(QLatin1String("Activated"));
     CHECK_TASK_TREE
 }
 
