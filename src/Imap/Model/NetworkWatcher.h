@@ -55,6 +55,7 @@ public slots:
     void reconnectModelNetwork();
     void onGlobalOnlineStateChanged(const bool online);
     void networkConfigurationChanged(const QNetworkConfiguration& conf);
+    void networkSessionError();
 
 signals:
     void effectiveNetworkPolicyChanged();
