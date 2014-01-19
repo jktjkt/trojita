@@ -213,7 +213,12 @@ void NetworkWatcher::networkConfigurationChanged(const QNetworkConfiguration &co
     if (reconnect) {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
         resetSession();
-        m_session->open();
+        if (m_session->configuration().isValid()) {
+            m_session->open();
+        } else {
+            m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
+                              QLatin1String("Waiting for network to become available..."));
+        }
     }
 }
 
