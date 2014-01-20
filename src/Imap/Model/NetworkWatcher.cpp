@@ -62,6 +62,7 @@ NetworkWatcher::NetworkWatcher(QObject *parent, Model *model):
 void NetworkWatcher::onGlobalOnlineStateChanged(const bool online)
 {
     if (online) {
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("System is back online"));
         setDesiredNetworkPolicy(m_desiredPolicy);
     } else {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
@@ -100,9 +101,11 @@ NetworkPolicy NetworkWatcher::effectiveNetworkPolicy() const
 
 void NetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 {
-    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
-                      QString::fromUtf8("User's preference changed: %1").arg(policyToString(policy)));
-    m_desiredPolicy = policy;
+    if (policy != m_desiredPolicy) {
+        m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
+                          QString::fromUtf8("User's preference changed: %1").arg(policyToString(policy)));
+        m_desiredPolicy = policy;
+    }
     if (m_model->networkPolicy() == NETWORK_OFFLINE && policy != NETWORK_OFFLINE) {
         // We are asked to connect, the model is not connected yet
         if (isOnline()) {
