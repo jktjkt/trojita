@@ -258,8 +258,6 @@ void NetworkWatcher::networkSessionError()
 {
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
                       QString::fromUtf8("Session error: %1").arg(m_session->errorString()));
-    emit m_model->connectionError(tr("<p>Cannot connect to the network. This is what the system told us:</p><p>%1</p>").arg(
-                                      m_session->errorString()));
 }
 #else
 void NetworkWatcher::networkConfigurationChanged(const QNetworkConfiguration &)
