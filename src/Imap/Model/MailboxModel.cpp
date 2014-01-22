@@ -76,7 +76,7 @@ QHash<int, QByteArray> MailboxModel::roleNames() const
         roleNames[RoleShortMailboxName] = "shortMailboxName";
         roleNames[RoleMailboxName] = "mailboxName";
         roleNames[RoleMailboxSeparator] = "mailboxSeparator";
-        roleNames[RoleMailboxHasChildmailboxes] = "mailboxHasChildMailboxes";
+        roleNames[RoleMailboxHasChildMailboxes] = "mailboxHasChildMailboxes";
         roleNames[RoleMailboxIsINBOX] = "mailboxIsINBOX";
         roleNames[RoleMailboxIsSelectable] = "mailboxIsSelectable";
         roleNames[RoleMailboxNumbersFetched] = "mailboxNumbersFetched";

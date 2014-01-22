@@ -53,7 +53,7 @@ enum {
     /** @short The mailbox can be selected */
     RoleMailboxIsSelectable,
     /** @short The mailbox has child mailboxes */
-    RoleMailboxHasChildmailboxes,
+    RoleMailboxHasChildMailboxes,
     /** @short Information about whether the number of messages in the mailbox has already been loaded */
     RoleMailboxNumbersFetched,
     /** @short Is anything still loading for this mailbox? */

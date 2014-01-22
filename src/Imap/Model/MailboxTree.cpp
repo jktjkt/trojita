@@ -219,7 +219,7 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
         return mailbox();
     case RoleMailboxSeparator:
         return separator();
-    case RoleMailboxHasChildmailboxes:
+    case RoleMailboxHasChildMailboxes:
         return hasChildMailboxes(model);
     case RoleMailboxIsINBOX:
         return mailbox().toUpper() == QLatin1String("INBOX");
