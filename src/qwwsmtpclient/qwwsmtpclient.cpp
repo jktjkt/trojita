@@ -80,6 +80,7 @@ public:
     void sendAuthPlain(const QString &username, const QString &password);
     void sendAuthLogin(const QString &username, const QString &password, int stage);
 
+    void saveLocalAddress();
     void sendEhlo();
     void sendHelo();
     void sendQuit();
@@ -452,8 +453,36 @@ void QwwSmtpClientPrivate::_q_encrypted() {
     sendEhlo();
 }
 
+void QwwSmtpClientPrivate::saveLocalAddress()
+{
+    Q_ASSERT(socket);
+    if (!socket->isOpen())
+        return;
+
+    switch (socket->localAddress().protocol()) {
+    case QAbstractSocket::IPv6Protocol:
+        q->setLocalName(QLatin1String("[IPv6:")
+                        // Despite what the documentation says, the returned value contains the scope id as well,
+                        // and that is not allowed as perf RFC 5321.
+                        + socket->localAddress().toString().section(QLatin1Char('%'), 0, -2)
+                        + QLatin1Char(']'));
+        break;
+    case QAbstractSocket::IPv4Protocol:
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    case QAbstractSocket::AnyIPProtocol:
+        // AnyIPProtocol is documented to return 0.0.0.0, an IPv4 address.
+        // Even the actual code matches the docs, so shall we.
+#endif
+        q->setLocalName(QLatin1Char('[') + socket->localAddress().toString() + QLatin1Char(']'));
+        break;
+    case QAbstractSocket::UnknownNetworkLayerProtocol:
+        Q_ASSERT(false);
+        break;
+    }
+}
 
 void QwwSmtpClientPrivate::sendEhlo() {
+    saveLocalAddress();
     SMTPCommand &cmd = commandqueue.head();
     QString domain = localName;
     if (socket->isEncrypted() && !localNameEncrypted.isEmpty())
@@ -466,6 +495,7 @@ void QwwSmtpClientPrivate::sendEhlo() {
 
 
 void QwwSmtpClientPrivate::sendHelo() {
+    saveLocalAddress();
     SMTPCommand &cmd = commandqueue.head();
     QString domain = localName;
     if (socket->isEncrypted() && localNameEncrypted.isEmpty())
