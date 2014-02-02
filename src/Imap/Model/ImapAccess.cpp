@@ -32,6 +32,8 @@
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/SocketFactory.h"
 
+namespace Imap {
+
 ImapAccess::ImapAccess(QObject *parent) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
     m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0)
@@ -294,4 +296,6 @@ connecting to a completely different server since the last time.
 void ImapAccess::nukeCache()
 {
     QFile::remove(m_cacheFile);
+}
+
 }

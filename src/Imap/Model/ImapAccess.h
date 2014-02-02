@@ -20,8 +20,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAPACCESS_H
-#define IMAPACCESS_H
+#ifndef TROJITA_IMAPACCESS_H
+#define TROJITA_IMAPACCESS_H
 
 #include <QObject>
 #include <QSslError>
@@ -35,6 +35,8 @@
 #include "Imap/Model/VisibleTasksModel.h"
 
 class QNetworkAccessManager;
+
+namespace Imap {
 
 class ImapAccess : public QObject
 {
@@ -127,4 +129,6 @@ private:
     bool m_cacheError;
 };
 
-#endif // IMAPACCESS_H
+}
+
+#endif // TROJITA_IMAPACCESS_H

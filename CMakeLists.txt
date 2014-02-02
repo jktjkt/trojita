@@ -389,6 +389,7 @@ set(libImap_SOURCES
     ${path_Imap}/Model/FindInterestingPart.cpp
     ${path_Imap}/Model/FlagsOperation.cpp
     ${path_Imap}/Model/FullMessageCombiner.cpp
+    ${path_Imap}/Model/ImapAccess.cpp
     ${path_Imap}/Model/MailboxMetadata.cpp
     ${path_Imap}/Model/MailboxModel.cpp
     ${path_Imap}/Model/MailboxTree.cpp
@@ -479,10 +480,6 @@ endif()
 
 set(be_contacts_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/be.contacts/main.cpp
-)
-
-set(libQmlModelGlue_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/ModelGlue/ImapAccess.cpp
 )
 
 set(libQNAMWebView_SOURCES
@@ -632,14 +629,13 @@ if(WITH_DESKTOP)
     add_executable(be.contacts ${be_contacts_SOURCES})
     target_link_libraries(be.contacts AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 elseif(WITH_HARMATTAN)
-    add_library(QmlModelGlue ${libQmlModelGlue_SOURCES})
     add_library(trojitaqnamwebviewplugin SHARED ${libQNAMWebView_SOURCES})
     add_executable(trojita-tp ${trojitaHarmattan_SOURCES})
     if(SUPPORTS_TARGET_INCLUDES)
         set_property(TARGET trojita-tp APPEND PROPERTY INCLUDE_DIRECTORIES
             ${QT_MKSPECS_DIR}/default ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan/qmlapplicationviewer)
     endif()
-    target_link_libraries(trojita-tp QmlModelGlue AppVersion Imap MSA Streams qwwsmtpclient Common Composer MimetypesQt4
+    target_link_libraries(trojita-tp AppVersion Imap MSA Streams qwwsmtpclient Common Composer MimetypesQt4
         ${QT_QTSQL_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTWEBKIT_LIBRARY} ${QT_QTDECLARATIVE_LIBRARY})
 endif()
 
