@@ -235,7 +235,7 @@ void ImapAccess::doConnect()
     bool ok = static_cast<Imap::Mailbox::SQLCache*>(cache)->open(QLatin1String("trojita-imap-cache"), m_cacheFile);
 
     m_imapModel = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory));
-    m_imapModel->setProperty("trojita-imap-enable-id", true);
+    m_imapModel->setProperty("trojita-imap-enable-id", m_settings->value(Common::SettingsNames::imapEnableId, true).toBool());
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
     //connect(m_imapModel, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(slotLogged(uint,Common::LogMessage)));
