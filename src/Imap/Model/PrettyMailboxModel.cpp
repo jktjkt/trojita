@@ -20,7 +20,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "PrettyMailboxModel.h"
-#include "MailboxModel.h"
 #include "ItemRoles.h"
 
 #ifdef XTUPLE_CONNECT
@@ -37,7 +36,7 @@ namespace Imap
 namespace Mailbox
 {
 
-PrettyMailboxModel::PrettyMailboxModel(QObject *parent, MailboxModel *mailboxModel):
+PrettyMailboxModel::PrettyMailboxModel(QObject *parent, QAbstractItemModel *mailboxModel):
     QSortFilterProxyModel(parent), m_showOnlySubscribed(false)
 {
     setDynamicSortFilter(true);
@@ -153,7 +152,7 @@ bool PrettyMailboxModel::filterAcceptsRow(int source_row, const QModelIndex &sou
 
 bool PrettyMailboxModel::hasChildren(const QModelIndex &parent) const
 {
-    return dynamic_cast<const MailboxModel *>(sourceModel())->hasChildren(mapToSource(parent));
+    return sourceModel()->hasChildren(mapToSource(parent));
 }
 
 #ifdef XTUPLE_CONNECT

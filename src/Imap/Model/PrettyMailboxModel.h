@@ -23,7 +23,6 @@
 #define PRETTYMAILBOXMODEL_H
 
 #include <QSortFilterProxyModel>
-#include "Imap/Model/MailboxModel.h"
 
 namespace Imap
 {
@@ -36,7 +35,7 @@ class PrettyMailboxModel: public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    PrettyMailboxModel(QObject *parent, MailboxModel *mailboxModel);
+    PrettyMailboxModel(QObject *parent, QAbstractItemModel *mailboxModel);
     virtual QVariant data(const QModelIndex &index, int role) const;
     virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
