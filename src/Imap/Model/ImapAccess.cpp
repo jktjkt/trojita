@@ -249,7 +249,10 @@ void ImapAccess::doConnect()
         QMetaObject::invokeMethod(m_imapModel, "setNetworkOffline", Qt::QueuedConnection);
     } else {
         m_netWatcher = new Imap::Mailbox::NetworkWatcher(this, m_imapModel);
-        QMetaObject::invokeMethod(m_netWatcher, "setNetworkOnline", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(m_netWatcher,
+                                  m_settings->value(Common::SettingsNames::imapStartOffline).toBool() ?
+                                      "setNetworkOffline" : "setNetworkOnline",
+                                  Qt::QueuedConnection);
     }
 
     m_imapModel->setImapUser(username());
