@@ -1855,7 +1855,7 @@ void Model::informTasksAboutNewPassword()
 void Model::setSslPolicy(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors, bool proceed)
 {
     m_sslErrorPolicy.prepend(qMakePair(qMakePair(sslChain, sslErrors), proceed));
-     Q_FOREACH(const ParserState &p, m_parsers) {
+    Q_FOREACH(const ParserState &p, m_parsers) {
         Q_FOREACH(ImapTask *task, p.activeTasks) {
             OpenConnectionTask *openTask = dynamic_cast<OpenConnectionTask *>(task);
             if (!openTask)
