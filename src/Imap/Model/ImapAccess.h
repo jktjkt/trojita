@@ -58,7 +58,7 @@ class ImapAccess : public QObject
     Q_PROPERTY(QString sslInfoMessage READ sslInfoMessage NOTIFY checkSslPolicy)
 
 public:
-    explicit ImapAccess(QObject *parent = 0);
+    explicit ImapAccess(QObject *parent, const QString &accountName);
 
     QObject *imapModel() const;
     QObject *mailboxModel() const;

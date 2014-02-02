@@ -34,7 +34,7 @@
 
 namespace Imap {
 
-ImapAccess::ImapAccess(QObject *parent) :
+ImapAccess::ImapAccess(QObject *parent, const QString &accountName) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
     m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0)
 {
@@ -54,7 +54,7 @@ ImapAccess::ImapAccess(QObject *parent) :
         m_port = m_sslMode == QLatin1String("SSL") ? 993 : 143;
     }
 
-    QString cacheDir = Common::writablePath(Common::LOCATION_CACHE) + QLatin1String("defaultAccount/");
+    QString cacheDir = Common::writablePath(Common::LOCATION_CACHE) + accountName + QLatin1Char('/');;
     m_cacheError = !QDir().mkpath(cacheDir);
     QFile::Permissions expectedPerms = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner;
     if (QFileInfo(cacheDir).permissions() != expectedPerms) {

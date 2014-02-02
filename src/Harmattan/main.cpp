@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
 
     QmlApplicationViewer viewer;
 
-    Imap::ImapAccess imapAccess;
+    Imap::ImapAccess imapAccess(0, QLatin1String("defaultAccount"));
     QDeclarativeContext *ctxt = viewer.rootContext();
     ctxt->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 
