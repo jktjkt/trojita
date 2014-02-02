@@ -79,6 +79,8 @@ public:
     QString sslMode() const;
     void setSslMode(const QString &sslMode);
 
+    Q_INVOKABLE void doConnect();
+
     QString sslInfoTitle() const;
     QString sslInfoMessage() const;
 

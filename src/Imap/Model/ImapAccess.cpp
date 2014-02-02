@@ -132,6 +132,10 @@ QString ImapAccess::sslMode() const
 void ImapAccess::setSslMode(const QString &sslMode)
 {
     m_sslMode = sslMode;
+}
+
+void ImapAccess::doConnect()
+{
     Q_ASSERT(!m_imapModel);
 
     Imap::Mailbox::SocketFactoryPtr factory;
