@@ -41,7 +41,8 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &acco
     QObject(parent), m_settings(settings), m_imapModel(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
     m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
     m_connectionMethod(Common::ConnectionMethod::Invalid),
-    m_sslInfoIcon(Imap::Mailbox::CertificateUtils::NoIcon)
+    m_sslInfoIcon(Imap::Mailbox::CertificateUtils::NoIcon),
+    m_accountName(accountName)
 {
     Imap::migrateSettings(m_settings);
     m_server = m_settings->value(Common::SettingsNames::imapHostKey).toString();
@@ -71,7 +72,7 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &acco
         }
     }
 
-    m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + accountName + QLatin1Char('/');;
+    m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + m_accountName + QLatin1Char('/');;
 }
 
 void ImapAccess::alertReceived(const QString &message)
@@ -273,6 +274,8 @@ void ImapAccess::doConnect()
     }
 
     m_imapModel = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory));
+    m_imapModel->setObjectName(QString::fromUtf8("imapModel-%1").arg(m_accountName));
+    m_imapModel->setCapabilitiesBlacklist(m_settings->value(Common::SettingsNames::imapBlacklistedCapabilities).toStringList());
     m_imapModel->setProperty("trojita-imap-enable-id", m_settings->value(Common::SettingsNames::imapEnableId, true).toBool());
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
@@ -293,13 +296,19 @@ void ImapAccess::doConnect()
     }
 
     m_mailboxModel = new Imap::Mailbox::MailboxModel(this, m_imapModel);
+    m_mailboxModel->setObjectName(QString::fromUtf8("mailboxModel-%1").arg(m_accountName));
     m_mailboxSubtreeModel = new Imap::Mailbox::SubtreeModelOfMailboxModel(this);
+    m_mailboxSubtreeModel->setObjectName(QString::fromUtf8("mailboxSubtreeModel-%1").arg(m_accountName));
     m_mailboxSubtreeModel->setSourceModel(m_mailboxModel);
     m_mailboxSubtreeModel->setOriginalRoot();
     m_msgListModel = new Imap::Mailbox::MsgListModel(this, m_imapModel);
+    m_msgListModel->setObjectName(QString::fromUtf8("msgListModel-%1").arg(m_accountName));
     m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(this, m_imapModel->taskModel());
+    m_visibleTasksModel->setObjectName(QString::fromUtf8("visibleTasksModel-%1").arg(m_accountName));
     m_oneMessageModel = new Imap::Mailbox::OneMessageModel(m_imapModel);
+    m_oneMessageModel->setObjectName(QString::fromUtf8("oneMessageModel-%1").arg(m_accountName));
     m_msgQNAM = new Imap::Network::MsgPartNetAccessManager(this);
+    m_msgQNAM->setObjectName(QString::fromUtf8("m_msgQNAM-%1").arg(m_accountName));
     emit modelsChanged();
 }
 

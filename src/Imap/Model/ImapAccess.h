@@ -141,6 +141,7 @@ private:
     QString m_sslInfoMessage;
     Imap::Mailbox::CertificateUtils::IconType m_sslInfoIcon;
 
+    QString m_accountName;
     QString m_cacheDir;
 };
 

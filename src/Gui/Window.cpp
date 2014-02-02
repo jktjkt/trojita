@@ -48,10 +48,8 @@
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Composer/SenderIdentitiesModel.h"
-#include "Imap/Model/CombinedCache.h"
-#include "Imap/Model/MailboxModel.h"
+#include "Imap/Model/ImapAccess.h"
 #include "Imap/Model/MailboxTree.h"
-#include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/ModelWatcher.h"
 #include "Imap/Model/MsgListModel.h"
@@ -97,7 +95,7 @@ enum {
     MINIMUM_WIDTH_WIDE = 1250
 };
 
-MainWindow::MainWindow(QSettings *settings): QMainWindow(), model(0),
+MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0),
     m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true),
     m_delayedStateSaving(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_trayIcon(0)
 {
@@ -470,10 +468,10 @@ void MainWindow::createActions()
 
 void MainWindow::connectModelActions()
 {
-    connect(reloadAllMailboxes, SIGNAL(triggered()), model, SLOT(reloadMailboxList()));
-    connect(netOffline, SIGNAL(triggered()), m_networkWatcher, SLOT(setNetworkOffline()));
-    connect(netExpensive, SIGNAL(triggered()), m_networkWatcher, SLOT(setNetworkExpensive()));
-    connect(netOnline, SIGNAL(triggered()), m_networkWatcher, SLOT(setNetworkOnline()));
+    connect(reloadAllMailboxes, SIGNAL(triggered()), imapModel(), SLOT(reloadMailboxList()));
+    connect(netOffline, SIGNAL(triggered()), m_imapAccess->networkWatcher(), SLOT(setNetworkOffline()));
+    connect(netExpensive, SIGNAL(triggered()), m_imapAccess->networkWatcher(), SLOT(setNetworkExpensive()));
+    connect(netOnline, SIGNAL(triggered()), m_imapAccess->networkWatcher(), SLOT(setNetworkOnline()));
 }
 
 void MainWindow::createMenus()
@@ -633,159 +631,81 @@ void MainWindow::createWidgets()
 
 void MainWindow::setupModels()
 {
-    Imap::Mailbox::SocketFactoryPtr factory;
-    Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
-
-    using Common::SettingsNames;
-    if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodTCP) {
-        factory.reset(new Streams::TlsAbleSocketFactory(
-                          m_settings->value(SettingsNames::imapHostKey).toString(),
-                          m_settings->value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAP)).toUInt()));
-        factory->setStartTlsRequired(m_settings->value(SettingsNames::imapStartTlsKey, true).toBool());
-    } else if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodSSL) {
-        factory.reset(new Streams::SslSocketFactory(
-                          m_settings->value(SettingsNames::imapHostKey).toString(),
-                          m_settings->value(SettingsNames::imapPortKey, QString::number(Common::PORT_IMAPS)).toUInt()));
-    } else if (m_settings->value(SettingsNames::imapMethodKey).toString() == SettingsNames::methodProcess) {
-        QStringList args = m_settings->value(SettingsNames::imapProcessKey).toString().split(QLatin1Char(' '));
-        if (args.isEmpty()) {
-            // it's going to fail anyway
-            args << QLatin1String("");
-        }
-        QString appName = args.takeFirst();
-        factory.reset(new Streams::ProcessSocketFactory(appName, args));
-    } else {
-        factory.reset(new Streams::FakeSocketFactory(Imap::CONN_STATE_LOGOUT));
-    }
-
-    QString cacheDir = Common::writablePath(Common::LOCATION_CACHE);
-    Imap::Mailbox::AbstractCache *cache = 0;
-
-    bool shouldUsePersistentCache = m_settings->value(SettingsNames::cacheOfflineKey).toString() != SettingsNames::cacheOfflineNone;
-    if (shouldUsePersistentCache) {
-        if (! QDir().mkpath(cacheDir)) {
-            QMessageBox::critical(this, tr("Cache Error"), tr("Failed to create directory %1").arg(cacheDir));
-            shouldUsePersistentCache = false;
-        }
-        QFile::Permissions expectedPerms = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner;
-        if (QFileInfo(cacheDir).permissions() != expectedPerms) {
-            if (!QFile::setPermissions(cacheDir, expectedPerms)) {
-#ifndef Q_OS_WIN32
-                QMessageBox::critical(this, tr("Cache Error"), tr("Failed to set safe permissions on cache directory %1").arg(cacheDir));
-                shouldUsePersistentCache = false;
-#endif
-            }
-        }
-    }
+    m_imapAccess = new Imap::ImapAccess(this, m_settings, QString());
+    connect(m_imapAccess, SIGNAL(cacheError(QString)), this, SLOT(cacheError(QString)));
+    m_imapAccess->doConnect();
 
     //setProperty( "trojita-sqlcache-commit-period", QVariant(5000) );
     //setProperty( "trojita-sqlcache-commit-delay", QVariant(1000) );
 
-    if (! shouldUsePersistentCache) {
-        cache = new Imap::Mailbox::MemoryCache(this);
-    } else {
-        cache = new Imap::Mailbox::CombinedCache(this, QLatin1String("trojita-imap-cache"), cacheDir);
-        connect(cache, SIGNAL(error(QString)), this, SLOT(cacheError(QString)));
-        if (! static_cast<Imap::Mailbox::CombinedCache *>(cache)->open()) {
-            // Error message was already shown by the cacheError() slot
-            cache->deleteLater();
-            cache = new Imap::Mailbox::MemoryCache(this);
-        } else {
-            if (m_settings->value(SettingsNames::cacheOfflineKey).toString() == SettingsNames::cacheOfflineAll) {
-                cache->setRenewalThreshold(0);
-            } else {
-                bool ok;
-                int num = m_settings->value(SettingsNames::cacheOfflineNumberDaysKey, 30).toInt(&ok);
-                if (!ok)
-                    num = 30;
-                cache->setRenewalThreshold(num);
-            }
-        }
-    }
-    model = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory));
-    m_networkWatcher = new Imap::Mailbox::NetworkWatcher(this, model);
-    QMetaObject::invokeMethod(m_networkWatcher,
-                              m_settings->value(SettingsNames::imapStartOffline).toBool() ?
-                                  "setNetworkOffline" : "setNetworkOnline",
-                              Qt::QueuedConnection);
-    model->setObjectName(QLatin1String("model"));
-    model->setCapabilitiesBlacklist(m_settings->value(SettingsNames::imapBlacklistedCapabilities).toStringList());
-    if (m_settings->value(SettingsNames::imapEnableId, true).toBool()) {
-        model->setProperty("trojita-imap-enable-id", true);
-    }
-    mboxModel = new Imap::Mailbox::MailboxModel(this, model);
-    mboxModel->setObjectName(QLatin1String("mboxModel"));
-    prettyMboxModel = new Imap::Mailbox::PrettyMailboxModel(this, mboxModel);
+    prettyMboxModel = new Imap::Mailbox::PrettyMailboxModel(this, qobject_cast<QAbstractItemModel *>(m_imapAccess->mailboxModel()));
     prettyMboxModel->setObjectName(QLatin1String("prettyMboxModel"));
-    msgListModel = new Imap::Mailbox::MsgListModel(this, model);
-    msgListModel->setObjectName(QLatin1String("msgListModel"));
     threadingMsgListModel = new Imap::Mailbox::ThreadingMsgListModel(this);
     threadingMsgListModel->setObjectName(QLatin1String("threadingMsgListModel"));
-    threadingMsgListModel->setSourceModel(msgListModel);
+    threadingMsgListModel->setSourceModel(qobject_cast<QAbstractItemModel *>(m_imapAccess->msgListModel()));
     connect(threadingMsgListModel, SIGNAL(sortingFailed()), msgListWidget, SLOT(slotSortingFailed()));
     prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
     prettyMsgListModel->setSourceModel(threadingMsgListModel);
     prettyMsgListModel->setObjectName(QLatin1String("prettyMsgListModel"));
 
-    connect(mboxTree, SIGNAL(clicked(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
-    connect(mboxTree, SIGNAL(activated(const QModelIndex &)), msgListModel, SLOT(setMailbox(const QModelIndex &)));
-    connect(msgListModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMessageFlags()));
-    connect(msgListModel, SIGNAL(messagesAvailable()), msgListWidget->tree, SLOT(scrollToBottom()));
-    connect(msgListModel, SIGNAL(rowsInserted(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
-    connect(msgListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
-    connect(msgListModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateMessageFlags()));
-    connect(msgListModel, SIGNAL(layoutChanged()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
-    connect(msgListModel, SIGNAL(layoutChanged()), this, SLOT(updateMessageFlags()));
-    connect(msgListModel, SIGNAL(modelReset()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
-    connect(msgListModel, SIGNAL(modelReset()), this, SLOT(updateMessageFlags()));
-    connect(msgListModel, SIGNAL(mailboxChanged(QModelIndex)), this, SLOT(slotMailboxChanged(QModelIndex)));
+    connect(mboxTree, SIGNAL(clicked(const QModelIndex &)), m_imapAccess->msgListModel(), SLOT(setMailbox(const QModelIndex &)));
+    connect(mboxTree, SIGNAL(activated(const QModelIndex &)), m_imapAccess->msgListModel(), SLOT(setMailbox(const QModelIndex &)));
+    connect(m_imapAccess->msgListModel(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(updateMessageFlags()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(messagesAvailable()), msgListWidget->tree, SLOT(scrollToBottom()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(rowsInserted(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(rowsRemoved(QModelIndex,int,int)), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateMessageFlags()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(layoutChanged()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(layoutChanged()), this, SLOT(updateMessageFlags()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(modelReset()), msgListWidget, SLOT(slotAutoEnableDisableSearch()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(modelReset()), this, SLOT(updateMessageFlags()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(mailboxChanged(QModelIndex)), this, SLOT(slotMailboxChanged(QModelIndex)));
 
-    connect(model, SIGNAL(alertReceived(const QString &)), this, SLOT(alertReceived(const QString &)));
-    connect(model, SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
-    connect(model, SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
-    connect(model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
-    connect(model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
-            this, SLOT(sslErrors(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
-    connect(model, SIGNAL(requireStartTlsInFuture()), this, SLOT(requireStartTlsInFuture()));
+    connect(imapModel(), SIGNAL(alertReceived(const QString &)), this, SLOT(alertReceived(const QString &)));
+    connect(imapModel(), SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
+    connect(imapModel(), SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
+    connect(imapModel(), SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
+    connect(m_imapAccess, SIGNAL(checkSslPolicy()), this, SLOT(checkSslPolicy()), Qt::QueuedConnection);
+    connect(imapModel(), SIGNAL(requireStartTlsInFuture()), this, SLOT(requireStartTlsInFuture()));
 
-    connect(model, SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
-    connect(model, SIGNAL(networkPolicyExpensive()), this, SLOT(networkPolicyExpensive()));
-    connect(model, SIGNAL(networkPolicyOnline()), this, SLOT(networkPolicyOnline()));
+    connect(imapModel(), SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
+    connect(imapModel(), SIGNAL(networkPolicyExpensive()), this, SLOT(networkPolicyExpensive()));
+    connect(imapModel(), SIGNAL(networkPolicyOnline()), this, SLOT(networkPolicyOnline()));
 
-    connect(model, SIGNAL(connectionStateChanged(QObject *,Imap::ConnectionState)),
+    connect(imapModel(), SIGNAL(connectionStateChanged(QObject *,Imap::ConnectionState)),
             this, SLOT(showConnectionStatus(QObject *,Imap::ConnectionState)));
 
-    connect(model, SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)));
-    connect(model, SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)));
+    connect(imapModel(), SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)));
+    connect(imapModel(), SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)));
 
-    connect(model, SIGNAL(logged(uint,Common::LogMessage)), imapLogger, SLOT(slotImapLogged(uint,Common::LogMessage)));
+    connect(imapModel(), SIGNAL(logged(uint,Common::LogMessage)), imapLogger, SLOT(slotImapLogged(uint,Common::LogMessage)));
 
-    connect(model, SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)));
+    connect(imapModel(), SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)));
 
-    connect(model, SIGNAL(capabilitiesUpdated(QStringList)), this, SLOT(slotCapabilitiesUpdated(QStringList)));
+    connect(imapModel(), SIGNAL(capabilitiesUpdated(QStringList)), this, SLOT(slotCapabilitiesUpdated(QStringList)));
 
-    connect(msgListModel, SIGNAL(modelReset()), this, SLOT(slotUpdateWindowTitle()));
-    connect(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)), this, SLOT(slotUpdateWindowTitle()));
+    connect(m_imapAccess->msgListModel(), SIGNAL(modelReset()), this, SLOT(slotUpdateWindowTitle()));
+    connect(imapModel(), SIGNAL(messageCountPossiblyChanged(QModelIndex)), this, SLOT(slotUpdateWindowTitle()));
 
     connect(prettyMsgListModel, SIGNAL(sortingPreferenceChanged(int,Qt::SortOrder)), this, SLOT(slotSortingConfirmed(int,Qt::SortOrder)));
 
     //Imap::Mailbox::ModelWatcher* w = new Imap::Mailbox::ModelWatcher( this );
-    //w->setModel( model );
+    //w->setModel( imapModel() );
 
     //ModelTest* tester = new ModelTest( prettyMboxModel, this ); // when testing, test just one model at time
 
     mboxTree->setModel(prettyMboxModel);
     msgListWidget->tree->setModel(prettyMsgListModel);
 
-    allTree->setModel(model);
-    taskTree->setModel(model->taskModel());
-    connect(model->taskModel(), SIGNAL(layoutChanged()), taskTree, SLOT(expandAll()));
-    connect(model->taskModel(), SIGNAL(modelReset()), taskTree, SLOT(expandAll()));
-    connect(model->taskModel(), SIGNAL(rowsInserted(QModelIndex,int,int)), taskTree, SLOT(expandAll()));
-    connect(model->taskModel(), SIGNAL(rowsRemoved(QModelIndex,int,int)), taskTree, SLOT(expandAll()));
-    connect(model->taskModel(), SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)), taskTree, SLOT(expandAll()));
+    allTree->setModel(imapModel());
+    taskTree->setModel(imapModel()->taskModel());
+    connect(imapModel()->taskModel(), SIGNAL(layoutChanged()), taskTree, SLOT(expandAll()));
+    connect(imapModel()->taskModel(), SIGNAL(modelReset()), taskTree, SLOT(expandAll()));
+    connect(imapModel()->taskModel(), SIGNAL(rowsInserted(QModelIndex,int,int)), taskTree, SLOT(expandAll()));
+    connect(imapModel()->taskModel(), SIGNAL(rowsRemoved(QModelIndex,int,int)), taskTree, SLOT(expandAll()));
+    connect(imapModel()->taskModel(), SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)), taskTree, SLOT(expandAll()));
 
-    busyParsersIndicator->setImapModel(model);
+    busyParsersIndicator->setImapModel(imapModel());
 }
 
 void MainWindow::createSysTray()
@@ -810,7 +730,7 @@ void MainWindow::createSysTray()
 
     connect(m_trayIcon, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
             this, SLOT(slotIconActivated(QSystemTrayIcon::ActivationReason)));
-    connect(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)), this, SLOT(handleTrayIconChange()));
+    connect(imapModel(), SIGNAL(messageCountPossiblyChanged(QModelIndex)), this, SLOT(handleTrayIconChange()));
     m_trayIcon->setVisible(true);
     m_trayIcon->show();
 }
@@ -835,7 +755,7 @@ void MainWindow::slotToggleSysTray()
 
 void MainWindow::handleTrayIconChange()
 {
-    QModelIndex mailbox = model->index(1, 0, QModelIndex());
+    QModelIndex mailbox = imapModel()->index(1, 0, QModelIndex());
 
     if (mailbox.isValid()) {
         Q_ASSERT(mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX"));
@@ -944,14 +864,14 @@ void MainWindow::msgListClicked(const QModelIndex &index)
     // Because it's quite possible that we have switched into another mailbox, make sure that we're in the "current" one so that
     // user will be notified about new arrivals, etc.
     QModelIndex translated = Imap::deproxifiedIndex(index);
-    model->switchToMailbox(translated.parent().parent());
+    imapModel()->switchToMailbox(translated.parent().parent());
 
     if (index.column() == Imap::Mailbox::MsgListModel::SEEN) {
         if (!translated.data(Imap::Mailbox::RoleIsFetched).toBool())
             return;
         Imap::Mailbox::FlagsOperation flagOp = translated.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() ?
                                                Imap::Mailbox::FLAG_REMOVE : Imap::Mailbox::FLAG_ADD;
-        model->markMessagesRead(QModelIndexList() << translated, flagOp);
+        imapModel()->markMessagesRead(QModelIndexList() << translated, flagOp);
 
         if (translated == m_messageWidget->messageView->currentMessage()) {
             m_messageWidget->messageView->stopAutoMarkAsRead();
@@ -1040,21 +960,21 @@ void MainWindow::slotReloadMboxList()
                 Imap::Mailbox::Model::realTreeItem(item)
                                                );
         Q_ASSERT(mbox);
-        mbox->rescanForChildMailboxes(model);
+        mbox->rescanForChildMailboxes(imapModel());
     }
 }
 
 /** @short Request a check for new messages in selected mailbox */
 void MainWindow::slotResyncMbox()
 {
-    if (! model->isNetworkAvailable())
+    if (! imapModel()->isNetworkAvailable())
         return;
 
     Q_FOREACH(const QModelIndex &item, mboxTree->selectionModel()->selectedIndexes()) {
         Q_ASSERT(item.isValid());
         if (item.column() != 0)
             continue;
-        model->resyncMailbox(item);
+        imapModel()->resyncMailbox(item);
     }
 }
 
@@ -1084,8 +1004,6 @@ void MainWindow::cacheError(const QString &message)
                           tr("The caching subsystem managing a cache of the data already "
                              "downloaded from the IMAP server is having troubles. "
                              "All caching will be disabled.\n\n%1").arg(message));
-    if (model)
-        model->setCache(new Imap::Mailbox::MemoryCache(model));
 }
 
 void MainWindow::networkPolicyOffline()
@@ -1155,14 +1073,12 @@ void MainWindow::authenticationRequested()
                                                ),
                                            QString(), &ok);
         if (ok) {
-            model->setImapUser(user);
-            model->setImapPassword(pass);
+            imapModel()->setImapPassword(pass);
         } else {
-            model->unsetImapPassword();
+            imapModel()->unsetImapPassword();
         }
     } else {
-        model->setImapUser(user);
-        model->setImapPassword(pass);
+        imapModel()->setImapPassword(pass);
     }
 }
 
@@ -1172,36 +1088,11 @@ void MainWindow::authenticationFailed(const QString &message)
     QMessageBox::warning(this, tr("Login Failed"), message);
 }
 
-void MainWindow::sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors)
+void MainWindow::checkSslPolicy()
 {
-    QByteArray lastKnownPubKey = m_settings->value(Common::SettingsNames::imapSslPemPubKey).toByteArray();
-    if (!certificateChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == certificateChain[0].publicKey().toPem()) {
-        // This certificate chain contains the same public keys as the last time; we should accept that
-        model->setSslPolicy(certificateChain, errors, true);
-        return;
-    }
-
-    QString message;
-    QString title;
-    Imap::Mailbox::CertificateUtils::IconType icon;
-    Imap::Mailbox::CertificateUtils::formatSslState(certificateChain, lastKnownPubKey, errors, &title, &message, &icon);
-
-    if (QMessageBox(static_cast<QMessageBox::Icon>(icon), title, message, QMessageBox::Yes | QMessageBox::No, this).exec() == QMessageBox::Yes) {
-        if (!certificateChain.isEmpty()) {
-            QByteArray buf;
-            Q_FOREACH(const QSslCertificate &cert, certificateChain) {
-                buf.append(cert.toPem());
-            }
-            m_settings->setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
-#ifdef XTUPLE_CONNECT
-            QSettings xtSettings(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple"));
-            xtSettings.setValue(Common::SettingsNames::imapSslPemPubKey, certificateChain[0].publicKey().toPem());
-#endif
-        }
-        model->setSslPolicy(certificateChain, errors, true);
-    } else {
-        model->setSslPolicy(certificateChain, errors, false);
-    }
+    m_imapAccess->setSslPolicy(QMessageBox(static_cast<QMessageBox::Icon>(m_imapAccess->sslInfoIcon()),
+                                           m_imapAccess->sslInfoTitle(), m_imapAccess->sslInfoMessage(),
+                                           QMessageBox::Yes | QMessageBox::No, this).exec() == QMessageBox::Yes);
 }
 
 void MainWindow::requireStartTlsInFuture()
@@ -1211,7 +1102,7 @@ void MainWindow::requireStartTlsInFuture()
 
 void MainWindow::nukeModels()
 {
-    m_networkWatcher->setNetworkOffline();
+    qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher())->setNetworkOffline();
     m_messageWidget->messageView->setEmpty();
     mboxTree->setModel(0);
     msgListWidget->tree->setModel(0);
@@ -1221,14 +1112,10 @@ void MainWindow::nukeModels()
     prettyMsgListModel = 0;
     delete threadingMsgListModel;
     threadingMsgListModel = 0;
-    delete msgListModel;
-    msgListModel = 0;
-    delete mboxModel;
-    mboxModel = 0;
     delete prettyMboxModel;
     prettyMboxModel = 0;
-    delete model;
-    model = 0;
+    delete m_imapAccess;
+    m_imapAccess = 0;
 }
 
 void MainWindow::recoverDrafts()
@@ -1274,9 +1161,9 @@ void MainWindow::handleMarkAsRead(bool value)
         qDebug() << "Model::handleMarkAsRead: no valid messages";
     } else {
         if (value)
-            model->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_ADD);
+            imapModel()->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_ADD);
         else
-            model->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
+            imapModel()->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
         if (translatedIndexes.contains(m_messageWidget->messageView->currentMessage())) {
             m_messageWidget->messageView->stopAutoMarkAsRead();
         }
@@ -1366,20 +1253,20 @@ void MainWindow::handleMarkAsDeleted(bool value)
         qDebug() << "Model::handleMarkAsDeleted: no valid messages";
     } else {
         if (value)
-            model->markMessagesDeleted(translatedIndexes, Imap::Mailbox::FLAG_ADD);
+            imapModel()->markMessagesDeleted(translatedIndexes, Imap::Mailbox::FLAG_ADD);
         else
-            model->markMessagesDeleted(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
+            imapModel()->markMessagesDeleted(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
     }
 }
 
 void MainWindow::slotExpunge()
 {
-    model->expungeMailbox(msgListModel->currentMailbox());
+    imapModel()->expungeMailbox(qobject_cast<Imap::Mailbox::MsgListModel *>(m_imapAccess->msgListModel())->currentMailbox());
 }
 
 void MainWindow::slotMarkCurrentMailboxRead()
 {
-    model->markMailboxAsRead(mboxTree->currentIndex());
+    imapModel()->markMailboxAsRead(mboxTree->currentIndex());
 }
 
 void MainWindow::slotCreateMailboxBelowCurrent()
@@ -1415,7 +1302,7 @@ void MainWindow::createMailboxBelow(const QModelIndex &index)
         if (ui.otherMailboxes->isChecked())
             parts << QString();
         QString targetName = parts.join(mboxPtr ? mboxPtr->separator() : QString());   // FIXME: top-level separator
-        model->createMailbox(targetName);
+        imapModel()->createMailbox(targetName);
     }
 }
 
@@ -1431,7 +1318,7 @@ void MainWindow::slotDeleteCurrentMailbox()
     if (QMessageBox::question(this, tr("Delete Mailbox"),
                               tr("Are you sure to delete mailbox %1?").arg(name),
                               QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
-        model->deleteMailbox(name);
+        imapModel()->deleteMailbox(name);
     }
 }
 
@@ -1442,7 +1329,7 @@ void MainWindow::updateMessageFlags()
 
 void MainWindow::updateMessageFlags(const QModelIndex &index)
 {
-    bool okToModify = model->isNetworkAvailable() && index.isValid() && index.data(Imap::Mailbox::RoleMessageUid).toUInt() > 0;
+    bool okToModify = imapModel()->isNetworkAvailable() && index.isValid() && index.data(Imap::Mailbox::RoleMessageUid).toUInt() > 0;
     markAsRead->setEnabled(okToModify);
     markAsDeleted->setEnabled(okToModify);
     markAsRead->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
@@ -1856,9 +1743,9 @@ void MainWindow::slotSubscribeCurrentMailbox()
 
     QString mailbox = index.data(Imap::Mailbox::RoleMailboxName).toString();
     if (m_actionSubscribeMailbox->isChecked()) {
-        model->subscribeMailbox(mailbox);
+        imapModel()->subscribeMailbox(mailbox);
     } else {
-        model->unsubscribeMailbox(mailbox);
+        imapModel()->unsubscribeMailbox(mailbox);
     }
 }
 
@@ -2055,13 +1942,13 @@ void MainWindow::slotCapabilitiesUpdated(const QStringList &capabilities)
 void MainWindow::slotShowImapInfo()
 {
     QString caps;
-    Q_FOREACH(const QString &cap, model->capabilities()) {
+    Q_FOREACH(const QString &cap, imapModel()->capabilities()) {
         caps += tr("<li>%1</li>\n").arg(cap);
     }
 
     QString idString;
-    if (!model->serverId().isEmpty() && model->capabilities().contains(QLatin1String("ID"))) {
-        QMap<QByteArray,QByteArray> serverId = model->serverId();
+    if (!imapModel()->serverId().isEmpty() && imapModel()->capabilities().contains(QLatin1String("ID"))) {
+        QMap<QByteArray,QByteArray> serverId = imapModel()->serverId();
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #define IMAP_ID_FIELD(Var, Name) bool has_##Var = serverId.contains(Name); \
@@ -2128,7 +2015,7 @@ QSize MainWindow::sizeHint() const
 
 void MainWindow::slotUpdateWindowTitle()
 {
-    QModelIndex mailbox = msgListModel->currentMailbox();
+    QModelIndex mailbox = qobject_cast<Imap::Mailbox::MsgListModel *>(m_imapAccess->msgListModel())->currentMailbox();
     QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
     if (!profileName.isEmpty())
         profileName = QLatin1String(" [") + profileName + QLatin1Char(']');
@@ -2238,7 +2125,7 @@ void MainWindow::slotLayoutOneAtTime()
 
 Imap::Mailbox::Model *MainWindow::imapModel() const
 {
-    return model;
+    return qobject_cast<Imap::Mailbox::Model *>(m_imapAccess->imapModel());
 }
 
 void MainWindow::desktopGeometryChanged()
