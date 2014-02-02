@@ -27,6 +27,7 @@
 #include <QSettings>
 #include "Common/MetaTypes.h"
 #include "Common/Paths.h"
+#include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Model/SQLCache.h"
@@ -59,10 +60,10 @@ ImapAccess::ImapAccess(QObject *parent, const QString &accountName) :
         switch (m_connectionMethod) {
         case Common::ConnectionMethod::NetCleartext:
         case Common::ConnectionMethod::NetStartTls:
-            m_port = 143;
+            m_port = Common::PORT_IMAP;
             break;
         case Common::ConnectionMethod::NetDedicatedTls:
-            m_port = 993;
+            m_port = Common::PORT_IMAPS;
             break;
         case Common::ConnectionMethod::Process:
             // do nothing
