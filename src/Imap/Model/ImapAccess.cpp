@@ -36,24 +36,23 @@
 
 namespace Imap {
 
-ImapAccess::ImapAccess(QObject *parent, const QString &accountName) :
-    QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
+ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &accountName) :
+    QObject(parent), m_settings(settings), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
     m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
     m_connectionMethod(Common::ConnectionMethod::Invalid)
 {
-    QSettings s;
-    Imap::migrateSettings(&s);
-    m_server = s.value(Common::SettingsNames::imapHostKey).toString();
-    m_username = s.value(Common::SettingsNames::imapUserKey).toString();
-    if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodSSL) {
+    Imap::migrateSettings(m_settings);
+    m_server = m_settings->value(Common::SettingsNames::imapHostKey).toString();
+    m_username = m_settings->value(Common::SettingsNames::imapUserKey).toString();
+    if (m_settings->value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodSSL) {
         m_connectionMethod = Common::ConnectionMethod::NetDedicatedTls;
-    } else if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodTCP) {
-        m_connectionMethod = QSettings().value(Common::SettingsNames::imapStartTlsKey).toBool() ?
+    } else if (m_settings->value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodTCP) {
+        m_connectionMethod = m_settings->value(Common::SettingsNames::imapStartTlsKey).toBool() ?
                     Common::ConnectionMethod::NetStartTls : Common::ConnectionMethod::NetCleartext;
-    } else if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodProcess) {
+    } else if (m_settings->value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodProcess) {
         m_connectionMethod = Common::ConnectionMethod::Process;
     }
-    m_port = s.value(Common::SettingsNames::imapPortKey, QVariant(0)).toInt();
+    m_port = m_settings->value(Common::SettingsNames::imapPortKey, QVariant(0)).toInt();
     if (!m_port) {
         switch (m_connectionMethod) {
         case Common::ConnectionMethod::NetCleartext:
@@ -104,7 +103,7 @@ QString ImapAccess::server() const
 void ImapAccess::setServer(const QString &server)
 {
     m_server = server;
-    QSettings().setValue(Common::SettingsNames::imapHostKey, m_server);
+    m_settings->setValue(Common::SettingsNames::imapHostKey, m_server);
     emit serverChanged();
 }
 
@@ -116,7 +115,7 @@ QString ImapAccess::username() const
 void ImapAccess::setUsername(const QString &username)
 {
     m_username = username;
-    QSettings().setValue(Common::SettingsNames::imapUserKey, m_username);
+    m_settings->setValue(Common::SettingsNames::imapUserKey, m_username);
     emit usernameChanged();;
 }
 
@@ -138,7 +137,7 @@ int ImapAccess::port() const
 void ImapAccess::setPort(const int port)
 {
     m_port = port;
-    QSettings().setValue(Common::SettingsNames::imapPortKey, m_port);
+    m_settings->setValue(Common::SettingsNames::imapPortKey, m_port);
     emit portChanged();
 }
 
@@ -186,17 +185,17 @@ void ImapAccess::setConnectionMethod(const Common::ConnectionMethod mode)
         break;
     case Common::ConnectionMethod::NetCleartext:
     case Common::ConnectionMethod::NetStartTls:
-        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
-        QSettings().setValue(Common::SettingsNames::imapStartTlsKey, m_connectionMethod == Common::ConnectionMethod::NetStartTls);
+        m_settings->setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
+        m_settings->setValue(Common::SettingsNames::imapStartTlsKey, m_connectionMethod == Common::ConnectionMethod::NetStartTls);
         break;
     case Common::ConnectionMethod::NetDedicatedTls:
-        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodSSL);
+        m_settings->setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodSSL);
         // Trying to communicate the fact that this is going to be an encrypted connection, even though
         // that settings bit is not actually used
-        QSettings().setValue(Common::SettingsNames::imapStartTlsKey, true);
+        m_settings->setValue(Common::SettingsNames::imapStartTlsKey, true);
         break;
     case Common::ConnectionMethod::Process:
-        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodProcess);
+        m_settings->setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodProcess);
         break;
     }
     emit connMethodChanged();
@@ -316,9 +315,8 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
 {
     m_sslChain = sslCertificateChain;
     m_sslErrors = sslErrors;
-    QSettings s;
 
-    QByteArray lastKnownPubKey = s.value(Common::SettingsNames::imapSslPemPubKey).toByteArray();
+    QByteArray lastKnownPubKey = m_settings->value(Common::SettingsNames::imapSslPemPubKey).toByteArray();
     if (!m_sslChain.isEmpty() && !lastKnownPubKey.isEmpty() && lastKnownPubKey == m_sslChain[0].publicKey().toPem()) {
         // This certificate chain contains the same public keys as the last time; we should accept that
         m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
@@ -333,15 +331,14 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
 void ImapAccess::setSslPolicy(bool accept)
 {
     if (accept && !m_sslChain.isEmpty()) {
-        QSettings s;
-        s.setValue(Common::SettingsNames::imapSslPemPubKey, m_sslChain[0].publicKey().toPem());
+        m_settings->setValue(Common::SettingsNames::imapSslPemPubKey, m_sslChain[0].publicKey().toPem());
     }
     m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, accept);
 }
 
 void ImapAccess::forgetSslCertificate()
 {
-    QSettings().remove(Common::SettingsNames::imapSslPemPubKey);
+    m_settings->remove(Common::SettingsNames::imapSslPemPubKey);
 }
 
 QString ImapAccess::sslInfoTitle() const

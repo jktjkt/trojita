@@ -36,6 +36,7 @@
 #include "Imap/Model/VisibleTasksModel.h"
 
 class QNetworkAccessManager;
+class QSettings;
 
 namespace Imap {
 
@@ -60,7 +61,7 @@ class ImapAccess : public QObject
     Q_ENUMS(Imap::ImapAccess::ConnectionMethod)
 
 public:
-    explicit ImapAccess(QObject *parent, const QString &accountName);
+    explicit ImapAccess(QObject *parent, QSettings *settings, const QString &accountName);
 
     QObject *imapModel() const;
     QObject *mailboxModel() const;
@@ -114,6 +115,7 @@ public slots:
     void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
 
 private:
+    QSettings *m_settings;
     Imap::Mailbox::Model *m_imapModel;
     Imap::Mailbox::AbstractCache *cache;
     Imap::Mailbox::MailboxModel *m_mailboxModel;
