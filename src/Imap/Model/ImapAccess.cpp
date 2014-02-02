@@ -38,7 +38,8 @@ namespace Imap {
 
 ImapAccess::ImapAccess(QObject *parent, const QString &accountName) :
     QObject(parent), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
-    m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0)
+    m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
+    m_connectionMethod(Common::ConnectionMethod::Invalid)
 {
     QSettings s;
     Imap::migrateSettings(&s);
@@ -51,9 +52,6 @@ ImapAccess::ImapAccess(QObject *parent, const QString &accountName) :
                     Common::ConnectionMethod::NetStartTls : Common::ConnectionMethod::NetCleartext;
     } else if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodProcess) {
         m_connectionMethod = Common::ConnectionMethod::Process;
-    } else {
-        // more or less sane as a default
-        m_connectionMethod = Common::ConnectionMethod::NetStartTls;
     }
     m_port = s.value(Common::SettingsNames::imapPortKey, QVariant(0)).toInt();
     if (!m_port) {
@@ -66,6 +64,7 @@ ImapAccess::ImapAccess(QObject *parent, const QString &accountName) :
             m_port = Common::PORT_IMAPS;
             break;
         case Common::ConnectionMethod::Process:
+        case Common::ConnectionMethod::Invalid:
             // do nothing
             break;
         }
@@ -152,6 +151,7 @@ QString ImapAccess::sslMode() const
         return QLatin1String("StartTLS");
     case Common::ConnectionMethod::NetDedicatedTls:
         return QLatin1String("SSL");
+    case Common::ConnectionMethod::Invalid:
     case Common::ConnectionMethod::Process:
         return QString();
     }
@@ -182,6 +182,8 @@ void ImapAccess::setConnectionMethod(const Common::ConnectionMethod mode)
 {
     m_connectionMethod = mode;
     switch (m_connectionMethod) {
+    case Common::ConnectionMethod::Invalid:
+        break;
     case Common::ConnectionMethod::NetCleartext:
     case Common::ConnectionMethod::NetStartTls:
         QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
@@ -208,6 +210,9 @@ void ImapAccess::doConnect()
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
 
     switch (m_connectionMethod) {
+    case Common::ConnectionMethod::Invalid:
+        factory.reset(new Streams::FakeSocketFactory(Imap::CONN_STATE_LOGOUT));
+        break;
     case Common::ConnectionMethod::NetCleartext:
     case Common::ConnectionMethod::NetStartTls:
         factory.reset(new Streams::TlsAbleSocketFactory(server(), port()));

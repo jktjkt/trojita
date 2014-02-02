@@ -27,6 +27,7 @@ namespace Common {
 
 /** @short Type of network connection to use */
 enum class ConnectionMethod {
+    Invalid, /**< No configuration was provided */
     NetCleartext, /**< Cleartext connection over network -- no encryption whatsoever */
     NetStartTls, /**< Network connection which starts in plaintext and is upgraded via STARTTLS later on */
     NetDedicatedTls, /**< Network connection over SSL/TLC encrypted from the very beginning */
