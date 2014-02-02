@@ -29,15 +29,16 @@
 #include "Common/Paths.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
+#include "Imap/Model/CombinedCache.h"
+#include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Utils.h"
-#include "Imap/Model/SQLCache.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/SocketFactory.h"
 
 namespace Imap {
 
 ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &accountName) :
-    QObject(parent), m_settings(settings), m_imapModel(0), cache(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
+    QObject(parent), m_settings(settings), m_imapModel(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
     m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
     m_connectionMethod(Common::ConnectionMethod::Invalid)
 {
@@ -69,13 +70,7 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &acco
         }
     }
 
-    QString cacheDir = Common::writablePath(Common::LOCATION_CACHE) + accountName + QLatin1Char('/');;
-    m_cacheError = !QDir().mkpath(cacheDir);
-    QFile::Permissions expectedPerms = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner;
-    if (QFileInfo(cacheDir).permissions() != expectedPerms) {
-        m_cacheError = !QFile::setPermissions(cacheDir, expectedPerms) || m_cacheError;
-    }
-    m_cacheFile = cacheDir + QLatin1String("/imap.cache.sqlite");
+    m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + accountName + QLatin1Char('/');;
 }
 
 void ImapAccess::alertReceived(const QString &message)
@@ -231,8 +226,50 @@ void ImapAccess::doConnect()
         break;
     }
 
-    cache = new Imap::Mailbox::SQLCache(this);
-    bool ok = static_cast<Imap::Mailbox::SQLCache*>(cache)->open(QLatin1String("trojita-imap-cache"), m_cacheFile);
+    bool shouldUsePersistentCache =
+            m_settings->value(Common::SettingsNames::cacheOfflineKey).toString() != Common::SettingsNames::cacheOfflineNone;
+
+    if (shouldUsePersistentCache && !QDir().mkpath(m_cacheDir)) {
+        onCacheError(tr("Failed to create directory %1").arg(m_cacheDir));
+        shouldUsePersistentCache = false;
+    }
+
+    if (shouldUsePersistentCache) {
+        QFile::Permissions expectedPerms = QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner;
+        if (QFileInfo(m_cacheDir).permissions() != expectedPerms) {
+            if (!QFile::setPermissions(m_cacheDir, expectedPerms)) {
+#ifndef Q_OS_WIN32
+                onCacheError(tr("Failed to set safe permissions on cache directory %1").arg(m_cacheDir));
+                shouldUsePersistentCache = false;
+#endif
+            }
+        }
+    }
+
+    Imap::Mailbox::AbstractCache *cache = 0;
+
+    if (!shouldUsePersistentCache) {
+        cache = new Imap::Mailbox::MemoryCache(this);
+    } else {
+        cache = new Imap::Mailbox::CombinedCache(this, QLatin1String("trojita-imap-cache"), m_cacheDir);
+        connect(cache, SIGNAL(error(QString)), this, SLOT(onCacheError(QString)));
+        if (! static_cast<Imap::Mailbox::CombinedCache *>(cache)->open()) {
+            // Error message was already shown by the cacheError() slot
+            cache->deleteLater();
+            cache = new Imap::Mailbox::MemoryCache(this);
+        } else {
+            if (m_settings->value(Common::SettingsNames::cacheOfflineKey).toString() == Common::SettingsNames::cacheOfflineAll) {
+                cache->setRenewalThreshold(0);
+            } else {
+                const int defaultCacheLifetime = 30;
+                bool ok;
+                int num = m_settings->value(Common::SettingsNames::cacheOfflineNumberDaysKey, defaultCacheLifetime).toInt(&ok);
+                if (!ok)
+                    num = defaultCacheLifetime;
+                cache->setRenewalThreshold(num);
+            }
+        }
+    }
 
     m_imapModel = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory));
     m_imapModel->setProperty("trojita-imap-enable-id", m_settings->value(Common::SettingsNames::imapEnableId, true).toBool());
@@ -242,18 +279,11 @@ void ImapAccess::doConnect()
     connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
 
-    if (!ok || m_cacheError) {
-        // Yes, this is a hack -- but it's better than adding yet another channel for error reporting, IMNSHO.
-        QMetaObject::invokeMethod(m_imapModel, "connectionError", Qt::QueuedConnection,
-                                  Q_ARG(QString, tr("Cache initialization failed")));
-        QMetaObject::invokeMethod(m_imapModel, "setNetworkOffline", Qt::QueuedConnection);
-    } else {
-        m_netWatcher = new Imap::Mailbox::NetworkWatcher(this, m_imapModel);
-        QMetaObject::invokeMethod(m_netWatcher,
-                                  m_settings->value(Common::SettingsNames::imapStartOffline).toBool() ?
-                                      "setNetworkOffline" : "setNetworkOnline",
-                                  Qt::QueuedConnection);
-    }
+    m_netWatcher = new Imap::Mailbox::NetworkWatcher(this, m_imapModel);
+    QMetaObject::invokeMethod(m_netWatcher,
+                              m_settings->value(Common::SettingsNames::imapStartOffline).toBool() ?
+                                  "setNetworkOffline" : "setNetworkOnline",
+                              Qt::QueuedConnection);
 
     m_imapModel->setImapUser(username());
     if (!m_password.isNull()) {
@@ -270,6 +300,14 @@ void ImapAccess::doConnect()
     m_oneMessageModel = new Imap::Mailbox::OneMessageModel(m_imapModel);
     m_msgQNAM = new Imap::Network::MsgPartNetAccessManager(this);
     emit modelsChanged();
+}
+
+void ImapAccess::onCacheError(const QString &message)
+{
+    if (m_imapModel) {
+        m_imapModel->setCache(new Imap::Mailbox::MemoryCache(m_imapModel));
+    }
+    emit cacheError(message);
 }
 
 QObject *ImapAccess::imapModel() const
@@ -376,7 +414,7 @@ connecting to a completely different server since the last time.
 */
 void ImapAccess::nukeCache()
 {
-    QFile::remove(m_cacheFile);
+    QFile::remove(m_cacheDir);
 }
 
 }

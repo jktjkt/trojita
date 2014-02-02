@@ -107,17 +107,18 @@ signals:
     void connMethodChanged();
     void modelsChanged();
     void checkSslPolicy();
+    void cacheError(const QString &message);
 
 public slots:
     void alertReceived(const QString &message);
     void connectionError(const QString &message);
+    void onCacheError(const QString &message);
     void slotLogged(uint parserId, const Common::LogMessage &message);
     void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
 
 private:
     QSettings *m_settings;
     Imap::Mailbox::Model *m_imapModel;
-    Imap::Mailbox::AbstractCache *cache;
     Imap::Mailbox::MailboxModel *m_mailboxModel;
     Imap::Mailbox::SubtreeModelOfMailboxModel *m_mailboxSubtreeModel;
     Imap::Mailbox::MsgListModel *m_msgListModel;
@@ -137,8 +138,7 @@ private:
     QString m_sslInfoTitle;
     QString m_sslInfoMessage;
 
-    QString m_cacheFile;
-    bool m_cacheError;
+    QString m_cacheDir;
 };
 
 }
