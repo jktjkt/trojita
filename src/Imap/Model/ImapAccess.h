@@ -26,6 +26,7 @@
 #include <QObject>
 #include <QSslError>
 
+#include "Common/ConnectionMethod.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MsgListModel.h"
@@ -50,12 +51,13 @@ class ImapAccess : public QObject
     Q_PROPERTY(QObject *networkWatcher READ networkWatcher NOTIFY modelsChanged)
     Q_PROPERTY(QNetworkAccessManager *msgQNAM READ msgQNAM NOTIFY modelsChanged)
     Q_PROPERTY(QString server READ server WRITE setServer NOTIFY serverChanged)
-    Q_PROPERTY(int port READ port WRITE setPort)
-    Q_PROPERTY(QString username READ username WRITE setUsername)
+    Q_PROPERTY(int port READ port WRITE setPort NOTIFY portChanged)
+    Q_PROPERTY(QString username READ username WRITE setUsername NOTIFY usernameChanged)
     Q_PROPERTY(QString password READ password WRITE setPassword)
-    Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode)
+    Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode NOTIFY connMethodChanged)
     Q_PROPERTY(QString sslInfoTitle READ sslInfoTitle NOTIFY checkSslPolicy)
     Q_PROPERTY(QString sslInfoMessage READ sslInfoMessage NOTIFY checkSslPolicy)
+    Q_ENUMS(Imap::ImapAccess::ConnectionMethod)
 
 public:
     explicit ImapAccess(QObject *parent, const QString &accountName);
@@ -79,6 +81,9 @@ public:
     QString sslMode() const;
     void setSslMode(const QString &sslMode);
 
+    Common::ConnectionMethod connectionMethod() const;
+    void setConnectionMethod(const Common::ConnectionMethod mode);
+
     Q_INVOKABLE void doConnect();
 
     QString sslInfoTitle() const;
@@ -96,6 +101,9 @@ public:
 
 signals:
     void serverChanged();
+    void portChanged();
+    void usernameChanged();
+    void connMethodChanged();
     void modelsChanged();
     void checkSslPolicy();
 
@@ -120,7 +128,7 @@ private:
     int m_port;
     QString m_username;
     QString m_password;
-    QString m_sslMode;
+    Common::ConnectionMethod m_connectionMethod;
 
     QList<QSslCertificate> m_sslChain;
     QList<QSslError> m_sslErrors;

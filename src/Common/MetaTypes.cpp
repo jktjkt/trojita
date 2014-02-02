@@ -32,6 +32,7 @@ void registerMetaTypes()
     qRegisterMetaType<QList<QSslError>>();
     qRegisterMetaType<QModelIndex>();
     qRegisterMetaType<Imap::Mailbox::CacheLoadingMode>();
+    qRegisterMetaType<Common::ConnectionMethod>();
 }
 
 }

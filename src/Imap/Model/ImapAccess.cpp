@@ -25,6 +25,7 @@
 #include <QFileInfo>
 #include <QSslKey>
 #include <QSettings>
+#include "Common/MetaTypes.h"
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
 #include "Imap/Model/Utils.h"
@@ -43,15 +44,30 @@ ImapAccess::ImapAccess(QObject *parent, const QString &accountName) :
     m_server = s.value(Common::SettingsNames::imapHostKey).toString();
     m_username = s.value(Common::SettingsNames::imapUserKey).toString();
     if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodSSL) {
-        m_sslMode = QLatin1String("SSL");
-    } else if (QSettings().value(Common::SettingsNames::imapStartTlsKey).toBool()) {
-        m_sslMode = QLatin1String("StartTLS");
+        m_connectionMethod = Common::ConnectionMethod::NetDedicatedTls;
+    } else if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodTCP) {
+        m_connectionMethod = QSettings().value(Common::SettingsNames::imapStartTlsKey).toBool() ?
+                    Common::ConnectionMethod::NetStartTls : Common::ConnectionMethod::NetCleartext;
+    } else if (s.value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodProcess) {
+        m_connectionMethod = Common::ConnectionMethod::Process;
     } else {
-        m_sslMode = QLatin1String("TCP");
+        // more or less sane as a default
+        m_connectionMethod = Common::ConnectionMethod::NetStartTls;
     }
     m_port = s.value(Common::SettingsNames::imapPortKey, QVariant(0)).toInt();
     if (!m_port) {
-        m_port = m_sslMode == QLatin1String("SSL") ? 993 : 143;
+        switch (m_connectionMethod) {
+        case Common::ConnectionMethod::NetCleartext:
+        case Common::ConnectionMethod::NetStartTls:
+            m_port = 143;
+            break;
+        case Common::ConnectionMethod::NetDedicatedTls:
+            m_port = 993;
+            break;
+        case Common::ConnectionMethod::Process:
+            // do nothing
+            break;
+        }
     }
 
     QString cacheDir = Common::writablePath(Common::LOCATION_CACHE) + accountName + QLatin1Char('/');;
@@ -101,6 +117,7 @@ void ImapAccess::setUsername(const QString &username)
 {
     m_username = username;
     QSettings().setValue(Common::SettingsNames::imapUserKey, m_username);
+    emit usernameChanged();;
 }
 
 QString ImapAccess::password() const
@@ -122,16 +139,64 @@ void ImapAccess::setPort(const int port)
 {
     m_port = port;
     QSettings().setValue(Common::SettingsNames::imapPortKey, m_port);
+    emit portChanged();
 }
 
 QString ImapAccess::sslMode() const
 {
-    return m_sslMode;
+    switch (m_connectionMethod) {
+    case Common::ConnectionMethod::NetCleartext:
+        return QLatin1String("No");
+    case Common::ConnectionMethod::NetStartTls:
+        return QLatin1String("StartTLS");
+    case Common::ConnectionMethod::NetDedicatedTls:
+        return QLatin1String("SSL");
+    case Common::ConnectionMethod::Process:
+        return QString();
+    }
+
+    Q_ASSERT(false);
+    return QString();
 }
 
 void ImapAccess::setSslMode(const QString &sslMode)
 {
-    m_sslMode = sslMode;
+    if (sslMode == QLatin1String("No")) {
+        setConnectionMethod(Common::ConnectionMethod::NetCleartext);
+    } else if (sslMode == QLatin1String("SSL")) {
+        setConnectionMethod(Common::ConnectionMethod::NetDedicatedTls);
+    } else if (sslMode == QLatin1String("StartTLS")) {
+        setConnectionMethod(Common::ConnectionMethod::NetStartTls);
+    } else {
+        Q_ASSERT(false);
+    }
+}
+
+Common::ConnectionMethod ImapAccess::connectionMethod() const
+{
+    return m_connectionMethod;
+}
+
+void ImapAccess::setConnectionMethod(const Common::ConnectionMethod mode)
+{
+    m_connectionMethod = mode;
+    switch (m_connectionMethod) {
+    case Common::ConnectionMethod::NetCleartext:
+    case Common::ConnectionMethod::NetStartTls:
+        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
+        QSettings().setValue(Common::SettingsNames::imapStartTlsKey, m_connectionMethod == Common::ConnectionMethod::NetStartTls);
+        break;
+    case Common::ConnectionMethod::NetDedicatedTls:
+        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodSSL);
+        // Trying to communicate the fact that this is going to be an encrypted connection, even though
+        // that settings bit is not actually used
+        QSettings().setValue(Common::SettingsNames::imapStartTlsKey, true);
+        break;
+    case Common::ConnectionMethod::Process:
+        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodProcess);
+        break;
+    }
+    emit connMethodChanged();
 }
 
 void ImapAccess::doConnect()
@@ -141,18 +206,19 @@ void ImapAccess::doConnect()
     Imap::Mailbox::SocketFactoryPtr factory;
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
 
-    if (m_sslMode == QLatin1String("SSL")) {
-        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodSSL);
+    switch (m_connectionMethod) {
+    case Common::ConnectionMethod::NetCleartext:
+    case Common::ConnectionMethod::NetStartTls:
+        factory.reset(new Streams::TlsAbleSocketFactory(server(), port()));
+        factory->setStartTlsRequired(m_connectionMethod == Common::ConnectionMethod::NetStartTls);
+        break;
+    case Common::ConnectionMethod::NetDedicatedTls:
         factory.reset(new Streams::SslSocketFactory(server(), port()));
-    } else if (m_sslMode == QLatin1String("StartTLS")) {
-        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
-        QSettings().setValue(Common::SettingsNames::imapStartTlsKey, true);
-        factory.reset(new Streams::TlsAbleSocketFactory(server(), port()));
-        factory->setStartTlsRequired(true);
-    } else {
-        QSettings().setValue(Common::SettingsNames::imapMethodKey, Common::SettingsNames::methodTCP);
-        QSettings().setValue(Common::SettingsNames::imapStartTlsKey, false);
-        factory.reset(new Streams::TlsAbleSocketFactory(server(), port()));
+        break;
+    case Common::ConnectionMethod::Process:
+        // FIXME: implement this
+        factory.reset(new Streams::ProcessSocketFactory(QString(), QStringList()));
+        break;
     }
 
     cache = new Imap::Mailbox::SQLCache(this);

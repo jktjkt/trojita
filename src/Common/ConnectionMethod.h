@@ -19,27 +19,20 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef COMMON_METATYPES_H
-#define COMMON_METATYPES_H
 
-#include <QMetaTypeId2>
-#include <QModelIndex>
-#include <QSslCertificate>
-#include <QSslError>
-#include "Common/ConnectionMethod.h"
-
-Q_DECLARE_METATYPE(QList<QSslCertificate>)
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 1)
-#ifndef QSSLSOCKET_H
-Q_DECLARE_METATYPE(QList<QSslError>)
-#endif
-#endif
-Q_DECLARE_METATYPE(QModelIndex)
-Q_DECLARE_METATYPE(QList<QByteArray>)
-Q_DECLARE_METATYPE(Common::ConnectionMethod)
+#ifndef TROJITA_CONNECTIONMETHOD_H
+#define TROJITA_CONNECTIONMETHOD_H
 
 namespace Common {
-void registerMetaTypes();
+
+/** @short Type of network connection to use */
+enum class ConnectionMethod {
+    NetCleartext, /**< Cleartext connection over network -- no encryption whatsoever */
+    NetStartTls, /**< Network connection which starts in plaintext and is upgraded via STARTTLS later on */
+    NetDedicatedTls, /**< Network connection over SSL/TLC encrypted from the very beginning */
+    Process, /**< Connection over a pipe to a newly launched process */
+};
+
 }
 
 #endif
