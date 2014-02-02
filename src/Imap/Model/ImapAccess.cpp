@@ -221,8 +221,13 @@ void ImapAccess::doConnect()
         factory.reset(new Streams::SslSocketFactory(server(), port()));
         break;
     case Common::ConnectionMethod::Process:
-        // FIXME: implement this
-        factory.reset(new Streams::ProcessSocketFactory(QString(), QStringList()));
+        QStringList args = m_settings->value(Common::SettingsNames::imapProcessKey).toString().split(QLatin1Char(' '));
+        if (args.isEmpty()) {
+            // it's going to fail anyway
+            args << QLatin1String("");
+        }
+        QString appName = args.takeFirst();
+        factory.reset(new Streams::ProcessSocketFactory(appName, args));
         break;
     }
 
