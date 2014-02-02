@@ -33,6 +33,7 @@
 #include "Imap/Model/NetworkWatcher.h"
 #include "Imap/Model/OneMessageModel.h"
 #include "Imap/Model/SubtreeModel.h"
+#include "Imap/Model/Utils.h"
 #include "Imap/Model/VisibleTasksModel.h"
 
 class QNetworkAccessManager;
@@ -89,6 +90,7 @@ public:
 
     QString sslInfoTitle() const;
     QString sslInfoMessage() const;
+    Imap::Mailbox::CertificateUtils::IconType sslInfoIcon() const;
 
     Q_INVOKABLE void openMessage(const QString &mailbox, const uint uid);
     Q_INVOKABLE QString prettySize(const uint bytes) const;
@@ -137,6 +139,7 @@ private:
     QList<QSslError> m_sslErrors;
     QString m_sslInfoTitle;
     QString m_sslInfoMessage;
+    Imap::Mailbox::CertificateUtils::IconType m_sslInfoIcon;
 
     QString m_cacheDir;
 };

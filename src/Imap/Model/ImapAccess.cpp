@@ -40,7 +40,8 @@ namespace Imap {
 ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &accountName) :
     QObject(parent), m_settings(settings), m_imapModel(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
     m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
-    m_connectionMethod(Common::ConnectionMethod::Invalid)
+    m_connectionMethod(Common::ConnectionMethod::Invalid),
+    m_sslInfoIcon(Imap::Mailbox::CertificateUtils::NoIcon)
 {
     Imap::migrateSettings(m_settings);
     m_server = m_settings->value(Common::SettingsNames::imapHostKey).toString();
@@ -367,9 +368,8 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
         // This certificate chain contains the same public keys as the last time; we should accept that
         m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
     } else {
-        Imap::Mailbox::CertificateUtils::IconType icon;
         Imap::Mailbox::CertificateUtils::formatSslState(
-                    m_sslChain, lastKnownPubKey, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &icon);
+                    m_sslChain, lastKnownPubKey, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &m_sslInfoIcon);
         emit checkSslPolicy();
     }
 }
@@ -395,6 +395,11 @@ QString ImapAccess::sslInfoTitle() const
 QString ImapAccess::sslInfoMessage() const
 {
     return m_sslInfoMessage;
+}
+
+Imap::Mailbox::CertificateUtils::IconType ImapAccess::sslInfoIcon() const
+{
+    return m_sslInfoIcon;
 }
 
 QString ImapAccess::mailboxListMailboxName() const
