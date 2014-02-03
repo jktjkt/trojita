@@ -56,13 +56,13 @@ class SenderIdentitiesModel;
 
 namespace Imap
 {
+
+class ImapAccess;
+
 namespace Mailbox
 {
 
 class Model;
-class MailboxModel;
-class MsgListModel;
-class NetworkWatcher;
 class PrettyMailboxModel;
 class ThreadingMsgListModel;
 class PrettyMsgListModel;
@@ -125,7 +125,7 @@ private slots:
     void cacheError(const QString &message);
     void authenticationRequested();
     void authenticationFailed(const QString &message);
-    void sslErrors(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &errors);
+    void checkSslPolicy();
     void requireStartTlsInFuture();
     void slotComposeMailUrl(const QUrl &url);
     void slotManageContact(const QUrl &url);
@@ -218,11 +218,9 @@ private:
     void createSysTray();
     void removeSysTray();
 
-    Imap::Mailbox::Model *model;
-    Imap::Mailbox::MailboxModel *mboxModel;
+    Imap::ImapAccess *m_imapAccess;
+
     Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;
-    Imap::Mailbox::MsgListModel *msgListModel;
-    Imap::Mailbox::NetworkWatcher *m_networkWatcher;
     Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
     Composer::SenderIdentitiesModel *m_senderIdentities;

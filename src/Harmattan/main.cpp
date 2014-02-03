@@ -22,11 +22,12 @@
 
 #include <QtGui/QApplication>
 #include <QDeclarativeContext>
+#include <QSettings>
 #include "qmlapplicationviewer.h"
 #include "AppVersion/SetCoreApplication.h"
 #include "Common/Application.h"
 #include "Common/MetaTypes.h"
-#include "QmlSupport/ModelGlue/ImapAccess.h"
+#include "Imap/Model/ImapAccess.h"
 
 int main(int argc, char *argv[])
 {
@@ -38,7 +39,8 @@ int main(int argc, char *argv[])
 
     QmlApplicationViewer viewer;
 
-    ImapAccess imapAccess;
+    QSettings s;
+    Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
     QDeclarativeContext *ctxt = viewer.rootContext();
     ctxt->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 

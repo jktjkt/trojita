@@ -1854,8 +1854,11 @@ void Model::informTasksAboutNewPassword()
 /** @short Forward a policy decision about accepting or rejecting a SSL state */
 void Model::setSslPolicy(const QList<QSslCertificate> &sslChain, const QList<QSslError> &sslErrors, bool proceed)
 {
-    m_sslErrorPolicy.prepend(qMakePair(qMakePair(sslChain, sslErrors), proceed));
-     Q_FOREACH(const ParserState &p, m_parsers) {
+    if (proceed) {
+        // Only remember positive values; there is no point in blocking any further connections until settings reload
+        m_sslErrorPolicy.prepend(qMakePair(qMakePair(sslChain, sslErrors), proceed));
+    }
+    Q_FOREACH(const ParserState &p, m_parsers) {
         Q_FOREACH(ImapTask *task, p.activeTasks) {
             OpenConnectionTask *openTask = dynamic_cast<OpenConnectionTask *>(task);
             if (!openTask)

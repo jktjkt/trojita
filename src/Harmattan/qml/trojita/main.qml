@@ -166,7 +166,7 @@ PageStackWindow {
 
         onAccepted: {
             if (imapAccess.imapModel) {
-                // prevent assert failure in ImapAccess::setSslMode due to duplicate calls
+                // prevent assert failure in ImapAccess::doConnect due to duplicate calls
                 break;
             }
             if (imapSettings.imapServer !== imapAccess.server || imapSettings.imapUserName !== imapAccess.username)
@@ -179,6 +179,7 @@ PageStackWindow {
             if (imapSettings.imapPassword.length)
                 imapAccess.password = imapSettings.imapPassword
             imapAccess.sslMode = imapSettings.imapSslMode
+            imapAccess.doConnect()
             connectModels()
         }
     }

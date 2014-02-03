@@ -26,13 +26,17 @@
 #include <QModelIndex>
 #include <QSslCertificate>
 #include <QSslError>
+#include "Common/ConnectionMethod.h"
 
 Q_DECLARE_METATYPE(QList<QSslCertificate>)
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 1)
+#ifndef QSSLSOCKET_H
 Q_DECLARE_METATYPE(QList<QSslError>)
+#endif
 #endif
 Q_DECLARE_METATYPE(QModelIndex)
 Q_DECLARE_METATYPE(QList<QByteArray>)
+Q_DECLARE_METATYPE(Common::ConnectionMethod)
 
 namespace Common {
 void registerMetaTypes();

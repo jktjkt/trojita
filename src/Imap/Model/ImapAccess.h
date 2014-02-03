@@ -20,21 +20,26 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IMAPACCESS_H
-#define IMAPACCESS_H
+#ifndef TROJITA_IMAPACCESS_H
+#define TROJITA_IMAPACCESS_H
 
 #include <QObject>
 #include <QSslError>
 
+#include "Common/ConnectionMethod.h"
 #include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/NetworkWatcher.h"
 #include "Imap/Model/OneMessageModel.h"
 #include "Imap/Model/SubtreeModel.h"
+#include "Imap/Model/Utils.h"
 #include "Imap/Model/VisibleTasksModel.h"
 
 class QNetworkAccessManager;
+class QSettings;
+
+namespace Imap {
 
 class ImapAccess : public QObject
 {
@@ -48,15 +53,16 @@ class ImapAccess : public QObject
     Q_PROPERTY(QObject *networkWatcher READ networkWatcher NOTIFY modelsChanged)
     Q_PROPERTY(QNetworkAccessManager *msgQNAM READ msgQNAM NOTIFY modelsChanged)
     Q_PROPERTY(QString server READ server WRITE setServer NOTIFY serverChanged)
-    Q_PROPERTY(int port READ port WRITE setPort)
-    Q_PROPERTY(QString username READ username WRITE setUsername)
+    Q_PROPERTY(int port READ port WRITE setPort NOTIFY portChanged)
+    Q_PROPERTY(QString username READ username WRITE setUsername NOTIFY usernameChanged)
     Q_PROPERTY(QString password READ password WRITE setPassword)
-    Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode)
+    Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode NOTIFY connMethodChanged)
     Q_PROPERTY(QString sslInfoTitle READ sslInfoTitle NOTIFY checkSslPolicy)
     Q_PROPERTY(QString sslInfoMessage READ sslInfoMessage NOTIFY checkSslPolicy)
+    Q_ENUMS(Imap::ImapAccess::ConnectionMethod)
 
 public:
-    explicit ImapAccess(QObject *parent = 0);
+    explicit ImapAccess(QObject *parent, QSettings *settings, const QString &accountName);
 
     QObject *imapModel() const;
     QObject *mailboxModel() const;
@@ -77,8 +83,14 @@ public:
     QString sslMode() const;
     void setSslMode(const QString &sslMode);
 
+    Common::ConnectionMethod connectionMethod() const;
+    void setConnectionMethod(const Common::ConnectionMethod mode);
+
+    Q_INVOKABLE void doConnect();
+
     QString sslInfoTitle() const;
     QString sslInfoMessage() const;
+    Imap::Mailbox::CertificateUtils::IconType sslInfoIcon() const;
 
     Q_INVOKABLE void openMessage(const QString &mailbox, const uint uid);
     Q_INVOKABLE QString prettySize(const uint bytes) const;
@@ -92,18 +104,23 @@ public:
 
 signals:
     void serverChanged();
+    void portChanged();
+    void usernameChanged();
+    void connMethodChanged();
     void modelsChanged();
     void checkSslPolicy();
+    void cacheError(const QString &message);
 
 public slots:
     void alertReceived(const QString &message);
     void connectionError(const QString &message);
+    void onCacheError(const QString &message);
     void slotLogged(uint parserId, const Common::LogMessage &message);
     void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
 
 private:
+    QSettings *m_settings;
     Imap::Mailbox::Model *m_imapModel;
-    Imap::Mailbox::AbstractCache *cache;
     Imap::Mailbox::MailboxModel *m_mailboxModel;
     Imap::Mailbox::SubtreeModelOfMailboxModel *m_mailboxSubtreeModel;
     Imap::Mailbox::MsgListModel *m_msgListModel;
@@ -116,15 +133,18 @@ private:
     int m_port;
     QString m_username;
     QString m_password;
-    QString m_sslMode;
+    Common::ConnectionMethod m_connectionMethod;
 
     QList<QSslCertificate> m_sslChain;
     QList<QSslError> m_sslErrors;
     QString m_sslInfoTitle;
     QString m_sslInfoMessage;
+    Imap::Mailbox::CertificateUtils::IconType m_sslInfoIcon;
 
-    QString m_cacheFile;
-    bool m_cacheError;
+    QString m_accountName;
+    QString m_cacheDir;
 };
 
-#endif // IMAPACCESS_H
+}
+
+#endif // TROJITA_IMAPACCESS_H

@@ -19,41 +19,21 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PRETTYMAILBOXMODEL_H
-#define PRETTYMAILBOXMODEL_H
 
-#include <QSortFilterProxyModel>
+#ifndef TROJITA_CONNECTIONMETHOD_H
+#define TROJITA_CONNECTIONMETHOD_H
 
-namespace Imap
-{
+namespace Common {
 
-namespace Mailbox
-{
-
-/** @short A pretty proxy model which increases sexiness of the MailboxModel */
-class PrettyMailboxModel: public QSortFilterProxyModel
-{
-    Q_OBJECT
-public:
-    PrettyMailboxModel(QObject *parent, QAbstractItemModel *mailboxModel);
-    virtual QVariant data(const QModelIndex &index, int role) const;
-    virtual bool filterAcceptsColumn(int source_column, const QModelIndex &source_parent) const;
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
-    /** @short Override in order to prevent needless LIST commands */
-    virtual bool hasChildren(const QModelIndex &parent=QModelIndex()) const;
-#ifdef XTUPLE_CONNECT
-    void xtConnectStatusChanged(QModelIndex index);
-#endif
-
-public slots:
-    void setShowOnlySubscribed(bool filterUnsubscribed);
-
-private:
-    bool m_showOnlySubscribed;
+/** @short Type of network connection to use */
+enum class ConnectionMethod {
+    Invalid, /**< No configuration was provided */
+    NetCleartext, /**< Cleartext connection over network -- no encryption whatsoever */
+    NetStartTls, /**< Network connection which starts in plaintext and is upgraded via STARTTLS later on */
+    NetDedicatedTls, /**< Network connection over SSL/TLC encrypted from the very beginning */
+    Process, /**< Connection over a pipe to a newly launched process */
 };
 
 }
 
-}
-
-#endif // PRETTYMAILBOXMODEL_H
+#endif

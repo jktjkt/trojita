@@ -166,7 +166,7 @@ void SubtreeModel::handleDataChanged(const QModelIndex &topLeft, const QModelInd
 QModelIndex SubtreeModel::mapToSource(const QModelIndex &proxyIndex) const
 {
     if (!proxyIndex.isValid())
-        return QModelIndex();
+        return m_rootIndex;
 
     if (!sourceModel())
         return QModelIndex();
@@ -237,26 +237,26 @@ int SubtreeModel::rowCount(const QModelIndex &parent) const
 {
     if (!sourceModel())
         return 0;
-    if (m_usingInvalidRoot)
-        return sourceModel()->rowCount();
-    if (!m_rootIndex.isValid())
+    if (parent.isValid()) {
+        return sourceModel()->rowCount(mapToSource(parent));
+    } else if (m_rootIndex.isValid() || m_usingInvalidRoot) {
+        return sourceModel()->rowCount(m_rootIndex);
+    } else {
         return 0;
-    return parent.isValid() ?
-                sourceModel()->rowCount(mapToSource(parent)) :
-                sourceModel()->rowCount(m_rootIndex);
+    }
 }
 
 int SubtreeModel::columnCount(const QModelIndex &parent) const
 {
     if (!sourceModel())
         return 0;
-    if (m_usingInvalidRoot)
-        return sourceModel()->columnCount();
-    if (!m_rootIndex.isValid())
+    if (parent.isValid()) {
+        return sourceModel()->columnCount(mapToSource(parent));
+    } else if (m_rootIndex.isValid() || m_usingInvalidRoot) {
+        return sourceModel()->columnCount(m_rootIndex);
+    } else {
         return 0;
-    return parent.isValid() ?
-                qMin(sourceModel()->columnCount(mapToSource(parent)), 1) :
-                qMin(sourceModel()->columnCount(m_rootIndex), 1);
+    }
 }
 
 void SubtreeModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last)
@@ -311,7 +311,26 @@ QModelIndex SubtreeModel::rootIndex() const
 
 bool SubtreeModel::hasChildren(const QModelIndex &parent) const
 {
-    return rowCount(parent) > 0;
+    if (!sourceModel())
+        return false;
+    if (parent.isValid()) {
+        return sourceModel()->hasChildren(mapToSource(parent));
+    } else if (m_rootIndex.isValid() || m_usingInvalidRoot) {
+        return sourceModel()->hasChildren(m_rootIndex);
+    } else {
+        return false;
+    }
+}
+
+/** @short Reimplemented; this is needed because QAbstractProxyModel does not provide this forward */
+bool SubtreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (!sourceModel())
+        return false;
+    if (!m_usingInvalidRoot && !m_rootIndex.isValid())
+        return false;
+    return sourceModel()->dropMimeData(data, action, row, column,
+                                       parent.isValid() ? mapToSource(parent) : QModelIndex(m_rootIndex));
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
