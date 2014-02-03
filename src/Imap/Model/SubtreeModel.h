@@ -62,6 +62,7 @@ public:
     virtual QModelIndex mapFromSource(const QModelIndex &sourceIndex) const;
     virtual bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
     void setSourceModel(QAbstractItemModel *sourceModel);
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
     Q_INVOKABLE void setRootItem(QModelIndex rootIndex);
     Q_INVOKABLE void setRootItemByOffset(const int row);
     Q_INVOKABLE void setRootOneLevelUp();

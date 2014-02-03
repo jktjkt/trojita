@@ -322,6 +322,17 @@ bool SubtreeModel::hasChildren(const QModelIndex &parent) const
     }
 }
 
+/** @short Reimplemented; this is needed because QAbstractProxyModel does not provide this forward */
+bool SubtreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (!sourceModel())
+        return false;
+    if (!m_usingInvalidRoot && !m_rootIndex.isValid())
+        return false;
+    return sourceModel()->dropMimeData(data, action, row, column,
+                                       parent.isValid() ? mapToSource(parent) : QModelIndex(m_rootIndex));
+}
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 QHash<int,QByteArray> SubtreeModel::roleNames() const
 {
