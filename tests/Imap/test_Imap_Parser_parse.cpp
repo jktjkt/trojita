@@ -897,6 +897,16 @@ void ImapParserParseTest::testParseUntagged_data()
             << QByteArray("* 33 FETCH (UID 123 MODSEQ (5875136264581852368))\r\n")
             << QSharedPointer<AbstractResponse>(new Fetch(33, fetchData));
 
+    fetchData.clear();
+    from.clear();
+    sender = replyTo = to = cc = bcc = from;
+    fetchData["ENVELOPE"] = QSharedPointer<AbstractData>(new RespData<Envelope>(
+            Envelope(QDateTime(), QByteArray(), from, sender, replyTo, to, cc, bcc, QList<QByteArray>(),
+                     QByteArray("CAPunWhCDfYrqx_Px-072QAjZbog2DFz9O=48WnCxaxOov-VNVQ@mail.gmail.com"))));
+    QTest::newRow("aox-messageid-spacing")
+            << QByteArray("* 666 FETCH (ENVELOPE (NIL NIL NIL NIL NIL NIL NIL NIL NIL {70}\r\n"
+                          "\n <CAPunWhCDfYrqx_Px-072QAjZbog2DFz9O=48WnCxaxOov-VNVQ@mail.gmail.com>))\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(666, fetchData));
 }
 
 /** @short Test that parsing this garbage doesn't result in an expceiton

@@ -30,7 +30,10 @@
     # backslash + something, pushing into current string
     quoted_pair = ( ( "\\" ( VCHAR | WSP ) ) | obs_qp ) $push_current_backslashed;
 
-    obs_FWS = ( CRLF? WSP )+;
+    # Changed to allow even stray CR or LF line termination within the folding
+    # whitespace. There are real-world instances where some servers send such
+    # data, see e.g. the test_Imap_Parser_parse's testParseUntagged:aox-messageid-spacing.
+    obs_FWS = ( CR? LF? WSP )+;
     FWS = ( ( WSP* CRLF )? WSP+ ) | obs_FWS;
     obs_ctext = obs_NO_WS_CTL;
     ctext = 0x21..0x27 | 0x2a..0x5b | 0x5d..0x7e | obs_ctext;
