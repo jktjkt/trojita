@@ -383,13 +383,18 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
     if (!message.isValid())
         return;
 
+    // The Message-Id of the original message might have been empty; be sure we can handle that
     QByteArray messageId = message.data(Imap::Mailbox::RoleMessageMessageId).toByteArray();
+    QList<QByteArray> messageIdList;
+    if (!messageId.isEmpty()) {
+        messageIdList.append(messageId);
+    }
 
     ComposeWidget *w = mainWindow->invokeComposeDialog(
                 Composer::Util::replySubject(message.data(Imap::Mailbox::RoleMessageSubject).toString()), quoteText(),
                 QList<QPair<Composer::RecipientKind,QString> >(),
-                QList<QByteArray>() << messageId,
-                message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() << messageId,
+                messageIdList,
+                message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() + messageIdList,
                 message
                 );
     if (!w)
