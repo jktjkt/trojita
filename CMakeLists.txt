@@ -83,10 +83,9 @@ else()
     trojita_check_qt4_module(QTTEST WITH_TESTS)
     trojita_check_qt4_module(QTDECLARATIVE WITH_HARMATTAN)
     trojita_find_package(LinguistForTrojita "" "" "" "")
-endif()
-
-if(NOT QT_QCONFIG MATCHES "openssl" OR QT_QCONFIG MATCHES "no-openssl")
-    message(FATAL_ERROR "Your copy of Qt was build without SSL support. Please get openssl and rebuild Qt or a Qt binary with SSL support compiled in")
+    if(NOT QT_QCONFIG MATCHES "openssl" OR QT_QCONFIG MATCHES "no-openssl")
+        message(FATAL_ERROR "Your copy of Qt was build without SSL support. Please get openssl and rebuild Qt or a Qt binary with SSL support compiled in")
+    endif()
 endif()
 
 trojita_find_package(Git "" "" "" "")
