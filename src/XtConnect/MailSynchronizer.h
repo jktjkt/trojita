@@ -35,9 +35,14 @@
 
 #include "Imap/Model/Model.h"
 
+namespace Imap {
+namespace Mailbox {
+class MailboxFinder;
+}
+}
+
 namespace XtConnect {
 
-class MailboxFinder;
 class MessageDownloader;
 class SqlStorage;
 

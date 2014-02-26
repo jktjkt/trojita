@@ -30,7 +30,7 @@
 #include <QDebug>
 #include "MailSynchronizer.h"
 #include "Imap/Model/ItemRoles.h"
-#include "MailboxFinder.h"
+#include "Imap/Model/MailboxFinder.h"
 #include "MessageDownloader.h"
 #include "SqlStorage.h"
 

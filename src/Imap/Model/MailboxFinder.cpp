@@ -28,10 +28,14 @@
 */
 
 #include "MailboxFinder.h"
-#include "Imap/Model/Model.h"
-#include "Imap/Model/ItemRoles.h"
+#include "Model.h"
+#include "ItemRoles.h"
 
-namespace XtConnect {
+namespace Imap
+{
+
+namespace Mailbox
+{
 
 MailboxFinder::MailboxFinder( QObject *parent, Imap::Mailbox::Model *model ) :
     QObject(parent), m_model(model)
@@ -99,4 +103,5 @@ void MailboxFinder::slotRowsInserted( const QModelIndex &parent, int start, int 
     checkArrivals();
 }
 
+}
 }
