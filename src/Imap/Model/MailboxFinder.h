@@ -36,10 +36,6 @@
 namespace Imap {
 namespace Mailbox {
 class Model;
-}
-}
-
-namespace XtConnect {
 
 /** @short Find model indexes for mailboxes
 
@@ -83,6 +79,7 @@ private:
     QStringList m_watchedNames;
 };
 
+}
 }
 
 #endif // MAILBOXFINDER_H
