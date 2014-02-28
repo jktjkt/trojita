@@ -60,6 +60,7 @@ const QString SettingsNames::imapEnableId = QLatin1String("imap.enableId");
 const QString SettingsNames::obsImapSslPemCertificate = QLatin1String("imap.ssl.pemCertificate");
 const QString SettingsNames::imapSslPemPubKey = QLatin1String("imap.ssl.pemPubKey");
 const QString SettingsNames::imapBlacklistedCapabilities = QLatin1String("imap.capabilities.blacklist");
+const QString SettingsNames::imapUseSystemProxy = QLatin1String("imap.proxy.system");
 const QString SettingsNames::composerSaveToImapKey = QLatin1String("composer/saveToImapEnabled");
 const QString SettingsNames::composerImapSentKey = QLatin1String("composer/imapSentName");
 const QString SettingsNames::cacheMetadataKey = QLatin1String("offline.metadataCache");

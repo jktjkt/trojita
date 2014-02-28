@@ -20,9 +20,10 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "SocketFactory.h"
+#include <stdexcept>
 #include <QProcess>
 #include <QSslSocket>
-#include "SocketFactory.h"
 #include "IODeviceSocket.h"
 #include "FakeSocket.h"
 
@@ -55,27 +56,48 @@ Socket *ProcessSocketFactory::create()
     return new ProcessSocket(new QProcess(), executable, args);
 }
 
+void ProcessSocketFactory::setProxySettings(const ProxySettings proxySettings, const QString &protocolTag)
+{
+    throw std::invalid_argument("This socket factory doesn't manufacture network sockets and therefore doesn't support proxy settings");
+}
+
 SslSocketFactory::SslSocketFactory(const QString &host, const quint16 port):
     host(host), port(port)
 {
 }
 
+void SslSocketFactory::setProxySettings(const ProxySettings proxySettings, const QString &protocolTag)
+{
+    m_proxySettings = proxySettings;
+    m_protocolTag = protocolTag;
+}
+
 Socket *SslSocketFactory::create()
 {
     QSslSocket *sslSock = new QSslSocket();
-    IODeviceSocket *ioSock = new SslTlsSocket(sslSock, host, port, true);
-    return ioSock;
+    SslTlsSocket *sock = new SslTlsSocket(sslSock, host, port, true);
+    sock->setProxySettings(m_proxySettings, m_protocolTag);
+    return sock;
 }
+
 
 TlsAbleSocketFactory::TlsAbleSocketFactory(const QString &host, const quint16 port):
     host(host), port(port)
 {
 }
 
+void TlsAbleSocketFactory::setProxySettings(const ProxySettings proxySettings, const QString &protocolTag)
+{
+    m_proxySettings = proxySettings;
+    m_protocolTag = protocolTag;
+}
+
 Socket *TlsAbleSocketFactory::create()
 {
     QSslSocket *sslSock = new QSslSocket();
-    return new SslTlsSocket(sslSock, host, port);
+    SslTlsSocket *sock = new SslTlsSocket(sslSock, host, port);
+    sock->setProxySettings(m_proxySettings, m_protocolTag);
+    return sock;
 }
 
 FakeSocketFactory::FakeSocketFactory(const Imap::ConnectionState initialState): SocketFactory(), m_initialState(initialState)
@@ -96,6 +118,11 @@ Socket *FakeSocketFactory::lastSocket()
 void FakeSocketFactory::setInitialState(const Imap::ConnectionState initialState)
 {
     m_initialState = initialState;
+}
+
+void FakeSocketFactory::setProxySettings(const ProxySettings proxySettings, const QString &protocolTag)
+{
+    throw std::invalid_argument("This socket factory doesn't manufacture network sockets and therefore doesn't support proxy settings");
 }
 
 }

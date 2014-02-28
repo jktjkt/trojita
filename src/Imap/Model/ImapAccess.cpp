@@ -205,6 +205,9 @@ void ImapAccess::doConnect()
     Imap::Mailbox::SocketFactoryPtr factory;
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
 
+    Streams::ProxySettings proxySettings = m_settings->value(Common::SettingsNames::imapUseSystemProxy, true).toBool() ?
+                Streams::ProxySettings::RespectSystemProxy : Streams::ProxySettings::DirectConnect;
+
     switch (m_connectionMethod) {
     case Common::ConnectionMethod::Invalid:
         factory.reset(new Streams::FakeSocketFactory(Imap::CONN_STATE_LOGOUT));
@@ -213,9 +216,11 @@ void ImapAccess::doConnect()
     case Common::ConnectionMethod::NetStartTls:
         factory.reset(new Streams::TlsAbleSocketFactory(server(), port()));
         factory->setStartTlsRequired(m_connectionMethod == Common::ConnectionMethod::NetStartTls);
+        factory->setProxySettings(proxySettings, QLatin1String("imap"));
         break;
     case Common::ConnectionMethod::NetDedicatedTls:
         factory.reset(new Streams::SslSocketFactory(server(), port()));
+        factory->setProxySettings(proxySettings, QLatin1String("imap"));
         break;
     case Common::ConnectionMethod::Process:
         QStringList args = m_settings->value(Common::SettingsNames::imapProcessKey).toString().split(QLatin1Char(' '));

@@ -20,11 +20,14 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "IODeviceSocket.h"
 #include <stdexcept>
+#include <QNetworkProxy>
+#include <QNetworkProxyFactory>
+#include <QNetworkProxyQuery>
 #include <QSslConfiguration>
 #include <QSslSocket>
 #include <QTimer>
-#include "IODeviceSocket.h"
 #include "TrojitaZlibStatus.h"
 #if TROJITA_COMPRESS_DEFLATE
 #include "3rdparty/rfc1951.h"
@@ -214,7 +217,7 @@ void ProcessSocket::delayedStart()
 }
 
 SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted):
-    IODeviceSocket(sock), startEncrypted(startEncrypted), host(host), port(port)
+    IODeviceSocket(sock), startEncrypted(startEncrypted), host(host), port(port), m_proxySettings(ProxySettings::RespectSystemProxy)
 {
     // The Qt API for deciding about whereabouts of a SSL connection is unfortunately blocking, ie. one is expected to
     // call a function from a slot attached to the sslErrors signal to tell the code whether to proceed or not.
@@ -240,6 +243,12 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
     connect(sock, SIGNAL(encrypted()), this, SIGNAL(encrypted()));
     connect(sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()));
     connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
+}
+
+void SslTlsSocket::setProxySettings(const ProxySettings proxySettings, const QString &protocolTag)
+{
+    m_proxySettings = proxySettings;
+    m_protocolTag = protocolTag;
 }
 
 void SslTlsSocket::close()
@@ -306,6 +315,53 @@ void SslTlsSocket::delayedStart()
 {
     QSslSocket *sock = qobject_cast<QSslSocket *>(d);
     Q_ASSERT(sock);
+
+    switch (m_proxySettings) {
+    case Streams::ProxySettings::RespectSystemProxy:
+    {
+        QNetworkProxy setting;
+        QNetworkProxyQuery query = QNetworkProxyQuery(host, port, m_protocolTag, QNetworkProxyQuery::TcpSocket);
+
+        // set to true if a capable setting is found
+        bool capableSettingFound = false;
+
+        // set to true if at least one valid setting is found
+        bool settingFound = false;
+
+        // FIXME: this static function works particularly slow in Windows
+        QList<QNetworkProxy> proxySettingsList = QNetworkProxyFactory::systemProxyForQuery(query);
+
+        /* Proxy Settings are read from the user's environment variables by the above static method.
+         * A peculiar case is with *nix systems, where an undefined environment variable is returned as
+         * an empty string. Such entries *might* exist in our proxySettingsList, and shouldn't be processed.
+         * One good check is to use hostName() of the QNetworkProxy object, and treat the Proxy Setting as invalid if
+         * the host name is empty. */
+        Q_FOREACH (setting, proxySettingsList) {
+            if (!setting.hostName().isEmpty()) {
+                settingFound = true;
+
+                // now check whether setting has capabilities
+                if (setting.capabilities().testFlag(QNetworkProxy::TunnelingCapability)) {
+                    sock->setProxy(setting);
+                    capableSettingFound = true;
+                    break;
+                }
+            }
+        }
+
+        if (!settingFound || proxySettingsList.isEmpty()) {
+            sock->setProxy(QNetworkProxy::NoProxy);
+        } else if (!capableSettingFound) {
+            emit disconnected(tr("The underlying socket is having troubles when processing connection to %1:%2: %3")
+                              .arg(host, QString::number(port), QLatin1String("Cannot find proxy setting capable of tunneling")));
+        }
+        break;
+    }
+    case Streams::ProxySettings::DirectConnect:
+        sock->setProxy(QNetworkProxy::NoProxy);
+        break;
+    }
+
     if (startEncrypted)
         sock->connectToHostEncrypted(host, port);
     else

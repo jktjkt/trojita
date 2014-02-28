@@ -354,6 +354,7 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     startOffline->setChecked(s.value(SettingsNames::imapStartOffline).toBool());
     imapEnableId->setChecked(s.value(SettingsNames::imapEnableId, true).toBool());
     imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QLatin1String(" ")));
+    imapUseSystemProxy->setChecked(s.value(SettingsNames::imapUseSystemProxy, true).toBool());
 
     m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
 
@@ -390,6 +391,8 @@ void ImapPage::updateWidgets()
         lay->labelForField(encryption)->setVisible(true);
         processPath->setVisible(false);
         lay->labelForField(processPath)->setVisible(false);
+        imapUseSystemProxy->setVisible(true);
+        lay->labelForField(imapUseSystemProxy)->setVisible(true);
         break;
     default:
         imapHost->setVisible(false);
@@ -400,6 +403,8 @@ void ImapPage::updateWidgets()
         lay->labelForField(encryption)->setVisible(false);
         processPath->setVisible(true);
         lay->labelForField(processPath)->setVisible(true);
+        imapUseSystemProxy->setVisible(false);
+        lay->labelForField(imapUseSystemProxy)->setVisible(false);
     }
 
     switch (encryption->currentIndex()) {
@@ -436,6 +441,7 @@ void ImapPage::save(QSettings &s)
         }
         s.setValue(SettingsNames::imapHostKey, imapHost->text());
         s.setValue(SettingsNames::imapPortKey, imapPort->text());
+        s.setValue(SettingsNames::imapUseSystemProxy, imapUseSystemProxy->isChecked());
         break;
     default:
         if (processPath->text().isEmpty()) {

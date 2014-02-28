@@ -105,6 +105,19 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="5" column="0">
+     <widget class="QLabel" name="imapUseSystemProxyLabel">
+      <property name="text">
+       <string>Use System Proxy Settings</string>
+      </property>
+      <property name="buddy">
+       <cstring>imapUseSystemProxy</cstring>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QCheckBox" name="imapUseSystemProxy"/>
+    </item>
+    <item row="6" column="0">
      <widget class="QLabel" name="imapUserLabel">
       <property name="text">
        <string>&amp;Username</string>
@@ -114,7 +127,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="5" column="1">
+    <item row="6" column="1">
      <widget class="LineEdit" name="imapUser">
       <property name="toolTip">
        <string>Username</string>
@@ -127,7 +140,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="6" column="0">
+    <item row="7" column="0">
      <widget class="QLabel" name="imapPassLabel">
       <property name="text">
        <string>Pass&amp;word</string>
@@ -137,7 +150,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="6" column="1">
+    <item row="7" column="1">
      <widget class="LineEdit" name="imapPass">
       <property name="toolTip">
        <string>Password</string>
@@ -161,7 +174,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="7" column="0" colspan="2">
+    <item row="8" column="0" colspan="2">
      <widget class="QLabel" name="passwordWarning">
       <property name="text">
        <string>The password will be stored in plaintext. Leave it blank for Trojitá to prompt when needed.</string>
@@ -171,7 +184,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="8" column="0">
+    <item row="9" column="0">
      <widget class="QLabel" name="processPathLabel">
       <property name="text">
        <string>Path to Server &amp;Binary</string>
@@ -181,7 +194,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="9" column="1">
      <widget class="LineEdit" name="processPath">
       <property name="whatsThis">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -197,7 +210,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="9" column="0">
+    <item row="10" column="0">
      <widget class="QLabel" name="startOfflineLabel">
       <property name="text">
        <string>Start in O&amp;ffline Mode</string>
@@ -207,7 +220,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="9" column="1">
+    <item row="10" column="1">
      <widget class="QCheckBox" name="startOffline">
       <property name="toolTip">
        <string>Don't connect to the IMAP server upon startup</string>
@@ -220,7 +233,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
+    <item row="11" column="0">
      <widget class="QLabel" name="imapEnableIdLabel">
       <property name="text">
        <string>Reveal I'm using Trojitá</string>
@@ -230,7 +243,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="10" column="1">
+    <item row="11" column="1">
      <widget class="QCheckBox" name="imapEnableId">
       <property name="toolTip">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -246,7 +259,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="11" column="0">
+    <item row="12" column="0">
      <widget class="QLabel" name="imapCapabilitiesBlacklistLabel">
       <property name="text">
        <string>Extension &amp;Blacklist</string>
@@ -256,7 +269,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="11" column="1">
+    <item row="12" column="1">
      <widget class="LineEdit" name="imapCapabilitiesBlacklist"/>
     </item>
    </layout>

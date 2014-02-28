@@ -29,6 +29,13 @@
 
 namespace Streams {
 
+/** @short Specify preference for Proxy Settings */
+enum class ProxySettings
+{
+    RespectSystemProxy, /**< @short Use System Proxy Settings to connect */
+    DirectConnect,      /**< @short Connect without using any Proxy Settings */
+};
+
 /** @short Abstract interface for creating new socket that is somehow connected
  * to the IMAP server */
 class SocketFactory: public QObject
@@ -40,6 +47,7 @@ public:
     virtual ~SocketFactory() {}
     /** @short Create new socket and return a smart pointer to it */
     virtual Socket *create() = 0;
+    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag) = 0;
     void setStartTlsRequired(const bool doIt);
     bool startTlsRequired();
 signals:
@@ -57,6 +65,7 @@ class ProcessSocketFactory: public SocketFactory
 public:
     ProcessSocketFactory(const QString &executable, const QStringList &args);
     virtual Socket *create();
+    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
 };
 
 /** @short Manufacture sockets based on QSslSocket */
@@ -67,8 +76,13 @@ class SslSocketFactory: public SocketFactory
     QString host;
     /** @short Port number */
     quint16 port;
+    /** @short Specify Proxy Settings for connection */
+    ProxySettings m_proxySettings;
+    /** @short Protocol for the requested connection */
+    QString m_protocolTag;
 public:
     SslSocketFactory(const QString &host, const quint16 port);
+    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
     virtual Socket *create();
 };
 
@@ -80,8 +94,13 @@ class TlsAbleSocketFactory: public SocketFactory
     QString host;
     /** @short Port number */
     quint16 port;
+    /** @short Specify Proxy Settings for connection */
+    ProxySettings m_proxySettings;
+    /** @short Protocol for the requested connection */
+    QString m_protocolTag;
 public:
     TlsAbleSocketFactory(const QString &host, const quint16 port);
+    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
     virtual Socket *create();
 };
 
@@ -95,6 +114,8 @@ public:
     /** @short Return the last created socket */
     Socket *lastSocket();
     void setInitialState(const Imap::ConnectionState initialState);
+    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
+
 private:
     QPointer<Socket> m_last;
     Imap::ConnectionState m_initialState;

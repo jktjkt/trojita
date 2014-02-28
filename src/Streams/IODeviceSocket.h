@@ -25,6 +25,7 @@
 #include <QProcess>
 #include <QSslSocket>
 #include "Socket.h"
+#include "SocketFactory.h"
 
 class QTimer;
 
@@ -90,6 +91,7 @@ public:
     /** Set the @arg startEncrypted to true if the wrapper is supposed to emit
     connected() only after it has established proper encryption */
     SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted=false);
+    void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
     bool isDead();
     virtual QList<QSslCertificate> sslChain() const;
     virtual QList<QSslError> sslErrors() const;
@@ -103,6 +105,8 @@ private:
     bool startEncrypted;
     QString host;
     quint16 port;
+    QString m_protocolTag;
+    ProxySettings m_proxySettings;
 };
 
 };
