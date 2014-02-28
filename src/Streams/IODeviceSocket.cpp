@@ -268,13 +268,34 @@ void SslTlsSocket::handleStateChanged()
 
     QAbstractSocket *sock = qobject_cast<QAbstractSocket *>(d);
     Q_ASSERT(sock);
+    QString proxyMsg;
+    switch (sock->proxy().type()) {
+    case QNetworkProxy::NoProxy:
+        break;
+    case QNetworkProxy::DefaultProxy:
+    case QNetworkProxy::HttpCachingProxy:
+    case QNetworkProxy::FtpCachingProxy:
+        // these proxy types are not supposed to be supported
+        Q_ASSERT(false);
+        break;
+    case QNetworkProxy::Socks5Proxy:
+        proxyMsg = tr(" (via SOCKS5 proxy %1)").arg(sock->proxy().hostName());
+        break;
+    case QNetworkProxy::HttpProxy:
+        proxyMsg = tr(" (via HTTP proxy %1)").arg(sock->proxy().hostName());
+        break;
+    }
     switch (sock->state()) {
     case QAbstractSocket::HostLookupState:
-        emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP, tr("Looking up %1...").arg(host));
+        emit stateChanged(Imap::CONN_STATE_HOST_LOOKUP, tr("Looking up %1%2...").arg(host,
+                              sock->proxy().capabilities().testFlag(QNetworkProxy::HostNameLookupCapability) ?
+                              proxyMsg : QString()));
         break;
     case QAbstractSocket::ConnectingState:
-        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Connecting to %1:%2%3...").arg(
-                              host, QString::number(port), startEncrypted ? tr(" (SSL)") : QString()));
+        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Connecting to %1:%2%3%4...").arg(
+                              host, QString::number(port), startEncrypted ? tr(" (SSL)") : QString(),
+                              sock->proxy().capabilities().testFlag(QNetworkProxy::TunnelingCapability) ?
+                              proxyMsg : QString()));
         break;
     case QAbstractSocket::BoundState:
     case QAbstractSocket::ListeningState:
