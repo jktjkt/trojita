@@ -188,9 +188,6 @@ QString systemPlatformVersion()
 #ifdef Q_WS_X11
                  "X11"
 #endif
-#ifdef Q_WS_S60
-                 "S60"
-#endif
 #ifdef Q_WS_MAC
                  "Mac"
 #endif
@@ -264,44 +261,6 @@ QString systemPlatformVersion()
             break;
         case QSysInfo::WV_CE_6:
             platformVersion = "CE6.x";
-            break;
-        }
-#endif
-#ifdef Q_WS_S60
-switch (QSysInfo:s60Version()) {
-        case QSysInfo::SV_S60_3_1:
-            platformVersion = "S60r3fp1";
-            break;
-        case QSysInfo::SV_S60_3_2:
-            platformVersion = "S60r3fp2";
-            break;
-        case QSysInfo::SV_S60_5_0:
-            platformVersion = "S60r5";
-            break;
-        case QSysInfo::SV_S60_5_1:
-            platformVersion = "S60r5fp1";
-            break;
-        case QSysInfo::SV_S60_5_2:
-            platformVersion = "S60r5fp2";
-            break;
-        case QSysInfo::SV_S60_Unnown:
-            platformVersion = "SV_Unknown";
-            break;
-        }
-#endif
-#ifdef Q_OS_SYMBIAN
-        switch (QSysInfo::symbianVersion()) {
-        case QSysInfo::SV_SF_1:
-            platformVersion = "Symbian^1";
-            break;
-        case QSysInfo::SV_SF_2:
-            platformVersion = "Symbian^2";
-            break;
-        case QSysInfo::SV_SF_3:
-            platformVersion = "Symbian^3";
-            break;
-        case QSysInfo::SV_SF_4:
-            platformVersion = "Symbian^4";
             break;
         }
 #endif
