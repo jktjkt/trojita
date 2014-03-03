@@ -23,6 +23,9 @@
 #include <cmath>
 #include <QDateTime>
 #include <QDir>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QGuiApplication>
+#endif
 #include <QLocale>
 #include <QProcess>
 #include <QSettings>
@@ -180,6 +183,7 @@ QString systemPlatformVersion()
     }
 #endif
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QString ws = ""
 #ifdef Q_WS_X11
                  "X11"
@@ -197,6 +201,9 @@ QString systemPlatformVersion()
                  "Win"
 #endif
                  ;
+#else
+    QString ws = QGuiApplication::platformName();
+#endif
 
     static QString platformVersion;
 #ifdef TROJITA_MOBILITY_SYSTEMINFO
