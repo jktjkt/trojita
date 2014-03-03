@@ -111,7 +111,7 @@ account as a new account, using these parameters:
 <listitem><para>Real Name: the name you want to show on your
 emails (your own first and last name)</para></listitem>
 <listitem><para>Email: your email address</para></listitem>
-<listitem><para>Organisation: your company name (optional)</para></listitem>
+<listitem><para>Organization: your company name (optional)</para></listitem>
 <listitem><para>Signature: any text you want to appear at the
 bottom of your emails, like your website name or a slogan</para></listitem>
 </itemizedlist>
