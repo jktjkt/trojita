@@ -23,6 +23,9 @@
 #include <cmath>
 #include <QDateTime>
 #include <QDir>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QGuiApplication>
+#endif
 #include <QLocale>
 #include <QProcess>
 #include <QSettings>
@@ -180,12 +183,10 @@ QString systemPlatformVersion()
     }
 #endif
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     QString ws = ""
 #ifdef Q_WS_X11
                  "X11"
-#endif
-#ifdef Q_WS_S60
-                 "S60"
 #endif
 #ifdef Q_WS_MAC
                  "Mac"
@@ -197,6 +198,9 @@ QString systemPlatformVersion()
                  "Win"
 #endif
                  ;
+#else
+    QString ws = QGuiApplication::platformName();
+#endif
 
     static QString platformVersion;
 #ifdef TROJITA_MOBILITY_SYSTEMINFO
@@ -242,6 +246,11 @@ QString systemPlatformVersion()
         case QSysInfo::WV_WINDOWS7:
             platformVersion = "7";
             break;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        case QSysInfo::WV_WINDOWS8:
+            platformVersion = "8";
+            break;
+#endif
         }
 #endif
 #ifdef Q_OS_WINCE
@@ -257,44 +266,6 @@ QString systemPlatformVersion()
             break;
         case QSysInfo::WV_CE_6:
             platformVersion = "CE6.x";
-            break;
-        }
-#endif
-#ifdef Q_WS_S60
-switch (QSysInfo:s60Version()) {
-        case QSysInfo::SV_S60_3_1:
-            platformVersion = "S60r3fp1";
-            break;
-        case QSysInfo::SV_S60_3_2:
-            platformVersion = "S60r3fp2";
-            break;
-        case QSysInfo::SV_S60_5_0:
-            platformVersion = "S60r5";
-            break;
-        case QSysInfo::SV_S60_5_1:
-            platformVersion = "S60r5fp1";
-            break;
-        case QSysInfo::SV_S60_5_2:
-            platformVersion = "S60r5fp2";
-            break;
-        case QSysInfo::SV_S60_Unnown:
-            platformVersion = "SV_Unknown";
-            break;
-        }
-#endif
-#ifdef Q_OS_SYMBIAN
-        switch (QSysInfo::symbianVersion()) {
-        case QSysInfo::SV_SF_1:
-            platformVersion = "Symbian^1";
-            break;
-        case QSysInfo::SV_SF_2:
-            platformVersion = "Symbian^2";
-            break;
-        case QSysInfo::SV_SF_3:
-            platformVersion = "Symbian^3";
-            break;
-        case QSysInfo::SV_SF_4:
-            platformVersion = "Symbian^4";
             break;
         }
 #endif
@@ -327,6 +298,9 @@ switch (QSysInfo:s60Version()) {
 #if QT_VERSION >= 0x040800
         case QSysInfo::MV_10_7:
             platformVersion = "X 10.7";
+            break;
+        case QSysInfo::MV_10_8:
+            platformVersion = "X 10.8";
             break;
 #endif
         }
