@@ -294,6 +294,9 @@ QString systemPlatformVersion()
         case QSysInfo::MV_10_7:
             platformVersion = "X 10.7";
             break;
+        case QSysInfo::MV_10_8:
+            platformVersion = "X 10.8";
+            break;
 #endif
         }
 #endif
