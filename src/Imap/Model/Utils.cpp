@@ -246,6 +246,11 @@ QString systemPlatformVersion()
         case QSysInfo::WV_WINDOWS7:
             platformVersion = "7";
             break;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        case QSysInfo::WV_WINDOWS8:
+            platformVersion = "8";
+            break;
+#endif
         }
 #endif
 #ifdef Q_OS_WINCE
