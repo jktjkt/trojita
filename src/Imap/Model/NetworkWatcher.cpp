@@ -109,6 +109,7 @@ void NetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
     if (m_model->networkPolicy() == NETWORK_OFFLINE && policy != NETWORK_OFFLINE) {
         // We are asked to connect, the model is not connected yet
         if (isOnline()) {
+#ifdef TROJITA_HAS_QNETWORKSESSION
             if (m_netConfManager->allConfigurations().isEmpty()) {
                 m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
                                   // Yes, this is quite deliberate call to tr(). We absolutely want users to be able to read this
@@ -116,6 +117,7 @@ void NetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
                                   tr("Qt does not recognize any network session. Please be sure that qtbearer package "
                                      "(or similar) is installed. Assuming that network is actually already available."));
             }
+#endif
 
             m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Network is online -> connecting"));
             reconnectModelNetwork();
