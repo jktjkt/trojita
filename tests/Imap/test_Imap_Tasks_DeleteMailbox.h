@@ -23,13 +23,11 @@
 #ifndef TEST_IMAP_TASKS_DELETEMAILBOX
 #define TEST_IMAP_TASKS_DELETEMAILBOX
 
-#include "Imap/Tasks/DeleteMailboxTask.h"
-#include "Imap/Model/TaskFactory.h"
-#include "Streams/SocketFactory.h"
+#include "Utils/LibMailboxSync.h"
 
 class QSignalSpy;
 
-class ImapModelDeleteMailboxTest : public QObject
+class ImapModelDeleteMailboxTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
@@ -41,10 +39,6 @@ private slots:
     void testDeleteFail();
 
 private:
-    Imap::Mailbox::Model* model;
-    Streams::FakeSocketFactory* factory;
-    Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
-
     QSignalSpy* deletedSpy;
     QSignalSpy* failedSpy;
 

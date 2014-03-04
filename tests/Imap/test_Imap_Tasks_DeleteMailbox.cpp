@@ -31,13 +31,8 @@
 
 void ImapModelDeleteMailboxTest::init()
 {
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
-    factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
-    Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
-    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
-    taskFactoryUnsafe->fakeOpenConnectionTask = true;
-    taskFactoryUnsafe->fakeListChildMailboxes = true;
-    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
+    fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QLatin1String("a");
+    LibMailboxSync::init();
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     deletedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionSucceded(QString)));
     failedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionFailed(QString,QString)));
@@ -45,22 +40,18 @@ void ImapModelDeleteMailboxTest::init()
 
 void ImapModelDeleteMailboxTest::cleanup()
 {
-    delete model;
-    model = 0;
-    taskFactoryUnsafe = 0;
     delete deletedSpy;
     deletedSpy = 0;
     delete failedSpy;
     failedSpy = 0;
-    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
+    LibMailboxSync::cleanup();
 }
 
 void ImapModelDeleteMailboxTest::initTestCase()
 {
-    Common::registerMetaTypes();
-    model = 0;
     deletedSpy = 0;
     failedSpy = 0;
+    LibMailboxSync::initTestCase();
 }
 
 #define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
@@ -68,7 +59,6 @@ void ImapModelDeleteMailboxTest::initTestCase()
 void ImapModelDeleteMailboxTest::_initWithOne()
 {
     // Init with one example mailbox
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QLatin1String("a");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
