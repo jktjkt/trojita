@@ -2,7 +2,7 @@ Format: 1.0
 Source: trojita-nightly
 Binary: trojita-nightly
 Architecture: any
-Version: 0.3.96
+Version: 0.4
 Maintainer: Jan Kundrát <jkt@flaska.net>
 Homepage: http://trojita.flaska.net/
 Standards-Version: 3.9.3
