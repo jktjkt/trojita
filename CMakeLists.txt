@@ -536,11 +536,11 @@ set_source_files_properties(${version_files}
     PROPERTIES GENERATED TRUE
     HEADER_FILE_ONLY TRUE)
 
-add_library(Common ${libCommon_SOURCES})
+add_library(Common STATIC ${libCommon_SOURCES})
 add_dependencies(Common version)
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
-add_library(AppVersion ${libAppVersion_SOURCES})
+add_library(AppVersion STATIC ${libAppVersion_SOURCES})
 add_dependencies(AppVersion version)
 target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
 
@@ -557,32 +557,32 @@ else()
     target_link_libraries(Plugins ${QT_QTCORE_LIBRARY})
 endif()
 
-add_library(Streams ${libStreams_SOURCES})
+add_library(Streams STATIC ${libStreams_SOURCES})
 target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
     target_link_libraries(Streams ${ZLIB_LIBRARIES})
 endif()
 
-add_library(qwwsmtpclient ${libqwwsmtpclient_SOURCES})
+add_library(qwwsmtpclient STATIC ${libqwwsmtpclient_SOURCES})
 target_link_libraries(qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
-add_library(MSA ${libMSA_SOURCES})
+add_library(MSA STATIC ${libMSA_SOURCES})
 target_link_libraries(MSA Imap Streams qwwsmtpclient ${QT_QTCORE_LIBRARY})
 
-add_library(Composer ${libComposer_SOURCES})
+add_library(Composer STATIC ${libComposer_SOURCES})
 target_link_libraries(Composer Common MSA Streams qwwsmtpclient ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(NOT WITH_QT5)
     target_link_libraries(Composer MimetypesQt4)
 endif()
 
-add_library(Imap ${libImap_SOURCES})
+add_library(Imap STATIC ${libImap_SOURCES})
 target_link_libraries(Imap Common Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
     target_link_libraries(Imap ${ZLIB_LIBRARIES})
 endif()
 
 if(NOT WITH_QT5)
-    add_library(MimetypesQt4 ${libMimetypesQt4_SOURCES})
+    add_library(MimetypesQt4 STATIC ${libMimetypesQt4_SOURCES})
     if(SUPPORTS_TARGET_INCLUDES)
         set_property(TARGET MimetypesQt4 APPEND PROPERTY INCLUDE_DIRECTORIES
             ${QT_MKSPECS_DIR}/default ${path_mimetypesqt4}/io/)
@@ -609,10 +609,10 @@ if(WITH_DESKTOP)
         qt4_add_resources(libDesktopGui_RESOURCES_OUT ${libDesktopGui_RESOURCES})
     endif()
 
-    add_library(AbookAddressbook ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
+    add_library(AbookAddressbook STATIC ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
     target_link_libraries(AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
-    add_library(DesktopGui ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
+    add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
     if(SUPPORTS_TARGET_INCLUDES)
@@ -706,7 +706,7 @@ if(WITH_TESTS)
         tests/Utils/ModelEvents.cpp
         tests/Utils/LibMailboxSync.cpp
     )
-    add_library(test_LibMailboxSync ${test_LibMailboxSync_SOURCES})
+    add_library(test_LibMailboxSync STATIC ${test_LibMailboxSync_SOURCES})
     if(WITH_QT5)
         qt5_use_modules(test_LibMailboxSync Test Network)
     endif()
