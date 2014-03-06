@@ -126,6 +126,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 
     m_taskModel = new TaskPresentationModel(this);
 
+    // Make sure to update the first-character check inside normalizeFlags() when adding new flags here
     m_specialFlagNames[QLatin1String("\\seen")] = FlagNames::seen;
     m_specialFlagNames[QLatin1String("\\deleted")] = FlagNames::deleted;
     m_specialFlagNames[QLatin1String("\\answered")] = FlagNames::answered;
@@ -1779,12 +1780,17 @@ QStringList Model::normalizeFlags(const QStringList &source) const
     res.reserve(source.size());
 #endif
     for (QStringList::const_iterator flag = source.constBegin(); flag != source.constEnd(); ++flag) {
+
         // At first, perform a case-insensitive lookup in the (rather short) list of known special flags
-        QString lowerCase = flag->toLower();
-        QHash<QString,QString>::const_iterator known = m_specialFlagNames.constFind(lowerCase);
-        if (known != m_specialFlagNames.constEnd()) {
-            res.append(*known);
-            continue;
+        // Only call the toLower for flags which could possibly be in that mapping. Looking at the first letter is
+        // a good approximation.
+        if (!flag->isEmpty() && ((*flag)[0] == QLatin1Char('\\') || (*flag)[0] == QLatin1Char('$'))) {
+            QString lowerCase = flag->toLower();
+            QHash<QString,QString>::const_iterator known = m_specialFlagNames.constFind(lowerCase);
+            if (known != m_specialFlagNames.constEnd()) {
+                res.append(*known);
+                continue;
+            }
         }
 
         // If it isn't a special flag, just check whether it's been encountered already
