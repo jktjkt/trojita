@@ -50,6 +50,7 @@ endif()
 
 if(WITH_QT5)
     message(STATUS "Building the Qt5 version")
+    find_package(Qt5Core 5.2 REQUIRED)
     find_package(Qt5Gui REQUIRED)
     find_package(Qt5Network REQUIRED)
     find_package(Qt5Sql REQUIRED)
