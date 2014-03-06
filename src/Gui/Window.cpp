@@ -1448,14 +1448,18 @@ void MainWindow::slotComposeMailUrl(const QUrl &url)
         Composer::parseRFC6068Mailto(url, subject, body, recipients, inReplyTo, references);
     }
 
-    // NOTE: invokeComposeDialog needs inReplyTo and references parameters without angle brackets, so remote them
-    for ( int i = 0; i < inReplyTo.size(); ++i )
-        if ( inReplyTo[i].startsWith('<') && inReplyTo[i].endsWith('>') )
+    // NOTE: invokeComposeDialog needs inReplyTo and references parameters without angle brackets, so remove them
+    for (int i = 0; i < inReplyTo.size(); ++i) {
+        if (inReplyTo[i].startsWith('<') && inReplyTo[i].endsWith('>')) {
             inReplyTo[i] = inReplyTo[i].mid(1, inReplyTo[i].size()-2);
+        }
+    }
 
-    for ( int i = 0; i < references.size(); ++i )
-        if ( references[i].startsWith('<') && references[i].endsWith('>') )
+    for (int i = 0; i < references.size(); ++i) {
+        if (references[i].startsWith('<') && references[i].endsWith('>')) {
             references[i] = references[i].mid(1, references[i].size()-2);
+        }
+    }
 
     invokeComposeDialog(subject, body, recipients, inReplyTo, references);
 }

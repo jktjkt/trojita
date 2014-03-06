@@ -83,16 +83,18 @@ void parseRFC6068Mailto(const QUrl &url, QString &subject, QString &body,
     const QByteArray &encodedPath = url.path(QUrl::FullyEncoded).toUtf8();
 #endif
 
-    Q_FOREACH(const QString &addr, stringListFromRFC2047PercentEncoding(encodedPath))
+    Q_FOREACH(const QString &addr, stringListFromRFC2047PercentEncoding(encodedPath)) {
         recipients << qMakePair(Composer::ADDRESS_TO, addr);
+    }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     const QList<QPair<QByteArray,QByteArray>> &items = url.encodedQueryItems();
 #else
     const QList<QPair<QString,QString>> &stringItems = QUrlQuery(url).queryItems(QUrl::FullyEncoded);
     QList<QPair<QByteArray,QByteArray>> items;
-    for (int i = 0; i < stringItems.size(); ++i)
+    for (int i = 0; i < stringItems.size(); ++i) {
         items << qMakePair(stringItems[i].first.toUtf8(), stringItems[i].second.toUtf8());
+    }
 #endif
 
     for (int i = 0; i < items.size(); ++i) {
