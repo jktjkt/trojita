@@ -1171,10 +1171,7 @@ void MainWindow::handleMarkAsRead(bool value)
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsRead: no valid messages";
     } else {
-        if (value)
-            imapModel()->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_ADD);
-        else
-            imapModel()->markMessagesRead(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
+        imapModel()->markMessagesRead(translatedIndexes, value ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
         if (translatedIndexes.contains(m_messageWidget->messageView->currentMessage())) {
             m_messageWidget->messageView->stopAutoMarkAsRead();
         }
@@ -1263,10 +1260,7 @@ void MainWindow::handleMarkAsDeleted(bool value)
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsDeleted: no valid messages";
     } else {
-        if (value)
-            imapModel()->markMessagesDeleted(translatedIndexes, Imap::Mailbox::FLAG_ADD);
-        else
-            imapModel()->markMessagesDeleted(translatedIndexes, Imap::Mailbox::FLAG_REMOVE);
+        imapModel()->markMessagesDeleted(translatedIndexes, value ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
     }
 }
 
