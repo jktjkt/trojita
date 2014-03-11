@@ -184,6 +184,9 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QLatin1String("action_reply_list"), QLatin1String("mail-reply-list"), tr("Reply to &Mailing List"), tr("Ctrl+L"));
     shortcutHandler->defineAction(QLatin1String("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
     shortcutHandler->defineAction(QLatin1String("action_contact_editor"), QLatin1String("contact-unknown"), tr("Address Book..."));
+    shortcutHandler->defineAction(QLatin1String("action_network_offline"), QLatin1String("network-offline"), tr("&Offline"));
+    shortcutHandler->defineAction(QLatin1String("action_network_expensive"), QLatin1String("network-expensive"), tr("&Expensive Connection"));
+    shortcutHandler->defineAction(QLatin1String("action_network_online"), QLatin1String("network-online"), tr("&Free Access"));
 }
 
 void MainWindow::createActions()
@@ -224,17 +227,21 @@ void MainWindow::createActions()
     exitAction = ShortcutHandler::instance()->createAction(QLatin1String("action_application_exit"), qApp, SLOT(quit()), this);
     exitAction->setStatusTip(tr("Exit the application"));
 
-    QActionGroup *netPolicyGroup = new QActionGroup(this);
-    netPolicyGroup->setExclusive(true);
-    netOffline = new QAction(loadIcon(QLatin1String("network-offline")), tr("&Offline"), netPolicyGroup);
+    netOffline = ShortcutHandler::instance()->createAction(QLatin1String("action_network_offline"));
     netOffline->setCheckable(true);
     // connect later
-    netExpensive = new QAction(loadIcon(QLatin1String("network-expensive")), tr("&Expensive Connection"), netPolicyGroup);
+    netExpensive = ShortcutHandler::instance()->createAction(QLatin1String("action_network_expensive"));
     netExpensive->setCheckable(true);
     // connect later
-    netOnline = new QAction(loadIcon(QLatin1String("network-online")), tr("&Free Access"), netPolicyGroup);
+    netOnline = ShortcutHandler::instance()->createAction(QLatin1String("action_network_online"));
     netOnline->setCheckable(true);
     // connect later
+
+    QActionGroup *netPolicyGroup = new QActionGroup(this);
+    netPolicyGroup->setExclusive(true);
+    netPolicyGroup->addAction(netOffline);
+    netPolicyGroup->addAction(netExpensive);
+    netPolicyGroup->addAction(netOnline);
 
     //: a debugging tool showing the full contents of the whole IMAP server; all folders, messages and their parts
     showFullView = new QAction(loadIcon(QLatin1String("edit-find-mail")), tr("Show Full &Tree Window"), this);
