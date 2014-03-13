@@ -30,6 +30,8 @@ namespace Imap
 namespace Mailbox
 {
 
+class KeepMailboxOpenTask;
+
 /** @short Delete an existing mailbox */
 class DeleteMailboxTask : public ImapTask
 {
@@ -41,10 +43,14 @@ public:
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return false;}
+public slots:
+    void mailboxHasPendingActions();
 private:
     CommandHandle tag;
     ImapTask *conn;
     QString mailbox;
+
+    friend class KeepMailboxOpenTask; // needs access to mailbox
 };
 
 }

@@ -23,7 +23,6 @@
 #include <QtTest>
 #include "test_Imap_Tasks_DeleteMailbox.h"
 #include "Utils/headless_test.h"
-#include "Utils/LibMailboxSync.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
@@ -55,22 +54,49 @@ void ImapModelDeleteMailboxTest::initTestCase()
     LibMailboxSync::initTestCase();
 }
 
-void ImapModelDeleteMailboxTest::_initWithOne()
+void ImapModelDeleteMailboxTest::initWithOne()
 {
     // Init with one example mailbox
     model->rowCount(QModelIndex());
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE(model->rowCount(QModelIndex()), 2);
-    QModelIndex idxA = model->index(1, 0, QModelIndex());
+    idxA = model->index(1, 0, QModelIndex());
     QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
+    QVERIFY(idxA.isValid());
+    msgListA = idxA.child(0, 0);
+    QVERIFY(msgListA.isValid());
+    cEmpty();
+}
+
+void ImapModelDeleteMailboxTest::initWithTwo()
+{
+    // oops, we need at least two mailboxes here
+    fakeListChildMailboxesMap[QLatin1String("")] = QStringList() << QLatin1String("a") << QLatin1String("b");
+    LibMailboxSync::init();
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
+    deletedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionSucceded(QString)));
+    failedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionFailed(QString,QString)));
+    t.reset();
+
+    model->rowCount(QModelIndex());
     QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(model->rowCount(QModelIndex()), 3);
+    idxA = model->index(1, 0, QModelIndex());
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
+    idxB = model->index(2, 0, QModelIndex());
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
+    msgListA = idxA.child(0, 0);
+    QVERIFY(msgListA.isValid());
+    msgListB = idxB.child(0, 0);
+    QVERIFY(msgListB.isValid());
     cEmpty();
 }
 
 void ImapModelDeleteMailboxTest::testDeleteOne()
 {
-    _initWithOne();
+    initWithOne();
 
     // Now test the actual creating process
     model->deleteMailbox("a");
@@ -87,7 +113,7 @@ void ImapModelDeleteMailboxTest::testDeleteOne()
 
 void ImapModelDeleteMailboxTest::testDeleteFail()
 {
-    _initWithOne();
+    initWithOne();
 
     // Test failure of the DELETE command
     model->deleteMailbox("a");
@@ -99,6 +125,184 @@ void ImapModelDeleteMailboxTest::testDeleteFail()
     cEmpty();
     QCOMPARE(failedSpy->size(), 1);
     QVERIFY(deletedSpy->isEmpty());
+}
+
+void ImapModelDeleteMailboxTest::testDeleteAnother()
+{
+    initWithTwo();
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer(t.last("OK selected\r\n"));
+    model->deleteMailbox("b");
+    cClient(t.mk("DELETE b\r\n"));
+    cServer(t.last("OK deleted\r\n"));
+    cEmpty();
+    QCOMPARE(model->rowCount(QModelIndex()), 2);
+    QCOMPARE(deletedSpy->size(), 1);
+    QVERIFY(failedSpy->isEmpty());
+}
+
+/** @short Removing mailbox which is being synced */
+void ImapModelDeleteMailboxTest::testDeleteSyncing()
+{
+    initWithOne();
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+
+    // Cannot delete while the sync is still pending
+    model->deleteMailbox("a");
+    cEmpty();
+    QVERIFY(deletedSpy->isEmpty());
+    QCOMPARE(failedSpy->size(), 1);
+    QCOMPARE(model->rowCount(QModelIndex()), 2);
+    failedSpy->clear();
+
+    // the deletion will succeed now
+    cServer(t.last("OK selected\r\n"));
+    model->deleteMailbox("a");
+    cClient(t.mk("CLOSE\r\n"));
+    cServer(t.last("OK closed\r\n"));
+    cClient(t.mk("DELETE a\r\n"));
+    cServer(t.last("OK deleted\r\n"));
+    cEmpty();
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    QCOMPARE(deletedSpy->size(), 1);
+    QVERIFY(failedSpy->isEmpty());
+}
+
+/** @short Removing currently selected mailbox with no parallel activity */
+void ImapModelDeleteMailboxTest::testDeleteSelected()
+{
+    initWithOne();
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer(t.last("OK selected\r\n"));
+    model->deleteMailbox("a");
+    cClient(t.mk("CLOSE\r\n"));
+    cServer(t.last("OK closed\r\n"));
+    cClient(t.mk("DELETE a\r\n"));
+    cServer(t.last("OK deleted\r\n"));
+    cEmpty();
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    QCOMPARE(deletedSpy->size(), 1);
+    QVERIFY(failedSpy->isEmpty());
+}
+
+/** @short Trying to remove mailbox where some data are still being transferred */
+void ImapModelDeleteMailboxTest::testDeleteSelectedPendingMetadata()
+{
+    initWithOne();
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 1 EXISTS\r\n" + t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer("* SEARCH 666\r\n" + t.last("OK searched\r\n"));
+    cClient(t.mk("FETCH 1 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    cEmpty();
+
+    // Send a request for message metadata, but hold the response
+    QCOMPARE(model->rowCount(msgListA.child(0, 0)), 0);
+    cClient(t.mk("UID FETCH 666 (" FETCH_METADATA_ITEMS ")\r\n"));
+    QByteArray metadataFetchResp = t.last("OK fetched\r\n");
+    cEmpty();
+
+    // This deletion attempt shall fail
+    model->deleteMailbox("a");
+    cEmpty();
+    QVERIFY(deletedSpy->isEmpty());
+    QCOMPARE(failedSpy->size(), 1);
+    QCOMPARE(model->rowCount(QModelIndex()), 2);
+    failedSpy->clear();
+
+    // After the data arrive, though, we're all set and can delete the mailbox just fine
+    cServer(metadataFetchResp);
+    model->deleteMailbox("a");
+    cClient(t.mk("CLOSE\r\n"));
+    cServer(t.last("OK closed\r\n"));
+    cClient(t.mk("DELETE a\r\n"));
+    cServer(t.last("OK deleted\r\n"));
+    cEmpty();
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    QCOMPARE(deletedSpy->size(), 1);
+    QVERIFY(failedSpy->isEmpty());
+}
+
+/** @short Deleting a mailbox which is currently selected while another mailbox is currently synced */
+void ImapModelDeleteMailboxTest::testDeleteSelectedPendingAnotherMailbox()
+{
+    initWithTwo();
+
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer(t.last("OK selected\r\n"));
+    cEmpty();
+
+    // Request syncing another mailbox
+    QCOMPARE(model->rowCount(msgListB), 0);
+    cClient(t.mk("SELECT b\r\n"));
+
+    // Now before the other mailbox gets synced, ask for deletion of the original one
+    model->deleteMailbox("a");
+    cEmpty();
+
+    cServer(t.last("OK selected\r\n"));
+
+    QVERIFY(deletedSpy->isEmpty());
+    QVERIFY(failedSpy->isEmpty());
+
+    cClient(t.mk("DELETE a\r\n"));
+    cServer(t.last("OK deleted\r\n"));
+    cEmpty();
+    QCOMPARE(model->rowCount(QModelIndex()), 2);
+    QCOMPARE(deletedSpy->size(), 1);
+    QVERIFY(failedSpy->isEmpty());
+}
+
+/** @short Deleting currently selected mailbox with pending activity while a request to switch to another mailbox is pending */
+void ImapModelDeleteMailboxTest::testDeleteSelectedPendingAnotherMailboxDelayed()
+{
+    initWithTwo();
+
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 1 EXISTS\r\n" + t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer("* SEARCH 666\r\n" + t.last("OK searched\r\n"));
+    cClient(t.mk("FETCH 1 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    cEmpty();
+
+    // Send a request for message metadata, but hold the response
+    QCOMPARE(model->rowCount(msgListA.child(0, 0)), 0);
+    cClient(t.mk("UID FETCH 666 (" FETCH_METADATA_ITEMS ")\r\n"));
+    QByteArray metadataFetchResp = t.last("OK fetched\r\n");
+    cEmpty();
+
+    // Request syncing another mailbox
+    QCOMPARE(model->rowCount(msgListB), 0);
+
+    // Send back the pending response for this mailbox' messages
+    cServer(metadataFetchResp);
+
+    // Now before the other mailbox gets synced, ask for deletion of the original one
+    model->deleteMailbox("a");
+
+    // In the meanwhile, we're in process of selecting another mailbox
+    cClient(t.mk("SELECT b\r\n"));
+    // As such, our original mailbox won't be deleted yet
+    QVERIFY(deletedSpy->isEmpty());
+    QVERIFY(failedSpy->isEmpty());
+    cEmpty();
+
+    // After the second mailbox gets selected, though, the deletion of the original is swift
+    cServer(t.last("OK selected\r\n"));
+    cClient(t.mk("DELETE a\r\n"));
+    cServer(t.last("OK deleted\r\n"));
+    cEmpty();
+    QCOMPARE(model->rowCount(QModelIndex()), 2);
+    QCOMPARE(deletedSpy->size(), 1);
+    QVERIFY(failedSpy->isEmpty());
 }
 
 TROJITA_HEADLESS_TEST(ImapModelDeleteMailboxTest)

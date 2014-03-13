@@ -27,6 +27,7 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Model/MailboxTree.h"
 #include "GetAnyConnectionTask.h"
+#include "KeepMailboxOpenTask.h"
 
 namespace Imap
 {
@@ -35,9 +36,25 @@ namespace Mailbox
 
 
 DeleteMailboxTask::DeleteMailboxTask(Model *model, const QString &mailbox):
-    ImapTask(model), mailbox(mailbox)
+    ImapTask(model), conn(0), mailbox(mailbox)
 {
-    conn = model->m_taskFactory->createGetAnyConnectionTask(model);
+    // If the mailbox we're about to delete is open, or scheduled to be open, let's make
+    // sure that we are going to tell the KeepMailboxOpenTask about us.
+    // The mailbox discovery is lazy; we most definitely do *not* want to trigger an explicit
+    // resynchronization just for that mailbox we're going to immediately delete. That's why
+    // we are *not* calling Model::findTaskResponsibleFor here.
+    if (TreeItemMailbox *mailboxPtr = model->findMailboxByName(mailbox)) {
+        if (mailboxPtr->maintainingTask) {
+            conn = mailboxPtr->maintainingTask;
+        }
+    }
+
+    if (!conn) {
+        // Either the mailbox is not known or converted to an index,
+        // or there's no task associated with the mailbox
+        conn = model->m_taskFactory->createGetAnyConnectionTask(model);
+    }
+
     conn->addDependentTask(this);
 }
 
@@ -90,6 +107,13 @@ bool DeleteMailboxTask::handleStateHelper(const Imap::Responses::State *const re
 QVariant DeleteMailboxTask::taskData(const int role) const
 {
     return role == RoleTaskCompactName ? QVariant(tr("Deleting mailbox")) : QVariant();
+}
+
+void DeleteMailboxTask::mailboxHasPendingActions()
+{
+    EMIT_LATER(model, mailboxDeletionFailed, Q_ARG(QString, mailbox),
+               Q_ARG(QString, tr("Mailbox %1 has pending activity, so it cannot be deleted now.").arg(mailbox)));
+    _failed("Mailbox has pending activity");
 }
 
 }

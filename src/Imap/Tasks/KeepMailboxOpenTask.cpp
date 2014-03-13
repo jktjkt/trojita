@@ -23,9 +23,11 @@
 #include <sstream>
 #include "KeepMailboxOpenTask.h"
 #include "Common/InvokeMethod.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/TaskFactory.h"
+#include "DeleteMailboxTask.h"
 #include "FetchMsgMetadataTask.h"
 #include "FetchMsgPartTask.h"
 #include "IdleLauncher.h"
@@ -179,8 +181,12 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
 
     breakOrCancelPossibleIdle();
 
-    ObtainSynchronizedMailboxTask *obtainTask = qobject_cast<ObtainSynchronizedMailboxTask *>(task);
-    if (obtainTask) {
+    DeleteMailboxTask *deleteTask = qobject_cast<DeleteMailboxTask*>(task);
+    if (!deleteTask || deleteTask->mailbox != mailboxIndex.data(RoleMailboxName).toString()) {
+        deleteTask = 0;
+    }
+
+    if (ObtainSynchronizedMailboxTask *obtainTask = qobject_cast<ObtainSynchronizedMailboxTask *>(task)) {
         // Another KeepMailboxOpenTask would like to replace us, so we shall die, eventually.
         // This branch is reimplemented from ImapTask
 
@@ -200,6 +206,24 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
         Q_FOREACH(ImapTask *abortable, abortableTasks) {
             abortable->abort();
         }
+    } else if (deleteTask) {
+        // Got a request to delete the current mailbox. Fair enough, here we go!
+
+        if (hasPendingInternalActions() || (synchronizeConn && !synchronizeConn->isFinished())) {
+            // Hmm, this is bad -- the caller has instructed us to delete the current mailbox, but we still have
+            // some pending actions (or have not even started yet). Better reject the request for deleting than lose some data.
+            // Alternatively, we might pretend that we're a performance-oriented library and "optimize out" the
+            // data transfer by deleting early :)
+            deleteTask->mailboxHasPendingActions();
+            return;
+        }
+
+        m_deleteCurrentMailboxTask = deleteTask;
+        shouldExit = true;
+        connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
+        ImapTask::addDependentTask(task);
+        QTimer::singleShot(0, this, SLOT(slotActivateTasks()));
+
     } else {
         // This branch calls the inherited ImapTask::addDependentTask()
         connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
@@ -533,6 +557,15 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         // Don't forget to resume IDLE, if desired; that's easiest by simply behaving as if a "task" has just finished
         slotTaskDeleted(0);
         return true;
+    } else if (resp->tag == tagClose) {
+        tagClose.clear();
+        if (m_deleteCurrentMailboxTask) {
+            m_deleteCurrentMailboxTask->perform();
+        }
+        if (resp->kind != Responses::OK) {
+            // FIXME: error handling? What is reasonable here?
+        }
+        return true;
     } else {
         return false;
     }
@@ -645,6 +678,11 @@ void KeepMailboxOpenTask::activateTasks()
         return;
 
     breakOrCancelPossibleIdle();
+
+    if (m_deleteCurrentMailboxTask) {
+        closeMailboxDestructively();
+        return;
+    }
 
     slotFetchRequestedEnvelopes();
     slotFetchRequestedParts();
@@ -840,6 +878,11 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
     if (mailboxIndex.isValid())
         return false;
 
+    if (m_deleteCurrentMailboxTask) {
+        // The current mailbox was supposed to be deleted; don't try to UNSELECT from this context
+        return true;
+    }
+
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
     if (!unSelectTask && isRunning) {
         unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
@@ -918,6 +961,11 @@ void KeepMailboxOpenTask::saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox
     } else {
         list->setFetchStatus(Imap::Mailbox::TreeItem::LOADING);
     }
+}
+
+void KeepMailboxOpenTask::closeMailboxDestructively()
+{
+    tagClose = parser->close();
 }
 
 
