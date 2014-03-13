@@ -21,6 +21,7 @@
 */
 
 #include "ParserState.h"
+#include "Imap/Tasks/KeepMailboxOpenTask.h"
 
 namespace Imap {
 namespace Mailbox {
