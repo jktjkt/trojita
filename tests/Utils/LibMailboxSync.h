@@ -98,6 +98,7 @@ protected:
     Imap::Mailbox::ThreadingMsgListModel *threadingModel;
     Streams::FakeSocketFactory* factory;
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
+    QMap<QString,QStringList> fakeListChildMailboxesMap;
     QSignalSpy* errorSpy;
 
     QPersistentModelIndex idxA, idxB, idxC, msgListA, msgListB, msgListC;

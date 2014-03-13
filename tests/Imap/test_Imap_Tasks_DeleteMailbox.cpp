@@ -31,52 +31,41 @@
 
 void ImapModelDeleteMailboxTest::init()
 {
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
-    factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
-    Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
-    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
-    taskFactoryUnsafe->fakeOpenConnectionTask = true;
-    taskFactoryUnsafe->fakeListChildMailboxes = true;
-    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
+    fakeListChildMailboxesMap[QLatin1String("")] = QStringList() << QLatin1String("a");
+    LibMailboxSync::init();
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     deletedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionSucceded(QString)));
     failedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionFailed(QString,QString)));
+    t.reset();
 }
 
 void ImapModelDeleteMailboxTest::cleanup()
 {
-    delete model;
-    model = 0;
-    taskFactoryUnsafe = 0;
     delete deletedSpy;
     deletedSpy = 0;
     delete failedSpy;
     failedSpy = 0;
-    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
+    LibMailboxSync::cleanup();
 }
 
 void ImapModelDeleteMailboxTest::initTestCase()
 {
-    Common::registerMetaTypes();
-    model = 0;
     deletedSpy = 0;
     failedSpy = 0;
+    LibMailboxSync::initTestCase();
 }
-
-#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 void ImapModelDeleteMailboxTest::_initWithOne()
 {
     // Init with one example mailbox
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QLatin1String("a");
-    model->rowCount( QModelIndex() );
+    model->rowCount(QModelIndex());
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( model->rowCount( QModelIndex() ), 2 );
-    QModelIndex idxA = model->index( 1, 0, QModelIndex() );
-    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QLatin1String("a")) );
+    QCOMPARE(model->rowCount(QModelIndex()), 2);
+    QModelIndex idxA = model->index(1, 0, QModelIndex());
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
     QCoreApplication::processEvents();
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
+    cEmpty();
 }
 
 void ImapModelDeleteMailboxTest::testDeleteOne()
@@ -84,18 +73,16 @@ void ImapModelDeleteMailboxTest::testDeleteOne()
     _initWithOne();
 
     // Now test the actual creating process
-    model->deleteMailbox( "a" );
+    model->deleteMailbox("a");
+    cClient(t.mk("DELETE a\r\n"));
+    cServer(t.last("OK deleted\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 DELETE a\r\n") );
-    SOCK->fakeReading( QByteArray("y0 OK deleted\r\n") );
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
     QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( model->rowCount( QModelIndex() ), 1 );
-    QCoreApplication::processEvents();
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
-    QCOMPARE( deletedSpy->size(), 1 );
-    QVERIFY( failedSpy->isEmpty() );
+    cEmpty();
+    QCOMPARE(deletedSpy->size(), 1);
+    QVERIFY(failedSpy->isEmpty());
 }
 
 void ImapModelDeleteMailboxTest::testDeleteFail()
@@ -103,19 +90,15 @@ void ImapModelDeleteMailboxTest::testDeleteFail()
     _initWithOne();
 
     // Test failure of the DELETE command
-    model->deleteMailbox( "a" );
+    model->deleteMailbox("a");
+    cClient(t.mk("DELETE a\r\n"));
+    cServer(t.last("NO muhehe\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 DELETE a\r\n") );
-    SOCK->fakeReading( QByteArray("y0 NO muhehe\r\n") );
-    QCoreApplication::processEvents();
-
-    QCOMPARE( model->rowCount( QModelIndex() ), 2 );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
-    QCOMPARE( failedSpy->size(), 1 );
-    QVERIFY( deletedSpy->isEmpty() );
+    QCOMPARE(model->rowCount(QModelIndex()), 2);
+    cEmpty();
+    QCOMPARE(failedSpy->size(), 1);
+    QVERIFY(deletedSpy->isEmpty());
 }
 
-TROJITA_HEADLESS_TEST( ImapModelDeleteMailboxTest )
+TROJITA_HEADLESS_TEST(ImapModelDeleteMailboxTest)

@@ -62,16 +62,20 @@ void LibMailboxSync::init()
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() <<
-        QLatin1String("a") << QLatin1String("b") << QLatin1String("c") <<
-        QLatin1String("d") << QLatin1String("e") << QLatin1String("f") <<
-        QLatin1String("g") << QLatin1String("h") << QLatin1String("i") <<
-        QLatin1String("j") << QLatin1String("k") << QLatin1String("l") <<
-        QLatin1String("m") << QLatin1String("n") << QLatin1String("o") <<
-        QLatin1String("p") << QLatin1String("q") << QLatin1String("r") <<
-        QLatin1String("s") << QLatin1String("q") << QLatin1String("u") <<
-        QLatin1String("v") << QLatin1String("w") << QLatin1String("x") <<
-        QLatin1String("y") << QLatin1String("z");
+    if (!fakeListChildMailboxesMap.isEmpty()) {
+        taskFactoryUnsafe->fakeListChildMailboxesMap = fakeListChildMailboxesMap;
+    } else {
+        taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() <<
+            QLatin1String("a") << QLatin1String("b") << QLatin1String("c") <<
+            QLatin1String("d") << QLatin1String("e") << QLatin1String("f") <<
+            QLatin1String("g") << QLatin1String("h") << QLatin1String("i") <<
+            QLatin1String("j") << QLatin1String("k") << QLatin1String("l") <<
+            QLatin1String("m") << QLatin1String("n") << QLatin1String("o") <<
+            QLatin1String("p") << QLatin1String("q") << QLatin1String("r") <<
+            QLatin1String("s") << QLatin1String("q") << QLatin1String("u") <<
+            QLatin1String("v") << QLatin1String("w") << QLatin1String("x") <<
+            QLatin1String("y") << QLatin1String("z");
+    }
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
     errorSpy = new QSignalSpy(model, SIGNAL(connectionError(QString)));
     connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
@@ -84,7 +88,9 @@ void LibMailboxSync::init()
 
     QCoreApplication::processEvents();
 
-    helperInitialListing();
+    if (fakeListChildMailboxesMap.isEmpty()) {
+        helperInitialListing();
+    }
 }
 
 void LibMailboxSync::modelSignalsError(const QString &message)
