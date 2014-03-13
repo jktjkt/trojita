@@ -565,6 +565,7 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         if (resp->kind != Responses::OK) {
             // FIXME: error handling? What is reasonable here?
         }
+        terminate();
         return true;
     } else {
         return false;

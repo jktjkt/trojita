@@ -173,7 +173,7 @@ void ImapModelDeleteMailboxTest::testDeleteSyncing()
 /** @short Removing currently selected mailbox with no parallel activity */
 void ImapModelDeleteMailboxTest::testDeleteSelected()
 {
-    initWithOne();
+    initWithTwo();
     QCOMPARE(model->rowCount(msgListA), 0);
     cClient(t.mk("SELECT a\r\n"));
     cServer(t.last("OK selected\r\n"));
@@ -183,9 +183,13 @@ void ImapModelDeleteMailboxTest::testDeleteSelected()
     cClient(t.mk("DELETE a\r\n"));
     cServer(t.last("OK deleted\r\n"));
     cEmpty();
-    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    QCOMPARE(model->rowCount(QModelIndex()), 2);
     QCOMPARE(deletedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
+
+    // Check that we can select another mailbox now
+    QCOMPARE(model->rowCount(msgListB), 0);
+    cClient(t.mk("SELECT b\r\n"));
 }
 
 /** @short Trying to remove mailbox where some data are still being transferred */
