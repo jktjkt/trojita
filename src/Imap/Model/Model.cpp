@@ -578,12 +578,16 @@ void Model::handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const
     }
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
-    if (resp->states.contains(Imap::Responses::Status::MESSAGES))
-        list->m_totalMessageCount = resp->states[ Imap::Responses::Status::MESSAGES ];
-    if (resp->states.contains(Imap::Responses::Status::UNSEEN))
-        list->m_unreadMessageCount = resp->states[ Imap::Responses::Status::UNSEEN ];
-    if (resp->states.contains(Imap::Responses::Status::RECENT))
-        list->m_recentMessageCount = resp->states[ Imap::Responses::Status::RECENT ];
+    Imap::Responses::Status::stateDataType::const_iterator it = resp->states.constEnd();
+    if ((it = resp->states.constFind(Imap::Responses::Status::MESSAGES)) != resp->states.constEnd()) {
+        list->m_totalMessageCount = it.value();
+    }
+    if ((it = resp->states.constFind(Imap::Responses::Status::UNSEEN)) != resp->states.constEnd()) {
+        list->m_unreadMessageCount = it.value();
+    }
+    if ((it = resp->states.constFind(Imap::Responses::Status::RECENT)) != resp->states.constEnd()) {
+        list->m_recentMessageCount = it.value();
+    }
     list->m_numberFetchingStatus = TreeItem::DONE;
     emitMessageCountChanged(mailbox);
 }
