@@ -39,6 +39,7 @@ class Parser;
 namespace Mailbox
 {
 
+class DeleteMailboxTask;
 class ObtainSynchronizedMailboxTask;
 class IdleLauncher;
 class FetchMsgMetadataTask;
@@ -208,6 +209,14 @@ private:
     */
     bool dieIfInvalidMailbox();
 
+    /** @short Close mailbox forcifully, destroying its content in the process
+
+    Closing is performed via the CLOSE command, which is mandatory in all IMAP implementations. It has the ugly
+    side effect of removing any messages marked as \\Deleted. That's why this is a private method, only to be used
+    by the DeleteMailboxTask.
+    */
+    void closeMailboxDestructively();
+
     /** @short Return true if this has a list of stuff to do */
     bool hasPendingInternalActions() const;
 
@@ -253,12 +262,15 @@ protected:
     IdleLauncher *idleLauncher;
     QList<FetchMsgPartTask *> fetchPartTasks;
     QList<FetchMsgMetadataTask *> fetchMetadataTasks;
+    QPointer<DeleteMailboxTask> m_deleteCurrentMailboxTask;
     CommandHandle tagIdle;
     QList<CommandHandle> newArrivalsFetch;
+    CommandHandle tagClose;
     friend class IdleLauncher;
     friend class ObtainSynchronizedMailboxTask; // needs access to slotUnSelectCompleted()
     friend class SortTask; // needs access to breakOrCancelPossibleIdle()
     friend class UnSelectTask; // needs access to breakPossibleIdle()
+    friend class DeleteMailboxTask; // needs access to the closeMailboxDestructively()
     friend class TreeItemMailbox; // wants to know if our index is OK
     friend class ::ImapModelIdleTest;
     friend class ::LibMailboxSync;

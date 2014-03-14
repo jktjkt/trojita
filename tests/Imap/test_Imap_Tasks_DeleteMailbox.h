@@ -37,12 +37,19 @@ private slots:
 
     void testDeleteOne();
     void testDeleteFail();
+    void testDeleteAnother();
+    void testDeleteSyncing();
+    void testDeleteSelected();
+    void testDeleteSelectedPendingMetadata();
+    void testDeleteSelectedPendingAnotherMailbox();
+    void testDeleteSelectedPendingAnotherMailboxDelayed();
 
 private:
     QSignalSpy* deletedSpy;
     QSignalSpy* failedSpy;
 
-    void _initWithOne();
+    void initWithOne();
+    void initWithTwo();
 };
 
 #endif
