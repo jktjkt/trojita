@@ -236,8 +236,10 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
             return QVariant();
         // At first, register that request for count
         int res = list->totalMessageCount(model);
-        // ...and now that it's been sent, display a number if it's available
-        return list->numbersFetched() ? QVariant(res) : QVariant();
+        // ...and now that it's been sent, display a number if it's available, or if it was available before.
+        // It's better to return a value which is maybe already obsolete than to hide a value which might
+        // very well be still correct.
+        return list->numbersFetched() || res != -1 ? QVariant(res) : QVariant();
     }
     case RoleUnreadMessageCount:
     {
@@ -245,7 +247,7 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
             return QVariant();
         // This one is similar to the case of RoleTotalMessageCount
         int res = list->unreadMessageCount(model);
-        return list->numbersFetched() ? QVariant(res): QVariant();
+        return list->numbersFetched() || res != -1 ? QVariant(res): QVariant();
     }
     case RoleRecentMessageCount:
     {
@@ -253,7 +255,7 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
             return QVariant();
         // see above
         int res = list->recentMessageCount(model);
-        return list->numbersFetched() ? QVariant(res): QVariant();
+        return list->numbersFetched() || res != -1 ? QVariant(res): QVariant();
     }
     case RoleMailboxItemsAreLoading:
         return list->loading() || (isSelectable() && ! list->numbersFetched());
