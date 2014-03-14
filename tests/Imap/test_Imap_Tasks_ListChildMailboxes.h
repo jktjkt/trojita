@@ -35,7 +35,6 @@ class ImapModelListChildMailboxesTest : public LibMailboxSync
     Q_OBJECT
 private slots:
     void init();
-    void cleanup();
 
     void testSimpleListing();
     void testFakeListing();

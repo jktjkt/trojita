@@ -57,6 +57,7 @@ class LibMailboxSync : public QObject
 {
     Q_OBJECT
 public:
+    LibMailboxSync();
     virtual ~LibMailboxSync();
 
     static QModelIndex findIndexByPosition(const QAbstractItemModel *model, const QString &where);
@@ -107,6 +108,7 @@ protected:
     QList<uint> uidMapA;
     bool m_verbose;
     bool m_expectsError;
+    bool m_fakeListCommand;
 
     friend class ExpectSingleErrorHere;
 };

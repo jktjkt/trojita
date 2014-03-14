@@ -48,6 +48,10 @@ ExpectSingleErrorHere::~ExpectSingleErrorHere()
     m_syncer->errorSpy->removeFirst();
 }
 
+LibMailboxSync::LibMailboxSync(): m_fakeListCommand(true)
+{
+}
+
 LibMailboxSync::~LibMailboxSync()
 {
 }
@@ -61,7 +65,7 @@ void LibMailboxSync::init()
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
     taskFactoryUnsafe->fakeOpenConnectionTask = true;
-    taskFactoryUnsafe->fakeListChildMailboxes = true;
+    taskFactoryUnsafe->fakeListChildMailboxes = m_fakeListCommand;
     if (!fakeListChildMailboxesMap.isEmpty()) {
         taskFactoryUnsafe->fakeListChildMailboxesMap = fakeListChildMailboxesMap;
     } else {
@@ -88,7 +92,7 @@ void LibMailboxSync::init()
 
     QCoreApplication::processEvents();
 
-    if (fakeListChildMailboxesMap.isEmpty()) {
+    if (m_fakeListCommand && fakeListChildMailboxesMap.isEmpty()) {
         helperInitialListing();
     }
 }
