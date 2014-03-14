@@ -124,4 +124,75 @@ void ImapModelListChildMailboxesTest::testBackslashes()
     cEmpty();
 }
 
+/** @short Check that cached mailboxes do not send away STATUS when they are going to be immediately replaced anyway */
+void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
+{
+    using namespace Imap::Mailbox;
+
+    // Remember two mailboxes
+    model->cache()->setChildMailboxes(QString(), QList<MailboxMetadata>()
+                                      << MailboxMetadata(QLatin1String("a"), QLatin1String("."), QStringList())
+                                      << MailboxMetadata(QLatin1String("b"), QLatin1String("."), QStringList())
+                                      );
+    // ... and the numbers for the first of them
+    SyncState s;
+    s.setExists(10);
+    s.setRecent(1);
+    s.setUnSeenCount(2);
+    QVERIFY(s.isUsableForNumbers());
+    model->cache()->setMailboxSyncState(QLatin1String("b"), s);
+
+    // touch the network
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    // ...but the data gets refreshed from cache immediately
+    QCOMPARE(model->rowCount(QModelIndex()), 3);
+
+    // just settings up indexes
+    idxA = model->index(1, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QCOMPARE(idxA.data(RoleMailboxName).toString(), QString::fromUtf8("a"));
+    idxB = model->index(2, 0, QModelIndex());
+    QVERIFY(idxB.isValid());
+    QCOMPARE(idxB.data(RoleMailboxName).toString(), QString::fromUtf8("b"));
+
+    // Request message counts; this should not lead to network activity even though the actual number
+    // is not stored in the cache for mailbox "a", simply because the whole mailbox will get replaced
+    // after the LIST finishes anyway
+    QCOMPARE(idxA.data(RoleTotalMessageCount), QVariant());
+    QCOMPARE(idxB.data(RoleTotalMessageCount).toInt(), 10);
+    cEmpty();
+
+    cServer("* LIST (\\HasNoChildren) \".\" a\r\n"
+            "* LIST (\\HasNoChildren) \".\" b\r\n"
+            + t.last("OK listed\r\n"));
+    cEmpty();
+
+    // The mailboxes are replaced now -> rebuild the indexes
+    QVERIFY(!idxA.isValid());
+    QVERIFY(!idxB.isValid());
+    idxA = model->index(1, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QCOMPARE(idxA.data(RoleMailboxName).toString(), QString::fromUtf8("a"));
+    idxB = model->index(2, 0, QModelIndex());
+    QVERIFY(idxB.isValid());
+    QCOMPARE(idxB.data(RoleMailboxName).toString(), QString::fromUtf8("b"));
+
+    // Ask for the numbers again
+    QCOMPARE(idxA.data(RoleTotalMessageCount), QVariant());
+    QCOMPARE(idxB.data(RoleTotalMessageCount), QVariant());
+    QByteArray c1 = t.mk("STATUS a (MESSAGES UNSEEN RECENT)\r\n");
+    QByteArray r1 = t.last("OK status\r\n");
+    QByteArray c2 = t.mk("STATUS b (MESSAGES UNSEEN RECENT)\r\n");
+    QByteArray r2 = t.last("OK status\r\n");
+    cClient(c1 + c2);
+    cServer("* STATUS a (MESSAGES 1 RECENT 2 UNSEEN 3)\r\n"
+            "* STATUS b (MESSAGES 666 RECENT 33 UNSEEN 2)\r\n");
+    QCOMPARE(idxA.data(RoleTotalMessageCount).toInt(), 1);
+    QCOMPARE(idxB.data(RoleTotalMessageCount).toInt(), 666);
+    cServer(r2 + r1);
+    cEmpty();
+}
+
+
 TROJITA_HEADLESS_TEST( ImapModelListChildMailboxesTest )

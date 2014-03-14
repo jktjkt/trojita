@@ -40,6 +40,8 @@ private slots:
     void testFakeListing();
 
     void testBackslashes();
+
+    void testNoStatusForCachedItems();
 };
 
 #endif
