@@ -40,7 +40,6 @@ void ImapModelListChildMailboxesTest::init()
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     QCoreApplication::processEvents();
-    task = 0;
 }
 
 void ImapModelListChildMailboxesTest::cleanup()
@@ -49,13 +48,6 @@ void ImapModelListChildMailboxesTest::cleanup()
     model = 0;
     taskFactoryUnsafe = 0;
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
-}
-
-void ImapModelListChildMailboxesTest::initTestCase()
-{
-    Common::registerMetaTypes();
-    model = 0;
-    task = 0;
 }
 
 #define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
