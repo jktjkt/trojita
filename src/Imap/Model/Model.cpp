@@ -781,7 +781,7 @@ void Model::askForChildrenOfMailbox(TreeItemMailbox *item, bool forceReload)
                 list->m_unreadMessageCount = syncState.unSeenCount();
                 list->m_totalMessageCount = syncState.exists();
                 list->m_recentMessageCount = syncState.recent();
-                list->m_numberFetchingStatus = TreeItem::DONE;
+                list->m_numberFetchingStatus = TreeItem::LOADING;
             } else {
                 list->m_numberFetchingStatus = TreeItem::UNAVAILABLE;
             }

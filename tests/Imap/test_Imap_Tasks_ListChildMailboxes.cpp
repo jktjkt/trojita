@@ -160,7 +160,9 @@ void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
     // is not stored in the cache for mailbox "a", simply because the whole mailbox will get replaced
     // after the LIST finishes anyway
     QCOMPARE(idxA.data(RoleTotalMessageCount), QVariant());
+    QCOMPARE(idxA.data(RoleMailboxNumbersFetched).toBool(), false);
     QCOMPARE(idxB.data(RoleTotalMessageCount).toInt(), 10);
+    QCOMPARE(idxB.data(RoleMailboxNumbersFetched).toBool(), false);
     cEmpty();
 
     cServer("* LIST (\\HasNoChildren) \".\" a\r\n"
@@ -189,7 +191,9 @@ void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
     cServer("* STATUS a (MESSAGES 1 RECENT 2 UNSEEN 3)\r\n"
             "* STATUS b (MESSAGES 666 RECENT 33 UNSEEN 2)\r\n");
     QCOMPARE(idxA.data(RoleTotalMessageCount).toInt(), 1);
+    QCOMPARE(idxA.data(RoleMailboxNumbersFetched).toBool(), true);
     QCOMPARE(idxB.data(RoleTotalMessageCount).toInt(), 666);
+    QCOMPARE(idxB.data(RoleMailboxNumbersFetched).toBool(), true);
     cServer(r2 + r1);
     cEmpty();
 }
