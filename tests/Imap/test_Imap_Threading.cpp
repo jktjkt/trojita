@@ -588,6 +588,8 @@ void ImapModelThreadingTest::testDynamicSorting()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -812,6 +814,8 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -971,6 +975,8 @@ void ImapModelThreadingTest::testDynamicSearch()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);

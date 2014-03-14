@@ -86,7 +86,8 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
-    QCOMPARE( syncState.isUsableForNumbers(), false );
+    // No messages, and hence we know that none of them could possibly be recent or unseen or whatever
+    QCOMPARE( syncState.isUsableForNumbers(), true );
     QCOMPARE( syncState.isUsableForSyncing(), false );
     QCOMPARE( syncState.permanentFlags(), QStringList() );
     QCOMPARE( syncState.recent(), 0u );
@@ -94,6 +95,70 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     QCOMPARE( syncState.uidValidity(), 0u );
     QCOMPARE( syncState.unSeenCount(), 0u );
     QCOMPARE( syncState.unSeenOffset(), 0u );
+
+    // No errors
+    QVERIFY( errorSpy->isEmpty() );
+}
+
+/** Verify syncing of a non-empty mailbox with just the EXISTS response
+
+The interesting bits are what happens when the server cheats and returns just a very limited subset of mailbox metadata,
+just the EXISTS response in particular.
+*/
+void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimalNonEmpty()
+{
+    model->setProperty("trojita-imap-noop-period", 10);
+
+    // Ask the model to sync stuff
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+
+    // Try to feed it with absolute minimum data
+    cServer(QByteArray("* 1 exists\r\n") + t.last("OK done\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer("* SEARCH 666\r\n" + t.last("OK searched\r\n"));
+    cClient(t.mk("FETCH 1 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    cEmpty();
+
+    // Verify that we indeed received what we wanted
+    QCOMPARE(model->rowCount(msgListA), 1);
+    Imap::Mailbox::TreeItemMsgList* list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>(static_cast<Imap::Mailbox::TreeItem*>(msgListA.internalPointer()));
+    Q_ASSERT(list);
+    QVERIFY(list->fetched());
+    QCoreApplication::processEvents();
+    cEmpty();
+
+    // Now, let's try to re-sync it once again; the difference is that our cache now has "something"
+    model->resyncMailbox(idxA);
+    QCoreApplication::processEvents();
+
+    // Verify that it indeed caused a re-synchronization
+    list = dynamic_cast<Imap::Mailbox::TreeItemMsgList*>(static_cast<Imap::Mailbox::TreeItem*>(msgListA.internalPointer()));
+    Q_ASSERT(list);
+    QVERIFY(list->loading());
+    cClient(t.mk("SELECT a\r\n"));
+    cServer(QByteArray("* 1 exists\r\n") + t.last("OK done\r\n"));
+    // We still don't know anything else but EXISTS, so this is a full sync again
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer("* SEARCH 666\r\n" + t.last("OK searched\r\n"));
+    cClient(t.mk("FETCH 1 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    cEmpty();
+
+    // Check the cache
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState(QLatin1String("a"));
+    QCOMPARE(syncState.exists(), 1u);
+    QCOMPARE(syncState.flags(), QStringList());
+    // The flags are already synced, though
+    QCOMPARE(syncState.isUsableForNumbers(), true);
+    QCOMPARE(syncState.isUsableForSyncing(), false);
+    QCOMPARE(syncState.permanentFlags(), QStringList());
+    QCOMPARE(syncState.recent(), 0u);
+    QCOMPARE(syncState.uidNext(), 667u);
+    QCOMPARE(syncState.uidValidity(), 0u);
+    QCOMPARE(syncState.unSeenCount(), 1u);
+    QCOMPARE(syncState.unSeenOffset(), 0u);
 
     // No errors
     QVERIFY( errorSpy->isEmpty() );
@@ -132,7 +197,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     QCOMPARE( syncState.flags(), QStringList() << QLatin1String("\\Answered") <<
               QLatin1String("\\Flagged") << QLatin1String("\\Deleted") <<
               QLatin1String("\\Seen") << QLatin1String("\\Draft") );
-    QCOMPARE( syncState.isUsableForNumbers(), false );
+    QCOMPARE( syncState.isUsableForNumbers(), true );
     QCOMPARE( syncState.isUsableForSyncing(), true );
     QCOMPARE( syncState.permanentFlags(), QStringList() << QLatin1String("\\Answered") <<
               QLatin1String("\\Flagged") << QLatin1String("\\Deleted") <<
@@ -160,7 +225,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
-    QCOMPARE( syncState.isUsableForNumbers(), false );
+    QCOMPARE( syncState.isUsableForNumbers(), true );
     QCOMPARE( syncState.isUsableForSyncing(), false );
     QCOMPARE( syncState.permanentFlags(), QStringList() );
     QCOMPARE( syncState.recent(), 0u );
@@ -403,17 +468,19 @@ void ImapModelObtainSynchronizedMailboxTest::testReloadReadsFromCache()
             "* OK [UIDNEXT 15] .\r\n");
     cServer(t.last("OK selected\r\n"));
     cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
-    cServer("* 1 FETCH (FLAGS (x))\r\n"
+    cServer("* 1 FETCH (FLAGS (\\SEEN x))\r\n"
             "* 2 FETCH (FLAGS (y))\r\n"
-            "* 3 FETCH (FLAGS (z))\r\n");
+            "* 3 FETCH (FLAGS (\\seen z))\r\n");
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
+    sync.setUnSeenCount(1);
+    sync.setRecent(0);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
-    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "\\Seen" << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
-    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "\\Seen" << "z");
     justKeepTask();
 }
 
@@ -424,6 +491,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheNoChange()
     sync.setExists(3);
     sync.setUidValidity(666);
     sync.setUidNext(15);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -507,6 +576,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
     sync.setUidValidity(666);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -546,6 +617,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivals()
             "* 4 FETCH (FLAGS (fn))\r\n");
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
+    sync.setUnSeenCount(4);
+    sync.setRecent(0);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -602,6 +675,8 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheArrivalRaceDuringUid(con
     uidMap << 42 << 43;
     sync.setUidNext(44);
     sync.setExists(5);
+    sync.setUnSeenCount(5);
+    sync.setRecent(0);
     cClient(t.mk("FETCH 1:5 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (y))\r\n"
@@ -648,6 +723,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid2()
     uidMap << 42;
     sync.setUidNext(43);
     sync.setExists(5);
+    sync.setUnSeenCount(5);
+    sync.setRecent(0);
     QByteArray newArrivalsQuery = t.mk("UID FETCH 43:* (FLAGS)\r\n");
     QByteArray newArrivalsResponse = t.last("OK uid fetch\r\n");
     QByteArray preexistingFlagsQuery = t.mk("FETCH 1:5 (FLAGS)\r\n");
@@ -711,6 +788,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     cServer("* 5 FETCH (FLAGS (gah) UID 60)\r\n" + t.last("OK new discovery\r\n"));
     sync.setExists(5);
     sync.setUidNext(61);
+    sync.setUnSeenCount(5);
+    sync.setRecent(0);
     uidMap << 42 << 60;
     cEmpty();
     // At this point, the cache shall be up-to-speed again
@@ -769,6 +848,8 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheExpunges(const ESearchMo
     cServer(t.last("OK uids\r\n"));
     uidMap.removeAt(1);
     sync.setExists(5);
+    sync.setUnSeenCount(5);
+    sync.setRecent(0);
     cClient(t.mk("FETCH 1:5 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (z))\r\n"
@@ -815,6 +896,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid()
     uidMap.removeAt(1);
     uidMap.removeAt(3);
     sync.setExists(4);
+    sync.setUnSeenCount(4);
+    sync.setRecent(0);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (z))\r\n"
@@ -860,6 +943,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid2()
     uidMap.removeAt(1);
     uidMap.removeAt(3);
     sync.setExists(4);
+    sync.setUnSeenCount(4);
+    sync.setRecent(0);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (z))\r\n"
@@ -914,6 +999,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringSelect()
             );
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
+    sync.setUnSeenCount(4);
+    sync.setRecent(0);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -934,6 +1021,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringFlags()
     sync.setExists(6);
     sync.setUidValidity(666);
     sync.setUidNext(15);
+    sync.setUnSeenCount(6);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10 << 11 << 12 << 14;
     model->cache()->setMailboxSyncState("a", sync);
@@ -960,6 +1049,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringFlags()
     cServer(t.last("OK fetch\r\n"));
     uidMap.removeAt(3);
     sync.setExists(4);
+    sync.setUnSeenCount(4);
     cEmpty();
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
@@ -981,6 +1071,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsImmediatelyDeleted
     sync.setExists(3);
     sync.setUidValidity(666);
     sync.setUidNext(15);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1021,6 +1113,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsOldDeleted()
     sync.setExists(3);
     sync.setUidValidity(666);
     sync.setUidNext(15);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1123,6 +1217,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsThenDynamic()
     cServer(t.last("OK uid fetch flags done\r\n"));
     cEmpty();
     sync.setUidNext(110);
+    sync.setUnSeenCount(12);
+    sync.setRecent(0);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -1213,6 +1309,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheDeletionsThenDynamic()
     cServer(t.last("OK uid fetch flags done\r\n"));
     cEmpty();
     sync.setUidNext(110);
+    sync.setUnSeenCount(7);
+    sync.setRecent(0);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -1245,6 +1343,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreNoChanges()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1280,6 +1380,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreChangedFlags()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1296,16 +1398,17 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreChangedFlags()
             );
     cServer(t.last("OK selected\r\n"));
     cClient(t.mk("FETCH 1:3 (FLAGS) (CHANGEDSINCE 33)\r\n"));
-    cServer("* 3 FETCH (FLAGS (f101))\r\n");
+    cServer("* 3 FETCH (FLAGS (f101 \\seen))\r\n");
     cServer(t.last("OK fetched\r\n"));
     cEmpty();
     sync.setHighestModSeq(666);
+    sync.setUnSeenCount(2);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
-    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "f101");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "\\Seen" << "f101");
     justKeepTask();
 }
 
@@ -1319,6 +1422,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorExists()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1348,6 +1453,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorExists()
     uidMap << 15;
     sync.setUidNext(16);
     sync.setExists(4);
+    sync.setUnSeenCount(4);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -1368,6 +1474,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorUidNext()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1388,16 +1496,17 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorUidNext()
     cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (y))\r\n"
-            "* 3 FETCH (FLAGS (z))\r\n");
+            "* 3 FETCH (FLAGS (z \\Recent))\r\n");
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
     sync.setUidNext(16);
+    sync.setRecent(1);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
-    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "\\Recent" << "z");
     justKeepTask();
 }
 
@@ -1411,6 +1520,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreUidValidity()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1454,6 +1565,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreDecreasedHighestModSeq
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1561,6 +1674,8 @@ void ImapModelObtainSynchronizedMailboxTest::helperTestQresyncNoChanges(ModeForH
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1608,6 +1723,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1626,6 +1743,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
     cServer(t.last("OK selected\r\n"));
     cEmpty();
     sync.setHighestModSeq(36);
+    sync.setUnSeenCount(2);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -1652,6 +1770,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncVanishedEarlier()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1671,6 +1791,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncVanishedEarlier()
     cEmpty();
     sync.setHighestModSeq(36);
     sync.setExists(2);
+    sync.setUnSeenCount(2);
     uidMap.removeOne(9);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
@@ -1691,6 +1812,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUidValidity()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1715,6 +1838,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUidValidity()
     cServer(t.last("OK fetch\r\n"));
     cEmpty();
     sync.setUidValidity(333);
+    sync.setUnSeenCount(2);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -1735,6 +1859,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNoModseqChangedFlags()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1776,6 +1902,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncErrorExists()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1795,20 +1923,21 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncErrorExists()
     cServer("* SEARCH 6 9 10 12\r\n" + t.last("OK search\r\n"));
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x1))\r\n"
-            "* 2 FETCH (FLAGS (x2))\r\n"
-            "* 3 FETCH (FLAGS (x3))\r\n"
+            "* 2 FETCH (FLAGS (\\seen x2))\r\n"
+            "* 3 FETCH (FLAGS (x3 \\seen))\r\n"
             "* 4 FETCH (FLAGS (x4))\r\n"
             + t.last("OK flags\r\n"));
     cEmpty();
     sync.setExists(4);
+    sync.setUnSeenCount(2);
     sync.setHighestModSeq(0);
     uidMap << 12;
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x1");
-    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "x2");
-    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "x3");
+    QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "\\Seen" << "x2");
+    QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "\\Seen" << "x3");
     QCOMPARE(model->cache()->msgFlags("a", 12), QStringList() << "x4");
     QCOMPARE(model->cache()->msgFlags("a", 15), QStringList());
     justKeepTask();
@@ -1824,6 +1953,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncErrorUidNext()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1868,6 +1999,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUnreportedNewArrivals()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1886,7 +2019,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUnreportedNewArrivals()
     QCOMPARE(msgListA.child(3, 0).data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
     cServer(t.last("OK selected\r\n"));
     cClient(t.mk("UID FETCH 15:* (FLAGS)\r\n"));
-    cServer("* 4 FETCH (FLAGS (x4) UID 16)\r\n" + t.last("OK uid fetch flags\r\n"));
+    cServer("* 4 FETCH (FLAGS (x4 \\seen) UID 16)\r\n" + t.last("OK uid fetch flags\r\n"));
     cEmpty();
     sync.setExists(4);
     sync.setUidNext(20);
@@ -1898,6 +2031,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUnreportedNewArrivals()
     QCOMPARE(model->cache()->msgFlags("a", 6), QStringList() << "x");
     QCOMPARE(model->cache()->msgFlags("a", 9), QStringList() << "y");
     QCOMPARE(model->cache()->msgFlags("a", 10), QStringList() << "z");
+    QCOMPARE(model->cache()->msgFlags("a", 16), QStringList() << "\\Seen" << "x4");
     justKeepTask();
 }
 
@@ -1911,6 +2045,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncReportedNewArrivals()
     sync.setUidValidity(666);
     sync.setUidNext(15);
     sync.setHighestModSeq(33);
+    sync.setUnSeenCount(3);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1931,6 +2067,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncReportedNewArrivals()
     cServer(t.last("OK selected\r\n"));
     cEmpty();
     sync.setExists(4);
+    sync.setUnSeenCount(4);
     sync.setUidNext(20);
     uidMap << 16;
     sync.setHighestModSeq(34);
@@ -1956,6 +2093,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncDeletionsNewArrivals()
     sync.setUidValidity(666);
     sync.setUidNext(6);
     sync.setHighestModSeq(10);
+    sync.setUnSeenCount(5);
+    sync.setRecent(0);
     QList<uint> uidMap;
     uidMap << 1 << 2 << 3 << 4 << 5;
     model->cache()->setMailboxSyncState("a", sync);
@@ -2044,7 +2183,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     cServer(t.last("OK search\r\n"));
     cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (uid1212))\r\n"
-            "* 2 FETCH (FLAGS (uid1214))\r\n"
+            "* 2 FETCH (FLAGS (uid1214 \\seen))\r\n"
             "* 3 FETCH (FLAGS (uid1215))\r\n"
             + t.last("OK fetch\r\n"));
     cEmpty();
@@ -2057,6 +2196,8 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     sync.setRecent(0);
     // The UIDNEXT shall be updated automatically
     sync.setUidNext(1216);
+    // unseen count is computed, too
+    sync.setUnSeenCount(2);
     QList<uint> uidMap;
     uidMap << 1212 << 1214 << 1215;
 
@@ -2064,7 +2205,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
     QCOMPARE(model->cache()->msgFlags("a", 1212), QStringList() << "uid1212");
-    QCOMPARE(model->cache()->msgFlags("a", 1214), QStringList() << "uid1214");
+    QCOMPARE(model->cache()->msgFlags("a", 1214), QStringList() << "\\Seen" << "uid1214");
     QCOMPARE(model->cache()->msgFlags("a", 1215), QStringList() << "uid1215");
 
     // Switch away from this mailbox
@@ -2089,7 +2230,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     cServer(t.last("OK search\r\n"));
     cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (uid1212))\r\n"
-            "* 2 FETCH (FLAGS (uid1214))\r\n"
+            "* 2 FETCH (FLAGS (\\sEEN uid1214))\r\n"
             "* 3 FETCH (FLAGS (uid1215))\r\n"
             + t.last("OK fetch\r\n"));
     cEmpty();
@@ -2215,6 +2356,9 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncSpuriousVanishedEarlier(
     sync.setUidValidity(1309542826);
     sync.setUidNext(252);
     sync.setHighestModSeq(10);
+    // and just for fun: introduce garbage to the cache, muhehe
+    sync.setUnSeenCount(10);
+    sync.setRecent(10);
     QList<uint> uidMap;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -2231,6 +2375,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncSpuriousVanishedEarlier(
     cEmpty();
     sync.setUidNext(256);
     sync.setHighestModSeq(22);
+    sync.setUnSeenCount(0);
+    sync.setRecent(0);
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), 0);
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -2315,6 +2461,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreQresyncNomodseqHighest
     state.setUidNext(uidNextA);
     state.setUidValidity(uidValidityA);
     state.setRecent(0);
+    state.setUnSeenCount(2);
     state.setFlags(QString::fromUtf8("\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded").split(QLatin1Char(' ')));
     state.setPermanentFlags(QString::fromUtf8("\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded \\*").split(QLatin1Char(' ')));
     state.setHighestModSeq(1);

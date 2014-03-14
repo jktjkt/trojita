@@ -563,8 +563,14 @@ old state any longer. But the old state is not important anyway because it's alr
 */
 void TreeItemMailbox::saveSyncStateAndUids(Model * model)
 {
-    model->cache()->setMailboxSyncState(mailbox(), syncState);
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(m_children[0]);
+    if (list->m_unreadMessageCount != -1) {
+        syncState.setUnSeenCount(list->m_unreadMessageCount);
+    }
+    if (list->m_recentMessageCount != -1) {
+        syncState.setRecent(list->m_recentMessageCount);
+    }
+    model->cache()->setMailboxSyncState(mailbox(), syncState);
     model->saveUidMap(list);
     list->setFetchStatus(DONE);
 }

@@ -40,6 +40,7 @@ class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
 private slots:
     void init();
     void testSyncEmptyMinimal();
+    void testSyncEmptyMinimalNonEmpty();
     void testSyncEmptyNormal();
     void testSyncWithMessages();
     void testSyncTwoLikeCyrus();
