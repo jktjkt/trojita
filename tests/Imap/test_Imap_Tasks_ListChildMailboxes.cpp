@@ -32,82 +32,54 @@
 
 void ImapModelListChildMailboxesTest::init()
 {
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
-    factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
-    Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
-    taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
-    taskFactoryUnsafe->fakeOpenConnectionTask = true;
-    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
+    m_fakeListCommand = false;
+    LibMailboxSync::init();
+
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     QCoreApplication::processEvents();
-    task = 0;
+    t.reset();
 }
-
-void ImapModelListChildMailboxesTest::cleanup()
-{
-    delete model;
-    model = 0;
-    taskFactoryUnsafe = 0;
-    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
-}
-
-void ImapModelListChildMailboxesTest::initTestCase()
-{
-    Common::registerMetaTypes();
-    model = 0;
-    task = 0;
-}
-
-#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 void ImapModelListChildMailboxesTest::testSimpleListing()
 {
-    model->rowCount( QModelIndex() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
-    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"b\"\r\n"
-                       "* LIST (\\HasChildren) \".\" \"a\"\r\n"
-                       "* LIST (\\Noselect \\HasChildren) \".\" \"xyz\"\r\n"
-                       "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
-                       "y0 OK List done.\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( model->rowCount( QModelIndex() ), 5 );
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer("* LIST (\\HasNoChildren) \".\" \"b\"\r\n"
+            "* LIST (\\HasChildren) \".\" \"a\"\r\n"
+            "* LIST (\\Noselect \\HasChildren) \".\" \"xyz\"\r\n"
+            "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
+            + t.last("OK List done.\r\n"));
+    QCOMPARE(model->rowCount( QModelIndex() ), 5);
     // the first one will be "list of messages"
-    QModelIndex idxInbox = model->index( 1, 0, QModelIndex() );
-    QModelIndex idxA = model->index( 2, 0, QModelIndex() );
-    QModelIndex idxB = model->index( 3, 0, QModelIndex() );
-    QModelIndex idxXyz = model->index( 4, 0, QModelIndex() );
-    QCOMPARE( model->data( idxInbox, Qt::DisplayRole ), QVariant(QLatin1String("INBOX")) );
-    QCOMPARE( model->data( idxA, Qt::DisplayRole ), QVariant(QLatin1String("a")) );
-    QCOMPARE( model->data( idxB, Qt::DisplayRole ), QVariant(QLatin1String("b")) );
-    QCOMPARE( model->data( idxXyz, Qt::DisplayRole ), QVariant(QLatin1String("xyz")) );
-    QCoreApplication::processEvents();
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
-    QCOMPARE( model->rowCount( idxInbox ), 1 ); // just the "list of messages"
-    QCOMPARE( model->rowCount( idxB ), 1 ); // just the "list of messages"
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray() );
-    model->rowCount( idxA );
-    model->rowCount( idxXyz );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 LIST \"\" \"a.%\"\r\n" "y2 LIST \"\" \"xyz.%\"\r\n") );
-    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"a.aa\"\r\n"
-                       "* LIST (\\HasNoChildren) \".\" \"a.ab\"\r\n"
-                       "y1 OK List completed.\r\n"
-                       "* LIST (\\HasNoChildren) \".\" \"xyz.a\"\r\n"
-                       "* LIST (\\HasNoChildren) \".\" \"xyz.c\"\r\n"
-                       "y2 OK List completed.\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( model->rowCount( idxA ), 3 );
-    QCOMPARE( model->rowCount( idxXyz ), 3 );
-    QVERIFY( SOCK->writtenStuff().isEmpty() );
+    QModelIndex idxInbox = model->index(1, 0, QModelIndex());
+    QModelIndex idxA = model->index(2, 0, QModelIndex());
+    QModelIndex idxB = model->index(3, 0, QModelIndex());
+    QModelIndex idxXyz = model->index(4, 0, QModelIndex());
+    QCOMPARE(model->data(idxInbox, Qt::DisplayRole), QVariant(QLatin1String("INBOX")));
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
+    QCOMPARE(model->data(idxXyz, Qt::DisplayRole), QVariant(QLatin1String("xyz")));
+    cEmpty();
+    QCOMPARE(model->rowCount(idxInbox), 1); // just the "list of messages"
+    QCOMPARE(model->rowCount(idxB), 1); // just the "list of messages"
+    cEmpty();
+    model->rowCount(idxA);
+    model->rowCount(idxXyz);
+    QByteArray c1 = t.mk("LIST \"\" \"a.%\"\r\n");
+    QByteArray r1 = t.last("OK listed\r\n");
+    QByteArray c2 = t.mk("LIST \"\" \"xyz.%\"\r\n");
+    QByteArray r2 = t.last("OK listed\r\n");
+    cClient(c1 + c2);
+    cServer("* LIST (\\HasNoChildren) \".\" \"a.aa\"\r\n"
+            "* LIST (\\HasNoChildren) \".\" \"a.ab\"\r\n"
+            + r1 +
+            "* LIST (\\HasNoChildren) \".\" \"xyz.a\"\r\n"
+            "* LIST (\\HasNoChildren) \".\" \"xyz.c\"\r\n"
+            + r2);
+    cEmpty();
+    QCOMPARE(model->rowCount(idxA), 3);
+    QCOMPARE(model->rowCount(idxXyz), 3);
+    cEmpty();
 }
 
 void ImapModelListChildMailboxesTest::testFakeListing()
@@ -130,6 +102,7 @@ void ImapModelListChildMailboxesTest::testFakeListing()
     QCOMPARE( model->rowCount( idxA ), 3 );
     QCOMPARE( model->rowCount( idxB ), 1 );
     QVERIFY( SOCK->writtenStuff().isEmpty() );
+    cleanup(); init();
 }
 
 void ImapModelListChildMailboxesTest::testBackslashes()
@@ -150,5 +123,80 @@ void ImapModelListChildMailboxesTest::testBackslashes()
     QCOMPARE(withBackSlash.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
     cEmpty();
 }
+
+/** @short Check that cached mailboxes do not send away STATUS when they are going to be immediately replaced anyway */
+void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
+{
+    using namespace Imap::Mailbox;
+
+    // Remember two mailboxes
+    model->cache()->setChildMailboxes(QString(), QList<MailboxMetadata>()
+                                      << MailboxMetadata(QLatin1String("a"), QLatin1String("."), QStringList())
+                                      << MailboxMetadata(QLatin1String("b"), QLatin1String("."), QStringList())
+                                      );
+    // ... and the numbers for the first of them
+    SyncState s;
+    s.setExists(10);
+    s.setRecent(1);
+    s.setUnSeenCount(2);
+    QVERIFY(s.isUsableForNumbers());
+    model->cache()->setMailboxSyncState(QLatin1String("b"), s);
+
+    // touch the network
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    // ...but the data gets refreshed from cache immediately
+    QCOMPARE(model->rowCount(QModelIndex()), 3);
+
+    // just settings up indexes
+    idxA = model->index(1, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QCOMPARE(idxA.data(RoleMailboxName).toString(), QString::fromUtf8("a"));
+    idxB = model->index(2, 0, QModelIndex());
+    QVERIFY(idxB.isValid());
+    QCOMPARE(idxB.data(RoleMailboxName).toString(), QString::fromUtf8("b"));
+
+    // Request message counts; this should not lead to network activity even though the actual number
+    // is not stored in the cache for mailbox "a", simply because the whole mailbox will get replaced
+    // after the LIST finishes anyway
+    QCOMPARE(idxA.data(RoleTotalMessageCount), QVariant());
+    QCOMPARE(idxA.data(RoleMailboxNumbersFetched).toBool(), false);
+    QCOMPARE(idxB.data(RoleTotalMessageCount).toInt(), 10);
+    QCOMPARE(idxB.data(RoleMailboxNumbersFetched).toBool(), false);
+    cEmpty();
+
+    cServer("* LIST (\\HasNoChildren) \".\" a\r\n"
+            "* LIST (\\HasNoChildren) \".\" b\r\n"
+            + t.last("OK listed\r\n"));
+    cEmpty();
+
+    // The mailboxes are replaced now -> rebuild the indexes
+    QVERIFY(!idxA.isValid());
+    QVERIFY(!idxB.isValid());
+    idxA = model->index(1, 0, QModelIndex());
+    QVERIFY(idxA.isValid());
+    QCOMPARE(idxA.data(RoleMailboxName).toString(), QString::fromUtf8("a"));
+    idxB = model->index(2, 0, QModelIndex());
+    QVERIFY(idxB.isValid());
+    QCOMPARE(idxB.data(RoleMailboxName).toString(), QString::fromUtf8("b"));
+
+    // Ask for the numbers again
+    QCOMPARE(idxA.data(RoleTotalMessageCount), QVariant());
+    QCOMPARE(idxB.data(RoleTotalMessageCount), QVariant());
+    QByteArray c1 = t.mk("STATUS a (MESSAGES UNSEEN RECENT)\r\n");
+    QByteArray r1 = t.last("OK status\r\n");
+    QByteArray c2 = t.mk("STATUS b (MESSAGES UNSEEN RECENT)\r\n");
+    QByteArray r2 = t.last("OK status\r\n");
+    cClient(c1 + c2);
+    cServer("* STATUS a (MESSAGES 1 RECENT 2 UNSEEN 3)\r\n"
+            "* STATUS b (MESSAGES 666 RECENT 33 UNSEEN 2)\r\n");
+    QCOMPARE(idxA.data(RoleTotalMessageCount).toInt(), 1);
+    QCOMPARE(idxA.data(RoleMailboxNumbersFetched).toBool(), true);
+    QCOMPARE(idxB.data(RoleTotalMessageCount).toInt(), 666);
+    QCOMPARE(idxB.data(RoleMailboxNumbersFetched).toBool(), true);
+    cServer(r2 + r1);
+    cEmpty();
+}
+
 
 TROJITA_HEADLESS_TEST( ImapModelListChildMailboxesTest )

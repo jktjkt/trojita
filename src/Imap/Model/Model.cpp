@@ -773,7 +773,19 @@ void Model::askForChildrenOfMailbox(TreeItemMailbox *item, bool forceReload)
         QList<MailboxMetadata> metadata = cache()->childMailboxes(item->mailbox());
         TreeItemChildrenList mailboxes;
         for (QList<MailboxMetadata>::const_iterator it = metadata.constBegin(); it != metadata.constEnd(); ++it) {
-            mailboxes << TreeItemMailbox::fromMetadata(item, *it);
+            TreeItemMailbox *mailbox = TreeItemMailbox::fromMetadata(item, *it);
+            TreeItemMsgList *list = dynamic_cast<TreeItemMsgList*>(mailbox->m_children[0]);
+            Q_ASSERT(list);
+            Imap::Mailbox::SyncState syncState = cache()->mailboxSyncState(mailbox->mailbox());
+            if (syncState.isUsableForNumbers()) {
+                list->m_unreadMessageCount = syncState.unSeenCount();
+                list->m_totalMessageCount = syncState.exists();
+                list->m_recentMessageCount = syncState.recent();
+                list->m_numberFetchingStatus = TreeItem::LOADING;
+            } else {
+                list->m_numberFetchingStatus = TreeItem::UNAVAILABLE;
+            }
+            mailboxes << mailbox;
         }
         TreeItemMailbox *mailboxPtr = dynamic_cast<TreeItemMailbox *>(item);
         Q_ASSERT(mailboxPtr);

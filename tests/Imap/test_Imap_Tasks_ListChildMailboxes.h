@@ -35,19 +35,13 @@ class ImapModelListChildMailboxesTest : public LibMailboxSync
     Q_OBJECT
 private slots:
     void init();
-    void cleanup();
-    void initTestCase();
 
     void testSimpleListing();
     void testFakeListing();
 
     void testBackslashes();
 
-private:
-    Imap::Mailbox::Model* model;
-    Streams::FakeSocketFactory* factory;
-    Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
-    Imap::Mailbox::ListChildMailboxesTask* task;
+    void testNoStatusForCachedItems();
 };
 
 #endif
