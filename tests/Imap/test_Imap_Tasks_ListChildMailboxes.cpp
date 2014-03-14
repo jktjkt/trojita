@@ -194,6 +194,15 @@ void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
     QCOMPARE(idxA.data(RoleMailboxNumbersFetched).toBool(), true);
     QCOMPARE(idxB.data(RoleTotalMessageCount).toInt(), 666);
     QCOMPARE(idxB.data(RoleMailboxNumbersFetched).toBool(), true);
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")).unSeenCount(), 3u);
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")).recent(), 2u);
+    // the "EXISTS" is missing, though
+    QVERIFY(!model->cache()->mailboxSyncState(QLatin1String("a")).isUsableForNumbers());
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("b")).unSeenCount(), 2u);
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("b")).recent(), 33u);
+    // The mailbox state for mailbox "b" must be preserved
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("b")).exists(), 10u);
+    QVERIFY(model->cache()->mailboxSyncState(QLatin1String("b")).isUsableForNumbers());
     cServer(r2 + r1);
     cEmpty();
 }

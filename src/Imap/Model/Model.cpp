@@ -578,18 +578,38 @@ void Model::handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const
     }
     TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     Q_ASSERT(list);
+    bool updateCache = false;
     Imap::Responses::Status::stateDataType::const_iterator it = resp->states.constEnd();
     if ((it = resp->states.constFind(Imap::Responses::Status::MESSAGES)) != resp->states.constEnd()) {
+        updateCache |= list->m_totalMessageCount != static_cast<const int>(it.value());
         list->m_totalMessageCount = it.value();
     }
     if ((it = resp->states.constFind(Imap::Responses::Status::UNSEEN)) != resp->states.constEnd()) {
+        updateCache |= list->m_unreadMessageCount != static_cast<const int>(it.value());
         list->m_unreadMessageCount = it.value();
     }
     if ((it = resp->states.constFind(Imap::Responses::Status::RECENT)) != resp->states.constEnd()) {
+        updateCache |= list->m_recentMessageCount != static_cast<const int>(it.value());
         list->m_recentMessageCount = it.value();
     }
     list->m_numberFetchingStatus = TreeItem::DONE;
     emitMessageCountChanged(mailbox);
+
+    if (updateCache) {
+        // We have to be very careful to only touch the bits which are *not* used by the mailbox syncing code.
+        // This is absolutely crucial -- STATUS is just a meaningless indicator, and stuff like the UID mapping
+        // is definitely *not* updated at the same time. That's also why we completely ignore any data whatsoever
+        // from the TreeItemMailbox' syncState, if any, and just work with the cache directly.
+        auto state = cache()->mailboxSyncState(mailbox->mailbox());
+        // We are *not* updating the total message count as that conflicts with the mailbox syncing
+        if (list->m_unreadMessageCount != -1) {
+            state.setUnSeenCount(list->m_unreadMessageCount);
+        }
+        if (list->m_recentMessageCount != -1) {
+            state.setRecent(list->m_recentMessageCount);
+        }
+        cache()->setMailboxSyncState(mailbox->mailbox(), state);
+    }
 }
 
 void Model::handleFetch(Imap::Parser *ptr, const Imap::Responses::Fetch *const resp)
