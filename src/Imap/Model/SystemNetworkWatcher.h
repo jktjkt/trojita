@@ -20,38 +20,47 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TROJITA_IMAP_NETWORKWATCHER_H
-#define TROJITA_IMAP_NETWORKWATCHER_H
+#ifndef TROJITA_IMAP_SYSTEMNETWORKWATCHER_H
+#define TROJITA_IMAP_SYSTEMNETWORKWATCHER_H
 
-#include <QObject>
-#include "Imap/Model/NetworkPolicy.h"
+#include "Imap/Model/NetworkWatcher.h"
+#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
+#define TROJITA_HAS_QNETWORKSESSION
+#endif
+
+class QNetworkConfigurationManager;
+class QNetworkConfiguration;
+class QNetworkSession;
 
 namespace Imap {
 namespace Mailbox {
-class Model;
 
-/** @short Provide network session management to the Model */
-class NetworkWatcher: public QObject
+class SystemNetworkWatcher: public NetworkWatcher
 {
     Q_OBJECT
 public:
-    NetworkWatcher(QObject *parent, Model *model);
+    SystemNetworkWatcher(QObject *parent, Model *model);
 
-    NetworkPolicy desiredNetworkPolicy() const;
-    virtual NetworkPolicy effectiveNetworkPolicy() const = 0;
+    virtual NetworkPolicy effectiveNetworkPolicy() const;
 
 public slots:
-    virtual void setNetworkOffline();
-    virtual void setNetworkExpensive();
-    virtual void setNetworkOnline();
-
-signals:
-    void effectiveNetworkPolicyChanged();
+    void reconnectModelNetwork();
+    void onGlobalOnlineStateChanged(const bool online);
+    void networkConfigurationChanged(const QNetworkConfiguration& conf);
+    void networkSessionError();
 
 protected:
-    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) = 0;
-    Model *m_model;
-    NetworkPolicy m_desiredPolicy;
+    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy);
+
+private:
+    QNetworkConfigurationManager *m_netConfManager;
+    QNetworkSession *m_session;
+
+    bool isOnline() const;
+#ifdef TROJITA_HAS_QNETWORKSESSION
+    void resetSession();
+    QNetworkConfiguration sessionsActiveConfiguration() const;
+#endif
 };
 
 }

@@ -73,7 +73,7 @@ class TreeItemMessage;
 class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
-class NetworkWatcher;
+class SystemNetworkWatcher;
 
 class ImapTask;
 class KeepMailboxOpenTask;
@@ -454,7 +454,7 @@ private:
     friend class UidSubmitTask;
 
     friend class TestingTaskFactory; // needs access to socketFactory
-    friend class NetworkWatcher; // needs access to the network policy manipulation
+    friend class SystemNetworkWatcher; // needs access to the network policy manipulation
 
     friend class ::FakeCapabilitiesInjector; // for injecting fake capabilities
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing
