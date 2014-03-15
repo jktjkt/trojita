@@ -164,7 +164,7 @@ void KeepMailboxOpenTask::slotPerformConnection()
     Q_ASSERT(!synchronizeConn->isFinished());
     if (_dead) {
         _failed("Asked to die");
-        synchronizeConn->die();
+        synchronizeConn->die(QLatin1String("KeepMailboxOpenTask died before the sync started"));
         return;
     }
 
@@ -246,7 +246,7 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
     if (!model->m_parsers.contains(parser)) {
         // The parser is gone; we have to get out of here ASAP
         _failed("Parser is gone");
-        die();
+        die("Parser is gone");
         return;
     }
     // FIXME: abort/die
@@ -616,9 +616,9 @@ void KeepMailboxOpenTask::detachFromMailbox()
 
 We're aksed to die right now, so we better take any depending stuff with us. That poor tasks are not going to outlive me!
 */
-void KeepMailboxOpenTask::die()
+void KeepMailboxOpenTask::die(const QString &message)
 {
-    ImapTask::die();
+    ImapTask::die(message);
     detachFromMailbox();
 }
 
@@ -626,16 +626,16 @@ void KeepMailboxOpenTask::die()
 
 Reimplemented from the ImapTask.
 */
-void KeepMailboxOpenTask::killAllPendingTasks()
+void KeepMailboxOpenTask::killAllPendingTasks(const QString &message)
 {
     Q_FOREACH(ImapTask *task, dependingTasksForThisMailbox) {
-        task->die();
+        task->die(message);
     }
     Q_FOREACH(ImapTask *task, dependingTasksNoMailbox) {
-        task->die();
+        task->die(message);
     }
     Q_FOREACH(ImapTask *task, waitingObtainTasks) {
-        task->die();
+        task->die(message);
     }
 }
 
@@ -657,7 +657,7 @@ void KeepMailboxOpenTask::stopForLogout()
 {
     abort();
     breakOrCancelPossibleIdle();
-    killAllPendingTasks();
+    killAllPendingTasks(tr("Logging off..."));
 }
 
 bool KeepMailboxOpenTask::handleFlags(const Imap::Responses::Flags *const resp)

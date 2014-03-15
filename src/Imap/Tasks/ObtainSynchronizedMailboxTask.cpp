@@ -68,7 +68,7 @@ void ObtainSynchronizedMailboxTask::perform()
     if (_dead || _aborted) {
         // We're at the very start, so let's try to abort in a sane way
         _failed("Asked to abort or die");
-        die();
+        die(tr("Mailbox syncing dead or aborted"));
         return;
     }
 
@@ -144,8 +144,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             Q_ASSERT(status == STATE_SELECTING);
             finalizeSelect();
         } else {
-            _failed("SELECT failed");
-            // FIXME: error handling
+            _failed(QLatin1String("SELECT failed: ") + resp->message);
             model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
         }
         return true;
@@ -161,8 +160,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             Q_ASSERT(mailbox);
             syncFlags(mailbox);
         } else {
-            _failed("UID syncing failed");
-            // FIXME: error handling
+            _failed(QLatin1String("UID syncing failed: ") + resp->message);
+            // FIXME: UNSELECT?
         }
         return true;
     } else if (resp->tag == flagsCmd) {
@@ -187,8 +186,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             }
         } else {
             status = STATE_DONE;
-            _failed("Flags synchronization failed");
-            // FIXME: error handling
+            _failed(QLatin1String("Flags synchronization failed: ") + resp->message);
+            // FIXME: UNSELECT?
         }
         emit model->mailboxSyncingProgress(mailboxIndex, status);
         return true;
@@ -206,7 +205,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
                 _completed();
             }
         } else {
-            _failed("UID discovery of new arrivals after initial UID sync has failed");
+            _failed(QLatin1String("UID discovery of new arrivals after initial UID sync has failed: ") + resp->message);
+            // FIXME: UNSELECT?
         }
         return true;
 
