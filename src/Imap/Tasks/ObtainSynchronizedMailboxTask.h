@@ -98,6 +98,8 @@ private slots:
     /** @short We're now out of that mailbox, hurray! */
     void slotUnSelectCompleted();
 
+    void signalSyncFailure(const QString &message);
+
 private:
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;

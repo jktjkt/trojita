@@ -191,6 +191,8 @@ private slots:
 
     void terminate();
 
+    void signalSyncFailure(const QString &message);
+
 private:
     /** @short Activate the dependent tasks while also limiting the rate */
     void activateTasks();

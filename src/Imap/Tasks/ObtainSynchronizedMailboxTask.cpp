@@ -50,6 +50,7 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask(Model *model, const
     CHECK_TASK_TREE
     addDependentTask(keepTaskChild);
     CHECK_TASK_TREE
+    connect(this, SIGNAL(failed(QString)), this, SLOT(signalSyncFailure(QString)));
 }
 
 void ObtainSynchronizedMailboxTask::addDependentTask(ImapTask *task)
@@ -1182,6 +1183,18 @@ void ObtainSynchronizedMailboxTask::slotUnSelectCompleted()
 QVariant ObtainSynchronizedMailboxTask::taskData(const int role) const
 {
     return role == RoleTaskCompactName ? QVariant(tr("Synchronizing mailbox")) : QVariant();
+}
+
+/** @short Let the model know that a mailbox synchronization has failed */
+void ObtainSynchronizedMailboxTask::signalSyncFailure(const QString &message)
+{
+    if (!mailboxIndex.isValid()) {
+        // Well, that mailbox is no longer there; perhaps this is because the list of mailboxes got replaced.
+        // Seems that there's nothing to report here.
+        return;
+    }
+
+    emit model->mailboxSyncFailed(mailboxIndex.data(RoleMailboxName).toString(), message);
 }
 
 }

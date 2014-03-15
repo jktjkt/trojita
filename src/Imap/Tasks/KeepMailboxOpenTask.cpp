@@ -155,6 +155,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
 
     CHECK_TASK_TREE
     emit model->mailboxSyncingProgress(mailboxIndex, STATE_WAIT_FOR_CONN);
+
+    connect(this, SIGNAL(failed(QString)), this, SLOT(signalSyncFailure(QString)));
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
@@ -966,6 +968,19 @@ void KeepMailboxOpenTask::saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox
 void KeepMailboxOpenTask::closeMailboxDestructively()
 {
     tagClose = parser->close();
+}
+
+/** @short Let the model know that a mailbox synchronization has failed */
+void KeepMailboxOpenTask::signalSyncFailure(const QString &message)
+{
+    if (!mailboxIndex.isValid()) {
+        // Well, that mailbox is no longer there; perhaps this is because the list of mailboxes got replaced.
+        // Seems that there's nothing to report here.
+        return;
+    }
+
+    // FIXME: this is sooooo wrong; it will complain even on going offline, etc :(
+    //emit model->mailboxSyncFailed(mailboxIndex.data(RoleMailboxName).toString(), message);
 }
 
 
