@@ -607,6 +607,9 @@ void KeepMailboxOpenTask::detachFromMailbox()
         if (mailbox->maintainingTask == this)
             mailbox->maintainingTask = 0;
     }
+    if (model->accessParser(parser).maintainingTask == this) {
+        model->accessParser(parser).maintainingTask = 0;
+    }
 }
 
 /** @short Reimplemented from ImapTask
@@ -866,9 +869,7 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
 
 void KeepMailboxOpenTask::slotUnselected()
 {
-    if (model->accessParser(parser).maintainingTask == this)
-        model->accessParser(parser).maintainingTask = 0;
-
+    detachFromMailbox();
     isRunning = true;
     shouldExit = true;
     _failed("UNSELECTed");

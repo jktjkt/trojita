@@ -93,6 +93,7 @@ protected:
     void helperInitialListing();
     void initialMessages(const uint exists);
     void justKeepTask();
+    void checkNoTasks();
 
     Imap::Mailbox::Model* model;
     Imap::Mailbox::MsgListModel *msgListModel;

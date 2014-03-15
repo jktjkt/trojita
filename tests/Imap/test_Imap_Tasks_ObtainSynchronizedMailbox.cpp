@@ -2486,4 +2486,61 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncExtraEnabled()
     helperTestQresyncNoChanges(EXTRA_ENABLED);
 }
 
+/** @short Check that we can recover when a SELECT ends up in a BAD or NO response */
+void ImapModelObtainSynchronizedMailboxTest::testSelectRetryNoBad()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("ESEARCH");
+    injector.injectCapability("CONDSTORE");
+    injector.injectCapability("QRESYNC");
+
+    // Our first attempt fails with a NO response
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer(t.last("NO go away\r\n"));
+    cEmpty();
+    checkNoTasks();
+
+    // The server is even more creative now and returns a tagged BAD for increased fun factor
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer(t.last("BAD pwned\r\n"));
+    cEmpty();
+    checkNoTasks();
+
+    // But we're very persistent and never give up
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (CONDSTORE)\r\n"));
+    cServer("* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded)\r\n"
+            "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded \\*)] Flags permitted.\r\n"
+            "* 0 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 333] .\r\n"
+            + t.last("OK [READ-WRITE] feels better, doesn't it\r\n"));
+    cEmpty();
+    justKeepTask();
+
+    // Now this is strange -- reselecting fails.
+    // The whole point why we're doing this is to test failed-A -> B transtitions.
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (666 333))\r\n"));
+    cServer(t.last("BAD pwned\r\n"));
+    cEmpty();
+    checkNoTasks();
+
+    // Let's see if we will have any luck with the other mailbox
+    model->resyncMailbox(idxB);
+    cClient(t.mk("SELECT b (CONDSTORE)\r\n"));
+    cServer("* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded)\r\n"
+            "* OK [PERMANENTFLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded \\*)] Flags permitted.\r\n"
+            "* 0 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 333] .\r\n"
+            + t.last("OK [READ-WRITE] feels better, doesn't it\r\n"));
+    cEmpty();
+    justKeepTask();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
