@@ -73,6 +73,7 @@ class TreeItemMessage;
 class TreeItemPart;
 class MsgListModel;
 class MailboxModel;
+class DummyNetworkWatcher;
 class SystemNetworkWatcher;
 
 class ImapTask;
@@ -454,6 +455,7 @@ private:
     friend class UidSubmitTask;
 
     friend class TestingTaskFactory; // needs access to socketFactory
+    friend class DummyNetworkWatcher; // needs access to the network policy manipulation
     friend class SystemNetworkWatcher; // needs access to the network policy manipulation
 
     friend class ::FakeCapabilitiesInjector; // for injecting fake capabilities
