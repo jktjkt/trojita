@@ -864,14 +864,14 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
     return false;
 }
 
-void KeepMailboxOpenTask::slotConnFailed()
+void KeepMailboxOpenTask::slotUnselected()
 {
     if (model->accessParser(parser).maintainingTask == this)
         model->accessParser(parser).maintainingTask = 0;
 
     isRunning = true;
     shouldExit = true;
-    _failed("Connection failed");
+    _failed("UNSELECTed");
 }
 
 bool KeepMailboxOpenTask::dieIfInvalidMailbox()
@@ -887,7 +887,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
     if (!unSelectTask && isRunning) {
         unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
-        connect(unSelectTask, SIGNAL(completed(Imap::Mailbox::ImapTask *)), this, SLOT(slotConnFailed()));
+        connect(unSelectTask, SIGNAL(completed(Imap::Mailbox::ImapTask *)), this, SLOT(slotUnselected()));
         unSelectTask->perform();
     }
 

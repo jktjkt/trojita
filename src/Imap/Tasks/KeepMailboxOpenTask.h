@@ -187,7 +187,7 @@ private slots:
     void slotFetchRequestedEnvelopes();
 
     /** @short Something bad has happened to the connection, and we're no longer in that mailbox */
-    void slotConnFailed();
+    void slotUnselected();
 
     void terminate();
 
