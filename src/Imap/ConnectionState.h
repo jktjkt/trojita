@@ -30,6 +30,7 @@ namespace Imap
 /** @short A human-readable state of the connection to the IMAP server */
 typedef enum {
     CONN_STATE_NONE, /**< @short Initial state */
+    CONN_STATE_NETWORK_SESSION, /**< @short Establishing network session */
     CONN_STATE_HOST_LOOKUP, /**< @short Resolving hostname */
     CONN_STATE_CONNECTING, /**< @short Connecting to the remote host or starting the process */
     CONN_STATE_SSL_HANDSHAKE, /**< @short The SSL encryption is starting */

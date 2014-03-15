@@ -31,6 +31,8 @@ QString connectionStateToString(const ConnectionState state)
     switch (state) {
     case CONN_STATE_NONE:
         return QString();
+    case CONN_STATE_NETWORK_SESSION:
+        return QObject::tr("Waiting for network connectivity...");
     case CONN_STATE_HOST_LOOKUP:
         return QObject::tr("Resolving hostname...");
     case CONN_STATE_CONNECTING:

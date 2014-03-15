@@ -145,6 +145,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     }
 
     case CONN_STATE_NONE:
+    case CONN_STATE_NETWORK_SESSION:
     case CONN_STATE_HOST_LOOKUP:
     case CONN_STATE_CONNECTING:
         // Looks like the corresponding stateChanged() signal could be delayed, at least with QProcess-based sockets

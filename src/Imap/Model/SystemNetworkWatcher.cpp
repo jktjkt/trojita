@@ -101,6 +101,7 @@ void SystemNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
             m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Opening network session"));
 #ifdef TROJITA_HAS_QNETWORKSESSION
             m_session->open();
+            emit m_model->connectionStateChanged(0, Imap::CONN_STATE_NETWORK_SESSION);
 #endif
         }
     } else if (m_model->networkPolicy() != NETWORK_OFFLINE && policy == NETWORK_OFFLINE) {
@@ -131,6 +132,7 @@ void SystemNetworkWatcher::reconnectModelNetwork()
         return;
     }
 
+    m_model->connectionStateChanged(0, Imap::CONN_STATE_NONE);
     m_model->setNetworkPolicy(m_desiredPolicy);
 }
 
@@ -192,6 +194,7 @@ void SystemNetworkWatcher::networkConfigurationChanged(const QNetworkConfigurati
     if (reconnect) {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
         resetSession();
+        emit m_model->connectionStateChanged(0, Imap::CONN_STATE_NETWORK_SESSION);
         if (m_session->configuration().isValid()) {
             m_session->open();
         } else {
