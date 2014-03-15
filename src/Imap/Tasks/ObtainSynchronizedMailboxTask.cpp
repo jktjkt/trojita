@@ -170,7 +170,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
         if (resp->kind == Responses::OK) {
             //qDebug() << "received OK for flagsCmd";
             Q_ASSERT(status == STATE_SYNCING_FLAGS);
-            Q_ASSERT(mailboxIndex.isValid());   // FIXME
+            Q_ASSERT(mailboxIndex.isValid());
             TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
             Q_ASSERT(mailbox);
             status = STATE_DONE;
@@ -198,7 +198,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             newArrivalsFetch.removeOne(resp->tag);
 
             if (newArrivalsFetch.isEmpty() && status == STATE_DONE && flagsCmd.isEmpty()) {
-                Q_ASSERT(mailboxIndex.isValid());   // FIXME
+                Q_ASSERT(mailboxIndex.isValid());
                 TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
                 Q_ASSERT(mailbox);
                 mailbox->saveSyncStateAndUids(model);
