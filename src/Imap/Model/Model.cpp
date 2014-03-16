@@ -1083,7 +1083,7 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
             }
             // Kill all tasks that are also using this connection
             Q_FOREACH(ImapTask *task, it->activeTasks) {
-                task->die();
+                task->die(tr("Going offline"));
             }
             it->logoutCmd = it->parser->logout();
             it->connState = CONN_STATE_LOGOUT;
@@ -1471,7 +1471,8 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
     }
 
     Q_FOREACH(ImapTask *task, accessParser(parser).activeTasks) {
-        task->die();
+        // FIXME: now this message sucks
+        task->die(tr("The connection is being killed for unspecified reason"));
     }
 
     parser->disconnect();

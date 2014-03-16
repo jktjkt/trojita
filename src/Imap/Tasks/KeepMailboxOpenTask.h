@@ -121,7 +121,7 @@ public:
     KeepMailboxOpenTask(Model *model, const QModelIndex &mailboxIndex, Parser *oldParser);
 
     virtual void abort();
-    virtual void die();
+    virtual void die(const QString &message);
 
     void stopForLogout();
 
@@ -191,6 +191,8 @@ private slots:
 
     void terminate();
 
+    void signalSyncFailure(const QString &message);
+
 private:
     /** @short Activate the dependent tasks while also limiting the rate */
     void activateTasks();
@@ -227,7 +229,7 @@ private:
     void saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox *mailbox);
 
 protected:
-    virtual void killAllPendingTasks();
+    virtual void killAllPendingTasks(const QString &message);
 
     QPersistentModelIndex mailboxIndex;
 

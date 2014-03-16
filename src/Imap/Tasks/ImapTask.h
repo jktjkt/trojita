@@ -76,7 +76,7 @@ public:
     This function is really a hard requirement -- as soon as this function got called, it's an error for this task to talk to the
     parser at all.
     */
-    virtual void die();
+    virtual void die(const QString &message);
 
     /** @short Abort the current activity of this task in a safe manner
 
@@ -142,7 +142,7 @@ protected:
     virtual void _failed(const QString &errorMessage);
 
     /** @short Kill all pending tasks that are waiting for this one to success */
-    virtual void killAllPendingTasks();
+    virtual void killAllPendingTasks(const QString &message);
 
     /** @short Get a debug logger associated with this task
 

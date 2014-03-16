@@ -234,15 +234,15 @@ void ImapTask::_completed()
 void ImapTask::_failed(const QString &errorMessage)
 {
     _finished = true;
-    killAllPendingTasks();
+    killAllPendingTasks(errorMessage);
     log(QString::fromUtf8("Failed: %1").arg(errorMessage));
     emit failed(errorMessage);
 }
 
-void ImapTask::killAllPendingTasks()
+void ImapTask::killAllPendingTasks(const QString &message)
 {
     Q_FOREACH(ImapTask *task, dependentTasks) {
-        task->die();
+        task->die(message);
     }
 }
 
@@ -277,11 +277,11 @@ bool ImapTask::isReadyToRun() const
     return false;
 }
 
-void ImapTask::die()
+void ImapTask::die(const QString &message)
 {
     _dead = true;
     if (!_finished)
-        _failed("Asked to die");
+        _failed(message);
 }
 
 void ImapTask::abort()

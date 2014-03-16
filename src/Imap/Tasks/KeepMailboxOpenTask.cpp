@@ -155,6 +155,8 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
 
     CHECK_TASK_TREE
     emit model->mailboxSyncingProgress(mailboxIndex, STATE_WAIT_FOR_CONN);
+
+    connect(this, SIGNAL(failed(QString)), this, SLOT(signalSyncFailure(QString)));
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
@@ -164,7 +166,7 @@ void KeepMailboxOpenTask::slotPerformConnection()
     Q_ASSERT(!synchronizeConn->isFinished());
     if (_dead) {
         _failed("Asked to die");
-        synchronizeConn->die();
+        synchronizeConn->die(QLatin1String("KeepMailboxOpenTask died before the sync started"));
         return;
     }
 
@@ -246,7 +248,7 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
     if (!model->m_parsers.contains(parser)) {
         // The parser is gone; we have to get out of here ASAP
         _failed("Parser is gone");
-        die();
+        die("Parser is gone");
         return;
     }
     // FIXME: abort/die
@@ -549,10 +551,8 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
             mailbox->saveSyncStateAndUids(model);
         }
 
-        if (resp->kind == Responses::OK) {
-            // FIXME: anything to do here?
-        } else {
-            // FIXME: handling of failure...
+        if (resp->kind != Responses::OK) {
+            _failed(QLatin1String("FETCH of new arrivals failed: ") + resp->message);
         }
         // Don't forget to resume IDLE, if desired; that's easiest by simply behaving as if a "task" has just finished
         slotTaskDeleted(0);
@@ -563,7 +563,7 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
             m_deleteCurrentMailboxTask->perform();
         }
         if (resp->kind != Responses::OK) {
-            // FIXME: error handling? What is reasonable here?
+            _failed(QLatin1String("CLOSE failed: ") + resp->message);
         }
         terminate();
         return true;
@@ -607,15 +607,18 @@ void KeepMailboxOpenTask::detachFromMailbox()
         if (mailbox->maintainingTask == this)
             mailbox->maintainingTask = 0;
     }
+    if (model->accessParser(parser).maintainingTask == this) {
+        model->accessParser(parser).maintainingTask = 0;
+    }
 }
 
 /** @short Reimplemented from ImapTask
 
 We're aksed to die right now, so we better take any depending stuff with us. That poor tasks are not going to outlive me!
 */
-void KeepMailboxOpenTask::die()
+void KeepMailboxOpenTask::die(const QString &message)
 {
-    ImapTask::die();
+    ImapTask::die(message);
     detachFromMailbox();
 }
 
@@ -623,16 +626,16 @@ void KeepMailboxOpenTask::die()
 
 Reimplemented from the ImapTask.
 */
-void KeepMailboxOpenTask::killAllPendingTasks()
+void KeepMailboxOpenTask::killAllPendingTasks(const QString &message)
 {
     Q_FOREACH(ImapTask *task, dependingTasksForThisMailbox) {
-        task->die();
+        task->die(message);
     }
     Q_FOREACH(ImapTask *task, dependingTasksNoMailbox) {
-        task->die();
+        task->die(message);
     }
     Q_FOREACH(ImapTask *task, waitingObtainTasks) {
-        task->die();
+        task->die(message);
     }
 }
 
@@ -654,7 +657,7 @@ void KeepMailboxOpenTask::stopForLogout()
 {
     abort();
     breakOrCancelPossibleIdle();
-    killAllPendingTasks();
+    killAllPendingTasks(tr("Logging off..."));
 }
 
 bool KeepMailboxOpenTask::handleFlags(const Imap::Responses::Flags *const resp)
@@ -866,9 +869,7 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
 
 void KeepMailboxOpenTask::slotUnselected()
 {
-    if (model->accessParser(parser).maintainingTask == this)
-        model->accessParser(parser).maintainingTask = 0;
-
+    detachFromMailbox();
     isRunning = true;
     shouldExit = true;
     _failed("UNSELECTed");
@@ -967,6 +968,19 @@ void KeepMailboxOpenTask::saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox
 void KeepMailboxOpenTask::closeMailboxDestructively()
 {
     tagClose = parser->close();
+}
+
+/** @short Let the model know that a mailbox synchronization has failed */
+void KeepMailboxOpenTask::signalSyncFailure(const QString &message)
+{
+    if (!mailboxIndex.isValid()) {
+        // Well, that mailbox is no longer there; perhaps this is because the list of mailboxes got replaced.
+        // Seems that there's nothing to report here.
+        return;
+    }
+
+    // FIXME: this is sooooo wrong; it will complain even on going offline, etc :(
+    //emit model->mailboxSyncFailed(mailboxIndex.data(RoleMailboxName).toString(), message);
 }
 
 

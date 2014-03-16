@@ -688,6 +688,7 @@ void MainWindow::setupModels()
 
     connect(imapModel(), SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)));
     connect(imapModel(), SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)));
+    connect(imapModel(), SIGNAL(mailboxSyncFailed(QString,QString)), this, SLOT(slotMailboxSyncFailed(QString,QString)));
 
     connect(imapModel(), SIGNAL(logged(uint,Common::LogMessage)), imapLogger, SLOT(slotImapLogged(uint,Common::LogMessage)));
 
@@ -1560,6 +1561,12 @@ void MainWindow::slotMailboxCreateFailed(const QString &mailbox, const QString &
 {
     QMessageBox::warning(this, tr("Can't create mailbox"),
                          tr("Creating mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
+}
+
+void MainWindow::slotMailboxSyncFailed(const QString &mailbox, const QString &msg)
+{
+    QMessageBox::warning(this, tr("Can't open mailbox"),
+                         tr("Opening mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
 }
 
 void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)

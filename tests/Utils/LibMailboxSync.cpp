@@ -552,6 +552,15 @@ void LibMailboxSync::justKeepTask()
     QVERIFY(keepTask->newArrivalsFetch.isEmpty());
 }
 
+/** @short Check that there are no tasks associated with the single parser */
+void LibMailboxSync::checkNoTasks()
+{
+    QCOMPARE(model->taskModel()->rowCount(), 1);
+    QModelIndex parser1 = model->taskModel()->index(0, 0);
+    QVERIFY(parser1.isValid());
+    QCOMPARE(model->taskModel()->rowCount(parser1), 0);
+}
+
 /** @short Find an item within a tree identified by a "path"
 
 Based on a textual "path" like "1.2.3" or "6", find an index within the model which corresponds to that location.

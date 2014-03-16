@@ -385,6 +385,8 @@ signals:
     void mailboxDeletionSucceded(const QString &mailbox);
     /** @short Mailbox deletion failed */
     void mailboxDeletionFailed(const QString &mailbox, const QString &message);
+    /** @short Got an error while syncing a mailbox */
+    void mailboxSyncFailed(const QString &mailbox, const QString &message);
 
     /** @short Inform the GUI about the progress of a connection */
     void connectionStateChanged(QObject *parser, Imap::ConnectionState state);   // got to use fully qualified namespace here

@@ -59,7 +59,7 @@ void OfflineConnectionTask::perform()
 /** @short A slot for the die() */
 void OfflineConnectionTask::slotDie()
 {
-    die();
+    die(tr("Offline"));
     deleteLater();
     model->killParser(parser, Model::PARSER_KILL_EXPECTED);
     model->m_parsers.remove(parser);

@@ -50,6 +50,7 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask(Model *model, const
     CHECK_TASK_TREE
     addDependentTask(keepTaskChild);
     CHECK_TASK_TREE
+    connect(this, SIGNAL(failed(QString)), this, SLOT(signalSyncFailure(QString)));
 }
 
 void ObtainSynchronizedMailboxTask::addDependentTask(ImapTask *task)
@@ -68,7 +69,7 @@ void ObtainSynchronizedMailboxTask::perform()
     if (_dead || _aborted) {
         // We're at the very start, so let's try to abort in a sane way
         _failed("Asked to abort or die");
-        die();
+        die(tr("Mailbox syncing dead or aborted"));
         return;
     }
 
@@ -144,8 +145,7 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             Q_ASSERT(status == STATE_SELECTING);
             finalizeSelect();
         } else {
-            _failed("SELECT failed");
-            // FIXME: error handling
+            _failed(QLatin1String("SELECT failed: ") + resp->message);
             model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
         }
         return true;
@@ -161,8 +161,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             Q_ASSERT(mailbox);
             syncFlags(mailbox);
         } else {
-            _failed("UID syncing failed");
-            // FIXME: error handling
+            _failed(QLatin1String("UID syncing failed: ") + resp->message);
+            // FIXME: UNSELECT?
         }
         return true;
     } else if (resp->tag == flagsCmd) {
@@ -187,8 +187,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
             }
         } else {
             status = STATE_DONE;
-            _failed("Flags synchronization failed");
-            // FIXME: error handling
+            _failed(QLatin1String("Flags synchronization failed: ") + resp->message);
+            // FIXME: UNSELECT?
         }
         emit model->mailboxSyncingProgress(mailboxIndex, status);
         return true;
@@ -206,7 +206,8 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
                 _completed();
             }
         } else {
-            _failed("UID discovery of new arrivals after initial UID sync has failed");
+            _failed(QLatin1String("UID discovery of new arrivals after initial UID sync has failed: ") + resp->message);
+            // FIXME: UNSELECT?
         }
         return true;
 
@@ -1182,6 +1183,18 @@ void ObtainSynchronizedMailboxTask::slotUnSelectCompleted()
 QVariant ObtainSynchronizedMailboxTask::taskData(const int role) const
 {
     return role == RoleTaskCompactName ? QVariant(tr("Synchronizing mailbox")) : QVariant();
+}
+
+/** @short Let the model know that a mailbox synchronization has failed */
+void ObtainSynchronizedMailboxTask::signalSyncFailure(const QString &message)
+{
+    if (!mailboxIndex.isValid()) {
+        // Well, that mailbox is no longer there; perhaps this is because the list of mailboxes got replaced.
+        // Seems that there's nothing to report here.
+        return;
+    }
+
+    emit model->mailboxSyncFailed(mailboxIndex.data(RoleMailboxName).toString(), message);
 }
 
 }
