@@ -549,10 +549,8 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
             mailbox->saveSyncStateAndUids(model);
         }
 
-        if (resp->kind == Responses::OK) {
-            // FIXME: anything to do here?
-        } else {
-            // FIXME: handling of failure...
+        if (resp->kind != Responses::OK) {
+            _failed(QLatin1String("FETCH of new arrivals failed: ") + resp->message);
         }
         // Don't forget to resume IDLE, if desired; that's easiest by simply behaving as if a "task" has just finished
         slotTaskDeleted(0);
@@ -563,7 +561,7 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
             m_deleteCurrentMailboxTask->perform();
         }
         if (resp->kind != Responses::OK) {
-            // FIXME: error handling? What is reasonable here?
+            _failed(QLatin1String("CLOSE failed: ") + resp->message);
         }
         terminate();
         return true;
