@@ -392,6 +392,7 @@ set(libImap_SOURCES
     ${path_Imap}/Model/CombinedCache.cpp
     ${path_Imap}/Model/DragAndDrop.cpp
     ${path_Imap}/Model/DiskPartCache.cpp
+    ${path_Imap}/Model/DummyNetworkWatcher.cpp
     ${path_Imap}/Model/FindInterestingPart.cpp
     ${path_Imap}/Model/FlagsOperation.cpp
     ${path_Imap}/Model/FullMessageCombiner.cpp
@@ -411,6 +412,7 @@ set(libImap_SOURCES
     ${path_Imap}/Model/SpecialFlagNames.cpp
     ${path_Imap}/Model/SQLCache.cpp
     ${path_Imap}/Model/SubtreeModel.cpp
+    ${path_Imap}/Model/SystemNetworkWatcher.cpp
     ${path_Imap}/Model/TaskFactory.cpp
     ${path_Imap}/Model/TaskPresentationModel.cpp
     ${path_Imap}/Model/ThreadingMsgListModel.cpp

@@ -355,6 +355,7 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     imapEnableId->setChecked(s.value(SettingsNames::imapEnableId, true).toBool());
     imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QLatin1String(" ")));
     imapUseSystemProxy->setChecked(s.value(SettingsNames::imapUseSystemProxy, true).toBool());
+    imapNeedsNetwork->setChecked(s.value(SettingsNames::imapNeedsNetwork, true).toBool());
 
     m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
 
@@ -393,6 +394,7 @@ void ImapPage::updateWidgets()
         lay->labelForField(processPath)->setVisible(false);
         imapUseSystemProxy->setVisible(true);
         lay->labelForField(imapUseSystemProxy)->setVisible(true);
+        // the "needs network" can very well apply to accounts using "local process" via SSH, so it is not disabled here
         break;
     default:
         imapHost->setVisible(false);
@@ -456,6 +458,7 @@ void ImapPage::save(QSettings &s)
     s.setValue(SettingsNames::imapStartOffline, startOffline->isChecked());
     s.setValue(SettingsNames::imapEnableId, imapEnableId->isChecked());
     s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QChar(' ')));
+    s.setValue(SettingsNames::imapNeedsNetwork, imapNeedsNetwork->isChecked());
 }
 
 QWidget *ImapPage::asWidget()

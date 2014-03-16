@@ -30,7 +30,9 @@
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Imap/Model/CombinedCache.h"
+#include "Imap/Model/DummyNetworkWatcher.h"
 #include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/SystemNetworkWatcher.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/SocketFactory.h"
@@ -288,7 +290,11 @@ void ImapAccess::doConnect()
     connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
 
-    m_netWatcher = new Imap::Mailbox::NetworkWatcher(this, m_imapModel);
+    if (m_settings->value(Common::SettingsNames::imapNeedsNetwork, true).toBool()) {
+        m_netWatcher = new Imap::Mailbox::SystemNetworkWatcher(this, m_imapModel);
+    } else {
+        m_netWatcher = new Imap::Mailbox::DummyNetworkWatcher(this, m_imapModel);
+    }
     QMetaObject::invokeMethod(m_netWatcher,
                               m_settings->value(Common::SettingsNames::imapStartOffline).toBool() ?
                                   "setNetworkOffline" : "setNetworkOnline",

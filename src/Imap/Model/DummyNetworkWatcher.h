@@ -20,38 +20,24 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TROJITA_IMAP_NETWORKWATCHER_H
-#define TROJITA_IMAP_NETWORKWATCHER_H
+#ifndef TROJITA_IMAP_DUMMYNETWORKWATCHER_H
+#define TROJITA_IMAP_DUMMYNETWORKWATCHER_H
 
-#include <QObject>
-#include "Imap/Model/NetworkPolicy.h"
+#include "Imap/Model/NetworkWatcher.h"
 
 namespace Imap {
 namespace Mailbox {
-class Model;
 
-/** @short Provide network session management to the Model */
-class NetworkWatcher: public QObject
+class DummyNetworkWatcher: public NetworkWatcher
 {
     Q_OBJECT
 public:
-    NetworkWatcher(QObject *parent, Model *model);
+    DummyNetworkWatcher(QObject *parent, Model *model);
 
-    NetworkPolicy desiredNetworkPolicy() const;
-    virtual NetworkPolicy effectiveNetworkPolicy() const = 0;
-
-public slots:
-    virtual void setNetworkOffline();
-    virtual void setNetworkExpensive();
-    virtual void setNetworkOnline();
-
-signals:
-    void effectiveNetworkPolicyChanged();
+    virtual NetworkPolicy effectiveNetworkPolicy() const;
 
 protected:
-    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) = 0;
-    Model *m_model;
-    NetworkPolicy m_desiredPolicy;
+    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy);
 };
 
 }
