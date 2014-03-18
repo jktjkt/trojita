@@ -618,6 +618,13 @@ We're aksed to die right now, so we better take any depending stuff with us. Tha
 */
 void KeepMailboxOpenTask::die(const QString &message)
 {
+    if (shouldExit) {
+        // OK, we're done, and getting killed. This is fine; just don't emit failed()
+        // because we aren't actually failing.
+        // This is a speciality of the KeepMailboxOpenTask because it's the only task
+        // this has a very long life.
+        _finished = true;
+    }
     ImapTask::die(message);
     detachFromMailbox();
 }
@@ -658,6 +665,15 @@ void KeepMailboxOpenTask::stopForLogout()
     abort();
     breakOrCancelPossibleIdle();
     killAllPendingTasks(tr("Logging off..."));
+
+    // We're supposed to go offline. Given that we're a long-running task, I do not consider this a "failure".
+    // In particular, if the initial SELECT has not finished yet, the ObtainSynchronizedMailboxTask would get
+    // killed as well, and hence the mailboxSyncFailed() signal will get emitted.
+    // The worst thing which can possibly happen is that we're in the middle of checking the new arrivals.
+    // That's bad, because we've got unknown UIDs in our in-memory map, which is going to hurt during the next sync
+    // -- but that's something which should be handled elsewhere, IMHO.
+    // Therefore, make sure a subsequent call to die() doesn't propagate a failure.
+    shouldExit = true;
 }
 
 bool KeepMailboxOpenTask::handleFlags(const Imap::Responses::Flags *const resp)
@@ -979,8 +995,13 @@ void KeepMailboxOpenTask::signalSyncFailure(const QString &message)
         return;
     }
 
-    // FIXME: this is sooooo wrong; it will complain even on going offline, etc :(
-    //emit model->mailboxSyncFailed(mailboxIndex.data(RoleMailboxName).toString(), message);
+    if (synchronizeConn) {
+        // Well, we aren't synced yet. We're going to rely on the ObtainSynchronizedMailboxTask's own
+        // emitting of mailboxSyncFailed() to prevent duplicate signals.
+        return;
+    }
+
+    emit model->mailboxSyncFailed(mailboxIndex.data(RoleMailboxName).toString(), message);
 }
 
 
