@@ -253,7 +253,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
             logTrace(parserId, Common::LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QLatin1String("STARTTLS has failed"));
-            EMIT_LATER(this, connectionError, Q_ARG(QString, tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>")));
+            EMIT_LATER(this, networkError, Q_ARG(QString, tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>")));
             setNetworkPolicy(NETWORK_OFFLINE);
             break;
         } catch (Imap::ImapException &e) {
@@ -306,7 +306,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 // going offline...
                 // ... but before that, expect that the connection will get closed soon
                 accessParser(ptr).connState = CONN_STATE_LOGOUT;
-                EMIT_LATER(this, connectionError, Q_ARG(QString, resp->message));
+                EMIT_LATER(this, imapError, Q_ARG(QString, resp->message));
                 setNetworkPolicy(NETWORK_OFFLINE);
             }
             if (accessParser(ptr).parser) {
@@ -1135,7 +1135,7 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
     } else {
         logTrace(ptr->parserId(), Common::LOG_PARSE_ERROR, QString(), resp->message);
         killParser(ptr, PARSER_KILL_EXPECTED);
-        EMIT_LATER(this, connectionError, Q_ARG(QString, resp->message));
+        EMIT_LATER(this, networkError, Q_ARG(QString, resp->message));
         setNetworkPolicy(NETWORK_OFFLINE);
     }
 }
@@ -1175,7 +1175,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                          "<pre>%3\n%4</pre>"
                          ).arg(exceptionClass, errorMessage, line, details);
     }
-    EMIT_LATER(this, connectionError, Q_ARG(QString, message));
+    EMIT_LATER(this, imapError, Q_ARG(QString, message));
     setNetworkPolicy(NETWORK_OFFLINE);
 }
 
@@ -1219,7 +1219,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     if (!uppercaseCaps.contains(QLatin1String("IMAP4REV1"))) {
         changeConnectionState(parser, CONN_STATE_LOGOUT);
         accessParser(parser).logoutCmd = parser->logout();
-        EMIT_LATER(this, connectionError, Q_ARG(QString, tr("We aren't talking to an IMAP4 server")));
+        EMIT_LATER(this, imapError, Q_ARG(QString, tr("We aren't talking to an IMAP4 server")));
         setNetworkPolicy(NETWORK_OFFLINE);
     }
 }

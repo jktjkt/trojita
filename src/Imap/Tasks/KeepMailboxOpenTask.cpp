@@ -871,7 +871,7 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
             // a mailbox is open. There isn't much we could do here; having code for handling this gracefuly is just too much
             // work for little to no benefit.
             // The sane thing is to disconnect from this mailbox.
-            EMIT_LATER(model, connectionError, Q_ARG(QString, tr("The UIDVALIDITY has changed while mailbox is open. Please reconnect.")));
+            EMIT_LATER(model, imapError, Q_ARG(QString, tr("The UIDVALIDITY has changed while mailbox is open. Please reconnect.")));
             model->setNetworkPolicy(NETWORK_OFFLINE);
             return resp->tag.isEmpty();
         }

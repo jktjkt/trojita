@@ -81,8 +81,9 @@ void LibMailboxSync::init()
             QLatin1String("y") << QLatin1String("z");
     }
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
-    errorSpy = new QSignalSpy(model, SIGNAL(connectionError(QString)));
-    connect(model, SIGNAL(connectionError(QString)), this, SLOT(modelSignalsError(QString)));
+    errorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
+    netErrorSpy = new QSignalSpy(model, SIGNAL(networkError(QString)));
+    connect(model, SIGNAL(imapError(QString)), this, SLOT(modelSignalsError(QString)));
     connect(model, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(modelLogged(uint,Common::LogMessage)));
 
     msgListModel = new Imap::Mailbox::MsgListModel(this, model);
@@ -153,6 +154,8 @@ void LibMailboxSync::cleanup()
     QVERIFY( errorSpy->isEmpty() );
     delete errorSpy;
     errorSpy = 0;
+    delete netErrorSpy;
+    netErrorSpy = 0;
     QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
 }
 
@@ -167,6 +170,7 @@ void LibMailboxSync::initTestCase()
     msgListModel = 0;
     threadingModel = 0;
     errorSpy = 0;
+    netErrorSpy = 0;
 }
 
 /** @short Helper: simulate sync of mailbox A that contains some messages from an empty state */

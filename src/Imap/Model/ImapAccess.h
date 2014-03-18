@@ -113,7 +113,8 @@ signals:
 
 public slots:
     void alertReceived(const QString &message);
-    void connectionError(const QString &message);
+    void imapError(const QString &message);
+    void networkError(const QString &message);
     void onCacheError(const QString &message);
     void slotLogged(uint parserId, const Common::LogMessage &message);
     void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);

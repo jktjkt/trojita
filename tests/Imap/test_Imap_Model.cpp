@@ -97,7 +97,7 @@ void ImapModelTest::testInboxCaseSensitivity()
 
 void ImapModelTest::testCreationDeletionHandling()
 {
-    QSignalSpy noParseError( model, SIGNAL(connectionError(QString)) );
+    QSignalSpy noParseError( model, SIGNAL(imapError(QString)) );
     QVERIFY( noParseError.isValid() );
     // Start the conversation
     model->rowCount( QModelIndex() );

@@ -191,7 +191,8 @@ void XtConnect::setupModels()
     m_model->setProperty("trojita-imap-preload-msg-metadata", 0);
 
     connect( m_model, SIGNAL( alertReceived( const QString& ) ), this, SLOT( alertReceived( const QString& ) ) );
-    connect( m_model, SIGNAL( connectionError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
+    connect( m_model, SIGNAL( imapError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
+    connect( m_model, SIGNAL( networkError( const QString& ) ), this, SLOT( connectionError( const QString& ) ) );
     connect(m_model, SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
     connect(m_model, SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
     connect(m_model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),

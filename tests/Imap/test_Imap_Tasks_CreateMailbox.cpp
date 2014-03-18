@@ -41,7 +41,7 @@ void ImapModelCreateMailboxTest::init()
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     createdSpy = new QSignalSpy(model, SIGNAL(mailboxCreationSucceded(QString)));
     failedSpy = new QSignalSpy(model, SIGNAL(mailboxCreationFailed(QString,QString)));
-    errorSpy = new QSignalSpy(model, SIGNAL(connectionError(QString)));
+    errorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
 }
 
 void ImapModelCreateMailboxTest::cleanup()
