@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <sstream>
 #include <QTimer>
+#include "Common/InvokeMethod.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
@@ -1194,7 +1195,7 @@ void ObtainSynchronizedMailboxTask::signalSyncFailure(const QString &message)
         return;
     }
 
-    emit model->mailboxSyncFailed(mailboxIndex.data(RoleMailboxName).toString(), message);
+    EMIT_LATER(model, mailboxSyncFailed, Q_ARG(QString, mailboxIndex.data(RoleMailboxName).toString()), Q_ARG(QString, message));
 }
 
 }
