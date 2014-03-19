@@ -3,7 +3,7 @@
     <param name="scm">git</param>
     <param name="url">git://anongit.kde.org/trojita</param>
     <!--param name="url">https://github.com/jktjkt/trojita.git</param-->
-    <param name="versionprefix">0.4.git</param>
+    <param name="versionprefix">0.4.1.git</param>
     <param name="filename">trojita-nightly</param>
   </service>
   <service name="recompress">
