@@ -21,6 +21,7 @@
 */
 
 #include "ImapTask.h"
+#include "Common/InvokeMethod.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/TaskPresentationModel.h"
 #include "KeepMailboxOpenTask.h"
@@ -252,7 +253,7 @@ void ImapTask::handleResponseCode(const Imap::Responses::State *const resp)
     // Check for common stuff like ALERT and CAPABILITIES update
     switch (resp->respCode) {
     case ALERT:
-        emit model->alertReceived(tr("The server sent the following ALERT:\n%1").arg(resp->message));
+        EMIT_LATER(model, alertReceived, Q_ARG(QString, tr("The server sent the following ALERT:\n%1").arg(resp->message)));
         break;
     case CAPABILITIES:
     {
