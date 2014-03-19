@@ -102,6 +102,7 @@ protected:
     Imap::Mailbox::TestingTaskFactory* taskFactoryUnsafe;
     QMap<QString,QStringList> fakeListChildMailboxesMap;
     QSignalSpy* errorSpy;
+    QSignalSpy* netErrorSpy;
 
     QPersistentModelIndex idxA, idxB, idxC, msgListA, msgListB, msgListC;
     TagGenerator t;

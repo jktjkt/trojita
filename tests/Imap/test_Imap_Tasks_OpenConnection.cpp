@@ -63,7 +63,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     completedSpy = new QSignalSpy(task, SIGNAL(completed(Imap::Mailbox::ImapTask*)));
     failedSpy = new QSignalSpy(task, SIGNAL(failed(QString)));
     authSpy = new QSignalSpy(model, SIGNAL(authRequested()));
-    connErrorSpy = new QSignalSpy(model, SIGNAL(connectionError(QString)));
+    connErrorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
     startTlsUpgradeSpy = new QSignalSpy(model, SIGNAL(requireStartTlsInFuture()));
 }
 

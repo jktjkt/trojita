@@ -346,8 +346,12 @@ signals:
     */
     void networkPolicyChanged();
 
-    /** @short A connection error has been encountered */
-    void connectionError(const QString &message);
+    /** @short Something bad happened to the network connectivity */
+    void networkError(const QString &message);
+
+    /** @short An error at the application layer, e.g. an IMAP error, synchronization error, etc */
+    void imapError(const QString &message);
+
     /** @short The server requests the user to authenticate
 
     The user is expected to file username and password through setting the "imapUser" and "imapPassword" properties.  The imapUser

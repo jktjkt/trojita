@@ -52,7 +52,8 @@ PageStackWindow {
     }
 
     function connectModels() {
-        imapAccess.imapModel.connectionError.connect(showConnectionError)
+        imapAccess.imapModel.imapError.connect(showConnectionError)
+        imapAccess.imapModel.networkError.connect(showConnectionError)
         imapAccess.imapModel.alertReceived.connect(showImapAlert)
         imapAccess.imapModel.authRequested.connect(requestingPassword)
         imapAccess.imapModel.authAttemptFailed.connect(authAttemptFailed)

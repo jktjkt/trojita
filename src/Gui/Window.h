@@ -121,7 +121,8 @@ private slots:
     void slotShowSettings();
     void slotShowImapInfo();
     void slotExpunge();
-    void connectionError(const QString &message);
+    void imapError(const QString &message);
+    void networkError(const QString &message);
     void cacheError(const QString &message);
     void authenticationRequested();
     void authenticationFailed(const QString &message);

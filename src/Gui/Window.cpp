@@ -673,7 +673,8 @@ void MainWindow::setupModels()
     connect(m_imapAccess->msgListModel(), SIGNAL(mailboxChanged(QModelIndex)), this, SLOT(slotMailboxChanged(QModelIndex)));
 
     connect(imapModel(), SIGNAL(alertReceived(const QString &)), this, SLOT(alertReceived(const QString &)));
-    connect(imapModel(), SIGNAL(connectionError(const QString &)), this, SLOT(connectionError(const QString &)));
+    connect(imapModel(), SIGNAL(imapError(const QString &)), this, SLOT(imapError(const QString &)));
+    connect(imapModel(), SIGNAL(networkError(const QString &)), this, SLOT(networkError(const QString &)));
     connect(imapModel(), SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
     connect(imapModel(), SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
     connect(m_imapAccess, SIGNAL(checkSslPolicy()), this, SLOT(checkSslPolicy()), Qt::QueuedConnection);
@@ -996,13 +997,18 @@ void MainWindow::alertReceived(const QString &message)
     QMessageBox::warning(this, tr("IMAP Alert"), message);
 }
 
-void MainWindow::connectionError(const QString &message)
+void MainWindow::imapError(const QString &message)
+{
+    QMessageBox::critical(this, tr("IMAP Protocol Error"), message);
+    // Show the IMAP logger -- maybe some user will take that as a hint that they shall include it in the bug report.
+    // </joke>
+    showImapLogger->setChecked(true);
+}
+
+void MainWindow::networkError(const QString &message)
 {
     if (m_settings->contains(Common::SettingsNames::imapMethodKey)) {
-        QMessageBox::critical(this, tr("Connection Error"), message);
-        // Show the IMAP logger -- maybe some user will take that as a hint that they shall include it in the bug report.
-        // </joke>
-        showImapLogger->setChecked(true);
+        QMessageBox::critical(this, tr("Network Error"), message);
     } else {
         // hack: this slot is called even on the first run with no configuration
         // We shouldn't have to worry about that, since the dialog is already scheduled for calling

@@ -82,9 +82,14 @@ void ImapAccess::alertReceived(const QString &message)
     qDebug() << "alertReceived" << message;
 }
 
-void ImapAccess::connectionError(const QString &message)
+void ImapAccess::imapError(const QString &message)
 {
-    qDebug() << "connectionError" << message;
+    qDebug() << "imapError" << message;
+}
+
+void ImapAccess::networkError(const QString &message)
+{
+    qDebug() << "networkError" << message;
 }
 
 void ImapAccess::slotLogged(uint parserId, const Common::LogMessage &message)
@@ -285,7 +290,8 @@ void ImapAccess::doConnect()
     m_imapModel->setCapabilitiesBlacklist(m_settings->value(Common::SettingsNames::imapBlacklistedCapabilities).toStringList());
     m_imapModel->setProperty("trojita-imap-enable-id", m_settings->value(Common::SettingsNames::imapEnableId, true).toBool());
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
-    connect(m_imapModel, SIGNAL(connectionError(QString)), this, SLOT(connectionError(QString)));
+    connect(m_imapModel, SIGNAL(imapError(QString)), this, SLOT(imapError(QString)));
+    connect(m_imapModel, SIGNAL(networkError(QString)), this, SLOT(networkError(QString)));
     //connect(m_imapModel, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(slotLogged(uint,Common::LogMessage)));
     connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
