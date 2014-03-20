@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+X-Ubuntu-Touch=true
+Name=Trojitá
+Exec=./trojita
+Icon=/usr/share/icons/hicolor/80x80/apps/trojita80.png
+Name[en_GB]=Trojitá

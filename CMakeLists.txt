@@ -1,3 +1,8 @@
+if(WITH_UBUNTU)
+    set(WITH_DESKTOP OFF)
+    set(WITH_QT5 ON)
+endif()
+
 if(WITH_QT5)
     # The Qt5's qt5_use_modules is only available on 2.8.9 or later -- sweet, isn't it?
     cmake_minimum_required(VERSION 2.8.9)
@@ -37,6 +42,7 @@ include(TrojitaOption)
 
 trojita_option(WITH_DESKTOP "Build desktop version" ON)
 trojita_option(WITH_HARMATTAN "Build MeeGo Harmattan version" OFF "NOT WITH_DESKTOP")
+trojita_option(WITH_UBUNTU "Build for the Ubuntu SDK" OFF "NOT WITH_DESKTOP;WITH_QT5")
 trojita_option(WITH_QT5 "Build with Qt5 library" OFF)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
@@ -62,6 +68,11 @@ if(WITH_QT5)
     endif()
     if(Qt5LinguistTools_FOUND)
         find_package(Qt5LinguistForTrojita)
+    endif()
+    if(WITH_UBUNTU)
+        message(STATUS "Building the Ubuntu Components GUI")
+        find_package(Qt5Quick REQUIRED)
+        find_package(Qt5Qml REQUIRED)
     endif()
 else()
     message(STATUS "Building the Qt4 version")
@@ -501,6 +512,10 @@ set(trojitaHarmattan_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan/qmlapplicationviewer/qmlapplicationviewer.cpp
 )
 
+set(trojitaUbuntu_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/Ubuntu/main.cpp
+)
+
 if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
     file(GLOB_RECURSE lang_PO "${CMAKE_CURRENT_SOURCE_DIR}/po/trojita_common_*.po")
     if(WITH_QT5)
@@ -648,6 +663,16 @@ elseif(WITH_HARMATTAN)
         ${QT_QTSQL_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTWEBKIT_LIBRARY} ${QT_QTDECLARATIVE_LIBRARY})
 endif()
 
+#// add the Ubuntu Libs Here ALSO
+if(WITH_UBUNTU)
+    add_executable(trojita ${trojitaUbuntu_SOURCES})
+
+    set_property(TARGET trojita APPEND PROPERTY INCLUDE_DIRECTORIES
+        ${QT_MKSPECS_DIR}/default ${CMAKE_CURRENT_SOURCE_DIR}/src/Ubuntu)
+
+    target_link_libraries(trojita AppVersion Imap MSA Streams qwwsmtpclient Common Composer )
+endif()
+
 if(WITH_QT5)
     qt5_use_modules(AppVersion Core)
     qt5_use_modules(Common Core Network)
@@ -656,11 +681,16 @@ if(WITH_QT5)
     qt5_use_modules(MSA Network)
     qt5_use_modules(Composer Gui Network)
     qt5_use_modules(Imap Gui Network Sql)
-    qt5_use_modules(DesktopGui Network WebKitWidgets)
-    qt5_use_modules(AbookAddressbook Widgets)
-    qt5_use_modules(be.contacts Widgets)
-    qt5_use_modules(trojita Widgets Network)
+    if (WITH_DESKTOP)
+        qt5_use_modules(DesktopGui Network WebKitWidgets)
+        qt5_use_modules(AbookAddressbook Widgets)
+        qt5_use_modules(be.contacts Widgets)
+        qt5_use_modules(trojita Widgets Network)
+    elseif(WITH_UBUNTU)
+        qt5_use_modules(trojita Network Core Qml Quick)
+    endif()
 endif()
+
 
 if(WITH_SHARED_PLUGINS)
     install(TARGETS Plugins DESTINATION ${CMAKE_INSTALL_LIBDIR})
@@ -671,6 +701,48 @@ if(WITH_DESKTOP)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/trojita.desktop DESTINATION share/applications/)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.png DESTINATION share/icons/hicolor/32x32/apps/)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.svg DESTINATION share/icons/hicolor/scalable/apps/)
+endif()
+
+if(WITH_UBUNTU)
+    set(TROJITA_UBUNTU_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/Ubuntu)
+    set(UBUNTU_QMLS
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/AddressWidget.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/OneMessagePage.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/icon-m-settings-keychain.svg
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/ImapSettings.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/PasswordInputSheet.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/MailboxListPage.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/PercentageSectionScroller.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/SslSheet.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/main.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/MessageListPage.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/Utils.js
+    )
+    #make QML visable to QtCreator
+    add_custom_target(
+        components_QmlFiles
+        ALL SOURCES ${UBUNTU_QMLS}
+    )
+    file(COPY ${UBUNTU_QMLS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/qml/trojita)
+
+    install(
+        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qml
+        DESTINATION share/trojita
+    )
+
+    install(
+        TARGETS trojita
+        RUNTIME DESTINATION bin
+    )
+    install(
+        FILES ${TROJITA_UBUNTU_PATH}/trojita.desktop
+        DESTINATION share/applications
+    )
+
+    install(
+        FILES ${TROJITA_UBUNTU_PATH}/trojita.png
+        DESTINATION share/icons/hicolor/48x48/apps
+    )
 endif()
 
 if(WITH_HARMATTAN)
