@@ -153,6 +153,17 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     {
         switch (resp->kind) {
         case PREAUTH:
+            if (model->m_startTls) {
+                // Oops, we cannot send STARTTLS when the connection is already authenticated.
+                // This is serious enough to warrant an error; an attacker might be going after a plaintext
+                // of a message we're going to APPEND, etc.
+                // Thanks to Arnt Gulbrandsen on the imap-protocol ML for asking what happens when we're configured
+                // to request STARTTLS and a PREAUTH is received, and to Michael M Slusarz for starting that discussion.
+                logout(tr("Configuration requires sending STARTTLS, but the IMAP server greets us with PREAUTH. "
+                          "Encryption cannot be established. If this configuration worked previously, someone "
+                          "is after your data and they are pretty smart."));
+                return true;
+            }
             // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
             if (model->accessParser(parser).capabilitiesFresh) {
                 // We're alsmost done here, apart from compression

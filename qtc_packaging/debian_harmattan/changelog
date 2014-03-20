@@ -1,3 +1,8 @@
+trojita-tp (0.4.1) unstable; urgency=low
+  * Fix security problem, an information leak with STARTTLS and PREAUTH
+
+ -- Jan Kundrát <jkt@flaska.net>  Wed, 19 Mar 2014 08:00:00 -0400
+
 trojita-tp (0.4) unstable; urgency=low
   * <Add change description here>
 

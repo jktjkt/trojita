@@ -16,7 +16,7 @@
 #
  
 Name:           trojita
-Version:        0.4
+Version:        0.4.1
 Release:        1
 # Almost everything: dual-licensed under the GPLv2 or GPLv3
 # (with KDE e.V. provision for relicensing)

@@ -39,6 +39,7 @@ private slots:
 
     void testPreauth();
     void testPreauthWithCapability();
+    void testPreauthWithStartTlsWanted();
 
     void testOk();
     void testOkWithCapability();

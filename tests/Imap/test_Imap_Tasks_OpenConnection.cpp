@@ -129,6 +129,19 @@ void ImapModelOpenConnectionTest::testPreauthWithCapability()
     QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
+/** @short What happens when the server responds with PREAUTH and we want STARTTLS? */
+void ImapModelOpenConnectionTest::testPreauthWithStartTlsWanted()
+{
+    cleanup(); init(true); // yuck, but I can't come up with anything better...
+
+    cEmpty();
+    cServer("* PREAUTH hi there\r\n");
+    QCOMPARE(failedSpy->size(), 1);
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    QVERIFY(startTlsUpgradeSpy->isEmpty());
+}
+
 /** @short Test for obtaining capability and logging in without any STARTTLS */
 void ImapModelOpenConnectionTest::testOk()
 {
