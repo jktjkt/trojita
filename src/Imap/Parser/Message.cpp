@@ -738,11 +738,12 @@ void AbstractMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
     // Filename and content-disposition
     if (!bodyFldDsp.first.isNull()) {
         p->setBodyDisposition(bodyFldDsp.first);
-        QString filename = Imap::extractRfc2231Param(bodyFldDsp.second, "FILENAME");
-        if (filename.isEmpty()) {
-            filename = Imap::extractRfc2231Param(bodyFldParam, "NAME");
-        }
-        p->setFileName(filename);
+        p->setFileName(Imap::extractRfc2231Param(bodyFldDsp.second, "FILENAME"));
+    }
+    // Try to look for the obsolete "name" right in the Content-Type header (as parsed by the IMAP server) as a fallback
+    // As per Thomas' suggestion, an empty-but-specified filename is happily overwritten here by design.
+    if (p->fileName().isEmpty()) {
+        p->setFileName(Imap::extractRfc2231Param(bodyFldParam, "NAME"));
     }
 }
 

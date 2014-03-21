@@ -209,6 +209,17 @@ QByteArray bsManyPlaintexts("(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
                             "(\"plain\" \"plain\" () NIL NIL \"base64\" 0)"
                             " \"mixed\"");
 
+QByteArray bsEvernote("((\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 125 0 NIL NIL NIL NIL)"
+                      "(\"text\" \"html\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 284 11 NIL NIL NIL NIL) "
+                      "\"alternative\" (\"boundary\" \"----------6C67657367910D\") NIL NIL NIL)"
+                      "(\"application\" \"octet-stream\" (\"name\" \"CAN0000009221(1)\") "
+                      "\"<008101cf443f$421f4e10$02bfc0bf@99H45HF>\" NIL \"base64\" 288 NIL NIL NIL NIL) "
+                      "\"mixed\" (\"boundary\" \"----------6B22D2B9A32361\") NIL NIL NIL");
+const QByteArray bsPlaintextWithFilenameAsName("\"text\" \"plain\" (\"namE\" \"pwn.txt\") NIL NIL NIL 19 2 NIL NIL NIL NIL");
+const QByteArray bsPlaintextWithFilenameAsFilename("\"text\" \"plain\" NIL NIL NIL NIL 19 2 NIL (\"inline\" (\"filenaMe\" \"pwn.txt\")) NIL NIL NIL");
+const QByteArray bsPlaintextWithFilenameAsBoth("\"text\" \"plain\" (\"name\" \"canary\") NIL NIL NIL 19 2 NIL (\"this is not recognized\" (\"filename\" \"pwn.txt\")) NIL NIL NIL");
+const QByteArray bsPlaintextEmptyFilename("\"text\" \"plain\" (\"name\" \"actual\") NIL NIL NIL 19 2 NIL (\"attachment\" (\"filename\" \"\")) NIL NIL NIL");
+
 void BodyPartsTest::testPartIds_data()
 {
     QTest::addColumn<QByteArray>("bodystructure");
@@ -477,6 +488,56 @@ void BodyPartsTest::testFetchingRawParts()
     QVERIFY(model->cache()->messagePart("b", 333, "5").isNull());
     QCOMPARE(model->cache()->messagePart("b", 333, "5.X-RAW"), fakePartData.toBase64());
     cEmpty();
+}
+
+void BodyPartsTest::testFilenameExtraction()
+{
+    QFETCH(QByteArray, bodystructure);
+    QFETCH(QString, partId);
+    QFETCH(QString, filename);
+
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bodystructure + "))\r\n" + t.last("OK fetched\r\n"));
+    QVERIFY(model->rowCount(msg) > 0);
+
+    const QString wherePrefix = QString::number(idxB.row()) + QLatin1Char('.') +
+            QString::number(msgListB.row()) + QLatin1Char('.') + QString::number(msg.row()) + QLatin1Char('.');
+    QCOMPARE(findIndexByPosition(model, wherePrefix.left(wherePrefix.size() - 1)), msg);
+
+    QModelIndex idx = findIndexByPosition(model, wherePrefix + partId);
+    QVERIFY(idx.isValid());
+    QCOMPARE(idx.data(Imap::Mailbox::RolePartFileName).toString(), filename);
+    QVERIFY(errorSpy->isEmpty());
+    cEmpty();
+}
+
+void BodyPartsTest::testFilenameExtraction_data()
+{
+    QTest::addColumn<QByteArray>("bodystructure");
+    QTest::addColumn<QString>("partId");
+    QTest::addColumn<QString>("filename");
+
+
+    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0") << QString(); // multipart/mixed
+    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0.0") << QString(); // multipart/alternative
+    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0.0.0") << QString(); // text/plain
+    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0.0.1") << QString(); // text/html
+    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0.1") << QString::fromUtf8("CAN0000009221(1)"); // application/octet-stream
+
+    QTest::newRow("plaintext-just-filename") << bsPlaintextWithFilenameAsFilename << QString::number(0) << QString::fromUtf8("pwn.txt");
+    QTest::newRow("plaintext-just-obsolete-name") << bsPlaintextWithFilenameAsName << QString::number(0) << QString::fromUtf8("pwn.txt");
+    QTest::newRow("plaintext-filename-preferred-over-name") << bsPlaintextWithFilenameAsBoth << QString::number(0) << QString::fromUtf8("pwn.txt");
+    QTest::newRow("name-overwrites-empty-filename") << bsPlaintextEmptyFilename << QString::number(0) << QString::fromUtf8("actual");
 }
 
 TROJITA_HEADLESS_TEST(BodyPartsTest)
