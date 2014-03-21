@@ -176,11 +176,12 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
         }
 
         ImapTask *task = static_cast<ImapTask *>(index.internalPointer());
-        if (dynamic_cast<KeepMailboxOpenTask *>(task) || dynamic_cast<GetAnyConnectionTask *>(task) ||
-            dynamic_cast<UnSelectTask *>(task)) {
+        if (dynamic_cast<GetAnyConnectionTask *>(task) || dynamic_cast<UnSelectTask *>(task)) {
             // Internal, auxiliary tasks
-            // FIXME: revisit this for the KeepMailboxOpenTask; it *can* perform a certain activity after all
             return false;
+        } else if (auto keep = dynamic_cast<KeepMailboxOpenTask *>(task)) {
+            // KeepMailboxOpenTask might be actually busy
+            return keep->hasItsOwnActivity();
         } else if (dynamic_cast<SortTask *>(task) && dynamic_cast<SortTask *>(task)->isJustUpdatingNow()) {
             // This is a persistent task responsible for further maintenance of the sort order
             return false;

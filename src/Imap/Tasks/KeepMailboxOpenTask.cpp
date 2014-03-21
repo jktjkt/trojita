@@ -27,6 +27,7 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/TaskFactory.h"
+#include "Imap/Model/TaskPresentationModel.h"
 #include "DeleteMailboxTask.h"
 #include "FetchMsgMetadataTask.h"
 #include "FetchMsgPartTask.h"
@@ -440,6 +441,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
                                                 // but prevent a possible invalid 0:*
                                                 qMax(mailbox->syncState.uidNext(), 1u)
                                             ), QStringList() << QLatin1String("FLAGS")));
+        model->m_taskModel->slotTaskMighHaveChanged(this);
         return true;
     } else if (resp->kind == Imap::Responses::RECENT) {
         mailbox->syncState.setRecent(resp->number);
@@ -556,6 +558,7 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         }
         // Don't forget to resume IDLE, if desired; that's easiest by simply behaving as if a "task" has just finished
         slotTaskDeleted(0);
+        model->m_taskModel->slotTaskMighHaveChanged(this);
         return true;
     } else if (resp->tag == tagClose) {
         tagClose.clear();
@@ -1004,6 +1007,14 @@ void KeepMailboxOpenTask::signalSyncFailure(const QString &message)
     EMIT_LATER(model, mailboxSyncFailed, Q_ARG(QString, mailboxIndex.data(RoleMailboxName).toString()), Q_ARG(QString, message));
 }
 
+/** @short Is this task on its own keeping the connection busy?
+
+Right now, only fetching of new arrivals is being done in the context of this KeepMailboxOpenTask task.
+*/
+bool KeepMailboxOpenTask::hasItsOwnActivity() const
+{
+    return !newArrivalsFetch.isEmpty();
+}
 
 }
 }

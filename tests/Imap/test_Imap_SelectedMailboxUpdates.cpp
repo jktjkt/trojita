@@ -700,7 +700,11 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivals()
     initialMessages(1);
     auto oldState = model->cache()->mailboxSyncState(("a"));
     auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    QPersistentModelIndex keepIndex = model->taskModel()->index(0, 0).child(0, 0);
+    QVERIFY(keepIndex.isValid());
+    QCOMPARE(keepIndex.data(Imap::Mailbox::RoleTaskIsVisible), QVariant(false));
     cServer("* 2 EXISTS\r\n* 3 EXISTS\r\n");
+    QCOMPARE(keepIndex.data(Imap::Mailbox::RoleTaskIsVisible), QVariant(true));
     QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
     QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
     QByteArray req1 = t.mk("UID FETCH 2:* (FLAGS)\r\n");
@@ -722,7 +726,9 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivals()
     cServer(resp1);
     QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
     QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
+    QCOMPARE(keepIndex.data(Imap::Mailbox::RoleTaskIsVisible), QVariant(true));
     cServer(resp2);
+    QCOMPARE(keepIndex.data(Imap::Mailbox::RoleTaskIsVisible), QVariant(false));
     uidMapA << 2 << 3;
     existsA = 3;
     uidNextA = 4;

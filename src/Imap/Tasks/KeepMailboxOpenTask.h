@@ -157,6 +157,8 @@ public:
 
     void feelFreeToAbortCaller(ImapTask *task);
 
+    bool hasItsOwnActivity() const;
+
 private slots:
     void slotTaskDeleted(QObject *object);
 
