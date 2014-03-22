@@ -46,5 +46,7 @@
         <file>icons/trojita-edit-big.png</file>
         <file>icons/mail-view-threaded.png</file>
         <file>icons/mail-view-flat.png</file>
+        <file>icons/mail-flagged.png</file>
+        <file>icons/mail-unflagged.png</file>
     </qresource>
 </RCC>
