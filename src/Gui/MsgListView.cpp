@@ -121,6 +121,7 @@ int MsgListView::sizeHintForColumn(int column) const
     QFontMetrics metric(boldFont);
     switch (column) {
     case Imap::Mailbox::MsgListModel::SEEN:
+    case Imap::Mailbox::MsgListModel::FLAGGED:
         return 16;
     case Imap::Mailbox::MsgListModel::SUBJECT:
         return metric.size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar Random Text")).width();
@@ -268,6 +269,7 @@ QHeaderView::ResizeMode MsgListView::resizeModeForColumn(const int column) const
     case Imap::Mailbox::MsgListModel::SUBJECT:
         return QHeaderView::Stretch;
     case Imap::Mailbox::MsgListModel::SEEN:
+    case Imap::Mailbox::MsgListModel::FLAGGED:
         return QHeaderView::Fixed;
     default:
         return QHeaderView::Interactive;
@@ -317,6 +319,9 @@ void MsgListView::slotUpdateHeaderActions()
             // This column doesn't have a textual description
             action->setText(tr("Seen status"));
             break;
+        case Imap::Mailbox::MsgListModel::FLAGGED:
+            action->setText(tr("Flagged status"));
+            break;
         case Imap::Mailbox::MsgListModel::TO:
         case Imap::Mailbox::MsgListModel::CC:
         case Imap::Mailbox::MsgListModel::BCC:
@@ -341,6 +346,12 @@ void MsgListView::slotUpdateHeaderActions()
 void MsgListView::slotHandleNewColumns(int oldCount, int newCount)
 {
     for (int i = oldCount; i < newCount; ++i) {
+        switch(i) {
+        case Imap::Mailbox::MsgListModel::FLAGGED:
+            header()->moveSection(i,0);
+            break;
+        }
+
         setColumnWidth(i, sizeHintForColumn(i));
     }
 }

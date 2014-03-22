@@ -84,6 +84,7 @@ QHash<int, QByteArray> MsgListModel::roleNames() const
         roleNames[RoleMessageIsMarkedForwarded] = "isMarkedForwarded";
         roleNames[RoleMessageIsMarkedReplied] = "isMarkedReplied";
         roleNames[RoleMessageIsMarkedRecent] = "isMarkedRecent";
+        roleNames[RoleMessageIsMarkedFlagged] = "isMarkedFlagged";
         roleNames[RoleMessageDate] = "date";
         roleNames[RoleMessageInternalDate] = "receivedDate";
         roleNames[RoleMessageFrom] = "from";
@@ -254,6 +255,7 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
     case RoleMessageIsMarkedForwarded:
     case RoleMessageIsMarkedReplied:
     case RoleMessageIsMarkedRecent:
+    case RoleMessageIsMarkedFlagged:
     case RoleMessageDate:
     case RoleMessageFrom:
     case RoleMessageTo:

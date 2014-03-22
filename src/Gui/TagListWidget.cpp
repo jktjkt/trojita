@@ -39,7 +39,7 @@ TagListWidget::TagListWidget(QWidget *parent) :
     m_ignoredFlags.insert(QLatin1String("\\recent"));
     m_ignoredFlags.insert(QLatin1String("\\deleted"));
     m_ignoredFlags.insert(QLatin1String("\\answered"));
-    // We do want to show \Flagged, though
+    m_ignoredFlags.insert(QLatin1String("\\flagged"));
     m_ignoredFlags.insert(QLatin1String("\\draft"));
     m_ignoredFlags.insert(QLatin1String("$mdnsent"));
     m_ignoredFlags.insert(QLatin1String("$forwarded"));

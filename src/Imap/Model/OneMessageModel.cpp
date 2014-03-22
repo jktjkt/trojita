@@ -176,6 +176,11 @@ bool OneMessageModel::isMarkedRecent() const
     return m_message.data(RoleMessageIsMarkedRecent).toBool();
 }
 
+bool OneMessageModel::isMarkedFlagged() const
+{
+    return m_message.data(RoleMessageIsMarkedFlagged).toBool();
+}
+
 QUrl OneMessageModel::mainPartUrl() const
 {
     return m_mainPartUrl;

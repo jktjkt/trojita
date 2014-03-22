@@ -105,6 +105,8 @@ enum {
     RoleMessageIsMarkedReplied,
     /** @short Is the message marked as a recent one? */
     RoleMessageIsMarkedRecent,
+    /** @short Is the message markes as flagged? */
+    RoleMessageIsMarkedFlagged,
     /** @short IMAP flags of a message */
     RoleMessageFlags,
     /** @short Is the current item a root of thread with unread messages */

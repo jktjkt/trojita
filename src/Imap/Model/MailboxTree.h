@@ -285,6 +285,7 @@ public:
     bool isMarkedAsReplied() const;
     bool isMarkedAsForwarded() const;
     bool isMarkedAsRecent() const;
+    bool isMarkedAsFlagged() const;
     uint uid() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
 };
