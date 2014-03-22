@@ -126,7 +126,7 @@ MainView{
                 onCancelClicked:  imapAccess.setSslPolicy(false)
             }
         }
-        //        Acess Granted show MailBox Lists
+        //        Access Granted show MailBox Lists
         MailboxListPage {
             id: mailboxList
             visible: false
