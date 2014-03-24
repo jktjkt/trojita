@@ -48,7 +48,7 @@ class TrojitaAppTestCase(AutopilotTestCase):
         scenarios = [('with touch', dict(input_device_class=Touch))]
 
     local_location_binary = "../trojita"
-    local_main_qml_file = "../qml/trojita/main.qml"
+    local_main_qml_file = "/qml/trojita/main.qml"
     installed_location_binary= "/usr/bin/trojita"
 
     def setUp(self):
@@ -66,7 +66,7 @@ class TrojitaAppTestCase(AutopilotTestCase):
         logger.debug("Launching via local")
         self.app = self.launch_test_application(
             self.local_location_binary,
-            "-a", self.local_main_qml_file,
+            "-q=" + self.local_main_qml_file,
             app_type='qt',
             emulator_base=toolkit_emulators.UbuntuUIToolkitEmulatorBase)
 

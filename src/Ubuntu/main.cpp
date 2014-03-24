@@ -19,13 +19,14 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <algorithm>
-#include <QtGui/QGuiApplication>
-#include <QtQuick/QQuickView>
-#include <QtQml/QtQml>
-#include <QQmlContext>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 #include <QDebug>
+#include <QQmlContext>
 #include <QSettings>
+#include <QtGui/QGuiApplication>
+#include <QtQml/QtQml>
+#include <QtQuick/QQuickView>
 #include "AppVersion/SetCoreApplication.h"
 #include "Common/Application.h"
 #include "Common/MetaTypes.h"
@@ -35,25 +36,34 @@ int main(int argc, char *argv[])
 {
 
     QGuiApplication app(argc, argv);
-    QStringList args = app.arguments();
-    if (args.contains("-h") || args.contains("--help")) {
-        qDebug() << "usage: " + args.at(0) + " [-p|--phone] [-t|--tablet] [-h|--help] [-I <path>]";
-        qDebug() << "    -p|--phone    If running on Desktop, start in a phone sized window.";
-        qDebug() << "    -t|--tablet   If running on Desktop, start in a tablet sized window.";
-        qDebug() << "    -a <qmlfile>  Pass main qmlfile location to enable autopilot to launch trojita";
-        qDebug() << "    -h|--help     Print this help.";
-        return 0;
-    }
+
+    QCommandLineParser parser;
+    parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
+    parser.setApplicationDescription(QGuiApplication::translate("main", "Trojita is a fast Qt IMAP e-mail client"));
+    parser.addHelpOption();
+    QCommandLineOption qmlFileOption(QStringList() << QLatin1String("q") << QLatin1String("qmlfile"), QGuiApplication::translate("main",
+        "Pass main qmlfile location to enable autopilot to launch trojita"), QGuiApplication::translate("main", "qmlfile"), "");
+    parser.addOption(qmlFileOption);
+    QCommandLineOption phoneViewOption(QStringList() << QLatin1String("p") << QLatin1String("phone"), QGuiApplication::translate("main",
+        "If running on Desktop, start in a phone sized window."));
+    parser.addOption(phoneViewOption);
+    QCommandLineOption tabletViewOption(QStringList() << QLatin1String("t") << QLatin1String("tablet"), QGuiApplication::translate("main",
+        "If running on Desktop, start in a tablet sized window."));
+    parser.addOption(tabletViewOption);
+    QCommandLineOption testabilityOption(QLatin1String("testability"), QGuiApplication::translate("main",
+        "DO NOT USE: autopilot sets this automatically"));
+    parser.addOption(testabilityOption);
+    parser.process(app);
 
     QQuickView viewer;
     viewer.setResizeMode(QQuickView::SizeRootObjectToView);
 
     viewer.engine()->rootContext()->setContextProperty("tablet", QVariant(false));
     viewer.engine()->rootContext()->setContextProperty("phone", QVariant(false));
-    if (args.contains("-t") || args.contains("--tablet")) {
+    if (parser.isSet(tabletViewOption)) {
         qDebug() << "running in tablet mode";
         viewer.engine()->rootContext()->setContextProperty("tablet", QVariant(true));
-    } else if (args.contains("-p") || args.contains("--phone")){
+    } else if (parser.isSet(phoneViewOption)) {
         qDebug() << "running in phone mode";
         viewer.engine()->rootContext()->setContextProperty("phone", QVariant(true));
     } else if (qgetenv("QT_QPA_PLATFORM") != "ubuntumirclient") {
@@ -61,31 +71,41 @@ int main(int argc, char *argv[])
         viewer.engine()->rootContext()->setContextProperty("tablet", QVariant(true));
     }
 
-    QString qmlfile;
-    auto optionA = std::find(args.constBegin(), args.constEnd(), QLatin1String("-a"));
-    if (optionA != args.constEnd()) {
-        if (++optionA == args.constEnd()) {
-            qFatal("trojita: option -a needs an argument");
+    if (parser.isSet(testabilityOption) || getenv("QT_LOAD_TESTABILITY")) {
+        QLibrary testLib(QLatin1String("qttestability"));
+        if (testLib.load()) {
+            typedef void (*TasInitialize)(void);
+            TasInitialize initFunction = (TasInitialize)testLib.resolve("qt_testability_init");
+            if (initFunction) {
+                initFunction();
+            } else {
+                qCritical("Library qttestability resolve failed!");
+            }
+        } else {
+            qCritical("Library qttestability load failed!");
         }
-        qmlfile = *optionA;
-    } else {
-        qmlfile = QLatin1String("qml/trojita/main.qml");
     }
 
+    QString qmlfile;
+    QString appPath = QGuiApplication::applicationDirPath();
+    if (parser.isSet(qmlFileOption)) {
+        qmlfile = QString::toUtf8(appPath + parser.value(qmlFileOption));
+    } else {
+        qmlfile = "qml/trojita/main.qml";
+    }
 
     Common::registerMetaTypes();
     Common::Application::name = QString::fromLatin1("trojita");
     AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
 
-
     QSettings s;
     Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
     viewer.engine()->rootContext()->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 
-    qDebug() << "App Dir: " << QCoreApplication::applicationDirPath();
+    qDebug() << "App Dir: " << appPath;
     viewer.setTitle("Trojita");
-    viewer.setSource(QUrl::fromLocalFile(qmlfile));
+    viewer.setSource(QUrl::fromLocalFile(qmlfile.toLatin1()));
     viewer.show();
     return app.exec();
 }
