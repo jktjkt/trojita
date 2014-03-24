@@ -19,6 +19,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include <algorithm>
 #include <QtGui/QGuiApplication>
 #include <QtQuick/QQuickView>
 #include <QtQml/QtQml>
@@ -61,12 +62,14 @@ int main(int argc, char *argv[])
     }
 
     QString qmlfile;
-    if (args.contains("-a")) {
-        qDebug() << "Setting custom main.qml path";
-        qmlfile = args.at(args.indexOf("-a") + 1);
-        qDebug() << qmlfile;
+    auto optionA = std::find(args.constBegin(), args.constEnd(), QLatin1String("-a"));
+    if (optionA != args.constEnd()) {
+        if (++optionA == args.constEnd()) {
+            qFatal("trojita: option -a needs an argument");
+        }
+        qmlfile = *optionA;
     } else {
-        qmlfile = "qml/trojita/main.qml";
+        qmlfile = QLatin1String("qml/trojita/main.qml");
     }
 
 
