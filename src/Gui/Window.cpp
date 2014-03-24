@@ -60,6 +60,7 @@
 #include "Imap/Model/NetworkWatcher.h"
 #include "Imap/Model/PrettyMailboxModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
+#include "Imap/Model/SpecialFlagNames.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/FileDownloadManager.h"
@@ -175,6 +176,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QLatin1String("action_go_to_next_unread"), QLatin1String("arrow-right"), tr("&Next Unread Message"), QLatin1String("N"));
     shortcutHandler->defineAction(QLatin1String("action_go_to_previous_unread"), QLatin1String("arrow-left"), tr("&Previous Unread Message"), QLatin1String("P"));
     shortcutHandler->defineAction(QLatin1String("action_mark_as_deleted"), QLatin1String("list-remove"), tr("Mark as &Deleted"), QKeySequence(Qt::Key_Delete).toString());
+    shortcutHandler->defineAction(QLatin1String("action_mark_as_flagged"), QLatin1String("mail-flagged"), tr("Mark as &Flagged"), QLatin1String("S"));
     shortcutHandler->defineAction(QLatin1String("action_save_message_as"), QLatin1String("document-save"), tr("&Save Message..."));
     shortcutHandler->defineAction(QLatin1String("action_view_message_source"), QString(), tr("View Message &Source..."));
     shortcutHandler->defineAction(QLatin1String("action_view_message_headers"), QString(), tr("View Message &Headers..."), tr("Ctrl+U"));
@@ -323,6 +325,10 @@ void MainWindow::createActions()
     msgListWidget->tree->addAction(markAsDeleted);
     connect(markAsDeleted, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsDeleted(bool)));
 
+    markAsFlagged = ShortcutHandler::instance()->createAction(QLatin1String("action_mark_as_flagged"), this);
+    markAsFlagged->setCheckable(true);
+    connect(markAsFlagged, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsFlagged(bool)));
+
     saveWholeMessage = ShortcutHandler::instance()->createAction(QLatin1String("action_save_message_as"), this, SLOT(slotSaveCurrentMessageBody()), this);
     msgListWidget->tree->addAction(saveWholeMessage);
 
@@ -470,6 +476,7 @@ void MainWindow::createActions()
     m_mainToolbar->addSeparator();
     m_mainToolbar->addAction(markAsRead);
     m_mainToolbar->addAction(markAsDeleted);
+    m_mainToolbar->addAction(markAsFlagged);
     m_mainToolbar->addSeparator();
     m_mainToolbar->addAction(showMenuBar);
     m_mainToolbar->addAction(configSettings);
@@ -889,6 +896,13 @@ void MainWindow::msgListClicked(const QModelIndex &index)
         if (translated == m_messageWidget->messageView->currentMessage()) {
             m_messageWidget->messageView->stopAutoMarkAsRead();
         }
+    } else if (index.column() == Imap::Mailbox::MsgListModel::FLAGGED) {
+        if (!translated.data(Imap::Mailbox::RoleIsFetched).toBool())
+            return;
+
+        Imap::Mailbox::FlagsOperation flagOp = translated.data(Imap::Mailbox::RoleMessageIsMarkedFlagged).toBool() ?
+                                               Imap::Mailbox::FLAG_REMOVE : Imap::Mailbox::FLAG_ADD;
+        imapModel()->setMessageFlags(QModelIndexList() << translated, Imap::Mailbox::FlagNames::flagged, flagOp);
     } else {
         if (m_messageWidget->isVisible() && !m_messageWidget->size().isEmpty()) {
             // isVisible() won't work, the splitter manipulates width, not the visibility state
@@ -951,6 +965,7 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         updateMessageFlags(index);
         actionList.append(markAsRead);
         actionList.append(markAsDeleted);
+        actionList.append(markAsFlagged);
         actionList.append(m_actionMarkMailboxAsRead);
         actionList.append(saveWholeMessage);
         actionList.append(viewMsgSource);
@@ -1271,6 +1286,23 @@ void MainWindow::handleMarkAsDeleted(bool value)
     }
 }
 
+void MainWindow::handleMarkAsFlagged(const bool value)
+{
+    QModelIndexList translatedIndexes;
+    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
+            continue;
+        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
+            continue;
+        translatedIndexes << Imap::deproxifiedIndex(item);
+    }
+    if (translatedIndexes.isEmpty()) {
+        qDebug() << "Model::handleMarkAsFlagged: no valid messages";
+    } else {
+        imapModel()->setMessageFlags(translatedIndexes, Imap::Mailbox::FlagNames::flagged, value ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
+    }
+}
 void MainWindow::slotExpunge()
 {
     imapModel()->expungeMailbox(qobject_cast<Imap::Mailbox::MsgListModel *>(m_imapAccess->msgListModel())->currentMailbox());
@@ -1344,8 +1376,10 @@ void MainWindow::updateMessageFlags(const QModelIndex &index)
     bool okToModify = imapModel()->isNetworkAvailable() && index.isValid() && index.data(Imap::Mailbox::RoleMessageUid).toUInt() > 0;
     markAsRead->setEnabled(okToModify);
     markAsDeleted->setEnabled(okToModify);
+    markAsFlagged->setEnabled(okToModify);
     markAsRead->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
     markAsDeleted->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedDeleted).toBool());
+    markAsFlagged->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedFlagged).toBool());
 }
 
 void MainWindow::updateActionsOnlineOffline(bool online)
@@ -1359,6 +1393,7 @@ void MainWindow::updateActionsOnlineOffline(bool online)
     m_actionMarkMailboxAsRead->setEnabled(online);
     markAsDeleted->setEnabled(online);
     markAsRead->setEnabled(online);
+    markAsFlagged->setEnabled(online);
     showImapCapabilities->setEnabled(online);
     if (!online) {
         m_replyGuess->setEnabled(false);
@@ -1900,6 +1935,7 @@ void MainWindow::slotSortingConfirmed(int column, Qt::SortOrder order)
 
     switch (column) {
     case MsgListModel::SEEN:
+    case MsgListModel::FLAGGED:
     case MsgListModel::COLUMN_COUNT:
     case MsgListModel::BCC:
     case -1:
@@ -2310,6 +2346,8 @@ void MainWindow::applySizesAndState()
         // got to manually update the state of the actions which control the visibility state
         msgListWidget->tree->updateActionsAfterRestoredState();
     }
+
+    connect(msgListWidget->tree->header(), SIGNAL(sectionCountChanged(int,int)), msgListWidget->tree, SLOT(slotHandleNewColumns(int,int)));
 
     if (size-- && !stream.atEnd()) {
         stream >> item;

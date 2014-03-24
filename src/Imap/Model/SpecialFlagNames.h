@@ -37,6 +37,7 @@ struct FlagNames {
     static const QString deleted;
     static const QString forwarded;
     static const QString recent;
+    static const QString flagged;
 };
 
 }

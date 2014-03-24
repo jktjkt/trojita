@@ -1078,6 +1078,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return isMarkedAsReplied();
     case RoleMessageIsMarkedRecent:
         return isMarkedAsRecent();
+    case RoleMessageIsMarkedFlagged:
+        return isMarkedAsFlagged();
     case RoleMessageFuzzyDate:
     {
         // When the QML ListView is configured with its section.* properties, it will call the corresponding data() section *very*
@@ -1210,6 +1212,11 @@ bool TreeItemMessage::isMarkedAsForwarded() const
 bool TreeItemMessage::isMarkedAsRecent() const
 {
     return m_flags.contains(FlagNames::recent);
+}
+
+bool TreeItemMessage::isMarkedAsFlagged() const
+{
+    return m_flags.contains(FlagNames::flagged);
 }
 
 uint TreeItemMessage::uid() const

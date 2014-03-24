@@ -71,7 +71,7 @@ public:
 
     // These columns MUST NOT be reordered. The GUI stores the view state based on their values and any changes will lead to
     // a severe user-visible breakage.
-    enum { SUBJECT, SEEN, FROM, TO, CC, BCC, DATE, RECEIVED_DATE, SIZE, COLUMN_COUNT };
+    enum { SUBJECT, SEEN, FROM, TO, CC, BCC, DATE, RECEIVED_DATE, SIZE, FLAGGED, COLUMN_COUNT };
 
 public slots:
     void resetMe();

@@ -41,7 +41,7 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfte
 {
     connect(header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
-    connect(header(), SIGNAL(sectionCountChanged(int,int)), this, SLOT(slotSectionCountChanged()));
+    connect(header(), SIGNAL(sectionCountChanged(int,int)), this, SLOT(slotUpdateHeaderActions()));
     header()->setContextMenuPolicy(Qt::ActionsContextMenu);
     headerFieldsMapper = new QSignalMapper(this);
     connect(headerFieldsMapper, SIGNAL(mapped(int)), this, SLOT(slotHeaderSectionVisibilityToggled(int)));
@@ -121,6 +121,7 @@ int MsgListView::sizeHintForColumn(int column) const
     QFontMetrics metric(boldFont);
     switch (column) {
     case Imap::Mailbox::MsgListModel::SEEN:
+    case Imap::Mailbox::MsgListModel::FLAGGED:
         return 16;
     case Imap::Mailbox::MsgListModel::SUBJECT:
         return metric.size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar Random Text")).width();
@@ -268,6 +269,7 @@ QHeaderView::ResizeMode MsgListView::resizeModeForColumn(const int column) const
     case Imap::Mailbox::MsgListModel::SUBJECT:
         return QHeaderView::Stretch;
     case Imap::Mailbox::MsgListModel::SEEN:
+    case Imap::Mailbox::MsgListModel::FLAGGED:
         return QHeaderView::Fixed;
     default:
         return QHeaderView::Interactive;
@@ -290,7 +292,7 @@ void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
     }
 }
 
-void MsgListView::slotSectionCountChanged()
+void MsgListView::slotUpdateHeaderActions()
 {
     Q_ASSERT(header());
     // At first, remove all actions
@@ -317,6 +319,9 @@ void MsgListView::slotSectionCountChanged()
             // This column doesn't have a textual description
             action->setText(tr("Seen status"));
             break;
+        case Imap::Mailbox::MsgListModel::FLAGGED:
+            action->setText(tr("Flagged status"));
+            break;
         case Imap::Mailbox::MsgListModel::TO:
         case Imap::Mailbox::MsgListModel::CC:
         case Imap::Mailbox::MsgListModel::BCC:
@@ -331,6 +336,24 @@ void MsgListView::slotSectionCountChanged()
 
     // Make sure to kick the header again so that it shows reasonable sizing
     slotFixSize();
+}
+
+/** @short Handle columns added to MsgListModel and set their default properties
+ *
+ * When a new version of the underlying model got a new column, the old saved state of the GUI might only contain data for the old columns.
+ * Therefore it is important to explicitly restore the default for new columns, if any.
+ */
+void MsgListView::slotHandleNewColumns(int oldCount, int newCount)
+{
+    for (int i = oldCount; i < newCount; ++i) {
+        switch(i) {
+        case Imap::Mailbox::MsgListModel::FLAGGED:
+            header()->moveSection(i,0);
+            break;
+        }
+
+        setColumnWidth(i, sizeHintForColumn(i));
+    }
 }
 
 void MsgListView::slotHeaderSectionVisibilityToggled(int section)

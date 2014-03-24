@@ -152,6 +152,13 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                 return QIcon(QLatin1String(":/icons/mail-unread.png"));
             else
                 return QIcon(QLatin1String(":/icons/mail-read.png"));
+        case MsgListModel::FLAGGED:
+            if (! translated.data(RoleIsFetched).toBool())
+                return QVariant();
+            if (translated.data(RoleMessageIsMarkedFlagged).toBool())
+                return QIcon(QLatin1String(":/icons/mail-flagged.png"));
+            else
+                return QIcon(QLatin1String(":/icons/mail-unflagged.png"));
         default:
             return QVariant();
         }
@@ -253,6 +260,7 @@ void PrettyMsgListModel::sort(int column, Qt::SortOrder order)
     ThreadingMsgListModel::SortCriterium criterium = ThreadingMsgListModel::SORT_NONE;
     switch (column) {
     case MsgListModel::SEEN:
+    case MsgListModel::FLAGGED:
     case MsgListModel::COLUMN_COUNT:
     case MsgListModel::BCC:
     case -1:

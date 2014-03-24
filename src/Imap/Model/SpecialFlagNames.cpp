@@ -32,6 +32,7 @@ const QString FlagNames::seen = QLatin1String("\\Seen");
 const QString FlagNames::deleted = QLatin1String("\\Deleted");
 const QString FlagNames::forwarded = QLatin1String("$Forwarded");
 const QString FlagNames::recent = QLatin1String("\\Recent");
+const QString FlagNames::flagged = QLatin1String("\\Flagged");
 
 }
 }
