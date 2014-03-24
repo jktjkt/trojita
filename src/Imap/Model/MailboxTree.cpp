@@ -1184,6 +1184,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return data()->m_hdrListPostNo;
     case RoleMessageEnvelope:
         return QVariant::fromValue<Message::Envelope>(envelope(model));
+    case RoleMessageHasAttachments:
+        return hasAttachments(model);
     default:
         return QVariant();
     }
@@ -1295,6 +1297,52 @@ void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &r
     // This is because we absolutely want to support incremental header arrival.
     if (parser.listPostNo)
         data()->m_hdrListPostNo = true;
+}
+
+bool TreeItemMessage::hasAttachments(Model *const model)
+{
+    fetch(model);
+
+    if (!fetched())
+        return false;
+
+    if (m_children.isEmpty()) {
+        // strange, but why not, I guess
+        return false;
+    } else if (m_children.size() == 1) {
+        // see if it's something innocent
+
+        TreeItemPart *part = static_cast<TreeItemPart*>(m_children[0]);
+
+        // Check for a doublet of (text/plain, text/html) in any order *and nothing else*
+        if (part->mimeType() == QLatin1String("multipart/alternative") && part->childrenCount(model) == 2) {
+            QStringList mimeTypes;
+            mimeTypes << static_cast<TreeItemPart*>(part->child(0, model))->mimeType();
+            mimeTypes << static_cast<TreeItemPart*>(part->child(1, model))->mimeType();
+            mimeTypes.sort();
+            if (mimeTypes == QStringList() << QLatin1String("text/html") << QLatin1String("text/plain")) {
+                return false;
+            }
+        }
+
+        // At this point we will consider anything but a "plaintext message" or "HTML message" to have an attachment
+        if (part->mimeType() != QLatin1String("text/plain") && part->mimeType() != QLatin1String("text/html")) {
+            return true;
+        }
+
+        // See AttachmentView for details behind this.
+        const QByteArray contentDisposition = part->bodyDisposition().toLower();
+        const bool isInline = contentDisposition.isEmpty() || contentDisposition == "inline";
+        const bool looksLikeAttachment = !part->fileName().isEmpty();
+        if (!isInline || looksLikeAttachment) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        // Again, very strange -- the message should have had a single multipart as a root node, but let's cope with this as well
+        return true;
+    }
 }
 
 

@@ -121,6 +121,11 @@ enum {
     RoleMessageHeaderListPostNo,
     /** @short A full message envelope */
     RoleMessageEnvelope,
+    /** @short Is this a mail with at least one attachment?
+
+    The returned value might be a bit fuzzy.
+    */
+    RoleMessageHasAttachments,
 
     /** @short Contents of a message part */
     RolePartData,

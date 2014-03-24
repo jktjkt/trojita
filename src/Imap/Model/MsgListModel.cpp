@@ -99,6 +99,7 @@ QHash<int, QByteArray> MsgListModel::roleNames() const
         roleNames[RoleMessageFlags] = "flags";
         roleNames[RoleMessageSize] = "size";
         roleNames[RoleMessageFuzzyDate] = "fuzzyDate";
+        roleNames[RoleMessageHasAttachments] = "hasAttachments";
     }
     return roleNames;
 }
@@ -271,6 +272,7 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
     case RoleMessageHeaderReferences:
     case RoleMessageHeaderListPost:
     case RoleMessageHeaderListPostNo:
+    case RoleMessageHasAttachments:
         return dynamic_cast<TreeItemMessage *>(Model::realTreeItem(
                 proxyIndex))->data(static_cast<Model *>(sourceModel()), role);
     default:

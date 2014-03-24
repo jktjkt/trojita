@@ -288,6 +288,7 @@ public:
     bool isMarkedAsFlagged() const;
     uint uid() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
+    bool hasAttachments(Model *const model);
 };
 
 class TreeItemPart: public TreeItem
