@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
         qDebug() << "usage: " + args.at(0) + " [-p|--phone] [-t|--tablet] [-h|--help] [-I <path>]";
         qDebug() << "    -p|--phone    If running on Desktop, start in a phone sized window.";
         qDebug() << "    -t|--tablet   If running on Desktop, start in a tablet sized window.";
+        qDebug() << "    -a <qmlfile>  Pass main qmlfile location to enable autopilot to launch trojita";
         qDebug() << "    -h|--help     Print this help.";
         return 0;
     }
@@ -59,6 +60,16 @@ int main(int argc, char *argv[])
         viewer.engine()->rootContext()->setContextProperty("tablet", QVariant(true));
     }
 
+    QString qmlfile;
+    if (args.contains("-a")) {
+        qDebug() << "Setting custom main.qml path";
+        qmlfile = args.at(args.indexOf("-a") + 1);
+        qDebug() << qmlfile;
+    } else {
+        qmlfile = "qml/trojita/main.qml";
+    }
+
+
     Common::registerMetaTypes();
     Common::Application::name = QString::fromLatin1("trojita");
     AppVersion::setGitVersion();
@@ -71,7 +82,7 @@ int main(int argc, char *argv[])
 
     qDebug() << "App Dir: " << QCoreApplication::applicationDirPath();
     viewer.setTitle("Trojita");
-    viewer.setSource(QUrl::fromLocalFile("qml/trojita/main.qml"));
+    viewer.setSource(QUrl::fromLocalFile(qmlfile));
     viewer.show();
     return app.exec();
 }

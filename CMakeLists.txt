@@ -704,7 +704,10 @@ if(WITH_DESKTOP)
 endif()
 
 if(WITH_UBUNTU)
+
     set(TROJITA_UBUNTU_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/Ubuntu)
+    set(AUTOPILOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/autopilot/trojita)
+
     set(UBUNTU_QMLS
         ${TROJITA_UBUNTU_PATH}/qml/trojita/AddressWidget.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/OneMessagePage.qml
@@ -718,12 +721,26 @@ if(WITH_UBUNTU)
         ${TROJITA_UBUNTU_PATH}/qml/trojita/MessageListPage.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/Utils.js
     )
+    set(AUTOPILOT_FILES
+        ${AUTOPILOT_DIR}/__init__.py
+        ${AUTOPILOT_DIR}/emulators.py
+        ${AUTOPILOT_DIR}/tests/__init__.py
+        ${AUTOPILOT_DIR}/tests/test_trojita.py
+    )
+
     #make QML visable to QtCreator
     add_custom_target(
         components_QmlFiles
         ALL SOURCES ${UBUNTU_QMLS}
     )
+    # make autopilot tests visible in QtCreator
+    add_custom_target(
+        autopilot_Files
+        ALL SOURCES ${AUTOPILOT_FILES}
+    )
+
     file(COPY ${UBUNTU_QMLS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/qml/trojita)
+    file(COPY ${AUTOPILOT_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/autopilot)
 
     install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qml
@@ -742,6 +759,14 @@ if(WITH_UBUNTU)
     install(
         FILES ${TROJITA_UBUNTU_PATH}/trojita.png
         DESTINATION share/icons/hicolor/48x48/apps
+    )
+
+    execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+        OUTPUT_VARIABLE PYTHON_PACKAGE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    install(DIRECTORY ${AUTOPILOT_DIR}
+        DESTINATION ${PYTHON_PACKAGE_DIR}
     )
 endif()
 
