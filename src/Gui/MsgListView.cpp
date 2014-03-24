@@ -41,7 +41,7 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfte
 {
     connect(header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()));
     connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
-    connect(header(), SIGNAL(sectionCountChanged(int,int)), this, SLOT(slotSectionCountChanged()));
+    connect(header(), SIGNAL(sectionCountChanged(int,int)), this, SLOT(slotUpdateHeaderActions()));
     header()->setContextMenuPolicy(Qt::ActionsContextMenu);
     headerFieldsMapper = new QSignalMapper(this);
     connect(headerFieldsMapper, SIGNAL(mapped(int)), this, SLOT(slotHeaderSectionVisibilityToggled(int)));
@@ -290,7 +290,7 @@ void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
     }
 }
 
-void MsgListView::slotSectionCountChanged()
+void MsgListView::slotUpdateHeaderActions()
 {
     Q_ASSERT(header());
     // At first, remove all actions
@@ -331,6 +331,18 @@ void MsgListView::slotSectionCountChanged()
 
     // Make sure to kick the header again so that it shows reasonable sizing
     slotFixSize();
+}
+
+/** @short Handle columns added to MsgListModel and set their default properties
+ *
+ * When a new version of the underlying model got a new column, the old saved state of the GUI might only contain data for the old columns.
+ * Therefore it is important to explicitly restore the default for new columns, if any.
+ */
+void MsgListView::slotHandleNewColumns(int oldCount, int newCount)
+{
+    for (int i = oldCount; i < newCount; ++i) {
+        setColumnWidth(i, sizeHintForColumn(i));
+    }
 }
 
 void MsgListView::slotHeaderSectionVisibilityToggled(int section)

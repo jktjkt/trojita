@@ -2311,6 +2311,8 @@ void MainWindow::applySizesAndState()
         msgListWidget->tree->updateActionsAfterRestoredState();
     }
 
+    connect(msgListWidget->tree->header(), SIGNAL(sectionCountChanged(int,int)), msgListWidget->tree, SLOT(slotHandleNewColumns(int,int)));
+
     if (size-- && !stream.atEnd()) {
         stream >> item;
         bool ok;

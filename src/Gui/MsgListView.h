@@ -62,13 +62,14 @@ private slots:
     /** @short Expand all items below current root index */
     void slotExpandWholeSubtree(const QModelIndex &rootIndex);
     /** @short Update header actions for showing/hiding columns */
-    void slotSectionCountChanged();
+    void slotUpdateHeaderActions();
     /** @short Show/hide a corresponding column */
     void slotHeaderSectionVisibilityToggled(int section);
     /** @short Pick up the change of the sort critera */
     void slotHandleSortCriteriaChanged(int column, Qt::SortOrder order);
     /** @short conditionally emits activated(currentIndex()) for keyboard events */
     void slotCurrentActivated();
+    void slotHandleNewColumns(int oldCount, int newCount);
 private:
     static Imap::Mailbox::PrettyMsgListModel *findPrettyMsgListModel(QAbstractItemModel *model);
 
