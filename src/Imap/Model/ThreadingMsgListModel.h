@@ -134,6 +134,12 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    // Qt5 reimplements sibling() within the proxy models, and the default implementation constitutes
+    // a behavior change compared to Qt4.
+    virtual QModelIndex sibling(int row, int column, const QModelIndex &idx) const;
+#endif
+
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
     virtual Qt::DropActions supportedDropActions() const;

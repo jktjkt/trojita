@@ -1428,5 +1428,12 @@ Qt::SortOrder ThreadingMsgListModel::currentSortOrder() const
     return m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder;
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+QModelIndex ThreadingMsgListModel::sibling(int row, int column, const QModelIndex &idx) const
+{
+    return index(row, column, idx.parent());
+}
+#endif
+
 }
 }

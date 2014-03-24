@@ -310,6 +310,18 @@ void ImapModelThreadingTest::testDynamicThreading()
     QCOMPARE(QPersistentModelIndex(delete10.parent()), msg9);
     QCOMPARE(threadingModel->rowCount(msg9), 1);
 
+    {
+        // Qt5 bug: there is now QAsbtractProxyModel::sibling which does not do the right thing anymore.
+        // Make sure our workaround is in place.
+        Q_ASSERT(msg9.isValid());
+        auto sibling1 = msg9.sibling(msg9.row(), msg9.column() + 1);
+        QVERIFY(sibling1.isValid());
+        QCOMPARE(sibling1.row(), msg9.row());
+        auto sibling2 = sibling1.sibling(sibling1.row(), sibling1.column() - 1);
+        QVERIFY(sibling2.isValid());
+        QCOMPARE(sibling2, QModelIndex(msg9));
+    }
+
     // Delete the last message; it's some leaf
     SOCK->fakeReading("* 10 EXPUNGE\r\n");
     QCoreApplication::processEvents();
