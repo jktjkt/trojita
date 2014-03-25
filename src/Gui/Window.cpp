@@ -1936,6 +1936,7 @@ void MainWindow::slotSortingConfirmed(int column, Qt::SortOrder order)
     switch (column) {
     case MsgListModel::SEEN:
     case MsgListModel::FLAGGED:
+    case MsgListModel::ATTACHMENT:
     case MsgListModel::COLUMN_COUNT:
     case MsgListModel::BCC:
     case -1:
