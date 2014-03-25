@@ -355,6 +355,9 @@ void MsgListView::slotHandleNewColumns(int oldCount, int newCount)
         case Imap::Mailbox::MsgListModel::FLAGGED:
             header()->moveSection(i,0);
             break;
+        case Imap::Mailbox::MsgListModel::ATTACHMENT:
+            header()->moveSection(i,0);
+            break;
         }
 
         setColumnWidth(i, sizeHintForColumn(i));
