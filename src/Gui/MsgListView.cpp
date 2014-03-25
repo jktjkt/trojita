@@ -326,7 +326,6 @@ void MsgListView::slotUpdateHeaderActions()
             break;
         case Imap::Mailbox::MsgListModel::ATTACHMENT:
             action->setText(tr("Attachment"));
-            action->toggle();
             break;
         case Imap::Mailbox::MsgListModel::TO:
         case Imap::Mailbox::MsgListModel::CC:
