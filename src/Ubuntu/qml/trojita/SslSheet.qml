@@ -23,37 +23,21 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.Popups 0.1
-import QtWebKit 3.0 as Web
-Item {
+import QtWebKit 3.0
+
+ComposerSheet {
     id: sslItem
     anchors.fill: parent
-    property alias htmlText: htmlView.url
-    //    property alias titleText: title.text
-    signal confirmClicked()
-    signal cancelClicked()
-    width: parent.width
-    height: parent.height 
-    Web.WebView{
+    property alias htmlText: htmlView.text
+
+    TextArea {
         id: htmlView
-        width: sslItem.width
-        height: sslItem.height
-    }
-    Row{
-        anchors.bottom: parent.bottom
-        spacing: 1
-        Button{
-            id: okButton
-            text: "Confirm"
-            onClicked:{
-                sslItem.confirmClicked()
-            }
-        }
-        Button{
-            id: cancelButton
-            text: "cancel"
-            onClicked:{
-                sslItem.cancelClicked()
-            }
-        }
+        anchors.fill: parent
+        readOnly: true
+        cursorVisible: false
+        selectByMouse: false
+        activeFocusOnPress: false
+        autoSize: true
+        textFormat: TextEdit.RichText
     }
 }

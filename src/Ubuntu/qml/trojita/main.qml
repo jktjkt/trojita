@@ -76,7 +76,7 @@ MainView{
         imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
         imapAccess.imapModel.networkPolicyOnline.connect(function() {networkOffline = false})
         imapAccess.imapModel.networkPolicyExpensive.connect(function() {networkOffline = false})
-        imapAccess.checkSslPolicy.connect(function() {pageStack.push(sslSheetPage )})
+        imapAccess.checkSslPolicy.connect(function() {PopupUtils.open(sslSheetPage)})
     }
 
     function showHome() {
@@ -86,6 +86,17 @@ MainView{
         mailboxList.currentMailboxLong = ""
         if (mailboxList.model)
             mailboxList.model.setOriginalRoot()
+    }
+
+    Component{
+        id: sslSheetPage
+        SslSheet {
+            id: sslSheet
+            title:  imapAccess.sslInfoTitle
+            htmlText: imapAccess.sslInfoMessage
+            onConfirmClicked: imapAccess.setSslPolicy(true)
+            onCancelClicked:  imapAccess.setSslPolicy(false)
+        }
     }
 
     PageStack{
@@ -113,19 +124,7 @@ MainView{
                 }
             }
         }
-        //        FIXME Qt5NamWebView or a new QNetworkRequest
-        //        If the users is using SSL  then push this page
-        Page{
-            id: sslSheetPage
-            visible: false
-            title:  imapAccess.sslInfoTitle
-            SslSheet {
-                id: sslSheet
-                htmlText: imapAccess.sslInfoMessage
-                onConfirmClicked: imapAccess.setSslPolicy(true)
-                onCancelClicked:  imapAccess.setSslPolicy(false)
-            }
-        }
+
         //        Access Granted show MailBox Lists
         MailboxListPage {
             id: mailboxList
