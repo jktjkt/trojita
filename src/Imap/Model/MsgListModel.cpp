@@ -282,6 +282,9 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
 
 QVariant MsgListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+    if (orientation == Qt::Horizontal && role == Qt::DecorationRole && section == ATTACHMENT)
+        return QIcon(QLatin1String(":/icons/mail-attachment.png"));
+
     if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
         return QAbstractItemModel::headerData(section, orientation, role);
 

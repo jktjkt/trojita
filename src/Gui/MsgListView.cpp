@@ -122,6 +122,7 @@ int MsgListView::sizeHintForColumn(int column) const
     switch (column) {
     case Imap::Mailbox::MsgListModel::SEEN:
     case Imap::Mailbox::MsgListModel::FLAGGED:
+    case Imap::Mailbox::MsgListModel::ATTACHMENT:
         return 16;
     case Imap::Mailbox::MsgListModel::SUBJECT:
         return metric.size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar Random Text")).width();
@@ -270,6 +271,7 @@ QHeaderView::ResizeMode MsgListView::resizeModeForColumn(const int column) const
         return QHeaderView::Stretch;
     case Imap::Mailbox::MsgListModel::SEEN:
     case Imap::Mailbox::MsgListModel::FLAGGED:
+    case Imap::Mailbox::MsgListModel::ATTACHMENT:
         return QHeaderView::Fixed;
     default:
         return QHeaderView::Interactive;
@@ -322,6 +324,9 @@ void MsgListView::slotUpdateHeaderActions()
         case Imap::Mailbox::MsgListModel::FLAGGED:
             action->setText(tr("Flagged status"));
             break;
+        case Imap::Mailbox::MsgListModel::ATTACHMENT:
+            action->setText(tr("Attachment"));
+            break;
         case Imap::Mailbox::MsgListModel::TO:
         case Imap::Mailbox::MsgListModel::CC:
         case Imap::Mailbox::MsgListModel::BCC:
@@ -348,6 +353,9 @@ void MsgListView::slotHandleNewColumns(int oldCount, int newCount)
     for (int i = oldCount; i < newCount; ++i) {
         switch(i) {
         case Imap::Mailbox::MsgListModel::FLAGGED:
+            header()->moveSection(i,0);
+            break;
+        case Imap::Mailbox::MsgListModel::ATTACHMENT:
             header()->moveSection(i,0);
             break;
         }

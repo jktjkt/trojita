@@ -159,6 +159,11 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                 return QIcon(QLatin1String(":/icons/mail-flagged.png"));
             else
                 return QIcon(QLatin1String(":/icons/mail-unflagged.png"));
+        case MsgListModel::ATTACHMENT:
+            if (translated.data(RoleMessageHasAttachments).toBool())
+                return QIcon(QLatin1String(":/icons/mail-attachment.png"));
+            else
+                return QVariant();
         default:
             return QVariant();
         }
@@ -261,6 +266,7 @@ void PrettyMsgListModel::sort(int column, Qt::SortOrder order)
     switch (column) {
     case MsgListModel::SEEN:
     case MsgListModel::FLAGGED:
+    case MsgListModel::ATTACHMENT:
     case MsgListModel::COLUMN_COUNT:
     case MsgListModel::BCC:
     case -1:
