@@ -48,6 +48,7 @@ namespace LowLevelParser
 
 enum ParsedAs {
     ATOM /**< @short Parsed as RFC3501 "atom" data type */,
+    ASTRING, /**< @short "atom" with "resp-specials" */
     QUOTED /**< @short Quoted string (enclosed in single pair of double quotes */,
     LITERAL /**< @short String literal, ie. the {size}-form */,
     LITERAL8 /**< @short The literal8 syntax from BINARY */,

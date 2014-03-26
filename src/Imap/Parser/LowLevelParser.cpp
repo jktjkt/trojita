@@ -221,10 +221,33 @@ QPair<QByteArray,ParsedAs> getAString(const QByteArray &line, int &start)
     if (start >= line.size())
         throw NoData("getAString: no data", line, start);
 
-    if (line[start] == '{' || line[start] == '"' || line[start] == '~')
+    if (line[start] == '{' || line[start] == '"' || line[start] == '~') {
         return getString(line, start);
-    else
-        return qMakePair(getAtom(line, start), ATOM);
+    } else {
+        const char *c_str = line.constData();
+        c_str += start;
+        const char * const old_str = c_str;
+        bool gotRespSpecials = false;
+
+        while (true) {
+            while (C_STR_CHECK_FOR_ATOM_CHARS) {
+                ++c_str;
+            }
+            if (*c_str == ']' /* got to explicitly allow resp-specials again...*/ ) {
+                ++c_str;
+                gotRespSpecials = true;
+                continue;
+            } else {
+                break;
+            }
+        }
+
+        auto size = c_str - old_str;
+        if (!size)
+            throw ParseError("getAString: did not read anything", line, start);
+        start += size;
+        return qMakePair(QByteArray(old_str, size), gotRespSpecials ? ASTRING : ATOM);
+    }
 }
 
 QPair<QByteArray,ParsedAs> getNString(const QByteArray &line, int &start)

@@ -324,6 +324,27 @@ void ImapLowLevelParserTest::testGetAString()
     QCOMPARE(res.first, bdata);
     QCOMPARE(res.second, LITERAL8);
     QCOMPARE(line.mid(pos), QByteArray("trms"));
+
+    line = "BEST.[Trainers] ";
+    pos = 0;
+    res = getAString(line, pos);
+    QCOMPARE(res.first, QByteArray("BEST.[Trainers]"));
+    QCOMPARE(res.second, ASTRING);
+    QCOMPARE(line.mid(pos), QByteArray(" "));
+
+    line = "BEST.[Trainers]666 ";
+    pos = 0;
+    res = getAString(line, pos);
+    QCOMPARE(res.first, QByteArray("BEST.[Trainers]666"));
+    QCOMPARE(res.second, ASTRING);
+    QCOMPARE(line.mid(pos), QByteArray(" "));
+
+    line = "][][][ ";
+    pos = 0;
+    res = getAString(line, pos);
+    QCOMPARE(res.first, QByteArray("][][]["));
+    QCOMPARE(res.second, ASTRING);
+    QCOMPARE(line.mid(pos), QByteArray(" "));
 }
 
 void ImapLowLevelParserTest::testGetAnything()
