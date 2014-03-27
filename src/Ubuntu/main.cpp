@@ -86,12 +86,25 @@ int main(int argc, char *argv[])
         }
     }
 
-    QString qmlfile;
-    QString appPath = QGuiApplication::applicationDirPath();
+    QString qmlFile;
+    QString filePath = QLatin1String("qml/trojita/main.qml");
     if (parser.isSet(qmlFileOption)) {
-        qmlfile = appPath + parser.value(qmlFileOption);
+        qmlFile = QGuiApplication::applicationDirPath() + parser.value(qmlFileOption);
+    } else if (QFileInfo(filePath).exists()) {
+        qmlFile = filePath;
     } else {
-        qmlfile = "qml/trojita/main.qml";
+        QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+        filePath.prepend(QLatin1String("/"));
+        Q_FOREACH (const QString &path, paths) {
+            if (QFileInfo(filePath).exists()) {
+                qmlFile = path + filePath;
+                break;
+            }
+        }
+    }
+    // sanity check
+    if (qmlFile.isEmpty()) {
+        qFatal("File: %s does not exist at any of the standard paths!", qPrintable(filePath));
     }
 
     Common::registerMetaTypes();
@@ -103,9 +116,9 @@ int main(int argc, char *argv[])
     Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
     viewer.engine()->rootContext()->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 
-    qDebug() << "App Dir: " << appPath;
+    qDebug() << "App Dir: " << QGuiApplication::applicationDirPath();
     viewer.setTitle("Trojita");
-    viewer.setSource(QUrl::fromLocalFile(qmlfile.toLatin1()));
+    viewer.setSource(QUrl::fromLocalFile(qmlFile));
     viewer.show();
     return app.exec();
 }
