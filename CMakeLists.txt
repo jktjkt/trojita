@@ -758,7 +758,7 @@ if(WITH_UBUNTU)
 
     install(
         FILES ${TROJITA_UBUNTU_PATH}/trojita.png
-        DESTINATION share/icons/hicolor/48x48/apps
+        DESTINATION share/icons/hicolor/64x64/apps
     )
 
     execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
