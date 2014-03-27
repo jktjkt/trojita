@@ -224,7 +224,6 @@ private:
     Imap::ImapAccess *m_imapAccess;
 
     Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;
-    Imap::Mailbox::ThreadingMsgListModel *threadingMsgListModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
     Composer::SenderIdentitiesModel *m_senderIdentities;
 

@@ -35,6 +35,7 @@
 #include "Imap/Model/SubtreeModel.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Model/VisibleTasksModel.h"
+#include "Imap/Model/ThreadingMsgListModel.h"
 
 class QNetworkAccessManager;
 class QSettings;
@@ -48,6 +49,7 @@ class ImapAccess : public QObject
     Q_PROPERTY(QObject *imapModel READ imapModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *mailboxModel READ mailboxModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *msgListModel READ msgListModel NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *threadingMsgListModel READ threadingMsgListModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *visibleTasksModel READ visibleTasksModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *oneMessageModel READ oneMessageModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *networkWatcher READ networkWatcher NOTIFY modelsChanged)
@@ -70,6 +72,7 @@ public:
     QObject *visibleTasksModel() const;
     QObject *oneMessageModel() const;
     QObject *networkWatcher() const;
+    QObject *threadingMsgListModel() const;
     QNetworkAccessManager *msgQNAM() const;
 
     QString server() const;
@@ -125,6 +128,7 @@ private:
     Imap::Mailbox::MailboxModel *m_mailboxModel;
     Imap::Mailbox::SubtreeModelOfMailboxModel *m_mailboxSubtreeModel;
     Imap::Mailbox::MsgListModel *m_msgListModel;
+    Imap::Mailbox::ThreadingMsgListModel *m_threadingMsgListModel;
     Imap::Mailbox::VisibleTasksModel *m_visibleTasksModel;
     Imap::Mailbox::OneMessageModel *m_oneMessageModel;
     Imap::Mailbox::NetworkWatcher *m_netWatcher;

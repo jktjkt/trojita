@@ -658,12 +658,9 @@ void MainWindow::setupModels()
 
     prettyMboxModel = new Imap::Mailbox::PrettyMailboxModel(this, qobject_cast<QAbstractItemModel *>(m_imapAccess->mailboxModel()));
     prettyMboxModel->setObjectName(QLatin1String("prettyMboxModel"));
-    threadingMsgListModel = new Imap::Mailbox::ThreadingMsgListModel(this);
-    threadingMsgListModel->setObjectName(QLatin1String("threadingMsgListModel"));
-    threadingMsgListModel->setSourceModel(qobject_cast<QAbstractItemModel *>(m_imapAccess->msgListModel()));
-    connect(threadingMsgListModel, SIGNAL(sortingFailed()), msgListWidget, SLOT(slotSortingFailed()));
+    connect(m_imapAccess->threadingMsgListModel(), SIGNAL(sortingFailed()), msgListWidget, SLOT(slotSortingFailed()));
     prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
-    prettyMsgListModel->setSourceModel(threadingMsgListModel);
+    prettyMsgListModel->setSourceModel(qobject_cast<QAbstractItemModel *>(m_imapAccess->threadingMsgListModel()));
     prettyMsgListModel->setObjectName(QLatin1String("prettyMsgListModel"));
 
     connect(mboxTree, SIGNAL(clicked(const QModelIndex &)), m_imapAccess->msgListModel(), SLOT(setMailbox(const QModelIndex &)));
@@ -1143,8 +1140,6 @@ void MainWindow::nukeModels()
     taskTree->setModel(0);
     delete prettyMsgListModel;
     prettyMsgListModel = 0;
-    delete threadingMsgListModel;
-    threadingMsgListModel = 0;
     delete prettyMboxModel;
     prettyMboxModel = 0;
     delete m_imapAccess;
@@ -1879,10 +1874,10 @@ void MainWindow::slotThreadMsgList()
 
     if (useThreading && actionThreadMsgList->isEnabled()) {
         msgListWidget->tree->setRootIsDecorated(true);
-        threadingMsgListModel->setUserWantsThreading(true);
+        qobject_cast<Imap::Mailbox::ThreadingMsgListModel *>(m_imapAccess->threadingMsgListModel())->setUserWantsThreading(true);
     } else {
         msgListWidget->tree->setRootIsDecorated(false);
-        threadingMsgListModel->setUserWantsThreading(false);
+        qobject_cast<Imap::Mailbox::ThreadingMsgListModel *>(m_imapAccess->threadingMsgListModel())->setUserWantsThreading(false);
     }
     m_settings->setValue(Common::SettingsNames::guiMsgListShowThreading, QVariant(useThreading));
 
@@ -1983,6 +1978,8 @@ void MainWindow::slotSearchRequested(const QStringList &searchConditions)
         // right now, searching and threading doesn't play well together at all
         actionThreadMsgList->trigger();
     }
+    Imap::Mailbox::ThreadingMsgListModel * threadingMsgListModel =
+            qobject_cast<Imap::Mailbox::ThreadingMsgListModel *>(m_imapAccess->threadingMsgListModel());
     threadingMsgListModel->setUserSearchingSortingPreference(searchConditions, threadingMsgListModel->currentSortCriterium(),
                                                              threadingMsgListModel->currentSortOrder());
 }

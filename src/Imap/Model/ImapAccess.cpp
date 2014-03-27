@@ -41,7 +41,7 @@ namespace Imap {
 
 ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &accountName) :
     QObject(parent), m_settings(settings), m_imapModel(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
-    m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
+    m_threadingMsgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
     m_connectionMethod(Common::ConnectionMethod::Invalid),
     m_sslInfoIcon(Imap::Mailbox::CertificateUtils::NoIcon),
     m_accountName(accountName)
@@ -326,6 +326,9 @@ void ImapAccess::doConnect()
     m_oneMessageModel->setObjectName(QString::fromUtf8("oneMessageModel-%1").arg(m_accountName));
     m_msgQNAM = new Imap::Network::MsgPartNetAccessManager(this);
     m_msgQNAM->setObjectName(QString::fromUtf8("m_msgQNAM-%1").arg(m_accountName));
+    m_threadingMsgListModel = new Imap::Mailbox::ThreadingMsgListModel(this);
+    m_threadingMsgListModel->setObjectName(QString::fromUtf8("threadingMsgListModel-%1").arg(m_accountName));
+    m_threadingMsgListModel->setSourceModel(m_msgListModel);
     emit modelsChanged();
 }
 
@@ -370,6 +373,11 @@ QObject *ImapAccess::networkWatcher() const
 QNetworkAccessManager *ImapAccess::msgQNAM() const
 {
     return m_msgQNAM;
+}
+
+QObject *ImapAccess::threadingMsgListModel() const
+{
+    return m_threadingMsgListModel;
 }
 
 void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
