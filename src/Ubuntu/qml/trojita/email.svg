@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg id="svg3289" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" height="90" width="90" version="1.1" xmlns:cc="http://creativecommons.org/ns#" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/">
+ <defs id="defs3291">
+  <clipPath id="clipPath3823-8" clipPathUnits="userSpaceOnUse">
+   <path id="path3825-7" style="opacity:.44595;color:#000000;fill:#00f" d="m778.33 392v52h80v-52h-80zm8.0208 7.1875 29.458 27.167c0.007-0.00004 0.0138-0.00004 0.0208 0 1.8334 1.6458 4.5 1.6458 6.2708 0.0625 0.0204-0.0213 0.0412-0.0421 0.0625-0.0625l29.479-27.167 2.7083 2.9583-19.35 17.85 12.667 14.667-15.083-12.458-7.6458 7.0417-0.0625 0.0417c-1.6834 1.6616-3.6849 3.0258-5.8125 3.0208-2.1459-0.005-4.1698-1.3882-5.9375-3.0417h-0.0208v0.0208l-7.6875-7.0833-15.083 12.458 12.66-14.67-19.35-17.85 2.7-2.96z"/>
+  </clipPath>
+ </defs>
+ <metadata id="metadata3294">
+  <rdf:RDF>
+   <cc:Work rdf:about="">
+    <dc:format>image/svg+xml</dc:format>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:title/>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <g id="layer1" transform="translate(0 -962.36)">
+  <g id="g4451" transform="matrix(1.5 0 0 1.5 -1183.5 380.36)">
+   <rect id="rect3332" style="fill:none" height="60" width="60" y="388" x="789"/>
+   <path id="path3036" style="fill:#808080" transform="matrix(.66667 0 0 .66667 789 388)" d="m30 12c-21.391 0-27.701 0.018-29.406 8.969l39.625 36.562h0.031c2.75 2.469 6.75 2.469 9.406 0.094 0.031-0.032 0.062-0.063 0.094-0.094l39.656-36.562c-1.705-8.951-8.015-8.969-29.406-8.969h-30zm-30 16.625c-0.004871 0.464 0 0.885 0 1.375v30c0 18 3 18 30 18h30c27 0 30 0 30-18v-30c0-0.49 0.005-0.911 0-1.375l-21 19.375 19 22-22.625-18.688-11.469 10.563-0.094 0.063c-2.525 2.492-5.527 4.538-8.718 4.531-3.219-0.008-6.255-2.082-8.906-4.563h-0.032v0.032l-11.531-10.626-22.625 18.688 19-22-21-19.375z"/>
+  </g>
+ </g>
+ <g id="layer2" style="display:none">
+  <rect id="rect3332-6" style="display:inline;fill:none" height="90" width="90" y="0" x="0"/>
+  <path id="path3036-3" style="fill:#808080;display:inline" d="m809 396c-18 0-20 0-20 12v20c0 12 2 12 20 12h20c18 0 20 0 20-12v-20c0-12-2-12-20-12z" clip-path="url(#clipPath3823-8)" transform="matrix(1.5,0,0,1.5,-1183.5,-582)"/>
+ </g>
+</svg>

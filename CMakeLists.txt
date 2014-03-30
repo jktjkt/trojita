@@ -720,6 +720,12 @@ if(WITH_UBUNTU)
         ${TROJITA_UBUNTU_PATH}/qml/trojita/main.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/MessageListPage.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/Utils.js
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/contact.svg
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/contact_grey.svg
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/delete.svg
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/email.svg
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/favorite-selected.svg
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/favorite-unselected.svg
     )
     set(AUTOPILOT_FILES
         ${AUTOPILOT_DIR}/__init__.py
