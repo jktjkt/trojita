@@ -52,6 +52,7 @@ public:
 protected:
     void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
     void showEvent(QShowEvent *se);
 private:
     void constrainSize();

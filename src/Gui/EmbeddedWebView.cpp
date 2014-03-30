@@ -28,7 +28,9 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QLayout>
+#include <QMouseEvent>
 #include <QNetworkReply>
+#include <QScrollBar>
 #include <QStyle>
 #include <QStyleFactory>
 #include <QWebFrame>
@@ -173,6 +175,20 @@ bool EmbeddedWebView::eventFilter(QObject *o, QEvent *e)
     if (e->type() == QEvent::Resize && o == m_scrollParent)
         constrainSize();
     return QWebView::eventFilter(o, e);
+}
+
+void EmbeddedWebView::mouseMoveEvent(QMouseEvent *e)
+{
+    if ((e->buttons() & Qt::LeftButton) && m_scrollParent) {
+        const QPoint pos = mapTo(m_scrollParent, e->pos());
+        if (pos.y() < 0 || pos.y() > m_scrollParent->rect().height()) {
+            const int autoScrollPixels = 3;
+            if (QScrollBar *bar = static_cast<QAbstractScrollArea*>(m_scrollParent)->verticalScrollBar()) {
+                bar->setValue(bar->value() + (pos.y() < 0 ? -autoScrollPixels : autoScrollPixels));
+            }
+        }
+    }
+    QWebView::mouseMoveEvent(e);
 }
 
 void EmbeddedWebView::findScrollParent()
