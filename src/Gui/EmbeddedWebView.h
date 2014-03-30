@@ -53,17 +53,21 @@ protected:
     void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
     void showEvent(QShowEvent *se);
 private:
     void constrainSize();
     void findScrollParent();
 private slots:
+    void autoScroll();
     void slotLinkClicked(const QUrl &url);
     void handlePageLoadFinished();
 private:
     QWidget *m_scrollParent;
     int m_scrollParentPadding;
     int m_resizeInProgress;
+    QTimer *m_autoScrollTimer;
+    int m_autoScrollPixels;
 };
 
 class ErrorCheckingPage: public QWebPage
