@@ -54,6 +54,8 @@ Page {
                 right: col.right;
             }
             inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhEmailCharactersOnly | Qt.ImhNoPredictiveText
+            KeyNavigation.priority: KeyNavigation.BeforeItem
+            KeyNavigation.tab: imapPasswordInput
         }
 
         Label {
@@ -67,6 +69,9 @@ Page {
                 left: parent.left;
                 right: parent.right;
             }
+            KeyNavigation.priority: KeyNavigation.BeforeItem
+            KeyNavigation.tab: imapServerInput
+            KeyNavigation.backtab: imapUserNameInput
         }
         Label {
             text: qsTr("Server address")
@@ -78,6 +83,9 @@ Page {
                 left: col.left
                 right: col.right
             }
+            KeyNavigation.priority: KeyNavigation.BeforeItem
+            KeyNavigation.tab: imapPortInput
+            KeyNavigation.backtab: imapPasswordInput
         }
 
         Label {
