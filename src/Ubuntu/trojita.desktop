@@ -34,5 +34,6 @@ Name[ug]=Trojitá
 Name[uk]=Trojitá
 Name[x-test]=xxTrojitáxx
 Name[zh_TW]=Trojitá
+Keywords=mail;e-mail;IMAP;SMTP;eml;MUA;
 Exec=trojita
 Icon=/usr/share/icons/hicolor/64x64/apps/trojita.png
