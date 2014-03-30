@@ -284,6 +284,12 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-list-inbox-literal")
             << QByteArray("* LIST () \"/\" {5}\r\ninBox\r\n")
         << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );
+    QTest::newRow("untagged-list-numeric-mailbox")
+        << QByteArray("* LIST () \"/\" 666\r\n")
+        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList(), QLatin1String("/"), QLatin1String("666"), QMap<QByteArray,QVariant>()));
+    QTest::newRow("untagged-list-numeric-mixed-mailbox")
+        << QByteArray("* LIST () \"/\" 666x333\r\n")
+        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList(), QLatin1String("/"), QLatin1String("666x333"), QMap<QByteArray,QVariant>()));
 
     QMap<QByteArray,QVariant> listExtData;
     listExtData["CHILDINFO"] = QStringList() << "SUBSCRIBED";
@@ -440,6 +446,12 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("status-1")
         << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292)\r\n")
         << QSharedPointer<AbstractResponse>( new Status( "blurdybloop", states ) );
+    QTest::newRow("status-numeric-only")
+        << QByteArray("* STATUS 333 (MESSAGES 231 UIDNEXT 44292)\r\n")
+        << QSharedPointer<AbstractResponse>(new Status("333", states));
+    QTest::newRow("status-numeric-mixed")
+        << QByteArray("* STATUS 333x666 (MESSAGES 231 UIDNEXT 44292)\r\n")
+        << QSharedPointer<AbstractResponse>(new Status("333x666", states));
     states[Status::UIDVALIDITY] = 1337;
     states[Status::RECENT] = 3234567890u;
     QTest::newRow("status-2")
