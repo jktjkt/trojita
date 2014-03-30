@@ -333,12 +333,6 @@ QVariant getAnything(const QByteArray &line, int &start)
             return QByteArray("\\*");
         }
         return QByteArray(1, '\\') + getAtom(line, start);
-    } else if (line[start] >= '0' && line[start] <= '9') {
-        quint64 res = getUInt64(line, start);
-        if (res <= std::numeric_limits<quint32>::max())
-            return static_cast<quint32>(res);
-        else
-            return res;
     } else {
         QByteArray atom = getAtom(line, start);
         if (atom.indexOf('[', 0) != -1) {

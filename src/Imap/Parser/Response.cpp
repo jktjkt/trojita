@@ -1024,10 +1024,17 @@ static void threadingHelperInsertHere(ThreadingNode *where, const QVariantList &
 {
     bool first = true;
     for (QVariantList::const_iterator it = what.begin(); it != what.end(); ++it) {
-        if (it->type() == QVariant::UInt) {
+        if (it->type() == QVariant::ByteArray) {
             where->children.append(ThreadingNode());
             where = &(where->children.last());
-            where->num = it->toUInt();
+            bool ok;
+            where->num = it->toUInt(&ok);
+            if (!ok) {
+                QString str;
+                QTextStream ss(&str);
+                ss << "THREAD response: cannot parse \"" << it->toByteArray() << "\" as an unsigned integer";
+                throw UnexpectedHere(str.toUtf8().constData());
+            }
         } else if (it->type() == QVariant::List) {
             if (first) {
                 where->children.append(ThreadingNode());

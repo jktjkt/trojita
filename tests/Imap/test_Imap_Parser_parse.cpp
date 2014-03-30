@@ -306,6 +306,9 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>(
                 new Flags( QStringList() << "\\Answered" << "\\Flagged" <<
                     "\\Deleted" << "\\Seen" << "\\Draft" ) );
+    QTest::newRow("untagged-flags-numeric")
+        << QByteArray("* FLAGS (333 666x333)\r\n")
+        << QSharedPointer<AbstractResponse>(new Flags(QStringList() << QLatin1String("333") << QStringList("666x333")));
     QTest::newRow("search-empty")
         << QByteArray("* SEARCH\r\n")
         << QSharedPointer<AbstractResponse>( new Search( QList<uint>() ) );
@@ -861,6 +864,13 @@ void ImapParserParseTest::testParseUntagged_data()
             << QByteArray("* ID (\"foo \" \"bar\")\r\n")
             << QSharedPointer<AbstractResponse>(new Id(sampleId));
 
+    sampleId.clear();
+    sampleId["v1"] = "333";
+    sampleId["v2"] = "666x333";
+    QTest::newRow("id-numeric-bits")
+            << QByteArray("* ID (\"v1\" 333 \"v2\" 666x333)\r\n")
+            << QSharedPointer<AbstractResponse>(new Id(sampleId));
+
     QTest::newRow("enabled-empty")
             << QByteArray("* ENABLED\r\n")
             << QSharedPointer<AbstractResponse>(new Enabled(QList<QByteArray>()));
@@ -1150,6 +1160,9 @@ void ImapParserParseTest::testThrow_data()
 
     QTest::newRow("expunge-number-at-the-end")
             << QByteArray("* expunge 666\r\n") << QString("UnexpectedHere") << QString("Malformed response: the number should go first");
+
+    QTest::newRow("thread-non-numbers")
+            << QByteArray("* THREAD (ahoj)\r\n") << QString("UnexpectedHere") << QString("THREAD response: cannot parse \"ahoj\" as an unsigned integer");
 }
 
 TROJITA_HEADLESS_TEST( ImapParserParseTest )
