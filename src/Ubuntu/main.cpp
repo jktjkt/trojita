@@ -90,10 +90,9 @@ int main(int argc, char *argv[])
     QString filePath = QLatin1String("qml/trojita/main.qml");
     if (parser.isSet(qmlFileOption)) {
         qmlFile = QGuiApplication::applicationDirPath() + parser.value(qmlFileOption);
-    } else if (QFileInfo(filePath).exists()) {
-        qmlFile = filePath;
     } else {
         QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+        paths.prepend(QCoreApplication::applicationDirPath());
         filePath.prepend(QLatin1String("/"));
         Q_FOREACH (const QString &path, paths) {
             if (QFileInfo(path + filePath).exists()) {
