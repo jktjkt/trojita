@@ -25,7 +25,7 @@ import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
 
 Page {
-    id: flickable
+    id: imapSettings
     visible: false
     title: qsTr("Server Settings")
 
@@ -33,9 +33,7 @@ Page {
     property alias imapPort: imapPortInput.text
     property alias imapUserName: imapUserNameInput.text
     property alias imapPassword: imapPasswordInput.text
-    property string imapSslMode: useSSLSwitch.checked === true ?  "SSL" : "No"
-    property int  imapSslModelIndex: dialogView.currentIndex
-    property bool usingSSL
+    property alias imapSslModelIndex: connectionSelector.selectedIndex
 
     Column {
         id: col
@@ -88,29 +86,57 @@ Page {
             KeyNavigation.backtab: imapPasswordInput
         }
 
+        OptionSelector {
+            id: connectionSelector
+            text: qsTr("Secure Connection")
+            model: encryptionOptionsModel
+            showDivider: false
+            expanded: false
+            colourImage: true
+            delegate: connectionSelectorDelegate
+            selectedIndex: imapSslModelIndex
+            onSelectedIndexChanged: {
+                imapPortInput.text = model.get(connectionSelector.selectedIndex).port
+            }
+        }
+
+        Component {
+            id: connectionSelectorDelegate
+            OptionSelectorDelegate { text: qsTr(description) }
+        }
+
+        ListModel {
+            id: encryptionOptionsModel
+            /*
+               It would appear that we cannot call qsTr() on a ListElement property
+
+               for ref see https://bugreports.qt-project.org/browse/QTBUG-11403
+                  and also https://bugreports.qt-project.org/browse/qtbug-16289
+
+               It's to do with the way binding loops bla bla bla.....
+
+               Anyway we have to use QT_TR_NOOP which looks like a nasty hack with
+               warnings about using the 'new' keyword with a function that starts
+               with an Uppercase letter.
+
+               Surely they can do something better than this?
+            */
+            ListElement { name: "No"; description: QT_TR_NOOP("No Encryption"); port: 143 }
+            ListElement { name: "StartTLS"; description: QT_TR_NOOP("Use encryption (STARTTLS)"); port: 143 }
+            ListElement { name: "SSL"; description: QT_TR_NOOP("Force encryption (TLS)"); port: 993 }
+        }
+
         Label {
             text: qsTr("Port")
         }
         TextField {
             id: imapPortInput
-            text: "143"
             inputMethodHints: Qt.ImhDigitsOnly
             validator: IntValidator { bottom: 1; top: 65535 }
             anchors {
                 left: col.left
                 right: col.right
             }
-        }
-        Row{
-            spacing: units.gu(14)
-           Label{
-                id: sslText
-            anchors.verticalCenter: parent.verticalCenter
-               text: qsTr("Use SSL")
-           }
-           Switch{
-               id: useSSLSwitch
-           }
         }
 
         Button{
@@ -124,7 +150,7 @@ Page {
                 if (imapAccess.imapModel) {
                 // prevent assert failure in
                 // ImapAccess::doConnect due to duplicate calls
-               return ;
+                    return ;
                 }
                 if (imapSettings.imapServer !== imapAccess.server || imapSettings.imapUserName !== imapAccess.username )
                     imapAccess.nukeCache()
@@ -135,7 +161,7 @@ Page {
                 imapAccess.username = imapSettings.imapUserName
                 if (imapSettings.imapPassword.length)
                     imapAccess.password = imapSettings.imapPassword
-                imapAccess.sslMode = imapSettings.imapSslMode
+                imapAccess.sslMode = connectionSelector.model.get(connectionSelector.selectedIndex).name
                 imapAccess.doConnect()
                 appWindow.connectModels()
             }
@@ -144,27 +170,20 @@ Page {
 
     Component.onCompleted: {
         imapSettings.imapServer = imapAccess.server
-        if (imapAccess.port > 0){
-            imapSettings.imapPort = imapAccess.port
-            imapSettings.imapUserName = imapAccess.username
-        }
         // That's right, we do not load the password
-
-        // FIXME this is not working correctly we can not set the ssl ?
-        if (imapAccess.sslMode === "StartTLS"){
-            imapSettings.imapSslModeIndex = 2
-        }else if (imapAccess.sslMode === "SSL"){
-            imapSettings.imapSslModelIndex = 1
-            usingSSL = true
-        }else{
+        if (imapAccess.sslMode === "StartTLS") {
+             imapSettings.imapSslModelIndex = 1
+        } else if (imapAccess.sslMode === "SSL") {
+            imapSettings.imapSslModelIndex = 2
+        } else {
             imapSettings.imapSslModelIndex = 0
-            usingSSL = false
         }
-        if(usingSSL === true ){
-            useSSLSwitch.checked = true
+        // Set these once we've determined if an encryption setting already exists
+        if (imapAccess.port > 0) {
+            imapSettings.imapPort = imapAccess.port
+        } else {
+            imapSettings.imapPort = connectionSelector.model.get(connectionSelector.selectedIndex).port
         }
-        if (usingSSL === false ){
-            useSSLSwitch.checked = false
-        }
+        imapSettings.imapUserName = imapAccess.username
     }
 }
