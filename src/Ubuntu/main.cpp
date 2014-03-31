@@ -21,7 +21,6 @@
 */
 #include <QCommandLineOption>
 #include <QCommandLineParser>
-#include <QDebug>
 #include <QQmlContext>
 #include <QSettings>
 #include <QtGui/QGuiApplication>
@@ -108,7 +107,6 @@ int main(int argc, char *argv[])
     Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
     viewer.engine()->rootContext()->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 
-    qDebug() << "App Dir: " << QGuiApplication::applicationDirPath();
     viewer.setTitle("Trojita");
     viewer.setSource(QUrl::fromLocalFile(qmlFile));
     viewer.show();
