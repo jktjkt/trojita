@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     QString qmlFile;
     const QString filePath = QLatin1String("qml/trojita/main.qml");
     if (parser.isSet(qmlFileOption)) {
-        qmlFile = QGuiApplication::applicationDirPath() + parser.value(qmlFileOption);
+        qmlFile = parser.value(qmlFileOption);
     } else {
         QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
         paths.prepend(QCoreApplication::applicationDirPath());
