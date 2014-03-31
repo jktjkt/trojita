@@ -107,7 +107,7 @@ int main(int argc, char *argv[])
     Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
     viewer.engine()->rootContext()->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 
-    viewer.setTitle("Trojita");
+    viewer.setTitle(QObject::trUtf8("Trojitá"));
     viewer.setSource(QUrl::fromLocalFile(qmlFile));
     viewer.show();
     return app.exec();
