@@ -41,9 +41,6 @@ int main(int argc, char *argv[])
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
     parser.setApplicationDescription(QGuiApplication::translate("main", "Trojita is a fast Qt IMAP e-mail client"));
     parser.addHelpOption();
-    QCommandLineOption qmlFileOption(QStringList() << QLatin1String("q") << QLatin1String("qmlfile"), QGuiApplication::translate("main",
-        "Pass main qmlfile location to enable autopilot to launch trojita"), QGuiApplication::translate("main", "qmlfile"), "");
-    parser.addOption(qmlFileOption);
     QCommandLineOption phoneViewOption(QStringList() << QLatin1String("p") << QLatin1String("phone"), QGuiApplication::translate("main",
         "If running on Desktop, start in a phone sized window."));
     parser.addOption(phoneViewOption);
@@ -88,17 +85,13 @@ int main(int argc, char *argv[])
 
     QString qmlFile;
     const QString filePath = QLatin1String("qml/trojita/main.qml");
-    if (parser.isSet(qmlFileOption)) {
-        qmlFile = parser.value(qmlFileOption);
-    } else {
-        QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-        paths.prepend(QCoreApplication::applicationDirPath());
-        Q_FOREACH (const QString &path, paths) {
-            QString myPath = path + QLatin1Char('/') + filePath;
-            if (QFile::exists(myPath)) {
-                qmlFile = myPath;
-                break;
-            }
+    QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    paths.prepend(QCoreApplication::applicationDirPath());
+    Q_FOREACH (const QString &path, paths) {
+        QString myPath = path + QLatin1Char('/') + filePath;
+        if (QFile::exists(myPath)) {
+            qmlFile = myPath;
+            break;
         }
     }
     // sanity check
