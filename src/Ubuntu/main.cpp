@@ -21,7 +21,6 @@
 */
 #include <QCommandLineOption>
 #include <QCommandLineParser>
-#include <QDebug>
 #include <QQmlContext>
 #include <QSettings>
 #include <QtGui/QGuiApplication>
@@ -41,9 +40,6 @@ int main(int argc, char *argv[])
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
     parser.setApplicationDescription(QGuiApplication::translate("main", "Trojita is a fast Qt IMAP e-mail client"));
     parser.addHelpOption();
-    QCommandLineOption qmlFileOption(QStringList() << QLatin1String("q") << QLatin1String("qmlfile"), QGuiApplication::translate("main",
-        "Pass main qmlfile location to enable autopilot to launch trojita"), QGuiApplication::translate("main", "qmlfile"), "");
-    parser.addOption(qmlFileOption);
     QCommandLineOption phoneViewOption(QStringList() << QLatin1String("p") << QLatin1String("phone"), QGuiApplication::translate("main",
         "If running on Desktop, start in a phone sized window."));
     parser.addOption(phoneViewOption);
@@ -87,19 +83,14 @@ int main(int argc, char *argv[])
     }
 
     QString qmlFile;
-    QString filePath = QLatin1String("qml/trojita/main.qml");
-    if (parser.isSet(qmlFileOption)) {
-        qmlFile = QGuiApplication::applicationDirPath() + parser.value(qmlFileOption);
-    } else if (QFileInfo(filePath).exists()) {
-        qmlFile = filePath;
-    } else {
-        QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
-        filePath.prepend(QLatin1String("/"));
-        Q_FOREACH (const QString &path, paths) {
-            if (QFileInfo(path + filePath).exists()) {
-                qmlFile = path + filePath;
-                break;
-            }
+    const QString filePath = QLatin1String("qml/trojita/main.qml");
+    QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
+    paths.prepend(QCoreApplication::applicationDirPath());
+    Q_FOREACH (const QString &path, paths) {
+        QString myPath = path + QLatin1Char('/') + filePath;
+        if (QFile::exists(myPath)) {
+            qmlFile = myPath;
+            break;
         }
     }
     // sanity check
@@ -116,8 +107,7 @@ int main(int argc, char *argv[])
     Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
     viewer.engine()->rootContext()->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 
-    qDebug() << "App Dir: " << QGuiApplication::applicationDirPath();
-    viewer.setTitle("Trojita");
+    viewer.setTitle(QObject::trUtf8("Trojitá"));
     viewer.setSource(QUrl::fromLocalFile(qmlFile));
     viewer.show();
     return app.exec();
