@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);
         filePath.prepend(QLatin1String("/"));
         Q_FOREACH (const QString &path, paths) {
-            if (QFileInfo(filePath).exists()) {
+            if (QFileInfo(path + filePath).exists()) {
                 qmlFile = path + filePath;
                 break;
             }
