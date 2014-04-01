@@ -178,9 +178,9 @@ void EmbeddedWebView::changeEvent(QEvent *e)
 bool EmbeddedWebView::eventFilter(QObject *o, QEvent *e)
 {
     if (o == m_scrollParent) {
-        if (e->type() == QEvent::Resize)
+        if (e->type() == QEvent::Resize) {
             constrainSize();
-        else if (e->type() == QEvent::Enter) {
+        } else if (e->type() == QEvent::Enter) {
             m_autoScrollPixels = 0;
             m_autoScrollTimer->stop();
         }
