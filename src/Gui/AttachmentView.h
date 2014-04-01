@@ -77,6 +77,7 @@ private slots:
     void onOpenFailed();
     void updateShowHideAttachmentState();
     void showMenu();
+    void showMenuOrPreview();
     void toggleIconCursor();
 
 private:
@@ -97,6 +98,8 @@ private:
     QWidget *m_contentWidget;
 
     QPoint m_dragStartPos;
+
+    bool previewIsShown() const;
 
     AttachmentView(const AttachmentView &); // don't implement
     AttachmentView &operator=(const AttachmentView &); // don't implement

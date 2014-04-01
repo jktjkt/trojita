@@ -94,6 +94,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
         m_showHideAttachment->setCheckable(true);
         m_showHideAttachment->setChecked(!m_contentWidget->isHidden());
         connect(m_showHideAttachment, SIGNAL(triggered(bool)), m_contentWidget, SLOT(setVisible(bool)));
+        connect(m_showHideAttachment, SIGNAL(triggered()), this, SLOT(updateShowHideAttachmentState()));
     }
 
     // Icon on the left
@@ -105,7 +106,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     m_icon->setPopupMode(QToolButton::MenuButtonPopup);
     m_icon->setMenu(m_menu);
     connect(m_icon, SIGNAL(pressed()), SLOT(toggleIconCursor()));
-    connect(m_icon, SIGNAL(clicked()), m_icon, SLOT(showMenu()));
+    connect(m_icon, SIGNAL(clicked()), SLOT(showMenuOrPreview()));
     connect(m_icon, SIGNAL(released()), SLOT(toggleIconCursor()));
     m_icon->setCursor(Qt::ArrowCursor);
 
@@ -172,6 +173,8 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     if (m_contentWidget) {
         contentLayout->addWidget(m_contentWidget);
     }
+
+    updateShowHideAttachmentState();
 }
 
 void AttachmentView::slotDownloadAttachment()
@@ -248,10 +251,25 @@ void AttachmentView::openDownloadedAttachment()
     m_openAttachment->setEnabled(true);
 }
 
+bool AttachmentView::previewIsShown() const
+{
+    return m_contentWidget && m_contentWidget->isVisibleTo(const_cast<AttachmentView*>(this));
+}
+
 void AttachmentView::updateShowHideAttachmentState()
 {
-    if (m_showHideAttachment)
-        m_showHideAttachment->setChecked(m_contentWidget && m_contentWidget->isVisibleTo(this));
+    if (m_showHideAttachment) {
+        m_showHideAttachment->setChecked(previewIsShown());
+    }
+}
+
+void AttachmentView::showMenuOrPreview()
+{
+    if (previewIsShown() || !m_contentWidget) {
+        showMenu();
+    } else {
+        m_showHideAttachment->trigger();
+    }
 }
 
 void AttachmentView::showMenu()
