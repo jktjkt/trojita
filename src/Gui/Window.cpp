@@ -28,6 +28,7 @@
 #include <QFileDialog>
 #include <QHeaderView>
 #include <QItemSelectionModel>
+#include <QKeyEvent>
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QProgressBar>
@@ -43,6 +44,7 @@
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
 #endif
+#include <QWheelEvent>
 
 #include "AbookAddressbook/AbookAddressbook.h"
 #include "AbookAddressbook/be-contacts.h"
@@ -598,6 +600,8 @@ void MainWindow::createWidgets()
     connect(msgListWidget->tree->header(), SIGNAL(sectionMoved(int,int,int)), m_delayedStateSaving, SLOT(start()));
     connect(msgListWidget->tree->header(), SIGNAL(sectionResized(int,int,int)), m_delayedStateSaving, SLOT(start()));
 
+    msgListWidget->tree->installEventFilter(this);
+
     m_messageWidget = new CompleteMessageWidget(this, m_settings);
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
@@ -831,6 +835,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 bool MainWindow::eventFilter(QObject *o, QEvent *e)
 {
+    if (msgListWidget && o == msgListWidget->tree && m_messageWidget->messageView) {
+        if (e->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
+            if (keyEvent->key() == Qt::Key_Space || keyEvent->key() == Qt::Key_Backspace) {
+                const int delta = keyEvent->key() == Qt::Key_Space ? -120 : 120;
+                QWheelEvent we(QPoint(1,1), delta, Qt::NoButton, Qt::NoModifier);
+                QCoreApplication::sendEvent(m_messageWidget->messageView, &we);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
     if (msgListWidget && msgListWidget->tree && o == msgListWidget->tree->header()->viewport()) {
         // installed if sorting is not really possible.
         QWidget *header = static_cast<QWidget*>(o);

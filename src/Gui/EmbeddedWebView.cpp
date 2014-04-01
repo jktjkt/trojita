@@ -28,9 +28,12 @@
 #include <QApplication>
 #include <QDesktopServices>
 #include <QLayout>
+#include <QMouseEvent>
 #include <QNetworkReply>
+#include <QScrollBar>
 #include <QStyle>
 #include <QStyleFactory>
+#include <QTimer>
 #include <QWebFrame>
 #include <QWebHistory>
 
@@ -101,6 +104,10 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
         setPalette(palette);
     }
 
+    m_autoScrollTimer = new QTimer(this);
+    m_autoScrollTimer->setInterval(50);
+    connect(m_autoScrollTimer, SIGNAL(timeout()), SLOT(autoScroll()));
+
     setContextMenuPolicy(Qt::NoContextMenu);
     findScrollParent();
 }
@@ -170,9 +177,51 @@ void EmbeddedWebView::changeEvent(QEvent *e)
 
 bool EmbeddedWebView::eventFilter(QObject *o, QEvent *e)
 {
-    if (e->type() == QEvent::Resize && o == m_scrollParent)
-        constrainSize();
+    if (o == m_scrollParent) {
+        if (e->type() == QEvent::Resize) {
+            constrainSize();
+        } else if (e->type() == QEvent::Enter) {
+            m_autoScrollPixels = 0;
+            m_autoScrollTimer->stop();
+        }
+    }
     return QWebView::eventFilter(o, e);
+}
+
+void EmbeddedWebView::autoScroll()
+{
+    if (!(m_scrollParent && m_autoScrollPixels)) {
+        m_autoScrollPixels = 0;
+        m_autoScrollTimer->stop();
+        return;
+    }
+    if (QScrollBar *bar = qobject_cast<QAbstractScrollArea*>(m_scrollParent)->verticalScrollBar()) {
+        bar->setValue(bar->value() + m_autoScrollPixels);
+    }
+}
+
+void EmbeddedWebView::mouseMoveEvent(QMouseEvent *e)
+{
+    if ((e->buttons() & Qt::LeftButton) && m_scrollParent) {
+        m_autoScrollPixels = 0;
+        const QPoint pos = mapTo(m_scrollParent, e->pos());
+        if (pos.y() < 0)
+            m_autoScrollPixels = pos.y();
+        else if (pos.y() > m_scrollParent->rect().height())
+            m_autoScrollPixels = pos.y() - m_scrollParent->rect().height();
+        autoScroll();
+        m_autoScrollTimer->start();
+    }
+    QWebView::mouseMoveEvent(e);
+}
+
+void EmbeddedWebView::mouseReleaseEvent(QMouseEvent *e)
+{
+    if (!(e->buttons() & Qt::LeftButton)) {
+        m_autoScrollPixels = 0;
+        m_autoScrollTimer->stop();
+    }
+    QWebView::mouseReleaseEvent(e);
 }
 
 void EmbeddedWebView::findScrollParent()
