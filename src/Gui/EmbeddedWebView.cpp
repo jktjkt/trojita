@@ -195,7 +195,7 @@ void EmbeddedWebView::autoScroll()
         m_autoScrollTimer->stop();
         return;
     }
-    if (QScrollBar *bar = static_cast<QAbstractScrollArea*>(m_scrollParent)->verticalScrollBar()) {
+    if (QScrollBar *bar = qobject_cast<QAbstractScrollArea*>(m_scrollParent)->verticalScrollBar()) {
         bar->setValue(bar->value() + m_autoScrollPixels);
     }
 }
