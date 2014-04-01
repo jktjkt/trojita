@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2014 Dan Chapman <dpniel@ubuntu.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -44,21 +44,25 @@ MainView{
 
     property bool networkOffline: true
     property Item fwdOnePage: null
-    function showConnectionError(message) {
-        pageStack.pop()
-        connectionErrorBanner.text = message
-        connectionErrorBanner.parent = pageStack.currentPage
-        connectionErrorBanner.show()
-        networkOffline = true
+
+    function showImapError(message) {
+        infoDialog.title = qsTr("Error")
+        infoDialog.text = message
+        PopupUtils.open(infoDialog.showInfoDialog)
     }
 
-    //FIXME    change me to be correct notifcations via notify-send ?
+    function showNetworkError(message) {
+        infoDialog.title = qsTr("Network Error")
+        infoDialog.text = message
+        PopupUtils.open(infoDialog.showInfoDialog)
+    }
 
-    //    function showImapAlert(message) {
-    //        alertBanner.text = message
-    //        alertBanner.parent = pageStack.currentPage
-    //        alertBanner.show()
-    //    }
+    function showImapAlert(message) {
+        infoDialog.title = qsTr("Server Message")
+        infoDialog.text = message
+        PopupUtils.open(infoDialog.showInfoDialog)
+
+    }
 
     function requestingPassword() {
         pageStack.push(passwordDialogPage)
@@ -69,8 +73,9 @@ MainView{
     }
 
     function connectModels() {
-        imapAccess.imapModel.connectionError.connect(showConnectionError)
-        //        imapAccess.imapModel.alertReceived.connect(showImapAlert)
+        imapAccess.imapModel.imapError.connect(showImapError)
+        imapAccess.imapModel.networkError.connect(showNetworkError)
+        imapAccess.imapModel.alertReceived.connect(showImapAlert)
         imapAccess.imapModel.authRequested.connect(requestingPassword)
         imapAccess.imapModel.authAttemptFailed.connect(authAttemptFailed)
         imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
@@ -98,6 +103,8 @@ MainView{
             onCancelClicked:  imapAccess.setSslPolicy(false)
         }
     }
+
+    InfoDialog { id: infoDialog }
 
     PageStack{
         id:pageStack

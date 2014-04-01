@@ -719,6 +719,7 @@ if(WITH_UBUNTU)
         ${TROJITA_UBUNTU_PATH}/qml/trojita/SslSheet.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/main.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/MessageListPage.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/InfoDialog.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/Utils.js
         ${TROJITA_UBUNTU_PATH}/qml/trojita/contact.svg
         ${TROJITA_UBUNTU_PATH}/qml/trojita/contact_grey.svg
