@@ -62,21 +62,36 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
     QTabWidget(parent)
 {
     setContentsMargins(0,0,0,0);
-    int preferredIndex = -1;
-    const QString preferredMimeType = options & PartWidgetFactory::PART_PREFER_PLAINTEXT_OVER_HTML ?
-                QLatin1String("text/plain") : QLatin1String("text/html");
-    // First loop iteration is used to find out what MIME type to show
+
+    const bool plaintextIsPreferred = options & PartWidgetFactory::PART_PREFER_PLAINTEXT_OVER_HTML;
+
+    // Which "textual, boring part" should be shown?
+    int preferredTextIndex = -1;
+
+    // First loop iteration is used to find out what MIME type to show.
+    // Two iterations are needed because we have to know about whether we're shown or hidden when creating child widgets.
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid());
+
         QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
-        if (preferredIndex == -1 && mimeType == preferredMimeType)
-            preferredIndex = i;
+
+        const bool isPlainText = mimeType == QLatin1String("text/plain");
+        const bool isHtml = mimeType == QLatin1String("text/html");
+
+        // At first, check whether this is one of the textual parts which we like
+        if (isPlainText && plaintextIsPreferred) {
+            preferredTextIndex = i;
+        } else if (isHtml && !plaintextIsPreferred) {
+            preferredTextIndex = i;
+        }
     }
-    if (preferredIndex == -1) {
-        // If no preference is obvious, let's assume the last item wins
-        preferredIndex = partIndex.model()->rowCount(partIndex) - 1;
-    }
+
+    // Show that part which is "the most important". The choice is usually between text/plain and text/html, one of them will win,
+    // depending on the user's preferences.  If there are additional parts, the user will be alerted about them later on.
+    // As usual, the later parts win in general.
+    int preferredIndex = preferredTextIndex == -1 ? partIndex.model()->rowCount(partIndex) - 1 : preferredTextIndex;
+
     // The second loop actually creates the widgets
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         QModelIndex anotherPart = partIndex.child(i, 0);
@@ -91,7 +106,9 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
         addTab(item, mimeType);
     }
+
     setCurrentIndex(preferredIndex);
+
     tabBar()->installEventFilter(this);
 }
 
