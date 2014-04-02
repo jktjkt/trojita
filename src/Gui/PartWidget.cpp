@@ -92,9 +92,7 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         addTab(item, mimeType);
     }
     setCurrentIndex(preferredIndex);
-    Q_FOREACH(QTabBar *tb, findChildren<QTabBar*>()) {
-        tb->installEventFilter(this);
-    }
+    tabBar()->installEventFilter(this);
 }
 
 QString MultipartAlternativeWidget::quoteMe() const
