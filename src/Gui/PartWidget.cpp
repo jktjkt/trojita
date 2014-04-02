@@ -104,7 +104,29 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
                                             options :
                                             options | PartWidgetFactory::PART_IS_HIDDEN));
         QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
+
+        const bool isPlainText = mimeType == QLatin1String("text/plain");
+        const bool isHtml = mimeType == QLatin1String("text/html");
+
+        if (isPlainText) {
+            //: Translators: use something very short, perhaps even "text". Don't describe this as "Clear text".
+            //: This string is used as a caption of a tab showing the plaintext part of a mail which is e.g.
+            //: sent in both plaintext and HTML formats.
+            mimeType = tr("Plaintext");
+        } else if (isHtml) {
+            //: Translators: caption of the tab which shows a HTML version of the mail. Use some short, compact text here.
+            mimeType = tr("HTML");
+        }
+
         addTab(item, mimeType);
+
+        // Bug 332950: some items nested within a multipart/alternative message are not exactly an alternative.
+        // One such example is a text/calendar right next to a text/html and a text/plain.
+        if (!isPlainText && !isHtml) {
+            // Unfortunately we cannot change the tab background with current Qt (Q1 2014),
+            // see https://bugreports.qt-project.org/browse/QTBUG-840 for details
+            setTabIcon(i, QIcon::fromTheme(QLatin1String("emblem-important")));
+        }
     }
 
     setCurrentIndex(preferredIndex);
