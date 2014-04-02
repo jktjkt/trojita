@@ -222,8 +222,6 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                                           model->isNetworkAvailable() ? loadingMode : loadingMode | PART_IGNORE_CLICKTHROUGH);
         }
     }
-    QLabel *lbl = new QLabel(mimeType, 0);
-    return lbl;
 }
 
 MessageView *PartWidgetFactory::messageView() const
