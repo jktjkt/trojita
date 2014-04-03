@@ -24,29 +24,11 @@ import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.Popups 0.1
 
-Item {
-    property Component showInfoDialog: infoPopup
-    property alias title: internalValues.infoTitle
-    property alias text: internalValues.infoMessage
-
-    QtObject {
-        id: internalValues
-        property string infoTitle
-        property string infoMessage
-    }
-
-    Component {
-        // simple dialog component with a single "Close" button
-        id: infoPopup
-        Dialog {
-            id: showInfoDialog
-            title: qsTr(internalValues.infoTitle)
-            text: qsTr(internalValues.infoMessage)
-            Button {
-                text: qsTr("Close")
-                color: UbuntuColors.orange
-                onClicked: PopupUtils.close(showInfoDialog)
-            }
-        }
+Dialog {
+    id: showInfoDialog
+    Button {
+        text: qsTr("Close")
+        color: UbuntuColors.orange
+        onClicked: PopupUtils.close(showInfoDialog)
     }
 }

@@ -46,21 +46,24 @@ MainView{
     property Item fwdOnePage: null
 
     function showImapError(message) {
-        infoDialog.title = qsTr("Error")
-        infoDialog.text = message
-        PopupUtils.open(infoDialog.showInfoDialog)
+        PopupUtils.open(Qt.resolvedUrl("InfoDialog.qml"), appWindow, {
+                            title: qsTr("Error"),
+                            text: message
+                        })
     }
 
     function showNetworkError(message) {
-        infoDialog.title = qsTr("Network Error")
-        infoDialog.text = message
-        PopupUtils.open(infoDialog.showInfoDialog)
+        PopupUtils.open(Qt.resolvedUrl("InfoDialog.qml"), appWindow, {
+                            title: qsTr("Network Error"),
+                            text: message
+                        })
     }
 
     function showImapAlert(message) {
-        infoDialog.title = qsTr("Server Message")
-        infoDialog.text = message
-        PopupUtils.open(infoDialog.showInfoDialog)
+        PopupUtils.open(Qt.resolvedUrl("InfoDialog.qml"), appWindow, {
+                            title: qsTr("Server Message"),
+                            text: message
+                        })
 
     }
 
@@ -103,8 +106,6 @@ MainView{
             onCancelClicked:  imapAccess.setSslPolicy(false)
         }
     }
-
-    InfoDialog { id: infoDialog }
 
     PageStack{
         id:pageStack
