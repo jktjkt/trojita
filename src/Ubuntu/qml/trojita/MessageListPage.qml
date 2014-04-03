@@ -127,14 +127,21 @@ Page {
                         margins: units.gu(1)
                     }
 
-                    Image {
+                    Row{
                         height: units.gu(2)
-                        width: height
-                        source: model.isMarkedFlagged ? Qt.resolvedUrl("./favorite-selected.svg") : Qt.resolvedUrl("./favorite-unselected.svg")
-                        anchors {
-                            right: parent.right
-                            rightMargin: units.gu(1)
+                        spacing: units.gu(1)
+                        Image {
+                            visible: model.hasAttachments
+                            height: units.gu(2)
+                            width: height
+                            source: Qt.resolvedUrl("./attach.svg")
                         }
+                        Image {
+                            height: units.gu(2)
+                            width: height
+                            source: model.isMarkedFlagged ? Qt.resolvedUrl("./favorite-selected.svg") : Qt.resolvedUrl("./favorite-unselected.svg")
+                        }
+                        anchors.right: parent.right
                     }
                     Label{
                         id: timeLabel
