@@ -1309,39 +1309,47 @@ bool TreeItemMessage::hasAttachments(Model *const model)
     if (m_children.isEmpty()) {
         // strange, but why not, I guess
         return false;
-    } else if (m_children.size() == 1) {
-        // see if it's something innocent
-
-        TreeItemPart *part = static_cast<TreeItemPart*>(m_children[0]);
-
-        // Check for a doublet of (text/plain, text/html) in any order *and nothing else*
-        if (part->mimeType() == QLatin1String("multipart/alternative") && part->childrenCount(model) == 2) {
-            QStringList mimeTypes;
-            mimeTypes << static_cast<TreeItemPart*>(part->child(0, model))->mimeType();
-            mimeTypes << static_cast<TreeItemPart*>(part->child(1, model))->mimeType();
-            mimeTypes.sort();
-            if (mimeTypes == QStringList() << QLatin1String("text/html") << QLatin1String("text/plain")) {
-                return false;
-            }
-        }
-
-        // At this point we will consider anything but a "plaintext message" or "HTML message" to have an attachment
-        if (part->mimeType() != QLatin1String("text/plain") && part->mimeType() != QLatin1String("text/html")) {
-            return true;
-        }
-
-        // See AttachmentView for details behind this.
-        const QByteArray contentDisposition = part->bodyDisposition().toLower();
-        const bool isInline = contentDisposition.isEmpty() || contentDisposition == "inline";
-        const bool looksLikeAttachment = !part->fileName().isEmpty();
-        if (!isInline || looksLikeAttachment) {
-            return true;
-        } else {
-            return false;
-        }
-    } else {
+    } else if (m_children.size() > 1) {
         // Again, very strange -- the message should have had a single multipart as a root node, but let's cope with this as well
         return true;
+    } else {
+        return hasNestedAttachments(model, static_cast<TreeItemPart*>(m_children[0]));
+    }
+}
+
+/** @short Walk the MIME tree starting at @arg part and check if there are any attachments below (or at there) */
+bool TreeItemMessage::hasNestedAttachments(Model *const model, TreeItemPart *part)
+{
+    while (true) {
+
+        const QString mimeType = part->mimeType();
+
+        if (mimeType == QLatin1String("multipart/signed") && part->childrenCount(model) == 2) {
+            // "strip" the signature, look at what's inside
+            part = static_cast<TreeItemPart*>(part->child(0, model));
+        } else if (part->mimeType().startsWith(QLatin1String("multipart/"))) {
+            // Return false iff no children is/has an attachment.
+            // Originally this code was like this only for multipart/alternative, but in the end Stephan Platz lobbied for
+            // treating ML signatures the same (which means multipart/mixed) has to be included, and there's also a RFC
+            // which says that unrecognized multiparts should be treated exactly like a multipart/mixed.
+            // As a bonus, this makes it possible to get rid of an extra branch for single-childed multiparts.
+            for (uint i = 0; i < part->childrenCount(model); ++i) {
+                if (hasNestedAttachments(model, static_cast<TreeItemPart*>(part->child(i, model)))) {
+                    return true;
+                }
+            }
+            return false;
+        } else if (part->mimeType() == QLatin1String("text/html") || part->mimeType() == QLatin1String("text/plain")) {
+            // See AttachmentView for details behind this.
+            const QByteArray contentDisposition = part->bodyDisposition().toLower();
+            const bool isInline = contentDisposition.isEmpty() || contentDisposition == "inline";
+            const bool looksLikeAttachment = !part->fileName().isEmpty();
+
+            return looksLikeAttachment || !isInline;
+        } else {
+            // anything else must surely be an attachment
+            return true;
+        }
     }
 }
 
