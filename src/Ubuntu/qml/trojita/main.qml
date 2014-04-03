@@ -159,7 +159,7 @@ MainView{
         MessageListPage {
             id: messageList
             visible: false
-            model: imapAccess.msgListModel ? imapAccess.msgListModel : undefined
+            model: imapAccess.threadingMsgListModel ? imapAccess.threadingMsgListModel : undefined
             onMessageSelected: {
                 imapAccess.openMessage(mailboxList.currentMailboxLong, uid)
                 pageStack.push(Qt.resolvedUrl("OneMessagePage.qml"),

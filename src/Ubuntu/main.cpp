@@ -30,6 +30,7 @@
 #include "Common/Application.h"
 #include "Common/MetaTypes.h"
 #include "Imap/Model/ImapAccess.h"
+#include "Imap/Model/ThreadingMsgListModel.h"
 
 int main(int argc, char *argv[])
 {
@@ -106,6 +107,9 @@ int main(int argc, char *argv[])
     QSettings s;
     Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
     viewer.engine()->rootContext()->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
+
+    qmlRegisterUncreatableType<Imap::Mailbox::ThreadingMsgListModel>("trojita.models.ThreadingMsgListModel", 0, 1, "ThreadingMsgListModel",
+            QLatin1String("ThreadingMsgListModel can only be created from the C++ code. Use ImapAccess if you need access to an instance."));
 
     viewer.setTitle(QObject::trUtf8("Trojitá"));
     viewer.setSource(QUrl::fromLocalFile(qmlFile));

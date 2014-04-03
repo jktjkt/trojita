@@ -80,6 +80,7 @@ the pruneTree() method, except that we might not know the UID of the message in 
 class ThreadingMsgListModel: public QAbstractProxyModel
 {
     Q_OBJECT
+    Q_ENUMS(SortCriterium)
 
 public:
 
@@ -182,7 +183,7 @@ public slots:
     /** @short Enable or disable threading */
     void setUserWantsThreading(bool enable);
 
-    bool setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium,
+    Q_INVOKABLE bool setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium,
                                            const Qt::SortOrder order = Qt::AscendingOrder);
 
     void slotIncrementalThreadingAvailable(const Responses::ESearch::IncrementalThreadingData_t &data);

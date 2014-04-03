@@ -23,13 +23,14 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
+import trojita.models.ThreadingMsgListModel 0.1
 import "Utils.js" as Utils
 
 Page {
     id: messageListPage
     property alias model: view.model
     property bool _pendingScroll: false
-    property bool indexValid: model ? model.itemsValid : true
+    property bool indexValid: imapAccess.msgListModel ? imapAccess.msgListModel.itemsValid : true
     title: qsTr("Messages")
     signal messageSelected(int uid)
     function scrollToBottom() {
@@ -176,4 +177,18 @@ Page {
     }
 
     flickable: view
+
+    Connections {
+        target: imapAccess.threadingMsgListModel
+        onRowsInserted: sortTimer.start()
+    }
+
+    Timer {
+        id: sortTimer
+        repeat: false;
+        interval: 100
+        onTriggered: imapAccess.threadingMsgListModel
+                        .setUserSearchingSortingPreference([], ThreadingMsgListModel.SORT_NONE
+                                                            , Qt.DescendingOrder)
+    }
 }
