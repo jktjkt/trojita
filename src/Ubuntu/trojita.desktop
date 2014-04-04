@@ -39,6 +39,7 @@ Keywords[de]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[nl]=mail;e-mail;e-mailbericht;IMAP;SMTP;eml;MUA;
 Keywords[pl]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[pt]=correio;e-mail;IMAP;SMTP;eml;MUA;
+Keywords[pt_BR]=mail;e-mail;email;IMAP;SMTP;eml;MUA;
 Keywords[sk]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[sv]=brev;e-post;IMAP;SMTP;eml;MUA;
 Keywords[uk]=mail;e-mail;IMAP;SMTP;eml;MUA;пошта;електронна;емейл;імейл;імап;аймап;смтп;емл;
