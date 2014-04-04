@@ -42,14 +42,13 @@ Page {
         id: normalMessageItemDelegate
         Rectangle {
             property variant model
-
-            height: units.gu(8)
+            height: baseItem.height
             color: model.isMarkedRead ? "#CBCBCB": "transparent"
             width: view.width
             ListItems.Base {
+                id: baseItem
                 removable: true
                 confirmRemoval: true
-                height: parent.height
                 onClicked: {
                     if (model.isFetched) {
                         messageSelected(model.messageUid)
@@ -57,7 +56,7 @@ Page {
                 }
                 UbuntuShape {
                     id: msgListContactImg
-                    height: units.gu(6)
+                    height: units.gu(4.5)
                     width: height
                     color: Utils.getIconColor(fromLabel.text)
                     anchors {
@@ -86,17 +85,18 @@ Page {
                         height: units.gu(2)
                         spacing: units.gu(1)
                         Image {
+                            id: contactIcon
                             height: parent.height * 0.8
                             width: height
                             source: Qt.resolvedUrl("./contact_grey.svg");
-                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.bottom: fromLabel.baseline
                         }
                         Label {
                             id: fromLabel
                             text: Utils.formatMailAddresses(model.from, true)
                             color: "black"
                             anchors.verticalCenter: parent.verticalCenter
-                            font.pixelSize: units.gu(2.2)
+                            font.pixelSize: FontUtils.sizeToPixels("medium")
                         }
                     }
                     Row {
@@ -113,6 +113,7 @@ Page {
                             width: fromSubjectColumn.width - parent.height - units.gu(1)
                             elide: Text.ElideRight
                             anchors.verticalCenter: parent.verticalCenter
+                            font.pixelSize: FontUtils.sizeToPixels("small")
                         }
                     }
                 }
@@ -138,6 +139,7 @@ Page {
                     Label{
                         id: timeLabel
                         text: Utils.formatDate(model.date)
+                        font.pixelSize: FontUtils.sizeToPixels("small")
                     }
                 }
             }
