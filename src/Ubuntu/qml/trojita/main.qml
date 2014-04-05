@@ -64,15 +64,16 @@ MainView{
                             title: qsTr("Server Message"),
                             text: message
                         })
-
     }
 
     function requestingPassword() {
-        pageStack.push(passwordDialogPage)
+        PopupUtils.open(passwordDialogComponent)
     }
 
     function authAttemptFailed(message) {
-        passwordDialog.authErrorMessage = message
+        passwordInput.title = qsTr("<font color='#333333'>Authentication Error</font>")
+        passwordInput.authMessage = message
+        passwordInput.settingsMessage = qsTr("Try re-entering account password or click cancel to go to Settings")
     }
 
     function connectModels() {
@@ -103,7 +104,26 @@ MainView{
             title:  imapAccess.sslInfoTitle
             htmlText: imapAccess.sslInfoMessage
             onConfirmClicked: imapAccess.setSslPolicy(true)
-            onCancelClicked:  imapAccess.setSslPolicy(false)
+            onCancelClicked: imapAccess.setSslPolicy(false)
+        }
+    }
+
+    Item {
+        id: passwordInput
+        // AWESOME!!, a bit of html tagging to the rescue
+        property string title: qsTr("<font color='#333333'>Authentication Required</font>")
+        property string authMessage
+        property string settingsMessage
+        Component {
+            id: passwordDialogComponent
+            PasswordInputSheet {
+                id: passwordInputSheet
+                title: passwordInput.title
+                message: qsTr("Please provide IMAP password for user <b>%1</b> on <b>%2</b>:").arg(
+                                     imapAccess.username).arg(imapAccess.server)
+                authErrorMessage: passwordInput.authMessage
+                settingsMessage: passwordInput.settingsMessage
+            }
         }
     }
 
@@ -118,22 +138,7 @@ MainView{
             visible: false
         }
 
-        // Get the users password if Not Enter in Correctly
-        Page{
-            id:passwordDialogPage
-            visible: false
-            title: qsTr("Passwords")
-            PasswordInputSheet {
-                id: passwordDialog
-                onConfirmClicked:  imapAccess.imapModel.imapPassword = password
-                onCancelClicked:{
-                    imapAccess.imapModel.imapPassword = undefined
-                    pageStack.push(imapSettings)
-                }
-            }
-        }
-
-        //        Access Granted show MailBox Lists
+        // Access Granted show MailBox Lists
         MailboxListPage {
             id: mailboxList
             visible: false

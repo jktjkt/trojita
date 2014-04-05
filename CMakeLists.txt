@@ -732,6 +732,7 @@ if(WITH_UBUNTU)
         ${TROJITA_UBUNTU_PATH}/qml/trojita/favorite-unselected.svg
         ${TROJITA_UBUNTU_PATH}/qml/trojita/attach.svg
         ${TROJITA_UBUNTU_PATH}/qml/trojita/back.svg
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/key.svg
     )
     set(AUTOPILOT_FILES
         ${AUTOPILOT_DIR}/__init__.py

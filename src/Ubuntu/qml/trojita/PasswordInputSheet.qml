@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2014 Dan Chapman <dpniel@ubuntu.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -24,93 +24,94 @@ import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.Popups 0.1
 
-Item {
+ComposerSheet {
     id: passRoot
-    width: parent.width
-    height: parent.height
-    property string password: password.text
+
+    property alias message: message.text
     property alias authErrorMessage: authFailedMessage.text
-    signal confirmClicked()
-    signal cancelClicked()
+    property alias settingsMessage: settingsMessage.text
+
     Column {
-        width: parent.width
-        height: parent.height
-        anchors.centerIn: parent
-        spacing: 10
-        Label {
-            id: authFailureReason
-            visible: false
-        }
-        Label {
-            text: qsTr("Password")
-            fontSize: "large"
-        }
-        TextField {
-            id: password
-            anchors {left: parent.left; right: parent.right;}
-            inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
-            echoMode: TextInput.Password
-        }
-        Label {
-            id: authFailedMessage
-            onTextChanged: PopupUtils.open(authErrorPopup)
-            anchors {
-                left: parent.left;
-                right: parent.right;
-                topMargin: 40;
-                leftMargin: 16;
-                rightMargin: 16
+        id: rootColumn
+        anchors.fill: parent
+        anchors.margins: units.gu(3)
+        spacing: units.gu(2)
+
+        Item {
+            id: pwdPrompt
+            width: parent.width
+
+            Image {
+                id: keyIcon
+                source: Qt.resolvedUrl("./key.svg")
+                height: units.gu(10)
+                width: height
             }
-        }
-        Row {
-            spacing: 12
-            anchors.horizontalCenter: parent.horizontalCenter
-            Button{
-                id: okButton
-                text: "Confirm"
-                onClicked:{
-                    passRoot.confirmClicked()
+
+            Label {
+                id: message
+                visible: false
+                anchors {
+                    top: parent.top
+                    left: keyIcon.right
+                    right: parent.right
+                    leftMargin: units.gu(3)
                 }
+                color: "#333333"
+                onTextChanged: visible = true
+                wrapMode: TextEdit.Wrap
             }
-            Button{
-                id: cancelButton
-                text: "Cancel"
-                onClicked:{
-                    passRoot.cancelClicked()
+
+            TextField {
+                id: password
+                anchors {
+                    left: keyIcon.right
+                    top: message.bottom
+                    topMargin: units.gu(2)
+                    leftMargin: units.gu(3)
+                    right: parent.right
                 }
+                placeholderText: qsTr("Enter password")
+                inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
+                echoMode: TextInput.Password
+
+            }
+
+            Label {
+                id: authFailedMessage
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: password.bottom
+                    topMargin: units.gu(2)
+                }
+                color: "red"
+                wrapMode: TextEdit.Wrap
+            }
+
+            Label {
+                id: settingsMessage
+                visible: false
+                onTextChanged: visible = true
+                width: parent.width
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                    top: authFailedMessage.bottom
+                    topMargin: units.gu(2)
+                }
+                color: "#333333"
+                wrapMode: TextEdit.Wrap
             }
         }
     }
-    Component{
-        id: authErrorPopup
-        Dialog{
-            id: authErrorDialog
-            title: authFailureReason
-            text:  authErrorMessage
 
+    onConfirmClicked: {
+        imapAccess.imapModel.imapPassword = password.text
+    }
 
-            Column{
-                spacing: units.gu(1)
-                Button{
-                    id:closePopUp
-                    width: parent.width
-                    text: "try again"
-                    onClicked: {
-                        // TODO FLUSH cache and what not and try to login again
-                        PopupUtils.close(authErrorDialog)
-                    }
-                }
-                Button{
-                    id: filebugButton
-                    width: parent.width
-                    text: qsTr("File bug")
-                    onClicked: {
-                        PopupUtils.close(authErrorDialog)
-                        // TODO MAKE A pagestack that returns the bug tracker
-                        Qt.openUrlExternally("https://bugs.kde.org/enter_bug.cgi?product=trojita&format=guided")
-                    }
-                }
-            }
-        }
+    onCancelClicked: {
+        imapAccess.imapModel.imapPassword = undefined
+        pageStack.push(imapSettings)
     }
 }
