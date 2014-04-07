@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2014 Dan Chapman <dpniel@ubuntu.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -26,14 +27,13 @@ import Ubuntu.Components.ListItems 0.1 as ListItems
 
 Page {
     id: mailboxPage
-    title: qsTr("Mail Box")
-    visible:  false
+    title: isNestedSomewhere() ? currentMailbox : qsTr("Mail Box")
     signal mailboxSelected(string mailbox)
     property int nestingDepth: 0
-    property string viewTitle: isNestedSomewhere() ? currentMailbox : imapAccess.server
     property string currentMailbox
     property string currentMailboxLong
     property QtObject model
+
     function openParentMailbox() {
         moveListViewRight.start()
         model.setRootOneLevelUp()
@@ -42,22 +42,30 @@ Page {
         currentMailboxLong = imapAccess.mailboxListMailboxName()
 
     }
+
     function isNestedSomewhere() {
         return nestingDepth > 0
     }
 
     ListView {
         id: view
-        model: imapAccess.mailboxModel
+        model: mailboxPage.model
         width: parent.width
         height: parent.height
         delegate: ListItems.Subtitled{
             id: titleText
             text: shortMailboxName
-            subText: totalMessageCount + " total, " + unreadMessageCount + " unread"
+            subText: qsTr("%L1 total, %L2 unread").arg(model.totalMessageCount).arg(model.unreadMessageCount)
+            progression: model.mailboxHasChildMailboxes
             onClicked: {
                 view.positionViewAtIndex(model.index, ListView.Visible);
-                if (mailboxIsSelectable) {
+                if (progression) {
+                    currentMailbox = shortMailboxName
+                    currentMailboxLong = mailboxName
+                    moveListViewLeft.start()
+                    ++nestingDepth
+                    mailboxPage.model.setRootItemByOffset(index)
+                } else {
                     currentMailbox = shortMailboxName
                     currentMailboxLong = mailboxName
                     mailboxSelected(mailboxName)
@@ -65,8 +73,40 @@ Page {
             }
         }
     }
+    tools: ToolbarItems {
+        back: ToolbarButton {
+            // only show back button if nested
+            visible: mailboxPage.isNestedSomewhere()
+            action: Action {
+                iconSource: Qt.resolvedUrl("./back.svg")
+                text: qsTr("Back")
+                onTriggered: mailboxPage.openParentMailbox()
+            }
+        }
+    }
+
     flickable: view
     Scrollbar {
         flickableItem: view
+    }
+
+    SequentialAnimation {
+        id: moveListViewLeft
+        property int oneStepDuration: 100
+        ScriptAction { script: mailboxPage.anchors.fill = undefined }
+        PropertyAnimation { target: mailboxPage; properties: "x"; to: -mailboxPage.width; duration: moveListViewLeft.oneStepDuration }
+        PropertyAction { target: mailboxPage; property: "x"; value: mailboxPage.width }
+        PropertyAnimation { target: mailboxPage; properties: "x"; to: 0; duration: moveListViewLeft.oneStepDuration }
+        ScriptAction { script: mailboxPage.anchors.fill = mailboxPage.parent }
+    }
+
+    SequentialAnimation {
+        id: moveListViewRight
+        property alias oneStepDuration: moveListViewLeft.oneStepDuration
+        ScriptAction { script: mailboxPage.anchors.fill = undefined }
+        PropertyAnimation { target: mailboxPage; properties: "x"; to: mailboxPage.width; duration: moveListViewRight.oneStepDuration }
+        PropertyAction { target: mailboxPage; property: "x"; value: -mailboxPage.width }
+        PropertyAnimation { target: mailboxPage; properties: "x"; to: 0; duration: moveListViewRight.oneStepDuration }
+        ScriptAction { script: mailboxPage.anchors.fill = mailboxPage.parent }
     }
 }
