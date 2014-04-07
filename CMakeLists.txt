@@ -665,12 +665,12 @@ endif()
 
 #// add the Ubuntu Libs Here ALSO
 if(WITH_UBUNTU)
-    add_executable(trojita ${trojitaUbuntu_SOURCES})
+    add_executable(trojita-ubu ${trojitaUbuntu_SOURCES})
 
-    set_property(TARGET trojita APPEND PROPERTY INCLUDE_DIRECTORIES
+    set_property(TARGET trojita-ubu APPEND PROPERTY INCLUDE_DIRECTORIES
         ${QT_MKSPECS_DIR}/default ${CMAKE_CURRENT_SOURCE_DIR}/src/Ubuntu)
 
-    target_link_libraries(trojita AppVersion Imap MSA Streams qwwsmtpclient Common Composer )
+    target_link_libraries(trojita-ubu AppVersion Imap MSA Streams qwwsmtpclient Common Composer )
 endif()
 
 if(WITH_QT5)
@@ -687,7 +687,7 @@ if(WITH_QT5)
         qt5_use_modules(be.contacts Widgets)
         qt5_use_modules(trojita Widgets Network)
     elseif(WITH_UBUNTU)
-        qt5_use_modules(trojita Network Core Qml Quick)
+        qt5_use_modules(trojita-ubu Network Core Qml Quick)
     endif()
 endif()
 
@@ -756,16 +756,16 @@ if(WITH_UBUNTU)
     )
 
     install(
-        TARGETS trojita
+        TARGETS trojita-ubu
         RUNTIME DESTINATION bin
     )
     install(
-        FILES ${TROJITA_UBUNTU_PATH}/trojita.desktop
+        FILES ${TROJITA_UBUNTU_PATH}/trojita-ubu.desktop
         DESTINATION share/applications
     )
 
     install(
-        FILES ${TROJITA_UBUNTU_PATH}/trojita.png
+        FILES ${TROJITA_UBUNTU_PATH}/trojita-ubu.png
         DESTINATION share/icons/hicolor/64x64/apps
     )
 
