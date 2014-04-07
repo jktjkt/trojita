@@ -43,7 +43,7 @@ Page {
         Rectangle {
             property variant model
             height: baseItem.height
-            color: model.isMarkedRead ? "#CBCBCB": "transparent"
+            color: (model && model.isMarkedRead) ? "#CBCBCB": "transparent"
             width: view.width
             ListItems.Base {
                 id: baseItem
@@ -93,7 +93,7 @@ Page {
                         }
                         Label {
                             id: fromLabel
-                            text: Utils.formatMailAddresses(model.from, true)
+                            text: model ? Utils.formatMailAddresses(model.from, true) : ""
                             color: "black"
                             anchors.verticalCenter: parent.verticalCenter
                             font.pixelSize: FontUtils.sizeToPixels("medium")
@@ -109,7 +109,7 @@ Page {
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Label {
-                            text: model.subject ? model.subject : qsTr('<No Subject>')
+                            text: (model && model.subject) ? model.subject : qsTr('<No Subject>')
                             width: fromSubjectColumn.width - parent.height - units.gu(1)
                             elide: Text.ElideRight
                             anchors.verticalCenter: parent.verticalCenter
@@ -131,7 +131,7 @@ Page {
                         height: units.gu(2)
                         spacing: units.gu(1)
                         Image {
-                            visible: model.hasAttachments
+                            visible: model && model.hasAttachments
                             height: units.gu(2)
                             width: height
                             source: Qt.resolvedUrl("./attach.svg")
@@ -139,13 +139,13 @@ Page {
                         Image {
                             height: units.gu(2)
                             width: height
-                            source: model.isMarkedFlagged ? Qt.resolvedUrl("./favorite-selected.svg") : Qt.resolvedUrl("./favorite-unselected.svg")
+                            source: (model && model.isMarkedFlagged) ? Qt.resolvedUrl("./favorite-selected.svg") : Qt.resolvedUrl("./favorite-unselected.svg")
                         }
                         anchors.right: parent.right
                     }
                     Label{
                         id: timeLabel
-                        text: Utils.formatDate(model.date)
+                        text: model ? Utils.formatDate(model.date) : ""
                         font.pixelSize: FontUtils.sizeToPixels("small")
                     }
                 }
