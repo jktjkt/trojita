@@ -696,9 +696,12 @@ if(WITH_SHARED_PLUGINS)
     install(TARGETS Plugins DESTINATION ${CMAKE_INSTALL_LIBDIR})
 endif()
 
+include(SanitizedDesktopFile)
+
 if(WITH_DESKTOP)
+    copy_desktop_file_without_cruft("${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/trojita.desktop" "${CMAKE_CURRENT_BINARY_DIR}/trojita-DesktopGui.desktop")
     install(TARGETS trojita be.contacts RUNTIME DESTINATION bin)
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/trojita.desktop DESTINATION share/applications/)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/trojita-DesktopGui.desktop DESTINATION share/applications/ RENAME trojita.desktop)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.png DESTINATION share/icons/hicolor/32x32/apps/)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.svg DESTINATION share/icons/hicolor/scalable/apps/)
 endif()
@@ -760,8 +763,9 @@ if(WITH_UBUNTU)
         TARGETS trojita-ubu
         RUNTIME DESTINATION bin
     )
+    copy_desktop_file_without_cruft("${TROJITA_UBUNTU_PATH}/trojita-ubu.desktop" "${CMAKE_CURRENT_BINARY_DIR}/trojita-ubu.desktop")
     install(
-        FILES ${TROJITA_UBUNTU_PATH}/trojita-ubu.desktop
+        FILES ${CMAKE_CURRENT_BINARY_DIR}/trojita-ubu.desktop
         DESTINATION share/applications
     )
 
