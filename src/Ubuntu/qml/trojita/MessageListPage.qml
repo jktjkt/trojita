@@ -131,7 +131,7 @@ Page {
                         height: units.gu(2)
                         spacing: units.gu(1)
                         Image {
-                            visible: model && model.hasAttachments
+                            visible: model && model.hasAttachments === true
                             height: units.gu(2)
                             width: height
                             source: Qt.resolvedUrl("./attach.svg")
