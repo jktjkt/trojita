@@ -752,7 +752,7 @@ if(WITH_UBUNTU)
 
     install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qml
-        DESTINATION share/trojita
+        DESTINATION share/trojita-ubu
     )
 
     install(
