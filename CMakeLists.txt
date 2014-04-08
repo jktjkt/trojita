@@ -613,7 +613,7 @@ endif()
 
 ## ClearText password plugin
 if(WITH_CLEARTEXT_PLUGIN)
-    trojita_add_plugin(trojita_plugin_cleartextpassword WITH_CLEARTEXT_PLUGIN src/Plugins/ClearTextPassword/ClearTextPassword.cpp)
+    trojita_add_plugin(trojita_plugin_ClearTextPasswordPlugin WITH_CLEARTEXT_PLUGIN src/Plugins/ClearTextPassword/ClearTextPassword.cpp)
 endif()
 
 # Generate file static_plugins.h.in
