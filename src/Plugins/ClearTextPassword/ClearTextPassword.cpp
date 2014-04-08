@@ -122,7 +122,7 @@ QString trojita_plugin_ClearTextPasswordPlugin::name() const
 
 QString trojita_plugin_ClearTextPasswordPlugin::description() const
 {
-    return trUtf8("Trojitá config file");
+    return trUtf8("Passwords saved in Trojitá's settings");
 }
 
 QObject *trojita_plugin_ClearTextPasswordPlugin::create(QObject *parent, QSettings *settings)
