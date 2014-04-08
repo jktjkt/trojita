@@ -69,6 +69,7 @@ Icon=trojita
 Categories=Qt;Office;Network;Email;
 Keywords=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[de]=mail;e-mail;IMAP;SMTP;eml;MUA;
+Keywords[fi]=mail;e-mail;posti,sähköposti;IMAP;SMTP;eml;MUA;
 Keywords[nl]=mail;e-mail;e-mailbericht;IMAP;SMTP;eml;MUA;
 Keywords[pl]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[pt]=correio;e-mail;IMAP;SMTP;eml;MUA;
