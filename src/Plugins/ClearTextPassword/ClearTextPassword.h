@@ -28,6 +28,8 @@
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginInterface.h"
 
+class QSettings;
+
 using namespace Plugins;
 
 class ClearTextPasswordJob : public PasswordJob
@@ -41,7 +43,7 @@ public:
         Delete
     };
 
-    ClearTextPasswordJob(const QString &accountId, const QString &accountType, const QString &password, enum Type type, QObject *parent);
+    ClearTextPasswordJob(const QString &accountId, const QString &accountType, const QString &password, enum Type type, QObject *parent, QSettings *settings);
 
 public slots:
     virtual void doStart();
@@ -50,6 +52,7 @@ public slots:
 private:
     QString m_accountId, m_accountType, m_password;
     enum Type m_type;
+    QSettings *m_settings;
 };
 
 class ClearTextPassword : public PasswordPlugin
@@ -57,13 +60,16 @@ class ClearTextPassword : public PasswordPlugin
     Q_OBJECT
 
 public:
-    ClearTextPassword(QObject *parent);
+    ClearTextPassword(QObject *parent, QSettings *settings);
     virtual Features features() const;
 
 public slots:
     virtual PasswordJob *requestPassword(const QString &accountId, const QString &accountType);
     virtual PasswordJob *storePassword(const QString &accountId, const QString &accountType, const QString &password);
     virtual PasswordJob *deletePassword(const QString &accountId, const QString &accountType);
+
+private:
+    QSettings *m_settings;
 };
 
 class trojita_plugin_ClearTextPasswordPlugin : public QObject, public PluginInterface
@@ -77,7 +83,8 @@ class trojita_plugin_ClearTextPasswordPlugin : public QObject, public PluginInte
 public:
     virtual QString name() const;
     virtual QString description() const;
-    virtual QObject *create(QObject *parent);
+    virtual QObject *create(QObject *parent, QSettings *settings);
+private:
 };
 
 #endif //CLEAR_TEXT_PASSWORD_H

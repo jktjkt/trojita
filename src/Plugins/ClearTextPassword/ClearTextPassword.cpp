@@ -27,16 +27,14 @@
 
 struct Settings
 {
-static QSettings settings;
 static QString imapPassKey, smtpPassKey;
 };
-QSettings Settings::settings(QLatin1String("flaska.net"), QLatin1String("trojita"));
 QString Settings::imapPassKey = QLatin1String("imap.auth.pass");
 QString Settings::smtpPassKey = QLatin1String("msa.smtp.auth.pass");
 
 ClearTextPasswordJob::ClearTextPasswordJob(const QString &accountId, const QString &accountType, const QString &password,
-    enum Type type, QObject *parent) :
-    PasswordJob(parent), m_accountId(accountId), m_accountType(accountType), m_password(password), m_type(type)
+    enum Type type, QObject *parent, QSettings *settings) :
+    PasswordJob(parent), m_accountId(accountId), m_accountType(accountType), m_password(password), m_type(type), m_settings(settings)
 {
 }
 
@@ -46,9 +44,9 @@ void ClearTextPasswordJob::doStart()
     switch (m_type) {
     case Request:
         if (m_accountType == QLatin1String("imap")) {
-            password = Settings::settings.value(Settings::imapPassKey);
+            password = m_settings->value(Settings::imapPassKey);
         } else if (m_accountType == QLatin1String("smtp")) {
-            password = Settings::settings.value(Settings::smtpPassKey);
+            password = m_settings->value(Settings::smtpPassKey);
         } else {
             emit error(PasswordJob::UnknownError);
             break;
@@ -62,9 +60,9 @@ void ClearTextPasswordJob::doStart()
 
     case Store:
         if (m_accountType == QLatin1String("imap")) {
-            Settings::settings.setValue(Settings::imapPassKey, m_password);
+            m_settings->setValue(Settings::imapPassKey, m_password);
         } else if (m_accountType == QLatin1String("smtp")) {
-            Settings::settings.setValue(Settings::smtpPassKey, m_password);
+            m_settings->setValue(Settings::smtpPassKey, m_password);
         } else {
             emit error(PasswordJob::UnknownError);
             break;
@@ -74,9 +72,9 @@ void ClearTextPasswordJob::doStart()
 
     case Delete:
         if (m_accountType == QLatin1String("imap")) {
-            Settings::settings.remove(Settings::imapPassKey);
+            m_settings->remove(Settings::imapPassKey);
         } else if (m_accountType == QLatin1String("smtp")) {
-            Settings::settings.remove(Settings::smtpPassKey);
+            m_settings->remove(Settings::smtpPassKey);
         } else {
             emit error(PasswordJob::UnknownError);
             break;
@@ -93,7 +91,7 @@ void ClearTextPasswordJob::doStop()
     finished();
 }
 
-ClearTextPassword::ClearTextPassword(QObject *parent) : PasswordPlugin(parent)
+ClearTextPassword::ClearTextPassword(QObject *parent, QSettings *settings) : PasswordPlugin(parent), m_settings(settings)
 {
 }
 
@@ -104,17 +102,17 @@ PasswordPlugin::Features ClearTextPassword::features() const
 
 PasswordJob *ClearTextPassword::requestPassword(const QString &accountId, const QString &accountType)
 {
-    return new ClearTextPasswordJob(accountId, accountType, QString(), ClearTextPasswordJob::Request, this);
+    return new ClearTextPasswordJob(accountId, accountType, QString(), ClearTextPasswordJob::Request, this, m_settings);
 }
 
 PasswordJob *ClearTextPassword::storePassword(const QString &accountId, const QString &accountType, const QString &password)
 {
-    return new ClearTextPasswordJob(accountId, accountType, password, ClearTextPasswordJob::Store, this);
+    return new ClearTextPasswordJob(accountId, accountType, password, ClearTextPasswordJob::Store, this, m_settings);
 }
 
 PasswordJob *ClearTextPassword::deletePassword(const QString &accountId, const QString &accountType)
 {
-    return new ClearTextPasswordJob(accountId, accountType, QString(), ClearTextPasswordJob::Delete, this);
+    return new ClearTextPasswordJob(accountId, accountType, QString(), ClearTextPasswordJob::Delete, this, m_settings);
 }
 
 QString trojita_plugin_ClearTextPasswordPlugin::name() const
@@ -127,9 +125,10 @@ QString trojita_plugin_ClearTextPasswordPlugin::description() const
     return trUtf8("Trojitá config file");
 }
 
-QObject *trojita_plugin_ClearTextPasswordPlugin::create(QObject *parent)
+QObject *trojita_plugin_ClearTextPasswordPlugin::create(QObject *parent, QSettings *settings)
 {
-    return new ClearTextPassword(parent);
+    Q_ASSERT(settings);
+    return new ClearTextPassword(parent, settings);
 }
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)

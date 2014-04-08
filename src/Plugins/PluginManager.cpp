@@ -87,7 +87,7 @@ void PluginManager::loadPlugin(QObject *pluginInstance, QPluginLoader *loader)
         return;
     }
 
-    QObject *plugin = trojitaPlugin->create(this);
+    QObject *plugin = trojitaPlugin->create(this, m_settings);
     if (!plugin) {
 #ifdef PLUGIN_DEBUG
         qDebug() << "Failed to create QObject";
