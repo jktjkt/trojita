@@ -117,9 +117,20 @@ PasswordJob *ClearTextPassword::deletePassword(const QString &accountId, const Q
     return new ClearTextPasswordJob(accountId, accountType, QString(), ClearTextPasswordJob::Delete, this);
 }
 
-QString trojita_plugin_ClearTextPasswordPlugin::name() const { return QLatin1String("cleartextpassword"); }
-QString trojita_plugin_ClearTextPasswordPlugin::description() const { return trUtf8("Trojitá config file"); }
-QObject *trojita_plugin_ClearTextPasswordPlugin::create(QObject *parent) { return new ClearTextPassword(parent); }
+QString trojita_plugin_ClearTextPasswordPlugin::name() const
+{
+    return QLatin1String("cleartextpassword");
+}
+
+QString trojita_plugin_ClearTextPasswordPlugin::description() const
+{
+    return trUtf8("Trojitá config file");
+}
+
+QObject *trojita_plugin_ClearTextPasswordPlugin::create(QObject *parent)
+{
+    return new ClearTextPassword(parent);
+}
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
     Q_EXPORT_PLUGIN2(trojita_plugin_ClearTextPasswordPlugin, trojita_plugin_ClearTextPasswordPlugin)
