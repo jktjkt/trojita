@@ -45,7 +45,7 @@ PluginManager::PluginManager(QSettings *settings, const QString &addressbookKey,
     m_settings(settings), m_addressbookKey(addressbookKey), m_passwordKey(passwordKey)
 {
     m_addressbookPlugin = m_settings->value(m_addressbookKey, QLatin1String("abookaddressbook")).toString();
-    m_passwordPlugin = m_settings->value(m_passwordKey, QLatin1String("cleartext")).toString();
+    m_passwordPlugin = m_settings->value(m_passwordKey, QLatin1String("cleartextpassword")).toString();
 
     reloadPlugins();
 }
