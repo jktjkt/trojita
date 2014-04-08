@@ -46,7 +46,8 @@ int main(int argc, char **argv)
     app.installTranslator(&qtTranslator);
 
     QLatin1String localeSuffix("/locale");
-    QString localeName(QLatin1String("trojita_common_") + QLocale::system().name());
+    QString localeName(QLatin1String("trojita_common_") +
+                       (qgetenv("KDE_LANG") == "x-test" ? QLatin1String("x_test") : QLocale::system().name()));
 
     // The "installed to system" localization
     QTranslator appSystemTranslator;
