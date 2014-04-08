@@ -1,5 +1,6 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
    Copyright (C) 2012 Peter Amidon <peter@picnicpark.org>
+   Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -58,6 +59,7 @@
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GenUrlAuthTask.h"
 #include "Imap/Tasks/UidSubmitTask.h"
+#include "Plugins/PluginManager.h"
 
 namespace
 {
@@ -189,6 +191,37 @@ ComposeWidget::~ComposeWidget()
 }
 
 void ComposeWidget::passwordRequested(const QString &user, const QString &host)
+{
+    Plugins::PasswordPlugin *password = m_mainWindow->pluginManager()->password();
+    if (!password) {
+        askPassword(user, host);
+        return;
+    }
+
+    Plugins::PasswordJob *job = password->requestPassword(QLatin1String("account-0"), QLatin1String("smtp"));
+    if (!job) {
+        askPassword(user, host);
+        return;
+    }
+
+    connect(job, SIGNAL(passwordAvailable(QString)), m_submission, SLOT(setPassword(QString)));
+    connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(passwordError()));
+
+    job->setAutoDelete(true);
+    job->setProperty("user", user);
+    job->setProperty("host", host);
+    job->start();
+}
+
+void ComposeWidget::passwordError()
+{
+    Plugins::PasswordJob *job = static_cast<Plugins::PasswordJob *>(sender());
+    const QString &user = job->property("user").toString();
+    const QString &host = job->property("host").toString();
+    askPassword(user, host);
+}
+
+void ComposeWidget::askPassword(const QString &user, const QString &host)
 {
     bool ok;
     const QString &password = Gui::PasswordDialog::getPassword(this, tr("Authentication Required"),

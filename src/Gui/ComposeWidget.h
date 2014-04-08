@@ -113,6 +113,7 @@ private slots:
     void setUiWidgetsEnabled(const bool enabled);
 
     void passwordRequested(const QString &user, const QString &host);
+    void passwordError();
     void toggleReplyMarking();
     void updateReplyMarkingAction();
 
@@ -123,6 +124,7 @@ private:
     bool parseRecipients(QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &results, QString &errorMessage);
     void removeRecipient(int position);
     void fadeIn(QWidget *w);
+    void askPassword(const QString &user, const QString &host);
 
     bool buildMessageData();
     bool shouldBuildMessageLocally() const;
