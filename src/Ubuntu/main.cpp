@@ -100,7 +100,8 @@ int main(int argc, char *argv[])
     }
 
     Common::registerMetaTypes();
-    Common::Application::name = QString::fromLatin1("trojita");
+    Common::Application::name = QString::fromLatin1("net.flaska.trojita");
+    Common::Application::organization = QString::fromLatin1("net.flaska.trojita");
     AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
 

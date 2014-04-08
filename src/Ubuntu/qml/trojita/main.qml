@@ -28,7 +28,7 @@ import Ubuntu.Components.ListItems 0.1 as ListItems
 MainView{
     id: appWindow
     objectName: "appWindow"
-    applicationName: "trojita"
+    applicationName: "net.flaska.trojita"
     automaticOrientation: true
     anchorToKeyboard: true
     // resize for target device
