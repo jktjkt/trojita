@@ -82,13 +82,11 @@ void ClearTextPasswordJob::doStart()
         emit passwordDeleted();
         break;
     }
-    finished();
 }
 
 void ClearTextPasswordJob::doStop()
 {
     emit error(PasswordJob::Stopped);
-    finished();
 }
 
 ClearTextPassword::ClearTextPassword(QObject *parent, QSettings *settings) : PasswordPlugin(parent), m_settings(settings)

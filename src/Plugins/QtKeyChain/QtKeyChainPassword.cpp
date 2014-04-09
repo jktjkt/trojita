@@ -63,11 +63,9 @@ void QtKeyChainPasswordJob::result()
         break;
     case QKeychain::EntryNotFound:
         emit error(PasswordJob::NoSuchPassword);
-        finished();
         return;
     default:
         emit error(PasswordJob::UnknownError);
-        finished();
         return;
     }
 
@@ -75,15 +73,12 @@ void QtKeyChainPasswordJob::result()
     case Request:
         m_password = qobject_cast<QKeychain::ReadPasswordJob *>(m_job)->textData();
         emit passwordAvailable(m_password);
-        finished();
         return;
     case Store:
         emit passwordStored();
-        finished();
         return;
     case Delete:
         emit passwordDeleted();
-        finished();
         return;
     }
 }
@@ -96,7 +91,6 @@ void QtKeyChainPasswordJob::doStop()
         m_job = 0;
     }
     emit error(PasswordJob::Stopped);
-    finished();
 }
 
 QtKeyChainPassword::QtKeyChainPassword(QObject *parent) : PasswordPlugin(parent)
