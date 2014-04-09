@@ -123,23 +123,25 @@ PasswordJob *QtKeyChainPassword::deletePassword(const QString &accountId, const 
     return new QtKeyChainPasswordJob(accountId, accountType, QString(), QtKeyChainPasswordJob::Delete, this);
 }
 
-QString QtKeyChainPasswordPlugin::name() const
+}
+
+QString trojita_plugin_QtKeyChainPasswordPlugin::name() const
 {
     return QLatin1String("qtkeychainpassword");
 }
 
-QString QtKeyChainPasswordPlugin::description() const
+QString trojita_plugin_QtKeyChainPasswordPlugin::description() const
 {
     return tr("QtKeyChain password library");
 }
 
-QObject *QtKeyChainPasswordPlugin::create(QObject *parent)
+QObject *trojita_plugin_QtKeyChainPasswordPlugin::create(QObject *parent, QSettings *)
 {
     return new Plugins::QtKeyChainPassword(parent);
 }
 
-}
-
-Q_EXPORT_PLUGIN2(trojita_plugin_qtkeychainpassword, Plugins::QtKeyChainPasswordPlugin)
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    Q_EXPORT_PLUGIN2(trojita_plugin_QtKeychainPasswordPlugin, trojita_plugin_QtKeyChainPasswordPlugin)
+#endif
 
 // vim: set et ts=4 sts=4 sw=4

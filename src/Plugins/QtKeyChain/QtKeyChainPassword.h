@@ -76,18 +76,21 @@ public slots:
     virtual PasswordJob *deletePassword(const QString &accountId, const QString &accountType);
 };
 
-class QtKeyChainPasswordPlugin : public QObject, public PluginInterface
+}
+
+class trojita_plugin_QtKeyChainPasswordPlugin : public QObject, public Plugins::PluginInterface
 {
     Q_OBJECT
     Q_INTERFACES(Plugins::PluginInterface)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.password.qtkeychain")
+#endif
 
 public:
     virtual QString name() const;
     virtual QString description() const;
-    virtual QObject *create(QObject *parent);
+    virtual QObject *create(QObject *parent, QSettings *);
 };
-
-}
 
 #endif //QTKEYCHAINPASSWORD_H
 
