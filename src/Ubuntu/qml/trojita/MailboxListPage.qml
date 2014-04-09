@@ -52,23 +52,39 @@ Page {
         model: mailboxPage.model
         width: parent.width
         height: parent.height
-        delegate: ListItems.Subtitled{
-            id: titleText
-            text: shortMailboxName
-            subText: qsTr("%L1 total, %L2 unread").arg(model.totalMessageCount).arg(model.unreadMessageCount)
-            progression: model.mailboxHasChildMailboxes
-            onClicked: {
-                view.positionViewAtIndex(model.index, ListView.Visible);
-                if (progression) {
+        delegate: ListItems.Empty{
+
+            ListItems.Subtitled {
+                id: titleText
+                anchors {
+                    left: parent.left
+                    right: progression.visible ? progression.left : parent.right
+                }
+                showDivider: false
+                text: shortMailboxName
+                subText: qsTr("%L1 total, %L2 unread").arg(model.totalMessageCount).arg(model.unreadMessageCount)
+                onClicked: {
+                    view.positionViewAtIndex(model.index, ListView.Visible);
+                    currentMailbox = shortMailboxName
+                    currentMailboxLong = mailboxName
+                    mailboxSelected(mailboxName)
+                }
+            }
+
+            ListItems.Standard {
+                id: progression
+                width: units.gu(5)
+                visible: model.mailboxHasChildMailboxes
+                progression: true
+                anchors.right: parent.right
+                showDivider: false
+                onClicked: {
+                    view.positionViewAtIndex(model.index, ListView.Visible);
                     currentMailbox = shortMailboxName
                     currentMailboxLong = mailboxName
                     moveListViewLeft.start()
                     ++nestingDepth
                     mailboxPage.model.setRootItemByOffset(index)
-                } else {
-                    currentMailbox = shortMailboxName
-                    currentMailboxLong = mailboxName
-                    mailboxSelected(mailboxName)
                 }
             }
         }
