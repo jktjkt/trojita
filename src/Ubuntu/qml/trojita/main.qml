@@ -85,7 +85,22 @@ MainView{
         imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
         imapAccess.imapModel.networkPolicyOnline.connect(function() {networkOffline = false})
         imapAccess.imapModel.networkPolicyExpensive.connect(function() {networkOffline = false})
+    }
+
+    function setupConnections() {
+        // connect these before calling imapAccess.doConnect()
         imapAccess.checkSslPolicy.connect(function() {PopupUtils.open(sslSheetPage)})
+        imapAccess.modelsChanged.connect(modelsChanged)
+    }
+
+    function settingsChanged() {
+        // when settings are changed we want to unload the mailboxview model
+        mailboxList.model = null
+    }
+
+    function modelsChanged() {
+        mailboxList.model = imapAccess.mailboxModel
+        showHome()
     }
 
     function showHome() {
@@ -103,7 +118,10 @@ MainView{
             id: sslSheet
             title:  imapAccess.sslInfoTitle
             htmlText: imapAccess.sslInfoMessage
-            onConfirmClicked: imapAccess.setSslPolicy(true)
+            onConfirmClicked: {
+                imapAccess.setSslPolicy(true)
+                showHome()
+            }
             onCancelClicked: imapAccess.setSslPolicy(false)
         }
     }
@@ -127,38 +145,34 @@ MainView{
         }
     }
 
+    Component {
+        id: settingsTabs
+        SettingsTabs {}
+    }
+
     PageStack{
         id:pageStack
-        Component.onCompleted: pageStack.push(imapSettings)
-
-        // Get the Users name and details
-        ImapSettings {
-            id: imapSettings
-            anchors.fill: parent
-            visible: false
+        Component.onCompleted: {
+            setupConnections()
+            if (imapAccess.sslMode) {
+                imapAccess.doConnect()
+                connectModels()
+            } else {
+                pageStack.push(settingsTabs)
+            }
         }
 
         // Access Granted show MailBox Lists
         MailboxListPage {
             id: mailboxList
             visible: false
-            model: imapAccess.mailboxModel ? imapAccess.mailboxModel : null
             onMailboxSelected: {
                 imapAccess.msgListModel.setMailbox(mailbox)
                 messageList.title = mailbox
                 messageList.scrollToBottom()
                 pageStack.push(messageList)
             }
-            // Looks like this gotta be in this file. If moved to the MailboxListPage.qml,
-            // QML engine complains about a binding loop.
-            // WTF?
 
-            //???? we should add a item to a loader here with some binding ?
-            property bool indexValid: mailboxList.model ? mailboxList.model.itemsValid : true
-            onIndexValidChanged:{
-                if (indexValid !== true)
-                    return appWindow.showHome()
-            }
         }
 
         MessageListPage {

@@ -99,6 +99,15 @@ Page {
                 onTriggered: mailboxPage.openParentMailbox()
             }
         }
+        ToolbarButton {
+            action: Action {
+                iconSource: Qt.resolvedUrl("./settings.svg")
+                text: qsTr("Settings")
+                onTriggered: {
+                    pageStack.push(settingsTabs)
+                }
+            }
+        }
     }
 
     flickable: view
