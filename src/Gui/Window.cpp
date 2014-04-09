@@ -1565,7 +1565,7 @@ ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QSt
                                           && m_settings->value(SettingsNames::smtpStartTlsKey).toBool(),
                                           m_settings->value(SettingsNames::smtpAuthKey).toBool(),
                                           m_settings->value(SettingsNames::smtpUserKey).toString(),
-                                          m_settings->value(SettingsNames::smtpPassKey).toString());
+                                          QString());
     } else if (method == SettingsNames::methodSENDMAIL) {
         QStringList args = m_settings->value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
