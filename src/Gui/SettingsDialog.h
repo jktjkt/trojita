@@ -45,8 +45,15 @@ namespace Composer
 class SenderIdentitiesModel;
 }
 
+namespace Plugins
+{
+class PluginManager;
+}
+
 namespace Gui
 {
+class MainWindow;
+class SettingsDialog;
 
 /** @short Common interface for any page of the settings dialogue */
 class ConfigurationWidgetInterface {
@@ -61,7 +68,7 @@ class GeneralPage : public QScrollArea, Ui_GeneralPage, public ConfigurationWidg
 {
     Q_OBJECT
 public:
-    GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
+    GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
@@ -73,12 +80,20 @@ private slots:
     void addButtonClicked();
     void editButtonClicked();
     void deleteButtonClicked();
+    void passwordPluginChanged();
 
 private:
     Composer::SenderIdentitiesModel *m_identitiesModel;
+    SettingsDialog *m_parent;
+
+    void reloadPlugins();
 
     GeneralPage(const GeneralPage &); // don't implement
     GeneralPage &operator=(const GeneralPage &); // don't implement
+
+signals:
+    void saved();
+    void reloadPasswords();
 };
 
 class EditIdentity : public QDialog, Ui_EditIdentity
@@ -99,6 +114,9 @@ private:
 
     EditIdentity(const EditIdentity &); // don't implement
     EditIdentity &operator=(const EditIdentity &); // don't implement
+
+signals:
+    void saved();
 };
 
 
@@ -106,10 +124,13 @@ class OutgoingPage : public QScrollArea, Ui_OutgoingPage, public ConfigurationWi
 {
     Q_OBJECT
 public:
-    OutgoingPage(QWidget *parent, QSettings &s);
+    OutgoingPage(SettingsDialog *parent, QSettings &s);
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
+
+public slots:
+    void reloadPassword();
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
@@ -120,17 +141,26 @@ private:
 private slots:
     void updateWidgets();
     void maybeShowPasswordWarning();
+    void slotSetPassword(const QString &password = QString());
+    void slotStorePasswordFailed();
 
 private:
+    bool hasPassword;
+    bool isPasswordEnabled;
+    SettingsDialog *m_parent;
+
     OutgoingPage(const OutgoingPage &); // don't implement
     OutgoingPage &operator=(const OutgoingPage &); // don't implement
+
+signals:
+    void saved();
 };
 
 class ImapPage : public QScrollArea, Ui_ImapPage, public ConfigurationWidgetInterface
 {
     Q_OBJECT
 public:
-    ImapPage(QWidget *parent, QSettings &s);
+    ImapPage(SettingsDialog *parent, QSettings &s);
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
@@ -138,12 +168,16 @@ public:
     bool hasPassword() const;
 #endif
 
+public slots:
+    void reloadPassword();
+
 protected:
     virtual void resizeEvent(QResizeEvent *event);
 
 private:
     enum { NETWORK, PROCESS };
     enum Encryption { NONE, STARTTLS, SSL };
+    SettingsDialog *m_parent;
     quint16 m_imapPort;
     bool m_imapStartTls;
 
@@ -152,10 +186,15 @@ private slots:
     void maybeShowPasswordWarning();
     void maybeShowPortWarning();
     void changePort();
+    void slotSetPassword(const QString &password = QString());
+    void slotStorePasswordFailed();
 
 private:
     ImapPage(const ImapPage &); // don't implement
     ImapPage &operator=(const ImapPage &); // don't implement
+
+signals:
+    void saved();
 };
 
 class CachePage : public QScrollArea, Ui_CachePage, public ConfigurationWidgetInterface
@@ -179,6 +218,9 @@ private slots:
 private:
     CachePage(const CachePage &); // don't implement
     CachePage &operator=(const CachePage &); // don't implement
+
+signals:
+    void saved();
 };
 
 #ifdef XTUPLE_CONNECT
@@ -206,6 +248,8 @@ private:
 
     XtConnectPage(const XtConnectPage &); // don't implement
     XtConnectPage &operator=(const XtConnectPage &); // don't implement
+signals:
+    void saved();
 };
 #endif
 
@@ -214,13 +258,23 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings);
+    SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings);
+
+    Plugins::PluginManager *pluginManager();
 
     static QString warningStyleSheet;
+
+signals:
+    void reloadPasswordsRequested();
+
 public slots:
     void accept();
     void reject();
+private slots:
+    void slotAccept();
 private:
+    MainWindow *mainWindow;
+    QDialogButtonBox *buttons;
     QTabWidget *stack;
     QVector<ConfigurationWidgetInterface*> pages;
 #ifdef XTUPLE_CONNECT
@@ -228,6 +282,7 @@ private:
 #endif
     Composer::SenderIdentitiesModel *m_senderIdentities;
     QSettings *m_settings;
+    int m_saveSignalCount;
 
     SettingsDialog(const SettingsDialog &); // don't implement
     SettingsDialog &operator=(const SettingsDialog &); // don't implement
