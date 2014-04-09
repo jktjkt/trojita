@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -68,6 +69,7 @@
 #include "Imap/Network/FileDownloadManager.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
+#include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginManager.h"
 #include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
@@ -1104,8 +1106,26 @@ void MainWindow::slotShowSettings()
 
 void MainWindow::authenticationRequested()
 {
-    QString user = m_settings->value(Common::SettingsNames::imapUserKey).toString();
-    QString pass = m_settings->value(Common::SettingsNames::imapPassKey).toString();
+    Plugins::PasswordPlugin *password = pluginManager()->password();
+    if (password) {
+        Plugins::PasswordJob *job = password->requestPassword(QLatin1String("account-0"), QLatin1String("imap"));
+        if (job) {
+            connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(authenticationContinue(QString)));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(authenticationContinue()));
+            job->setAutoDelete(true);
+            job->start();
+            return;
+        }
+    }
+
+    authenticationContinue(QString());
+
+}
+
+void MainWindow::authenticationContinue(const QString &password)
+{
+    const QString &user = m_settings->value(Common::SettingsNames::imapUserKey).toString();
+    QString pass = password;
     if (m_ignoreStoredPassword || pass.isEmpty()) {
         bool ok;
         pass = PasswordDialog::getPassword(this, tr("Authentication Required"),
@@ -1564,8 +1584,7 @@ ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QSt
                                           (method == SettingsNames::methodSMTP)
                                           && m_settings->value(SettingsNames::smtpStartTlsKey).toBool(),
                                           m_settings->value(SettingsNames::smtpAuthKey).toBool(),
-                                          m_settings->value(SettingsNames::smtpUserKey).toString(),
-                                          QString());
+                                          m_settings->value(SettingsNames::smtpUserKey).toString());
     } else if (method == SettingsNames::methodSENDMAIL) {
         QStringList args = m_settings->value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
