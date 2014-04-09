@@ -126,7 +126,7 @@ QString trojita_plugin_QtKeyChainPasswordPlugin::name() const
 
 QString trojita_plugin_QtKeyChainPasswordPlugin::description() const
 {
-    return tr("QtKeyChain password library");
+    return tr("Secure storage via QtKeychain");
 }
 
 QObject *trojita_plugin_QtKeyChainPasswordPlugin::create(QObject *parent, QSettings *)
