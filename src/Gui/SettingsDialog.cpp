@@ -479,7 +479,7 @@ void ImapPage::reloadPassword()
                     "If you do not enter password here, Trojitá will prompt for one when needed."));
             }
             connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(slotSetPassword(QString)));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(slotSetPassword()));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(slotStorePasswordFailed()));
             job->setAutoDelete(true);
             job->start();
         }
@@ -784,7 +784,7 @@ void OutgoingPage::reloadPassword()
                     "If you do not enter password here, Trojitá will prompt for one when needed."));
             }
             connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(slotSetPassword(QString)));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(slotSetPassword()));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(slotStorePasswordFailed()));
             job->setAutoDelete(true);
             job->start();
         }
