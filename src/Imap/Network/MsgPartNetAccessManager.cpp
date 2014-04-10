@@ -28,6 +28,7 @@
 #include "MsgPartNetworkReply.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
+#include "QQuickNetworkReplyWrapper.h"
 
 namespace Imap
 {
@@ -207,6 +208,12 @@ void MsgPartNetAccessManager::registerMimeTypeTranslation(const QString &origina
     m_mimeTypeFixups[originalMimeType] = translatedMimeType;
 }
 
+void MsgPartNetAccessManager::wrapQmlWebViewRequest(QObject *request, QObject *reply)
+{
+    QNetworkRequest qnr(request->property("url").toUrl());
+    QNetworkReply *qnreply = get(qnr);
+    new QQuickNetworkReplyWrapper(reply, qnreply);
+}
 }
 }
 

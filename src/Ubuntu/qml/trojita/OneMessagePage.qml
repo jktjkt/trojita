@@ -119,10 +119,7 @@ Page {
                                 onReceivedRequest: {
                                     console.log('trojita-imap scheme called')
                                     messageLabel.text = qsTr("<b>Message URL:</b> ") + imapAccess.oneMessageModel.messageId
-                                    var nam = imapAccess.msgQNAM
-                                    nam.createRequest(null, request, null)
-                                    reply.data = "<html><head><title>Test Application Scheme</title></head><body>"+request.url+"</body></html>"
-                                    reply.send()
+                                    imapAccess.msgQNAM.wrapQmlWebViewRequest(request, reply)
                                 }
                             }
                         ]

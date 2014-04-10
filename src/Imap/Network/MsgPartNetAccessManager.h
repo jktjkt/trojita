@@ -57,6 +57,7 @@ public:
     static Imap::Mailbox::TreeItemPart *cidToPart(const QByteArray &cid, Mailbox::Model *model, Mailbox::TreeItem *root);
     QString translateToSupportedMimeType(const QString &originalMimeType) const;
     void registerMimeTypeTranslation(const QString &originalMimeType, const QString &translatedMimeType);
+    Q_INVOKABLE void wrapQmlWebViewRequest(QObject *request, QObject *reply);
 protected:
     virtual QNetworkReply *createRequest(Operation op, const QNetworkRequest &req, QIODevice *outgoingData=0);
 signals:

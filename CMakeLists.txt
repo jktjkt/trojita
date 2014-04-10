@@ -398,6 +398,7 @@ set(libImap_SOURCES
     ${path_Imap}/Network/ForbiddenReply.cpp
     ${path_Imap}/Network/MsgPartNetAccessManager.cpp
     ${path_Imap}/Network/MsgPartNetworkReply.cpp
+    ${path_Imap}/Network/QQuickNetworkReplyWrapper.cpp
 
     ${path_Imap}/Model/Cache.cpp
     ${path_Imap}/Model/CombinedCache.cpp

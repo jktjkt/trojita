@@ -53,7 +53,7 @@ class ImapAccess : public QObject
     Q_PROPERTY(QObject *visibleTasksModel READ visibleTasksModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *oneMessageModel READ oneMessageModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *networkWatcher READ networkWatcher NOTIFY modelsChanged)
-    Q_PROPERTY(QNetworkAccessManager *msgQNAM READ msgQNAM NOTIFY modelsChanged)
+    Q_PROPERTY(QObject *msgQNAM READ msgQNAM NOTIFY modelsChanged)
     Q_PROPERTY(QString server READ server WRITE setServer NOTIFY serverChanged)
     Q_PROPERTY(int port READ port WRITE setPort NOTIFY portChanged)
     Q_PROPERTY(QString username READ username WRITE setUsername NOTIFY usernameChanged)
@@ -73,7 +73,7 @@ public:
     QObject *oneMessageModel() const;
     QObject *networkWatcher() const;
     QObject *threadingMsgListModel() const;
-    QNetworkAccessManager *msgQNAM() const;
+    QObject *msgQNAM() const;
 
     QString server() const;
     void setServer(const QString &server);

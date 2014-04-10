@@ -370,7 +370,7 @@ QObject *ImapAccess::networkWatcher() const
     return m_netWatcher;
 }
 
-QNetworkAccessManager *ImapAccess::msgQNAM() const
+QObject *ImapAccess::msgQNAM() const
 {
     return m_msgQNAM;
 }
