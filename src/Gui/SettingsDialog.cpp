@@ -479,7 +479,8 @@ void ImapPage::reloadPassword()
                     "If you do not enter password here, Trojitá will prompt for one when needed."));
             }
             connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(slotSetPassword(QString)));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(slotStorePasswordFailed()));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
+                    this, SLOT(slotStorePasswordFailed(Plugins::PasswordJob::Error,QString)));
             job->setAutoDelete(true);
             job->start();
         }
@@ -592,7 +593,8 @@ void ImapPage::save(QSettings &s)
         Plugins::PasswordJob *job = password->storePassword(QLatin1String("account-0"), QLatin1String("imap"), imapPass->text());
         if (job) {
             connect(job, SIGNAL(passwordStored()), this, SIGNAL(saved()));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(slotStorePasswordFailed()));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
+                    this, SLOT(slotStorePasswordFailed(Plugins::PasswordJob::Error,QString)));
             job->setAutoDelete(true);
             job->start();
             return;
@@ -601,9 +603,17 @@ void ImapPage::save(QSettings &s)
     emit saved();
 }
 
-void ImapPage::slotStorePasswordFailed()
+void ImapPage::slotStorePasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage)
 {
-    QMessageBox::critical(this, tr("IMAP password"), tr("Storing IMAP password failed"));
+    switch (error) {
+    case Plugins::PasswordJob::NoSuchPassword:
+        Q_ASSERT(false);
+        break;
+    case Plugins::PasswordJob::Stopped:
+    case Plugins::PasswordJob::UnknownError:
+        QMessageBox::critical(this, tr("IMAP password"), tr("Storing IMAP password failed: %1").arg(errorMessage));
+        break;
+    }
     emit saved();
 }
 
@@ -784,7 +794,8 @@ void OutgoingPage::reloadPassword()
                     "If you do not enter password here, Trojitá will prompt for one when needed."));
             }
             connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(slotSetPassword(QString)));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(slotStorePasswordFailed()));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
+                    this, SLOT(slotStorePasswordFailed(Plugins::PasswordJob::Error,QString)));
             job->setAutoDelete(true);
             job->start();
         }
@@ -924,7 +935,8 @@ void OutgoingPage::save(QSettings &s)
         Plugins::PasswordJob *job = password->storePassword(QLatin1String("account-0"), QLatin1String("smtp"), smtpPass->text());
         if (job) {
             connect(job, SIGNAL(passwordStored()), this, SIGNAL(saved()));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(slotStorePasswordFailed()));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
+                    this, SLOT(slotStorePasswordFailed(Plugins::PasswordJob::Error,QString)));
             job->setAutoDelete(true);
             job->start();
             return;
@@ -933,9 +945,17 @@ void OutgoingPage::save(QSettings &s)
     emit saved();
 }
 
-void OutgoingPage::slotStorePasswordFailed()
+void OutgoingPage::slotStorePasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage)
 {
-    QMessageBox::critical(this, tr("SMTP password"), tr("Storing SMTP password failed"));
+    switch (error) {
+    case Plugins::PasswordJob::NoSuchPassword:
+        Q_ASSERT(false);
+        break;
+    case Plugins::PasswordJob::Stopped:
+    case Plugins::PasswordJob::UnknownError:
+        QMessageBox::critical(this, tr("SMTP password"), tr("Storing SMTP password failed: %1").arg(errorMessage));
+        break;
+    }
     emit saved();
 }
 

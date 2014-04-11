@@ -54,7 +54,7 @@ signals:
     void passwordDeleted();
 
     /** @short Emitted when job finish unsuccessful with error */
-    void error(Plugins::PasswordJob::Error error);
+    void error(const Plugins::PasswordJob::Error error, const QString &errorMessage);
 
 protected:
     PasswordJob(QObject *parent);

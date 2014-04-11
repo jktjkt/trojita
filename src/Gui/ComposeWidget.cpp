@@ -205,7 +205,7 @@ void ComposeWidget::passwordRequested(const QString &user, const QString &host)
     }
 
     connect(job, SIGNAL(passwordAvailable(QString)), m_submission, SLOT(setPassword(QString)));
-    connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(passwordError()));
+    connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)), this, SLOT(passwordError()));
 
     job->setAutoDelete(true);
     job->setProperty("user", user);

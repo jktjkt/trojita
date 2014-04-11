@@ -1111,7 +1111,7 @@ void MainWindow::authenticationRequested()
         Plugins::PasswordJob *job = password->requestPassword(QLatin1String("account-0"), QLatin1String("imap"));
         if (job) {
             connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(authenticationContinue(QString)));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error)), this, SLOT(authenticationContinue()));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)), this, SLOT(authenticationContinue()));
             job->setAutoDelete(true);
             job->start();
             return;

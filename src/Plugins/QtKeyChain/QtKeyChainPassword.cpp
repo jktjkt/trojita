@@ -62,10 +62,10 @@ void QtKeyChainPasswordJob::result()
     case QKeychain::NoError:
         break;
     case QKeychain::EntryNotFound:
-        emit error(PasswordJob::NoSuchPassword);
+        emit error(PasswordJob::NoSuchPassword, QString());
         return;
     default:
-        emit error(PasswordJob::UnknownError);
+        emit error(PasswordJob::UnknownError, m_job->errorString());
         return;
     }
 
@@ -90,7 +90,7 @@ void QtKeyChainPasswordJob::doStop()
         m_job->deleteLater();
         m_job = 0;
     }
-    emit error(PasswordJob::Stopped);
+    emit error(PasswordJob::Stopped, QString());
 }
 
 QtKeyChainPassword::QtKeyChainPassword(QObject *parent) : PasswordPlugin(parent)

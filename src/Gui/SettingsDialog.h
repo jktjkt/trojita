@@ -26,6 +26,7 @@
 #include <QDialog>
 #include <QPointer>
 #include <QSettings>
+#include "Plugins/PasswordPlugin.h"
 #include "ui_SettingsGeneralPage.h"
 #include "ui_EditIdentity.h"
 #include "ui_SettingsImapPage.h"
@@ -142,7 +143,7 @@ private slots:
     void updateWidgets();
     void maybeShowPasswordWarning();
     void slotSetPassword(const QString &password = QString());
-    void slotStorePasswordFailed();
+    void slotStorePasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage);
 
 private:
     bool hasPassword;
@@ -187,7 +188,7 @@ private slots:
     void maybeShowPortWarning();
     void changePort();
     void slotSetPassword(const QString &password = QString());
-    void slotStorePasswordFailed();
+    void slotStorePasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage);
 
 private:
     ImapPage(const ImapPage &); // don't implement

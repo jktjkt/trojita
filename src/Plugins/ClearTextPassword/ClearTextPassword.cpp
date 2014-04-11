@@ -48,11 +48,11 @@ void ClearTextPasswordJob::doStart()
         } else if (m_accountType == QLatin1String("smtp")) {
             password = m_settings->value(Settings::smtpPassKey);
         } else {
-            emit error(PasswordJob::UnknownError);
+            emit error(PasswordJob::UnknownError, tr("This plugin only supports storing of IMAP and SMTP passwords"));
             break;
         }
         if (password.type() != QVariant::String) {
-            emit error(PasswordJob::NoSuchPassword);
+            emit error(PasswordJob::NoSuchPassword, QString());
         } else {
             emit passwordAvailable(password.toString());
         }
@@ -64,7 +64,7 @@ void ClearTextPasswordJob::doStart()
         } else if (m_accountType == QLatin1String("smtp")) {
             m_settings->setValue(Settings::smtpPassKey, m_password);
         } else {
-            emit error(PasswordJob::UnknownError);
+            emit error(PasswordJob::UnknownError, tr("This plugin only supports storing of IMAP and SMTP passwords"));
             break;
         }
         emit passwordStored();
@@ -76,7 +76,7 @@ void ClearTextPasswordJob::doStart()
         } else if (m_accountType == QLatin1String("smtp")) {
             m_settings->remove(Settings::smtpPassKey);
         } else {
-            emit error(PasswordJob::UnknownError);
+            emit error(PasswordJob::UnknownError, tr("This plugin only supports storing of IMAP and SMTP passwords"));
             break;
         }
         emit passwordDeleted();
@@ -86,7 +86,7 @@ void ClearTextPasswordJob::doStart()
 
 void ClearTextPasswordJob::doStop()
 {
-    emit error(PasswordJob::Stopped);
+    emit error(PasswordJob::Stopped, QString());
 }
 
 ClearTextPassword::ClearTextPassword(QObject *parent, QSettings *settings) : PasswordPlugin(parent), m_settings(settings)
