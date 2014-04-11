@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>ImapPage</class>
  <widget class="QScrollArea" name="ImapPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>322</width>
+    <height>360</height>
+   </rect>
+  </property>
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
   </property>
@@ -9,6 +17,14 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="scrollAreaWidgetContents">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>301</width>
+     <height>454</height>
+    </rect>
+   </property>
    <layout class="QFormLayout" name="formLayout">
     <property name="fieldGrowthPolicy">
      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
@@ -119,11 +135,11 @@ p, li { white-space: pre-wrap; }
     </item>
     <item row="6" column="0">
      <widget class="QLabel" name="imapNeedsNetworkLabel">
-      <property name="text">
-       <string>Needs Network</string>
-      </property>
       <property name="toolTip">
        <string>Check if Trojitá should connect to a network in order to access this account. You will stay offline if there is no network connectivity.</string>
+      </property>
+      <property name="text">
+       <string>Needs Network</string>
       </property>
       <property name="buddy">
        <cstring>imapNeedsNetwork</cstring>
@@ -200,7 +216,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
+    <item row="11" column="0">
      <widget class="QLabel" name="processPathLabel">
       <property name="text">
        <string>Path to Server &amp;Binary</string>
@@ -210,7 +226,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="10" column="1">
+    <item row="11" column="1">
      <widget class="LineEdit" name="processPath">
       <property name="whatsThis">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -226,7 +242,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="11" column="0">
+    <item row="12" column="0">
      <widget class="QLabel" name="startOfflineLabel">
       <property name="text">
        <string>Start in O&amp;ffline Mode</string>
@@ -236,7 +252,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="11" column="1">
+    <item row="12" column="1">
      <widget class="QCheckBox" name="startOffline">
       <property name="toolTip">
        <string>Don't connect to the IMAP server upon startup</string>
@@ -249,7 +265,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="12" column="0">
+    <item row="13" column="0">
      <widget class="QLabel" name="imapEnableIdLabel">
       <property name="text">
        <string>Reveal I'm using Trojitá</string>
@@ -259,7 +275,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="12" column="1">
+    <item row="13" column="1">
      <widget class="QCheckBox" name="imapEnableId">
       <property name="toolTip">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -275,7 +291,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="13" column="0">
+    <item row="14" column="0">
      <widget class="QLabel" name="imapCapabilitiesBlacklistLabel">
       <property name="text">
        <string>Extension &amp;Blacklist</string>
@@ -285,8 +301,21 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="13" column="1">
+    <item row="14" column="1">
      <widget class="LineEdit" name="imapCapabilitiesBlacklist"/>
+    </item>
+    <item row="10" column="0" colspan="2">
+     <widget class="QLabel" name="passwordPluginStatus">
+      <property name="text">
+       <string notr="true">plugin status</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
