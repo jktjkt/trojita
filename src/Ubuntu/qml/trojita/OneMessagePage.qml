@@ -156,6 +156,7 @@ Page {
             flickableItem: view
         }
     }
+    flickable: view
 
     Component.onCompleted: imapAccess.oneMessageModel.envelopeChanged.connect(handleChangedEnvelope)
     Component.onDestruction: imapAccess.oneMessageModel.envelopeChanged.disconnect(handleChangedEnvelope)
