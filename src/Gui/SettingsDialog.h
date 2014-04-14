@@ -51,6 +51,10 @@ namespace Plugins
 class PluginManager;
 }
 
+namespace UiUtils {
+class PasswordWatcher;
+}
+
 namespace Gui
 {
 class MainWindow;
@@ -130,9 +134,6 @@ public:
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
 
-public slots:
-    void reloadPassword();
-
 protected:
     virtual void resizeEvent(QResizeEvent *event);
 
@@ -141,17 +142,11 @@ private:
 
 private slots:
     void updateWidgets();
-    void maybeShowPasswordWarning();
-    void slotSetPassword(const QString &password = QString());
-    void slotReadPasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage);
-    void slotStorePasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage);
-    void disablePasswordWidgets();
-    void enablePasswordWidgets();
+    void slotSetPassword();
 
 private:
     SettingsDialog *m_parent;
-    /** @short Are we waiting for the password plugin? */
-    bool m_waitingForPw;
+    UiUtils::PasswordWatcher *m_pwWatcher;
 
     OutgoingPage(const OutgoingPage &); // don't implement
     OutgoingPage &operator=(const OutgoingPage &); // don't implement
@@ -172,9 +167,6 @@ public:
     bool hasPassword() const;
 #endif
 
-public slots:
-    void reloadPassword();
-
 protected:
     virtual void resizeEvent(QResizeEvent *event);
 
@@ -184,17 +176,13 @@ private:
     SettingsDialog *m_parent;
     quint16 m_imapPort;
     bool m_imapStartTls;
+    UiUtils::PasswordWatcher *m_pwWatcher;
 
 private slots:
     void updateWidgets();
-    void maybeShowPasswordWarning();
     void maybeShowPortWarning();
     void changePort();
-    void slotSetPassword(const QString &password = QString());
-    void slotReadPasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage);
-    void slotStorePasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage);
-    void disablePasswordWidgets();
-    void enablePasswordWidgets();
+    void slotSetPassword();
 
 private:
     ImapPage(const ImapPage &); // don't implement

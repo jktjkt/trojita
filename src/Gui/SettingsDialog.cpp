@@ -51,6 +51,7 @@
 #include "Gui/Window.h"
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginManager.h"
+#include "UiUtils/PasswordWatcher.h"
 
 namespace Gui
 {
@@ -122,6 +123,7 @@ void SettingsDialog::accept()
     settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 #endif
 
+    buttons->setEnabled(false);
     Q_FOREACH(ConfigurationWidgetInterface *page, pages) {
         page->asWidget()->setEnabled(false);
     }
@@ -145,7 +147,7 @@ void SettingsDialog::slotAccept()
     if (--m_saveSignalCount > 0) {
         return;
     }
-
+    buttons->setEnabled(true);
     QDialog::accept();
 }
 
@@ -440,7 +442,7 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(maybeShowPortWarning()));
     connect(encryption, SIGNAL(currentIndexChanged(int)), this, SLOT(changePort()));
     portWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
-    connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPasswordWarning()));
+    connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
     imapUser->setText(s.value(SettingsNames::imapUserKey).toString());
     processPath->setText(s.value(SettingsNames::imapProcessKey).toString());
     startOffline->setChecked(s.value(SettingsNames::imapStartOffline).toBool());
@@ -452,66 +454,21 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
 
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
+
+    m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QLatin1String("account-0"), QLatin1String("imap"));
+    connect(m_pwWatcher, SIGNAL(stateChanged()), SLOT(updateWidgets()));
+    connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
+    connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));
+    connect(m_pwWatcher, SIGNAL(readingDone()), this, SLOT(slotSetPassword()));
+    connect(m_parent, SIGNAL(reloadPasswordsRequested()), m_pwWatcher, SLOT(reloadPassword()));
+
     updateWidgets();
-    maybeShowPasswordWarning();
     maybeShowPortWarning();
-
-    connect(m_parent, SIGNAL(reloadPasswordsRequested()), this, SLOT(reloadPassword()));
-    passwordPluginStatus->setVisible(false);
 }
 
-void ImapPage::disablePasswordWidgets()
+void ImapPage::slotSetPassword()
 {
-    imapPassLabel->setEnabled(false);
-    imapPass->setEnabled(false);
-    imapPass->setText(QString());
-    passwordPluginStatus->setVisible(true);
-}
-
-void ImapPage::enablePasswordWidgets()
-{
-    passwordPluginStatus->setVisible(false);
-    imapPassLabel->setEnabled(true);
-    imapPass->setEnabled(true);
-}
-
-void ImapPage::reloadPassword()
-{
-    disablePasswordWidgets();
-    passwordWarning->setText(QString());
-
-    Plugins::PasswordPlugin *password = m_parent->pluginManager()->password();
-    if (password) {
-        Plugins::PasswordJob *job = password->requestPassword(QLatin1String("account-0"), QLatin1String("imap"));
-        if (job) {
-            if (password->features() & Plugins::PasswordPlugin::FeatureEncryptedStorage) {
-                passwordWarning->setStyleSheet(QString());
-                passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
-                    "If you do not enter password here, Trojitá will prompt for one when needed."));
-            } else {
-                passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
-                passwordWarning->setText(trUtf8("This password will be saved in clear text. "
-                    "If you do not enter password here, Trojitá will prompt for one when needed."));
-            }
-            connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(slotSetPassword(QString)));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
-                    this, SLOT(slotReadPasswordFailed(Plugins::PasswordJob::Error,QString)));
-            job->setAutoDelete(true);
-            job->start();
-            passwordPluginStatus->setText(tr("Loading password from plugin %1...").arg(m_parent->pluginManager()->passwordPlugin()));
-            return;
-        } else {
-            passwordPluginStatus->setText(tr("Cannot read password via plugin %1").arg(m_parent->pluginManager()->passwordPlugin()));
-        }
-    } else {
-        passwordPluginStatus->setText(tr("Password plugin is not available."));
-    }
-}
-
-void ImapPage::slotSetPassword(const QString &password)
-{
-    enablePasswordWidgets();
-    imapPass->setText(password);
+    imapPass->setText(m_pwWatcher->password());
 }
 
 void ImapPage::resizeEvent(QResizeEvent *event)
@@ -568,6 +525,23 @@ void ImapPage::updateWidgets()
         if (imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAP))
             imapPort->setText(QString::number(Common::PORT_IMAPS));
     }
+
+    passwordWarning->setVisible(!imapPass->text().isEmpty());
+    if (m_pwWatcher->isStorageEncrypted()) {
+        passwordWarning->setStyleSheet(QString());
+        passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
+            "If you do not enter password here, Trojitá will prompt for one when needed."));
+    } else {
+        passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
+        passwordWarning->setText(trUtf8("This password will be saved in clear text. "
+            "If you do not enter password here, Trojitá will prompt for one when needed."));
+    }
+
+    passwordPluginStatus->setVisible(m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk());
+    passwordPluginStatus->setText(m_pwWatcher->progressMessage());
+
+    imapPass->setEnabled(!m_pwWatcher->isWaitingForPlugin());
+    imapPassLabel->setEnabled(!m_pwWatcher->isWaitingForPlugin());
 }
 
 void ImapPage::save(QSettings &s)
@@ -608,51 +582,7 @@ void ImapPage::save(QSettings &s)
     s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QChar(' ')));
     s.setValue(SettingsNames::imapNeedsNetwork, imapNeedsNetwork->isChecked());
 
-    Plugins::PasswordPlugin *password = m_parent->pluginManager()->password();
-    if (password) {
-        Plugins::PasswordJob *job = password->storePassword(QLatin1String("account-0"), QLatin1String("imap"), imapPass->text());
-        if (job) {
-            connect(job, SIGNAL(passwordStored()), this, SIGNAL(saved()));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
-                    this, SLOT(slotStorePasswordFailed(Plugins::PasswordJob::Error,QString)));
-            job->setAutoDelete(true);
-            job->start();
-            return;
-        }
-    }
-    emit saved();
-}
-
-void ImapPage::slotReadPasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage)
-{
-    switch (error) {
-    case Plugins::PasswordJob::NoSuchPassword:
-        enablePasswordWidgets();
-        break;
-    case Plugins::PasswordJob::Stopped:
-    case Plugins::PasswordJob::UnknownError:
-        disablePasswordWidgets();
-        passwordPluginStatus->setText(tr("Password reading failed: %1").arg(errorMessage));
-        break;
-    }
-}
-
-void ImapPage::slotStorePasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage)
-{
-    enablePasswordWidgets();
-    switch (error) {
-    case Plugins::PasswordJob::NoSuchPassword:
-        Q_ASSERT(false);
-        break;
-    case Plugins::PasswordJob::Stopped:
-    case Plugins::PasswordJob::UnknownError:
-        QMessageBox::critical(this, tr("IMAP password"), tr("Storing IMAP password failed: %1").arg(errorMessage));
-        passwordPluginStatus->setText(tr("Password saving failed: %1").arg(errorMessage));
-        // Explicitly show the warning, overriding the enablePasswordWidgets' effect
-        passwordPluginStatus->setVisible(true);
-        break;
-    }
-    emit saved();
+    m_pwWatcher->setPassword(imapPass->text());
 }
 
 QWidget *ImapPage::asWidget()
@@ -679,11 +609,6 @@ bool ImapPage::checkValidity() const
     return true;
 }
 
-void ImapPage::maybeShowPasswordWarning()
-{
-    passwordWarning->setVisible(!imapPass->text().isEmpty());
-}
-
 void ImapPage::maybeShowPortWarning()
 {
     if (method->currentIndex() == PROCESS) {
@@ -698,7 +623,6 @@ void ImapPage::maybeShowPortWarning()
         portWarning->setVisible(imapPort->text() != QString::number(Common::PORT_IMAP));
         portWarning->setText(tr("This port is nonstandard. The default port is 143."));
     }
-
 }
 
 
@@ -764,7 +688,7 @@ bool CachePage::checkValidity() const
     return true;
 }
 
-OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), Ui_OutgoingPage(), m_parent(parent), m_waitingForPw(false)
+OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), Ui_OutgoingPage(), m_parent(parent)
 {
     using Common::SettingsNames;
     Ui_OutgoingPage::setupUi(this);
@@ -795,73 +719,24 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     saveFolderName->setText(s.value(SettingsNames::composerImapSentKey, QLatin1String("Sent")).toString());
     smtpBurl->setChecked(s.value(SettingsNames::smtpUseBurlKey, false).toBool());
 
-    connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPasswordWarning()));
+    connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     connect(smtpAuth, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
     connect(saveToImap, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
+
+    m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QLatin1String("account-0"), QLatin1String("smtp"));
+    connect(m_pwWatcher, SIGNAL(stateChanged()), SLOT(updateWidgets()));
+    connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
+    connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));
+    connect(m_pwWatcher, SIGNAL(readingDone()), this, SLOT(slotSetPassword()));
+    connect(m_parent, SIGNAL(reloadPasswordsRequested()), m_pwWatcher, SLOT(reloadPassword()));
+
     updateWidgets();
-    maybeShowPasswordWarning();
-
-    connect(m_parent, SIGNAL(reloadPasswordsRequested()), this, SLOT(reloadPassword()));
-    passwordPluginStatus->setVisible(false);
 }
 
-void OutgoingPage::disablePasswordWidgets()
+void OutgoingPage::slotSetPassword()
 {
-    m_waitingForPw = true;
-    smtpPassLabel->setEnabled(false);
-    smtpPass->setEnabled(false);
-    smtpPass->setText(QString());
-    passwordPluginStatus->setVisible(true);
-}
-
-void OutgoingPage::enablePasswordWidgets()
-{
-    m_waitingForPw = false;
-    // Passwords should be disabled anyway when AUTH is not to be performed, or when we aren't doing SMTP
-    bool authEnabled = smtpAuth->isEnabled() && smtpAuth->isChecked();
-    passwordPluginStatus->setVisible(false);
-    smtpPassLabel->setEnabled(authEnabled);
-    smtpPass->setEnabled(authEnabled);
-}
-
-void OutgoingPage::reloadPassword()
-{
-    disablePasswordWidgets();
-    passwordWarning->setText(QString());
-
-    Plugins::PasswordPlugin *password = m_parent->pluginManager()->password();
-    if (password) {
-        Plugins::PasswordJob *job = password->requestPassword(QLatin1String("account-0"), QLatin1String("smtp"));
-        if (job) {
-            if (password->features() & Plugins::PasswordPlugin::FeatureEncryptedStorage) {
-                passwordWarning->setStyleSheet(QString());
-                passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
-                    "If you do not enter password here, Trojitá will prompt for one when needed."));
-            } else {
-                passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
-                passwordWarning->setText(trUtf8("This password will be saved in clear text. "
-                    "If you do not enter password here, Trojitá will prompt for one when needed."));
-            }
-            connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(slotSetPassword(QString)));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
-                    this, SLOT(slotReadPasswordFailed(Plugins::PasswordJob::Error,QString)));
-            job->setAutoDelete(true);
-            job->start();
-            passwordPluginStatus->setText(tr("Loading password from plugin %1...").arg(m_parent->pluginManager()->passwordPlugin()));
-            return;
-        } else {
-            passwordPluginStatus->setText(tr("Cannot read password via plugin %1").arg(m_parent->pluginManager()->passwordPlugin()));
-        }
-    } else {
-        passwordPluginStatus->setText(tr("Password plugin is not available."));
-    }
-}
-
-void OutgoingPage::slotSetPassword(const QString &password)
-{
-    enablePasswordWidgets();
-    smtpPass->setText(password);
+    smtpPass->setText(m_pwWatcher->password());
 }
 
 void OutgoingPage::resizeEvent(QResizeEvent *event)
@@ -890,9 +765,7 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpAuth)->setEnabled(true);
         bool authEnabled = smtpAuth->isChecked();
         smtpUser->setEnabled(authEnabled);
-        lay->labelForField(smtpUser)->setEnabled(authEnabled && !m_waitingForPw);
-        smtpPass->setEnabled(authEnabled && !m_waitingForPw);
-        lay->labelForField(smtpPass)->setEnabled(authEnabled && !m_waitingForPw);
+        lay->labelForField(smtpUser)->setEnabled(authEnabled);
         sendmail->setEnabled(false);
         lay->labelForField(sendmail)->setEnabled(false);
         saveToImap->setEnabled(true);
@@ -909,6 +782,25 @@ void OutgoingPage::updateWidgets()
                                            smtpPort->text() == QString::number(Common::PORT_SMTP_SUBMISSION))) {
             smtpPort->setText(QString::number(Common::PORT_SMTP_SSL));
         }
+
+        passwordWarning->setVisible(!smtpPass->text().isEmpty() && authEnabled);
+        if (m_pwWatcher->isStorageEncrypted()) {
+            passwordWarning->setStyleSheet(QString());
+            passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
+                "If you do not enter password here, Trojitá will prompt for one when needed."));
+        } else {
+            passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
+            passwordWarning->setText(trUtf8("This password will be saved in clear text. "
+                "If you do not enter password here, Trojitá will prompt for one when needed."));
+        }
+
+        passwordPluginStatus->setVisible(authEnabled &&
+                                         (m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk()));
+        passwordPluginStatus->setText(m_pwWatcher->progressMessage());
+
+        smtpPass->setEnabled(!m_pwWatcher->isWaitingForPlugin() && authEnabled);
+        lay->labelForField(smtpPass)->setEnabled(!m_pwWatcher->isWaitingForPlugin() && authEnabled);
+
         break;
     }
     case SENDMAIL:
@@ -943,7 +835,7 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpBurl)->setEnabled(false);
     }
     saveFolderName->setEnabled(saveToImap->isChecked());
-    maybeShowPasswordWarning();
+
 }
 
 void OutgoingPage::save(QSettings &s)
@@ -982,51 +874,11 @@ void OutgoingPage::save(QSettings &s)
         s.setValue(SettingsNames::smtpUseBurlKey, false);
     }
 
-    Plugins::PasswordPlugin *password = m_parent->pluginManager()->password();
-    if (password) {
-        Plugins::PasswordJob *job = password->storePassword(QLatin1String("account-0"), QLatin1String("smtp"), smtpPass->text());
-        if (job) {
-            connect(job, SIGNAL(passwordStored()), this, SIGNAL(saved()));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
-                    this, SLOT(slotStorePasswordFailed(Plugins::PasswordJob::Error,QString)));
-            job->setAutoDelete(true);
-            job->start();
-            return;
-        }
+    if (smtpAuth->isEnabled() && smtpAuth->isChecked()) {
+        m_pwWatcher->setPassword(smtpPass->text());
+    } else {
+        emit saved();
     }
-    emit saved();
-}
-
-void OutgoingPage::slotReadPasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage)
-{
-    switch (error) {
-    case Plugins::PasswordJob::NoSuchPassword:
-        enablePasswordWidgets();
-        break;
-    case Plugins::PasswordJob::Stopped:
-    case Plugins::PasswordJob::UnknownError:
-        disablePasswordWidgets();
-        passwordPluginStatus->setText(tr("Password reading failed: %1").arg(errorMessage));
-        break;
-    }
-}
-
-void OutgoingPage::slotStorePasswordFailed(const Plugins::PasswordJob::Error error, const QString &errorMessage)
-{
-    enablePasswordWidgets();
-    switch (error) {
-    case Plugins::PasswordJob::NoSuchPassword:
-        Q_ASSERT(false);
-        break;
-    case Plugins::PasswordJob::Stopped:
-    case Plugins::PasswordJob::UnknownError:
-        QMessageBox::critical(this, tr("SMTP password"), tr("Storing SMTP password failed: %1").arg(errorMessage));
-        passwordPluginStatus->setText(tr("Password saving failed: %1").arg(errorMessage));
-        // Explicitly show the warning, overriding the enablePasswordWidgets' effect
-        passwordPluginStatus->setVisible(true);
-        break;
-    }
-    emit saved();
 }
 
 QWidget *OutgoingPage::asWidget()
@@ -1056,11 +908,6 @@ bool OutgoingPage::checkValidity() const
         return false;
 
     return true;
-}
-
-void OutgoingPage::maybeShowPasswordWarning()
-{
-    passwordWarning->setVisible(!smtpPass->text().isEmpty() && smtpPass->isEnabled());
 }
 
 #ifdef XTUPLE_CONNECT
