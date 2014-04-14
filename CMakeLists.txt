@@ -258,6 +258,11 @@ set(libPlugins_SOURCES
     ${path_Plugins}/PluginManager.cpp
 )
 
+set(path_UiUtils ${CMAKE_CURRENT_SOURCE_DIR}/src/UiUtils)
+set(libUiUtils_SOURCES
+    ${path_UiUtils}/PasswordWatcher.cpp
+)
+
 set(path_Composer ${CMAKE_CURRENT_SOURCE_DIR}/src/Composer)
 set(libComposer_SOURCES
     ${path_Composer}/ComposerAttachments.cpp
@@ -571,6 +576,9 @@ add_library(Common STATIC ${libCommon_SOURCES})
 add_dependencies(Common version)
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
+add_library(UiUtils STATIC ${libUiUtils_SOURCES})
+target_link_libraries(UiUtils ${QT_QTCORE_LIBRARY})
+
 add_library(AppVersion STATIC ${libAppVersion_SOURCES})
 add_dependencies(AppVersion version)
 target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
@@ -675,7 +683,7 @@ if(WITH_DESKTOP)
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
-    target_link_libraries(trojita AppVersion Common DesktopGui ${STATIC_PLUGINS} ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS} ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
     if(NOT WITH_QT5)
         target_link_libraries(trojita MimetypesQt4)
     endif()
@@ -709,6 +717,7 @@ endif()
 if(WITH_QT5)
     qt5_use_modules(AppVersion Core)
     qt5_use_modules(Common Core Network)
+    qt5_use_modules(UiUtils Core Network)
     qt5_use_modules(Streams Network)
     qt5_use_modules(qwwsmtpclient Network)
     qt5_use_modules(MSA Network)
