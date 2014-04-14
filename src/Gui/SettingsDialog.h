@@ -66,6 +66,7 @@ public:
     virtual void save(QSettings &s) = 0;
     virtual QWidget *asWidget() = 0;
     virtual bool checkValidity() const = 0;
+    virtual bool passwordFailures(QString &message) const = 0;
 };
 
 
@@ -77,6 +78,7 @@ public:
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
+    virtual bool passwordFailures(QString &message) const;
 
 private slots:
     void updateWidgets();
@@ -133,6 +135,7 @@ public:
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
+    virtual bool passwordFailures(QString &message) const;
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);
@@ -163,6 +166,7 @@ public:
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
+    virtual bool passwordFailures(QString &message) const;
 #ifdef XTUPLE_CONNECT
     bool hasPassword() const;
 #endif
@@ -200,6 +204,7 @@ public:
     virtual void save(QSettings &s);
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
+    virtual bool passwordFailures(QString &message) const;
 
 protected:
     virtual void resizeEvent(QResizeEvent *event);

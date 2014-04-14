@@ -147,6 +147,20 @@ void SettingsDialog::slotAccept()
     if (--m_saveSignalCount > 0) {
         return;
     }
+
+    QStringList passwordFailures;
+    Q_FOREACH(ConfigurationWidgetInterface *page, pages) {
+        QString message;
+        if (page->passwordFailures(message)) {
+            passwordFailures << message;
+        }
+    }
+    if (!passwordFailures.isEmpty()) {
+        QMessageBox::warning(this, tr("Saving passwords failed"),
+                             tr("<p>Couldn't save passwords. These were the error messages:</p>\n<p>%1</p>")
+                                .arg(passwordFailures.join(QLatin1String("<br/>"))));
+    }
+
     buttons->setEnabled(true);
     QDialog::accept();
 }
@@ -356,6 +370,12 @@ bool GeneralPage::checkValidity() const
         return false;
     }
     return true;
+}
+
+bool GeneralPage::passwordFailures(QString &message) const
+{
+    Q_UNUSED(message);
+    return false;
 }
 
 EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, const QModelIndex &currentIndex):
@@ -625,6 +645,16 @@ void ImapPage::maybeShowPortWarning()
     }
 }
 
+bool ImapPage::passwordFailures(QString &message) const
+{
+    if (m_pwWatcher->didWriteOk()) {
+        return false;
+    } else {
+        message = m_pwWatcher->progressMessage();
+        return true;
+    }
+}
+
 
 CachePage::CachePage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_CachePage()
 {
@@ -686,6 +716,12 @@ bool CachePage::checkValidity() const
 {
     // Nothing really special for this class
     return true;
+}
+
+bool CachePage::passwordFailures(QString &message) const
+{
+    Q_UNUSED(message);
+    return false;
 }
 
 OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), Ui_OutgoingPage(), m_parent(parent)
@@ -908,6 +944,16 @@ bool OutgoingPage::checkValidity() const
         return false;
 
     return true;
+}
+
+bool OutgoingPage::passwordFailures(QString &message) const
+{
+    if (!smtpAuth->isEnabled() || !smtpAuth->isChecked() || m_pwWatcher->didWriteOk()) {
+        return false;
+    } else {
+        message = m_pwWatcher->progressMessage();
+        return true;
+    }
 }
 
 #ifdef XTUPLE_CONNECT
