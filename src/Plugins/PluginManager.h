@@ -39,14 +39,12 @@ namespace Plugins {
 
 class PLUGINS_EXPORT PluginManager : public QObject
 {
+    Q_OBJECT
 public:
     /** @short Create plugin manager instance and load plugins */
     PluginManager(QSettings *settings, const QString &addressbookKey, const QString &passwordKey, QObject *parent);
 
     virtual ~PluginManager();
-
-    /** @short Unload all plugins and load new again */
-    void reloadPlugins();
 
     /** @short Return list of addressbook plugin pairs (name, description) */
     QMap<QString, QString> availableAddressbookPlugins();
@@ -71,6 +69,10 @@ public:
 
     /** @short Return interface of password plugin or NULL when plugin was not found or not loaded */
     Plugins::PasswordPlugin *password();
+
+public slots:
+    /** @short Unload all plugins and load new again */
+    void reloadPlugins();
 
 private:
     void loadPlugin(QObject *pluginInstance, QPluginLoader *loader);

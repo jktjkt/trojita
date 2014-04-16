@@ -260,14 +260,9 @@ void GeneralPage::passwordPluginChanged()
 
     if (selectedPasswordPlugin != passwordPlugin) {
         m_parent->pluginManager()->setPasswordPlugin(selectedPasswordPlugin);
-        reloadPlugins();
+        m_parent->pluginManager()->reloadPlugins();
         emit reloadPasswords();
     }
-}
-
-void GeneralPage::reloadPlugins()
-{
-    m_parent->pluginManager()->reloadPlugins();
 }
 
 void GeneralPage::updateWidgets()
@@ -351,8 +346,9 @@ void GeneralPage::save(QSettings &s)
         reload = true;
     }
 
-    if (reload)
-        reloadPlugins();
+    if (reload) {
+        m_parent->pluginManager()->reloadPlugins();
+    }
 
     emit saved();
 }

@@ -93,8 +93,6 @@ private:
     Composer::SenderIdentitiesModel *m_identitiesModel;
     SettingsDialog *m_parent;
 
-    void reloadPlugins();
-
     GeneralPage(const GeneralPage &); // don't implement
     GeneralPage &operator=(const GeneralPage &); // don't implement
 
