@@ -59,6 +59,10 @@ namespace Imap {
 class ImapAccess;
 }
 
+namespace MSA {
+class Account;
+}
+
 namespace Gui
 {
 class MainWindow;
@@ -142,16 +146,22 @@ public:
 protected:
     virtual void resizeEvent(QResizeEvent *event);
 
-private:
-    enum { SMTP, SSMTP, SENDMAIL, IMAP_SENDMAIL };
-
 private slots:
+    void slotSetSubmissionMethod();
     void updateWidgets();
     void slotSetPassword();
+    void showPortWarning(const QString &warning);
+    void setPortByText(const QString &text);
 
 private:
+
+    enum { NETWORK, SENDMAIL, IMAP_SENDMAIL };
+    enum Encryption { SMTP, SMTP_STARTTLS, SSMTP };
+
     SettingsDialog *m_parent;
     UiUtils::PasswordWatcher *m_pwWatcher;
+
+    MSA::Account *m_smtpAccountSettings;
 
     OutgoingPage(const OutgoingPage &); // don't implement
     OutgoingPage &operator=(const OutgoingPage &); // don't implement

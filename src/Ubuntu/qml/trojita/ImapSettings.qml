@@ -37,7 +37,7 @@ Page {
     property alias imapPort: imapPortInput.text
     property alias imapPassword: imapPasswordInput.text
     property alias imapSslModelIndex: connectionSelector.selectedIndex
-    property bool inputValid: usernameLabel.valid && hostLabel.valid
+    property bool settingsValid: usernameLabel.valid && hostLabel.valid
     property bool settingsModified: false
 
     function setupConnections() {

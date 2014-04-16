@@ -50,6 +50,7 @@
 #include "Gui/Util.h"
 #include "Gui/Window.h"
 #include "Imap/Model/ImapAccess.h"
+#include "MSA/Account.h"
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginManager.h"
 #include "UiUtils/PasswordWatcher.h"
@@ -731,37 +732,35 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
 {
     using Common::SettingsNames;
     Ui_OutgoingPage::setupUi(this);
-    method->insertItem(0, tr("SMTP"), QVariant(SMTP));
-    method->insertItem(1, tr("Secure SMTP"), QVariant(SSMTP));
-    method->insertItem(2, tr("Local sendmail-compatible"), QVariant(SENDMAIL));
-    method->insertItem(3, tr("IMAP SENDMAIL Extension"), QVariant(IMAP_SENDMAIL));
-    QString selectedMethod = s.value(SettingsNames::msaMethodKey).toString();
-    if (selectedMethod == SettingsNames::methodSMTP) {
-        method->setCurrentIndex(0);
-    } else if (selectedMethod == SettingsNames::methodSSMTP) {
-        method->setCurrentIndex(1);
-    } else if (selectedMethod == SettingsNames::methodSENDMAIL) {
-        method->setCurrentIndex(2);
-    } else if (selectedMethod == SettingsNames::methodImapSendmail) {
-        method->setCurrentIndex(3);
-    }
+    m_smtpAccountSettings = new MSA::Account(this, &s, QString());
 
-    smtpHost->setText(s.value(SettingsNames::smtpHostKey).toString());
-    smtpPort->setText(s.value(SettingsNames::smtpPortKey, Common::PORT_SMTP_SUBMISSION).toString());
-    smtpPort->setValidator(new QIntValidator(1, 65535, this));
-    smtpStartTls->setChecked(s.value(SettingsNames::smtpStartTlsKey).toBool());
-    smtpAuth->setChecked(s.value(SettingsNames::smtpAuthKey, false).toBool());
-    smtpUser->setText(s.value(SettingsNames::smtpUserKey).toString());
-    sendmail->setText(s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString());
-    saveToImap->setChecked(s.value(SettingsNames::composerSaveToImapKey, true).toBool());
-    // Would be cool to support the special-use mailboxes
-    saveFolderName->setText(s.value(SettingsNames::composerImapSentKey, QLatin1String("Sent")).toString());
-    smtpBurl->setChecked(s.value(SettingsNames::smtpUseBurlKey, false).toBool());
+    method->insertItem(NETWORK, tr("Network"));
+    method->insertItem(SENDMAIL, tr("Local sendmail-compatible"));
+    method->insertItem(IMAP_SENDMAIL, tr("IMAP SENDMAIL Extension"));;
 
+    encryption->insertItem(SMTP, tr("No encryption"));
+    encryption->insertItem(SMTP_STARTTLS, tr("Use encryption (STARTTLS)"));
+    encryption->insertItem(SSMTP, tr("Force encryption (TLS)"));
+    encryption->setCurrentIndex(SSMTP);
+
+    connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetSubmissionMethod()));
+    connect(encryption, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetSubmissionMethod()));
+
+    connect(m_smtpAccountSettings, SIGNAL(submissionMethodChanged()), this, SLOT(updateWidgets()));
+    connect(m_smtpAccountSettings, SIGNAL(saveToImapChanged()), this, SLOT(updateWidgets()));
+    connect(m_smtpAccountSettings, SIGNAL(authenticateEnabledChanged()), this, SLOT(updateWidgets()));
     connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
-    connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
-    connect(smtpAuth, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
-    connect(saveToImap, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
+    connect(smtpAuth, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setAuthenticateEnabled(bool)));
+    connect(saveToImap, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setSaveToImap(bool)));
+
+    connect(smtpHost, SIGNAL(textChanged(QString)), m_smtpAccountSettings, SLOT(setServer(QString)));
+    connect(smtpUser, SIGNAL(textChanged(QString)), m_smtpAccountSettings, SLOT(setUsername(QString)));
+    connect(smtpPort, SIGNAL(textChanged(QString)), this, SLOT(setPortByText(QString)));
+    connect(m_smtpAccountSettings, SIGNAL(showPortWarning(QString)), this, SLOT(showPortWarning(QString)));
+    connect(smtpAuth, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setAuthenticateEnabled(bool)));
+    connect(saveToImap, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setSaveToImap(bool)));
+    connect(saveFolderName, SIGNAL(textChanged(QString)), m_smtpAccountSettings, SLOT(setSentMailboxName(QString)));
+    connect(smtpBurl, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setUseBurl(bool)));
 
     m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QLatin1String("account-0"), QLatin1String("smtp"));
     connect(m_pwWatcher, SIGNAL(stateChanged()), SLOT(updateWidgets()));
@@ -785,41 +784,102 @@ void OutgoingPage::resizeEvent(QResizeEvent *event)
     scrollAreaWidgetContents->adjustSize();
 }
 
+void OutgoingPage::slotSetSubmissionMethod()
+{
+    switch (method->currentIndex()) {
+    case SENDMAIL:
+        m_smtpAccountSettings->setSubmissionMethod(MSA::Account::Method::SENDMAIL);
+        break;
+    case IMAP_SENDMAIL:
+        m_smtpAccountSettings->setSubmissionMethod(MSA::Account::Method::IMAP_SENDMAIL);
+        break;
+    case NETWORK:
+        switch (encryption->currentIndex()) {
+        case SMTP:
+            m_smtpAccountSettings->setSubmissionMethod(MSA::Account::Method::SMTP);
+            break;
+        case SMTP_STARTTLS:
+            m_smtpAccountSettings->setSubmissionMethod(MSA::Account::Method::SMTP_STARTTLS);
+            break;
+        case SSMTP:
+            m_smtpAccountSettings->setSubmissionMethod(MSA::Account::Method::SSMTP);
+            break;
+        }
+        break;
+    default:
+        Q_ASSERT(false);
+    }
+}
+
+void OutgoingPage::setPortByText(const QString &text)
+{
+    m_smtpAccountSettings->setPort(text.toUShort());
+}
+
 void OutgoingPage::updateWidgets()
 {
     QFormLayout *lay = formLayout;
     Q_ASSERT(lay);
-    int smtpMethod = method->itemData(method->currentIndex()).toInt();
-    switch (smtpMethod) {
-    case SMTP:
-    case SSMTP:
+
+    switch (m_smtpAccountSettings->submissionMethod()) {
+    case MSA::Account::Method::SMTP:
+        method->setCurrentIndex(NETWORK);
+        encryption->setCurrentIndex(SMTP);
+        break;
+    case MSA::Account::Method::SMTP_STARTTLS:
+        method->setCurrentIndex(NETWORK);
+        encryption->setCurrentIndex(SMTP_STARTTLS);
+        break;
+    case MSA::Account::Method::SSMTP:
+        method->setCurrentIndex(NETWORK);
+        encryption->setCurrentIndex(SSMTP);
+        break;
+    case MSA::Account::Method::SENDMAIL:
+        method->setCurrentIndex(SENDMAIL);
+        encryption->setVisible(false);
+        encryptionLabel->setVisible(false);
+        break;
+    case MSA::Account::Method::IMAP_SENDMAIL:
+        method->setCurrentIndex(IMAP_SENDMAIL);
+        encryption->setVisible(false);
+        encryptionLabel->setVisible(false);
+        break;
+    }
+
+    switch (m_smtpAccountSettings->submissionMethod()) {
+    case MSA::Account::Method::SMTP:
+    case MSA::Account::Method::SMTP_STARTTLS:
+    case MSA::Account::Method::SSMTP:
     {
+        encryption->setVisible(true);
+        encryptionLabel->setVisible(true);
         smtpHost->setEnabled(true);
         lay->labelForField(smtpHost)->setEnabled(true);
+        smtpHost->setText(m_smtpAccountSettings->server());
         smtpPort->setEnabled(true);
         lay->labelForField(smtpPort)->setEnabled(true);
-        smtpStartTls->setEnabled(smtpMethod == SMTP);
-        lay->labelForField(smtpStartTls)->setEnabled(smtpMethod == SMTP);
+        smtpPort->setText(QString::number(m_smtpAccountSettings->port()));
+        smtpPort->setValidator(new QIntValidator(1, 65535, this));
         smtpAuth->setEnabled(true);
         lay->labelForField(smtpAuth)->setEnabled(true);
-        bool authEnabled = smtpAuth->isChecked();
+        bool authEnabled = m_smtpAccountSettings->authenticateEnabled();
+        smtpAuth->setChecked(authEnabled);
         smtpUser->setEnabled(authEnabled);
         lay->labelForField(smtpUser)->setEnabled(authEnabled);
+        smtpUser->setText(m_smtpAccountSettings->username());
         sendmail->setEnabled(false);
         lay->labelForField(sendmail)->setEnabled(false);
         saveToImap->setEnabled(true);
         lay->labelForField(saveToImap)->setEnabled(true);
+        saveToImap->setChecked(m_smtpAccountSettings->saveToImap());
         smtpBurl->setEnabled(saveToImap->isChecked());
         lay->labelForField(smtpBurl)->setEnabled(saveToImap->isChecked());
+        smtpBurl->setChecked(m_smtpAccountSettings->useBurl());
 
         // Toggle the default ports upon changing the delivery method
-        if (smtpMethod == SMTP && (smtpPort->text().isEmpty() ||
-                                   smtpPort->text() == QString::number(Common::PORT_SMTP_SSL))) {
-            smtpPort->setText(QString::number(Common::PORT_SMTP_SUBMISSION));
-        } else if (smtpMethod == SSMTP && (smtpPort->text().isEmpty() ||
-                                           smtpPort->text() == QString::number(Common::PORT_SMTP_OBSOLETE) ||
-                                           smtpPort->text() == QString::number(Common::PORT_SMTP_SUBMISSION))) {
-            smtpPort->setText(QString::number(Common::PORT_SMTP_SSL));
+        int defaultPort = m_smtpAccountSettings->defaultPort(m_smtpAccountSettings->submissionMethod());
+        if (smtpPort->text().isEmpty() || smtpPort->text() != QString::number(defaultPort)) {
+            smtpPort->setText(QString::number(defaultPort));
         }
 
         passwordWarning->setVisible(!smtpPass->text().isEmpty());
@@ -844,26 +904,28 @@ void OutgoingPage::updateWidgets()
 
         break;
     }
-    case SENDMAIL:
-    case IMAP_SENDMAIL:
+    case MSA::Account::Method::SENDMAIL:
+    case MSA::Account::Method::IMAP_SENDMAIL:
+        encryption->setVisible(false);
+        encryptionLabel->setVisible(false);
         smtpHost->setEnabled(false);
         lay->labelForField(smtpHost)->setEnabled(false);
         smtpPort->setEnabled(false);
         lay->labelForField(smtpPort)->setEnabled(false);
-        smtpStartTls->setEnabled(false);
-        lay->labelForField(smtpStartTls)->setEnabled(false);
         smtpAuth->setEnabled(false);
         lay->labelForField(smtpAuth)->setEnabled(false);
         smtpUser->setEnabled(false);
         lay->labelForField(smtpUser)->setEnabled(false);
         smtpPass->setEnabled(false);
         lay->labelForField(smtpPass)->setEnabled(false);
-        if (smtpMethod == SENDMAIL) {
+        if (m_smtpAccountSettings->submissionMethod() == MSA::Account::Method::SENDMAIL) {
             sendmail->setEnabled(true);
             lay->labelForField(sendmail)->setEnabled(true);
+            sendmail->setText(m_smtpAccountSettings->pathToSendmail());
             if (sendmail->text().isEmpty())
                 sendmail->setText(Common::SettingsNames::sendmailDefaultCmd);
             saveToImap->setEnabled(true);
+            saveToImap->setChecked(m_smtpAccountSettings->saveToImap());
             lay->labelForField(saveToImap)->setEnabled(true);
         } else {
             sendmail->setEnabled(false);
@@ -874,53 +936,37 @@ void OutgoingPage::updateWidgets()
         }
         smtpBurl->setEnabled(false);
         lay->labelForField(smtpBurl)->setEnabled(false);
+        smtpBurl->setChecked(m_smtpAccountSettings->useBurl());
         passwordPluginStatus->setVisible(false);
     }
     saveFolderName->setEnabled(saveToImap->isChecked());
+    lay->labelForField(saveFolderName)->setEnabled(saveToImap->isChecked());
+    saveFolderName->setText(m_smtpAccountSettings->sentMailboxName());
 
 }
 
 void OutgoingPage::save(QSettings &s)
 {
-    using Common::SettingsNames;
-    switch (method->currentIndex()) {
-    case SMTP:
-        s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodSMTP);
-        s.setValue(SettingsNames::smtpHostKey, smtpHost->text());
-        s.setValue(SettingsNames::smtpPortKey, smtpPort->text());
-        s.setValue(SettingsNames::smtpStartTlsKey, smtpStartTls->isChecked());
-        s.setValue(SettingsNames::smtpAuthKey, smtpAuth->isChecked());
-        s.setValue(SettingsNames::smtpUserKey, smtpUser->text());
-        break;
-    case SSMTP:
-        s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodSSMTP);
-        s.setValue(SettingsNames::smtpHostKey, smtpHost->text());
-        s.setValue(SettingsNames::smtpPortKey, smtpPort->text());
-        s.setValue(SettingsNames::smtpAuthKey, smtpAuth->isChecked());
-        s.setValue(SettingsNames::smtpUserKey, smtpUser->text());
-        break;
-    case SENDMAIL:
-        s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodSENDMAIL);
-        s.setValue(SettingsNames::sendmailKey, sendmail->text());
-        break;
-    case IMAP_SENDMAIL:
-        s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodImapSendmail);
-        break;
-    }
-    s.setValue(SettingsNames::composerSaveToImapKey, saveToImap->isChecked());
-    if (saveToImap->isChecked()) {
-        s.setValue(SettingsNames::composerImapSentKey, saveFolderName->text());
-        s.setValue(SettingsNames::smtpUseBurlKey, smtpBurl->isChecked());
-    } else {
-        // BURL depends on having that message available on IMAP somewhere
-        s.setValue(SettingsNames::smtpUseBurlKey, false);
-    }
+    m_smtpAccountSettings->saveSettings();
 
     if (smtpAuth->isEnabled() && smtpAuth->isChecked()) {
         m_pwWatcher->setPassword(smtpPass->text());
     } else {
         emit saved();
     }
+}
+
+void OutgoingPage::showPortWarning(const QString &warning)
+{
+    if (!warning.isEmpty()) {
+        portWarningLabel->setStyleSheet(SettingsDialog::warningStyleSheet);
+        portWarningLabel->setVisible(true);
+        portWarningLabel->setText(warning);
+    } else {
+        portWarningLabel->setStyleSheet(QString());
+        portWarningLabel->setVisible(false);
+    }
+
 }
 
 QWidget *OutgoingPage::asWidget()
@@ -930,19 +976,20 @@ QWidget *OutgoingPage::asWidget()
 
 bool OutgoingPage::checkValidity() const
 {
-    switch (method->currentIndex()) {
-    case SMTP:
-    case SSMTP:
+    switch (m_smtpAccountSettings->submissionMethod()) {
+    case MSA::Account::Method::SMTP:
+    case MSA::Account::Method::SMTP_STARTTLS:
+    case MSA::Account::Method::SSMTP:
         if (checkProblemWithEmptyTextField(smtpHost, tr("The SMTP server hostname is missing here")))
             return false;
         if (smtpAuth->isChecked() && checkProblemWithEmptyTextField(smtpUser, tr("The SMTP username is missing here")))
             return false;
         break;
-    case SENDMAIL:
+    case MSA::Account::Method::SENDMAIL:
         if (checkProblemWithEmptyTextField(sendmail, tr("The SMTP server hostname is missing here")))
             return false;
         break;
-    case IMAP_SENDMAIL:
+    case MSA::Account::Method::IMAP_SENDMAIL:
         break;
     }
 

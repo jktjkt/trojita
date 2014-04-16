@@ -22,6 +22,7 @@
 
 #include "MetaTypes.h"
 #include "Imap/Model/CacheLoadingMode.h"
+#include "MSA/Account.h"
 
 namespace Common {
 
@@ -33,6 +34,7 @@ void registerMetaTypes()
     qRegisterMetaType<QModelIndex>();
     qRegisterMetaType<Imap::Mailbox::CacheLoadingMode>();
     qRegisterMetaType<Common::ConnectionMethod>();
+    qRegisterMetaType<MSA::Account::Method>();
 }
 
 }

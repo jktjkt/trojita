@@ -21,8 +21,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>260</width>
-     <height>332</height>
+     <width>267</width>
+     <height>403</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -42,7 +42,7 @@
     <item row="0" column="1">
      <widget class="QComboBox" name="method"/>
     </item>
-    <item row="1" column="0">
+    <item row="2" column="0">
      <widget class="QLabel" name="smtpHostLabel">
       <property name="text">
        <string>Ser&amp;ver</string>
@@ -52,7 +52,10 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0">
+    <item row="2" column="1">
+     <widget class="LineEdit" name="smtpHost"/>
+    </item>
+    <item row="3" column="0">
      <widget class="QLabel" name="smtpPortLabel">
       <property name="text">
        <string>&amp;Port</string>
@@ -62,7 +65,10 @@
       </property>
      </widget>
     </item>
-    <item row="4" column="0">
+    <item row="3" column="1">
+     <widget class="LineEdit" name="smtpPort"/>
+    </item>
+    <item row="5" column="0">
      <widget class="QLabel" name="smtpAuthLabel">
       <property name="text">
        <string>&amp;Authenticate</string>
@@ -72,7 +78,14 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="0">
+    <item row="5" column="1">
+     <widget class="QCheckBox" name="smtpAuth">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+    <item row="6" column="0">
      <widget class="QLabel" name="smtpUserLabel">
       <property name="text">
        <string>&amp;Username</string>
@@ -82,7 +95,10 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="0">
+    <item row="6" column="1">
+     <widget class="LineEdit" name="smtpUser"/>
+    </item>
+    <item row="7" column="0">
      <widget class="QLabel" name="smtpPassLabel">
       <property name="text">
        <string>Pass&amp;word</string>
@@ -92,14 +108,34 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="0" colspan="2">
+    <item row="7" column="1">
+     <widget class="LineEdit" name="smtpPass">
+      <property name="echoMode">
+       <enum>QLineEdit::Password</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="0" colspan="2">
      <widget class="QLabel" name="passwordWarning">
       <property name="wordWrap">
        <bool>true</bool>
       </property>
      </widget>
     </item>
-    <item row="9" column="0">
+    <item row="9" column="0" colspan="2">
+     <widget class="QLabel" name="passwordPluginStatus">
+      <property name="text">
+       <string notr="true">plugin status</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
      <widget class="QLabel" name="sendmailLabel">
       <property name="text">
        <string>Sendmail E&amp;xecutable</string>
@@ -109,53 +145,10 @@
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="LineEdit" name="smtpHost"/>
-    </item>
-    <item row="2" column="1">
-     <widget class="LineEdit" name="smtpPort"/>
-    </item>
-    <item row="4" column="1">
-     <widget class="QCheckBox" name="smtpAuth">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="5" column="1">
-     <widget class="LineEdit" name="smtpUser"/>
-    </item>
-    <item row="6" column="1">
-     <widget class="LineEdit" name="smtpPass">
-      <property name="echoMode">
-       <enum>QLineEdit::Password</enum>
-      </property>
-     </widget>
-    </item>
-    <item row="9" column="1">
+    <item row="10" column="1">
      <widget class="LineEdit" name="sendmail"/>
     </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="smtpStartTlsLabel">
-      <property name="text">
-       <string>Perform &amp;STARTTLS</string>
-      </property>
-      <property name="buddy">
-       <cstring>smtpStartTls</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QCheckBox" name="smtpStartTls">
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="10" column="1">
-     <widget class="QCheckBox" name="saveToImap"/>
-    </item>
-    <item row="10" column="0">
+    <item row="11" column="0">
      <widget class="QLabel" name="saveToImapLabel">
       <property name="text">
        <string>Save Ou&amp;tgoing Mail</string>
@@ -165,7 +158,10 @@
       </property>
      </widget>
     </item>
-    <item row="11" column="0">
+    <item row="11" column="1">
+     <widget class="QCheckBox" name="saveToImap"/>
+    </item>
+    <item row="12" column="0">
      <widget class="QLabel" name="saveFolderLabel">
       <property name="text">
        <string>Sent &amp;Folder Name</string>
@@ -175,10 +171,10 @@
       </property>
      </widget>
     </item>
-    <item row="11" column="1">
+    <item row="12" column="1">
      <widget class="LineEdit" name="saveFolderName"/>
     </item>
-    <item row="12" column="0">
+    <item row="13" column="0">
      <widget class="QLabel" name="smtpBurlLabel">
       <property name="toolTip">
        <string>Enable forward-without-download via BURL (RFC 4468) when the IMAP and ESMTP servers support it. Extra server-side configuration is required.</string>
@@ -191,19 +187,23 @@
       </property>
      </widget>
     </item>
-    <item row="12" column="1">
+    <item row="13" column="1">
      <widget class="QCheckBox" name="smtpBurl"/>
     </item>
-    <item row="8" column="0" colspan="2">
-     <widget class="QLabel" name="passwordPluginStatus">
+    <item row="1" column="0">
+     <widget class="QLabel" name="encryptionLabel">
       <property name="text">
-       <string notr="true">plugin status</string>
+       <string>Encryption</string>
       </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-      <property name="wordWrap">
-       <bool>true</bool>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QComboBox" name="encryption"/>
+    </item>
+    <item row="4" column="0" colspan="2">
+     <widget class="QLabel" name="portWarningLabel">
+      <property name="text">
+       <string/>
       </property>
      </widget>
     </item>
@@ -221,7 +221,6 @@
   <tabstop>method</tabstop>
   <tabstop>smtpHost</tabstop>
   <tabstop>smtpPort</tabstop>
-  <tabstop>smtpStartTls</tabstop>
   <tabstop>smtpAuth</tabstop>
   <tabstop>smtpUser</tabstop>
   <tabstop>smtpPass</tabstop>

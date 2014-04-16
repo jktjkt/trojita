@@ -32,6 +32,7 @@
 #include "Common/SettingsNames.h"
 #include "Imap/Model/ImapAccess.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
+#include "MSA/Account.h"
 #include "Plugins/PluginManager.h"
 
 int main(int argc, char *argv[])
@@ -112,10 +113,14 @@ int main(int argc, char *argv[])
                                                     Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
     Imap::ImapAccess imapAccess(0, &s, pluginManager, QLatin1String("defaultAccount"));
     viewer.engine()->rootContext()->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
+    MSA::Account smtpAccountSettings(0, &s, QLatin1String("defaultAccount"));
+    viewer.engine()->rootContext()->setContextProperty(QLatin1String("smtpAccountSettings"), &smtpAccountSettings);
 
     qmlRegisterUncreatableType<Imap::Mailbox::ThreadingMsgListModel>("trojita.models.ThreadingMsgListModel", 0, 1, "ThreadingMsgListModel",
             QLatin1String("ThreadingMsgListModel can only be created from the C++ code. Use ImapAccess if you need access to an instance."));
     qmlRegisterSingletonType<UiUtils::Formatting>("trojita.UiFormatting", 0, 1, "UiFormatting", UiUtils::Formatting::factory);
+    qmlRegisterUncreatableType<MSA::Account>("trojita.MSA.Account", 0, 1, "MSAAccount",
+            QLatin1String("MSA::Account can be only created from the C++ code."));
 
     viewer.setTitle(QObject::trUtf8("Trojitá"));
     viewer.setSource(QUrl::fromLocalFile(qmlFile));

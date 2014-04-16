@@ -22,6 +22,10 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 import trojita.models.ThreadingMsgListModel 0.1
+import trojita.MSA.Account 0.1
+
+// We should try and keep the same settings tabs as desktop
+// so we should have profiles, SMTP, offline etc in the future
 
 Tabs {
     id: settingsTabs
@@ -31,14 +35,22 @@ Tabs {
 
     Action {
         id: cancelAction
-        onTriggered: pageStack.pop()
+        onTriggered: {
+            smtpSettings.restoreSettings()
+            pageStack.pop()
+        }
     }
 
     Action {
         id: saveAction
         onTriggered: {
-            if (imapSettings.inputValid) {
+            if (!imapSettings.settingsValid) {
+                settingsTabs.selectedTabIndex = 0
+            } else if (!smtpSettings.settingsValid) {
+                settingsTabs.selectedTabIndex = 1
+            } else {
                 imapSettings.saveImapSettings()
+                smtpAccountSettings.saveSettings()
 
                 if (!imapSettings.settingsModified) {
                     pageStack.pop()
@@ -49,11 +61,6 @@ Tabs {
                     imapAccess.threadingMsgListModel.setUserSearchingSortingPreference([], ThreadingMsgListModel.SORT_NONE, Qt.DescendingOrder)
 
                 }
-                // if the mailbox view indexValid binding doesn't
-                // push the page then we do it manually
-                if (pageStack.currentPage !== mailboxList) {
-                    pageStack.pop()
-                }
                 // update state
                 imapSettings.state = "HAS_ACCOUNT"
                 imapSettings.settingsModified = false
@@ -61,17 +68,61 @@ Tabs {
         }
     }
 
+    SettingsToolbar {
+        id: settingsToolbar
+        onCancel: cancelAction.trigger()
+        onSave: saveAction.trigger()
+    }
+
+    // XXX: Should we be using Loaders here? since we are going to be pushing
+    // multiple created tabs at the same time. Does this cause any performance
+    // hit, as we are already ontop of the created mailbox view? Also we 'should' lazily load this component.
+
+    // ATM with just these two tabs the performance is still responsive with no visible lag, so maybe
+    // re-evaluate after more tabs have been added. SmtpAccountSettings.cpp has already been setup to support
+    // using loaders, as the pages will get loaded and unloaded during tab switches
+    // we have to retain the settings state for that page without saving it to QSettings.
+    // So an explicit 'Save' function needs to be called to write it to file. Should we do this for imapaccess??
+
     Tab {
         id: imapSettingsTab
         title: qsTr("IMAP Settings")
         page: ImapSettings {
             id: imapSettings
             visible: true
-            tools: SettingsToolbar {
-                onCancel: cancelAction.trigger()
-                onSave: saveAction.trigger()
-                saveVisible: imapSettings.inputValid
+            tools: settingsToolbar
+        }
+    }
+
+    Tab {
+        id: smtpSettingsTab
+        title: qsTr("SMTP Settings")
+        page: SmtpSettings {
+            id: smtpSettings
+            visible: true
+            // For some reason we need to bind these here to avoid a binding loop. WHY???
+            // this may become an issue if we do use Loaders
+            smtpEncryptionModelIndex: {
+                switch (smtpAccountSettings.submissionMethod){
+                case MSAAccount.SMTP_STARTTLS:
+                    1
+                    break
+                case MSAAccount.SSMTP:
+                    2
+                    break
+                default:
+                    0
+                }
             }
+            smtpPathToSendmail: smtpAccountSettings.pathToSendmail
+            smtpAuthenticate: smtpAccountSettings.authenticateEnabled
+            smtpBurl: smtpAccountSettings.useBurl
+            smtpUserName: smtpAccountSettings.username ? smtpAccountSettings.username : ""
+            smtpServer: smtpAccountSettings.server ? smtpAccountSettings.server : ""
+            smtpPort: smtpAccountSettings.port
+            smtpSentLocation: smtpAccountSettings.sentMailboxName ? smtpAccountSettings.sentMailboxName : ""
+            smtpSaveToImap: smtpAccountSettings.saveToImap
+            tools: settingsToolbar
         }
     }
 }

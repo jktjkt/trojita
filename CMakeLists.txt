@@ -284,6 +284,7 @@ set(libComposer_SOURCES
 set(path_MSA ${CMAKE_CURRENT_SOURCE_DIR}/src/MSA)
 set(libMSA_SOURCES
     ${path_MSA}/AbstractMSA.cpp
+    ${path_MSA}/Account.cpp
     ${path_MSA}/FakeMSA.cpp
     ${path_MSA}/ImapSubmit.cpp
     ${path_MSA}/SMTP.cpp
@@ -775,6 +776,7 @@ if(WITH_UBUNTU)
         ${TROJITA_UBUNTU_PATH}/qml/trojita/SslSheet.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/SettingsToolbar.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/SettingsTabs.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/SmtpSettings.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/main.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/MessageListPage.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/InfoDialog.qml
