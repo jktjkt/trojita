@@ -204,6 +204,7 @@ void PluginManager::reloadPlugins()
     Q_FOREACH(QObject *pluginInstance, QPluginLoader::staticInstances())
         loadPlugin(pluginInstance, NULL);
 
+    emit pluginsChanged();
 }
 
 QMap<QString, QString> PluginManager::availableAddressbookPlugins()

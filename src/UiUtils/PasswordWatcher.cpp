@@ -29,6 +29,7 @@ PasswordWatcher::PasswordWatcher(QObject *parent, Plugins::PluginManager *manage
     QObject(parent), m_manager(manager), m_isStorageEncrypted(false), m_pendingActions(0), m_didReadOk(false), m_didWriteOk(false),
     m_accountName(accountName), m_accountType(accountType)
 {
+    connect(m_manager, SIGNAL(pluginsChanged()), this, SIGNAL(backendMaybeChanged()));
 }
 
 QString PasswordWatcher::progressMessage() const

@@ -74,6 +74,9 @@ public slots:
     /** @short Unload all plugins and load new again */
     void reloadPlugins();
 
+signals:
+    void pluginsChanged();
+
 private:
     void loadPlugin(QObject *pluginInstance, QPluginLoader *loader);
     void unloadPlugin(QPluginLoader *loader);
