@@ -121,6 +121,7 @@ public slots:
     void onCacheError(const QString &message);
     void slotLogged(uint parserId, const Common::LogMessage &message);
     void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
+    void reloadConfiguration();
 
 private:
     QSettings *m_settings;

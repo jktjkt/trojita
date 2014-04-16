@@ -47,6 +47,12 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &acco
     m_accountName(accountName)
 {
     Imap::migrateSettings(m_settings);
+    reloadConfiguration();
+    m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + m_accountName + QLatin1Char('/');;
+}
+
+void ImapAccess::reloadConfiguration()
+{
     m_server = m_settings->value(Common::SettingsNames::imapHostKey).toString();
     m_username = m_settings->value(Common::SettingsNames::imapUserKey).toString();
     if (m_settings->value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodSSL) {
@@ -73,8 +79,6 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &acco
             break;
         }
     }
-
-    m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + m_accountName + QLatin1Char('/');;
 }
 
 void ImapAccess::alertReceived(const QString &message)
