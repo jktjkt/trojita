@@ -111,6 +111,9 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0),
     // m_pluginManager must be created before calling createWidgets
     m_pluginManager = new Plugins::PluginManager(m_settings, Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin, this);
 
+    m_imapAccess = new Imap::ImapAccess(this, m_settings, QString());
+    connect(m_imapAccess, SIGNAL(cacheError(QString)), this, SLOT(cacheError(QString)));
+
     createWidgets();
 
     ShortcutHandler *shortcutHandler = new ShortcutHandler(this);
@@ -655,8 +658,7 @@ void MainWindow::createWidgets()
 
 void MainWindow::setupModels()
 {
-    m_imapAccess = new Imap::ImapAccess(this, m_settings, QString());
-    connect(m_imapAccess, SIGNAL(cacheError(QString)), this, SLOT(cacheError(QString)));
+    m_imapAccess->reloadConfiguration();
     m_imapAccess->doConnect();
 
     //setProperty( "trojita-sqlcache-commit-period", QVariant(5000) );
@@ -1169,7 +1171,6 @@ void MainWindow::requireStartTlsInFuture()
 
 void MainWindow::nukeModels()
 {
-    qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher())->setNetworkOffline();
     m_messageWidget->messageView->setEmpty();
     mboxTree->setModel(0);
     msgListWidget->tree->setModel(0);
@@ -1179,8 +1180,6 @@ void MainWindow::nukeModels()
     prettyMsgListModel = 0;
     delete prettyMboxModel;
     prettyMboxModel = 0;
-    delete m_imapAccess;
-    m_imapAccess = 0;
 }
 
 void MainWindow::recoverDrafts()

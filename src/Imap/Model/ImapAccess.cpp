@@ -211,6 +211,29 @@ void ImapAccess::setConnectionMethod(const Common::ConnectionMethod mode)
 
 void ImapAccess::doConnect()
 {
+    if (m_imapModel) {
+        // Disconnect from network, nuke the models
+        qobject_cast<Imap::Mailbox::NetworkWatcher *>(networkWatcher())->setNetworkOffline();
+        delete m_threadingMsgListModel;
+        m_threadingMsgListModel = 0;
+        delete m_msgQNAM;
+        m_msgQNAM = 0;
+        delete m_oneMessageModel;
+        m_oneMessageModel = 0;
+        delete m_visibleTasksModel;
+        m_visibleTasksModel = 0;
+        delete m_msgListModel;
+        m_msgListModel = 0;
+        delete m_mailboxSubtreeModel;
+        m_mailboxSubtreeModel = 0;
+        delete m_mailboxModel;
+        m_mailboxModel = 0;
+        delete m_netWatcher;
+        m_netWatcher = 0;
+        delete m_imapModel;
+        m_imapModel = 0;
+    }
+
     Q_ASSERT(!m_imapModel);
 
     Imap::Mailbox::SocketFactoryPtr factory;
