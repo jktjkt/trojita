@@ -66,6 +66,7 @@ void PasswordWatcher::reloadPassword()
 {
     m_didReadOk = false;
     m_password = QString();
+    ++m_pendingActions;
     if (Plugins::PasswordPlugin *plugin = m_manager->password()) {
         if (Plugins::PasswordJob *job = plugin->requestPassword(m_accountName, m_accountType)) {
             m_isStorageEncrypted = plugin->features() & Plugins::PasswordPlugin::FeatureEncryptedStorage;
@@ -75,7 +76,6 @@ void PasswordWatcher::reloadPassword()
             job->setAutoDelete(true);
             job->start();
             m_progressMessage = tr("Loading password from plugin %1...").arg(m_manager->passwordPlugin());
-            ++m_pendingActions;
             emit stateChanged();
             return;
         } else {
@@ -86,6 +86,8 @@ void PasswordWatcher::reloadPassword()
     }
 
     // error handling
+    // There's actually no pending action now
+    --m_pendingActions;
     emit stateChanged();
     emit readingFailed(m_progressMessage);
 }
@@ -152,6 +154,7 @@ void PasswordWatcher::passwordWritingFailed(const Plugins::PasswordJob::Error er
 void PasswordWatcher::setPassword(const QString &password)
 {
     m_didWriteOk = false;
+    ++m_pendingActions;
     if (Plugins::PasswordPlugin *plugin = m_manager->password()) {
         if (Plugins::PasswordJob *job = plugin->storePassword(m_accountName, m_accountType, password)) {
             connect(job, SIGNAL(passwordStored()), this, SLOT(passwordWritten()));
@@ -160,7 +163,6 @@ void PasswordWatcher::setPassword(const QString &password)
             job->setAutoDelete(true);
             job->start();
             m_progressMessage = tr("Saving password from plugin %1...").arg(m_manager->passwordPlugin());
-            ++m_pendingActions;
             emit stateChanged();
             return;
         } else {
@@ -171,6 +173,7 @@ void PasswordWatcher::setPassword(const QString &password)
     }
 
     // error handling
+    --m_pendingActions;
     emit stateChanged();
     emit savingFailed(m_progressMessage);
 }
