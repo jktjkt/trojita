@@ -425,9 +425,9 @@ void ThreadingMsgListModel::resetMe()
     RESET_MODEL;
     updateNoThreading();
     modelResetInProgress = false;
-
-    if (m_shallBeThreading)
-        wantThreading();
+    // Refresh the sorting/searching/threading preferences.
+    // This is important, otherwise we won't track threading and/or the sort direction after e.g. changing a mailbox.
+    wantThreading();
 }
 
 void ThreadingMsgListModel::updateNoThreading()
