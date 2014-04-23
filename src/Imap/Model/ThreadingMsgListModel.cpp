@@ -1245,6 +1245,7 @@ bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList 
 bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList &searchConditions, const SortCriterium criterium, const Qt::SortOrder order)
 {
     Q_ASSERT(sourceModel());
+    m_sortReverse = order == Qt::DescendingOrder;
     if (!sourceModel()->rowCount()) {
         return false;
     }
@@ -1265,7 +1266,6 @@ bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList
         hasSort = true;
     }
 
-    m_sortReverse = order == Qt::DescendingOrder;
     QStringList sortOptions;
     switch (criterium) {
     case SORT_ARRIVAL:
