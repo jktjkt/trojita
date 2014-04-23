@@ -23,7 +23,6 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
-import trojita.models.ThreadingMsgListModel 0.1
 import "Utils.js" as Utils
 
 Page {
@@ -186,18 +185,4 @@ Page {
     }
 
     flickable: view
-
-    Connections {
-        target: imapAccess.threadingMsgListModel
-        onRowsInserted: sortTimer.start()
-    }
-
-    Timer {
-        id: sortTimer
-        repeat: false;
-        interval: 100
-        onTriggered: imapAccess.threadingMsgListModel
-                        .setUserSearchingSortingPreference([], ThreadingMsgListModel.SORT_NONE
-                                                            , Qt.DescendingOrder)
-    }
 }
