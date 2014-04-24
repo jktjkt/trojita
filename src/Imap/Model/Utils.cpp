@@ -525,11 +525,12 @@ bool removeRecursively(const QString &dirName)
     QDir dir = dirName;
 
     if (dir.exists(dirName)) {
-        Q_FOREACH(const QFileInfo &fileInfo, dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files, QDir::DirsFirst)) {
+        Q_FOREACH(const QFileInfo &fileInfo,
+                  dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files,
+                                    QDir::DirsFirst)) {
             if (fileInfo.isDir()) {
                 result = removeRecursively(fileInfo.absoluteFilePath());
-            }
-            else {
+            } else {
                 result = QFile::remove(fileInfo.absoluteFilePath());
             }
             if (!result) {
