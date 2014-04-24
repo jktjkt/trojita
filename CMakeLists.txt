@@ -608,6 +608,10 @@ if(NOT WITH_QT5)
             ${QT_MKSPECS_DIR}/default ${path_mimetypesqt4}/io/)
     endif()
     target_link_libraries(MimetypesQt4 ${QT_QTCORE_LIBRARY})
+    if(APPLE)
+        find_library(CARBON_LIBRARY Carbon REQUIRED)
+        target_link_libraries(MimetypesQt4 ${CARBON_LIBRARY})
+    endif()
 endif()
 
 # Generate file static_plugins.h.in
