@@ -23,6 +23,8 @@
 #include <cmath>
 #include <QDateTime>
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QGuiApplication>
 #endif
@@ -508,6 +510,36 @@ QModelIndex deproxifiedIndex(const QModelIndex index)
     QModelIndex res;
     Imap::Mailbox::Model::realTreeItem(index, 0, &res);
     return res;
+}
+
+/** @short Recursively removes a directory and all its contents
+
+This by some crazy voodoo unintentional 'magic', is almost identical
+to a solution by John Schember, which was pointed out by jkt.
+
+http://john.nachtimwald.com/2010/06/08/qt-remove-directory-and-its-contents/
+*/
+bool removeRecursively(const QString &dirName)
+{
+    bool result = true;
+    QDir dir = dirName;
+
+    if (dir.exists(dirName)) {
+        Q_FOREACH(const QFileInfo &fileInfo,
+                  dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden  | QDir::AllDirs | QDir::Files,
+                                    QDir::DirsFirst)) {
+            if (fileInfo.isDir()) {
+                result = removeRecursively(fileInfo.absoluteFilePath());
+            } else {
+                result = QFile::remove(fileInfo.absoluteFilePath());
+            }
+            if (!result) {
+                return result;
+            }
+        }
+        result = dir.rmdir(dirName);
+    }
+    return result;
 }
 
 }

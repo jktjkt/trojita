@@ -453,7 +453,7 @@ connecting to a completely different server since the last time.
 */
 void ImapAccess::nukeCache()
 {
-    QFile::remove(m_cacheDir);
+    Imap::removeRecursively(m_cacheDir);
 }
 
 }

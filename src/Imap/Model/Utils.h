@@ -84,6 +84,9 @@ void migrateSettings(QSettings *settings);
 
 QModelIndex deproxifiedIndex(const QModelIndex index);
 
+bool removeRecursively(const QString &dirName);
+
 }
+
 
 #endif // IMAP_MAILBOX_UTILS_H
