@@ -55,6 +55,10 @@ namespace UiUtils {
 class PasswordWatcher;
 }
 
+namespace Imap {
+class ImapAccess;
+}
+
 namespace Gui
 {
 class MainWindow;
@@ -259,6 +263,7 @@ public:
     SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings);
 
     Plugins::PluginManager *pluginManager();
+    Imap::ImapAccess* imapAccess();
 
     static QString warningStyleSheet;
 

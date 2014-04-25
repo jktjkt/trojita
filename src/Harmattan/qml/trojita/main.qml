@@ -177,8 +177,6 @@ PageStackWindow {
             imapAccess.server = imapSettings.imapServer
             imapAccess.port = imapSettings.imapPort
             imapAccess.username = imapSettings.imapUserName
-            if (imapSettings.imapPassword.length)
-                imapAccess.password = imapSettings.imapPassword
             imapAccess.sslMode = imapSettings.imapSslMode
             imapAccess.doConnect()
             connectModels()

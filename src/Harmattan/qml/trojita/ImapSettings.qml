@@ -28,7 +28,6 @@ Flickable {
     property alias imapServer: imapServerInput.text
     property alias imapPort: imapPortInput.text
     property alias imapUserName: imapUserNameInput.text
-    property alias imapPassword: imapPasswordInput.text
     property string imapSslMode: encryptionMethodDialog.model.get(encryptionMethodDialog.selectedIndex).name
     property alias imapSslModeIndex: encryptionMethodDialog.selectedIndex
 
@@ -66,16 +65,6 @@ Flickable {
             id: imapUserNameInput
             anchors {left: col.left; right: col.right;}
             inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhEmailCharactersOnly | Qt.ImhNoPredictiveText
-        }
-
-        Label {
-            text: qsTr("Password")
-        }
-        TextField {
-            id: imapPasswordInput
-            anchors {left: parent.left; right: parent.right;}
-            inputMethodHints: Qt.ImhHiddenText | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
-            echoMode: TextInput.Password
         }
 
         Label {

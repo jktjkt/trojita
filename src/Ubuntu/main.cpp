@@ -29,8 +29,10 @@
 #include "AppVersion/SetCoreApplication.h"
 #include "Common/Application.h"
 #include "Common/MetaTypes.h"
+#include "Common/SettingsNames.h"
 #include "Imap/Model/ImapAccess.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
+#include "Plugins/PluginManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -105,7 +107,9 @@ int main(int argc, char *argv[])
     AppVersion::setCoreApplicationData();
 
     QSettings s;
-    Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
+    auto pluginManager = new Plugins::PluginManager(0, &s,
+                                                    Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
+    Imap::ImapAccess imapAccess(0, &s, pluginManager, QLatin1String("defaultAccount"));
     viewer.engine()->rootContext()->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 
     qmlRegisterUncreatableType<Imap::Mailbox::ThreadingMsgListModel>("trojita.models.ThreadingMsgListModel", 0, 1, "ThreadingMsgListModel",

@@ -109,9 +109,15 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0),
     m_delayedStateSaving(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_trayIcon(0)
 {
     // m_pluginManager must be created before calling createWidgets
-    m_pluginManager = new Plugins::PluginManager(m_settings, Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin, this);
+    m_pluginManager = new Plugins::PluginManager(this, m_settings,
+                                                 Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
 
-    m_imapAccess = new Imap::ImapAccess(this, m_settings, QString());
+    // ImapAccess contains a wrapper for retrieving passwords through some plugin.
+    // That PasswordWatcher is used by the SettingsDialog's widgets *and* by this class,
+    // which means that ImapAccess has to be constructed before we go and open the settings dialog.
+
+    // FIXME: use another account-id at some point in future
+    m_imapAccess = new Imap::ImapAccess(this, m_settings, m_pluginManager, QString());
     connect(m_imapAccess, SIGNAL(cacheError(QString)), this, SLOT(cacheError(QString)));
 
     createWidgets();
@@ -2439,4 +2445,10 @@ void MainWindow::possiblyLoadMessageOnSplittersChanged()
         }
     }
 }
+
+Imap::ImapAccess *MainWindow::imapAccess() const
+{
+    return m_imapAccess;
+}
+
 }

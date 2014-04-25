@@ -576,9 +576,6 @@ add_library(Common STATIC ${libCommon_SOURCES})
 add_dependencies(Common version)
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
-add_library(UiUtils STATIC ${libUiUtils_SOURCES})
-target_link_libraries(UiUtils ${QT_QTCORE_LIBRARY})
-
 add_library(AppVersion STATIC ${libAppVersion_SOURCES})
 add_dependencies(AppVersion version)
 target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
@@ -595,6 +592,9 @@ if(WITH_QT5)
 else()
     target_link_libraries(Plugins ${QT_QTCORE_LIBRARY})
 endif()
+
+add_library(UiUtils STATIC ${libUiUtils_SOURCES})
+target_link_libraries(UiUtils Plugins ${QT_QTCORE_LIBRARY})
 
 add_library(Streams STATIC ${libStreams_SOURCES})
 target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
@@ -615,7 +615,7 @@ if(NOT WITH_QT5)
 endif()
 
 add_library(Imap STATIC ${libImap_SOURCES})
-target_link_libraries(Imap Common Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+target_link_libraries(Imap Common Streams UiUtils ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
     target_link_libraries(Imap ${ZLIB_LIBRARIES})
 endif()

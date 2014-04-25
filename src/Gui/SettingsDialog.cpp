@@ -49,6 +49,7 @@
 #include "Common/SettingsNames.h"
 #include "Gui/Util.h"
 #include "Gui/Window.h"
+#include "Imap/Model/ImapAccess.h"
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginManager.h"
 #include "UiUtils/PasswordWatcher.h"
@@ -102,6 +103,11 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
 Plugins::PluginManager *SettingsDialog::pluginManager()
 {
     return mainWindow->pluginManager();
+}
+
+Imap::ImapAccess *SettingsDialog::imapAccess()
+{
+    return mainWindow->imapAccess();
 }
 
 void SettingsDialog::accept()
@@ -471,7 +477,8 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
 
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
 
-    m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QLatin1String("account-0"), QLatin1String("imap"));
+    // FIXME: use another account-id
+    m_pwWatcher = m_parent->imapAccess()->passwordWatcher();
     connect(m_pwWatcher, SIGNAL(stateChanged()), SLOT(updateWidgets()));
     connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
     connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));

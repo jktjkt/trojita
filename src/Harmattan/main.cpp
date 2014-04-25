@@ -27,7 +27,9 @@
 #include "AppVersion/SetCoreApplication.h"
 #include "Common/Application.h"
 #include "Common/MetaTypes.h"
+#include "Common/SettingsNames.h"
 #include "Imap/Model/ImapAccess.h"
+#include "Plugins/PluginManager.h"
 
 int main(int argc, char *argv[])
 {
@@ -40,7 +42,9 @@ int main(int argc, char *argv[])
     QmlApplicationViewer viewer;
 
     QSettings s;
-    Imap::ImapAccess imapAccess(0, &s, QLatin1String("defaultAccount"));
+    auto pluginManager = new Plugins::PluginManager(0, &s,
+                                                    Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
+    Imap::ImapAccess imapAccess(0, &s, pluginManager, QLatin1String("defaultAccount"));
     QDeclarativeContext *ctxt = viewer.rootContext();
     ctxt->setContextProperty(QLatin1String("imapAccess"), &imapAccess);
 

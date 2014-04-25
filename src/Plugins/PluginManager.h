@@ -42,7 +42,7 @@ class PLUGINS_EXPORT PluginManager : public QObject
     Q_OBJECT
 public:
     /** @short Create plugin manager instance and load plugins */
-    PluginManager(QSettings *settings, const QString &addressbookKey, const QString &passwordKey, QObject *parent);
+    PluginManager(QObject *parent, QSettings *settings, const QString &addressbookKey, const QString &passwordKey);
 
     virtual ~PluginManager();
 

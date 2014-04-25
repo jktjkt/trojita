@@ -39,9 +39,10 @@
 
 namespace Imap {
 
-ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &accountName) :
+ImapAccess::ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginManager *pluginManager, const QString &accountName) :
     QObject(parent), m_settings(settings), m_imapModel(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
-    m_threadingMsgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
+    m_threadingMsgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0),
+    m_pluginManager(pluginManager), m_passwordWatcher(0), m_port(0),
     m_connectionMethod(Common::ConnectionMethod::Invalid),
     m_sslInfoIcon(Imap::Mailbox::CertificateUtils::NoIcon),
     m_accountName(accountName)
@@ -49,6 +50,10 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &acco
     Imap::migrateSettings(m_settings);
     reloadConfiguration();
     m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + m_accountName + QLatin1Char('/');;
+    m_passwordWatcher = new UiUtils::PasswordWatcher(this, m_pluginManager,
+                                                     // FIXME: this can be removed when support for multiple accounts is implemented
+                                                     accountName.isEmpty() ? QLatin1String("account-0") : accountName,
+                                                     QLatin1String("imap"));
 }
 
 void ImapAccess::reloadConfiguration()
@@ -405,6 +410,11 @@ QNetworkAccessManager *ImapAccess::msgQNAM() const
 QObject *ImapAccess::threadingMsgListModel() const
 {
     return m_threadingMsgListModel;
+}
+
+UiUtils::PasswordWatcher *ImapAccess::passwordWatcher() const
+{
+    return m_passwordWatcher;
 }
 
 void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
