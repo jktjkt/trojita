@@ -55,7 +55,7 @@ if(WIN32)
 endif()
 
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
-trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin")
+trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN")
 
 if(WITH_QT5)
     message(STATUS "Building the Qt5 version")
