@@ -815,7 +815,8 @@ void OutgoingPage::updateWidgets()
             smtpPort->setText(QString::number(Common::PORT_SMTP_SSL));
         }
 
-        passwordWarning->setVisible(!smtpPass->text().isEmpty() && authEnabled);
+        passwordWarning->setVisible(!smtpPass->text().isEmpty());
+        passwordWarning->setEnabled(authEnabled);
         if (m_pwWatcher->isStorageEncrypted()) {
             passwordWarning->setStyleSheet(QString());
             passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
@@ -829,6 +830,7 @@ void OutgoingPage::updateWidgets()
         passwordPluginStatus->setVisible(authEnabled &&
                                          (m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk()));
         passwordPluginStatus->setText(m_pwWatcher->progressMessage());
+        passwordPluginStatus->setEnabled(authEnabled);
 
         smtpPass->setEnabled(!m_pwWatcher->isWaitingForPlugin() && authEnabled);
         lay->labelForField(smtpPass)->setEnabled(!m_pwWatcher->isWaitingForPlugin() && authEnabled);
@@ -865,6 +867,7 @@ void OutgoingPage::updateWidgets()
         }
         smtpBurl->setEnabled(false);
         lay->labelForField(smtpBurl)->setEnabled(false);
+        passwordPluginStatus->setVisible(false);
     }
     saveFolderName->setEnabled(saveToImap->isChecked());
 
