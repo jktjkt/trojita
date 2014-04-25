@@ -39,14 +39,25 @@
 
 namespace Imap {
 
-ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &accountName) :
+ImapAccess::ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginManager *pluginManager, const QString &accountName) :
     QObject(parent), m_settings(settings), m_imapModel(0), m_mailboxModel(0), m_mailboxSubtreeModel(0), m_msgListModel(0),
-    m_threadingMsgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0), m_port(0),
+    m_threadingMsgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0),
+    m_pluginManager(pluginManager), m_passwordWatcher(0), m_port(0),
     m_connectionMethod(Common::ConnectionMethod::Invalid),
     m_sslInfoIcon(Imap::Mailbox::CertificateUtils::NoIcon),
     m_accountName(accountName)
 {
     Imap::migrateSettings(m_settings);
+    reloadConfiguration();
+    m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + m_accountName + QLatin1Char('/');;
+    m_passwordWatcher = new UiUtils::PasswordWatcher(this, m_pluginManager,
+                                                     // FIXME: this can be removed when support for multiple accounts is implemented
+                                                     accountName.isEmpty() ? QLatin1String("account-0") : accountName,
+                                                     QLatin1String("imap"));
+}
+
+void ImapAccess::reloadConfiguration()
+{
     m_server = m_settings->value(Common::SettingsNames::imapHostKey).toString();
     m_username = m_settings->value(Common::SettingsNames::imapUserKey).toString();
     if (m_settings->value(Common::SettingsNames::imapMethodKey).toString() == Common::SettingsNames::methodSSL) {
@@ -73,8 +84,6 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, const QString &acco
             break;
         }
     }
-
-    m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + m_accountName + QLatin1Char('/');;
 }
 
 void ImapAccess::alertReceived(const QString &message)
@@ -207,6 +216,29 @@ void ImapAccess::setConnectionMethod(const Common::ConnectionMethod mode)
 
 void ImapAccess::doConnect()
 {
+    if (m_imapModel) {
+        // Disconnect from network, nuke the models
+        qobject_cast<Imap::Mailbox::NetworkWatcher *>(networkWatcher())->setNetworkOffline();
+        delete m_threadingMsgListModel;
+        m_threadingMsgListModel = 0;
+        delete m_msgQNAM;
+        m_msgQNAM = 0;
+        delete m_oneMessageModel;
+        m_oneMessageModel = 0;
+        delete m_visibleTasksModel;
+        m_visibleTasksModel = 0;
+        delete m_msgListModel;
+        m_msgListModel = 0;
+        delete m_mailboxSubtreeModel;
+        m_mailboxSubtreeModel = 0;
+        delete m_mailboxModel;
+        m_mailboxModel = 0;
+        delete m_netWatcher;
+        m_netWatcher = 0;
+        delete m_imapModel;
+        m_imapModel = 0;
+    }
+
     Q_ASSERT(!m_imapModel);
 
     Imap::Mailbox::SocketFactoryPtr factory;
@@ -378,6 +410,11 @@ QObject *ImapAccess::msgQNAM() const
 QObject *ImapAccess::threadingMsgListModel() const
 {
     return m_threadingMsgListModel;
+}
+
+UiUtils::PasswordWatcher *ImapAccess::passwordWatcher() const
+{
+    return m_passwordWatcher;
 }
 
 void ImapAccess::openMessage(const QString &mailboxName, const uint uid)

@@ -41,11 +41,11 @@
 
 namespace Plugins {
 
-PluginManager::PluginManager(QSettings *settings, const QString &addressbookKey, const QString &passwordKey, QObject *parent) : QObject(parent),
+PluginManager::PluginManager(QObject *parent, QSettings *settings, const QString &addressbookKey, const QString &passwordKey) : QObject(parent),
     m_settings(settings), m_addressbookKey(addressbookKey), m_passwordKey(passwordKey)
 {
     m_addressbookPlugin = m_settings->value(m_addressbookKey, QLatin1String("abookaddressbook")).toString();
-    m_passwordPlugin = m_settings->value(m_passwordKey, QLatin1String("cleartext")).toString();
+    m_passwordPlugin = m_settings->value(m_passwordKey, QLatin1String("cleartextpassword")).toString();
 
     reloadPlugins();
 }
@@ -87,7 +87,7 @@ void PluginManager::loadPlugin(QObject *pluginInstance, QPluginLoader *loader)
         return;
     }
 
-    QObject *plugin = trojitaPlugin->create(this);
+    QObject *plugin = trojitaPlugin->create(this, m_settings);
     if (!plugin) {
 #ifdef PLUGIN_DEBUG
         qDebug() << "Failed to create QObject";
@@ -204,6 +204,7 @@ void PluginManager::reloadPlugins()
     Q_FOREACH(QObject *pluginInstance, QPluginLoader::staticInstances())
         loadPlugin(pluginInstance, NULL);
 
+    emit pluginsChanged();
 }
 
 QMap<QString, QString> PluginManager::availableAddressbookPlugins()

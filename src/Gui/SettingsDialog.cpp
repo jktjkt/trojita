@@ -1,5 +1,6 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
    Copyright (C) 2012        Mohammed Nafees <nafees.technocool@gmail.com>
+   Copyright (C) 2013        Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -43,9 +44,15 @@
 #include <QDataWidgetMapper>
 #include "SettingsDialog.h"
 #include "Composer/SenderIdentitiesModel.h"
+#include "Common/InvokeMethod.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Gui/Util.h"
+#include "Gui/Window.h"
+#include "Imap/Model/ImapAccess.h"
+#include "Plugins/PasswordPlugin.h"
+#include "Plugins/PluginManager.h"
+#include "UiUtils/PasswordWatcher.h"
 
 namespace Gui
 {
@@ -66,8 +73,8 @@ bool checkProblemWithEmptyTextField(T *field, const QString &message)
     }
 }
 
-SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings):
-    QDialog(parent), m_senderIdentities(identitiesModel), m_settings(settings)
+SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings):
+    QDialog(parent), mainWindow(parent), m_senderIdentities(identitiesModel), m_settings(settings)
 {
     setWindowTitle(tr("Settings"));
 
@@ -77,7 +84,7 @@ SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel 
     stack->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
     addPage(new GeneralPage(this, *m_settings, m_senderIdentities), tr("&General"));
-    addPage(new ImapPage(stack, *m_settings), tr("I&MAP"));
+    addPage(new ImapPage(this, *m_settings), tr("I&MAP"));
     addPage(new CachePage(this, *m_settings), tr("&Offline"));
     addPage(new OutgoingPage(this, *m_settings), tr("&SMTP"));
 #ifdef XTUPLE_CONNECT
@@ -85,19 +92,35 @@ SettingsDialog::SettingsDialog(QWidget *parent, Composer::SenderIdentitiesModel 
     stack->addTab(xtConnect, tr("&xTuple"));
 #endif
 
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, Qt::Horizontal, this);
+    buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
     connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
     layout->addWidget(buttons);
+
+    EMIT_LATER_NOARG(this, reloadPasswordsRequested);
+}
+
+Plugins::PluginManager *SettingsDialog::pluginManager()
+{
+    return mainWindow->pluginManager();
+}
+
+Imap::ImapAccess *SettingsDialog::imapAccess()
+{
+    return mainWindow->imapAccess();
 }
 
 void SettingsDialog::accept()
 {
+    m_saveSignalCount = 0;
+
     Q_FOREACH(ConfigurationWidgetInterface *page, pages) {
         if (!page->checkValidity()) {
             stack->setCurrentWidget(page->asWidget());
             return;
         }
+        connect(page->asWidget(), SIGNAL(saved()), this, SLOT(slotAccept()));
+        ++m_saveSignalCount;
     }
 
 #ifndef Q_OS_WIN
@@ -105,9 +128,16 @@ void SettingsDialog::accept()
     QFile settingsFile(m_settings->fileName());
     settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 #endif
+
+    buttons->setEnabled(false);
+    Q_FOREACH(ConfigurationWidgetInterface *page, pages) {
+        page->asWidget()->setEnabled(false);
+    }
+
     Q_FOREACH(ConfigurationWidgetInterface *page, pages) {
         page->save(*m_settings);
     }
+
 #ifdef XTUPLE_CONNECT
     xtConnect->save(*m_settings);
 #endif
@@ -115,6 +145,29 @@ void SettingsDialog::accept()
 #ifndef Q_OS_WIN
     settingsFile.setPermissions(QFile::ReadUser | QFile::WriteUser);
 #endif
+}
+
+void SettingsDialog::slotAccept()
+{
+    disconnect(sender(), SIGNAL(saved()), this, SLOT(slotAccept()));
+    if (--m_saveSignalCount > 0) {
+        return;
+    }
+
+    QStringList passwordFailures;
+    Q_FOREACH(ConfigurationWidgetInterface *page, pages) {
+        QString message;
+        if (page->passwordFailures(message)) {
+            passwordFailures << message;
+        }
+    }
+    if (!passwordFailures.isEmpty()) {
+        QMessageBox::warning(this, tr("Saving passwords failed"),
+                             tr("<p>Couldn't save passwords. These were the error messages:</p>\n<p>%1</p>")
+                                .arg(passwordFailures.join(QLatin1String("<br/>"))));
+    }
+
+    buttons->setEnabled(true);
     QDialog::accept();
 }
 
@@ -131,8 +184,8 @@ void SettingsDialog::addPage(ConfigurationWidgetInterface *page, const QString &
     pages << page;
 }
 
-GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
-    QScrollArea(parent), Ui_GeneralPage(), m_identitiesModel(identitiesModel)
+GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
+    QScrollArea(parent), Ui_GeneralPage(), m_identitiesModel(identitiesModel), m_parent(parent)
 {
     Ui_GeneralPage::setupUi(this);
     Q_ASSERT(m_identitiesModel);
@@ -151,6 +204,34 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
     identityTabelView->resizeColumnToContents(Composer::SenderIdentitiesModel::COLUMN_NAME);
     identityTabelView->resizeRowsToContents();
     identityTabelView->horizontalHeader()->setStretchLastSection(true);
+
+    Plugins::PluginManager *pluginManager = parent->pluginManager();
+    QMap<QString, QString>::const_iterator it;
+    int i;
+
+    const QMap<QString, QString> &passwordPlugins = pluginManager->availablePasswordPlugins();
+    const QString &passwordPlugin = pluginManager->passwordPlugin();
+    int passwordIndex = -1;
+
+    for (it = passwordPlugins.constBegin(), i = 0; it != passwordPlugins.constEnd(); ++it, ++i) {
+        passwordBox->addItem(it.value(), it.key());
+        if (passwordIndex < 0 && passwordPlugin == it.key())
+            passwordIndex = i;
+    }
+
+    passwordBox->addItem(tr("Disable passwords"));
+
+    if (passwordPlugin == QLatin1String("none"))
+        passwordIndex = passwordBox->count()-1;
+
+    if (passwordIndex == -1) {
+        if (!passwordPlugin.isEmpty())
+            passwordBox->addItem(tr("Plugin not found (%1)").arg(passwordPlugin), passwordPlugin);
+        passwordIndex = passwordBox->count()-1;
+    }
+
+    passwordBox->setCurrentIndex(passwordIndex);
+
 
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
     showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
@@ -173,6 +254,21 @@ GeneralPage::GeneralPage(QWidget *parent, QSettings &s, Composer::SenderIdentiti
     connect(addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
     connect(editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
     connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
+    connect(passwordBox, SIGNAL(currentIndexChanged(int)), SLOT(passwordPluginChanged()));
+
+    connect(this, SIGNAL(reloadPasswords()), m_parent, SIGNAL(reloadPasswordsRequested()));
+}
+
+void GeneralPage::passwordPluginChanged()
+{
+    const QString &passwordPlugin = m_parent->pluginManager()->passwordPlugin();
+    const QString &selectedPasswordPlugin = passwordBox->itemData(passwordBox->currentIndex()).toString();
+
+    if (selectedPasswordPlugin != passwordPlugin) {
+        m_parent->pluginManager()->setPasswordPlugin(selectedPasswordPlugin);
+        m_parent->pluginManager()->reloadPlugins();
+        emit reloadPasswords();
+    }
 }
 
 void GeneralPage::updateWidgets()
@@ -245,6 +341,22 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiPreferPlaintextRendering, preferPlaintextCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiShowSystray, guiSystrayCheckbox->isChecked());
+
+    bool reload = false;
+
+    const QString &passwordPlugin = m_parent->pluginManager()->passwordPlugin();
+    const QString &selectedPasswordPlugin = passwordBox->itemData(passwordBox->currentIndex()).toString();
+
+    if (selectedPasswordPlugin != passwordPlugin) {
+        m_parent->pluginManager()->setPasswordPlugin(selectedPasswordPlugin);
+        reload = true;
+    }
+
+    if (reload) {
+        m_parent->pluginManager()->reloadPlugins();
+    }
+
+    emit saved();
 }
 
 QWidget *GeneralPage::asWidget()
@@ -260,6 +372,12 @@ bool GeneralPage::checkValidity() const
         return false;
     }
     return true;
+}
+
+bool GeneralPage::passwordFailures(QString &message) const
+{
+    Q_UNUSED(message);
+    return false;
 }
 
 EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *identitiesModel, const QModelIndex &currentIndex):
@@ -305,7 +423,7 @@ void EditIdentity::onReject()
         m_identitiesModel->removeIdentityAt(m_mapper->currentIndex());
 }
 
-ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapPage()
+ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), Ui_ImapPage(), m_parent(parent)
 {
     Ui_ImapPage::setupUi(this);
     method->insertItem(NETWORK, tr("Network Connection"));
@@ -346,10 +464,8 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(maybeShowPortWarning()));
     connect(encryption, SIGNAL(currentIndexChanged(int)), this, SLOT(changePort()));
     portWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
-    passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
-    connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPasswordWarning()));
+    connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
     imapUser->setText(s.value(SettingsNames::imapUserKey).toString());
-    imapPass->setText(s.value(SettingsNames::imapPassKey).toString());
     processPath->setText(s.value(SettingsNames::imapProcessKey).toString());
     startOffline->setChecked(s.value(SettingsNames::imapStartOffline).toBool());
     imapEnableId->setChecked(s.value(SettingsNames::imapEnableId, true).toBool());
@@ -360,9 +476,22 @@ ImapPage::ImapPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_ImapP
     m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
 
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
+
+    // FIXME: use another account-id
+    m_pwWatcher = m_parent->imapAccess()->passwordWatcher();
+    connect(m_pwWatcher, SIGNAL(stateChanged()), SLOT(updateWidgets()));
+    connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
+    connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));
+    connect(m_pwWatcher, SIGNAL(readingDone()), this, SLOT(slotSetPassword()));
+    connect(m_parent, SIGNAL(reloadPasswordsRequested()), m_pwWatcher, SLOT(reloadPassword()));
+
     updateWidgets();
-    maybeShowPasswordWarning();
     maybeShowPortWarning();
+}
+
+void ImapPage::slotSetPassword()
+{
+    imapPass->setText(m_pwWatcher->password());
 }
 
 void ImapPage::resizeEvent(QResizeEvent *event)
@@ -419,6 +548,23 @@ void ImapPage::updateWidgets()
         if (imapPort->text().isEmpty() || imapPort->text() == QString::number(Common::PORT_IMAP))
             imapPort->setText(QString::number(Common::PORT_IMAPS));
     }
+
+    passwordWarning->setVisible(!imapPass->text().isEmpty());
+    if (m_pwWatcher->isStorageEncrypted()) {
+        passwordWarning->setStyleSheet(QString());
+        passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
+            "If you do not enter password here, Trojitá will prompt for one when needed."));
+    } else {
+        passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
+        passwordWarning->setText(trUtf8("This password will be saved in clear text. "
+            "If you do not enter password here, Trojitá will prompt for one when needed."));
+    }
+
+    passwordPluginStatus->setVisible(m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk());
+    passwordPluginStatus->setText(m_pwWatcher->progressMessage());
+
+    imapPass->setEnabled(!m_pwWatcher->isWaitingForPlugin());
+    imapPassLabel->setEnabled(!m_pwWatcher->isWaitingForPlugin());
 }
 
 void ImapPage::save(QSettings &s)
@@ -454,11 +600,12 @@ void ImapPage::save(QSettings &s)
         s.setValue(SettingsNames::imapProcessKey, processPath->text());
     }
     s.setValue(SettingsNames::imapUserKey, imapUser->text());
-    s.setValue(SettingsNames::imapPassKey, imapPass->text());
     s.setValue(SettingsNames::imapStartOffline, startOffline->isChecked());
     s.setValue(SettingsNames::imapEnableId, imapEnableId->isChecked());
     s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QChar(' ')));
     s.setValue(SettingsNames::imapNeedsNetwork, imapNeedsNetwork->isChecked());
+
+    m_pwWatcher->setPassword(imapPass->text());
 }
 
 QWidget *ImapPage::asWidget()
@@ -485,11 +632,6 @@ bool ImapPage::checkValidity() const
     return true;
 }
 
-void ImapPage::maybeShowPasswordWarning()
-{
-    passwordWarning->setVisible(!imapPass->text().isEmpty());
-}
-
 void ImapPage::maybeShowPortWarning()
 {
     if (method->currentIndex() == PROCESS) {
@@ -504,7 +646,16 @@ void ImapPage::maybeShowPortWarning()
         portWarning->setVisible(imapPort->text() != QString::number(Common::PORT_IMAP));
         portWarning->setText(tr("This port is nonstandard. The default port is 143."));
     }
+}
 
+bool ImapPage::passwordFailures(QString &message) const
+{
+    if (m_pwWatcher->didWriteOk()) {
+        return false;
+    } else {
+        message = m_pwWatcher->progressMessage();
+        return true;
+    }
 }
 
 
@@ -555,6 +706,8 @@ void CachePage::save(QSettings &s)
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
 
     s.setValue(SettingsNames::cacheOfflineNumberDaysKey, offlineNumberOfDays->value());
+
+    emit saved();
 }
 
 QWidget *CachePage::asWidget()
@@ -568,7 +721,13 @@ bool CachePage::checkValidity() const
     return true;
 }
 
-OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_OutgoingPage()
+bool CachePage::passwordFailures(QString &message) const
+{
+    Q_UNUSED(message);
+    return false;
+}
+
+OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), Ui_OutgoingPage(), m_parent(parent)
 {
     using Common::SettingsNames;
     Ui_OutgoingPage::setupUi(this);
@@ -593,20 +752,30 @@ OutgoingPage::OutgoingPage(QWidget *parent, QSettings &s): QScrollArea(parent), 
     smtpStartTls->setChecked(s.value(SettingsNames::smtpStartTlsKey).toBool());
     smtpAuth->setChecked(s.value(SettingsNames::smtpAuthKey, false).toBool());
     smtpUser->setText(s.value(SettingsNames::smtpUserKey).toString());
-    smtpPass->setText(s.value(SettingsNames::smtpPassKey).toString());
-    passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
     sendmail->setText(s.value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString());
     saveToImap->setChecked(s.value(SettingsNames::composerSaveToImapKey, true).toBool());
     // Would be cool to support the special-use mailboxes
     saveFolderName->setText(s.value(SettingsNames::composerImapSentKey, QLatin1String("Sent")).toString());
     smtpBurl->setChecked(s.value(SettingsNames::smtpUseBurlKey, false).toBool());
 
-    connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPasswordWarning()));
+    connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
     connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
     connect(smtpAuth, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
     connect(saveToImap, SIGNAL(toggled(bool)), this, SLOT(updateWidgets()));
+
+    m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QLatin1String("account-0"), QLatin1String("smtp"));
+    connect(m_pwWatcher, SIGNAL(stateChanged()), SLOT(updateWidgets()));
+    connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
+    connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));
+    connect(m_pwWatcher, SIGNAL(readingDone()), this, SLOT(slotSetPassword()));
+    connect(m_parent, SIGNAL(reloadPasswordsRequested()), m_pwWatcher, SLOT(reloadPassword()));
+
     updateWidgets();
-    maybeShowPasswordWarning();
+}
+
+void OutgoingPage::slotSetPassword()
+{
+    smtpPass->setText(m_pwWatcher->password());
 }
 
 void OutgoingPage::resizeEvent(QResizeEvent *event)
@@ -636,8 +805,6 @@ void OutgoingPage::updateWidgets()
         bool authEnabled = smtpAuth->isChecked();
         smtpUser->setEnabled(authEnabled);
         lay->labelForField(smtpUser)->setEnabled(authEnabled);
-        smtpPass->setEnabled(authEnabled);
-        lay->labelForField(smtpPass)->setEnabled(authEnabled);
         sendmail->setEnabled(false);
         lay->labelForField(sendmail)->setEnabled(false);
         saveToImap->setEnabled(true);
@@ -654,6 +821,27 @@ void OutgoingPage::updateWidgets()
                                            smtpPort->text() == QString::number(Common::PORT_SMTP_SUBMISSION))) {
             smtpPort->setText(QString::number(Common::PORT_SMTP_SSL));
         }
+
+        passwordWarning->setVisible(!smtpPass->text().isEmpty());
+        passwordWarning->setEnabled(authEnabled);
+        if (m_pwWatcher->isStorageEncrypted()) {
+            passwordWarning->setStyleSheet(QString());
+            passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
+                "If you do not enter password here, Trojitá will prompt for one when needed."));
+        } else {
+            passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
+            passwordWarning->setText(trUtf8("This password will be saved in clear text. "
+                "If you do not enter password here, Trojitá will prompt for one when needed."));
+        }
+
+        passwordPluginStatus->setVisible(authEnabled &&
+                                         (m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk()));
+        passwordPluginStatus->setText(m_pwWatcher->progressMessage());
+        passwordPluginStatus->setEnabled(authEnabled);
+
+        smtpPass->setEnabled(!m_pwWatcher->isWaitingForPlugin() && authEnabled);
+        lay->labelForField(smtpPass)->setEnabled(!m_pwWatcher->isWaitingForPlugin() && authEnabled);
+
         break;
     }
     case SENDMAIL:
@@ -686,8 +874,10 @@ void OutgoingPage::updateWidgets()
         }
         smtpBurl->setEnabled(false);
         lay->labelForField(smtpBurl)->setEnabled(false);
+        passwordPluginStatus->setVisible(false);
     }
     saveFolderName->setEnabled(saveToImap->isChecked());
+
 }
 
 void OutgoingPage::save(QSettings &s)
@@ -701,7 +891,6 @@ void OutgoingPage::save(QSettings &s)
         s.setValue(SettingsNames::smtpStartTlsKey, smtpStartTls->isChecked());
         s.setValue(SettingsNames::smtpAuthKey, smtpAuth->isChecked());
         s.setValue(SettingsNames::smtpUserKey, smtpUser->text());
-        s.setValue(SettingsNames::smtpPassKey, smtpPass->text());
         break;
     case SSMTP:
         s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodSSMTP);
@@ -709,7 +898,6 @@ void OutgoingPage::save(QSettings &s)
         s.setValue(SettingsNames::smtpPortKey, smtpPort->text());
         s.setValue(SettingsNames::smtpAuthKey, smtpAuth->isChecked());
         s.setValue(SettingsNames::smtpUserKey, smtpUser->text());
-        s.setValue(SettingsNames::smtpPassKey, smtpPass->text());
         break;
     case SENDMAIL:
         s.setValue(SettingsNames::msaMethodKey, SettingsNames::methodSENDMAIL);
@@ -726,6 +914,12 @@ void OutgoingPage::save(QSettings &s)
     } else {
         // BURL depends on having that message available on IMAP somewhere
         s.setValue(SettingsNames::smtpUseBurlKey, false);
+    }
+
+    if (smtpAuth->isEnabled() && smtpAuth->isChecked()) {
+        m_pwWatcher->setPassword(smtpPass->text());
+    } else {
+        emit saved();
     }
 }
 
@@ -758,9 +952,14 @@ bool OutgoingPage::checkValidity() const
     return true;
 }
 
-void OutgoingPage::maybeShowPasswordWarning()
+bool OutgoingPage::passwordFailures(QString &message) const
 {
-    passwordWarning->setVisible(!smtpPass->text().isEmpty());
+    if (!smtpAuth->isEnabled() || !smtpAuth->isChecked() || m_pwWatcher->didWriteOk()) {
+        return false;
+    } else {
+        message = m_pwWatcher->progressMessage();
+        return true;
+    }
 }
 
 #ifdef XTUPLE_CONNECT
@@ -833,6 +1032,7 @@ void XtConnectPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::xtDbDbName, dbName->text());
     s.setValue(Common::SettingsNames::xtDbUser, username->text());
     saveXtConfig();
+    emit saved();
 }
 
 void XtConnectPage::saveXtConfig()

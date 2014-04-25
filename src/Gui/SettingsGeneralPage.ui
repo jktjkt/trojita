@@ -4,8 +4,8 @@
  <widget class="QScrollArea" name="GeneralPage">
   <property name="minimumSize">
    <size>
-    <width>400</width>
-    <height>0</height>
+    <width>420</width>
+    <height>400</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -116,13 +116,37 @@
      </layout>
     </item>
     <item row="3" column="0" colspan="2">
+     <layout class="QFormLayout" name="formLayout">
+      <property name="fieldGrowthPolicy">
+       <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+      </property>
+      <item row="1" column="0">
+       <widget class="QLabel" name="passwordLabel">
+        <property name="text">
+         <string>Passwords</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="passwordBox">
+        <property name="minimumSize">
+         <size>
+          <width>310</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="4" column="0" colspan="2">
      <widget class="Line" name="line">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
      </widget>
     </item>
-    <item row="4" column="0" colspan="2">
+    <item row="5" column="0" colspan="2">
      <widget class="QCheckBox" name="showHomepageCheckbox">
       <property name="toolTip">
        <string/>
@@ -132,14 +156,14 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="0">
+    <item row="6" column="0" colspan="2">
      <widget class="QCheckBox" name="preferPlaintextCheckbox">
       <property name="text">
        <string>Show plaintext e-mails instead of the HTML version</string>
       </property>
      </widget>
     </item>
-    <item row="6" column="0">
+    <item row="7" column="0" colspan="2">
      <widget class="QCheckBox" name="guiSystrayCheckbox">
       <property name="text">
        <string>Show system tray icon</string>

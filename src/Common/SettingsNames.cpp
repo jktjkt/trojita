@@ -41,7 +41,7 @@ const QString SettingsNames::smtpPortKey = QLatin1String("msa.smtp.port");
 const QString SettingsNames::smtpAuthKey = QLatin1String("msa.smtp.auth");
 const QString SettingsNames::smtpStartTlsKey = QLatin1String("msa.smtp.starttls");
 const QString SettingsNames::smtpUserKey = QLatin1String("msa.smtp.auth.user");
-const QString SettingsNames::smtpPassKey = QLatin1String("msa.smtp.auth.pass");
+// in use by the cleartext password plugin: "msa.smtp.auth.pass"
 const QString SettingsNames::sendmailKey = QLatin1String("msa.sendmail");
 const QString SettingsNames::sendmailDefaultCmd = QLatin1String("sendmail -bm -oi");
 const QString SettingsNames::smtpUseBurlKey = QLatin1String("msa.smtp.burl");
@@ -53,7 +53,7 @@ const QString SettingsNames::imapHostKey = QLatin1String("imap.host");
 const QString SettingsNames::imapPortKey = QLatin1String("imap.port");
 const QString SettingsNames::imapStartTlsKey = QLatin1String("imap.starttls");
 const QString SettingsNames::imapUserKey = QLatin1String("imap.auth.user");
-const QString SettingsNames::imapPassKey = QLatin1String("imap.auth.pass");
+// in use by the cleartext password plugin: "imap.auth.pass"
 const QString SettingsNames::imapProcessKey = QLatin1String("imap.process");
 const QString SettingsNames::imapStartOffline = QLatin1String("imap.offline");
 const QString SettingsNames::imapEnableId = QLatin1String("imap.enableId");

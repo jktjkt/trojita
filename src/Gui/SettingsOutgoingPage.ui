@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>OutgoingPage</class>
  <widget class="QScrollArea" name="OutgoingPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>281</width>
+    <height>319</height>
+   </rect>
+  </property>
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
   </property>
@@ -9,6 +17,14 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="scrollAreaWidgetContents">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>260</width>
+     <height>332</height>
+    </rect>
+   </property>
    <layout class="QFormLayout" name="formLayout">
     <property name="fieldGrowthPolicy">
      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
@@ -78,15 +94,12 @@
     </item>
     <item row="7" column="0" colspan="2">
      <widget class="QLabel" name="passwordWarning">
-      <property name="text">
-       <string>This password will be saved on disk in clear text. Note that this is the only way how to set SMTP password for now.</string>
-      </property>
       <property name="wordWrap">
        <bool>true</bool>
       </property>
      </widget>
     </item>
-    <item row="8" column="0">
+    <item row="9" column="0">
      <widget class="QLabel" name="sendmailLabel">
       <property name="text">
        <string>Sendmail E&amp;xecutable</string>
@@ -119,7 +132,7 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="1">
+    <item row="9" column="1">
      <widget class="LineEdit" name="sendmail"/>
     </item>
     <item row="3" column="0">
@@ -139,10 +152,10 @@
       </property>
      </widget>
     </item>
-    <item row="9" column="1">
+    <item row="10" column="1">
      <widget class="QCheckBox" name="saveToImap"/>
     </item>
-    <item row="9" column="0">
+    <item row="10" column="0">
      <widget class="QLabel" name="saveToImapLabel">
       <property name="text">
        <string>Save Ou&amp;tgoing Mail</string>
@@ -152,7 +165,7 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
+    <item row="11" column="0">
      <widget class="QLabel" name="saveFolderLabel">
       <property name="text">
        <string>Sent &amp;Folder Name</string>
@@ -162,10 +175,10 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="1">
+    <item row="11" column="1">
      <widget class="LineEdit" name="saveFolderName"/>
     </item>
-    <item row="11" column="0">
+    <item row="12" column="0">
      <widget class="QLabel" name="smtpBurlLabel">
       <property name="toolTip">
        <string>Enable forward-without-download via BURL (RFC 4468) when the IMAP and ESMTP servers support it. Extra server-side configuration is required.</string>
@@ -178,12 +191,32 @@
       </property>
      </widget>
     </item>
-    <item row="11" column="1">
+    <item row="12" column="1">
      <widget class="QCheckBox" name="smtpBurl"/>
+    </item>
+    <item row="8" column="0" colspan="2">
+     <widget class="QLabel" name="passwordPluginStatus">
+      <property name="text">
+       <string notr="true">plugin status</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>LineEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>method</tabstop>
   <tabstop>smtpHost</tabstop>
@@ -197,13 +230,6 @@
   <tabstop>saveFolderName</tabstop>
   <tabstop>smtpBurl</tabstop>
  </tabstops>
- <customwidgets>
-  <customwidget>
-   <class>LineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>LineEdit.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

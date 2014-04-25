@@ -106,6 +106,10 @@ public:
     const AbstractAddressbook *addressBook() const { return m_addressBook; }
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
     Plugins::PluginManager *pluginManager() { return m_pluginManager; }
+
+    // FIXME: this should be changed to some wrapper when support for multiple accounts is available
+    Imap::ImapAccess *imapAccess() const;
+
 protected:
     void closeEvent(QCloseEvent *event);
     bool eventFilter(QObject *o, QEvent *e);
@@ -125,6 +129,7 @@ private slots:
     void networkError(const QString &message);
     void cacheError(const QString &message);
     void authenticationRequested();
+    void authenticationContinue(const QString &pass = QString());
     void authenticationFailed(const QString &message);
     void checkSslPolicy();
     void requireStartTlsInFuture();

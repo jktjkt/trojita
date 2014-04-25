@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -68,6 +69,7 @@
 #include "Imap/Network/FileDownloadManager.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
+#include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginManager.h"
 #include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
@@ -107,7 +109,16 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0),
     m_delayedStateSaving(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_trayIcon(0)
 {
     // m_pluginManager must be created before calling createWidgets
-    m_pluginManager = new Plugins::PluginManager(m_settings, Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin, this);
+    m_pluginManager = new Plugins::PluginManager(this, m_settings,
+                                                 Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
+
+    // ImapAccess contains a wrapper for retrieving passwords through some plugin.
+    // That PasswordWatcher is used by the SettingsDialog's widgets *and* by this class,
+    // which means that ImapAccess has to be constructed before we go and open the settings dialog.
+
+    // FIXME: use another account-id at some point in future
+    m_imapAccess = new Imap::ImapAccess(this, m_settings, m_pluginManager, QString());
+    connect(m_imapAccess, SIGNAL(cacheError(QString)), this, SLOT(cacheError(QString)));
 
     createWidgets();
 
@@ -653,8 +664,7 @@ void MainWindow::createWidgets()
 
 void MainWindow::setupModels()
 {
-    m_imapAccess = new Imap::ImapAccess(this, m_settings, QString());
-    connect(m_imapAccess, SIGNAL(cacheError(QString)), this, SLOT(cacheError(QString)));
+    m_imapAccess->reloadConfiguration();
     m_imapAccess->doConnect();
 
     //setProperty( "trojita-sqlcache-commit-period", QVariant(5000) );
@@ -1104,8 +1114,26 @@ void MainWindow::slotShowSettings()
 
 void MainWindow::authenticationRequested()
 {
-    QString user = m_settings->value(Common::SettingsNames::imapUserKey).toString();
-    QString pass = m_settings->value(Common::SettingsNames::imapPassKey).toString();
+    Plugins::PasswordPlugin *password = pluginManager()->password();
+    if (password) {
+        Plugins::PasswordJob *job = password->requestPassword(QLatin1String("account-0"), QLatin1String("imap"));
+        if (job) {
+            connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(authenticationContinue(QString)));
+            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)), this, SLOT(authenticationContinue()));
+            job->setAutoDelete(true);
+            job->start();
+            return;
+        }
+    }
+
+    authenticationContinue(QString());
+
+}
+
+void MainWindow::authenticationContinue(const QString &password)
+{
+    const QString &user = m_settings->value(Common::SettingsNames::imapUserKey).toString();
+    QString pass = password;
     if (m_ignoreStoredPassword || pass.isEmpty()) {
         bool ok;
         pass = PasswordDialog::getPassword(this, tr("Authentication Required"),
@@ -1149,7 +1177,6 @@ void MainWindow::requireStartTlsInFuture()
 
 void MainWindow::nukeModels()
 {
-    qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher())->setNetworkOffline();
     m_messageWidget->messageView->setEmpty();
     mboxTree->setModel(0);
     msgListWidget->tree->setModel(0);
@@ -1159,8 +1186,6 @@ void MainWindow::nukeModels()
     prettyMsgListModel = 0;
     delete prettyMboxModel;
     prettyMboxModel = 0;
-    delete m_imapAccess;
-    m_imapAccess = 0;
 }
 
 void MainWindow::recoverDrafts()
@@ -1564,8 +1589,7 @@ ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QSt
                                           (method == SettingsNames::methodSMTP)
                                           && m_settings->value(SettingsNames::smtpStartTlsKey).toBool(),
                                           m_settings->value(SettingsNames::smtpAuthKey).toBool(),
-                                          m_settings->value(SettingsNames::smtpUserKey).toString(),
-                                          m_settings->value(SettingsNames::smtpPassKey).toString());
+                                          m_settings->value(SettingsNames::smtpUserKey).toString());
     } else if (method == SettingsNames::methodSENDMAIL) {
         QStringList args = m_settings->value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
@@ -2421,4 +2445,10 @@ void MainWindow::possiblyLoadMessageOnSplittersChanged()
         }
     }
 }
+
+Imap::ImapAccess *MainWindow::imapAccess() const
+{
+    return m_imapAccess;
+}
+
 }

@@ -36,9 +36,14 @@
 #include "Imap/Model/Utils.h"
 #include "Imap/Model/VisibleTasksModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
+#include "UiUtils/PasswordWatcher.h"
 
 class QNetworkAccessManager;
 class QSettings;
+
+namespace Plugins {
+class PluginManager;
+}
 
 namespace Imap {
 
@@ -54,17 +59,17 @@ class ImapAccess : public QObject
     Q_PROPERTY(QObject *oneMessageModel READ oneMessageModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *networkWatcher READ networkWatcher NOTIFY modelsChanged)
     Q_PROPERTY(QObject *msgQNAM READ msgQNAM NOTIFY modelsChanged)
+    Q_PROPERTY(UiUtils::PasswordWatcher *passwordWatcher READ passwordWatcher)
     Q_PROPERTY(QString server READ server WRITE setServer NOTIFY serverChanged)
     Q_PROPERTY(int port READ port WRITE setPort NOTIFY portChanged)
     Q_PROPERTY(QString username READ username WRITE setUsername NOTIFY usernameChanged)
-    Q_PROPERTY(QString password READ password WRITE setPassword)
     Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode NOTIFY connMethodChanged)
     Q_PROPERTY(QString sslInfoTitle READ sslInfoTitle NOTIFY checkSslPolicy)
     Q_PROPERTY(QString sslInfoMessage READ sslInfoMessage NOTIFY checkSslPolicy)
     Q_ENUMS(Imap::ImapAccess::ConnectionMethod)
 
 public:
-    explicit ImapAccess(QObject *parent, QSettings *settings, const QString &accountName);
+    explicit ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginManager *pluginManager, const QString &accountName);
 
     QObject *imapModel() const;
     QObject *mailboxModel() const;
@@ -74,6 +79,7 @@ public:
     QObject *networkWatcher() const;
     QObject *threadingMsgListModel() const;
     QObject *msgQNAM() const;
+    UiUtils::PasswordWatcher *passwordWatcher() const;
 
     QString server() const;
     void setServer(const QString &server);
@@ -121,6 +127,7 @@ public slots:
     void onCacheError(const QString &message);
     void slotLogged(uint parserId, const Common::LogMessage &message);
     void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
+    void reloadConfiguration();
 
 private:
     QSettings *m_settings;
@@ -133,6 +140,8 @@ private:
     Imap::Mailbox::OneMessageModel *m_oneMessageModel;
     Imap::Mailbox::NetworkWatcher *m_netWatcher;
     QNetworkAccessManager *m_msgQNAM;
+    Plugins::PluginManager *m_pluginManager;
+    UiUtils::PasswordWatcher *m_passwordWatcher;
 
     QString m_server;
     int m_port;

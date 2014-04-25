@@ -27,6 +27,8 @@
 #include <QString>
 #include <QtPlugin>
 
+class QSettings;
+
 namespace Plugins
 {
 
@@ -40,7 +42,7 @@ public:
     virtual QString description() const = 0;
 
     /** @short Return new plugin instance implemented by plugin */
-    virtual QObject *create(QObject *parent) = 0;
+    virtual QObject *create(QObject *parent, QSettings *settings) = 0;
 };
 
 }

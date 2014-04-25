@@ -54,6 +54,9 @@ if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO)
 endif()
 
+trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
+trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN")
+
 if(WITH_QT5)
     message(STATUS "Building the Qt5 version")
     find_package(Qt5Core 5.2 REQUIRED)
@@ -115,6 +118,15 @@ if(WIN32)
         set(CMAKE_RC_COMPILER_INIT windres)
         set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> <FLAGS> -O coff <DEFINES> -i <SOURCE> -o <OBJECT>")
     endif()
+endif()
+
+if (WITH_QT5)
+    trojita_find_package(Qt5Keychain "" "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library (Qt5 version)" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
+else()
+    trojita_find_package(QtKeychain "" "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
+endif()
+if(Qt5Keychain_FOUND OR QtKeychain_FOUND)
+    message(STATUS "Found QtKeychain library (includes at ${QTKEYCHAIN_INCLUDE_DIRS}, lib at ${QTKEYCHAIN_LIBRARIES})")
 endif()
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
@@ -244,6 +256,11 @@ set(libPlugins_SOURCES
     ${path_Plugins}/PasswordPlugin.cpp
     ${path_Plugins}/PluginJob.cpp
     ${path_Plugins}/PluginManager.cpp
+)
+
+set(path_UiUtils ${CMAKE_CURRENT_SOURCE_DIR}/src/UiUtils)
+set(libUiUtils_SOURCES
+    ${path_UiUtils}/PasswordWatcher.cpp
 )
 
 set(path_Composer ${CMAKE_CURRENT_SOURCE_DIR}/src/Composer)
@@ -577,6 +594,9 @@ else()
     target_link_libraries(Plugins ${QT_QTCORE_LIBRARY})
 endif()
 
+add_library(UiUtils STATIC ${libUiUtils_SOURCES})
+target_link_libraries(UiUtils Plugins ${QT_QTCORE_LIBRARY})
+
 add_library(Streams STATIC ${libStreams_SOURCES})
 target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
@@ -596,7 +616,7 @@ if(NOT WITH_QT5)
 endif()
 
 add_library(Imap STATIC ${libImap_SOURCES})
-target_link_libraries(Imap Common Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+target_link_libraries(Imap Common Streams UiUtils ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
     target_link_libraries(Imap ${ZLIB_LIBRARIES})
 endif()
@@ -611,6 +631,27 @@ if(NOT WITH_QT5)
     if(APPLE)
         find_library(CARBON_LIBRARY Carbon REQUIRED)
         target_link_libraries(MimetypesQt4 ${CARBON_LIBRARY})
+    endif()
+endif()
+
+## ClearText password plugin
+if(WITH_CLEARTEXT_PLUGIN)
+    trojita_add_plugin(trojita_plugin_ClearTextPasswordPlugin WITH_CLEARTEXT_PLUGIN src/Plugins/ClearTextPassword/ClearTextPassword.cpp)
+endif()
+
+## QtKeyChain plugin
+if(WITH_QTKEYCHAIN_PLUGIN)
+    trojita_add_plugin(trojita_plugin_QtKeychainPasswordPlugin WITH_QTKEYCHAIN_PLUGIN src/Plugins/QtKeyChain/QtKeyChainPassword.cpp)
+    if(WITH_QT5)
+        qt5_use_modules(trojita_plugin_QtKeychainPasswordPlugin Core DBus)
+    else()
+        target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY})
+    endif()
+    target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QTKEYCHAIN_LIBRARIES})
+    if(SUPPORTS_TARGET_INCLUDES)
+        set_property(TARGET trojita_plugin_QtKeychainPasswordPlugin APPEND PROPERTY INCLUDE_DIRECTORIES ${QTKEYCHAIN_INCLUDE_DIRS})
+    else()
+        include_directories(${QTKEYCHAIN_INCLUDE_DIRS})
     endif()
 endif()
 
@@ -642,12 +683,12 @@ if(WITH_DESKTOP)
     if(SUPPORTS_TARGET_INCLUDES)
         set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
     endif()
-    target_link_libraries(DesktopGui Common Composer Imap MSA Plugins Streams qwwsmtpclient AbookAddressbook ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(DesktopGui Common UiUtils Composer Imap MSA Plugins Streams qwwsmtpclient AbookAddressbook ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
-    target_link_libraries(trojita AppVersion Common DesktopGui ${STATIC_PLUGINS} ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS} ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
     if(NOT WITH_QT5)
         target_link_libraries(trojita MimetypesQt4)
     endif()
@@ -681,6 +722,7 @@ endif()
 if(WITH_QT5)
     qt5_use_modules(AppVersion Core)
     qt5_use_modules(Common Core Network)
+    qt5_use_modules(UiUtils Core Network)
     qt5_use_modules(Streams Network)
     qt5_use_modules(qwwsmtpclient Network)
     qt5_use_modules(MSA Network)
