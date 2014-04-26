@@ -1434,7 +1434,6 @@ TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QMode
 {
     while (const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(index.model())) {
         index = proxy->mapToSource(index);
-        proxy = qobject_cast<const QAbstractProxyModel *>(index.model());
     }
     const Model *model = qobject_cast<const Model *>(index.model());
     Q_ASSERT(model);
