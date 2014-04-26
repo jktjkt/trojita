@@ -51,6 +51,7 @@ public:
     };
 
     static QString prettySize(uint bytes, const BytesSuffix compactUnitFormat = BytesSuffix::COMPACT_FORM);
+    static QString prettyDate(const QDateTime &dateTime);
 
     static QString sslChainToHtml(const QList<QSslCertificate> &sslChain);
     static QString sslErrorsToHtml(const QList<QSslError> &sslErrors);

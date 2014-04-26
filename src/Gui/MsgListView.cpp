@@ -135,7 +135,7 @@ int MsgListView::sizeHintForColumn(int column) const
     case Imap::Mailbox::MsgListModel::RECEIVED_DATE:
         return metric.size(Qt::TextSingleLine,
                            //: Translators: use a text which is returned for e-mails older than one day but newer than one week
-                           //: (see Imap::Mailbox::PrettyMsgListModel::prettyFormatDate() for the string formats); the idea here
+                           //: (see UiUtils::Formatting::prettyDate() for the string formats); the idea here
                            //: is to have a text which is "wide enough" in a typical UI font.
                            //: The English version uses "Mon" because of the M letter; you should use something similar.
                            tr("Mon 10")).width();

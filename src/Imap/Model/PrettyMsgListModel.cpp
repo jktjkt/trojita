@@ -90,7 +90,7 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                 // tooltips shall always show the full and complete data
                 return res.toLocalTime().toString(Qt::DefaultLocaleLongDate);
             }
-            return prettyFormatDate(res.toLocalTime());
+            return UiUtils::Formatting::prettyDate(res.toLocalTime());
         }
         case MsgListModel::SIZE:
         {
@@ -199,41 +199,6 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
     }
 
     return QSortFilterProxyModel::data(index, role);
-}
-
-/** @short Format a QDateTime for compact display in one column of the view */
-QString PrettyMsgListModel::prettyFormatDate(const QDateTime &dateTime) const
-{
-    // The time is not always synced properly, so better accept even slightly too new messages as "from today"
-    QDateTime now = QDateTime::currentDateTime().addSecs(15*60);
-    if (dateTime >= now) {
-        // Messages from future shall always be shown using full format to prevent nasty surprises.
-        return dateTime.toString(Qt::DefaultLocaleShortDate);
-    } else if (dateTime.date() == now.date() || dateTime > now.addSecs(-6 * 3600)) {
-        // It's a "today's message", i.e. something which is either literally from today or at least something not older than
-        // six hours (an arbitraty magic number).
-        // Originally, the cut-off time interval was set to 24 hours, but it led to weird things in the GUI like showing mails
-        // from yesterday's 18:33 just as "18:33" even though the local time was "18:20" already. In a perfect world, we would
-        // also periodically emit dataChanged() in order to force a wrap once the view has been open for too long, but that will
-        // have to wait a bit.
-        // The time is displayed without seconds to conserve space as well.
-        //: please do not translate the format specifier (you can change their order
-        //: or the separator to follow the local conventions)
-        return dateTime.time().toString(tr("hh:mm"));
-    } else if (dateTime > now.addDays(-7)) {
-        // Messages from the last seven days can be formatted just with the weekday name
-        //: please do not translate the format specifier (you can change their order
-        //: or the separator to follow the local conventions)
-        return dateTime.toString(tr("ddd hh:mm"));
-    } else if (dateTime > now.addYears(-1)) {
-        // Messages newer than one year don't have to show year
-        //: please do not translate the format specifier (you can change their order
-        //: or the separator to follow the local conventions)
-        return dateTime.toString(tr("d MMM hh:mm"));
-    } else {
-        // Old messagees shall have a full date
-        return dateTime.toString(Qt::DefaultLocaleShortDate);
-    }
 }
 
 void PrettyMsgListModel::setHideRead(bool value)

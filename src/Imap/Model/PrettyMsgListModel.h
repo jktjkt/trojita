@@ -46,8 +46,6 @@ signals:
     void sortingPreferenceChanged(int column, Qt::SortOrder order);
 
 private:
-    QString prettyFormatDate(const QDateTime &dateTime) const;
-
     bool m_hideRead;
 };
 
