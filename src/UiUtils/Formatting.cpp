@@ -28,6 +28,10 @@
 
 namespace UiUtils {
 
+Formatting::Formatting(QObject *parent): QObject(parent)
+{
+}
+
 QString Formatting::prettySize(uint bytes, const BytesSuffix compactUnitFormat)
 {
     if (bytes == 0) {
@@ -190,5 +194,16 @@ void Formatting::formatSslState(const QList<QSslCertificate> &sslChain, const QB
         }
     }
 }
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+QObject *Formatting::factory(QQmlEngine *engine, QJSEngine *scriptEngine)
+{
+    Q_UNUSED(scriptEngine);
+
+    // the reinterpret_cast is used to avoid haivng to depend on QtQuick when doing non-QML builds
+    Formatting *f = new Formatting(reinterpret_cast<QObject*>(engine));
+    return f;
+}
+#endif
 
 }

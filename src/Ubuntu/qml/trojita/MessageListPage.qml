@@ -24,6 +24,7 @@ import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
 import "Utils.js" as Utils
+import trojita.UiFormatting 0.1
 
 Page {
     id: messageListPage
@@ -144,7 +145,7 @@ Page {
                     }
                     Label{
                         id: timeLabel
-                        text: model ? Utils.formatDate(model.date) : ""
+                        text: model ? UiFormatting.prettyDate(model.date) : ""
                         font.pixelSize: FontUtils.sizeToPixels("small")
                     }
                 }

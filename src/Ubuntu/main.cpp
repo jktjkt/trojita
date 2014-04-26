@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
 
     qmlRegisterUncreatableType<Imap::Mailbox::ThreadingMsgListModel>("trojita.models.ThreadingMsgListModel", 0, 1, "ThreadingMsgListModel",
             QLatin1String("ThreadingMsgListModel can only be created from the C++ code. Use ImapAccess if you need access to an instance."));
+    qmlRegisterSingletonType<UiUtils::Formatting>("trojita.UiFormatting", 0, 1, "UiFormatting", UiUtils::Formatting::factory);
 
     viewer.setTitle(QObject::trUtf8("Trojitá"));
     viewer.setSource(QUrl::fromLocalFile(qmlFile));

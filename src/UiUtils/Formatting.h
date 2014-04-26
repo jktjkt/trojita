@@ -30,12 +30,19 @@ class QSettings;
 class QSslCertificate;
 class QSslError;
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+class QQmlEngine;
+class QJSEngine;
+#endif
+
 namespace UiUtils {
 
 class Formatting: public QObject
 {
     Q_OBJECT
 public:
+    Formatting(QObject *parent);
+
     enum class BytesSuffix {
         COMPACT_FORM, /**< @short Do not append "B" when the size is less than 1kB */
         WITH_BYTES_SUFFIX /**< @short Always prepend the units, even if it's just in bytes */
@@ -50,8 +57,8 @@ public:
         Question = 4
     };
 
-    static QString prettySize(uint bytes, const BytesSuffix compactUnitFormat = BytesSuffix::COMPACT_FORM);
-    static QString prettyDate(const QDateTime &dateTime);
+    Q_INVOKABLE static QString prettySize(uint bytes, const BytesSuffix compactUnitFormat = BytesSuffix::COMPACT_FORM);
+    Q_INVOKABLE static QString prettyDate(const QDateTime &dateTime);
 
     static QString sslChainToHtml(const QList<QSslCertificate> &sslChain);
     static QString sslErrorsToHtml(const QList<QSslError> &sslErrors);
@@ -60,6 +67,10 @@ public:
                                const QList<QSslError> &sslErrors, QString *title, QString *message, IconType *icon);
 
     static QByteArray htmlHexifyByteArray(const QByteArray &rawInput);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    static QObject *factory(QQmlEngine *engine, QJSEngine *scriptEngine);
+#endif
 };
 
 }
