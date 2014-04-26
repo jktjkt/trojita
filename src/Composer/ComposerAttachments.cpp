@@ -37,8 +37,8 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
-#include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
+#include "UiUtils/Formatting.h"
 
 using namespace Imap::Mailbox;
 
@@ -139,7 +139,7 @@ QString FileAttachmentItem::tooltip() const
         return MessageComposer::tr("File is not readable");
 
     return MessageComposer::tr("%1: %2, %3")
-            .arg(fileName, QString::fromUtf8(mimeType()), PrettySize::prettySize(f.size(), PrettySize::WITH_BYTES_SUFFIX));
+            .arg(fileName, QString::fromUtf8(mimeType()), UiUtils::Formatting::prettySize(f.size(), UiUtils::Formatting::BytesSuffix::WITH_BYTES_SUFFIX));
 }
 
 bool FileAttachmentItem::isAvailableLocally() const
@@ -372,7 +372,7 @@ QString ImapPartAttachmentItem::tooltip() const
     if (!index.isValid())
         return QString();
     return MessageComposer::tr("%1, %2").arg(index.data(RolePartMimeType).toString(),
-                                             PrettySize::prettySize(index.data(RolePartOctets).toUInt()));
+                                             UiUtils::Formatting::prettySize(index.data(RolePartOctets).toUInt()));
 }
 
 QByteArray ImapPartAttachmentItem::mimeType() const

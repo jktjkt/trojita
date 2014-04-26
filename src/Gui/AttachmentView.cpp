@@ -28,7 +28,7 @@
 #include "Imap/Model/DragAndDrop.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ItemRoles.h"
-#include "Imap/Model/Utils.h"
+#include "UiUtils/Formatting.h"
 
 #include <QAction>
 #include <QApplication>
@@ -150,8 +150,8 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 
     // Some metainformation -- the MIME type and the file size
     QLabel *lbl = new QLabel(tr("%2, %3").arg(mimeDescription,
-                                      Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
-                                                                            Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX)));
+                                      UiUtils::Formatting::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
+                                                                      UiUtils::Formatting::BytesSuffix::WITH_BYTES_SUFFIX)));
     if (rawMime != mimeDescription) {
         lbl->setToolTip(rawMime);
     }

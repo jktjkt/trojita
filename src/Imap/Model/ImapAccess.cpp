@@ -33,7 +33,6 @@
 #include "Imap/Model/DummyNetworkWatcher.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/SystemNetworkWatcher.h"
-#include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/SocketFactory.h"
 
@@ -44,7 +43,7 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginMana
     m_threadingMsgListModel(0), m_visibleTasksModel(0), m_oneMessageModel(0), m_netWatcher(0), m_msgQNAM(0),
     m_pluginManager(pluginManager), m_passwordWatcher(0), m_port(0),
     m_connectionMethod(Common::ConnectionMethod::Invalid),
-    m_sslInfoIcon(Imap::Mailbox::CertificateUtils::NoIcon),
+    m_sslInfoIcon(UiUtils::Formatting::IconType::NoIcon),
     m_accountName(accountName)
 {
     Imap::migrateSettings(m_settings);
@@ -426,7 +425,7 @@ void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
 
 QString ImapAccess::prettySize(const uint bytes) const
 {
-    return Imap::Mailbox::PrettySize::prettySize(bytes, Imap::Mailbox::PrettySize::WITH_BYTES_SUFFIX);
+    return UiUtils::Formatting::prettySize(bytes, UiUtils::Formatting::BytesSuffix::WITH_BYTES_SUFFIX);
 }
 
 void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors)
@@ -439,7 +438,7 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
         // This certificate chain contains the same public keys as the last time; we should accept that
         m_imapModel->setSslPolicy(m_sslChain, m_sslErrors, true);
     } else {
-        Imap::Mailbox::CertificateUtils::formatSslState(
+        UiUtils::Formatting::formatSslState(
                     m_sslChain, lastKnownPubKey, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &m_sslInfoIcon);
         emit checkSslPolicy();
     }
@@ -468,7 +467,7 @@ QString ImapAccess::sslInfoMessage() const
     return m_sslInfoMessage;
 }
 
-Imap::Mailbox::CertificateUtils::IconType ImapAccess::sslInfoIcon() const
+UiUtils::Formatting::IconType ImapAccess::sslInfoIcon() const
 {
     return m_sslInfoIcon;
 }

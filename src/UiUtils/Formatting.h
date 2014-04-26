@@ -19,8 +19,8 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef IMAP_MAILBOX_UTILS_H
-#define IMAP_MAILBOX_UTILS_H
+#ifndef TROJITA_UIUTILS_FORMATTING_H
+#define TROJITA_UIUTILS_FORMATTING_H
 
 #include <QDateTime>
 #include <QModelIndex>
@@ -30,28 +30,37 @@ class QSettings;
 class QSslCertificate;
 class QSslError;
 
-namespace Imap {
-namespace Mailbox {
+namespace UiUtils {
 
-/** @short Return the name of a log file for logging IMAP communication */
-QString persistentLogFileName();
+class Formatting: public QObject
+{
+    Q_OBJECT
+public:
+    enum class BytesSuffix {
+        COMPACT_FORM, /**< @short Do not append "B" when the size is less than 1kB */
+        WITH_BYTES_SUFFIX /**< @short Always prepend the units, even if it's just in bytes */
+    };
 
-/** @short Return a system/platform version */
-QString systemPlatformVersion();
+    /** @short Shamelessly stolen from QMessageBox */
+    enum class IconType {
+        NoIcon = 0,
+        Information = 1,
+        Warning = 2,
+        Critical = 3,
+        Question = 4
+    };
+
+    static QString prettySize(uint bytes, const BytesSuffix compactUnitFormat = BytesSuffix::COMPACT_FORM);
+
+    static QString sslChainToHtml(const QList<QSslCertificate> &sslChain);
+    static QString sslErrorsToHtml(const QList<QSslError> &sslErrors);
+
+    static void formatSslState(const QList<QSslCertificate> &sslChain, const QByteArray &oldPubKey,
+                               const QList<QSslError> &sslErrors, QString *title, QString *message, IconType *icon);
+
+    static QByteArray htmlHexifyByteArray(const QByteArray &rawInput);
+};
 
 }
 
-QString formatDateTimeWithTimeZoneAtEnd(const QDateTime &now, const QString &format);
-QString dateTimeToRfc2822(const QDateTime &now);
-QString dateTimeToInternalDate(const QDateTime &now);
-
-void migrateSettings(QSettings *settings);
-
-QModelIndex deproxifiedIndex(const QModelIndex index);
-
-bool removeRecursively(const QString &dirName);
-
-}
-
-
-#endif // IMAP_MAILBOX_UTILS_H
+#endif

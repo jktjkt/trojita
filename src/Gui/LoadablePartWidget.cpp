@@ -22,7 +22,7 @@
 #include "LoadablePartWidget.h"
 #include "Gui/MessageView.h" // so that the compiler knows that it's a QObject
 #include "Imap/Model/ItemRoles.h"
-#include "Imap/Model/Utils.h"
+#include "UiUtils/Formatting.h"
 
 #include <QPushButton>
 
@@ -45,7 +45,7 @@ LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNe
         m_loadOnShow = true;
     } else {
         loadButton = new QPushButton(tr("Load %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
-                                     Imap::Mailbox::PrettySize::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt())),
+                                     UiUtils::Formatting::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt())),
                                      this);
         connect(loadButton, SIGNAL(clicked()), this, SLOT(loadClicked()));
         addWidget(loadButton);

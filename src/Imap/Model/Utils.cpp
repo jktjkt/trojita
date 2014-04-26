@@ -20,8 +20,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Utils.h"
-#include <cmath>
-#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -31,10 +29,9 @@
 #include <QLocale>
 #include <QProcess>
 #include <QSettings>
-#include <QSslError>
+#include <QSslCertificate>
 #include <QSslKey>
 #include <QSysInfo>
-#include <QTextDocument>
 
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
@@ -44,37 +41,8 @@
 #include <QSystemDeviceInfo>
 #endif
 
-namespace Imap
-{
-namespace Mailbox
-{
-
-QString PrettySize::prettySize(uint bytes, const ShowBytesSuffix compactUnitFormat)
-{
-    if (bytes == 0) {
-        return tr("0");
-    }
-    int order = std::log(static_cast<double>(bytes)) / std::log(1024.0);
-    double number = bytes / std::pow(1024.0, order);
-
-    QString suffix;
-    if (order <= 0) {
-        if (compactUnitFormat == COMPACT_FORM)
-            return QString::number(bytes);
-        else
-            return tr("%1 bytes").arg(QString::number(bytes));
-    } else if (order == 1) {
-        suffix = tr("kB");
-    } else if (order == 2) {
-        suffix = tr("MB");
-    } else if (order == 3) {
-        suffix = tr("GB");
-    } else {
-        // make sure not to show wrong size for those that have > 1024 TB e-mail messages
-        suffix = tr("TB"); // shame on you for such mails
-    }
-    return tr("%1 %2").arg(QString::number(number, 'f', number < 100 ? 1 : 0), suffix);
-}
+namespace Imap {
+namespace Mailbox {
 
 QString persistentLogFileName()
 {
@@ -316,106 +284,6 @@ QString systemPlatformVersion()
         }
     }
     return QString::fromUtf8("Qt/%1; %2; %3; %4").arg(qVersion(), ws, os, platformVersion);
-}
-
-/** @short Produce a properly formatted HTML string which won't overflow the right edge of the display */
-QByteArray CertificateUtils::htmlHexifyByteArray(const QByteArray &rawInput)
-{
-    QByteArray inHex = rawInput.toHex();
-    QByteArray res;
-    const int stepping = 4;
-    for (int i = 0; i < inHex.length(); i += stepping) {
-        // The individual blocks are formatted separately to allow line breaks to happen
-        res.append("<code style=\"font-family: monospace;\">");
-        res.append(inHex.mid(i, stepping));
-        if (i + stepping < inHex.size()) {
-            res.append(":");
-        }
-        // Produce the smallest possible space. "display: none" won't notice the space at all, leading to overly long lines
-        res.append("</code><span style=\"font-size: 1px\"> </span>");
-    }
-    return res;
-}
-
-QString CertificateUtils::chainToHtml(const QList<QSslCertificate> &sslChain)
-{
-    QStringList certificateStrings;
-    Q_FOREACH(const QSslCertificate &cert, sslChain) {
-        certificateStrings << tr("<li><b>CN</b>: %1,<br/>\n<b>Organization</b>: %2,<br/>\n"
-                                 "<b>Serial</b>: %3,<br/>\n"
-                                 "<b>SHA1</b>: %4,<br/>\n<b>MD5</b>: %5</li>").arg(
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                                  cert.subjectInfo(QSslCertificate::CommonName).join(tr(", ")).toHtmlEscaped(),
-                                  cert.subjectInfo(QSslCertificate::Organization).join(tr(", ")).toHtmlEscaped(),
-#else
-                                  Qt::escape(cert.subjectInfo(QSslCertificate::CommonName)),
-                                  Qt::escape(cert.subjectInfo(QSslCertificate::Organization)),
-#endif
-                                  cert.serialNumber(),
-                                  htmlHexifyByteArray(cert.digest(QCryptographicHash::Sha1)),
-                                  htmlHexifyByteArray(cert.digest(QCryptographicHash::Md5)));
-    }
-    return sslChain.isEmpty() ?
-                tr("<p>The remote side doesn't have a certificate.</p>\n") :
-                tr("<p>This is the certificate chain of the connection:</p>\n<ul>%1</ul>\n").arg(certificateStrings.join(tr("\n")));
-}
-
-QString CertificateUtils::errorsToHtml(const QList<QSslError> &sslErrors)
-{
-    QStringList sslErrorStrings;
-    Q_FOREACH(const QSslError &e, sslErrors) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-        sslErrorStrings << tr("<li>%1</li>").arg(e.errorString().toHtmlEscaped());
-#else
-        sslErrorStrings << tr("<li>%1</li>").arg(Qt::escape(e.errorString()));
-#endif
-    }
-    return sslErrors.isEmpty() ?
-                QString("<p>According to your system's policy, this connection is secure.</p>\n") :
-                tr("<p>The connection triggered the following SSL errors:</p>\n<ul>%1</ul>\n").arg(sslErrorStrings.join(tr("\n")));
-}
-
-void CertificateUtils::formatSslState(const QList<QSslCertificate> &sslChain, const QByteArray &oldPubKey,
-                                      const QList<QSslError> &sslErrors, QString *title, QString *message, IconType *icon)
-{
-    bool pubKeyHasChanged = !oldPubKey.isEmpty() && (sslChain.isEmpty() || sslChain[0].publicKey().toPem() != oldPubKey);
-
-    if (pubKeyHasChanged) {
-        if (sslErrors.isEmpty()) {
-            *icon = Warning;
-            *title = tr("Different SSL certificate");
-            *message = tr("<p>The public key of the SSL certificate has changed. "
-                          "This should only happen when there was a security incident on the remote server. "
-                          "Your system configuration is set to accept such certificates anyway.</p>\n%1\n"
-                          "<p>Would you like to connect and remember the new certificate?</p>")
-                    .arg(chainToHtml(sslChain));
-        } else {
-            // changed certificate which is not trusted per systemwide policy
-            *title = tr("SSL certificate looks fishy");
-            *message = tr("<p>The public key of the SSL certificate of the IMAP server has changed since the last time "
-                          "and your system doesn't believe that the new certificate is genuine.</p>\n%1\n%2\n"
-                          "<p>Would you like to connect anyway and remember the new certificate?</p>").
-                    arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
-            *icon = Critical;
-        }
-    } else {
-        if (sslErrors.isEmpty()) {
-            // this is the first time and the certificate looks valid -> accept
-            *title = tr("Accept SSL connection?");
-            *message = tr("<p>This is the first time you're connecting to this IMAP server; the certificate is trusted "
-                          "by this system.</p>\n%1\n%2\n"
-                          "<p>Would you like to connect and remember this certificate's public key for the next time?</p>")
-                    .arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
-            *icon = Information;
-        } else {
-            *title = tr("Accept SSL connection?");
-            *message = tr("<p>This is the first time you're connecting to this IMAP server and the server certificate failed "
-                          "validation test.</p>\n%1\n\n%2\n"
-                          "<p>Would you like to connect and remember this certificate's public key for the next time?</p>")
-                    .arg(chainToHtml(sslChain), errorsToHtml(sslErrors));
-            *icon = Question;
-        }
-    }
 }
 
 }

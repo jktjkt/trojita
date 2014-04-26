@@ -25,7 +25,7 @@
 #include "ItemRoles.h"
 #include "MsgListModel.h"
 #include "ThreadingMsgListModel.h"
-#include "Utils.h"
+#include "UiUtils/Formatting.h"
 
 
 namespace Imap
@@ -98,7 +98,7 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             if (!size.isValid()) {
                 return QVariant();
             }
-            return PrettySize::prettySize(size.toUInt());
+            return UiUtils::Formatting::prettySize(size.toUInt());
         }
         case MsgListModel::SUBJECT:
         {

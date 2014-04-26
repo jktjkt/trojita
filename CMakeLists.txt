@@ -260,6 +260,7 @@ set(libPlugins_SOURCES
 
 set(path_UiUtils ${CMAKE_CURRENT_SOURCE_DIR}/src/UiUtils)
 set(libUiUtils_SOURCES
+    ${path_UiUtils}/Formatting.cpp
     ${path_UiUtils}/PasswordWatcher.cpp
 )
 
@@ -722,7 +723,7 @@ endif()
 if(WITH_QT5)
     qt5_use_modules(AppVersion Core)
     qt5_use_modules(Common Core Network)
-    qt5_use_modules(UiUtils Core Network)
+    qt5_use_modules(UiUtils Core Gui Network)
     qt5_use_modules(Streams Network)
     qt5_use_modules(qwwsmtpclient Network)
     qt5_use_modules(MSA Network)
