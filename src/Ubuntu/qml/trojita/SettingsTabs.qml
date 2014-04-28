@@ -71,7 +71,6 @@ Tabs {
                 onCancel: cancelAction.trigger()
                 onSave: saveAction.trigger()
                 saveVisible: imapSettings.inputValid
-
             }
         }
     }

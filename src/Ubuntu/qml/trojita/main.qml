@@ -145,11 +145,6 @@ MainView{
         }
     }
 
-    Component {
-        id: settingsTabs
-        SettingsTabs {}
-    }
-
     PageStack{
         id:pageStack
         Component.onCompleted: {
@@ -158,7 +153,7 @@ MainView{
                 imapAccess.doConnect()
                 connectModels()
             } else {
-                pageStack.push(settingsTabs)
+                pageStack.push(Qt.resolvedUrl("SettingsTabs.qml"))
             }
         }
 

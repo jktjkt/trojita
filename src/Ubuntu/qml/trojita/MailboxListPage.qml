@@ -104,7 +104,7 @@ Page {
                 iconSource: Qt.resolvedUrl("./settings.svg")
                 text: qsTr("Settings")
                 onTriggered: {
-                    pageStack.push(settingsTabs)
+                    pageStack.push(Qt.resolvedUrl("SettingsTabs.qml"))
                 }
             }
         }
