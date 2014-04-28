@@ -119,6 +119,7 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0),
     // FIXME: use another account-id at some point in future
     m_imapAccess = new Imap::ImapAccess(this, m_settings, m_pluginManager, QString());
     connect(m_imapAccess, SIGNAL(cacheError(QString)), this, SLOT(cacheError(QString)));
+    connect(m_imapAccess, SIGNAL(checkSslPolicy()), this, SLOT(checkSslPolicy()), Qt::QueuedConnection);
 
     createWidgets();
 
@@ -695,7 +696,6 @@ void MainWindow::setupModels()
     connect(imapModel(), SIGNAL(networkError(const QString &)), this, SLOT(networkError(const QString &)));
     connect(imapModel(), SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
     connect(imapModel(), SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
-    connect(m_imapAccess, SIGNAL(checkSslPolicy()), this, SLOT(checkSslPolicy()), Qt::QueuedConnection);
     connect(imapModel(), SIGNAL(requireStartTlsInFuture()), this, SLOT(requireStartTlsInFuture()));
 
     connect(imapModel(), SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
