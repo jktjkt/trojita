@@ -41,8 +41,6 @@ class Formatting: public QObject
 {
     Q_OBJECT
 public:
-    Formatting(QObject *parent);
-
     enum class BytesSuffix {
         COMPACT_FORM, /**< @short Do not append "B" when the size is less than 1kB */
         WITH_BYTES_SUFFIX /**< @short Always prepend the units, even if it's just in bytes */
@@ -71,6 +69,9 @@ public:
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     static QObject *factory(QQmlEngine *engine, QJSEngine *scriptEngine);
 #endif
+
+private:
+    Formatting(QObject *parent);
 };
 
 }
