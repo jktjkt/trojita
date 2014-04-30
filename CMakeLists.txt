@@ -805,8 +805,12 @@ if(WITH_UBUNTU)
         ALL SOURCES ${AUTOPILOT_FILES}
     )
 
-    file(COPY ${UBUNTU_QMLS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/qml/trojita)
-    file(COPY ${AUTOPILOT_DIR} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/autopilot)
+    add_custom_target(ubuntu_QmlComponents ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${TROJITA_UBUNTU_PATH}/qml/trojita
+            ${CMAKE_CURRENT_BINARY_DIR}/qml/trojita
+        COMMENT "Copying QML files to build tree"
+    )
 
     install(
         DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qml
