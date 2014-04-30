@@ -24,6 +24,8 @@
 import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
+import Ubuntu.Components.Popups 0.1
+import "Utils.js" as Utils
 
 Page {
     id: mailboxPage
@@ -108,6 +110,16 @@ Page {
                 }
             }
         }
+        ToolbarButton {
+            id: reconnectButton
+            action: Action {
+                iconSource: Qt.resolvedUrl("./language-chooser.svg")
+                text: qsTr("Network")
+                onTriggered: {
+                    PopupUtils.open(networkComponent, reconnectButton)
+                }
+            }
+        }
     }
 
     flickable: view
@@ -133,5 +145,55 @@ Page {
         PropertyAction { target: mailboxPage; property: "x"; value: -mailboxPage.width }
         PropertyAnimation { target: mailboxPage; properties: "x"; to: 0; duration: moveListViewRight.oneStepDuration }
         ScriptAction { script: mailboxPage.anchors.fill = mailboxPage.parent }
+    }
+
+    Component {
+        id: networkComponent
+        Popover {
+            id: popover
+            autoClose: true
+            Column {
+                id: containerLayout
+                anchors {
+                    left: parent.left
+                    top: parent.top
+                    right: parent.right
+                }
+
+                ListItems.ItemSelector {
+                    id: networkSelector
+                    // A simple enum type JS object
+                    // to avoid using numeric constants for ListItem index's
+                    property var connectionState: {'OFFLINE': 0, 'EXPENSIVE': 1, 'ONLINE': 2}
+                    expanded: true
+                    model: [qsTr("Offline mode"), qsTr("Bandwidth saving mode"), qsTr("Online mode")]
+                    onDelegateClicked: PopupUtils.close(popover)
+                    onSelectedIndexChanged: {
+
+                        switch (selectedIndex){
+                        case connectionState.OFFLINE:
+                            imapAccess.networkWatcher.setNetworkOffline()
+                            break
+                        case connectionState.EXPENSIVE:
+                            imapAccess.networkWatcher.setNetworkExpensive()
+                            break
+                        case connectionState.ONLINE:
+                            imapAccess.networkWatcher.setNetworkOnline()
+                            break
+                        }
+                    }
+
+                    Component.onCompleted: {
+                        if (imapAccess.imapModel.isNetworkOnline) {
+                            networkSelector.selectedIndex = connectionState.ONLINE
+                        } else if (!imapAccess.imapModel.isNetworkAvailable) {
+                            networkSelector.selectedIndex = connectionState.OFFLINE
+                        } else {
+                            networkSelector.selectedIndex = connectionState.EXPENSIVE
+                        }
+                    }
+                }
+            }
+        }
     }
 }

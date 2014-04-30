@@ -786,6 +786,7 @@ if(WITH_UBUNTU)
         ${TROJITA_UBUNTU_PATH}/qml/trojita/settings.svg
         ${TROJITA_UBUNTU_PATH}/qml/trojita/save.svg
         ${TROJITA_UBUNTU_PATH}/qml/trojita/cancel.svg
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/language-chooser.svg
     )
     set(AUTOPILOT_FILES
         ${AUTOPILOT_DIR}/__init__.py
