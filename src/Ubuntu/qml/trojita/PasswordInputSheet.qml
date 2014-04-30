@@ -112,6 +112,6 @@ ComposerSheet {
 
     onCancelClicked: {
         imapAccess.imapModel.imapPassword = undefined
-        pageStack.push(imapSettings)
+        pageStack.push(Qt.resolvedUrl("SettingsTabs.qml"))
     }
 }
