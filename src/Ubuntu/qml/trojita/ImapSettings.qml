@@ -118,16 +118,34 @@ Page {
             }
         }
     ]
-
+    /*--------------------------------------------------------------------
+      |                        DISCLAIMER                                |
+      --------------------------------------------------------------------
+      | I am not responsible for the null value of what seems to be a    |
+      | rather random non descriptive flickable property.                |
+      |                                                                  |
+      | I was forced to do it against my will!                           |
+      | They tell me that it HAS TO BE NULL to stop the header hiding    |
+      |                                                                  |
+      | In what universe does that make any sense?                       |
+      | https://bugs.launchpad.net/ubuntu-ui-toolkit/+bug/1316480        |
+      --------------------------------------------------------------------
+    */
+    flickable: null
     Flickable {
         anchors.fill: parent
+        clip: true
+        contentHeight: col.height + units.gu(5)
 
         Column {
             id: col
             spacing: units.gu(1)
-            anchors.fill: parent
-            anchors.margins: units.gu(3)
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors {
+                top: parent.top
+                left: parent.left
+                right: parent.right
+                margins: units.gu(2)
+            }
 
             Label {
                 id: usernameLabel
