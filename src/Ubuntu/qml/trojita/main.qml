@@ -24,6 +24,7 @@ import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.Popups 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
+import trojita.models.ThreadingMsgListModel 0.1
 
 MainView{
     id: appWindow
@@ -76,6 +77,7 @@ MainView{
         passwordInput.settingsMessage = qsTr("Try re-entering account password or click cancel to go to Settings")
     }
 
+    /** @short Gets called whenever the models are invalidated, and therefore have to be reconnected */
     function connectModels() {
         imapAccess.imapModel.imapError.connect(showImapError)
         imapAccess.imapModel.networkError.connect(showNetworkError)
@@ -85,22 +87,20 @@ MainView{
         imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
         imapAccess.imapModel.networkPolicyOnline.connect(function() {networkOffline = false})
         imapAccess.imapModel.networkPolicyExpensive.connect(function() {networkOffline = false})
+        imapAccess.threadingMsgListModel.setUserSearchingSortingPreference([], ThreadingMsgListModel.SORT_NONE, Qt.DescendingOrder)
+        mailboxList.model = imapAccess.mailboxModel
+        showHome()
     }
 
     function setupConnections() {
         // connect these before calling imapAccess.doConnect()
         imapAccess.checkSslPolicy.connect(function() {PopupUtils.open(sslSheetPage)})
-        imapAccess.modelsChanged.connect(modelsChanged)
+        imapAccess.modelsChanged.connect(connectModels)
     }
 
     function settingsChanged() {
         // when settings are changed we want to unload the mailboxview model
         mailboxList.model = null
-    }
-
-    function modelsChanged() {
-        mailboxList.model = imapAccess.mailboxModel
-        showHome()
     }
 
     function showHome() {
@@ -151,7 +151,6 @@ MainView{
             setupConnections()
             if (imapAccess.sslMode) {
                 imapAccess.doConnect()
-                connectModels()
             } else {
                 pageStack.push(Qt.resolvedUrl("SettingsTabs.qml"))
             }

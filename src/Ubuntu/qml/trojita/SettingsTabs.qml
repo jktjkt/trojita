@@ -21,7 +21,6 @@
 */
 import QtQuick 2.0
 import Ubuntu.Components 0.1
-import trojita.models.ThreadingMsgListModel 0.1
 
 Tabs {
     id: settingsTabs
@@ -45,9 +44,6 @@ Tabs {
                 } else {
                     imapSettings.imapSettingsChanged()
                     imapAccess.doConnect()
-                    appWindow.connectModels()
-                    imapAccess.threadingMsgListModel.setUserSearchingSortingPreference([], ThreadingMsgListModel.SORT_NONE, Qt.DescendingOrder)
-
                 }
                 // if the mailbox view indexValid binding doesn't
                 // push the page then we do it manually
