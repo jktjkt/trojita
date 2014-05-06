@@ -405,8 +405,7 @@ void ThreadingMsgListModel::handleRowsInserted(const QModelIndex &parent, int st
             m_searchValidity = RESULT_INVALIDATED;
     }
 
-    if (m_shallBeThreading)
-        wantThreading();
+    wantThreading();
 }
 
 void ThreadingMsgListModel::resetMe()
