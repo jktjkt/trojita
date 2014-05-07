@@ -161,6 +161,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
     connect(ui->mailText, SIGNAL(textChanged()), SLOT(setMessageUpdated()));
     connect(ui->subject, SIGNAL(textChanged(QString)), SLOT(updateWindowTitle()));
+    updateWindowTitle();
 
     FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
     proxy->setSourceModel(m_mainWindow->senderIdentitiesModel());
