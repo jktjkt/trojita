@@ -290,6 +290,12 @@ void ImapParserParseTest::testParseUntagged_data()
     QTest::newRow("untagged-list-numeric-mixed-mailbox")
         << QByteArray("* LIST () \"/\" 666x333\r\n")
         << QSharedPointer<AbstractResponse>(new List(LIST, QStringList(), QLatin1String("/"), QLatin1String("666x333"), QMap<QByteArray,QVariant>()));
+    // https://bugs.kde.org/show_bug.cgi?id=334456
+    QTest::newRow("untagged-list-groupwise-bug-334456")
+        << QByteArray("* LIST (\\Unmarked) \"/\" \"Calendar/GroupWise.5-Mehrfachbenutzer \\(Standard\\).MultiUser Control\"\r\n")
+        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList() << QLatin1String("\\Unmarked"), QLatin1String("/"),
+                                                     QLatin1String("Calendar/GroupWise.5-Mehrfachbenutzer (Standard).MultiUser Control"),
+                                                     QMap<QByteArray,QVariant>()));
 
     QMap<QByteArray,QVariant> listExtData;
     listExtData["CHILDINFO"] = QStringList() << "SUBSCRIBED";

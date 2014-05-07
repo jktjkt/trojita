@@ -21,6 +21,7 @@
 */
 
 #include <limits>
+#include <QDebug>
 #include <QPair>
 #include <QStringList>
 #include <QVariant>
@@ -164,10 +165,17 @@ QPair<QByteArray,ParsedAs> getString(const QByteArray &line, int &start)
         while (start != line.size() && !terminated) {
             if (escaping) {
                 escaping = false;
-                if (line[start] == '"' || line[start] == '\\')
+                if (line[start] == '"' || line[start] == '\\') {
                     res.append(line[start]);
-                else
+                } else if (line[start] == '(' || line[start] == ')') {
+                    // Got to support broken IMAP servers like Groupwise.
+                    // See https://bugs.kde.org/show_bug.cgi?id=334456
+                    res.append(line[start]);
+                    // FIXME: change this to parser warning when they're implemented
+                    qDebug() << "IMAP parser: quoted-string escapes something else than quoted-specials";
+                } else {
                     throw UnexpectedHere("getString: escaping invalid character", line, start);
+                }
             } else {
                 switch (line[start]) {
                 case '"':
