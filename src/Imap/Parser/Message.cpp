@@ -333,8 +333,14 @@ AbstractMessage::bodyFldDsp_t AbstractMessage::makeBodyFldDsp(const QVariant &in
     bodyFldDsp_t res;
 
     if (input.type() != QVariant::List) {
-        if (input.type() == QVariant::ByteArray && input.toByteArray().isNull())
-            return res;
+        if (input.type() == QVariant::ByteArray) {
+            if (input.toByteArray().isNull()) {
+                return res;
+            } else {
+                qDebug() << "IMAP Parser warning: body-fld-dsp not a list or nil, got this instead: " << input.toByteArray();
+                return res;
+            }
+        }
         throw UnexpectedHere("body-fld-dsp: not a list / nil", line, start);
     }
     QVariantList list = input.toList();

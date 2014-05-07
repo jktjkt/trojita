@@ -758,6 +758,30 @@ void ImapParserParseTest::testParseUntagged_data()
                        "NIL NIL \"quoted-printable\" -1 -1 NIL NIL NIL NIL))\r\n") <<
             QSharedPointer<AbstractResponse>( new Fetch( 61, fetchData ) );
 
+    msgList.clear();
+    bodyFldParam.clear();
+    bodyFldDsp = AbstractMessage::bodyFldDsp_t();
+    bodyFldParam["CHARSET"] = "utf-8";
+    msgList.append(QSharedPointer<AbstractMessage>(new TextMessage(QLatin1String("text"), QLatin1String("plain"), bodyFldParam,
+                                                                   QByteArray(), QByteArray(), "quoted-printable", 333, QByteArray(),
+                                                                   bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant(), 10)));
+    msgList.append(QSharedPointer<AbstractMessage>(new TextMessage(QLatin1String("text"), QLatin1String("html"), bodyFldParam,
+                                                                   QByteArray(), QByteArray(), "7bit", 666, QByteArray(),
+                                                                   bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant(), 20)));
+    fetchData.clear();
+    bodyFldParam.clear();
+    bodyFldParam["BOUNDARY"] = "=_1234";
+    fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(new MultiMessage(msgList, QLatin1String("alternative"), bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant()));
+    // Exchange sends utter crap inside the body-fld-dsp, unfortunately.
+    // This was reported thhrough an encrypted mail in a followup to https://bugs.kde.org/show_bug.cgi?id=334056,
+    // but the problem is unrelted to the original topic of that bug.
+    QTest::newRow("fetch-exchange-screwup-bodystructure-body-fld-dsp")
+            << QByteArray("* 1 FETCH (BODYSTRUCTURE ("
+                          "(\"text\" \"plain\" (\"charset\" \"utf-8\") NIL NIL \"quoted-printable\" 333 10 NIL NIL NIL NIL)"
+                          "(\"text\" \"html\" (\"charset\" \"utf-8\") NIL NIL \"7bit\" 666 20 NIL NIL NIL NIL) "
+                          "\"alternative\" (\"boundary\" \"=_1234\") \"random@exchange!crap!goes!here!\" NIL))\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(1, fetchData));
+
 
     // GMail and its flawed representation of a nested message/rfc822
     fetchData.clear();
