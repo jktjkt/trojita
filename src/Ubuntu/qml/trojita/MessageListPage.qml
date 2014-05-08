@@ -25,10 +25,11 @@ import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
 import "Utils.js" as Utils
 import trojita.UiFormatting 0.1
+import trojita.ImapAccess 0.1
 
 Page {
     id: messageListPage
-    property alias model: view.model
+    property alias model: msgListDelegateModel.model
     property bool _pendingScroll: false
     property bool indexValid: imapAccess.msgListModel ? imapAccess.msgListModel.itemsValid : true
     title: qsTr("Messages")
@@ -37,6 +38,12 @@ Page {
         _pendingScroll = true
     }
     onIndexValidChanged: if (!indexValid) appWindow.showHome()
+
+    VisualDataModel {
+        id: msgListDelegateModel
+        model: messageListPage.model
+        delegate: messageItemDelegate
+    }
 
     Component {
         id: normalMessageItemDelegate
@@ -48,11 +55,20 @@ Page {
             ListItems.Base {
                 id: baseItem
                 removable: true
-                confirmRemoval: true
                 onClicked: {
                     if (model.isFetched) {
                         messageSelected(model.messageUid)
                     }
+                }
+                onItemRemoved: {
+                    if (!model.isMarkedDeleted)
+                        imapAccess.markMessageDeleted(imapAccess.deproxifiedIndex(view.model.modelIndex(model.index)), ImapAccess.FLAG_ADD)
+                    else
+                        imapAccess.markMessageDeleted(imapAccess.deproxifiedIndex(view.model.modelIndex(model.index)), ImapAccess.FLAG_REMOVE)
+                    // set height to the original to show again
+                    // the listitem should not fire onItemRemoved after hiding the item
+                    // bug filed at https://bugs.launchpad.net/ubuntu-ui-toolkit/+bug/1313134
+                    height = __height;
                 }
                 UbuntuShape {
                     id: msgListContactImg
@@ -97,6 +113,7 @@ Page {
                             color: "black"
                             anchors.verticalCenter: parent.verticalCenter
                             font.pixelSize: FontUtils.sizeToPixels("medium")
+                            font.strikeout: model ? model.isMarkedDeleted : false
                         }
                     }
                     Row {
@@ -114,6 +131,7 @@ Page {
                             elide: Text.ElideRight
                             anchors.verticalCenter: parent.verticalCenter
                             font.pixelSize: FontUtils.sizeToPixels("small")
+                            font.strikeout: model ? model.isMarkedDeleted : false
                         }
                     }
                 }
@@ -179,10 +197,9 @@ Page {
     ListView {
         property bool massiveScrolling
         id: view
-        model: messageListPage.model
+        model: msgListDelegateModel
         width: parent.width
         height:  parent.height
-        delegate: messageItemDelegate
     }
 
     flickable: view

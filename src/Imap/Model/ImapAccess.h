@@ -38,6 +38,7 @@
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "UiUtils/Formatting.h"
 #include "UiUtils/PasswordWatcher.h"
+#include "Imap/Model/FlagsOperation.h"
 
 class QNetworkAccessManager;
 class QSettings;
@@ -52,6 +53,7 @@ class ImapAccess : public QObject
 {
     Q_OBJECT
 
+    Q_ENUMS(FlagsOperation)
     Q_PROPERTY(QObject *imapModel READ imapModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *mailboxModel READ mailboxModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *msgListModel READ msgListModel NOTIFY modelsChanged)
@@ -70,6 +72,8 @@ class ImapAccess : public QObject
     Q_ENUMS(Imap::ImapAccess::ConnectionMethod)
 
 public:
+    enum FlagsOperation { FLAG_ADD, FLAG_REMOVE };
+
     explicit ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginManager *pluginManager, const QString &accountName);
 
     QObject *imapModel() const;
@@ -112,6 +116,8 @@ public:
     Q_INVOKABLE QString mailboxListShortMailboxName() const;
     Q_INVOKABLE QString mailboxListMailboxName() const;
 
+    Q_INVOKABLE QModelIndex deproxifiedIndex(const QModelIndex index);
+    Q_INVOKABLE void markMessageDeleted(const QModelIndex &message, FlagsOperation marked);
 signals:
     void serverChanged();
     void portChanged();
