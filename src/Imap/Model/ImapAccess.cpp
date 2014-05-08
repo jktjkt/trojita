@@ -497,17 +497,10 @@ QModelIndex ImapAccess::deproxifiedIndex(const QModelIndex index)
     return Imap::deproxifiedIndex(index);
 }
 
-void ImapAccess::markMessageDeleted(const QModelIndex &message, FlagsOperation marked)
+void ImapAccess::markMessageDeleted(const QModelIndex &message, bool marked)
 {
     Q_ASSERT(message.isValid());
-    switch(marked) {
-    case FLAG_ADD:
-        m_imapModel->markMessagesDeleted(QModelIndexList() << message, Imap::Mailbox::FLAG_ADD);
-        break;
-    case FLAG_REMOVE:
-        m_imapModel->markMessagesDeleted(QModelIndexList() << message, Imap::Mailbox::FLAG_REMOVE);
-        break;
-    }
+    m_imapModel->markMessagesDeleted(QModelIndexList() << message, marked ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
 }
 
 }

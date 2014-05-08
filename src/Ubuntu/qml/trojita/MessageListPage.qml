@@ -25,7 +25,6 @@ import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
 import "Utils.js" as Utils
 import trojita.UiFormatting 0.1
-import trojita.ImapAccess 0.1
 
 Page {
     id: messageListPage
@@ -61,10 +60,8 @@ Page {
                     }
                 }
                 onItemRemoved: {
-                    if (!model.isMarkedDeleted)
-                        imapAccess.markMessageDeleted(imapAccess.deproxifiedIndex(view.model.modelIndex(model.index)), ImapAccess.FLAG_ADD)
-                    else
-                        imapAccess.markMessageDeleted(imapAccess.deproxifiedIndex(view.model.modelIndex(model.index)), ImapAccess.FLAG_REMOVE)
+                    imapAccess.markMessageDeleted(imapAccess.deproxifiedIndex(view.model.modelIndex(model.index)),
+                                                  !model.isMarkedDeleted)
                     // set height to the original to show again
                     // the listitem should not fire onItemRemoved after hiding the item
                     // bug filed at https://bugs.launchpad.net/ubuntu-ui-toolkit/+bug/1313134
