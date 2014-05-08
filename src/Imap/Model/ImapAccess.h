@@ -70,7 +70,7 @@ class ImapAccess : public QObject
     Q_ENUMS(Imap::ImapAccess::ConnectionMethod)
 
 public:
-    explicit ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginManager *pluginManager, const QString &accountName);
+    ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginManager *pluginManager, const QString &accountName);
 
     QObject *imapModel() const;
     QObject *mailboxModel() const;
