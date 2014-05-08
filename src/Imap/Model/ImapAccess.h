@@ -112,6 +112,8 @@ public:
     Q_INVOKABLE QString mailboxListShortMailboxName() const;
     Q_INVOKABLE QString mailboxListMailboxName() const;
 
+    Q_INVOKABLE QModelIndex deproxifiedIndex(const QModelIndex index);
+    Q_INVOKABLE void markMessageDeleted(const QModelIndex &message, bool marked);
 signals:
     void serverChanged();
     void portChanged();

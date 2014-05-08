@@ -492,4 +492,15 @@ void ImapAccess::nukeCache()
     Imap::removeRecursively(m_cacheDir);
 }
 
+QModelIndex ImapAccess::deproxifiedIndex(const QModelIndex index)
+{
+    return Imap::deproxifiedIndex(index);
+}
+
+void ImapAccess::markMessageDeleted(const QModelIndex &message, bool marked)
+{
+    Q_ASSERT(message.isValid());
+    m_imapModel->markMessagesDeleted(QModelIndexList() << message, marked ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
+}
+
 }
