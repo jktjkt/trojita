@@ -46,15 +46,22 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
     uidNextA = 16;
     helperSyncAWithMessagesEmptyState();
     helperCheckCache();
+    cServer("* 1 FETCH (FLAGS ())\r\n");
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
     cEmpty();
 
     auto oldState = model->cache()->mailboxSyncState(("a"));
     auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
     QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
+    QSignalSpy numbersWatcher(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)));
     cServer(QString::fromUtf8("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toUtf8());
     cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(QString::number(qMax(uidMapA.last() + 1, uidNextA))).toUtf8());
     QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
     QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
+    QCOMPARE(numbersWatcher.size(), 2);
+    QCOMPARE(numbersWatcher[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    QCOMPARE(numbersWatcher[1][0].value<QModelIndex>(), QModelIndex(idxA));
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
 
     // Add message with this UID to our internal list
     uint addedUid = 33;
@@ -877,6 +884,72 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchAndConcurrentArrival()
         cEmpty();
     }
 
+    justKeepTask();
+    cEmpty();
+}
+
+/** @short GMail sends the flags spontaneously, and because it doesn't do \Recent, the flag set is empty */
+void ImapModelSelectedMailboxUpdatesTest::testGMailSpontaneousFlagsAndNoRecent()
+{
+    initialMessages(1);
+    QSignalSpy numbersWatcher(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)));
+    cServer("* 2 EXISTS\r\n");
+    QCOMPARE(numbersWatcher.size(), 1);
+    QCOMPARE(numbersWatcher[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    numbersWatcher.clear();
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 0);
+    cServer("* 2 FETCH (UID 5000 MODSEQ (4201) FLAGS ())\r\n");
+    QCOMPARE(numbersWatcher.size(), 1);
+    QCOMPARE(numbersWatcher[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    numbersWatcher.clear();
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
+    // Yes, what we do is suboptimal -- it would be better to postone the UID and FLAGS discovery for a tiny moment
+    // of time in order to allow for GMail's preemptive FETCH which does contain both UID and the FLAGS...
+    cClient(t.mk("UID FETCH 2:* (FLAGS)\r\n"));
+    cServer("* 2 FETCH (UID 5000 MODSEQ (4201) FLAGS ())\r\n"
+            + t.last("OK fetched\r\n"));
+
+    // Now let's try what happens when that new arrival is actually something we've seen before
+    cServer("* 3 EXISTS\r\n");
+    QCOMPARE(numbersWatcher.size(), 1);
+    QCOMPARE(numbersWatcher[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    numbersWatcher.clear();
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
+    cServer("* 3 FETCH (UID 6000 MODSEQ (333) FLAGS (\\Seen))\r\n");
+    QCOMPARE(numbersWatcher.size(), 1);
+    QCOMPARE(numbersWatcher[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    numbersWatcher.clear();
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
+    cClient(t.mk("UID FETCH 5001:* (FLAGS)\r\n"));
+    cServer("* 3 FETCH (UID 6000 MODSEQ (333) FLAGS (\\Seen))\r\n"
+            + t.last("OK fetched\r\n"));
+
+    justKeepTask();
+    cEmpty();
+}
+
+/** @short Recalculating the message numbers in face of expunges of possibly unknown messages */
+void ImapModelSelectedMailboxUpdatesTest::testFlagsRecalcOnExpunge()
+{
+    initialMessages(2);
+    QSignalSpy numbersWatcher(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)));
+    cServer("* 1 FETCH (FLAGS ())\r\n");
+    QCOMPARE(numbersWatcher.size(), 1);
+    QCOMPARE(numbersWatcher[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    numbersWatcher.clear();
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
+    cServer("* 3 EXISTS\r\n");
+    QCOMPARE(numbersWatcher.size(), 1);
+    QCOMPARE(numbersWatcher[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    numbersWatcher.clear();
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
+    cClient(t.mk("UID FETCH 3:* (FLAGS)\r\n"));
+    cServer("* 3 EXPUNGE\r\n");
+    QCOMPARE(numbersWatcher.size(), 1);
+    QCOMPARE(numbersWatcher[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    numbersWatcher.clear();
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 1);
+    cServer(t.last("OK fetched\r\n"));
     justKeepTask();
     cEmpty();
 }

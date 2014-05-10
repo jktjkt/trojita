@@ -45,6 +45,8 @@ private slots:
     void testUnexpectedUidValidityChange();
     void testHighestModseqFlags();
     void testFetchAndConcurrentArrival();
+    void testGMailSpontaneousFlagsAndNoRecent();
+    void testFlagsRecalcOnExpunge();
 private:
     void helperTestExpungeImmediatelyAfterArrival(bool sendUidNext);
     void helperGenericTraffic(bool askForEnvelopes);

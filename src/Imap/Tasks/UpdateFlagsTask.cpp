@@ -94,7 +94,7 @@ void UpdateFlagsTask::perform()
                 Q_ASSERT(list);
                 QStringList newFlags = message->m_flags;
                 newFlags.removeOne(flags);
-                message->setFlags(list, newFlags , false);
+                message->setFlags(list, newFlags);
                 // we don't have to either re-sort or call Model::normalizeFlags again from this context;
                 // this will change when the model starts de-duplicating whole lists
                 model->cache()->setMsgFlags(static_cast<TreeItemMailbox*>(list->parent())->mailbox(), message->uid(), newFlags);
@@ -107,7 +107,7 @@ void UpdateFlagsTask::perform()
                 QStringList newFlags = message->m_flags;
                 if (!newFlags.contains(flags)) {
                     newFlags << flags;
-                    message->setFlags(list, model->normalizeFlags(newFlags), false);
+                    message->setFlags(list, model->normalizeFlags(newFlags));
                     model->cache()->setMsgFlags(static_cast<TreeItemMailbox*>(list->parent())->mailbox(), message->uid(), newFlags);
                 }
                 break;

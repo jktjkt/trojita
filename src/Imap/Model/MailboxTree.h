@@ -259,7 +259,7 @@ class TreeItemMessage: public TreeItem
     bool m_flagsHandled;
     bool m_wasUnread;
     /** @short Set FLAGS and maintain the unread message counter */
-    void setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange);
+    void setFlags(TreeItemMsgList *list, const QStringList &flags);
     void processAdditionalHeaders(Model *model, const QByteArray &rawHeaders);
     static bool hasNestedAttachments(Model *const model, TreeItemPart *part);
 

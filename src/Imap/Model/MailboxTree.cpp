@@ -420,8 +420,8 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         } else if (it.key() == "FLAGS") {
             // Only emit signals when the flags have actually changed
             QStringList newFlags = model->normalizeFlags(static_cast<const Responses::RespData<QStringList>&>(*(it.value())).data);
-            bool forceChange = (message->m_flags != newFlags);
-            message->setFlags(list, newFlags, forceChange);
+            bool forceChange = !message->m_flagsHandled || (message->m_flags != newFlags);
+            message->setFlags(list, newFlags);
             if (forceChange) {
                 updatedFlags = true;
                 changedMessage = message;
@@ -1244,12 +1244,12 @@ uint TreeItemMessage::size(Model *const model)
     return data()->m_size;
 }
 
-void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags, bool forceChange)
+void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags)
 {
     // wasSeen is used to determine if the message was marked as read before this operation
     bool wasSeen = isMarkedAsRead();
     m_flags = flags;
-    if (list->m_numberFetchingStatus == DONE && forceChange) {
+    if (list->m_numberFetchingStatus == DONE) {
         bool isSeen = isMarkedAsRead();
         if (m_flagsHandled) {
             if (wasSeen && !isSeen) {
