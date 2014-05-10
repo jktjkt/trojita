@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<component type="desktop">
+  <id>trojita.desktop</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0+</project_license>
+  <name>Trojitá</name>
+  <summary>IMAP E-mail Client</summary>
+  <description>
+    <p>
+      Trojitá is an email program ("client") specialized in giving fast and efficient access to mailboxes over the IMAP protocol.
+      An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.
+    </p>
+    <p>
+      It prioritizes efficiency, speed and open standards above other goals.
+      Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones.
+      Trojitá is a stand-alone program, not part of a "personal information manager" suite.
+    </p>
+    <p>What could make Trojitá interesting for you:</p>
+    <ul>
+      <li>Very fast and robust IMAP core</li>
+      <li>Standards compliance is a design goal</li>
+      <li>On-demand message list and body part loading ("lazy loading")</li>
+      <li>Offline IMAP support</li>
+      <li>Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
+      <li>IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
+      <li>Safe and robust dealing with HTML mail</li>
+    </ul>
+  </description>
+  <url type="homepage">http://trojita.flaska.net/</url>
+  <url type="bugtracker">https://bugs.kde.org/enter_bug.cgi?product=trojita&amp;format=guided</url>
+  <screenshots>
+    <screenshot type="default">
+      <image>http://trojita.flaska.net/trojita-2013-01-09--overview.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>The standard interface to compose new mails.</caption>
+      <image>http://trojita.flaska.net/trojita-2013-01-09--composer.png</image>
+    </screenshot>
+  </screenshots>
+  <project_group>KDE</project_group>
+  <provides>
+    <binary>trojita</binary>
+    <binary>be.contacts</binary>
+  </provides>
+</component>
