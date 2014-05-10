@@ -16,3 +16,19 @@ CXXFLAGS += $(CPPFLAGS)
 
 override_dh_auto_test:
 	xvfb-run -a dh_auto_test
+
+override_dh_auto_install:
+	echo "debian/tmp/usr/bin/trojita" > debian/trojita.install
+	echo "debian/tmp/usr/bin/be.contacts" >> debian/trojita.install
+	echo "debian/tmp/usr/share/applications/trojita.desktop" >> debian/trojita.install
+	echo "debian/tmp/usr/share/icons/hicolor/*/apps/*" >> debian/trojita.install
+	echo "debian/tmp/usr/share/trojita/locale/trojita_common_*.qm" >> debian/trojita.install
+
+ifndef DEB_HOST_MULTIARCH
+	echo "debian/tmp/usr/lib/libtrojitaplugins.so.*" >> debian/trojita.install
+	echo "debian/tmp/usr/lib/trojita/trojita_plugin_QtKeychainPasswordPlugin.so" > debian/trojita-plugin-qtkeychain.install
+else
+	echo "debian/tmp/usr/lib/*/libtrojitaplugins.so.*" >> debian/trojita.install
+	echo "debian/tmp/usr/lib/*/trojita/trojita_plugin_QtKeychainPasswordPlugin.so" > debian/trojita-plugin-qtkeychain.install
+endif
+	dh_auto_install
