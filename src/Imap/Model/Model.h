@@ -463,6 +463,7 @@ private:
     friend class TestingTaskFactory; // needs access to socketFactory
     friend class DummyNetworkWatcher; // needs access to the network policy manipulation
     friend class SystemNetworkWatcher; // needs access to the network policy manipulation
+    friend class NetworkWatcher; // needs access to the network policy manipulation
 
     friend class ::FakeCapabilitiesInjector; // for injecting fake capabilities
     friend class ::ImapModelIdleTest; // needs access to findTaskResponsibleFor() for IDLE testing

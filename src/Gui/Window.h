@@ -35,6 +35,7 @@
 class QAuthenticator;
 class QCloseEvent;
 class QItemSelection;
+class QMessageBox;
 class QModelIndex;
 class QScrollArea;
 class QSettings;
@@ -202,6 +203,9 @@ private slots:
     void slotToggleSysTray();
     void invokeContactEditor();
 
+    void slotReconnectAttemptScheduled(const int timeout);
+    void slotConnectedToImap();
+
 protected:
     void resizeEvent(QResizeEvent *);
 
@@ -332,6 +336,8 @@ private:
 
     AbstractAddressbook *m_addressBook;
     QPointer<BE::Contacts> m_contactsWidget;
+
+    QMessageBox *m_networkErrorMessageBox;
 
     MainWindow(const MainWindow &); // don't implement
     MainWindow &operator=(const MainWindow &); // don't implement

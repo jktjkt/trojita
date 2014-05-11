@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QTimer>
 #include "NetworkWatcher.h"
 #include "Model.h"
 
@@ -31,23 +32,68 @@ NetworkWatcher::NetworkWatcher(QObject *parent, Model *model):
 {
     Q_ASSERT(m_model);
     connect(model, SIGNAL(networkPolicyChanged()), this, SIGNAL(effectiveNetworkPolicyChanged()));
+    connect(model, SIGNAL(networkError(const QString &)), this, SLOT(attemptReconnect()));
+    connect(model, SIGNAL(connectionStateChanged(QObject*, Imap::ConnectionState)),
+            this, SLOT(handleConnectionStateChanged(QObject*, Imap::ConnectionState)));
+
+    m_reconnectTimer = new QTimer(this);
+    m_reconnectTimer->setSingleShot(true);
+    m_reconnectTimer->setInterval(MIN_RECONNECT_TIMEOUT/2);
+    connect(m_reconnectTimer, SIGNAL(timeout()), this, SLOT(tryReconnect()));
+}
+
+/** @short Start the reconnect attempt cycle */
+void NetworkWatcher::attemptReconnect()
+{
+    // Update the reconnect time-out value. Double it up to a max value of MAX_RECONNECT_TIMEOUT secs.
+    m_reconnectTimer->setInterval(qMin(MAX_RECONNECT_TIMEOUT, m_reconnectTimer->interval()*2));
+    m_reconnectTimer->start();
+    m_model->logTrace(0, Common::LogKind::LOG_OTHER, QLatin1String("Network"),
+                      tr("Attempting to reconnect in %1 secs").arg(m_reconnectTimer->interval()/1000));
+    emit reconnectAttemptScheduled(m_reconnectTimer->interval());
+}
+
+void NetworkWatcher::resetReconnectTimer()
+{
+    m_reconnectTimer->stop();
+    m_reconnectTimer->setInterval(MIN_RECONNECT_TIMEOUT/2);
+}
+
+void NetworkWatcher::handleConnectionStateChanged(QObject *parser, Imap::ConnectionState state)
+{
+    Q_UNUSED(parser);
+    // These states signify that the socket is in QAbstractSocket::ConnectedState and (maybe) mark success after
+    // a series of reconnect attempts. Timers for reconnection should be reset at this point.
+    if (state == CONN_STATE_CONNECTED_PRETLS_PRECAPS || state == CONN_STATE_SSL_HANDSHAKE) {
+        resetReconnectTimer();
+        emit connectedToImap();
+    }
+}
+
+/** @short Set model's network policy to the desiredPolicy */
+void NetworkWatcher::tryReconnect()
+{
+    m_model->setNetworkPolicy(m_desiredPolicy);
 }
 
 /** @short Set the network access policy to "no access allowed" */
 void NetworkWatcher::setNetworkOffline()
 {
+    resetReconnectTimer();
     setDesiredNetworkPolicy(NETWORK_OFFLINE);
 }
 
 /** @short Set the network access policy to "possible, but expensive" */
 void NetworkWatcher::setNetworkExpensive()
 {
+    resetReconnectTimer();
     setDesiredNetworkPolicy(NETWORK_EXPENSIVE);
 }
 
 /** @short Set the network access policy to "it's cheap to use it" */
 void NetworkWatcher::setNetworkOnline()
 {
+    resetReconnectTimer();
     setDesiredNetworkPolicy(NETWORK_ONLINE);
 }
 

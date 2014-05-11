@@ -104,9 +104,9 @@ enum {
     MINIMUM_WIDTH_WIDE = 1250
 };
 
-MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0),
-    m_mainHSplitter(0), m_mainVSplitter(0), m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true),
-    m_delayedStateSaving(0), m_actionSortNone(0), m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_trayIcon(0)
+MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_mainHSplitter(0), m_mainVSplitter(0),
+    m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true), m_delayedStateSaving(0), m_actionSortNone(0),
+    m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_networkErrorMessageBox(0), m_trayIcon(0)
 {
     // m_pluginManager must be created before calling createWidgets
     m_pluginManager = new Plugins::PluginManager(this, m_settings,
@@ -711,6 +711,9 @@ void MainWindow::setupModels()
 
     connect(imapModel(), SIGNAL(logged(uint,Common::LogMessage)), imapLogger, SLOT(slotImapLogged(uint,Common::LogMessage)));
 
+    connect(m_imapAccess->networkWatcher(), SIGNAL(reconnectAttemptScheduled(const int)), this, SLOT(slotReconnectAttemptScheduled(const int)));
+    connect(m_imapAccess->networkWatcher(), SIGNAL(connectedToImap()), this, SLOT(slotConnectedToImap()));
+
     connect(imapModel(), SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)));
 
     connect(imapModel(), SIGNAL(capabilitiesUpdated(QStringList)), this, SLOT(slotCapabilitiesUpdated(QStringList)));
@@ -1047,7 +1050,16 @@ void MainWindow::imapError(const QString &message)
 void MainWindow::networkError(const QString &message)
 {
     if (m_settings->contains(Common::SettingsNames::imapMethodKey)) {
-        QMessageBox::critical(this, tr("Network Error"), message);
+        if (!m_networkErrorMessageBox) {
+            m_networkErrorMessageBox = new QMessageBox(QMessageBox::Critical, tr("Network Error"),
+                                                       QString(), QMessageBox::Ok, this);
+        }
+        // User must be informed about a new (but not recurring) error
+        if (message != m_networkErrorMessageBox->text()) {
+            m_networkErrorMessageBox->setText(message);
+            m_networkErrorMessageBox->show();
+        }
+
     } else {
         // hack: this slot is called even on the first run with no configuration
         // We shouldn't have to worry about that, since the dialog is already scheduled for calling
@@ -1089,6 +1101,21 @@ void MainWindow::networkPolicyOnline()
     netOnline->setChecked(true);
     updateActionsOnlineOffline(true);
     networkIndicator->setDefaultAction(netOnline);
+}
+
+/** @short Updates GUI about reconnection attempts */
+void MainWindow::slotReconnectAttemptScheduled(const int timeout)
+{
+    statusBar()->showMessage(tr("Attempting to reconnect in %1 seconds..").arg(timeout/1000));
+}
+
+/** @short Deletes a network error message box instance upon successful reconnect */
+void MainWindow::slotConnectedToImap()
+{
+    if (m_networkErrorMessageBox) {
+        delete m_networkErrorMessageBox;
+        m_networkErrorMessageBox = 0;
+    }
 }
 
 void MainWindow::slotShowSettings()

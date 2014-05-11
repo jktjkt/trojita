@@ -24,11 +24,17 @@
 #define TROJITA_IMAP_NETWORKWATCHER_H
 
 #include <QObject>
+#include "Imap/ConnectionState.h"
 #include "Imap/Model/NetworkPolicy.h"
+
+class QTimer;
 
 namespace Imap {
 namespace Mailbox {
 class Model;
+
+const int MIN_RECONNECT_TIMEOUT = 5*1000;
+const int MAX_RECONNECT_TIMEOUT = 5*60*1000;
 
 /** @short Provide network session management to the Model */
 class NetworkWatcher: public QObject
@@ -47,11 +53,24 @@ public slots:
 
 signals:
     void effectiveNetworkPolicyChanged();
+    void reconnectAttemptScheduled(const int timeout);
+    void connectedToImap();
 
 protected:
     virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) = 0;
     Model *m_model;
     NetworkPolicy m_desiredPolicy;
+
+private slots:
+    void attemptReconnect();
+    void tryReconnect();
+    void handleConnectionStateChanged(QObject *parser, Imap::ConnectionState state);
+
+private:
+    void resetReconnectTimer();
+
+    /** @short Single shot timer to trigger reconnect attempts with time-outs */
+    QTimer *m_reconnectTimer;
 };
 
 }
