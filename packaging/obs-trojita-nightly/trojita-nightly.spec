@@ -90,6 +90,7 @@ export LDFLAGS="-pie"
 %else
 export CXXFLAGS="${CXXFLAGS:-%optflags}"
 %endif
+echo %{version} | sed '/git/{s/\.git\.\([0-9]\)\+\./-obs-/;s/^/v/}' > src/trojita-version
 cmake \
     -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
