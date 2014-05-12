@@ -120,6 +120,8 @@ make %{?_smp_mflags} DESTDIR=%{buildroot} install
 %dir %{_datadir}/icons/hicolor/*/apps
 %{_datadir}/icons/hicolor/32x32/apps/trojita.png
 %{_datadir}/icons/hicolor/scalable/apps/trojita.svg
+%dir %{_datadir}/appdata
+%{_datadir}/appdata/trojita.appdata.xml
 
 %files plugin-qtkeychain
 %defattr(-,root,root)
