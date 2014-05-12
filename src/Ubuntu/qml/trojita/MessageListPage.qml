@@ -97,13 +97,7 @@ Page {
                     Row {
                         height: units.gu(2)
                         spacing: units.gu(1)
-                        Image {
-                            id: contactIcon
-                            height: parent.height * 0.8
-                            width: height
-                            source: Qt.resolvedUrl("./contact_grey.svg");
-                            anchors.bottom: fromLabel.baseline
-                        }
+
                         Label {
                             id: fromLabel
                             text: model ? Utils.formatMailAddresses(model.from, true) : ""
@@ -116,12 +110,7 @@ Page {
                     Row {
                         height: units.gu(2)
                         spacing: units.gu(1)
-                        Image {
-                            height: parent.height * 0.8
-                            width: height
-                            source: Qt.resolvedUrl("./email.svg");
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
+
                         Label {
                             text: (model && model.subject) ? model.subject : qsTr('<No Subject>')
                             width: fromSubjectColumn.width - parent.height - units.gu(1)
