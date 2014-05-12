@@ -140,7 +140,11 @@ endif()
 mark_as_advanced(CMAKE_INSTALL_PLUGIN_DIR)
 
 if(NOT PLUGIN_DIR)
-    set(PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_PLUGIN_DIR}")
+    if(IS_ABSOLUTE ${CMAKE_INSTALL_PLUGIN_DIR})
+        set(PLUGIN_DIR "${CMAKE_INSTALL_PLUGIN_DIR}")
+    else()
+        set(PLUGIN_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_PLUGIN_DIR}")
+    endif()
 endif()
 mark_as_advanced(PLUGIN_DIR)
 
