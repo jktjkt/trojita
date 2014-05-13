@@ -654,4 +654,39 @@ void ComposerResponsesTest::testRFC6068Mailto_data()
                  << qMakePair(Composer::ADDRESS_CC, QString::fromUtf8("user@host.org,test@example,test.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
 }
+
+void ComposerResponsesTest::testReplyQuoting()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, quoted);
+    QCOMPARE(Composer::Util::quoteText(source.split(QChar(QLatin1Char('\n')))).join(QChar(QLatin1Char('\n'))), quoted);
+}
+
+void ComposerResponsesTest::testReplyQuoting_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("quoted");
+
+    QTest::newRow("empty") << QString() << QString::fromUtf8(">");
+    QTest::newRow("simple") << QString::fromUtf8("Hello world") << QString::fromUtf8("> Hello world");
+    QTest::newRow("simple") << QString::fromUtf8("Hello world\n") << QString::fromUtf8("> Hello world\n>");
+
+    // This following two test cases is how v0.4.1-212-g0523301 behaves.
+    // For this case, the ML stripped the format=flowed, and as such we treat it as different pieces of text, not to be wrapped together.
+    QTest::newRow("trailing-whitespace")
+            << QString::fromUtf8("Currently Qml doesn't handle such case. You can wrap your enums in QtObject \n"
+                                 "and expose it as singleton[1] object and use from inside Qml:\n")
+            << QString::fromUtf8("> Currently Qml doesn't handle such case. You can wrap your enums in QtObject \n"
+                                 "> and expose it as singleton[1] object and use from inside Qml:\n"
+                                 ">");
+    // This message contained format=flowed, and our code can therefore distinguish that it's a single chunk of the text:
+    QTest::newRow("flowed")
+            << QString::fromUtf8("Currently Qml doesn't handle such case. You can wrap your enums in QtObject "
+                                 "and expose it as singleton[1] object and use from inside Qml:\n")
+            << QString::fromUtf8("> Currently Qml doesn't handle such case. You can wrap your enums \n"
+                                 "> in QtObject and expose it as singleton[1] object and use from \n"
+                                 "> inside Qml:\n"
+                                 ">");
+}
+
 TROJITA_HEADLESS_TEST(ComposerResponsesTest)
