@@ -721,7 +721,7 @@ if(WITH_UBUNTU)
     set_property(TARGET trojita-ubu APPEND PROPERTY INCLUDE_DIRECTORIES
         ${QT_MKSPECS_DIR}/default ${CMAKE_CURRENT_SOURCE_DIR}/src/Ubuntu)
 
-    target_link_libraries(trojita-ubu AppVersion Imap MSA Streams qwwsmtpclient Common Composer )
+    target_link_libraries(trojita-ubu AppVersion Imap MSA Streams qwwsmtpclient Common Composer Plugins )
 endif()
 
 if(WITH_QT5)
