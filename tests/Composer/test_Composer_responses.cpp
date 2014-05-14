@@ -497,7 +497,7 @@ void ComposerResponsesTest::testFormatFlowedComposition_data()
 
     QTest::newRow("wrapping-longword-4")
             << QString("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.")
-            << QString("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. \r\nGood.");
+            << QString("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.");
 
     QTest::newRow("wrapping-longword-5")
             << QString("> NowDoTheSameWithSomeWordThatIsTooLongToFitInThisParagraphThisWillBeEnoughIHopeBecauseItIsAnnoyingToType, \n"
@@ -510,6 +510,24 @@ void ComposerResponsesTest::testFormatFlowedComposition_data()
     QTest::newRow("wrapping-longline")
             << QString(longline)
             << QString("velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat6 \r\nXYZ");
+
+    QString longQuotePrefix = QString(76, QLatin1Char('>')) + QLatin1Char(' ');
+    QTest::newRow("long-quote-prefix")
+            << longQuotePrefix + QLatin1String("hello world!")
+            << longQuotePrefix + QLatin1String("hello world!");
+
+    // In the next test, the best approach would be wrapping the "QtObject" into the next line (and perhaps merging it
+    // with the contents in there). However, doing so would require insight into whether that line was originally flowed
+    // or not, otherwise we risk creating something which doesn't make sense anymore.
+    // For now, simply not wrapping the long quoted lines makes sense (they are still wrapped when the quote is
+    // originally created anyway).
+    QTest::newRow("quoted-long-line-trailing-word")
+            << QString::fromUtf8("> Currently Qml doesn't handle such case. You can wrap your enums in QtObject \n"
+                                 "> and expose it as singleton[1] object and use from inside Qml:\n"
+                                 ">")
+            << QString::fromUtf8("> Currently Qml doesn't handle such case. You can wrap your enums in QtObject \r\n"
+                                 "> and expose it as singleton[1] object and use from inside Qml:\r\n"
+                                 ">");
 
     QTest::newRow("some-lines-with-spaces-1")
             << QString("foo\n \nbar")

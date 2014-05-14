@@ -619,8 +619,6 @@ script which I know nothing about.
 */
 QString wrapFormatFlowed(const QString &input)
 {
-    QRegExp justQuotationAndSpaces(QLatin1String("[> ]"));
-
     // Determining a proper cutoff is not easy. The Q-P allows for at most 76 chars per line, not counting the trailing CR LF.
     // Suppose there's exactly one multibyte character which gets decoded into two bytes in UTF-8. After these two bytes are
     // encoded via quoted-printable, they will take up six bytes together (each byte is converted to hex and prepended by "=").
@@ -651,6 +649,17 @@ QString wrapFormatFlowed(const QString &input)
             continue;
         }
 
+        if (line.startsWith(QLatin1Char('>'))) {
+            // Don't rewrap the quoted lines. The code below is buggy in that it will fail to preserve the quoting level when
+            // wrapping. It is also a question of what exactly one should do when an overly long quotation is to be wrapped.
+            // Assuming that the source was format=flowed might be a dangerous one, so it's probably better to just
+            // produce overly long quotes for now.
+            // Note that when we actually generate the quote, that text *is* (more or less correctly) wrapped and the quote
+            // marks are prepended. The bug was in *this* function which tried to re-wrap the text once again.
+            res << line;
+            continue;
+        }
+
         int previousBreak = 0;
         while (previousBreak < line.size()) {
             // Find a place to insert the line break
@@ -664,13 +673,6 @@ QString wrapFormatFlowed(const QString &input)
                 // an existing space.
                 while (size > 0 && line.at(previousBreak + size) != QLatin1Char(' ')) {
                     --size;
-                    if (justQuotationAndSpaces.exactMatch(line.left(size))) {
-                        // Too bad; there is nothing but quotation at the beginning of this line. We cannot break the line here!
-                        // Doing so would create line which look like this:
-                        //   >[space]
-                        //   quoted text goes here
-                        size = 0;
-                    }
                 }
                 if (size == 0) {
                     size = defaultCutof;
