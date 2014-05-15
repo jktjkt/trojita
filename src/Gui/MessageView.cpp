@@ -311,58 +311,7 @@ bool MessageView::eventFilter(QObject *object, QEvent *event)
 QString MessageView::quoteText() const
 {
     if (const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer)) {
-        QStringList quote;
-        QStringList lines = w->quoteMe().split('\n');
-        for (QStringList::iterator line = lines.begin(); line != lines.end(); ++line) {
-            if (Composer::Util::signatureSeparator().exactMatch(*line)) {
-                // This is the signature separator, we should not include anything below that in the quote
-                break;
-            }
-            // rewrap - we need to keep the quotes at < 79 chars, yet the grow with every level
-            if (line->length() < 79-2) {
-                // this line is short enough, prepend quote mark and continue
-                if (line->isEmpty() || line->at(0) == '>')
-                    line->prepend(">");
-                else
-                    line->prepend("> ");
-                quote << *line;
-                continue;
-            }
-            // long line -> needs to be wrapped
-            // 1st, detect the quote depth and eventually stript the quotes from the line
-            int quoteLevel = 0;
-            int contentStart = 0;
-            if (line->at(0) == '>') {
-                quoteLevel = 1;
-                while (quoteLevel < line->length() && line->at(quoteLevel) == '>')
-                    ++quoteLevel;
-                contentStart = quoteLevel;
-                if (quoteLevel < line->length() && line->at(quoteLevel) == ' ')
-                    ++contentStart;
-            }
-
-            // 2nd, build a qute string
-            QString quotemarks;
-            for (int i = 0; i < quoteLevel; ++i)
-                quotemarks += ">";
-            quotemarks += "> ";
-
-            // 3rd, wrap the line, prepend the quotemarks to each line and add it to the quote text
-            int space(contentStart), lastSpace(contentStart), pos(contentStart), length(0);
-            while (pos < line->length()) {
-                if (line->at(pos) == ' ')
-                    space = pos+1;
-                ++length;
-                if (length > 65-quotemarks.length() && space != lastSpace) {
-                    // wrap
-                    quote << quotemarks + line->mid(lastSpace, space - lastSpace);
-                    lastSpace = space;
-                    length = pos - space;
-                }
-                ++pos;
-            }
-            quote << quotemarks + line->mid(lastSpace);
-        }
+        QStringList quote = Composer::Util::quoteText(w->quoteMe().split('\n'));
         const Imap::Message::Envelope &e = message.data(Imap::Mailbox::RoleMessageEnvelope).value<Imap::Message::Envelope>();
         QString sender;
         if (!e.from.isEmpty())

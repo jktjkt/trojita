@@ -44,6 +44,9 @@ private slots:
 
     void testRFC6068Mailto();
     void testRFC6068Mailto_data();
+
+    void testReplyQuoting();
+    void testReplyQuoting_data();
 };
 
 #endif

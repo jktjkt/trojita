@@ -39,6 +39,8 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed);
 
 QRegExp signatureSeparator();
 
+QStringList quoteText(QStringList inputLines);
+
 }
 }
 
