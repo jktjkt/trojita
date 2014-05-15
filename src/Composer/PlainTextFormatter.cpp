@@ -511,7 +511,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
     return markup.join(QString());
 }
 
-/** @short Take the initial text and mark it as a qutation */
+/** @short Take the initial text and mark it as a quotation */
 QStringList quoteText(QStringList inputLines)
 {
     QStringList quote;
@@ -543,7 +543,7 @@ QStringList quoteText(QStringList inputLines)
                 ++contentStart;
         }
 
-        // 2nd, build a qute string
+        // 2nd, build a quote string
         QString quotemarks;
         for (int i = 0; i < quoteLevel; ++i)
             quotemarks += ">";
