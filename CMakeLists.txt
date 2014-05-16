@@ -60,6 +60,7 @@ trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
 trojita_option(WITH_TESTS "Build tests" ON)
+trojita_option(WITH_MIMETIC "Build with client-side MIME parsing" AUTO)
 
 if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
@@ -89,6 +90,8 @@ trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" ST
 trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "${QTKEYCHAIN_DEPENDS}")
 
 trojita_find_package(Git "" "" "" "")
+
+trojita_find_package(Mimetic "" "http://www.codesink.org/mimetic_mime_library.html" "C++ MIME Library" "Required for client-side MIME parsing" WITH_MIMETIC)
 
 if(WIN32)
     trojita_find_package(MakeNSIS "" "http://nsis.sourceforge.net" "Nullsoft Scriptable Install System" "Needed for building Windows installer" WITH_NSIS)
@@ -177,6 +180,12 @@ set(CMAKE_AUTOMOC True)
 
 trojita_find_package(RagelForTrojita "" "" "" "" WITH_RAGEL)
 trojita_find_package(ZLIB "" "" "" "" WITH_ZLIB)
+
+if(WITH_MIMETIC)
+  set(TROJITA_HAVE_MIMETIC True)
+else()
+  set(TROJITA_HAVE_MIMETIC False)
+endif()
 
 if(WITH_ZLIB)
     set(TROJITA_HAVE_ZLIB True)
@@ -272,6 +281,12 @@ set(libCryptography_SOURCES
     ${path_Cryptography}/MessagePart.cpp
     ${path_Cryptography}/PartReplacer.cpp
 )
+if(WITH_MIMETIC)
+    set(libCryptography_SOURCES
+        ${libCryptography_SOURCES}
+        ${path_Cryptography}/MimeticUtils.cpp
+    )
+endif()
 
 if(WITH_ZLIB)
     set(libStreams_SOURCES ${libStreams_SOURCES}
@@ -562,6 +577,10 @@ add_library(Cryptography STATIC ${libCryptography_SOURCES})
 qt5_use_modules(Cryptography Core)
 set_property(TARGET Cryptography APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Cryptography Common Imap)
+if(WITH_MIMETIC)
+    target_link_libraries(Cryptography ${MIMETIC_LIBRARIES})
+    set_property(TARGET Cryptography APPEND PROPERTY INCLUDE_DIRECTORIES ${MIMETIC_INCLUDE_DIRS})
+endif()
 
 ## ClearText password plugin
 if(WITH_CLEARTEXT_PLUGIN)
