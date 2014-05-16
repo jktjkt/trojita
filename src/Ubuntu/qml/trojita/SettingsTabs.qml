@@ -58,8 +58,6 @@ Tabs {
                     imapSettings.imapSettingsChanged()
                     imapAccess.doConnect()
                     appWindow.connectModels()
-                    imapAccess.threadingMsgListModel.setUserSearchingSortingPreference([], ThreadingMsgListModel.SORT_NONE, Qt.DescendingOrder)
-
                 }
                 // update state
                 imapSettings.state = "HAS_ACCOUNT"

@@ -24,6 +24,7 @@ import QtQuick 2.0
 import Ubuntu.Components 0.1
 import Ubuntu.Components.Popups 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
+import trojita.models.ThreadingMsgListModel 0.1
 
 MainView{
     id: appWindow
@@ -100,6 +101,14 @@ MainView{
 
     function modelsChanged() {
         mailboxList.model = imapAccess.mailboxModel
+        // Initially set the sort order to descending, if the sort order
+        // then gets changed from message list page toolbar, we respect that
+        // change and use the specified sort order from then onwards
+        imapAccess.threadingMsgListModel.setUserSearchingSortingPreference(
+                    [],
+                    ThreadingMsgListModel.SORT_NONE,
+                    Qt.DescendingOrder
+                    )
         showHome()
     }
 
@@ -163,27 +172,8 @@ MainView{
             visible: false
             onMailboxSelected: {
                 imapAccess.msgListModel.setMailbox(mailbox)
-                messageList.title = mailbox
-                messageList.scrollToBottom()
-                pageStack.push(messageList)
-            }
-
-        }
-
-        MessageListPage {
-            id: messageList
-            visible: false
-            model: imapAccess.threadingMsgListModel ? imapAccess.threadingMsgListModel : undefined
-            onMessageSelected: {
-                imapAccess.openMessage(mailboxList.currentMailboxLong, uid)
-                pageStack.push(Qt.resolvedUrl("OneMessagePage.qml"),
-                               {
-                                   mailbox: mailboxList.currentMailboxLong,
-                                   url: imapAccess.oneMessageModel.mainPartUrl
-                               }
-                               )
+                pageStack.push(Qt.resolvedUrl("MessageListPage.qml"), { title: mailbox })
             }
         }
-
     }
 }

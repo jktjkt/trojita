@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2014 Dan Chapman <dpniel@ubuntu.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -25,6 +26,7 @@ import Ubuntu.Components 0.1
 import Ubuntu.Components.ListItems 0.1 as ListItems
 import "Utils.js" as Utils
 import trojita.UiFormatting 0.1
+import trojita.models.ThreadingMsgListModel 0.1
 
 Page {
     id: messageListPage
@@ -38,9 +40,42 @@ Page {
     }
     onIndexValidChanged: if (!indexValid) appWindow.showHome()
 
+    onMessageSelected: {
+        imapAccess.openMessage(mailboxList.currentMailboxLong, uid)
+        pageStack.push(Qt.resolvedUrl("OneMessagePage.qml"),
+                       {
+                           mailbox: mailboxList.currentMailboxLong,
+                           url: imapAccess.oneMessageModel.mainPartUrl
+                       }
+                       )
+    }
+
+    Component.onCompleted: {
+        sortTimerSingleshot.start()
+    }
+
+    // We only need to fire this once.... well actually this gets
+    // fired twice 1) onTriggeredStart 2) again at interval.
+    Timer {
+        id: sortTimerSingleshot
+        repeat: false
+        interval: 1
+        onTriggered: sortUserPrefs()
+    }
+
+    function sortUserPrefs() {
+        // We have to force the sort order each time the view is created
+        // but force it using the current sort order already in the model
+        imapAccess.threadingMsgListModel.setUserSearchingSortingPreference(
+                    [],
+                    ThreadingMsgListModel.SORT_NONE,
+                    imapAccess.threadingMsgListModel.currentSortOrder()
+                    )
+    }
+
     VisualDataModel {
         id: msgListDelegateModel
-        model: messageListPage.model
+        model: imapAccess.threadingMsgListModel ? imapAccess.threadingMsgListModel : undefined
         delegate: messageItemDelegate
     }
 
@@ -189,4 +224,5 @@ Page {
     }
 
     flickable: view
+    tools: MessageListToolbar{}
 }

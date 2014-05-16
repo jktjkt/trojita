@@ -153,7 +153,7 @@ public:
 
     QStringList currentSearchCondition() const;
     SortCriterium currentSortCriterium() const;
-    Qt::SortOrder currentSortOrder() const;
+    Q_INVOKABLE Qt::SortOrder currentSortOrder() const;
 
 public slots:
     void resetMe();
