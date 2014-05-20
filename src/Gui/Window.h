@@ -144,6 +144,7 @@ private slots:
     void slotReplyAll();
     void slotReplyList();
     void slotReplyGuess();
+    void slotForwardAsAttachment();
     void slotUpdateMessageActions();
     void handleMarkAsRead(bool);
     void handleMarkAsDeleted(bool);
@@ -281,6 +282,7 @@ private:
     QAction *m_replyAll;
     QAction *m_replyList;
     QAction *m_replyGuess;
+    QAction *m_forwardAsAttachment;
     QAction *expunge;
     QAction *createChildMailbox;
     QAction *createTopMailbox;

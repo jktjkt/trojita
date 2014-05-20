@@ -88,6 +88,8 @@ private slots:
     void slotAppendFailed(const QString &error);
     void onUpdatingFlagsOfReplyingToSucceded();
     void onUpdatingFlagsOfReplyingToFailed();
+    void onUpdatingFlagsOfForwardingSucceeded();
+    void onUpdatingFlagsOfForwardingFailed();
 
     void slotMessageDataAvailable();
     void slotAskForUrl();
@@ -136,6 +138,7 @@ private:
     MSA::MSAFactory *m_msaFactory;
 
     Imap::Mailbox::ImapTask *m_updateReplyingToMessageFlagsTask;
+    Imap::Mailbox::ImapTask *m_updateForwardingMessageFlagsTask;
 
     Submission(const Submission &); // don't implement
     Submission &operator=(const Submission &); // don't implement

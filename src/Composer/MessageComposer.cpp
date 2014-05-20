@@ -810,4 +810,31 @@ QModelIndex MessageComposer::replyingToMessage() const
     return m_replyingTo;
 }
 
+QModelIndex MessageComposer::forwardingMessage() const
+{
+    return m_forwarding;
+}
+
+void MessageComposer::prepareForwarding(const QModelIndex &index, const ForwardMode mode)
+{
+    m_forwarding = index;
+
+    switch (mode) {
+    case Composer::ForwardMode::FORWARD_AS_ATTACHMENT:
+    {
+        beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size());
+        QString mailbox = m_forwarding.data(Imap::Mailbox::RoleMailboxName).toString();
+        uint uidValidity = m_forwarding.data(Imap::Mailbox::RoleMailboxUidValidity).toUInt();
+        uint uid = m_forwarding.data(Imap::Mailbox::RoleMessageUid).toUInt();
+        QScopedPointer<AttachmentItem> attachment(new ImapMessageAttachmentItem(m_model, mailbox, uidValidity, uid));
+        if (m_shouldPreload) {
+            attachment->preload();
+        }
+        attachment->setContentDispositionMode(CDN_INLINE);
+        m_attachments << attachment.take();
+        endInsertRows();
+        break;
+    }
+    }
+}
 }

@@ -71,6 +71,13 @@ QString replySubject(const QString &subject)
     }
 }
 
+/** @short Prepare a subject to be used in a message to be forwarded */
+QString forwardSubject(const QString &subject)
+{
+    QLatin1String forwardPrefix("Fwd: ");
+    return forwardPrefix + subject;
+}
+
 }
 }
 

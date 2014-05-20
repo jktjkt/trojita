@@ -67,6 +67,7 @@ public:
     void setOrganization(const QString &organization);
     void setText(const QString &text);
     void setReplyingToMessage(const QModelIndex &index);
+    void prepareForwarding(const QModelIndex &index, const ForwardMode mode);
 
     bool isReadyForSerialization() const;
     bool asRawMessage(QIODevice *target, QString *errorMessage) const;
@@ -78,6 +79,7 @@ public:
     QByteArray rawFromAddress() const;
     QList<QByteArray> rawRecipientAddresses() const;
     QModelIndex replyingToMessage() const;
+    QModelIndex forwardingMessage() const;
 
     bool addFileAttachment(const QString &path);
     void removeAttachment(const QModelIndex &index);
@@ -112,6 +114,7 @@ private:
     QString m_organization;
     QString m_text;
     QPersistentModelIndex m_replyingTo;
+    QPersistentModelIndex m_forwarding;
 
     QList<AttachmentItem *> m_attachments;
     QPointer<Imap::Mailbox::Model> m_model;

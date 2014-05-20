@@ -29,6 +29,7 @@ namespace Composer {
 namespace Util {
 
 QString replySubject(const QString &subject);
+QString forwardSubject(const QString &subject);
 
 }
 }

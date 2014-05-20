@@ -36,6 +36,10 @@ typedef enum {
     REPLY_LIST /**< @short Reply to the mailing list */
 } ReplyMode;
 
+enum class ForwardMode {
+    FORWARD_AS_ATTACHMENT, /**< @short Forward the message as an attachment */
+};
+
 /** @short Recipients */
 typedef enum {
     ADDRESS_TO,

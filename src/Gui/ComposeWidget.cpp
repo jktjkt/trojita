@@ -364,6 +364,30 @@ ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer
     return w;
 }
 
+/** @short Create a composer window for a mail-forward action */
+ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Composer::ForwardMode mode, const QModelIndex &forwardingMessage,
+                                    const QString &subject, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references)
+{
+    MSA::MSAFactory *msaFactory = mainWindow->msaFactory();
+    if (!msaFactory)
+        return 0;
+
+    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    w->setResponseData(QList<QPair<Composer::RecipientKind, QString>>(), subject, QString(), inReplyTo, references, QModelIndex());
+    // We don't need to expose any UI here, but we want the in-reply-to and references information to be carried with this message
+    w->m_actionInReplyTo->setChecked(true);
+
+    // Only those changes that are made to the composer's fields *after* it has been created should qualify as "edits"
+    w->m_messageEverEdited = false;
+
+    // Prepare the message to be forwarded and add it to the attachments view
+    w->m_submission->composer()->prepareForwarding(forwardingMessage, mode);
+
+    Util::centerWidgetOnScreen(w);
+    w->show();
+    return w;
+}
+
 void ComposeWidget::updateReplyMode()
 {
     if (m_actionHandPickedRecipients->isChecked())

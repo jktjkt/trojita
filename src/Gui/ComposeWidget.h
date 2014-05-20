@@ -75,6 +75,8 @@ public:
     static ComposeWidget *createReply(MainWindow *mainWindow, const Composer::ReplyMode &mode, const QModelIndex &replyingToMessage,
                                       const QList<QPair<Composer::RecipientKind, QString> > &recipients, const QString &subject,
                                       const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
+    static ComposeWidget *createForward(MainWindow *mainWindow, const Composer::ForwardMode mode, const QModelIndex &forwardingMessage,
+                                        const QString &subject, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
 protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *ce);

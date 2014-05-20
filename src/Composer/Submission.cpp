@@ -74,7 +74,8 @@ Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFac
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_saveToSentFolder(false), m_useBurl(false), m_useImapSubmit(false), m_state(STATE_INIT),
     m_msaMaximalProgress(0),
-    m_composer(0), m_model(model), m_msaFactory(msaFactory), m_updateReplyingToMessageFlagsTask(0)
+    m_composer(0), m_model(model), m_msaFactory(msaFactory), m_updateReplyingToMessageFlagsTask(0),
+    m_updateForwardingMessageFlagsTask(0)
 {
     m_composer = new Composer::MessageComposer(model, this);
     m_composer->setPreloadEnabled(shouldBuildMessageLocally());
@@ -312,6 +313,14 @@ void Submission::sent()
         connect(m_updateReplyingToMessageFlagsTask, SIGNAL(failed(QString)),
                 this, SLOT(onUpdatingFlagsOfReplyingToFailed()));
         changeConnectionState(STATE_UPDATING_FLAGS);
+    } else if (m_composer->forwardingMessage().isValid()) {
+        m_updateForwardingMessageFlagsTask = m_model->setMessageFlags(QModelIndexList() << m_composer->forwardingMessage(),
+                                                                      QLatin1String("$Forwarded"), Imap::Mailbox::FLAG_ADD);
+        connect(m_updateForwardingMessageFlagsTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)),
+                this, SLOT(onUpdatingFlagsOfForwardingSucceeded()));
+        connect(m_updateForwardingMessageFlagsTask, SIGNAL(failed(QString)),
+                this, SLOT(onUpdatingFlagsOfForwardingFailed()));
+        changeConnectionState(STATE_UPDATING_FLAGS);
     } else {
         changeConnectionState(STATE_SENT);
         emit succeeded();
@@ -405,6 +414,22 @@ void Submission::onUpdatingFlagsOfReplyingToFailed()
     m_updateReplyingToMessageFlagsTask = 0;
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"),
                       QLatin1String("Cannot update flags of the message we replied to -- interesting, but we cannot do anything at this point anyway"));
+    changeConnectionState(STATE_SENT);
+    emit succeeded();
+}
+
+void Submission::onUpdatingFlagsOfForwardingSucceeded()
+{
+    m_updateForwardingMessageFlagsTask = 0;
+    changeConnectionState(STATE_SENT);
+    emit succeeded();
+}
+
+void Submission::onUpdatingFlagsOfForwardingFailed()
+{
+    m_updateForwardingMessageFlagsTask = 0;
+    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Submission"),
+                      QLatin1String("Cannot update flags of the message we forwarded -- interesting, but we cannot do anything at this point anyway"));
     changeConnectionState(STATE_SENT);
     emit succeeded();
 }

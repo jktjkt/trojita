@@ -354,6 +354,24 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
                 mainWindow);
 }
 
+void MessageView::forward(MainWindow *mainWindow, const Composer::ForwardMode mode)
+{
+    if (!message.isValid())
+        return;
+
+    // The Message-Id of the original message might have been empty; be sure we can handle that
+    QByteArray messageId = message.data(Imap::Mailbox::RoleMessageMessageId).toByteArray();
+    QList<QByteArray> messageIdList;
+    if (!messageId.isEmpty()) {
+        messageIdList.append(messageId);
+    }
+
+    ComposeWidget::warnIfMsaNotConfigured(
+                ComposeWidget::createForward(mainWindow, mode, message, Composer::Util::forwardSubject(message.data(Imap::Mailbox::RoleMessageSubject).toString()),
+                                             messageIdList, message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray>>() + messageIdList),
+                mainWindow);
+}
+
 void MessageView::externalsRequested(const QUrl &url)
 {
     Q_UNUSED(url);

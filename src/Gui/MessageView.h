@@ -72,6 +72,7 @@ public:
 
     void setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher);
     void reply(MainWindow *mainWindow, Composer::ReplyMode mode);
+    void forward(MainWindow *mainWindow, const Composer::ForwardMode mode);
     QModelIndex currentMessage() const;
 public slots:
     void setMessage(const QModelIndex &index);
