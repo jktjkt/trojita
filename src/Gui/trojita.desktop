@@ -79,6 +79,7 @@ Keywords[pt]=correio;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[pt_BR]=mail;e-mail;email;IMAP;SMTP;eml;MUA;
 Keywords[sk]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[sv]=brev;e-post;IMAP;SMTP;eml;MUA;
+Keywords[tr]=posta;e-posta;IMAP;SMTP;eml;MUA;
 Keywords[uk]=mail;e-mail;IMAP;SMTP;eml;MUA;пошта;електронна;емейл;імейл;імап;аймап;смтп;емл;
 Keywords[x-test]=xxmail;e-mail;IMAP;SMTP;eml;MUA;xx
 StartupNotify=true
