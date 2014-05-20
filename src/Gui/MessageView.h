@@ -23,6 +23,7 @@
 #define VIEW_MESSAGEVIEW_H
 
 #include <QPersistentModelIndex>
+#include <QPointer>
 #include <QSet>
 #include <QWidget>
 #include "Composer/Recipients.h"
@@ -35,20 +36,19 @@ class QTimer;
 class QUrl;
 class QWebView;
 
-namespace Imap
-{
-namespace Network
-{
+namespace Imap {
+namespace Network {
 class MsgPartNetAccessManager;
 }
-namespace Message
-{
+namespace Message {
 class Envelope;
+}
+namespace Mailbox {
+class NetworkWatcher;
 }
 }
 
-namespace Gui
-{
+namespace Gui {
 
 class EnvelopeView;
 class MainWindow;
@@ -70,6 +70,7 @@ public:
     MessageView(QWidget *parent, QSettings *settings);
     ~MessageView();
 
+    void setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher);
     void reply(MainWindow *mainWindow, Composer::ReplyMode mode);
     QModelIndex currentMessage() const;
 public slots:
@@ -111,6 +112,7 @@ private:
     TagListWidget *tags;
     QPersistentModelIndex message;
     Imap::Network::MsgPartNetAccessManager *netAccess;
+    QPointer<Imap::Mailbox::NetworkWatcher> m_netWatcher;
     QTimer *markAsReadTimer;
     QWebView *emptyView;
     PartWidgetFactory *factory;

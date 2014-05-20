@@ -161,8 +161,8 @@ void ImapMsgPartNetAccessManagerTest::testMessageParts_data()
             << true
             << QByteArray("text richtext");
 
-    QTest::newRow("evernote/cid")
-            << bsEvernote
+    QTest::newRow("multipartRelated/cid")
+            << bsMultipartRelated
             << QByteArray("3")
             << "cid:<image002.jpg@01CEFBE5.40406E50>"
             << true

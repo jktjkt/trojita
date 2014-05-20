@@ -672,6 +672,8 @@ void MainWindow::setupModels()
     m_imapAccess->reloadConfiguration();
     m_imapAccess->doConnect();
 
+    m_messageWidget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(m_imapAccess->networkWatcher()));
+
     //setProperty( "trojita-sqlcache-commit-period", QVariant(5000) );
     //setProperty( "trojita-sqlcache-commit-delay", QVariant(1000) );
 
@@ -954,6 +956,7 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     connect(widget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
             this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     widget->messageView->setMessage(index);
+    widget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(m_imapAccess->networkWatcher()));
     widget->setFocusPolicy(Qt::StrongFocus);
     widget->setWindowTitle(index.data(Imap::Mailbox::RoleMessageSubject).toString());
     widget->setAttribute(Qt::WA_DeleteOnClose);

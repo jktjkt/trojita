@@ -53,8 +53,8 @@ class MsgPartNetAccessManager : public QNetworkAccessManager
 public:
     explicit MsgPartNetAccessManager(QObject *parent=0);
     void setModelMessage(const QModelIndex &message);
-    static Imap::Mailbox::TreeItemPart *pathToPart(const QModelIndex &message, const QString &path);
-    static Imap::Mailbox::TreeItemPart *cidToPart(const QByteArray &cid, Mailbox::Model *model, Mailbox::TreeItem *root);
+    static QModelIndex pathToPart(const QModelIndex &message, const QString &path);
+    static QModelIndex cidToPart(const QModelIndex &rootIndex, const QByteArray &cid);
     QString translateToSupportedMimeType(const QString &originalMimeType) const;
     void registerMimeTypeTranslation(const QString &originalMimeType, const QString &translatedMimeType);
     Q_INVOKABLE void wrapQmlWebViewRequest(QObject *request, QObject *reply);

@@ -156,6 +156,9 @@ enum {
     /** @short Is this a top-level multipart, i.e. a multipart/... and a child of a message/rfc822? See isTopLevelMultipart. */
     RolePartIsTopLevelMultipart,
 
+    /** @short Fetch a part from the cache if it's available, but do not request it from the server */
+    RolePartForceFetchFromCache,
+
     /** @short True if the item in the tasks list is actually a ParserState
 
     This role is *not* used or implemented by the IMAP models, but only by the TaskPresentationModel.

@@ -1467,6 +1467,9 @@ QVariant TreeItemPart::data(Model *const model, int role)
         return message()->uid();
     case RolePartIsTopLevelMultipart:
         return isTopLevelMultiPart();
+    case RolePartForceFetchFromCache:
+        fetchFromCache(model);
+        return QVariant();
     }
 
 

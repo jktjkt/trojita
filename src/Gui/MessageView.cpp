@@ -54,6 +54,7 @@
 #include "Composer/SubjectMangling.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/NetworkWatcher.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
 namespace Gui
@@ -188,24 +189,23 @@ void MessageView::setEmpty()
 
 void MessageView::setMessage(const QModelIndex &index)
 {
-    // first, let's get a real model
-    QModelIndex messageIndex;
-    const Imap::Mailbox::Model *constModel = 0;
-    Imap::Mailbox::TreeItem *item = Imap::Mailbox::Model::realTreeItem(index, &constModel, &messageIndex);
-    Q_ASSERT(item); // Make sure it's a message
-    Q_ASSERT(messageIndex.isValid());
-    Imap::Mailbox::Model *realModel = const_cast<Imap::Mailbox::Model *>(constModel);
-    Q_ASSERT(realModel);
+    Q_ASSERT(index.isValid());
+    // first, let's get rid of all those proxy models
+    QModelIndex messageIndex = index;
+    while (const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(messageIndex.model())) {
+        messageIndex = proxy->mapToSource(messageIndex);
+    }
 
     // The data might be available from the local cache, so let's try to save a possible roundtrip here
-    item->fetch(realModel);
+    // by explicitly requesting the data
+    messageIndex.data(Imap::Mailbox::RolePartData);
 
     if (!messageIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
         // This happens when the message placeholder is already available in the GUI, but the actual message data haven't been
         // loaded yet. This is especially common with the threading model.
         // Note that the data might be already available in the cache, it's just that it isn't in the mailbox tree yet.
         setEmpty();
-        connect(realModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+        connect(messageIndex.model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
         message = messageIndex;
         return;
     }
@@ -241,7 +241,7 @@ void MessageView::setMessage(const QModelIndex &index)
         tags->show();
         tags->setTagList(messageIndex.data(Imap::Mailbox::RoleMessageFlags).toStringList());
         disconnect(this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
-        connect(realModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+        connect(messageIndex.model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
 
         emit messageChanged();
 
@@ -249,7 +249,7 @@ void MessageView::setMessage(const QModelIndex &index)
         viewer->installEventFilter(this);
     }
 
-    if (realModel->isNetworkAvailable())
+    if (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE)
         markAsReadTimer->start(200); // FIXME: make this configurable
 }
 
@@ -325,6 +325,12 @@ QString MessageView::quoteText() const
         return tr("On %1, %2 wrote:\n").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate)).arg(sender) + quote.join("\n");
     }
     return QString();
+}
+
+void MessageView::setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher)
+{
+    m_netWatcher = netWatcher;
+    factory->setNetworkWatcher(netWatcher);
 }
 
 void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
@@ -471,10 +477,8 @@ void MessageView::onWebViewLoadStarted()
 {
     QWebView *wv = qobject_cast<QWebView*>(sender());
     Q_ASSERT(wv);
-    QModelIndex messageIndex;
-    const Imap::Mailbox::Model *constModel = 0;
-    Imap::Mailbox::Model::realTreeItem(message, &constModel, &messageIndex);
-    if (constModel && constModel->isNetworkAvailable()) {
+
+    if (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE) {
         m_loadingItems << wv;
         m_loadingSpinner->start(250);
     }

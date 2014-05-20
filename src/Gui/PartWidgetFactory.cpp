@@ -29,6 +29,7 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
+#include "Imap/Model/NetworkWatcher.h"
 
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -95,12 +96,6 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
         }
     }
 
-    const Imap::Mailbox::Model *constModel = 0;
-    Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
-    Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model *>(constModel);
-    Q_ASSERT(model);
-    Q_ASSERT(part);
-
     // Check whether it shall be wrapped inside an AttachmentView
     // From section 2.8 of RFC 2183: "Unrecognized disposition types should be treated as `attachment'."
     const QByteArray contentDisposition = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower();
@@ -121,10 +116,11 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                 options |= PART_IS_HIDDEN;
             } else if (!isCompoundMimeType) {
                 // This is to prevent a clickthrough when the data can be already shown
-                part->fetchFromCache(model);
+                partIndex.data(Imap::Mailbox::RolePartForceFetchFromCache);
 
                 // This makes sure that clickthrough only affects big parts during "expensive network" mode
-                if (model->isNetworkOnline() || part->octets() <= ExpensiveFetchThreshold) {
+                if ( (m_netWatcher && m_netWatcher->desiredNetworkPolicy() != Imap::Mailbox::NETWORK_EXPENSIVE)
+                        || partIndex.data(Imap::Mailbox::RolePartOctets).toInt() <= ExpensiveFetchThreshold) {
                     options |= PART_IGNORE_CLICKTHROUGH;
                 }
             } else {
@@ -132,7 +128,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                 options |= PART_IGNORE_CLICKTHROUGH;
             }
 
-            if (!model->isNetworkAvailable()) {
+            if (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() == Imap::Mailbox::NETWORK_OFFLINE) {
                 // This is to prevent a clickthrough when offline
                 options |= PART_IGNORE_CLICKTHROUGH;
             }
@@ -169,13 +165,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             QModelIndex mainPartIndex;
             QVariant mainPartCID = partIndex.data(RolePartMultipartRelatedMainCid);
             if (mainPartCID.isValid()) {
-                const Imap::Mailbox::Model *constModel = 0;
-                Imap::Mailbox::TreeItemPart *part = dynamic_cast<Imap::Mailbox::TreeItemPart *>(Imap::Mailbox::Model::realTreeItem(partIndex, &constModel));
-                Imap::Mailbox::Model *model = const_cast<Imap::Mailbox::Model *>(constModel);
-                Imap::Mailbox::TreeItemPart *mainPartPtr = Imap::Network::MsgPartNetAccessManager::cidToPart(mainPartCID.toByteArray(), model, part);
-                if (mainPartPtr) {
-                    mainPartIndex = mainPartPtr->toIndex(model);
-                }
+                mainPartIndex = Imap::Network::MsgPartNetAccessManager::cidToPart(partIndex, mainPartCID.toByteArray());
             }
 
             if (!mainPartIndex.isValid()) {
@@ -211,15 +201,18 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     } else if (mimeType == QLatin1String("message/rfc822")) {
         return new Message822Widget(0, this, partIndex, recursionDepth, loadingMode);
     } else {
-        part->fetchFromCache(model);
+        partIndex.data(Imap::Mailbox::RolePartForceFetchFromCache);
 
         if ((loadingMode & PART_IGNORE_CLICKTHROUGH) || (loadingMode & PART_IGNORE_LOAD_ON_SHOW) ||
-                part->fetched() || model->isNetworkOnline() || part->octets() < ExpensiveFetchThreshold) {
+                partIndex.data(Imap::Mailbox::RoleIsFetched).toBool() ||
+                (m_netWatcher && m_netWatcher->desiredNetworkPolicy() != Imap::Mailbox::NETWORK_EXPENSIVE ) ||
+                partIndex.data(Imap::Mailbox::RolePartOctets).toInt() < ExpensiveFetchThreshold) {
             // Show it directly without any fancy wrapping
             return new SimplePartWidget(0, manager, partIndex, m_messageView);
         } else {
             return new LoadablePartWidget(0, manager, partIndex, m_messageView, this, recursionDepth + 1,
-                                          model->isNetworkAvailable() ? loadingMode : loadingMode | PART_IGNORE_CLICKTHROUGH);
+                                          (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE) ?
+                                          loadingMode : loadingMode | PART_IGNORE_CLICKTHROUGH);
         }
     }
 }
@@ -227,6 +220,11 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
 MessageView *PartWidgetFactory::messageView() const
 {
     return m_messageView;
+}
+
+void PartWidgetFactory::setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher)
+{
+    m_netWatcher = netWatcher;
 }
 
 }

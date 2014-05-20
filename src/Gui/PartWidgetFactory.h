@@ -25,11 +25,17 @@
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
 #include <QCoreApplication>
+#include <QPointer>
 
 class QModelIndex;
 
-namespace Gui
-{
+namespace Imap {
+namespace Mailbox {
+class NetworkWatcher;
+}
+}
+
+namespace Gui {
 
 class MessageView;
 
@@ -57,9 +63,11 @@ public:
     QWidget *create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode);
 
     MessageView *messageView() const;
+    void setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher);
 private:
     Imap::Network::MsgPartNetAccessManager *manager;
     MessageView *m_messageView;
+    QPointer<Imap::Mailbox::NetworkWatcher> m_netWatcher;
 
     PartWidgetFactory(const PartWidgetFactory &); // don't implement
     PartWidgetFactory &operator=(const PartWidgetFactory &); // don't implement

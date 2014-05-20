@@ -340,15 +340,15 @@ ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mail
 
     Q_ASSERT(messages.size() == 1);
 
-    TreeItemPart *part = Imap::Network::MsgPartNetAccessManager::pathToPart(messages.front()->toIndex(model), trojitaPath);
-    if (!part)
+    QModelIndex partIndex = Imap::Network::MsgPartNetAccessManager::pathToPart(messages.front()->toIndex(model), trojitaPath);
+    if (!partIndex.isValid())
         throw Imap::UnknownMessageIndex("No such part");
 
-    if (part->mimeType().startsWith(QLatin1String("multipart/"))) {
+    if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString().startsWith(QLatin1String("multipart/"))) {
         // Yes, we absolutely do abuse this exception now. Any better ideas?
         throw Imap::UnknownMessageIndex("Cannot attach multipart/* MIME containers");
     }
-    index = part->toIndex(model);
+    index = partIndex;
 }
 
 ImapPartAttachmentItem::~ImapPartAttachmentItem()
