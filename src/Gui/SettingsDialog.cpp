@@ -753,13 +753,13 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     connect(smtpAuth, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setAuthenticateEnabled(bool)));
     connect(saveToImap, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setSaveToImap(bool)));
 
-    connect(smtpHost, SIGNAL(textChanged(QString)), m_smtpAccountSettings, SLOT(setServer(QString)));
-    connect(smtpUser, SIGNAL(textChanged(QString)), m_smtpAccountSettings, SLOT(setUsername(QString)));
-    connect(smtpPort, SIGNAL(textChanged(QString)), this, SLOT(setPortByText(QString)));
+    connect(smtpHost, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setServer(QString)));
+    connect(smtpUser, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setUsername(QString)));
+    connect(smtpPort, SIGNAL(textEditingFinished(QString)), this, SLOT(setPortByText(QString)));
     connect(m_smtpAccountSettings, SIGNAL(showPortWarning(QString)), this, SLOT(showPortWarning(QString)));
     connect(smtpAuth, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setAuthenticateEnabled(bool)));
     connect(saveToImap, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setSaveToImap(bool)));
-    connect(saveFolderName, SIGNAL(textChanged(QString)), m_smtpAccountSettings, SLOT(setSentMailboxName(QString)));
+    connect(saveFolderName, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setSentMailboxName(QString)));
     connect(smtpBurl, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setUseBurl(bool)));
 
     m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QLatin1String("account-0"), QLatin1String("smtp"));

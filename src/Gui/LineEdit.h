@@ -27,6 +27,9 @@ public:
     void setHistoryEnabled(bool enabled = true);
     virtual QSize sizeHint() const;
 
+signals:
+    void textEditingFinished(const QString &text);
+
 protected:
     bool eventFilter(QObject *o, QEvent *e);
     void keyReleaseEvent(QKeyEvent *ke);
@@ -35,6 +38,7 @@ private Q_SLOTS:
     void updateClearButton(const QString &text);
     void learnEntry();
     void restoreInlineCompletion();
+    void doEmitTextEditingFinished();
 
 private:
     void init();

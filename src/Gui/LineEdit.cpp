@@ -55,6 +55,8 @@ void LineEdit::init()
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addStretch();
     layout->addWidget(m_clearButton);
+
+    connect(this, SIGNAL(editingFinished()), this, SLOT(doEmitTextEditingFinished()));
 }
 
 QToolButton *LineEdit::clearButton()
@@ -182,4 +184,9 @@ void LineEdit::restoreInlineCompletion()
     m_currentText = text(); // this was probably just updated by seleting from combobox
     completer()->setCompletionMode(QCompleter::InlineCompletion);
     CALL_LATER_NOARG(this, setFocus); // can't get in the second event cycle either
+}
+
+void LineEdit::doEmitTextEditingFinished()
+{
+    emit textEditingFinished(text());
 }
