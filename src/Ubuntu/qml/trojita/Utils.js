@@ -4,24 +4,29 @@ function isMailAddressValid(address) {
     return ! (address === null || address === undefined || address.length === 0)
 }
 
-function formatMailAddress(items, nameOnly) {
+function formatMailAddress(items, nameOnly, addressOnly) {
     if (!isMailAddressValid(items)) {
-        return undefined
+        return undefined;
     } else if (items[0] !== null && items[0].length > 0) {
-        if (nameOnly)
-            return items[0]
-        else
-            return items[0] + " <" + items[2] + "@" + items[3] + ">"
+        var name = items[0];
+        var address = "<a href=\"" + items[2] + "@" + items[3] + "\">"+ " " + items[2] + "@" + items[3] + "</a>";
+        if (nameOnly) {
+            return name;
+        } else if (addressOnly) {
+            return address;
+        } else {
+            return name + address;
+        }
     } else {
         return items[2] + "@" + items[3]
     }
 }
 
-function formatMailAddresses(addresses, nameOnly) {
+function formatMailAddresses(addresses, nameOnly, addressOnly) {
     if (!addresses) { return ""; }
     var res = Array()
     for (var i = 0; i < addresses.length; ++i) {
-        res.push(formatMailAddress(addresses[i], nameOnly))
+        res.push(formatMailAddress(addresses[i], nameOnly, addressOnly))
     }
     return (addresses.length == 1) ? res[0] : res.join(", ")
 }

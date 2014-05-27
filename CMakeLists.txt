@@ -773,10 +773,13 @@ if(WITH_UBUNTU)
         ${TROJITA_UBUNTU_PATH}/qml/trojita/PasswordInputSheet.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/MailboxListPage.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/PercentageSectionScroller.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/TrojitaWebView.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/SslSheet.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/SettingsToolbar.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/SettingsTabs.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/SmtpSettings.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/HeaderComponent.qml
+        ${TROJITA_UBUNTU_PATH}/qml/trojita/dropdown-menu.svg
         ${TROJITA_UBUNTU_PATH}/qml/trojita/main.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/MessageListPage.qml
         ${TROJITA_UBUNTU_PATH}/qml/trojita/MessageListToolbar.qml

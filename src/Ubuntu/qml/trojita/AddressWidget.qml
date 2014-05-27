@@ -24,15 +24,14 @@ import QtQuick 2.0
 import Ubuntu.Components 1.1
 import "Utils.js" as Utils
 
-// FIXME Make way more dynamic with way more options
+
 Label {
-    property string caption
+    id: addressWidget
     property variant address
-    text: visible ?
-              "<b>" + caption + ":</b> "
-              + Utils.formatMailAddresses(address)
-            :
-              ""
+    property bool nameOnly: false
+    property bool addressOnly: false
+    text: Utils.formatMailAddresses(address, nameOnly, addressOnly)
+    linkColor: "#333333"
     wrapMode: Text.WordWrap
-    visible: Utils.isMailAddressValid(address)
+    onLinkActivated: emailAddressClicked(text)
 }
