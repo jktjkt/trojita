@@ -33,6 +33,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QProgressBar>
+#include <QScrollBar>
 #include <QSplitter>
 #include <QSslError>
 #include <QSslKey>
@@ -404,6 +405,9 @@ void MainWindow::createActions()
     m_actionSortAscending->setChecked(true);
     m_actionSortDescending = new QAction(tr("&Descending"), sortOrderGroup);
     m_actionSortDescending->setCheckable(true);
+    // QActionGroup has no toggle signal, but connecting descending will implicitly catch the acscending complement ;-)
+    connect(m_actionSortDescending, SIGNAL(toggled(bool)), m_delayedStateSaving, SLOT(start()));
+    connect(m_actionSortDescending, SIGNAL(toggled(bool)), this, SLOT(slotScrollToCurrent()));
     connect(sortOrderGroup, SIGNAL(triggered(QAction*)), this, SLOT(slotSortingPreferenceChanged()));
 
     QActionGroup *sortColumnGroup = new QActionGroup(this);
@@ -1696,6 +1700,7 @@ void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
     }
 
     updateMessageFlags();
+    slotScrollToUnseenMessage(QModelIndex(), QModelIndex());
 }
 
 void MainWindow::showConnectionStatus(QObject *parser, Imap::ConnectionState state)
@@ -1915,6 +1920,14 @@ void MainWindow::slotScrollToUnseenMessage(const QModelIndex &mailbox, const QMo
         msgListWidget->tree->scrollToTop();
     } else {
         msgListWidget->tree->scrollToBottom();
+    }
+}
+
+void MainWindow::slotScrollToCurrent()
+{
+    // TODO: begs for lambda
+    if (QScrollBar *vs = msgListWidget->tree->verticalScrollBar()) {
+        vs->setValue(vs->maximum() - vs->value()); // implies vs->minimum() == 0
     }
 }
 
