@@ -21,7 +21,7 @@
 */
 import QtQuick 2.0
 import Ubuntu.Components 1.1
-import trojita.models.ThreadingMsgListModel 0.1
+import Ubuntu.Components.Popups 1.0
 import trojita.MSA.Account 0.1
 
 // We should try and keep the same settings tabs as desktop
@@ -30,13 +30,55 @@ import trojita.MSA.Account 0.1
 Tabs {
     id: settingsTabs
     visible: false
-    // We should try and keep the same settings tabs as desktop
-    // so we should have profiles, SMTP, offline etc in the future
+    // during the password saving there is a short period where password is an empty string and trying to
+    // either using the binding to determine if password exists or reloadPassword cause undesired events.
+    // This helps to determine if we need to show error dialog on saving failed signals
+    property bool passwordGiven
+
+    Component.onCompleted: {
+        // use the passwordWatcher savingDone signal to trigger saving the rest and ensure we
+        // have any given password available when connecting.
+        imapAccess.passwordWatcher.savingDone.connect(continueSavingAction.trigger)
+        imapAccess.passwordWatcher.savingFailed.connect(showSavingPasswordFailed)
+    }
+
+    function showSavingPasswordFailed(message) {
+        // if no passwordGiven then we can safely just continue and ignore
+        // the error message
+        if (!passwordGiven) {
+            continueSavingAction.trigger()
+        } else {
+            PopupUtils.open(Qt.resolvedUrl("InfoDialog.qml"), appWindow, {
+                                title: qsTr("Failed saving password"),
+                                text: message,
+                                buttonText: qsTr("Continue"),
+                                buttonAction: continueSavingAction
+                            })
+        }
+    }
+
+    Action {
+        id: continueSavingAction
+        onTriggered: {
+            imapSettings.saveImapSettings()
+            if (!imapSettings.settingsModified) {
+                pageStack.pop()
+            } else {
+                imapSettings.imapSettingsChanged()
+                imapAccess.doConnect()
+                appWindow.connectModels()
+            }
+            // update state
+            imapSettings.state = "HAS_ACCOUNT"
+            imapSettings.settingsModified = false
+
+        }
+    }
 
     Action {
         id: cancelAction
         onTriggered: {
-            smtpSettings.restoreSettings()
+            smtpAccountSettings.restoreSettings()
             pageStack.pop()
         }
     }
@@ -49,19 +91,9 @@ Tabs {
             } else if (!smtpSettings.settingsValid) {
                 settingsTabs.selectedTabIndex = 1
             } else {
-                imapSettings.saveImapSettings()
                 smtpAccountSettings.saveSettings()
-
-                if (!imapSettings.settingsModified) {
-                    pageStack.pop()
-                } else {
-                    imapSettings.imapSettingsChanged()
-                    imapAccess.doConnect()
-                    appWindow.connectModels()
-                }
-                // update state
-                imapSettings.state = "HAS_ACCOUNT"
-                imapSettings.settingsModified = false
+                passwordGiven = imapSettings.imapPassword
+                imapAccess.passwordWatcher.setPassword(imapSettings.imapPassword)
             }
         }
     }

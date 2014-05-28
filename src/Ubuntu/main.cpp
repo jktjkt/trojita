@@ -34,6 +34,7 @@
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "MSA/Account.h"
 #include "Plugins/PluginManager.h"
+#include "static_plugins.h"
 
 int main(int argc, char *argv[])
 {
@@ -121,6 +122,8 @@ int main(int argc, char *argv[])
     qmlRegisterSingletonType<UiUtils::Formatting>("trojita.UiFormatting", 0, 1, "UiFormatting", UiUtils::Formatting::factory);
     qmlRegisterUncreatableType<MSA::Account>("trojita.MSA.Account", 0, 1, "MSAAccount",
             QLatin1String("MSA::Account can be only created from the C++ code."));
+    qmlRegisterUncreatableType<UiUtils::PasswordWatcher>("trojita.PasswordWatcher", 0, 1, "PasswordWatcher",
+            QLatin1String("PasswordWatcher can only be created from the C++ code. Use ImapAccess if you need access to an instance."));
 
     viewer.setTitle(QObject::trUtf8("Trojitá"));
     viewer.setSource(QUrl::fromLocalFile(qmlFile));

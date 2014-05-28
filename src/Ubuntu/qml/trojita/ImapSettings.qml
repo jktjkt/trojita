@@ -68,9 +68,6 @@ Page {
         if (connectionSelector.model.get(connectionSelector.selectedIndex).name !== imapAccess.sslMode) {
             imapAccess.sslMode = connectionSelector.model.get(connectionSelector.selectedIndex).name
         }
-        if (imapPasswordInput.text.length > 0) {
-            imapAccess.password = imapPasswordInput.text
-        }
     }
 
     states: [
@@ -94,7 +91,10 @@ Page {
             // Load user details
             PropertyChanges { target: imapSettings; imapServer: imapAccess.server }
             PropertyChanges { target: imapSettings; imapUserName: imapAccess.username }
-            PropertyChanges { target: imapSettings; imapPassword: "" }
+            PropertyChanges {
+                target: imapSettings;
+                imapPassword: imapAccess.passwordWatcher.password ? imapAccess.passwordWatcher.password : ""
+            }
             PropertyChanges {
                 target: imapSettings
                 imapSslModelIndex: {
@@ -178,6 +178,23 @@ Page {
                 KeyNavigation.priority: KeyNavigation.BeforeItem
                 KeyNavigation.tab: imapServerInput
                 KeyNavigation.backtab: imapUserNameInput
+            }
+
+            Label {
+                id: passwordWarning
+                color: imapAccess.passwordWatcher.isStorageEncrypted ? "#888888" : "red"
+                anchors {
+                    left: parent.left
+                    right: parent.right
+                }
+                visible: imapPasswordInput.text.length > 0
+                wrapMode: TextEdit.Wrap
+                text: imapAccess.passwordWatcher.isStorageEncrypted ?
+                          qsTr("This password will be saved in encrypted storage. " +
+                          "If you do not enter password here, Trojitá will prompt for one when needed.")
+                        :
+                          qsTr("This password will be saved in clear text. " +
+                          "If you do not enter password here, Trojitá will prompt for one when needed.");
             }
 
             Label {

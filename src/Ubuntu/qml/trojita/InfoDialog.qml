@@ -26,9 +26,17 @@ import Ubuntu.Components.Popups 1.0
 
 Dialog {
     id: showInfoDialog
+    property string buttonText
+    property Action buttonAction
     Button {
-        text: qsTr("Close")
+        id: dialogButton
+        text: buttonText ? qsTr(buttonText) : qsTr("Close")
         color: UbuntuColors.orange
-        onClicked: PopupUtils.close(showInfoDialog)
+        onClicked: {
+            if (buttonAction) {
+                showInfoDialog.buttonAction.triggered(dialogButton)
+            }
+            PopupUtils.close(showInfoDialog)
+        }
     }
 }

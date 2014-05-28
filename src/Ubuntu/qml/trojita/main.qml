@@ -67,7 +67,16 @@ MainView{
                         })
     }
 
-    function requestingPassword() {
+    function continueAuthentication() {
+        if (imapAccess.passwordWatcher.didReadOk && imapAccess.passwordWatcher.password) {
+            imapAccess.imapModel.imapPassword = imapAccess.passwordWatcher.password
+        } else {
+            PopupUtils.open(passwordDialogComponent)
+        }
+    }
+
+    function passwordReadingFailed(message) {
+        authAttemptFailed(message)
         PopupUtils.open(passwordDialogComponent)
     }
 
@@ -81,7 +90,7 @@ MainView{
         imapAccess.imapModel.imapError.connect(showImapError)
         imapAccess.imapModel.networkError.connect(showNetworkError)
         imapAccess.imapModel.alertReceived.connect(showImapAlert)
-        imapAccess.imapModel.authRequested.connect(requestingPassword)
+        imapAccess.imapModel.authRequested.connect(imapAccess.passwordWatcher.reloadPassword())
         imapAccess.imapModel.authAttemptFailed.connect(authAttemptFailed)
         imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
         imapAccess.imapModel.networkPolicyOnline.connect(function() {networkOffline = false})
@@ -92,6 +101,8 @@ MainView{
         // connect these before calling imapAccess.doConnect()
         imapAccess.checkSslPolicy.connect(function() {PopupUtils.open(sslSheetPage)})
         imapAccess.modelsChanged.connect(modelsChanged)
+        imapAccess.passwordWatcher.readingDone.connect(continueAuthentication)
+        imapAccess.passwordWatcher.readingFailed.connect(passwordReadingFailed)
     }
 
     function settingsChanged() {
@@ -101,6 +112,7 @@ MainView{
 
     function modelsChanged() {
         mailboxList.model = imapAccess.mailboxModel
+        pageStack.clear()
         // Initially set the sort order to descending, if the sort order
         // then gets changed from message list page toolbar, we respect that
         // change and use the specified sort order from then onwards
