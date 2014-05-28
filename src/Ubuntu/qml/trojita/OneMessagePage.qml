@@ -21,7 +21,7 @@
 */
 
 import QtQuick 2.0
-import Ubuntu.Components 0.1
+import Ubuntu.Components 1.1
 import QtWebKit 3.0
 import QtWebKit.experimental 1.0
 //import Qt5NAMWebView 1.0

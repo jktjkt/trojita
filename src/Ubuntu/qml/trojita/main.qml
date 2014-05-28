@@ -21,9 +21,9 @@
 */
 
 import QtQuick 2.0
-import Ubuntu.Components 0.1
-import Ubuntu.Components.Popups 0.1
-import Ubuntu.Components.ListItems 0.1 as ListItems
+import Ubuntu.Components 1.1
+import Ubuntu.Components.Popups 1.0
+import Ubuntu.Components.ListItems 1.0 as ListItems
 import trojita.models.ThreadingMsgListModel 0.1
 
 MainView{
