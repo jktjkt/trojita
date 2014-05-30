@@ -716,7 +716,7 @@ void MainWindow::setupModels()
     connect(imapModel(), SIGNAL(logged(uint,Common::LogMessage)), imapLogger, SLOT(slotImapLogged(uint,Common::LogMessage)));
 
     connect(m_imapAccess->networkWatcher(), SIGNAL(reconnectAttemptScheduled(const int)), this, SLOT(slotReconnectAttemptScheduled(const int)));
-    connect(m_imapAccess->networkWatcher(), SIGNAL(connectedToImap()), this, SLOT(slotConnectedToImap()));
+    connect(m_imapAccess->networkWatcher(), SIGNAL(resetReconnectState()), this, SLOT(slotResetReconnectState()));
 
     connect(imapModel(), SIGNAL(mailboxFirstUnseenMessage(QModelIndex,QModelIndex)), this, SLOT(slotScrollToUnseenMessage(QModelIndex,QModelIndex)));
 
@@ -1113,8 +1113,8 @@ void MainWindow::slotReconnectAttemptScheduled(const int timeout)
     statusBar()->showMessage(tr("Attempting to reconnect in %1 seconds..").arg(timeout/1000));
 }
 
-/** @short Deletes a network error message box instance upon successful reconnect */
-void MainWindow::slotConnectedToImap()
+/** @short Deletes a network error message box instance upon resetting of reconnect state */
+void MainWindow::slotResetReconnectState()
 {
     if (m_networkErrorMessageBox) {
         delete m_networkErrorMessageBox;

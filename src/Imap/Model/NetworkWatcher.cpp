@@ -57,6 +57,7 @@ void NetworkWatcher::resetReconnectTimer()
 {
     m_reconnectTimer->stop();
     m_reconnectTimer->setInterval(MIN_RECONNECT_TIMEOUT/2);
+    emit resetReconnectState();
 }
 
 void NetworkWatcher::handleConnectionStateChanged(QObject *parser, Imap::ConnectionState state)
@@ -66,7 +67,6 @@ void NetworkWatcher::handleConnectionStateChanged(QObject *parser, Imap::Connect
     // a series of reconnect attempts. Timers for reconnection should be reset at this point.
     if (state == CONN_STATE_CONNECTED_PRETLS_PRECAPS || state == CONN_STATE_SSL_HANDSHAKE) {
         resetReconnectTimer();
-        emit connectedToImap();
     }
 }
 

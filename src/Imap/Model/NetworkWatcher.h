@@ -54,7 +54,7 @@ public slots:
 signals:
     void effectiveNetworkPolicyChanged();
     void reconnectAttemptScheduled(const int timeout);
-    void connectedToImap();
+    void resetReconnectState();
 
 protected:
     virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) = 0;

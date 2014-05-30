@@ -205,7 +205,7 @@ private slots:
     void invokeContactEditor();
 
     void slotReconnectAttemptScheduled(const int timeout);
-    void slotConnectedToImap();
+    void slotResetReconnectState();
 
 protected:
     void resizeEvent(QResizeEvent *);
