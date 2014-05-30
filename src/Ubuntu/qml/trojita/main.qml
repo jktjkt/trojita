@@ -90,7 +90,7 @@ MainView{
         imapAccess.imapModel.imapError.connect(showImapError)
         imapAccess.imapModel.networkError.connect(showNetworkError)
         imapAccess.imapModel.alertReceived.connect(showImapAlert)
-        imapAccess.imapModel.authRequested.connect(imapAccess.passwordWatcher.reloadPassword())
+        imapAccess.imapModel.authRequested.connect(imapAccess.passwordWatcher.reloadPassword)
         imapAccess.imapModel.authAttemptFailed.connect(authAttemptFailed)
         imapAccess.imapModel.networkPolicyOffline.connect(function() {networkOffline = true})
         imapAccess.imapModel.networkPolicyOnline.connect(function() {networkOffline = false})
