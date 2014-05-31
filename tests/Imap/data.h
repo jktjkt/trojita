@@ -115,6 +115,12 @@ const QByteArray bsEvernote("((\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL
         "(\"application\" \"octet-stream\" (\"name\" \"CAN0000009221(1)\") "
         "\"<008101cf443f$421f4e10$02bfc0bf@99H45HF>\" NIL \"base64\" 288 NIL NIL NIL NIL) "
         "\"mixed\" (\"boundary\" \"----------6B22D2B9A32361\") NIL NIL NIL");
+const QByteArray bsMultipartRelated("((\"text\" \"plain\" (\"charset\" \"iso-8859-1\") NIL NIL \"quoted-printable\" 827 47 NIL NIL NIL NIL)"
+        "(\"text\" \"html\" (\"charset\" \"iso-8859-1\") NIL NIL \"quoted-printable\" 8406 184 NIL NIL NIL NIL) "
+        "\"alternative\" (\"boundary\" \"----=_NextPart_001_04C4_01CEFBEC.1304AC10\") NIL NIL NIL)"
+        "(\"image\" \"jpeg\" (\"name\" \"image001.jpg\") \"<image001.jpg@01CEFBE3.062418E0>\" NIL \"base64\" 39990 NIL NIL NIL NIL)"
+        "(\"image\" \"jpeg\" (\"name\" \"image002.jpg\") \"<image002.jpg@01CEFBE5.40406E50>\" NIL \"7bit\" 63866 NIL NIL NIL NIL) "
+        "\"related\" (\"boundary\" \"----=_NextPart_000_04C3_01CEFBEC.1304AC10\") NIL (\"de\") NIL");
 const QByteArray bsPlaintextWithFilenameAsName("\"text\" \"plain\" (\"namE\" \"pwn.txt\") NIL NIL NIL 19 2 NIL NIL NIL NIL");
 const QByteArray bsPlaintextWithFilenameAsFilename("\"text\" \"plain\" NIL NIL NIL NIL 19 2 NIL (\"inline\" (\"filenaMe\" \"pwn.txt\")) NIL NIL NIL");
 const QByteArray bsPlaintextWithFilenameAsBoth("\"text\" \"plain\" (\"name\" \"canary\") NIL NIL NIL 19 2 NIL (\"this is not recognized\" (\"filename\" \"pwn.txt\")) NIL NIL NIL");
