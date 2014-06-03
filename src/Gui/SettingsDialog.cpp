@@ -853,27 +853,27 @@ void OutgoingPage::updateWidgets()
     {
         encryption->setVisible(true);
         encryptionLabel->setVisible(true);
-        smtpHost->setEnabled(true);
-        lay->labelForField(smtpHost)->setEnabled(true);
+        smtpHost->setVisible(true);
+        lay->labelForField(smtpHost)->setVisible(true);
         smtpHost->setText(m_smtpAccountSettings->server());
-        smtpPort->setEnabled(true);
-        lay->labelForField(smtpPort)->setEnabled(true);
+        smtpPort->setVisible(true);
+        lay->labelForField(smtpPort)->setVisible(true);
         smtpPort->setText(QString::number(m_smtpAccountSettings->port()));
         smtpPort->setValidator(new QIntValidator(1, 65535, this));
-        smtpAuth->setEnabled(true);
-        lay->labelForField(smtpAuth)->setEnabled(true);
+        smtpAuth->setVisible(true);
+        lay->labelForField(smtpAuth)->setVisible(true);
         bool authEnabled = m_smtpAccountSettings->authenticateEnabled();
         smtpAuth->setChecked(authEnabled);
-        smtpUser->setEnabled(authEnabled);
-        lay->labelForField(smtpUser)->setEnabled(authEnabled);
+        smtpUser->setVisible(authEnabled);
+        lay->labelForField(smtpUser)->setVisible(authEnabled);
         smtpUser->setText(m_smtpAccountSettings->username());
-        sendmail->setEnabled(false);
-        lay->labelForField(sendmail)->setEnabled(false);
-        saveToImap->setEnabled(true);
-        lay->labelForField(saveToImap)->setEnabled(true);
+        sendmail->setVisible(false);
+        lay->labelForField(sendmail)->setVisible(false);
+        saveToImap->setVisible(true);
+        lay->labelForField(saveToImap)->setVisible(true);
         saveToImap->setChecked(m_smtpAccountSettings->saveToImap());
-        smtpBurl->setEnabled(saveToImap->isChecked());
-        lay->labelForField(smtpBurl)->setEnabled(saveToImap->isChecked());
+        smtpBurl->setVisible(saveToImap->isChecked());
+        lay->labelForField(smtpBurl)->setVisible(saveToImap->isChecked());
         smtpBurl->setChecked(m_smtpAccountSettings->useBurl());
 
         // Toggle the default ports upon changing the delivery method
@@ -882,8 +882,7 @@ void OutgoingPage::updateWidgets()
             smtpPort->setText(QString::number(defaultPort));
         }
 
-        passwordWarning->setVisible(!smtpPass->text().isEmpty());
-        passwordWarning->setEnabled(authEnabled);
+        passwordWarning->setVisible(authEnabled && !smtpPass->text().isEmpty());
         if (m_pwWatcher->isStorageEncrypted()) {
             passwordWarning->setStyleSheet(QString());
             passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
@@ -897,10 +896,11 @@ void OutgoingPage::updateWidgets()
         passwordPluginStatus->setVisible(authEnabled &&
                                          (m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk()));
         passwordPluginStatus->setText(m_pwWatcher->progressMessage());
-        passwordPluginStatus->setEnabled(authEnabled);
 
-        smtpPass->setEnabled(!m_pwWatcher->isWaitingForPlugin() && authEnabled);
-        lay->labelForField(smtpPass)->setEnabled(!m_pwWatcher->isWaitingForPlugin() && authEnabled);
+        smtpPass->setVisible(authEnabled);
+        smtpPass->setEnabled(!m_pwWatcher->isWaitingForPlugin());
+        lay->labelForField(smtpPass)->setVisible(authEnabled);
+        lay->labelForField(smtpPass)->setEnabled(!m_pwWatcher->isWaitingForPlugin());
 
         break;
     }
@@ -908,39 +908,39 @@ void OutgoingPage::updateWidgets()
     case MSA::Account::Method::IMAP_SENDMAIL:
         encryption->setVisible(false);
         encryptionLabel->setVisible(false);
-        smtpHost->setEnabled(false);
-        lay->labelForField(smtpHost)->setEnabled(false);
-        smtpPort->setEnabled(false);
-        lay->labelForField(smtpPort)->setEnabled(false);
-        smtpAuth->setEnabled(false);
-        lay->labelForField(smtpAuth)->setEnabled(false);
-        smtpUser->setEnabled(false);
-        lay->labelForField(smtpUser)->setEnabled(false);
-        smtpPass->setEnabled(false);
-        lay->labelForField(smtpPass)->setEnabled(false);
+        smtpHost->setVisible(false);
+        lay->labelForField(smtpHost)->setVisible(false);
+        smtpPort->setVisible(false);
+        lay->labelForField(smtpPort)->setVisible(false);
+        smtpAuth->setVisible(false);
+        lay->labelForField(smtpAuth)->setVisible(false);
+        smtpUser->setVisible(false);
+        lay->labelForField(smtpUser)->setVisible(false);
+        smtpPass->setVisible(false);
+        lay->labelForField(smtpPass)->setVisible(false);
         if (m_smtpAccountSettings->submissionMethod() == MSA::Account::Method::SENDMAIL) {
-            sendmail->setEnabled(true);
-            lay->labelForField(sendmail)->setEnabled(true);
+            sendmail->setVisible(true);
+            lay->labelForField(sendmail)->setVisible(true);
             sendmail->setText(m_smtpAccountSettings->pathToSendmail());
             if (sendmail->text().isEmpty())
                 sendmail->setText(Common::SettingsNames::sendmailDefaultCmd);
-            saveToImap->setEnabled(true);
+            saveToImap->setVisible(true);
             saveToImap->setChecked(m_smtpAccountSettings->saveToImap());
-            lay->labelForField(saveToImap)->setEnabled(true);
+            lay->labelForField(saveToImap)->setVisible(true);
         } else {
-            sendmail->setEnabled(false);
-            lay->labelForField(sendmail)->setEnabled(false);
+            sendmail->setVisible(false);
+            lay->labelForField(sendmail)->setVisible(false);
             saveToImap->setChecked(true);
-            saveToImap->setEnabled(false);
-            lay->labelForField(saveToImap)->setEnabled(false);
+            saveToImap->setVisible(false);
+            lay->labelForField(saveToImap)->setVisible(false);
         }
-        smtpBurl->setEnabled(false);
-        lay->labelForField(smtpBurl)->setEnabled(false);
+        smtpBurl->setVisible(false);
+        lay->labelForField(smtpBurl)->setVisible(false);
         smtpBurl->setChecked(m_smtpAccountSettings->useBurl());
         passwordPluginStatus->setVisible(false);
     }
-    saveFolderName->setEnabled(saveToImap->isChecked());
-    lay->labelForField(saveFolderName)->setEnabled(saveToImap->isChecked());
+    saveFolderName->setVisible(saveToImap->isChecked());
+    lay->labelForField(saveFolderName)->setVisible(saveToImap->isChecked());
     saveFolderName->setText(m_smtpAccountSettings->sentMailboxName());
 
 }
@@ -949,7 +949,7 @@ void OutgoingPage::save(QSettings &s)
 {
     m_smtpAccountSettings->saveSettings();
 
-    if (smtpAuth->isEnabled() && smtpAuth->isChecked()) {
+    if (smtpAuth->isVisibleTo(this) && smtpAuth->isChecked()) {
         m_pwWatcher->setPassword(smtpPass->text());
     } else {
         emit saved();
@@ -1001,7 +1001,8 @@ bool OutgoingPage::checkValidity() const
 
 bool OutgoingPage::passwordFailures(QString &message) const
 {
-    if (!smtpAuth->isEnabled() || !smtpAuth->isChecked() || m_pwWatcher->didWriteOk()) {
+    // The const_cast is needed as Qt4 does not define the arguement of isVisibleTo as const
+    if (!smtpAuth->isVisibleTo(const_cast<Gui::OutgoingPage*>(this)) || !smtpAuth->isChecked() || m_pwWatcher->didWriteOk()) {
         return false;
     } else {
         message = m_pwWatcher->progressMessage();
