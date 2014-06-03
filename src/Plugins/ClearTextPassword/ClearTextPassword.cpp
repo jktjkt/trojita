@@ -51,7 +51,7 @@ void ClearTextPasswordJob::doStart()
             emit error(PasswordJob::UnknownError, tr("This plugin only supports storing of IMAP and SMTP passwords"));
             break;
         }
-        if (password.type() != QVariant::String) {
+        if (password.type() != QVariant::String || password.toString().isEmpty()) {
             emit error(PasswordJob::NoSuchPassword, QString());
         } else {
             emit passwordAvailable(password.toString());
