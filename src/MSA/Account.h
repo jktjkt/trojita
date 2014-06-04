@@ -67,8 +67,6 @@ public:
 
     static quint16 defaultPort(const Method method);
 
-    void maybeShowPortWarning();
-
     Q_INVOKABLE void saveSettings();
     Q_INVOKABLE void restoreSettings();
 
@@ -96,6 +94,9 @@ public slots:
     void setSaveToImap(const bool selected);
     void setSentMailboxName(const QString &location);
     void setUseBurl(const bool selected);
+
+private slots:
+    void maybeShowPortWarning();
 
 private:
     QSettings *m_settings;

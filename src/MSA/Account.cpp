@@ -23,6 +23,7 @@
 #include <QDebug>
 #include <QObject>
 #include <QSettings>
+#include "Common/InvokeMethod.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "MSA/Account.h"
@@ -294,6 +295,9 @@ void Account::restoreSettings()
     m_saveToImap = m_settings->value(Common::SettingsNames::composerSaveToImapKey, true).toBool();
     m_sentMailboxName = m_settings->value(Common::SettingsNames::composerImapSentKey, QLatin1String("Sent")).toString();
     m_useBurl = m_settings->value(Common::SettingsNames::smtpUseBurlKey, false).toBool();
+
+    // Be sure the GUI has time to react to the port warning status
+    EMIT_LATER_NOARG(this, maybeShowPortWarning);
 }
 
 }
