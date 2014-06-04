@@ -809,6 +809,8 @@ void OutgoingPage::slotSetSubmissionMethod()
     default:
         Q_ASSERT(false);
     }
+    // Toggle the default ports upon changing the delivery method
+    smtpPort->setText(QString::number(m_smtpAccountSettings->port()));
 }
 
 void OutgoingPage::setPortByText(const QString &text)
@@ -875,12 +877,6 @@ void OutgoingPage::updateWidgets()
         smtpBurl->setVisible(saveToImap->isChecked());
         lay->labelForField(smtpBurl)->setVisible(saveToImap->isChecked());
         smtpBurl->setChecked(m_smtpAccountSettings->useBurl());
-
-        // Toggle the default ports upon changing the delivery method
-        int defaultPort = m_smtpAccountSettings->defaultPort(m_smtpAccountSettings->submissionMethod());
-        if (smtpPort->text().isEmpty() || smtpPort->text() != QString::number(defaultPort)) {
-            smtpPort->setText(QString::number(defaultPort));
-        }
 
         passwordWarning->setVisible(authEnabled && !smtpPass->text().isEmpty());
         if (m_pwWatcher->isStorageEncrypted()) {
