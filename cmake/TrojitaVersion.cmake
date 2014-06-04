@@ -80,3 +80,18 @@ if(NSIS)
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.nsi.in ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.nsi)
 endif()
+
+if(UBUNTU_CLICK_MODE)
+    # Configure version in manifest.json on each build
+    if(TROJITA_GIT_VERSION)
+        # strip the leading 'v' to pass click package versioning rules
+        string(REPLACE "v" "" TROJITA_UBUNTU_VERSION ${TROJITA_GIT_VERSION})
+    else()
+        string(REPLACE "v" "" TROJITA_UBUNTU_VERSION ${TROJITA_VERSION})
+    endif()
+    if(NOT "${HOST_ARCH}" STREQUAL "armhf")
+        message(FATAL_ERROR "Your build host architecture is not armhf, cannot create click package for ${HOST_ARCH} at this time")
+    endif()
+    configure_file(${SOURCE_DIR}/qtc_packaging/click_ubuntu/manifest.json
+               ${CMAKE_CURRENT_BINARY_DIR}/manifest.json)
+endif()
