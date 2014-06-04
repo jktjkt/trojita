@@ -41,52 +41,10 @@ int main(int argc, char *argv[])
 
     QGuiApplication app(argc, argv);
 
-    QCommandLineParser parser;
-    parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
-    parser.setApplicationDescription(QGuiApplication::translate("main", "Trojita is a fast Qt IMAP e-mail client"));
-    parser.addHelpOption();
-    QCommandLineOption phoneViewOption(QStringList() << QLatin1String("p") << QLatin1String("phone"), QGuiApplication::translate("main",
-        "If running on Desktop, start in a phone sized window."));
-    parser.addOption(phoneViewOption);
-    QCommandLineOption tabletViewOption(QStringList() << QLatin1String("t") << QLatin1String("tablet"), QGuiApplication::translate("main",
-        "If running on Desktop, start in a tablet sized window."));
-    parser.addOption(tabletViewOption);
-    QCommandLineOption testabilityOption(QLatin1String("testability"), QGuiApplication::translate("main",
-        "DO NOT USE: autopilot sets this automatically"));
-    parser.addOption(testabilityOption);
-    parser.process(app);
-
     QQuickView viewer;
     viewer.setResizeMode(QQuickView::SizeRootObjectToView);
 
-    viewer.engine()->rootContext()->setContextProperty("tablet", QVariant(false));
-    viewer.engine()->rootContext()->setContextProperty("phone", QVariant(false));
-    if (parser.isSet(tabletViewOption)) {
-        qDebug() << "running in tablet mode";
-        viewer.engine()->rootContext()->setContextProperty("tablet", QVariant(true));
-    } else if (parser.isSet(phoneViewOption)) {
-        qDebug() << "running in phone mode";
-        viewer.engine()->rootContext()->setContextProperty("phone", QVariant(true));
-    } else if (qgetenv("QT_QPA_PLATFORM") != "ubuntumirclient") {
-        // Default to tablet size on X11
-        viewer.engine()->rootContext()->setContextProperty("tablet", QVariant(true));
-    }
-
-    if (parser.isSet(testabilityOption) || getenv("QT_LOAD_TESTABILITY")) {
-        QLibrary testLib(QLatin1String("qttestability"));
-        if (testLib.load()) {
-            typedef void (*TasInitialize)(void);
-            TasInitialize initFunction = (TasInitialize)testLib.resolve("qt_testability_init");
-            if (initFunction) {
-                initFunction();
-            } else {
-                qCritical("Library qttestability resolve failed!");
-            }
-        } else {
-            qCritical("Library qttestability load failed!");
-        }
-    }
-
+    // let's first check all standard locations
     QString qmlFile;
     const QString filePath = QLatin1String("qml/trojita/main.qml");
     QStringList paths = QStandardPaths::standardLocations(QStandardPaths::DataLocation);

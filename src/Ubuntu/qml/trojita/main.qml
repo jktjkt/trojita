@@ -32,16 +32,8 @@ MainView{
     applicationName: "net.flaska.trojita"
     automaticOrientation: true
     anchorToKeyboard: true
-    // resize for target device
-    Component.onCompleted: {
-        if (tablet) {
-            width = units.gu(100);
-            height = units.gu(75);
-        } else if (phone) {
-            width = units.gu(40);
-            height = units.gu(75);
-        }
-    }
+    width: units.gu(100)
+    height: units.gu(75)
 
     property bool networkOffline: true
     property Item fwdOnePage: null
