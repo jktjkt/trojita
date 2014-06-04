@@ -908,12 +908,15 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpHost)->setVisible(false);
         smtpPort->setVisible(false);
         lay->labelForField(smtpPort)->setVisible(false);
+        showPortWarning(QString());
         smtpAuth->setVisible(false);
         lay->labelForField(smtpAuth)->setVisible(false);
         smtpUser->setVisible(false);
         lay->labelForField(smtpUser)->setVisible(false);
         smtpPass->setVisible(false);
         lay->labelForField(smtpPass)->setVisible(false);
+        passwordWarning->setVisible(false);
+        passwordPluginStatus->setVisible(false);
         if (m_smtpAccountSettings->submissionMethod() == MSA::Account::Method::SENDMAIL) {
             sendmail->setVisible(true);
             lay->labelForField(sendmail)->setVisible(true);
