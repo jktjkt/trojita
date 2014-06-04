@@ -3,6 +3,25 @@ if(WITH_UBUNTU)
     set(WITH_QT5 ON)
 endif()
 
+if(UBUNTU_CLICK_MODE)
+    find_program(DPKG_ARCHITECTURE_EXECUTABLE dpkg-architecture)
+    if(DPKG_ARCHITECTURE_EXECUTABLE)
+        execute_process(
+            COMMAND ${DPKG_ARCHITECTURE_EXECUTABLE} -qDEB_HOST_MULTIARCH
+            OUTPUT_VARIABLE ARCH_TRIPLET
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            # Get the build host arch and test it is armhf, since
+            # CMAKE_LIBRARY_ARCHITECTURE and CMAKE_SYSTEM_PROCESSOR don't contain
+            # any value inside the click chroot?? query the DEB_HOST_ARCH
+            COMMAND ${DPKG_ARCHITECTURE_EXECUTABLE} -qDEB_HOST_ARCH
+            OUTPUT_VARIABLE HOST_ARCH
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+        )
+    else()
+        message(FATAL_ERROR "Ubuntu click mode requires dpkg-architecture be installed, stopping build")
+    endif()
+endif()
+
 if(WITH_QT5)
     # The Qt5's qt5_use_modules is only available on 2.8.9 or later -- sweet, isn't it?
     cmake_minimum_required(VERSION 2.8.9)
@@ -43,10 +62,11 @@ include(TrojitaOption)
 trojita_option(WITH_DESKTOP "Build desktop version" ON)
 trojita_option(WITH_HARMATTAN "Build MeeGo Harmattan version" OFF "NOT WITH_DESKTOP")
 trojita_option(WITH_UBUNTU "Build for the Ubuntu SDK" OFF "NOT WITH_DESKTOP;WITH_QT5")
+trojita_option(UBUNTU_CLICK_MODE "Installs Ubuntu UI to a contained location" OFF "WITH_UBUNTU")
 trojita_option(WITH_QT5 "Build with Qt5 library" OFF)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
-trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
+trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON "NOT UBUNTU_CLICK_MODE")
 trojita_option(WITH_TESTS "Build tests" ON "NOT WITH_HARMATTAN")
 trojita_option(DEV_FATAL_WARNINGS "Turn build warnings into errors (developers only)" OFF)
 
@@ -55,7 +75,7 @@ if(WIN32)
 endif()
 
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
-trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN")
+trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN;NOT WITH_UBUNTU")
 
 if(WITH_QT5)
     message(STATUS "Building the Qt5 version")
@@ -574,7 +594,7 @@ endif()
 
 add_custom_target(version DEPENDS version_fake_file)
 add_custom_command(OUTPUT version_fake_file ${version_files}
-    COMMAND ${CMAKE_COMMAND} -DGIT_EXECUTABLE=${GIT_EXECUTABLE} -DNSIS=${NSIS} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/TrojitaVersion.cmake)
+    COMMAND ${CMAKE_COMMAND} -DGIT_EXECUTABLE=${GIT_EXECUTABLE} -DNSIS=${NSIS} -DUBUNTU_CLICK_MODE=${UBUNTU_CLICK_MODE} -DHOST_ARCH=${HOST_ARCH} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/TrojitaVersion.cmake)
 set_source_files_properties(${version_files}
     PROPERTIES GENERATED TRUE
     HEADER_FILE_ONLY TRUE)
@@ -764,6 +784,12 @@ if(WITH_UBUNTU)
 
     set(TROJITA_UBUNTU_PATH ${CMAKE_CURRENT_SOURCE_DIR}/src/Ubuntu)
     set(AUTOPILOT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tests/autopilot/trojita)
+    set(CLICK_MANIFESTS
+        ${CMAKE_CURRENT_SOURCE_DIR}/qtc_packaging/click_ubuntu/trojita.json
+        ${CMAKE_CURRENT_SOURCE_DIR}/qtc_packaging/click_ubuntu/.excludes
+    )
+    set(CLICK_PKG_MANIFEST ${CMAKE_CURRENT_SOURCE_DIR}/qtc_packaging/click_ubuntu/manifest.json)
+    set(TROJITA_DESKTOP_FILE ${TROJITA_UBUNTU_PATH}/trojita-ubu.desktop)
 
     set(UBUNTU_QMLS
         ${TROJITA_UBUNTU_PATH}/qml/trojita/AddressWidget.qml
@@ -807,15 +833,15 @@ if(WITH_UBUNTU)
         ${AUTOPILOT_DIR}/tests/test_trojita.py
     )
 
-    #make QML visable to QtCreator
+    #make files visible to QtCreator
     add_custom_target(
-        components_QmlFiles
-        ALL SOURCES ${UBUNTU_QMLS}
-    )
-    # make autopilot tests visible in QtCreator
-    add_custom_target(
-        autopilot_Files
-        ALL SOURCES ${AUTOPILOT_FILES}
+        ubuntu_Files
+        ALL SOURCES
+        ${CLICK_MANIFESTS}
+        ${CLICK_PKG_MANIFEST}
+        ${UBUNTU_QMLS}
+        ${TROJITA_DESKTOP_FILE}
+        ${AUTOPILOT_FILES}
     )
 
     add_custom_target(ubuntu_QmlComponents ALL
@@ -825,33 +851,58 @@ if(WITH_UBUNTU)
         COMMENT "Copying QML files to build tree"
     )
 
-    install(
-        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qml
-        DESTINATION share/trojita-ubu
-    )
+    if(UBUNTU_CLICK_MODE)
+        if(NOT "${CMAKE_INSTALL_PREFIX}" STREQUAL "/")
+            message(FATAL_ERROR "For Click packaging CMAKE_INSTALL_PREFIX needs to be set to: / and not: ${CMAKE_INSTALL_PREFIX}")
+        endif()
+        set(DATA_DIR ${CMAKE_INSTALL_PREFIX})
+        # This magic variable is set by the qtc_chroot_cmake2 script in the ubuntu sdk plugin
+        # http://bazaar.launchpad.net/~ubuntu-sdk-team/qtcreator-plugin-ubuntu/trunk/view/head:/share/qtcreator/ubuntu/scripts/qtc_chroot_cmake2
+        # It doesn't hurt to ignore this if we are not building from QtCreator.
+        if(QT_IMPORTS_DIR)
+            set(QT_IMPORTS_DIR ${QT_IMPORTS_DIR})
+        endif()
+        set(BIN_DIR lib/${ARCH_TRIPLET}/bin)
+        set(ICON trojita-ubu.png)
+        set(ICON_DIR ${DATA_DIR})
+        set(DESKTOP_DIR ${DATA_DIR})
+    else()
+        set(BIN_DIR bin)
+        set(DATA_DIR share/trojita-ubu)
+        set(ICON /usr/share/icons/hicolor/64x64/apps/trojita-ubu.png)
+        set(ICON_DIR share/icons/hicolor/64x64/apps)
+        set(DESKTOP_DIR share/applications)
+    endif()
+
+    configure_file(${TROJITA_DESKTOP_FILE} ${CMAKE_CURRENT_BINARY_DIR}/trojita-ubu.desktop)
 
     install(
-        TARGETS trojita-ubu
-        RUNTIME DESTINATION bin
-    )
-    copy_desktop_file_without_cruft("${TROJITA_UBUNTU_PATH}/trojita-ubu.desktop" "${CMAKE_CURRENT_BINARY_DIR}/trojita-ubu.desktop")
-    install(
         FILES ${CMAKE_CURRENT_BINARY_DIR}/trojita-ubu.desktop
-        DESTINATION share/applications
+        DESTINATION ${DESKTOP_DIR}
     )
 
     install(
         FILES ${TROJITA_UBUNTU_PATH}/trojita-ubu.png
-        DESTINATION share/icons/hicolor/64x64/apps
+        DESTINATION ${ICON_DIR}
     )
 
-    execute_process(COMMAND python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
-        OUTPUT_VARIABLE PYTHON_PACKAGE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE
+    install(
+        DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/qml
+        DESTINATION ${DATA_DIR}
     )
 
-    install(DIRECTORY ${AUTOPILOT_DIR}
-        DESTINATION ${PYTHON_PACKAGE_DIR}
+    install(
+        TARGETS trojita-ubu
+        DESTINATION ${BIN_DIR}
     )
+    if(UBUNTU_CLICK_MODE)
+        install(FILES
+            ${CLICK_PKG_MANIFEST}
+            ${CLICK_MANIFESTS}
+            DESTINATION ${DATA_DIR}
+        )
+    endif()
+
 endif()
 
 if(WITH_HARMATTAN)
@@ -956,6 +1007,20 @@ if(WITH_TESTS)
     trojita_test(Misc SqlCache)
     trojita_test(Misc algorithms)
     trojita_test(Misc rfccodecs)
+
+    if(WITH_UBUNTU)
+        find_program(PYTHON3_EXECUTABLE python3)
+        if(PYTHON3_EXECUTABLE)
+            execute_process(COMMAND ${PYTHON3_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+                OUTPUT_VARIABLE PYTHON_PACKAGE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE
+            )
+            install(DIRECTORY ${AUTOPILOT_DIR}
+                DESTINATION ${PYTHON_PACKAGE_DIR}
+            )
+        else()
+            message(SEND_ERROR "Python3 executable not found, autopilot tests will not been installed")
+        endif()
+    endif()
 endif()
 
 if(WIN32) # Check if we are on Windows

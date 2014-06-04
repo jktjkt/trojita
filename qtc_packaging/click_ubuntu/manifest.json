@@ -1,0 +1,15 @@
+{
+    "name": "net.flaska.trojita",
+    "description": "Trojitá, a fast Qt IMAP e-mail client",
+    "framework": "ubuntu-sdk-14.04-qml-dev1",
+    "architecture": "armhf",
+    "title": "trojita",
+    "hooks": {
+        "trojita": {
+            "apparmor": "trojita.json",
+            "desktop": "trojita-ubu.desktop"
+        }
+    },
+    "version": "@TROJITA_GIT_VERSION@",
+    "maintainer": "Trojitá Developers <trojita@lists.flaska.net>"
+}
