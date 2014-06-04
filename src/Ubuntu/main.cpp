@@ -56,6 +56,18 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    if (qmlFile.isEmpty()) {
+        // ok not a standard location, lets see if we can find trojita.json, to see if we are a click package
+        QString manifestPath = QDir(QCoreApplication::applicationDirPath()).absoluteFilePath("../../../trojita.json");
+        if (QFile::exists(manifestPath)) {
+            // we are a click so lets tidy up our manifest path and find qmlfile
+            QDir clickRoot = QFileInfo(manifestPath).absoluteDir();
+            QString myPath = clickRoot.absolutePath() + QLatin1Char('/') + filePath;
+            if (QFile::exists(myPath)) {
+                qmlFile = myPath;
+            }
+        }
+    }
     // sanity check
     if (qmlFile.isEmpty()) {
         qFatal("File: %s does not exist at any of the standard paths!", qPrintable(filePath));
