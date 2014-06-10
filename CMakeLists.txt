@@ -585,6 +585,7 @@ add_dependencies(Common version)
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(AppVersion STATIC ${libAppVersion_SOURCES})
+set_property(TARGET AppVersion APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 add_dependencies(AppVersion version)
 target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
 
@@ -595,6 +596,7 @@ else()
     set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS QT_STATICPLUGIN)
 endif()
 set_target_properties(Plugins PROPERTIES OUTPUT_NAME trojita_plugins)
+set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 if(WITH_QT5)
     qt5_use_modules(Plugins Core)
 else()
@@ -606,6 +608,7 @@ set_property(TARGET UiUtils APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_
 target_link_libraries(UiUtils Plugins ${QT_QTCORE_LIBRARY})
 
 add_library(Streams STATIC ${libStreams_SOURCES})
+set_property(TARGET Streams APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
     target_link_libraries(Streams ${ZLIB_LIBRARIES})
