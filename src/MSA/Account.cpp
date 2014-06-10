@@ -200,7 +200,7 @@ void Account::maybeShowPortWarning()
     QString portWarn;
     const int defPort = defaultPort(m_msaSubmissionMethod);
     if (m_port != defPort) {
-        portWarn = QString("This port is nonstandard. The default port is %1").arg(defPort);
+        portWarn = tr("This port is nonstandard. The default port is %1").arg(defPort);
     }
 
     emit showPortWarning(portWarn);
