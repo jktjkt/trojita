@@ -160,6 +160,8 @@ enum {
 
     /** @short Fetch a part from the cache if it's available, but do not request it from the server */
     RolePartForceFetchFromCache,
+    /** @short Pointer to the internal buffer */
+    RolePartBufferPtr,
 
     /** @short True if the item in the tasks list is actually a ParserState
 

@@ -46,21 +46,18 @@ MsgPartNetworkReply::MsgPartNetworkReply(MsgPartNetAccessManager *parent, const 
 
     setOpenMode(QIODevice::ReadOnly | QIODevice::Unbuffered);
     Q_ASSERT(part.isValid());
-    const Mailbox::Model *model = 0;
-    Mailbox::Model::realTreeItem(part, &model);
-    Q_ASSERT(model);
 
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotModelDataChanged(QModelIndex,QModelIndex)));
-
-    Mailbox::TreeItemPart *partPtr = dynamic_cast<Mailbox::TreeItemPart *>(static_cast<Mailbox::TreeItem *>(part.internalPointer()));
-    Q_ASSERT(partPtr);
+    connect(part.model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotModelDataChanged(QModelIndex,QModelIndex)));
 
     // We have to ask for contents before we check whether it's already fetched
-    partPtr->fetch(const_cast<Mailbox::Model *>(model));
+    part.data(Imap::Mailbox::RolePartData);
+
     // The part data might be already unavailable or already fetched
     QTimer::singleShot(0, this, SLOT(slotMyDataChanged()));
 
-    buffer.setBuffer(partPtr->dataPtr());
+    QByteArray* bufferPtr = part.data(Imap::Mailbox::RolePartBufferPtr).value<QByteArray*>();
+    Q_ASSERT(bufferPtr);
+    buffer.setBuffer(bufferPtr);
     buffer.open(QIODevice::ReadOnly);
 }
 

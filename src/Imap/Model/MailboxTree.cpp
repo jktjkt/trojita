@@ -1466,6 +1466,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
     case RolePartForceFetchFromCache:
         fetchFromCache(model);
         return QVariant();
+    case RolePartBufferPtr:
+        return QVariant::fromValue(dataPtr());
     }
 
 

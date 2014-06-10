@@ -35,14 +35,6 @@ class PartWidgetFactory;
 namespace Imap
 {
 
-namespace Mailbox
-{
-class Model;
-class TreeItem;
-class TreeItemMessage;
-class TreeItemPart;
-}
-
 namespace Network
 {
 

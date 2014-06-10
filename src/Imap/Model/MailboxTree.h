@@ -414,4 +414,6 @@ public:
 
 }
 
+Q_DECLARE_METATYPE(QByteArray*)
+
 #endif // IMAP_MAILBOXTREE_H
