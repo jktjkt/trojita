@@ -96,37 +96,42 @@ void DiskPartCache::clearMessage(const QString mailbox, const uint uid)
     }
 }
 
-QByteArray DiskPartCache::messagePart(const QString &mailbox, const uint uid, const QString &partId) const
+QByteArray DiskPartCache::messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const
 {
-    QFile buf(QString::fromUtf8("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), partId));
+    QFile buf(fileForPart(mailbox, uid, partId));
     if (! buf.open(QIODevice::ReadOnly)) {
         return QByteArray();
     }
     return qUncompress(buf.readAll());
 }
 
-void DiskPartCache::setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data)
+void DiskPartCache::setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data)
 {
     QString myPath = dirForMailbox(mailbox);
     QDir dir(myPath);
     dir.mkpath(myPath);
-    QString fileName = QString::fromUtf8("%1/%2_%3.cache").arg(myPath, QString::number(uid), partId);
+    QString fileName(fileForPart(mailbox, uid, partId));
     QFile buf(fileName);
     if (! buf.open(QIODevice::WriteOnly)) {
         emit error(tr("Couldn't save the part %1 of message %2 (mailbox %3) into file %4: %5 (%6)").arg(
-                       partId, QString::number(uid), mailbox, fileName, buf.errorString(), fileErrorToString(buf.error())));
+                       QString::fromUtf8(partId), QString::number(uid), mailbox, fileName, buf.errorString(), fileErrorToString(buf.error())));
     }
     buf.write(qCompress(data));
 }
 
-void DiskPartCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+void DiskPartCache::forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId)
 {
-    QFile(QString::fromUtf8("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), partId)).remove();
+    QFile(fileForPart(mailbox, uid, partId)).remove();
 }
 
 QString DiskPartCache::dirForMailbox(const QString &mailbox) const
 {
     return cacheDir + QString::fromUtf8(mailbox.toUtf8().toBase64());
+}
+
+QString DiskPartCache::fileForPart(const QString &mailbox, const uint uid, const QByteArray &partId) const
+{
+    return QString::fromUtf8("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), QString::fromUtf8(partId));
 }
 
 }

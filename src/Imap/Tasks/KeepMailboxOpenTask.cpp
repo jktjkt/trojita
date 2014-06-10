@@ -440,7 +440,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
                                                 // No messages, or no messages with valid UID -> use the UIDNEXT from the syncing state
                                                 // but prevent a possible invalid 0:*
                                                 qMax(mailbox->syncState.uidNext(), 1u)
-                                            ), QStringList() << QLatin1String("FLAGS")));
+                                            ), QList<QByteArray>() << "FLAGS"));
         model->m_taskModel->slotTaskMighHaveChanged(this);
         return true;
     } else if (resp->kind == Imap::Responses::RECENT) {
@@ -728,7 +728,7 @@ void KeepMailboxOpenTask::activateTasks()
         idleLauncher->enterIdleLater();
 }
 
-void KeepMailboxOpenTask::requestPartDownload(const uint uid, const QString &partId, const uint estimatedSize)
+void KeepMailboxOpenTask::requestPartDownload(const uint uid, const QByteArray &partId, const uint estimatedSize)
 {
     requestedParts[uid].insert(partId);
     requestedPartSizes[uid] += estimatedSize;
@@ -754,8 +754,8 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
 
     breakOrCancelPossibleIdle();
 
-    QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
-    QSet<QString> parts = *it;
+    auto it = requestedParts.begin();
+    auto parts = *it;
 
     // When asked to exit, do as much as possible and die
     while (shouldExit || fetchPartTasks.size() < limitParallelFetchTasks) {

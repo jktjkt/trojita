@@ -101,7 +101,7 @@ FetchMsgMetadataTask *TaskFactory::createFetchMsgMetadataTask(Model *model, cons
     return new FetchMsgMetadataTask(model, mailbox, uids);
 }
 
-FetchMsgPartTask *TaskFactory::createFetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts)
+FetchMsgPartTask *TaskFactory::createFetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QList<QByteArray> &parts)
 {
     return new FetchMsgPartTask(model, mailbox, uids, parts);
 }

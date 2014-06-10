@@ -314,7 +314,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                         if (seqWithLowestUnknownUid >= 0) {
                             // We've got some new arrivals, but unfortunately QRESYNC won't report them just yet :(
                             CommandHandle fetchCmd = parser->uidFetch(Sequence::startingAt(qMax(oldSyncState.uidNext(), 1u)),
-                                                                      QStringList() << QLatin1String("FLAGS"));
+                                                                      QList<QByteArray>() << "FLAGS");
                             newArrivalsFetch.append(fetchCmd);
                             status = STATE_DONE;
                         } else {
@@ -740,7 +740,7 @@ bool ObtainSynchronizedMailboxTask::handleNumberResponse(const Imap::Responses::
             CommandHandle fetchCmd = parser->uidFetch(Sequence::startingAt(
                                                     // prevent a possible invalid 0:*
                                                     qMax(mailbox->syncState.uidNext(), 1u)
-                                                ), QStringList() << QLatin1String("FLAGS"));
+                                                ), QList<QByteArray>() << "FLAGS");
             newArrivalsFetch.append(fetchCmd);
             return true;
         }

@@ -131,7 +131,7 @@ private:
 /** @short Part of a message stored in an IMAP server */
 class ImapPartAttachmentItem: public AttachmentItem {
 public:
-    ImapPartAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid, const QString &trojitaPath);
+    ImapPartAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid, const QByteArray &trojitaPath);
     ~ImapPartAttachmentItem();
 
     virtual QString caption() const;

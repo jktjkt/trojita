@@ -376,7 +376,7 @@ void ComposerSubmissionTest::helperAttachImapPart(const uint uid)
     QByteArray encodedData;
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_4_6);
-    stream << QString::fromUtf8("a") << uidValidityA << uid << QString::fromUtf8("0");
+    stream << QString::fromUtf8("a") << uidValidityA << uid << QByteArray("/0"); // previous version used just "0"; that was wrong.
     mimeData->setData(QLatin1String("application/x-trojita-imap-part"), encodedData);
     QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }

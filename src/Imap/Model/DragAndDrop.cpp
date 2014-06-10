@@ -39,7 +39,7 @@ QMimeData *mimeDataForDragAndDrop(const QModelIndex &index)
     stream << index.data(RoleMailboxName).toString() <<
               index.data(RoleMailboxUidValidity).toUInt() <<
               index.data(RoleMessageUid).toUInt() <<
-              index.data(RolePartPathToPart).toString();
+              index.data(RolePartPathToPart).toByteArray();
 
     QMimeData *mimeData = new QMimeData;
     mimeData->setData(QLatin1String("application/x-trojita-imap-part"), buf);

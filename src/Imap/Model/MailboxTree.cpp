@@ -496,7 +496,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                     changedParts.append(part->m_partRaw);
                     if (message->uid()) {
                         model->cache()->forgetMessagePart(mailbox(), message->uid(), part->partId());
-                        model->cache()->setMsgPart(mailbox(), message->uid(), part->partId() + QLatin1String(".X-RAW"), data);
+                        model->cache()->setMsgPart(mailbox(), message->uid(), part->partId() + ".X-RAW", data);
                     }
                 }
 
@@ -509,7 +509,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                     part->setFetchStatus(DONE);
                     changedParts.append(part);
                     if (message->uid()
-                            && model->cache()->messagePart(mailbox(), message->uid(), part->partId() + QLatin1String(".X-RAW")).isNull()) {
+                            && model->cache()->messagePart(mailbox(), message->uid(), part->partId() + ".X-RAW").isNull()) {
                         // Do not store the data into cache if the raw data are already there
                         model->cache()->setMsgPart(mailbox(), message->uid(), part->partId(), part->m_data);
                     }
@@ -772,46 +772,42 @@ void TreeItemMailbox::handleExists(Model *const model, const Responses::NumberRe
     model->emitMessageCountChanged(this);
 }
 
-TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *message, const QString &msgId)
+TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *message, const QByteArray &msgId)
 {
-    QString partIdentification;
-    if (msgId.startsWith(QLatin1String("BODY["))) {
+    QByteArray partIdentification;
+    if (msgId.startsWith("BODY[")) {
         partIdentification = msgId.mid(5, msgId.size() - 6);
-    } else if (msgId.startsWith(QLatin1String("BODY.PEEK["))) {
+    } else if (msgId.startsWith("BODY.PEEK[")) {
         partIdentification = msgId.mid(10, msgId.size() - 11);
-    } else if (msgId.startsWith(QLatin1String("BINARY.PEEK["))) {
+    } else if (msgId.startsWith("BINARY.PEEK[")) {
         partIdentification = msgId.mid(12, msgId.size() - 13);
-    } else if (msgId.startsWith(QLatin1String("BINARY["))) {
+    } else if (msgId.startsWith("BINARY[")) {
         partIdentification = msgId.mid(7, msgId.size() - 8);
     } else {
-        throw UnknownMessageIndex(QString::fromUtf8("Fetch identifier doesn't start with reasonable prefix: %1").arg(msgId).toUtf8().constData());
+        throw UnknownMessageIndex(("Fetch identifier doesn't start with reasonable prefix: " + msgId).constData());
     }
 
     TreeItem *item = message;
     Q_ASSERT(item);
-    QStringList separated = partIdentification.split('.');
-    for (QStringList::const_iterator it = separated.constBegin(); it != separated.constEnd(); ++it) {
+    QList<QByteArray> separated = partIdentification.split('.');
+    for (QList<QByteArray>::const_iterator it = separated.constBegin(); it != separated.constEnd(); ++it) {
         bool ok;
         uint number = it->toUInt(&ok);
         if (!ok) {
             // It isn't a number, so let's check for that special modifiers
             if (it + 1 != separated.constEnd()) {
                 // If it isn't at the very end, it's an error
-                throw UnknownMessageIndex(
-                    QString::fromUtf8("Part offset contains non-numeric identifiers in the middle: %1")
-                    .arg(msgId).toUtf8().constData());
+                throw UnknownMessageIndex(("Part offset contains non-numeric identifiers in the middle: " + msgId).constData());
             }
             // Recognize the valid modifiers
-            if (*it == QLatin1String("HEADER"))
+            if (*it == "HEADER")
                 item = item->specialColumnPtr(0, OFFSET_HEADER);
-            else if (*it == QLatin1String("TEXT"))
+            else if (*it == "TEXT")
                 item = item->specialColumnPtr(0, OFFSET_TEXT);
-            else if (*it == QLatin1String("MIME"))
+            else if (*it == "MIME")
                 item = item->specialColumnPtr(0, OFFSET_MIME);
             else
-                throw UnknownMessageIndex(QString::fromUtf8(
-                                              "Can't translate received offset of the message part to a number: %1")
-                                          .arg(msgId).toUtf8().constData());
+                throw UnknownMessageIndex(("Can't translate received offset of the message part to a number: " + msgId).constData());
             break;
         }
 
@@ -824,7 +820,7 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
             throw UnknownMessageIndex(QString::fromUtf8(
                                           "Offset of the message part not found: message %1 (UID %2), current number %3, full identification %4")
                                       .arg(QString::number(message->row()), QString::number(message->uid()),
-                                           QString::number(number), msgId).toUtf8().constData());
+                                           QString::number(number), QString::fromUtf8(msgId)).toUtf8().constData());
         }
     }
     TreeItemPart *part = dynamic_cast<TreeItemPart *>(item);
@@ -1479,7 +1475,7 @@ QVariant TreeItemPart::data(Model *const model, int role)
         if (role == Qt::DisplayRole) {
             return isTopLevelMultiPart() ?
                    Model::tr("[loading %1...]").arg(QString::fromUtf8(m_mimeType)) :
-                   Model::tr("[loading %1: %2...]").arg(partId(), QString::fromUtf8(m_mimeType));
+                   Model::tr("[loading %1: %2...]").arg(QString::fromUtf8(partId()), QString::fromUtf8(m_mimeType));
         } else {
             return QVariant();
         }
@@ -1489,7 +1485,7 @@ QVariant TreeItemPart::data(Model *const model, int role)
     case Qt::DisplayRole:
         return isTopLevelMultiPart() ?
                QString::fromUtf8(m_mimeType) :
-               QString::fromUtf8("%1: %2").arg(partId(), QString::fromUtf8(m_mimeType));
+               QString::fromUtf8("%1: %2").arg(QString::fromUtf8(partId()), QString::fromUtf8(m_mimeType));
     case Qt::ToolTipRole:
         return QString::fromUtf8("%1 bytes of data").arg(m_data.size());
     case RolePartData:
@@ -1514,14 +1510,14 @@ bool TreeItemPart::isTopLevelMultiPart() const
     return m_mimeType.startsWith("multipart/") && (msg || (part && part->m_mimeType.startsWith("message/")));
 }
 
-QString TreeItemPart::partId() const
+QByteArray TreeItemPart::partId() const
 {
     if (isTopLevelMultiPart()) {
-        return QString();
+        return QByteArray();
     } else if (dynamic_cast<TreeItemMessage *>(parent())) {
-        return QString::number(row() + 1);
+        return QByteArray::number(row() + 1);
     } else {
-        QString parentId;
+        QByteArray parentId;
         TreeItemPart *parentPart = dynamic_cast<TreeItemPart *>(parent());
         Q_ASSERT(parentPart);
         if (parentPart->isTopLevelMultiPart()) {
@@ -1531,32 +1527,32 @@ QString TreeItemPart::partId() const
                 parentId = parentOfParent->partId();
             } else {
                 // grand parent: TreeItemMessage, parent: some multipart, me: some part
-                return QString::number(row() + 1);
+                return QByteArray::number(row() + 1);
             }
         } else {
             parentId = parentPart->partId();
         }
         Q_ASSERT(!parentId.isEmpty());
-        return parentId + QChar('.') + QString::number(row() + 1);
+        return parentId + '.' + QByteArray::number(row() + 1);
     }
 }
 
-QString TreeItemPart::partIdForFetch(const PartFetchingMode mode) const
+QByteArray TreeItemPart::partIdForFetch(const PartFetchingMode mode) const
 {
-    return QString::fromUtf8(mode == FETCH_PART_BINARY ? "BINARY.PEEK[%1]" : "BODY.PEEK[%1]").arg(partId());
+    return QByteArray(mode == FETCH_PART_BINARY ? "BINARY" : "BODY") + ".PEEK[" + partId() + "]";
 }
 
-QString TreeItemPart::pathToPart() const
+QByteArray TreeItemPart::pathToPart() const
 {
     TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent());
     TreeItemMessage *msg = dynamic_cast<TreeItemMessage *>(parent());
     if (part)
-        return part->pathToPart() + QLatin1Char('/') + QString::number(row());
+        return part->pathToPart() + '/' + QByteArray::number(row());
     else if (msg)
-        return QLatin1Char('/') + QString::number(row());
+        return '/' + QByteArray::number(row());
     else {
         Q_ASSERT(false);
-        return QString();
+        return QByteArray();
     }
 }
 
@@ -1664,21 +1660,21 @@ unsigned int TreeItemModifiedPart::columnCount()
     return 0;
 }
 
-QString TreeItemModifiedPart::partId() const
+QByteArray TreeItemModifiedPart::partId() const
 {
     if (m_modifier == OFFSET_RAW_CONTENTS) {
         // This item is not directly fetcheable, so it does *not* make sense to ask for it.
         // We cannot really assert at this point, though, because this function is published via the MVC interface.
-        return QLatin1String("application-bug-dont-fetch-this");
+        return "application-bug-dont-fetch-this";
     } else if (TreeItemPart *part = dynamic_cast<TreeItemPart *>(parent())) {
         // The TreeItemPart is supposed to prevent creation of any special subparts if it's a top-level multipart
         Q_ASSERT(!part->isTopLevelMultiPart());
-        return part->partId() + QLatin1Char('.') + modifierToString();
+        return part->partId() + '.' + modifierToByteArray();
     } else {
         // Our parent is a message/rfc822, and it's definitely not nested -> no need for parent id here
         // Cannot assert() on a dynamic_cast<TreeItemMessage*> at this point because the part is already nullptr at this time
         Q_ASSERT(dynamic_cast<TreeItemMessage*>(parent()));
-        return modifierToString();
+        return modifierToByteArray();
     }
 }
 
@@ -1687,31 +1683,31 @@ TreeItem::PartModifier TreeItemModifiedPart::kind() const
     return m_modifier;
 }
 
-QString TreeItemModifiedPart::modifierToString() const
+QByteArray TreeItemModifiedPart::modifierToByteArray() const
 {
     switch (m_modifier) {
     case OFFSET_HEADER:
-        return QLatin1String("HEADER");
+        return "HEADER";
     case OFFSET_TEXT:
-        return QLatin1String("TEXT");
+        return "TEXT";
     case OFFSET_MIME:
-        return QLatin1String("MIME");
+        return "MIME";
     case OFFSET_RAW_CONTENTS:
         Q_ASSERT(!"Cannot get the fetch modifier for an OFFSET_RAW_CONTENTS item");
         // fall through
     default:
         Q_ASSERT(false);
-        return QString();
+        return QByteArray();
     }
 }
 
-QString TreeItemModifiedPart::pathToPart() const
+QByteArray TreeItemModifiedPart::pathToPart() const
 {
     if (TreeItemPart *parentPart = dynamic_cast<TreeItemPart *>(parent())) {
-        return QString::fromUtf8("%1/%2").arg(parentPart->pathToPart(), modifierToString());
+        return parentPart->pathToPart() + "/" + modifierToByteArray();
     } else {
         Q_ASSERT(dynamic_cast<TreeItemMessage *>(parent()));
-        return QString::fromUtf8("/%1").arg(modifierToString());
+        return "/" + modifierToByteArray();
     }
 }
 
@@ -1722,7 +1718,7 @@ QModelIndex TreeItemModifiedPart::toIndex(Model *const model) const
     return model->createIndex(row(), static_cast<int>(kind()), const_cast<TreeItemModifiedPart *>(this));
 }
 
-QString TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) const
+QByteArray TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) const
 {
     Q_UNUSED(mode);
     // Don't try to use BINARY for special message parts, it's forbidden. One can only use that for the "regular" MIME parts

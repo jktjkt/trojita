@@ -32,7 +32,7 @@ namespace Imap
 namespace Mailbox
 {
 
-FetchMsgPartTask::FetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts):
+FetchMsgPartTask::FetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QList<QByteArray> &parts):
     ImapTask(model), uids(uids), parts(parts), mailboxIndex(mailbox)
 {
     Q_ASSERT(!uids.isEmpty());
@@ -81,8 +81,8 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
             Q_ASSERT(mailbox);
             QList<TreeItemMessage *> messages = model->findMessagesByUids(mailbox, uids);
             Q_FOREACH(TreeItemMessage *message, messages) {
-                Q_FOREACH(const QString &partId, parts) {
-                    log(QLatin1String("Fetched part") + partId, Common::LOG_MESSAGES);
+                Q_FOREACH(const QByteArray &partId, parts) {
+                    log(QLatin1String("Fetched part") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
                     model->finalizeFetchPart(mailbox, message->row() + 1, partId);
                 }
             }
@@ -104,8 +104,12 @@ QString FetchMsgPartTask::debugIdentification() const
         return QLatin1String("[invalid mailbox]");
 
     Q_ASSERT(!uids.isEmpty());
+    QStringList buf;
+    Q_FOREACH(const QByteArray &item, parts) {
+        buf << QString::fromUtf8(item);
+    }
     return QString::fromUtf8("%1: parts %2 for UIDs %3")
-           .arg(mailboxIndex.data(RoleMailboxName).toString(), parts.join(QLatin1String(", ")),
+           .arg(mailboxIndex.data(RoleMailboxName).toString(), buf.join(QLatin1String(", ")),
                 QString::fromUtf8(Sequence::fromList(uids).toByteArray()));
 }
 

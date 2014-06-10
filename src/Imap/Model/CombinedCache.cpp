@@ -119,7 +119,7 @@ void CombinedCache::setMessageMetadata(const QString &mailbox, const uint uid, c
     sqlCache->setMessageMetadata(mailbox, uid, metadata);
 }
 
-QByteArray CombinedCache::messagePart(const QString &mailbox, const uint uid, const QString &partId) const
+QByteArray CombinedCache::messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const
 {
     QByteArray res = sqlCache->messagePart(mailbox, uid, partId);
     if (res.isEmpty()) {
@@ -128,7 +128,7 @@ QByteArray CombinedCache::messagePart(const QString &mailbox, const uint uid, co
     return res;
 }
 
-void CombinedCache::setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data)
+void CombinedCache::setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data)
 {
     if (data.size() < 1024 * 1024) {
         sqlCache->setMsgPart(mailbox, uid, partId, data);
@@ -137,7 +137,7 @@ void CombinedCache::setMsgPart(const QString &mailbox, const uint uid, const QSt
     }
 }
 
-void CombinedCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+void CombinedCache::forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId)
 {
     sqlCache->forgetMessagePart(mailbox, uid, partId);
     diskPartCache->forgetMessagePart(mailbox, uid, partId);

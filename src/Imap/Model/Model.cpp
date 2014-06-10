@@ -502,7 +502,7 @@ void Model::emitMessageCountChanged(TreeItemMailbox *const mailbox)
 }
 
 /** @short Retrieval of a message part has completed */
-void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId)
+void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId)
 {
     // At first, verify that the message itself is marked as loaded.
     // If it isn't, it's probably because of Model::releaseMessageData().
@@ -1020,7 +1020,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
     const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid,
                                                   isSpecialRawPart ?
-                                                      itemForFetchOperation->partId() + QLatin1String(".X-RAW")
+                                                      itemForFetchOperation->partId() + ".X-RAW"
                                                     : item->partId());
     if (! data.isNull()) {
         item->m_data = data;
@@ -1030,7 +1030,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
     if (!isSpecialRawPart) {
         const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid,
-                                                      itemForFetchOperation->partId() + QLatin1String(".X-RAW"));
+                                                      itemForFetchOperation->partId() + ".X-RAW");
 
         if (!data.isNull()) {
             Imap::decodeContentTransferEncoding(data, item->encoding(), item->dataPtr());

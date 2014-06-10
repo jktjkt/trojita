@@ -324,7 +324,7 @@ void ImapMessageAttachmentItem::asDroppableMimeData(QDataStream &stream) const
 
 
 ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
-                                               const QString &trojitaPath)
+                                               const QByteArray &trojitaPath)
 {
     TreeItemMailbox *mboxPtr = model->findMailboxByName(mailbox);
     if (!mboxPtr)

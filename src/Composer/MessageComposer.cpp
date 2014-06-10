@@ -242,7 +242,7 @@ bool MessageComposer::dropAttachmentList(QDataStream &stream)
             QString mailbox;
             uint uidValidity;
             uint uid;
-            QString trojitaPath;
+            QByteArray trojitaPath;
             if (!validateDropImapPart(stream, mailbox, uidValidity, uid, trojitaPath))
                 return false;
             try {
@@ -347,7 +347,7 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
 }
 
 /** @short Check that the data representing a single message part are correct */
-bool MessageComposer::validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QString &trojitaPath) const
+bool MessageComposer::validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QByteArray &trojitaPath) const
 {
     stream >> mailbox >> uidValidity >> uid >> trojitaPath;
     if (stream.status() != QDataStream::Ok) {
@@ -378,7 +378,7 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
     QString mailbox;
     uint uidValidity;
     uint uid;
-    QString trojitaPath;
+    QByteArray trojitaPath;
     if (!validateDropImapPart(stream, mailbox, uidValidity, uid, trojitaPath))
         return false;
     if (!stream.atEnd()) {

@@ -106,7 +106,7 @@ void MemoryCache::clearMessage(const QString mailbox, const uint uid)
         parts[mailbox].remove(uid);
 }
 
-void MemoryCache::setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data)
+void MemoryCache::setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "set message part" << mailbox << uid << partId << data.size();
@@ -114,7 +114,7 @@ void MemoryCache::setMsgPart(const QString &mailbox, const uint uid, const QStri
     parts[mailbox][uid][partId] = data;
 }
 
-void MemoryCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+void MemoryCache::forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "forget message part" << mailbox << uid << partId;
@@ -156,14 +156,14 @@ MemoryCache::MessageDataBundle MemoryCache::messageMetadata(const QString &mailb
     return *it;
 }
 
-QByteArray MemoryCache::messagePart(const QString &mailbox, const uint uid, const QString &partId) const
+QByteArray MemoryCache::messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const
 {
     if (! parts.contains(mailbox))
         return QByteArray();
-    const QMap<uint, QMap<QString, QByteArray> > &mailboxParts = parts[ mailbox ];
+    const auto & mailboxParts = parts[mailbox];
     if (! mailboxParts.contains(uid))
         return QByteArray();
-    const QMap<QString, QByteArray> &messageParts = mailboxParts[ uid ];
+    const auto & messageParts = mailboxParts[uid];
     if (! messageParts.contains(partId))
         return QByteArray();
     return messageParts[ partId ];

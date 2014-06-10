@@ -190,7 +190,7 @@ public:
     void saveSyncStateAndUids(Model *model);
 
 private:
-    TreeItemPart *partIdToPtr(Model *model, TreeItemMessage *message, const QString &msgId);
+    TreeItemPart *partIdToPtr(Model *model, TreeItemMessage *message, const QByteArray &msgId);
 
     /** @short ImapTask which is currently responsible for well-being of this mailbox */
     QPointer<KeepMailboxOpenTask> maintainingTask;
@@ -325,7 +325,7 @@ public:
     virtual QVariant data(Model *const model, int role);
     virtual bool hasChildren(Model *const model);
 
-    virtual QString partId() const;
+    virtual QByteArray partId() const;
 
     /** @short Shall we use RFC3516 BINARY for fetching message parts or not */
     typedef enum {
@@ -335,8 +335,8 @@ public:
         FETCH_PART_BINARY
     } PartFetchingMode;
 
-    virtual QString partIdForFetch(const PartFetchingMode fetchingMode) const;
-    virtual QString pathToPart() const;
+    virtual QByteArray partIdForFetch(const PartFetchingMode fetchingMode) const;
+    virtual QByteArray pathToPart() const;
     TreeItemMessage *message() const;
 
     /** @short Provide access to the internal buffer holding data
@@ -384,16 +384,16 @@ public:
     TreeItemModifiedPart(TreeItem *parent, const PartModifier kind);
     virtual int row() const;
     virtual unsigned int columnCount();
-    virtual QString partId() const;
-    virtual QString pathToPart() const;
+    virtual QByteArray partId() const;
+    virtual QByteArray pathToPart() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     PartModifier kind() const;
     virtual QModelIndex toIndex(Model *const model) const;
-    virtual QString partIdForFetch(const PartFetchingMode fetchingMode) const;
+    virtual QByteArray partIdForFetch(const PartFetchingMode fetchingMode) const;
 protected:
     virtual bool isTopLevelMultiPart() const;
 private:
-    QString modifierToString() const;
+    QByteArray modifierToByteArray() const;
 };
 
 /** @short Specialization of TreeItemPart for parts holding a multipart/message */
