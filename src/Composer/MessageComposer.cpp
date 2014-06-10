@@ -548,21 +548,19 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     target->write(recipientHeaders);
 
     // Other message metadata
-    target->write(encodeHeaderField(QLatin1String("Subject: ") + m_subject).append("\r\n").
-            append("Date: ").append(Imap::dateTimeToRfc2822(m_timestamp)).append("\r\n").
-            append("User-Agent: ").append(
-                QString::fromUtf8("Trojita/%1; %2")
-                .arg(Common::Application::version, Imap::Mailbox::systemPlatformVersion()).toUtf8()
-                ).append("\r\n").
-            append("MIME-Version: 1.0\r\n"));
+    target->write(encodeHeaderField(QLatin1String("Subject: ") + m_subject) + "\r\n" +
+                  "Date: " + Imap::dateTimeToRfc2822(m_timestamp).toUtf8() + "\r\n" +
+                  QString::fromUtf8("User-Agent: Trojita/%1; %2\r\n").arg(
+                      Common::Application::version, Imap::Mailbox::systemPlatformVersion()).toUtf8() +
+                  "MIME-Version: 1.0\r\n");
     QByteArray messageId = generateMessageId(m_from);
     if (!messageId.isEmpty()) {
-        target->write(QByteArray("Message-ID: <").append(messageId).append(">\r\n"));
+        target->write("Message-ID: <" + messageId + ">\r\n");
     }
-    writeHeaderWithMsgIds(target, QByteArray("In-Reply-To"), m_inReplyTo);
-    writeHeaderWithMsgIds(target, QByteArray("References"), m_references);
+    writeHeaderWithMsgIds(target, "In-Reply-To", m_inReplyTo);
+    writeHeaderWithMsgIds(target, "References", m_references);
     if (!m_organization.isEmpty()) {
-        target->write(encodeHeaderField(QLatin1String("Organization: ") + m_organization).append("\r\n"));
+        target->write(encodeHeaderField(QLatin1String("Organization: ") + m_organization) + "\r\n");
     }
 
     // Headers depending on actual message body data
