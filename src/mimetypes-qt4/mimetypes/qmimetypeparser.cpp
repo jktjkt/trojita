@@ -39,7 +39,9 @@
 **
 ****************************************************************************/
 
+#ifndef QT_NO_CAST_FROM_ASCII
 #define QT_NO_CAST_FROM_ASCII
+#endif
 
 #include "qmimetypeparser_p.h"
 
