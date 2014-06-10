@@ -330,7 +330,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                 } else if ((cmd.type == SMTPCommand::Mail && status==354 && stage==2)) {
                     // DATA command accepted
                     errorString.clear();
-                    QByteArray toBeWritten = cmd.data.toList().at(2).toString().toUtf8();
+                    QByteArray toBeWritten = cmd.data.toList().at(2).toByteArray();
                     qDebug() << "SMTP >>>" << toBeWritten << "\r\n.\r\n";
                     socket->write(toBeWritten); // expecting data to be already escaped (CRLF.CRLF)
                     socket->write("\r\n.\r\n"); // termination token - CRLF.CRLF
@@ -637,7 +637,7 @@ int QwwSmtpClient::authenticate(const QString &user, const QString &password, Au
     return cmd.id;
 }
 
-int QwwSmtpClient::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QString &content)
+int QwwSmtpClient::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &content)
 {
     QList<QVariant> rcpts;
     for(QList<QByteArray>::const_iterator it = to.begin(); it != to.end(); it ++) {
@@ -653,7 +653,7 @@ int QwwSmtpClient::sendMail(const QByteArray &from, const QList<QByteArray> &to,
     return cmd.id;
 }
 
-int QwwSmtpClient::sendMailBurl(const QByteArray &from, const QList<QByteArray> &to, const QString &url)
+int QwwSmtpClient::sendMailBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &url)
 {
     QList<QVariant> rcpts;
     for(QList<QByteArray>::const_iterator it = to.begin(); it != to.end(); it ++) {
