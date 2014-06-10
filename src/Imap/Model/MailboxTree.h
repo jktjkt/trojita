@@ -297,10 +297,10 @@ class TreeItemPart: public TreeItem
     void operator=(const TreeItem &);  // don't implement
     friend class TreeItemMailbox; // needs access to m_data
     friend class Model; // dtto
-    QString m_mimeType;
-    QString m_charset;
-    QString m_contentFormat;
-    QString m_delSp;
+    QByteArray m_mimeType;
+    QByteArray m_charset;
+    QByteArray m_contentFormat;
+    QByteArray m_delSp;
     QByteArray m_encoding;
     QByteArray m_data;
     QByteArray m_bodyFldId;
@@ -311,7 +311,7 @@ class TreeItemPart: public TreeItem
     mutable TreeItemPart *m_partMime;
     mutable TreeItemPart *m_partRaw;
 public:
-    TreeItemPart(TreeItem *parent, const QString &mimeType);
+    TreeItemPart(TreeItem *parent, const QByteArray &mimeType);
     ~TreeItemPart();
 
     virtual unsigned int childrenCount(Model *const model);
@@ -347,11 +347,11 @@ public:
         Imap::Network::MsgPartNetworkReply.
      */
     QByteArray *dataPtr();
-    QString mimeType() const { return m_mimeType; }
-    QString charset() const { return m_charset; }
-    void setCharset(const QString &ch) { m_charset = ch; }
-    void setContentFormat(const QString &format) { m_contentFormat = format; }
-    void setContentDelSp(const QString &delSp) { m_delSp = delSp; }
+    QByteArray mimeType() const { return m_mimeType; }
+    QByteArray charset() const { return m_charset; }
+    void setCharset(const QByteArray &ch) { m_charset = ch; }
+    void setContentFormat(const QByteArray &format) { m_contentFormat = format; }
+    void setContentDelSp(const QByteArray &delSp) { m_delSp = delSp; }
     void setEncoding(const QByteArray &encoding) { m_encoding = encoding; }
     QByteArray encoding() const { return m_encoding; }
     void setBodyFldId(const QByteArray &id) { m_bodyFldId = id; }

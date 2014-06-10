@@ -101,7 +101,7 @@ QList<uint> getSequence(const QByteArray &line, int &start);
  *
  * Code for this class was lobotomized from KDE's KDateTime.
  * */
-QDateTime parseRFC2822DateTime(const QString &string);
+QDateTime parseRFC2822DateTime(const QByteArray &input);
 
 /** @short Eat spaces as long as we can */
 void eatSpaces(const QByteArray &line, int &start);

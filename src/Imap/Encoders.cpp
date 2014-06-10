@@ -239,20 +239,20 @@ namespace {
         } else if (encoding == "B") {
             return Imap::decodeByteArray(QByteArray::fromBase64(encoded), charset);
         } else {
-            return fullWord;
+            return QString::fromUtf8(fullWord);
         }
     }
 
     /** @short Decode a header in the RFC 2047 format into a unicode string */
     static QString decodeWordSequence(const QByteArray& str)
     {
-        QRegExp whitespace("^\\s+$");
+        QRegExp whitespace(QLatin1String("^\\s+$"));
 
         QString out;
 
         // Any idea why this isn't matching?
         //QRegExp encodedWord("\\b=\\?\\S+\\?\\S+\\?\\S*\\?=\\b");
-        QRegExp encodedWord("\"?=\\?(\\S+)\\?(\\S+)\\?(.*)\\?=\"?");
+        QRegExp encodedWord(QLatin1String("\"?=\\?(\\S+)\\?(\\S+)\\?(.*)\\?=\"?"));
 
         // set minimal=true, to match sequences which do not have whit space in between 2 encoded words; otherwise by default greedy matching is performed
         // eg. "Sm=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=sbord" will match "=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=" as a single encoded word without minimal=true
@@ -371,9 +371,9 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
 }
 
 /** @short Interpret the raw byte array as a sequence of bytes in the given encoding */
-QString decodeByteArray(const QByteArray &encoded, const QString &charset)
+QString decodeByteArray(const QByteArray &encoded, const QByteArray &charset)
 {
-    if (QTextCodec *codec = codecForName(charset.toLatin1())) {
+    if (QTextCodec *codec = codecForName(charset)) {
         return codec->toUnicode(encoded);
     }
     return QString::fromUtf8(encoded, encoded.size());

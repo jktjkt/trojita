@@ -1322,12 +1322,12 @@ bool TreeItemMessage::hasNestedAttachments(Model *const model, TreeItemPart *par
 {
     while (true) {
 
-        const QString mimeType = part->mimeType();
+        const QByteArray mimeType = part->mimeType();
 
-        if (mimeType == QLatin1String("multipart/signed") && part->childrenCount(model) == 2) {
+        if (mimeType == "multipart/signed" && part->childrenCount(model) == 2) {
             // "strip" the signature, look at what's inside
             part = static_cast<TreeItemPart*>(part->child(0, model));
-        } else if (part->mimeType().startsWith(QLatin1String("multipart/"))) {
+        } else if (mimeType.startsWith("multipart/")) {
             // Return false iff no children is/has an attachment.
             // Originally this code was like this only for multipart/alternative, but in the end Stephan Platz lobbied for
             // treating ML signatures the same (which means multipart/mixed) has to be included, and there's also a RFC
@@ -1339,7 +1339,7 @@ bool TreeItemMessage::hasNestedAttachments(Model *const model, TreeItemPart *par
                 }
             }
             return false;
-        } else if (part->mimeType() == QLatin1String("text/html") || part->mimeType() == QLatin1String("text/plain")) {
+        } else if (mimeType == "text/html" || mimeType == "text/plain") {
             // See AttachmentView for details behind this.
             const QByteArray contentDisposition = part->bodyDisposition().toLower();
             const bool isInline = contentDisposition.isEmpty() || contentDisposition == "inline";
@@ -1354,7 +1354,7 @@ bool TreeItemMessage::hasNestedAttachments(Model *const model, TreeItemPart *par
 }
 
 
-TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType):
+TreeItemPart::TreeItemPart(TreeItem *parent, const QByteArray &mimeType):
     TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0), m_partMime(0), m_partRaw(0)
 {
     if (isTopLevelMultiPart()) {
@@ -1365,7 +1365,7 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QString &mimeType):
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent):
-    TreeItem(parent), m_mimeType(QLatin1String("text/plain")), m_octets(0), m_partMime(0), m_partRaw(0)
+    TreeItem(parent), m_mimeType("text/plain"), m_octets(0), m_partMime(0), m_partRaw(0)
 {
 }
 
@@ -1478,8 +1478,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
     if (loading()) {
         if (role == Qt::DisplayRole) {
             return isTopLevelMultiPart() ?
-                   Model::tr("[loading %1...]").arg(m_mimeType) :
-                   Model::tr("[loading %1: %2...]").arg(partId()).arg(m_mimeType);
+                   Model::tr("[loading %1...]").arg(QString::fromUtf8(m_mimeType)) :
+                   Model::tr("[loading %1: %2...]").arg(partId(), QString::fromUtf8(m_mimeType));
         } else {
             return QVariant();
         }
@@ -1488,8 +1488,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
     switch (role) {
     case Qt::DisplayRole:
         return isTopLevelMultiPart() ?
-               QString("%1").arg(m_mimeType) :
-               QString("%1: %2").arg(partId()).arg(m_mimeType);
+               QString("%1").arg(QString::fromUtf8(m_mimeType)) :
+               QString("%1: %2").arg(partId(), QString::fromUtf8(m_mimeType));
     case Qt::ToolTipRole:
         return m_data.size() > 10000 ? Model::tr("%1 bytes of data").arg(m_data.size()) : m_data;
     case RolePartData:
@@ -1730,7 +1730,7 @@ QString TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) const
 }
 
 TreeItemPartMultipartMessage::TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope):
-    TreeItemPart(parent, QLatin1String("message/rfc822")), m_envelope(envelope), m_partHeader(0), m_partText(0)
+    TreeItemPart(parent, "message/rfc822"), m_envelope(envelope), m_partHeader(0), m_partText(0)
 {
 }
 

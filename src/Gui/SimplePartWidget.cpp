@@ -180,7 +180,7 @@ void SimplePartWidget::slotMarkupPlainText()
     // We cannot rely on the QWebFrame's toPlainText because of https://bugs.kde.org/show_bug.cgi?id=321160
     QString markup = Composer::Util::plainTextToHtml(
                 Imap::decodeByteArray(m_partIndex.data(Imap::Mailbox::RolePartData).toByteArray(),
-                                      m_partIndex.data(Imap::Mailbox::RolePartCharset).toString()),
+                                      m_partIndex.data(Imap::Mailbox::RolePartCharset).toByteArray()),
                 flowedFormat);
 
     // and finally set the marked up page.
