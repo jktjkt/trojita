@@ -41,9 +41,9 @@ QString helperHtmlifySingleLine(QString line)
 {
     // Static regexps for the engine construction.
     // Warning, these operate on the *escaped* HTML!
-    static QString intro("(^|[\\s\\(\\[\\{])");
-    static QString extro("($|[\\s\\),;.\\]\\}])");
-    static const QRegExp patternRe(
+#define HTML_RE_INTRO "(^|[\\s\\(\\[\\{])"
+#define HTML_RE_EXTRO "($|[\\s\\),;.\\]\\}])"
+    static const QRegExp patternRe(QLatin1String(
                 // hyperlinks
                 "(" // cap(1)
                 "https?://" // scheme prefix
@@ -59,16 +59,16 @@ QString helperHtmlifySingleLine(QString line)
                 // formatting markup
                 "(" // cap(3)
                 // bold text
-                + intro /* cap(4) */ + "\\*((?!\\*)\\S+)\\*" /* cap(5) */ + extro /* cap(6) */
-                + "|"
+                HTML_RE_INTRO /* cap(4) */ "\\*((?!\\*)\\S+)\\*" /* cap(5) */ HTML_RE_EXTRO /* cap(6) */
+                "|"
                 // italics
-                + intro /* cap(7) */ + "/((?!/)\\S+)/" /* cap(8) */ + extro /* cap(9) */
-                + "|"
+                HTML_RE_INTRO /* cap(7) */ "/((?!/)\\S+)/" /* cap(8) */ HTML_RE_EXTRO /* cap(9) */
+                "|"
                 // underline
-                + intro /* cap(10) */ + "_((?!_)\\S+)_" /* cap(11) */ + extro /* cap(12) */
-                + ")"
+                HTML_RE_INTRO /* cap(10) */ "_((?!_)\\S+)_" /* cap(11) */ HTML_RE_EXTRO /* cap(12) */
+                ")"
                 // end of the formatting markup
-                , Qt::CaseSensitive, QRegExp::RegExp2
+                ), Qt::CaseSensitive, QRegExp::RegExp2
                 );
 
     // RE instances to work on
@@ -158,7 +158,7 @@ QString firstNLines(const QString &input, int numLines, const int charsPerLine)
 /** @short Helper for closing blockquotes and adding the interactive control elements at the right places */
 void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack, int &quoteLevel, const int finalQuoteLevel)
 {
-    static QString closingLabel("<label for=\"q%1\"></label>");
+    static QString closingLabel(QLatin1String("<label for=\"q%1\"></label>"));
     static QLatin1String closeSingleQuote("</blockquote>");
     static QLatin1String closeQuoteBlock("</span></span>");
 
@@ -197,7 +197,7 @@ struct TextInfo {
 
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
-    static QRegExp quotemarks("^>[>\\s]*");
+    static QRegExp quotemarks(QLatin1String("^>[>\\s]*"));
     const int SIGNATURE_SEPARATOR = -2;
 
     QList<TextInfo> lineBuffer;
@@ -205,7 +205,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
     // First pass: determine the quote level for each source line.
     // The quote level is ignored for the signature.
     bool signatureSeparatorSeen = false;
-    Q_FOREACH(QString line, plaintext.split('\n')) {
+    Q_FOREACH(QString line, plaintext.split(QLatin1Char('\n'))) {
 
         // Fast path for empty lines
         if (line.isEmpty()) {
@@ -222,11 +222,11 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
         // Determine the quoting level
         int quoteLevel = 0;
-        if (!signatureSeparatorSeen && line.at(0) == '>') {
+        if (!signatureSeparatorSeen && line.at(0) == QLatin1Char('>')) {
             int j = 1;
             quoteLevel = 1;
-            while (j < line.length() && (line.at(j) == '>' || line.at(j) == ' '))
-                quoteLevel += line.at(j++) == '>';
+            while (j < line.length() && (line.at(j) == QLatin1Char('>') || line.at(j) == QLatin1Char(' ')))
+                quoteLevel += line.at(j++) == QLatin1Char('>');
         }
 
         lineBuffer << TextInfo(quoteLevel, line);
@@ -523,10 +523,10 @@ QStringList quoteText(QStringList inputLines)
         // rewrap - we need to keep the quotes at < 79 chars, yet the grow with every level
         if (line->length() < 79-2) {
             // this line is short enough, prepend quote mark and continue
-            if (line->isEmpty() || line->at(0) == '>')
-                line->prepend(">");
+            if (line->isEmpty() || line->at(0) == QLatin1Char('>'))
+                line->prepend(QLatin1Char('>'));
             else
-                line->prepend("> ");
+                line->prepend(QLatin1String("> "));
             quote << *line;
             continue;
         }
@@ -534,25 +534,25 @@ QStringList quoteText(QStringList inputLines)
         // 1st, detect the quote depth and eventually stript the quotes from the line
         int quoteLevel = 0;
         int contentStart = 0;
-        if (line->at(0) == '>') {
+        if (line->at(0) == QLatin1Char('>')) {
             quoteLevel = 1;
-            while (quoteLevel < line->length() && line->at(quoteLevel) == '>')
+            while (quoteLevel < line->length() && line->at(quoteLevel) == QLatin1Char('>'))
                 ++quoteLevel;
             contentStart = quoteLevel;
-            if (quoteLevel < line->length() && line->at(quoteLevel) == ' ')
+            if (quoteLevel < line->length() && line->at(quoteLevel) == QLatin1Char(' '))
                 ++contentStart;
         }
 
         // 2nd, build a quote string
         QString quotemarks;
         for (int i = 0; i < quoteLevel; ++i)
-            quotemarks += ">";
-        quotemarks += "> ";
+            quotemarks += QLatin1Char('>');
+        quotemarks += QLatin1String("> ");
 
         // 3rd, wrap the line, prepend the quotemarks to each line and add it to the quote text
         int space(contentStart), lastSpace(contentStart), pos(contentStart), length(0);
         while (pos < line->length()) {
-            if (line->at(pos) == ' ')
+            if (line->at(pos) == QLatin1Char(' '))
                 space = pos+1;
             ++length;
             if (length > 65-quotemarks.length() && space != lastSpace) {

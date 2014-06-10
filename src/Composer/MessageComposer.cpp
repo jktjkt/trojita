@@ -75,7 +75,7 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
     {
         // This is more or less copy-pasted from Gui/AttachmentView.cpp. Unfortunately, sharing the implementation
         // is not trivial due to the way how the static libraries are currently built.
-        QMimeType mimeType = QMimeDatabase().mimeTypeForName(m_attachments[index.row()]->mimeType());
+        QMimeType mimeType = QMimeDatabase().mimeTypeForName(QString::fromUtf8(m_attachments[index.row()]->mimeType()));
         if (mimeType.isValid() && !mimeType.isDefault()) {
             return QIcon::fromTheme(mimeType.iconName(), Gui::loadIcon(QLatin1String("mail-attachment")));
         } else {

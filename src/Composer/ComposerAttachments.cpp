@@ -306,10 +306,9 @@ AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE(
 
 QByteArray ImapMessageAttachmentItem::imapUrl() const
 {
-    return QString::fromUtf8("/%1;UIDVALIDITY=%2/;UID=%3").arg(
-                QUrl::toPercentEncoding(index.data(RoleMailboxName).toString().toUtf8()),
-                index.data(RoleMailboxUidValidity).toString(),
-                index.data(RoleMessageUid).toString()).toUtf8();
+    return "/" + QUrl::toPercentEncoding(index.data(RoleMailboxName).toString())
+            + ";UIDVALIDITY=" + index.data(RoleMailboxUidValidity).toByteArray()
+            + "/;UID=" + index.data(RoleMessageUid).toByteArray();
 }
 
 void ImapMessageAttachmentItem::preload() const
@@ -423,11 +422,10 @@ bool ImapPartAttachmentItem::isAvailableLocally() const
 QByteArray ImapPartAttachmentItem::imapUrl() const
 {
     Q_ASSERT(index.isValid());
-    return QString::fromUtf8("/%1;UIDVALIDITY=%2/;UID=%3/;SECTION=%4").arg(
-                QUrl::toPercentEncoding(index.data(RoleMailboxName).toString().toUtf8()),
-                index.data(RoleMailboxUidValidity).toString(),
-                index.data(RoleMessageUid).toString(),
-                index.data(RolePartId).toString()).toUtf8();
+    return "/" + QUrl::toPercentEncoding(index.data(RoleMailboxName).toString())
+            + ";UIDVALIDITY=" + index.data(RoleMailboxUidValidity).toByteArray()
+            + "/;UID=" + index.data(RoleMessageUid).toByteArray()
+            + "/;SECTION=" + index.data(RolePartId).toByteArray();
 }
 
 void ImapPartAttachmentItem::preload() const
