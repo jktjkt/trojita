@@ -47,10 +47,13 @@ void ComposerSubmissionTest::init()
     uidNextA = 15;
     helperSyncAWithMessagesEmptyState();
 
+    QCOMPARE(msgListA.child(0, 0).data(Imap::Mailbox::RoleMessageSubject), QVariant());
+    cClient(t.mk("UID FETCH 10:14 (" FETCH_METADATA_ITEMS ")\r\n"));
     cServer("* 1 FETCH (BODYSTRUCTURE "
             "(\"text\" \"plain\" (\"charset\" \"UTF-8\" \"format\" \"flowed\") NIL NIL \"8bit\" 362 15 NIL NIL NIL)"
             " ENVELOPE (NIL \"subj\" NIL NIL NIL NIL NIL NIL NIL \"<msgid>\")"
-            ")\r\n");
+            ")\r\n" +
+            t.last("OK fetched\r\n"));
 
     m_msaFactory = new MSA::FakeFactory();
     m_submission = new Composer::Submission(this, model, m_msaFactory);
