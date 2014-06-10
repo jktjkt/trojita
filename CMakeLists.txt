@@ -614,6 +614,7 @@ add_library(qwwsmtpclient STATIC ${libqwwsmtpclient_SOURCES})
 target_link_libraries(qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(MSA STATIC ${libMSA_SOURCES})
+set_property(TARGET MSA APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(MSA Imap Streams qwwsmtpclient ${QT_QTCORE_LIBRARY})
 
 add_library(Composer STATIC ${libComposer_SOURCES})

@@ -48,7 +48,7 @@ void AbstractMSA::sendMail(const QByteArray &from, const QList<QByteArray> &to, 
     Q_UNUSED(from);
     Q_UNUSED(to);
     Q_UNUSED(data);
-    emit error(tr("Sending mail plaintext is not supported by %1").arg(metaObject()->className()));
+    emit error(tr("Sending mail plaintext is not supported by %1").arg(QString::fromUtf8(metaObject()->className())));
 }
 
 void AbstractMSA::sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl)
@@ -56,7 +56,7 @@ void AbstractMSA::sendBurl(const QByteArray &from, const QList<QByteArray> &to, 
     Q_UNUSED(from);
     Q_UNUSED(to);
     Q_UNUSED(imapUrl);
-    emit error(tr("BURL is not supported by %1").arg(metaObject()->className()));
+    emit error(tr("BURL is not supported by %1").arg(QString::fromUtf8(metaObject()->className())));
 }
 
 void AbstractMSA::sendImap(const QString &mailbox, const int uidValidity, const int uid, const Imap::Mailbox::UidSubmitOptionsList options)
@@ -65,13 +65,13 @@ void AbstractMSA::sendImap(const QString &mailbox, const int uidValidity, const 
     Q_UNUSED(uidValidity);
     Q_UNUSED(uid);
     Q_UNUSED(options);
-    emit error(tr("IMAP sending is not supported by %1").arg(metaObject()->className()));
+    emit error(tr("IMAP sending is not supported by %1").arg(QString::fromUtf8(metaObject()->className())));
 }
 
 void AbstractMSA::setPassword(const QString &password)
 {
     Q_UNUSED(password);
-    emit error(tr("Setting password is not supported by %1").arg(metaObject()->className()));
+    emit error(tr("Setting password is not supported by %1").arg(QString::fromUtf8(metaObject()->className())));
 }
 
 MSAFactory::~MSAFactory()

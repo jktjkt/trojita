@@ -48,11 +48,11 @@ void Sendmail::sendMail(const QByteArray &from, const QList<QByteArray> &to, con
     emit progressMax(data.size() + 2);
     emit progress(0);
     QStringList myArgs = args;
-    myArgs << "-f" << from;
+    myArgs << QLatin1String("-f") << QString::fromUtf8(from);
     for (QList<QByteArray>::const_iterator it = to.begin(); it != to.end(); ++it) {
         // On posix systems, process args are bytearrays, not strings--- but QProcess
         // takes strings.
-        myArgs << QString(*it);
+        myArgs << QString::fromUtf8(*it);
     }
     writtenSoFar = 0;
     emit connecting();
