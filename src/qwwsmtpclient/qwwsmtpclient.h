@@ -65,7 +65,6 @@ public:
     int connectToHostEncrypted(const QString &hostName, quint16 port = 465);
 //     int connectToHost ( const QHostAddress & address, quint16 port = 25);
     int authenticate(const QString &user, const QString &password, AuthMode mode = AuthAny);
-    int sendMail(const QString &from, const QString &to, const QString &content);
     int sendMail(const QByteArray &from, const QList<QByteArray> &to, const QString &content);
     int sendMailBurl(const QByteArray &from, const QList<QByteArray> &to, const QString &url);
     int rawCommand(const QString &cmd);

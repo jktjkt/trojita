@@ -637,16 +637,6 @@ int QwwSmtpClient::authenticate(const QString &user, const QString &password, Au
     return cmd.id;
 }
 
-int QwwSmtpClient::sendMail(const QString & from, const QString & to, const QString & content) {
-    /* Any code sending to addresses that are still character-strings instead of
-       byte strings is probably buggy, but we might as well have a convenience
-       method here for it anyway. This method will frequently not do the right
-       thing, but it will do the wrong thing conveniently. */
-    QList<QByteArray> rcpts;
-    rcpts.append(to.toUtf8());
-    return sendMail(from.toUtf8(), rcpts, content);
-}
-
 int QwwSmtpClient::sendMail(const QByteArray &from, const QList<QByteArray> &to, const QString &content)
 {
     QList<QVariant> rcpts;
