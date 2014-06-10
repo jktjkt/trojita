@@ -629,6 +629,7 @@ if(NOT WITH_QT5)
 endif()
 
 add_library(Imap STATIC ${libImap_SOURCES})
+set_property(TARGET Imap APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Imap Common Streams UiUtils ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
     target_link_libraries(Imap ${ZLIB_LIBRARIES})
