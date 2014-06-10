@@ -414,14 +414,14 @@ QString decodeRFC2047String( const QByteArray& raw )
     return ::decodeWordSequence( raw );
 }
 
-QByteArray encodeImapFolderName( const QString& text )
+QByteArray encodeImapFolderName(const QString &text)
 {
-    return KIMAP::encodeImapFolderName( text ).toLatin1();
+    return KIMAP::encodeImapFolderName(text);
 }
 
-QString decodeImapFolderName( const QByteArray& raw )
+QString decodeImapFolderName(const QByteArray &raw)
 {
-    return KIMAP::decodeImapFolderName( raw );
+    return KIMAP::decodeImapFolderName(raw);
 }
 
 QByteArray quotedPrintableDecode( const QByteArray& raw )
