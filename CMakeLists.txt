@@ -602,6 +602,7 @@ else()
 endif()
 
 add_library(UiUtils STATIC ${libUiUtils_SOURCES})
+set_property(TARGET UiUtils APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(UiUtils Plugins ${QT_QTCORE_LIBRARY})
 
 add_library(Streams STATIC ${libStreams_SOURCES})

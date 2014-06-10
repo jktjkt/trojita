@@ -128,7 +128,7 @@ QString Formatting::sslChainToHtml(const QList<QSslCertificate> &sslChain)
                                   Qt::escape(cert.subjectInfo(QSslCertificate::CommonName)),
                                   Qt::escape(cert.subjectInfo(QSslCertificate::Organization)),
 #endif
-                                  cert.serialNumber(),
+                                  QString::fromUtf8(cert.serialNumber()),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Sha1)),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Md5)));
     }
