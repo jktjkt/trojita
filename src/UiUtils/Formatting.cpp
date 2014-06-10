@@ -96,7 +96,7 @@ QString Formatting::prettyDate(const QDateTime &dateTime)
 
 
 /** @short Produce a properly formatted HTML string which won't overflow the right edge of the display */
-QByteArray Formatting::htmlHexifyByteArray(const QByteArray &rawInput)
+QString Formatting::htmlHexifyByteArray(const QByteArray &rawInput)
 {
     QByteArray inHex = rawInput.toHex();
     QByteArray res;
@@ -111,7 +111,7 @@ QByteArray Formatting::htmlHexifyByteArray(const QByteArray &rawInput)
         // Produce the smallest possible space. "display: none" won't notice the space at all, leading to overly long lines
         res.append("</code><span style=\"font-size: 1px\"> </span>");
     }
-    return res;
+    return QString::fromUtf8(res);
 }
 
 QString Formatting::sslChainToHtml(const QList<QSslCertificate> &sslChain)
