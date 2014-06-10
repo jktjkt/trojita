@@ -36,10 +36,11 @@ GenUrlAuthTask::GenUrlAuthTask(Model *model, const QString &host, const QString 
                                const uint uidValidity, const uint uid, const QString &part, const QString &access):
     ImapTask(model)
 {
-    req = QString::fromUtf8("imap://%1@%2/%3;UIDVALIDITY=%4/;UID=%5%6;urlauth=%7")
-            .arg(user, host, QUrl::toPercentEncoding(mailbox), QString::number(uidValidity), QString::number(uid),
-                 part.isEmpty() ? QString(): QString::fromUtf8("/;section=%1").arg(part),
-                 access );
+    req = "imap://" + user.toUtf8() + "@" + host.toUtf8() + "/" + QUrl::toPercentEncoding(mailbox)
+            + ";UIDVALIDITY=" + QByteArray::number(uidValidity) + "/;UID=" + QByteArray::number(uid);
+    if (!part.isEmpty())
+        req += "/;section=" + part.toUtf8();
+    req += ";urlauth=" + access.toUtf8();
     conn = model->m_taskFactory->createGetAnyConnectionTask(model);
     conn->addDependentTask(this);
 }
@@ -52,7 +53,7 @@ void GenUrlAuthTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    tag = parser->genUrlAuth(req.toUtf8(), "INTERNAL");
+    tag = parser->genUrlAuth(req, "INTERNAL");
 }
 
 bool GenUrlAuthTask::handleStateHelper(const Imap::Responses::State *const resp)
