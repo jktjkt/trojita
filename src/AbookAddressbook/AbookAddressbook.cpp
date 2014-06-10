@@ -63,7 +63,7 @@ AbookAddressbook::AbookAddressbook(): m_updateTimer(0)
     readAbook(false);
 
     m_filesystemWatcher = new QFileSystemWatcher(this);
-    m_filesystemWatcher->addPath(QDir::homePath() + "/.abook/addressbook");
+    m_filesystemWatcher->addPath(QDir::homePath() + QLatin1String("/.abook/addressbook"));
     connect (m_filesystemWatcher, SIGNAL(fileChanged(QString)), SLOT(scheduleAbookUpdate()));
 }
 
@@ -78,36 +78,36 @@ QStandardItemModel *AbookAddressbook::model() const
 
 void AbookAddressbook::remonitorAdressbook()
 {
-    m_filesystemWatcher->addPath(QDir::homePath() + "/.abook/addressbook");
+    m_filesystemWatcher->addPath(QDir::homePath() + QLatin1String("/.abook/addressbook"));
 }
 
 void AbookAddressbook::ensureAbookPath()
 {
-    if (!QDir::home().exists(".abook")) {
-        QDir::home().mkdir(".abook");
+    if (!QDir::home().exists(QLatin1String(".abook"))) {
+        QDir::home().mkdir(QLatin1String(".abook"));
     }
-    QDir abook(QDir::homePath() + "/.abook/");
+    QDir abook(QDir::homePath() + QLatin1String("/.abook/"));
     QStringList abookrc;
-    QFile file(QDir::homePath() + "/.abook/abookrc");
+    QFile file(QDir::homePath() + QLatin1String("/.abook/abookrc"));
     if (file.exists() && file.open(QIODevice::ReadWrite|QIODevice::Text)) {
-        abookrc = QString::fromLocal8Bit(file.readAll()).split('\n');
+        abookrc = QString::fromLocal8Bit(file.readAll()).split(QLatin1String("\n"));
         bool havePhoto = false;
         for (QStringList::iterator it = abookrc.begin(), end = abookrc.end(); it != end; ++it) {
-            if (it->contains("preserve_fields"))
-                *it = "set preserve_fields=all";
-            else if (it->contains("photo") && it->contains("field"))
+            if (it->contains(QLatin1String("preserve_fields")))
+                *it = QLatin1String("set preserve_fields=all");
+            else if (it->contains(QLatin1String("photo")) && it->contains(QLatin1String("field")))
                 havePhoto = true;
         }
         if (!havePhoto)
-            abookrc << "field photo = Photo";
+            abookrc << QLatin1String("field photo = Photo");
     } else {
-        abookrc << "field photo = Photo" << "set preserve_fields=all";
+        abookrc << QLatin1String("field photo = Photo") << QLatin1String("set preserve_fields=all");
         file.open(QIODevice::WriteOnly|QIODevice::Text);
     }
     if (file.isOpen()) {
         if (file.isWritable()) {
             file.seek(0);
-            file.write(abookrc.join("\n").toLocal8Bit());
+            file.write(abookrc.join(QLatin1String("\n")).toLocal8Bit());
         }
         file.close();
     }
@@ -132,14 +132,14 @@ void AbookAddressbook::updateAbook()
 {
     readAbook(true);
     // QFileSystemWatcher will usually unhook from the file when it's re/written - the entire watcher ain't so great :-(
-    m_filesystemWatcher->addPath(QDir::homePath() + "/.abook/addressbook");
+    m_filesystemWatcher->addPath(QDir::homePath() + QLatin1String("/.abook/addressbook"));
 }
 
 void AbookAddressbook::readAbook(bool update)
 {
 //     QElapsedTimer profile;
 //     profile.start();
-    QSettings abook(QDir::homePath() + "/.abook/addressbook", QSettings::IniFormat);
+    QSettings abook(QDir::homePath() + QLatin1String("/.abook/addressbook"), QSettings::IniFormat);
     abook.setIniCodec("UTF-8");
     QStringList contacts = abook.childGroups();
     foreach (const QString &contact, contacts) {
@@ -147,12 +147,12 @@ void AbookAddressbook::readAbook(bool update)
         QStandardItem *item = 0;
         QStringList mails;
         if (update) {
-            QList<QStandardItem*> list = m_contacts->findItems(abook.value("name").toString());
+            QList<QStandardItem*> list = m_contacts->findItems(abook.value(QLatin1String("name")).toString());
             if (list.count() == 1)
                 item = list.at(0);
             else if (list.count() > 1) {
-                mails = abook.value("email", QString()).toStringList();
-                const QString mailString = mails.join("\n");
+                mails = abook.value(QLatin1String("email"), QString()).toStringList();
+                const QString mailString = mails.join(QLatin1String("\n"));
                 foreach (QStandardItem *it, list) {
                     if (it->data(Mail).toString() == mailString) {
                         item = it;
@@ -182,7 +182,7 @@ void AbookAddressbook::readAbook(bool update)
             else if (field->first == Mail) {
                 if (mails.isEmpty())
                     mails = abook.value(field->second, QString()).toStringList(); // to fix the name field
-                item->setData( mails.join("\n"), Mail );
+                item->setData( mails.join(QLatin1String("\n")), Mail );
             }
             else
                 item->setData( abook.value(field->second, QString()), field->first );
@@ -210,7 +210,7 @@ void AbookAddressbook::readAbook(bool update)
 void AbookAddressbook::saveContacts()
 {
     m_filesystemWatcher->blockSignals(true);
-    QSettings abook(QDir::homePath() + "/.abook/addressbook", QSettings::IniFormat);
+    QSettings abook(QDir::homePath() + QLatin1String("/.abook/addressbook"), QSettings::IniFormat);
     abook.setIniCodec("UTF-8");
     abook.clear();
     for (int i = 0; i < m_contacts->rowCount(); ++i) {
@@ -219,7 +219,7 @@ void AbookAddressbook::saveContacts()
         for (QList<QPair<Type,QString> >::const_iterator   it = m_fields.constBegin(),
                                             end = m_fields.constEnd(); it != end; ++it) {
             if (it->first == Mail)
-                abook.setValue("email", item->data(Mail).toString().split('\n'));
+                abook.setValue(QLatin1String("email"), item->data(Mail).toString().split(QLatin1String("\n")));
             else {
                 const QVariant v = item->data(it->first);
                 if (!v.toString().isEmpty())

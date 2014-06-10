@@ -689,6 +689,7 @@ if(WITH_DESKTOP)
     endif()
 
     add_library(AbookAddressbook STATIC ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
+    set_property(TARGET AbookAddressbook APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     target_link_libraries(AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
