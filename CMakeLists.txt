@@ -580,6 +580,7 @@ set_source_files_properties(${version_files}
     HEADER_FILE_ONLY TRUE)
 
 add_library(Common STATIC ${libCommon_SOURCES})
+set_property(TARGET Common APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 add_dependencies(Common version)
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 

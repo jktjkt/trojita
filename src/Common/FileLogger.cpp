@@ -61,8 +61,8 @@ FileLogger::~FileLogger()
 
 void FileLogger::escapeCrLf(QString &s)
 {
-    s.replace(QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */)
-            .replace(QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
+    s.replace(QLatin1Char('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */)
+            .replace(QLatin1Char('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
 }
 
 void FileLogger::slotImapLogged(uint parser, Common::LogMessage message)
