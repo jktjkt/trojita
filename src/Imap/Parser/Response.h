@@ -686,7 +686,7 @@ class ParseErrorResponse : public AbstractResponse
 {
 public:
     QString message;
-    QByteArray exceptionClass;
+    QString exceptionClass;
     QByteArray line;
     int offset;
     explicit ParseErrorResponse(const ImapException &e);

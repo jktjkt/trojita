@@ -286,7 +286,7 @@ bool SQLCache::createTables()
 bool SQLCache::prepareQueries()
 {
     queryChildMailboxes = QSqlQuery(db);
-    if (! queryChildMailboxes.prepare("SELECT mailbox, separator, flags FROM child_mailboxes WHERE parent = ?")) {
+    if (! queryChildMailboxes.prepare(QLatin1String("SELECT mailbox, separator, flags FROM child_mailboxes WHERE parent = ?"))) {
         emitError(tr("Failed to prepare queryChildMailboxes"), queryChildMailboxes);
         return false;
     }

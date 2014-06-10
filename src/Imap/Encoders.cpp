@@ -244,9 +244,12 @@ namespace {
     }
 
     /** @short Decode a header in the RFC 2047 format into a unicode string */
-    static QString decodeWordSequence(const QByteArray& str)
+    static QString decodeWordSequence(const QByteArray& input)
     {
         QRegExp whitespace(QLatin1String("^\\s+$"));
+
+        // the regexp library operates on unicode strings, unfortunately
+        QString str = QString::fromUtf8(input);
 
         QString out;
 
@@ -269,7 +272,7 @@ namespace {
                 int endPos = pos + encodedWord.matchedLength();
 
                 QString preceding(str.mid(lastPos, (pos - lastPos)));
-                QString decoded = decodeWord(str.mid(pos, (endPos - pos)), encodedWord.cap(1).toLatin1(),
+                QString decoded = decodeWord(str.mid(pos, (endPos - pos)).toUtf8(), encodedWord.cap(1).toLatin1(),
                                              encodedWord.cap(2).toUpper().toLatin1(), encodedWord.cap(3).toLatin1());
 
                 // If there is only whitespace between two encoded words, it should not be included
@@ -284,7 +287,7 @@ namespace {
         }
 
         // Copy anything left
-        out.append(QString::fromUtf8(str.mid(lastPos)));
+        out.append(str.mid(lastPos));
 
         return out;
     }
@@ -484,7 +487,7 @@ QByteArray quotedString( const QByteArray& unquoted, QuotedStringStyle style )
    byte-sequence for use in a "structured" mail header (such as To:,
    From:, or Received:). The result will match the "phrase"
    production. */
-static QRegExp atomPhraseRx("[ \\tA-Za-z0-9!#$&'*+/=?^_`{}|~-]*");
+static QRegExp atomPhraseRx(QLatin1String("[ \\tA-Za-z0-9!#$&'*+/=?^_`{}|~-]*"));
 QByteArray encodeRFC2047Phrase( const QString &text )
 {
     /* We want to know if we can encode as ASCII. But bizarrely, Qt

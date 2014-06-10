@@ -260,7 +260,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
-            broadcastParseError(parserId, QString::fromStdString(e.exceptionClass()), e.what(), e.line(), e.offset());
+            broadcastParseError(parserId, QString::fromStdString(e.exceptionClass()), QString::fromUtf8(e.what()), e.line(), e.offset());
             break;
         }
 
@@ -285,7 +285,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
     // OK/NO/BAD/PREAUTH/BYE
     using namespace Imap::Responses;
 
-    const QString &tag = resp->tag;
+    const QByteArray &tag = resp->tag;
 
     if (!tag.isEmpty()) {
         if (tag == accessParser(ptr).logoutCmd) {
@@ -674,7 +674,7 @@ void Model::handleGenUrlAuth(Parser *ptr, const Responses::GenUrlAuth *const res
 void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);
-    logTrace(ptr->parserId(), Common::LOG_IO_READ, "Model", "Information about the SSL state not handled by the upper layers -- disconnect?");
+    logTrace(ptr->parserId(), Common::LOG_IO_READ, QLatin1String("Model"), QLatin1String("Information about the SSL state not handled by the upper layers -- disconnect?"));
     killParser(ptr, PARSER_KILL_EXPECTED);
 }
 
@@ -1151,8 +1151,8 @@ void Model::handleParseErrorResponse(Imap::Parser *ptr, const Imap::Responses::P
 void Model::broadcastParseError(const uint parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position)
 {
     emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
-    QByteArray details = (position == -1) ? QByteArray() : QByteArray(position, ' ') + QByteArray("^ here");
-    logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, line, details));
+    QString details = (position == -1) ? QString() : QString(position, QLatin1Char(' ')) + QLatin1String("^ here");
+    logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, QString::fromUtf8(line), details));
     QString message;
     if (exceptionClass == QLatin1String("NotAnImapServerError")) {
         QString service;
@@ -1166,7 +1166,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                          "<p>Please check your settings to make sure you are connecting to the IMAP service. "
                          "A typical port number for IMAP is 143 or 993.</p>"
                          "<p>The server said:</p>"
-                         "<pre>%2</pre>").arg(service, QString::fromUtf8(line.constData()));
+                         "<pre>%2</pre>").arg(service, QString::fromUtf8(line));
     } else {
         message = trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
                          "This might either mean that there's a bug in Trojitá's code, or "
@@ -1174,7 +1174,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                          "report this as a bug anyway. Here are the details:</p>"
                          "<p><b>%1</b>: %2</p>"
                          "<pre>%3\n%4</pre>"
-                         ).arg(exceptionClass, errorMessage, line, details);
+                         ).arg(exceptionClass, errorMessage, QString::fromUtf8(line), details);
     }
     EMIT_LATER(this, imapError, Q_ARG(QString, message));
     setNetworkPolicy(NETWORK_OFFLINE);

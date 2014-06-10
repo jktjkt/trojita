@@ -275,7 +275,7 @@ bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (! target->isSelectable())
         return false;
 
-    QByteArray encodedData = data->data("application/x-trojita-message-list");
+    QByteArray encodedData = data->data(QLatin1String("application/x-trojita-message-list"));
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
 
     Q_ASSERT(! stream.atEnd());

@@ -72,8 +72,8 @@ namespace Mailbox
 
 DiskPartCache::DiskPartCache(QObject *parent, const QString &cacheDir_): QObject(parent), cacheDir(cacheDir_)
 {
-    if (!cacheDir.endsWith(QChar('/')))
-        cacheDir.append(QChar('/'));
+    if (!cacheDir.endsWith(QLatin1Char('/')))
+        cacheDir.append(QLatin1Char('/'));
 }
 
 void DiskPartCache::clearAllMessages(const QString &mailbox)
@@ -126,7 +126,7 @@ void DiskPartCache::forgetMessagePart(const QString &mailbox, const uint uid, co
 
 QString DiskPartCache::dirForMailbox(const QString &mailbox) const
 {
-    return cacheDir + mailbox.toUtf8().toBase64();
+    return cacheDir + QString::fromUtf8(mailbox.toUtf8().toBase64());
 }
 
 }

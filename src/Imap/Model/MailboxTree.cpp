@@ -210,7 +210,7 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
     {
         // this one is used only for a dumb view attached to the Model
         QString res = separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
-        return loading() ? res + " [loading]" : res;
+        return loading() ? res + QLatin1String(" [loading]") : res;
     }
     case RoleIsFetched:
         return fetched();
@@ -626,7 +626,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
         if (uid == 0) {
             qDebug() << "VANISHED informs about removal of UID zero...";
             model->logTrace(listIndex.parent(), Common::LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
-                            "VANISHED contains UID zero for increased fun");
+                            QLatin1String("VANISHED contains UID zero for increased fun"));
             break;
         }
 
@@ -635,7 +635,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
             // at all...
             qDebug() << "VANISHED attempted to remove too many messages";
             model->logTrace(listIndex.parent(), Common::LOG_MAILBOX_SYNC, QLatin1String("TreeItemMailbox::handleVanished"),
-                            "VANISHED attempted to remove too many messages");
+                            QLatin1String("VANISHED attempted to remove too many messages"));
             break;
         }
 
@@ -885,15 +885,15 @@ QVariant TreeItemMsgList::data(Model *const model, int role)
         return QVariant();
 
     if (loading())
-        return "[loading messages...]";
+        return QLatin1String("[loading messages...]");
 
     if (isUnavailable(model))
-        return "[offline]";
+        return QLatin1String("[offline]");
 
     if (fetched())
-        return hasChildren(model) ? QString("[%1 messages]").arg(childrenCount(model)) : "[no messages]";
+        return hasChildren(model) ? QString::fromUtf8("[%1 messages]").arg(childrenCount(model)) : QLatin1String("[no messages]");
 
-    return "[messages?]";
+    return QLatin1String("[messages?]");
 }
 
 bool TreeItemMsgList::hasChildren(Model *const model)
@@ -1291,7 +1291,7 @@ void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &r
     if (!parser.listPost.isEmpty()) {
         data()->m_hdrListPost.clear();
         Q_FOREACH(const QByteArray &item, parser.listPost)
-            data()->m_hdrListPost << QUrl(item);
+            data()->m_hdrListPost << QUrl(QString::fromUtf8(item));
     }
     // That's right, this can only be set, not ever reset from this context.
     // This is because we absolutely want to support incremental header arrival.
@@ -1488,8 +1488,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
     switch (role) {
     case Qt::DisplayRole:
         return isTopLevelMultiPart() ?
-               QString("%1").arg(QString::fromUtf8(m_mimeType)) :
-               QString("%1: %2").arg(partId(), QString::fromUtf8(m_mimeType));
+               QString::fromUtf8(m_mimeType) :
+               QString::fromUtf8("%1: %2").arg(partId(), QString::fromUtf8(m_mimeType));
     case Qt::ToolTipRole:
         return m_data.size() > 10000 ? Model::tr("%1 bytes of data").arg(m_data.size()) : m_data;
     case RolePartData:
