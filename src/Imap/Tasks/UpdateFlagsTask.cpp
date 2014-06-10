@@ -70,7 +70,7 @@ void UpdateFlagsTask::perform()
 
     Q_FOREACH(const QPersistentModelIndex& index, messages) {
         if (!index.isValid()) {
-            log("Some message got removed before we could update its flags", Common::LOG_MESSAGES);
+            log(QLatin1String("Some message got removed before we could update its flags"), Common::LOG_MESSAGES);
         } else {
             TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
             Q_ASSERT(item);
@@ -118,7 +118,7 @@ void UpdateFlagsTask::perform()
 
     if (first) {
         // No valid messages
-        _failed("All messages got removed before we could've updated their flags");
+        _failed(tr("All messages got removed before we could've updated their flags"));
         return;
     }
     tag = parser->uidStore(seq, toImapString(flagOperation), flags);
@@ -135,7 +135,7 @@ bool UpdateFlagsTask::handleStateHelper(const Imap::Responses::State *const resp
             // nothing should be needed here
             _completed();
         } else {
-            _failed("Failed to update FLAGS");
+            _failed(tr("Failed to update FLAGS"));
             // FIXME: error handling
         }
         return true;

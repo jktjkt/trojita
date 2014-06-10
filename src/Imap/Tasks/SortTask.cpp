@@ -52,7 +52,7 @@ void SortTask::perform()
     IMAP_TASK_CHECK_ABORT_DIE;
 
     if (! mailboxIndex.isValid()) {
-        _failed("Mailbox vanished before we could ask for threading info");
+        _failed(tr("Mailbox vanished before we could ask for threading info"));
         return;
     }
 
@@ -107,7 +107,7 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
             const Responses::RespData<QString> *const untaggedTag = dynamic_cast<const Responses::RespData<QString>* const>(
                         resp->respCodeData.data());
             Q_ASSERT(untaggedTag);
-            if (untaggedTag->data == sortTag) {
+            if (untaggedTag->data.toUtf8() == sortTag) {
                 m_persistentSearch = false;
                 model->m_taskModel->slotTaskMighHaveChanged(this);
 
@@ -143,7 +143,7 @@ bool SortTask::handleStateHelper(const Imap::Responses::State *const resp)
                 keepTask->activateTasks();
             }
         } else {
-            _failed("Sorting command has failed");
+            _failed(tr("Sorting command has failed"));
         }
         return true;
     } else if (resp->tag == cancelUpdateTag) {

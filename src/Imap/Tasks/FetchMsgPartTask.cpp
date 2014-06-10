@@ -54,7 +54,7 @@ void FetchMsgPartTask::perform()
 bool FetchMsgPartTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     if (!mailboxIndex.isValid()) {
-        _failed("Mailbox disappeared");
+        _failed(tr("Mailbox disappeared"));
         return false;
     }
 
@@ -70,19 +70,19 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
         return false;
 
     if (!mailboxIndex.isValid()) {
-        _failed("Mailbox disappeared");
+        _failed(tr("Mailbox disappeared"));
         return false;
     }
 
     if (resp->tag == tag) {
         if (resp->kind == Responses::OK) {
-            log("Fetched parts", Common::LOG_MESSAGES);
+            log(QLatin1String("Fetched parts"), Common::LOG_MESSAGES);
             TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
             Q_ASSERT(mailbox);
             QList<TreeItemMessage *> messages = model->findMessagesByUids(mailbox, uids);
             Q_FOREACH(TreeItemMessage *message, messages) {
                 Q_FOREACH(const QString &partId, parts) {
-                    log("Fetched part" + partId, Common::LOG_MESSAGES);
+                    log(QLatin1String("Fetched part") + partId, Common::LOG_MESSAGES);
                     model->finalizeFetchPart(mailbox, message->row() + 1, partId);
                 }
             }
@@ -90,7 +90,7 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
             _completed();
         } else {
             // FIXME: error handling
-            _failed("Part fetch failed");
+            _failed(tr("Part fetch failed"));
         }
         return true;
     } else {
@@ -106,7 +106,7 @@ QString FetchMsgPartTask::debugIdentification() const
     Q_ASSERT(!uids.isEmpty());
     return QString::fromUtf8("%1: parts %2 for UIDs %3")
            .arg(mailboxIndex.data(RoleMailboxName).toString(), parts.join(QLatin1String(", ")),
-                Sequence::fromList(uids).toByteArray());
+                QString::fromUtf8(Sequence::fromList(uids).toByteArray()));
 }
 
 QVariant FetchMsgPartTask::taskData(const int role) const

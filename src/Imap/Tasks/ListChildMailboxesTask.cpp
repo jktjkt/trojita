@@ -56,7 +56,7 @@ void ListChildMailboxesTask::perform()
 
     if (! mailboxIndex.isValid()) {
         // FIXME: add proper fix
-        _failed("Mailbox vanished before we could ask for its children");
+        _failed(tr("Mailbox vanished before we could ask for its children"));
         return;
     }
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
@@ -74,10 +74,11 @@ void ListChildMailboxesTask::perform()
             returnOptions << QLatin1String("SUBSCRIBED") << QLatin1String("CHILDREN");
         }
         if (model->accessParser(parser).capabilities.contains(QLatin1String("LIST-STATUS"))) {
-            returnOptions << QString("STATUS (%1)").arg(NumberOfMessagesTask::requestedStatusOptions().join(QLatin1String(" ")));
+            returnOptions << QString::fromUtf8("STATUS (%1)").arg(NumberOfMessagesTask::requestedStatusOptions().join(QLatin1String(" ")));
         }
     }
-    tag = parser->list("", mailboxName, returnOptions);
+    // empty string, not a null string
+    tag = parser->list(QLatin1String(""), mailboxName, returnOptions);
 }
 
 bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *const resp)
@@ -97,12 +98,12 @@ bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *con
                 _completed();
             } else {
                 applyCachedStatus();
-                _failed("LIST failed");
+                _failed(tr("LIST failed"));
                 // FIXME: error handling
             }
         } else {
             applyCachedStatus();
-            _failed("Mailbox no longer available -- weird timing?");
+            _failed(tr("Mailbox no longer available -- weird timing?"));
             // FIXME: error handling
         }
         return true;

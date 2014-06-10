@@ -1229,12 +1229,12 @@ ImapTask *Model::setMessageFlags(const QModelIndexList &messages, const QString 
 {
     Q_ASSERT(!messages.isEmpty());
     Q_ASSERT(messages.front().model() == this);
-    return m_taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
+    return m_taskFactory->createUpdateFlagsTask(this, messages, marked, QLatin1Char('(') + flag + QLatin1Char(')'));
 }
 
 void Model::markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked)
 {
-    this->setMessageFlags(messages, "\\Deleted", marked);
+    this->setMessageFlags(messages, QLatin1String("\\Deleted"), marked);
 }
 
 void Model::markMailboxAsRead(const QModelIndex &mailbox)
@@ -1252,7 +1252,7 @@ void Model::markMailboxAsRead(const QModelIndex &mailbox)
 
 void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked)
 {
-    this->setMessageFlags(messages, "\\Seen", marked);
+    this->setMessageFlags(messages, QLatin1String("\\Seen"), marked);
 }
 
 void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMailboxName, QList<uint> uids, const CopyMoveOperation op)
@@ -1480,10 +1480,10 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
     accessParser(parser).parser = 0;
     switch (method) {
     case PARSER_KILL_EXPECTED:
-        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), "*** Connection closed.");
+        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QLatin1String("*** Connection closed."));
         return;
     case PARSER_KILL_HARD:
-        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), "*** Connection killed.");
+        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QLatin1String("*** Connection killed."));
         return;
     case PARSER_JUST_DELETE_LATER:
         // already handled
@@ -1494,12 +1494,12 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
 
 void Model::slotParserLineReceived(Parser *parser, const QByteArray &line)
 {
-    logTrace(parser->parserId(), Common::LOG_IO_READ, QString(), line);
+    logTrace(parser->parserId(), Common::LOG_IO_READ, QString(), QString::fromUtf8(line));
 }
 
 void Model::slotParserLineSent(Parser *parser, const QByteArray &line)
 {
-    logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), line);
+    logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QString::fromUtf8(line));
 }
 
 void Model::setCache(AbstractCache *cache)

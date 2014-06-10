@@ -224,7 +224,7 @@ bool ImapTask::handleParseErrorResponse(const Imap::Responses::ParseErrorRespons
 void ImapTask::_completed()
 {
     _finished = true;
-    log("Completed");
+    log(QLatin1String("Completed"));
     Q_FOREACH(ImapTask* task, dependentTasks) {
         if (!task->isFinished())
             task->perform();
@@ -305,7 +305,7 @@ void ImapTask::log(const QString &message, const Common::LogKind kind)
     if (!dbg.isEmpty()) {
         dbg.prepend(QLatin1Char(' '));
     }
-    model->logTrace(parser ? parser->parserId() : 0, kind, metaObject()->className() + dbg, message);
+    model->logTrace(parser ? parser->parserId() : 0, kind, QString::fromUtf8(metaObject()->className()) + dbg, message);
     model->m_taskModel->slotTaskMighHaveChanged(this);
 }
 

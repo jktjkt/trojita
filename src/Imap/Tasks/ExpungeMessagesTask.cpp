@@ -72,12 +72,12 @@ void ExpungeMessagesTask::perform()
 
     if (first) {
         // No valid messages
-        _failed("All messages are gone already");
+        _failed(tr("All messages are gone already"));
         return;
     }
 
-    if (!model->accessParser(parser).capabilities.contains("UIDPLUS")) {
-        _failed("The IMAP server doesn't support the UIDPLUS extension");
+    if (!model->accessParser(parser).capabilities.contains(QLatin1String("UIDPLUS"))) {
+        _failed(tr("The IMAP server doesn't support the UIDPLUS extension"));
     }
 
     tag = parser->uidExpunge(seq);
@@ -92,7 +92,7 @@ bool ExpungeMessagesTask::handleStateHelper(const Imap::Responses::State *const 
         if (resp->kind == Responses::OK) {
             _completed();
         } else {
-            _failed("UID EXPUNGE failed");
+            _failed(tr("UID EXPUNGE failed"));
         }
         return true;
     } else {

@@ -76,7 +76,7 @@ bool AppendTask::handleStateHelper(const Imap::Responses::State *const resp)
                 Q_ASSERT(respData);
                 QList<uint> uids = respData->data.second.toList();
                 if (uids.size() != 1) {
-                    log("APPENDUID: malformed data, cannot extract a single UID");
+                    log(QLatin1String("APPENDUID: malformed data, cannot extract a single UID"));
                 } else {
                     emit appendUid(respData->data.first, uids.front());
                 }
