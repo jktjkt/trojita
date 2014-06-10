@@ -30,7 +30,7 @@ PasswordDialog::PasswordDialog(QWidget *parent)
 {
     ui.setupUi(this);
     setModal(true);
-    ui.iconLabel->setPixmap(loadIcon("dialog-password").pixmap(64, 64));
+    ui.iconLabel->setPixmap(loadIcon(QLatin1String("dialog-password")).pixmap(64, 64));
 }
 
 PasswordDialog::~PasswordDialog()

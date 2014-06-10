@@ -242,7 +242,7 @@ void EmbeddedWebView::findScrollParent()
         }
         QWidget *p = runner->parentWidget();
         if (p && qobject_cast<MessageView*>(runner) && // is this a MessageView?
-            p->objectName() == "qt_scrollarea_viewport" && // in a viewport?
+            p->objectName() == QLatin1String("qt_scrollarea_viewport") && // in a viewport?
             qobject_cast<QAbstractScrollArea*>(p->parentWidget())) { // that is used?
             p->getContentsMargins(&left, &top, &right, &bottom);
             m_scrollParentPadding += left + right + 4;

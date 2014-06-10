@@ -692,6 +692,7 @@ if(WITH_DESKTOP)
     target_link_libraries(AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
+    set_property(TARGET DesktopGui APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
     if(SUPPORTS_TARGET_INCLUDES)

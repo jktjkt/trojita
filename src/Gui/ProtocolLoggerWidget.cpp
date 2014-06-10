@@ -185,20 +185,20 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
         switch (it->kind) {
         case LOG_IO_WRITTEN:
             if (it->message.startsWith(QLatin1String("***"))) {
-                textColor = "#800080";
-                bgColor = "#d0d0d0";
+                textColor = QLatin1String("#800080");
+                bgColor = QLatin1String("#d0d0d0");
             } else {
-                textColor = "#800000";
-                direction = "<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>";
+                textColor = QLatin1String("#800000");
+                direction = QLatin1String("<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>");
             }
             break;
         case LOG_IO_READ:
             if (it->message.startsWith(QLatin1String("***"))) {
-                textColor = "#808000";
-                bgColor = "#d0d0d0";
+                textColor = QLatin1String("#808000");
+                bgColor = QLatin1String("#d0d0d0");
             } else {
-                textColor = "#008000";
-                direction = "<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>";
+                textColor = QLatin1String("#008000");
+                direction = QLatin1String("<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>");
             }
             break;
         case LOG_MAILBOX_SYNC:
@@ -219,8 +219,8 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
 #else
         QString niceLine = Qt::escape(it->message);
 #endif
-        niceLine.replace(QChar('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */)
-        .replace(QChar('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
+        niceLine.replace(QLatin1Char('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */)
+        .replace(QLatin1Char('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
 
         w->appendHtml(message.arg(it->timestamp.toString(QLatin1String("hh:mm:ss.zzz")),
                                   direction, textColor,

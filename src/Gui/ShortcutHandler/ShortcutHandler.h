@@ -42,7 +42,7 @@ class ShortcutConfigWidget;
 class ActionDescription
 {
 public:
-    explicit ActionDescription(const QString &iconName = 0, const QString &text = 0, const QString &defaultShortcut = 0, const QString &parentId = QObject::tr("Main Window")) : iconName(iconName), text(text), defaultShortcut(defaultShortcut), shortcut(defaultShortcut), parentId(parentId) {}
+    explicit ActionDescription(const QString &iconName = QString(), const QString &text = QString(), const QString &defaultShortcut = QString(), const QString &parentId = QObject::tr("Main Window")) : iconName(iconName), text(text), defaultShortcut(defaultShortcut), shortcut(defaultShortcut), parentId(parentId) {}
     QString iconName;
     QString text;
     QString defaultShortcut;
@@ -306,7 +306,7 @@ public:
      * \param defaultShortcut the (localized) string describing the default shortcut which triggers this action, e.g. tr("Ctrl+E")
      * \param parentId the title under which this action is shown in the shortcut configuration widget. In the shortcut configuration widget, the actions are grouped according to parentId.
      */
-    void defineAction(const QString &actionName, const QString &iconName, const QString &text, const QString &defaultShortcut = 0, const QString &parentId = QObject::tr("Main Window"));
+    void defineAction(const QString &actionName, const QString &iconName, const QString &text, const QString &defaultShortcut = QString(), const QString &parentId = QObject::tr("Main Window"));
     /**
      * Defines an action with a shortcut. All actions defined using this
      * function will be visible in the shortcut configuration widget.

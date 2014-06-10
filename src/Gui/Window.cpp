@@ -317,8 +317,8 @@ void MainWindow::createActions()
     m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
     m_oneAtTimeGoBack->setEnabled(false);
 
-    composeMail = ShortcutHandler::instance()->createAction("action_compose_mail", this, SLOT(slotComposeMail()), this);
-    m_editDraft = ShortcutHandler::instance()->createAction("action_compose_draft", this, SLOT(slotEditDraft()), this);
+    composeMail = ShortcutHandler::instance()->createAction(QLatin1String("action_compose_mail"), this, SLOT(slotComposeMail()), this);
+    m_editDraft = ShortcutHandler::instance()->createAction(QLatin1String("action_compose_draft"), this, SLOT(slotEditDraft()), this);
 
     expunge = ShortcutHandler::instance()->createAction(QLatin1String("action_expunge"), this, SLOT(slotExpunge()), this);
 
@@ -630,7 +630,7 @@ void MainWindow::createWidgets()
         m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(Common::Application::version)));
     }
 
-    allDock = new QDockWidget("Everything", this);
+    allDock = new QDockWidget(tr("Everything"), this);
     allDock->setObjectName(QLatin1String("allDock"));
     allTree = new QTreeView(allDock);
     allDock->hide();
@@ -638,8 +638,8 @@ void MainWindow::createWidgets()
     allTree->setHeaderHidden(true);
     allDock->setWidget(allTree);
     addDockWidget(Qt::LeftDockWidgetArea, allDock);
-    taskDock = new QDockWidget("IMAP Tasks", this);
-    taskDock->setObjectName("taskDock");
+    taskDock = new QDockWidget(tr("IMAP Tasks"), this);
+    taskDock->setObjectName(QLatin1String("taskDock"));
     taskTree = new QTreeView(taskDock);
     taskDock->hide();
     taskTree->setHeaderHidden(true);

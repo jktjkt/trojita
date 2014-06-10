@@ -184,7 +184,7 @@ QFont systemMonospaceFont()
             bool ok;
             double size = fontDescription.mid(lastSpace).toDouble(&ok);
             if (lastSpace > 0 && ok) {
-                font = QFont(fontDescription.left(lastSpace), size);
+                font = QFont(QString::fromUtf8(fontDescription.left(lastSpace)), size);
                 initialized = true;
             }
         }

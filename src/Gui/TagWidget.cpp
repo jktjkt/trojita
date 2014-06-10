@@ -21,7 +21,7 @@ TagWidget::TagWidget(const QString &buttonText, QWidget *parent, Qt::WindowFlags
 }
 
 TagWidget::TagWidget(const QString &tagName, const QString &buttonText, QWidget *parent, Qt::WindowFlags f) :
-    QLabel(tagName + " | " + buttonText, parent, f), m_tagName(tagName)
+    QLabel(tagName + QLatin1String(" | ") + buttonText, parent, f), m_tagName(tagName)
 {
     commonInit();
 }
@@ -45,9 +45,7 @@ QString TagWidget::tagName() const
 
 void TagWidget::commonInit()
 {
-    setStyleSheet("border: 1px solid green;"
-                  "border-radius: 4px;"
-                  "background-color: lightgreen;");
+    setStyleSheet(QLatin1String("border: 1px solid green; border-radius: 4px; background-color: lightgreen;"));
 }
 
 } // namespace Gui
