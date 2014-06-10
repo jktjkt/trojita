@@ -148,7 +148,7 @@ QString Formatting::sslErrorsToHtml(const QList<QSslError> &sslErrors)
 #endif
     }
     return sslErrors.isEmpty() ?
-                QString("<p>According to your system's policy, this connection is secure.</p>\n") :
+                tr("<p>According to your system's policy, this connection is secure.</p>\n") :
                 tr("<p>The connection triggered the following SSL errors:</p>\n<ul>%1</ul>\n").arg(sslErrorStrings.join(tr("\n")));
 }
 
