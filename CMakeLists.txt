@@ -1034,5 +1034,3 @@ if(WIN32) # Check if we are on Windows
         message(WARNING "Please let us know how well it works.")
     endif()
 endif()
-
-# FIXME: fix build warnings
