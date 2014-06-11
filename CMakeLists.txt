@@ -1011,7 +1011,7 @@ if(WITH_TESTS)
     if(WITH_UBUNTU)
         find_program(PYTHON3_EXECUTABLE python3)
         if(PYTHON3_EXECUTABLE)
-            execute_process(COMMAND ${PYTHON3_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"
+            execute_process(COMMAND ${PYTHON3_EXECUTABLE} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"
                 OUTPUT_VARIABLE PYTHON_PACKAGE_DIR OUTPUT_STRIP_TRAILING_WHITESPACE
             )
             install(DIRECTORY ${AUTOPILOT_DIR}
