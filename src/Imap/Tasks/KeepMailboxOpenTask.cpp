@@ -293,7 +293,6 @@ void KeepMailboxOpenTask::terminate()
         return;
     }
     abort();
-    detachFromMailbox();
 
     // FIXME: abort/die
 
@@ -305,10 +304,6 @@ void KeepMailboxOpenTask::terminate()
     Q_ASSERT(abortableTasks.isEmpty());
 
     // Break periodic activities
-    if (idleLauncher) {
-        // got to break the IDLE cycle and especially make sure it won't restart
-        idleLauncher->die();
-    }
     shouldRunIdle = false;
     shouldRunNoop = false;
     isRunning = false;
