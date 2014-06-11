@@ -246,6 +246,12 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
     if (_finished)
         return;
 
+    if (!model) {
+        // we're very likely hitting this during some rather unclean destruction -> ignore this and die ASAP
+        // See https://bugs.kde.org/show_bug.cgi?id=336090
+        return;
+    }
+
     if (!model->m_parsers.contains(parser)) {
         // The parser is gone; we have to get out of here ASAP
         _failed(tr("Parser is gone"));

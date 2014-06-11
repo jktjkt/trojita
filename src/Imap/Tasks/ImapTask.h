@@ -173,7 +173,7 @@ public:
     QPointer<ImapTask> parentTask;
 
 protected:
-    Model *model;
+    QPointer<Model> model;
     QList<ImapTask *> dependentTasks;
     bool _finished;
     bool _dead;

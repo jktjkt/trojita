@@ -2543,4 +2543,16 @@ void ImapModelObtainSynchronizedMailboxTest::testSelectRetryNoBad()
     justKeepTask();
 }
 
+/** @short Check that mailbox switchover which never completes and subsequent model destruction does not lead to segfault
+
+https://bugs.kde.org/show_bug.cgi?id=336090
+*/
+void ImapModelObtainSynchronizedMailboxTest::testDanglingSelect()
+{
+    helperTestQresyncNoChanges(JUST_QRESYNC);
+    model->resyncMailbox(idxB);
+    cClient(t.mk("SELECT b\r\n"));
+    cEmpty();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
