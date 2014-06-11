@@ -738,6 +738,7 @@ endif()
 #// add the Ubuntu Libs Here ALSO
 if(WITH_UBUNTU)
     add_executable(trojita-ubu ${trojitaUbuntu_SOURCES})
+    set_property(TARGET trojita-ubu APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 
     set_property(TARGET trojita-ubu APPEND PROPERTY INCLUDE_DIRECTORIES
         ${QT_MKSPECS_DIR}/default ${CMAKE_CURRENT_SOURCE_DIR}/src/Ubuntu)
