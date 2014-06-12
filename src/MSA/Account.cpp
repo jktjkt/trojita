@@ -197,6 +197,17 @@ void Account::setSubmissionMethod(const Method method)
 
 void Account::maybeShowPortWarning()
 {
+    switch (m_msaSubmissionMethod) {
+    case Method::SENDMAIL:
+    case Method::IMAP_SENDMAIL:
+        // this isn't a direct network connection -> ignore this
+        return;
+    case Method::SMTP:
+    case Method::SMTP_STARTTLS:
+    case Method::SSMTP:
+        // we're connecting through the network -> let's check the port
+        break;
+    }
     QString portWarn;
     const int defPort = defaultPort(m_msaSubmissionMethod);
     if (m_port != defPort) {
