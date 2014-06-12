@@ -161,6 +161,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
     connect(ui->mailText, SIGNAL(textChanged()), SLOT(setMessageUpdated()));
     connect(ui->subject, SIGNAL(textChanged(QString)), SLOT(updateWindowTitle()));
+    connect(ui->subject, SIGNAL(textChanged(QString)), SLOT(setMessageUpdated()));
     updateWindowTitle();
 
     FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
@@ -262,7 +263,7 @@ void ComposeWidget::changeEvent(QEvent *e)
 
 void ComposeWidget::closeEvent(QCloseEvent *ce)
 {
-    const bool noSaveRequired = m_sentMail || ui->mailText->document()->isEmpty() || !m_messageEverEdited ||
+    const bool noSaveRequired = m_sentMail || !m_messageEverEdited ||
                                 (m_explicitDraft && !m_messageUpdated); // autosave to permanent draft and no update
     if (!noSaveRequired) {  // save is required
         QMessageBox msgBox(this);
@@ -595,6 +596,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     LineEdit *edit = new LineEdit(address, this);
     slotCheckAddress(edit);
     connect(edit, SIGNAL(textChanged(QString)), this, SLOT(slotCheckAddress()));
+    connect(edit, SIGNAL(textChanged(QString)), this, SLOT(setMessageUpdated()));
     connect(edit, SIGNAL(textEdited(QString)), SLOT(completeRecipients(QString)));
     connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
     connect(edit, SIGNAL(textChanged(QString)), m_recipientListUpdateTimer, SLOT(start()));
