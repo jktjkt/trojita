@@ -88,6 +88,7 @@ Page {
             width: view.width
             ListItems.Base {
                 id: baseItem
+                visible: !loadingIndicator.visible
                 removable: true
                 onClicked: {
                     if (model.isFetched) {
@@ -189,6 +190,13 @@ Page {
                     }
                 }
             }
+            ListItems.Standard {
+                id: loadingIndicator
+                height: parent.height
+                text: (model && model.isUnavailable) ? qsTr("Unavailable") : qsTr("Loading...")
+                //read model.subject to trigger fetch
+                visible: !(model && model.subject !== undefined && model.isFetched)
+            }
         }
     }
 
@@ -225,4 +233,8 @@ Page {
 
     flickable: view
     tools: MessageListToolbar{}
+    TaskProgressBar {
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: appWindow.toolbar.opened ? appWindow.toolbar.height : 0
+    }
 }

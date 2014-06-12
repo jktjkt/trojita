@@ -994,6 +994,7 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
     }
     break;
     }
+    EMIT_LATER(this, dataChanged, Q_ARG(QModelIndex, item->toIndex(this)), Q_ARG(QModelIndex, item->toIndex(this)));
 }
 
 void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)

@@ -78,6 +78,7 @@ QHash<int, QByteArray> MsgListModel::roleNames() const
     static QHash<int, QByteArray> roleNames;
     if (roleNames.isEmpty()) {
         roleNames[RoleIsFetched] = "isFetched";
+        roleNames[RoleIsUnavailable] = "isUnavailable";
         roleNames[RoleMessageUid] = "messageUid";
         roleNames[RoleMessageIsMarkedDeleted] = "isMarkedDeleted";
         roleNames[RoleMessageIsMarkedRead] = "isMarkedRead";
@@ -250,6 +251,7 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
         }
 
     case RoleIsFetched:
+    case RoleIsUnavailable:
     case RoleMessageUid:
     case RoleMessageIsMarkedDeleted:
     case RoleMessageIsMarkedRead:
