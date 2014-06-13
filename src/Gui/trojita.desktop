@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Trojitá
 Name[bs]=Trojitá
+Name[ca]=Trojitá
 Name[cs]=Trojitá
 Name[da]=Trojitá
 Name[de]=Trojitá
@@ -32,6 +33,7 @@ Name[x-test]=xxTrojitáxx
 Name[zh_TW]=Trojitá
 GenericName=IMAP E-mail Client
 GenericName[bs]=IMAP klijent za elektronsku poštu
+GenericName[ca]=Client de correu electrònic IMAP
 GenericName[cs]=Poštovní klient pro IMAP
 GenericName[da]=E-mail-klient til IMAP
 GenericName[de]=IMAP-E-Mail-Programm
@@ -68,6 +70,7 @@ Type=Application
 Icon=trojita
 Categories=Qt;Office;Network;Email;
 Keywords=mail;e-mail;IMAP;SMTP;eml;MUA;
+Keywords[ca]=correu;correu electrònic;IMAP;SMTP;eml;MUA;
 Keywords[da]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[de]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[fi]=mail;e-mail;posti,sähköposti;IMAP;SMTP;eml;MUA;
