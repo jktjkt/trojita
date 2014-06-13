@@ -54,6 +54,7 @@ private slots:
     void testMissingImapAttachmentBurlNoSave();
     void testMissingImapAttachmentImap();
     void testBurlSubmission();
+    void testBurlSubmissionAttachedWholeMessage();
     void testCatenateBurlWithoutUrlauth();
     void testFailedMsa();
     void testNoImapContinuation();
@@ -67,6 +68,7 @@ private:
     void helperSetupProperHeaders();
     void helperMissingAttachment(bool save, bool burl, bool imap, bool attachingFile);
     void helperAttachImapPart(const uint uid);
+    void helperAttachImapMessage(const uint uid);
 
     Composer::Submission *m_submission;
     MSA::FakeFactory *m_msaFactory;

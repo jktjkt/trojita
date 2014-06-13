@@ -53,7 +53,7 @@ class MsgPartNetAccessManager : public QNetworkAccessManager
 public:
     explicit MsgPartNetAccessManager(QObject *parent=0);
     void setModelMessage(const QModelIndex &message);
-    static QModelIndex pathToPart(const QModelIndex &message, const QString &path);
+    static QModelIndex pathToPart(const QModelIndex &message, const QByteArray &path);
     static QModelIndex cidToPart(const QModelIndex &rootIndex, const QByteArray &cid);
     QString translateToSupportedMimeType(const QString &originalMimeType) const;
     void registerMimeTypeTranslation(const QString &originalMimeType, const QString &translatedMimeType);

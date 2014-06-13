@@ -260,7 +260,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
-            broadcastParseError(parserId, QString::fromStdString(e.exceptionClass()), e.what(), e.line(), e.offset());
+            broadcastParseError(parserId, QString::fromStdString(e.exceptionClass()), QString::fromUtf8(e.what()), e.line(), e.offset());
             break;
         }
 
@@ -285,7 +285,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
     // OK/NO/BAD/PREAUTH/BYE
     using namespace Imap::Responses;
 
-    const QString &tag = resp->tag;
+    const QByteArray &tag = resp->tag;
 
     if (!tag.isEmpty()) {
         if (tag == accessParser(ptr).logoutCmd) {
@@ -502,7 +502,7 @@ void Model::emitMessageCountChanged(TreeItemMailbox *const mailbox)
 }
 
 /** @short Retrieval of a message part has completed */
-void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QString &partId)
+void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId)
 {
     // At first, verify that the message itself is marked as loaded.
     // If it isn't, it's probably because of Model::releaseMessageData().
@@ -674,7 +674,7 @@ void Model::handleGenUrlAuth(Parser *ptr, const Responses::GenUrlAuth *const res
 void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);
-    logTrace(ptr->parserId(), Common::LOG_IO_READ, "Model", "Information about the SSL state not handled by the upper layers -- disconnect?");
+    logTrace(ptr->parserId(), Common::LOG_IO_READ, QLatin1String("Model"), QLatin1String("Information about the SSL state not handled by the upper layers -- disconnect?"));
     killParser(ptr, PARSER_KILL_EXPECTED);
 }
 
@@ -1021,7 +1021,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
     const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid,
                                                   isSpecialRawPart ?
-                                                      itemForFetchOperation->partId() + QLatin1String(".X-RAW")
+                                                      itemForFetchOperation->partId() + ".X-RAW"
                                                     : item->partId());
     if (! data.isNull()) {
         item->m_data = data;
@@ -1031,7 +1031,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
 
     if (!isSpecialRawPart) {
         const QByteArray &data = cache()->messagePart(mailboxPtr->mailbox(), uid,
-                                                      itemForFetchOperation->partId() + QLatin1String(".X-RAW"));
+                                                      itemForFetchOperation->partId() + ".X-RAW");
 
         if (!data.isNull()) {
             Imap::decodeContentTransferEncoding(data, item->encoding(), item->dataPtr());
@@ -1152,8 +1152,8 @@ void Model::handleParseErrorResponse(Imap::Parser *ptr, const Imap::Responses::P
 void Model::broadcastParseError(const uint parser, const QString &exceptionClass, const QString &errorMessage, const QByteArray &line, int position)
 {
     emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
-    QByteArray details = (position == -1) ? QByteArray() : QByteArray(position, ' ') + QByteArray("^ here");
-    logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, line, details));
+    QString details = (position == -1) ? QString() : QString(position, QLatin1Char(' ')) + QLatin1String("^ here");
+    logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, QString::fromUtf8(line), details));
     QString message;
     if (exceptionClass == QLatin1String("NotAnImapServerError")) {
         QString service;
@@ -1167,7 +1167,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                          "<p>Please check your settings to make sure you are connecting to the IMAP service. "
                          "A typical port number for IMAP is 143 or 993.</p>"
                          "<p>The server said:</p>"
-                         "<pre>%2</pre>").arg(service, QString::fromUtf8(line.constData()));
+                         "<pre>%2</pre>").arg(service, QString::fromUtf8(line));
     } else {
         message = trUtf8("<p>The IMAP server sent us a reply which we could not parse. "
                          "This might either mean that there's a bug in Trojitá's code, or "
@@ -1175,7 +1175,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
                          "report this as a bug anyway. Here are the details:</p>"
                          "<p><b>%1</b>: %2</p>"
                          "<pre>%3\n%4</pre>"
-                         ).arg(exceptionClass, errorMessage, line, details);
+                         ).arg(exceptionClass, errorMessage, QString::fromUtf8(line), details);
     }
     EMIT_LATER(this, imapError, Q_ARG(QString, message));
     setNetworkPolicy(NETWORK_OFFLINE);
@@ -1230,12 +1230,12 @@ ImapTask *Model::setMessageFlags(const QModelIndexList &messages, const QString 
 {
     Q_ASSERT(!messages.isEmpty());
     Q_ASSERT(messages.front().model() == this);
-    return m_taskFactory->createUpdateFlagsTask(this, messages, marked, QString("(%1)").arg(flag));
+    return m_taskFactory->createUpdateFlagsTask(this, messages, marked, QLatin1Char('(') + flag + QLatin1Char(')'));
 }
 
 void Model::markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked)
 {
-    this->setMessageFlags(messages, "\\Deleted", marked);
+    this->setMessageFlags(messages, QLatin1String("\\Deleted"), marked);
 }
 
 void Model::markMailboxAsRead(const QModelIndex &mailbox)
@@ -1253,7 +1253,7 @@ void Model::markMailboxAsRead(const QModelIndex &mailbox)
 
 void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked)
 {
-    this->setMessageFlags(messages, "\\Seen", marked);
+    this->setMessageFlags(messages, QLatin1String("\\Seen"), marked);
 }
 
 void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMailboxName, QList<uint> uids, const CopyMoveOperation op)
@@ -1481,10 +1481,10 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
     accessParser(parser).parser = 0;
     switch (method) {
     case PARSER_KILL_EXPECTED:
-        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), "*** Connection closed.");
+        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QLatin1String("*** Connection closed."));
         return;
     case PARSER_KILL_HARD:
-        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), "*** Connection killed.");
+        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QLatin1String("*** Connection killed."));
         return;
     case PARSER_JUST_DELETE_LATER:
         // already handled
@@ -1495,12 +1495,12 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
 
 void Model::slotParserLineReceived(Parser *parser, const QByteArray &line)
 {
-    logTrace(parser->parserId(), Common::LOG_IO_READ, QString(), line);
+    logTrace(parser->parserId(), Common::LOG_IO_READ, QString(), QString::fromUtf8(line));
 }
 
 void Model::slotParserLineSent(Parser *parser, const QByteArray &line)
 {
-    logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), line);
+    logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QString::fromUtf8(line));
 }
 
 void Model::setCache(AbstractCache *cache)

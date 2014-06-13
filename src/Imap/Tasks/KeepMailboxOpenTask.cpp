@@ -166,7 +166,7 @@ void KeepMailboxOpenTask::slotPerformConnection()
     Q_ASSERT(synchronizeConn);
     Q_ASSERT(!synchronizeConn->isFinished());
     if (_dead) {
-        _failed("Asked to die");
+        _failed(tr("Asked to die"));
         synchronizeConn->die(QLatin1String("KeepMailboxOpenTask died before the sync started"));
         return;
     }
@@ -248,8 +248,8 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
 
     if (!model->m_parsers.contains(parser)) {
         // The parser is gone; we have to get out of here ASAP
-        _failed("Parser is gone");
-        die("Parser is gone");
+        _failed(tr("Parser is gone"));
+        die(tr("Parser is gone"));
         return;
     }
     // FIXME: abort/die
@@ -357,7 +357,7 @@ void KeepMailboxOpenTask::perform()
 
     activateTasks();
 
-    if (model->accessParser(parser).capabilitiesFresh && model->accessParser(parser).capabilities.contains("IDLE")) {
+    if (model->accessParser(parser).capabilitiesFresh && model->accessParser(parser).capabilities.contains(QLatin1String("IDLE"))) {
         shouldRunIdle = true;
     } else {
         shouldRunNoop = true;
@@ -391,7 +391,7 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
 bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResponse *const resp)
 {
     if (_dead) {
-        _failed("Asked to die");
+        _failed(tr("Asked to die"));
         return true;
     }
 
@@ -440,7 +440,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
                                                 // No messages, or no messages with valid UID -> use the UIDNEXT from the syncing state
                                                 // but prevent a possible invalid 0:*
                                                 qMax(mailbox->syncState.uidNext(), 1u)
-                                            ), QStringList() << QLatin1String("FLAGS")));
+                                            ), QList<QByteArray>() << "FLAGS"));
         model->m_taskModel->slotTaskMighHaveChanged(this);
         return true;
     } else if (resp->kind == Imap::Responses::RECENT) {
@@ -457,7 +457,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
 bool KeepMailboxOpenTask::handleVanished(const Responses::Vanished *const resp)
 {
     if (_dead) {
-        _failed("Asked to die");
+        _failed(tr("Asked to die"));
         return true;
     }
 
@@ -485,7 +485,7 @@ bool KeepMailboxOpenTask::handleFetch(const Imap::Responses::Fetch *const resp)
         return true;
 
     if (_dead) {
-        _failed("Asked to die");
+        _failed(tr("Asked to die"));
         return true;
     }
 
@@ -528,7 +528,7 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
             }
         } else {
             // The IDLE command has failed. Let's assume it's a permanent error and don't request it in future.
-            log("The IDLE command has failed");
+            log(QLatin1String("The IDLE command has failed"));
             shouldRunIdle = false;
             idleLauncher->idleCommandFailed();
             idleLauncher->deleteLater();
@@ -657,8 +657,8 @@ QString KeepMailboxOpenTask::debugIdentification() const
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
     return QString::fromUtf8("attached to %1%2%3").arg(mailbox->mailbox(),
-            (synchronizeConn && ! synchronizeConn->isFinished()) ? " [syncConn unfinished]" : "",
-            shouldExit ? " [shouldExit]" : ""
+            (synchronizeConn && ! synchronizeConn->isFinished()) ? QLatin1String(" [syncConn unfinished]") : QString(),
+            shouldExit ? QLatin1String(" [shouldExit]") : QString()
                                                        );
 }
 
@@ -728,7 +728,7 @@ void KeepMailboxOpenTask::activateTasks()
         idleLauncher->enterIdleLater();
 }
 
-void KeepMailboxOpenTask::requestPartDownload(const uint uid, const QString &partId, const uint estimatedSize)
+void KeepMailboxOpenTask::requestPartDownload(const uint uid, const QByteArray &partId, const uint estimatedSize)
 {
     requestedParts[uid].insert(partId);
     requestedPartSizes[uid] += estimatedSize;
@@ -754,8 +754,8 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
 
     breakOrCancelPossibleIdle();
 
-    QMap<uint, QSet<QString> >::iterator it = requestedParts.begin();
-    QSet<QString> parts = *it;
+    auto it = requestedParts.begin();
+    auto parts = *it;
 
     // When asked to exit, do as much as possible and die
     while (shouldExit || fetchPartTasks.size() < limitParallelFetchTasks) {
@@ -891,7 +891,7 @@ void KeepMailboxOpenTask::slotUnselected()
     detachFromMailbox();
     isRunning = true;
     shouldExit = true;
-    _failed("UNSELECTed");
+    _failed(tr("UNSELECTed"));
 }
 
 bool KeepMailboxOpenTask::dieIfInvalidMailbox()

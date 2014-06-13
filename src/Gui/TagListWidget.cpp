@@ -27,7 +27,7 @@ TagListWidget::TagListWidget(QWidget *parent) :
     parentLayout = new FlowLayout(this, 0);
     setLayout(parentLayout);
 
-    addButton = new TagWidget("+");
+    addButton = new TagWidget(QLatin1String("+"));
     connect(addButton, SIGNAL(clicked()), this, SLOT(newTagRequested()));
 
     QLabel *lbl = new QLabel(tr("<b>Tags:</b>"));
@@ -55,7 +55,7 @@ void TagListWidget::setTagList(QStringList list)
     foreach(const QString &tagName, list) {
         if (m_ignoredFlags.contains(tagName.toLower()))
             continue;
-        TagWidget *lbl = new TagWidget(tagName, "x");
+        TagWidget *lbl = new TagWidget(tagName, QLatin1String("x"));
         parentLayout->addWidget(lbl);
         connect(lbl, SIGNAL(removeClicked(QString)), this, SIGNAL(tagRemoved(QString)));
 

@@ -66,7 +66,7 @@ bool IdTask::handleStateHelper(const Imap::Responses::State *const resp)
             // nothing should be needed here
             _completed();
         } else {
-            _failed("ID failed, strange");
+            _failed(tr("ID failed, strange"));
             // But hey, we can just ignore this one
         }
         return true;

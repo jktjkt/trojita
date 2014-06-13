@@ -113,7 +113,7 @@ CONN_STATE_POSTAUTH_PRECAPS: checks result of the capability command
 bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const resp)
 {
     if (_dead) {
-        _failed("Asked to die");
+        _failed(tr("Asked to die"));
         return true;
     }
     using namespace Imap::Responses;

@@ -50,7 +50,7 @@ void SubscribeUnsubscribeTask::perform()
 
     if (! mailboxIndex.isValid()) {
         // FIXME: add proper fix
-        log("Mailbox vanished before we could ask for number of messages inside");
+        log(QLatin1String("Mailbox vanished before we could ask for number of messages inside"));
         _completed();
         return;
     }
@@ -91,7 +91,7 @@ bool SubscribeUnsubscribeTask::handleStateHelper(const Imap::Responses::State *c
             }
             _completed();
         } else {
-            _failed("SUBSCRIBE/UNSUBSCRIBE has failed");
+            _failed(tr("SUBSCRIBE/UNSUBSCRIBE has failed"));
             // FIXME: error handling
         }
         return true;

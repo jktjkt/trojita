@@ -406,9 +406,9 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
         // it's a single-part message, hurray
 
         int i = 0;
-        QString mediaType = items[i].toString().toLower();
+        QByteArray mediaType = items[i].toByteArray().toLower();
         ++i;
-        QString mediaSubType = items[i].toString().toLower();
+        QByteArray mediaSubType = items[i].toByteArray().toLower();
         ++i;
 
         if (items.size() < 7) {
@@ -457,7 +457,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
 
         enum { MESSAGE, TEXT, BASIC} kind;
 
-        if (mediaType == QLatin1String("message") && mediaSubType == QLatin1String("rfc822")) {
+        if (mediaType == "message" && mediaSubType == "rfc822") {
             // extract envelope, body, body-fld-lines
 
             if (items.size() < 10)
@@ -486,7 +486,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
             }
             ++i;
 
-        } else if (mediaType == QLatin1String("text")) {
+        } else if (mediaType == "text") {
             kind = TEXT;
             if (i < items.size()) {
                 // extract body-fld-lines
@@ -586,7 +586,7 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
 
         if (items[i].type() != QVariant::ByteArray)
             throw UnexpectedHere("body-type-mpart: media-subtype not recognized", line, start);
-        QString mediaSubType = items[i].toString().toLower();
+        QByteArray mediaSubType = items[i].toByteArray().toLower();
         ++i;
 
         // body-ext-mpart
@@ -766,7 +766,7 @@ void MultiMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
     AbstractMessage::storeInterestingFields(p);
 
     // The multipart/related can specify the root part to show
-    if (mediaSubType == QLatin1String("related")) {
+    if (mediaSubType == "related") {
         bodyFldParam_t::const_iterator it = bodyFldParam.find("START");
         if (it != bodyFldParam.end()) {
             p->setMultipartRelatedStartPart(*it);
@@ -777,7 +777,7 @@ void MultiMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
 Mailbox::TreeItemChildrenList TextMessage::createTreeItems(Mailbox::TreeItem *parent) const
 {
     Mailbox::TreeItemChildrenList list;
-    Mailbox::TreeItemPart *p = new Mailbox::TreeItemPart(parent, QString("%1/%2").arg(mediaType, mediaSubType));
+    Mailbox::TreeItemPart *p = new Mailbox::TreeItemPart(parent, mediaType + "/" + mediaSubType);
     storeInterestingFields(p);
     list << p;
     return list;
@@ -786,7 +786,7 @@ Mailbox::TreeItemChildrenList TextMessage::createTreeItems(Mailbox::TreeItem *pa
 Mailbox::TreeItemChildrenList BasicMessage::createTreeItems(Mailbox::TreeItem *parent) const
 {
     Mailbox::TreeItemChildrenList list;
-    Mailbox::TreeItemPart *p = new Mailbox::TreeItemPart(parent, QString("%1/%2").arg(mediaType, mediaSubType));
+    Mailbox::TreeItemPart *p = new Mailbox::TreeItemPart(parent, mediaType + "/" + mediaSubType);
     storeInterestingFields(p);
     list << p;
     return list;
@@ -805,7 +805,7 @@ Mailbox::TreeItemChildrenList MsgMessage::createTreeItems(Mailbox::TreeItem *par
 Mailbox::TreeItemChildrenList MultiMessage::createTreeItems(Mailbox::TreeItem *parent) const
 {
     Mailbox::TreeItemChildrenList list, list2;
-    Mailbox::TreeItemPart *part = new Mailbox::TreeItemPart(parent, QString("multipart/%1").arg(mediaSubType));
+    Mailbox::TreeItemPart *part = new Mailbox::TreeItemPart(parent, "multipart/" + mediaSubType);
     for (QList<QSharedPointer<AbstractMessage> >::const_iterator it = bodies.begin(); it != bodies.end(); ++it) {
         list2 << (*it)->createTreeItems(part);
     }

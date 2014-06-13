@@ -50,12 +50,12 @@ void ThreadTask::perform()
     IMAP_TASK_CHECK_ABORT_DIE;
 
     if (! mailboxIndex.isValid()) {
-        _failed("Mailbox vanished before we could ask for threading info");
+        _failed(tr("Mailbox vanished before we could ask for threading info"));
         return;
     }
 
     if (m_incrementalMode) {
-        tag = parser->uidEThread(algorithm, "utf-8", searchCriteria, QStringList() << "INCTHREAD");
+        tag = parser->uidEThread(algorithm, "utf-8", searchCriteria, QStringList() << QLatin1String("INCTHREAD"));
     } else {
         tag = parser->uidThread(algorithm, "utf-8", searchCriteria);
     }
@@ -72,7 +72,7 @@ bool ThreadTask::handleStateHelper(const Imap::Responses::State *const resp)
                 emit model->threadingAvailable(mailboxIndex, algorithm, searchCriteria, mapping);
             _completed();
         } else {
-            _failed("Threading command has failed");
+            _failed(tr("Threading command has failed"));
         }
         mapping.clear();
         return true;

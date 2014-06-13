@@ -50,7 +50,7 @@ void NumberOfMessagesTask::perform()
 
     if (! mailboxIndex.isValid()) {
         // FIXME: add proper fix
-        log("Mailbox vanished before we could ask for number of messages inside");
+        log(QLatin1String("Mailbox vanished before we could ask for number of messages inside"));
         _completed();
         return;
     }
@@ -75,7 +75,7 @@ bool NumberOfMessagesTask::handleStateHelper(const Imap::Responses::State *const
         if (resp->kind == Responses::OK) {
             _completed();
         } else {
-            _failed("STATUS has failed");
+            _failed(tr("STATUS has failed"));
             // FIXME: error handling
         }
         return true;

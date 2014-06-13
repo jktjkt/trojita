@@ -286,7 +286,7 @@ bool SQLCache::createTables()
 bool SQLCache::prepareQueries()
 {
     queryChildMailboxes = QSqlQuery(db);
-    if (! queryChildMailboxes.prepare("SELECT mailbox, separator, flags FROM child_mailboxes WHERE parent = ?")) {
+    if (! queryChildMailboxes.prepare(QLatin1String("SELECT mailbox, separator, flags FROM child_mailboxes WHERE parent = ?"))) {
         emitError(tr("Failed to prepare queryChildMailboxes"), queryChildMailboxes);
         return false;
     }
@@ -750,7 +750,7 @@ void SQLCache::setMessageMetadata(const QString &mailbox, const uint uid, const 
     }
 }
 
-QByteArray SQLCache::messagePart(const QString &mailbox, const uint uid, const QString &partId) const
+QByteArray SQLCache::messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const
 {
     QByteArray res;
     queryMessagePart.bindValue(0, mailboxName(mailbox));
@@ -767,7 +767,7 @@ QByteArray SQLCache::messagePart(const QString &mailbox, const uint uid, const Q
     return res;
 }
 
-void SQLCache::setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data)
+void SQLCache::setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Saving message part" << partId << uid << mailbox;
@@ -782,7 +782,7 @@ void SQLCache::setMsgPart(const QString &mailbox, const uint uid, const QString 
     }
 }
 
-void SQLCache::forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId)
+void SQLCache::forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Forgetting message part" << partId << uid << mailbox;

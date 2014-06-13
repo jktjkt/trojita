@@ -80,9 +80,9 @@ public:
     virtual QStringList msgFlags(const QString &mailbox, const uint uid) const;
     virtual void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags);
 
-    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const;
-    virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data);
-    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId);
+    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const;
+    virtual void setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data);
+    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId);
 
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);

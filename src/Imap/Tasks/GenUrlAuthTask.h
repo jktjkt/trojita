@@ -52,7 +52,7 @@ signals:
 private:
     ImapTask *conn;
     CommandHandle tag;
-    QString req;
+    QByteArray req;
 };
 
 }

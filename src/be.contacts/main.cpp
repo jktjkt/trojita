@@ -45,19 +45,19 @@ int main(int argc, char **argv) {
         for (int i = 2; i < argc; ++i) {
             QString arg = QString::fromLocal8Bit(argv[i]);
             QString mail, name;
-            QStringList contact = arg.split(" ", QString::SkipEmptyParts);
+            QStringList contact = arg.split(QLatin1String(" "), QString::SkipEmptyParts);
             foreach (const QString &token, contact) {
-                if (token.contains('@'))
+                if (token.contains(QLatin1Char('@')))
                     mail = token;
                 else
-                    name = name.isEmpty() ? token : name + " " + token;
+                    name = name.isEmpty() ? token : name + QLatin1String(" ") + token;
             }
             if (mail.isEmpty()) {
                 qWarning("error, \"%s\" does not seem to contain a mail address", arg.toLocal8Bit().data());
                 continue;
             }
-            mail.remove('<');
-            mail.remove('>');
+            mail.remove(QLatin1Char('<'));
+            mail.remove(QLatin1Char('>'));
             if (name.isEmpty())
                 name = mail;
             imports.insert(name, mail);
@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
         }
 
         int lastContact = -1, updates = 0, adds = 0;
-        QSettings abook(QDir::homePath() + "/.abook/addressbook", QSettings::IniFormat);
+        QSettings abook(QDir::homePath() + QLatin1String("/.abook/addressbook"), QSettings::IniFormat);
         abook.setIniCodec("UTF-8");
         QStringList contacts = abook.childGroups();
         foreach (const QString &contact, contacts) {
@@ -76,15 +76,15 @@ int main(int argc, char **argv) {
             int id = contact.toInt();
             if (id > lastContact)
                 lastContact = id;
-            const QString name = abook.value("name", QString()).toString();
+            const QString name = abook.value(QLatin1String("name"), QString()).toString();
             QMap<QString,QString>::iterator it = imports.begin(), end = imports.end();
             while (it != end) {
                 if (it.key() == name) {
-                    QStringList mails = abook.value("email", QString()).toStringList();
+                    QStringList mails = abook.value(QLatin1String("email"), QString()).toStringList();
                     if (!mails.contains(it.value())) {
                         ++updates;
                         mails << it.value();
-                        abook.setValue("email", mails);
+                        abook.setValue(QLatin1String("email"), mails);
                     }
                     it = imports.erase(it);
                     continue;
@@ -97,8 +97,8 @@ int main(int argc, char **argv) {
         while (it != end) {
             ++adds;
             Common::SettingsCategoryGuard guard(&abook, QString::number(++lastContact));
-            abook.setValue("name", it.key());
-            abook.setValue("email", it.value());
+            abook.setValue(QLatin1String("name"), it.key());
+            abook.setValue(QLatin1String("email"), it.value());
             ++it;
         }
         qWarning("updated %d and added %d contacts", updates, adds);

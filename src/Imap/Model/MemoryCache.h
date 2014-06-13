@@ -65,9 +65,9 @@ public:
     virtual QStringList msgFlags(const QString &mailbox, const uint uid) const;
     virtual void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &newFlags);
 
-    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const;
-    virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data);
-    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId);
+    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const;
+    virtual void setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data);
+    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId);
 
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
     virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
@@ -80,7 +80,7 @@ private:
     QMap<QString, QList<uint> > seqToUid;
     QMap<QString, QMap<uint,QStringList> > flags;
     QMap<QString, QMap<uint, MessageDataBundle> > msgMetadata;
-    QMap<QString, QMap<uint, QMap<QString, QByteArray> > > parts;
+    QMap<QString, QMap<uint, QMap<QByteArray, QByteArray> > > parts;
     QMap<QString, QVector<Imap::Responses::ThreadingNode> > threads;
 };
 

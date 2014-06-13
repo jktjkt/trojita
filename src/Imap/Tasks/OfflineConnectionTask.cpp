@@ -52,7 +52,7 @@ void OfflineConnectionTask::slotPerform()
 void OfflineConnectionTask::perform()
 {
     model->runReadyTasks();
-    _failed("We're offline");
+    _failed(tr("We're offline"));
     QTimer::singleShot(0, this, SLOT(slotDie()));
 }
 

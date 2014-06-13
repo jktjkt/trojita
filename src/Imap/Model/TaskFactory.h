@@ -80,7 +80,7 @@ public:
     virtual EnableTask *createEnableTask(Model *model, ImapTask *dependingTask, const QList<QByteArray> &extensions);
     virtual ExpungeMailboxTask *createExpungeMailboxTask(Model *model, const QModelIndex &mailbox);
     virtual FetchMsgMetadataTask *createFetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uid);
-    virtual FetchMsgPartTask *createFetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QStringList &parts);
+    virtual FetchMsgPartTask *createFetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QList<QByteArray> &parts);
     virtual GetAnyConnectionTask *createGetAnyConnectionTask(Model *model);
     virtual IdTask *createIdTask(Model *model, ImapTask *dependingTask);
     virtual KeepMailboxOpenTask *createKeepMailboxOpenTask(Model *model, const QModelIndex &mailbox, Parser *oldParser);

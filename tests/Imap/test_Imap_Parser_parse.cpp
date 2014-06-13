@@ -762,16 +762,16 @@ void ImapParserParseTest::testParseUntagged_data()
     bodyFldParam.clear();
     bodyFldDsp = AbstractMessage::bodyFldDsp_t();
     bodyFldParam["CHARSET"] = "utf-8";
-    msgList.append(QSharedPointer<AbstractMessage>(new TextMessage(QLatin1String("text"), QLatin1String("plain"), bodyFldParam,
+    msgList.append(QSharedPointer<AbstractMessage>(new TextMessage("text", "plain", bodyFldParam,
                                                                    QByteArray(), QByteArray(), "quoted-printable", 333, QByteArray(),
                                                                    bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant(), 10)));
-    msgList.append(QSharedPointer<AbstractMessage>(new TextMessage(QLatin1String("text"), QLatin1String("html"), bodyFldParam,
+    msgList.append(QSharedPointer<AbstractMessage>(new TextMessage("text", "html", bodyFldParam,
                                                                    QByteArray(), QByteArray(), "7bit", 666, QByteArray(),
                                                                    bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant(), 20)));
     fetchData.clear();
     bodyFldParam.clear();
     bodyFldParam["BOUNDARY"] = "=_1234";
-    fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(new MultiMessage(msgList, QLatin1String("alternative"), bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant()));
+    fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(new MultiMessage(msgList, "alternative", bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant()));
     // Exchange sends utter crap inside the body-fld-dsp, unfortunately.
     // This was reported thhrough an encrypted mail in a followup to https://bugs.kde.org/show_bug.cgi?id=334056,
     // but the problem is unrelted to the original topic of that bug.
@@ -814,14 +814,14 @@ void ImapParserParseTest::testParseUntagged_data()
             new MsgMessage("message", "rfc822", AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(), "7BIT", 836,
                            QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant(),
                            Envelope(), QSharedPointer<AbstractMessage>(
-                                   new BasicMessage("attachment", QString(), AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(),
+                                   new BasicMessage("attachment", QByteArray(), AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(),
                                                     QByteArray(), 0, QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant())
                                    ), 0 ));
     msgList << QSharedPointer<AbstractMessage>(
             new MsgMessage("message", "rfc822", AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(), "7BIT", 50785,
                            QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant(),
                            Envelope(), QSharedPointer<AbstractMessage>(
-                                   new BasicMessage("attachment", QString(), AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(),
+                                   new BasicMessage("attachment", QByteArray(), AbstractMessage::bodyFldParam_t(), QByteArray(), QByteArray(),
                                                     QByteArray(), 0, QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant())
                                    ), 0 ));
     bodyFldParam.clear();
@@ -829,7 +829,7 @@ void ImapParserParseTest::testParseUntagged_data()
     bodyFldParam["BOUNDARY"] = "----=_NextPart_000_0077_01CBB179.57530990";
     bodyFldDsp = AbstractMessage::bodyFldDsp_t();
     fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(
-            new MultiMessage( msgList, QLatin1String("mixed"), bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant()));
+            new MultiMessage( msgList, "mixed", bodyFldParam, bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant()));
     QTest::newRow("fetch-envelope-blupix-gmail")
             << QByteArray("* 6116 FETCH (UID 8803 RFC822.SIZE 56144 ENVELOPE (\"Tue, 11 Jan 2011 10:21:42 +0100\" "
                           "\"blablabla\" ((\"somebody\" NIL \"info\" \"example.com\")) "

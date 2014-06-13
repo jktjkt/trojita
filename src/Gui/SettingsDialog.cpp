@@ -192,8 +192,8 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     Q_ASSERT(m_identitiesModel);
     editButton->setEnabled(false);
     deleteButton->setEnabled(false);
-    moveUpButton->setIcon(QIcon::fromTheme("go-up", QIcon(":/icons/arrow-up.png")));
-    moveDownButton->setIcon(QIcon::fromTheme("go-down", QIcon(":/icons/arrow-down.png")));
+    moveUpButton->setIcon(QIcon::fromTheme(QLatin1String("go-up"), QIcon(QLatin1String(":/icons/arrow-up.png"))));
+    moveDownButton->setIcon(QIcon::fromTheme(QLatin1String("go-down"), QIcon(QLatin1String(":/icons/arrow-down.png"))));
     moveUpButton->setEnabled(false);
     moveDownButton->setEnabled(false);
     identityTabelView->setModel(m_identitiesModel);
@@ -603,7 +603,7 @@ void ImapPage::save(QSettings &s)
     s.setValue(SettingsNames::imapUserKey, imapUser->text());
     s.setValue(SettingsNames::imapStartOffline, startOffline->isChecked());
     s.setValue(SettingsNames::imapEnableId, imapEnableId->isChecked());
-    s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QChar(' ')));
+    s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QLatin1String(" ")));
     s.setValue(SettingsNames::imapNeedsNetwork, imapNeedsNetwork->isChecked());
 
     m_pwWatcher->setPassword(imapPass->text());

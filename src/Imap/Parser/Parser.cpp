@@ -457,11 +457,17 @@ CommandHandle Parser::copy(const Sequence &seq, const QString &mailbox)
                         encodeImapFolderName(mailbox));
 }
 
-CommandHandle Parser::uidFetch(const Sequence &seq, const QStringList &items)
+CommandHandle Parser::uidFetch(const Sequence &seq, const QList<QByteArray> &items)
 {
+    QByteArray buf;
+    Q_FOREACH(const QByteArray &item, items) {
+        buf += ' ' + item;
+    }
+    buf += ')';
+    buf[0] = '(';
     return queueCommand(Commands::Command("UID FETCH") <<
                         Commands::PartOfCommand(Commands::ATOM, seq.toByteArray()) <<
-                        Commands::PartOfCommand(Commands::ATOM, '(' + items.join(QLatin1String(" ")).toUtf8() + ')'));
+                        Commands::PartOfCommand(Commands::ATOM, buf));
 }
 
 CommandHandle Parser::uidStore(const Sequence &seq, const QString &item, const QString &value)

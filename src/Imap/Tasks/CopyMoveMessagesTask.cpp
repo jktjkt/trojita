@@ -63,7 +63,7 @@ void CopyMoveMessagesTask::perform()
     Q_FOREACH(const QPersistentModelIndex& index, messages) {
         if (! index.isValid()) {
             // FIXME: add proper fix
-            log("Some message got removed before we could copy them");
+            log(QLatin1String("Some message got removed before we could copy them"));
         } else {
             TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
             Q_ASSERT(item);
@@ -80,7 +80,7 @@ void CopyMoveMessagesTask::perform()
 
     if (first) {
         // No valid messages
-        _failed("All messages disappeared before we could have copied them");
+        _failed(tr("All messages disappeared before we could have copied them"));
         return;
     }
 
@@ -101,8 +101,8 @@ bool CopyMoveMessagesTask::handleStateHelper(const Imap::Responses::State *const
             if (shouldDelete) {
                 if (_dead) {
                     // Yeah, that's bad -- the COPY has succeeded, yet we cannot update the flags :(
-                    log("COPY succeeded, but cannot update flags due to received die()");
-                    _failed("Asked to die");
+                    log(QLatin1String("COPY succeeded, but cannot update flags due to received die()"));
+                    _failed(tr("Asked to die"));
                     return true;
                 }
                 // We ignore the _aborted status here, though -- we just want to finish in an "atomic" manner
@@ -113,14 +113,14 @@ bool CopyMoveMessagesTask::handleStateHelper(const Imap::Responses::State *const
             }
             _completed();
         } else {
-            _failed("The COPY operation has failed");
+            _failed(tr("The COPY operation has failed"));
         }
         return true;
     } else if (resp->tag == moveTag) {
         if (resp->kind == Responses::OK) {
             _completed();
         } else {
-            _failed("The UID MOVE operation has failed");
+            _failed(tr("The UID MOVE operation has failed"));
         }
         return true;
     } else {

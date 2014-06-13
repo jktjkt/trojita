@@ -50,13 +50,13 @@ namespace KIMAP {
     IMAP communication.
     @param src is the QString containing the IMAP mailbox.
   */
-  KIMAP_EXPORT QString encodeImapFolderName( const QString &src );
+  KIMAP_EXPORT QByteArray encodeImapFolderName( const QString &src );
 
   /**
     Converts an UTF-7 encoded IMAP mailbox to a Unicode QString.
     @param inSrc is the QString containing the Unicode path.
   */
-  KIMAP_EXPORT QString decodeImapFolderName( const QString &inSrc );
+  KIMAP_EXPORT QString decodeImapFolderName(const QByteArray &src );
 
 }
 

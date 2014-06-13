@@ -60,7 +60,7 @@ bool NoopTask::handleStateHelper(const Imap::Responses::State *const resp)
             // nothing should be needed here
             _completed();
         } else {
-            _failed("NOOP failed, strange");
+            _failed(tr("NOOP failed, strange"));
             // FIXME: error handling
         }
         return true;

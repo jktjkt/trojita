@@ -413,7 +413,7 @@ QList<uint> getSequence(const QByteArray &line, int &start)
     }
 }
 
-QDateTime parseRFC2822DateTime(const QString &string)
+QDateTime parseRFC2822DateTime(const QByteArray &input)
 {
     QStringList monthNames = QStringList() << QLatin1String("jan") << QLatin1String("feb") << QLatin1String("mar")
                                            << QLatin1String("apr") << QLatin1String("may") << QLatin1String("jun")
@@ -425,7 +425,7 @@ QDateTime parseRFC2822DateTime(const QString &string)
                                  "\\s+(\\d{1,2})\\s*:(\\d{1,2})\\s*(?::\\s*(\\d{1,2})\\s*)?" // time
                                  "(\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])))?" // timezone
                                  ).arg(monthNames.join(QLatin1String("|"))), Qt::CaseInsensitive);
-    int pos = rx.indexIn(string);
+    int pos = rx.indexIn(QString::fromUtf8(input));
 
     if (pos == -1)
         throw ParseError("Date format not recognized");

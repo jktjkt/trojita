@@ -173,7 +173,7 @@ public slots:
     CommandHandle copy(const Sequence &seq, const QString &mailbox);
 
     /** @short UID command (FETCH), RFC3501 sect 6.4.8 */
-    CommandHandle uidFetch(const Sequence &seq, const QStringList &items);
+    CommandHandle uidFetch(const Sequence &seq, const QList<QByteArray> &items);
 
     /** @short UID command (STORE), RFC3501 sect 6.4.8 */
     CommandHandle uidStore(const Sequence &seq, const QString &item, const QString &value);

@@ -96,7 +96,7 @@ bool DeleteMailboxTask::handleStateHelper(const Imap::Responses::State *const re
             _completed();
         } else {
             EMIT_LATER(model, mailboxDeletionFailed, Q_ARG(QString, mailbox), Q_ARG(QString, resp->message));
-            _failed("Couldn't delete mailbox");
+            _failed(tr("Couldn't delete mailbox"));
         }
         return true;
     } else {
@@ -113,7 +113,7 @@ void DeleteMailboxTask::mailboxHasPendingActions()
 {
     EMIT_LATER(model, mailboxDeletionFailed, Q_ARG(QString, mailbox),
                Q_ARG(QString, tr("Mailbox %1 has pending activity, so it cannot be deleted now.").arg(mailbox)));
-    _failed("Mailbox has pending activity");
+    _failed(tr("Mailbox has pending activity"));
 }
 
 }

@@ -119,7 +119,7 @@ void SMTP::sendContinueGotPassword()
             if (data.startsWith('.'))
                 data.prepend('.');
             data.replace("\n.", "\n..");
-            qwwSmtp->sendMail(from, to, QString::fromUtf8(data));
+            qwwSmtp->sendMail(from, to, data);
         }
         break;
     case MODE_SMTP_BURL:

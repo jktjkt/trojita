@@ -64,7 +64,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_searchOptions = new QToolButton(this);
     m_searchOptions->setAutoRaise(true);
     m_searchOptions->setPopupMode(QToolButton::InstantPopup);
-    m_searchOptions->setText("*");
+    m_searchOptions->setText(QLatin1String("*"));
     m_searchOptions->setIcon(loadIcon(QLatin1String("imap-search-details")));
     QMenu *optionsMenu = new QMenu(m_searchOptions);
     m_searchFuzzy = optionsMenu->addAction(tr("Fuzzy Search"));
@@ -85,19 +85,19 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     QMenu *complexMenu = new QMenu(tr("Complex IMAP query"), optionsMenu);
     connect(complexMenu, SIGNAL(triggered(QAction*)), this, SLOT(slotComplexSearchInput(QAction*)));
-    complexMenu->addAction(tr("Not ..."))->setData("NOT " + m_queryPlaceholder);
-    complexMenu->addAction(tr("Either... or..."))->setData("OR " + m_queryPlaceholder + " " + m_queryPlaceholder);
+    complexMenu->addAction(tr("Not ..."))->setData(QLatin1String("NOT ") + m_queryPlaceholder);
+    complexMenu->addAction(tr("Either... or..."))->setData(QLatin1String("OR ") + m_queryPlaceholder + QLatin1Char(' ') + m_queryPlaceholder);
     complexMenu->addSeparator();
-    complexMenu->addAction(tr("From sender"))->setData("FROM " + m_queryPlaceholder);
-    complexMenu->addAction(tr("To receiver"))->setData("TO " + m_queryPlaceholder);
+    complexMenu->addAction(tr("From sender"))->setData(QLatin1String("FROM ") + m_queryPlaceholder);
+    complexMenu->addAction(tr("To receiver"))->setData(QLatin1String("TO ") + m_queryPlaceholder);
     complexMenu->addSeparator();
-    complexMenu->addAction(tr("About subject"))->setData("SUBJECT " + m_queryPlaceholder);
-    complexMenu->addAction(tr("Message contains ..."))->setData("BODY " + m_queryPlaceholder);
+    complexMenu->addAction(tr("About subject"))->setData(QLatin1String("SUBJECT " )+ m_queryPlaceholder);
+    complexMenu->addAction(tr("Message contains ..."))->setData(QLatin1String("BODY ") + m_queryPlaceholder);
     complexMenu->addSeparator();
-    complexMenu->addAction(tr("Before date"))->setData("BEFORE <d-mmm-yyyy>");
-    complexMenu->addAction(tr("Since date"))->setData("SINCE <d-mmm-yyyy>");
+    complexMenu->addAction(tr("Before date"))->setData(QLatin1String("BEFORE <d-mmm-yyyy>"));
+    complexMenu->addAction(tr("Since date"))->setData(QLatin1String("SINCE <d-mmm-yyyy>"));
     complexMenu->addSeparator();
-    complexMenu->addAction(tr("Has been seen"))->setData("SEEN");
+    complexMenu->addAction(tr("Has been seen"))->setData(QLatin1String("SEEN"));
 
     m_rawSearch = optionsMenu->addAction(tr("Allow raw IMAP search"));
     m_rawSearch->setCheckable(true);
@@ -150,7 +150,7 @@ void MessageListWidget::focusRawSearch()
     if (!m_quickSearchText->isEnabled() || m_quickSearchText->hasFocus() || !m_rawSearch->isChecked())
         return;
     m_quickSearchText->setFocus(Qt::ShortcutFocusReason);
-    m_quickSearchText->setText(":=");
+    m_quickSearchText->setText(QLatin1String(":="));
     m_quickSearchText->deselect();
     m_quickSearchText->setCursorPosition(m_quickSearchText->text().length());
 }
@@ -203,9 +203,9 @@ void MessageListWidget::slotUpdateSearchCursor()
     int cp = m_quickSearchText->cursorPosition();
     int ts = -1, te = -1;
     for (int i = cp-1; i > -1; --i) {
-        if (m_quickSearchText->text().at(i) == '>')
+        if (m_quickSearchText->text().at(i) == QLatin1Char('>'))
             break; // invalid
-        if (m_quickSearchText->text().at(i) == '<') {
+        if (m_quickSearchText->text().at(i) == QLatin1Char('<')) {
             ts = i;
             break; // found TagStart
         }
@@ -213,9 +213,9 @@ void MessageListWidget::slotUpdateSearchCursor()
     if (ts < 0)
         return; // not inside tag!
     for (int i = cp; i < m_quickSearchText->text().length(); ++i) {
-        if (m_quickSearchText->text().at(i) == '<')
+        if (m_quickSearchText->text().at(i) == QLatin1Char('<'))
             break; // invalid
-        if (m_quickSearchText->text().at(i) == '>') {
+        if (m_quickSearchText->text().at(i) == QLatin1Char('>')) {
             te = i;
             break; // found TagEnd
         }
@@ -230,12 +230,12 @@ void MessageListWidget::slotComplexSearchInput(QAction *act)
 {
     QString s = act->data().toString();
     const int selectionStart = m_quickSearchText->selectionStart() - 1;
-    if (selectionStart > -1 && m_quickSearchText->text().at(selectionStart) != ' ')
-            s.prepend(' ');
+    if (selectionStart > -1 && m_quickSearchText->text().at(selectionStart) != QLatin1Char(' '))
+            s.prepend(QLatin1Char(' '));
     m_quickSearchText->insert(s);
     if (!m_quickSearchText->text().startsWith(QLatin1String(":="))) {
         s = m_quickSearchText->text().trimmed();
-        m_quickSearchText->setText(":=" + s);
+        m_quickSearchText->setText(QLatin1String(":=") + s);
     }
     m_quickSearchText->setFocus();
     const int pos = m_quickSearchText->text().indexOf(m_queryPlaceholder);

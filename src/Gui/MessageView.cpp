@@ -311,7 +311,7 @@ bool MessageView::eventFilter(QObject *object, QEvent *event)
 QString MessageView::quoteText() const
 {
     if (const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer)) {
-        QStringList quote = Composer::Util::quoteText(w->quoteMe().split('\n'));
+        QStringList quote = Composer::Util::quoteText(w->quoteMe().split(QLatin1Char('\n')));
         const Imap::Message::Envelope &e = message.data(Imap::Mailbox::RoleMessageEnvelope).value<Imap::Message::Envelope>();
         QString sender;
         if (!e.from.isEmpty())
@@ -322,7 +322,7 @@ QString MessageView::quoteText() const
         // One extra newline at the end of the quoted text to separate the response
         quote << QString();
 
-        return tr("On %1, %2 wrote:\n").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate)).arg(sender) + quote.join("\n");
+        return tr("On %1, %2 wrote:\n").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate)).arg(sender) + quote.join(QLatin1String("\n"));
     }
     return QString();
 }

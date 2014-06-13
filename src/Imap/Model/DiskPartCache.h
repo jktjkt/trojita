@@ -50,10 +50,10 @@ public:
     virtual void clearMessage(const QString mailbox, const uint uid);
 
     /** @short Return data for some message part, or a null QByteArray if not found */
-    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const;
+    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const;
     /** @short Store the data for a specified message part */
-    virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data);
-    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId);
+    virtual void setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data);
+    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId);
 
 signals:
     /** @short An error has occurred while performing cache operations */
@@ -62,6 +62,8 @@ signals:
 private:
     /** @short Return the directory which should be used as a storage dir for a particular mailbox */
     QString dirForMailbox(const QString &mailbox) const;
+
+    QString fileForPart(const QString &mailbox, const uint uid, const QByteArray &partId) const;
 
     /** @short The root directory for all caching */
     QString cacheDir;

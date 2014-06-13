@@ -96,7 +96,7 @@ QString Formatting::prettyDate(const QDateTime &dateTime)
 
 
 /** @short Produce a properly formatted HTML string which won't overflow the right edge of the display */
-QByteArray Formatting::htmlHexifyByteArray(const QByteArray &rawInput)
+QString Formatting::htmlHexifyByteArray(const QByteArray &rawInput)
 {
     QByteArray inHex = rawInput.toHex();
     QByteArray res;
@@ -111,7 +111,7 @@ QByteArray Formatting::htmlHexifyByteArray(const QByteArray &rawInput)
         // Produce the smallest possible space. "display: none" won't notice the space at all, leading to overly long lines
         res.append("</code><span style=\"font-size: 1px\"> </span>");
     }
-    return res;
+    return QString::fromUtf8(res);
 }
 
 QString Formatting::sslChainToHtml(const QList<QSslCertificate> &sslChain)
@@ -128,7 +128,7 @@ QString Formatting::sslChainToHtml(const QList<QSslCertificate> &sslChain)
                                   Qt::escape(cert.subjectInfo(QSslCertificate::CommonName)),
                                   Qt::escape(cert.subjectInfo(QSslCertificate::Organization)),
 #endif
-                                  cert.serialNumber(),
+                                  QString::fromUtf8(cert.serialNumber()),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Sha1)),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Md5)));
     }
@@ -148,7 +148,7 @@ QString Formatting::sslErrorsToHtml(const QList<QSslError> &sslErrors)
 #endif
     }
     return sslErrors.isEmpty() ?
-                QString("<p>According to your system's policy, this connection is secure.</p>\n") :
+                tr("<p>According to your system's policy, this connection is secure.</p>\n") :
                 tr("<p>The connection triggered the following SSL errors:</p>\n<ul>%1</ul>\n").arg(sslErrorStrings.join(tr("\n")));
 }
 

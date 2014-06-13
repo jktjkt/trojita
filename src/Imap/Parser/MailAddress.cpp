@@ -261,14 +261,14 @@ QByteArray MailAddress::asMailHeader() const
 QString MailAddress::asPrettyString() const
 {
     return name.isEmpty() ?
-                asSMTPMailbox() :
-                name + QLatin1Char(' ') + QLatin1Char('<') + asSMTPMailbox() + QLatin1Char('>');
+                QString::fromUtf8(asSMTPMailbox()) :
+                name + QLatin1Char(' ') + QLatin1Char('<') + QString::fromUtf8(asSMTPMailbox()) + QLatin1Char('>');
 }
 
 /** @short Is the human-readable part "useful", i.e. does it contain something else besides the e-mail address? */
 bool MailAddress::hasUsefulDisplayName() const
 {
-    return !name.isEmpty() && name.trimmed().toLower() != asSMTPMailbox().toLower();
+    return !name.isEmpty() && name.trimmed().toUtf8().toLower() != asSMTPMailbox().toLower();
 }
 
 /** @short Convert a QUrl into a MailAddress instance */

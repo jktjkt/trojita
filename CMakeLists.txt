@@ -600,10 +600,12 @@ set_source_files_properties(${version_files}
     HEADER_FILE_ONLY TRUE)
 
 add_library(Common STATIC ${libCommon_SOURCES})
+set_property(TARGET Common APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 add_dependencies(Common version)
 target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(AppVersion STATIC ${libAppVersion_SOURCES})
+set_property(TARGET AppVersion APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 add_dependencies(AppVersion version)
 target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
 
@@ -614,6 +616,7 @@ else()
     set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS QT_STATICPLUGIN)
 endif()
 set_target_properties(Plugins PROPERTIES OUTPUT_NAME trojita_plugins)
+set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 if(WITH_QT5)
     qt5_use_modules(Plugins Core)
 else()
@@ -621,9 +624,11 @@ else()
 endif()
 
 add_library(UiUtils STATIC ${libUiUtils_SOURCES})
+set_property(TARGET UiUtils APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(UiUtils Plugins ${QT_QTCORE_LIBRARY})
 
 add_library(Streams STATIC ${libStreams_SOURCES})
+set_property(TARGET Streams APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
     target_link_libraries(Streams ${ZLIB_LIBRARIES})
@@ -633,15 +638,18 @@ add_library(qwwsmtpclient STATIC ${libqwwsmtpclient_SOURCES})
 target_link_libraries(qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 
 add_library(MSA STATIC ${libMSA_SOURCES})
+set_property(TARGET MSA APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(MSA Imap Streams qwwsmtpclient ${QT_QTCORE_LIBRARY})
 
 add_library(Composer STATIC ${libComposer_SOURCES})
+set_property(TARGET Composer APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Composer Common MSA Streams qwwsmtpclient ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(NOT WITH_QT5)
     target_link_libraries(Composer MimetypesQt4)
 endif()
 
 add_library(Imap STATIC ${libImap_SOURCES})
+set_property(TARGET Imap APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Imap Common Streams UiUtils ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
     target_link_libraries(Imap ${ZLIB_LIBRARIES})
@@ -701,9 +709,11 @@ if(WITH_DESKTOP)
     endif()
 
     add_library(AbookAddressbook STATIC ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
+    set_property(TARGET AbookAddressbook APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     target_link_libraries(AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
+    set_property(TARGET DesktopGui APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
     if(SUPPORTS_TARGET_INCLUDES)
@@ -714,6 +724,7 @@ if(WITH_DESKTOP)
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
+    set_property(TARGET trojita APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS} ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
     if(NOT WITH_QT5)
         target_link_libraries(trojita MimetypesQt4)
@@ -723,10 +734,12 @@ if(WITH_DESKTOP)
     endif()
 
     add_executable(be.contacts ${be_contacts_SOURCES})
+    set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     target_link_libraries(be.contacts AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 elseif(WITH_HARMATTAN)
     add_library(trojitaqnamwebviewplugin SHARED ${libQNAMWebView_SOURCES})
     add_executable(trojita-tp ${trojitaHarmattan_SOURCES})
+    set_property(TARGET trojita-tp APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     if(SUPPORTS_TARGET_INCLUDES)
         set_property(TARGET trojita-tp APPEND PROPERTY INCLUDE_DIRECTORIES
             ${QT_MKSPECS_DIR}/default ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan/qmlapplicationviewer)

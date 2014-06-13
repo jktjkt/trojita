@@ -64,7 +64,7 @@ public:
     static void formatSslState(const QList<QSslCertificate> &sslChain, const QByteArray &oldPubKey,
                                const QList<QSslError> &sslErrors, QString *title, QString *message, IconType *icon);
 
-    static QByteArray htmlHexifyByteArray(const QByteArray &rawInput);
+    static QString htmlHexifyByteArray(const QByteArray &rawInput);
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     static QObject *factory(QQmlEngine *engine, QJSEngine *scriptEngine);

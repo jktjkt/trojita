@@ -72,7 +72,7 @@ bool EnableTask::handleStateHelper(const Imap::Responses::State *const resp)
             // nothing should be needed here
             _completed();
         } else {
-            _failed("ENABLE failed, strange");
+            _failed(tr("ENABLE failed, strange"));
             // FIXME: error handling
         }
         return true;

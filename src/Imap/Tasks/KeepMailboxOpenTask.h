@@ -145,7 +145,7 @@ public:
 
     QString debugIdentification() const;
 
-    void requestPartDownload(const uint uid, const QString &partId, const uint estimatedSize);
+    void requestPartDownload(const uint uid, const QByteArray &partId, const uint estimatedSize);
     /** @short Request a delayed loading of a message envelope */
     void requestEnvelopeDownload(const uint uid);
 
@@ -280,7 +280,7 @@ protected:
     friend class ::LibMailboxSync;
 
     QList<uint> uidMap;
-    QMap<uint, QSet<QString> > requestedParts;
+    QMap<uint, QSet<QByteArray> > requestedParts;
     QMap<uint, uint> requestedPartSizes;
     /** @short UIDs of messages with pending FetchMsgMetadataTask request
 

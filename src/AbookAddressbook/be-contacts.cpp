@@ -74,7 +74,7 @@ public:
 BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(false)
 {
     m_currentContact = 0;
-    QImage img(QDir::homePath() + "/.abook/incognito.png");
+    QImage img(QDir::homePath() + QLatin1String("/.abook/incognito.png"));
     if (!img.isNull())
         m_incognitoPic = QPixmap::fromImage(img.scaled(160,160,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     m_ui = new Ui::Contacts;
@@ -85,14 +85,14 @@ BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(fa
     m_ui2 = new Ui::OneContact;
     m_ui2->setupUi(m_ui->oneContact);
 
-    fields <<   Field(Gui::AbookAddressbook::Name, m_ui2->name, "name") << Field(Gui::AbookAddressbook::Mail, m_ui2->mail, "email") <<
-                Field(Gui::AbookAddressbook::Address, m_ui2->address, "address") << Field(Gui::AbookAddressbook::City, m_ui2->city, "city") <<
-                Field(Gui::AbookAddressbook::State, m_ui2->state, "state") << Field(Gui::AbookAddressbook::ZIP, m_ui2->zip, "zip") <<
-                Field(Gui::AbookAddressbook::Country, m_ui2->country, "country") << Field(Gui::AbookAddressbook::Phone, m_ui2->phone, "phone") <<
-                Field(Gui::AbookAddressbook::Workphone, m_ui2->workphone, "workphone") << Field(Gui::AbookAddressbook::Fax, m_ui2->fax, "fax") <<
-                Field(Gui::AbookAddressbook::Mobile, m_ui2->mobile, "mobile") << Field(Gui::AbookAddressbook::Nick, m_ui2->nick, "nick") <<
-                Field(Gui::AbookAddressbook::URL, m_ui2->url, "url") << Field(Gui::AbookAddressbook::Notes, m_ui2->notes, "notes") <<
-                Field(Gui::AbookAddressbook::Anniversary, m_ui2->anniversary, "anniversary") << Field(Gui::AbookAddressbook::Photo, m_ui2->photo, "photo");
+    fields <<   Field(Gui::AbookAddressbook::Name, m_ui2->name, QLatin1String("name")) << Field(Gui::AbookAddressbook::Mail, m_ui2->mail, QLatin1String("email")) <<
+                Field(Gui::AbookAddressbook::Address, m_ui2->address, QLatin1String("address")) << Field(Gui::AbookAddressbook::City, m_ui2->city, QLatin1String("city")) <<
+                Field(Gui::AbookAddressbook::State, m_ui2->state, QLatin1String("state")) << Field(Gui::AbookAddressbook::ZIP, m_ui2->zip, QLatin1String("zip")) <<
+                Field(Gui::AbookAddressbook::Country, m_ui2->country, QLatin1String("country")) << Field(Gui::AbookAddressbook::Phone, m_ui2->phone, QLatin1String("phone")) <<
+                Field(Gui::AbookAddressbook::Workphone, m_ui2->workphone, QLatin1String("workphone")) << Field(Gui::AbookAddressbook::Fax, m_ui2->fax, QLatin1String("fax")) <<
+                Field(Gui::AbookAddressbook::Mobile, m_ui2->mobile, QLatin1String("mobile")) << Field(Gui::AbookAddressbook::Nick, m_ui2->nick, QLatin1String("nick")) <<
+                Field(Gui::AbookAddressbook::URL, m_ui2->url, QLatin1String("url")) << Field(Gui::AbookAddressbook::Notes, m_ui2->notes, QLatin1String("notes")) <<
+                Field(Gui::AbookAddressbook::Anniversary, m_ui2->anniversary, QLatin1String("anniversary")) << Field(Gui::AbookAddressbook::Photo, m_ui2->photo, QLatin1String("photo"));
 
     m_sortFilterProxy = new QSortFilterProxyModel(this);
     m_sortFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -158,7 +158,7 @@ static void setText(QLabel *l, const QString &text)
 {
     if (QTextDocument *t = l->findChild<QTextDocument*>())
         t->setPlainText(text);
-    l->setText("");
+    l->setText(QString());
     l->setText(text);
 }
 
@@ -245,9 +245,9 @@ void BE::Contacts::importPhoto(const QString &path)
 #else
                 QDateTime::currentMSecsSinceEpoch()
 #endif
-                ) + "." + QFileInfo(path).suffix();
+                ) + QLatin1Char('.') + QFileInfo(path).suffix();
 
-    const QString file = QDir::homePath() + "/.abook/" + photo;
+    const QString file = QDir::homePath() + QLatin1String("/.abook/") + photo;
     if (QFile::copy(path, file)) {
         m_currentContact->setData(photo, Gui::AbookAddressbook::Photo);
         setPhoto(file);
@@ -257,12 +257,12 @@ void BE::Contacts::importPhoto(const QString &path)
 void BE::Contacts::addContact()
 {
     m_dirty = true;
-    QStandardItem *item = new QStandardItem("[New Contact]");
+    QStandardItem *item = new QStandardItem(tr("[New Contact]"));
     for (QList<Field>::const_iterator   it = fields.constBegin(),
                                         end = fields.constEnd(); it != end; ++it) {
         if (it->type == Gui::AbookAddressbook::Name || it->type == Gui::AbookAddressbook::Photo)
             continue;
-        item->setData( "[" + it->key + "]", it->type );
+        item->setData( QLatin1Char('[') + it->key + QLatin1Char(']'), it->type );
     }
     if (m_currentContact)
         m_abook->model()->insertRow(m_currentContact->index().row() + 1, item);
@@ -295,7 +295,7 @@ void BE::Contacts::setContact(const QModelIndex &index)
                                             end = fields.constEnd(); it != end; ++it) {
             if (it->type != Gui::AbookAddressbook::Photo) {
                 QString s = lifeText(it->label);
-                if (s.startsWith("["))
+                if (s.startsWith(QLatin1String("[")))
                     s.clear();
                 if (m_currentContact->data(it->type).toString() != s) {
                     m_currentContact->setData( true, Gui::AbookAddressbook::Dirty );
@@ -321,7 +321,7 @@ void BE::Contacts::setContact(const QModelIndex &index)
             if (v.isValid())
                 s = v.toString();
             else
-                s = "[" + it->key + "]";
+                s = QLatin1Char('[') + it->key + QLatin1Char(']');
             setText(it->label, s);
         }
     }
@@ -329,7 +329,7 @@ void BE::Contacts::setContact(const QModelIndex &index)
     QString photo = m_currentContact->data(Gui::AbookAddressbook::Photo).toString();
     if (!photo.isEmpty()) {
         if (QDir::isRelativePath(photo))
-            photo = QDir::homePath() + "/.abook/" + photo;
+            photo = QDir::homePath() + QLatin1String("/.abook/") + photo;
         if (QFile::exists(photo) && setPhoto(photo))
             return;
     }
@@ -438,6 +438,6 @@ void BE::Contacts::manageContact(const QString &mail, const QString &prettyName)
         m_ui2->name->setText(prettyName);
         m_currentContact->setText(prettyName);
     } else {
-        m_ui2->name->setText("[name]");
+        m_ui2->name->setText(tr("[name]"));
     }
 }

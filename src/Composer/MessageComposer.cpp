@@ -75,7 +75,7 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
     {
         // This is more or less copy-pasted from Gui/AttachmentView.cpp. Unfortunately, sharing the implementation
         // is not trivial due to the way how the static libraries are currently built.
-        QMimeType mimeType = QMimeDatabase().mimeTypeForName(m_attachments[index.row()]->mimeType());
+        QMimeType mimeType = QMimeDatabase().mimeTypeForName(QString::fromUtf8(m_attachments[index.row()]->mimeType()));
         if (mimeType.isValid() && !mimeType.isDefault()) {
             return QIcon::fromTheme(mimeType.iconName(), Gui::loadIcon(QLatin1String("mail-attachment")));
         } else {
@@ -242,7 +242,7 @@ bool MessageComposer::dropAttachmentList(QDataStream &stream)
             QString mailbox;
             uint uidValidity;
             uint uid;
-            QString trojitaPath;
+            QByteArray trojitaPath;
             if (!validateDropImapPart(stream, mailbox, uidValidity, uid, trojitaPath))
                 return false;
             try {
@@ -347,7 +347,7 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
 }
 
 /** @short Check that the data representing a single message part are correct */
-bool MessageComposer::validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QString &trojitaPath) const
+bool MessageComposer::validateDropImapPart(QDataStream &stream, QString &mailbox, uint &uidValidity, uint &uid, QByteArray &trojitaPath) const
 {
     stream >> mailbox >> uidValidity >> uid >> trojitaPath;
     if (stream.status() != QDataStream::Ok) {
@@ -378,7 +378,7 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
     QString mailbox;
     uint uidValidity;
     uint uid;
-    QString trojitaPath;
+    QByteArray trojitaPath;
     if (!validateDropImapPart(stream, mailbox, uidValidity, uid, trojitaPath))
         return false;
     if (!stream.atEnd()) {
@@ -548,21 +548,19 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     target->write(recipientHeaders);
 
     // Other message metadata
-    target->write(encodeHeaderField(QLatin1String("Subject: ") + m_subject).append("\r\n").
-            append("Date: ").append(Imap::dateTimeToRfc2822(m_timestamp)).append("\r\n").
-            append("User-Agent: ").append(
-                QString::fromUtf8("Trojita/%1; %2")
-                .arg(Common::Application::version, Imap::Mailbox::systemPlatformVersion()).toUtf8()
-                ).append("\r\n").
-            append("MIME-Version: 1.0\r\n"));
+    target->write(encodeHeaderField(QLatin1String("Subject: ") + m_subject) + "\r\n" +
+                  "Date: " + Imap::dateTimeToRfc2822(m_timestamp).toUtf8() + "\r\n" +
+                  QString::fromUtf8("User-Agent: Trojita/%1; %2\r\n").arg(
+                      Common::Application::version, Imap::Mailbox::systemPlatformVersion()).toUtf8() +
+                  "MIME-Version: 1.0\r\n");
     QByteArray messageId = generateMessageId(m_from);
     if (!messageId.isEmpty()) {
-        target->write(QByteArray("Message-ID: <").append(messageId).append(">\r\n"));
+        target->write("Message-ID: <" + messageId + ">\r\n");
     }
-    writeHeaderWithMsgIds(target, QByteArray("In-Reply-To"), m_inReplyTo);
-    writeHeaderWithMsgIds(target, QByteArray("References"), m_references);
+    writeHeaderWithMsgIds(target, "In-Reply-To", m_inReplyTo);
+    writeHeaderWithMsgIds(target, "References", m_references);
     if (!m_organization.isEmpty()) {
-        target->write(encodeHeaderField(QLatin1String("Organization: ") + m_organization).append("\r\n"));
+        target->write(encodeHeaderField(QLatin1String("Organization: ") + m_organization) + "\r\n");
     }
 
     // Headers depending on actual message body data

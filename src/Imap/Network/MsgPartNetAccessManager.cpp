@@ -73,7 +73,7 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
     }
 
     Q_ASSERT(message.isValid());
-    QModelIndex partIndex = pathToPart(message, req.url().path());
+    QModelIndex partIndex = pathToPart(message, req.url().path().toUtf8());
 
     if (req.url().scheme() == QLatin1String("trojita-imap") && req.url().host() == QLatin1String("msg")) {
         // Internal Trojita reference
@@ -120,21 +120,24 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
 }
 
 /** @short Find a message body part through its slash-separated string path */
-QModelIndex MsgPartNetAccessManager::pathToPart(const QModelIndex &message, const QString &path)
+QModelIndex MsgPartNetAccessManager::pathToPart(const QModelIndex &message, const QByteArray &path)
 {
+    if (!path.startsWith("/"))
+        return QModelIndex();
+
     QModelIndex target = message;
-    QStringList items = path.split('/', QString::SkipEmptyParts);
+    QList<QByteArray> items = path.mid(1).split('/'); // mid(1) to get rid of the leading slash now that we don't use QString::SkipEmptyParts
     bool ok = ! items.isEmpty(); // if it's empty, it's a bogous URL
 
-    for (QStringList::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
+    for (QList<QByteArray>::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
         int offset = it->toInt(&ok);
         if (!ok) {
             // special case, we have to dive into that funny, irregular special parts now
-            if (*it == QLatin1String("HEADER"))
+            if (*it == "HEADER")
                 target = target.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
-            else if (*it == QLatin1String("TEXT"))
+            else if (*it == "TEXT")
                 target = target.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
-            else if (*it == QLatin1String("MIME"))
+            else if (*it == "MIME")
                 target = target.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
             else
                 return QModelIndex();

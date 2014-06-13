@@ -61,14 +61,14 @@ bool CreateMailboxTask::handleStateHelper(const Imap::Responses::State *const re
             EMIT_LATER(model, mailboxCreationSucceded, Q_ARG(QString, mailbox));
             if (_dead) {
                 // Got to check if we're still allowed to execute before launching yet another command
-                _failed("Asked to die");
+                _failed(tr("Asked to die"));
                 return true;
             }
             tagList = parser->list(QLatin1String(""), mailbox);
             // Don't call _completed() yet, we're going to update mbox list before that
         } else {
             EMIT_LATER(model, mailboxCreationFailed, Q_ARG(QString, mailbox), Q_ARG(QString, resp->message));
-            _failed("Cannot create mailbox");
+            _failed(tr("Cannot create mailbox"));
         }
         return true;
     } else if (resp->tag == tagList) {
@@ -76,7 +76,7 @@ bool CreateMailboxTask::handleStateHelper(const Imap::Responses::State *const re
             model->finalizeIncrementalList(parser, mailbox);
             _completed();
         } else {
-            _failed("Error with the LIST command after the CREATE");
+            _failed(tr("Error with the LIST command after the CREATE"));
         }
         return true;
     } else {

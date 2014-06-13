@@ -117,11 +117,11 @@ public:
     virtual void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags) = 0;
 
     /** @short Return part data or a null QByteArray if none available */
-    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QString &partId) const = 0;
+    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const = 0;
     /** @short Save data for one message part */
-    virtual void setMsgPart(const QString &mailbox, const uint uid, const QString &partId, const QByteArray &data) = 0;
+    virtual void setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data) = 0;
     /** @short Drop the data for a message part which is no longer needed */
-    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QString &partId) = 0;
+    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId) = 0;
 
     /** @short Return cached threading info for a given mailbox */
     virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox) = 0;

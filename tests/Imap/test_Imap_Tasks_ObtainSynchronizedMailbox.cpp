@@ -2212,7 +2212,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     helperSyncBNoMessages();
 
     // Make sure that we catch UIDNEXT missing by purging the cache
-    model->cache()->setMsgPart("a", 1212, QString(), "foo");
+    model->cache()->setMsgPart("a", 1212, QByteArray(), "foo");
 
     // Now go back to mailbox A
     model->resyncMailbox(idxA);
@@ -2242,7 +2242,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
 
     // Missing UIDNEXT is a violation of the IMAP protocol specification, we treat that like a severe error and fall back to
     // a full synchronization which means that any cached data is discarded
-    QCOMPARE(model->cache()->messagePart("a", 1212, QString()), QByteArray());
+    QCOMPARE(model->cache()->messagePart("a", 1212, QByteArray()), QByteArray());
 }
 
 /** @short Test that we can open a mailbox using just the cached data when offline */

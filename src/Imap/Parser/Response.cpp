@@ -842,7 +842,7 @@ QDateTime Fetch::dateify(QByteArray str, const QByteArray &line, const int start
     if (str.size() != 26)
         throw ParseError(line, start);
 
-    QDateTime date = QLocale(QLocale::C).toDateTime(str.left(20), QLatin1String("d-MMM-yyyy HH:mm:ss"));
+    QDateTime date = QLocale(QLocale::C).toDateTime(QString::fromUtf8(str.left(20)), QLatin1String("d-MMM-yyyy HH:mm:ss"));
     const char sign = str[21];
     bool ok;
     int hours = str.mid(22, 2).toInt(&ok);
@@ -1126,7 +1126,7 @@ QTextStream &State::dump(QTextStream &stream) const
 
 QTextStream &Capability::dump(QTextStream &stream) const
 {
-    return stream << "* CAPABILITY " << capabilities.join(", ");
+    return stream << "* CAPABILITY " << capabilities.join(QLatin1String(", "));
 }
 
 QTextStream &NumberResponse::dump(QTextStream &stream) const
@@ -1136,7 +1136,7 @@ QTextStream &NumberResponse::dump(QTextStream &stream) const
 
 QTextStream &List::dump(QTextStream &stream) const
 {
-    stream << kind << " '" << mailbox << "' (" << flags.join(", ") << "), sep '" << separator << "'";
+    stream << kind << " '" << mailbox << "' (" << flags.join(QLatin1String(", ")) << "), sep '" << separator << "'";
     if (!extendedData.isEmpty()) {
         stream << " (";
         for (QMap<QByteArray,QVariant>::const_iterator it = extendedData.constBegin(); it != extendedData.constEnd(); ++it) {
@@ -1149,7 +1149,7 @@ QTextStream &List::dump(QTextStream &stream) const
 
 QTextStream &Flags::dump(QTextStream &stream) const
 {
-    return stream << "FLAGS " << flags.join(", ");
+    return stream << "FLAGS " << flags.join(QLatin1String(", "));
 }
 
 QTextStream &Search::dump(QTextStream &stream) const
@@ -1315,7 +1315,7 @@ QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
                 s << e.errorString() << " ";
             } else {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-                s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName).join(", ") << ") ";
+                s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName).join(QLatin1String(", ")) << ") ";
 #else
                 s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName) << ") ";
 #endif
@@ -1344,7 +1344,7 @@ template<class T> QTextStream &RespData<T>::dump(QTextStream &stream) const
 
 template<> QTextStream &RespData<QStringList>::dump(QTextStream &stream) const
 {
-    return stream << data.join(" ");
+    return stream << data.join(QLatin1String(" "));
 }
 
 template<> QTextStream &RespData<QDateTime>::dump(QTextStream &stream) const
@@ -1579,7 +1579,7 @@ bool SocketDisconnectedResponse::eq(const AbstractResponse &other) const
 }
 
 ParseErrorResponse::ParseErrorResponse(const ImapException &e):
-    message(QString::fromUtf8(e.msg().c_str())), exceptionClass(e.exceptionClass().c_str()), line(e.line()), offset(e.offset())
+    message(QString::fromUtf8(e.msg().c_str())), exceptionClass(QString::fromUtf8(e.exceptionClass().c_str())), line(e.line()), offset(e.offset())
 {
 }
 

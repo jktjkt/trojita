@@ -148,12 +148,12 @@ QString systemPlatformVersion()
                                    );
 #ifdef Q_OS_UNIX
     if (os.isEmpty()) {
-        os = "Unix";
+        os = QLatin1String("Unix");
     }
 #endif
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QString ws = ""
+    QString ws = QLatin1String(""
 #ifdef Q_WS_X11
                  "X11"
 #endif
@@ -166,7 +166,7 @@ QString systemPlatformVersion()
 #ifdef Q_WS_WIN
                  "Win"
 #endif
-                 ;
+                 );
 #else
     QString ws = QGuiApplication::platformName();
 #endif
@@ -277,13 +277,13 @@ QString systemPlatformVersion()
         if (platformVersion.isEmpty()) {
             // try to call the lsb_release
             QProcess *proc = new QProcess(0);
-            proc->start("lsb_release", QStringList() << QLatin1String("-s") << QLatin1String("-d"));
+            proc->start(QLatin1String("lsb_release"), QStringList() << QLatin1String("-s") << QLatin1String("-d"));
             proc->waitForFinished();
-            platformVersion = QString::fromLocal8Bit(proc->readAll()).trimmed().replace(QLatin1String("\""), QString()).replace(QLatin1String(";"), QLatin1String(","));
+            platformVersion = QString::fromLocal8Bit(proc->readAll()).trimmed().replace(QLatin1Char('"'), QString()).replace(QLatin1Char(';'), QLatin1Char(','));
             proc->deleteLater();
         }
     }
-    return QString::fromUtf8("Qt/%1; %2; %3; %4").arg(qVersion(), ws, os, platformVersion);
+    return QString::fromUtf8("Qt/%1; %2; %3; %4").arg(QString::fromUtf8(qVersion()), ws, os, platformVersion);
 }
 
 }

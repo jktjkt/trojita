@@ -428,7 +428,7 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime()
     QFETCH( QDateTime, date );
     QDateTime d;
     try {
-        d = Imap::LowLevelParser::parseRFC2822DateTime( line );
+        d = Imap::LowLevelParser::parseRFC2822DateTime( line.toUtf8() );
     } catch ( Imap::ParseError& e ) {
         qDebug() << e.what();
     }

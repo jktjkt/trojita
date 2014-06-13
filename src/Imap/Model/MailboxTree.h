@@ -190,7 +190,7 @@ public:
     void saveSyncStateAndUids(Model *model);
 
 private:
-    TreeItemPart *partIdToPtr(Model *model, TreeItemMessage *message, const QString &msgId);
+    TreeItemPart *partIdToPtr(Model *model, TreeItemMessage *message, const QByteArray &msgId);
 
     /** @short ImapTask which is currently responsible for well-being of this mailbox */
     QPointer<KeepMailboxOpenTask> maintainingTask;
@@ -297,10 +297,10 @@ class TreeItemPart: public TreeItem
     void operator=(const TreeItem &);  // don't implement
     friend class TreeItemMailbox; // needs access to m_data
     friend class Model; // dtto
-    QString m_mimeType;
-    QString m_charset;
-    QString m_contentFormat;
-    QString m_delSp;
+    QByteArray m_mimeType;
+    QByteArray m_charset;
+    QByteArray m_contentFormat;
+    QByteArray m_delSp;
     QByteArray m_encoding;
     QByteArray m_data;
     QByteArray m_bodyFldId;
@@ -311,7 +311,7 @@ class TreeItemPart: public TreeItem
     mutable TreeItemPart *m_partMime;
     mutable TreeItemPart *m_partRaw;
 public:
-    TreeItemPart(TreeItem *parent, const QString &mimeType);
+    TreeItemPart(TreeItem *parent, const QByteArray &mimeType);
     ~TreeItemPart();
 
     virtual unsigned int childrenCount(Model *const model);
@@ -325,7 +325,7 @@ public:
     virtual QVariant data(Model *const model, int role);
     virtual bool hasChildren(Model *const model);
 
-    virtual QString partId() const;
+    virtual QByteArray partId() const;
 
     /** @short Shall we use RFC3516 BINARY for fetching message parts or not */
     typedef enum {
@@ -335,8 +335,8 @@ public:
         FETCH_PART_BINARY
     } PartFetchingMode;
 
-    virtual QString partIdForFetch(const PartFetchingMode fetchingMode) const;
-    virtual QString pathToPart() const;
+    virtual QByteArray partIdForFetch(const PartFetchingMode fetchingMode) const;
+    virtual QByteArray pathToPart() const;
     TreeItemMessage *message() const;
 
     /** @short Provide access to the internal buffer holding data
@@ -347,11 +347,11 @@ public:
         Imap::Network::MsgPartNetworkReply.
      */
     QByteArray *dataPtr();
-    QString mimeType() const { return m_mimeType; }
-    QString charset() const { return m_charset; }
-    void setCharset(const QString &ch) { m_charset = ch; }
-    void setContentFormat(const QString &format) { m_contentFormat = format; }
-    void setContentDelSp(const QString &delSp) { m_delSp = delSp; }
+    QByteArray mimeType() const { return m_mimeType; }
+    QByteArray charset() const { return m_charset; }
+    void setCharset(const QByteArray &ch) { m_charset = ch; }
+    void setContentFormat(const QByteArray &format) { m_contentFormat = format; }
+    void setContentDelSp(const QByteArray &delSp) { m_delSp = delSp; }
     void setEncoding(const QByteArray &encoding) { m_encoding = encoding; }
     QByteArray encoding() const { return m_encoding; }
     void setBodyFldId(const QByteArray &id) { m_bodyFldId = id; }
@@ -384,16 +384,16 @@ public:
     TreeItemModifiedPart(TreeItem *parent, const PartModifier kind);
     virtual int row() const;
     virtual unsigned int columnCount();
-    virtual QString partId() const;
-    virtual QString pathToPart() const;
+    virtual QByteArray partId() const;
+    virtual QByteArray pathToPart() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     PartModifier kind() const;
     virtual QModelIndex toIndex(Model *const model) const;
-    virtual QString partIdForFetch(const PartFetchingMode fetchingMode) const;
+    virtual QByteArray partIdForFetch(const PartFetchingMode fetchingMode) const;
 protected:
     virtual bool isTopLevelMultiPart() const;
 private:
-    QString modifierToString() const;
+    QByteArray modifierToByteArray() const;
 };
 
 /** @short Specialization of TreeItemPart for parts holding a multipart/message */

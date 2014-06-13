@@ -165,7 +165,7 @@ void SimplePartWidget::slotMarkupPlainText()
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             const QString userSheet = QString::fromLocal8Bit(file.readAll().data());
             lastVersion = lastTouched;
-            stylesheet += "\n" + userSheet;
+            stylesheet += QLatin1Char('\n') + userSheet;
             file.close();
         }
     }
@@ -173,14 +173,14 @@ void SimplePartWidget::slotMarkupPlainText()
     // The dir="auto" is required for WebKit to treat all paragraphs as entities with possibly different text direction.
     // The individual paragraphs unfortunately share the same text alignment, though, as per
     // https://bugs.webkit.org/show_bug.cgi?id=71194 (fixed in Blink already).
-    QString htmlHeader("<html><head><style type=\"text/css\"><!--" + textColors + fontSpecification + stylesheet +
-                       "--></style></head><body><pre dir=\"auto\">");
-    static QString htmlFooter("\n</pre></body></html>");
+    QString htmlHeader(QLatin1String("<html><head><style type=\"text/css\"><!--") + textColors + fontSpecification + stylesheet +
+                       QLatin1String("--></style></head><body><pre dir=\"auto\">"));
+    static QString htmlFooter(QLatin1String("\n</pre></body></html>"));
 
     // We cannot rely on the QWebFrame's toPlainText because of https://bugs.kde.org/show_bug.cgi?id=321160
     QString markup = Composer::Util::plainTextToHtml(
                 Imap::decodeByteArray(m_partIndex.data(Imap::Mailbox::RolePartData).toByteArray(),
-                                      m_partIndex.data(Imap::Mailbox::RolePartCharset).toString()),
+                                      m_partIndex.data(Imap::Mailbox::RolePartCharset).toByteArray()),
                 flowedFormat);
 
     // and finally set the marked up page.

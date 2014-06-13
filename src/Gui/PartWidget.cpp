@@ -53,7 +53,7 @@ QString quoteMeHelper(const QObjectList &children)
         if (w)
             res += w->quoteMe();
     }
-    return res.join("\n");
+    return res.join(QLatin1String("\n"));
 }
 
 MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
