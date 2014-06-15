@@ -8,6 +8,7 @@
   <name xml:lang="cs">Trojitá</name>
   <name xml:lang="da">Trojitá</name>
   <name xml:lang="de">Trojitá</name>
+  <name xml:lang="hu">Trojitá</name>
   <name xml:lang="nl">Trojitá</name>
   <name xml:lang="pl">Trojitá</name>
   <name xml:lang="pt">Trojitá</name>
@@ -22,6 +23,7 @@
   <summary xml:lang="da">E-mail-klient til IMAP</summary>
   <summary xml:lang="de">IMAP-E-Mail-Programm</summary>
   <summary xml:lang="es">Cliente de correo IMAP</summary>
+  <summary xml:lang="hu">IMAP e-mail kliens</summary>
   <summary xml:lang="nl">IMAP-E-mailclient</summary>
   <summary xml:lang="pl">Klient pocztowy IMAP</summary>
   <summary xml:lang="pt">Cliente de E-mail por IMAP</summary>
@@ -76,6 +78,7 @@
       <li xml:lang="ca">Un cor IMAP molt ràpid i robust</li>
       <li xml:lang="da">Hurtig og robust IMAP-kerne</li>
       <li xml:lang="de">Sehr schneller und robuster IMAP-Kern</li>
+      <li xml:lang="hu">Nagyon gyors és robusztus IMAP-mag</li>
       <li xml:lang="nl">Erg snelle en robuuste IMAP-kern</li>
       <li xml:lang="pl">Bardzo szybki i zwinny rdzeń IMAP</li>
       <li xml:lang="pt">Núcleo de IMAP muito rápido e robusto</li>
@@ -110,6 +113,7 @@
       <li xml:lang="ca">Permet IMAP desconnectat</li>
       <li xml:lang="da">Understøttelse af offline-IMAP</li>
       <li xml:lang="de">Unterstützung für Offline-IMAP</li>
+      <li xml:lang="hu">Kapcsolat nélküli IMAP-támogatás</li>
       <li xml:lang="nl">Ondersteuning van offline IMAP</li>
       <li xml:lang="pl">Obsługa IMAP bez sieci</li>
       <li xml:lang="pt">Suporte para IMAP desligado</li>
