@@ -131,6 +131,7 @@ BE::Contacts::~Contacts()
 
 void BE::Contacts::closeEvent(QCloseEvent *)
 {
+    setContact(QModelIndex()); // store current contact changes
     if (m_dirty) {
         if (QMessageBox::question(this, tr("Contacts"), tr("Save changes?"), QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes) {
             saveContacts();
@@ -143,7 +144,6 @@ void BE::Contacts::closeEvent(QCloseEvent *)
 
 void BE::Contacts::saveContacts()
 {
-    setContact(QModelIndex()); // store current contact changes
     m_abook->saveContacts();
 }
 
