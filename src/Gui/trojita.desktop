@@ -73,6 +73,7 @@ Keywords=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[ca]=correu;correu electrònic;IMAP;SMTP;eml;MUA;
 Keywords[da]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[de]=mail;e-mail;IMAP;SMTP;eml;MUA;
+Keywords[es]=mail;e-mail;IMAP;SMTP;eml;MUA;correo electrónico
 Keywords[fi]=mail;e-mail;posti,sähköposti;IMAP;SMTP;eml;MUA;
 Keywords[hu]=levél;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[nds]=Nettpost;IMAP;SMTP;eml;MUA;
