@@ -10,6 +10,7 @@
   <name xml:lang="de">Trojitá</name>
   <name xml:lang="es">Trojitá</name>
   <name xml:lang="hu">Trojitá</name>
+  <name xml:lang="nds">Trojitá</name>
   <name xml:lang="nl">Trojitá</name>
   <name xml:lang="pl">Trojitá</name>
   <name xml:lang="pt">Trojitá</name>
@@ -25,6 +26,7 @@
   <summary xml:lang="de">IMAP-E-Mail-Programm</summary>
   <summary xml:lang="es">Cliente de correo IMAP</summary>
   <summary xml:lang="hu">IMAP e-mail kliens</summary>
+  <summary xml:lang="nds">IMAP-Nettpostprogramm</summary>
   <summary xml:lang="nl">IMAP-E-mailclient</summary>
   <summary xml:lang="pl">Klient pocztowy IMAP</summary>
   <summary xml:lang="pt">Cliente de E-mail por IMAP</summary>
@@ -64,7 +66,7 @@
     <p xml:lang="uk">Основними пріоритетами під час розробки програми є ефективність, швидкість роботи та використання відкритих стандартів. Крім того, Trojitá може працювати на багатьох платформах: від великих стаціонарних комп’ютерів до малих кишенькових телефонів. Trojitá є окремою програмою, а не частиною якогось комплекту для керування особистими даними.</p>
     <p xml:lang="x-test">xxIt prioritizes efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.xx</p>
     <p>What could make Trojitá interesting for you:</p>
-    <p xml:lang="ca">Què us podria fer el Trojita interessant:</p>
+    <p xml:lang="ca">Què us podria fer el Trojitá interessant:</p>
     <p xml:lang="da">Hvad der kunne gøre Trojitá interessant for dig:</p>
     <p xml:lang="nl">Wat zou Trojitá voor u interessant kunnen maken:</p>
     <p xml:lang="pl">Co może cię zainteresować w Trojitá:</p>
