@@ -43,9 +43,6 @@
 #include <QToolBar>
 #include <QToolButton>
 #include <QUrl>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <QUrlQuery>
-#endif
 #include <QWheelEvent>
 
 #include "AbookAddressbook/AbookAddressbook.h"
@@ -1227,15 +1224,16 @@ void MainWindow::recoverDrafts()
     QDir draftPath(Common::writablePath(Common::LOCATION_CACHE) + QLatin1String("Drafts/"));
     QStringList drafts(draftPath.entryList(QStringList() << QLatin1String("*.draft")));
     Q_FOREACH(const QString &draft, drafts) {
-        ComposeWidget *cw = invokeComposeDialog();
-        if (cw)
-            cw->loadDraft(draftPath.filePath(draft));
+        ComposeWidget *w = ComposeWidget::warnIfMsaNotConfigured(ComposeWidget::createDraft(this, draftPath.filePath(draft)), this);
+        // No need to further try creating widgets for drafts if a nullptr is being returned by ComposeWidget::warnIfMsaNotConfigured
+        if (!w)
+            break;
     }
 }
 
 void MainWindow::slotComposeMail()
 {
-    invokeComposeDialog();
+    ComposeWidget::warnIfMsaNotConfigured(ComposeWidget::createBlank(this), this);
 }
 
 void MainWindow::slotEditDraft()
@@ -1243,11 +1241,7 @@ void MainWindow::slotEditDraft()
     QString path(Common::writablePath(Common::LOCATION_DATA) + tr("Drafts"));
     QDir().mkpath(path);
     path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + QLatin1String(" (*.draft)"));
-    if (!path.isEmpty()) {
-        ComposeWidget *cw = invokeComposeDialog();
-        if (cw)
-            cw->loadDraft(path);
-    }
+    ComposeWidget::warnIfMsaNotConfigured(ComposeWidget::createDraft(this, path), this);
 }
 
 void MainWindow::handleMarkAsRead(bool value)
@@ -1540,42 +1534,7 @@ void MainWindow::slotReplyGuess()
 
 void MainWindow::slotComposeMailUrl(const QUrl &url)
 {
-    QString subject;
-    QString body;
-    RecipientsType recipients;
-    QList<QByteArray> inReplyTo;
-    QList<QByteArray> references;
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    const QUrl &q = url;
-#else
-    const QUrlQuery q(url);
-#endif
-
-    if (!q.queryItemValue(QLatin1String("X-Trojita-DisplayName")).isEmpty()) {
-        // There should be only single email address created by Imap::Message::MailAddress::asUrl()
-        Imap::Message::MailAddress addr;
-        if (Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")))
-            recipients << qMakePair(Composer::ADDRESS_TO, addr.asPrettyString());
-    } else {
-        // This should be real RFC 6068 mailto:
-        Composer::parseRFC6068Mailto(url, subject, body, recipients, inReplyTo, references);
-    }
-
-    // NOTE: invokeComposeDialog needs inReplyTo and references parameters without angle brackets, so remove them
-    for (int i = 0; i < inReplyTo.size(); ++i) {
-        if (inReplyTo[i].startsWith('<') && inReplyTo[i].endsWith('>')) {
-            inReplyTo[i] = inReplyTo[i].mid(1, inReplyTo[i].size()-2);
-        }
-    }
-
-    for (int i = 0; i < references.size(); ++i) {
-        if (references[i].startsWith('<') && references[i].endsWith('>')) {
-            references[i] = references[i].mid(1, references[i].size()-2);
-        }
-    }
-
-    invokeComposeDialog(subject, body, recipients, inReplyTo, references);
+    ComposeWidget::warnIfMsaNotConfigured(ComposeWidget::createFromUrl(this, url), this);
 }
 
 void MainWindow::slotManageContact(const QUrl &url)
@@ -1598,20 +1557,8 @@ void MainWindow::invokeContactEditor()
     m_contactsWidget->show();
 }
 
-/** @short Invoke the message composer, optionally with some data pre-filed form arguments
-
-The user is always able to tweak these values as she sees fit.
-
-The semantics of the @arg inReplyTo and @arg references are the same as described for the Composer::MessageComposer,
-i.e. the data are not supposed to contain the angle bracket.  If the @arg replyingToMessage is present, it will be used
-as an index to a message which will get marked as replied to.  This is needed because IMAP doesn't really support site-wide
-search by a Message-Id (and it cannot possibly support it in general, either), and because Trojita's lazy loading and lack
-of cross-session persistent indexes means that "mark as replied" and "extract message-id from" are effectively two separate
-operations.
-*/
-ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QString &body,
-                                               const RecipientsType &recipients, const QList<QByteArray> &inReplyTo,
-                                               const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
+/** @short Create an MSAFactory as per the settings */
+MSA::MSAFactory *MainWindow::msaFactory()
 {
     using namespace Common;
     QString method = m_settings->value(SettingsNames::msaMethodKey).toString();
@@ -1627,39 +1574,19 @@ ComposeWidget *MainWindow::invokeComposeDialog(const QString &subject, const QSt
     } else if (method == SettingsNames::methodSENDMAIL) {
         QStringList args = m_settings->value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
-            QMessageBox::critical(this, tr("Error"), tr("Please configure the SMTP or sendmail settings in application settings."));
             return 0;
         }
         QString appName = args.takeFirst();
         msaFactory = new MSA::SendmailFactory(appName, args);
     } else if (method == SettingsNames::methodImapSendmail) {
         if (!imapModel()->capabilities().contains(QLatin1String(""))) {
-            QMessageBox::critical(this, tr("Error"), tr("The IMAP server does not support mail submission. Please reconfigure the application."));
             return 0;
         }
         // no particular preparation needed here
     } else {
-        QMessageBox::critical(this, tr("Error"), tr("Please configure e-mail delivery method in application settings."));
         return 0;
     }
-
-    ComposeWidget *w = new ComposeWidget(this, m_settings, msaFactory);
-
-    // Trim the References header as per RFC 5537
-    QList<QByteArray> trimmedReferences = references;
-    int referencesSize = QByteArray("References: ").size();
-    const int lineOverhead = 3; // one for the " " prefix, two for the \r\n suffix
-    Q_FOREACH(const QByteArray &item, references)
-        referencesSize += item.size() + lineOverhead;
-    // The magic numbers are from RFC 5537
-    while (referencesSize >= 998 && trimmedReferences.size() > 3) {
-        referencesSize -= trimmedReferences.takeAt(1).size() + lineOverhead;
-    }
-
-    w->setData(recipients, subject, body, inReplyTo, trimmedReferences, replyingToMessage);
-    Util::centerWidgetOnScreen(w);
-    w->show();
-    return w;
+    return msaFactory;
 }
 
 void MainWindow::slotMailboxDeleteFailed(const QString &mailbox, const QString &msg)

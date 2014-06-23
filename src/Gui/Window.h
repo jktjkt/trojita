@@ -76,6 +76,10 @@ namespace Plugins
 class PluginManager;
 }
 
+namespace MSA
+{
+class MSAFactory;
+}
 namespace Gui
 {
 
@@ -95,11 +99,6 @@ class MainWindow: public QMainWindow
     typedef enum { LAYOUT_COMPACT, LAYOUT_WIDE, LAYOUT_ONE_AT_TIME } LayoutMode;
 public:
     MainWindow(QSettings *settings);
-    ComposeWidget *invokeComposeDialog(const QString &subject = QString(), const QString &body = QString(),
-                                       const RecipientsType &recipients = RecipientsType(),
-                                       const QList<QByteArray> &inReplyTo = QList<QByteArray>(),
-                                       const QList<QByteArray> &references = QList<QByteArray>(),
-                                       const QModelIndex &replyingToMessage = QModelIndex());
     QSize sizeHint() const;
 
     Imap::Mailbox::Model *imapModel() const;
@@ -107,6 +106,8 @@ public:
     const AbstractAddressbook *addressBook() const { return m_addressBook; }
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
     Plugins::PluginManager *pluginManager() { return m_pluginManager; }
+    QSettings *settings() const { return m_settings; }
+    MSA::MSAFactory *msaFactory();
 
     // FIXME: this should be changed to some wrapper when support for multiple accounts is available
     Imap::ImapAccess *imapAccess() const;

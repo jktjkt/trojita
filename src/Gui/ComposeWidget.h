@@ -67,22 +67,18 @@ class ComposeWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::MSAFactory *msaFactory);
     ~ComposeWidget();
-    void setData(const QList<QPair<Composer::RecipientKind, QString> > &recipients,
-                 const QString &subject,
-                 const QString &body,
-                 const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references,
-                 const QModelIndex &replyingToMessage);
-    void loadDraft(const QString &path);
-
+    static ComposeWidget *warnIfMsaNotConfigured(ComposeWidget *widget, MainWindow *mainWindow);
+    static ComposeWidget *createDraft(MainWindow *mainWindow, const QString &path);
+    static ComposeWidget *createBlank(MainWindow *mainWindow);
+    static ComposeWidget *createFromUrl(MainWindow *mainWindow, const QUrl &url);
+    static ComposeWidget *createReply(MainWindow *mainWindow, const Composer::ReplyMode &mode, const QModelIndex &replyingToMessage,
+                                      const QList<QPair<Composer::RecipientKind, QString> > &recipients, const QString &subject,
+                                      const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
 protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *ce);
     bool eventFilter(QObject *o, QEvent *e);
-
-public slots:
-    bool setReplyMode(const Composer::ReplyMode mode);
 
 private slots:
     void calculateMaxVisibleRecipients();
@@ -118,6 +114,12 @@ private slots:
     void updateReplyMarkingAction();
 
 private:
+    ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory);
+    void setResponseData(const QList<QPair<Composer::RecipientKind, QString> > &recipients, const QString &subject,
+                         const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references,
+                         const QModelIndex &replyingToMessage);
+    bool setReplyMode(const Composer::ReplyMode mode);
+
     static QByteArray extractMailAddress(const QString &text, bool &ok);
     static Composer::RecipientKind recipientKindForNextRow(const Composer::RecipientKind kind);
     void addRecipient(int position, Composer::RecipientKind kind, const QString &address);
@@ -130,6 +132,7 @@ private:
     bool shouldBuildMessageLocally() const;
 
     void saveDraft(const QString &path);
+    void loadDraft(const QString &path);
 
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;

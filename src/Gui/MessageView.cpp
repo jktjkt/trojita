@@ -346,35 +346,12 @@ void MessageView::reply(MainWindow *mainWindow, Composer::ReplyMode mode)
         messageIdList.append(messageId);
     }
 
-    ComposeWidget *w = mainWindow->invokeComposeDialog(
-                Composer::Util::replySubject(message.data(Imap::Mailbox::RoleMessageSubject).toString()), quoteText(),
-                QList<QPair<Composer::RecipientKind,QString> >(),
-                messageIdList,
-                message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() + messageIdList,
-                message
-                );
-    if (!w)
-        return;
-
-    bool ok = w->setReplyMode(mode);
-    if (!ok) {
-        QString err;
-        switch (mode) {
-        case Composer::REPLY_ALL:
-        case Composer::REPLY_ALL_BUT_ME:
-            // do nothing
-            break;
-        case Composer::REPLY_LIST:
-            err = tr("It doesn't look like this is a message to the mailing list. Please fill in the recipients manually.");
-            break;
-        case Composer::REPLY_PRIVATE:
-            err = trUtf8("Trojitá was unable to safely determine the real e-mail address of the author of the message. "
-                         "You might want to use the \"Reply All\" function and trim the list of addresses manually.");
-            break;
-        }
-        if (!err.isEmpty())
-            QMessageBox::warning(w, tr("Cannot Determine Recipients"), err);
-    }
+    ComposeWidget::warnIfMsaNotConfigured(
+                ComposeWidget::createReply(mainWindow, mode, message, QList<QPair<Composer::RecipientKind,QString> >(),
+                                           Composer::Util::replySubject(message.data(Imap::Mailbox::RoleMessageSubject).toString()),
+                                           quoteText(), messageIdList,
+                                           message.data(Imap::Mailbox::RoleMessageHeaderReferences).value<QList<QByteArray> >() + messageIdList),
+                mainWindow);
 }
 
 void MessageView::externalsRequested(const QUrl &url)

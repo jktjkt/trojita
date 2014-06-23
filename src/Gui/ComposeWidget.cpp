@@ -34,10 +34,14 @@
 #include <QSettings>
 #include <QTimer>
 #include <QToolButton>
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
 
 #include "ui_ComposeWidget.h"
 #include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
+#include "Composer/Mailto.h"
 #include "Composer/SenderIdentitiesModel.h"
 #include "Composer/Submission.h"
 #include "Common/InvokeMethod.h"
@@ -72,7 +76,7 @@ namespace Gui
 
 static const QString trojita_opacityAnimation = QLatin1String("trojita_opacityAnimation");
 
-ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::MSAFactory *msaFactory) :
+ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory) :
     QWidget(0, Qt::Window),
     ui(new Ui::ComposeWidget),
     m_maxVisibleRecipients(MIN_MAX_VISIBLE_RECIPIENTS),
@@ -82,7 +86,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
     m_explicitDraft(false),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(mainWindow),
-    m_settings(settings)
+    m_settings(mainWindow->settings())
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
 
@@ -186,11 +190,133 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, QSettings *settings, MSA::M
 #else
     m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + QLatin1String(".draft");
 #endif
+
+    // Add a blank recipient row to start with
+    addRecipient(m_recipients.count(), Composer::ADDRESS_TO, QString());
+    ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE, QFormLayout::FieldRole)->widget()->setFocus();
 }
 
 ComposeWidget::~ComposeWidget()
 {
     delete ui;
+}
+
+/** @short Throw a warning at an attempt to create a Compose Widget while the MSA is not configured */
+ComposeWidget *ComposeWidget::warnIfMsaNotConfigured(ComposeWidget *widget, MainWindow *mainWindow)
+{
+    if (!widget)
+        QMessageBox::critical(mainWindow, tr("Error"), tr("Please set appropriate settings for outgoing messages."));
+    return widget;
+}
+
+/** @short Create a blank composer window */
+ComposeWidget *ComposeWidget::createBlank(MainWindow *mainWindow)
+{
+    MSA::MSAFactory *msaFactory = mainWindow->msaFactory();
+    if (!msaFactory)
+        return 0;
+
+    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    Util::centerWidgetOnScreen(w);
+    w->show();
+    return w;
+}
+
+/** @short Load a draft in composer window */
+ComposeWidget *ComposeWidget::createDraft(MainWindow *mainWindow, const QString &path)
+{
+    MSA::MSAFactory *msaFactory = mainWindow->msaFactory();
+    if (!msaFactory)
+        return 0;
+
+    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    w->loadDraft(path);
+    Util::centerWidgetOnScreen(w);
+    w->show();
+    return w;
+}
+
+/** @short Create a composer window with data from a URL */
+ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &url)
+{
+    MSA::MSAFactory *msaFactory = mainWindow->msaFactory();
+    if (!msaFactory)
+        return 0;
+
+    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    QString subject;
+    QString body;
+    QList<QPair<Composer::RecipientKind,QString> > recipients;
+    QList<QByteArray> inReplyTo;
+    QList<QByteArray> references;
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    const QUrl &q = url;
+#else
+    const QUrlQuery q(url);
+#endif
+
+    if (!q.queryItemValue(QLatin1String("X-Trojita-DisplayName")).isEmpty()) {
+        // There should be only single email address created by Imap::Message::MailAddress::asUrl()
+        Imap::Message::MailAddress addr;
+        if (Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")))
+            recipients << qMakePair(Composer::ADDRESS_TO, addr.asPrettyString());
+    } else {
+        // This should be real RFC 6068 mailto:
+        Composer::parseRFC6068Mailto(url, subject, body, recipients, inReplyTo, references);
+    }
+
+    // NOTE: we need inReplyTo and references parameters without angle brackets, so remove them
+    for (int i = 0; i < inReplyTo.size(); ++i) {
+        if (inReplyTo[i].startsWith('<') && inReplyTo[i].endsWith('>')) {
+            inReplyTo[i] = inReplyTo[i].mid(1, inReplyTo[i].size()-2);
+        }
+    }
+    for (int i = 0; i < references.size(); ++i) {
+        if (references[i].startsWith('<') && references[i].endsWith('>')) {
+            references[i] = references[i].mid(1, references[i].size()-2);
+        }
+    }
+
+    w->setResponseData(recipients, subject, body, inReplyTo, references, QModelIndex());
+    Util::centerWidgetOnScreen(w);
+    w->show();
+    return w;
+}
+
+/** @short Create a composer window for a reply */
+ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer::ReplyMode &mode, const QModelIndex &replyingToMessage,
+                                          const QList<QPair<Composer::RecipientKind, QString> > &recipients, const QString &subject,
+                                          const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references)
+{
+    MSA::MSAFactory *msaFactory = mainWindow->msaFactory();
+    if (!msaFactory)
+        return 0;
+
+    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    w->setResponseData(recipients, subject, body, inReplyTo, references, replyingToMessage);
+    bool ok = w->setReplyMode(mode);
+    if (!ok) {
+        QString err;
+        switch (mode) {
+        case Composer::REPLY_ALL:
+        case Composer::REPLY_ALL_BUT_ME:
+            // do nothing
+            break;
+        case Composer::REPLY_LIST:
+            err = tr("It doesn't look like this is a message to the mailing list. Please fill in the recipients manually.");
+            break;
+        case Composer::REPLY_PRIVATE:
+            err = trUtf8("Trojitá was unable to safely determine the real e-mail address of the author of the message. "
+                         "You might want to use the \"Reply All\" function and trim the list of addresses manually.");
+            break;
+        }
+        if (!err.isEmpty())
+            QMessageBox::warning(w, tr("Cannot Determine Recipients"), err);
+    }
+    Util::centerWidgetOnScreen(w);
+    w->show();
+    return w;
 }
 
 void ComposeWidget::passwordRequested(const QString &user, const QString &host)
@@ -411,8 +537,16 @@ void ComposeWidget::setUiWidgetsEnabled(const bool enabled)
     ui->buttonBox->setEnabled(enabled);
 }
 
+/** @short Set private data members to get pre-filled by available parameters
 
-void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> > &recipients,
+The semantics of the @arg inReplyTo and @arg references are the same as described for the Composer::MessageComposer,
+i.e. the data are not supposed to contain the angle bracket.  If the @arg replyingToMessage is present, it will be used
+as an index to a message which will get marked as replied to.  This is needed because IMAP doesn't really support site-wide
+search by a Message-Id (and it cannot possibly support it in general, either), and because Trojita's lazy loading and lack
+of cross-session persistent indexes means that "mark as replied" and "extract message-id from" are effectively two separate
+operations.
+*/
+void ComposeWidget::setResponseData(const QList<QPair<Composer::RecipientKind, QString> > &recipients,
                             const QString &subject, const QString &body, const QList<QByteArray> &inReplyTo,
                             const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
@@ -426,7 +560,18 @@ void ComposeWidget::setData(const QList<QPair<Composer::RecipientKind, QString> 
     ui->mailText->setText(body);
     m_messageEverEdited = wasEdited;
     m_inReplyTo = inReplyTo;
-    m_references = references;
+
+    // Trim the References header as per RFC 5537
+    QList<QByteArray> trimmedReferences = references;
+    int referencesSize = QByteArray("References: ").size();
+    const int lineOverhead = 3; // one for the " " prefix, two for the \r\n suffix
+    Q_FOREACH(const QByteArray &item, references)
+        referencesSize += item.size() + lineOverhead;
+    // The magic numbers are from RFC 5537
+    while (referencesSize >= 998 && trimmedReferences.size() > 3) {
+        referencesSize -= trimmedReferences.takeAt(1).size() + lineOverhead;
+    }
+    m_references = trimmedReferences;
     m_replyingToMessage = replyingToMessage;
     if (m_replyingToMessage.isValid()) {
         m_markButton->show();
