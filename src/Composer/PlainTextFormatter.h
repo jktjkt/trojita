@@ -25,17 +25,27 @@
 
 #include <QStringList>
 
+class QColor;
+class QFontInfo;
+class QModelIndex;
+
 namespace Composer {
 namespace Util {
 
 /** @short Enable decoding of format=flowed, RFC 3676 */
-typedef enum {
-    FORMAT_PLAIN, /**< @short No value, use default */
-    FORMAT_FLOWED, /**< @short format=flowed, but DelSp is not active */
-    FORMAT_FLOWED_DELSP, /**< @short format=flowed; delsp=yes (see RFC 3676 for details */
-} FlowedFormat;
+enum class FlowedFormat {
+    PLAIN, /**< @short No value, use default */
+    FLOWED, /**< @short format=flowed, but DelSp is not active */
+    FLOWED_DELSP, /**< @short format=flowed; delsp=yes (see RFC 3676 for details */
+};
 
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed);
+
+QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font,
+                         const QColor &backgroundColor, const QColor &textColor,
+                         const QColor &linkColor, const QColor &visitedLinkColor);
+
+FlowedFormat flowedFormatForPart(const QModelIndex &partIndex);
 
 QRegExp signatureSeparator();
 

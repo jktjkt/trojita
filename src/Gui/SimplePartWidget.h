@@ -75,7 +75,6 @@ private:
     QAction *m_findAction;
     MessageView *m_messageView;
     Imap::Network::MsgPartNetAccessManager *m_netAccessManager;
-    Composer::Util::FlowedFormat flowedFormat;
 
     SimplePartWidget(const SimplePartWidget &); // don't implement
     SimplePartWidget &operator=(const SimplePartWidget &); // don't implement

@@ -41,8 +41,8 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed()
     QFETCH(QString, htmlFlowed);
     QFETCH(QString, htmlNotFlowed);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED), htmlFlowed);
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_PLAIN), htmlNotFlowed);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FlowedFormat::FLOWED), htmlFlowed);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FlowedFormat::PLAIN), htmlNotFlowed);
 }
 
 /** @short Data for testPlainTextFormattingFlowed */
@@ -83,7 +83,7 @@ void HtmlFormattingTest::testPlainTextFormattingFlowedDelSp()
     QFETCH(QString, plaintext);
     QFETCH(QString, htmlFlowedDelSp);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED_DELSP), htmlFlowedDelSp);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FlowedFormat::FLOWED_DELSP), htmlFlowedDelSp);
 }
 
 /** @short Data for testPlainTextFormattingFlowedDelSp */
@@ -107,7 +107,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaHtml()
     QFETCH(QString, plaintext);
     QFETCH(QString, html);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FORMAT_FLOWED), html);
+    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FlowedFormat::FLOWED), html);
 }
 
 void HtmlFormattingTest::testPlainTextFormattingViaHtml_data()
@@ -277,18 +277,18 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED), formattedFlowed);
+        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FlowedFormat::FLOWED), formattedFlowed);
     }
 
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_PLAIN), formattedPlain);
+        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FlowedFormat::PLAIN), formattedPlain);
     }
 #endif
 
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FORMAT_FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
+        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
                  expandedFlowed);
     }
 }
@@ -482,7 +482,7 @@ void HtmlFormattingTest::testLinkRecognition()
     QString input = prefix + link + suffix;
     QString expected = prefix + QString::fromUtf8("<a href=\"%1\">%1</a>").arg(link) + suffix;
 
-    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FORMAT_PLAIN), expected);
+    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FlowedFormat::PLAIN), expected);
 }
 
 /** @short Test data for testLinkRecognition */
@@ -520,7 +520,7 @@ void HtmlFormattingTest::testUnrecognizedLinks()
 {
     QFETCH(QString, input);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FORMAT_PLAIN), input);
+    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FlowedFormat::PLAIN), input);
 }
 
 /** @short Test data for testUnrecognizedLinks */

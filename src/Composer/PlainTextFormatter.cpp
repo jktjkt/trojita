@@ -22,13 +22,21 @@
 */
 
 #include <limits>
-#include <QObject>
+#include <QColor>
+#include <QDateTime>
+#include <QFileInfo>
+#include <QFontInfo>
+#include <QModelIndex>
 #include <QPair>
 #include <QStack>
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #include <QTextDocument>
 #endif
 #include "PlainTextFormatter.h"
+#include "Common/Paths.h"
+#include "Imap/Encoders.h"
+#include "Imap/Model/ItemRoles.h"
+#include "UiUtils/Color.h"
 
 namespace Composer {
 namespace Util {
@@ -242,7 +250,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         // Remove the quotemarks
         it->text.remove(quotemarks);
 
-        if (flowed == FORMAT_FLOWED_DELSP) {
+        if (flowed == FlowedFormat::FLOWED_DELSP) {
             if (it->text.endsWith(QLatin1String(" \r"))) {
                 it->text.chop(2);
                 it->text += QLatin1Char('\r');
@@ -264,11 +272,11 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
             QString separator = QLatin1String("\n");
             switch (flowed) {
-            case FORMAT_PLAIN:
+            case FlowedFormat::PLAIN:
                 // nothing fancy to do here
                 break;
-            case FORMAT_FLOWED:
-            case FORMAT_FLOWED_DELSP:
+            case FlowedFormat::FLOWED:
+            case FlowedFormat::FLOWED_DELSP:
                 // Now the trailing \n is striped already; we only have to check for stuff ending with " " or " \r".
                 if (prev->text.endsWith(QLatin1Char(' '))) {
                     separator = QString();
@@ -509,6 +517,100 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
     Q_ASSERT(controlStack.isEmpty());
 
     return markup.join(QString());
+}
+
+QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font, const QColor &backgroundColor, const QColor &textColor,
+                         const QColor &linkColor, const QColor &visitedLinkColor)
+{
+    static const QString defaultStyle = QString::fromUtf8(
+        "pre{word-wrap: break-word; white-space: pre-wrap;}"
+        // The following line, sadly, produces a warning "QFont::setPixelSize: Pixel size <= 0 (0)".
+        // However, if it is not in place or if the font size is set higher, even to 0.1px, WebKit reserves space for the
+        // quotation characters and therefore a weird white area appears. Even width: 0px doesn't help, so it looks like
+        // we will have to live with this warning for the time being.
+        ".quotemarks{color:transparent;font-size:0px;}"
+
+        // Cannot really use the :dir(rtl) selector for putting the quote indicator to the "correct" side.
+        // It's CSS4 and it isn't supported yet.
+        "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid %1; unicode-bidi: -webkit-plaintext}"
+
+        // Stop the font size from getting smaller after reaching two levels of quotes
+        // (ie. starting on the third level, don't make the size any smaller than what it already is)
+        "blockquote blockquote blockquote {font-size: 100%}"
+        ".signature{opacity: 0.6;}"
+
+        // Dynamic quote collapsing via pure CSS, yay
+        "input {display: none}"
+        "input ~ span.full {display: block}"
+        "input ~ span.short {display: none}"
+        "input:checked ~ span.full {display: none}"
+        "input:checked ~ span.short {display: block}"
+        "label {border: 1px solid %2; border-radius: 5px; padding: 0px 4px 0px 4px; white-space: nowrap}"
+        // BLACK UP-POINTING SMALL TRIANGLE (U+25B4)
+        // BLACK DOWN-POINTING SMALL TRIANGLE (U+25BE)
+        "span.full > blockquote > label:before {content: \"\u25b4\"}"
+        "span.short > blockquote > label:after {content: \" \u25be\"}"
+        "span.shortquote > blockquote > label {display: none}"
+    );
+
+    QString fontSpecification(QLatin1String("pre{"));
+    if (font.italic())
+        fontSpecification += QLatin1String("font-style: italic; ");
+    if (font.bold())
+        fontSpecification += QLatin1String("font-weight: bold; ");
+    fontSpecification += QString::fromUtf8("font-size: %1px; font-family: \"%2\", monospace }").arg(
+                QString::number(font.pixelSize()), font.family());
+
+    QString textColors = QString::fromUtf8("body { background-color: %1; color: %2 }"
+                                           "a:link { color: %3 } a:visited { color: %4 } a:hover { color: %3 }").arg(
+                backgroundColor.name(), textColor.name(), linkColor.name(), visitedLinkColor.name());
+    // looks like there's no special color for hovered links in Qt
+
+    // build stylesheet and html header
+    QColor tintForQuoteIndicator = backgroundColor;
+    tintForQuoteIndicator.setAlpha(0x66);
+    static QString stylesheet = defaultStyle.arg(linkColor.name(),
+                                                 UiUtils::tintColor(textColor, tintForQuoteIndicator).name());
+    static QFile file(Common::writablePath(Common::LOCATION_DATA) + QLatin1String("message.css"));
+    static QDateTime lastVersion;
+    QDateTime lastTouched(file.exists() ? QFileInfo(file).lastModified() : QDateTime());
+    if (lastVersion < lastTouched) {
+        stylesheet = defaultStyle;
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            const QString userSheet = QString::fromLocal8Bit(file.readAll().data());
+            lastVersion = lastTouched;
+            stylesheet += QLatin1Char('\n') + userSheet;
+            file.close();
+        }
+    }
+
+    // The dir="auto" is required for WebKit to treat all paragraphs as entities with possibly different text direction.
+    // The individual paragraphs unfortunately share the same text alignment, though, as per
+    // https://bugs.webkit.org/show_bug.cgi?id=71194 (fixed in Blink already).
+    QString htmlHeader(QLatin1String("<html><head><style type=\"text/css\"><!--") + textColors + fontSpecification + stylesheet +
+                       QLatin1String("--></style></head><body><pre dir=\"auto\">"));
+    static QString htmlFooter(QLatin1String("\n</pre></body></html>"));
+
+
+    // We cannot rely on the QWebFrame's toPlainText because of https://bugs.kde.org/show_bug.cgi?id=321160
+    QString markup = Composer::Util::plainTextToHtml(
+                Imap::decodeByteArray(partIndex.data(Imap::Mailbox::RolePartData).toByteArray(),
+                                      partIndex.data(Imap::Mailbox::RolePartCharset).toByteArray()),
+                flowedFormatForPart(partIndex));
+
+    return htmlHeader + markup + htmlFooter;
+}
+
+FlowedFormat flowedFormatForPart(const QModelIndex &partIndex)
+{
+    FlowedFormat flowedFormat = FlowedFormat::PLAIN;
+    if (partIndex.data(Imap::Mailbox::RolePartContentFormat).toString().toLower() == QLatin1String("flowed")) {
+        flowedFormat = FlowedFormat::FLOWED;
+
+        if (partIndex.data(Imap::Mailbox::RolePartContentDelSp).toString().toLower() == QLatin1String("yes"))
+            flowedFormat = FlowedFormat::FLOWED_DELSP;
+    }
+    return flowedFormat;
 }
 
 }
