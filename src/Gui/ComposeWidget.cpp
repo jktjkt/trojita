@@ -60,6 +60,7 @@
 #include "Imap/Tasks/GenUrlAuthTask.h"
 #include "Imap/Tasks/UidSubmitTask.h"
 #include "Plugins/PluginManager.h"
+#include "UiUtils/Color.h"
 
 namespace
 {
@@ -639,7 +640,7 @@ void ComposeWidget::slotCheckAddress(QLineEdit *edit)
         edit->setPalette(QPalette());
     } else {
         QPalette p;
-        p.setColor(QPalette::Base, Gui::Util::tintColor(p.color(QPalette::Base), QColor(0xff, 0, 0, 0x20)));
+        p.setColor(QPalette::Base, UiUtils::tintColor(p.color(QPalette::Base), QColor(0xff, 0, 0, 0x20)));
         edit->setPalette(p);
     }
 }

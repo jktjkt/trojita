@@ -34,6 +34,7 @@
 #include "Imap/Model/Model.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/Utils.h"
+#include "UiUtils/Color.h"
 
 namespace Gui
 {
@@ -156,7 +157,7 @@ void SimplePartWidget::slotMarkupPlainText()
     QColor tintForQuoteIndicator = palette.base().color();
     tintForQuoteIndicator.setAlpha(0x66);
     static QString stylesheet = defaultStyle.arg(palette.link().color().name(),
-                                                 Gui::Util::tintColor(palette.text().color(), tintForQuoteIndicator).name());
+                                                 UiUtils::tintColor(palette.text().color(), tintForQuoteIndicator).name());
     static QFile file(Common::writablePath(Common::LOCATION_DATA) + QLatin1String("message.css"));
     static QDateTime lastVersion;
     QDateTime lastTouched(file.exists() ? QFileInfo(file).lastModified() : QDateTime());

@@ -22,7 +22,7 @@
 
 #include "Spinner.h"
 #include "Common/InvokeMethod.h"
-#include "Util.h"
+#include "UiUtils/Color.h"
 
 #include <QFontMetricsF>
 #include <QPainter>
@@ -144,7 +144,7 @@ void Spinner::paintEvent(QPaintEvent *)
            c2(palette().color(foregroundRole()));
     const int a = c1.alpha();
     c1.setAlpha(170); // 2/3
-    c2 = Util::tintColor(c2, c1);
+    c2 = UiUtils::tintColor(c2, c1);
     c2.setAlpha(qAbs(m_fadeStep)*a/18);
 
     int startAngle(16*90), span(360*16); // full circle starting at 12 o'clock
@@ -216,7 +216,7 @@ void Spinner::paintEvent(QPaintEvent *)
             startAngle += 30*16;
             const int a = c3.alpha();
             c2.setAlpha(255/(i+1));
-            c3 = Util::tintColor(c3, c2);
+            c3 = UiUtils::tintColor(c3, c2);
             c3.setAlpha(a);
             pen.setColor(c3);
             p.setPen(pen);

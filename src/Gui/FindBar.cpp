@@ -35,7 +35,7 @@
 #include <QWebFrame>
 #include <QWebView>
 #include "LineEdit.h"
-#include "Gui/Util.h"
+#include "UiUtils/Color.h"
 
 namespace Gui {
 
@@ -171,7 +171,7 @@ void FindBar::notifyMatch(bool match)
     } else {
         QColor backgroundTint = match ? QColor(0, 0xff, 0, 0x20) : QColor(0xff, 0, 0, 0x20);
         QPalette p;
-        p.setColor(QPalette::Base, Gui::Util::tintColor(p.color(QPalette::Base), backgroundTint));
+        p.setColor(QPalette::Base, UiUtils::tintColor(p.color(QPalette::Base), backgroundTint));
         m_lineEdit->setPalette(p);
     }
 }

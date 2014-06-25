@@ -1,5 +1,4 @@
-/* Copyright (C) 2006 - 2011 Thomas Gahr <thomas.gahr@physik.uni-muenchen.de>
-   Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -21,38 +20,33 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "UiUtils/Color.h"
+#include <QColor>
 
-#ifndef GUI_UTIL_H
-#define GUI_UTIL_H
+namespace UiUtils {
 
-#include <QMessageBox>
-#include <QString>
+/** @short Return the source color tinted with the tintColor
 
-class QColor;
-class QFont;
-class QSettings;
-class QWidget;
-
-namespace Gui
+This is shamelessly stolen from Qt5's qtquick1 module.
+*/
+QColor tintColor(const QColor &color, const QColor &tintColor)
 {
+    QColor finalColor;
+    int a = tintColor.alpha();
+    if (a == 0xff) {
+        finalColor = tintColor;
+    } else if (a == 0x00) {
+        finalColor = color;
+    } else {
+        qreal a = tintColor.alphaF();
+        qreal inv_a = 1.0 - a;
 
-namespace Util
-{
+        finalColor.setRgbF(tintColor.redF() * a + color.redF() * inv_a,
+                           tintColor.greenF() * a + color.greenF() * inv_a,
+                           tintColor.blueF() * a + color.blueF() * inv_a,
+                           a + inv_a * color.alphaF());
+    }
+    return finalColor;
+}
 
-/** @short Center widget on screen containing its parent widget of the mousepointer */
-void centerWidgetOnScreen(QWidget *widget, bool centerOnCursorScreen=true);
-
-QString pkgDataDir();
-
-QFont systemMonospaceFont();
-
-int askForSomethingUnlessTold(const QString &title, const QString &message, const QString &settingsName,
-                              QMessageBox::StandardButtons buttons, QWidget *parent, QSettings *settings);
-
-QString resizedImageAsDataUrl(const QString &fileName, const int extent);
-
-} // namespace Util
-
-} // namespace Gui
-
-#endif // GUI_UTIL_H
+}

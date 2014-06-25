@@ -119,31 +119,6 @@ QString pkgDataDir()
 #endif
 }
 
-/** @short Return the source color tinted with the tintColor
-
-This is shamelessly stolen from Qt5's qtquick1 module.
-*/
-QColor tintColor(const QColor &color, const QColor &tintColor)
-{
-    QColor finalColor;
-    int a = tintColor.alpha();
-    if (a == 0xff) {
-        finalColor = tintColor;
-    } else if (a == 0x00) {
-        finalColor = color;
-    } else {
-        qreal a = tintColor.alphaF();
-        qreal inv_a = 1.0 - a;
-
-        finalColor.setRgbF(tintColor.redF() * a + color.redF() * inv_a,
-                           tintColor.greenF() * a + color.greenF() * inv_a,
-                           tintColor.blueF() * a + color.blueF() * inv_a,
-                           a + inv_a * color.alphaF());
-    }
-    return finalColor;
-}
-
-
 /** @short Return the monospace font according to the systemwide settings */
 QFont systemMonospaceFont()
 {
