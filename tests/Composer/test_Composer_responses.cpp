@@ -28,6 +28,7 @@
 #include "test_Composer_responses.h"
 #include "Utils/headless_test.h"
 #include "Composer/Mailto.h"
+#include "Composer/QuoteText.h"
 #include "Composer/Recipients.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
@@ -677,7 +678,7 @@ void ComposerResponsesTest::testReplyQuoting()
 {
     QFETCH(QString, source);
     QFETCH(QString, quoted);
-    QCOMPARE(Composer::Util::quoteText(source.split(QChar(QLatin1Char('\n')))).join(QChar(QLatin1Char('\n'))), quoted);
+    QCOMPARE(Composer::quoteText(source.split(QChar(QLatin1Char('\n')))).join(QChar(QLatin1Char('\n'))), quoted);
 }
 
 void ComposerResponsesTest::testReplyQuoting_data()

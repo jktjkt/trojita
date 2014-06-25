@@ -51,6 +51,7 @@
 #include "Common/InvokeMethod.h"
 #include "Common/MetaTypes.h"
 #include "Common/SettingsNames.h"
+#include "Composer/QuoteText.h"
 #include "Composer/SubjectMangling.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
@@ -311,7 +312,7 @@ bool MessageView::eventFilter(QObject *object, QEvent *event)
 QString MessageView::quoteText() const
 {
     if (const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer)) {
-        QStringList quote = Composer::Util::quoteText(w->quoteMe().split(QLatin1Char('\n')));
+        QStringList quote = Composer::quoteText(w->quoteMe().split(QLatin1Char('\n')));
         const Imap::Message::Envelope &e = message.data(Imap::Mailbox::RoleMessageEnvelope).value<Imap::Message::Envelope>();
         QString sender;
         if (!e.from.isEmpty())

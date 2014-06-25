@@ -295,6 +295,7 @@ set(libComposer_SOURCES
     ${path_Composer}/Mailto.cpp
     ${path_Composer}/MessageComposer.cpp
     ${path_Composer}/PlainTextFormatter.cpp
+    ${path_Composer}/QuoteText.cpp
     ${path_Composer}/Recipients.cpp
     ${path_Composer}/ReplaceSignature.cpp
     ${path_Composer}/SenderIdentitiesModel.cpp

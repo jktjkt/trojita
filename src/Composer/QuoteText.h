@@ -20,26 +20,15 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMPOSER_PLAINTEXTFORMATTER_H
-#define COMPOSER_PLAINTEXTFORMATTER_H
+#ifndef COMPOSER_QUOTETEXT_H
+#define COMPOSER_QUOTETEXT_H
 
 #include <QStringList>
 
 namespace Composer {
-namespace Util {
 
-/** @short Enable decoding of format=flowed, RFC 3676 */
-typedef enum {
-    FORMAT_PLAIN, /**< @short No value, use default */
-    FORMAT_FLOWED, /**< @short format=flowed, but DelSp is not active */
-    FORMAT_FLOWED_DELSP, /**< @short format=flowed; delsp=yes (see RFC 3676 for details */
-} FlowedFormat;
-
-QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed);
-
-QRegExp signatureSeparator();
+QStringList quoteText(QStringList inputLines);
 
 }
-}
 
-#endif // COMPOSER_PLAINTEXTFORMATTER_H
+#endif // COMPOSER_QUOTETEXT_H
