@@ -186,38 +186,38 @@ QString systemPlatformVersion()
 #ifdef Q_OS_WIN32
         switch (QSysInfo::WindowsVersion) {
         case QSysInfo::WV_32s:
-            platformVersion = "3.1";
+            platformVersion = QLatin1String("3.1");
             break;
         case QSysInfo::WV_95:
-            platformVersion = "95";
+            platformVersion = QLatin1String("95");
             break;
         case QSysInfo::WV_98:
-            platformVersion = "98";
+            platformVersion = QLatin1String("98");
             break;
         case QSysInfo::WV_Me:
-            platformVersion = "Me";
+            platformVersion = QLatin1String("Me");
             break;
         case QSysInfo::WV_NT:
-            platformVersion = "NT";
+            platformVersion = QLatin1String("NT");
             break;
         case QSysInfo::WV_2000:
-            platformVersion = "2000";
+            platformVersion = QLatin1String("2000");
             break;
         case QSysInfo::WV_XP:
-            platformVersion = "XP";
+            platformVersion = QLatin1String("XP");
             break;
         case QSysInfo::WV_2003:
-            platformVersion = "2003";
+            platformVersion = QLatin1String("2003");
             break;
         case QSysInfo::WV_VISTA:
-            platformVersion = "Vista";
+            platformVersion = QLatin1String("Vista");
             break;
         case QSysInfo::WV_WINDOWS7:
-            platformVersion = "7";
+            platformVersion = QLatin1String("7");
             break;
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         case QSysInfo::WV_WINDOWS8:
-            platformVersion = "8";
+            platformVersion = QLatin1String("8");
             break;
 #endif
         }
@@ -225,51 +225,51 @@ QString systemPlatformVersion()
 #ifdef Q_OS_WINCE
         switch (QSysInfo::WindowsVersion) {
         case QSysInfo::WV_CE:
-            platformVersion = "CE";
+            platformVersion = QLatin1String("CE");
             break;
         case QSysInfo::WV_CENET:
-            platformVersion = "CE.NET";
+            platformVersion = QLatin1String("CE.NET");
             break;
         case QSysInfo::WV_CE_5:
-            platformVersion = "CE5.x";
+            platformVersion = QLatin1String("CE5.x");
             break;
         case QSysInfo::WV_CE_6:
-            platformVersion = "CE6.x";
+            platformVersion = QLatin1String("CE6.x");
             break;
         }
 #endif
 #ifdef Q_OS_MAC
         switch (QSysInfo::MacintoshVersion) {
         case QSysInfo::MV_9:
-            platformVersion = "9.0";
+            platformVersion = QLatin1String("9.0");
             break;
         case QSysInfo::MV_10_0:
-            platformVersion = "X 10.0";
+            platformVersion = QLatin1String("X 10.0");
             break;
         case QSysInfo::MV_10_1:
-            platformVersion = "X 10.1";
+            platformVersion = QLatin1String("X 10.1");
             break;
         case QSysInfo::MV_10_2:
-            platformVersion = "X 10.2";
+            platformVersion = QLatin1String("X 10.2");
             break;
         case QSysInfo::MV_10_3:
-            platformVersion = "X 10.3";
+            platformVersion = QLatin1String("X 10.3");
             break;
         case QSysInfo::MV_10_4:
-            platformVersion = "X 10.4";
+            platformVersion = QLatin1String("X 10.4");
             break;
         case QSysInfo::MV_10_5:
-            platformVersion = "X 10.5";
+            platformVersion = QLatin1String("X 10.5");
             break;
         case QSysInfo::MV_10_6:
-            platformVersion = "X 10.6";
+            platformVersion = QLatin1String("X 10.6");
             break;
 #if QT_VERSION >= 0x040800
         case QSysInfo::MV_10_7:
-            platformVersion = "X 10.7";
+            platformVersion = QLatin1String("X 10.7");
             break;
         case QSysInfo::MV_10_8:
-            platformVersion = "X 10.8";
+            platformVersion = QLatin1String("X 10.8");
             break;
 #endif
         }
