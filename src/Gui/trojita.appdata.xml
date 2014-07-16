@@ -8,8 +8,10 @@
   <name xml:lang="cs">Trojitá</name>
   <name xml:lang="da">Trojitá</name>
   <name xml:lang="de">Trojitá</name>
+  <name xml:lang="en-GB">Trojitá</name>
   <name xml:lang="es">Trojitá</name>
   <name xml:lang="hu">Trojitá</name>
+  <name xml:lang="it">Trojitá</name>
   <name xml:lang="nds">Trojitá</name>
   <name xml:lang="nl">Trojitá</name>
   <name xml:lang="pl">Trojitá</name>
@@ -24,8 +26,10 @@
   <summary xml:lang="cs">Poštovní klient pro IMAP</summary>
   <summary xml:lang="da">E-mail-klient til IMAP</summary>
   <summary xml:lang="de">IMAP-E-Mail-Programm</summary>
+  <summary xml:lang="en-GB">IMAP E-mail Client</summary>
   <summary xml:lang="es">Cliente de correo IMAP</summary>
   <summary xml:lang="hu">IMAP e-mail kliens</summary>
+  <summary xml:lang="it">Client di posta elettronica IMAP</summary>
   <summary xml:lang="nds">IMAP-Nettpostprogramm</summary>
   <summary xml:lang="nl">IMAP-E-mailclient</summary>
   <summary xml:lang="pl">Klient pocztowy IMAP</summary>
@@ -42,6 +46,8 @@
     </p>
     <p xml:lang="ca">Trojitá és un programa de correu electrònic («client») que s'especialitza en donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtenir-los des de l'ordinador local.</p>
     <p xml:lang="da">Trojitá er et e-mail-program ("klient") der er specialiseret i at give hurtig og effektiv adgang til postkasser over IMAP-protokollen. En IMAP-mailserver lagrer breve og lader klienter hente breve til den lokale computer når der er behov for det.</p>
+    <p xml:lang="en-GB">Trojitá is an email program ("client") specialised in giving fast and efficient access to mailboxes over the IMAP protocol. An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.</p>
+    <p xml:lang="it">Trojitá è un programma di posta elettronica («client») specializzato nel fornire, tramite protocollo IMAP, un accesso rapido ed efficiente alle caselle di posta. Un server di posta IMAP conserva i messaggi e permette ai client di scaricare, a richiesta, i messaggi nel computer locale.</p>
     <p xml:lang="nl">Trojitá is een e-mailprogramma ("client") gespecialiseerd in het geven van snelle en efficiënte toegang tot e-mailboxen over het IMAP-protocol. Een IMAP-e-mailserver slaat berichten op en biedt clients de mogelijkheid om berichten naar de lokale computer te halen wanneer dat wordt gevraagd.</p>
     <p xml:lang="pl">Trojitá jest programem pocztowym ("klientem") specjalizującym się w zapewnianiu szybkiego i wydajnego dostępu do skrzynek pocztowych przez protokół IMAP. Serwer pocztowy IMAP przechowuje wiadomości i umożliwia klientom pobieranie wiadomości na komputer lokalny wtedy, gdy tego chcą.</p>
     <p xml:lang="pt">O Trojitá é um programa ("cliente") de e-mail especializado em dar um acesso rápido e eficiente às caixas do correio através do protocolo IMAP. Um servidor de correio IMAP guarda as mensagens e permite aos clientes transferir as mensagens para o computador local, sempre que tal for pedido.</p>
@@ -57,6 +63,8 @@
     </p>
     <p xml:lang="ca">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multi-plataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="da">Den prioriterer effektivitet, hastighed og åbne standarder over andre mål. Trojitá prøver også at virke på flere platforme, og fungere godt på alt fra store desktop-computere til små mobiltelefoner. Trojitá er et selvstændigt program, det er ikke del af suite til håndtering af personlig information.</p>
+    <p xml:lang="en-GB">It prioritises efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.</p>
+    <p xml:lang="it">Esso dà priorità, tra le altre cose, all'efficienza, la velocità e gli standard aperti. Trojitá vuole anche essere multi-piattaforma, e funziona bene sia sui grandi computer da tavolo, sia sui cellulari. Trojitá è un programma indipendente, non fa parte di una suite di «gestione personale delle informazioni».</p>
     <p xml:lang="nl">De prioriteit ligt op efficiëntie, snelheid en open standaarden boven andere doelen. Trojitá richt zich ook op multi-platform en functies die het goed doen op alles vanaf grote desktopcomputers tot kleine telefoons. Trojitá is een alleenstaand programma, is geen onderdeel van een "persoonlijke informatebeheerder" suite.</p>
     <p xml:lang="pl">Przedkłada wydajność, szybkości i otwarte standardy nad innymi celami. Trojitá zamierza także być wielo-platformowym programem i działa dobrze na wszystkim począwszy od dużych komputerów biurkowych po małe telefony komórkowe. Trojitá jest samodzielnym programem, nie częścią pakietu "zarządzania informacjami osobistymi".</p>
     <p xml:lang="pt">Dá prioridade à eficiência, velocidade e a normas abertas, acima de todos os outros objectivos. O Trojitá também pretende ser multi-plataforma, funcionando bem em tudo, desde computadores grandes até telemóveis pequenos. O Trojitá é um programa autónomo, não fazendo parte de um pacote de "gestão de informações pessoais".</p>
@@ -68,6 +76,8 @@
     <p>What could make Trojitá interesting for you:</p>
     <p xml:lang="ca">Què us podria fer el Trojitá interessant:</p>
     <p xml:lang="da">Hvad der kunne gøre Trojitá interessant for dig:</p>
+    <p xml:lang="en-GB">What could make Trojitá interesting for you:</p>
+    <p xml:lang="it">Ecco cosa ti può rendere interessante Trojitá:</p>
     <p xml:lang="nl">Wat zou Trojitá voor u interessant kunnen maken:</p>
     <p xml:lang="pl">Co może cię zainteresować w Trojitá:</p>
     <p xml:lang="pt">O que poderá tornar o Trojitá interessante para si:</p>
@@ -81,7 +91,9 @@
       <li xml:lang="ca">Un cor IMAP molt ràpid i robust</li>
       <li xml:lang="da">Hurtig og robust IMAP-kerne</li>
       <li xml:lang="de">Sehr schneller und robuster IMAP-Kern</li>
+      <li xml:lang="en-GB">Very fast and robust IMAP core</li>
       <li xml:lang="hu">Nagyon gyors és robusztus IMAP-mag</li>
+      <li xml:lang="it">Nucleo IMAP molto veloce e robusto</li>
       <li xml:lang="nl">Erg snelle en robuuste IMAP-kern</li>
       <li xml:lang="pl">Bardzo szybki i zwinny rdzeń IMAP</li>
       <li xml:lang="pt">Núcleo de IMAP muito rápido e robusto</li>
@@ -93,6 +105,8 @@
       <li>Standards compliance is a design goal</li>
       <li xml:lang="ca">El compliment dels estàndards és un objectiu en el disseny</li>
       <li xml:lang="da">Standardoverholdelse er et designmål</li>
+      <li xml:lang="en-GB">Standards compliance is a design goal</li>
+      <li xml:lang="it">Conformità agli standard come obbiettivo di progettazione</li>
       <li xml:lang="nl">Voldoen aan standaarden is een ontwerpdoel</li>
       <li xml:lang="pl">Zgodność ze standardami jest celem projektowym</li>
       <li xml:lang="pt">A conformidade com as normas é um objectivo de desenho</li>
@@ -104,6 +118,8 @@
       <li>On-demand message list and body part loading ("lazy loading")</li>
       <li xml:lang="ca">Llista els missatges en demanar-ho i carrega la part del cos («càrrega retardada»)</li>
       <li xml:lang="da">Indlæsning af brevliste og brevkrop efter behov ("doven indlæsning")</li>
+      <li xml:lang="en-GB">On-demand message list and body part loading ("lazy loading")</li>
+      <li xml:lang="it">Elenco dei messaggi e caricamento del corpo del messaggio su richiesta («lazy loading»)</li>
       <li xml:lang="nl">Laden van berichtlijst en inhoud van berichten op aanvraag ("lui laden")</li>
       <li xml:lang="pl">Wczytywanie spisu wiadomości i ich treści na żądanie ("leniwe wczytywanie")</li>
       <li xml:lang="pt">Carregamento da lista de mensagens e das componentes das mensagens a pedido ("carregamento posterior")</li>
@@ -116,7 +132,9 @@
       <li xml:lang="ca">Permet IMAP desconnectat</li>
       <li xml:lang="da">Understøttelse af offline-IMAP</li>
       <li xml:lang="de">Unterstützung für Offline-IMAP</li>
+      <li xml:lang="en-GB">Offline IMAP support</li>
       <li xml:lang="hu">Kapcsolat nélküli IMAP-támogatás</li>
+      <li xml:lang="it">Supporto fuori linea IMAP</li>
       <li xml:lang="nl">Ondersteuning van offline IMAP</li>
       <li xml:lang="pl">Obsługa IMAP bez sieci</li>
       <li xml:lang="pt">Suporte para IMAP desligado</li>
@@ -128,6 +146,8 @@
       <li>Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
       <li xml:lang="ca">Implementa el mode d'estalvi de l'amplada de banda destinat als usuaris de mòbils amb una connexió cara</li>
       <li xml:lang="da">Understøttelse af båndbreddebesparende tilstand til mobile brugere dyre forbindelser</li>
+      <li xml:lang="en-GB">Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
+      <li xml:lang="it">Supporto della modalità per il risparmio della banda, con lo sguardo rivolto agli utenti mobili con connessioni dispendiose</li>
       <li xml:lang="nl">Ondersteuning voor bandbreedte besparende modus gericht op mobiele gebruikers met een dure verbinding</li>
       <li xml:lang="pl">Obsługa trybu oszczędzania przesyłu skierowana dla użytkowników mobilnych z kosztowym przyłączem do sieci</li>
       <li xml:lang="pt">Suporte para o modo de poupança da largura de banda, destinado a utilizadores móveis com ligações caras</li>
@@ -139,6 +159,8 @@
       <li>IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
       <li xml:lang="ca">IMAP a través de SSH: en comptes d'anar a través d'un sòcol de SSL, el servidor pot accedir a través de SSH</li>
       <li xml:lang="da">IMAP over SSH -- i stedet for at gå over en SSL-sokkel, kan serveren tilgås via SSH</li>
+      <li xml:lang="en-GB">IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
+      <li xml:lang="it">IMAP su SSH -- anziché lavorare su un socket SSL, al server si può accedere tramite SSH</li>
       <li xml:lang="nl">IMAP over SSH -- in plaats van over een SSL-socket, de server kan bereikt worden via SSH</li>
       <li xml:lang="pl">IMAP przez SSH -- zamiast przesyłania przez gniazdo SSL, do serwer można się dostać przez SSH</li>
       <li xml:lang="pt">IMAP sobre SSH -- em vez de seguir por um 'socket' de SSL, o servidor poderá ser acedido através de SSH</li>
@@ -151,6 +173,8 @@
       <li xml:lang="ca">Manté un tracte segur i robust amb el correu HTML</li>
       <li xml:lang="da">Sikker og robust håndtering af HTML-e-mails</li>
       <li xml:lang="de">Sicherer und robuster Umgang mit HTML-E-Mails</li>
+      <li xml:lang="en-GB">Safe and robust dealing with HTML mail</li>
+      <li xml:lang="it">Gestione sicura e robusta della posta HTML</li>
       <li xml:lang="nl">Veilig en robuust werken met HTML-e-mail</li>
       <li xml:lang="pl">Szybkie i zwinne radzenie sobie z pocztą HTML</li>
       <li xml:lang="pt">Tratamento seguro e robusto de correio por HTML</li>
@@ -171,6 +195,8 @@
       <caption>The standard interface to compose new mails.</caption>
       <caption xml:lang="ca">La interfície estàndard per editar correus nous.</caption>
       <caption xml:lang="da">Standardgrænseflade til at skrive nye mails.</caption>
+      <caption xml:lang="en-GB">The standard interface to compose new mails.</caption>
+      <caption xml:lang="it">Interfaccia standard per comporre nuovi messaggi.</caption>
       <caption xml:lang="nl">Het standaard interface voor opstellen van nieuwe e-mailberichten.</caption>
       <caption xml:lang="pl">Standardowy układ sterowania do tworzenia nowych wiadomości.</caption>
       <caption xml:lang="pt">A interface-padrão para compor mensagens novas.</caption>
