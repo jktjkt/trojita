@@ -407,7 +407,7 @@ void ComposeWidget::send()
 
 void ComposeWidget::setUiWidgetsEnabled(const bool enabled)
 {
-    ui->splitter->setEnabled(enabled);
+    ui->verticalSplitter->setEnabled(enabled);
     ui->buttonBox->setEnabled(enabled);
 }
 
