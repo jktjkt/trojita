@@ -20,8 +20,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COMPOSER_PLAINTEXTFORMATTER_H
-#define COMPOSER_PLAINTEXTFORMATTER_H
+#ifndef UIUTILS_PLAINTEXTFORMATTER_H
+#define UIUTILS_PLAINTEXTFORMATTER_H
 
 #include <QStringList>
 
@@ -29,8 +29,7 @@ class QColor;
 class QFontInfo;
 class QModelIndex;
 
-namespace Composer {
-namespace Util {
+namespace UiUtils {
 
 /** @short Enable decoding of format=flowed, RFC 3676 */
 enum class FlowedFormat {
@@ -50,6 +49,5 @@ FlowedFormat flowedFormatForPart(const QModelIndex &partIndex);
 QRegExp signatureSeparator();
 
 }
-}
 
-#endif // COMPOSER_PLAINTEXTFORMATTER_H
+#endif // UIUTILS_PLAINTEXTFORMATTER_H

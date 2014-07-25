@@ -41,8 +41,8 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed()
     QFETCH(QString, htmlFlowed);
     QFETCH(QString, htmlNotFlowed);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FlowedFormat::FLOWED), htmlFlowed);
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FlowedFormat::PLAIN), htmlNotFlowed);
+    QCOMPARE(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::FLOWED), htmlFlowed);
+    QCOMPARE(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::PLAIN), htmlNotFlowed);
 }
 
 /** @short Data for testPlainTextFormattingFlowed */
@@ -83,7 +83,7 @@ void HtmlFormattingTest::testPlainTextFormattingFlowedDelSp()
     QFETCH(QString, plaintext);
     QFETCH(QString, htmlFlowedDelSp);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FlowedFormat::FLOWED_DELSP), htmlFlowedDelSp);
+    QCOMPARE(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::FLOWED_DELSP), htmlFlowedDelSp);
 }
 
 /** @short Data for testPlainTextFormattingFlowedDelSp */
@@ -107,7 +107,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaHtml()
     QFETCH(QString, plaintext);
     QFETCH(QString, html);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(plaintext, Composer::Util::FlowedFormat::FLOWED), html);
+    QCOMPARE(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::FLOWED), html);
 }
 
 void HtmlFormattingTest::testPlainTextFormattingViaHtml_data()
@@ -208,7 +208,7 @@ WebRenderingTester::~WebRenderingTester()
     delete m_web;
 }
 
-QString WebRenderingTester::asPlainText(const QString &input, const Composer::Util::FlowedFormat format,
+QString WebRenderingTester::asPlainText(const QString &input, const UiUtils::FlowedFormat format,
                                         const CollapsingFlags collapsing)
 {
     // FIXME: bad pasted thing!
@@ -231,7 +231,7 @@ QString WebRenderingTester::asPlainText(const QString &input, const Composer::Ut
     static const QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
     static const QString htmlFooter("\n</pre></body></html>");
 
-    sourceData = htmlHeader + Composer::Util::plainTextToHtml(input, format) + htmlFooter;
+    sourceData = htmlHeader + UiUtils::plainTextToHtml(input, format) + htmlFooter;
     if (collapsing == RenderExpandEverythingCollapsed)
         sourceData = sourceData.replace(" checked=\"checked\"", QString());
     QTimer::singleShot(0, this, SLOT(doDelayedLoad()));
@@ -277,18 +277,18 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FlowedFormat::FLOWED), formattedFlowed);
+        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED), formattedFlowed);
     }
 
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FlowedFormat::PLAIN), formattedPlain);
+        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::PLAIN), formattedPlain);
     }
 #endif
 
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, Composer::Util::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
+        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
                  expandedFlowed);
     }
 }
@@ -482,7 +482,7 @@ void HtmlFormattingTest::testLinkRecognition()
     QString input = prefix + link + suffix;
     QString expected = prefix + QString::fromUtf8("<a href=\"%1\">%1</a>").arg(link) + suffix;
 
-    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FlowedFormat::PLAIN), expected);
+    QCOMPARE(UiUtils::plainTextToHtml(input, UiUtils::FlowedFormat::PLAIN), expected);
 }
 
 /** @short Test data for testLinkRecognition */
@@ -520,7 +520,7 @@ void HtmlFormattingTest::testUnrecognizedLinks()
 {
     QFETCH(QString, input);
 
-    QCOMPARE(Composer::Util::plainTextToHtml(input, Composer::Util::FlowedFormat::PLAIN), input);
+    QCOMPARE(UiUtils::plainTextToHtml(input, UiUtils::FlowedFormat::PLAIN), input);
 }
 
 /** @short Test data for testUnrecognizedLinks */

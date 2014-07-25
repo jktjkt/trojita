@@ -24,7 +24,7 @@
 #define TEST_COMPOSER_RESPONSES
 
 #include <QTest>
-#include "Composer/PlainTextFormatter.h"
+#include "UiUtils/PlainTextFormatter.h"
 
 class QWebView;
 

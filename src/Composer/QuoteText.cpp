@@ -21,7 +21,7 @@
 */
 
 #include "Composer/QuoteText.h"
-#include "Composer/PlainTextFormatter.h"
+#include "UiUtils/PlainTextFormatter.h"
 
 namespace Composer {
 
@@ -30,7 +30,7 @@ QStringList quoteText(QStringList inputLines)
 {
     QStringList quote;
     for (QStringList::iterator line = inputLines.begin(); line != inputLines.end(); ++line) {
-        if (Composer::Util::signatureSeparator().exactMatch(*line)) {
+        if (UiUtils::signatureSeparator().exactMatch(*line)) {
             // This is the signature separator, we should not include anything below that in the quote
             break;
         }

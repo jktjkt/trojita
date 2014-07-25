@@ -23,11 +23,11 @@
 #define SIMPLEPARTWIDGET_H
 
 #include "AbstractPartWidget.h"
-#include "EmbeddedWebView.h"
-#include "Composer/PlainTextFormatter.h"
 #include <QAction>
 #include <QFile>
 #include <QPersistentModelIndex>
+#include "EmbeddedWebView.h"
+#include "UiUtils/PlainTextFormatter.h"
 
 class QModelIndex;
 class QNetworkReply;

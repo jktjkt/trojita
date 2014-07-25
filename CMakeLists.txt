@@ -287,6 +287,7 @@ set(libUiUtils_SOURCES
     ${path_UiUtils}/Color.cpp
     ${path_UiUtils}/Formatting.cpp
     ${path_UiUtils}/PasswordWatcher.cpp
+    ${path_UiUtils}/PlainTextFormatter.cpp
 )
 
 set(path_Composer ${CMAKE_CURRENT_SOURCE_DIR}/src/Composer)
@@ -294,7 +295,6 @@ set(libComposer_SOURCES
     ${path_Composer}/ComposerAttachments.cpp
     ${path_Composer}/Mailto.cpp
     ${path_Composer}/MessageComposer.cpp
-    ${path_Composer}/PlainTextFormatter.cpp
     ${path_Composer}/QuoteText.cpp
     ${path_Composer}/Recipients.cpp
     ${path_Composer}/ReplaceSignature.cpp
@@ -627,7 +627,7 @@ endif()
 
 add_library(UiUtils STATIC ${libUiUtils_SOURCES})
 set_property(TARGET UiUtils APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-target_link_libraries(UiUtils Plugins ${QT_QTCORE_LIBRARY})
+target_link_libraries(UiUtils Plugins Common ${QT_QTCORE_LIBRARY})
 
 add_library(Streams STATIC ${libStreams_SOURCES})
 set_property(TARGET Streams APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)

@@ -102,9 +102,9 @@ void SimplePartWidget::slotMarkupPlainText()
     QPalette palette = QApplication::palette();
 
     // and finally set the marked up page.
-    page()->mainFrame()->setHtml(Composer::Util::htmlizedTextPart(m_partIndex, Gui::Util::systemMonospaceFont(),
-                                                                  palette.base().color(), palette.text().color(),
-                                                                  palette.link().color(), palette.linkVisited().color()));
+    page()->mainFrame()->setHtml(UiUtils::htmlizedTextPart(m_partIndex, Gui::Util::systemMonospaceFont(),
+                                                           palette.base().color(), palette.text().color(),
+                                                           palette.link().color(), palette.linkVisited().color()));
 }
 
 void SimplePartWidget::slotFileNameRequested(QString *fileName)

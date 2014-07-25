@@ -24,7 +24,7 @@
 #define TEST_HTML_FORMATTING
 
 #include <QTest>
-#include "Composer/PlainTextFormatter.h"
+#include "UiUtils/PlainTextFormatter.h"
 
 class QWebView;
 
@@ -65,7 +65,7 @@ public:
 
     WebRenderingTester();
     virtual ~WebRenderingTester();
-    QString asPlainText(const QString &input, const Composer::Util::FlowedFormat format,
+    QString asPlainText(const QString &input, const UiUtils::FlowedFormat format,
                         const CollapsingFlags collapsing=RenderDefaultCollapsing);
 public slots:
     void doDelayedLoad();

@@ -37,8 +37,7 @@
 #include "Imap/Model/ItemRoles.h"
 #include "UiUtils/Color.h"
 
-namespace Composer {
-namespace Util {
+namespace UiUtils {
 
 /** @short Helper for plainTextToHtml for applying the HTML formatting
 
@@ -569,7 +568,7 @@ QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font, co
     QColor tintForQuoteIndicator = backgroundColor;
     tintForQuoteIndicator.setAlpha(0x66);
     static QString stylesheet = defaultStyle.arg(linkColor.name(),
-                                                 UiUtils::tintColor(textColor, tintForQuoteIndicator).name());
+                                                 tintColor(textColor, tintForQuoteIndicator).name());
     static QFile file(Common::writablePath(Common::LOCATION_DATA) + QLatin1String("message.css"));
     static QDateTime lastVersion;
     QDateTime lastTouched(file.exists() ? QFileInfo(file).lastModified() : QDateTime());
@@ -592,8 +591,7 @@ QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font, co
 
 
     // We cannot rely on the QWebFrame's toPlainText because of https://bugs.kde.org/show_bug.cgi?id=321160
-    QString markup = Composer::Util::plainTextToHtml(partIndex.data(Imap::Mailbox::RolePartUnicodeText).toString(),
-                                                     flowedFormatForPart(partIndex));
+    QString markup = plainTextToHtml(partIndex.data(Imap::Mailbox::RolePartUnicodeText).toString(), flowedFormatForPart(partIndex));
 
     return htmlHeader + markup + htmlFooter;
 }
@@ -611,6 +609,3 @@ FlowedFormat flowedFormatForPart(const QModelIndex &partIndex)
 }
 
 }
-}
-
-
