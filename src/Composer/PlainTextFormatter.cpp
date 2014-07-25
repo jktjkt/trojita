@@ -34,7 +34,6 @@
 #endif
 #include "PlainTextFormatter.h"
 #include "Common/Paths.h"
-#include "Imap/Encoders.h"
 #include "Imap/Model/ItemRoles.h"
 #include "UiUtils/Color.h"
 
@@ -593,10 +592,8 @@ QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font, co
 
 
     // We cannot rely on the QWebFrame's toPlainText because of https://bugs.kde.org/show_bug.cgi?id=321160
-    QString markup = Composer::Util::plainTextToHtml(
-                Imap::decodeByteArray(partIndex.data(Imap::Mailbox::RolePartData).toByteArray(),
-                                      partIndex.data(Imap::Mailbox::RolePartCharset).toByteArray()),
-                flowedFormatForPart(partIndex));
+    QString markup = Composer::Util::plainTextToHtml(partIndex.data(Imap::Mailbox::RolePartUnicodeText).toString(),
+                                                     flowedFormatForPart(partIndex));
 
     return htmlHeader + markup + htmlFooter;
 }
