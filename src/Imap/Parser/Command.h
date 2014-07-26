@@ -60,10 +60,18 @@ enum TokenType {
  */
 TokenType howToTransmit(const QByteArray &str);
 
-/** @short A part of the actual command.
+/** @short A part of the actual command and information on how to send it
  *
- * This is used by Parser to decide whether
- * to send the string as-is, to quote them or use a literal form for them.
+ * In IMAP, each command consists of several chunks of data to be sent over the wire. There are different
+ * rules on how to transfer them -- some data can be just flushed to the wire as byte arrays without any
+ * further processing, but there are places where the transmission just cannot happen "right now". An
+ * example of this are huge blobs of binary data which need to be transmitted as synchronizing literals.
+ * These literals need to wait for the server's explicit OK to send them, and the client is forbidden to
+ * send them ahead.
+ *
+ * This class therefore encapsulates the "part of command" along with enough information on how it should
+ * be transfered.
+ *
  */
 class PartOfCommand
 {
