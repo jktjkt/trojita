@@ -25,6 +25,8 @@
 #include <QSslKey>
 #include <QStringList>
 #include <QTextDocument>
+#include <QFontInfo>
+#include "UiUtils/PlainTextFormatter.h"
 
 namespace UiUtils {
 
@@ -94,6 +96,16 @@ QString Formatting::prettyDate(const QDateTime &dateTime)
     }
 }
 
+QString Formatting::htmlizedTextPart(const QModelIndex &partIndex, const QFont &font,
+                                     const QColor &backgroundColor, const QColor &textColor,
+                                     const QColor &linkColor, const QColor &visitedLinkColor)
+{
+    Q_ASSERT(partIndex.isValid());
+    QFontInfo fontInfo(font);
+    return UiUtils::htmlizedTextPart(partIndex, fontInfo,
+                                     backgroundColor, textColor,
+                                     linkColor, visitedLinkColor);
+}
 
 /** @short Produce a properly formatted HTML string which won't overflow the right edge of the display */
 QString Formatting::htmlHexifyByteArray(const QByteArray &rawInput)

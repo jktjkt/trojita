@@ -23,9 +23,14 @@ import QtQuick 2.0
 import QtWebKit 3.0
 import QtWebKit.experimental 1.0
 import "Utils.js" as Utils
+import trojita.UiFormatting 0.1
+import Ubuntu.Components 1.1
 
 WebView {
     id: trojitaWebView
+
+    property color linkColor: "#0000FF";
+    property color linkClickedColor: "#FF00FF";
 
     //Set the height to document height
     // FIXME: changing the window size will cause this to duplicate
@@ -55,6 +60,23 @@ WebView {
                 }
             }
         ]
-        transparentBackground: true
+    }
+
+    Label {
+        id: labelForFont
+    }
+
+    Component.onCompleted: loadingChanged.connect(htmlizeText)
+    function htmlizeText() {
+        if (!loading) {
+            loadHtml(UiFormatting.htmlizedTextPart(
+                         imapAccess.oneMessageModel.mainPartModelIndex,
+                         labelForFont.font,
+                         Theme.palette.normal.background,
+                         Theme.palette.normal.fieldText,
+                         linkColor,
+                         linkClickedColor));
+            loadingChanged.disconnect(htmlizeText);
+        }
     }
 }

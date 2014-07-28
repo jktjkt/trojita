@@ -26,6 +26,7 @@
 #include "ItemRoles.h"
 #include "Model.h"
 #include "SubtreeModel.h"
+#include "Imap/Network/MsgPartNetAccessManager.h"
 
 namespace Imap
 {
@@ -189,6 +190,12 @@ QUrl OneMessageModel::mainPartUrl() const
 QObject *OneMessageModel::attachmentsModel() const
 {
     return m_flatteningModel;
+}
+
+QModelIndex OneMessageModel::mainPartModelIndex()
+{
+    return Imap::Network::MsgPartNetAccessManager::pathToPart(
+                m_message, m_mainPartUrl.path().toUtf8());
 }
 
 void OneMessageModel::setMarkedDeleted(const bool marked)

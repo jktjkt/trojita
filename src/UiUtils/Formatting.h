@@ -57,6 +57,9 @@ public:
 
     Q_INVOKABLE static QString prettySize(uint bytes, const BytesSuffix compactUnitFormat = BytesSuffix::COMPACT_FORM);
     Q_INVOKABLE static QString prettyDate(const QDateTime &dateTime);
+    Q_INVOKABLE static QString htmlizedTextPart(const QModelIndex &partIndex, const QFont &font,
+                                                const QColor &backgroundColor, const QColor &textColor,
+                                                const QColor &linkColor, const QColor &visitedLinkColor);
 
     static QString sslChainToHtml(const QList<QSslCertificate> &sslChain);
     static QString sslErrorsToHtml(const QList<QSslError> &sslErrors);
