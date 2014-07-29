@@ -1067,7 +1067,8 @@ void MainWindow::networkError(const QString &message)
     } else {
         // hack: this slot is called even on the first run with no configuration
         // We shouldn't have to worry about that, since the dialog is already scheduled for calling
-        // -> do nothing
+        // But we should set the network policy to offline, to stop any ongoing reconnect attempts
+        qobject_cast<Imap::Mailbox::NetworkWatcher*>(m_imapAccess->networkWatcher())->setNetworkOffline();
     }
 }
 
