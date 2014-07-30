@@ -59,6 +59,7 @@ private slots:
     void testFailedMsa();
     void testNoImapContinuation();
     void testReplyingNormal();
+    void testForwardingNormal();
     void testReplyingToRemoved();
     void init();
     void cleanup();

@@ -682,6 +682,42 @@ void ComposerSubmissionTest::testReplyingNormal()
     cEmpty();
 }
 
+/** @short Make sure that the original message is marked as $Forwarded when forwarding */
+void ComposerSubmissionTest::testForwardingNormal()
+{
+    helperSetupProperHeaders();
+    m_submission->setImapOptions(false, QString(), QString(), QString(), false);
+    QModelIndex origMessage = msgListA.child(0, 0);
+    QVERIFY(origMessage.isValid());
+    QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
+    m_submission->composer()->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
+
+    cClient(t.mk("UID FETCH 10 (BODY.PEEK[TEXT] BODY.PEEK[HEADER])\r\n"));
+    cServer("* 1 FETCH (BODY[TEXT] \"contents\" BODY[HEADER] \"headers\")\r\n");
+    cServer(t.last("OK fetched\r\n"));
+    cEmpty();
+
+    m_submission->send();
+    cEmpty();
+
+    QCOMPARE(requestedSendingSpy->size(), 1);
+    m_msaFactory->doEmitSending();
+    QCOMPARE(sendingSpy->size(), 1);
+    m_msaFactory->doEmitSent();
+    QCOMPARE(sentSpy->size(), 1);
+    cClient(t.mk("UID STORE 10 +FLAGS ($Forwarded)\r\n"));
+    cServer("* 1 FETCH (UID 10 FLAGS ($Forwarded))\r\n"
+            + t.last("OK stored\r\n"));
+    cEmpty();
+    QCOMPARE(submissionSucceededSpy->size(), 1);
+    QCOMPARE(submissionFailedSpy->size(), 0);
+
+    QVERIFY(requestedSendingSpy->size() == 1 &&
+            requestedSendingSpy->at(0).size() == 3 &&
+            requestedSendingSpy->at(0)[2].toByteArray().contains("Sample message"));
+    cEmpty();
+}
+
 /** @short Make sure that replying to a removed message works reasonably well */
 void ComposerSubmissionTest::testReplyingToRemoved()
 {
