@@ -64,6 +64,7 @@
 #include "Imap/Tasks/GenUrlAuthTask.h"
 #include "Imap/Tasks/UidSubmitTask.h"
 #include "Plugins/PluginManager.h"
+#include "ShortcutHandler/ShortcutHandler.h"
 #include "UiUtils/Color.h"
 
 namespace
@@ -155,10 +156,54 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     // Unfortunately, there's no signal for toggled(QAction*), so we'll have to call QAction::trigger() to have this working
     connect(m_markAsReply, SIGNAL(triggered(QAction*)), this, SLOT(updateReplyMarkingAction()));
     m_actionStandalone->trigger();
+
+    m_replyModeButton = new QToolButton(ui->buttonBox);
+    m_replyModeButton->setPopupMode(QToolButton::InstantPopup);
+    m_replyModeButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+
+    QMenu *replyModeMenu = new QMenu(m_replyModeButton);
+    m_replyModeButton->setMenu(replyModeMenu);
+
+    m_replyModeActions = new QActionGroup(m_replyModeButton);
+    m_replyModeActions->setExclusive(true);
+
+    m_actionHandPickedRecipients = new QAction(Gui::loadIcon(QLatin1String("document-edit")) ,QLatin1String("Hand Picked Recipients"), this);
+    replyModeMenu->addAction(m_actionHandPickedRecipients);
+    m_actionHandPickedRecipients->setActionGroup(m_replyModeActions);
+    m_actionHandPickedRecipients->setCheckable(true);
+
+    replyModeMenu->addSeparator();
+
+    QAction *placeHolderAction = ShortcutHandler::instance()->action(QLatin1String("action_reply_private"));
+    m_actionReplyModePrivate = replyModeMenu->addAction(placeHolderAction->icon(), placeHolderAction->text());
+    m_actionReplyModePrivate->setActionGroup(m_replyModeActions);
+    m_actionReplyModePrivate->setCheckable(true);
+
+    placeHolderAction = ShortcutHandler::instance()->action(QLatin1String("action_reply_all_but_me"));
+    m_actionReplyModeAllButMe = replyModeMenu->addAction(placeHolderAction->icon(), placeHolderAction->text());
+    m_actionReplyModeAllButMe->setActionGroup(m_replyModeActions);
+    m_actionReplyModeAllButMe->setCheckable(true);
+
+    placeHolderAction = ShortcutHandler::instance()->action(QLatin1String("action_reply_all"));
+    m_actionReplyModeAll = replyModeMenu->addAction(placeHolderAction->icon(), placeHolderAction->text());
+    m_actionReplyModeAll->setActionGroup(m_replyModeActions);
+    m_actionReplyModeAll->setCheckable(true);
+
+    placeHolderAction = ShortcutHandler::instance()->action(QLatin1String("action_reply_list"));
+    m_actionReplyModeList = replyModeMenu->addAction(placeHolderAction->icon(), placeHolderAction->text());
+    m_actionReplyModeList->setActionGroup(m_replyModeActions);
+    m_actionReplyModeList->setCheckable(true);
+
+    connect(m_replyModeActions, SIGNAL(triggered(QAction*)), this, SLOT(updateReplyMode()));
+
     // We want to have the button aligned to the left; the only "portable" way of this is the ResetRole
     // (thanks to TL for mentioning this, and for the Qt's doc for providing pretty pictures on different platforms)
     ui->buttonBox->addButton(m_markButton, QDialogButtonBox::ResetRole);
+    // Using ResetRole for reasons same as with m_markButton. We want this button to be second from the left.
+    ui->buttonBox->addButton(m_replyModeButton, QDialogButtonBox::ResetRole);
+
     m_markButton->hide();
+    m_replyModeButton->hide();
 
     ui->mailText->setFont(Gui::Util::systemMonospaceFont());
 
@@ -317,6 +362,29 @@ ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer
     Util::centerWidgetOnScreen(w);
     w->show();
     return w;
+}
+
+void ComposeWidget::updateReplyMode()
+{
+    if (m_actionHandPickedRecipients->isChecked())
+        markReplyModeHandpicked();
+    else if (m_actionReplyModePrivate->isChecked())
+        setReplyMode(Composer::REPLY_PRIVATE);
+    else if (m_actionReplyModeAllButMe->isChecked())
+        setReplyMode(Composer::REPLY_ALL_BUT_ME);
+    else if (m_actionReplyModeAll->isChecked())
+        setReplyMode(Composer::REPLY_ALL);
+    else if (m_actionReplyModeList->isChecked())
+        setReplyMode(Composer::REPLY_LIST);
+}
+
+void ComposeWidget::markReplyModeHandpicked()
+{
+    if (m_replyModeButton->isEnabled()) {
+        m_actionHandPickedRecipients->setChecked(true);
+        m_replyModeButton->setText(m_actionHandPickedRecipients->text());
+        m_replyModeButton->setIcon(m_actionHandPickedRecipients->icon());
+    }
 }
 
 void ComposeWidget::passwordRequested(const QString &user, const QString &host)
@@ -575,6 +643,7 @@ void ComposeWidget::setResponseData(const QList<QPair<Composer::RecipientKind, Q
     m_replyingToMessage = replyingToMessage;
     if (m_replyingToMessage.isValid()) {
         m_markButton->show();
+        m_replyModeButton->show();
         // Got to use trigger() so that the default action of the QToolButton is updated
         m_actionInReplyTo->setToolTip(tr("This mail will be marked as a response<hr/>%1").arg(
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
@@ -584,8 +653,24 @@ void ComposeWidget::setResponseData(const QList<QPair<Composer::RecipientKind, Q
 #endif
                                           ));
         m_actionInReplyTo->trigger();
+
+        // Enable only those Reply Modes that are applicable to the message to be replied
+        Composer::RecipientList dummy;
+        m_actionReplyModePrivate->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_PRIVATE,
+                                                                                m_mainWindow->senderIdentitiesModel(),
+                                                                                m_replyingToMessage, dummy));
+        m_actionReplyModeAllButMe->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL_BUT_ME,
+                                                                                 m_mainWindow->senderIdentitiesModel(),
+                                                                                 m_replyingToMessage, dummy));
+        m_actionReplyModeAll->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_ALL,
+                                                                            m_mainWindow->senderIdentitiesModel(),
+                                                                            m_replyingToMessage, dummy));
+        m_actionReplyModeList->setEnabled(Composer::Util::replyRecipientList(Composer::REPLY_LIST,
+                                                                             m_mainWindow->senderIdentitiesModel(),
+                                                                             m_replyingToMessage, dummy));
     } else {
         m_markButton->hide();
+        m_replyModeButton->hide();
         m_actionInReplyTo->setToolTip(QString());
         m_actionStandalone->trigger();
     }
@@ -746,6 +831,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     connect(edit, SIGNAL(textEdited(QString)), SLOT(completeRecipients(QString)));
     connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
     connect(edit, SIGNAL(textChanged(QString)), m_recipientListUpdateTimer, SLOT(start()));
+    connect(edit, SIGNAL(textChanged(QString)), this, SLOT(markReplyModeHandpicked()));
     m_recipients.insert(position, Recipient(combo, edit));
     ui->envelopeWidget->setUpdatesEnabled(false);
     ui->envelopeLayout->insertRow(actualRow(ui->envelopeLayout, position + OFFSET_OF_FIRST_ADDRESSEE), combo, edit);
@@ -1193,6 +1279,25 @@ bool ComposeWidget::setReplyMode(const Composer::ReplyMode mode)
     }
 
     updateRecipientList();
+
+    switch (mode) {
+    case Composer::REPLY_PRIVATE:
+        m_actionReplyModePrivate->setChecked(true);
+        break;
+    case Composer::REPLY_ALL_BUT_ME:
+        m_actionReplyModeAllButMe->setChecked(true);
+        break;
+    case Composer::REPLY_ALL:
+        m_actionReplyModeAll->setChecked(true);
+        break;
+    case Composer::REPLY_LIST:
+        m_actionReplyModeList->setChecked(true);
+        break;
+    }
+
+    m_replyModeButton->setText(m_replyModeActions->checkedAction()->text());
+    m_replyModeButton->setIcon(m_replyModeActions->checkedAction()->icon());
+
     ui->mailText->setFocus();
 
     return true;
@@ -1277,6 +1382,15 @@ void ComposeWidget::loadDraft(const QString &path)
         m_submission->composer()->setTimestamp(timestamp);
         if (!m_inReplyTo.isEmpty()) {
             m_markButton->show();
+            // FIXME: in-reply-to's validitiy isn't the best check for showing or not showing the reply mode.
+            // For eg: consider cases of mailto, forward, where valid in-reply-to won't mean choice of reply modes.
+            m_replyModeButton->show();
+
+            m_actionReplyModeAll->setEnabled(false);
+            m_actionReplyModeAllButMe->setEnabled(false);
+            m_actionReplyModeList->setEnabled(false);
+            m_actionReplyModePrivate->setEnabled(false);
+            markReplyModeHandpicked();
 
             // We do not have the message index at this point, but we can at least show the Message-Id here
             QStringList inReplyTo;

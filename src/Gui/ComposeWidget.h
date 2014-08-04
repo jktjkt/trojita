@@ -112,6 +112,8 @@ private slots:
     void passwordError();
     void toggleReplyMarking();
     void updateReplyMarkingAction();
+    void updateReplyMode();
+    void markReplyModeHandpicked();
 
 private:
     ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory);
@@ -142,6 +144,13 @@ private:
     QAction *m_actionStandalone;
     QAction *m_actionInReplyTo;
     QAction *m_actionToggleMarking;
+    QToolButton *m_replyModeButton;
+    QActionGroup *m_replyModeActions;
+    QAction *m_actionHandPickedRecipients;
+    QAction *m_actionReplyModePrivate;
+    QAction *m_actionReplyModeAllButMe;
+    QAction *m_actionReplyModeAll;
+    QAction *m_actionReplyModeList;
     typedef QPair<QComboBox*, QLineEdit*> Recipient;
     QList<Recipient> m_recipients;
     QTimer *m_recipientListUpdateTimer;
