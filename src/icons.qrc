@@ -48,5 +48,6 @@
         <file>icons/mail-view-flat.png</file>
         <file>icons/mail-flagged.png</file>
         <file>icons/mail-unflagged.png</file>
+        <file>icons/mail-forward.png</file>
     </qresource>
 </RCC>
