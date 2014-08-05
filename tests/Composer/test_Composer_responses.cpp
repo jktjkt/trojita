@@ -142,6 +142,21 @@ void ComposerResponsesTest::testSubjectMangling_data()
     QTest::newRow("extra-space-in-0.3.92")
         << QString::fromUtf8("[imapext]  Re: Proposal for a new IMAP Working Group to revise CONDSTORE & QRESYNC")
         << QString::fromUtf8("Re: [imapext] Proposal for a new IMAP Working Group to revise CONDSTORE & QRESYNC");
+
+    // presence of prefixes added with forwarded mails
+    QTest::newRow("single-fwd") << QString::fromUtf8("Fwd: blah") << QString::fromUtf8("Re: Fwd: blah");
+    QTest::newRow("multiple-fwd") << QString::fromUtf8("FW: Fwd: fwd: blah") << QString::fromUtf8("Re: FW: Fwd: fwd: blah");
+    QTest::newRow("interleaved-re-fwd") << QString::fromUtf8("Fwd: Re: FW: RE: blah") << QString::fromUtf8("Re: Fwd: Re: FW: RE: blah");
+    QTest::newRow("multiple-re-nospace-fwd") << QString::fromUtf8("Re:RE:re:Fwd: blah") << QString::fromUtf8("Re: Fwd: blah");
+    QTest::newRow("old-TB-style-fwd") << QString::fromUtf8("[Fwd: blah]") << QString::fromUtf8("Re: [Fwd: blah]");
+    QTest::newRow("old-TB-style-fwd-ml") << QString::fromUtf8("[Fwd: [foo] blah]") << QString::fromUtf8("Re: [Fwd: [foo] blah]");
+    QTest::newRow("old-TB-style-fwd-re-ml") << QString::fromUtf8("[Fwd: Re: [foo] blah]") << QString::fromUtf8("Re: [Fwd: Re: [foo] blah]");
+    QTest::newRow("old-TB-style-fwd-re") << QString::fromUtf8("Re: [Fwd: Re: blah]") << QString::fromUtf8("Re: [Fwd: Re: blah]");
+    QTest::newRow("fwd-ml") << QString::fromUtf8("Fwd: [foo]") << QString::fromUtf8("Re: Fwd: [foo]");
+    QTest::newRow("fwd-ml-re") << QString::fromUtf8("Fwd: [foo] Re: blah") << QString::fromUtf8("Re: Fwd: [foo] Re: blah");
+    QTest::newRow("re-fwd-ml") << QString::fromUtf8("Re: Fwd: [foo] blah") << QString::fromUtf8("Re: Fwd: [foo] blah");
+    QTest::newRow("re-re-re-fwd-ml") << QString::fromUtf8("Re: re: RE: Fwd: [foo] blah") << QString::fromUtf8("Re: Fwd: [foo] blah");
+    QTest::newRow("re-ml-re-fwd-ml") << QString::fromUtf8("Re: [foo] RE: Fwd: [bar] blah") << QString::fromUtf8("Re: [foo] Fwd: [bar] blah");
 }
 
 /** @short Test different means of responding ("private", "to all", "to list") */
