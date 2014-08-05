@@ -33,8 +33,11 @@ class ComposerResponsesTest : public QObject
 {
     Q_OBJECT
 private slots:
-    void testSubjectMangling();
-    void testSubjectMangling_data();
+    void testReplySubjectMangling();
+    void testReplySubjectMangling_data();
+
+    void testForwardSubjectMangling();
+    void testForwardSubjectMangling_data();
 
     void testResponseAddresses();
     void testResponseAddresses_data();

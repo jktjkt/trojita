@@ -82,8 +82,8 @@ namespace QTest {
     }
 }
 
-/** @short Test that subjects remain sane in replied/forwarded messages */
-void ComposerResponsesTest::testSubjectMangling()
+/** @short Test that subjects remain sane in replied messages */
+void ComposerResponsesTest::testReplySubjectMangling()
 {
     QFETCH(QString, original);
     QFETCH(QString, replied);
@@ -91,8 +91,8 @@ void ComposerResponsesTest::testSubjectMangling()
     QCOMPARE(Composer::Util::replySubject(original), replied);
 }
 
-/** @short Data for testSubjectMangling */
-void ComposerResponsesTest::testSubjectMangling_data()
+/** @short Data for testReplySubjectMangling */
+void ComposerResponsesTest::testReplySubjectMangling_data()
 {
     QTest::addColumn<QString>("original");
     QTest::addColumn<QString>("replied");
@@ -157,6 +157,31 @@ void ComposerResponsesTest::testSubjectMangling_data()
     QTest::newRow("re-fwd-ml") << QString::fromUtf8("Re: Fwd: [foo] blah") << QString::fromUtf8("Re: Fwd: [foo] blah");
     QTest::newRow("re-re-re-fwd-ml") << QString::fromUtf8("Re: re: RE: Fwd: [foo] blah") << QString::fromUtf8("Re: Fwd: [foo] blah");
     QTest::newRow("re-ml-re-fwd-ml") << QString::fromUtf8("Re: [foo] RE: Fwd: [bar] blah") << QString::fromUtf8("Re: [foo] Fwd: [bar] blah");
+}
+
+/** @short Test that subjects remain sane in forwarded messages */
+void ComposerResponsesTest::testForwardSubjectMangling()
+{
+    QFETCH(QString, original);
+    QFETCH(QString, forwarded);
+
+    QCOMPARE(Composer::Util::forwardSubject(original), forwarded);
+}
+
+/** @short Data for testForwardSubjectMangling */
+void ComposerResponsesTest::testForwardSubjectMangling_data()
+{
+    QTest::addColumn<QString>("original");
+    QTest::addColumn<QString>("forwarded");
+
+    QTest::newRow("no-subject") << QString() << QString::fromUtf8("Fwd: ");
+    QTest::newRow("simple") << QString::fromUtf8("ahoj") << QString::fromUtf8("Fwd: ahoj");
+    QTest::newRow("already-forwarded") << QString::fromUtf8("Fwd: ahoj") << QString::fromUtf8("Fwd: Fwd: ahoj");
+    QTest::newRow("multiple-fwd") << QString::fromUtf8("FW: FWD: fw: Fwd: ahoj") << QString::fromUtf8("Fwd: FW: FWD: fw: Fwd: ahoj");
+    QTest::newRow("old-TB-style-fwd") << QString::fromUtf8("[Fwd: ahoj]") << QString::fromUtf8("Fwd: [Fwd: ahoj]");
+    QTest::newRow("trailing-fwd") << QString::fromUtf8("ahoj fwd") << QString::fromUtf8("Fwd: ahoj fwd");
+    QTest::newRow("trailing-fwd-parenthesis") << QString::fromUtf8("ahoj (fwd)") << QString::fromUtf8("Fwd: ahoj (fwd)");
+    QTest::newRow("leading-plus-trailing-fwd") << QString::fromUtf8("Fwd: ahoj (fwd)") << QString::fromUtf8("Fwd: Fwd: ahoj (fwd)");
 }
 
 /** @short Test different means of responding ("private", "to all", "to list") */
