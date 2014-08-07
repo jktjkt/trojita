@@ -87,6 +87,7 @@ const QString SettingsNames::guiMainWindowLayoutOneAtTime = QLatin1String("one-a
 const QString SettingsNames::guiPreferPlaintextRendering = QLatin1String("gui/preferPlaintextRendering");
 const QString SettingsNames::guiShowSystray = QLatin1String("gui/showSystray");
 const QString SettingsNames::guiOnSystrayClose = QLatin1String("gui/onSystrayClose");
+const QString SettingsNames::guiStartMinimized = QLatin1String("gui/startMinimized");
 const QString SettingsNames::guiSizesInMainWinWhenCompact = QLatin1String("gui/sizeInMainWinWhenCompact-%1");
 const QString SettingsNames::guiSizesInMainWinWhenWide = QLatin1String("gui/sizeInMainWinWhenWide-%1");
 const QString SettingsNames::guiAllowRawSearch = QLatin1String("gui/allowRawSearch");

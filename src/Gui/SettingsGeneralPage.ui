@@ -170,6 +170,13 @@
       </property>
      </widget>
     </item>
+    <item row="8" column="0">
+     <widget class="QCheckBox" name="guiStartMinimizedCheckbox">
+      <property name="text">
+       <string>Start minimized</string>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>

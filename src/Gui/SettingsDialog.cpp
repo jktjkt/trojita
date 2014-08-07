@@ -241,6 +241,7 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
                                         "or IMAP server details, are collected.</p>"));
 
     guiSystrayCheckbox->setChecked(s.value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool());
+    guiStartMinimizedCheckbox->setChecked(s.value(Common::SettingsNames::guiStartMinimized, QVariant(false)).toBool());
 
     preferPlaintextCheckbox->setChecked(s.value(Common::SettingsNames::guiPreferPlaintextRendering).toBool());
 
@@ -342,6 +343,7 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiPreferPlaintextRendering, preferPlaintextCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiShowSystray, guiSystrayCheckbox->isChecked());
+    s.setValue(Common::SettingsNames::guiStartMinimized, guiStartMinimizedCheckbox->isChecked());
 
     bool reload = false;
 

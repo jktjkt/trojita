@@ -27,6 +27,7 @@
 #include "AppVersion/SetCoreApplication.h"
 #include "Common/Application.h"
 #include "Common/MetaTypes.h"
+#include "Common/SettingsNames.h"
 #include "Gui/Util.h"
 #include "Gui/Window.h"
 
@@ -83,6 +84,13 @@ int main(int argc, char **argv)
     QSettings settings(Common::Application::organization,
                        profileName.isEmpty() ? Common::Application::name : Common::Application::name + QLatin1Char('-') + profileName);
     Gui::MainWindow win(&settings);
-    win.show();
+    if ( settings.value(Common::SettingsNames::guiStartMinimized, QVariant(false)).toBool() ) {
+        if ( !settings.value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool() ) {
+            win.show();
+            win.setWindowState(Qt::WindowMinimized);
+        }
+    } else {
+        win.show();
+    }
     return app.exec();
 }
