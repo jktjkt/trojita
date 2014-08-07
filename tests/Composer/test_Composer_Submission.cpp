@@ -692,7 +692,13 @@ void ComposerSubmissionTest::testForwardingNormal()
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
     m_submission->composer()->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
 
-    cClient(t.mk("UID FETCH 10 (BODY.PEEK[TEXT] BODY.PEEK[HEADER])\r\n"));
+    cClientRegExp(t.mk("UID FETCH 10 \\(BODY\\.PEEK\\["
+                       "("
+                       "TEXT\\] BODY\\.PEEK\\[HEADER"
+                       "|"
+                       "HEADER\\] BODY\\.PEEK\\[TEXT"
+                       ")"
+                       "\\]\\)"));
     cServer("* 1 FETCH (BODY[TEXT] \"contents\" BODY[HEADER] \"headers\")\r\n");
     cServer(t.last("OK fetched\r\n"));
     cEmpty();
