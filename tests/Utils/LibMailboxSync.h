@@ -124,17 +124,19 @@ protected:
         QCoreApplication::processEvents(); \
 }
 
+#define TROJITA_CLIENT_LOOP \
+    for (int i=0; i<5; ++i) \
+        QCoreApplication::processEvents();
+
 #define cClient(data) \
 { \
-    for (int i=0; i<5; ++i) \
-        QCoreApplication::processEvents(); \
+    TROJITA_CLIENT_LOOP \
     QCOMPARE(QString::fromUtf8(SOCK->writtenStuff()), QString::fromUtf8(data));\
 }
 
 #define cEmpty() \
 { \
-    for (int i=0; i<4; ++i) \
-        QCoreApplication::processEvents(); \
+    TROJITA_CLIENT_LOOP \
     QCOMPARE(QString::fromUtf8(SOCK->writtenStuff()), QString()); \
 }
 
