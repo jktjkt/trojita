@@ -115,6 +115,28 @@ protected:
     friend class ExpectSingleErrorHere;
 };
 
+class NetDataRegexp
+{
+public:
+    static NetDataRegexp fromPattern(const QByteArray &pattern);
+    static NetDataRegexp fromData(const QByteArray &data);
+    QByteArray raw;
+    QByteArray pattern;
+    bool isPattern;
+private:
+    NetDataRegexp(const QByteArray &raw, const QByteArray &pattern, const bool isPattern);
+};
+
+bool operator==(const NetDataRegexp &a, const NetDataRegexp &b);
+
+namespace QTest {
+
+/** @short Helper for pretty-printing in QCOMPARE */
+template<>
+char *toString(const NetDataRegexp &x);
+
+}
+
 #define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 #define cServer(data) \
@@ -132,6 +154,13 @@ protected:
 { \
     TROJITA_CLIENT_LOOP \
     QCOMPARE(QString::fromUtf8(SOCK->writtenStuff()), QString::fromUtf8(data));\
+}
+
+// Be careful with this; a QRegExp only supports single-line patterns.
+#define cClientRegExp(pattern) \
+{ \
+    TROJITA_CLIENT_LOOP \
+    QCOMPARE(NetDataRegexp::fromData(SOCK->writtenStuff()), NetDataRegexp::fromPattern(pattern));\
 }
 
 #define cEmpty() \

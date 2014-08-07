@@ -662,4 +662,57 @@ char *toString(const Imap::Mailbox::AbstractCache::MessageDataBundle &bundle)
          "bodystruct:" << bundle.serializedBodyStructure;
     return qstrdup(buf.toUtf8().constData());
 }
+
+template<>
+char *toString(const NetDataRegexp &x)
+{
+    if (x.isPattern) {
+        return qstrdup(("[regexp: " + x.pattern + "]").constData());
+    } else {
+        return toString(QString::fromUtf8(x.raw));
+    }
+}
+
+}
+
+NetDataRegexp NetDataRegexp::fromData(const QByteArray &data)
+{
+    return NetDataRegexp(data, QByteArray(), false);
+}
+
+NetDataRegexp NetDataRegexp::fromPattern(const QByteArray &pattern)
+{
+    return NetDataRegexp(QByteArray(), pattern, true);
+}
+
+NetDataRegexp::NetDataRegexp(const QByteArray &raw, const QByteArray &pattern, const bool isPattern):
+    raw(raw), pattern(pattern), isPattern(isPattern)
+{
+}
+
+bool operator==(const NetDataRegexp &a, const NetDataRegexp &b)
+{
+    Q_ASSERT(!a.isPattern);
+    Q_ASSERT(b.isPattern);
+    QByteArray rawData = a.raw;
+
+    // QRegExp doesn't support multiline patterns
+    if (!rawData.endsWith("\r\n")) {
+        // just a partial line
+        return false;
+    }
+    rawData.chop(2);
+    if (rawData.contains("\r\n")) {
+        // multiple lines, we definitely cannot handle that
+        return false;
+    }
+
+    // ...but it would be a developer's mistake if the *pattern* included
+    if (b.pattern.contains("\r\n")) {
+        // that's a developer's error -- multine patterns are not support by Qt's QRegExp, and there's nothing else in Qt4
+        Q_ASSERT(!"CRLF in the regexp pattern, fix the test suite");
+        return false;
+    }
+
+    return QRegExp(QString::fromUtf8(b.pattern)).exactMatch(QString::fromUtf8(rawData));
 }
