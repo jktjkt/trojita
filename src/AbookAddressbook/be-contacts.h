@@ -60,6 +60,7 @@ namespace BE {
         virtual void closeEvent(QCloseEvent *);
     private slots:
         void addContact();
+        void updateLabel();
         void updateFocusPolicy(QWidget *oldFocus, QWidget *newFocus);
         void removeCurrentContact();
         void saveContacts();

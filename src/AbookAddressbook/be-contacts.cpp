@@ -123,6 +123,25 @@ BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(fa
 
     // cheat to correct the focuspolicies ;-)
     updateFocusPolicy(m_ui2->name, m_ui->filter);
+
+    Q_FOREACH(const Field &field, fields) {
+        if (QTextDocument *doc = field.label->findChild<QTextDocument*>())
+            connect(doc, SIGNAL(contentsChanged()), SLOT(updateLabel()));
+    }
+}
+
+void BE::Contacts::updateLabel()
+{
+    QTextDocument *doc = qobject_cast<QTextDocument*>(sender());
+    Q_ASSERT(doc);
+    QObject *o = doc;
+    while ((o = o->parent())) {
+        if (QLabel *l = qobject_cast<QLabel*>(o)) {
+            l->setMinimumWidth(qMax(l->fontMetrics().width(l->text()),
+                                    l->fontMetrics().width(doc->toPlainText())));
+            break;
+        }
+    }
 }
 
 BE::Contacts::~Contacts()
