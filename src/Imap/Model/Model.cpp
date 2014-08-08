@@ -1683,30 +1683,6 @@ ParserState &Model::accessParser(Parser *parser)
     return m_parsers[ parser ];
 }
 
-QModelIndex Model::findMessageForItem(QModelIndex index)
-{
-    if (! index.isValid())
-        return QModelIndex();
-
-    if (! dynamic_cast<const Model *>(index.model()))
-        return QModelIndex();
-
-    TreeItem *item = static_cast<TreeItem *>(index.internalPointer());
-    Q_ASSERT(item);
-    while (item) {
-        Q_ASSERT(index.internalPointer() == item);
-        if (dynamic_cast<TreeItemMessage *>(item)) {
-            return index;
-        } else if (dynamic_cast<TreeItemPart *>(item)) {
-            index = index.parent();
-            item = item->parent();
-        } else {
-            return QModelIndex();
-        }
-    }
-    return QModelIndex();
-}
-
 void Model::releaseMessageData(const QModelIndex &message)
 {
     if (! message.isValid())

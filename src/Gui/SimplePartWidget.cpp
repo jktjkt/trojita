@@ -25,6 +25,7 @@
 #include <QWebFrame>
 
 #include "SimplePartWidget.h"
+#include "Common/MetaTypes.h"
 #include "Common/Paths.h"
 #include "Gui/MessageView.h" // so that the compiler knows that it's a QObject
 #include "Gui/Util.h"
@@ -146,10 +147,8 @@ void SimplePartWidget::slotDownloadPart()
 
 void SimplePartWidget::slotDownloadMessage()
 {
-    QModelIndex index;
-    if (m_partIndex.isValid()) {
-        index = Imap::Mailbox::Model::findMessageForItem(Imap::deproxifiedIndex(m_partIndex));
-    }
+    Q_ASSERT(m_partIndex.isValid());
+    QModelIndex index = m_partIndex.data(Imap::Mailbox::RolePartMessageIndex).value<QModelIndex>();
 
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccessManager, index);
     connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));

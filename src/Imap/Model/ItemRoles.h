@@ -163,6 +163,9 @@ enum {
     /** @short Pointer to the internal buffer */
     RolePartBufferPtr,
 
+    /** @short QModelIndex of the message a part is associated to */
+    RolePartMessageIndex,
+
     /** @short True if the item in the tasks list is actually a ParserState
 
     This role is *not* used or implemented by the IMAP models, but only by the TaskPresentationModel.

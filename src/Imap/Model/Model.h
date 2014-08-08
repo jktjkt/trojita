@@ -229,9 +229,6 @@ public:
     */
     static TreeItem *realTreeItem(QModelIndex index, const Model **whichModel = 0, QModelIndex *translatedIndex = 0);
 
-    /** @short Walks the index hierarchy up until it finds a message which owns this part/message */
-    static QModelIndex findMessageForItem(QModelIndex index);
-
     /** @short Inform the model that data for this message won't likely be requested in near future
 
     Model will transform the corresponding TreeItemMessage into the state similar to how it would look
