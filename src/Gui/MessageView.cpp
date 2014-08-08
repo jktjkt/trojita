@@ -56,6 +56,7 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/NetworkWatcher.h"
+#include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 
 namespace Gui
@@ -191,11 +192,8 @@ void MessageView::setEmpty()
 void MessageView::setMessage(const QModelIndex &index)
 {
     Q_ASSERT(index.isValid());
-    // first, let's get rid of all those proxy models
-    QModelIndex messageIndex = index;
-    while (const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(messageIndex.model())) {
-        messageIndex = proxy->mapToSource(messageIndex);
-    }
+    QModelIndex messageIndex = Imap::deproxifiedIndex(index);
+    Q_ASSERT(messageIndex.isValid());
 
     // The data might be available from the local cache, so let's try to save a possible roundtrip here
     // by explicitly requesting the data

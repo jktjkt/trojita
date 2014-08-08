@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "Utils.h"
+#include <QAbstractProxyModel>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -35,7 +36,6 @@
 
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
-#include "Imap/Model/Model.h"
 
 #ifdef TROJITA_MOBILITY_SYSTEMINFO
 #include <QSystemDeviceInfo>
@@ -372,10 +372,12 @@ void migrateSettings(QSettings *settings)
 }
 
 /** @short Return the matching QModelIndex after stripping all proxy layers */
-QModelIndex deproxifiedIndex(const QModelIndex index)
+QModelIndex deproxifiedIndex(const QModelIndex& index)
 {
-    QModelIndex res;
-    Imap::Mailbox::Model::realTreeItem(index, 0, &res);
+    QModelIndex res = index;
+    while (const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(res.model())) {
+        res = proxy->mapToSource(res);
+    }
     return res;
 }
 

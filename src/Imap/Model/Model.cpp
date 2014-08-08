@@ -30,6 +30,7 @@
 #include "QAIM_reset.h"
 #include "SpecialFlagNames.h"
 #include "TaskPresentationModel.h"
+#include "Utils.h"
 #include "Common/FindWithUnknown.h"
 #include "Common/InvokeMethod.h"
 #include "Imap/Encoders.h"
@@ -1433,9 +1434,7 @@ void Model::saveUidMap(TreeItemMsgList *list)
 
 TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QModelIndex *translatedIndex)
 {
-    while (const QAbstractProxyModel *proxy = qobject_cast<const QAbstractProxyModel *>(index.model())) {
-        index = proxy->mapToSource(index);
-    }
+    index = Imap::deproxifiedIndex(index);
     const Model *model = qobject_cast<const Model *>(index.model());
     Q_ASSERT(model);
     if (whichModel)

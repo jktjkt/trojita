@@ -47,7 +47,7 @@ QString dateTimeToInternalDate(const QDateTime &now);
 
 void migrateSettings(QSettings *settings);
 
-QModelIndex deproxifiedIndex(const QModelIndex index);
+QModelIndex deproxifiedIndex(const QModelIndex& index);
 
 bool removeRecursively(const QString &dirName);
 
