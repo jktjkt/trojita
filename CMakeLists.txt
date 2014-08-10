@@ -61,6 +61,7 @@ trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
 trojita_option(WITH_TESTS "Build tests" ON)
 trojita_option(WITH_MIMETIC "Build with client-side MIME parsing" AUTO)
+trojita_option(WITH_QCA "Build with the QCA library for cryptography" AUTO)
 
 if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
@@ -92,6 +93,8 @@ trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" 
 trojita_find_package(Git "" "" "" "")
 
 trojita_find_package(Mimetic "" "http://www.codesink.org/mimetic_mime_library.html" "C++ MIME Library" "Required for client-side MIME parsing" WITH_MIMETIC)
+trojita_find_package(Qca-qt5 "2.1.0" "http://delta.affinix.com/qca/" "Qt Cryptographic Architecture" "Needed for encrypted/signed messages" WITH_QCA)
+trojita_option(WITH_CRYPTO_MESSAGES "Enable support for encrypted messages" AUTO "WITH_MIMETIC;WITH_QCA")
 
 if(WIN32)
     trojita_find_package(MakeNSIS "" "http://nsis.sourceforge.net" "Nullsoft Scriptable Install System" "Needed for building Windows installer" WITH_NSIS)
@@ -185,6 +188,18 @@ if(WITH_MIMETIC)
   set(TROJITA_HAVE_MIMETIC True)
 else()
   set(TROJITA_HAVE_MIMETIC False)
+endif()
+
+if(WITH_QCA)
+  set(TROJITA_HAVE_QCA True)
+else()
+  set(TROJITA_HAVE_QCA False)
+endif()
+
+if(WITH_CRYPTO_MESSAGES)
+  set(TROJITA_HAVE_CRYPTO_MESSAGES True)
+else()
+  set(TROJITA_HAVE_CRYPTO_MESSAGES False)
 endif()
 
 if(WITH_ZLIB)
@@ -286,6 +301,13 @@ if(WITH_MIMETIC)
         ${libCryptography_SOURCES}
         ${path_Cryptography}/LocalMimeParser.cpp
         ${path_Cryptography}/MimeticUtils.cpp
+    )
+endif()
+if(WITH_CRYPTO_MESSAGES)
+    set(libCryptography_SOURCES
+        ${libCryptography_SOURCES}
+        ${path_Cryptography}/QCAHelper.cpp
+        ${path_Cryptography}/OpenPGPHelper.cpp
     )
 endif()
 
@@ -582,6 +604,9 @@ if(WITH_MIMETIC)
     target_link_libraries(Cryptography ${MIMETIC_LIBRARIES})
     set_property(TARGET Cryptography APPEND PROPERTY INCLUDE_DIRECTORIES ${MIMETIC_INCLUDE_DIRS})
 endif()
+if (WITH_CRYPTO_MESSAGES)
+    target_link_libraries(Cryptography qca-qt5)
+endif()
 
 ## ClearText password plugin
 if(WITH_CLEARTEXT_PLUGIN)
@@ -734,6 +759,33 @@ if(WITH_TESTS)
     trojita_test(Imap Imap_Offline)
     trojita_test(Imap Imap_CopyAndFlagOperations)
     trojita_test(Cryptography Cryptography_MessageModel)
+
+    if(WITH_CRYPTO_MESSAGES)
+      find_program(GPG_BINARY gpg)
+      if(GPG_BINARY_NOTFOUND)
+        message(SEND_ERROR "The `gpg` binary not found, this is needed for crypto tests.")
+      endif()
+
+      if(NOT UNIX)
+        message(SEND_ERROR "The Cryptography unit tests really need Unix. Patches welcome.")
+      endif()
+
+      add_library(fake-dev-random SHARED ${CMAKE_CURRENT_SOURCE_DIR}/tests/Utils/fake-dev-random.c)
+      target_link_libraries(fake-dev-random dl)
+
+      # FIXME: it would be nice to depend on the contents of keys/, but in my testing it produces Makefiles
+      # which suffer from races (the keygen.sh is run multiple times in parallel within the CI environment).
+      # I wasn't able to track down the root cause behind this; it affected all cmake versions within the CI
+      # as of Feb 2016, which is 3.1.something up to 3.3.something.
+      add_custom_command(OUTPUT crypto_test_data.h
+        COMMAND bash ${CMAKE_CURRENT_SOURCE_DIR}/tests/Cryptography/keygen.sh ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS fake-dev-random tests/Cryptography/keygen.sh tests/Cryptography/batch-keygen)
+      add_custom_target(crypto_test_data DEPENDS crypto_test_data.h)
+
+      trojita_test(Cryptography Cryptography_PGP)
+      add_dependencies(test_Cryptography_PGP crypto_test_data)
+    endif()
+
     trojita_test(Misc Rfc5322)
     trojita_test(Misc RingBuffer)
     trojita_test(Misc SenderIdentitiesModel)

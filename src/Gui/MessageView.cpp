@@ -36,6 +36,7 @@
 #include <QWebHitTestResult>
 #include <QWebPage>
 
+#include "configure.cmake.h"
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
 #include "ComposeWidget.h"
@@ -55,6 +56,9 @@
 #include "Composer/QuoteText.h"
 #include "Composer/SubjectMangling.h"
 #include "Cryptography/MessageModel.h"
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+#include "Cryptography/OpenPGPHelper.h"
+#endif
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/NetworkWatcher.h"
@@ -204,6 +208,9 @@ void MessageView::setMessage(const QModelIndex &index)
     if (!messageModel || messageModel->message() != messageIndex) {
         delete messageModel;
         messageModel = new Cryptography::MessageModel(this, messageIndex);
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+        messageModel->registerPartHandler(std::make_shared<Cryptography::OpenPGPEncryptedReplacer>(messageModel));
+#endif
         connect(messageModel, &QAbstractItemModel::rowsInserted, this, &MessageView::handleMessageAvailable);
         connect(messageModel, &QAbstractItemModel::layoutChanged, this, &MessageView::handleMessageAvailable);
         emit messageModelChanged(messageModel);
