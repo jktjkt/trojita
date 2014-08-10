@@ -271,6 +271,12 @@ void MainWindow::createActions()
     connect(showTaskView, &QAction::triggered, taskDock, &QWidget::setVisible);
     connect(taskDock, &QDockWidget::visibilityChanged, showTaskView, &QAction::setChecked);
 
+    //: a debugging tool showing the mime tree of the current message
+    showMimeView = new QAction(tr("Show &MIME tree"), this);
+    showMimeView->setCheckable(true);
+    connect(showMimeView, &QAction::triggered, mailMimeDock, &QWidget::setVisible);
+    connect(mailMimeDock, &QDockWidget::visibilityChanged, showMimeView, &QAction::setChecked);
+
     showImapLogger = new QAction(tr("Show IMAP protocol &log"), this);
     showImapLogger->setCheckable(true);
     connect(showImapLogger, &QAction::toggled, imapLoggerDock, &QWidget::setVisible);
@@ -597,6 +603,7 @@ void MainWindow::createMenus()
     QMenu *debugMenu = imapMenu->addMenu(tr("&Debugging"));
     ADD_ACTION(debugMenu, showFullView);
     ADD_ACTION(debugMenu, showTaskView);
+    ADD_ACTION(debugMenu, showMimeView);
     ADD_ACTION(debugMenu, showImapLogger);
     ADD_ACTION(debugMenu, logPersistent);
     ADD_ACTION(debugMenu, showImapCapabilities);
@@ -725,6 +732,15 @@ void MainWindow::createWidgets()
     taskTree->setHeaderHidden(true);
     taskDock->setWidget(taskTree);
     addDockWidget(Qt::LeftDockWidgetArea, taskDock);
+    mailMimeDock = new QDockWidget(tr("MIME Tree"), this);
+    mailMimeDock->setObjectName(QStringLiteral("mailMimeDock"));
+    mailMimeTree = new QTreeView(mailMimeDock);
+    mailMimeDock->hide();
+    mailMimeTree->setUniformRowHeights(true);
+    mailMimeTree->setHeaderHidden(true);
+    mailMimeDock->setWidget(mailMimeTree);
+    addDockWidget(Qt::RightDockWidgetArea, mailMimeDock);
+    connect(m_messageWidget->messageView, &MessageView::messageModelChanged, this, &MainWindow::slotMessageModelChanged);
 
     imapLoggerDock = new QDockWidget(tr("IMAP Protocol"), this);
     imapLoggerDock->setObjectName(QStringLiteral("imapLoggerDock"));
@@ -2541,6 +2557,11 @@ void MainWindow::showStatusMessage(const QString &message)
     networkIndicator->setToolTip(message);
     if (isActiveWindow())
         QToolTip::showText(networkIndicator->mapToGlobal(QPoint(0, 0)), message);
+}
+
+void MainWindow::slotMessageModelChanged(QAbstractItemModel *model)
+{
+    mailMimeTree->setModel(model);
 }
 
 }

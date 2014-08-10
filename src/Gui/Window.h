@@ -168,6 +168,7 @@ private slots:
     void updateMessageFlags();
     void updateMessageFlagsOf(const QModelIndex &index);
     void scrollMessageUp();
+    void slotMessageModelChanged(QAbstractItemModel *model);
     void showConnectionStatus(uint parserId, Imap::ConnectionState state);
     void slotShowLinkTarget(const QString &link);
     void slotShowAboutTrojita();
@@ -252,6 +253,8 @@ private:
     QDockWidget *allDock;
     QTreeView *taskTree;
     QDockWidget *taskDock;
+    QTreeView *mailMimeTree;
+    QDockWidget *mailMimeDock;
 
     CompleteMessageWidget *m_messageWidget;
 
@@ -276,6 +279,7 @@ private:
     QAction *exitAction;
     QAction *showFullView;
     QAction *showTaskView;
+    QAction *showMimeView;
     QAction *showImapLogger;
     QAction *logPersistent;
     QAction *showImapCapabilities;
