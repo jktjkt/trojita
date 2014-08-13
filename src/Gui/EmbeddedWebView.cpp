@@ -278,6 +278,11 @@ QSize EmbeddedWebView::sizeHint() const
     return QSize(32,32); // QWebView returns 800x600 what will lead to too wide pages for our implementation
 }
 
+QWidget *EmbeddedWebView::scrollParent() const
+{
+    return m_scrollParent;
+}
+
 ErrorCheckingPage::ErrorCheckingPage(QObject *parent): QWebPage(parent)
 {
 }

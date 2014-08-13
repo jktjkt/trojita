@@ -34,9 +34,10 @@
 class QCheckBox;
 class QLineEdit;
 class QString;
-class QWebView;
 
 namespace Gui {
+
+class EmbeddedWebView;
 
 class FindBar : public QWidget
 {
@@ -44,13 +45,14 @@ class FindBar : public QWidget
 
 public:
     explicit FindBar(QWidget *parent);
+    enum FindDirection { Forward = 0, Backward };
 
     bool matchCase() const;
     void notifyMatch(bool match);
     bool highlightAllState() const;
 
     void setVisible(bool visible);
-    void setAssociatedWebView(QWebView *webView);
+    void setAssociatedWebView(EmbeddedWebView *webView);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
@@ -66,12 +68,15 @@ signals:
     void searchString(const QString &);
 
 private:
+    void find(FindDirection dir);
+
+private:
     QLineEdit *m_lineEdit;
     QCheckBox *m_matchCase;
     QCheckBox *m_highlightAll;
 
     QString _lastStringSearched;
-    QPointer<QWebView> m_associatedWebView;
+    QPointer<EmbeddedWebView> m_associatedWebView;
 };
 
 }

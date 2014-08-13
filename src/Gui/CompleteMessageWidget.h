@@ -26,12 +26,12 @@
 
 class QScrollArea;
 class QSettings;
-class QWebView;
 class QPropertyAnimation;
 
 namespace Gui
 {
 
+class EmbeddedWebView;
 class FindBar;
 class MessageView;
 
@@ -47,7 +47,7 @@ protected:
     void keyPressEvent(QKeyEvent *ke);
 
 private slots:
-    void searchRequestedBy(QWebView *webView);
+    void searchRequestedBy(EmbeddedWebView *webView);
 
 private:
     CompleteMessageWidget(const CompleteMessageWidget &); // don't implement

@@ -49,6 +49,7 @@ class EmbeddedWebView: public QWebView
 public:
     EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager);
     QSize sizeHint() const;
+    QWidget *scrollParent() const;
 protected:
     void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);

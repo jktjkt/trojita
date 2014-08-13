@@ -465,7 +465,7 @@ void MessageView::partLinkHovered(const QString &link, const QString &title, con
 
 void MessageView::triggerSearchDialog()
 {
-    emit searchRequestedBy(qobject_cast<QWebView*>(sender()));
+    emit searchRequestedBy(qobject_cast<EmbeddedWebView*>(sender()));
 }
 
 QModelIndex MessageView::currentMessage() const

@@ -49,10 +49,10 @@ CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *setting
     m_findBar = new FindBar(this);
     layout->addWidget(m_findBar);
 
-    connect(messageView, SIGNAL(searchRequestedBy(QWebView*)), this, SLOT(searchRequestedBy(QWebView*)));
+    connect(messageView, SIGNAL(searchRequestedBy(EmbeddedWebView*)), this, SLOT(searchRequestedBy(EmbeddedWebView*)));
 }
 
-void CompleteMessageWidget::searchRequestedBy(QWebView *webView)
+void CompleteMessageWidget::searchRequestedBy(EmbeddedWebView *webView)
 {
     if (m_findBar->isVisible() || !webView) {
         m_findBar->setAssociatedWebView(0);

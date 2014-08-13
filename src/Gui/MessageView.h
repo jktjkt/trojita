@@ -51,6 +51,7 @@ class NetworkWatcher;
 
 namespace Gui {
 
+class EmbeddedWebView;
 class EnvelopeView;
 class MainWindow;
 class ExternalElementsWidget;
@@ -97,7 +98,7 @@ private slots:
 signals:
     void messageChanged();
     void linkHovered(const QString &url);
-    void searchRequestedBy(QWebView *webView);
+    void searchRequestedBy(EmbeddedWebView *webView);
     void addressDetailsRequested(const QString &mail, QStringList &addresses);
     void transferError(const QString &errorString);
 private:
