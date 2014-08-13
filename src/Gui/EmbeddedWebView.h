@@ -50,6 +50,7 @@ public:
     EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager);
     QSize sizeHint() const;
     QWidget *scrollParent() const;
+    void setStaticWidth(int staticWidth);
 protected:
     void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
@@ -57,18 +58,20 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void showEvent(QShowEvent *se);
 private:
-    void constrainSize();
     void findScrollParent();
 private slots:
     void autoScroll();
     void slotLinkClicked(const QUrl &url);
     void handlePageLoadFinished();
+    void constrainSize();
 private:
     QWidget *m_scrollParent;
     int m_scrollParentPadding;
     int m_resizeInProgress;
     QTimer *m_autoScrollTimer;
+    QTimer *m_sizeContrainTimer;
     int m_autoScrollPixels;
+    int m_staticWidth;
 };
 
 class ErrorCheckingPage: public QWebPage

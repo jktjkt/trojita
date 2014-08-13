@@ -27,6 +27,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QDesktopWidget>
 #include <QLayout>
 #include <QMouseEvent>
 #include <QNetworkReply>
@@ -62,7 +63,7 @@ namespace Gui
 {
 
 EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager):
-    QWebView(parent), m_scrollParent(0L), m_resizeInProgress(0)
+    QWebView(parent), m_scrollParent(0L), m_resizeInProgress(0), m_staticWidth(0)
 {
     // set to expanding, ie. "freely" - this is important so the widget will attempt to shrink below the sizehint!
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -108,6 +109,11 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     m_autoScrollTimer->setInterval(50);
     connect(m_autoScrollTimer, SIGNAL(timeout()), SLOT(autoScroll()));
 
+    m_sizeContrainTimer = new QTimer(this);
+    m_sizeContrainTimer->setInterval(50);
+    m_sizeContrainTimer->setSingleShot(true);
+    connect(m_sizeContrainTimer, SIGNAL(timeout()), SLOT(constrainSize()));
+
     setContextMenuPolicy(Qt::NoContextMenu);
     findScrollParent();
 }
@@ -129,16 +135,22 @@ void EmbeddedWebView::constrainSize()
     // its m_scrollParent
     setMinimumSize(0,0);
     setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-    // resize so that the viewport has much vertical and wanted horizontal space
-    resize(m_scrollParent->width() - m_scrollParentPadding, QWIDGETSIZE_MAX);
-    // resize the PAGES viewport to this width and a minimum height
-    page()->setViewportSize(QSize(m_scrollParent->width() - m_scrollParentPadding, 32));
+    if (m_staticWidth) {
+        resize(m_staticWidth, QWIDGETSIZE_MAX - 1);
+        page()->setViewportSize(QSize(m_staticWidth, 32));
+    } else {
+        // resize so that the viewport has much vertical and wanted horizontal space
+        resize(m_scrollParent->width() - m_scrollParentPadding, QWIDGETSIZE_MAX);
+        // resize the PAGES viewport to this width and a minimum height
+        page()->setViewportSize(QSize(m_scrollParent->width() - m_scrollParentPadding, 32));
+    }
     // now the page has an idea about it's demanded size
     const QSize bestSize = page()->mainFrame()->contentsSize();
     // set the viewport to that size! - Otherwise it'd still be our "suggestion"
     page()->setViewportSize(bestSize);
     // fix the widgets size so the layout doesn't have much choice
     setFixedSize(bestSize);
+    m_sizeContrainTimer->stop(); // we caused spurious resize events
 }
 
 void EmbeddedWebView::slotLinkClicked(const QUrl &url)
@@ -179,7 +191,8 @@ bool EmbeddedWebView::eventFilter(QObject *o, QEvent *e)
 {
     if (o == m_scrollParent) {
         if (e->type() == QEvent::Resize) {
-            constrainSize();
+            if (!m_staticWidth)
+                m_sizeContrainTimer->start();
         } else if (e->type() == QEvent::Enter) {
             m_autoScrollPixels = 0;
             m_autoScrollTimer->stop();
@@ -281,6 +294,11 @@ QSize EmbeddedWebView::sizeHint() const
 QWidget *EmbeddedWebView::scrollParent() const
 {
     return m_scrollParent;
+}
+
+void EmbeddedWebView::setStaticWidth(int staticWidth)
+{
+    m_staticWidth = staticWidth;
 }
 
 ErrorCheckingPage::ErrorCheckingPage(QObject *parent): QWebPage(parent)

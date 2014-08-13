@@ -55,9 +55,19 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     url.setScheme(QLatin1String("trojita-imap"));
     url.setHost(QLatin1String("msg"));
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
-    if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == QLatin1String("text/plain")
-            && partIndex.data(Imap::Mailbox::RolePartOctets).toUInt() < 100 * 1024) {
-        connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
+    if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == QLatin1String("text/plain")) {
+        if (partIndex.data(Imap::Mailbox::RolePartOctets).toUInt() < 100 * 1024) {
+            connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
+        } else {
+            QFont font = Gui::Util::systemMonospaceFont();
+            setStaticWidth(QFontMetrics(font).maxWidth()*90);
+            QWebSettings *s = settings();
+            // TODO wtf does this not work?
+            const QString css(QLatin1String("data:text/css;charset=utf-8;base64,") +
+                              QLatin1String(QByteArray("pre{word-wrap:normal !important;white-space:pre !important;}").toBase64()));
+            s->setUserStyleSheetUrl(css);
+            s->setFontFamily(QWebSettings::StandardFont, font.family());
+        }
     }
     load(url);
 
