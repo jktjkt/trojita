@@ -30,9 +30,9 @@ namespace Gui
 {
 
 LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
-                                       MessageView *messageView, PartWidgetFactory *factory, int recursionDepth,
+                                       PartWidgetFactory *factory, int recursionDepth,
                                        const PartWidgetFactory::PartLoadingOptions loadingMode):
-    QStackedWidget(parent), manager(manager), partIndex(part), m_messageView(messageView), m_factory(factory),
+    QStackedWidget(parent), manager(manager), partIndex(part), m_factory(factory),
     m_recursionDepth(recursionDepth), m_loadingMode(loadingMode), realPart(0), loadButton(0), m_loadOnShow(false)
 {
     Q_ASSERT(partIndex.isValid());

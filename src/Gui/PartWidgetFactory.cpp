@@ -69,7 +69,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     bool isCompoundMimeType = mimeType.startsWith(QLatin1String("multipart/")) || isMessageRfc822;
 
     if (loadingMode & PART_IS_HIDDEN) {
-        return new LoadablePartWidget(0, manager, partIndex, m_messageView, this, recursionDepth + 1,
+        return new LoadablePartWidget(0, manager, partIndex, this, recursionDepth + 1,
                                       loadingMode | PART_IGNORE_CLICKTHROUGH);
     }
 
@@ -132,7 +132,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                 // This is to prevent a clickthrough when offline
                 options |= PART_IGNORE_CLICKTHROUGH;
             }
-            contentWidget = new LoadablePartWidget(0, manager, partIndex, m_messageView, this, recursionDepth + 1, options);
+            contentWidget = new LoadablePartWidget(0, manager, partIndex, this, recursionDepth + 1, options);
             if (!isInline) {
                 contentWidget->hide();
             }
@@ -210,7 +210,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
             // Show it directly without any fancy wrapping
             return new SimplePartWidget(0, manager, partIndex, m_messageView);
         } else {
-            return new LoadablePartWidget(0, manager, partIndex, m_messageView, this, recursionDepth + 1,
+            return new LoadablePartWidget(0, manager, partIndex, this, recursionDepth + 1,
                                           (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE) ?
                                           loadingMode : loadingMode | PART_IGNORE_CLICKTHROUGH);
         }

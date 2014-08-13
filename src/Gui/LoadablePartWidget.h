@@ -46,8 +46,7 @@ class LoadablePartWidget : public QStackedWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
-                       MessageView *messageView, PartWidgetFactory *factory, int recursionDepth,
+    LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part, PartWidgetFactory *factory, int recursionDepth,
                        const PartWidgetFactory::PartLoadingOptions loadingMode);
     QString quoteMe() const;
     virtual void reloadContents();
@@ -58,7 +57,6 @@ private slots:
 private:
     Imap::Network::MsgPartNetAccessManager *manager;
     QPersistentModelIndex partIndex;
-    MessageView *m_messageView;
     PartWidgetFactory *m_factory;
     int m_recursionDepth;
     PartWidgetFactory::PartLoadingOptions m_loadingMode;
