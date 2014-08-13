@@ -55,8 +55,10 @@ CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *setting
 void CompleteMessageWidget::searchRequestedBy(EmbeddedWebView *webView)
 {
     if (m_findBar->isVisible() || !webView) {
-        m_findBar->setAssociatedWebView(0);
+        // NOTICE: hide must go before resetting the AssociatedWebView
+        // since it clears search results in the AssociatedWebView (otherise hightlights would stay)
         m_findBar->hide();
+        m_findBar->setAssociatedWebView(0);
     } else {
         m_findBar->setAssociatedWebView(webView);
         m_findBar->show();
