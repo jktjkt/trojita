@@ -63,6 +63,9 @@ public:
                                         const QModelIndex &partIndex,
                                         const int recursionDepth,
                                         const PartLoadingOptions options) = 0;
+    virtual Result visitMultipartEncryptedView(Result parent, PartWalker<Result, Context> *factory,
+                                        const QModelIndex &partIndex, const int recursionDepth,
+                                        const PartLoadingOptions loadingOptions) = 0;
     virtual Result visitMultipartSignedView(Result parent, PartWalker<Result, Context> *factory,
                                         const QModelIndex &partIndex, const int recursionDepth,
                                         const PartLoadingOptions loadingOptions) = 0;

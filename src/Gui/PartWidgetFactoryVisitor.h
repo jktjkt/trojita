@@ -53,6 +53,8 @@ public:
                                       MessageView *messageView, QWidget *contentView);
     virtual QWidget *visitMultipartAlternative(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex,
                                                   const int recursionDepth, const UiUtils::PartLoadingOptions options);
+    virtual QWidget *visitMultipartEncryptedView(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth,
+                                              const UiUtils::PartLoadingOptions loadingOptions);
     virtual QWidget *visitMultipartSignedView(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth,
                                               const UiUtils::PartLoadingOptions loadingOptions);
     virtual QWidget *visitGenericMultipartView(QWidget *parent,

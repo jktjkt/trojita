@@ -55,6 +55,11 @@ Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recurs
                                       loadingMode | PART_IGNORE_CLICKTHROUGH);
     }
 
+    // Check if we are dealing with encrypted data
+    if (mimeType == QLatin1String("multipart/encrypted")) {
+        return m_visitor->visitMultipartEncryptedView(0, this, partIndex, recursionDepth, loadingMode);
+    }
+
     // Check whether we can render this MIME type at all
     QStringList allowedMimeTypes;
     allowedMimeTypes << QStringLiteral("text/html") << QStringLiteral("text/plain") << QStringLiteral("image/jpeg") <<

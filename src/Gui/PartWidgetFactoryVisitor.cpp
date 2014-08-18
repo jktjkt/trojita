@@ -70,6 +70,12 @@ QWidget *PartWidgetFactoryVisitor::visitMultipartAlternative(QWidget *parent, Pa
     return new MultipartAlternativeWidget(parent, factory, partIndex, recursionDepth, options);
 }
 
+QWidget *PartWidgetFactoryVisitor::visitMultipartEncryptedView(QWidget *parent, PartWidgetFactory *factory,
+    const QModelIndex &partIndex, const int recursionDepth, const UiUtils::PartLoadingOptions loadingOptions)
+{
+    return new MultipartEncryptedWidget(parent, factory, partIndex, recursionDepth, loadingOptions);
+}
+
 QWidget *PartWidgetFactoryVisitor::visitMultipartSignedView(QWidget *parent, PartWidgetFactory *factory,
     const QModelIndex &partIndex, const int recursionDepth, const UiUtils::PartLoadingOptions loadingOptions)
 {
