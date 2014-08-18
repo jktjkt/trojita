@@ -79,6 +79,7 @@ public:
 
 protected slots:
     void handleRowsInserted(const QModelIndex &parent, int row, int column);
+    void handleLayoutChanged(const QList<QPersistentModelIndex> &parents);
     void handleError(const QModelIndex &parent, const QString &status, const QString &details);
 
 protected:

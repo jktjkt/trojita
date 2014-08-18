@@ -266,6 +266,13 @@ set(libStreams_SOURCES
     ${path_Streams}/SocketFactory.cpp
 )
 
+set(path_Cryptography ${CMAKE_CURRENT_SOURCE_DIR}/src/Cryptography)
+set(libCryptography_SOURCES
+    ${path_Cryptography}/MessageModel.cpp
+    ${path_Cryptography}/MessagePart.cpp
+    ${path_Cryptography}/PartReplacer.cpp
+)
+
 if(WITH_ZLIB)
     set(libStreams_SOURCES ${libStreams_SOURCES}
         ${path_Streams}/3rdparty/rfc1951.cpp)
@@ -551,6 +558,11 @@ set_property(TARGET Imap APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASC
 target_link_libraries(Imap Common Streams UiUtils)
 qt5_use_modules(Imap Gui Network Sql)
 
+add_library(Cryptography STATIC ${libCryptography_SOURCES})
+qt5_use_modules(Cryptography Core)
+set_property(TARGET Cryptography APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
+target_link_libraries(Cryptography Common Imap)
+
 ## ClearText password plugin
 if(WITH_CLEARTEXT_PLUGIN)
     trojita_add_plugin(trojita_plugin_ClearTextPasswordPlugin WITH_CLEARTEXT_PLUGIN src/Plugins/ClearTextPassword/ClearTextPassword.cpp)
@@ -618,7 +630,7 @@ if(WITH_DESKTOP)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
     set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
-    target_link_libraries(DesktopGui Common UiUtils Composer Imap IPC MSA Plugins Streams qwwsmtpclient)
+    target_link_libraries(DesktopGui Common UiUtils Composer Cryptography Imap IPC MSA Plugins Streams qwwsmtpclient)
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
@@ -669,7 +681,7 @@ if(WITH_TESTS)
     macro(trojita_test dir fname)
         set(test_${fname}_SOURCES tests/${dir}/test_${fname}.cpp)
         add_executable(test_${fname} ${test_${fname}_SOURCES})
-        target_link_libraries(test_${fname} Imap MSA Streams Common Composer test_LibMailboxSync)
+        target_link_libraries(test_${fname} Imap MSA Streams Common Composer Cryptography test_LibMailboxSync)
         qt5_use_modules(test_${fname} Network Sql Test Widgets)
         set_property(TARGET test_${fname} APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/tests)
         if(NOT CMAKE_CROSSCOMPILING)
@@ -701,6 +713,7 @@ if(WITH_TESTS)
     trojita_test(Imap Imap_BodyParts)
     trojita_test(Imap Imap_Offline)
     trojita_test(Imap Imap_CopyAndFlagOperations)
+    trojita_test(Cryptography Cryptography_MessageModel)
     trojita_test(Misc Rfc5322)
     trojita_test(Misc RingBuffer)
     trojita_test(Misc SenderIdentitiesModel)

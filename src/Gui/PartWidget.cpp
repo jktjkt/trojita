@@ -33,6 +33,7 @@
 #include "LoadablePartWidget.h"
 #include "MessageView.h"
 #include "Common/InvokeMethod.h"
+#include "Cryptography/MessageModel.h"
 #include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
@@ -243,7 +244,11 @@ AsynchronousPartWidget::AsynchronousPartWidget(QWidget *parent,
     , m_options(options)
 {
     Q_ASSERT(partIndex.isValid());
-    connect(partIndex.model(), &QAbstractItemModel::rowsInserted, this, &AsynchronousPartWidget::handleRowsInserted);
+    auto model = qobject_cast<const Cryptography::MessageModel *>(partIndex.model());
+    Q_ASSERT(model);
+    connect(model, &QAbstractItemModel::rowsInserted, this, &AsynchronousPartWidget::handleRowsInserted);
+    connect(model, &QAbstractItemModel::layoutChanged, this, &AsynchronousPartWidget::handleLayoutChanged);
+    connect(model, &Cryptography::MessageModel::error, this, &AsynchronousPartWidget::handleError);
 
     setContentsMargins(0, 0, 0, 0);
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -276,10 +281,21 @@ void AsynchronousPartWidget::handleRowsInserted(const QModelIndex &parent, int r
     }
 }
 
+void AsynchronousPartWidget::handleLayoutChanged(const QList<QPersistentModelIndex> &parents)
+{
+    if (parents.isEmpty() || parents.contains(m_partIndex.parent())) {
+        buildWidgets();
+        adjustSize();
+    }
+}
+
 void AsynchronousPartWidget::handleError(const QModelIndex &parent, const QString &status, const QString &details)
 {
     if (parent == m_partIndex) {
+        disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &AsynchronousPartWidget::handleRowsInserted);
+        disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &AsynchronousPartWidget::handleLayoutChanged);
         m_loadingSpinner->hide();
+        m_loadingSpinner->stop();
         m_statusWidget->showStatus(QStringLiteral("dialog-error"), status, details);
     }
 }
@@ -297,6 +313,7 @@ void MultipartSignedWidget::buildWidgets()
 {
     Q_ASSERT(m_partIndex.isValid());
     disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &MultipartSignedWidget::handleRowsInserted);
+    disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &MultipartSignedWidget::handleLayoutChanged);
     setFlat(true);
     uint childrenCount = m_partIndex.model()->rowCount(m_partIndex);
     if (childrenCount == 1) {
@@ -350,7 +367,7 @@ QString MultipartEncryptedWidget::quoteMe() const
 void MultipartEncryptedWidget::buildWidgets()
 {
     Q_ASSERT(m_partIndex.isValid());
-    if (m_partIndex.model()->rowCount(m_partIndex) == 0) {
+    if (m_partIndex.model()->rowCount(m_partIndex) == 0 && !m_statusWidget->isVisibleTo(m_statusWidget->parentWidget())) {
         // We have to wait for the message structure to become available
         m_loadingSpinner->start(250);
         return;
@@ -360,6 +377,7 @@ void MultipartEncryptedWidget::buildWidgets()
     m_loadingSpinner->stop();
 
     disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &MultipartEncryptedWidget::handleRowsInserted);
+    disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &MultipartEncryptedWidget::handleLayoutChanged);
     for (int i = 0; i < m_partIndex.model()->rowCount(m_partIndex); ++i) {
         QModelIndex anotherPart = m_partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC

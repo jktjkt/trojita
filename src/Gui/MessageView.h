@@ -1,4 +1,5 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
+   Copyright (C) 2014 - 2015 Stephan Platz <trojita@paalsteek.de>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -36,6 +37,10 @@ class QSettings;
 class QTimer;
 class QUrl;
 class QWebView;
+
+namespace Cryptography {
+class MessageModel;
+}
 
 namespace Imap {
 namespace Network {
@@ -93,14 +98,15 @@ private slots:
     void externalsEnabled();
     void newLabelAction(const QString &tag);
     void deleteLabelAction(const QString &tag);
-    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void partContextMenuRequested(const QPoint &point);
     void partLinkHovered(const QString &link, const QString &title, const QString &textContent);
     void triggerSearchDialog();
     void onWebViewLoadStarted();
     void onWebViewLoadFinished();
+    void handleMessageAvailable();
 signals:
     void messageChanged();
+    void messageModelChanged(QAbstractItemModel *model);
     void linkHovered(const QString &url);
     void searchRequestedBy(EmbeddedWebView *webView);
     void transferError(const QString &errorString);
@@ -116,6 +122,7 @@ private:
     QBoxLayout *layout;
     TagListWidget *tags;
     QPersistentModelIndex message;
+    Cryptography::MessageModel *messageModel;
     Imap::Network::MsgPartNetAccessManager *netAccess;
     QPointer<Imap::Mailbox::NetworkWatcher> m_netWatcher;
     QTimer *markAsReadTimer;
