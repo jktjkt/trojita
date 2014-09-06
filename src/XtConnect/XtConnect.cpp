@@ -263,6 +263,7 @@ void XtConnect::showConnectionStatus( QObject* parser, Imap::ConnectionState sta
     case CONN_STATE_FETCHING_MSG_METADATA:
     case CONN_STATE_FETCHING_PART:
     case CONN_STATE_SELECTED:
+    case CONN_STATE_SELECTING_WAIT_FOR_CLOSE:
     case CONN_STATE_SELECTING:
         return;
     default:

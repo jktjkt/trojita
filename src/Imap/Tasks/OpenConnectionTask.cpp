@@ -131,6 +131,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     switch (model->accessParser(parser).connState) {
 
     case CONN_STATE_AUTHENTICATED:
+    case CONN_STATE_SELECTING_WAIT_FOR_CLOSE:
     case CONN_STATE_SELECTING:
     case CONN_STATE_SYNCING:
     case CONN_STATE_SELECTED:
