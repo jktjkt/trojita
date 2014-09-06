@@ -546,6 +546,9 @@ void LibMailboxSync::justKeepTask()
     QCOMPARE(model->taskModel()->rowCount(parser1), 1);
     QModelIndex firstTask = parser1.child(0, 0);
     QVERIFY(firstTask.isValid());
+    if (firstTask.child(0, 0).isValid()) {
+        qDebug() << "Unexpected extra task:" << firstTask.child(0, 0).data();
+    }
     QVERIFY(!firstTask.child(0, 0).isValid());
     QCOMPARE(model->accessParser(static_cast<Imap::Parser*>(parser1.internalPointer())).connState,
              Imap::CONN_STATE_SELECTED);
