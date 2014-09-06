@@ -91,7 +91,8 @@ void ObtainSynchronizedMailboxTask::perform()
     Q_ASSERT(model->m_parsers.contains(parser));
 
     oldSyncState = model->cache()->mailboxSyncState(mailbox->mailbox());
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) && oldSyncState.isUsableForCondstore()) {
+    bool hasQresync = model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC"));
+    if (hasQresync && oldSyncState.isUsableForCondstore()) {
         m_usingQresync = true;
         QList<uint> oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
         if (oldUidMap.isEmpty()) {
@@ -115,6 +116,14 @@ void ObtainSynchronizedMailboxTask::perform()
         selectCmd = parser->select(mailbox->mailbox(), QList<QByteArray>() << "CONDSTORE");
     } else {
         selectCmd = parser->select(mailbox->mailbox());
+    }
+    if (hasQresync && model->accessParser(parser).connState > CONN_STATE_AUTHENTICATED) {
+        // The CLOSED response code is defined in RFC 5162. It should be sent out even if the client does not actually use
+        // the QRESYNC extension (such as when syncing a mailbox for the first time).
+        // There will, however, be no CLOSED if no mailbox was selected previously, of course.
+        model->changeConnectionState(parser, CONN_STATE_SELECTING_WAIT_FOR_CLOSE);
+    } else {
+        model->changeConnectionState(parser, CONN_STATE_SELECTING);
     }
     mailbox->syncState = SyncState();
     status = STATE_SELECTING;
@@ -142,8 +151,17 @@ bool ObtainSynchronizedMailboxTask::handleStateHelper(const Imap::Responses::Sta
     if (resp->tag == selectCmd) {
 
         if (resp->kind == Responses::OK) {
-            //qDebug() << "received OK for selectCmd";
             Q_ASSERT(status == STATE_SELECTING);
+            switch (model->accessParser(parser).connState) {
+            case CONN_STATE_SELECTING_WAIT_FOR_CLOSE:
+                throw UnexpectedResponseReceived("Server did not send the CLOSED response code to notify us that "
+                                                 "the previous mailbox was successfully closed. Stopping the sync to prevent data loss.");
+            case CONN_STATE_SELECTING:
+                // this is what we want
+                break;
+            default:
+                throw UnexpectedResponseReceived("Wrong connection state -- how come that a mailbox was opened in this moment?");
+            }
             finalizeSelect();
         } else {
             _failed(QLatin1String("SELECT failed: ") + resp->message);

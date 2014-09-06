@@ -1642,7 +1642,8 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheDiscrepancyExistsUids(bo
     model->cache()->setUidMapping(QLatin1String("a"), uidMap);
     model->resyncMailbox(idxA);
     cClient(t.mk("SELECT a (QRESYNC (666 111 (3 7)))\r\n"));
-    cServer("* 3 EXISTS\r\n"
+    cServer("* OK [CLOSED] Previous mailbox closed\r\n"
+            "* 3 EXISTS\r\n"
             "* 1 RECENT\r\n"
             "* OK [UNSEEN 5] x\r\n"
             "* OK [UIDVALIDITY 666] x\r\n"
@@ -2553,6 +2554,52 @@ void ImapModelObtainSynchronizedMailboxTest::testDanglingSelect()
     model->resyncMailbox(idxB);
     cClient(t.mk("SELECT b\r\n"));
     cEmpty();
+}
+
+/** @short Test that we can detect broken servers which do not issue an untagged OK with the [CLOSED] response code */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncNoClosed()
+{
+    helperTestQresyncNoChanges(JUST_QRESYNC);
+    model->resyncMailbox(idxB);
+    cClient(t.mk("SELECT b\r\n"));
+    {
+        // The IMAP code should complain about a lack of the [CLOSED] response code
+        ExpectSingleErrorHere blocker(this);
+        cServer(t.last("OK selected\r\n"));
+    }
+}
+
+/** @short Check that everything prior to a [CLOSED] gets delivered to the older mailbox */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncClosedOutOfBounds()
+{
+    helperTestQresyncNoChanges(JUST_QRESYNC);
+    model->resyncMailbox(idxB);
+    QCOMPARE(msgListA.model()->rowCount(msgListA), 3);
+    cClient(t.mk("SELECT b\r\n"));
+    {
+        // This refers to message #4 in a mailbox which only has three messages, hence a failure.
+        ExpectSingleErrorHere blocker(this);
+        cServer("* 4 FETCH (UID 666 FLAGS())\r\n")
+    }
+}
+
+/** @short In absence of QRESYNC, all responses are delivered directly to the new ObtainSynchronizedMailboxTask */
+void ImapModelObtainSynchronizedMailboxTest::testNoClosedRouting()
+{
+    existsA = 3;
+    uidValidityA = 6;
+    uidMapA << 1 << 7 << 9;
+    uidNextA = 16;
+    helperSyncAWithMessagesEmptyState();
+    model->resyncMailbox(idxB);
+    cClient(t.mk("SELECT b\r\n"));
+    cServer("* 1 EXISTS\r\n" + t.last("OK selected\r\n"));
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    cServer("* SEARCH 123\r\n" + t.last("OK uids\r\n"));
+    cClient(t.mk("FETCH 1 (FLAGS)\r\n"));
+    cServer("* 1 FETCH (FLAGS ())\r\n" + t.last("OK flags\r\n"));
+    cEmpty();
+    justKeepTask();
 }
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

@@ -264,7 +264,7 @@ void LibMailboxSync::helperSyncBNoMessages()
     QCOMPARE( model->rowCount( msgListB ), 0 );
     model->switchToMailbox( idxB );
     cClient(t.mk("SELECT b\r\n"));
-    cServer(QByteArray("* 0 exists\r\n") + t.last("ok completed\r\n"));
+    cServer(QByteArray("* OK [CLOSED] Closed.\r\n* 0 exists\r\n") + t.last("ok completed\r\n"));
 
     // Check the cache
     Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("b") );

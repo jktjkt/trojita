@@ -329,12 +329,18 @@ void KeepMailboxOpenTask::terminate()
         // And launch the replacement
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
         model->accessParser(parser).maintainingTask = first->keepTaskChild;
+        // make sure that if the SELECT dies uncleanly, such as with a missing [CLOSED], we get killed as well
+        connect(first->keepTaskChild, SIGNAL(failed(QString)), this, SLOT(finalizeTermination()));
         first->keepTaskChild->slotPerformConnection();
     } else {
         Q_ASSERT(dependentTasks.isEmpty());
     }
-    _finished = true;
-    emit completed(this);
+    if (model->accessParser(parser).connState == CONN_STATE_SELECTING_WAIT_FOR_CLOSE) {
+        // we have to be kept busy, otherwise the responses which are still destined for *this* mailbox would
+        // get delivered to the new one
+    } else {
+        finalizeTermination();
+    }
     CHECK_TASK_TREE
 }
 
@@ -514,6 +520,18 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         return true;
 
     // FIXME: checks for shouldExit and proper boundaries?
+
+    if (resp->respCode == Responses::CLOSED) {
+        switch (model->accessParser(parser).connState) {
+        case CONN_STATE_SELECTING:
+        case CONN_STATE_SELECTING_WAIT_FOR_CLOSE:
+            model->changeConnectionState(parser, CONN_STATE_SELECTING);
+            finalizeTermination();
+            break;
+        default:
+            throw UnexpectedResponseReceived("No other mailbox is being selected, but got a [CLOSED] response", *resp);
+        }
+    }
 
     if (resp->tag.isEmpty())
         return false;
@@ -1015,6 +1033,16 @@ Right now, only fetching of new arrivals is being done in the context of this Ke
 bool KeepMailboxOpenTask::hasItsOwnActivity() const
 {
     return !newArrivalsFetch.isEmpty();
+}
+
+/** @short Signal the final termination of this task */
+void KeepMailboxOpenTask::finalizeTermination()
+{
+    if (!_finished) {
+        _finished = true;
+        emit completed(this);
+    }
+    CHECK_TASK_TREE;
 }
 
 }

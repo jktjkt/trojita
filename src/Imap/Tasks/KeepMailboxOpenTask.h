@@ -193,6 +193,8 @@ private slots:
 
     void terminate();
 
+    void finalizeTermination();
+
     void signalSyncFailure(const QString &message);
 
 private:

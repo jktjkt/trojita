@@ -963,7 +963,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     cClient(t.mk("CANCELUPDATE \"" + sortTag + "\"\r\n"));
     cServer(t.last("OK no further updates\r\n"));
     cClient(t.mk("SELECT b\r\n"));
-    cServer("* 0 EXISTS\r\n" + t.last("OK selected\r\n"));
+    cServer("* OK [CLOSED] previous mailbox closed\r\n* 0 EXISTS\r\n" + t.last("OK selected\r\n"));
 
     cEmpty();
     justKeepTask();

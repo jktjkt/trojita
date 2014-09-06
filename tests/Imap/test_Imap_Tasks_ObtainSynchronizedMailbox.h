@@ -92,6 +92,10 @@ private slots:
     void testQresyncAfterEmpty();
     void testQresyncExtraEnabled();
 
+    void testQresyncNoClosed();
+    void testQresyncClosedOutOfBounds();
+    void testNoClosedRouting();
+
     void testSpuriousSearch();
     void testSpuriousESearch();
 
