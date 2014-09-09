@@ -258,7 +258,12 @@ protected:
     ObtainSynchronizedMailboxTask *synchronizeConn;
 
     bool shouldExit;
-    bool isRunning;
+    enum class Running {
+        NOT_YET,
+        RUNNING,
+        NOT_ANYMORE,
+    };
+    Running isRunning;
 
     QTimer *noopTimer;
     QTimer *fetchPartTimer;
