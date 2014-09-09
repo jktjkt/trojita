@@ -229,13 +229,14 @@ void EmbeddedWebView::findScrollParent()
     if (m_scrollParent)
         m_scrollParent->removeEventFilter(this);
     m_scrollParent = 0;
-    m_scrollParentPadding = 4;
+    const int frameWidth = 2*style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
+    m_scrollParentPadding = frameWidth;
     QWidget *runner = this;
     int left, top, right, bottom;
     while (runner) {
         runner->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         runner->getContentsMargins(&left, &top, &right, &bottom);
-        m_scrollParentPadding += left + right + 4;
+        m_scrollParentPadding += left + right + frameWidth;
         if (runner->layout()) {
             runner->layout()->getContentsMargins(&left, &top, &right, &bottom);
             m_scrollParentPadding += left + right;
@@ -245,7 +246,7 @@ void EmbeddedWebView::findScrollParent()
             p->objectName() == QLatin1String("qt_scrollarea_viewport") && // in a viewport?
             qobject_cast<QAbstractScrollArea*>(p->parentWidget())) { // that is used?
             p->getContentsMargins(&left, &top, &right, &bottom);
-            m_scrollParentPadding += left + right + 4;
+            m_scrollParentPadding += left + right + frameWidth;
             if (p->layout()) {
                 p->layout()->getContentsMargins(&left, &top, &right, &bottom);
                 m_scrollParentPadding += left + right;
