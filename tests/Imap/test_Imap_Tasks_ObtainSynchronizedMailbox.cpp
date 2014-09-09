@@ -2590,31 +2590,8 @@ void ImapModelObtainSynchronizedMailboxTest::testNoQresyncOutOfBounds()
 /** @short Check that the responses are consumed by the older mailbox */
 void ImapModelObtainSynchronizedMailboxTest::testQresyncClosedHandover()
 {
-    FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("QRESYNC");
     Imap::Mailbox::SyncState sync;
-    sync.setExists(3);
-    sync.setUidValidity(666);
-    sync.setUidNext(15);
-    sync.setHighestModSeq(33);
-    sync.setUnSeenCount(3);
-    sync.setRecent(0);
-    QList<uint> uidMap;
-    uidMap << 6 << 9 << 10;
-    model->cache()->setMailboxSyncState("a", sync);
-    model->cache()->setUidMapping("a", uidMap);
-    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
-    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
-    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
-    model->resyncMailbox(idxA);
-    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
-    cServer("* 3 EXISTS\r\n"
-            "* OK [UIDVALIDITY 666] .\r\n"
-            "* OK [UIDNEXT 15] .\r\n"
-            "* OK [HIGHESTMODSEQ 33] .\r\n"
-            );
-    cServer(t.last("OK selected\r\n"));
-    cEmpty();
+    helperQresyncAInitial(sync);
     QStringList okFlags = QStringList() << "z";
     QCOMPARE(model->cache()->msgFlags("a", 10), okFlags);
 
