@@ -2635,4 +2635,43 @@ void ImapModelObtainSynchronizedMailboxTest::testNoClosedRouting()
     justKeepTask();
 }
 
+#define REINIT_INDEXES_AFTER_LIST_CYCLE \
+    model->rowCount(QModelIndex()); \
+    QCoreApplication::processEvents(); \
+    QCoreApplication::processEvents(); \
+    QCOMPARE(model->rowCount(QModelIndex()), 26); \
+    idxA = model->index(1, 0, QModelIndex()); \
+    idxB = model->index(2, 0, QModelIndex()); \
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a"))); \
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b"))); \
+    msgListA = model->index(0, 0, idxA); \
+    msgListB = model->index(0, 0, idxB);
+
+/** @short Check that an UNSELECT resets that flag which expects a [CLOSED] */
+void ImapModelObtainSynchronizedMailboxTest::testUnselectClosed()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("UNSELECT");
+    Imap::Mailbox::SyncState sync;
+    helperQresyncAInitial(sync);
+
+    model->reloadMailboxList();
+    REINIT_INDEXES_AFTER_LIST_CYCLE
+    cClient(t.mk("UNSELECT\r\n"));
+    cServer(t.last("OK unselected\r\n"));
+    cEmpty();
+
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+
+    justKeepTask();
+    cEmpty();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

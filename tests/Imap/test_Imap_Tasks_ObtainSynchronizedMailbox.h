@@ -96,6 +96,7 @@ private slots:
     void testNoQresyncOutOfBounds();
     void testQresyncClosedHandover();
     void testNoClosedRouting();
+    void testUnselectClosed();
 
     void testSpuriousSearch();
     void testSpuriousESearch();

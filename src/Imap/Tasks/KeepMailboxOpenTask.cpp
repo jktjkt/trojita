@@ -911,6 +911,17 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
 
 void KeepMailboxOpenTask::slotUnselected()
 {
+    switch (model->accessParser(parser).connState) {
+    case CONN_STATE_SYNCING:
+    case CONN_STATE_SELECTED:
+    case CONN_STATE_FETCHING_PART:
+    case CONN_STATE_FETCHING_MSG_METADATA:
+        model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
+        break;
+    default:
+        // no need to do anything from here
+        break;
+    }
     detachFromMailbox();
     isRunning = Running::RUNNING; // WTF?
     shouldExit = true;
