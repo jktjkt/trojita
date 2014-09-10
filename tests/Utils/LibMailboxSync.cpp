@@ -22,6 +22,7 @@
 
 #include <QTest>
 #include "LibMailboxSync.h"
+#include "Utils/FakeCapabilitiesInjector.h"
 #include "headless_test.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
@@ -608,6 +609,35 @@ QModelIndex LibMailboxSync::findIndexByPosition(const QAbstractItemModel *model,
 void LibMailboxSync::setModelNetworkPolicy(Imap::Mailbox::Model *model, const Imap::Mailbox::NetworkPolicy policy)
 {
     model->setNetworkPolicy(policy);
+}
+
+/** @short Sync mailbox A with QRESYNC and some initial state, but nothing in memory */
+void LibMailboxSync::helperQresyncAInitial(Imap::Mailbox::SyncState &syncState)
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+    syncState.setExists(3);
+    syncState.setUidValidity(666);
+    syncState.setUidNext(15);
+    syncState.setHighestModSeq(33);
+    syncState.setUnSeenCount(3);
+    syncState.setRecent(0);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+    model->cache()->setMailboxSyncState("a", syncState);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    cEmpty();
 }
 
 namespace Imap {

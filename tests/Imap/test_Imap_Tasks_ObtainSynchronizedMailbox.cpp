@@ -2569,10 +2569,14 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNoClosed()
     }
 }
 
-/** @short Check that everything prior to a [CLOSED] gets delivered to the older mailbox */
-void ImapModelObtainSynchronizedMailboxTest::testQresyncClosedOutOfBounds()
+/** @short Check that everything gets delivered to the older mailbox in absence of QRESYNC */
+void ImapModelObtainSynchronizedMailboxTest::testNoQresyncOutOfBounds()
 {
-    helperTestQresyncNoChanges(JUST_QRESYNC);
+    existsA = 3;
+    uidValidityA = 6;
+    uidMapA << 1 << 7 << 9;
+    uidNextA = 16;
+    helperSyncAWithMessagesEmptyState();
     model->resyncMailbox(idxB);
     QCOMPARE(msgListA.model()->rowCount(msgListA), 3);
     cClient(t.mk("SELECT b\r\n"));
@@ -2581,6 +2585,35 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncClosedOutOfBounds()
         ExpectSingleErrorHere blocker(this);
         cServer("* 4 FETCH (UID 666 FLAGS())\r\n")
     }
+}
+
+/** @short Check that the responses are consumed by the older mailbox */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncClosedHandover()
+{
+    Imap::Mailbox::SyncState sync;
+    helperQresyncAInitial(sync);
+    QStringList okFlags = QStringList() << "z";
+    QCOMPARE(model->cache()->msgFlags("a", 10), okFlags);
+
+    // OK, we're done. Now the actual test -- open another mailbox
+    model->resyncMailbox(idxB);
+    cClient(t.mk("SELECT b\r\n"));
+    // this one should be eaten, but ignored
+    cServer("* 3 FETCH (FLAGS ())\r\n");
+    QCOMPARE(msgListA.child(2, 0).data(Imap::Mailbox::RoleMessageFlags).toStringList(), okFlags);
+    QCOMPARE(model->cache()->msgFlags("a", 10), okFlags);
+    cServer("* 4 EXISTS\r\n");
+    cServer("* 4 FETCH (UID 333666333 FLAGS (PWNED))\r\n");
+    cEmpty();
+    // "4" shouldn't be in there either, of course
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(model->rowCount(msgListA), 3);
+    cEmpty();
+    cServer("* OK [CLOSED] Previous mailbox closed\r\n"
+            "* 0 EXISTS\r\n"
+            + t.last("OK selected\r\n"));
+    justKeepTask();
+    cEmpty();
 }
 
 /** @short In absence of QRESYNC, all responses are delivered directly to the new ObtainSynchronizedMailboxTask */
@@ -2600,6 +2633,45 @@ void ImapModelObtainSynchronizedMailboxTest::testNoClosedRouting()
     cServer("* 1 FETCH (FLAGS ())\r\n" + t.last("OK flags\r\n"));
     cEmpty();
     justKeepTask();
+}
+
+#define REINIT_INDEXES_AFTER_LIST_CYCLE \
+    model->rowCount(QModelIndex()); \
+    QCoreApplication::processEvents(); \
+    QCoreApplication::processEvents(); \
+    QCOMPARE(model->rowCount(QModelIndex()), 26); \
+    idxA = model->index(1, 0, QModelIndex()); \
+    idxB = model->index(2, 0, QModelIndex()); \
+    QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a"))); \
+    QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b"))); \
+    msgListA = model->index(0, 0, idxA); \
+    msgListB = model->index(0, 0, idxB);
+
+/** @short Check that an UNSELECT resets that flag which expects a [CLOSED] */
+void ImapModelObtainSynchronizedMailboxTest::testUnselectClosed()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("UNSELECT");
+    Imap::Mailbox::SyncState sync;
+    helperQresyncAInitial(sync);
+
+    model->reloadMailboxList();
+    REINIT_INDEXES_AFTER_LIST_CYCLE
+    cClient(t.mk("UNSELECT\r\n"));
+    cServer(t.last("OK unselected\r\n"));
+    cEmpty();
+
+    model->resyncMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+
+    justKeepTask();
+    cEmpty();
 }
 
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

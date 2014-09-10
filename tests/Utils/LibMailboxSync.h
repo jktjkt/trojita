@@ -81,6 +81,7 @@ protected:
     virtual void helperSyncAWithMessagesNoArrivals();
     virtual void helperSyncFlags();
     virtual void helperSyncASomeNew( int number );
+    virtual void helperQresyncAInitial(Imap::Mailbox::SyncState &syncState);
 
     virtual void helperFakeExistsUidValidityUidNext();
     virtual void helperFakeUidSearch( uint start=0 );

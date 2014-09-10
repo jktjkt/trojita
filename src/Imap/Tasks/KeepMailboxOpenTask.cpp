@@ -44,12 +44,8 @@ namespace Imap
 namespace Mailbox
 {
 
-/*
-FIXME: we should eat "* OK [CLOSED] former mailbox closed", or somehow let it fall down to the model, which shouldn't delegate it to AuthenticatedHandler
-*/
-
 KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailboxIndex, Parser *oldParser) :
-    ImapTask(model), mailboxIndex(mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(false),
+    ImapTask(model), mailboxIndex(mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(Running::NOT_YET),
     shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0), unSelectTask(0)
 {
     Q_ASSERT(mailboxIndex.isValid());
@@ -306,7 +302,7 @@ void KeepMailboxOpenTask::terminate()
     // Break periodic activities
     shouldRunIdle = false;
     shouldRunNoop = false;
-    isRunning = false;
+    isRunning = Running::NOT_ANYMORE;
 
     // Merge the lists of waiting tasks
     if (!waitingObtainTasks.isEmpty()) {
@@ -354,7 +350,7 @@ void KeepMailboxOpenTask::perform()
     synchronizeConn = 0; // will get deleted by Model
     markAsActiveTask();
 
-    isRunning = true;
+    isRunning = Running::RUNNING;
     fetchPartTimer->start();
     fetchEnvelopeTimer->start();
 
@@ -385,7 +381,7 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
 {
     // FIXME: abort/die
 
-    if (isRunning) {
+    if (isRunning != Running::NOT_YET) {
         // Instead of wild magic with re-creating synchronizeConn, it's way easier to
         // just have us replaced by another KeepMailboxOpenTask
         model->m_taskFactory->createKeepMailboxOpenTask(model, mailboxIndex, parser);
@@ -394,6 +390,20 @@ void KeepMailboxOpenTask::resynchronizeMailbox()
         // we don't have to do it "once again" -- it will happen automatically later on.
     }
 }
+
+#define CHECK_IS_RUNNING \
+    switch (isRunning) { \
+    case Running::NOT_YET: \
+        return false; \
+    case Running::NOT_ANYMORE: \
+        /* OK, a lost reply -- we're already switching to another mailbox, and even though this might seem */ \
+        /* to be a safe change, we just cannot react to this right now :(. */ \
+        /* Also, don't eat further replies once we're dead :) */ \
+        return model->accessParser(parser).connState == CONN_STATE_SELECTING_WAIT_FOR_CLOSE; \
+    case Running::RUNNING: \
+        /* normal state -> handle this */ \
+        break; \
+    }
 
 bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResponse *const resp)
 {
@@ -405,9 +415,7 @@ bool KeepMailboxOpenTask::handleNumberResponse(const Imap::Responses::NumberResp
     if (dieIfInvalidMailbox())
         return true;
 
-    // FIXME: add proper boundaries
-    if (! isRunning)
-        return false;
+    CHECK_IS_RUNNING
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
@@ -471,9 +479,7 @@ bool KeepMailboxOpenTask::handleVanished(const Responses::Vanished *const resp)
     if (dieIfInvalidMailbox())
         return true;
 
-    // FIXME: add proper boundaries
-    if (! isRunning)
-        return false;
+    CHECK_IS_RUNNING
 
     if (resp->earlier != Responses::Vanished::NOT_EARLIER)
         return false;
@@ -496,9 +502,7 @@ bool KeepMailboxOpenTask::handleFetch(const Imap::Responses::Fetch *const resp)
         return true;
     }
 
-    // FIXME: add proper boundaries
-    if (! isRunning)
-        return false;
+    CHECK_IS_RUNNING
 
     TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
     Q_ASSERT(mailbox);
@@ -716,7 +720,7 @@ void KeepMailboxOpenTask::activateTasks()
 {
     // FIXME: abort/die
 
-    if (!isRunning)
+    if (isRunning != Running::RUNNING)
         return;
 
     breakOrCancelPossibleIdle();
@@ -907,8 +911,19 @@ bool KeepMailboxOpenTask::handleResponseCodeInsideState(const Imap::Responses::S
 
 void KeepMailboxOpenTask::slotUnselected()
 {
+    switch (model->accessParser(parser).connState) {
+    case CONN_STATE_SYNCING:
+    case CONN_STATE_SELECTED:
+    case CONN_STATE_FETCHING_PART:
+    case CONN_STATE_FETCHING_MSG_METADATA:
+        model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
+        break;
+    default:
+        // no need to do anything from here
+        break;
+    }
     detachFromMailbox();
-    isRunning = true;
+    isRunning = Running::RUNNING; // WTF?
     shouldExit = true;
     _failed(tr("UNSELECTed"));
 }
@@ -924,7 +939,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
     }
 
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
-    if (!unSelectTask && isRunning) {
+    if (!unSelectTask && isRunning == Running::RUNNING) {
         unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
         connect(unSelectTask, SIGNAL(completed(Imap::Mailbox::ImapTask *)), this, SLOT(slotUnselected()));
         unSelectTask->perform();
