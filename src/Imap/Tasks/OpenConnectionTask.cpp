@@ -415,12 +415,17 @@ void OpenConnectionTask::onComplete()
         Imap::Mailbox::ImapTask *task = model->m_taskFactory->createIdTask(model, this);
         task->perform();
     }
-    // Optionally enable QRESYNC
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC")) &&
-            model->accessParser(parser).capabilities.contains(QLatin1String("ENABLE"))) {
-        Imap::Mailbox::ImapTask *task = model->m_taskFactory->createEnableTask(model, this,
-                                                                               QList<QByteArray>() << QByteArray("QRESYNC"));
-        task->perform();
+    // Optionally enable extensions which need enabling
+    if (model->accessParser(parser).capabilities.contains(QLatin1String("ENABLE"))) {
+        QList<QByteArray> extensions;
+
+        if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC"))) {
+            extensions << "QRESYNC";
+        }
+
+        if (!extensions.isEmpty()) {
+            model->m_taskFactory->createEnableTask(model, this, extensions)->perform();
+        }
     }
 
     // But do terminate this task
