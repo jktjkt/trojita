@@ -19,47 +19,33 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "PartWidgetFactory.h"
-#include "AttachmentView.h"
-#include "MessageView.h" // so that the compiler knows that it's a QObject
-#include "LoadablePartWidget.h"
-#include "PartWidget.h"
-#include "SimplePartWidget.h"
-#include "Common/SettingsNames.h"
-#include "Imap/Model/ItemRoles.h"
-#include "Imap/Model/MailboxTree.h"
-#include "Imap/Model/Model.h"
-#include "Imap/Model/NetworkWatcher.h"
 
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QLabel>
+#include "UiUtils/PartWalker.h"
+#include "Imap/Model/ItemRoles.h"
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #  include <QMimeDatabase>
 #else
 #  include "mimetypes-qt4/include/QMimeDatabase"
 #endif
-#include <QPushButton>
-#include <QSettings>
-#include <QTabWidget>
-#include <QTextEdit>
-#include <QVBoxLayout>
 
-namespace Gui
-{
+namespace UiUtils {
 
-PartWidgetFactory::PartWidgetFactory(Imap::Network::MsgPartNetAccessManager *manager, MessageView *messageView):
-    manager(manager), m_messageView(messageView)
+template<typename Result, typename Context>
+PartWalker<Result, Context>::PartWalker(Imap::Network::MsgPartNetAccessManager *manager,
+                               Context context, std::unique_ptr<PartVisitor<Result, Context> > visitor)
+    : m_manager(manager), m_context(context)
 {
+    m_visitor = std::move(visitor);
 }
 
-QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode)
+template<typename Result, typename Context>
+Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recursionDepth, const UiUtils::PartLoadingOptions loadingMode)
 {
     using namespace Imap::Mailbox;
     Q_ASSERT(partIndex.isValid());
 
     if (recursionDepth > 1000) {
-        return new QLabel(tr("This message contains too deep nesting of MIME message parts.\n"
+        return m_visitor->visitError(tr("This message contains too deep nesting of MIME message parts.\n"
                              "To prevent stack exhaustion and your head from exploding, only\n"
                              "the top-most thousand items or so are shown."), 0);
     }
@@ -69,7 +55,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     bool isCompoundMimeType = mimeType.startsWith(QLatin1String("multipart/")) || isMessageRfc822;
 
     if (loadingMode & PART_IS_HIDDEN) {
-        return new LoadablePartWidget(0, manager, partIndex, this, recursionDepth + 1,
+        return m_visitor->visitLoadablePart(0, m_manager, partIndex, this, recursionDepth + 1,
                                       loadingMode | PART_IGNORE_CLICKTHROUGH);
     }
 
@@ -90,7 +76,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                 // If it's a derived MIME type, it makes sense to not block inline display, yet still make it possible to hide it
                 // using the regular attachment controls
                 isDerivedMimeType = true;
-                manager->registerMimeTypeTranslation(mimeType, candidate);
+                m_manager->registerMimeTypeTranslation(mimeType, candidate);
                 break;
             }
         }
@@ -106,7 +92,7 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
     if (wrapInAttachmentView) {
         // The problem is that some nasty MUAs (hint hint Thunderbird) would
         // happily attach a .tar.gz and call it "inline"
-        QWidget *contentWidget = 0;
+        Result contentView = 0;
         if (recognizedMimeType) {
             PartLoadingOptions options = loadingMode | PART_IGNORE_DISPOSITION_ATTACHMENT;
             if (!isInline) {
@@ -132,25 +118,25 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                 // This is to prevent a clickthrough when offline
                 options |= PART_IGNORE_CLICKTHROUGH;
             }
-            contentWidget = new LoadablePartWidget(0, manager, partIndex, this, recursionDepth + 1, options);
+            contentView = m_visitor->visitLoadablePart(0, m_manager, partIndex, this, recursionDepth + 1, options);
             if (!isInline) {
-                contentWidget->hide();
+                m_visitor->applySetHidden(contentView);
             }
         }
         // Previously, we would also hide an attachment if the current policy was "expensive network", the part was too big
         // and not fetched yet. Arguably, that's a bug -- an item which is marked online shall not be hidden.
         // Wrapping via a clickthrough is fine, though; the user is clearly informed that this item *should* be visible,
         // yet the bandwidth is not excessively trashed.
-        return new AttachmentView(0, manager, partIndex, m_messageView, contentWidget);
+        return m_visitor->visitAttachmentPart(0, m_manager, partIndex, m_context, contentView);
     }
 
     // Now we know for sure that it's not supposed to be wrapped in an AttachmentView, cool.
     if (mimeType.startsWith(QLatin1String("multipart/"))) {
         // it's a compound part
         if (mimeType == QLatin1String("multipart/alternative")) {
-            return new MultipartAlternativeWidget(0, this, partIndex, recursionDepth, loadingMode);
+            return m_visitor->visitMultipartAlternative(0, this, partIndex, recursionDepth, loadingMode);
         } else if (mimeType == QLatin1String("multipart/signed")) {
-            return new MultipartSignedWidget(0, this, partIndex, recursionDepth, loadingMode);
+            return m_visitor->visitMultipartSignedView(0, this, partIndex, recursionDepth, loadingMode);
         } else if (mimeType == QLatin1String("multipart/related")) {
             // The purpose of this section is to find a text/html e-mail, along with its associated body parts, and hide
             // everything else than the HTML widget.
@@ -182,24 +168,24 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
 
             if (mainPartIndex.isValid()) {
                 if (mainPartIndex.data(RolePartMimeType).toString() == QLatin1String("text/html")) {
-                    return PartWidgetFactory::create(mainPartIndex, recursionDepth+1, loadingMode);
+                    return walk(mainPartIndex, recursionDepth+1, loadingMode);
                 } else {
                     // Sorry, but anything else than text/html is by definition suspicious here. Better than picking some random
                     // choice, let's just show everything.
-                    return new GenericMultipartWidget(0, this, partIndex, recursionDepth, loadingMode);
+                    return m_visitor->visitGenericMultipartView(0, this, partIndex, recursionDepth, loadingMode);
                 }
             } else {
                 // The RFC2387's wording is clear that in absence of an explicit START argument, the first part is the starting one.
                 // On the other hand, I've seen real-world messages whose first part is some utter garbage (an image sent as
                 // application/octet-stream, for example) and some *other* part is an HTML text. In that case (and if we somehow
                 // failed to pick the HTML part by a heuristic), it's better to show everything.
-                return new GenericMultipartWidget(0, this, partIndex, recursionDepth, loadingMode);
+                return m_visitor->visitGenericMultipartView(0, this, partIndex, recursionDepth, loadingMode);
             }
         } else {
-            return new GenericMultipartWidget(0, this, partIndex, recursionDepth, loadingMode);
+            return m_visitor->visitGenericMultipartView(0, this, partIndex, recursionDepth, loadingMode);
         }
     } else if (mimeType == QLatin1String("message/rfc822")) {
-        return new Message822Widget(0, this, partIndex, recursionDepth, loadingMode);
+        return m_visitor->visitMessage822View(0, this, partIndex, recursionDepth, loadingMode);
     } else {
         partIndex.data(Imap::Mailbox::RolePartForceFetchFromCache);
 
@@ -208,21 +194,23 @@ QWidget *PartWidgetFactory::create(const QModelIndex &partIndex, int recursionDe
                 (m_netWatcher && m_netWatcher->desiredNetworkPolicy() != Imap::Mailbox::NETWORK_EXPENSIVE ) ||
                 partIndex.data(Imap::Mailbox::RolePartOctets).toInt() < ExpensiveFetchThreshold) {
             // Show it directly without any fancy wrapping
-            return new SimplePartWidget(0, manager, partIndex, m_messageView);
+            return m_visitor->visitSimplePartView(0, m_manager, partIndex, m_context);
         } else {
-            return new LoadablePartWidget(0, manager, partIndex, this, recursionDepth + 1,
+            return m_visitor->visitLoadablePart(0, m_manager, partIndex, this, recursionDepth + 1,
                                           (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE) ?
                                           loadingMode : loadingMode | PART_IGNORE_CLICKTHROUGH);
         }
     }
 }
 
-MessageView *PartWidgetFactory::messageView() const
+template<typename Result, typename Context>
+Context PartWalker<Result, Context>::context() const
 {
-    return m_messageView;
+    return m_context;
 }
 
-void PartWidgetFactory::setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher)
+template<typename Result, typename Context>
+void PartWalker<Result, Context>::setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher)
 {
     m_netWatcher = netWatcher;
 }

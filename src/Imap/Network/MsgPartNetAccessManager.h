@@ -27,11 +27,6 @@
 
 class QUrl;
 
-namespace Gui
-{
-class PartWidgetFactory;
-}
-
 namespace Imap
 {
 
@@ -57,7 +52,6 @@ signals:
 public slots:
     void setExternalsEnabled(bool enabled);
 private:
-    friend class Gui::PartWidgetFactory;
     QPersistentModelIndex message;
 
     bool externalsEnabled;

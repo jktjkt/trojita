@@ -27,6 +27,7 @@
 #include <QSet>
 #include <QWidget>
 #include "Composer/Recipients.h"
+#include "Gui/PartWalker.h"
 
 class QBoxLayout;
 class QLabel;
@@ -52,7 +53,6 @@ namespace Gui {
 
 class EnvelopeView;
 class MainWindow;
-class PartWidgetFactory;
 class ExternalElementsWidget;
 class Spinner;
 class TagListWidget;

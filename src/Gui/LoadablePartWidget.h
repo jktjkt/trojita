@@ -26,7 +26,7 @@
 #include <QStackedWidget>
 
 #include "Gui/AbstractPartWidget.h"
-#include "Gui/PartWidgetFactory.h"
+#include "Gui/PartWalker.h"
 
 class QPushButton;
 
@@ -46,8 +46,9 @@ class LoadablePartWidget : public QStackedWidget, public AbstractPartWidget
 {
     Q_OBJECT
 public:
-    LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part, PartWidgetFactory *factory, int recursionDepth,
-                       const PartWidgetFactory::PartLoadingOptions loadingMode);
+    LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
+                       PartWidgetFactory *factory, int recursionDepth,
+                       const UiUtils::PartLoadingOptions loadingMode);
     QString quoteMe() const;
     virtual void reloadContents();
 protected:
@@ -59,7 +60,7 @@ private:
     QPersistentModelIndex partIndex;
     PartWidgetFactory *m_factory;
     int m_recursionDepth;
-    PartWidgetFactory::PartLoadingOptions m_loadingMode;
+    UiUtils::PartLoadingOptions m_loadingMode;
     QWidget *realPart;
     QPushButton *loadButton;
     bool m_loadOnShow;
