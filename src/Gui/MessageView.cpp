@@ -42,7 +42,7 @@
 #include "EnvelopeView.h"
 #include "ExternalElementsWidget.h"
 #include "OverlayWidget.h"
-#include "PartWidgetFactory.h"
+#include "PartWidgetFactoryVisitor.h"
 #include "SimplePartWidget.h"
 #include "Spinner.h"
 #include "TagListWidget.h"
@@ -72,7 +72,8 @@ MessageView::MessageView(QWidget *parent, QSettings *settings): QWidget(parent),
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
-    factory = new PartWidgetFactory(netAccess, this);
+    factory = new PartWidgetFactory(netAccess, this,
+                                    std::unique_ptr<PartWidgetFactoryVisitor>(new PartWidgetFactoryVisitor()));
 
     emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
     emptyView->setFixedSize(450,300);
@@ -228,10 +229,10 @@ void MessageView::setMessage(const QModelIndex &index)
         m_loadingItems.clear();
         m_loadingSpinner->stop();
 
-        PartWidgetFactory::PartLoadingOptions loadingMode;
+        UiUtils::PartLoadingOptions loadingMode;
         if (m_settings->value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool())
-            loadingMode |= PartWidgetFactory::PART_PREFER_PLAINTEXT_OVER_HTML;
-        viewer = factory->create(rootPartIndex, 0, loadingMode);
+            loadingMode |= UiUtils::PART_PREFER_PLAINTEXT_OVER_HTML;
+        viewer = factory->walk(rootPartIndex, 0, loadingMode);
         viewer->setParent(this);
         layout->addWidget(viewer);
         viewer->show();

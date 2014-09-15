@@ -29,16 +29,15 @@
 #include "EnvelopeView.h"
 #include "LoadablePartWidget.h"
 #include "MessageView.h"
-#include "PartWidgetFactory.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
 namespace {
 
     /** @short Unset flags which only make sense for one level of nesting */
-    Gui::PartWidgetFactory::PartLoadingOptions filteredForEmbedding(const Gui::PartWidgetFactory::PartLoadingOptions options)
+    UiUtils::PartLoadingOptions filteredForEmbedding(const UiUtils::PartLoadingOptions options)
     {
-        return options & Gui::PartWidgetFactory::MASK_PROPAGATE_WHEN_EMBEDDING;
+        return options & UiUtils::MASK_PROPAGATE_WHEN_EMBEDDING;
     }
 }
 
@@ -58,12 +57,12 @@ QString quoteMeHelper(const QObjectList &children)
 
 MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
-        const int recursionDepth, const PartWidgetFactory::PartLoadingOptions options):
+        const int recursionDepth, const UiUtils::PartLoadingOptions options):
     QTabWidget(parent)
 {
     setContentsMargins(0,0,0,0);
 
-    const bool plaintextIsPreferred = options & PartWidgetFactory::PART_PREFER_PLAINTEXT_OVER_HTML;
+    const bool plaintextIsPreferred = options & UiUtils::PART_PREFER_PLAINTEXT_OVER_HTML;
 
     // Which "textual, boring part" should be shown?
     int preferredTextIndex = -1;
@@ -99,10 +98,10 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         // TODO: This is actually not perfect, the preferred part of a multipart/alternative
         // which is nested as a non-preferred part of another multipart/alternative actually gets loaded here.
         // I can live with that.
-        QWidget *item = factory->create(anotherPart, recursionDepth + 1,
+        QWidget *item = factory->walk(anotherPart, recursionDepth + 1,
                                         filteredForEmbedding(i == preferredIndex ?
                                             options :
-                                            options | PartWidgetFactory::PART_IS_HIDDEN));
+                                            options | UiUtils::PART_IS_HIDDEN));
         QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
 
         const bool isPlainText = mimeType == QLatin1String("text/plain");
@@ -163,7 +162,7 @@ bool MultipartAlternativeWidget::eventFilter(QObject *o, QEvent *e)
 
 MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
-        const int recursionDepth, const PartWidgetFactory::PartLoadingOptions options):
+        const int recursionDepth, const UiUtils::PartLoadingOptions options):
     QGroupBox(tr("Signed Message"), parent)
 {
     setFlat(true);
@@ -175,7 +174,7 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
         setTitle(tr("Malformed multipart/signed message: only one nested part"));
         QModelIndex anotherPart = partIndex.child(0, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        layout->addWidget(factory->create(anotherPart, recursionDepth + 1, filteredForEmbedding(options)));
+        layout->addWidget(factory->walk(anotherPart, recursionDepth + 1, filteredForEmbedding(options)));
     } else if (childrenCount != 2) {
         QLabel *lbl = new QLabel(tr("Malformed multipart/signed message: %1 nested parts").arg(QString::number(childrenCount)), this);
         layout->addWidget(lbl);
@@ -184,7 +183,7 @@ MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
         Q_ASSERT(childrenCount == 2); // from the if logic; FIXME: refactor
         QModelIndex anotherPart = partIndex.child(0, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        layout->addWidget(factory->create(anotherPart, recursionDepth + 1, filteredForEmbedding(options)));
+        layout->addWidget(factory->walk(anotherPart, recursionDepth + 1, filteredForEmbedding(options)));
     }
 }
 
@@ -195,7 +194,7 @@ QString MultipartSignedWidget::quoteMe() const
 
 GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
-        int recursionDepth, const PartWidgetFactory::PartLoadingOptions options):
+        int recursionDepth, const UiUtils::PartLoadingOptions options):
     QWidget(parent)
 {
     setContentsMargins(0, 0, 0, 0);
@@ -206,7 +205,7 @@ GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        QWidget *res = factory->create(anotherPart, recursionDepth + 1, filteredForEmbedding(options));
+        QWidget *res = factory->walk(anotherPart, recursionDepth + 1, filteredForEmbedding(options));
         layout->addWidget(res);
     }
 }
@@ -218,19 +217,19 @@ QString GenericMultipartWidget::quoteMe() const
 
 Message822Widget::Message822Widget(QWidget *parent,
                                    PartWidgetFactory *factory, const QModelIndex &partIndex,
-                                   int recursionDepth, const PartWidgetFactory::PartLoadingOptions options):
+                                   int recursionDepth, const UiUtils::PartLoadingOptions options):
     QWidget(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
-    EnvelopeView *envelope = new EnvelopeView(0, factory->messageView());
+    EnvelopeView *envelope = new EnvelopeView(0, factory->context());
     envelope->setMessage(partIndex);
     layout->addWidget(envelope);
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
         QModelIndex anotherPart = partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        QWidget *res = factory->create(anotherPart, recursionDepth + 1, filteredForEmbedding(options));
+        QWidget *res = factory->walk(anotherPart, recursionDepth + 1, filteredForEmbedding(options));
         layout->addWidget(res);
     }
 }

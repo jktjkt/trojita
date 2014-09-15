@@ -31,7 +31,7 @@ namespace Gui
 
 LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
                                        PartWidgetFactory *factory, int recursionDepth,
-                                       const PartWidgetFactory::PartLoadingOptions loadingMode):
+                                       const UiUtils::PartLoadingOptions loadingMode):
     QStackedWidget(parent), manager(manager), partIndex(part), m_factory(factory),
     m_recursionDepth(recursionDepth), m_loadingMode(loadingMode), realPart(0), loadButton(0), m_loadOnShow(false)
 {
@@ -39,8 +39,8 @@ LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNe
 
     QString mimeType = partIndex.data(Imap::Mailbox::RolePartMimeType).toString().toLower();
 
-    if ((loadingMode & PartWidgetFactory::PART_IS_HIDDEN) ||
-            (loadingMode & PartWidgetFactory::PART_IGNORE_CLICKTHROUGH) ||
+    if ((loadingMode & UiUtils::PART_IS_HIDDEN) ||
+            (loadingMode & UiUtils::PART_IGNORE_CLICKTHROUGH) ||
             partIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
         m_loadOnShow = true;
     } else {
@@ -66,9 +66,10 @@ void LoadablePartWidget::loadClicked()
     }
 
     // We have to disable any flags which might cause recursion here
-    realPart = m_factory->create(partIndex, m_recursionDepth + 1,
-                                 (m_loadingMode | PartWidgetFactory::PART_IGNORE_CLICKTHROUGH
-                                  | PartWidgetFactory::PART_IGNORE_LOAD_ON_SHOW) ^ PartWidgetFactory::PART_IS_HIDDEN);
+    realPart = m_factory->walk(partIndex, m_recursionDepth + 1,
+                               (m_loadingMode | UiUtils::PART_IGNORE_CLICKTHROUGH |
+                                UiUtils::PART_IGNORE_LOAD_ON_SHOW)
+                               ^ UiUtils::PART_IS_HIDDEN);
     addWidget(realPart);
     setCurrentIndex(1);
 }
