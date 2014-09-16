@@ -211,7 +211,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
     // First pass: determine the quote level for each source line.
     // The quote level is ignored for the signature.
     bool signatureSeparatorSeen = false;
-    Q_FOREACH(QString line, plaintext.split(QLatin1Char('\n'))) {
+    Q_FOREACH(const QString &line, plaintext.split(QLatin1Char('\n'))) {
 
         // Fast path for empty lines
         if (line.isEmpty()) {
