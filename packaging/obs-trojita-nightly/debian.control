@@ -2,7 +2,7 @@ Source: trojita-nightly
 Section: mail
 Priority: optional
 Maintainer: Jan Kundrát <jkt@flaska.net>
-Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8.7), libqt4-dev (>= 4:4.6), qt4-dev-tools (>= 4:4.6), libqtwebkit-dev, zlib1g-dev, xvfb, xauth, libqtkeychain-dev
+Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8.7), libqt4-dev (>= 4:4.6), qt4-dev-tools (>= 4:4.6), libqtwebkit-dev, zlib1g-dev, xvfb, xauth, qtkeychain-dev
 Standards-Version: 3.9.3
 Homepage: http://trojita.flaska.net/
 Vcs-Git: git://anongit.kde.org/trojita
