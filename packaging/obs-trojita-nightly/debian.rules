@@ -15,7 +15,7 @@ CXXFLAGS += $(CPPFLAGS)
 	dh $@
 
 override_dh_auto_configure:
-	dpkg-parsechangelog --count 1 | awk '/Version:/{print $2}' | sed '/git/{s/\.git\.\([0-9]\)\+\./-obs-/;s/^/v/}' > src/trojita-version
+	dpkg-parsechangelog --count 1 | awk '/Version:/{print $$2}' | sed '/git/{s/\.git\.\([0-9]\)\+\./-obs-/;s/^/v/}' > src/trojita-version
 	dh_auto_configure
 
 override_dh_auto_test:
