@@ -28,6 +28,7 @@
 #include <QWidget>
 #include "Common/FileLogger.h"
 #include "Common/RingBuffer.h"
+#include "Imap/ConnectionState.h"
 
 class QPushButton;
 class QTabWidget;
@@ -38,8 +39,14 @@ namespace Common {
 class FileLogger;
 }
 
-namespace Gui
-{
+namespace Gui {
+
+/** @short Widget (etc) for a single connection */
+struct ConnectionLog {
+    ConnectionLog();
+    QPlainTextEdit *widget;
+    Common::RingBuffer<Common::LogMessage> buffer;
+};
 
 /** @short Protocol chat logger
 
@@ -71,8 +78,7 @@ private slots:
 
 private:
     QTabWidget *tabs;
-    QMap<uint, QPlainTextEdit *> loggerWidgets;
-    QMap<uint, Common::RingBuffer<Common::LogMessage> > buffers;
+    QMap<uint, ConnectionLog> logs;
     QPushButton *clearAll;
     bool loggingActive;
     QTimer *delayedDisplay;
