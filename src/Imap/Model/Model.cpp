@@ -1089,7 +1089,7 @@ void Model::setNetworkPolicy(const NetworkPolicy policy)
                 task->die(tr("Going offline"));
             }
             it->logoutCmd = it->parser->logout();
-            it->connState = CONN_STATE_LOGOUT;
+            changeConnectionState(it->parser, CONN_STATE_LOGOUT);
         }
         m_netPolicy = NETWORK_OFFLINE;
         m_periodicMailboxNumbersRefresh->stop();
