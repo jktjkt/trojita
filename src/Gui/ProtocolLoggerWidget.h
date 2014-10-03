@@ -62,7 +62,7 @@ public:
 
 public slots:
     /** @short An IMAP model wants to log something */
-    void slotImapLogged(uint parser, Common::LogMessage message);
+    void slotImapLogged(uint parserId, Common::LogMessage message);
 
     /** @short Enable/disable persistent logging */
     void slotSetPersistentLogging(const bool enabled);
@@ -85,7 +85,7 @@ private:
     Common::FileLogger *m_fileLogger;
 
     /** @short Return (possibly newly created) logger widget for a given parser */
-    QPlainTextEdit *getLogger(const uint parser);
+    QPlainTextEdit *getLogger(const uint parserId);
 
     /** @short Dump the log bufer contents to the GUI widget */
     void flushToWidget(const uint parserId, Common::RingBuffer<Common::LogMessage> &buf);

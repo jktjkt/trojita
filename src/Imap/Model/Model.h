@@ -390,7 +390,7 @@ signals:
     void mailboxSyncFailed(const QString &mailbox, const QString &message);
 
     /** @short Inform the GUI about the progress of a connection */
-    void connectionStateChanged(QObject *parser, Imap::ConnectionState state);   // got to use fully qualified namespace here
+    void connectionStateChanged(uint parserId, Imap::ConnectionState state);   // got to use fully qualified namespace here
 
     /** @short The parser has encountered a fatal error */
     void logParserFatalError(uint parser, const QString &exceptionClass, const QString &message, const QByteArray &line, int position);

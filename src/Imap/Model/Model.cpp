@@ -1448,7 +1448,7 @@ void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
     accessParser(parser).connState = state;
     logTrace(parser->parserId(), Common::LOG_TASKS, QLatin1String("conn"), connectionStateToString(state));
-    emit connectionStateChanged(parser, state);
+    emit connectionStateChanged(parser->parserId(), state);
 }
 
 void Model::handleSocketStateChanged(Parser *parser, Imap::ConnectionState state)

@@ -77,9 +77,9 @@ ProtocolLoggerWidget::~ProtocolLoggerWidget()
 {
 }
 
-QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parser)
+QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parserId)
 {
-    QPlainTextEdit *res = logs[parser].widget;
+    QPlainTextEdit *res = logs[parserId].widget;
     if (!res) {
         res = new QPlainTextEdit();
         res->setLineWrapMode(QPlainTextEdit::NoWrap);
@@ -93,8 +93,8 @@ QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parser)
         // to the very first value we throw at it, which might be a
         // grey one.
         res->appendHtml(QLatin1String("<p>&nbsp;</p>"));
-        tabs->addTab(res, tr("Connection %1").arg(parser));
-        logs[parser].widget = res;
+        tabs->addTab(res, tr("Connection %1").arg(parserId));
+        logs[parserId].widget = res;
     }
     return res;
 }
@@ -140,12 +140,12 @@ void ProtocolLoggerWidget::hideEvent(QHideEvent *e)
     QWidget::hideEvent(e);
 }
 
-void ProtocolLoggerWidget::slotImapLogged(uint parser, Common::LogMessage message)
+void ProtocolLoggerWidget::slotImapLogged(uint parserId, Common::LogMessage message)
 {
     using namespace Common;
 
     if (m_fileLogger) {
-        m_fileLogger->slotImapLogged(parser, message);
+        m_fileLogger->slotImapLogged(parserId, message);
     }
     enum {CUTOFF=200};
     if (message.message.size() > CUTOFF) {
@@ -153,7 +153,7 @@ void ProtocolLoggerWidget::slotImapLogged(uint parser, Common::LogMessage messag
         message.message = message.message.left(CUTOFF);
     }
     // we rely on the default constructor and QMap's behavior of operator[] to call it here
-    logs[parser].buffer.append(message);
+    logs[parserId].buffer.append(message);
     if (loggingActive && !delayedDisplay->isActive())
         delayedDisplay->start();
 }

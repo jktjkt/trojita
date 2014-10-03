@@ -711,8 +711,8 @@ void MainWindow::setupModels()
     connect(imapModel(), SIGNAL(networkPolicyExpensive()), this, SLOT(networkPolicyExpensive()));
     connect(imapModel(), SIGNAL(networkPolicyOnline()), this, SLOT(networkPolicyOnline()));
 
-    connect(imapModel(), SIGNAL(connectionStateChanged(QObject *,Imap::ConnectionState)),
-            this, SLOT(showConnectionStatus(QObject *,Imap::ConnectionState)));
+    connect(imapModel(), SIGNAL(connectionStateChanged(uint,Imap::ConnectionState)),
+            this, SLOT(showConnectionStatus(uint,Imap::ConnectionState)));
 
     connect(imapModel(), SIGNAL(mailboxDeletionFailed(QString,QString)), this, SLOT(slotMailboxDeleteFailed(QString,QString)));
     connect(imapModel(), SIGNAL(mailboxCreationFailed(QString,QString)), this, SLOT(slotMailboxCreateFailed(QString,QString)));
@@ -1648,9 +1648,9 @@ void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
     slotScrollToUnseenMessage(QModelIndex(), QModelIndex());
 }
 
-void MainWindow::showConnectionStatus(QObject *parser, Imap::ConnectionState state)
+void MainWindow::showConnectionStatus(uint parserId, Imap::ConnectionState state)
 {
-    Q_UNUSED(parser);
+    Q_UNUSED(parserId);
     using namespace Imap;
     QString message = connectionStateToString(state);
     enum { DURATION = 10000 };

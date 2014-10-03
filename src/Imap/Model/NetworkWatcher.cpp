@@ -33,8 +33,8 @@ NetworkWatcher::NetworkWatcher(QObject *parent, Model *model):
     Q_ASSERT(m_model);
     connect(model, SIGNAL(networkPolicyChanged()), this, SIGNAL(effectiveNetworkPolicyChanged()));
     connect(model, SIGNAL(networkError(const QString &)), this, SLOT(attemptReconnect()));
-    connect(model, SIGNAL(connectionStateChanged(QObject*, Imap::ConnectionState)),
-            this, SLOT(handleConnectionStateChanged(QObject*, Imap::ConnectionState)));
+    connect(model, SIGNAL(connectionStateChanged(uint,Imap::ConnectionState)),
+            this, SLOT(handleConnectionStateChanged(uint,Imap::ConnectionState)));
 
     m_reconnectTimer = new QTimer(this);
     m_reconnectTimer->setSingleShot(true);
@@ -60,9 +60,9 @@ void NetworkWatcher::resetReconnectTimer()
     emit resetReconnectState();
 }
 
-void NetworkWatcher::handleConnectionStateChanged(QObject *parser, Imap::ConnectionState state)
+void NetworkWatcher::handleConnectionStateChanged(uint parserId, Imap::ConnectionState state)
 {
-    Q_UNUSED(parser);
+    Q_UNUSED(parserId);
     // These states signify that the socket is in QAbstractSocket::ConnectedState and (maybe) mark success after
     // a series of reconnect attempts. Timers for reconnection should be reset at this point.
     if (state == CONN_STATE_CONNECTED_PRETLS_PRECAPS || state == CONN_STATE_SSL_HANDSHAKE) {
