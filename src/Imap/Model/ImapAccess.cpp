@@ -320,6 +320,7 @@ void ImapAccess::doConnect()
     m_imapModel->setObjectName(QString::fromUtf8("imapModel-%1").arg(m_accountName));
     m_imapModel->setCapabilitiesBlacklist(m_settings->value(Common::SettingsNames::imapBlacklistedCapabilities).toStringList());
     m_imapModel->setProperty("trojita-imap-enable-id", m_settings->value(Common::SettingsNames::imapEnableId, true).toBool());
+    m_imapModel->setProperty("trojita-imap-idle-renewal", m_settings->value(Common::SettingsNames::imapIdleRenewal).toUInt() * 60 * 1000);
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(imapError(QString)), this, SLOT(imapError(QString)));
     connect(m_imapModel, SIGNAL(networkError(QString)), this, SLOT(networkError(QString)));
