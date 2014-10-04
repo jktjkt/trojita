@@ -317,6 +317,32 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
+    <item row="15" column="0">
+     <widget class="QLabel" name="imapIdleRenewalLabel">
+      <property name="text">
+       <string>IMAP idle renewal</string>
+      </property>
+     </widget>
+    </item>
+    <item row="15" column="1">
+     <widget class="QSpinBox" name="imapIdleRenewal">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="toolTip">
+       <string>Timeout of IMAP idle in minutes</string>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <number>60</number>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>
