@@ -34,6 +34,13 @@
 
 Q_DECLARE_METATYPE(QList<QUrl>)
 
+static QString visualizeWhitespace(QString s)
+{
+    return s.replace(QLatin1Char(' '),
+                     // U+00B7, a middle dot
+                     QChar(0x00b7));
+}
+
 /** @short Test that conversion of plaintext mail to HTML works reasonably well */
 void HtmlFormattingTest::testPlainTextFormattingFlowed()
 {
@@ -41,8 +48,10 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed()
     QFETCH(QString, htmlFlowed);
     QFETCH(QString, htmlNotFlowed);
 
-    QCOMPARE(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::FLOWED), htmlFlowed);
-    QCOMPARE(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::PLAIN), htmlNotFlowed);
+    QCOMPARE(visualizeWhitespace(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::FLOWED)),
+             visualizeWhitespace(htmlFlowed));
+    QCOMPARE(visualizeWhitespace(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::PLAIN)),
+             visualizeWhitespace(htmlNotFlowed));
 }
 
 /** @short Data for testPlainTextFormattingFlowed */
@@ -83,7 +92,8 @@ void HtmlFormattingTest::testPlainTextFormattingFlowedDelSp()
     QFETCH(QString, plaintext);
     QFETCH(QString, htmlFlowedDelSp);
 
-    QCOMPARE(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::FLOWED_DELSP), htmlFlowedDelSp);
+    QCOMPARE(visualizeWhitespace(UiUtils::plainTextToHtml(plaintext, UiUtils::FlowedFormat::FLOWED_DELSP)),
+             visualizeWhitespace(htmlFlowedDelSp));
 }
 
 /** @short Data for testPlainTextFormattingFlowedDelSp */
@@ -277,12 +287,14 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED).replace(" ", "_"), formattedFlowed.replace(" ", "_"));
+        LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED)),
+                          visualizeWhitespace(formattedFlowed));
     }
 
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::PLAIN), formattedPlain);
+        LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::PLAIN)),
+                          visualizeWhitespace(formattedPlain));
     }
 #endif
 
@@ -504,13 +516,13 @@ void HtmlFormattingTest::testPlainTextFormattingViaPasteDelSp()
 
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
-                 expandedFlowed);
+        LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed)),
+                 visualizeWhitespace(expandedFlowed));
     }
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED_DELSP, WebRenderingTester::RenderExpandEverythingCollapsed),
-                 expandedFlowedDelSp);
+        LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED_DELSP, WebRenderingTester::RenderExpandEverythingCollapsed)),
+                 visualizeWhitespace(expandedFlowedDelSp));
     }
 }
 
