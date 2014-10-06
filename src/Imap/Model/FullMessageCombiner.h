@@ -61,6 +61,7 @@ signals:
 private:
     TreeItemPart *headerPartPtr() const;
     TreeItemPart *bodyPartPtr() const;
+    bool indexesValid() const;
 
 private slots:
     void slotDataChanged(const QModelIndex &left, const QModelIndex &right);
