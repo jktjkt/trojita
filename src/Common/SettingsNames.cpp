@@ -95,5 +95,6 @@ const QString SettingsNames::appLoadHomepage = QLatin1String("app.updates.checkE
 const QString SettingsNames::knownEmailsKey = QLatin1String("addressBook/knownEmails");
 const QString SettingsNames::addressbookPlugin = QLatin1String("plugin/addressbook");
 const QString SettingsNames::passwordPlugin = QLatin1String("plugin/password");
+const QString SettingsNames::imapIdleRenewal = QLatin1String("imapIdleRenewal");
 
 }
