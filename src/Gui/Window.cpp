@@ -719,6 +719,7 @@ void MainWindow::setupModels()
     connect(imapModel(), SIGNAL(mailboxSyncFailed(QString,QString)), this, SLOT(slotMailboxSyncFailed(QString,QString)));
 
     connect(imapModel(), SIGNAL(logged(uint,Common::LogMessage)), imapLogger, SLOT(slotImapLogged(uint,Common::LogMessage)));
+    connect(imapModel(), SIGNAL(connectionStateChanged(uint,Imap::ConnectionState)), imapLogger, SLOT(onConnectionClosed(uint,Imap::ConnectionState)));
 
     connect(m_imapAccess->networkWatcher(), SIGNAL(reconnectAttemptScheduled(const int)), this, SLOT(slotReconnectAttemptScheduled(const int)));
     connect(m_imapAccess->networkWatcher(), SIGNAL(resetReconnectState()), this, SLOT(slotResetReconnectState()));

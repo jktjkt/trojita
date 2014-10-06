@@ -46,6 +46,7 @@ struct ConnectionLog {
     ConnectionLog();
     QPlainTextEdit *widget;
     Common::RingBuffer<Common::LogMessage> buffer;
+    qint64 closedTime;
 };
 
 /** @short Protocol chat logger
@@ -63,6 +64,8 @@ public:
 public slots:
     /** @short An IMAP model wants to log something */
     void slotImapLogged(uint parserId, Common::LogMessage message);
+
+    void onConnectionClosed(uint parserId, Imap::ConnectionState state);
 
     /** @short Enable/disable persistent logging */
     void slotSetPersistentLogging(const bool enabled);

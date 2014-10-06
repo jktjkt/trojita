@@ -34,7 +34,7 @@
 
 namespace Gui {
 
-ConnectionLog::ConnectionLog(): widget(0), buffer(Common::RingBuffer<Common::LogMessage>(900))
+ConnectionLog::ConnectionLog(): widget(0), buffer(Common::RingBuffer<Common::LogMessage>(900)), closedTime(0)
 {
 }
 
@@ -229,6 +229,28 @@ void ProtocolLoggerWidget::slotShowLogs()
     // Please note that we can't return to the event loop from this context, as the log buffer has to be read atomically
     for (auto it = logs.begin(); it != logs.end(); ++it ) {
         flushToWidget(it.key(), it->buffer);
+    }
+}
+
+/** @short Check whether some of the logs need cleaning */
+void ProtocolLoggerWidget::onConnectionClosed(uint parserId, Imap::ConnectionState state)
+{
+    if (state == Imap::CONN_STATE_LOGOUT) {
+        auto it = logs.find(parserId);
+        it->closedTime = QDateTime::currentMSecsSinceEpoch();
+        auto cutoff = it->closedTime - 3 * 60 * 1000; // upon each disconnect, trash logs older than three minutes
+
+        it = logs.begin() + 1; // do not ever delete log#0, that's a special one
+        while (it != logs.end()) {
+            if (it->closedTime != 0 && it->closedTime < cutoff) {
+                if (it->widget) {
+                    it->widget->deleteLater();
+                }
+                it = logs.erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
 }
 
