@@ -61,7 +61,7 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed_data()
 
     QTest::newRow("multiline-trivial-LF") << QString("Sample \ntext") << QString("Sample text") << QString("Sample \ntext");
     QTest::newRow("multiline-trivial-CR") << QString("Sample \rtext") << QString("Sample \rtext") << QString("Sample \rtext");
-    QTest::newRow("multiline-trivial-CRLF") << QString("Sample \r\ntext") << QString("Sample text") << QString("Sample \r\ntext");
+    QTest::newRow("multiline-trivial-CRLF") << QString("Sample \r\ntext") << QString("Sample text") << QString("Sample \ntext");
     QTest::newRow("multiline-with-empty-lines")
             << QString("Sample \ntext.\n\nYay!")
             << QString("Sample text.\n\nYay!")
@@ -73,8 +73,8 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed_data()
             << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>");
     QTest::newRow("signature-CRLF")
             << QString("Yay.\r\n-- \r\nMeh.\r\n")
-            << QString("Yay.\r\n<span class=\"signature\">-- \r\nMeh.\r\n</span>")
-            << QString("Yay.\r\n<span class=\"signature\">-- \r\nMeh.\r\n</span>");
+            << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>")
+            << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>");
 }
 
 /** @short Corner cases of the DelSp formatting */
@@ -94,12 +94,12 @@ void HtmlFormattingTest::testPlainTextFormattingFlowedDelSp_data()
 
     QTest::newRow("delsp-canonical") << QString("abc  \r\ndef") << QString("abc def");
     QTest::newRow("delsp-just-lf") << QString("abc  \ndef") << QString("abc def");
-    QTest::newRow("delsp-borked-crlf") << QString("abc\r\ndef") << QString("abc\r\ndef");
+    QTest::newRow("delsp-borked-crlf") << QString("abc\r\ndef") << QString("abc\ndef");
     QTest::newRow("delsp-borked-lf") << QString("abc\ndef") << QString("abc\ndef");
     QTest::newRow("delsp-single-line-no-crlf") << QString("abc ") << QString("abc");
-    QTest::newRow("delsp-single-line-crlf") << QString("abc \r\n") << QString("abc\r\n");
+    QTest::newRow("delsp-single-line-crlf") << QString("abc \r\n") << QString("abc\n");
     QTest::newRow("delsp-single-line-lf") << QString("abc \n") << QString("abc\n");
-    QTest::newRow("delsp-single-line-cr") << QString("abc \r") << QString("abc\r");
+    QTest::newRow("delsp-single-line-cr") << QString("abc \r") << QString("abc");
 }
 
 void HtmlFormattingTest::testPlainTextFormattingViaHtml()

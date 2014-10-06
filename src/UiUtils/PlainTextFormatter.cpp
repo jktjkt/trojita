@@ -201,6 +201,11 @@ struct TextInfo {
     }
 };
 
+static QString lineWithoutTrailingCr(const QString &line)
+{
+    return line.endsWith(QLatin1Char('\r')) ? line.left(line.size() - 1) : line;
+}
+
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
     static QRegExp quotemarks(QLatin1String("^>[>\\s]*"));
@@ -221,7 +226,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
         // Special marker for the signature separator
         if (signatureSeparator().exactMatch(line)) {
-            lineBuffer << TextInfo(SIGNATURE_SEPARATOR, line);
+            lineBuffer << TextInfo(SIGNATURE_SEPARATOR, lineWithoutTrailingCr(line));
             signatureSeparatorSeen = true;
             continue;
         }
@@ -235,7 +240,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 quoteLevel += line.at(j++) == QLatin1Char('>');
         }
 
-        lineBuffer << TextInfo(quoteLevel, line);
+        lineBuffer << TextInfo(quoteLevel, lineWithoutTrailingCr(line));
     }
 
     // Second pass:
@@ -248,13 +253,8 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         // Remove the quotemarks
         it->text.remove(quotemarks);
 
-        if (flowed == FlowedFormat::FLOWED_DELSP) {
-            if (it->text.endsWith(QLatin1String(" \r"))) {
-                it->text.chop(2);
-                it->text += QLatin1Char('\r');
-            } else if (it->text.endsWith(QLatin1Char(' '))) {
-                it->text.chop(1);
-            }
+        if (flowed == FlowedFormat::FLOWED_DELSP && it->text.endsWith(QLatin1Char(' '))) {
+            it->text.chop(1);
         }
 
         if (it == lineBuffer.begin()) {
@@ -278,10 +278,6 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                 // Now the trailing \n is striped already; we only have to check for stuff ending with " " or " \r".
                 if (prev->text.endsWith(QLatin1Char(' '))) {
                     separator = QString();
-                } else if (prev->text.endsWith(QLatin1String(" \r"))) {
-                    separator = QString();
-                    // Remove that extra \r
-                    prev->text.chop(1);
                 }
                 break;
             }
