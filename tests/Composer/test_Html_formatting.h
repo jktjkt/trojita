@@ -42,6 +42,8 @@ private slots:
     void testPlainTextFormattingViaHtml_data();
     void testPlainTextFormattingViaPaste();
     void testPlainTextFormattingViaPaste_data();
+    void testPlainTextFormattingViaPasteDelSp();
+    void testPlainTextFormattingViaPasteDelSp_data();
 
     void testLinkRecognition();
     void testLinkRecognition_data();

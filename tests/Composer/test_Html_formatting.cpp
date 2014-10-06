@@ -277,7 +277,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
 #if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED), formattedFlowed);
+        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED).replace(" ", "_"), formattedFlowed.replace(" ", "_"));
     }
 
     {
@@ -306,9 +306,9 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
             << QString() << QString();
 
     QTest::newRow("no-quotes-flowed")
-            << QString("This is something which is split \namong a few lines \nlike this.")
-            << QString("This is something which is split among a few lines like this.")
-            << QString("This is something which is split \namong a few lines \nlike this.")
+            << QString("This is something which is split \namong a few lines \n  like \n   this. ")
+            << QString("This is something which is split among a few lines  like   this.")
+            << QString("This is something which is split \namong a few lines \n  like \n   this. ")
             << QString();
 
     QTest::newRow("quote-1")
@@ -341,15 +341,20 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
 
     QTest::newRow("different-quote-levels-not-flowed-together")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
-            << QString() << QString();
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333");
 
     QTest::newRow("different-quote-levels-not-flowed-together-toobig")
             << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
-            // First space is part of the original input, the second one is a separator for copy-paste.
+            // The space right in front of "..." is a separator for copy-paste. The original space from the input
+            // is interpretted as a line mistakenly marked as flowed, but since the line of a paragraph cannot be
+            // flowed, it's a bug which we detect and throw it away.
+            << QString::fromUtf8("Foo bar.\n> blesmrt ...\n")
+            // On the other hand, we *do* expect two spaces here -- one for the non-flowed space,
+            // and the other one for our separator.
             << QString::fromUtf8("Foo bar. \n> blesmrt  ...\n")
-            << QString()
-            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
+            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
 
     QTest::newRow("nested-quotes-correct-indicator")
             << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.")
@@ -470,6 +475,83 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                                  "Martin Sandsmark\n"
                                  "KDE\n")
             << QString();
+
+    // https://bugs.kde.org/show_bug.cgi?id=337919
+    QTest::newRow("blank-line-separator")
+            << QString("First para. \n\nSecond para.\n\n\nThird para.")
+            << QString("First para. \n\nSecond para.\n\n\nThird para.")
+            << QString("First para. \n\nSecond para.\n\n\nThird para.")
+            << QString("First para. \n\nSecond para.\n\n\nThird para.");
+
+    QTest::newRow("blank-line-separator-of-quoted")
+            << QString("> First para. \n>\n> Second para.\n>\n>\n>Third para.")
+            << QString("> First para. \n> \n> Second para.\n> \n> \n> Third para. ...\n")
+            << QString("> First para. \n> \n> Second para.\n> \n> \n> Third para. ...\n")
+            << QString("> First para. \n> \n> Second para.\n> \n> \n> Third para.\n");
+
+    QTest::newRow("blanks-in-different-levels")
+            << QString("Yesterday: \n>> Test2A. \n>>\n>> Test2B \n>>\nTest0. \n> Test1A. \n> \n>Test 1B. ")
+            << QString("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.")
+            << QString("Yesterday: \n>> Test2A. \n>> \n>> Test2B \n>> \nTest0. \n> Test1A. \n> \n> Test 1B. ")
+            << QString("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.");
+}
+
+void HtmlFormattingTest::testPlainTextFormattingViaPasteDelSp()
+{
+    QFETCH(QString, source);
+    QFETCH(QString, expandedFlowed);
+    QFETCH(QString, expandedFlowedDelSp);
+
+    {
+        WebRenderingTester tester;
+        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
+                 expandedFlowed);
+    }
+    {
+        WebRenderingTester tester;
+        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED_DELSP, WebRenderingTester::RenderExpandEverythingCollapsed),
+                 expandedFlowedDelSp);
+    }
+}
+
+
+void HtmlFormattingTest::testPlainTextFormattingViaPasteDelSp_data()
+{
+    QTest::addColumn<QString>("source");
+    QTest::addColumn<QString>("expandedFlowed");
+    QTest::addColumn<QString>("expandedFlowedDelSp");
+
+    QTest::newRow("no-quotes")
+            << QString("Sample mail message.\n")
+            << QString("Sample mail message.\n")
+            << QString("Sample mail message.\n");
+
+    QTest::newRow("no-quotes-flowed")
+            << QString("This is something which is split \namong a \n few lines \n  like \n   this. ")
+            << QString("This is something which is split among a few lines  like   this.")
+            // yes, "afew" -- that's because of space stuffing.
+            << QString("This is something which is splitamong afew lines like  this.");
+
+    QTest::newRow("quote-1")
+            << QString("Foo bar. \n> blesmrt\n>> trojita \n omacka")
+            << QString("Foo bar.\n> blesmrt\n>> trojita\nomacka")
+            << QString("Foo bar.\n> blesmrt\n>> trojita\nomacka");
+
+    // https://bugs.kde.org/show_bug.cgi?id=337919
+    QTest::newRow("blank-line-separator")
+            << QString("First para. \n\nSecond para.\n\n\nThird para.")
+            << QString("First para. \n\nSecond para.\n\n\nThird para.")
+            << QString("First para.\n\nSecond para.\n\n\nThird para.");
+
+    QTest::newRow("blank-line-separator-of-quoted")
+            << QString("> First para. \n>\n> Second para.\n>\n>\n>Third para.")
+            << QString("> First para. \n> \n> Second para.\n> \n> \n> Third para.\n")
+            << QString("> First para.\n> \n> Second para.\n> \n> \n> Third para.\n");
+
+    QTest::newRow("blanks-in-different-levels")
+            << QString("Yesterday: \n>> Test2A. \n>>\n>> Test2B \n>>\nTest0. \n> Test1A. \n> \n>Test 1B. ")
+            << QString("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.")
+            << QString("Yesterday:\n>> Test2A.\n>> \n>> Test2B\n>> \nTest0.\n> Test1A.\n> \n> Test 1B.");
 }
 
 /** @short Test that the link recognition in plaintext -> HTML formatting recognizes the interesting links */

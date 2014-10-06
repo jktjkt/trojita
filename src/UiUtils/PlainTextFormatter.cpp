@@ -208,7 +208,7 @@ static QString lineWithoutTrailingCr(const QString &line)
 
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
-    static QRegExp quotemarks(QLatin1String("^>[>\\s]*"));
+    static QRegExp quotemarks(QLatin1String("^>+"));
     const int SIGNATURE_SEPARATOR = -2;
 
     QList<TextInfo> lineBuffer;
@@ -233,11 +233,9 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
         // Determine the quoting level
         int quoteLevel = 0;
-        if (!signatureSeparatorSeen && line.at(0) == QLatin1Char('>')) {
-            int j = 1;
-            quoteLevel = 1;
-            while (j < line.length() && (line.at(j) == QLatin1Char('>') || line.at(j) == QLatin1Char(' ')))
-                quoteLevel += line.at(j++) == QLatin1Char('>');
+        if (!signatureSeparatorSeen) {
+            while (quoteLevel < line.length() && line.at(quoteLevel) == QLatin1Char('>'))
+                ++quoteLevel;
         }
 
         lineBuffer << TextInfo(quoteLevel, lineWithoutTrailingCr(line));
@@ -253,9 +251,34 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         // Remove the quotemarks
         it->text.remove(quotemarks);
 
-        if (flowed == FlowedFormat::FLOWED_DELSP && it->text.endsWith(QLatin1Char(' '))) {
-            it->text.chop(1);
+        switch (flowed) {
+        case FlowedFormat::FLOWED:
+        case FlowedFormat::FLOWED_DELSP:
+            if (flowed == FlowedFormat::FLOWED || flowed == FlowedFormat::FLOWED_DELSP) {
+                // check for space-stuffing
+                if (it->text.startsWith(QLatin1Char(' '))) {
+                    it->text.remove(0, 1);
+                }
+
+                // quirk: fix a flowed line which actually isn't flowed
+                if (it->text.endsWith(QLatin1Char(' ')) && (
+                        it+1 == lineBuffer.end() || // end-of-document
+                        (it+1)->depth == SIGNATURE_SEPARATOR || // right in front of the separator
+                        (it+1)->depth != it->depth // end of paragraph
+                   )) {
+                    it->text.chop(1);
+                }
+            }
+            break;
+        case FlowedFormat::PLAIN:
+            if (it->depth > 0 && it->text.startsWith(QLatin1Char(' '))) {
+                // Because the space is re-added when we prepend the quotes. Adding that space is done
+                // in order to make it look nice, i.e. to prevent lines like ">>something".
+                it->text.remove(0, 1);
+            }
+            break;
         }
+
 
         if (it == lineBuffer.begin()) {
             // No "previous line"
@@ -266,18 +289,28 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         // Check for the line joining
         auto prev = it - 1;
         if (prev->depth == it->depth) {
-            // empty lines must not be removed
 
             QString separator = QLatin1String("\n");
             switch (flowed) {
             case FlowedFormat::PLAIN:
-                // nothing fancy to do here
+                // nothing fancy to do here, we cannot really join lines
                 break;
             case FlowedFormat::FLOWED:
             case FlowedFormat::FLOWED_DELSP:
-                // Now the trailing \n is striped already; we only have to check for stuff ending with " " or " \r".
+                // CR LF trailing is stripped already (LFs by the split into lines, CRs by lineWithoutTrailingCr in pass #1),
+                // so we only have to check for the trailing space
                 if (prev->text.endsWith(QLatin1Char(' '))) {
-                    separator = QString();
+
+                    // implement the DelSp thingy
+                    if (flowed == FlowedFormat::FLOWED_DELSP) {
+                        prev->text.chop(1);
+                    }
+
+                    if (it->text.isEmpty() || prev->text.isEmpty()) {
+                        // This one or the previous line is a blank one, so we cannot really join them
+                    } else {
+                        separator = QString();
+                    }
                 }
                 break;
             }
