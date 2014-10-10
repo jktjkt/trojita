@@ -61,6 +61,7 @@ private slots:
     void testReplyingNormal();
     void testForwardingNormal();
     void testReplyingToRemoved();
+    void testForwardingDeletedWhileFetching();
     void init();
     void cleanup();
 

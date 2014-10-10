@@ -724,6 +724,36 @@ void ComposerSubmissionTest::testForwardingNormal()
     cEmpty();
 }
 
+/** @short Check that we don't crash if a message being forwarded disappears while we're waiting for it */
+void ComposerSubmissionTest::testForwardingDeletedWhileFetching()
+{
+    helperSetupProperHeaders();
+    m_submission->setImapOptions(false, QString(), QString(), QString(), false);
+    QModelIndex origMessage = msgListA.child(0, 0);
+    QVERIFY(origMessage.isValid());
+    QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
+    m_submission->composer()->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
+
+    cClientRegExp(t.mk("UID FETCH 10 \\(BODY\\.PEEK\\["
+                       "("
+                       "TEXT\\] BODY\\.PEEK\\[HEADER"
+                       "|"
+                       "HEADER\\] BODY\\.PEEK\\[TEXT"
+                       ")"
+                       "\\]\\)"));
+    cServer("* 1 EXPUNGE\r\n")
+    cServer(t.last("NO not fetched, it's gone now\r\n"));
+    cEmpty();
+
+    m_submission->send();
+    cEmpty();
+
+    QCOMPARE(requestedSendingSpy->size(), 0);
+    QCOMPARE(submissionSucceededSpy->size(), 0);
+    QCOMPARE(submissionFailedSpy->size(), 1);
+    cEmpty();
+}
+
 /** @short Make sure that replying to a removed message works reasonably well */
 void ComposerSubmissionTest::testReplyingToRemoved()
 {

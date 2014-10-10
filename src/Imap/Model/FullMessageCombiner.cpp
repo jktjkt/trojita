@@ -61,11 +61,17 @@ QByteArray FullMessageCombiner::data() const
 
 bool FullMessageCombiner::loaded() const
 {
+    if (!indexesValid())
+        return false;
+
     return headerPartPtr()->fetched() && bodyPartPtr()->fetched();
 }
 
 void FullMessageCombiner::load()
 {
+    if (!indexesValid())
+        return;
+
     Imap::Mailbox::TreeItemPart *headerPart = headerPartPtr();
     headerPart->fetch(const_cast<Mailbox::Model *>(m_model));
     Imap::Mailbox::TreeItemPart *bodyPart = bodyPartPtr();
@@ -90,6 +96,11 @@ void FullMessageCombiner::slotDataChanged(const QModelIndex &left, const QModelI
     Q_UNUSED(left);
     Q_UNUSED(right);
 
+    if (!indexesValid()) {
+        emit failed(tr("Message is gone"));
+        return;
+    }
+
     if (headerPartPtr()->fetched() && bodyPartPtr()->fetched()) {
        emit completed();
        // Disconnect this slot from its connected signal to prevent emitting completed() many times
@@ -107,6 +118,11 @@ void FullMessageCombiner::slotDataChanged(const QModelIndex &left, const QModelI
     } else if (bodyOffline) {
         emit failed(tr("Offline mode: uncached body data not available"));
     }
+}
+
+bool FullMessageCombiner::indexesValid() const
+{
+    return m_messageIndex.isValid() && m_headerPartIndex.isValid() && m_bodyPartIndex.isValid();
 }
 
 }
