@@ -76,7 +76,11 @@ void SortTask::perform()
             }
         } else {
             // Plain "old" SORT
-            sortTag = parser->uidSearch(searchConditions, "utf-8");
+            sortTag = parser->uidSearch(searchConditions,
+                                        // It looks that Exchange 2003 does not support the UTF-8 charset in searches.
+                                        // That is, of course, insane, and only illustrates how useless its support of IMAP really is.
+                                        model->m_capabilitiesBlacklist.contains(QLatin1String("X-NO-UTF8-SEARCH")) ? QByteArray() : "utf-8"
+                                        );
         }
     } else {
         // SEARCH and SORT combined
