@@ -64,7 +64,7 @@ protected:
 private slots:
     void attemptReconnect();
     void tryReconnect();
-    void handleConnectionStateChanged(QObject *parser, Imap::ConnectionState state);
+    void handleConnectionStateChanged(uint parserId, Imap::ConnectionState state);
 
 private:
     void resetReconnectTimer();

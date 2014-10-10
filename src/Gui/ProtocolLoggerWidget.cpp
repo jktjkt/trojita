@@ -32,8 +32,11 @@
 #include "Common/FileLogger.h"
 #include "Imap/Model/Utils.h"
 
-namespace Gui
+namespace Gui {
+
+ConnectionLog::ConnectionLog(): widget(0), buffer(Common::RingBuffer<Common::LogMessage>(900)), closedTime(0)
 {
+}
 
 ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     QWidget(parent), loggingActive(false), m_fileLogger(0)
@@ -74,9 +77,9 @@ ProtocolLoggerWidget::~ProtocolLoggerWidget()
 {
 }
 
-QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parser)
+QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parserId)
 {
-    QPlainTextEdit *res = loggerWidgets[parser];
+    QPlainTextEdit *res = logs[parserId].widget;
     if (!res) {
         res = new QPlainTextEdit();
         res->setLineWrapMode(QPlainTextEdit::NoWrap);
@@ -90,8 +93,8 @@ QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parser)
         // to the very first value we throw at it, which might be a
         // grey one.
         res->appendHtml(QLatin1String("<p>&nbsp;</p>"));
-        tabs->addTab(res, tr("Connection %1").arg(parser));
-        loggerWidgets[parser] = res;
+        tabs->addTab(res, tr("Connection %1").arg(parserId));
+        logs[parserId].widget = res;
     }
     return res;
 }
@@ -100,23 +103,18 @@ void ProtocolLoggerWidget::closeTab(int index)
 {
     QPlainTextEdit *w = qobject_cast<QPlainTextEdit *>(tabs->widget(index));
     Q_ASSERT(w);
-    for (QMap<uint, QPlainTextEdit *>::iterator it = loggerWidgets.begin(); it != loggerWidgets.end(); ++it) {
-        if (*it != w)
+    for (auto it = logs.begin(); it != logs.end(); ++it) {
+        if (it->widget != w)
             continue;
-        const uint key = it.key();
-        loggerWidgets.erase(it);
+        logs.erase(it);
         tabs->removeTab(index);
         w->deleteLater();
-        buffers.remove(key);
         return;
     }
 }
 
 void ProtocolLoggerWidget::clearLogDisplay()
 {
-    // These will be freed from the GUI
-    loggerWidgets.clear();
-
     // We use very different indexing internally, to an extent where QTabWidget's ints are not easily obtainable from that,
     // so it's much better to clean up the GUI at first and only after that purge the underlying data
     while (tabs->count()) {
@@ -126,7 +124,7 @@ void ProtocolLoggerWidget::clearLogDisplay()
         w->deleteLater();
     }
 
-    buffers.clear();
+    logs.clear();
 }
 
 void ProtocolLoggerWidget::showEvent(QShowEvent *e)
@@ -142,24 +140,20 @@ void ProtocolLoggerWidget::hideEvent(QHideEvent *e)
     QWidget::hideEvent(e);
 }
 
-void ProtocolLoggerWidget::slotImapLogged(uint parser, Common::LogMessage message)
+void ProtocolLoggerWidget::slotImapLogged(uint parserId, Common::LogMessage message)
 {
     using namespace Common;
 
-    QMap<uint, RingBuffer<LogMessage> >::iterator bufIt = buffers.find(parser);
-    if (bufIt == buffers.end()) {
-        // FIXME: don't hard-code that
-        bufIt = buffers.insert(parser, RingBuffer<LogMessage>(900));
-    }
     if (m_fileLogger) {
-        m_fileLogger->slotImapLogged(parser, message);
+        m_fileLogger->slotImapLogged(parserId, message);
     }
     enum {CUTOFF=200};
     if (message.message.size() > CUTOFF) {
         message.truncatedBytes = message.message.size() - CUTOFF;
         message.message = message.message.left(CUTOFF);
     }
-    bufIt->append(message);
+    // we rely on the default constructor and QMap's behavior of operator[] to call it here
+    logs[parserId].buffer.append(message);
     if (loggingActive && !delayedDisplay->isActive())
         delayedDisplay->start();
 }
@@ -233,8 +227,30 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
 void ProtocolLoggerWidget::slotShowLogs()
 {
     // Please note that we can't return to the event loop from this context, as the log buffer has to be read atomically
-    for (QMap<uint, Common::RingBuffer<Common::LogMessage> >::iterator it = buffers.begin(); it != buffers.end(); ++it) {
-        flushToWidget(it.key(), *it);
+    for (auto it = logs.begin(); it != logs.end(); ++it ) {
+        flushToWidget(it.key(), it->buffer);
+    }
+}
+
+/** @short Check whether some of the logs need cleaning */
+void ProtocolLoggerWidget::onConnectionClosed(uint parserId, Imap::ConnectionState state)
+{
+    if (state == Imap::CONN_STATE_LOGOUT) {
+        auto it = logs.find(parserId);
+        it->closedTime = QDateTime::currentMSecsSinceEpoch();
+        auto cutoff = it->closedTime - 3 * 60 * 1000; // upon each disconnect, trash logs older than three minutes
+
+        it = logs.begin() + 1; // do not ever delete log#0, that's a special one
+        while (it != logs.end()) {
+            if (it->closedTime != 0 && it->closedTime < cutoff) {
+                if (it->widget) {
+                    it->widget->deleteLater();
+                }
+                it = logs.erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
 }
 
