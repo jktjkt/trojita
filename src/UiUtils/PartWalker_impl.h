@@ -33,7 +33,7 @@ namespace UiUtils {
 template<typename Result, typename Context>
 PartWalker<Result, Context>::PartWalker(Imap::Network::MsgPartNetAccessManager *manager,
                                Context context, std::unique_ptr<PartVisitor<Result, Context> > visitor)
-    : m_manager(manager), m_context(context)
+    : m_manager(manager), m_netWatcher(0), m_context(context)
 {
     m_visitor = std::move(visitor);
 }
