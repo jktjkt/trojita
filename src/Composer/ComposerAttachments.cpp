@@ -122,6 +122,9 @@ QString FileAttachmentItem::caption() const
 {
     QString realFileName = QFileInfo(fileName).fileName();
     if (!preferredName.isEmpty() && realFileName != preferredName) {
+        //: Translators: %1 and %2 are file names of an attachment.
+        //: %1 is the name that will be present in the e-mail and
+        //: %2 is the original name on disk.
         return MessageComposer::tr("%1\n(from %2)").arg(preferredName, realFileName);
     } else {
         return realFileName;

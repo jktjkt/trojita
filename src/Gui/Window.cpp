@@ -2090,9 +2090,9 @@ void MainWindow::slotShowImapInfo()
             }
             if (has_os) {
                 if (has_osVersion)
-                    idString += tr(" on %1 %2").arg(os, osVersion);
+                    idString += tr(" on %1 %2", "%1 is the operating system of an IMAP server and %2 is its version.").arg(os, osVersion);
                 else
-                    idString += tr(" on %1").arg(os);
+                    idString += tr(" on %1", "%1 is the operationg system of an IMAP server.").arg(os);
             }
             idString += tr("</p>");
         } else {

@@ -77,6 +77,8 @@ FindBar::FindBar(QWidget *parent)
     QPushButton *findNext = new QPushButton(QIcon::fromTheme(QLatin1String("go-down")), tr("&Next"), this);
     findNext->setShortcut(tr("F3"));
     QPushButton *findPrev = new QPushButton(QIcon::fromTheme(QLatin1String("go-up")), tr("&Previous"), this);
+    //: Translators: You can change this shortcut, but button names like Shift should not be localized here.
+    //: That will break setting the shortcut. Button names will still appear localized in the UI.
     findPrev->setShortcut(tr("Shift+F3"));
     connect(findNext, SIGNAL(clicked()), this, SLOT(findNext()));
     connect(findPrev, SIGNAL(clicked()), this, SLOT(findPrevious()));
