@@ -106,6 +106,9 @@ int main(int argc, char **argv) {
     }
     QApplication a(argc, argv);
     BE::Contacts w(new Gui::AbookAddressbook());
+    //: Translators: BE::Contacts is the name of a stand-alone address book application.
+    //: BE refers to Bose/Einstein (condensate).
+    w.setWindowTitle(BE::Contacts::tr("BE::Contacts"));
     w.show();
     return a.exec();
 }
