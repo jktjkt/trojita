@@ -1770,6 +1770,7 @@ void MainWindow::slotViewMsgSource()
         sourceWidget->addAction(close);
         close->setShortcut(tr("Ctrl+W"));
         connect(close, SIGNAL(triggered()), sourceWidget, SLOT(close()));
+        //: Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
         sourceWidget->setWindowTitle(tr("Message source of UID %1 in %2").arg(
                                     QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
                                     messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
@@ -1800,6 +1801,7 @@ void MainWindow::slotViewMsgHeaders()
         headers->addAction(close);
         close->setShortcut(tr("Ctrl+W"));
         connect(close, SIGNAL(triggered()), headers, SLOT(close()));
+        //: Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
         headers->setWindowTitle(tr("Message headers of UID %1 in %2").arg(
                                     QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
                                     messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
