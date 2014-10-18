@@ -73,7 +73,7 @@ void TagListWidget::empty()
 
 void TagListWidget::newTagRequested()
 {
-    QString tag = QInputDialog::getText(this, tr("New Label"), tr("Label name:"));
+    QString tag = QInputDialog::getText(this, tr("New Tag"), tr("Tag name:"));
     if (tag.isEmpty()) {
         return;
     }
