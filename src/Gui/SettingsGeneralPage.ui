@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>GeneralPage</class>
  <widget class="QScrollArea" name="GeneralPage">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>456</width>
+    <height>422</height>
+   </rect>
+  </property>
   <property name="minimumSize">
    <size>
     <width>420</width>
@@ -18,10 +26,49 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="scrollAreaWidgetContents">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>450</width>
+     <height>416</height>
+    </rect>
+   </property>
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="7" column="0" colspan="2">
+     <widget class="QCheckBox" name="showHomepageCheckbox">
+      <property name="toolTip">
+       <string/>
+      </property>
+      <property name="text">
+       <string>Show Trojitá's homepage on startup</string>
+      </property>
+     </widget>
+    </item>
+    <item row="8" column="0" colspan="2">
+     <widget class="QCheckBox" name="preferPlaintextCheckbox">
+      <property name="text">
+       <string>Show plaintext e-mails instead of the HTML version</string>
+      </property>
+     </widget>
+    </item>
+    <item row="9" column="0" colspan="2">
+     <widget class="QCheckBox" name="guiSystrayCheckbox">
+      <property name="text">
+       <string>Show system tray icon</string>
+      </property>
+     </widget>
+    </item>
+    <item row="10" column="0">
+     <widget class="QCheckBox" name="guiStartMinimizedCheckbox">
+      <property name="text">
+       <string>Start minimized</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0" rowspan="2">
      <widget class="QTableView" name="identityTabelView">
       <property name="minimumSize">
@@ -146,36 +193,41 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="0" colspan="2">
-     <widget class="QCheckBox" name="showHomepageCheckbox">
-      <property name="toolTip">
-       <string/>
+    <item row="5" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>4</number>
       </property>
-      <property name="text">
-       <string>Show Trojitá's homepage on startup</string>
-      </property>
-     </widget>
-    </item>
-    <item row="6" column="0" colspan="2">
-     <widget class="QCheckBox" name="preferPlaintextCheckbox">
-      <property name="text">
-       <string>Show plaintext e-mails instead of the HTML version</string>
-      </property>
-     </widget>
-    </item>
-    <item row="7" column="0" colspan="2">
-     <widget class="QCheckBox" name="guiSystrayCheckbox">
-      <property name="text">
-       <string>Show system tray icon</string>
-      </property>
-     </widget>
-    </item>
-    <item row="8" column="0">
-     <widget class="QCheckBox" name="guiStartMinimizedCheckbox">
-      <property name="text">
-       <string>Start minimized</string>
-      </property>
-     </widget>
+      <item>
+       <widget class="QCheckBox" name="markReadCheckbox">
+        <property name="text">
+         <string>Automatically mark messages as read</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="markReadSeconds">
+        <property name="specialValueText">
+         <string extracomment="To indicate that there's no delay">immediately</string>
+        </property>
+        <property name="prefix">
+         <string extracomment="The action will happen *after* user-provided timeout in seconds">after </string>
+        </property>
+        <property name="suffix">
+         <string extracomment="A suffix &quot;seconds&quot; inside a QDoubleSpinBox for configuring a time delay. Please keep this short so that the window is reasonably narrow."> s</string>
+        </property>
+        <property name="minimum">
+         <double>0</double>
+        </property>
+        <property name="maximum">
+         <double>60</double>
+        </property>
+        <property name="value">
+         <double>0</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>

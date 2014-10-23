@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2014        Luke Dashjr <luke+trojita@dashjr.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -249,8 +250,12 @@ void MessageView::setMessage(const QModelIndex &index)
         viewer->installEventFilter(this);
     }
 
-    if (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE)
-        markAsReadTimer->start(200); // FIXME: make this configurable
+    if (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE
+            && m_settings->value(Common::SettingsNames::autoMarkReadEnabled, QVariant(true)).toBool()) {
+        uint timeout = m_settings->value(Common::SettingsNames::autoMarkReadSeconds, QVariant(0)).toUInt() * 1000;
+        // the 200ms is there to allow quick navigation between messages without marking them as read
+        markAsReadTimer->start(qMax(200u, timeout));
+    }
 }
 
 void MessageView::markAsRead()

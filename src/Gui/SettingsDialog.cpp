@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2014        Luke Dashjr <luke+trojita@dashjr.org>
    Copyright (C) 2012        Mohammed Nafees <nafees.technocool@gmail.com>
    Copyright (C) 2013        Pali Rohár <pali.rohar@gmail.com>
 
@@ -234,6 +235,10 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     passwordBox->setCurrentIndex(passwordIndex);
 
 
+    markReadCheckbox->setChecked(s.value(Common::SettingsNames::autoMarkReadEnabled, QVariant(true)).toBool());
+    markReadSeconds->setValue(s.value(Common::SettingsNames::autoMarkReadSeconds, QVariant(0)).toUInt());
+    connect(markReadCheckbox, SIGNAL(toggled(bool)), markReadSeconds, SLOT(setEnabled(bool)));
+
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
     showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
                                         "<p>The remote server will receive the user's IP address and versions of Trojitá, the Qt library, "
@@ -258,7 +263,9 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
     connect(passwordBox, SIGNAL(currentIndexChanged(int)), SLOT(passwordPluginChanged()));
 
-    connect(this, SIGNAL(reloadPasswords()), m_parent, SIGNAL(reloadPasswordsRequested()));
+    connect(this, SIGNAL(reloadPasswords()), m_parent, SIGNAL(reloadPasswordsRequested()));\
+
+    updateWidgets();
 }
 
 void GeneralPage::passwordPluginChanged()
@@ -340,6 +347,8 @@ void GeneralPage::deleteButtonClicked()
 void GeneralPage::save(QSettings &s)
 {
     m_identitiesModel->saveToSettings(s);
+    s.setValue(Common::SettingsNames::autoMarkReadEnabled, markReadCheckbox->isChecked());
+    s.setValue(Common::SettingsNames::autoMarkReadSeconds, markReadSeconds->value());
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiPreferPlaintextRendering, preferPlaintextCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiShowSystray, guiSystrayCheckbox->isChecked());

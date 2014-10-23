@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2014        Luke Dashjr <luke+trojita@dashjr.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -53,6 +54,7 @@ struct SettingsNames {
     static const QString knownEmailsKey;
     static const QString addressbookPlugin, passwordPlugin;
     static const QString imapIdleRenewal;
+    static const QString autoMarkReadEnabled, autoMarkReadSeconds;
 };
 
 }

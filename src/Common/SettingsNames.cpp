@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2014        Luke Dashjr <luke+trojita@dashjr.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -96,5 +97,7 @@ const QString SettingsNames::knownEmailsKey = QLatin1String("addressBook/knownEm
 const QString SettingsNames::addressbookPlugin = QLatin1String("plugin/addressbook");
 const QString SettingsNames::passwordPlugin = QLatin1String("plugin/password");
 const QString SettingsNames::imapIdleRenewal = QLatin1String("imapIdleRenewal");
+const QString SettingsNames::autoMarkReadEnabled = QLatin1String("autoMarkRead/enabled");
+const QString SettingsNames::autoMarkReadSeconds = QLatin1String("autoMarkRead/seconds");
 
 }
