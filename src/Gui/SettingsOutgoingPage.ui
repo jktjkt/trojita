@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>OutgoingPage</class>
  <widget class="QScrollArea" name="OutgoingPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>281</width>
-    <height>319</height>
-   </rect>
-  </property>
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
   </property>
@@ -21,8 +13,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>267</width>
-     <height>403</height>
+     <width>220</width>
+     <height>347</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">

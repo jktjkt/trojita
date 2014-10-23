@@ -2,14 +2,6 @@
 <ui version="4.0">
  <class>ImapPage</class>
  <widget class="QScrollArea" name="ImapPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>322</width>
-    <height>360</height>
-   </rect>
-  </property>
   <property name="frameShadow">
    <enum>QFrame::Plain</enum>
   </property>
@@ -21,8 +13,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>301</width>
-     <height>454</height>
+     <width>237</width>
+     <height>477</height>
     </rect>
    </property>
    <layout class="QFormLayout" name="formLayout">
@@ -329,11 +321,11 @@ p, li { white-space: pre-wrap; }
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
+        <verstretch>0</verstretch>
        </sizepolicy>
       </property>
       <property name="toolTip">
-          <string>How often to renew the IDLE session.
+       <string>How often to renew the IDLE session.
 This is useful to prevent timeouts due to broken or overly aggressive network middleboxes,
 NAT gateways and other nasty annoyances.
 The default value is 29 minutes.</string>

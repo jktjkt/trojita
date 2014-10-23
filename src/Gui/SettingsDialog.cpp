@@ -37,8 +37,8 @@
 #include <QVBoxLayout>
 #include <QProcess>
 #include <QPushButton>
-#include <QResizeEvent>
 #include <QDebug>
+#include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QToolTip>
 #include <QMessageBox>
@@ -90,8 +90,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
     addPage(new CachePage(this, *m_settings), tr("&Offline"));
     addPage(new OutgoingPage(this, *m_settings), tr("&SMTP"));
 #ifdef XTUPLE_CONNECT
-    xtConnect = new XtConnectPage(this, *m_settings, imap);
-    stack->addTab(xtConnect, tr("&xTuple"));
+    addPage(xtConnect = new XtConnectPage(this, *m_settings, imap), tr("&xTuple"));
 #endif
 
     buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, Qt::Horizontal, this);
@@ -100,6 +99,46 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
     layout->addWidget(buttons);
 
     EMIT_LATER_NOARG(this, reloadPasswordsRequested);
+}
+
+void SettingsDialog::adjustSizeToScrollAreas()
+{
+    QScrollArea *area = qobject_cast<QScrollArea*>(sender());
+    Q_ASSERT(area && area->widget());
+
+    // task #A: figure the "minimum" size for the tabwidget
+
+    // #A.1: search scrollareas and align their size to their content
+    // update size of the widget in the tabbed scrollarea
+    area->widget()->adjustSize();
+
+    // figure the size demand of this scroll area (content + margins)
+    int l,t,r,b;
+    area->getContentsMargins(&l,&r,&t,&b);
+    QSize minSize(area->widget()->size() + QSize(l+r, t+b));
+
+    // TODO: clamp this to 640x480 or QDesktopWidget::availableGeometry() dependent?
+
+    // do not shrink (prevent nasty size jumps for no reason)
+    minSize.setWidth(qMax(area->width(), minSize.width()));
+    minSize.setHeight(qMax(area->height(), minSize.height()));
+
+    // task #B: find the QStackedWidget inside the QTabWidget to determine its margins
+    Q_FOREACH(const QObject *o, stack->children()) {
+        if (const QStackedWidget *actualStack = qobject_cast<const QStackedWidget*>(o)) {
+            minSize.setWidth(minSize.width() + stack->width() - actualStack->width());
+            minSize.setHeight(minSize.height() + stack->height() - actualStack->height());
+            break;
+        }
+    }
+
+    // task #C: convince the dialog to the new size
+    // #C.1: arrest the tabwidget
+    stack->setMinimumSize(minSize);
+    // #C.2: force a relayout of the dialog (do NOT use "adjustSize", which may still shrink)
+    layout()->activate();
+    // #C.3: release the tabwidget minimum size
+    stack->setMinimumSize(QSize(0, 0));
 }
 
 Plugins::PluginManager *SettingsDialog::pluginManager()
@@ -183,6 +222,8 @@ void SettingsDialog::reject()
 void SettingsDialog::addPage(ConfigurationWidgetInterface *page, const QString &title)
 {
     stack->addTab(page->asWidget(), title);
+    connect(page->asWidget(), SIGNAL(widgetsUpdated()), SLOT(adjustSizeToScrollAreas()));
+    QMetaObject::invokeMethod(page->asWidget(), "updateWidgets", Qt::QueuedConnection);
     pages << page;
 }
 
@@ -263,7 +304,7 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
     connect(passwordBox, SIGNAL(currentIndexChanged(int)), SLOT(passwordPluginChanged()));
 
-    connect(this, SIGNAL(reloadPasswords()), m_parent, SIGNAL(reloadPasswordsRequested()));\
+    connect(this, SIGNAL(reloadPasswords()), m_parent, SIGNAL(reloadPasswordsRequested()));
 
     updateWidgets();
 }
@@ -291,6 +332,8 @@ void GeneralPage::updateWidgets()
     moveDownButton->setEnabled(downEnabled);
 
     identityTabelView->resizeColumnToContents(Composer::SenderIdentitiesModel::COLUMN_NAME);
+
+    emit widgetsUpdated();
 }
 
 void GeneralPage::moveIdentityUp()
@@ -507,13 +550,6 @@ void ImapPage::slotSetPassword()
     imapPass->setText(m_pwWatcher->password());
 }
 
-void ImapPage::resizeEvent(QResizeEvent *event)
-{
-    QScrollArea::resizeEvent(event);
-    scrollAreaWidgetContents->setMinimumSize(event->size());
-    scrollAreaWidgetContents->adjustSize();
-}
-
 void ImapPage::changePort()
 {
     imapPort->setText(QString::number(encryption->currentIndex() == SSL ? Common::PORT_IMAPS : Common::PORT_IMAP));
@@ -578,6 +614,8 @@ void ImapPage::updateWidgets()
 
     imapPass->setEnabled(!m_pwWatcher->isWaitingForPlugin());
     imapPassLabel->setEnabled(!m_pwWatcher->isWaitingForPlugin());
+
+    emit widgetsUpdated();
 }
 
 void ImapPage::save(QSettings &s)
@@ -691,21 +729,16 @@ CachePage::CachePage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_Cac
     offlineNumberOfDays->setValue(s.value(SettingsNames::cacheOfflineNumberDaysKey, QVariant(30)).toInt());
 
     updateWidgets();
+
     connect(offlineNope, SIGNAL(clicked()), this, SLOT(updateWidgets()));
     connect(offlineXDays, SIGNAL(clicked()), this, SLOT(updateWidgets()));
     connect(offlineEverything, SIGNAL(clicked()), this, SLOT(updateWidgets()));
 }
 
-void CachePage::resizeEvent(QResizeEvent *event)
-{
-    QScrollArea::resizeEvent(event);
-    scrollAreaWidgetContents->setMinimumSize(event->size());
-    scrollAreaWidgetContents->adjustSize();
-}
-
 void CachePage::updateWidgets()
 {
     offlineNumberOfDays->setEnabled(offlineXDays->isChecked());
+    emit widgetsUpdated();
 }
 
 void CachePage::save(QSettings &s)
@@ -788,13 +821,6 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
 void OutgoingPage::slotSetPassword()
 {
     smtpPass->setText(m_pwWatcher->password());
-}
-
-void OutgoingPage::resizeEvent(QResizeEvent *event)
-{
-    QScrollArea::resizeEvent(event);
-    scrollAreaWidgetContents->setMinimumSize(event->size());
-    scrollAreaWidgetContents->adjustSize();
 }
 
 void OutgoingPage::slotSetSubmissionMethod()
@@ -954,6 +980,8 @@ void OutgoingPage::updateWidgets()
     saveFolderName->setVisible(saveToImap->isChecked());
     lay->labelForField(saveFolderName)->setVisible(saveToImap->isChecked());
     saveFolderName->setText(m_smtpAccountSettings->sentMailboxName());
+
+    emit widgetsUpdated();
 
 }
 

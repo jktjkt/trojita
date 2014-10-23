@@ -107,6 +107,7 @@ private:
 signals:
     void saved();
     void reloadPasswords();
+    void widgetsUpdated();
 };
 
 class EditIdentity : public QDialog, Ui_EditIdentity
@@ -130,6 +131,7 @@ private:
 
 signals:
     void saved();
+    void widgetsUpdated();
 };
 
 
@@ -142,9 +144,6 @@ public:
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
     virtual bool passwordFailures(QString &message) const;
-
-protected:
-    virtual void resizeEvent(QResizeEvent *event);
 
 private slots:
     void slotSetSubmissionMethod();
@@ -168,6 +167,7 @@ private:
 
 signals:
     void saved();
+    void widgetsUpdated();
 };
 
 class ImapPage : public QScrollArea, Ui_ImapPage, public ConfigurationWidgetInterface
@@ -182,9 +182,6 @@ public:
 #ifdef XTUPLE_CONNECT
     bool hasPassword() const;
 #endif
-
-protected:
-    virtual void resizeEvent(QResizeEvent *event);
 
 private:
     enum { NETWORK, PROCESS };
@@ -206,6 +203,7 @@ private:
 
 signals:
     void saved();
+    void widgetsUpdated();
 };
 
 class CachePage : public QScrollArea, Ui_CachePage, public ConfigurationWidgetInterface
@@ -217,9 +215,6 @@ public:
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
     virtual bool passwordFailures(QString &message) const;
-
-protected:
-    virtual void resizeEvent(QResizeEvent *event);
 
 private:
     QCheckBox *startOffline;
@@ -233,6 +228,7 @@ private:
 
 signals:
     void saved();
+    void widgetsUpdated();
 };
 
 #ifdef XTUPLE_CONNECT
@@ -262,6 +258,7 @@ private:
     XtConnectPage &operator=(const XtConnectPage &); // don't implement
 signals:
     void saved();
+    void widgetsUpdated();
 };
 #endif
 
@@ -284,6 +281,7 @@ public slots:
     void accept();
     void reject();
 private slots:
+    void adjustSizeToScrollAreas();
     void slotAccept();
 private:
     MainWindow *mainWindow;

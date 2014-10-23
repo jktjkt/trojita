@@ -2,20 +2,6 @@
 <ui version="4.0">
  <class>GeneralPage</class>
  <widget class="QScrollArea" name="GeneralPage">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>456</width>
-    <height>422</height>
-   </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>420</width>
-    <height>400</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>ScrollArea</string>
   </property>
@@ -30,8 +16,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>450</width>
-     <height>416</height>
+     <width>389</width>
+     <height>419</height>
     </rect>
    </property>
    <property name="layoutDirection">
@@ -210,20 +196,20 @@
         <property name="specialValueText">
          <string extracomment="To indicate that there's no delay">immediately</string>
         </property>
-        <property name="prefix">
-         <string extracomment="The action will happen *after* user-provided timeout in seconds">after </string>
-        </property>
         <property name="suffix">
          <string extracomment="A suffix &quot;seconds&quot; inside a QDoubleSpinBox for configuring a time delay. Please keep this short so that the window is reasonably narrow."> s</string>
         </property>
+        <property name="prefix">
+         <string extracomment="The action will happen *after* user-provided timeout in seconds">after </string>
+        </property>
         <property name="minimum">
-         <double>0</double>
+         <number>0</number>
         </property>
         <property name="maximum">
-         <double>60</double>
+         <number>60</number>
         </property>
         <property name="value">
-         <double>0</double>
+         <number>0</number>
         </property>
        </widget>
       </item>
