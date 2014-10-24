@@ -60,6 +60,12 @@ void SystemNetworkWatcher::onGlobalOnlineStateChanged(const bool online)
 {
     if (online) {
         m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("System is back online"));
+        auto currentConfig = sessionsActiveConfiguration();
+        if (!currentConfig.isValid() && currentConfig != m_netConfManager->defaultConfiguration()) {
+            m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
+                              QLatin1String("A new network configuration is available"));
+            networkConfigurationChanged(m_netConfManager->defaultConfiguration());
+        }
         setDesiredNetworkPolicy(m_desiredPolicy);
     } else {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
@@ -176,6 +182,8 @@ void SystemNetworkWatcher::networkConfigurationChanged(const QNetworkConfigurati
         if (m_session->configuration().type() == QNetworkConfiguration::UserChoice && !sessionsActiveConfiguration().isValid()) {
             // No configuration has been assigned yet, just ignore this event. This happens on Harmattan when we get a change
             // of e.g. an office WiFi connection in reply to us trying to open a session with the system's default configuration.
+            m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
+                              QLatin1String("No configuration has been assigned yet, let's wait for it"));
             return;
         }
 
