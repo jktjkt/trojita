@@ -393,6 +393,9 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 model->cache()->clearAllMessages(mailbox->mailbox());
                 fullMboxSync(mailbox, list);
             }
+        } else if (oldSyncState.isUsableForSyncingWithoutUidNext() && syncState.isUsableForSyncingWithoutUidNext() && oldSyncState.uidValidity() == syncState.uidValidity()) {
+            log(QLatin1String("Did not receive UIDNEXT, but UIDVALIDITY remains same -> trying non-destructive generic sync"));
+            syncGeneric(mailbox, list);
         } else {
             // Forget everything, do a dumb sync
             model->cache()->clearAllMessages(mailbox->mailbox());

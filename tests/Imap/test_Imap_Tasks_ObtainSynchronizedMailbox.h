@@ -37,6 +37,9 @@ class ImapModelObtainSynchronizedMailboxTest : public LibMailboxSync
 
     typedef enum { JUST_QRESYNC, EXTRA_ENABLED } ModeForHelperTestQresyncNoChanges;
     void helperTestQresyncNoChanges(ModeForHelperTestQresyncNoChanges mode);
+
+    enum class MessageNumberChange { SAME, MORE, LESS };
+    void helperMissingUidNext(const MessageNumberChange mode);
 private slots:
     void init();
     void testSyncEmptyMinimal();
@@ -50,6 +53,9 @@ private slots:
     void testResyncOneNew();
     void testResyncUidValidity();
     void testDecreasedUidNext();
+    void testMisingUidNextSame();
+    void testMisingUidNextMore();
+    void testMisingUidNextLess();
     void testReloadReadsFromCache();
     void testCacheNoChange();
     void testCacheUidValidity();

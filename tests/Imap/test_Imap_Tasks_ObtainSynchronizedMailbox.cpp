@@ -312,6 +312,113 @@ void ImapModelObtainSynchronizedMailboxTest::testDecreasedUidNext()
     helperSyncAFullSync();
 }
 
+/** @short Synchronization when the server doesn't report UIDNEXT at all */
+void ImapModelObtainSynchronizedMailboxTest::helperMissingUidNext(const MessageNumberChange mode)
+{
+    Imap::Mailbox::SyncState oldState;
+    oldState.setExists(3);
+    oldState.setUidValidity(666);
+    oldState.setUidNext(10); // because Trojita's code computes this during points in time the view is fully synced
+    oldState.setUnSeenCount(0);
+    oldState.setRecent(0);
+    model->cache()->setMailboxSyncState(QLatin1String("a"), oldState);
+    model->cache()->setUidMapping(QLatin1String("a"), QList<uint>() << 4 << 6 << 7);
+
+    QSignalSpy rowsInserted(model, SIGNAL(rowsInserted(QModelIndex,int,int)));
+    QSignalSpy rowsRemoved(model, SIGNAL(rowsRemoved(QModelIndex,int,int)));
+
+    model->switchToMailbox(idxA);
+    cClient(t.mk("SELECT a\r\n"));
+    // prepopulation from cache should be ignored
+    QCOMPARE(rowsInserted.size(), 1);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QCOMPARE(rowsInserted[0], QVariantList() << QModelIndex(msgListA) << 0 << 2);
+#else
+    // Direct initialization from QPersistentModelIndex fails on Qt4, and the comparison is all wonky, too
+    QCOMPARE(rowsInserted[0].size(), 3);
+    QCOMPARE(rowsInserted[0][0].value<QModelIndex>(), QModelIndex(msgListA));
+    QCOMPARE(rowsInserted[0][1], QVariant::fromValue(0));
+    QCOMPARE(rowsInserted[0][2], QVariant::fromValue(2));
+#endif
+    rowsInserted.clear();
+    QVERIFY(rowsRemoved.isEmpty());
+    switch (mode) {
+    case MessageNumberChange::LESS:
+        cServer("* 2 EXISTS\r\n");
+        break;
+    case MessageNumberChange::MORE:
+        cServer("* 4 EXISTS\r\n");
+        break;
+    case MessageNumberChange::SAME:
+        cServer("* 3 EXISTS\r\n");
+        break;
+    }
+    cServer("* 0 RECENT\r\n"
+            "* OK [UIDVALIDITY 666] UIDs valid\r\n"
+            + t.last("OK selected\r\n"));
+    QVERIFY(rowsRemoved.isEmpty());
+    QVERIFY(rowsInserted.isEmpty());
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    // the actual UID data is garbage and not needed
+    switch (mode) {
+    case MessageNumberChange::LESS:
+        cServer("* SEARCH 5 9\r\n");
+        break;
+    case MessageNumberChange::MORE:
+        cServer("* SEARCH 5 8 7 9\r\n");
+        break;
+    case MessageNumberChange::SAME:
+        cServer("* SEARCH 5 8 9\r\n");
+        break;
+    }
+    cServer(t.last("OK search\r\n"));
+    switch (mode) {
+    case MessageNumberChange::LESS:
+        cClient(t.mk("FETCH 1:2 (FLAGS)\r\n"));
+        break;
+    case MessageNumberChange::MORE:
+        cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
+        break;
+    case MessageNumberChange::SAME:
+        cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+        break;
+    }
+    cServer("* 1 FETCH (FLAGS (\\Seen))\r\n"
+            "* 2 FETCH (FLAGS (\\Seen))\r\n");
+    switch (mode) {
+    case MessageNumberChange::LESS:
+        oldState.setExists(2);
+        break;
+    case MessageNumberChange::MORE:
+        cServer("* 3 FETCH (FLAGS (\\Seen))\r\n"
+                "* 4 FETCH (FLAGS (\\Seen))\r\n");
+        oldState.setExists(4);
+        break;
+    case MessageNumberChange::SAME:
+        cServer("* 3 FETCH (FLAGS (\\Seen))\r\n");
+        break;
+    }
+    cServer(t.last("OK fetch\r\n"));
+    cEmpty();
+    justKeepTask();
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testMisingUidNextLess()
+{
+    helperMissingUidNext(MessageNumberChange::LESS);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testMisingUidNextMore()
+{
+    helperMissingUidNext(MessageNumberChange::MORE);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testMisingUidNextSame()
+{
+    helperMissingUidNext(MessageNumberChange::SAME);
+}
+
 /**
 Test that going from an empty mailbox to a bigger one works correctly, especially that the untagged
 EXISTS response which belongs to the SELECT gets picked up by the new mailbox and not the old one
@@ -2225,6 +2332,8 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
             );
     QCOMPARE(model->rowCount(msgListA), 3);
     cServer(t.last("OK selected\r\n"));
+    // At this point, there's no need for nuking the cache (yet).
+    QCOMPARE(model->cache()->messagePart("a", 1212, QByteArray()), QByteArray("foo"));
     // The UIDNEXT is missing -> resyncing the UIDs again
     cClient(t.mk("UID SEARCH ALL\r\n"));
     cServer("* SEARCH 1212 1214 1215\r\n");
@@ -2241,9 +2350,11 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
 
-    // Missing UIDNEXT is a violation of the IMAP protocol specification, we treat that like a severe error and fall back to
-    // a full synchronization which means that any cached data is discarded
-    QCOMPARE(model->cache()->messagePart("a", 1212, QByteArray()), QByteArray());
+    // While a missing UIDNEXT is an evil thing to do, the actual language in the RFC leaves some unfortunate
+    // leeway in its interpretation. As much as I would love to throw away everything, Courier's users would
+    // not be thrilled by that, so the UIDNEXT actually has to be preserved in this context.
+    //
+    // FIXME: It would be interesting to perturb the UIDs and detect *that*. However, it's outside of scope for now.
 }
 
 /** @short Test that we can open a mailbox using just the cached data when offline */
