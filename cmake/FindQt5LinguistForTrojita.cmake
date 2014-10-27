@@ -10,10 +10,14 @@ get_filename_component(LINGUIST_PATH ${LINGUIST_PATH} PATH)
 get_filename_component(LINGUIST_PATH ${LINGUIST_PATH} PATH)
 set(LINGUIST_PATH ${LINGUIST_PATH}/bin)
 
-FIND_PROGRAM(QT_LUPDATE_EXECUTABLE NAMES lupdate-qt5 lupdate PATHS
-    ${LINGUIST_PATH}
-    NO_DEFAULT_PATH
-)
+if(TARGET Qt5::lupdate)
+    set(QT_LUPDATE_EXECUTABLE Qt5::lupdate)
+else(TARGET Qt5::lupdate)
+    FIND_PROGRAM(QT_LUPDATE_EXECUTABLE NAMES lupdate-qt5 lupdate PATHS
+        ${LINGUIST_PATH}
+        NO_DEFAULT_PATH
+    )
+endif(TARGET Qt5::lupdate)
 
 if(QT_LUPDATE_EXECUTABLE)
   message(STATUS "Found lupdate: ${QT_LUPDATE_EXECUTABLE}")
@@ -23,10 +27,14 @@ else(QT_LUPDATE_EXECUTABLE)
   endif(Qt5LinguistForTrojita_FIND_REQUIRED)
 endif(QT_LUPDATE_EXECUTABLE)
 
-FIND_PROGRAM(QT_LRELEASE_EXECUTABLE NAMES lrelease-qt5 lrelease PATHS
-    ${LINGUIST_PATH}
-    NO_DEFAULT_PATH
-)
+if(TARGET Qt5::lrelease)
+    set(QT_LRELEASE_EXECUTABLE Qt5::lrelease)
+else(TARGET Qt5::lrelease)
+    FIND_PROGRAM(QT_LRELEASE_EXECUTABLE NAMES lrelease-qt5 lrelease PATHS
+        ${LINGUIST_PATH}
+        NO_DEFAULT_PATH
+    )
+endif(TARGET Qt5::lrelease)
 
 if(QT_LRELEASE_EXECUTABLE)
   message(STATUS "Found lrelease: ${QT_LRELEASE_EXECUTABLE}")
@@ -36,10 +44,14 @@ else(QT_LRELEASE_EXECUTABLE)
   endif(Qt5LinguistForTrojita_FIND_REQUIRED)
 endif(QT_LRELEASE_EXECUTABLE)
 
-FIND_PROGRAM(QT_LCONVERT_EXECUTABLE NAMES lconvert-qt5 lconvert PATHS
-    ${LINGUIST_PATH}
-    NO_DEFAULT_PATH
-)
+if(TARGET Qt5::lconvert)
+    set(QT_LCONVERT_EXECUTABLE Qt5::lconvert)
+else(TARGET Qt5::lconvert)
+    FIND_PROGRAM(QT_LCONVERT_EXECUTABLE NAMES lconvert-qt5 lconvert PATHS
+        ${LINGUIST_PATH}
+        NO_DEFAULT_PATH
+    )
+endif(TARGET Qt5::lconvert)
 
 if(QT_LCONVERT_EXECUTABLE)
   message(STATUS "Found lconvert: ${QT_LCONVERT_EXECUTABLE}")
