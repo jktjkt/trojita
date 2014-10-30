@@ -271,6 +271,16 @@ QString systemPlatformVersion()
         case QSysInfo::MV_10_8:
             platformVersion = QLatin1String("X 10.8");
             break;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        case QSysInfo::MV_10_9:
+            platformVersion = QLatin1String("X 10.9");
+            break;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+        case QSysInfo::MV_10_10:
+            platformVersion = QLatin1String("X 10.10");
+            break;
+#endif
+#endif
 #endif
         }
 #endif
