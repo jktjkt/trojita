@@ -192,7 +192,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             return true;
 
         case BYE:
-            logout(tr("Server has closed the connection"));
+            logout(tr("This server gracefully refuses IMAP connections through a BYE response."));
             return true;
 
         case BAD:
@@ -233,7 +233,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                     EMIT_LATER_NOARG(model, requireStartTlsInFuture);
                 }
             } else {
-                logout(tr("STARTTLS failed: %1").arg(resp->message));
+                logout(tr("Cannot establish a secure connection.\nThe STARTTLS command failed: %1").arg(resp->message));
             }
             return true;
         }
@@ -262,7 +262,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         bool wasCaps = checkCapabilitiesResult(resp);
         if (wasCaps && !_finished) {
             if (model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
-                logout(tr("Capabilities still contain LOGINDISABLED even after STARTTLS"));
+                logout(tr("Server error: Capabilities contain LOGINDISABLED even after STARTTLS"));
             } else {
                 model->changeConnectionState(parser, CONN_STATE_LOGIN);
                 askForAuth();
@@ -376,7 +376,7 @@ void OpenConnectionTask::startTlsOrLoginNow()
         // Should run STARTTLS later and already have the capabilities
         Q_ASSERT(model->accessParser(parser).capabilitiesFresh);
         if (!model->accessParser(parser).capabilities.contains(QLatin1String("STARTTLS"))) {
-            logout(tr("Server does not support STARTTLS"));
+            logout(tr("Server error: LOGINDISABLED but no STARTTLS capability. The login is effectively disabled entirely."));
         } else {
             startTlsCmd = parser->startTls();
             model->changeConnectionState(parser, CONN_STATE_STARTTLS_ISSUED);
@@ -396,11 +396,11 @@ bool OpenConnectionTask::checkCapabilitiesResult(const Responses::State *const r
 
     if (resp->tag == capabilityCmd) {
         if (!model->accessParser(parser).capabilitiesFresh) {
-            logout(tr("Server did not provide useful capabilities"));
+            logout(tr("Server error: did not get the required CAPABILITY response."));
             return true;
         }
         if (resp->kind != Responses::OK) {
-            logout(tr("CAPABILITIES command has failed"));
+            logout(tr("Server error: The CAPABILITY request failed."));
         }
         return true;
     }
@@ -456,7 +456,7 @@ void OpenConnectionTask::authCredentialsNowAvailable()
             loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
             model->accessParser(parser).capabilitiesFresh = false;
         } else {
-            logout(tr("No credentials available"));
+            logout(tr("Cannot login, you have not provided any credentials yet."));
         }
     }
 }
