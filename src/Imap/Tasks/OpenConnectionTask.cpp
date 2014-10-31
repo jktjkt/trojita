@@ -517,8 +517,9 @@ bool OpenConnectionTask::handleSocketEncryptedResponse(const Responses::SocketEn
         m_sslErrors = resp->sslErrors;
         model->processSslErrors(this);
         return true;
+    case CONN_STATE_LOGOUT:
+        return true;
     default:
-        qDebug() << model->accessParser(parser).connState;
         return false;
     }
 }
