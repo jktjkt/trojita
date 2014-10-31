@@ -327,6 +327,7 @@ void ImapAccess::doConnect()
     //connect(m_imapModel, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(slotLogged(uint,Common::LogMessage)));
     connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
+    connect(m_imapModel, SIGNAL(requireStartTlsInFuture()), this, SLOT(onRequireStartTlsInFuture()));
 
     if (m_settings->value(Common::SettingsNames::imapNeedsNetwork, true).toBool()) {
         m_netWatcher = new Imap::Mailbox::SystemNetworkWatcher(this, m_imapModel);
@@ -442,6 +443,20 @@ void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain
         UiUtils::Formatting::formatSslState(
                     m_sslChain, lastKnownPubKey, m_sslErrors, &m_sslInfoTitle, &m_sslInfoMessage, &m_sslInfoIcon);
         emit checkSslPolicy();
+    }
+}
+
+/** @short Remember to use STARTTLS during the next connection
+
+Once a first STARTTLS attempt succeeds, change the preferences to require STARTTLS in future. This is needed
+to prevent a possible SSL stripping attack by a malicious proxy during subsequent connections.
+*/
+void ImapAccess::onRequireStartTlsInFuture()
+{
+    // It's possible that we're called after the user has already changed their preferences.
+    // In order to not change stuff which was not supposed to be changed, let's make sure that we won't undo their changes.
+    if (connectionMethod() == Common::ConnectionMethod::NetCleartext) {
+        setConnectionMethod(Common::ConnectionMethod::NetStartTls);
     }
 }
 

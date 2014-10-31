@@ -134,7 +134,6 @@ private slots:
     void authenticationContinue(const QString &pass = QString());
     void authenticationFailed(const QString &message);
     void checkSslPolicy();
-    void requireStartTlsInFuture();
     void slotComposeMailUrl(const QUrl &url);
     void slotManageContact(const QUrl &url);
     void slotComposeMail();

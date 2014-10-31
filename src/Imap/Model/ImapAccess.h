@@ -132,6 +132,9 @@ public slots:
     void slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors);
     void reloadConfiguration();
 
+private slots:
+    void onRequireStartTlsInFuture();
+
 private:
     QSettings *m_settings;
     Imap::Mailbox::Model *m_imapModel;
