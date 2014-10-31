@@ -435,6 +435,7 @@ void OpenConnectionTask::onComplete()
 void OpenConnectionTask::logout(const QString &message)
 {
     _failed(message);
+    EMIT_LATER(model, authAttemptFailed, Q_ARG(QString, message));
     model->setNetworkPolicy(NETWORK_OFFLINE);
 }
 
