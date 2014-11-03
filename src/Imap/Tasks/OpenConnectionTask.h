@@ -81,7 +81,7 @@ private:
     /** @short Wrapper around the _completed() call for optionally launching the ID command */
     void onComplete();
 
-    void logout(const QString &message);
+    void abortConnection(const QString &message);
 
     void askForAuth();
 

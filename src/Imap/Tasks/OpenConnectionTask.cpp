@@ -160,9 +160,9 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 // of a message we're going to APPEND, etc.
                 // Thanks to Arnt Gulbrandsen on the imap-protocol ML for asking what happens when we're configured
                 // to request STARTTLS and a PREAUTH is received, and to Michael M Slusarz for starting that discussion.
-                logout(tr("Configuration requires sending STARTTLS, but the IMAP server greets us with PREAUTH. "
-                          "Encryption cannot be established. If this configuration worked previously, someone "
-                          "is after your data and they are pretty smart."));
+                abortConnection(tr("Configuration requires sending STARTTLS, but the IMAP server greets us with PREAUTH. "
+                                   "Encryption cannot be established. If this configuration worked previously, someone "
+                                   "is after your data and they are pretty smart."));
                 return true;
             }
             // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
@@ -192,7 +192,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             return true;
 
         case BYE:
-            logout(tr("This server gracefully refuses IMAP connections through a BYE response."));
+            abortConnection(tr("This server gracefully refuses IMAP connections through a BYE response."));
             return true;
 
         case BAD:
@@ -201,7 +201,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             if (resp->respCode != ALERT) {
                 emit model->alertReceived(tr("The server replied with the following BAD response:\n%1").arg(resp->message));
             }
-            logout(tr("Server has greeted us with a BAD response"));
+            abortConnection(tr("Server has greeted us with a BAD response"));
             return true;
 
         default:
@@ -233,7 +233,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                     EMIT_LATER_NOARG(model, requireStartTlsInFuture);
                 }
             } else {
-                logout(tr("Cannot establish a secure connection.\nThe STARTTLS command failed: %1").arg(resp->message));
+                abortConnection(tr("Cannot establish a secure connection.\nThe STARTTLS command failed: %1").arg(resp->message));
             }
             return true;
         }
@@ -262,7 +262,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
         bool wasCaps = checkCapabilitiesResult(resp);
         if (wasCaps && !_finished) {
             if (model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
-                logout(tr("Server error: Capabilities contain LOGINDISABLED even after STARTTLS"));
+                abortConnection(tr("Server error: Capabilities contain LOGINDISABLED even after STARTTLS"));
             } else {
                 model->changeConnectionState(parser, CONN_STATE_LOGIN);
                 askForAuth();
@@ -376,7 +376,7 @@ void OpenConnectionTask::startTlsOrLoginNow()
         // Should run STARTTLS later and already have the capabilities
         Q_ASSERT(model->accessParser(parser).capabilitiesFresh);
         if (!model->accessParser(parser).capabilities.contains(QLatin1String("STARTTLS"))) {
-            logout(tr("Server error: LOGINDISABLED but no STARTTLS capability. The login is effectively disabled entirely."));
+            abortConnection(tr("Server error: LOGINDISABLED but no STARTTLS capability. The login is effectively disabled entirely."));
         } else {
             startTlsCmd = parser->startTls();
             model->changeConnectionState(parser, CONN_STATE_STARTTLS_ISSUED);
@@ -396,11 +396,11 @@ bool OpenConnectionTask::checkCapabilitiesResult(const Responses::State *const r
 
     if (resp->tag == capabilityCmd) {
         if (!model->accessParser(parser).capabilitiesFresh) {
-            logout(tr("Server error: did not get the required CAPABILITY response."));
+            abortConnection(tr("Server error: did not get the required CAPABILITY response."));
             return true;
         }
         if (resp->kind != Responses::OK) {
-            logout(tr("Server error: The CAPABILITY request failed."));
+            abortConnection(tr("Server error: The CAPABILITY request failed."));
         }
         return true;
     }
@@ -432,7 +432,7 @@ void OpenConnectionTask::onComplete()
     _completed();
 }
 
-void OpenConnectionTask::logout(const QString &message)
+void OpenConnectionTask::abortConnection(const QString &message)
 {
     _failed(message);
     EMIT_LATER(model, authAttemptFailed, Q_ARG(QString, message));
@@ -457,7 +457,7 @@ void OpenConnectionTask::authCredentialsNowAvailable()
             loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
             model->accessParser(parser).capabilitiesFresh = false;
         } else {
-            logout(tr("Cannot login, you have not provided any credentials yet."));
+            abortConnection(tr("Cannot login, you have not provided any credentials yet."));
         }
     }
 }
@@ -484,7 +484,7 @@ void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
         if (ok) {
             model->changeConnectionState(parser, CONN_STATE_CONNECTED_PRETLS_PRECAPS);
         } else {
-            logout(tr("The security state of the SSL connection got rejected"));
+            abortConnection(tr("The security state of the SSL connection got rejected"));
         }
         break;
     case CONN_STATE_STARTTLS_VERIFYING:
@@ -493,7 +493,7 @@ void OpenConnectionTask::sslConnectionPolicyDecided(bool ok)
             model->accessParser(parser).capabilitiesFresh = false;
             capabilityCmd = parser->capability();
         } else {
-            logout(tr("The security state of the connection after a STARTTLS operation got rejected"));
+            abortConnection(tr("The security state of the connection after a STARTTLS operation got rejected"));
         }
         break;
     default:
