@@ -782,7 +782,7 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
 
     // When asked to exit, do as much as possible and die
     while (shouldExit || fetchPartTasks.size() < limitParallelFetchTasks) {
-        QList<uint> uids;
+        Imap::Uids uids;
         uint totalSize = 0;
         while (uids.size() < limitMessagesAtOnce && it != requestedParts.end() && totalSize < limitBytesAtOnce) {
             if (parts != *it)
@@ -808,7 +808,7 @@ void KeepMailboxOpenTask::slotFetchRequestedEnvelopes()
 
     breakOrCancelPossibleIdle();
 
-    QList<uint> fetchNow;
+    Imap::Uids fetchNow;
     if (shouldExit) {
         fetchNow = requestedEnvelopes;
         requestedEnvelopes.clear();

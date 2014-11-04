@@ -19,40 +19,15 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef IMAP_UIDS_H
+#define IMAP_UIDS_H
 
-#ifndef IMAP_FETCHMSGMETADATATASK_H
-#define IMAP_FETCHMSGMETADATATASK_H
+#include <QVector>
 
-#include <QPersistentModelIndex>
-#include "ImapTask.h"
+namespace Imap {
 
-namespace Imap
-{
-namespace Mailbox
-{
-
-/** @short Fetch metadata about a message set */
-class FetchMsgMetadataTask : public ImapTask
-{
-    Q_OBJECT
-public:
-    FetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const Imap::Uids &uids);
-    virtual void perform();
-
-    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-
-    virtual QString debugIdentification() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return true;}
-private:
-    CommandHandle tag;
-    ImapTask *conn;
-    QPersistentModelIndex mailbox;
-    Imap::Uids uids;
-};
+typedef QVector<uint> Uids;
 
 }
-}
 
-#endif // IMAP_FETCHMSGMETADATATASK_H
+#endif // IMAP_UIDS_H

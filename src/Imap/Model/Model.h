@@ -179,7 +179,7 @@ public:
     void expungeMailbox(const QModelIndex &mailbox);
 
     /** @short Copy or move a sequence of messages between two mailboxes */
-    void copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMboxName, QList<uint> uids, const CopyMoveOperation op);
+    void copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMboxName, Imap::Uids uids, const CopyMoveOperation op);
 
     /** @short Create a new mailbox */
     void createMailbox(const QString &name);
@@ -495,7 +495,7 @@ private:
     TreeItemMailbox *findMailboxByName(const QString &name) const;
     TreeItemMailbox *findMailboxByName(const QString &name, const TreeItemMailbox *const root) const;
     TreeItemMailbox *findParentMailboxByName(const QString &name) const;
-    QList<TreeItemMessage *> findMessagesByUids(const TreeItemMailbox *const mailbox, const QList<uint> &uids);
+    QList<TreeItemMessage *> findMessagesByUids(const TreeItemMailbox *const mailbox, const Imap::Uids &uids);
     TreeItemChildrenList::iterator findMessageOrNextOneByUid(TreeItemMsgList *list, const uint uid);
 
     static TreeItemMailbox *mailboxForSomeItem(QModelIndex index);

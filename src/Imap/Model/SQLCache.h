@@ -72,9 +72,9 @@ public:
     virtual SyncState mailboxSyncState(const QString &mailbox) const;
     virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state);
 
-    virtual void setUidMapping(const QString &mailbox, const QList<uint> &seqToUid);
+    virtual void setUidMapping(const QString &mailbox, const Imap::Uids &seqToUid);
     virtual void clearUidMapping(const QString &mailbox);
-    virtual QList<uint> uidMapping(const QString &mailbox) const;
+    virtual Imap::Uids uidMapping(const QString &mailbox) const;
 
     virtual void clearAllMessages(const QString &mailbox);
     virtual void clearMessage(const QString mailbox, const uint uid);

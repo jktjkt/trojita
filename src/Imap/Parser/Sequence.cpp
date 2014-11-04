@@ -29,7 +29,7 @@ namespace Imap
 
 Sequence::Sequence(const uint num): kind(DISTINCT)
 {
-    list << num;
+    numbers << num;
 }
 
 Sequence Sequence::startingAt(const uint lo)
@@ -45,20 +45,20 @@ QByteArray Sequence::toByteArray() const
     switch (kind) {
     case DISTINCT:
     {
-        Q_ASSERT(! list.isEmpty());
+        Q_ASSERT(! numbers.isEmpty());
 
         QStringList res;
         int i = 0;
-        while (i < list.size()) {
+        while (i < numbers.size()) {
             int old = i;
-            while (i < list.size() - 1 &&
-                   list[i] == list[ i + 1 ] - 1)
+            while (i < numbers.size() - 1 &&
+                   numbers[i] == numbers[ i + 1 ] - 1)
                 ++i;
             if (old != i) {
                 // we've found a sequence
-                res << QString::number(list[old]) + QLatin1Char(':') + QString::number(list[i]);
+                res << QString::number(numbers[old]) + QLatin1Char(':') + QString::number(numbers[i]);
             } else {
-                res << QString::number(list[i]);
+                res << QString::number(numbers[i]);
             }
             ++i;
         }
@@ -78,40 +78,40 @@ QByteArray Sequence::toByteArray() const
     return QByteArray();
 }
 
-QList<uint> Sequence::toList() const
+Imap::Uids Sequence::toVector() const
 {
     switch (kind) {
     case DISTINCT:
-        Q_ASSERT(!list.isEmpty());
-        return list;
+        Q_ASSERT(!numbers.isEmpty());
+        return numbers;
     case RANGE:
         Q_ASSERT(lo <= hi);
         if (lo == hi) {
-            return QList<uint>() << lo;
+            return Imap::Uids() << lo;
         } else {
-            QList<uint> res;
+            Imap::Uids res;
             for (uint i = lo; i < hi; ++i)
                 res << i;
             return res;
         }
     case UNLIMITED:
         Q_ASSERT(false);
-        return QList<uint>();
+        return Imap::Uids();
     }
     Q_ASSERT(false);
-    return QList<uint>();
+    return Imap::Uids();
 }
 
 Sequence &Sequence::add(uint num)
 {
     Q_ASSERT(kind == DISTINCT);
-    QList<uint>::iterator it = qLowerBound(list.begin(), list.end(), num);
-    if (it == list.end() || *it != num)
-        list.insert(it, num);
+    auto it = qLowerBound(numbers.begin(), numbers.end(), num);
+    if (it == numbers.end() || *it != num)
+        numbers.insert(it, num);
     return *this;
 }
 
-Sequence Sequence::fromList(QList<uint> numbers)
+Sequence Sequence::fromVector(Imap::Uids numbers)
 {
     Q_ASSERT(!numbers.isEmpty());
     qSort(numbers);
@@ -124,7 +124,7 @@ Sequence Sequence::fromList(QList<uint> numbers)
 
 bool Sequence::isValid() const
 {
-    if (kind == DISTINCT && list.isEmpty())
+    if (kind == DISTINCT && numbers.isEmpty())
         return false;
     else
         return true;
@@ -138,7 +138,7 @@ QTextStream &operator<<(QTextStream &stream, const Sequence &s)
 bool operator==(const Sequence &a, const Sequence &b)
 {
     // This operator is used only in the test suite, so performance doesn't matter and this was *so* easy to hack together...
-    return a.toList() == b.toList();
+    return a.toVector() == b.toVector();
 }
 
 }

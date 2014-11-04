@@ -52,9 +52,9 @@ public:
     virtual SyncState mailboxSyncState(const QString &mailbox) const;
     virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state);
 
-    virtual void setUidMapping(const QString &mailbox, const QList<uint> &mapping);
+    virtual void setUidMapping(const QString &mailbox, const Imap::Uids &mapping);
     virtual void clearUidMapping(const QString &mailbox);
-    virtual QList<uint> uidMapping(const QString &mailbox) const;
+    virtual Imap::Uids uidMapping(const QString &mailbox) const;
 
     virtual void clearAllMessages(const QString &mailbox);
     virtual void clearMessage(const QString mailbox, const uint uid);
@@ -77,7 +77,7 @@ public:
 private:
     QMap<QString, QList<MailboxMetadata> > mailboxes;
     QMap<QString, SyncState> syncState;
-    QMap<QString, QList<uint> > seqToUid;
+    QMap<QString, Imap::Uids> seqToUid;
     QMap<QString, QMap<uint,QStringList> > flags;
     QMap<QString, QMap<uint, MessageDataBundle> > msgMetadata;
     QMap<QString, QMap<uint, QMap<QByteArray, QByteArray> > > parts;

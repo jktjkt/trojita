@@ -25,6 +25,7 @@
 #include <QList>
 #include <QPair>
 #include <QVariant>
+#include "Imap/Parser/Uids.h"
 
 namespace Imap
 {
@@ -95,7 +96,7 @@ QVariantList parseList(const char open, const char close,
 QVariant getAnything(const QByteArray &line, int &start);
 
 /** @short Parse a sequence set from the input */
-QList<uint> getSequence(const QByteArray &line, int &start);
+Imap::Uids getSequence(const QByteArray &line, int &start);
 
 /** @short Parse RFC2822-like formatted date
  *

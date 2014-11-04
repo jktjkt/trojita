@@ -94,7 +94,7 @@ void ObtainSynchronizedMailboxTask::perform()
     bool hasQresync = model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC"));
     if (hasQresync && oldSyncState.isUsableForCondstore()) {
         m_usingQresync = true;
-        QList<uint> oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
+        auto oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
         if (oldUidMap.isEmpty()) {
             selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(),
                                               oldSyncState.highestModSeq());

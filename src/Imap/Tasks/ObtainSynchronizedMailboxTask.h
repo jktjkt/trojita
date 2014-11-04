@@ -109,7 +109,7 @@ private:
     QList<CommandHandle> newArrivalsFetch;
     Imap::Mailbox::MailboxSyncingProgress status;
     UidSyncingMode uidSyncingMode;
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uint firstUnknownUidOffset;
     SyncState oldSyncState;
     bool m_usingQresync;

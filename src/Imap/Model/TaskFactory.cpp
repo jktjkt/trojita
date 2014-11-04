@@ -96,12 +96,12 @@ ExpungeMailboxTask *TaskFactory::createExpungeMailboxTask(Model *model, const QM
     return new ExpungeMailboxTask(model, mailbox);
 }
 
-FetchMsgMetadataTask *TaskFactory::createFetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids)
+FetchMsgMetadataTask *TaskFactory::createFetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const Imap::Uids &uids)
 {
     return new FetchMsgMetadataTask(model, mailbox, uids);
 }
 
-FetchMsgPartTask *TaskFactory::createFetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QList<QByteArray> &parts)
+FetchMsgPartTask *TaskFactory::createFetchMsgPartTask(Model *model, const QModelIndex &mailbox, const Imap::Uids &uids, const QList<QByteArray> &parts)
 {
     return new FetchMsgPartTask(model, mailbox, uids, parts);
 }

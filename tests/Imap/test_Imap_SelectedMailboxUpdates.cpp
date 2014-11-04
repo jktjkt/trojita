@@ -26,6 +26,7 @@
 #include "Utils/headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Parser/Uids.h"
 
 /** @short Test that we survive a new message arrival and its subsequent removal in rapid sequence
 
@@ -397,7 +398,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteOneMessage(const uint seq,
 {
     // Fake deleting one message
     --existsA;
-    uidMapA.removeAt(seq);
+    uidMapA.remove(seq);
     Q_ASSERT(remainingSubjects.size() == static_cast<int>(existsA));
     Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
     cServer(QString::fromUtf8("* %1 EXPUNGE\r\n* %2 RECENT\r\n").arg(QString::number(seq+1), QString::number(existsA)).toUtf8());
@@ -413,8 +414,8 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteTwoMessages(const uint seq
 {
     // Fake deleting one message
     existsA -= 2;
-    uidMapA.removeAt(seq1);
-    uidMapA.removeAt(seq2);
+    uidMapA.remove(seq1);
+    uidMapA.remove(seq2);
     Q_ASSERT(remainingSubjects.size() == static_cast<int>(existsA));
     Q_ASSERT(uidMapA.size() == static_cast<int>(existsA));
     cServer(QString::fromUtf8("* %1 EXPUNGE\r\n* %2 EXPUNGE\r\n* %3 RECENT\r\n").arg(QString::number(seq1+1), QString::number(seq2+1), QString::number(existsA)).toUtf8());
@@ -584,7 +585,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
 #define helperCheckUidMapFromModel() \
 { \
     QCOMPARE(model->rowCount(msgListA), uidMapA.size()); \
-    QList<uint> actual; \
+    Imap::Uids actual; \
     for (int i = 0; i < uidMapA.size(); ++i) { \
         actual << msgListA.child(i, 0).data(Imap::Mailbox::RoleMessageUid).toUInt(); \
     } \
@@ -597,28 +598,28 @@ void ImapModelSelectedMailboxUpdatesTest::testVanishedUpdates()
 
     // Deleting a message in the middle of the range
     cServer("* VANISHED 9\r\n");
-    uidMapA.removeOne(9);
+    uidMapA.remove(uidMapA.indexOf(9));
     --existsA;
     helperCheckUidMapFromModel();
     helperCheckCache();
 
     // Deleting the last one
     cServer("* VANISHED 10\r\n");
-    uidMapA.removeOne(10);
+    uidMapA.remove(uidMapA.indexOf(10));
     --existsA;
     helperCheckUidMapFromModel();
     helperCheckCache();
 
     // Dleting three at the very start
     cServer("* VANISHED 1:3\r\n");
-    uidMapA.removeOne(1);
-    uidMapA.removeOne(2);
-    uidMapA.removeOne(3);
+    uidMapA.remove(uidMapA.indexOf(1));
+    uidMapA.remove(uidMapA.indexOf(2));
+    uidMapA.remove(uidMapA.indexOf(3));
     existsA -= 3;
     helperCheckUidMapFromModel();
     helperCheckCache();
 
-    QCOMPARE(uidMapA, QList<uint>() << 4 << 5 << 6 << 7 << 8);
+    QCOMPARE(uidMapA, Imap::Uids() << 4 << 5 << 6 << 7 << 8);
 
     // A new arrival...
     cServer("* 6 EXISTS\r\n");
@@ -656,7 +657,7 @@ void ImapModelSelectedMailboxUpdatesTest::testVanishedUpdates()
     // FIXME: don't call this -- early call to cEmpty()
     // helperCheckCache();
     cServer("* VANISHED 13\r\n");
-    uidMapA.removeAt(6);
+    uidMapA.remove(6);
     --existsA;
     helperCheckUidMapFromModel();
     // FIXME: don't call this: early call to cEmpty()

@@ -32,7 +32,7 @@ namespace Imap
 namespace Mailbox
 {
 
-FetchMsgPartTask::FetchMsgPartTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids, const QList<QByteArray> &parts):
+FetchMsgPartTask::FetchMsgPartTask(Model *model, const QModelIndex &mailbox, const Uids &uids, const QList<QByteArray> &parts):
     ImapTask(model), uids(uids), parts(parts), mailboxIndex(mailbox)
 {
     Q_ASSERT(!uids.isEmpty());
@@ -47,7 +47,7 @@ void FetchMsgPartTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    Sequence seq = Sequence::fromList(uids);
+    Sequence seq = Sequence::fromVector(uids);
     tag = parser->uidFetch(seq, parts);
 }
 
@@ -110,7 +110,7 @@ QString FetchMsgPartTask::debugIdentification() const
     }
     return QString::fromUtf8("%1: parts %2 for UIDs %3")
            .arg(mailboxIndex.data(RoleMailboxName).toString(), buf.join(QLatin1String(", ")),
-                QString::fromUtf8(Sequence::fromList(uids).toByteArray()));
+                QString::fromUtf8(Sequence::fromVector(uids).toByteArray()));
 }
 
 QVariant FetchMsgPartTask::taskData(const int role) const

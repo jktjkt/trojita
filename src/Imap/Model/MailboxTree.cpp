@@ -612,7 +612,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
     Q_ASSERT(list);
     QModelIndex listIndex = list->toIndex(model);
 
-    QList<uint> uids = resp.uids;
+    auto uids = resp.uids;
     qSort(uids);
     // Remove duplicates -- even that garbage can be present in a perfectly valid VANISHED :(
     uids.erase(std::unique(uids.begin(), uids.end()), uids.end());
@@ -621,7 +621,8 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
     while (!uids.isEmpty()) {
         // We have to process each UID separately because the UIDs in the mailbox are not necessarily present
         // in a continuous range; zeros might be present
-        uint uid = uids.takeLast();
+        uint uid = uids.last();
+        uids.pop_back();
 
         if (uid == 0) {
             qDebug() << "VANISHED informs about removal of UID zero...";

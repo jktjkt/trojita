@@ -286,7 +286,6 @@ protected:
     friend class ::ImapModelIdleTest;
     friend class ::LibMailboxSync;
 
-    QList<uint> uidMap;
     QMap<uint, QSet<QByteArray> > requestedParts;
     QMap<uint, uint> requestedPartSizes;
     /** @short UIDs of messages with pending FetchMsgMetadataTask request
@@ -294,7 +293,7 @@ protected:
     QList is used in preference to the QSet in an attempt to maintain the order of requests. Simply ordering via UID is
     not enough because of output sorting, threads etc etc.
     */
-    QList<uint> requestedEnvelopes;
+    Imap::Uids requestedEnvelopes;
 
     uint limitBytesAtOnce;
     int limitMessagesAtOnce;

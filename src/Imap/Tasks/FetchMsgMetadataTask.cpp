@@ -32,7 +32,7 @@ namespace Imap
 namespace Mailbox
 {
 
-FetchMsgMetadataTask::FetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const QList<uint> &uids) :
+FetchMsgMetadataTask::FetchMsgMetadataTask(Model *model, const QModelIndex &mailbox, const Imap::Uids &uids) :
     ImapTask(model), mailbox(mailbox), uids(uids)
 {
     Q_ASSERT(!uids.isEmpty());
@@ -47,7 +47,7 @@ void FetchMsgMetadataTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    Sequence seq = Sequence::fromList(uids);
+    Sequence seq = Sequence::fromVector(uids);
 
     // we do not want to use _onlineMessageFetch because it contains UID and FLAGS
     tag = parser->uidFetch(seq, QList<QByteArray>() << "ENVELOPE" << "INTERNALDATE" <<
@@ -93,7 +93,7 @@ QString FetchMsgMetadataTask::debugIdentification() const
 
     Q_ASSERT(!uids.isEmpty());
     return QString::fromUtf8("%1: UIDs %2").arg(mailbox.data(RoleMailboxName).toString(),
-                                                QString::fromUtf8(Sequence::fromList(uids).toByteArray()));
+                                                QString::fromUtf8(Sequence::fromVector(uids).toByteArray()));
 }
 
 QVariant FetchMsgMetadataTask::taskData(const int role) const

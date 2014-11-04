@@ -23,8 +23,8 @@
 #ifndef IMAP_PARSER_SEQUENCE_H
 #define IMAP_PARSER_SEQUENCE_H
 
-#include <QList>
 #include <QString>
+#include "Imap/Parser/Uids.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap
@@ -39,7 +39,7 @@ namespace Imap
 class Sequence
 {
     uint lo, hi;
-    QList<uint> list;
+    Imap::Uids numbers;
     enum { DISTINCT, RANGE, UNLIMITED } kind;
 public:
     /** @short Construct an invalid sequence */
@@ -79,10 +79,10 @@ public:
     QByteArray toByteArray() const;
 
     /** @short Converts sequence to a list of UIDs */
-    QList<uint> toList() const;
+    Imap::Uids toVector() const;
 
     /** @short Create a sequence from a list of numbers */
-    static Sequence fromList(QList<uint> numbers);
+    static Sequence fromVector(Imap::Uids numbers);
 
     /** @short Return true if the sequence contains at least some items */
     bool isValid() const;

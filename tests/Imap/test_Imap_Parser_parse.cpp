@@ -317,10 +317,10 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>(new Flags(QStringList() << QLatin1String("333") << QStringList("666x333")));
     QTest::newRow("search-empty")
         << QByteArray("* SEARCH\r\n")
-        << QSharedPointer<AbstractResponse>( new Search( QList<uint>() ) );
+        << QSharedPointer<AbstractResponse>(new Search(Imap::Uids()));
     QTest::newRow("search-messages")
         << QByteArray("* SEARCH 1 33 666\r\n")
-        << QSharedPointer<AbstractResponse>( new Search( QList<uint>() << 1 << 33 << 666 ) );
+        << QSharedPointer<AbstractResponse>(new Search(Imap::Uids() << 1 << 33 << 666));
 
     ESearch::ListData_t esearchData;
     QTest::newRow("esearch-empty")
@@ -339,7 +339,7 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* ESEARCH (TAG \"1\") UiD\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch("1", ESearch::UIDS, esearchData));
 
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 10));
+    esearchData.push_back(qMakePair<>(QByteArray("BLAH"), Imap::Uids() << 10));
     QTest::newRow("esearch-one-number")
         << QByteArray("* ESEARCH BLaH 10\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
@@ -356,15 +356,15 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* ESEArCH (TaG x) Uid BLaH 10\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchData));
 
-    esearchData.push_front(qMakePair<QByteArray, QList<uint> >("FOO", QList<uint>() << 666));
-    esearchData.push_front(qMakePair<QByteArray, QList<uint> >("FOO", QList<uint>() << 333));
+    esearchData.push_front(qMakePair<>(QByteArray("FOO"), Imap::Uids() << 666));
+    esearchData.push_front(qMakePair<>(QByteArray("FOO"), Imap::Uids() << 333));
     QTest::newRow("esearch-two-numbers")
         << QByteArray("* ESEARCH fOO 333 foo 666   BLaH 10\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
     esearchData.clear();
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("FOO", QList<uint>() << 333));
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 10));
+    esearchData.push_back(qMakePair<>(QByteArray("FOO"), Imap::Uids() << 333));
+    esearchData.push_back(qMakePair<>(QByteArray("BLAH"), Imap::Uids() << 10));
     QTest::newRow("esearch-uid-two-numbers")
         << QByteArray("* ESEArCH UiD foo    333 BLaH  10\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::UIDS, esearchData));
@@ -378,13 +378,13 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>(new ESearch("x", ESearch::UIDS, esearchData));
 
     esearchData.clear();
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 10 << 11 << 13 << 14 << 15 << 16 << 17));
+    esearchData.push_back(qMakePair<>(QByteArray("BLAH"), Imap::Uids() << 10 << 11 << 13 << 14 << 15 << 16 << 17));
     QTest::newRow("esearch-one-list-1")
         << QByteArray("* ESEARCH BLaH 10,11,13:17\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
     esearchData.clear();
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 1 << 2));
+    esearchData.push_back(qMakePair<>(QByteArray("BLAH"), Imap::Uids() << 1 << 2));
     QTest::newRow("esearch-one-list-2")
         << QByteArray("* ESEARCH BLaH 1:2\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
@@ -394,7 +394,7 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
     esearchData.clear();
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BLAH", QList<uint>() << 1 << 2 << 3 << 4 << 5));
+    esearchData.push_back(qMakePair<>(QByteArray("BLAH"), Imap::Uids() << 1 << 2 << 3 << 4 << 5));
     QTest::newRow("esearch-one-list-4")
         << QByteArray("* ESEARCH BLaH 1,2:4,5\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
@@ -403,24 +403,24 @@ void ImapParserParseTest::testParseUntagged_data()
         << QByteArray("* ESEARCH BLaH 1,2:4,5   \r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("FOO", QList<uint>() << 6));
+    esearchData.push_back(qMakePair<>(QByteArray("FOO"), Imap::Uids() << 6));
     QTest::newRow("esearch-mixed-1")
         << QByteArray("* ESEARCH BLaH 1,2:4,5 FOO 6\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
-    esearchData.swap(0, 1);
+    std::swap(esearchData[0], esearchData[1]);
     QTest::newRow("esearch-mixed-2")
         << QByteArray("* ESEARCH FOO 6 BLaH 1,2:4,5\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
-    esearchData.push_back(qMakePair<QByteArray, QList<uint> >("BAZ", QList<uint>() << 33));
+    esearchData.push_back(qMakePair<>(QByteArray("BAZ"), Imap::Uids() << 33));
     QTest::newRow("esearch-mixed-3")
         << QByteArray("* ESEARCH FOO 6   BLaH 1,2:4,5   baz 33  \r\n")
         << QSharedPointer<AbstractResponse>(new ESearch(QByteArray(), ESearch::SEQUENCE, esearchData));
 
     ESearch::IncrementalContextData_t incrementalEsearchData;
-    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2733));
-    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2731 << 2732));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, Imap::Uids() << 2733));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, Imap::Uids() << 2731 << 2732));
     QTest::newRow("esearch-context-sort-1")
         << QByteArray("* ESEARCH (TAG \"C01\") UID ADDTO (1 2733) ADDTO (1 2731:2732)\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch("C01", ESearch::UIDS, incrementalEsearchData));
@@ -430,21 +430,21 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>(new ESearch("C01", ESearch::UIDS, incrementalEsearchData));
 
     incrementalEsearchData.clear();
-    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2733));
-    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2732));
-    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2731));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, Imap::Uids() << 2733));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, Imap::Uids() << 2732));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, Imap::Uids() << 2731));
     QTest::newRow("esearch-context-sort-3")
         << QByteArray("* ESEARCH (TAG \"C01\") UID ADDTO (1 2733 1 2732 1 2731)\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch("C01", ESearch::UIDS, incrementalEsearchData));
 
     incrementalEsearchData.clear();
-    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, QList<uint>() << 2731 << 2732 << 2733));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::ADDTO, 1, Imap::Uids() << 2731 << 2732 << 2733));
     QTest::newRow("esearch-context-sort-4")
         << QByteArray("* ESEARCH (TAG \"C01\") UID ADDTO (1 2731:2733)\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch("C01", ESearch::UIDS, incrementalEsearchData));
 
     incrementalEsearchData.clear();
-    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::REMOVEFROM, 0, QList<uint>() << 32768));
+    incrementalEsearchData.push_back(ESearch::ContextIncrementalItem(ESearch::ContextIncrementalItem::REMOVEFROM, 0, Imap::Uids() << 32768));
     QTest::newRow("esearch-context-sort-5")
         << QByteArray("* ESEARCH (TAG \"B01\") UID REMOVEFROM (0 32768)\r\n")
         << QSharedPointer<AbstractResponse>(new ESearch("B01", ESearch::UIDS, incrementalEsearchData));
@@ -513,12 +513,12 @@ void ImapParserParseTest::testParseUntagged_data()
                     ) );
 
     QTest::newRow("sort-1")
-        << QByteArray("* SORT") << QSharedPointer<AbstractResponse>( new Sort( QList<uint>() ) );
+        << QByteArray("* SORT") << QSharedPointer<AbstractResponse>(new Sort(Imap::Uids()));
     QTest::newRow("sort-2")
-        << QByteArray("* SORT ") << QSharedPointer<AbstractResponse>( new Sort( QList<uint>() ) );
+        << QByteArray("* SORT ") << QSharedPointer<AbstractResponse>(new Sort(Imap::Uids()));
     QTest::newRow("sort-3")
         << QByteArray("* SORT 13 1 6 5 7 9 10 11 12 4 3 2 8\r\n")
-        << QSharedPointer<AbstractResponse>( new Sort( QList<uint>() << 13 << 1 << 6 << 5 << 7 << 9 << 10 << 11 << 12 << 4 << 3 << 2 << 8 ) );
+        << QSharedPointer<AbstractResponse>(new Sort(Imap::Uids() << 13 << 1 << 6 << 5 << 7 << 9 << 10 << 11 << 12 << 4 << 3 << 2 << 8));
 
     ThreadingNode node2(2), node3(3), node6(6), node4(4), node23(23), node44(44), node7(7), node96(96);
     QVector<ThreadingNode> rootNodes;
@@ -919,15 +919,15 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("vanished-one")
             << QByteArray("* VANIShED 1\r\n")
-            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::NOT_EARLIER, QList<uint>() << 1));
+            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::NOT_EARLIER, Imap::Uids() << 1));
 
     QTest::newRow("vanished-earlier-one")
             << QByteArray("* VANIShED (EARlIER) 1\r\n")
-            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::EARLIER, QList<uint>() << 1));
+            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::EARLIER, Imap::Uids() << 1));
 
     QTest::newRow("vanished-earlier-set")
             << QByteArray("* VANISHED (EARLIER) 300:303,405,411\r\n")
-            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::EARLIER, QList<uint>() << 300 << 301 << 302 << 303 << 405 << 411));
+            << QSharedPointer<AbstractResponse>(new Vanished(Vanished::EARLIER, Imap::Uids() << 300 << 301 << 302 << 303 << 405 << 411));
 
     QTest::newRow("genurlauth-1")
             << QByteArray("* GENURLAUTH \"imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038\"\r\n")
@@ -1151,7 +1151,7 @@ void ImapParserParseTest::testSequences_data()
             QByteArray("1:4,6:7,99:102,333,666");
 
     QTest::newRow("sequence-from-list-1") <<
-            Imap::Sequence::fromList( QList<uint>() << 2 << 3 << 4 << 6 << 7 << 1 << 100 << 101 << 102 << 99 << 666 << 333 << 666) <<
+            Imap::Sequence::fromVector(Imap::Uids() << 2 << 3 << 4 << 6 << 7 << 1 << 100 << 101 << 102 << 99 << 666 << 333 << 666) <<
             QByteArray("1:4,6:7,99:102,333,666");
 }
 

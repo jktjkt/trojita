@@ -108,7 +108,7 @@ protected:
     QPersistentModelIndex idxA, idxB, idxC, msgListA, msgListB, msgListC;
     TagGenerator t;
     uint existsA, uidValidityA, uidNextA;
-    QList<uint> uidMapA;
+    Imap::Uids uidMapA;
     bool m_verbose;
     bool m_expectsError;
     bool m_fakeListCommand;
