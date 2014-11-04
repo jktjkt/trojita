@@ -1374,4 +1374,33 @@ void ImapModelThreadingTest::helper_multipleExpunges()
     ++helper_multipleExpunges_hit;
 }
 
+/** @short Check how fast it is to delete a substantial number of e-mails from the mailbox using flat threading */
+void ImapModelThreadingTest::testFlatThreadDeletionPerformance()
+{
+    threadingModel->setUserWantsThreading(false);
+    // only send NOOPs after a day; the default timeout of two minutes is way too short for valgrind's callgrind
+    model->setProperty("trojita-imap-noop-period", 24 * 60 * 60 * 1000);
+
+    const int num = 10000; // even with just 10k messages it takes 10s here; bump it later when it's faster
+    initialMessages(num);
+    auto numDeletes = num / 2;
+
+    // perform the deletes in the middle
+    QByteArray deletes = ("* " + QByteArray::number(num - numDeletes - 5) + " EXPUNGE\r\n").repeated(numDeletes);
+
+    QSignalSpy layoutChanged(threadingModel, SIGNAL(layoutChanged()));
+
+    QBENCHMARK_ONCE {
+        cServer(deletes);
+        // make sure all events are delivered; the model scheduler processes them on a 100-sized chunks
+        // plus add one for actual processing of the delayed delete
+        for (auto i = 0; i < numDeletes / 100 + 1; ++i) {
+            QCoreApplication::processEvents();
+        }
+    }
+    QVERIFY(layoutChanged.size() >= 1);
+    QCOMPARE(threadingModel->rowCount(), num - numDeletes);
+    cEmpty();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )
