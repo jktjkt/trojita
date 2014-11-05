@@ -930,12 +930,14 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
     m_recentMessageCount = 0;
     for (int i = 0; i < m_children.size(); ++i) {
         TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
+        bool isRead, isRecent;
+        message->checkFlagsReadRecent(isRead, isRecent);
         if (!message->m_flagsHandled)
-            message->m_wasUnread = ! message->isMarkedAsRead();
+            message->m_wasUnread = ! isRead;
         message->m_flagsHandled = true;
-        if (! message->isMarkedAsRead())
+        if (!isRead)
             ++m_unreadMessageCount;
-        if (message->isMarkedAsRecent())
+        if (isRecent)
             ++m_recentMessageCount;
     }
     m_totalMessageCount = m_children.size();
@@ -1188,34 +1190,66 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     }
 }
 
+namespace {
+
+/** @short Find a string based on d-ptr equality
+
+This works because our flags always use implicit sharing. If they didn't use that, this method wouldn't work.
+*/
+bool containsStringByDPtr(const QStringList &haystack, const QString &needle)
+{
+    const auto sentinel = const_cast<QString&>(needle).data_ptr();
+    Q_FOREACH(const auto &item, haystack) {
+        if (const_cast<QString&>(item).data_ptr() == sentinel)
+            return true;
+    }
+    return false;
+}
+
+}
+
 bool TreeItemMessage::isMarkedAsDeleted() const
 {
-    return m_flags.contains(FlagNames::deleted);
+    return containsStringByDPtr(m_flags, FlagNames::deleted);
 }
 
 bool TreeItemMessage::isMarkedAsRead() const
 {
-    return m_flags.contains(FlagNames::seen);
+    return containsStringByDPtr(m_flags, FlagNames::seen);
 }
 
 bool TreeItemMessage::isMarkedAsReplied() const
 {
-    return m_flags.contains(FlagNames::answered);
+    return containsStringByDPtr(m_flags, FlagNames::answered);
 }
 
 bool TreeItemMessage::isMarkedAsForwarded() const
 {
-    return m_flags.contains(FlagNames::forwarded);
+    return containsStringByDPtr(m_flags, FlagNames::forwarded);
 }
 
 bool TreeItemMessage::isMarkedAsRecent() const
 {
-    return m_flags.contains(FlagNames::recent);
+    return containsStringByDPtr(m_flags, FlagNames::recent);
 }
 
 bool TreeItemMessage::isMarkedAsFlagged() const
 {
-    return m_flags.contains(FlagNames::flagged);
+    return containsStringByDPtr(m_flags, FlagNames::flagged);
+}
+
+void TreeItemMessage::checkFlagsReadRecent(bool &isRead, bool &isRecent) const
+{
+    const auto dRead = const_cast<QString&>(FlagNames::seen).data_ptr();
+    const auto dRecent = const_cast<QString&>(FlagNames::recent).data_ptr();
+    auto end = m_flags.end();
+    auto it = m_flags.begin();
+    isRead = isRecent = false;
+    while (it != end && !(isRead && isRecent)) {
+        isRead |= const_cast<QString&>(*it).data_ptr() == dRead;
+        isRecent |= const_cast<QString&>(*it).data_ptr() == dRecent;
+        ++it;
+    }
 }
 
 uint TreeItemMessage::uid() const

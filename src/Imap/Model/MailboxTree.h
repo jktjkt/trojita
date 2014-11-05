@@ -287,6 +287,7 @@ public:
     bool isMarkedAsForwarded() const;
     bool isMarkedAsRecent() const;
     bool isMarkedAsFlagged() const;
+    void checkFlagsReadRecent(bool &isRead, bool &isRecent) const;
     uint uid() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     bool hasAttachments(Model *const model);
