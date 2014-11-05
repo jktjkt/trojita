@@ -1375,7 +1375,7 @@ void ImapModelThreadingTest::testFlatThreadDeletionPerformance()
     // only send NOOPs after a day; the default timeout of two minutes is way too short for valgrind's callgrind
     model->setProperty("trojita-imap-noop-period", 24 * 60 * 60 * 1000);
 
-    const int num = 10000; // even with just 10k messages it takes 10s here; bump it later when it's faster
+    const int num = 30000; // 30k messages translate into roughly 3-5s, which is acceptable
     initialMessages(num);
     auto numDeletes = num / 2;
 
