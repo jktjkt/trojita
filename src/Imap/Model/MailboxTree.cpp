@@ -595,10 +595,11 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
         --static_cast<TreeItemMessage *>(list->m_children[i])->m_offset;
     }
     model->endRemoveRows();
-    delete message;
 
     --list->m_totalMessageCount;
-    list->recalcVariousMessageCounts(const_cast<Model *>(model));
+    list->recalcVariousMessageCountsOnExpunge(const_cast<Model *>(model), message);
+
+    delete message;
 
     if (list->accessFetchStatus() == DONE) {
         // Previously, we were synced, so we got to save this update
@@ -942,6 +943,25 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
     }
     m_totalMessageCount = m_children.size();
     m_numberFetchingStatus = DONE;
+    model->emitMessageCountChanged(static_cast<TreeItemMailbox *>(parent()));
+}
+
+void TreeItemMsgList::recalcVariousMessageCountsOnExpunge(Model *model, TreeItemMessage *expungedMessage)
+{
+    if (m_numberFetchingStatus != DONE) {
+        // In case the counts weren't synced before, we cannot really rely on them now -> go to the slow path
+        recalcVariousMessageCounts(model);
+        return;
+    }
+
+    bool isRead, isRecent;
+    expungedMessage->checkFlagsReadRecent(isRead, isRecent);
+    if (expungedMessage->m_flagsHandled) {
+        if (!isRead)
+            --m_unreadMessageCount;
+        if (isRecent)
+            --m_recentMessageCount;
+    }
     model->emitMessageCountChanged(static_cast<TreeItemMailbox *>(parent()));
 }
 

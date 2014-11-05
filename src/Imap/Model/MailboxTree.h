@@ -221,6 +221,7 @@ public:
     int recentMessageCount(Model *const model);
     void fetchNumbers(Model *const model);
     void recalcVariousMessageCounts(Model *model);
+    void recalcVariousMessageCountsOnExpunge(Model *model, TreeItemMessage *expungedMessage);
     void resetWasUnreadState();
     bool numbersFetched() const;
 };
