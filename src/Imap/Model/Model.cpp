@@ -1427,8 +1427,9 @@ void Model::saveUidMap(TreeItemMsgList *list)
 {
     Imap::Uids seqToUid;
     seqToUid.reserve(list->m_children.size());
-    for (int i = 0; i < list->m_children.size(); ++i)
-        seqToUid << static_cast<TreeItemMessage *>(list->m_children[ i ])->uid();
+    auto end = list->m_children.constEnd();
+    for (auto it = list->m_children.constBegin(); it != end; ++it)
+        seqToUid << static_cast<TreeItemMessage *>(*it)->uid();
     cache()->setUidMapping(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), seqToUid);
 }
 
