@@ -601,10 +601,10 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
 
     delete message;
 
-    if (list->accessFetchStatus() == DONE) {
-        // Previously, we were synced, so we got to save this update
-        saveSyncStateAndUids(model);
-    }
+    // The UID map is not synced at this time, though, and we defer a decision on when to do this to the context
+    // of the task which invoked this method. The idea is that this task has a better insight for potentially
+    // batching these changes to prevent useless hammering of the saveUidMap() etc.
+    // Previously, the code would simetimes do this twice in a row, which is kinda suboptimal...
 }
 
 void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanished &resp)
