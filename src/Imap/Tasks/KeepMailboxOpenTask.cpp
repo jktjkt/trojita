@@ -46,7 +46,8 @@ namespace Mailbox
 
 KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailboxIndex, Parser *oldParser) :
     ImapTask(model), mailboxIndex(mailboxIndex), synchronizeConn(0), shouldExit(false), isRunning(Running::NOT_YET),
-    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0), unSelectTask(0)
+    shouldRunNoop(false), shouldRunIdle(false), idleLauncher(0), unSelectTask(0),
+    m_skippedStateSynces(0), m_performedStateSynces(0), m_syncingTimer(nullptr)
 {
     Q_ASSERT(mailboxIndex.isValid());
     Q_ASSERT(mailboxIndex.model() == model);
@@ -154,6 +155,18 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     emit model->mailboxSyncingProgress(mailboxIndex, STATE_WAIT_FOR_CONN);
 
     connect(this, SIGNAL(failed(QString)), this, SLOT(signalSyncFailure(QString)));
+
+    /** @short How often to reset the time window (in ms) for determining mass-change mode */
+    const int throttlingWindowLength = 1000;
+
+    m_syncingTimer = new QTimer(this);
+    m_syncingTimer->setSingleShot(true);
+    // This timeout specifies how long we're going to wait for an incoming reply which usually triggers state syncing.
+    // If no such response arrives during this time window, the changes are saved on disk; if, however, something does
+    // arrive, the rate of saving is only moderated based on the number of reponses which were already received,
+    // but which did not result in state saving yet.
+    m_syncingTimer->setInterval(throttlingWindowLength);
+    connect(m_syncingTimer, SIGNAL(timeout()), this, SLOT(syncingTimeout()));
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
@@ -290,6 +303,9 @@ void KeepMailboxOpenTask::terminate()
     }
     abort();
 
+    m_syncingTimer->stop();
+    syncingTimeout();
+
     // FIXME: abort/die
 
     Q_ASSERT(dependingTasksForThisMailbox.isEmpty());
@@ -298,6 +314,8 @@ void KeepMailboxOpenTask::terminate()
     Q_ASSERT(requestedEnvelopes.isEmpty());
     Q_ASSERT(runningTasksForThisMailbox.isEmpty());
     Q_ASSERT(abortableTasks.isEmpty());
+    Q_ASSERT(!m_syncingTimer->isActive());
+    Q_ASSERT(m_skippedStateSynces == 0);
 
     // Break periodic activities
     shouldRunIdle = false;
@@ -1008,8 +1026,76 @@ void KeepMailboxOpenTask::feelFreeToAbortCaller(ImapTask *task)
     abortableTasks.append(task);
 }
 
+/** @short It's time to reset the counters and perform the sync */
+void KeepMailboxOpenTask::syncingTimeout()
+{
+    if (!mailboxIndex.isValid()) {
+        return;
+    }
+    if (m_skippedStateSynces == 0) {
+        // This means that state syncing it not being throttled, i.e. we're just resetting the window
+        // which determines the rate of requests which would normally trigger saving
+        m_performedStateSynces = 0;
+    } else {
+        // there's been no fresh arrivals for our timeout period -> let's flush the pending events
+        TreeItemMailbox *mailbox = Model::mailboxForSomeItem(mailboxIndex);
+        Q_ASSERT(mailbox);
+        saveSyncStateIfPossible(mailbox);
+    }
+}
+
 void KeepMailboxOpenTask::saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox *mailbox)
 {
+    bool saveImmediately = true;
+
+    /** @short After processing so many responses immediately, switch to a delayed mode where the saving is deferred */
+    const uint throttlingThreshold = 100;
+
+    /** @short Flush the queue after postponing this number of messages.
+
+    It's "ridiculously high", but it's still a number so that our integer newer wraps.
+    */
+    const uint maxDelayedResponses = 10000;
+
+    if (m_skippedStateSynces > 0) {
+        // we're actively throttling
+        if (m_skippedStateSynces >= maxDelayedResponses) {
+            // ...but we've been throttling too many responses, let's flush them now
+            Q_ASSERT(m_syncingTimer->isActive());
+            // do not go back to 0, otherwise there will be a lot of immediate events within each interval
+            m_performedStateSynces = throttlingThreshold;
+            saveImmediately = true;
+        } else {
+            ++m_skippedStateSynces;
+            saveImmediately = false;
+        }
+    } else {
+        // no throttling, cool
+        if (m_performedStateSynces >= throttlingThreshold) {
+            // ...but we should start throttling now
+            ++m_skippedStateSynces;
+            saveImmediately = false;
+        } else {
+            ++m_performedStateSynces;
+            if (!m_syncingTimer->isActive()) {
+                // reset the sliding window
+                m_syncingTimer->start();
+            }
+            saveImmediately = true;
+        }
+    }
+
+    if (saveImmediately) {
+        saveSyncStateIfPossible(mailbox);
+    } else {
+        m_performedStateSynces = 0;
+        m_syncingTimer->start();
+    }
+}
+
+void KeepMailboxOpenTask::saveSyncStateIfPossible(TreeItemMailbox *mailbox)
+{
+    m_skippedStateSynces = 0;
     TreeItemMsgList *list = static_cast<TreeItemMsgList*>(mailbox->m_children[0]);
     if (list->fetched()) {
         mailbox->saveSyncStateAndUids(model);

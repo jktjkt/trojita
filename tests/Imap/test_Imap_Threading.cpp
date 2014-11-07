@@ -1392,8 +1392,18 @@ void ImapModelThreadingTest::testFlatThreadDeletionPerformance()
             QCoreApplication::processEvents();
         }
     }
+    QCOMPARE(model->rowCount(msgListB), 0);
     QVERIFY(layoutChanged.size() >= 1);
     QCOMPARE(threadingModel->rowCount(), num - numDeletes);
+    QCOMPARE(model->rowCount(msgListA), num - numDeletes);
+
+    // Make sure that the mailbox switchover won't cause any events to get lost.
+    // This should flush the delayed timer unconditionally.
+    cClient(t.mk("SELECT b\r\n"));
+    cServer("* 0 EXISTS\r\n* OK [UIDVALIDITY 666]  \r\n* OK [UIDNEXT 1]  \r\n" + t.last("OK selected\r\n"));
+
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState(QLatin1String("a")).exists()), num - numDeletes);
+    justKeepTask();
     cEmpty();
 }
 
