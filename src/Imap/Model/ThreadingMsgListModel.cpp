@@ -1060,6 +1060,10 @@ void ThreadingMsgListModel::pruneTree()
     // directly, we'd hit an issue with iterator ordering (basically, we want to be able to say "hey, I don't care at which point
     // of the iteration I'm right now, the next node to process should be that one, and then we should resume with the rest").
     QList<uint> pending = threading.keys();
+
+    // These are the parents whose children will have to be renumbered later on
+    QSet<uint> parentsForRenumbering;
+
     for (QList<uint>::iterator id = pending.begin(); id != pending.end(); /* nothing */) {
         // Convert to the hashmap
         // The "it" iterator point to the current node in the threading mapping
@@ -1088,35 +1092,33 @@ void ThreadingMsgListModel::pruneTree()
             // and the node itself has to be found in its parent's children
             QList<uint>::iterator childIt = qFind(parent->children.begin(), parent->children.end(), it->internalId);
             Q_ASSERT(childIt != parent->children.end());
-            // Check that its offset is correct
-            Q_ASSERT(childIt - parent->children.begin() == it->offset);
+            // The offset of this child might no longer be correct, though -- we're postponing the actual deletion until later
 
             if (it->children.isEmpty()) {
                 // This is a leaf node, so we can just remove it
                 childIt = parent->children.erase(childIt);
-                threadedRootIds.removeOne(it->internalId);
+                // We do not perform the renumbering immediately, that would lead to an O(n^2) performance when deleting nodes.
+                parentsForRenumbering.insert(it->parent);
+                parentsForRenumbering.remove(it->internalId);
+
+                if (it->parent == 0) {
+                    threadedRootIds.removeOne(it->internalId);
+                }
                 threading.erase(it);
                 ++id;
 
-                // Update offsets of all further nodes, siblings to the one we've just deleted
-                while (childIt != parent->children.end()) {
-                    QHash<uint, ThreadNodeInfo>::iterator sibling = threading.find(*childIt);
-                    Q_ASSERT(sibling != threading.end());
-                    --sibling->offset;
-                    Q_ASSERT(sibling->offset >= 0);
-                    ++childIt;
-                }
             } else {
                 // This node has some children, so we can't just delete it. Instead of that, we promote its first child
                 // to replace this node.
                 QHash<uint, ThreadNodeInfo>::iterator replaceWith = threading.find(it->children.first());
                 Q_ASSERT(replaceWith != threading.end());
 
-                // Make sure that the offsets are still correct
-                Q_ASSERT(parent->children[it->offset] == it->internalId);
+                // The offsets will, again, be updated later on
+                parentsForRenumbering.insert(it->parent);
+                parentsForRenumbering.insert(replaceWith.key());
+                parentsForRenumbering.remove(it->internalId);
 
                 // Replace the node
-                replaceWith->offset = it->offset;
                 *childIt = it->children.first();
                 replaceWith->parent = parent->internalId;
 
@@ -1124,13 +1126,11 @@ void ThreadingMsgListModel::pruneTree()
                 it->children.removeFirst();
                 replaceWith->children = replaceWith->children + it->children;
 
-                // Fix parent and offset information of all children of the replacement node
+                // Fix parent information of all children of the replacement node
                 for (int i = 0; i < replaceWith->children.size(); ++i) {
                     QHash<uint, ThreadNodeInfo>::iterator sibling = threading.find(replaceWith->children[i]);
                     Q_ASSERT(sibling != threading.end());
-
                     sibling->parent = replaceWith.key();
-                    sibling->offset = i;
                 }
 
                 if (parent->internalId == 0) {
@@ -1150,6 +1150,18 @@ void ThreadingMsgListModel::pruneTree()
                     *id = replaceWith.key();
                 }
             }
+        }
+    }
+
+    // Now fix the sequential numbering of all siblings of deleted children
+    Q_FOREACH(const auto parentId, parentsForRenumbering) {
+        auto parentIt = threading.constFind(parentId);
+        Q_ASSERT(parentIt != threading.constEnd());
+        int offset = 0;
+        for (auto childNumber = parentIt->children.constBegin(); childNumber != parentIt->children.constEnd(); ++childNumber, ++offset) {
+            auto childIt = threading.find(*childNumber);
+            Q_ASSERT(childIt != threading.end());
+            childIt->offset = offset;
         }
     }
 }
