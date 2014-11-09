@@ -276,6 +276,53 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
 
     // Test new arrivals
     QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(3)");
+
+}
+
+/** @short Test deletion of several nodes at once resulting in child promotion
+
+There was a bug in https://gerrit.vesnicky.cesnet.cz/r/#/c/153/1, an assert failure at src/Imap/Model/ThreadingMsgListModel.cpp:1117.
+The bug happened because an initial version of that patch failed to fix the other part of an if branch, a place where the old code
+assumed that all other thread nodes had their offsets already fixed.
+
+Testing this with Qt5 is not easy, though, due to the random iteration order of QHash which is used within the ThreadingMsgListModel.
+What we're looking for is a situation where a non-leaf node is processed by the code *after* some of its preceding siblings which
+happen to be leaves were already removed.
+*/
+void ImapModelThreadingTest::testVanishedHierarchyReplacement()
+{
+    // Initialize the same data structure as the one which is used within the ThreadingMsgListModel.
+    // We're doing this in order to be able to prepare such a sequence of keys which will trigger that
+    // particular sequence of hash traversal which we need from here.
+    decltype(threadingModel->threading) dummy;
+    for (int i = 0; i < 5; ++i) {
+        dummy[i];
+    }
+    auto keys = dummy.keys();
+    keys.removeOne(0); // but it's important that 0 was there for the actual hash iteration order
+    QCOMPARE(keys.size(), 4);
+
+    initialMessages(4);
+
+    // The threading will have to look like this one:
+    // 1
+    // 2
+    // 3
+    // +- 4
+    //
+    // ..except that the numbers above correspond to the indexes in the list of keys of the hash
+    // in the hash's iteration order, not actual UIDs.
+    QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    SOCK->fakeReading("* THREAD (" + QByteArray::number(keys[0]) + ")(" + QByteArray::number(keys[1]) + ")(" +
+            QByteArray::number(keys[2]) + ' ' + QByteArray::number(keys[3]) + ")\r\n" + t.last("OK thread\r\n"));
+    cEmpty();
+    QVERIFY(errorSpy->isEmpty());
+
+    cServer("* VANISHED " + QByteArray::number(keys[0]) + ',' + QByteArray::number(keys[1]) + ',' + QByteArray::number(keys[2]) + "\r\n");
+    cEmpty();
+    QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(%1)").arg(keys[3]));
+    cEmpty();
+    QVERIFY(errorSpy->isEmpty());
 }
 
 /** @short Test deletion of one message */
