@@ -39,6 +39,17 @@ typedef enum {
     RFC2047_STRING_UTF8
 } Rfc2047StringCharacterSetType;
 
+/** @short Production type as per RFC 2047 chapter 5
+
+These differ in the set of characters that are allowed to be sent unescaped.
+*/
+enum class Rfc2047ProductionType {
+    /** @short "An 'encoded-word' may replace a 'text' token..." -- case (1) */
+    Text,
+    /** @short "As a replacement for a 'word' entity within a 'phrase'" -- case (3) */
+    Phrase,
+};
+
 QString decodeByteArray(const QByteArray &encoded, const QByteArray &charset);
 
 QByteArray quotedString(const QByteArray &unquoted, QuotedStringStyle style = DoubleQuoted);

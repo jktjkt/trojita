@@ -275,8 +275,13 @@ void RFCCodecsTest::testEncodeRFC2047Phrase()
     QFETCH(QByteArray, encoded);
     // wrapped in QString to make sure the test renders the output
     QCOMPARE(QString::fromUtf8(Imap::encodeRFC2047Phrase(text)), QString::fromUtf8(encoded));
-    // check that the data survive the roundtrip
-    QCOMPARE(Imap::decodeRFC2047String(Imap::encodeRFC2047Phrase(text)), text);
+
+    // Check that the data survive the roundtrip.
+    if (!encoded.startsWith('"')) {
+        // This is a special case; the encodeRFC2047Phrase is magic because it auto-adds quotes if needed, while
+        // the corresponding decoder assumes that the RFC5322-style quoting has been already undone.
+        QCOMPARE(Imap::decodeRFC2047String(Imap::encodeRFC2047Phrase(text)), text);
+    }
 }
 
 void RFCCodecsTest::testEncodeRFC2047Phrase_data()
@@ -287,6 +292,10 @@ void RFCCodecsTest::testEncodeRFC2047Phrase_data()
     QTest::newRow("dummy text") << QString::fromUtf8("foo bar") << QByteArray("foo bar");
     QTest::newRow("latin1") << QString::fromUtf8("Jan Kundrát") << QByteArray("=?iso-8859-1?Q?Jan_Kundr=E1t?=");
     QTest::newRow("utf-8") << QString::fromUtf8("Ελληνικά") << QByteArray("=?utf-8?B?zpXOu867zrfOvc65zrrOrA==?=");
+
+    QTest::newRow("ascii-parentheses") << QString::fromUtf8("Foo Bar (Test Thing)") << QByteArray("\"Foo Bar (Test Thing)\"");
+    QTest::newRow("latin1-parentheses") << QString::fromUtf8("Jan Kundrát (Test Thing)") << QByteArray("=?iso-8859-1?Q?Jan_Kundr=E1t_=28Test_Thing=29?=");
+    QTest::newRow("utf8-parentheses") << QString::fromUtf8("Ελληνικά (Test Thing)") << QByteArray("=?utf-8?B?zpXOu867zrfOvc65zrrOrCAoVGVzdCBUaGluZyk=?=");
 }
 
 void RFCCodecsTest::testRfc2231Decoding()

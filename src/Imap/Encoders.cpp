@@ -99,15 +99,50 @@ namespace {
     const unsigned char QuestionMark = 0x3f;
     const unsigned char Underscore = 0x5f;
 
+    const unsigned char ExclamationMark = 0x21;
+    const unsigned char Star = 0x2a;
+    const unsigned char Plus = 0x2b;
+    const unsigned char Minus = 0x2d;
+    const unsigned char Ascii_Dot = 0x2e;
+    const unsigned char Slash = 0x2f;
+
+    const unsigned char Ascii_Zero = 0x30;
+    const unsigned char Ascii_Nine = 0x39;
+    const unsigned char Ascii_A = 0x41;
+    const unsigned char Ascii_Z = 0x5a;
+    const unsigned char Ascii_a = 0x61;
+    const unsigned char Ascii_z = 0x7a;
+
     /** @short Check the given unicode code point if it has to be escaped in the quoted-printable encoding according to RFC2047 */
-    static inline bool rfc2047QPNeedsEscpaing(const int unicode)
+    static inline bool rfc2047QPNeedsEscpaing(const int unicode, const Imap::Rfc2047ProductionType production)
     {
-        if (unicode <= Space)
-            return true;
-        if (unicode == Equals || unicode == QuestionMark || unicode == Underscore)
-            return true;
-        if (unicode > MaxPrintableRange)
-            return true;
+        switch (production) {
+        case Imap::Rfc2047ProductionType::Text:
+            if (unicode <= Space)
+                return true;
+            if (unicode == Equals || unicode == QuestionMark || unicode == Underscore)
+                return true;
+            if (unicode > MaxPrintableRange)
+                return true;
+            return false;
+        case Imap::Rfc2047ProductionType::Phrase:
+            if ( (unicode >= Ascii_a && unicode <= Ascii_z) || (unicode >= Ascii_A && unicode <= Ascii_Z) || (unicode >= Ascii_Zero && unicode <= Ascii_Nine) ) {
+                return false;
+            }
+            switch (unicode) {
+            case ExclamationMark:
+            case Star:
+            case Plus:
+            case Minus:
+            case Slash:
+            case Equals:
+            case Underscore:
+                return false;
+            default:
+                return true;
+            }
+        }
+        Q_ASSERT(false);
         return false;
     }
 
@@ -117,17 +152,7 @@ namespace {
     */
     static inline bool rfc2311NeedsEscaping(const int unicode)
     {
-        const unsigned char Ascii_Zero = 0x30;
-        const unsigned char Ascii_Nine = 0x39;
-        const unsigned char Ascii_A = 0x41;
-        const unsigned char Ascii_Z = 0x5a;
-        const unsigned char Ascii_a = 0x61;
-        const unsigned char Ascii_z = 0x7a;
-        const unsigned char Ascii_Minus = 0x2d;
-        const unsigned char Ascii_Dot = 0x2e;
-        const unsigned char Ascii_Underscore = 0x5f;
-
-        if (unicode == Ascii_Minus || unicode == Ascii_Dot || unicode == Ascii_Underscore)
+        if (unicode == Minus || unicode == Ascii_Dot || unicode == Underscore)
             return false;
         if (unicode >= Ascii_Zero && unicode <= Ascii_Nine)
             return false;
@@ -157,7 +182,7 @@ namespace {
                 // Multi-byte characters included - we need to use UTF-8
                 return Imap::RFC2047_STRING_UTF8;
             }
-            else if (!latin1 && rfc2047QPNeedsEscpaing(it->unicode()))
+            else if (!latin1 && rfc2047QPNeedsEscpaing(it->unicode(), Imap::Rfc2047ProductionType::Text))
             {
                 // We need encoding from latin-1
                 latin1 = Imap::RFC2047_STRING_LATIN;
@@ -302,7 +327,7 @@ namespace {
 
 namespace Imap {
 
-QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacterSetType charset)
+QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacterSetType charset, const Rfc2047ProductionType productionType)
 {
     // We can't allow more than 75 chars per encoded-word, including the boiler plate (7 chars and the size of the encoding spec)
     // -- this is defined by RFC2047.
@@ -355,7 +380,7 @@ QByteArray encodeRFC2047String(const QString &text, const Rfc2047StringCharacter
             const ushort unicode = text[i].unicode();
             if (unicode == 0x20) {
                 symbol = "_";
-            } else if (!rfc2047QPNeedsEscpaing(unicode)) {
+            } else if (!rfc2047QPNeedsEscpaing(unicode, productionType)) {
                 symbol += text[i].toLatin1();
             } else {
                 symbol = toHexChar(unicode, '=');
@@ -391,7 +416,7 @@ QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
     // Find first character which needs escaping
     int pos = 0;
     while (pos < text.size() && pos < maxLineLength &&
-           (text[pos].unicode() == 0x20 || !rfc2047QPNeedsEscpaing(text[pos].unicode())))
+           (text[pos].unicode() == 0x20 || !rfc2047QPNeedsEscpaing(text[pos].unicode(), Rfc2047ProductionType::Text)))
         ++pos;
 
     // Find last character of a word which doesn't need escaping
@@ -409,7 +434,7 @@ QByteArray encodeRFC2047StringWithAsciiPrefix(const QString &text)
     QString rest = text.mid(pos);
     Rfc2047StringCharacterSetType charset = charsetForInput(rest);
 
-    return prefix + encodeRFC2047String(rest, charset);
+    return prefix + encodeRFC2047String(rest, charset, Rfc2047ProductionType::Text);
 }
 
 QString decodeRFC2047String( const QByteArray& raw )
@@ -488,7 +513,7 @@ QByteArray quotedString( const QByteArray& unquoted, QuotedStringStyle style )
    From:, or Received:). The result will match the "phrase"
    production. */
 static QRegExp atomPhraseRx(QLatin1String("[ \\tA-Za-z0-9!#$&'*+/=?^_`{}|~-]*"));
-QByteArray encodeRFC2047Phrase( const QString &text )
+QByteArray encodeRFC2047Phrase(const QString &text)
 {
     /* We want to know if we can encode as ASCII. But bizarrely, Qt
        (on my system at least) doesn't have an ASCII codec. So we use
@@ -514,7 +539,7 @@ QByteArray encodeRFC2047Phrase( const QString &text )
                     /* This string contains non-ASCII characters, so the
                        only way to represent it in a mail header is as an
                        RFC2047 encoded-word. */
-                    return encodeRFC2047String(text, RFC2047_STRING_LATIN);
+                    return encodeRFC2047String(text, RFC2047_STRING_LATIN, Rfc2047ProductionType::Phrase);
                 }
             }
 
@@ -524,7 +549,7 @@ QByteArray encodeRFC2047Phrase( const QString &text )
 
     /* If the text has characters outside of the basic ASCII set, then
        it has to be encoded using the RFC2047 encoded-word syntax. */
-    return encodeRFC2047String(text, RFC2047_STRING_UTF8);
+    return encodeRFC2047String(text, RFC2047_STRING_UTF8, Rfc2047ProductionType::Phrase);
 }
 
 /** @short Decode RFC2231-style eextended parameter values into a real Unicode string */
