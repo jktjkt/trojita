@@ -257,7 +257,7 @@ namespace {
         //QRegExp encodedWord("\\b=\\?\\S+\\?\\S+\\?\\S*\\?=\\b");
         QRegExp encodedWord(QLatin1String("\"?=\\?(\\S+)\\?(\\S+)\\?(.*)\\?=\"?"));
 
-        // set minimal=true, to match sequences which do not have whit space in between 2 encoded words; otherwise by default greedy matching is performed
+        // set minimal=true, to match sequences which do not have white space in between 2 encoded words; otherwise by default greedy matching is performed
         // eg. "Sm=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=sbord" will match "=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=" as a single encoded word without minimal=true
         // with minimal=true, "=?ISO-8859-1?B?9g==?=" will be the first encoded word and "=?ISO-8859-1?B?5Q==?=" the second.
         // -- assuming there are no nested encodings, will there be?
