@@ -268,6 +268,27 @@ void RFCCodecsTest::testEncodeRFC2047StringAsciiPrefix_data()
 
 }
 
+/** @short Check that the "phrase" production of RFC2047 is special wrt. e.g. quoting some special characters */
+void RFCCodecsTest::testEncodeRFC2047Phrase()
+{
+    QFETCH(QString, text);
+    QFETCH(QByteArray, encoded);
+    // wrapped in QString to make sure the test renders the output
+    QCOMPARE(QString::fromUtf8(Imap::encodeRFC2047Phrase(text)), QString::fromUtf8(encoded));
+    // check that the data survive the roundtrip
+    QCOMPARE(Imap::decodeRFC2047String(Imap::encodeRFC2047Phrase(text)), text);
+}
+
+void RFCCodecsTest::testEncodeRFC2047Phrase_data()
+{
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QByteArray>("encoded");
+
+    QTest::newRow("dummy text") << QString::fromUtf8("foo bar") << QByteArray("foo bar");
+    QTest::newRow("latin1") << QString::fromUtf8("Jan Kundrát") << QByteArray("=?iso-8859-1?Q?Jan_Kundr=E1t?=");
+    QTest::newRow("utf-8") << QString::fromUtf8("Ελληνικά") << QByteArray("=?utf-8?B?zpXOu867zrfOvc65zrrOrA==?=");
+}
+
 void RFCCodecsTest::testRfc2231Decoding()
 {
     QFETCH(MapByteArrayByteArray, params);
