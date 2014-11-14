@@ -300,8 +300,8 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
 
     {
         WebRenderingTester tester;
-        LONG_STR_QCOMPARE(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed),
-                 expandedFlowed);
+        LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed)),
+                 visualizeWhitespace(expandedFlowed));
     }
 }
 
