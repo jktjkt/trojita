@@ -208,7 +208,18 @@ static QString lineWithoutTrailingCr(const QString &line)
 
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
-    static QRegExp quotemarks(QLatin1String("^>+"));
+    QRegExp quotemarks;
+    switch (flowed) {
+    case FlowedFormat::FLOWED:
+    case FlowedFormat::FLOWED_DELSP:
+        quotemarks = QRegExp(QLatin1String("^>+"));
+        break;
+    case FlowedFormat::PLAIN:
+        // Also accept > interleaved by spaces. That's what KMail happily produces.
+        // A single leading space is accepted, too. That's what Gerrit produces.
+        quotemarks = QRegExp(QLatin1String("^( >|>)+"));
+        break;
+    }
     const int SIGNATURE_SEPARATOR = -2;
 
     QList<TextInfo> lineBuffer;

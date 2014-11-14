@@ -84,6 +84,26 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed_data()
             << QString("Yay.\r\n-- \r\nMeh.\r\n")
             << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>")
             << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>");
+
+    QTest::newRow("gerrit-extra-leading-space")
+            << QString("Patch Set 2: Code-Review+2\r\n"
+                       "\r\n"
+                       "> There is no limit on the number of flags which could be present for\r\n"
+                       " > a message\r\n"
+                       "\r\n"
+                       "Ok, checked ::normalizedFlags() - indeed *everything* is implicitly shared =)")
+            << QString("Patch Set 2: Code-Review+2\n"
+                       "\n"
+                       "<span class=\"level\"><input type=\"checkbox\" id=\"q1\"/><span class=\"shortquote\"><blockquote><span class=\"quotemarks\">&gt; </span>There is no limit on the number of flags which could be present for\n"
+                       "<label for=\"q1\"></label></blockquote></span></span>&gt; a message\n"
+                       "\n"
+                       "Ok, checked ::normalizedFlags() - indeed <b><span class=\"markup\">*</span>everything<span class=\"markup\">*</span></b> is implicitly shared =)")
+            << QString("Patch Set 2: Code-Review+2\n"
+                       "\n"
+                       "<span class=\"level\"><input type=\"checkbox\" id=\"q1\"/><span class=\"shortquote\"><blockquote><span class=\"quotemarks\">&gt; </span>There is no limit on the number of flags which could be present for\n"
+                       "<span class=\"quotemarks\">&gt; </span>a message\n"
+                       "<label for=\"q1\"></label></blockquote></span></span>\n"
+                       "Ok, checked ::normalizedFlags() - indeed <b><span class=\"markup\">*</span>everything<span class=\"markup\">*</span></b> is implicitly shared =)");
 }
 
 /** @short Corner cases of the DelSp formatting */
@@ -506,6 +526,59 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
             << QString("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.")
             << QString("Yesterday: \n>> Test2A. \n>> \n>> Test2B \n>> \nTest0. \n> Test1A. \n> \n> Test 1B. ")
             << QString("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.");
+
+    QTest::newRow("kmail-spaces-in-quotes")
+            << QString("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\r\n"
+                       "> On 8 November 2014 08:45, John Layt <jlayt@kde.org> wrote:\r\n"
+                       "> > Hi,\r\n"
+                       "> > \r\n"
+                       "> > Just checking, has the sponsorship budget been approved (so I can book\r\n"
+                       "> > flights before they cost silly amounts), and has accommodation been\r\n"
+                       "> > sorted yet or do we need to do it ourselves?\r\n"
+                       "> \r\n"
+                       "> Ping?\r\n"
+                       "\r\n"
+                       "CC'd Michael directly in case he missed the emails between all the jenkins \r\n"
+                       "spam. I'd like to have this sorted out soon too  :)\r\n")
+            << QString("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
+                       "> On 8 November 2014 08:45, John Layt <jlayt@kde.org> wrote:\n"
+                       "> > Hi,\n"
+                       // This might be surprising at first, but "> > > " is actually correct here.
+                       // The first ">" is the quote level, second ">" is the second ">" from the first line,
+                       // and because that line ends with a space, it's a flowed line, and therefore the next
+                       // line should be joined in there. The next line has a quote depth of one (the matching
+                       // stops at first space), and then again actually starts with another ">".
+                       // Therefore ">" for a quote prefix, " " as a spearator, and "> > Just..." as actual content.
+                       "> > > Just checking, has the sponsorship budget been approved (so I can book\n"
+                       "> > flights before they cost silly amounts), and has accommodation been\n"
+                       "> > sorted yet or do we need to do it ourselves?\n"
+                       "> \n"
+                       "> Ping?\n"
+                       "\n"
+                       "CC'd Michael directly in case he missed the emails between all the jenkins spam. I'd like to have this sorted out soon too  :)\n")
+            << QString("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
+                       "> On 8 November 2014 08:45, John Layt <jlayt@kde.org> wrote:\n"
+                       ">> Hi,\n"
+                       ">> \n"
+                       ">> Just checking, has the sponsorship budget been approved (so I can book\n"
+                       ">> flights before they cost silly amounts), and has accommodation been\n"
+                       ">> sorted yet or do we need to do it ourselves?\n"
+                       "> \n"
+                       "> Ping?\n"
+                       "\n"
+                       "CC'd Michael directly in case he missed the emails between all the jenkins \n"
+                       "spam. I'd like to have this sorted out soon too  :)\n")
+            << QString("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
+                       "> On 8 November 2014 08:45, John Layt <jlayt@kde.org> wrote:\n"
+                       "> > Hi,\n"
+                       // See above for that "weird" "> > > ".
+                       "> > > Just checking, has the sponsorship budget been approved (so I can book\n"
+                       "> > flights before they cost silly amounts), and has accommodation been\n"
+                       "> > sorted yet or do we need to do it ourselves?\n"
+                       "> \n"
+                       "> Ping?\n"
+                       "\n"
+                       "CC'd Michael directly in case he missed the emails between all the jenkins spam. I'd like to have this sorted out soon too  :)\n");
 }
 
 void HtmlFormattingTest::testPlainTextFormattingViaPasteDelSp()
