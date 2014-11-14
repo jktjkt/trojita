@@ -72,12 +72,12 @@ void CombinedCache::setMailboxSyncState(const QString &mailbox, const SyncState 
     sqlCache->setMailboxSyncState(mailbox, state);
 }
 
-QList<uint> CombinedCache::uidMapping(const QString &mailbox) const
+Imap::Uids CombinedCache::uidMapping(const QString &mailbox) const
 {
     return sqlCache->uidMapping(mailbox);
 }
 
-void CombinedCache::setUidMapping(const QString &mailbox, const QList<uint> &seqToUid)
+void CombinedCache::setUidMapping(const QString &mailbox, const Imap::Uids &seqToUid)
 {
     sqlCache->setUidMapping(mailbox, seqToUid);
 }

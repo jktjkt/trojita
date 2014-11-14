@@ -94,7 +94,7 @@ void ObtainSynchronizedMailboxTask::perform()
     bool hasQresync = model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC"));
     if (hasQresync && oldSyncState.isUsableForCondstore()) {
         m_usingQresync = true;
-        QList<uint> oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
+        auto oldUidMap = model->cache()->uidMapping(mailbox->mailbox());
         if (oldUidMap.isEmpty()) {
             selectCmd = parser->selectQresync(mailbox->mailbox(), oldSyncState.uidValidity(),
                                               oldSyncState.highestModSeq());
@@ -393,6 +393,9 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                 model->cache()->clearAllMessages(mailbox->mailbox());
                 fullMboxSync(mailbox, list);
             }
+        } else if (oldSyncState.isUsableForSyncingWithoutUidNext() && syncState.isUsableForSyncingWithoutUidNext() && oldSyncState.uidValidity() == syncState.uidValidity()) {
+            log(QLatin1String("Did not receive UIDNEXT, but UIDVALIDITY remains same -> trying non-destructive generic sync"));
+            syncGeneric(mailbox, list);
         } else {
             // Forget everything, do a dumb sync
             model->cache()->clearAllMessages(mailbox->mailbox());

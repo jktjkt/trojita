@@ -504,7 +504,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
                 throw InvalidResponseCode("Malformed APPENDUID: cannot extract UIDVALIDITY", line, start);
             int pos = 0;
             QByteArray s1 = originalList[2].toByteArray();
-            Sequence seq = Sequence::fromList(LowLevelParser::getSequence(s1, pos));
+            Sequence seq = Sequence::fromVector(LowLevelParser::getSequence(s1, pos));
             if (!seq.isValid())
                 throw InvalidResponseCode("Malformed APPENDUID: cannot extract UID or the list of UIDs", line, start);
             if (pos != s1.size())
@@ -524,14 +524,14 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
                 throw InvalidResponseCode("Malformed COPYUID: cannot extract UIDVALIDITY", line, start);
             int pos = 0;
             QByteArray s1 = originalList[2].toByteArray();
-            Sequence seq1 = Sequence::fromList(LowLevelParser::getSequence(s1, pos));
+            Sequence seq1 = Sequence::fromVector(LowLevelParser::getSequence(s1, pos));
             if (!seq1.isValid())
                 throw InvalidResponseCode("Malformed COPYUID: cannot extract the first sequence", line, start);
             if (pos != s1.size())
                 throw InvalidResponseCode("Malformed COPYUID: garbage found after the first sequence", line, start);
             pos = 0;
             QByteArray s2 = originalList[3].toByteArray();
-            Sequence seq2 = Sequence::fromList(LowLevelParser::getSequence(s2, pos));
+            Sequence seq2 = Sequence::fromVector(LowLevelParser::getSequence(s2, pos));
             if (!seq2.isValid())
                 throw InvalidResponseCode("Malformed COPYUID: cannot extract the second sequence", line, start);
             if (pos != s2.size())
@@ -748,7 +748,7 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
 
                 uint offset = LowLevelParser::getUInt(line, start);
                 LowLevelParser::eatSpaces(line, start);
-                QList<uint> uids = LowLevelParser::getSequence(line, start);
+                auto uids = LowLevelParser::getSequence(line, start);
 
                 incrementalContextData.push_back(ContextIncrementalItem(
                                                      (label == "ADDTO" ?
@@ -788,11 +788,11 @@ ESearch::ESearch(const QByteArray &line, int &start): seqOrUids(SEQUENCE)
         } else {
             // A generic case: be prepapred to accept a (sequence of) numbers
 
-            QList<uint> numbers = LowLevelParser::getSequence(line, start);
+            auto numbers = LowLevelParser::getSequence(line, start);
             // There's no syntactic difference between a single-item sequence set and one number, which is why we always parse
             // such "sequences" as full blown sequences. That's better than deal with two nasties of the ListData_t kind -- one such
             // beast is more than enough, IMHO.
-            listData.push_back(qMakePair<QByteArray, QList<uint> >(label, numbers));
+            listData.push_back(qMakePair<>(label, numbers));
 
             LowLevelParser::eatSpaces(line, start);
         }
@@ -1155,7 +1155,7 @@ QTextStream &Flags::dump(QTextStream &stream) const
 QTextStream &Search::dump(QTextStream &stream) const
 {
     stream << "SEARCH";
-    for (QList<uint>::const_iterator it = items.begin(); it != items.end(); ++it)
+    for (auto it = items.begin(); it != items.end(); ++it)
         stream << " " << *it;
     return stream;
 }
@@ -1237,7 +1237,7 @@ QTextStream &Namespace::dump(QTextStream &stream) const
 QTextStream &Sort::dump(QTextStream &stream) const
 {
     stream << "SORT ";
-    for (QList<uint>::const_iterator it = numbers.begin(); it != numbers.end(); ++it)
+    for (auto it = numbers.begin(); it != numbers.end(); ++it)
         stream << " " << *it;
     return stream;
 }

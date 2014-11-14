@@ -218,7 +218,7 @@ ImapMessageAttachmentItem::ImapMessageAttachmentItem(Model *model, const QString
     if (mboxPtr->syncState.uidValidity() != uidValidity)
         throw Imap::UnknownMessageIndex("UIDVALIDITY mismatch");
 
-    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
+    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, Imap::Uids() << uid);
     if (messages.isEmpty())
         throw Imap::UnknownMessageIndex("No such UID");
 
@@ -336,7 +336,7 @@ ImapPartAttachmentItem::ImapPartAttachmentItem(Model *model, const QString &mail
     if (mboxPtr->syncState.uidValidity() != uidValidity)
         throw Imap::UnknownMessageIndex("UIDVALIDITY mismatch");
 
-    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, QList<uint>() << uid);
+    QList<TreeItemMessage*> messages = model->findMessagesByUids(mboxPtr, Imap::Uids() << uid);
     if (messages.isEmpty())
         throw Imap::UnknownMessageIndex("UID not found");
 

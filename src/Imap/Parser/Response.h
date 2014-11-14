@@ -33,6 +33,7 @@
 #include "../Exceptions.h"
 #include "Data.h"
 #include "ThreadingNode.h"
+#include "Uids.h"
 
 #ifdef _MSC_VER
 // Disable warnings about throw/nothrow
@@ -395,9 +396,9 @@ class Search : public AbstractResponse
 {
 public:
     /** @short List of matching messages */
-    QList<uint> items;
+    Uids items;
     Search(const QByteArray &line, int &start);
-    Search(const QList<uint> &items) : items(items) {};
+    Search(const Uids &items) : items(items) {};
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
@@ -415,7 +416,7 @@ public:
     } SequencesOrUids;
 
     /** @short Convenience typedef for the received data of the list type */
-    typedef QList<QPair<QByteArray, QList<uint> > > ListData_t;
+    typedef QVector<QPair<QByteArray, Uids>> ListData_t;
 
     /** @short Compare identifiers of the ListData_t list */
     template <typename T>
@@ -459,9 +460,9 @@ public:
         uint offset;
 
         /** @short Sequence of UIDs to apply */
-        QList<uint> uids;
+        Uids uids;
 
-        ContextIncrementalItem(const Modification modification, const uint offset, const QList<uint> &uids):
+        ContextIncrementalItem(const Modification modification, const uint offset, const Uids &uids):
             modification(modification), offset(offset), uids(uids) {}
 
         bool operator==(const ContextIncrementalItem &other) const {
@@ -577,9 +578,9 @@ class Sort : public AbstractResponse
 {
 public:
     /** @short List of sequence/UID numbers as returned by the server */
-    QList<uint> numbers;
+    Uids numbers;
     Sort(const QByteArray &line, int &start);
-    Sort(const QList<uint> &items): numbers(items) {}
+    Sort(const Uids &items): numbers(items) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
@@ -633,9 +634,9 @@ class Vanished: public AbstractResponse
 public:
     typedef enum {EARLIER, NOT_EARLIER} EarlierOrNow;
     EarlierOrNow earlier;
-    QList<uint> uids;
+    Uids uids;
     Vanished(const QByteArray &line, int &start);
-    Vanished(EarlierOrNow earlier, const QList<uint> &uids): earlier(earlier), uids(uids) {}
+    Vanished(EarlierOrNow earlier, const Uids &uids): earlier(earlier), uids(uids) {}
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;

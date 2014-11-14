@@ -294,7 +294,7 @@ bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
         return false;
     }
 
-    QList<uint> uids;
+    Imap::Uids uids;
     stream >> uids;
 
     static_cast<Model *>(sourceModel())->copyMoveMessages(origMbox, target->mailbox(), uids,

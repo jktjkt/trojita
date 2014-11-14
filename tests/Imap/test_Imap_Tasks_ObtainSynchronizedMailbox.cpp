@@ -301,7 +301,7 @@ void ImapModelObtainSynchronizedMailboxTest::testDecreasedUidNext()
 
     // Now perform the nasty change...
     --existsA;
-    uidMapA.removeLast();
+    uidMapA.pop_back();
     --uidNextA;
 
     // ...and resync again, this should scream loud, but not crash
@@ -310,6 +310,113 @@ void ImapModelObtainSynchronizedMailboxTest::testDecreasedUidNext()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     helperSyncAFullSync();
+}
+
+/** @short Synchronization when the server doesn't report UIDNEXT at all */
+void ImapModelObtainSynchronizedMailboxTest::helperMissingUidNext(const MessageNumberChange mode)
+{
+    Imap::Mailbox::SyncState oldState;
+    oldState.setExists(3);
+    oldState.setUidValidity(666);
+    oldState.setUidNext(10); // because Trojita's code computes this during points in time the view is fully synced
+    oldState.setUnSeenCount(0);
+    oldState.setRecent(0);
+    model->cache()->setMailboxSyncState(QLatin1String("a"), oldState);
+    model->cache()->setUidMapping(QLatin1String("a"), Imap::Uids() << 4 << 6 << 7);
+
+    QSignalSpy rowsInserted(model, SIGNAL(rowsInserted(QModelIndex,int,int)));
+    QSignalSpy rowsRemoved(model, SIGNAL(rowsRemoved(QModelIndex,int,int)));
+
+    model->switchToMailbox(idxA);
+    cClient(t.mk("SELECT a\r\n"));
+    // prepopulation from cache should be ignored
+    QCOMPARE(rowsInserted.size(), 1);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    QCOMPARE(rowsInserted[0], QVariantList() << QModelIndex(msgListA) << 0 << 2);
+#else
+    // Direct initialization from QPersistentModelIndex fails on Qt4, and the comparison is all wonky, too
+    QCOMPARE(rowsInserted[0].size(), 3);
+    QCOMPARE(rowsInserted[0][0].value<QModelIndex>(), QModelIndex(msgListA));
+    QCOMPARE(rowsInserted[0][1], QVariant::fromValue(0));
+    QCOMPARE(rowsInserted[0][2], QVariant::fromValue(2));
+#endif
+    rowsInserted.clear();
+    QVERIFY(rowsRemoved.isEmpty());
+    switch (mode) {
+    case MessageNumberChange::LESS:
+        cServer("* 2 EXISTS\r\n");
+        break;
+    case MessageNumberChange::MORE:
+        cServer("* 4 EXISTS\r\n");
+        break;
+    case MessageNumberChange::SAME:
+        cServer("* 3 EXISTS\r\n");
+        break;
+    }
+    cServer("* 0 RECENT\r\n"
+            "* OK [UIDVALIDITY 666] UIDs valid\r\n"
+            + t.last("OK selected\r\n"));
+    QVERIFY(rowsRemoved.isEmpty());
+    QVERIFY(rowsInserted.isEmpty());
+    cClient(t.mk("UID SEARCH ALL\r\n"));
+    // the actual UID data is garbage and not needed
+    switch (mode) {
+    case MessageNumberChange::LESS:
+        cServer("* SEARCH 5 9\r\n");
+        break;
+    case MessageNumberChange::MORE:
+        cServer("* SEARCH 5 8 7 9\r\n");
+        break;
+    case MessageNumberChange::SAME:
+        cServer("* SEARCH 5 8 9\r\n");
+        break;
+    }
+    cServer(t.last("OK search\r\n"));
+    switch (mode) {
+    case MessageNumberChange::LESS:
+        cClient(t.mk("FETCH 1:2 (FLAGS)\r\n"));
+        break;
+    case MessageNumberChange::MORE:
+        cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
+        break;
+    case MessageNumberChange::SAME:
+        cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
+        break;
+    }
+    cServer("* 1 FETCH (FLAGS (\\Seen))\r\n"
+            "* 2 FETCH (FLAGS (\\Seen))\r\n");
+    switch (mode) {
+    case MessageNumberChange::LESS:
+        oldState.setExists(2);
+        break;
+    case MessageNumberChange::MORE:
+        cServer("* 3 FETCH (FLAGS (\\Seen))\r\n"
+                "* 4 FETCH (FLAGS (\\Seen))\r\n");
+        oldState.setExists(4);
+        break;
+    case MessageNumberChange::SAME:
+        cServer("* 3 FETCH (FLAGS (\\Seen))\r\n");
+        break;
+    }
+    cServer(t.last("OK fetch\r\n"));
+    cEmpty();
+    justKeepTask();
+    QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("a")), oldState);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testMisingUidNextLess()
+{
+    helperMissingUidNext(MessageNumberChange::LESS);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testMisingUidNextMore()
+{
+    helperMissingUidNext(MessageNumberChange::MORE);
+}
+
+void ImapModelObtainSynchronizedMailboxTest::testMisingUidNextSame()
+{
+    helperMissingUidNext(MessageNumberChange::SAME);
 }
 
 /**
@@ -457,7 +564,7 @@ void ImapModelObtainSynchronizedMailboxTest::testReloadReadsFromCache()
     sync.setExists(3);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -493,7 +600,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheNoChange()
     sync.setUidNext(15);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -525,7 +632,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
     sync.setExists(3);
     sync.setUidValidity(333);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
 
     // Fill the cache with some values which shall make sense in the "previous state"
@@ -594,7 +701,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivals()
     sync.setExists(3);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -654,7 +761,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheArrivalRaceDuringUid(con
     sync.setExists(3);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -707,7 +814,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringUid2()
     sync.setExists(3);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -759,7 +866,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalRaceDuringFlags()
     sync.setExists(3);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -827,7 +934,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheExpunges(const ESearchMo
     sync.setExists(6);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10 << 11 << 12 << 14;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -846,7 +953,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheExpunges(const ESearchMo
         cServer("* SEARCH 6 10 11 12 14\r\n");
     }
     cServer(t.last("OK uids\r\n"));
-    uidMap.removeAt(1);
+    uidMap.remove(1);
     sync.setExists(5);
     sync.setUnSeenCount(5);
     sync.setRecent(0);
@@ -879,7 +986,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid()
     sync.setExists(6);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10 << 11 << 12 << 14;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -893,8 +1000,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid()
     cClient(t.mk("UID SEARCH ALL\r\n"));
     cServer("* 4 EXPUNGE\r\n* SEARCH 6 10 11 14\r\n");
     cServer(t.last("OK uids\r\n"));
-    uidMap.removeAt(1);
-    uidMap.removeAt(3);
+    uidMap.remove(1);
+    uidMap.remove(3);
     sync.setExists(4);
     sync.setUnSeenCount(4);
     sync.setRecent(0);
@@ -926,7 +1033,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid2()
     sync.setExists(6);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10 << 11 << 12 << 14;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -940,8 +1047,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringUid2()
     cClient(t.mk("UID SEARCH ALL\r\n"));
     cServer("* SEARCH 6 10 11 12 14\r\n* 4 EXPUNGE\r\n");
     cServer(t.last("OK uids\r\n"));
-    uidMap.removeAt(1);
-    uidMap.removeAt(3);
+    uidMap.remove(1);
+    uidMap.remove(3);
     sync.setExists(4);
     sync.setUnSeenCount(4);
     sync.setRecent(0);
@@ -973,7 +1080,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringSelect()
     sync.setExists(6);
     sync.setUidValidity(666);
     sync.setUidNext(15);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10 << 11 << 12 << 14;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -988,8 +1095,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringSelect()
     cClient(t.mk("UID SEARCH ALL\r\n"));
     cServer("* SEARCH 6 10 11 14\r\n");
     cServer(t.last("OK uids\r\n"));
-    uidMap.removeAt(1);
-    uidMap.removeAt(3);
+    uidMap.remove(1);
+    uidMap.remove(3);
     sync.setExists(4);
     cClient(t.mk("FETCH 1:4 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
@@ -1023,7 +1130,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringFlags()
     sync.setUidNext(15);
     sync.setUnSeenCount(6);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10 << 11 << 12 << 14;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1037,7 +1144,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringFlags()
     cClient(t.mk("UID SEARCH ALL\r\n"));
     cServer("* SEARCH 6 10 11 12 14\r\n");
     cServer(t.last("OK uids\r\n"));
-    uidMap.removeAt(1);
+    uidMap.remove(1);
     sync.setExists(5);
     cClient(t.mk("FETCH 1:5 (FLAGS)\r\n"));
     cServer("* 1 FETCH (FLAGS (x))\r\n"
@@ -1047,7 +1154,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheExpungesDuringFlags()
             "* 4 FETCH (FLAGS (c))\r\n"
             );
     cServer(t.last("OK fetch\r\n"));
-    uidMap.removeAt(3);
+    uidMap.remove(3);
     sync.setExists(4);
     sync.setUnSeenCount(4);
     cEmpty();
@@ -1073,7 +1180,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsImmediatelyDeleted
     sync.setUidNext(15);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1115,7 +1222,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsOldDeleted()
     sync.setUidNext(15);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1129,7 +1236,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsOldDeleted()
     cServer("* 3 EXPUNGE\r\n* SEARCH 33\r\n");
     cServer(t.last("OK uids\r\n"));
     sync.setUidNext(34);
-    uidMap.removeAt(2);
+    uidMap.remove(2);
     uidMap << 33;
     sync.setExists(3);
     cClient(t.mk("FETCH 1:3 (FLAGS)\r\n"));
@@ -1157,7 +1264,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsThenDynamic()
     sync.setExists(10);
     sync.setUidValidity(666);
     sync.setUidNext(100);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     for (uint i = 1; i <= sync.exists(); ++i)
         uidMap << i;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1183,18 +1290,18 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheArrivalsThenDynamic()
     cServer("* SEARCH 102 103 104 105 106\r\n");
     cServer(t.last("OK uids\r\n"));
     // That's the last of the previously known, the first "10 EXPUNGE"
-    uidMap.removeAt(9);
+    uidMap.remove(9);
     // the second "10 EXPUNGE" is not reflected here at all, as it's for the new arrivals
     // This one is for the "3 EXPUNGE"
-    uidMap.removeAt(2);
+    uidMap.remove(2);
     uidMap << 102 << 103 << 104 << 105 << 106;
     sync.setUidNext(107);
     sync.setExists(13);
     cClient(t.mk("FETCH 1:13 (FLAGS)\r\n"));
     cServer("* 2 EXPUNGE\r\n");
-    uidMap.removeAt(1);
+    uidMap.remove(1);
     cServer("* 12 EXPUNGE\r\n");
-    uidMap.removeAt(11);
+    uidMap.remove(11);
     sync.setExists(11);
     cServer("* 1 FETCH (FLAGS (x))\r\n"
             "* 2 FETCH (FLAGS (y))\r\n"
@@ -1254,7 +1361,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheDeletionsThenDynamic()
     sync.setExists(10);
     sync.setUidValidity(666);
     sync.setUidNext(100);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     for (uint i = 1; i <= sync.exists(); ++i)
         uidMap << i;
     model->cache()->setMailboxSyncState("a", sync);
@@ -1291,7 +1398,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheDeletionsThenDynamic()
     sync.setExists(7);
     cClient(t.mk("FETCH 1:7 (FLAGS)\r\n"));
     cServer("* 2 EXPUNGE\r\n");
-    uidMap.removeAt(1);
+    uidMap.remove(1);
     sync.setExists(6);
     cServer("* 1 FETCH (FLAGS (f1))\r\n"
             "* 2 FETCH (FLAGS (f6))\r\n"
@@ -1345,7 +1452,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreNoChanges()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1382,7 +1489,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreChangedFlags()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1424,7 +1531,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorExists()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1476,7 +1583,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreErrorUidNext()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1522,7 +1629,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreUidValidity()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1567,7 +1674,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreDecreasedHighestModSeq
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1636,7 +1743,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheDiscrepancyExistsUids(bo
     sync.setUidValidity(666);
     sync.setUidNext(10);
     sync.setHighestModSeq(111);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 5 << 6 << 7 << 8;
     model->cache()->setMailboxSyncState(QLatin1String("a"), sync);
     model->cache()->setUidMapping(QLatin1String("a"), uidMap);
@@ -1677,7 +1784,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperTestQresyncNoChanges(ModeForH
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1726,7 +1833,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1773,7 +1880,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncVanishedEarlier()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1793,7 +1900,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncVanishedEarlier()
     sync.setHighestModSeq(36);
     sync.setExists(2);
     sync.setUnSeenCount(2);
-    uidMap.removeOne(9);
+    uidMap.remove(uidMap.indexOf(9));
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
@@ -1815,7 +1922,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUidValidity()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1862,7 +1969,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncNoModseqChangedFlags()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1905,7 +2012,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncErrorExists()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1956,7 +2063,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncErrorUidNext()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -2002,7 +2109,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUnreportedNewArrivals()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -2048,7 +2155,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncReportedNewArrivals()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -2096,7 +2203,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncDeletionsNewArrivals()
     sync.setHighestModSeq(10);
     sync.setUnSeenCount(5);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 1 << 2 << 3 << 4 << 5;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -2116,9 +2223,9 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncDeletionsNewArrivals()
             "* 4 FETCH (UID 7 FLAGS (7))\r\n"
             "* 5 FETCH (UID 8 FLAGS (8))\r\n"
             );
-    uidMap.removeOne(1);
-    uidMap.removeOne(2);
-    uidMap.removeOne(3);
+    uidMap.remove(uidMap.indexOf(1));
+    uidMap.remove(uidMap.indexOf(2));
+    uidMap.remove(uidMap.indexOf(3));
     uidMap << 6 << 7 << 8;
     QCOMPARE(model->rowCount(msgListA), 5);
     cServer(t.last("OK selected\r\n"));
@@ -2199,7 +2306,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     sync.setUidNext(1216);
     // unseen count is computed, too
     sync.setUnSeenCount(2);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 1212 << 1214 << 1215;
 
     QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
@@ -2225,6 +2332,8 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
             );
     QCOMPARE(model->rowCount(msgListA), 3);
     cServer(t.last("OK selected\r\n"));
+    // At this point, there's no need for nuking the cache (yet).
+    QCOMPARE(model->cache()->messagePart("a", 1212, QByteArray()), QByteArray("foo"));
     // The UIDNEXT is missing -> resyncing the UIDs again
     cClient(t.mk("UID SEARCH ALL\r\n"));
     cServer("* SEARCH 1212 1214 1215\r\n");
@@ -2241,9 +2350,11 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncNoUidnext()
     QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()), uidMap.size());
     QCOMPARE(model->cache()->uidMapping("a"), uidMap);
 
-    // Missing UIDNEXT is a violation of the IMAP protocol specification, we treat that like a severe error and fall back to
-    // a full synchronization which means that any cached data is discarded
-    QCOMPARE(model->cache()->messagePart("a", 1212, QByteArray()), QByteArray());
+    // While a missing UIDNEXT is an evil thing to do, the actual language in the RFC leaves some unfortunate
+    // leeway in its interpretation. As much as I would love to throw away everything, Courier's users would
+    // not be thrilled by that, so the UIDNEXT actually has to be preserved in this context.
+    //
+    // FIXME: It would be interesting to perturb the UIDs and detect *that*. However, it's outside of scope for now.
 }
 
 /** @short Test that we can open a mailbox using just the cached data when offline */
@@ -2259,7 +2370,7 @@ void ImapModelObtainSynchronizedMailboxTest::testOfflineOpening()
     sync.setUidValidity(333);
     sync.setRecent(0);
     sync.setUidNext(666);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 10 << 20 << 30;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -2360,7 +2471,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncSpuriousVanishedEarlier(
     // and just for fun: introduce garbage to the cache, muhehe
     sync.setUnSeenCount(10);
     sync.setRecent(10);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
     model->resyncMailbox(idxA);
@@ -2399,7 +2510,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncAfterEmpty()
     sync.setUidNext(1);
     sync.setHighestModSeq(1);
     model->cache()->setMailboxSyncState("a", sync);
-    model->cache()->setUidMapping("a", QList<uint>());
+    model->cache()->setUidMapping("a", Imap::Uids());
     model->resyncMailbox(idxA);
     cClient(t.mk("SELECT a (QRESYNC (1336686200 1))\r\n"));
     cServer("* 6 EXISTS\r\n"

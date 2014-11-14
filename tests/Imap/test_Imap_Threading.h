@@ -44,9 +44,11 @@ private slots:
     void testIncrementalThreading();
     void testRemovingRootWithThreadingInFlight();
     void testMultipleExpunges();
+    void testVanishedHierarchyReplacement();
     void testThreadingPerformance();
     void testSortingPerformance();
     void testSearchingPerformance();
+    void testFlatThreadDeletionPerformance();
 
     void helper_multipleExpunges();
 protected slots:
@@ -60,9 +62,7 @@ private:
     IndexMapping buildIndexMap(const Mapping &mapping);
     void verifyIndexMap(const IndexMapping &indexMap, const Mapping &map);
     QByteArray treeToThreading(QModelIndex index);
-    QByteArray numListToString(const QList<uint> &seq);
-
-    template<typename T> void reverseContainer(T &container);
+    QByteArray numListToString(const Imap::Uids &seq);
 
     QPersistentModelIndex helper_indexMultipleExpunges_1;
     int helper_multipleExpunges_hit;

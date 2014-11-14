@@ -170,7 +170,7 @@ public slots:
     void applyThreading(const QVector<Imap::Responses::ThreadingNode> &mapping);
 
     /** @short SORT response has arrived */
-    void slotSortingAvailable(const QList<uint> &uids);
+    void slotSortingAvailable(const Imap::Uids &uids);
 
     /** @short SORT has failed */
     void slotSortingFailed();
@@ -300,7 +300,7 @@ private:
 
     This variable holds the UIDs of all messages in this mailbox, sorted according to the current sorting criteria.
     */
-    QList<uint> m_currentSortResult;
+    Imap::Uids m_currentSortResult;
 
     /** @short Is the cached result of SEARCH/SORT fresh enough? */
     typedef enum {

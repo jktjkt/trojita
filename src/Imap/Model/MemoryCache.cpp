@@ -66,7 +66,7 @@ void MemoryCache::setMailboxSyncState(const QString &mailbox, const SyncState &s
     syncState[mailbox] = state;
 }
 
-void MemoryCache::setUidMapping(const QString &mailbox, const QList<uint> &mapping)
+void MemoryCache::setUidMapping(const QString &mailbox, const Imap::Uids &mapping)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "saving UID mapping for" << mailbox << "to" << mapping;
@@ -136,9 +136,9 @@ QStringList MemoryCache::msgFlags(const QString &mailbox, const uint uid) const
     return flags[mailbox][uid];
 }
 
-QList<uint> MemoryCache::uidMapping(const QString &mailbox) const
+Imap::Uids MemoryCache::uidMapping(const QString &mailbox) const
 {
-    return seqToUid[ mailbox ];
+    return seqToUid[mailbox];
 }
 
 void MemoryCache::setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata)

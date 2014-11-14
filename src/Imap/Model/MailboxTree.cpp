@@ -595,15 +595,16 @@ void TreeItemMailbox::handleExpunge(Model *const model, const Responses::NumberR
         --static_cast<TreeItemMessage *>(list->m_children[i])->m_offset;
     }
     model->endRemoveRows();
-    delete message;
 
     --list->m_totalMessageCount;
-    list->recalcVariousMessageCounts(const_cast<Model *>(model));
+    list->recalcVariousMessageCountsOnExpunge(const_cast<Model *>(model), message);
 
-    if (list->accessFetchStatus() == DONE) {
-        // Previously, we were synced, so we got to save this update
-        saveSyncStateAndUids(model);
-    }
+    delete message;
+
+    // The UID map is not synced at this time, though, and we defer a decision on when to do this to the context
+    // of the task which invoked this method. The idea is that this task has a better insight for potentially
+    // batching these changes to prevent useless hammering of the saveUidMap() etc.
+    // Previously, the code would simetimes do this twice in a row, which is kinda suboptimal...
 }
 
 void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanished &resp)
@@ -612,7 +613,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
     Q_ASSERT(list);
     QModelIndex listIndex = list->toIndex(model);
 
-    QList<uint> uids = resp.uids;
+    auto uids = resp.uids;
     qSort(uids);
     // Remove duplicates -- even that garbage can be present in a perfectly valid VANISHED :(
     uids.erase(std::unique(uids.begin(), uids.end()), uids.end());
@@ -621,7 +622,8 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
     while (!uids.isEmpty()) {
         // We have to process each UID separately because the UIDs in the mailbox are not necessarily present
         // in a continuous range; zeros might be present
-        uint uid = uids.takeLast();
+        uint uid = uids.last();
+        uids.pop_back();
 
         if (uid == 0) {
             qDebug() << "VANISHED informs about removal of UID zero...";
@@ -929,16 +931,37 @@ void TreeItemMsgList::recalcVariousMessageCounts(Model *model)
     m_recentMessageCount = 0;
     for (int i = 0; i < m_children.size(); ++i) {
         TreeItemMessage *message = static_cast<TreeItemMessage *>(m_children[i]);
+        bool isRead, isRecent;
+        message->checkFlagsReadRecent(isRead, isRecent);
         if (!message->m_flagsHandled)
-            message->m_wasUnread = ! message->isMarkedAsRead();
+            message->m_wasUnread = ! isRead;
         message->m_flagsHandled = true;
-        if (! message->isMarkedAsRead())
+        if (!isRead)
             ++m_unreadMessageCount;
-        if (message->isMarkedAsRecent())
+        if (isRecent)
             ++m_recentMessageCount;
     }
     m_totalMessageCount = m_children.size();
     m_numberFetchingStatus = DONE;
+    model->emitMessageCountChanged(static_cast<TreeItemMailbox *>(parent()));
+}
+
+void TreeItemMsgList::recalcVariousMessageCountsOnExpunge(Model *model, TreeItemMessage *expungedMessage)
+{
+    if (m_numberFetchingStatus != DONE) {
+        // In case the counts weren't synced before, we cannot really rely on them now -> go to the slow path
+        recalcVariousMessageCounts(model);
+        return;
+    }
+
+    bool isRead, isRecent;
+    expungedMessage->checkFlagsReadRecent(isRead, isRecent);
+    if (expungedMessage->m_flagsHandled) {
+        if (!isRead)
+            --m_unreadMessageCount;
+        if (isRecent)
+            --m_recentMessageCount;
+    }
     model->emitMessageCountChanged(static_cast<TreeItemMailbox *>(parent()));
 }
 
@@ -1187,34 +1210,66 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     }
 }
 
+namespace {
+
+/** @short Find a string based on d-ptr equality
+
+This works because our flags always use implicit sharing. If they didn't use that, this method wouldn't work.
+*/
+bool containsStringByDPtr(const QStringList &haystack, const QString &needle)
+{
+    const auto sentinel = const_cast<QString&>(needle).data_ptr();
+    Q_FOREACH(const auto &item, haystack) {
+        if (const_cast<QString&>(item).data_ptr() == sentinel)
+            return true;
+    }
+    return false;
+}
+
+}
+
 bool TreeItemMessage::isMarkedAsDeleted() const
 {
-    return m_flags.contains(FlagNames::deleted);
+    return containsStringByDPtr(m_flags, FlagNames::deleted);
 }
 
 bool TreeItemMessage::isMarkedAsRead() const
 {
-    return m_flags.contains(FlagNames::seen);
+    return containsStringByDPtr(m_flags, FlagNames::seen);
 }
 
 bool TreeItemMessage::isMarkedAsReplied() const
 {
-    return m_flags.contains(FlagNames::answered);
+    return containsStringByDPtr(m_flags, FlagNames::answered);
 }
 
 bool TreeItemMessage::isMarkedAsForwarded() const
 {
-    return m_flags.contains(FlagNames::forwarded);
+    return containsStringByDPtr(m_flags, FlagNames::forwarded);
 }
 
 bool TreeItemMessage::isMarkedAsRecent() const
 {
-    return m_flags.contains(FlagNames::recent);
+    return containsStringByDPtr(m_flags, FlagNames::recent);
 }
 
 bool TreeItemMessage::isMarkedAsFlagged() const
 {
-    return m_flags.contains(FlagNames::flagged);
+    return containsStringByDPtr(m_flags, FlagNames::flagged);
+}
+
+void TreeItemMessage::checkFlagsReadRecent(bool &isRead, bool &isRecent) const
+{
+    const auto dRead = const_cast<QString&>(FlagNames::seen).data_ptr();
+    const auto dRecent = const_cast<QString&>(FlagNames::recent).data_ptr();
+    auto end = m_flags.end();
+    auto it = m_flags.begin();
+    isRead = isRecent = false;
+    while (it != end && !(isRead && isRecent)) {
+        isRead |= const_cast<QString&>(*it).data_ptr() == dRead;
+        isRecent |= const_cast<QString&>(*it).data_ptr() == dRecent;
+        ++it;
+    }
 }
 
 uint TreeItemMessage::uid() const

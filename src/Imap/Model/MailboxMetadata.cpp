@@ -45,6 +45,11 @@ bool SyncState::isUsableForSyncing() const
     return m_hasExists && m_hasUidNext && m_hasUidValidity;
 }
 
+bool SyncState::isUsableForSyncingWithoutUidNext() const
+{
+    return m_hasExists && m_hasUidValidity;
+}
+
 bool SyncState::isUsableForCondstore() const
 {
     return m_hasHighestModSeq && highestModSeq() > 0 && isUsableForSyncing();

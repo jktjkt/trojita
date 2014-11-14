@@ -276,6 +276,53 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
 
     // Test new arrivals
     QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(3)");
+
+}
+
+/** @short Test deletion of several nodes at once resulting in child promotion
+
+There was a bug in https://gerrit.vesnicky.cesnet.cz/r/#/c/153/1, an assert failure at src/Imap/Model/ThreadingMsgListModel.cpp:1117.
+The bug happened because an initial version of that patch failed to fix the other part of an if branch, a place where the old code
+assumed that all other thread nodes had their offsets already fixed.
+
+Testing this with Qt5 is not easy, though, due to the random iteration order of QHash which is used within the ThreadingMsgListModel.
+What we're looking for is a situation where a non-leaf node is processed by the code *after* some of its preceding siblings which
+happen to be leaves were already removed.
+*/
+void ImapModelThreadingTest::testVanishedHierarchyReplacement()
+{
+    // Initialize the same data structure as the one which is used within the ThreadingMsgListModel.
+    // We're doing this in order to be able to prepare such a sequence of keys which will trigger that
+    // particular sequence of hash traversal which we need from here.
+    decltype(threadingModel->threading) dummy;
+    for (int i = 0; i < 5; ++i) {
+        dummy[i];
+    }
+    auto keys = dummy.keys();
+    keys.removeOne(0); // but it's important that 0 was there for the actual hash iteration order
+    QCOMPARE(keys.size(), 4);
+
+    initialMessages(4);
+
+    // The threading will have to look like this one:
+    // 1
+    // 2
+    // 3
+    // +- 4
+    //
+    // ..except that the numbers above correspond to the indexes in the list of keys of the hash
+    // in the hash's iteration order, not actual UIDs.
+    QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    SOCK->fakeReading("* THREAD (" + QByteArray::number(keys[0]) + ")(" + QByteArray::number(keys[1]) + ")(" +
+            QByteArray::number(keys[2]) + ' ' + QByteArray::number(keys[3]) + ")\r\n" + t.last("OK thread\r\n"));
+    cEmpty();
+    QVERIFY(errorSpy->isEmpty());
+
+    cServer("* VANISHED " + QByteArray::number(keys[0]) + ',' + QByteArray::number(keys[1]) + ',' + QByteArray::number(keys[2]) + "\r\n");
+    cEmpty();
+    QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(%1)").arg(keys[3]));
+    cEmpty();
+    QVERIFY(errorSpy->isEmpty());
 }
 
 /** @short Test deletion of one message */
@@ -560,7 +607,7 @@ QByteArray ImapModelThreadingTest::treeToThreading(QModelIndex index)
 #define checkUidMapFromThreading(MAPPING) \
 { \
     QCOMPARE(threadingModel->rowCount(), MAPPING.size()); \
-    QList<uint> actual; \
+    Imap::Uids actual; \
     for (int i = 0; i < MAPPING.size(); ++i) { \
         QModelIndex messageIndex = threadingModel->index(i, 0); \
         QVERIFY(messageIndex.isValid()); \
@@ -569,18 +616,12 @@ QByteArray ImapModelThreadingTest::treeToThreading(QModelIndex index)
     QCOMPARE(actual, MAPPING); \
 }
 
-QByteArray ImapModelThreadingTest::numListToString(const QList<uint> &seq)
+QByteArray ImapModelThreadingTest::numListToString(const Imap::Uids &seq)
 {
     QStringList res;
     Q_FOREACH(const uint num, seq)
         res << QString::number(num);
     return res.join(QLatin1String(" ")).toUtf8();
-}
-
-template<typename T> void ImapModelThreadingTest::reverseContainer(T &container)
-{
-    for (int i = 0; i < container.size() / 2; ++i)
-        container.swap(i, container.size() - 1 - i);
 }
 
 /** @short Test how sorting reacts to dynamic mailbox updates and the initial sync */
@@ -602,7 +643,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -643,7 +684,7 @@ void ImapModelThreadingTest::testDynamicSorting()
 
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT);
 
-    QList<uint> expectedUidOrder;
+    Imap::Uids expectedUidOrder;
 
     // suppose subjects are "qt", "trojita" and "mail"
     expectedUidOrder << 10 << 6 << 9;
@@ -661,7 +702,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     // Sort by the same criteria, but in a reversed order
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::DescendingOrder);
     cEmpty();
-    reverseContainer(expectedUidOrder);
+    std::reverse(expectedUidOrder.begin(), expectedUidOrder.end());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 1);
@@ -671,7 +712,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     // Revert back to ascending sort
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::AscendingOrder);
     cEmpty();
-    reverseContainer(expectedUidOrder);
+    std::reverse(expectedUidOrder.begin(), expectedUidOrder.end());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 1);
@@ -682,7 +723,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_NONE, Qt::DescendingOrder);
     cEmpty();
     expectedUidOrder = uidMap;
-    reverseContainer(expectedUidOrder);
+    std::reverse(expectedUidOrder.begin(), expectedUidOrder.end());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 2);
@@ -695,7 +736,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     cServer("* 4 FETCH (UID 15 FLAGS ())\r\n" + t.last("ok fetched\r\n"));
     uidMap << 15;
     expectedUidOrder = uidMap;
-    reverseContainer(expectedUidOrder);
+    std::reverse(expectedUidOrder.begin(), expectedUidOrder.end());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 3);
@@ -703,9 +744,9 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid10.row(), 1);
     // ...and delete it again
     cServer("* VANISHED 15\r\n");
-    uidMap.removeOne(15);
+    uidMap.remove(uidMap.indexOf(15));
     expectedUidOrder = uidMap;
-    reverseContainer(expectedUidOrder);
+    std::reverse(expectedUidOrder.begin(), expectedUidOrder.end());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 2);
@@ -753,8 +794,8 @@ void ImapModelThreadingTest::testDynamicSorting()
     QCOMPARE(msgUid10.row(), 0);
     // ...and delete it again
     cServer("* VANISHED 16\r\n");
-    uidMap.removeOne(16);
-    expectedUidOrder.removeOne(16);
+    uidMap.remove(uidMap.indexOf(16));
+    expectedUidOrder.remove(expectedUidOrder.indexOf(16));
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 1);
@@ -783,7 +824,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     expectedUidOrder << 9 << 17 << 6 << 10;
     cServer("* SORT " + numListToString(expectedUidOrder) + "\r\n" + sortResp);
     // in this situation, the new arrival is not visible, unfortunately
-    expectedUidOrder.removeOne(17);
+    expectedUidOrder.remove(expectedUidOrder.indexOf(17));
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 1);
@@ -794,7 +835,7 @@ void ImapModelThreadingTest::testDynamicSorting()
     // Previously (when SORT responses weren't cached), this would require a asking for SORT once again; that is no longer
     // necessary.
     cServer(delayedUidFetch);
-    uidMap.removeOne(0);
+    uidMap.remove(uidMap.indexOf(0));
     uidMap << 17;
     // The sorted result previously didn't contain the missing UID, so we'll refill the expected order now
     expectedUidOrder.clear();
@@ -828,7 +869,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -869,7 +910,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
 
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT);
 
-    QList<uint> expectedUidOrder;
+    Imap::Uids expectedUidOrder;
 
     // suppose subjects are "qt", "trojita" and "mail"
     expectedUidOrder << 10 << 6 << 9;
@@ -888,7 +929,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     // Sort by the same criteria, but in a reversed order
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_SUBJECT, Qt::DescendingOrder);
     cEmpty();
-    reverseContainer(expectedUidOrder);
+    std::reverse(expectedUidOrder.begin(), expectedUidOrder.end());
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 1);
@@ -912,7 +953,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     // Remove one message
     cServer("* ESEARCH (TAG \"" + sortTag + "\") UID REMOVEFROM (4 9)\r\n");
     cServer("* VANISHED 9\r\n");
-    expectedUidOrder.removeOne(9);
+    expectedUidOrder.remove(expectedUidOrder.indexOf(9));
     QCOMPARE(msgUid6.data(Imap::Mailbox::RoleMessageUid).toUInt(), 6u);
     checkUidMapFromThreading(expectedUidOrder);
     QCOMPARE(msgUid6.row(), 0);
@@ -950,7 +991,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
 
     // Remove a message, now through a response without an explicit offset
     cServer("* ESEARCH (TAG \"" + sortTag + "\") UID REMOVEFROM (0 17)\r\n");
-    expectedUidOrder.removeOne(17);
+    expectedUidOrder.remove(expectedUidOrder.indexOf(17));
     checkUidMapFromThreading(expectedUidOrder);
 
     // Try to push it back now
@@ -989,7 +1030,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     sync.setHighestModSeq(33);
     sync.setUnSeenCount(3);
     sync.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", sync);
     model->cache()->setUidMapping("a", uidMap);
@@ -1031,7 +1072,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("foo"),
                                                       threadingModel->currentSortCriterium(), threadingModel->currentSortOrder());
 
-    QList<uint> expectedUidOrder;
+    Imap::Uids expectedUidOrder;
 
     expectedUidOrder << 6 << 9 << 10;
 
@@ -1203,7 +1244,7 @@ void ImapModelThreadingTest::testSearchingPerformance()
     QByteArray untaggedThread = prepareHugeUntaggedThread(num);
     cServer(untaggedThread + t.last("OK thread\r\n"));*/
 
-    QList<uint> result;
+    Imap::Uids result;
     result << 1 << 5 << 59 << 666;
     QStringList buf;
     Q_FOREACH(const int uid, result)
@@ -1372,6 +1413,45 @@ void ImapModelThreadingTest::helper_multipleExpunges()
     helper_indexMultipleExpunges_1 = findItem("2");
     QVERIFY(helper_indexMultipleExpunges_1.isValid());
     ++helper_multipleExpunges_hit;
+}
+
+/** @short Check how fast it is to delete a substantial number of e-mails from the mailbox using flat threading */
+void ImapModelThreadingTest::testFlatThreadDeletionPerformance()
+{
+    threadingModel->setUserWantsThreading(false);
+    // only send NOOPs after a day; the default timeout of two minutes is way too short for valgrind's callgrind
+    model->setProperty("trojita-imap-noop-period", 24 * 60 * 60 * 1000);
+
+    const int num = 30000; // 30k messages translate into roughly 3-5s, which is acceptable
+    initialMessages(num);
+    auto numDeletes = num / 2;
+
+    // perform the deletes in the middle
+    QByteArray deletes = ("* " + QByteArray::number(num - numDeletes - 5) + " EXPUNGE\r\n").repeated(numDeletes);
+
+    QSignalSpy layoutChanged(threadingModel, SIGNAL(layoutChanged()));
+
+    QBENCHMARK_ONCE {
+        cServer(deletes);
+        // make sure all events are delivered; the model scheduler processes them on a 100-sized chunks
+        // plus add one for actual processing of the delayed delete
+        for (auto i = 0; i < numDeletes / 100 + 1; ++i) {
+            QCoreApplication::processEvents();
+        }
+    }
+    QCOMPARE(model->rowCount(msgListB), 0);
+    QVERIFY(layoutChanged.size() >= 1);
+    QCOMPARE(threadingModel->rowCount(), num - numDeletes);
+    QCOMPARE(model->rowCount(msgListA), num - numDeletes);
+
+    // Make sure that the mailbox switchover won't cause any events to get lost.
+    // This should flush the delayed timer unconditionally.
+    cClient(t.mk("SELECT b\r\n"));
+    cServer("* 0 EXISTS\r\n* OK [UIDVALIDITY 666]  \r\n* OK [UIDNEXT 1]  \r\n" + t.last("OK selected\r\n"));
+
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState(QLatin1String("a")).exists()), num - numDeletes);
+    justKeepTask();
+    cEmpty();
 }
 
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )

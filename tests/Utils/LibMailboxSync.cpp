@@ -242,7 +242,7 @@ void LibMailboxSync::helperFakeUidSearch( uint start )
     ss << "* SEARCH";
 
     // Try to be nasty and confuse the model with out-of-order UIDs
-    QList<uint> shuffledMap = uidMapA;
+    Imap::Uids shuffledMap = uidMapA;
     if ( shuffledMap.size() > 2 )
         qSwap(shuffledMap[0], shuffledMap[2]);
 
@@ -622,7 +622,7 @@ void LibMailboxSync::helperQresyncAInitial(Imap::Mailbox::SyncState &syncState)
     syncState.setHighestModSeq(33);
     syncState.setUnSeenCount(3);
     syncState.setRecent(0);
-    QList<uint> uidMap;
+    Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
     model->cache()->setMailboxSyncState("a", syncState);
     model->cache()->setUidMapping("a", uidMap);

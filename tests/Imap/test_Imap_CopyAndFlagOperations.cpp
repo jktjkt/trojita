@@ -81,13 +81,13 @@ void CopyAndFlagTest::helperMove(const MoveFeatures serverFeatures)
     // FIXME: this API sucks rather hard; it will have to change to use indexes at some point, if only for sanity
     auto aMailboxPtr = dynamic_cast<TreeItemMailbox *>(Model::realTreeItem(idxA));
     Q_ASSERT(aMailboxPtr);
-    model->copyMoveMessages(aMailboxPtr, QLatin1String("b"), QList<uint>() << 2, MOVE);
+    model->copyMoveMessages(aMailboxPtr, QLatin1String("b"), Imap::Uids() << 2, MOVE);
 
     if (serverFeatures == HAS_MOVE) {
         cClient(t.mk("UID MOVE 2 b\r\n"));
         cServer("* 2 EXPUNGE\r\n" + t.last("OK moved\r\n"));
         --existsA;
-        uidMapA.removeAt(1);
+        uidMapA.remove(1);
         helperCheckCache();
         helperVerifyUidMapA();
         Q_FOREACH(const auto uid, uidMapA) {
@@ -105,7 +105,7 @@ void CopyAndFlagTest::helperMove(const MoveFeatures serverFeatures)
             cClient(t.mk("UID EXPUNGE 2\r\n"));
             cServer("* 2 EXPUNGE\r\n" + t.last("OK expunged\r\n"));
             --existsA;
-            uidMapA.removeAt(1);
+            uidMapA.remove(1);
             helperCheckCache();
             helperVerifyUidMapA();
             Q_FOREACH(const auto uid, uidMapA) {

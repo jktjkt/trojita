@@ -366,14 +366,14 @@ QVariant getAnything(const QByteArray &line, int &start)
     }
 }
 
-QList<uint> getSequence(const QByteArray &line, int &start)
+Imap::Uids getSequence(const QByteArray &line, int &start)
 {
     uint num = LowLevelParser::getUInt(line, start);
     if (start >= line.size() - 2) {
         // It's definitely just a number because there's no more data in here
-        return QList<uint>() << num;
+        return Imap::Uids() << num;
     } else {
-        QList<uint> numbers;
+        Imap::Uids numbers;
         numbers << num;
 
         enum {COMMA, RANGE} currentType = COMMA;

@@ -95,6 +95,7 @@ public:
       crap like RECENT.
     */
     bool isUsableForSyncing() const;
+    bool isUsableForSyncingWithoutUidNext() const;
 
     bool isUsableForCondstore() const;
 

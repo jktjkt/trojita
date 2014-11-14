@@ -85,8 +85,8 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new Flags( QStringList( "\\Seen" ) ) );
 
     QTest::newRow( "search" ) <<
-        respPtr( new Search( QList<uint>() << 333 ) ) <<
-        respPtr( new Search( QList<uint>() << 333 ) );
+        respPtr( new Search(Imap::Uids() << 333)) <<
+        respPtr( new Search(Imap::Uids() << 333));
 
     ESearch::ListData_t emptyEsearchList;
     QTest::newRow("esearch") <<
@@ -114,8 +114,8 @@ void ImapResponsesTest::testCompareEq_data()
         respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
                     QList<NamespaceData>() ) );
 
-    QTest::newRow( "sort-empty" ) << respPtr( new Sort( QList<uint>() ) ) << respPtr( new Sort( QList<uint>() ) );
-    QTest::newRow( "sort-1" ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) );
+    QTest::newRow( "sort-empty" ) << respPtr(new Sort(Imap::Uids())) << respPtr(new Sort(Imap::Uids()));
+    QTest::newRow( "sort-1" ) << respPtr(new Sort(Imap::Uids() << 3 << 6)) << respPtr(new Sort(Imap::Uids() << 3 << 6));
 
     ThreadingNode node;
     node.num = 666;
@@ -223,8 +223,8 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr( new Flags( QStringList("666") ) );
 
     QTest::newRow( "search" ) <<
-        respPtr( new Search( QList<uint>() << 333 ) ) <<
-        respPtr( new Search( QList<uint>() << 666 ) );
+        respPtr( new Search(Imap::Uids() << 333)) <<
+        respPtr( new Search(Imap::Uids() << 666));
 
     ESearch::ListData_t emptyEsearchResp;
     QTest::newRow("esearch-tag") <<
@@ -236,7 +236,7 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr(new ESearch("t1", ESearch::SEQUENCE, emptyEsearchResp));
 
     ESearch::ListData_t dummyESearch1;
-    dummyESearch1.push_back(qMakePair<QByteArray, QList<uint> >("foo", QList<uint>() << 666));
+    dummyESearch1.push_back(qMakePair<>(QByteArray("foo"), Imap::Uids() << 666));
 
     QTest::newRow("esearch-listdata") <<
         respPtr(new ESearch("t1", ESearch::UIDS, dummyESearch1)) <<
@@ -274,9 +274,9 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
                     QList<NamespaceData>() ) );
 
-    QTest::newRow( "sort-empty-1" ) << respPtr( new Sort( QList<uint>() ) ) << respPtr( new Sort( QList<uint>() << 3 ) );
-    QTest::newRow( "sort-empty-2" ) << respPtr( new Sort( QList<uint>() << 6 ) ) << respPtr( new Sort( QList<uint>() ) );
-    QTest::newRow( "sort-1" ) << respPtr( new Sort( QList<uint>() << 33 << 6 ) ) << respPtr( new Sort( QList<uint>() << 3 << 6 ) );
+    QTest::newRow( "sort-empty-1" ) << respPtr(new Sort(Imap::Uids())) << respPtr(new Sort(Imap::Uids() << 3));
+    QTest::newRow( "sort-empty-2" ) << respPtr(new Sort(Imap::Uids() << 6)) << respPtr(new Sort(Imap::Uids()));
+    QTest::newRow( "sort-1" ) << respPtr(new Sort(Imap::Uids() << 33 << 6)) << respPtr(new Sort(Imap::Uids() << 3 << 6));
 
     ThreadingNode node( 666  );
     ThreadingNode node2( 333 );

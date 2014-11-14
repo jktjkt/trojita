@@ -197,6 +197,8 @@ private slots:
 
     void signalSyncFailure(const QString &message);
 
+    void syncingTimeout();
+
 private:
     /** @short Activate the dependent tasks while also limiting the rate */
     void activateTasks();
@@ -231,6 +233,7 @@ private:
     bool canRunIdleRightNow() const;
 
     void saveSyncStateNowOrLater(Imap::Mailbox::TreeItemMailbox *mailbox);
+    void saveSyncStateIfPossible(Imap::Mailbox::TreeItemMailbox *mailbox);
 
 protected:
     virtual void killAllPendingTasks(const QString &message);
@@ -286,7 +289,6 @@ protected:
     friend class ::ImapModelIdleTest;
     friend class ::LibMailboxSync;
 
-    QList<uint> uidMap;
     QMap<uint, QSet<QByteArray> > requestedParts;
     QMap<uint, uint> requestedPartSizes;
     /** @short UIDs of messages with pending FetchMsgMetadataTask request
@@ -294,7 +296,7 @@ protected:
     QList is used in preference to the QSet in an attempt to maintain the order of requests. Simply ordering via UID is
     not enough because of output sorting, threads etc etc.
     */
-    QList<uint> requestedEnvelopes;
+    Imap::Uids requestedEnvelopes;
 
     uint limitBytesAtOnce;
     int limitMessagesAtOnce;
@@ -303,6 +305,13 @@ protected:
 
     /** @short An UNSELECT task, if active */
     UnSelectTask *unSelectTask;
+
+    /** @short Number of skipped syncing the mailbox state since the last performed sync */
+    uint m_skippedStateSynces;
+    /** @short Number of times the sync state got saved since the last timer reset */
+    uint m_performedStateSynces;
+    /** @short Tracking time since the last reset of our counters */
+    QTimer *m_syncingTimer;
 };
 
 }

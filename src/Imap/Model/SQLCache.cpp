@@ -566,9 +566,9 @@ void SQLCache::setMailboxSyncState(const QString &mailbox, const SyncState &stat
     }
 }
 
-QList<uint> SQLCache::uidMapping(const QString &mailbox) const
+Imap::Uids SQLCache::uidMapping(const QString &mailbox) const
 {
-    QList<uint> res;
+    Imap::Uids res;
     queryUidMapping.bindValue(0, mailboxName(mailbox));
     if (! queryUidMapping.exec()) {
         emitError(tr("Query queryUidMapping failed"), queryUidMapping);
@@ -583,7 +583,7 @@ QList<uint> SQLCache::uidMapping(const QString &mailbox) const
     return res;
 }
 
-void SQLCache::setUidMapping(const QString &mailbox, const QList<uint> &seqToUid)
+void SQLCache::setUidMapping(const QString &mailbox, const Imap::Uids &seqToUid)
 {
 #ifdef CACHE_DEBUG
     qDebug() << "Setting UID mapping for" << mailbox;

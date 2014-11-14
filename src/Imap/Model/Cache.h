@@ -25,8 +25,9 @@
 
 #include <QUrl>
 #include "MailboxMetadata.h"
-#include "../Parser/Message.h"
+#include "Imap/Parser/Message.h"
 #include "Imap/Parser/ThreadingNode.h"
+#include "Imap/Parser/Uids.h"
 
 /** @short Namespace for IMAP interaction */
 namespace Imap
@@ -96,11 +97,11 @@ public:
     virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state) = 0;
 
     /** @short Store the mapping of sequence numbers to UIDs */
-    virtual void setUidMapping(const QString &mailbox, const QList<uint> &seqToUid) = 0;
+    virtual void setUidMapping(const QString &mailbox, const Imap::Uids &seqToUid) = 0;
     /** @short Forget the cached seq->UID mapping for given mailbox */
     virtual void clearUidMapping(const QString &mailbox) = 0;
     /** @short Retrieve sequence to UID mapping */
-    virtual QList<uint> uidMapping(const QString &mailbox) const = 0;
+    virtual Imap::Uids uidMapping(const QString &mailbox) const = 0;
 
     /** @short Remove all messages in given mailbox from the cache */
     virtual void clearAllMessages(const QString &mailbox) = 0;

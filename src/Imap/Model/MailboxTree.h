@@ -221,6 +221,7 @@ public:
     int recentMessageCount(Model *const model);
     void fetchNumbers(Model *const model);
     void recalcVariousMessageCounts(Model *model);
+    void recalcVariousMessageCountsOnExpunge(Model *model, TreeItemMessage *expungedMessage);
     void resetWasUnreadState();
     bool numbersFetched() const;
 };
@@ -287,6 +288,7 @@ public:
     bool isMarkedAsForwarded() const;
     bool isMarkedAsRecent() const;
     bool isMarkedAsFlagged() const;
+    void checkFlagsReadRecent(bool &isRead, bool &isRecent) const;
     uint uid() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     bool hasAttachments(Model *const model);

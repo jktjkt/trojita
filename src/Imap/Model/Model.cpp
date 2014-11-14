@@ -846,7 +846,7 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
 
     Q_ASSERT(item->m_children.size() == 0);
 
-    QList<uint> uidMapping = cache()->uidMapping(mailbox);
+    auto uidMapping = cache()->uidMapping(mailbox);
     auto oldSyncState = cache()->mailboxSyncState(mailbox);
     if (networkPolicy() == NETWORK_OFFLINE && oldSyncState.isUsableForSyncing()
             && static_cast<uint>(uidMapping.size()) != oldSyncState.exists()) {
@@ -1257,7 +1257,7 @@ void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperati
     this->setMessageFlags(messages, QLatin1String("\\Seen"), marked);
 }
 
-void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMailboxName, QList<uint> uids, const CopyMoveOperation op)
+void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMailboxName, Imap::Uids uids, const CopyMoveOperation op)
 {
     if (m_netPolicy == NETWORK_OFFLINE) {
         // FIXME: error signalling
@@ -1278,7 +1278,7 @@ void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMai
 }
 
 /** @short Convert a list of UIDs to a list of pointers to the relevant message nodes */
-QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const mailbox, const QList<uint> &uids)
+QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const mailbox, const Imap::Uids &uids)
 {
     const TreeItemMsgList *const list = dynamic_cast<const TreeItemMsgList *const>(mailbox->m_children[0]);
     Q_ASSERT(list);
@@ -1425,9 +1425,11 @@ void Model::unsubscribeMailbox(const QString &name)
 
 void Model::saveUidMap(TreeItemMsgList *list)
 {
-    QList<uint> seqToUid;
-    for (int i = 0; i < list->m_children.size(); ++i)
-        seqToUid << static_cast<TreeItemMessage *>(list->m_children[ i ])->uid();
+    Imap::Uids seqToUid;
+    seqToUid.reserve(list->m_children.size());
+    auto end = list->m_children.constEnd();
+    for (auto it = list->m_children.constBegin(); it != end; ++it)
+        seqToUid << static_cast<TreeItemMessage *>(*it)->uid();
     cache()->setUidMapping(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), seqToUid);
 }
 
@@ -1910,7 +1912,7 @@ QModelIndex Model::messageIndexByUid(const QString &mailboxName, const uint uid)
 {
     TreeItemMailbox *mailbox = findMailboxByName(mailboxName);
     Q_ASSERT(mailbox);
-    QList<TreeItemMessage*> messages = findMessagesByUids(mailbox, QList<uint>() << uid);
+    QList<TreeItemMessage*> messages = findMessagesByUids(mailbox, Imap::Uids() << uid);
     if (messages.isEmpty()) {
         return QModelIndex();
     } else {
