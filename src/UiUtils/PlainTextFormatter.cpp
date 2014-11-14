@@ -233,9 +233,8 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
         // Determine the quoting level
         int quoteLevel = 0;
-        if (!signatureSeparatorSeen) {
-            while (quoteLevel < line.length() && line.at(quoteLevel) == QLatin1Char('>'))
-                ++quoteLevel;
+        if (!signatureSeparatorSeen && quotemarks.indexIn(line) == 0) {
+            quoteLevel = quotemarks.cap(0).count(QLatin1Char('>'));
         }
 
         lineBuffer << TextInfo(quoteLevel, lineWithoutTrailingCr(line));
