@@ -239,6 +239,8 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     // Add a blank recipient row to start with
     addRecipient(m_recipients.count(), Composer::ADDRESS_TO, QString());
     ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE, QFormLayout::FieldRole)->widget()->setFocus();
+
+    slotUpdateSignature();
 }
 
 ComposeWidget::~ComposeWidget()
