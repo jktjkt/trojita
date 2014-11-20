@@ -55,7 +55,6 @@ static const unsigned char base64chars[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+,";
 #define UNDEFINED 64
 #define MAXLINE  76
-static const char especials[17] = "()<>@,;:\"/[]?.= ";
 
 /* UTF16 definitions */
 #define UTF16MASK       0x03FFUL

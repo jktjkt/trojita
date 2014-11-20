@@ -56,7 +56,7 @@ static const unsigned int maxQPLineLength = 76;
 // strchr(3) for broken systems.
 static int rikFindChar(register const char * _s, const char c)
 {
-  register const char * s = _s;
+  const char * s = _s;
 
   while (true)
   {
