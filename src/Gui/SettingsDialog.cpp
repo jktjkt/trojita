@@ -327,7 +327,8 @@ void GeneralPage::updateWidgets()
     deleteButton->setEnabled(enabled);
     editButton->setEnabled(enabled);
     bool upEnabled = m_identitiesModel->rowCount() > 0 && identityTabelView->currentIndex().row() > 0;
-    bool downEnabled = m_identitiesModel->rowCount() > 0 && identityTabelView->currentIndex().row() < m_identitiesModel->rowCount() - 1;
+    bool downEnabled = m_identitiesModel->rowCount() > 0 && identityTabelView->currentIndex().isValid() &&
+            identityTabelView->currentIndex().row() < m_identitiesModel->rowCount() - 1;
     moveUpButton->setEnabled(upEnabled);
     moveDownButton->setEnabled(downEnabled);
 
