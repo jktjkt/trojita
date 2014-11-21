@@ -307,7 +307,7 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 // The connection got closed but we haven't really requested that -- we better treat that as error, including
                 // going offline...
                 // ... but before that, expect that the connection will get closed soon
-                accessParser(ptr).connState = CONN_STATE_LOGOUT;
+                changeConnectionState(ptr, CONN_STATE_LOGOUT);
                 EMIT_LATER(this, imapError, Q_ARG(QString, resp->message));
                 setNetworkPolicy(NETWORK_OFFLINE);
             }
