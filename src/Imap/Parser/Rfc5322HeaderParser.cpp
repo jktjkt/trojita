@@ -139,14 +139,18 @@ namespace LowLevelParser {
         | in_reply_to | obs_in_reply_to)* @err(header_error) CRLF*;
 }%%
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #if defined(__has_warning) && __has_warning("-Wunused-const-variable")
 #pragma clang diagnostic ignored "-Wunused-const-variable"
 #endif
+#endif
 %%{
     write data;
 }%%
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 Rfc5322HeaderParser::Rfc5322HeaderParser():
     listPostNo(false), m_error(false)

@@ -35,12 +35,14 @@ namespace LowLevelParser {
 #line 140 "Rfc5322HeaderParser.cpp"
 
 
+#ifdef __clang__
 #pragma clang diagnostic push
 #if defined(__has_warning) && __has_warning("-Wunused-const-variable")
 #pragma clang diagnostic ignored "-Wunused-const-variable"
 #endif
+#endif
 
-#line 44 "Rfc5322HeaderParser.generated.cpp"
+#line 46 "Rfc5322HeaderParser.generated.cpp"
 static const int8_t _rfc5322_actions[] = {
 	0, 1, 0, 1, 1, 1, 2, 1, 
 	3, 1, 4, 1, 5, 1, 6, 1, 
@@ -2545,9 +2547,11 @@ static const int rfc5322_error = 0;
 static const int rfc5322_en_main = 741;
 
 
-#line 148 "Rfc5322HeaderParser.cpp"
+#line 150 "Rfc5322HeaderParser.cpp"
 
+#ifdef __clang__
 #pragma clang diagnostic pop
+#endif
 
 Rfc5322HeaderParser::Rfc5322HeaderParser():
     listPostNo(false), m_error(false)
@@ -2577,14 +2581,14 @@ bool Rfc5322HeaderParser::parse(const QByteArray &data)
     QList<QByteArray> list;
 
     
-#line 2581 "Rfc5322HeaderParser.generated.cpp"
+#line 2585 "Rfc5322HeaderParser.generated.cpp"
 	{
 	cs = rfc5322_start;
 	}
 
-#line 179 "Rfc5322HeaderParser.cpp"
+#line 183 "Rfc5322HeaderParser.cpp"
     
-#line 2588 "Rfc5322HeaderParser.generated.cpp"
+#line 2592 "Rfc5322HeaderParser.generated.cpp"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -2780,7 +2784,7 @@ _match:
         m_error = true;
     }
 	break;
-#line 2784 "Rfc5322HeaderParser.generated.cpp"
+#line 2788 "Rfc5322HeaderParser.generated.cpp"
 		}
 	}
 
@@ -2847,7 +2851,7 @@ _again:
         m_error = true;
     }
 	break;
-#line 2851 "Rfc5322HeaderParser.generated.cpp"
+#line 2855 "Rfc5322HeaderParser.generated.cpp"
 		}
 	}
 	}
@@ -2855,7 +2859,7 @@ _again:
 	_out: {}
 	}
 
-#line 180 "Rfc5322HeaderParser.cpp"
+#line 184 "Rfc5322HeaderParser.cpp"
 
     return !m_error;
 }
