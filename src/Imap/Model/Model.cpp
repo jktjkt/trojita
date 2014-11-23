@@ -1137,6 +1137,7 @@ void Model::handleSocketDisconnectedResponse(Parser *ptr, const Responses::Socke
         killParser(ptr, PARSER_KILL_EXPECTED);
     } else {
         logTrace(ptr->parserId(), Common::LOG_PARSE_ERROR, QString(), resp->message);
+        changeConnectionState(ptr, CONN_STATE_LOGOUT);
         killParser(ptr, PARSER_KILL_EXPECTED);
         EMIT_LATER(this, networkError, Q_ARG(QString, resp->message));
         setNetworkPolicy(NETWORK_OFFLINE);
