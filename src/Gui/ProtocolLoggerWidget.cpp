@@ -236,8 +236,8 @@ void ProtocolLoggerWidget::slotShowLogs()
 void ProtocolLoggerWidget::onConnectionClosed(uint parserId, Imap::ConnectionState state)
 {
     if (state == Imap::CONN_STATE_LOGOUT) {
-        auto now = QDateTime::currentMSecsSinceEpoch();
-        auto cutoff = now - 3 * 60 * 1000; // upon each disconnect, trash logs older than three minutes
+        auto now = QDateTime::currentDateTime().toTime_t();
+        auto cutoff = now - 3 * 60; // upon each disconnect, trash logs older than three minutes
         auto it = logs.find(parserId);
         if (it != logs.end()) {
             it->closedTime = now;
