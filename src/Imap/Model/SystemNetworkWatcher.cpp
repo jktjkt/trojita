@@ -59,6 +59,7 @@ SystemNetworkWatcher::SystemNetworkWatcher(QObject *parent, Model *model):
 void SystemNetworkWatcher::onGlobalOnlineStateChanged(const bool online)
 {
     if (online) {
+#ifdef TROJITA_HAS_QNETWORKSESSION
         m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("System is back online"));
         auto currentConfig = sessionsActiveConfiguration();
         if (!currentConfig.isValid() && currentConfig != m_netConfManager->defaultConfiguration()) {
@@ -66,6 +67,7 @@ void SystemNetworkWatcher::onGlobalOnlineStateChanged(const bool online)
                               QLatin1String("A new network configuration is available"));
             networkConfigurationChanged(m_netConfManager->defaultConfiguration());
         }
+#endif
         setDesiredNetworkPolicy(m_desiredPolicy);
     } else {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
