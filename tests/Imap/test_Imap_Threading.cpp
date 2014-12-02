@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
 #include <QtTest>
 #include "test_Imap_Threading.h"
 #include "Utils/headless_test.h"
