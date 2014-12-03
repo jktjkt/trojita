@@ -40,7 +40,7 @@ public:
 
     QString password() const;
     static QString getPassword(QWidget *parent, const QString &windowTitle, const QString &description,
-                               const QString &password = QString(), bool *ok = 0);
+                               const QString &password = QString(), bool *ok = 0, const QString &error = QString());
 
 protected:
     void showEvent(QShowEvent *event);

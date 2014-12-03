@@ -1860,6 +1860,17 @@ void Model::unsetImapPassword()
     informTasksAboutNewPassword();
 }
 
+QString Model::imapAuthError() const
+{
+    return m_imapAuthError;
+}
+
+void Model::setImapAuthError(const QString &error)
+{
+    m_imapAuthError = error;
+    emit imapAuthErrorChanged(error);
+}
+
 /** @short Tell all tasks which want to know about the availability of a password */
 void Model::informTasksAboutNewPassword()
 {

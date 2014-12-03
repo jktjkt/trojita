@@ -704,7 +704,6 @@ void MainWindow::setupModels()
     connect(imapModel(), SIGNAL(imapError(const QString &)), this, SLOT(imapError(const QString &)));
     connect(imapModel(), SIGNAL(networkError(const QString &)), this, SLOT(networkError(const QString &)));
     connect(imapModel(), SIGNAL(authRequested()), this, SLOT(authenticationRequested()), Qt::QueuedConnection);
-    connect(imapModel(), SIGNAL(authAttemptFailed(QString)), this, SLOT(authenticationFailed(QString)));
 
     connect(imapModel(), SIGNAL(networkPolicyOffline()), this, SLOT(networkPolicyOffline()));
     connect(imapModel(), SIGNAL(networkPolicyExpensive()), this, SLOT(networkPolicyExpensive()));
@@ -1183,8 +1182,9 @@ void MainWindow::authenticationContinue(const QString &password)
                                                user.toHtmlEscaped(),
                                                m_settings->value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
 #endif
-                                               ),
-                                           QString(), &ok);
+                                           ),
+                                           QString(), &ok,
+                                           imapModel()->imapAuthError());
         if (ok) {
             imapModel()->setImapPassword(pass);
         } else {
@@ -1193,12 +1193,6 @@ void MainWindow::authenticationContinue(const QString &password)
     } else {
         imapModel()->setImapPassword(pass);
     }
-}
-
-void MainWindow::authenticationFailed(const QString &message)
-{
-    m_ignoreStoredPassword = true;
-    QMessageBox::warning(this, tr("Login Failed"), message);
 }
 
 void MainWindow::checkSslPolicy()

@@ -97,6 +97,7 @@ class Model: public QAbstractItemModel
 
     Q_PROPERTY(QString imapUser READ imapUser WRITE setImapUser)
     Q_PROPERTY(QString imapPassword READ imapPassword WRITE setImapPassword RESET unsetImapPassword)
+    Q_PROPERTY(QString imapAuthError READ imapAuthError NOTIFY imapAuthErrorChanged)
     Q_PROPERTY(bool isNetworkAvailable READ isNetworkAvailable NOTIFY networkPolicyChanged)
     Q_PROPERTY(bool isNetworkOnline READ isNetworkOnline NOTIFY networkPolicyChanged)
 
@@ -306,6 +307,8 @@ public slots:
 
     void invalidateAllMessageCounts();
 
+    QString imapAuthError() const;
+
 private slots:
     /** @short Helper for low-level state change propagation */
     void handleSocketStateChanged(Imap::Parser *parser, Imap::ConnectionState state);
@@ -321,6 +324,8 @@ private slots:
 
     /** @short A maintaining task is about to die */
     void slotTaskDying(QObject *obj);
+
+    void setImapAuthError(const QString &error);
 
 signals:
     /** @short This signal is emitted then the server sent us an ALERT response code */
@@ -409,6 +414,8 @@ signals:
     void capabilitiesUpdated(const QStringList &capabilities);
 
     void logged(uint parserId, const Common::LogMessage &message);
+
+    void imapAuthErrorChanged(const QString &error);
 
 private:
     Model &operator=(const Model &);  // don't implement
@@ -559,6 +566,8 @@ private:
     QString m_imapPassword;
     /** @short Is the IMAP password cached in the Model already? */
     bool m_hasImapPassword;
+    /** @short Contains IMAP error output while password prompt process*/
+    QString m_imapAuthError;
 
     QTimer *m_periodicMailboxNumbersRefresh;
 

@@ -132,7 +132,6 @@ private slots:
     void cacheError(const QString &message);
     void authenticationRequested();
     void authenticationContinue(const QString &pass = QString());
-    void authenticationFailed(const QString &message);
     void checkSslPolicy();
     void slotComposeMailUrl(const QUrl &url);
     void slotManageContact(const QUrl &url);

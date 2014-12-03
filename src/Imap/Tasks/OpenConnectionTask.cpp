@@ -278,6 +278,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             loginCmd.clear();
             // The LOGIN command is finished
             if (resp->kind == OK) {
+                model->setImapAuthError(QString());
                 if (resp->respCode == CAPABILITIES || model->accessParser(parser).capabilitiesFresh) {
                     // Capabilities are already known
                     if (TROJITA_COMPRESS_DEFLATE && model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
@@ -325,9 +326,12 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 if (message.isEmpty()) {
                     message = tr("Login failed: %1").arg(resp->message);
                 } else {
-                    message = tr("%1\n\n%2").arg(message, resp->message);
+                    message = tr("%1 %2").arg(message, resp->message);
                 }
+
+                model->setImapAuthError(message);
                 EMIT_LATER(model, authAttemptFailed, Q_ARG(QString, message));
+
                 model->m_imapPassword.clear();
                 model->m_hasImapPassword = false;
                 if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
