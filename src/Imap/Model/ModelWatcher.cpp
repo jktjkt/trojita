@@ -50,6 +50,15 @@ void ModelWatcher::setModel(QAbstractItemModel *model)
             this, SLOT(dataChanged(const QModelIndex &, const QModelIndex &)));
     connect(model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
             this, SLOT(headerDataChanged(Qt::Orientation, int, int)));
+
+    connect(model, SIGNAL(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
+            this, SLOT(rowsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)));
+    connect(model, SIGNAL(rowsMoved(QModelIndex,int,int,QModelIndex,int)),
+            this, SLOT(rowsMoved(QModelIndex,int,int,QModelIndex,int)));
+    connect(model, SIGNAL(columnsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)),
+            this, SLOT(columnsAboutToBeMoved(QModelIndex,int,int,QModelIndex,int)));
+    connect(model, SIGNAL(columnsMoved(QModelIndex,int,int,QModelIndex,int)),
+            this, SLOT(columnsMoved(QModelIndex,int,int,QModelIndex,int)));
     connect(model, SIGNAL(layoutAboutToBeChanged()), this, SLOT(layoutAboutToBeChanged()));
     connect(model, SIGNAL(layoutChanged()), this, SLOT(layoutChanged()));
     connect(model, SIGNAL(modelAboutToBeReset()), this, SLOT(modelAboutToBeReset()));
@@ -124,6 +133,30 @@ void ModelWatcher::rowsInserted(const QModelIndex &parent, int start, int end)
 void ModelWatcher::rowsRemoved(const QModelIndex &parent, int start, int end)
 {
     qDebug() << sender()->objectName() << "rowsRemoved(" << parent << start << end << ")";
+}
+
+void ModelWatcher::rowsAboutToBeMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd,
+                                      const QModelIndex &destinationParent, int destinationRow)
+{
+    qDebug() << sender()->objectName() << "rowsAboutToBeMoved" << sourceParent << sourceStart << sourceEnd <<
+                destinationParent << destinationRow;
+}
+
+void ModelWatcher::rowsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row)
+{
+    qDebug() << sender()->objectName() << "rowsMoved" << parent << start << end << destination << row;
+}
+
+void ModelWatcher::columnsAboutToBeMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd,
+                                         const QModelIndex &destinationParent, int destinationColumn)
+{
+    qDebug() << sender()->objectName() << "columnsAboutToBeMoved" << sourceParent << sourceStart << sourceEnd <<
+                destinationParent << destinationColumn;
+}
+
+void ModelWatcher::columnsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int column)
+{
+    qDebug() << sender()->objectName() << "columnsMoved" << parent << start << end << destination << column;
 }
 
 }

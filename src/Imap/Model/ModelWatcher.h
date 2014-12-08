@@ -55,6 +55,12 @@ private slots:
     void rowsAboutToBeRemoved(const QModelIndex &, int, int);
     void rowsInserted(const QModelIndex &, int, int);
     void rowsRemoved(const QModelIndex &, int, int);
+    void rowsAboutToBeMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd,
+                            const QModelIndex &destinationParent, int destinationRow);
+    void rowsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int row);
+    void columnsAboutToBeMoved(const QModelIndex &sourceParent, int sourceStart, int sourceEnd,
+                               const QModelIndex &destinationParent, int destinationColumn);
+    void columnsMoved(const QModelIndex &parent, int start, int end, const QModelIndex &destination, int column);
 };
 
 }
