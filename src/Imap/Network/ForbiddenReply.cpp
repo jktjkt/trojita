@@ -32,6 +32,9 @@ ForbiddenReply::ForbiddenReply(QObject *parent):
     QNetworkReply(parent)
 {
     setError(QNetworkReply::ContentOperationNotPermittedError, tr("Remote Content Is Banned"));
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+    setFinished(true);
+#endif
     QTimer::singleShot(0, this, SLOT(slotFinish()));
 }
 

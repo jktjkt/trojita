@@ -97,6 +97,9 @@ void ImapMsgPartNetAccessManagerTest::testMessageParts()
     } else {
         QVERIFY(qobject_cast<Imap::Network::ForbiddenReply*>(res));
     }
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+    QCOMPARE(res->isFinished(), true);
+#endif
     cEmpty();
     QVERIFY(errorSpy->isEmpty());
 }
@@ -226,6 +229,9 @@ void ImapMsgPartNetAccessManagerTest::testFetchResultOfflineSingle()
     QCOMPARE(msg1p1.data(Imap::Mailbox::RoleIsFetched), QVariant(false));
     QCOMPARE(msg1p1.data(Imap::Mailbox::RoleIsUnavailable), QVariant(true));
 
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
+    QCOMPARE(res->isFinished(), true);
+#endif
     QCOMPARE(res->error(), QNetworkReply::TimeoutError);
 }
 
