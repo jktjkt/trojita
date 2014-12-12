@@ -125,8 +125,8 @@ class MailboxException: public ImapException
 public:
     MailboxException(const char *const msg, const Imap::Responses::AbstractResponse &response);
     explicit MailboxException(const char *const msg);
-    virtual const char *what() const throw() { return m_msg.c_str(); };
-    virtual ~MailboxException() throw() {};
+    virtual const char *what() const throw() { return m_msg.c_str(); }
+    virtual ~MailboxException() throw() {}
 
 };
 
