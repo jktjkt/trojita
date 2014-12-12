@@ -23,10 +23,10 @@
 #include <algorithm>
 #include <QtTest>
 #include "test_Imap_SelectedMailboxUpdates.h"
-#include "Utils/headless_test.h"
-#include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Parser/Uids.h"
+#include "Streams/FakeSocket.h"
+#include "Utils/headless_test.h"
 
 /** @short Test that we survive a new message arrival and its subsequent removal in rapid sequence
 
