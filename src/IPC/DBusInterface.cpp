@@ -30,20 +30,26 @@
 
 namespace IPC {
 
-static QString service = QLatin1String("net.flaska.trojita");
 static QString path = QLatin1String("/Trojita");
+
+QString service()
+{
+    QString str = QLatin1String("net.flaska.trojita");
+    QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+    return profileName.isEmpty() ? str : str + QLatin1Char('-') + profileName;
+}
 
 namespace Instance {
 
 static QDBusInterface &interface()
 {
-    static QDBusInterface iface(service, path, service);
+    static QDBusInterface iface(service(), path, QLatin1String("net.flaska.trojita"));
     return iface;
 }
 
 bool isRunning()
 {
-    return QDBusConnection::sessionBus().interface()->isServiceRegistered(service);
+    return QDBusConnection::sessionBus().interface()->isServiceRegistered(service());
 }
 
 void showMainWindow()
@@ -67,7 +73,7 @@ bool registerInstance(Gui::MainWindow *window)
 {
     QDBusConnection conn = QDBusConnection::sessionBus();
 
-    bool serviceOk = conn.registerService(service);
+    bool serviceOk = conn.registerService(service());
     if (!serviceOk)
         return false;
 
@@ -75,7 +81,7 @@ bool registerInstance(Gui::MainWindow *window)
     bool objectOk = conn.registerObject(path, object, QDBusConnection::ExportAllSlots);
     if (!objectOk) {
         delete object;
-        conn.unregisterService(service);
+        conn.unregisterService(service());
         return false;
     }
 
