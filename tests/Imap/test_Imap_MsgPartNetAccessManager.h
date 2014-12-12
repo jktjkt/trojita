@@ -1,4 +1,5 @@
 /* Copyright (C) 2014 Stephan Platz <trojita@paalsteek.de>
+   Copyright (C) 2014 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -22,6 +23,7 @@
 #ifndef TEST_IMAP_MSGPARTNETACCESSMANAGER
 #define TEST_IMAP_MSGPARTNETACCESSMANAGER
 
+#include "Imap/Model/DummyNetworkWatcher.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Utils/LibMailboxSync.h"
 #include <QtCore/QObject>
@@ -31,8 +33,15 @@ class ImapMsgPartNetAccessManagerTest : public LibMailboxSync
 {
     Q_OBJECT
 private Q_SLOTS:
+    void init();
+    void cleanup();
     void testMessageParts();
     void testMessageParts_data();
+
+private:
+    Imap::Mailbox::DummyNetworkWatcher *networkPolicy;
+    Imap::Network::MsgPartNetAccessManager *netAccessManager;
+    QPersistentModelIndex msg1, msg2;
 };
 
 #endif /*TEST_IMAP_MSGPARTNETACCESSMANAGER*/

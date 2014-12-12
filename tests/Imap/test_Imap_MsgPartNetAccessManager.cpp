@@ -1,4 +1,5 @@
 /* Copyright (C) 2014 Stephan Platz <trojita@paalsteek.de>
+   Copyright (C) 2014 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -32,6 +33,42 @@
 #include "Streams/FakeSocket.h"
 #include "Utils/headless_test.h"
 
+void ImapMsgPartNetAccessManagerTest::init()
+{
+    LibMailboxSync::init();
+
+    // By default, there's a 50ms delay between the time we request a part download and the time it actually happens.
+    // That's too long for a unit test.
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+
+    networkPolicy = new Imap::Mailbox::DummyNetworkWatcher(0, model);
+    netAccessManager = new Imap::Network::MsgPartNetAccessManager(0);
+
+    initialMessages(2);
+    QModelIndex m1 = msgListA.child(0, 0);
+    QVERIFY(m1.isValid());
+    QCOMPARE(model->rowCount(m1), 0);
+    cClient(t.mk("UID FETCH 1:2 (" FETCH_METADATA_ITEMS ")\r\n"));
+    //cServer()
+
+    QCOMPARE(model->rowCount(msgListA), 2);
+    msg1 = msgListA.child(0, 0);
+    QVERIFY(msg1.isValid());
+    msg2 = msgListA.child(1, 0);
+    QVERIFY(msg2.isValid());
+
+    cEmpty();
+}
+
+void ImapMsgPartNetAccessManagerTest::cleanup()
+{
+    delete netAccessManager;
+    netAccessManager = 0;
+    delete networkPolicy;
+    networkPolicy = 0;
+    LibMailboxSync::cleanup();
+}
+
 void ImapMsgPartNetAccessManagerTest::testMessageParts()
 {
     QFETCH(QByteArray, bodystructure);
@@ -40,32 +77,19 @@ void ImapMsgPartNetAccessManagerTest::testMessageParts()
     QFETCH(bool, validity);
     QFETCH(QByteArray, text);
 
-    // By default, there's a 50ms delay between the time we request a part download and the time it actually happens.
-    // That's too long for a unit test.
-    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+    cServer("* 1 FETCH (UID 1 BODYSTRUCTURE (" + bodystructure + "))\r\n" +
+            "* 2 FETCH (UID 2 BODYSTRUCTURE (" + bodystructure + "))\r\n"
+            + t.last("OK fetched\r\n"));
+    QVERIFY(model->rowCount(msg1) > 0);
 
-    helperSyncBNoMessages();
-    cServer("* 1 EXISTS\r\n");
-    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
-    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
-
-    QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
-    QVERIFY(msg.isValid());
-    QCOMPARE(model->rowCount(msg), 0);
-    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
-    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bodystructure + "))\r\n" + t.last("OK fetched\r\n"));
-    QVERIFY(model->rowCount(msg) > 0);
-
-    Imap::Network::MsgPartNetAccessManager nam(this);
-    nam.setModelMessage(msg);
+    netAccessManager->setModelMessage(msg1);
     QNetworkRequest req;
     req.setUrl(QUrl(url));
-    QNetworkReply *res = nam.get(req);
+    QNetworkReply *res = netAccessManager->get(req);
     if (validity) {
         QVERIFY(qobject_cast<Imap::Network::MsgPartNetworkReply*>(res));
-        cClient(t.mk("UID FETCH 333 (BODY.PEEK[") + partId + "])\r\n");
-        cServer("* 1 FETCH (UID 333 BODY[" + partId + "] {" + QByteArray::number(text.size()) + "}\r\n" +
+        cClient(t.mk("UID FETCH 1 (BODY.PEEK[") + partId + "])\r\n");
+        cServer("* 1 FETCH (UID 1 BODY[" + partId + "] {" + QByteArray::number(text.size()) + "}\r\n" +
                                                                                text + ")\r\n" + t.last("OK fetched\r\n"));
         cEmpty();
         QCOMPARE(text, res->readAll());
