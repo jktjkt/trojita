@@ -81,12 +81,6 @@ ECBODY(ParserException, ImapException)
 /** @short Invalid argument was passed to some function */
 ECBODY(InvalidArgument, ParserException)
 
-/** @short Socket error */
-ECBODY(SocketException, ParserException)
-
-/** @short Waiting for something from the socket took too long */
-ECBODY(SocketTimeout, SocketException)
-
 /** @short General parse error */
 ECBODY(ParseError, ParserException)
 
