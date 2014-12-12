@@ -489,7 +489,7 @@ private:
 
     void finalizeList(Parser *parser, TreeItemMailbox *const mailboxPtr);
     void finalizeIncrementalList(Parser *parser, const QString &parentMailboxName);
-    void finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId);
+    bool finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId);
     void genericHandleFetch(TreeItemMailbox *mailbox, const Imap::Responses::Fetch *const resp);
 
     void replaceChildMailboxes(TreeItemMailbox *mailboxPtr, const TreeItemChildrenList &mailboxes);

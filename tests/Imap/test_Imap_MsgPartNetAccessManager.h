@@ -37,6 +37,7 @@ private Q_SLOTS:
     void cleanup();
     void testMessageParts();
     void testMessageParts_data();
+    void testFetchResultOfflineSingle();
 
 private:
     Imap::Mailbox::DummyNetworkWatcher *networkPolicy;

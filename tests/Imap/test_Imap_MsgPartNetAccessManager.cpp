@@ -27,6 +27,7 @@
 
 #include "data.h"
 #include "test_Imap_MsgPartNetAccessManager.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Imap/Network/ForbiddenReply.h"
 #include "Imap/Network/MsgPartNetworkReply.h"
@@ -192,5 +193,41 @@ void ImapMsgPartNetAccessManagerTest::testMessageParts_data()
             << true
             << QByteArray("image/jpeg");
 }
+
+#define COMMON_METADATA_CHAT_PLAIN_AND_SIGNED \
+    cServer("* 1 FETCH (UID 1 BODYSTRUCTURE (" + bsPlaintext + "))\r\n" + \
+            "* 2 FETCH (UID 2 BODYSTRUCTURE (" + bsMultipartSignedTextPlain + "))\r\n" \
+            + t.last("OK fetched\r\n")); \
+    QCOMPARE(model->rowCount(msg1), 1); \
+    QCOMPARE(model->rowCount(msg2), 1); \
+    QCOMPARE(model->rowCount(msg2.child(0, 0)), 2); \
+
+/** short A fetching operation gets interrupted by switching to the offline mode */
+void ImapMsgPartNetAccessManagerTest::testFetchResultOfflineSingle()
+{
+    COMMON_METADATA_CHAT_PLAIN_AND_SIGNED
+
+    netAccessManager->setModelMessage(msg1);
+    QNetworkRequest req;
+    req.setUrl(QUrl(QLatin1String("trojita-imap://msg/0")));
+    QNetworkReply *res = netAccessManager->get(req);
+    QVERIFY(qobject_cast<Imap::Network::MsgPartNetworkReply*>(res));
+    cClient(t.mk("UID FETCH 1 (BODY.PEEK[1])\r\n"));
+
+    QPersistentModelIndex msg1p1 = msgListA.child(0, 0).child(0, 0);
+    QVERIFY(msg1p1.isValid());
+    QCOMPARE(msg1p1.data(Imap::Mailbox::RoleMessageUid), QVariant(1u));
+    QCOMPARE(msg1p1.data(Imap::Mailbox::RoleIsFetched), QVariant(false));
+    QCOMPARE(msg1p1.data(Imap::Mailbox::RoleIsUnavailable), QVariant(false));
+
+    networkPolicy->setNetworkOffline();
+    cClient(t.mk("LOGOUT\r\n"));
+    cServer(t.last("OK logged out\r\n") + "* BYE eh\r\n");
+    QCOMPARE(msg1p1.data(Imap::Mailbox::RoleIsFetched), QVariant(false));
+    QCOMPARE(msg1p1.data(Imap::Mailbox::RoleIsUnavailable), QVariant(true));
+
+    QCOMPARE(res->error(), QNetworkReply::TimeoutError);
+}
+
 
 TROJITA_HEADLESS_TEST( ImapMsgPartNetAccessManagerTest )

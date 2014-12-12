@@ -38,6 +38,7 @@ FetchMsgPartTask::FetchMsgPartTask(Model *model, const QModelIndex &mailbox, con
     Q_ASSERT(!uids.isEmpty());
     conn = model->findTaskResponsibleFor(mailboxIndex);
     conn->addDependentTask(this);
+    connect(this, SIGNAL(failed(QString)), this, SLOT(markPendingItemsUnavailable()));
 }
 
 void FetchMsgPartTask::perform()
@@ -75,21 +76,12 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
     }
 
     if (resp->tag == tag) {
+        markPendingItemsUnavailable();
         if (resp->kind == Responses::OK) {
             log(QLatin1String("Fetched parts"), Common::LOG_MESSAGES);
-            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
-            Q_ASSERT(mailbox);
-            QList<TreeItemMessage *> messages = model->findMessagesByUids(mailbox, uids);
-            Q_FOREACH(TreeItemMessage *message, messages) {
-                Q_FOREACH(const QByteArray &partId, parts) {
-                    log(QLatin1String("Fetched part") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
-                    model->finalizeFetchPart(mailbox, message->row() + 1, partId);
-                }
-            }
             model->changeConnectionState(parser, CONN_STATE_SELECTED);
             _completed();
         } else {
-            // FIXME: error handling
             _failed(tr("Part fetch failed"));
         }
         return true;
@@ -116,6 +108,26 @@ QString FetchMsgPartTask::debugIdentification() const
 QVariant FetchMsgPartTask::taskData(const int role) const
 {
     return role == RoleTaskCompactName ? QVariant(tr("Downloading messages")) : QVariant();
+}
+
+/** @short We're dead, the data which hasn't arrived so far won't arrive in future unless a reset happens */
+void FetchMsgPartTask::markPendingItemsUnavailable()
+{
+    if (!mailboxIndex.isValid())
+        return;
+
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
+    Q_ASSERT(mailbox);
+    QList<TreeItemMessage *> messages = model->findMessagesByUids(mailbox, uids);
+    Q_FOREACH(TreeItemMessage *message, messages) {
+        Q_FOREACH(const QByteArray &partId, parts) {
+            if (model->finalizeFetchPart(mailbox, message->row() + 1, partId)) {
+                log(QLatin1String("Fetched part ") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
+            } else {
+                log(QLatin1String("Received no data for part ") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
+            }
+        }
+    }
 }
 
 }
