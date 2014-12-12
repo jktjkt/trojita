@@ -251,13 +251,6 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
                 }
 #endif
             }
-        } catch (Imap::StartTlsFailed &e) {
-            uint parserId = it->parser->parserId();
-            killParser(it->parser, PARSER_KILL_HARD);
-            logTrace(parserId, Common::LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QLatin1String("STARTTLS has failed"));
-            EMIT_LATER(this, networkError, Q_ARG(QString, tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>")));
-            setNetworkPolicy(NETWORK_OFFLINE);
-            break;
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
