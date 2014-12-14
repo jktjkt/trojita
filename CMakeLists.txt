@@ -64,9 +64,6 @@ else()
     set(QTKEYCHAIN_DEPENDS "")
 endif()
 
-trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
-trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN${QTKEYCHAIN_DEPENDS}")
-
 if(WITH_QT5)
     message(STATUS "Building the Qt5 version")
     find_package(Qt5Core 5.2 REQUIRED)
@@ -114,6 +111,9 @@ else()
         message(FATAL_ERROR "Your copy of Qt was build without SSL support. Please get openssl and rebuild Qt or a Qt binary with SSL support compiled in")
     endif()
 endif()
+
+trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
+trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN${QTKEYCHAIN_DEPENDS}")
 
 trojita_find_package(Git "" "" "" "")
 
