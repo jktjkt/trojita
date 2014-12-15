@@ -252,9 +252,9 @@ void MessageView::setMessage(const QModelIndex &index)
 
     if (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE
             && m_settings->value(Common::SettingsNames::autoMarkReadEnabled, QVariant(true)).toBool()) {
-        uint timeout = m_settings->value(Common::SettingsNames::autoMarkReadSeconds, QVariant(0)).toUInt() * 1000;
-        // the 200ms is there to allow quick navigation between messages without marking them as read
-        markAsReadTimer->start(qMax(200u, timeout));
+        // No additional delay is needed here because the MsgListView won't open a message while the user keeps scrolling,
+        // which was AFAIK the original intention
+        markAsReadTimer->start(m_settings->value(Common::SettingsNames::autoMarkReadSeconds, QVariant(0)).toUInt() * 1000);
     }
 }
 
