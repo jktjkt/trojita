@@ -235,29 +235,6 @@ p, li { white-space: pre-wrap; }
      </widget>
     </item>
     <item row="12" column="0">
-     <widget class="QLabel" name="startOfflineLabel">
-      <property name="text">
-       <string>Start in O&amp;ffline Mode</string>
-      </property>
-      <property name="buddy">
-       <cstring>startOffline</cstring>
-      </property>
-     </widget>
-    </item>
-    <item row="12" column="1">
-     <widget class="QCheckBox" name="startOffline">
-      <property name="toolTip">
-       <string>Don't connect to the IMAP server upon startup</string>
-      </property>
-      <property name="whatsThis">
-       <string>If you choose this option, Trojitá won't automatically connect to the IMAP server upon startup, and you will have to explicitly go online.</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-     </widget>
-    </item>
-    <item row="13" column="0">
      <widget class="QLabel" name="imapEnableIdLabel">
       <property name="text">
        <string>Reveal I'm using Trojitá</string>
@@ -267,7 +244,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="13" column="1">
+    <item row="12" column="1">
      <widget class="QCheckBox" name="imapEnableId">
       <property name="toolTip">
        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -283,7 +260,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="14" column="0">
+    <item row="13" column="0">
      <widget class="QLabel" name="imapCapabilitiesBlacklistLabel">
       <property name="text">
        <string>Extension &amp;Blacklist</string>
@@ -293,7 +270,7 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="14" column="1">
+    <item row="13" column="1">
      <widget class="LineEdit" name="imapCapabilitiesBlacklist"/>
     </item>
     <item row="10" column="0" colspan="2">
@@ -309,14 +286,14 @@ p, li { white-space: pre-wrap; }
       </property>
      </widget>
     </item>
-    <item row="15" column="0">
+    <item row="14" column="0">
      <widget class="QLabel" name="imapIdleRenewalLabel">
       <property name="text">
        <string>Timeout of IMAP IDLE</string>
       </property>
      </widget>
     </item>
-    <item row="15" column="1">
+    <item row="14" column="1">
      <widget class="QSpinBox" name="imapIdleRenewal">
       <property name="sizePolicy">
        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">

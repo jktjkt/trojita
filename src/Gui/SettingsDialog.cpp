@@ -523,7 +523,7 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
     imapUser->setText(s.value(SettingsNames::imapUserKey).toString());
     processPath->setText(s.value(SettingsNames::imapProcessKey).toString());
-    startOffline->setChecked(s.value(SettingsNames::imapStartOffline).toBool());
+
     imapEnableId->setChecked(s.value(SettingsNames::imapEnableId, true).toBool());
     imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QLatin1String(" ")));
     imapUseSystemProxy->setChecked(s.value(SettingsNames::imapUseSystemProxy, true).toBool());
@@ -652,7 +652,6 @@ void ImapPage::save(QSettings &s)
         s.setValue(SettingsNames::imapProcessKey, processPath->text());
     }
     s.setValue(SettingsNames::imapUserKey, imapUser->text());
-    s.setValue(SettingsNames::imapStartOffline, startOffline->isChecked());
     s.setValue(SettingsNames::imapEnableId, imapEnableId->isChecked());
     s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QLatin1String(" ")));
     s.setValue(SettingsNames::imapNeedsNetwork, imapNeedsNetwork->isChecked());

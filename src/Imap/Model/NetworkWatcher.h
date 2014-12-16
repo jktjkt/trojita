@@ -55,6 +55,7 @@ signals:
     void effectiveNetworkPolicyChanged();
     void reconnectAttemptScheduled(const int timeout);
     void resetReconnectState();
+    void desiredNetworkPolicyChanged(const Imap::Mailbox::NetworkPolicy policy);
 
 protected:
     virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) = 0;

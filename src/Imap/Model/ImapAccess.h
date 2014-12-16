@@ -134,6 +134,7 @@ public slots:
 
 private slots:
     void onRequireStartTlsInFuture();
+    void desiredNetworkPolicyChanged(const Imap::Mailbox::NetworkPolicy policy);
 
 private:
     QSettings *m_settings;

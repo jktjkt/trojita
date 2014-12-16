@@ -334,10 +334,19 @@ void ImapAccess::doConnect()
     } else {
         m_netWatcher = new Imap::Mailbox::DummyNetworkWatcher(this, m_imapModel);
     }
-    QMetaObject::invokeMethod(m_netWatcher,
-                              m_settings->value(Common::SettingsNames::imapStartOffline).toBool() ?
-                                  "setNetworkOffline" : "setNetworkOnline",
-                              Qt::QueuedConnection);
+    connect(m_netWatcher, SIGNAL(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)),
+            this, SLOT(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)));
+    switch (m_settings->value(Common::SettingsNames::imapStartMode, Imap::Mailbox::NETWORK_ONLINE).toInt()) {
+    case Imap::Mailbox::NETWORK_OFFLINE:
+        QMetaObject::invokeMethod(m_netWatcher, "setNetworkOffline", Qt::QueuedConnection);
+        break;
+    case Imap::Mailbox::NETWORK_EXPENSIVE:
+        QMetaObject::invokeMethod(m_netWatcher, "setNetworkExpensive", Qt::QueuedConnection);
+        break;
+    case Imap::Mailbox::NETWORK_ONLINE:
+        QMetaObject::invokeMethod(m_netWatcher, "setNetworkOnline", Qt::QueuedConnection);
+        break;
+    }
 
     m_imapModel->setImapUser(username());
     if (!m_password.isNull()) {
@@ -458,6 +467,11 @@ void ImapAccess::onRequireStartTlsInFuture()
     if (connectionMethod() == Common::ConnectionMethod::NetCleartext) {
         setConnectionMethod(Common::ConnectionMethod::NetStartTls);
     }
+}
+
+void ImapAccess::desiredNetworkPolicyChanged(const Mailbox::NetworkPolicy policy)
+{
+    m_settings->setValue(Common::SettingsNames::imapStartMode, policy);
 }
 
 void ImapAccess::setSslPolicy(bool accept)
