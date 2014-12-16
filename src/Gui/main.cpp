@@ -151,16 +151,6 @@ int main(int argc, char **argv)
         return error ? 1 : 0;
     }
 
-    if (IPC::Instance::isRunning()) {
-        if (showMainWindow)
-            IPC::Instance::showMainWindow();
-        if (showAddressbookWindow)
-            IPC::Instance::showAddressbookWindow();
-        if (showComposeWindow)
-            IPC::Instance::composeMail(url);
-        return 0;
-    }
-
     // Hack: support multiple "profiles"
     if (!profileName.isEmpty()) {
         // We are abusing the env vars here. Yes, it's a hidden global. Yes, it's ugly.
@@ -173,6 +163,16 @@ int main(int argc, char **argv)
 #else
         putenv("TROJITA_PROFILE=");
 #endif
+    }
+
+    if (IPC::Instance::isRunning()) {
+        if (showMainWindow)
+            IPC::Instance::showMainWindow();
+        if (showAddressbookWindow)
+            IPC::Instance::showAddressbookWindow();
+        if (showComposeWindow)
+            IPC::Instance::composeMail(url);
+        return 0;
     }
 
     QSettings settings(Common::Application::organization,
