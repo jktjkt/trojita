@@ -75,20 +75,11 @@ public:
     CLASSNAME(const std::string &msg, const QByteArray &line, const int offset): PARENT(msg, line, offset) { m_exceptionClass = #CLASSNAME; }\
     };
 
-/** @short The STARTTLS command failed */
-ECBODY(StartTlsFailed, ImapException)
-
 /** @short A generic parser exception */
 ECBODY(ParserException, ImapException)
 
 /** @short Invalid argument was passed to some function */
 ECBODY(InvalidArgument, ParserException)
-
-/** @short Socket error */
-ECBODY(SocketException, ParserException)
-
-/** @short Waiting for something from the socket took too long */
-ECBODY(SocketTimeout, SocketException)
 
 /** @short General parse error */
 ECBODY(ParseError, ParserException)

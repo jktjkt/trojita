@@ -251,13 +251,6 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
                 }
 #endif
             }
-        } catch (Imap::StartTlsFailed &e) {
-            uint parserId = it->parser->parserId();
-            killParser(it->parser, PARSER_KILL_HARD);
-            logTrace(parserId, Common::LOG_PARSE_ERROR, QString::fromStdString(e.exceptionClass()), QLatin1String("STARTTLS has failed"));
-            EMIT_LATER(this, networkError, Q_ARG(QString, tr("<p>The server has refused to start the encryption through the STARTTLS command.</p>")));
-            setNetworkPolicy(NETWORK_OFFLINE);
-            break;
         } catch (Imap::ImapException &e) {
             uint parserId = it->parser->parserId();
             killParser(it->parser, PARSER_KILL_HARD);
@@ -503,7 +496,7 @@ void Model::emitMessageCountChanged(TreeItemMailbox *const mailbox)
 }
 
 /** @short Retrieval of a message part has completed */
-void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId)
+bool Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId)
 {
     // At first, verify that the message itself is marked as loaded.
     // If it isn't, it's probably because of Model::releaseMessageData().
@@ -512,19 +505,21 @@ void Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenc
     Q_ASSERT(item);   // FIXME: or rather throw an exception?
     if (item->accessFetchStatus() == TreeItem::NONE) {
         // ...and it indeed got released, so let's just return and don't try to check anything
-        return;
+        return false;
     }
 
     TreeItemPart *part = mailbox->partIdToPtr(this, static_cast<TreeItemMessage *>(item), partId);
     if (! part) {
         qDebug() << "Can't verify part fetching status: part is not here!";
-        return;
+        return false;
     }
     if (part->loading()) {
-        // basically, there's nothing to do if the FETCH targetted a message part and not the message as a whole
-        qDebug() << "Imap::Model::_finalizeFetch(): didn't receive anything about message" <<
-                 part->message()->row() << "part" << part->partId();
-        part->setFetchStatus(TreeItem::DONE);
+        part->setFetchStatus(TreeItem::UNAVAILABLE);
+        QModelIndex idx = part->toIndex(this);
+        emit dataChanged(idx, idx);
+        return false;
+    } else {
+        return true;
     }
 }
 

@@ -45,6 +45,8 @@ public:
     virtual QString debugIdentification() const;
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return true;}
+protected slots:
+    void markPendingItemsUnavailable();
 private:
     CommandHandle tag;
     ImapTask *conn;
