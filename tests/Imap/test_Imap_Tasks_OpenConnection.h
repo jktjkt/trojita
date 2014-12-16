@@ -66,6 +66,9 @@ private slots:
     void testInitialGarbage();
     void testInitialGarbage_data();
 
+    void testAuthFailure();
+    void testAuthFailureNoRespCode();
+
     void provideAuthDetails();
     void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
 
@@ -78,6 +81,7 @@ private:
     QSignalSpy* authSpy;
     QSignalSpy *connErrorSpy;
     QSignalSpy *startTlsUpgradeSpy;
+    QSignalSpy *authErrorSpy;
 
     bool m_enableAutoLogin;
 };

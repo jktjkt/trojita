@@ -65,6 +65,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     authSpy = new QSignalSpy(model, SIGNAL(authRequested()));
     connErrorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
     startTlsUpgradeSpy = new QSignalSpy(model, SIGNAL(requireStartTlsInFuture()));
+    authErrorSpy = new QSignalSpy(model, SIGNAL(imapAuthErrorChanged(const QString&)));
 }
 
 void ImapModelOpenConnectionTest::acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors)
@@ -170,6 +171,8 @@ void ImapModelOpenConnectionTest::testOk()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test with capability inside the OK greetings, no STARTTLS */
@@ -194,6 +197,8 @@ void ImapModelOpenConnectionTest::testOkWithCapability()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short See what happens when the capability response doesn't contain IMAP4rev1 capability */
@@ -249,6 +254,8 @@ void ImapModelOpenConnectionTest::testOkLogindisabled()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
     QCOMPARE(startTlsUpgradeSpy->size(), 1);
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test how LOGINDISABLED without a corresponding STARTTLS in the capabilities end up */
@@ -311,6 +318,8 @@ void ImapModelOpenConnectionTest::testOkLogindisabledLater()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
     QCOMPARE(startTlsUpgradeSpy->size(), 1);
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test conf-requested STARTTLS when not faced with embedded capabilities in OK greetings */
@@ -358,6 +367,8 @@ void ImapModelOpenConnectionTest::testOkStartTls()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test that an untagged CAPABILITY after LOGIN prevents an extra CAPABILITY command */
@@ -406,6 +417,8 @@ void ImapModelOpenConnectionTest::testCapabilityAfterLogin()
     QCOMPARE( authSpy->size(), 1 );
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test conf-requested STARTTLS when the server doesn't support STARTTLS at all */
@@ -471,6 +484,8 @@ void ImapModelOpenConnectionTest::testOkStartTlsDiscardCaps()
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE( authSpy->size(), 1 );
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test how COMPRESS=DEFLATE gets activated and its interaction with further tasks */
@@ -512,6 +527,8 @@ void ImapModelOpenConnectionTest::testCompressDeflateOk()
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test that denied COMPRESS=DEFLATE doesn't result in compression being active */
@@ -552,6 +569,8 @@ void ImapModelOpenConnectionTest::testCompressDeflateNo()
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Make sure that as long as the OpenConnectionTask has not finished its job, nothing else will get queued */
@@ -593,6 +612,8 @@ void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test that no tasks can skip over a task which is blocking for login */
@@ -661,6 +682,8 @@ void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
     QCOMPARE(authSpy->size(), 1);
     QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    QCOMPARE(authErrorSpy->size(), 0);
+    QCOMPARE(model->imapAuthError(), QString());
 }
 
 /** @short Test that we respect an initial BYE and don't proceed with login */
@@ -707,6 +730,50 @@ void ImapModelOpenConnectionTest::testInitialGarbage_data()
 
     QTest::newRow("pop3")
         << QByteArray("+OK InterMail POP3 server ready.\r\n");
+}
+
+void ImapModelOpenConnectionTest::testAuthFailure()
+{
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    SOCK->fakeReading("* OK [capability imap4rev1] Serivce Ready\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(authSpy->size(), 1);
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n"));
+    SOCK->fakeReading("y0 NO [AUTHENTICATIONFAILED] foobar\r\n");
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(completedSpy->size(), 0);
+    QCOMPARE(authSpy->size(), 1);
+    QCOMPARE(authErrorSpy->size(), 1);
+    QVERIFY(model->imapAuthError().contains("foobar"));
+}
+
+void ImapModelOpenConnectionTest::testAuthFailureNoRespCode()
+{
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QVERIFY(SOCK->writtenStuff().isEmpty());
+    SOCK->fakeReading("* OK [capability imap4rev1] Service Ready\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(authSpy->size(), 1);
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n"));
+    SOCK->fakeReading("y0 NO Derp\r\n");
+    QCoreApplication::processEvents();
+    QCoreApplication::processEvents();
+    QCOMPARE(completedSpy->size(), 0);
+    QCOMPARE(authSpy->size(), 1);
+    QCOMPARE(authErrorSpy->size(), 1);
+    QVERIFY(model->imapAuthError().contains("Derp"));
 }
 
 // FIXME: verify how LOGINDISABLED even after STARTLS ends up

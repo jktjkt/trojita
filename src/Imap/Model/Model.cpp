@@ -1862,6 +1862,8 @@ QString Model::imapAuthError() const
 
 void Model::setImapAuthError(const QString &error)
 {
+    if (m_imapAuthError == error)
+        return;
     m_imapAuthError = error;
     emit imapAuthErrorChanged(error);
 }
