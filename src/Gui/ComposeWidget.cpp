@@ -392,16 +392,26 @@ ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Compos
 
 void ComposeWidget::updateReplyMode()
 {
-    if (m_actionHandPickedRecipients->isChecked())
+    bool replyModeWorking = false;
+    if (m_actionHandPickedRecipients->isChecked()) {
         markReplyModeHandpicked();
-    else if (m_actionReplyModePrivate->isChecked())
-        setReplyMode(Composer::REPLY_PRIVATE);
-    else if (m_actionReplyModeAllButMe->isChecked())
-        setReplyMode(Composer::REPLY_ALL_BUT_ME);
-    else if (m_actionReplyModeAll->isChecked())
-        setReplyMode(Composer::REPLY_ALL);
-    else if (m_actionReplyModeList->isChecked())
-        setReplyMode(Composer::REPLY_LIST);
+        replyModeWorking = true;
+    } else if (m_actionReplyModePrivate->isChecked()) {
+        replyModeWorking = setReplyMode(Composer::REPLY_PRIVATE);
+    } else if (m_actionReplyModeAllButMe->isChecked()) {
+        replyModeWorking = setReplyMode(Composer::REPLY_ALL_BUT_ME);
+    } else if (m_actionReplyModeAll->isChecked()) {
+        replyModeWorking = setReplyMode(Composer::REPLY_ALL);
+    } else if (m_actionReplyModeList->isChecked()) {
+        replyModeWorking = setReplyMode(Composer::REPLY_LIST);
+    }
+
+    if (!replyModeWorking) {
+        markReplyModeHandpicked();
+        // This is for now by design going in one direction only, from enabled to disabled.
+        // The index to the message cannot become valid again, and simply marking the buttons as disabled does the trick quite neatly.
+        m_replyModeButton->setEnabled(false);
+    }
 }
 
 void ComposeWidget::markReplyModeHandpicked()
