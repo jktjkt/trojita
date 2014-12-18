@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2014 Thomas Lübking <thomas.luebking@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -23,6 +24,7 @@
 #include "TaskProgressIndicator.h"
 #include <QApplication>
 #include <QMouseEvent>
+#include <QTimer>
 #include "Imap/Model/Model.h"
 #include "Imap/Model/VisibleTasksModel.h"
 
@@ -30,10 +32,13 @@ namespace Gui
 {
 
 TaskProgressIndicator::TaskProgressIndicator(QWidget *parent) :
-    QProgressBar(parent), m_busy(false)
+    QProgressBar(parent), m_busyCursorTrigger(new QTimer(this)), m_busy(false)
 {
     setMinimum(0);
     setMaximum(0);
+    connect(m_busyCursorTrigger, SIGNAL(timeout()), this, SLOT(setCursorBusy()));
+    m_busyCursorTrigger->setSingleShot(true);
+    m_busyCursorTrigger->setInterval(666);
 }
 
 /** @short Connect to the specified IMAP model as the source of the activity information */
@@ -57,9 +62,17 @@ void TaskProgressIndicator::updateActivityIndication()
     bool busy = m_visibleTasksModel->hasChildren();
     setVisible(busy);
     if (!m_busy && busy) {
-        QApplication::setOverrideCursor(Qt::WaitCursor);
+        if (!m_busyCursorTrigger->isActive()) {
+            // do NOT restart, we don't want to prolong this delay
+            m_busyCursorTrigger->start();
+        }
     } else if (m_busy && !busy) {
-        QApplication::restoreOverrideCursor();
+        if (!m_busyCursorTrigger->isActive()) {
+            // don't restore unless we've alredy set it
+            QApplication::restoreOverrideCursor();
+        }
+        // don't cause future timeout
+        m_busyCursorTrigger->stop();
     }
 
     if (busy) {
@@ -69,6 +82,11 @@ void TaskProgressIndicator::updateActivityIndication()
     }
 
     m_busy = busy;
+}
+
+void TaskProgressIndicator::setCursorBusy()
+{
+    QApplication::setOverrideCursor(Qt::BusyCursor);
 }
 
 /** @short Reimplemented from QProgressBar for launching the pop-up widgets with detailed activity */

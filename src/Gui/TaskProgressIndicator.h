@@ -26,6 +26,8 @@
 #include <QPointer>
 #include <QProgressBar>
 
+class QTimer;
+
 namespace Imap
 {
 namespace Mailbox
@@ -53,9 +55,14 @@ public slots:
 protected:
     void mousePressEvent(QMouseEvent *event);
 
+private slots:
+    void setCursorBusy();
+
 private:
     /** @short Model for a list of "visible tasks" */
     QPointer<Imap::Mailbox::VisibleTasksModel> m_visibleTasksModel;
+
+    QTimer *m_busyCursorTrigger;
 
     /** @short Is there any ongoing activity? */
     bool m_busy;
