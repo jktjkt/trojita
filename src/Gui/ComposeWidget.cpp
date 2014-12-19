@@ -416,11 +416,9 @@ void ComposeWidget::updateReplyMode()
 
 void ComposeWidget::markReplyModeHandpicked()
 {
-    if (m_replyModeButton->isEnabled()) {
-        m_actionHandPickedRecipients->setChecked(true);
-        m_replyModeButton->setText(m_actionHandPickedRecipients->text());
-        m_replyModeButton->setIcon(m_actionHandPickedRecipients->icon());
-    }
+    m_actionHandPickedRecipients->setChecked(true);
+    m_replyModeButton->setText(m_actionHandPickedRecipients->text());
+    m_replyModeButton->setIcon(m_actionHandPickedRecipients->icon());
 }
 
 void ComposeWidget::passwordRequested(const QString &user, const QString &host)
