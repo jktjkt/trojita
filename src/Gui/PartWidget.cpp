@@ -67,6 +67,9 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
     // Which "textual, boring part" should be shown?
     int preferredTextIndex = -1;
 
+    // Some part which is "strange", i.e. something to draw the user's attention to
+    int someSuspiciousIndex = -1;
+
     // First loop iteration is used to find out what MIME type to show.
     // Two iterations are needed because we have to know about whether we're shown or hidden when creating child widgets.
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
@@ -84,12 +87,19 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         } else if (isHtml && !plaintextIsPreferred) {
             preferredTextIndex = i;
         }
+
+        if (!isPlainText && !isHtml && someSuspiciousIndex == -1) {
+            someSuspiciousIndex = i;
+        }
     }
 
     // Show that part which is "the most important". The choice is usually between text/plain and text/html, one of them will win,
-    // depending on the user's preferences.  If there are additional parts, the user will be alerted about them later on.
+    // depending on the user's preferences.  If there are additional parts, the user will be alerted about them later on, and some
+    // of these suspicious parts wins the race.
     // As usual, the later parts win in general.
-    int preferredIndex = preferredTextIndex == -1 ? partIndex.model()->rowCount(partIndex) - 1 : preferredTextIndex;
+    int preferredIndex = someSuspiciousIndex == -1 ?
+                (preferredTextIndex == -1 ? partIndex.model()->rowCount(partIndex) - 1 : preferredTextIndex) :
+                someSuspiciousIndex;
 
     // The second loop actually creates the widgets
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
