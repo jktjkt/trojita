@@ -51,6 +51,7 @@ public:
     QSize sizeHint() const;
     QWidget *scrollParent() const;
     void setStaticWidth(int staticWidth);
+    int staticWidth() const;
 protected:
     void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);

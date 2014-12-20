@@ -301,6 +301,11 @@ void EmbeddedWebView::setStaticWidth(int staticWidth)
     m_staticWidth = staticWidth;
 }
 
+int EmbeddedWebView::staticWidth() const
+{
+    return m_staticWidth;
+}
+
 ErrorCheckingPage::ErrorCheckingPage(QObject *parent): QWebPage(parent)
 {
 }

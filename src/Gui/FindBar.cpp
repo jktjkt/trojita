@@ -300,9 +300,12 @@ void FindBar::setAssociatedWebView(EmbeddedWebView *webView)
 
     m_associatedWebView = webView;
 
-    // Automatically hide this FindBar widget when the underlying webview goes away
-    if (m_associatedWebView)
+    if (m_associatedWebView) {
+        // highlighting is fancy, but terribly expensive - disable by default for fat messages
+        m_highlightAll->setChecked(!m_associatedWebView->staticWidth());
+        // Automatically hide this FindBar widget when the underlying webview goes away
         connect(m_associatedWebView, SIGNAL(destroyed(QObject*)), this, SLOT(hide()));
+    }
 }
 
 }
