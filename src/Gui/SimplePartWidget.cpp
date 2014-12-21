@@ -147,9 +147,7 @@ void SimplePartWidget::slotDownloadPart()
 
 void SimplePartWidget::slotDownloadMessage()
 {
-    Q_ASSERT(m_partIndex.isValid());
     QModelIndex index = m_partIndex.data(Imap::Mailbox::RolePartMessageIndex).value<QModelIndex>();
-
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccessManager, index);
     connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
     connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
