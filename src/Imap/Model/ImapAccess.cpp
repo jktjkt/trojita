@@ -215,9 +215,16 @@ void ImapAccess::setConnectionMethod(const Common::ConnectionMethod mode)
 
 void ImapAccess::doConnect()
 {
+    if (m_netWatcher) {
+        // We're temporarily "disabling" this connection. Otherwise this "offline preference"
+        // would get saved into the config file, which would be bad.
+        disconnect(m_netWatcher, SIGNAL(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)),
+                   this, SLOT(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)));
+    }
+
     if (m_imapModel) {
         // Disconnect from network, nuke the models
-        qobject_cast<Imap::Mailbox::NetworkWatcher *>(networkWatcher())->setNetworkOffline();
+        m_netWatcher->setNetworkOffline();
         delete m_threadingMsgListModel;
         m_threadingMsgListModel = 0;
         delete m_msgQNAM;
