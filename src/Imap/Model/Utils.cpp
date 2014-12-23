@@ -383,7 +383,7 @@ void migrateSettings(QSettings *settings)
 
     QVariant offlineSetting = settings->value(SettingsNames::obsImapStartOffline);
     if (offlineSetting.isValid()) {
-        settings->setValue(SettingsNames::imapStartMode, offlineSetting.toBool() ? Imap::Mailbox::NETWORK_OFFLINE : Imap::Mailbox::NETWORK_ONLINE);
+        settings->setValue(SettingsNames::imapStartMode, offlineSetting.toBool() ? Common::SettingsNames::netOffline : Common::SettingsNames::netOnline);
         settings->remove(SettingsNames::obsImapStartOffline);
     }
 }

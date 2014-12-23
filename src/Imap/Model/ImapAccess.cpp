@@ -213,6 +213,18 @@ void ImapAccess::setConnectionMethod(const Common::ConnectionMethod mode)
     emit connMethodChanged();
 }
 
+Imap::Mailbox::NetworkPolicy ImapAccess::preferredNetworkPolicy() const
+{
+    auto val = m_settings->value(Common::SettingsNames::imapStartMode).toString();
+    if (val == Common::SettingsNames::netOffline) {
+        return Imap::Mailbox::NETWORK_OFFLINE;
+    } else if (val == Common::SettingsNames::netExpensive) {
+        return Imap::Mailbox::NETWORK_EXPENSIVE;
+    } else {
+        return Imap::Mailbox::NETWORK_ONLINE;
+    }
+}
+
 void ImapAccess::doConnect()
 {
     if (m_netWatcher) {
@@ -343,7 +355,7 @@ void ImapAccess::doConnect()
     }
     connect(m_netWatcher, SIGNAL(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)),
             this, SLOT(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)));
-    switch (m_settings->value(Common::SettingsNames::imapStartMode, Imap::Mailbox::NETWORK_ONLINE).toInt()) {
+    switch (preferredNetworkPolicy()) {
     case Imap::Mailbox::NETWORK_OFFLINE:
         QMetaObject::invokeMethod(m_netWatcher, "setNetworkOffline", Qt::QueuedConnection);
         break;
@@ -478,7 +490,17 @@ void ImapAccess::onRequireStartTlsInFuture()
 
 void ImapAccess::desiredNetworkPolicyChanged(const Mailbox::NetworkPolicy policy)
 {
-    m_settings->setValue(Common::SettingsNames::imapStartMode, policy);
+    switch (policy) {
+    case Mailbox::NETWORK_OFFLINE:
+        m_settings->setValue(Common::SettingsNames::imapStartMode, Common::SettingsNames::netOffline);
+        break;
+    case Mailbox::NETWORK_EXPENSIVE:
+        m_settings->setValue(Common::SettingsNames::imapStartMode, Common::SettingsNames::netExpensive);
+        break;
+    case Mailbox::NETWORK_ONLINE:
+        m_settings->setValue(Common::SettingsNames::imapStartMode, Common::SettingsNames::netOnline);
+        break;
+    }
 }
 
 void ImapAccess::setSslPolicy(bool accept)

@@ -96,6 +96,8 @@ public:
     Common::ConnectionMethod connectionMethod() const;
     void setConnectionMethod(const Common::ConnectionMethod mode);
 
+    Imap::Mailbox::NetworkPolicy preferredNetworkPolicy() const;
+
     Q_INVOKABLE void doConnect();
 
     QString sslInfoTitle() const;
