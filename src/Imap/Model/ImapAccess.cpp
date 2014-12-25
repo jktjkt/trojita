@@ -213,11 +213,30 @@ void ImapAccess::setConnectionMethod(const Common::ConnectionMethod mode)
     emit connMethodChanged();
 }
 
+Imap::Mailbox::NetworkPolicy ImapAccess::preferredNetworkPolicy() const
+{
+    auto val = m_settings->value(Common::SettingsNames::imapStartMode).toString();
+    if (val == Common::SettingsNames::netOffline) {
+        return Imap::Mailbox::NETWORK_OFFLINE;
+    } else if (val == Common::SettingsNames::netExpensive) {
+        return Imap::Mailbox::NETWORK_EXPENSIVE;
+    } else {
+        return Imap::Mailbox::NETWORK_ONLINE;
+    }
+}
+
 void ImapAccess::doConnect()
 {
+    if (m_netWatcher) {
+        // We're temporarily "disabling" this connection. Otherwise this "offline preference"
+        // would get saved into the config file, which would be bad.
+        disconnect(m_netWatcher, SIGNAL(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)),
+                   this, SLOT(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)));
+    }
+
     if (m_imapModel) {
         // Disconnect from network, nuke the models
-        qobject_cast<Imap::Mailbox::NetworkWatcher *>(networkWatcher())->setNetworkOffline();
+        m_netWatcher->setNetworkOffline();
         delete m_threadingMsgListModel;
         m_threadingMsgListModel = 0;
         delete m_msgQNAM;
@@ -334,10 +353,19 @@ void ImapAccess::doConnect()
     } else {
         m_netWatcher = new Imap::Mailbox::DummyNetworkWatcher(this, m_imapModel);
     }
-    QMetaObject::invokeMethod(m_netWatcher,
-                              m_settings->value(Common::SettingsNames::imapStartOffline).toBool() ?
-                                  "setNetworkOffline" : "setNetworkOnline",
-                              Qt::QueuedConnection);
+    connect(m_netWatcher, SIGNAL(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)),
+            this, SLOT(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)));
+    switch (preferredNetworkPolicy()) {
+    case Imap::Mailbox::NETWORK_OFFLINE:
+        QMetaObject::invokeMethod(m_netWatcher, "setNetworkOffline", Qt::QueuedConnection);
+        break;
+    case Imap::Mailbox::NETWORK_EXPENSIVE:
+        QMetaObject::invokeMethod(m_netWatcher, "setNetworkExpensive", Qt::QueuedConnection);
+        break;
+    case Imap::Mailbox::NETWORK_ONLINE:
+        QMetaObject::invokeMethod(m_netWatcher, "setNetworkOnline", Qt::QueuedConnection);
+        break;
+    }
 
     m_imapModel->setImapUser(username());
     if (!m_password.isNull()) {
@@ -457,6 +485,21 @@ void ImapAccess::onRequireStartTlsInFuture()
     // In order to not change stuff which was not supposed to be changed, let's make sure that we won't undo their changes.
     if (connectionMethod() == Common::ConnectionMethod::NetCleartext) {
         setConnectionMethod(Common::ConnectionMethod::NetStartTls);
+    }
+}
+
+void ImapAccess::desiredNetworkPolicyChanged(const Mailbox::NetworkPolicy policy)
+{
+    switch (policy) {
+    case Mailbox::NETWORK_OFFLINE:
+        m_settings->setValue(Common::SettingsNames::imapStartMode, Common::SettingsNames::netOffline);
+        break;
+    case Mailbox::NETWORK_EXPENSIVE:
+        m_settings->setValue(Common::SettingsNames::imapStartMode, Common::SettingsNames::netExpensive);
+        break;
+    case Mailbox::NETWORK_ONLINE:
+        m_settings->setValue(Common::SettingsNames::imapStartMode, Common::SettingsNames::netOnline);
+        break;
     }
 }
 

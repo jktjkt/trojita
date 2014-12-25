@@ -628,8 +628,9 @@ void MainWindow::createWidgets()
     connect(m_messageWidget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
             this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     connect(m_messageWidget->messageView, SIGNAL(transferError(QString)), this, SLOT(slotDownloadTransferError(QString)));
+    // Do not try to get onto the homepage when we are on EXPENSIVE connection
     if (m_settings->value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
-        !m_settings->value(Common::SettingsNames::imapStartOffline).toBool()) {
+        m_imapAccess->preferredNetworkPolicy() == Imap::Mailbox::NETWORK_ONLINE) {
         m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(Common::Application::version)));
     }
 

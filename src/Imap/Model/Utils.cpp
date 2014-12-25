@@ -36,6 +36,7 @@
 
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
+#include "Imap/Model/NetworkPolicy.h"
 
 #ifdef TROJITA_MOBILITY_SYSTEMINFO
 #include <QSystemDeviceInfo>
@@ -378,6 +379,12 @@ void migrateSettings(QSettings *settings)
             settings->remove(Common::SettingsNames::obsRealNameKey);
             settings->remove(Common::SettingsNames::obsAddressKey);
         }
+    }
+
+    QVariant offlineSetting = settings->value(SettingsNames::obsImapStartOffline);
+    if (offlineSetting.isValid()) {
+        settings->setValue(SettingsNames::imapStartMode, offlineSetting.toBool() ? Common::SettingsNames::netOffline : Common::SettingsNames::netOnline);
+        settings->remove(SettingsNames::obsImapStartOffline);
     }
 }
 

@@ -56,7 +56,11 @@ const QString SettingsNames::imapStartTlsKey = QLatin1String("imap.starttls");
 const QString SettingsNames::imapUserKey = QLatin1String("imap.auth.user");
 // in use by the cleartext password plugin: "imap.auth.pass"
 const QString SettingsNames::imapProcessKey = QLatin1String("imap.process");
-const QString SettingsNames::imapStartOffline = QLatin1String("imap.offline");
+const QString SettingsNames::imapStartMode = QLatin1String("imap.startmode");
+const QString SettingsNames::netOffline = QLatin1String("OFFLINE");
+const QString SettingsNames::netExpensive = QLatin1String("EXPENSIVE");
+const QString SettingsNames::netOnline = QLatin1String("ONLINE");
+const QString SettingsNames::obsImapStartOffline = QLatin1String("imap.offline");
 const QString SettingsNames::imapEnableId = QLatin1String("imap.enableId");
 const QString SettingsNames::obsImapSslPemCertificate = QLatin1String("imap.ssl.pemCertificate");
 const QString SettingsNames::imapSslPemPubKey = QLatin1String("imap.ssl.pemPubKey");

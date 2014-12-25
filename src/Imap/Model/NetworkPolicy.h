@@ -28,7 +28,7 @@ namespace Mailbox {
 
 /** @short Policy for accessing network */
 enum NetworkPolicy {
-    /**< @short No access to the network at all
+    /** @short No access to the network at all
 
     All network activity is suspended. If an action requires network access,
     it will either fail or be queued for later. */

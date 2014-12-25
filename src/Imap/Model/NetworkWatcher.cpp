@@ -81,6 +81,7 @@ void NetworkWatcher::setNetworkOffline()
 {
     resetReconnectTimer();
     setDesiredNetworkPolicy(NETWORK_OFFLINE);
+    emit desiredNetworkPolicyChanged(NETWORK_OFFLINE);
 }
 
 /** @short Set the network access policy to "possible, but expensive" */
@@ -88,6 +89,7 @@ void NetworkWatcher::setNetworkExpensive()
 {
     resetReconnectTimer();
     setDesiredNetworkPolicy(NETWORK_EXPENSIVE);
+    emit desiredNetworkPolicyChanged(NETWORK_EXPENSIVE);
 }
 
 /** @short Set the network access policy to "it's cheap to use it" */
@@ -95,6 +97,7 @@ void NetworkWatcher::setNetworkOnline()
 {
     resetReconnectTimer();
     setDesiredNetworkPolicy(NETWORK_ONLINE);
+    emit desiredNetworkPolicyChanged(NETWORK_ONLINE);
 }
 
 NetworkPolicy NetworkWatcher::desiredNetworkPolicy() const
