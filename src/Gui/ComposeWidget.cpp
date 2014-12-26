@@ -1,6 +1,6 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
    Copyright (C) 2012 Peter Amidon <peter@picnicpark.org>
-   Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
+   Copyright (C) 2013 - 2014 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -47,8 +47,6 @@
 #include "Common/InvokeMethod.h"
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
-#include "Gui/AbstractAddressbook.h"
-#include "Gui/AutoCompletion.h"
 #include "Gui/ComposeWidget.h"
 #include "Gui/FromAddressProxyModel.h"
 #include "Gui/LineEdit.h"
@@ -59,9 +57,11 @@
 #include "Gui/Window.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
+#include "Imap/Parser/MailAddress.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/GenUrlAuthTask.h"
 #include "Imap/Tasks/UidSubmitTask.h"
+#include "Plugins/AddressbookPlugin.h"
 #include "Plugins/PluginManager.h"
 #include "ShortcutHandler/ShortcutHandler.h"
 #include "UiUtils/Color.h"
@@ -1171,7 +1171,99 @@ void ComposeWidget::completeRecipients(const QString &text)
     Q_ASSERT(sender());
     QLineEdit *toEdit = qobject_cast<QLineEdit*>(sender());
     Q_ASSERT(toEdit);
-    QStringList contacts = m_mainWindow->addressBook()->complete(text, QStringList(), m_completionCount);
+
+    Plugins::AddressbookJob *firstJob = m_firstCompletionRequests.take(toEdit);
+    Plugins::AddressbookJob *secondJob = m_secondCompletionRequests.take(toEdit);
+
+    // if two jobs are running, first was started before second so first should finish earlier
+    // stop second job
+    if (firstJob && secondJob) {
+        disconnect(secondJob, 0, this, 0);
+        secondJob->stop();
+        secondJob->deleteLater();
+        secondJob = 0;
+    }
+    // now at most one job is running
+
+    Plugins::AddressbookPlugin *addressbook = m_mainWindow->pluginManager()->addressbook();
+    if (!addressbook || !(addressbook->features() & Plugins::AddressbookPlugin::FeatureCompletion))
+        return;
+
+    Plugins::AddressbookJob *newJob = addressbook->requestCompletion(text, QStringList(), m_completionCount);
+
+    if (!newJob)
+        return;
+
+    if (secondJob) {
+        // if only second job is running move second to first and push new as second
+        firstJob = secondJob;
+        secondJob = newJob;
+    } else if (firstJob) {
+        // if only first job is running push new job as second
+        secondJob = newJob;
+    } else {
+        // if no jobs is running push new job as first
+        firstJob = newJob;
+    }
+
+    if (firstJob)
+        m_firstCompletionRequests.insert(toEdit, firstJob);
+
+    if (secondJob)
+        m_secondCompletionRequests.insert(toEdit, secondJob);
+
+    connect(newJob, SIGNAL(completionAvailable(Plugins::NameEmailList)), this, SLOT(onCompletionAvailable(Plugins::NameEmailList)));
+    connect(newJob, SIGNAL(error(Plugins::AddressbookJob::Error)), this, SLOT(onCompletionFailed(Plugins::AddressbookJob::Error)));
+
+    newJob->setAutoDelete(true);
+    newJob->start();
+}
+
+void ComposeWidget::onCompletionFailed(Plugins::AddressbookJob::Error error)
+{
+    Q_UNUSED(error);
+    onCompletionAvailable(Plugins::NameEmailList());
+}
+
+void ComposeWidget::onCompletionAvailable(const Plugins::NameEmailList &completion)
+{
+    Plugins::AddressbookJob *job = qobject_cast<Plugins::AddressbookJob *>(sender());
+    Q_ASSERT(job);
+    QLineEdit *toEdit = m_firstCompletionRequests.key(job);
+
+    if (!toEdit)
+        toEdit = m_secondCompletionRequests.key(job);
+
+    if (!toEdit)
+        return;
+
+    // jobs are removed from QMap below
+    Plugins::AddressbookJob *firstJob = m_firstCompletionRequests.value(toEdit);
+    Plugins::AddressbookJob *secondJob = m_secondCompletionRequests.value(toEdit);
+
+    if (job == secondJob) {
+        // second job finished before first and first was started before second
+        // so stop first because it has old data
+        if (firstJob) {
+            disconnect(firstJob, 0, this, 0);
+            firstJob->stop();
+            firstJob->deleteLater();
+            firstJob = nullptr;
+        }
+        m_firstCompletionRequests.remove(toEdit);
+        m_secondCompletionRequests.remove(toEdit);
+    } else if (job == firstJob) {
+        // first job finished, but if second is still running it will have new data, so do not stop it
+        m_firstCompletionRequests.remove(toEdit);
+    }
+
+    QStringList contacts;
+
+    for (int i = 0; i < completion.size(); ++i) {
+        const Plugins::NameEmail &item = completion.at(i);
+        contacts << Imap::Message::MailAddress::fromNameAndMail(item.name, item.email).asPrettyString();
+    }
+
     if (contacts.isEmpty() && m_completionPopup) {
         m_completionPopup->close();
         m_completionReceiver = 0;

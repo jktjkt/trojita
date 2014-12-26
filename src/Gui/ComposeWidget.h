@@ -23,12 +23,14 @@
 #define COMPOSEWIDGET_H
 
 #include <QList>
+#include <QMap>
 #include <QPersistentModelIndex>
 #include <QUrl>
 #include <QPointer>
 #include <QWidget>
 
 #include "Composer/Recipients.h"
+#include "Plugins/AddressbookPlugin.h"
 
 namespace Ui
 {
@@ -110,6 +112,9 @@ private slots:
 
     void setUiWidgetsEnabled(const bool enabled);
 
+    void onCompletionAvailable(const Plugins::NameEmailList &completion);
+    void onCompletionFailed(Plugins::AddressbookJob::Error error);
+
     void passwordRequested(const QString &user, const QString &host);
     void passwordError();
     void toggleReplyMarking();
@@ -190,6 +195,9 @@ private:
     QMenu *m_completionPopup;
     QLineEdit *m_completionReceiver;
     int m_completionCount;
+
+    QMap<QLineEdit *, Plugins::AddressbookJob *> m_firstCompletionRequests;
+    QMap<QLineEdit *, Plugins::AddressbookJob *> m_secondCompletionRequests;
 
 
     ComposeWidget(const ComposeWidget &); // don't implement
