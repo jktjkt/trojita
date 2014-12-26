@@ -1,6 +1,7 @@
 /* Copyright (C) 2012 Thomas Lübking <thomas.luebking@gmail.com>
    Copyright (C) 2013 Caspar Schutijser <caspar@schutijser.com>
    Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2013 - 2014 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -27,21 +28,24 @@
 
 #include <QObject>
 #include <QPair>
-#include "Gui/AbstractAddressbook.h"
+
+#include "Plugins/AddressbookPlugin.h"
+#include "Plugins/PluginInterface.h"
 
 class QFileSystemWatcher;
 class QStandardItemModel;
 class QTimer;
 
-namespace Gui
-{
+using namespace Plugins;
 
 /** @short A generic local adressbook interface*/
-class AbookAddressbook : public QObject, public AbstractAddressbook {
+class AbookAddressbook : public AddressbookPlugin {
     Q_OBJECT
 public:
-    AbookAddressbook();
+    AbookAddressbook(QObject *parent);
     virtual ~AbookAddressbook();
+
+    virtual AddressbookPlugin::Features features() const;
 
     enum Type { Name = Qt::DisplayRole, Mail = Qt::UserRole + 1,
                 Address, Address2, City, State, ZIP, Country,
@@ -49,12 +53,17 @@ public:
                 Nick, URL, Notes, Anniversary, Photo,
                 UnknownKeys, Dirty };
 
-    virtual QStringList complete(const QString &string, const QStringList &ignores, int max = -1) const;
-    virtual QStringList prettyNamesForAddress(const QString &mail) const;
+    NameEmailList complete(const QString &string, const QStringList &ignores, int max = -1) const;
+    QStringList prettyNamesForAddress(const QString &mail) const;
 
     QStandardItemModel *model() const;
 
 public slots:
+    virtual AddressbookCompletionJob *requestCompletion(const QString &input, const QStringList &ignores = QStringList(), int max = -1);
+    virtual AddressbookNamesJob *requestPrettyNamesForAddress(const QString &email);
+    virtual void openAddressbookWindow();
+    virtual void openContactWindow(const QString &email, const QString &displayName);
+
     void saveContacts();
     void readAbook(bool update = false);
     void updateAbook();
@@ -65,7 +74,6 @@ private slots:
 private:
     void ensureAbookPath();
     void remonitorAdressbook();
-    static QString formatAddress(const QString &contactName, const QString &mail);
 
     QFileSystemWatcher *m_filesystemWatcher;
     QTimer *m_updateTimer;
@@ -74,6 +82,18 @@ private:
     QList<QPair<Type,QString> > m_fields;
 };
 
-}
+class trojita_plugin_AbookAddressbookPlugin : public QObject, public PluginInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(Plugins::PluginInterface)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.addressbook.abookaddressbook")
+#endif
+
+public:
+    virtual QString name() const;
+    virtual QString description() const;
+    virtual QObject *create(QObject *parent, QSettings *settings);
+};
 
 #endif // ABOOK_ADDRESSBOOK

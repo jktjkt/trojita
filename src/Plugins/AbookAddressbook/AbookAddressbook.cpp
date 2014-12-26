@@ -1,6 +1,7 @@
 /* Copyright (C) 2012 Thomas Lübking <thomas.luebking@gmail.com>
    Copyright (C) 2013 Caspar Schutijser <caspar@schutijser.com>
    Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2013 - 2014 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -23,6 +24,7 @@
 */
 
 #include "AbookAddressbook.h"
+#include "be-contacts.h"
 
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -32,9 +34,61 @@
 #include <QTimer>
 #include "Common/SettingsCategoryGuard.h"
 
-using namespace Gui;
+class AbookAddressbookCompletionJob : public AddressbookCompletionJob
+{
+public:
+    AbookAddressbookCompletionJob(const QString &input, const QStringList &ignores, int max, AbookAddressbook *parent) :
+        AddressbookCompletionJob(parent), m_input(input), m_ignores(ignores), m_max(max), m_parent(parent) {}
 
-AbookAddressbook::AbookAddressbook(): m_updateTimer(0)
+public slots:
+    virtual void doStart()
+    {
+        NameEmailList completion = m_parent->complete(m_input, m_ignores, m_max);
+        emit completionAvailable(completion);
+        finished();
+    }
+
+    virtual void doStop()
+    {
+        emit error(AddressbookJob::Stopped);
+        finished();
+    }
+
+private:
+    QString m_input;
+    QStringList m_ignores;
+    int m_max;
+    AbookAddressbook *m_parent;
+
+};
+
+class AbookAddressbookNamesJob : public AddressbookNamesJob
+{
+public:
+    AbookAddressbookNamesJob(const QString &email, AbookAddressbook *parent) :
+        AddressbookNamesJob(parent), m_email(email), m_parent(parent) {}
+
+public slots:
+    virtual void doStart()
+    {
+        QStringList displayNames = m_parent->prettyNamesForAddress(m_email);
+        emit prettyNamesForAddressAvailable(displayNames);
+        finished();
+    }
+
+    virtual void doStop()
+    {
+        emit error(AddressbookJob::Stopped);
+        finished();
+    }
+
+private:
+    QString m_email;
+    AbookAddressbook *m_parent;
+
+};
+
+AbookAddressbook::AbookAddressbook(QObject *parent): AddressbookPlugin(parent), m_updateTimer(0)
 {
 #define ADD(TYPE, KEY) \
     m_fields << qMakePair<Type,QString>(TYPE, QLatin1String(KEY))
@@ -69,6 +123,39 @@ AbookAddressbook::AbookAddressbook(): m_updateTimer(0)
 
 AbookAddressbook::~AbookAddressbook()
 {
+}
+
+AddressbookPlugin::Features AbookAddressbook::features() const
+{
+    return FeatureAddressbookWindow | FeatureContactWindow | FeatureAddContact | FeatureEditContact | FeatureCompletion | FeaturePrettyNames;
+}
+
+AddressbookCompletionJob *AbookAddressbook::requestCompletion(const QString &input, const QStringList &ignores, int max)
+{
+    return new AbookAddressbookCompletionJob(input, ignores, max, this);
+}
+
+AddressbookNamesJob *AbookAddressbook::requestPrettyNamesForAddress(const QString &email)
+{
+    return new AbookAddressbookNamesJob(email, this);
+}
+
+void AbookAddressbook::openAddressbookWindow()
+{
+    BE::Contacts *window = new BE::Contacts(this);
+    window->setAttribute(Qt::WA_DeleteOnClose, true);
+    //: Translators: BE::Contacts is the name of a stand-alone address book application.
+    //: BE refers to Bose/Einstein (condensate).
+    window->setWindowTitle(BE::Contacts::tr("BE::Contacts"));
+    window->show();
+}
+
+void AbookAddressbook::openContactWindow(const QString &email, const QString &displayName)
+{
+    BE::Contacts *window = new BE::Contacts(this);
+    window->setAttribute(Qt::WA_DeleteOnClose, true);
+    window->manageContact(email, displayName);
+    window->show();
 }
 
 QStandardItemModel *AbookAddressbook::model() const
@@ -245,11 +332,11 @@ static inline bool ignore(const QString &string, const QStringList &ignores)
     return false;
 }
 
-QStringList AbookAddressbook::complete(const QString &string, const QStringList &ignores, int max) const
+NameEmailList AbookAddressbook::complete(const QString &string, const QStringList &ignores, int max) const
 {
+    NameEmailList list;
     if (string.isEmpty())
-        return QStringList();
-    QStringList list;
+        return list;
     // In e-mail addresses, dot, dash, _ and @ shall be treated as delimiters
     QRegExp mailMatch = QRegExp(QString::fromUtf8("[\\.\\-_@]%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
     // In human readable names, match on word boundaries
@@ -264,7 +351,7 @@ QStringList AbookAddressbook::complete(const QString &string, const QStringList 
             Q_FOREACH (const QString &mail, contactMails) {
                 if (ignore(mail, ignores))
                     continue;
-                list << formatAddress(contactName, mail);
+                list << NameEmail(contactName, mail);
                 if (list.count() == max)
                     return list;
             }
@@ -276,21 +363,13 @@ QStringList AbookAddressbook::complete(const QString &string, const QStringList 
                     mail.section(QLatin1Char('.'), 0, -2).contains(mailMatch)) {
                 if (ignore(mail, ignores))
                     continue;
-                list << formatAddress(contactName, mail);
+                list << NameEmail(contactName, mail);
                 if (list.count() == max)
                     return list;
             }
         }
     }
     return list;
-}
-
-QString AbookAddressbook::formatAddress(const QString &contactName, const QString &mail)
-{
-    if (contactName.isEmpty() || contactName == mail)
-        return mail;
-    else
-        return contactName % QLatin1String(" <") % mail % QLatin1String(">");
 }
 
 QStringList AbookAddressbook::prettyNamesForAddress(const QString &mail) const
@@ -303,3 +382,23 @@ QStringList AbookAddressbook::prettyNamesForAddress(const QString &mail) const
     }
     return res;
 }
+
+
+QString trojita_plugin_AbookAddressbookPlugin::name() const
+{
+    return QLatin1String("abookaddressbook");
+}
+
+QString trojita_plugin_AbookAddressbookPlugin::description() const
+{
+    return tr("Addressbook in ~/.abook/");
+}
+
+QObject *trojita_plugin_AbookAddressbookPlugin::create(QObject *parent, QSettings *)
+{
+    return new AbookAddressbook(parent);
+}
+
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    Q_EXPORT_PLUGIN2(trojita_plugin_AbookAddressbookPlugin, trojita_plugin_AbookAddressbookPlugin)
+#endif

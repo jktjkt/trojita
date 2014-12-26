@@ -139,6 +139,7 @@ else()
     endif()
 endif()
 
+trojita_plugin_option(WITH_ABOOKADDRESSBOOK_PLUGIN "Build AbookAddressbook plugin" "NOT WITH_HARMATTAN" STATIC)
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
 trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN${QTKEYCHAIN_DEPENDS}")
 
@@ -410,7 +411,6 @@ set(path_DesktopGui ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui)
 set(libDesktopGui_SOURCES
     ${path_DesktopGui}/AddressRowWidget.cpp
     ${path_DesktopGui}/AttachmentView.cpp
-    ${path_DesktopGui}/AutoCompletion.cpp
     ${path_DesktopGui}/CompleteMessageWidget.cpp
     ${path_DesktopGui}/ComposeWidget.cpp
     ${path_DesktopGui}/ComposerAttachmentsList.cpp
@@ -578,16 +578,6 @@ else()
         ${path_Imap}/Parser/Rfc5322HeaderParser.generated.cpp)
 endif()
 
-set(path_AbookAddressbook ${CMAKE_CURRENT_SOURCE_DIR}/src/AbookAddressbook)
-set(libAbookAddressbook_SOURCES
-    ${path_AbookAddressbook}/AbookAddressbook.cpp
-    ${path_AbookAddressbook}/be-contacts.cpp
-)
-set(libAbookAddressbook_UI
-    ${path_AbookAddressbook}/be-contacts.ui
-    ${path_AbookAddressbook}/onecontact.ui
-)
-
 set(trojita_desktop_SOURCES
     ${path_DesktopGui}/main.cpp
 )
@@ -600,10 +590,6 @@ if(WIN32)
         ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.h
     )
 endif()
-
-set(be_contacts_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/be.contacts/main.cpp
-)
 
 set(libQNAMWebView_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/QNAMWebView/plugin.cpp
@@ -757,6 +743,52 @@ if(WITH_QTKEYCHAIN_PLUGIN)
     endif()
 endif()
 
+## AbookAddressbook plugin
+if(WITH_ABOOKADDRESSBOOK_PLUGIN)
+    set(path_AbookAddressbook ${CMAKE_CURRENT_SOURCE_DIR}/src/Plugins/AbookAddressbook)
+    set(libAbookAddressbook_HEADERS
+        ${path_AbookAddressbook}/AbookAddressbook.h
+        ${path_AbookAddressbook}/be-contacts.h
+    )
+    set(libAbookAddressbook_SOURCES
+        ${path_AbookAddressbook}/AbookAddressbook.cpp
+        ${path_AbookAddressbook}/be-contacts.cpp
+    )
+    set(libAbookAddressbook_UI
+        ${path_AbookAddressbook}/be-contacts.ui
+        ${path_AbookAddressbook}/onecontact.ui
+    )
+
+    if(WITH_QT5)
+        qt5_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
+    else()
+        qt4_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
+    endif()
+
+    trojita_add_plugin(trojita_plugin_AbookAddressbookPlugin WITH_ABOOKADDRESSBOOK_PLUGIN ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
+    set_property(TARGET trojita_plugin_AbookAddressbookPlugin APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
+    target_link_libraries(trojita_plugin_AbookAddressbookPlugin ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+
+    if(WITH_QT5)
+        qt5_use_modules(trojita_plugin_AbookAddressbookPlugin Widgets)
+    endif()
+
+    set(be_contacts_SOURCES
+        ${path_AbookAddressbook}/main.cpp
+    )
+
+    add_executable(be.contacts WIN32 ${be_contacts_SOURCES})
+    set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
+    target_link_libraries(be.contacts Plugins ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    if("${WITH_ABOOKADDRESSBOOK_PLUGIN}" STREQUAL "STATIC")
+        set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_STATICPLUGIN)
+        target_link_libraries(be.contacts trojita_plugin_AbookAddressbookPlugin)
+    endif()
+    if(WITH_QT5)
+        qt5_use_modules(be.contacts Widgets)
+    endif()
+endif()
+
 # Generate file static_plugins.h.in
 get_property(STATIC_PLUGINS GLOBAL PROPERTY TROJITA_STATIC_PLUGINS)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h.in "#include <QtPlugin>\n")
@@ -767,18 +799,12 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BI
 
 if(WITH_DESKTOP)
     if(WITH_QT5)
-        qt5_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
         qt5_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
         qt5_add_resources(libDesktopGui_RESOURCES_OUT ${libDesktopGui_RESOURCES})
     else()
-        qt4_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
         qt4_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
         qt4_add_resources(libDesktopGui_RESOURCES_OUT ${libDesktopGui_RESOURCES})
     endif()
-
-    add_library(AbookAddressbook STATIC ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
-    set_property(TARGET AbookAddressbook APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-    target_link_libraries(AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
     set_property(TARGET DesktopGui APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
@@ -787,7 +813,7 @@ if(WITH_DESKTOP)
     if(SUPPORTS_TARGET_INCLUDES)
         set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
     endif()
-    target_link_libraries(DesktopGui Common UiUtils Composer Imap IPC MSA Plugins Streams qwwsmtpclient AbookAddressbook ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(DesktopGui Common UiUtils Composer Imap IPC MSA Plugins Streams qwwsmtpclient ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
@@ -800,10 +826,6 @@ if(WITH_DESKTOP)
     if(WITH_ZLIB)
         target_link_libraries(trojita ${ZLIB_LIBRARIES})
     endif()
-
-    add_executable(be.contacts WIN32 ${be_contacts_SOURCES})
-    set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-    target_link_libraries(be.contacts AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 elseif(WITH_HARMATTAN)
     add_library(trojitaqnamwebviewplugin SHARED ${libQNAMWebView_SOURCES})
     add_executable(trojita-tp ${trojitaHarmattan_SOURCES})
@@ -827,8 +849,6 @@ if(WITH_QT5)
     qt5_use_modules(Imap Gui Network Sql)
     if (WITH_DESKTOP)
         qt5_use_modules(DesktopGui Network WebKitWidgets)
-        qt5_use_modules(AbookAddressbook Widgets)
-        qt5_use_modules(be.contacts Widgets)
         qt5_use_modules(trojita Widgets Network)
     endif()
 endif()
@@ -840,9 +860,13 @@ endif()
 
 include(SanitizedDesktopFile)
 
+if(WITH_ABOOKADDRESSBOOK_PLUGIN)
+    install(TARGETS be.contacts RUNTIME DESTINATION bin)
+endif()
+
 if(WITH_DESKTOP)
     copy_desktop_file_without_cruft("${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/trojita.desktop" "${CMAKE_CURRENT_BINARY_DIR}/trojita-DesktopGui.desktop")
-    install(TARGETS trojita be.contacts RUNTIME DESTINATION bin)
+    install(TARGETS trojita RUNTIME DESTINATION bin)
     install(FILES ${CMAKE_CURRENT_BINARY_DIR}/trojita-DesktopGui.desktop DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications/" RENAME trojita.desktop)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/trojita.appdata.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata/")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.png DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps/")
