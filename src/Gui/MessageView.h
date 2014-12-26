@@ -49,6 +49,10 @@ class NetworkWatcher;
 }
 }
 
+namespace Plugins {
+class PluginManager;
+}
+
 namespace Gui {
 
 class EmbeddedWebView;
@@ -68,13 +72,14 @@ class MessageView : public QWidget
 {
     Q_OBJECT
 public:
-    MessageView(QWidget *parent, QSettings *settings);
+    MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager);
     ~MessageView();
 
     void setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher);
     void reply(MainWindow *mainWindow, Composer::ReplyMode mode);
     void forward(MainWindow *mainWindow, const Composer::ForwardMode mode);
     QModelIndex currentMessage() const;
+    Plugins::PluginManager *pluginManager() const;
 public slots:
     void setMessage(const QModelIndex &index);
     void setEmpty();
@@ -99,7 +104,6 @@ signals:
     void messageChanged();
     void linkHovered(const QString &url);
     void searchRequestedBy(EmbeddedWebView *webView);
-    void addressDetailsRequested(const QString &mail, QStringList &addresses);
     void transferError(const QString &errorString);
 private:
     bool eventFilter(QObject *object, QEvent *event);
@@ -120,6 +124,7 @@ private:
     PartWidgetFactory *factory;
     Spinner *m_loadingSpinner;
     QSettings *m_settings;
+    Plugins::PluginManager *m_pluginManager;
     QSet<QWebView*> m_loadingItems;
 
     MessageView(const MessageView &); // don't implement

@@ -634,12 +634,10 @@ void MainWindow::createWidgets()
 
     msgListWidget->tree->installEventFilter(this);
 
-    m_messageWidget = new CompleteMessageWidget(this, m_settings);
+    m_messageWidget = new CompleteMessageWidget(this, m_settings, m_pluginManager);
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
     connect(m_messageWidget->messageView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
-    connect(m_messageWidget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
-            this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     connect(m_messageWidget->messageView, SIGNAL(transferError(QString)), this, SLOT(slotDownloadTransferError(QString)));
     // Do not try to get onto the homepage when we are on EXPENSIVE connection
     if (m_settings->value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
@@ -971,9 +969,7 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
 
-    CompleteMessageWidget *widget = new CompleteMessageWidget(0, m_settings);
-    connect(widget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
-            this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
+    CompleteMessageWidget *widget = new CompleteMessageWidget(0, m_settings, m_pluginManager);
     widget->messageView->setMessage(index);
     widget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(m_imapAccess->networkWatcher()));
     widget->setFocusPolicy(Qt::StrongFocus);
@@ -1676,11 +1672,6 @@ void MainWindow::slotShowLinkTarget(const QString &link)
         //: target of a hyperlink from the currently visible e-mail that the mouse is pointing to
         statusBar()->showMessage(tr("Link target: %1").arg(link));
     }
-}
-
-void MainWindow::fillMatchingAbookEntries(const QString &mail, QStringList &displayNames)
-{
-    displayNames = addressBook()->prettyNamesForAddress(mail);
 }
 
 void MainWindow::slotShowAboutTrojita()

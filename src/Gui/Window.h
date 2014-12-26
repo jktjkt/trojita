@@ -173,7 +173,6 @@ private slots:
     void scrollMessageUp();
     void showConnectionStatus(uint parserId, Imap::ConnectionState state);
     void slotShowLinkTarget(const QString &link);
-    void fillMatchingAbookEntries(const QString &mail, QStringList &displayNames);
     void slotShowAboutTrojita();
     void slotDonateToTrojita();
 
