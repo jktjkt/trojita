@@ -67,6 +67,7 @@ class ImapAccess : public QObject
     Q_PROPERTY(QString sslMode READ sslMode WRITE setSslMode NOTIFY connMethodChanged)
     Q_PROPERTY(QString sslInfoTitle READ sslInfoTitle NOTIFY checkSslPolicy)
     Q_PROPERTY(QString sslInfoMessage READ sslInfoMessage NOTIFY checkSslPolicy)
+    Q_PROPERTY(int numberRefreshInterval READ numberRefreshInterval WRITE setNumberRefreshInterval NOTIFY numberRefreshIntervalChanged)
     Q_ENUMS(Imap::ImapAccess::ConnectionMethod)
 
 public:
@@ -92,6 +93,8 @@ public:
     void setPassword(const QString &password);
     QString sslMode() const;
     void setSslMode(const QString &sslMode);
+    int numberRefreshInterval() const;
+    void setNumberRefreshInterval(const int interval);
 
     Common::ConnectionMethod connectionMethod() const;
     void setConnectionMethod(const Common::ConnectionMethod mode);
@@ -124,6 +127,7 @@ signals:
     void modelsChanged();
     void checkSslPolicy();
     void cacheError(const QString &message);
+    void numberRefreshIntervalChanged();
 
 public slots:
     void alertReceived(const QString &message);

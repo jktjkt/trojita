@@ -2056,5 +2056,12 @@ bool Model::isImapSubmissionSupported() const
     return caps.contains(QLatin1String("UIDPLUS")) && caps.contains(QLatin1String("X-DRAFT-I01-SENDMAIL"));
 }
 
+void Model::setNumberRefreshInterval(const int interval)
+{
+    if (interval == m_periodicMailboxNumbersRefresh->interval())
+        return; // QTimer does not check idempotency
+    m_periodicMailboxNumbersRefresh->start(interval * 1000);
+}
+
 }
 }

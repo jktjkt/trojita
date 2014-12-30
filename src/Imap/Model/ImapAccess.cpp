@@ -340,6 +340,7 @@ void ImapAccess::doConnect()
     m_imapModel->setCapabilitiesBlacklist(m_settings->value(Common::SettingsNames::imapBlacklistedCapabilities).toStringList());
     m_imapModel->setProperty("trojita-imap-enable-id", m_settings->value(Common::SettingsNames::imapEnableId, true).toBool());
     m_imapModel->setProperty("trojita-imap-idle-renewal", m_settings->value(Common::SettingsNames::imapIdleRenewal).toUInt() * 60 * 1000);
+    m_imapModel->setNumberRefreshInterval(numberRefreshInterval());
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
     connect(m_imapModel, SIGNAL(imapError(QString)), this, SLOT(imapError(QString)));
     connect(m_imapModel, SIGNAL(networkError(QString)), this, SLOT(networkError(QString)));
@@ -560,6 +561,23 @@ void ImapAccess::markMessageDeleted(const QModelIndex &message, bool marked)
 {
     Q_ASSERT(message.isValid());
     m_imapModel->markMessagesDeleted(QModelIndexList() << message, marked ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
+}
+
+int ImapAccess::numberRefreshInterval() const
+{
+    int interval = m_settings->value(Common::SettingsNames::imapNumberRefreshInterval, QVariant(300)).toInt();
+    if (interval < 30)
+        interval = 30;
+    else if (interval > 29*60)
+        interval = 29*60;
+    return interval;
+}
+
+void ImapAccess::setNumberRefreshInterval(const int interval)
+{
+    m_settings->setValue(Common::SettingsNames::imapNumberRefreshInterval, interval);
+    if (m_imapModel)
+        m_imapModel->setNumberRefreshInterval(interval);
 }
 
 }

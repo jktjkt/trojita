@@ -315,6 +315,33 @@ The default value is 29 minutes.</string>
       </property>
      </widget>
     </item>
+    <item row="16" column="0">
+     <widget class="QLabel" name="imapNumberRefreshIntervalLabel">
+      <property name="text">
+       <string>Refresh Interval</string>
+      </property>
+     </widget>
+    </item>
+    <item row="16" column="1">
+     <widget class="QSpinBox" name="imapNumberRefreshInterval">
+      <property name="toolTip">
+       <string>How often to check for new emails in all IMAP folders.
+The default value is 300 seconds (5 minutes).</string>
+      </property>
+      <property name="suffix">
+       <string> seconds</string>
+      </property>
+      <property name="minimum">
+       <number>30</number>
+      </property>
+      <property name="maximum">
+       <number>1740</number>
+      </property>
+      <property name="value">
+       <number>300</number>
+      </property>
+     </widget>
+    </item>
    </layout>
   </widget>
  </widget>

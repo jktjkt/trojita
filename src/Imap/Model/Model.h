@@ -284,6 +284,8 @@ public:
     bool isGenUrlAuthSupported() const;
     bool isImapSubmissionSupported() const;
 
+    void setNumberRefreshInterval(const int interval);
+
 public slots:
     /** @short Ask for an updated list of mailboxes on the server */
     void reloadMailboxList();

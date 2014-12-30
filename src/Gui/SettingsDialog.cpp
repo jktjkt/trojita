@@ -529,6 +529,7 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     imapUseSystemProxy->setChecked(s.value(SettingsNames::imapUseSystemProxy, true).toBool());
     imapNeedsNetwork->setChecked(s.value(SettingsNames::imapNeedsNetwork, true).toBool());
     imapIdleRenewal->setValue(s.value(SettingsNames::imapIdleRenewal, QVariant(29)).toInt());
+    imapNumberRefreshInterval->setValue(m_parent->imapAccess()->numberRefreshInterval());
 
     m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
 
@@ -656,6 +657,7 @@ void ImapPage::save(QSettings &s)
     s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QLatin1String(" ")));
     s.setValue(SettingsNames::imapNeedsNetwork, imapNeedsNetwork->isChecked());
     s.setValue(SettingsNames::imapIdleRenewal, imapIdleRenewal->value());
+    m_parent->imapAccess()->setNumberRefreshInterval(imapNumberRefreshInterval->value());
 
     m_pwWatcher->setPassword(imapPass->text());
 }
