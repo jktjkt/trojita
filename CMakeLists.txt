@@ -55,7 +55,7 @@ trojita_option(WITH_TESTS "Build tests" ON "NOT WITH_HARMATTAN")
 trojita_option(DEV_FATAL_WARNINGS "Turn build warnings into errors (developers only)" OFF)
 
 if(WIN32)
-    trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO)
+    trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
 endif()
 
 if(UNIX AND NOT APPLE)
