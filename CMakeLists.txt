@@ -83,6 +83,7 @@ trojita_option(WITH_DBUS "Build with DBus library" AUTO)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
+trojita_option(WITH_KDE "Enable KDE support" AUTO "WITH_DESKTOP;NOT WITH_QT5;WITH_DBUS")
 trojita_option(WITH_TESTS "Build tests" ON "NOT WITH_HARMATTAN")
 
 if(WIN32)
@@ -142,6 +143,7 @@ endif()
 trojita_plugin_option(WITH_ABOOKADDRESSBOOK_PLUGIN "Build AbookAddressbook plugin" "NOT WITH_HARMATTAN" STATIC)
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
 trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN${QTKEYCHAIN_DEPENDS}")
+trojita_plugin_option(WITH_AKONADI_PLUGIN "Build KDE Akonadi addressbook plugin" "WITH_KDE")
 
 trojita_find_package(Git "" "" "" "")
 
@@ -170,6 +172,38 @@ if(Qt5Keychain_FOUND OR QtKeychain_FOUND)
 else()
     message(STATUS "Could not find QtKeychain library")
 endif()
+
+if(WITH_KDE)
+    # Store cmake variables which FindKDE4.cmake changes
+    set(OLD_LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH})
+    set(OLD_EXECUTABLE_OUTPUT_PATH ${EXECUTABLE_OUTPUT_PATH})
+    set(OLD_CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS})
+    set(OLD_CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
+
+    trojita_find_package(KDE4 "" "http://www.kde.org/" "KDE4 libraries" "Needed for KDE plugins" WITH_KDE)
+
+    # KDE4_DATA_DIR is set when KDE4 is found
+    if(KDE4_DATA_DIR)
+        include(KDE4Defaults)
+
+        # FindKDE4.cmake disables c++ exceptions, need to reenable them for compiling trojita
+        add_definitions(${KDE4_ENABLE_EXCEPTIONS})
+
+        # FindKDE4.cmake changes cmake output paths and some linker flags which cause that some (KDE too) plugins do not compile, change them back to defaults
+        set(LIBRARY_OUTPUT_PATH ${OLD_LIBRARY_OUTPUT_PATH})
+        set(EXECUTABLE_OUTPUT_PATH ${OLD_EXECUTABLE_OUTPUT_PATH})
+        set(CMAKE_SHARED_LINKER_FLAGS ${OLD_CMAKE_SHARED_LINKER_FLAGS})
+        set(CMAKE_MODULE_LINKER_FLAGS ${OLD_CMAKE_MODULE_LINKER_FLAGS})
+    endif()
+endif()
+
+# Akonadi was added to KdepimLibs 4.5
+if(WITH_AKONADI_PLUGIN)
+    set(KdepimLibsVersion 4.5)
+else()
+    set(KdepimLibsVersion)
+endif()
+trojita_find_package(KdepimLibs "${KdepimLibsVersion}" "http://www.kde.org/" "KdepimLibs libraries" "Needed for KDE Akonadi addressbook plugins" WITH_AKONADI_PLUGIN)
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}")
@@ -787,6 +821,20 @@ if(WITH_ABOOKADDRESSBOOK_PLUGIN)
     if(WITH_QT5)
         qt5_use_modules(be.contacts Widgets)
     endif()
+endif()
+
+## KDE plugins
+if(WITH_KDE)
+    include_directories(
+        ${KDE4_INCLUDES}
+        ${KDEPIMLIBS_INCLUDE_DIRS}
+    )
+endif()
+
+## Akonadi addressbook plugin
+if(WITH_AKONADI_PLUGIN)
+    trojita_add_plugin(trojita_plugin_akonadiaddressbook WITH_AKONADI_PLUGIN src/Plugins/KDE/AkonadiAddressbook.cpp)
+    target_link_libraries(trojita_plugin_akonadiaddressbook ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY} ${KDEPIMLIBS_AKONADI_CONTACT_LIBS})
 endif()
 
 # Generate file static_plugins.h.in
