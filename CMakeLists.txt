@@ -143,6 +143,7 @@ endif()
 trojita_plugin_option(WITH_ABOOKADDRESSBOOK_PLUGIN "Build AbookAddressbook plugin" "NOT WITH_HARMATTAN" STATIC)
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
 trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN${QTKEYCHAIN_DEPENDS}")
+trojita_plugin_option(WITH_KRESOURCE_PLUGIN "Build KDE Kresource addressbook plugin" "WITH_KDE")
 trojita_plugin_option(WITH_AKONADI_PLUGIN "Build KDE Akonadi addressbook plugin" "WITH_KDE")
 
 trojita_find_package(Git "" "" "" "")
@@ -203,7 +204,7 @@ if(WITH_AKONADI_PLUGIN)
 else()
     set(KdepimLibsVersion)
 endif()
-trojita_find_package(KdepimLibs "${KdepimLibsVersion}" "http://www.kde.org/" "KdepimLibs libraries" "Needed for KDE Akonadi addressbook plugins" WITH_AKONADI_PLUGIN)
+trojita_find_package(KdepimLibs "${KdepimLibsVersion}" "http://www.kde.org/" "KdepimLibs libraries" "Needed for KDE Kresource and Akonadi addressbook plugins" WITH_AKONADI_PLUGIN WITH_KRESOURCE_PLUGIN)
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}")
@@ -829,6 +830,12 @@ if(WITH_KDE)
         ${KDE4_INCLUDES}
         ${KDEPIMLIBS_INCLUDE_DIRS}
     )
+endif()
+
+## KResource addressbook plugin
+if(WITH_KRESOURCE_PLUGIN)
+    trojita_add_plugin(trojita_plugin_kresourceaddressbook WITH_KRESOURCE_PLUGIN src/Plugins/KDE/KResourceAddressbook.cpp)
+    target_link_libraries(trojita_plugin_kresourceaddressbook ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY} ${KDEPIMLIBS_KABC_LIBS})
 endif()
 
 ## Akonadi addressbook plugin
