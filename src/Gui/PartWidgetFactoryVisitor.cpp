@@ -35,6 +35,8 @@ PartVisitor<Result, Context>::~PartVisitor()
 {
 }
 
+template class PartVisitor<QWidget*, Gui::MessageView*>;
+
 }
 
 namespace Gui {
