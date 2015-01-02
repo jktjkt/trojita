@@ -1122,7 +1122,7 @@ void MainWindow::networkPolicyOnline()
 /** @short Updates GUI about reconnection attempts */
 void MainWindow::slotReconnectAttemptScheduled(const int timeout)
 {
-    statusBar()->showMessage(tr("Attempting to reconnect in %1 seconds..").arg(timeout/1000));
+    statusBar()->showMessage(tr("Attempting to reconnect in %n seconds..", 0, timeout/1000));
 }
 
 /** @short Deletes a network error message box instance upon resetting of reconnect state */
@@ -2126,9 +2126,8 @@ void MainWindow::slotUpdateWindowTitle()
         profileName = QLatin1String(" [") + profileName + QLatin1Char(']');
     if (mailbox.isValid()) {
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()) {
-            setWindowTitle(trUtf8("%1 - %2 unread - Trojitá")
-                           .arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString(),
-                                mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString()) + profileName);
+            setWindowTitle(trUtf8("%1 - %n unread - Trojitá", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt())
+                           .arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()) + profileName);
         } else {
             setWindowTitle(trUtf8("%1 - Trojitá").arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()) + profileName);
         }
