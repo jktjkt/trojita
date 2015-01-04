@@ -60,9 +60,9 @@ public:
     /** @short RFC2822 Domain Name */
     QString host;
 
-    MailAddress(const QString &_name, const QString &_adl,
-                const QString &_mailbox, const QString &_host):
-        name(_name), adl(_adl), mailbox(_mailbox), host(_host) {}
+    MailAddress(const QString &name, const QString &adl,
+                const QString &mailbox, const QString &host):
+        name(name), adl(adl), mailbox(mailbox), host(host) {}
     MailAddress(const QVariantList &input, const QByteArray &line, const int start);
     MailAddress() {}
     QString prettyName(FormattingMode mode) const;
