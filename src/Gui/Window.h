@@ -190,7 +190,7 @@ private slots:
 
     void slotDownloadTransferError(const QString &errorString);
     void slotDownloadMessageFileNameRequested(QString *fileName);
-    void slotScrollToUnseenMessage(const QModelIndex &mailbox, const QModelIndex &message);
+    void slotScrollToUnseenMessage();
     void slotScrollToCurrent();
     void slotUpdateWindowTitle();
 
