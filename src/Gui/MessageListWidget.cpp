@@ -128,6 +128,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_quickSearchText);
     layout->addWidget(tree);
 
