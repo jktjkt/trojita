@@ -80,6 +80,8 @@ public:
     static bool fromPrettyString(MailAddress &into, const QString &address);
     static bool parseOneAddress(MailAddress &into, const QString &address, int &startOffset);
     static bool fromUrl(MailAddress &into, const QUrl &url, const QString &expectedScheme);
+
+    static MailAddress fromNameAndMail(const QString &name, const QString &email);
 };
 
 QTextStream &operator<<(QTextStream &stream, const MailAddress &address);
