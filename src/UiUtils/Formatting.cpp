@@ -47,7 +47,7 @@ QString Formatting::prettySize(uint bytes, const BytesSuffix compactUnitFormat)
         if (compactUnitFormat == BytesSuffix::COMPACT_FORM)
             return QString::number(bytes);
         else
-            return tr("%1 bytes").arg(QString::number(bytes));
+            return tr("%n bytes", 0, bytes);
     } else if (order == 1) {
         suffix = tr("kB");
     } else if (order == 2) {
