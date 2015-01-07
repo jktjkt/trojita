@@ -51,8 +51,8 @@ EnvelopeView::EnvelopeView(QWidget *parent, MessageView *messageView): QLabel(pa
 
     QFontMetrics fm(font());
     int iconSize = fm.boundingRect(QLatin1Char('M')).height();
-    contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-known.svg"), iconSize);
-    contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-unknown.svgz"), iconSize);
+    contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-known.png"), iconSize);
+    contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-unknown.png"), iconSize);
 
     connect(this, SIGNAL(linkActivated(QString)), messageView, SLOT(headerLinkActivated(QString)));
     connect(this, SIGNAL(addressDetailsRequested(QString,QStringList&)),
