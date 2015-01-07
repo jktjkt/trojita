@@ -179,10 +179,9 @@ int main(int argc, char **argv)
                        profileName.isEmpty() ? Common::Application::name : Common::Application::name + QLatin1Char('-') + profileName);
     Gui::MainWindow win(&settings);
 
-    if (!IPC::registerInstance(&win)) {
-        qErr << QObject::tr("Error: Registering IPC instance failed. Maybe application is already running?") << endl;
-        return 1;
-    }
+    QString errmsg;
+    if (!IPC::registerInstance(&win, errmsg))
+        qErr << QObject::tr("Error: Registering IPC instance failed: %1").arg(errmsg) << endl;
 
     if ( settings.value(Common::SettingsNames::guiStartMinimized, QVariant(false)).toBool() ) {
         if ( !settings.value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool() ) {

@@ -50,7 +50,7 @@ void composeMail(const QString &)
 
 } //namespace Instance
 
-bool registerInstance(Gui::MainWindow *)
+bool registerInstance(Gui::MainWindow *, QString &)
 {
     return true;
 }

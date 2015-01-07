@@ -69,17 +69,24 @@ void composeMail(const QString &url)
 
 } //namespace Instance
 
-bool registerInstance(Gui::MainWindow *window)
+bool registerInstance(Gui::MainWindow *window, QString &error)
 {
     QDBusConnection conn = QDBusConnection::sessionBus();
+    if (!conn.isConnected()) {
+        error = conn.lastError().message();
+        return false;
+    }
 
     bool serviceOk = conn.registerService(service());
-    if (!serviceOk)
+    if (!serviceOk) {
+        error = conn.lastError().message();
         return false;
+    }
 
     MainWindowBridge *object = new MainWindowBridge(window);
     bool objectOk = conn.registerObject(path, object, QDBusConnection::ExportAllSlots);
     if (!objectOk) {
+        error = conn.lastError().message();
         delete object;
         conn.unregisterService(service());
         return false;

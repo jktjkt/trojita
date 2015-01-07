@@ -50,7 +50,7 @@ namespace IPC {
      * Only one process may register instance at same time.
      * Function is blocking and is process/thread safe.
      */
-    bool registerInstance(Gui::MainWindow *window);
+    bool registerInstance(Gui::MainWindow *window, QString &error);
 
 }
 
