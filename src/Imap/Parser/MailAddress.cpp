@@ -295,6 +295,21 @@ bool MailAddress::fromUrl(MailAddress &into, const QUrl &url, const QString &exp
     return true;
 }
 
+/** @short Helper to construct this from a pair of (human readable name, e-mail address)
+
+This is mainly useful to prevent reimplementing the @-based joining all the time.
+*/
+MailAddress MailAddress::fromNameAndMail(const QString &name, const QString &email)
+{
+    auto components = email.split(QLatin1Char('@'));
+    if (components.size() == 2) {
+        return MailAddress(name, QString(), components[0], components[1]);
+    } else {
+        // garbage in, garbage out
+        return MailAddress(name, QString(), email, QString());
+    }
+}
+
 QTextStream &operator<<(QTextStream &stream, const MailAddress &address)
 {
     stream << '"' << address.name << "\" <";
