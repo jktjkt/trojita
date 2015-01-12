@@ -143,7 +143,6 @@ public:
 
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
-    virtual Qt::DropActions supportedDropActions() const;
 
     /** @short List of capabilities which could be used for threading
 
