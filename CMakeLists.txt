@@ -4,6 +4,21 @@ if(WITH_QT5)
 else()
     cmake_minimum_required(VERSION 2.8.7)
 endif()
+
+# Set a default build type if none was specified. This was shamelessly stolen
+# from VTK's cmake setup because these guys produce both CMake and a project that
+# manipulates this variable, and the web is full of posts where people say that
+# it is apparently evil to just set the build type in a way an earlier version of
+# this patch did. Oh, and the location of this check/update matters, apparently.
+#
+# Yes, this is just plain crazy.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    message(STATUS "Setting build type to 'RelWithDebInfo' as none was specified.")
+    set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build." FORCE)
+    # Set the possible values of build type for cmake-gui
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
+endif()
+
 project(trojita)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
@@ -52,7 +67,6 @@ trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
 trojita_option(WITH_TESTS "Build tests" ON "NOT WITH_HARMATTAN")
-trojita_option(DEV_FATAL_WARNINGS "Turn build warnings into errors (developers only)" OFF)
 
 if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
@@ -156,19 +170,30 @@ if(NOT PLUGIN_DIR)
 endif()
 mark_as_advanced(PLUGIN_DIR)
 
-if(NOT WIN32 AND NOT MSVC)
-    # Check if we are NOT on Windows and don't use MSVC since -g is not supported by VC
-    # and Wall makes the build very noisy.
-    # At first, enable optimizations. In my testing, these do *not* make debugging any harder than no optimization and
-    # they (of course) optimize away stuff like QByteArray::operator[] etc.
-    # We put the user's CXXFLAGS *after* that so that they take priority.
-    set(CMAKE_CXX_FLAGS "-O2 -g ${CMAKE_CXX_FLAGS}")
-    # Now enable build warnings; these are useful tools (and Trojita should be warning-free anyway). We do not set
-    # -Werror for sanity reasons, though (one cannot know what warnings a future compiler might bring along).
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wsign-compare")
-endif(NOT WIN32 AND NOT MSVC)
-if(DEV_FATAL_WARNINGS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+# When manipulating CXXFLAGS, we put the user's CXXFLAGS *after* that so that they take priority.
+if(MSVC)
+    # See below for some reationale for these optimizations
+    set(CMAKE_CXX_FLAGS "/O2 ${CMAKE_CXX_FLAGS}")
+
+    # We have no information about the warnings and their usefullness. Reports are welcome.
+    # We might enable warnings on MSVC in future.
+else()
+    # -Werror is not a default for sanity reasons (one cannot know what warnings a future compiler
+    # might bring along), but it's a default in debug mode. The idea is that developers should care
+    # about a warning-free build, and that this is easier than messing with yet another configure option.
+    set(CMAKE_CXX_FLAGS_DEBUG "-Werror ${CMAKE_CXX_FLAGS_DEBUG}")
+
+    # Optimizations are enabled unconditionally because they make a big difference in the speed of the
+    # resulting binaries, and that it is better to allow an opt-out from them by adjusting CXXFLAGS through
+    # an env var at cmake time if needed.
+    # The reason for not manipulating just CMAKE_CXX_FLAGS_DEBUG is that unrecognized build types ("DebugFull")
+    # should still benefit from these optimizations. Yup, it would be even better if CMake did a sane thing
+    # and warned when users set an unrecognized and unused build type, but that just isn't the case.
+    set(CMAKE_CXX_FLAGS "-O2 ${CMAKE_CXX_FLAGS}")
+
+    # Build warnings are useful tools (and Trojita should be warning-free anyway), enable them on all
+    # configurations. They are warnings, not errors.
+    set(CMAKE_CXX_FLAGS "-Wall -Wsign-compare ${CMAKE_CXX_FLAGS}")
 endif()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
