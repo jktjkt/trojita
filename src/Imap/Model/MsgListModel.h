@@ -57,6 +57,7 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+    virtual Qt::DropActions supportedDragActions() const;
     virtual Qt::DropActions supportedDropActions() const;
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
