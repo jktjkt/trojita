@@ -1188,11 +1188,6 @@ QMimeData *ThreadingMsgListModel::mimeData(const QModelIndexList &indexes) const
     return sourceModel()->mimeData(translated);
 }
 
-Qt::DropActions ThreadingMsgListModel::supportedDropActions() const
-{
-    return sourceModel() ? sourceModel()->supportedDropActions() : Qt::DropActions(0);
-}
-
 bool ThreadingMsgListModel::threadContainsUnreadMessages(const uint root) const
 {
     // FIXME: cache the value somewhere...
