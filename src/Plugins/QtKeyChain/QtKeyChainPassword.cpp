@@ -22,7 +22,11 @@
 
 #include <QString>
 
-#include <qtkeychain/keychain.h>
+#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
+    #include <qtkeychain/keychain.h>
+#else
+    #include <qt5keychain/keychain.h>
+#endif
 
 #include "QtKeyChainPassword.h"
 
