@@ -256,6 +256,18 @@ QStringList MailboxModel::mimeTypes() const
     return QStringList() << QLatin1String("application/x-trojita-message-list");
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+bool MailboxModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
+{
+    // We cannot delegate this to QAbstractProxyModel::canDropMimeData because that code delegates the decision
+    // to the *source* model. That's bad, because our source model doesn't know anything about drag-and-drops
+    // or MIME types.
+    // However, calling the default implementation *at this level* of proxy chain makes sure that this proxy's
+    // mimeTypes() and supportedDropActions() gets consulted, which is the correct thing to do.
+    return QAbstractItemModel::canDropMimeData(data, action, row, column, parent);
+}
+#endif
+
 bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                 int row, int column, const QModelIndex &parent)
 {
