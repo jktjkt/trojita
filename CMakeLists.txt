@@ -38,7 +38,7 @@ if(NOT CXXFeatures_nullptr_FOUND)
     # if it happens, then let's hope that an "ambiguous overload" would come up.
     add_definitions(-Dnullptr=0)
     message(WARNING "Your C++ compiler doesn't support C++11's nullptr. Activating a very hackish workaround "
-	    "which can break existing code because nullptr is not plain 0.")
+            "which can break existing code because nullptr is not plain 0.")
 endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 
