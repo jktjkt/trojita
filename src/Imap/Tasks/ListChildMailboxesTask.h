@@ -52,6 +52,7 @@ protected:
     CommandHandle tag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
+    bool mailboxIsRootMailbox;
     QList<Imap::Responses::Status*> m_pendingStatusResponses;
 };
 

@@ -124,6 +124,8 @@ TreeItem *TreeItem::specialColumnPtr(int row, int column) const
 QModelIndex TreeItem::toIndex(Model *const model) const
 {
     Q_ASSERT(model);
+    if (this == model->m_mailboxes)
+        return QModelIndex();
     // void* != const void*, but I believe that it's safe in this context
     return model->createIndex(row(), 0, const_cast<TreeItem *>(this));
 }
@@ -174,12 +176,8 @@ void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload
     if (! loading()) {
         setFetchStatus(LOADING);
         QModelIndex mailboxIndex = toIndex(model);
-        if (mailboxIndex.isValid()) {
-            CALL_LATER(model, askForChildrenOfMailbox, Q_ARG(QModelIndex, mailboxIndex),
-                       Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
-        } else {
-            CALL_LATER(model, askForTopLevelChildren, Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
-        }
+        CALL_LATER(model, askForChildrenOfMailbox, Q_ARG(QModelIndex, mailboxIndex),
+                   Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
     }
 }
 

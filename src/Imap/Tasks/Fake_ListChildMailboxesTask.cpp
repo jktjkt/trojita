@@ -36,7 +36,7 @@ namespace Mailbox
 Fake_ListChildMailboxesTask::Fake_ListChildMailboxesTask(Model *model, const QModelIndex &mailbox):
     ListChildMailboxesTask(model, mailbox)
 {
-    Q_ASSERT(dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer())));
+    Q_ASSERT(!mailbox.isValid() || dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer())));
 }
 
 void Fake_ListChildMailboxesTask::perform()
@@ -46,7 +46,7 @@ void Fake_ListChildMailboxesTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
+    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(model->translatePtr(mailboxIndex)));
     Q_ASSERT(mailbox);
     parser = conn->parser;
     QList<Responses::List> &listResponses = model->accessParser(parser).listResponses;
