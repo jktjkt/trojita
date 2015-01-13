@@ -79,6 +79,9 @@ private slots:
     /** @short Copy contents of all buffers into the GUI widgets */
     void slotShowLogs();
 
+signals:
+    void persistentLoggingChanged(const bool active);
+
 private:
     QTabWidget *tabs;
     QMap<uint, ConnectionLog> logs;

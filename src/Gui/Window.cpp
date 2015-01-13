@@ -279,6 +279,7 @@ void MainWindow::createActions()
     logPersistent = new QAction(tr("Log &into %1").arg(Imap::Mailbox::persistentLogFileName()), this);
     logPersistent->setCheckable(true);
     connect(logPersistent, SIGNAL(triggered(bool)), imapLogger, SLOT(slotSetPersistentLogging(bool)));
+    connect(imapLogger, SIGNAL(persistentLoggingChanged(bool)), logPersistent, SLOT(setChecked(bool)));
 
     showImapCapabilities = new QAction(tr("IMAP Server In&formation..."), this);
     connect(showImapCapabilities, SIGNAL(triggered()), this, SLOT(slotShowImapInfo()));
@@ -2428,6 +2429,11 @@ void MainWindow::possiblyLoadMessageOnSplittersChanged()
 Imap::ImapAccess *MainWindow::imapAccess() const
 {
     return m_imapAccess;
+}
+
+void MainWindow::enableLoggingToDisk()
+{
+    imapLogger->slotSetPersistentLogging(true);
 }
 
 }

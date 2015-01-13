@@ -60,10 +60,11 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
 
 void ProtocolLoggerWidget::slotSetPersistentLogging(const bool enabled)
 {
-    if (enabled) {
-        if (m_fileLogger)
-            return;
+    if (enabled == !!m_fileLogger)
+        return;
 
+    if (enabled) {
+        Q_ASSERT(!m_fileLogger);
         m_fileLogger = new Common::FileLogger(this);
         m_fileLogger->setFileLogging(true, Imap::Mailbox::persistentLogFileName());
         m_fileLogger->setAutoFlush(true);
@@ -71,6 +72,7 @@ void ProtocolLoggerWidget::slotSetPersistentLogging(const bool enabled)
         delete m_fileLogger;
         m_fileLogger = 0;
     }
+    emit persistentLoggingChanged(!!m_fileLogger);
 }
 
 ProtocolLoggerWidget::~ProtocolLoggerWidget()

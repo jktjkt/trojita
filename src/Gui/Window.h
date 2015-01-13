@@ -113,6 +113,8 @@ public:
     // FIXME: this should be changed to some wrapper when support for multiple accounts is available
     Imap::ImapAccess *imapAccess() const;
 
+    void enableLoggingToDisk();
+
 public slots:
     void slotComposeMailUrl(const QUrl &url);
     void slotComposeMail();

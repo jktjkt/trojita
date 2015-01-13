@@ -83,6 +83,7 @@ int main(int argc, char **argv)
     bool showMainWindow = false;
     bool showComposeWindow = false;
     bool showAddressbookWindow = false;
+    bool logToDisk = false;
 
     QString profileName;
 
@@ -113,6 +114,8 @@ int main(int argc, char **argv)
                     profileName = arguments.at(i+1);
                     ++i;
                 }
+            } else if (arg == QLatin1String("--log-to-disk")) {
+                logToDisk = true;
             } else {
                 qErr << QObject::tr("Warning: Unknown option '%1'").arg(arg) << endl;
             }
@@ -144,6 +147,7 @@ int main(int argc, char **argv)
             "  -a, --addressbook        Show addressbook window\n"
             "  -c, --compose            Compose new email (default when url is provided)\n"
             "  -p, --profile <profile>  Set profile (cannot start with char '-')\n"
+            "  --log-to-disk            Activate debug traffic logging to disk by default\n"
             "\n"
             "Arguments:\n"
             "  url                      Mailto: url address for composing new email\n"
@@ -200,6 +204,10 @@ int main(int argc, char **argv)
             win.slotComposeMail();
         else
             win.slotComposeMailUrl(QUrl::fromEncoded(url.toUtf8()));
+    }
+
+    if (logToDisk) {
+        win.enableLoggingToDisk();
     }
 
     return app.exec();
