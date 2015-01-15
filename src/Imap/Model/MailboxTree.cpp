@@ -104,7 +104,7 @@ TreeItemChildrenList TreeItem::setChildren(const TreeItemChildrenList &items)
     return res;
 }
 
-bool TreeItem::isUnavailable(Model *const model) const
+bool TreeItem::isUnavailable() const
 {
     return accessFetchStatus() == UNAVAILABLE;
 }
@@ -165,7 +165,7 @@ void TreeItemMailbox::fetch(Model *const model)
 
 void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload)
 {
-    if (fetched() || isUnavailable(model))
+    if (fetched() || isUnavailable())
         return;
 
     if (hasNoChildMailboxesAlreadyKnown()) {
@@ -213,7 +213,7 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
     case RoleIsFetched:
         return fetched();
     case RoleIsUnavailable:
-        return isUnavailable(model);
+        return isUnavailable();
     case RoleShortMailboxName:
         return separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
     case RoleMailboxName:
@@ -291,7 +291,7 @@ bool TreeItemMailbox::hasNoChildMailboxesAlreadyKnown()
 
 bool TreeItemMailbox::hasChildMailboxes(Model *const model)
 {
-    if (fetched() || isUnavailable(model)) {
+    if (fetched() || isUnavailable()) {
         return m_children.size() > 1;
     } else if (hasNoChildMailboxesAlreadyKnown()) {
         return false;
@@ -839,7 +839,7 @@ TreeItemMsgList::TreeItemMsgList(TreeItem *parent):
 
 void TreeItemMsgList::fetch(Model *const model)
 {
-    if (fetched() || isUnavailable(model))
+    if (fetched() || isUnavailable())
         return;
 
     if (!loading()) {
@@ -867,7 +867,7 @@ QVariant TreeItemMsgList::data(Model *const model, int role)
     if (role == RoleIsFetched)
         return fetched();
     if (role == RoleIsUnavailable)
-        return isUnavailable(model);
+        return isUnavailable();
 
     if (role != Qt::DisplayRole)
         return QVariant();
@@ -878,7 +878,7 @@ QVariant TreeItemMsgList::data(Model *const model, int role)
     if (loading())
         return QLatin1String("[loading messages...]");
 
-    if (isUnavailable(model))
+    if (isUnavailable())
         return QLatin1String("[offline]");
 
     if (fetched())
@@ -996,7 +996,7 @@ TreeItemMessage::~TreeItemMessage()
 
 void TreeItemMessage::fetch(Model *const model)
 {
-    if (fetched() || loading() || isUnavailable(model))
+    if (fetched() || loading() || isUnavailable())
         return;
 
     if (m_uid) {
@@ -1076,7 +1076,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case RoleIsFetched:
         return fetched();
     case RoleIsUnavailable:
-        return isUnavailable(model);
+        return isUnavailable();
     case RoleMessageFlags:
         // The flags are already sorted by Model::normalizeFlags()
         return m_flags;
@@ -1136,7 +1136,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case Qt::DisplayRole:
         if (loading()) {
             return QString::fromUtf8("[loading UID %1...]").arg(QString::number(uid()));
-        } else if (isUnavailable(model)) {
+        } else if (isUnavailable()) {
             return QString::fromUtf8("[offline UID %1]").arg(QString::number(uid()));
         } else {
             return QString::fromUtf8("UID %1: %2").arg(QString::number(uid()), data()->m_envelope.subject);
@@ -1444,7 +1444,7 @@ TreeItemChildrenList TreeItemPart::setChildren(const TreeItemChildrenList &items
 
 void TreeItemPart::fetch(Model *const model)
 {
-    if (fetched() || loading() || isUnavailable(model))
+    if (fetched() || loading() || isUnavailable())
         return;
 
     setFetchStatus(LOADING);
@@ -1453,7 +1453,7 @@ void TreeItemPart::fetch(Model *const model)
 
 void TreeItemPart::fetchFromCache(Model *const model)
 {
-    if (fetched() || loading() || isUnavailable(model))
+    if (fetched() || loading() || isUnavailable())
         return;
 
     model->askForMsgPart(this, true);
@@ -1476,7 +1476,7 @@ QVariant TreeItemPart::data(Model *const model, int role)
     case RoleIsFetched:
         return fetched();
     case RoleIsUnavailable:
-        return isUnavailable(model);
+        return isUnavailable();
     case RolePartMimeType:
         return m_mimeType;
     case RolePartCharset:

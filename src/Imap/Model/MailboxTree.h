@@ -120,7 +120,7 @@ public:
     virtual bool hasChildren(Model *const model) = 0;
     virtual bool fetched() const { return accessFetchStatus() == DONE; }
     virtual bool loading() const { return accessFetchStatus() == LOADING; }
-    virtual bool isUnavailable(Model *const model) const;
+    virtual bool isUnavailable() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     virtual QModelIndex toIndex(Model *const model) const;
 };
