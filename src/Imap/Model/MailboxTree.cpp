@@ -321,12 +321,7 @@ TreeItemChildrenList TreeItemMailbox::setChildren(const TreeItemChildrenList &it
     m_children.erase(m_children.begin());
 
     auto list = TreeItem::setChildren(items);  // this also adjusts m_loading and m_fetched
-
     m_children.prepend(msgList);
-
-    // FIXME: anything else required for \Noselect?
-    if (! isSelectable())
-        msgList->setFetchStatus(DONE);
 
     return list;
 }
