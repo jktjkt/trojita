@@ -31,10 +31,20 @@
 #include "Common/SettingsNames.h"
 #include "Imap/Model/CombinedCache.h"
 #include "Imap/Model/DummyNetworkWatcher.h"
+#include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MemoryCache.h"
+#include "Imap/Model/Model.h"
+#include "Imap/Model/MsgListModel.h"
+#include "Imap/Model/NetworkWatcher.h"
+#include "Imap/Model/OneMessageModel.h"
+#include "Imap/Model/SubtreeModel.h"
 #include "Imap/Model/SystemNetworkWatcher.h"
+#include "Imap/Model/ThreadingMsgListModel.h"
+#include "Imap/Model/Utils.h"
+#include "Imap/Model/VisibleTasksModel.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/SocketFactory.h"
+#include "UiUtils/PasswordWatcher.h"
 
 namespace Imap {
 
