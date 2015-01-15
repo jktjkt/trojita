@@ -197,6 +197,13 @@ unsigned int TreeItemMailbox::rowCount(Model *const model)
 
 QVariant TreeItemMailbox::data(Model *const model, int role)
 {
+    switch (role) {
+    case RoleIsFetched:
+        return fetched();
+    case RoleIsUnavailable:
+        return isUnavailable();
+    };
+
     if (!parent())
         return QVariant();
 
@@ -210,10 +217,6 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
         QString res = separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
         return loading() ? res + QLatin1String(" [loading]") : res;
     }
-    case RoleIsFetched:
-        return fetched();
-    case RoleIsUnavailable:
-        return isUnavailable();
     case RoleShortMailboxName:
         return separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
     case RoleMailboxName:
