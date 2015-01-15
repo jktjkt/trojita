@@ -104,10 +104,12 @@ void SystemNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
             m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Network is online -> connecting"));
             reconnectModelNetwork();
         } else {
+#ifdef TROJITA_HAS_QNETWORKSESSION
+            // Chances are that our previously valid session is not valid anymore
+            resetSession();
             // We aren't online yet, but we will become online at some point. When that happens, reconnectModelNetwork() will
             // be called, so there is nothing to do from this place.
             m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Opening network session"));
-#ifdef TROJITA_HAS_QNETWORKSESSION
             m_session->open();
 #endif
         }
@@ -178,7 +180,7 @@ void SystemNetworkWatcher::networkConfigurationChanged(const QNetworkConfigurati
                           QString::fromUtf8("Change of configuration of the current session"));
         reconnect = true;
     } else if (conf.state().testFlag(QNetworkConfiguration::Active) && conf.type() == QNetworkConfiguration::InternetAccessPoint &&
-               conf != sessionsActiveConfiguration()) {
+               conf != sessionsActiveConfiguration() && conf == m_netConfManager->defaultConfiguration()) {
         // We are going to interpret this as a subtle hint for switching to another session
 
         if (m_session->configuration().type() == QNetworkConfiguration::UserChoice && !sessionsActiveConfiguration().isValid()) {
@@ -244,6 +246,10 @@ void SystemNetworkWatcher::networkSessionError()
 {
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
                       QString::fromUtf8("Session error: %1").arg(m_session->errorString()));
+
+    if (!m_reconnectTimer->isActive()) {
+        attemptReconnect();
+    }
 }
 #else
 void SystemNetworkWatcher::networkConfigurationChanged(const QNetworkConfiguration &)
