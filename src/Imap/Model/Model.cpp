@@ -1745,6 +1745,7 @@ The relevantIndex argument is used for finding out what parser to send the messa
 */
 void Model::logTrace(const QModelIndex &relevantIndex, const Common::LogKind kind, const QString &source, const QString &message)
 {
+    Q_ASSERT(relevantIndex.isValid());
     QModelIndex translatedIndex;
     realTreeItem(relevantIndex, 0, &translatedIndex);
 
