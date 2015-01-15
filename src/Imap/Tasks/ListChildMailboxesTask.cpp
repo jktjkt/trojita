@@ -99,12 +99,10 @@ bool ListChildMailboxesTask::handleStateHelper(const Imap::Responses::State *con
             } else {
                 applyCachedStatus();
                 _failed(tr("LIST failed"));
-                // FIXME: error handling
             }
         } else {
             applyCachedStatus();
             _failed(tr("Mailbox no longer available -- weird timing?"));
-            // FIXME: error handling
         }
         return true;
     } else {
@@ -151,6 +149,17 @@ QString ListChildMailboxesTask::debugIdentification() const
 QVariant ListChildMailboxesTask::taskData(const int role) const
 {
     return role == RoleTaskCompactName ? QVariant(tr("Listing mailboxes")) : QVariant();
+}
+
+void ListChildMailboxesTask::_failed(const QString &errorMessage)
+{
+    if (mailboxIsRootMailbox || mailboxIndex.isValid()) {
+        TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(model->translatePtr(mailboxIndex)));
+        mailbox->setFetchStatus(TreeItem::UNAVAILABLE);
+        QModelIndex index = mailbox->toIndex(model);
+        emit model->dataChanged(index, index);
+    }
+    ImapTask::_failed(errorMessage);
 }
 
 

@@ -183,10 +183,10 @@ void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload
 
 void TreeItemMailbox::rescanForChildMailboxes(Model *const model)
 {
-    // FIXME: fix duplicate requests (ie. don't allow more when some are on their way)
-    // FIXME: gotta be fixed in the Model, or spontaneous replies from server can break us
-    setFetchStatus(NONE);
-    fetchWithCacheControl(model, true);
+    if (accessFetchStatus() != LOADING) {
+        setFetchStatus(NONE);
+        fetchWithCacheControl(model, true);
+    }
 }
 
 unsigned int TreeItemMailbox::rowCount(Model *const model)

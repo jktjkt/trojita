@@ -48,6 +48,7 @@ public:
     virtual bool needsMailbox() const {return false;}
 protected:
     void applyCachedStatus();
+    virtual void _failed(const QString &errorMessage);
 
     CommandHandle tag;
     ImapTask *conn;

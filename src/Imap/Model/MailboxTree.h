@@ -40,6 +40,7 @@ namespace Mailbox
 class Model;
 class MailboxModel;
 class KeepMailboxOpenTask;
+class ListChildMailboxesTask;
 
 class TreeItem
 {
@@ -49,6 +50,7 @@ class TreeItem
     friend class DeleteMailboxTask; // for direct access to m_children
     friend class ObtainSynchronizedMailboxTask;
     friend class KeepMailboxOpenTask; // for direct access to m_children
+    friend class ListChildMailboxesTask; // setStatus() in case of failure
     friend class MsgListModel; // for direct access to m_children
     friend class ThreadingMsgListModel; // for direct access to m_children
     friend class UpdateFlagsOfAllMessagesTask; // for direct access to m_children
