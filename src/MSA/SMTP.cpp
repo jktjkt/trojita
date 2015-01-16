@@ -107,10 +107,7 @@ void SMTP::sendContinueGotPassword()
     if (startTls)
         qwwSmtp->startTls();
     if (auth)
-        qwwSmtp->authenticate(user, pass,
-                               (startTls || encryptedConnect) ?
-                               QwwSmtpClient::AuthPlain :
-                               QwwSmtpClient::AuthAny);
+        qwwSmtp->authenticate(user, pass, QwwSmtpClient::AuthAny);
     emit sending(); // FIXME: later
     switch (sendingMode) {
     case MODE_SMTP_DATA:
