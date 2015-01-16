@@ -2188,6 +2188,8 @@ void MainWindow::slotLayoutWide()
     m_mainHSplitter->addWidget(mboxTree);
     m_mainHSplitter->addWidget(msgListWidget);
     m_mainHSplitter->addWidget(m_messageWidget);
+    msgListWidget->resize(mboxTree->size());
+    m_messageWidget->resize(mboxTree->size());
     m_mainHSplitter->setStretchFactor(0, 0);
     m_mainHSplitter->setStretchFactor(1, 1);
     m_mainHSplitter->setStretchFactor(2, 1);
