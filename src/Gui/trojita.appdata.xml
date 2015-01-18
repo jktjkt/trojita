@@ -4,6 +4,7 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0+</project_license>
   <name>Trojitá</name>
+  <name xml:lang="ar">تروجيتا</name>
   <name xml:lang="ca">Trojitá</name>
   <name xml:lang="cs">Trojitá</name>
   <name xml:lang="da">Trojitá</name>
@@ -23,6 +24,7 @@
   <name xml:lang="uk">Trojitá</name>
   <name xml:lang="x-test">xxTrojitáxx</name>
   <summary>IMAP E-mail Client</summary>
+  <summary xml:lang="ar">عميل بريد IMAP إلكترونيّ</summary>
   <summary xml:lang="ca">Client de correu electrònic IMAP</summary>
   <summary xml:lang="cs">Poštovní klient pro IMAP</summary>
   <summary xml:lang="da">E-mail-klient til IMAP</summary>
@@ -46,6 +48,7 @@
       Trojitá is an email program ("client") specialized in giving fast and efficient access to mailboxes over the IMAP protocol.
       An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.
     </p>
+    <p xml:lang="ar">تروجيتا هو برنامج ("عميل") بريد إلكترونيّ مخصّص للسّرعة والنّفاذ الفعّال إلى صناديق البريد عبر ميفاق IMAP. خادوم بريد IMAP يخزّن الرّسائل ويسمح للعملاء بجلبها إلى الحاسوب المحليّ عند سؤالهم عنها.</p>
     <p xml:lang="ca">Trojitá és un programa de correu electrònic («client») que s'especialitza en donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtenir-los des de l'ordinador local.</p>
     <p xml:lang="da">Trojitá er et e-mail-program ("klient") der er specialiseret i at give hurtig og effektiv adgang til postkasser over IMAP-protokollen. En IMAP-mailserver lagrer breve og lader klienter hente breve til den lokale computer når der er behov for det.</p>
     <p xml:lang="en-GB">Trojitá is an email program ("client") specialised in giving fast and efficient access to mailboxes over the IMAP protocol. An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.</p>
@@ -65,6 +68,7 @@
       Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones.
       Trojitá is a stand-alone program, not part of a "personal information manager" suite.
     </p>
+    <p xml:lang="ar">يعطي تروجيتا الأولويّة إلى الكفاءة، والسّرعة والمعايير الحرّة على الأهداف الأخرى. يهدف أيضًا إلى أن يكون عابرًا للمنصّات وأن يعمل عملًا جيّدًا على أيّ شيء، من حواسيب سطح المكتب الكبيرة إلى الهواتف الصّغيرة. تروجيتا برنامج مستقلّ، وليس جزء من طقم "مدير معلومات شخصيّة".</p>
     <p xml:lang="ca">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multi-plataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="da">Den prioriterer effektivitet, hastighed og åbne standarder over andre mål. Trojitá prøver også at virke på flere platforme, og fungere godt på alt fra store desktop-computere til små mobiltelefoner. Trojitá er et selvstændigt program, det er ikke del af suite til håndtering af personlig information.</p>
     <p xml:lang="en-GB">It prioritises efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.</p>
@@ -80,6 +84,7 @@
     <p xml:lang="uk">Основними пріоритетами під час розробки програми є ефективність, швидкість роботи та використання відкритих стандартів. Крім того, Trojitá може працювати на багатьох платформах: від великих стаціонарних комп’ютерів до малих кишенькових телефонів. Trojitá є окремою програмою, а не частиною якогось комплекту для керування особистими даними.</p>
     <p xml:lang="x-test">xxIt prioritizes efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.xx</p>
     <p>What could make Trojitá interesting for you:</p>
+    <p xml:lang="ar">ما قد يجعل تروجيتا مشوّقًا لك:</p>
     <p xml:lang="ca">Què us podria fer el Trojitá interessant:</p>
     <p xml:lang="da">Hvad der kunne gøre Trojitá interessant for dig:</p>
     <p xml:lang="en-GB">What could make Trojitá interesting for you:</p>
@@ -96,6 +101,7 @@
     <p xml:lang="x-test">xxWhat could make Trojitá interesting for you:xx</p>
     <ul>
       <li>Very fast and robust IMAP core</li>
+      <li xml:lang="ar">نواة IMAP متينة وسريعة جدًّا</li>
       <li xml:lang="ca">Un cor IMAP molt ràpid i robust</li>
       <li xml:lang="da">Hurtig og robust IMAP-kerne</li>
       <li xml:lang="de">Sehr schneller und robuster IMAP-Kern</li>
@@ -113,6 +119,7 @@
       <li xml:lang="uk">Дуже швидке і надійне ядро для обробки даних IMAP.</li>
       <li xml:lang="x-test">xxVery fast and robust IMAP corexx</li>
       <li>Standards compliance is a design goal</li>
+      <li xml:lang="ar">الامتثال للمعايير هو هدف التّصميم</li>
       <li xml:lang="ca">El compliment dels estàndards és un objectiu en el disseny</li>
       <li xml:lang="da">Standardoverholdelse er et designmål</li>
       <li xml:lang="en-GB">Standards compliance is a design goal</li>
@@ -128,6 +135,7 @@
       <li xml:lang="uk">Сумісність зі стандартами, яка є однією з основних цілей розробників.</li>
       <li xml:lang="x-test">xxStandards compliance is a design goalxx</li>
       <li>On-demand message list and body part loading ("lazy loading")</li>
+      <li xml:lang="ar">قائمة رسائل على الطّلب وتحميل جزئيّ للمتن ("تحميل كسول")</li>
       <li xml:lang="ca">Llista els missatges en demanar-ho i carrega la part del cos («càrrega retardada»)</li>
       <li xml:lang="da">Indlæsning af brevliste og brevkrop efter behov ("doven indlæsning")</li>
       <li xml:lang="en-GB">On-demand message list and body part loading ("lazy loading")</li>
@@ -143,6 +151,7 @@
       <li xml:lang="uk">Завантаження списку та тексту повідомлень на вимогу («відкладене завантаження»).</li>
       <li xml:lang="x-test">xxOn-demand message list and body part loading ("lazy loading")xx</li>
       <li>Offline IMAP support</li>
+      <li xml:lang="ar">دعم IMAP بلا إنترنت</li>
       <li xml:lang="ca">Permet IMAP desconnectat</li>
       <li xml:lang="da">Understøttelse af offline-IMAP</li>
       <li xml:lang="de">Unterstützung für Offline-IMAP</li>
@@ -160,6 +169,7 @@
       <li xml:lang="uk">Підтримка роботи з IMAP у автономному режимі.</li>
       <li xml:lang="x-test">xxOffline IMAP supportxx</li>
       <li>Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
+      <li xml:lang="ar">دعم وضع حفظ عرض النّطاق الّذي يستهدف مستخدمي الهاتف ذوي الاتّصال الغالي</li>
       <li xml:lang="ca">Implementa el mode d'estalvi de l'amplada de banda destinat als usuaris de mòbils amb una connexió cara</li>
       <li xml:lang="da">Understøttelse af båndbreddebesparende tilstand til mobile brugere dyre forbindelser</li>
       <li xml:lang="en-GB">Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
@@ -175,6 +185,7 @@
       <li xml:lang="uk">Підтримка режиму економії потужностей каналу обміну даними. Корисна для користувачів мобільного інтернету з дорогим тарифом.</li>
       <li xml:lang="x-test">xxSupport for bandwidth-saving mode aimed at mobile users with expensive connectionxx</li>
       <li>IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
+      <li xml:lang="ar">IMAP عبر SSH -- بدلًا من الاتّصال عبر مقبس SSL، يمكن النّفاذ إلى الخاوم عبر SSH</li>
       <li xml:lang="ca">IMAP a través de SSH: en comptes d'anar a través d'un sòcol de SSL, el servidor pot accedir a través de SSH</li>
       <li xml:lang="da">IMAP over SSH -- i stedet for at gå over en SSL-sokkel, kan serveren tilgås via SSH</li>
       <li xml:lang="en-GB">IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
@@ -190,6 +201,7 @@
       <li xml:lang="uk">IMAP через SSH — замість пропускання даних через сокет SSL, програма може отримувати доступ до сервера за допомогою SSH.</li>
       <li xml:lang="x-test">xxIMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSHxx</li>
       <li>Safe and robust dealing with HTML mail</li>
+      <li xml:lang="ar">تعامل مع بريد HTML متين وآمن</li>
       <li xml:lang="ca">Manté un tracte segur i robust amb el correu HTML</li>
       <li xml:lang="da">Sikker og robust håndtering af HTML-e-mails</li>
       <li xml:lang="de">Sicherer und robuster Umgang mit HTML-E-Mails</li>
@@ -215,6 +227,7 @@
     </screenshot>
     <screenshot>
       <caption>The standard interface to compose new mails.</caption>
+      <caption xml:lang="ar">الواجهة المعياريّة لتأليف بُرد جديدة.</caption>
       <caption xml:lang="ca">La interfície estàndard per editar correus nous.</caption>
       <caption xml:lang="da">Standardgrænseflade til at skrive nye mails.</caption>
       <caption xml:lang="de">Die Standard-Bedienungsoberfläche zum Schreiben von neuen E-Mails.</caption>
