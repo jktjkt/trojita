@@ -379,7 +379,7 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
         emit q->done(false);
         return;
     }
-    const SMTPCommand &cmd = commandqueue.head();
+    SMTPCommand &cmd = commandqueue.head();
     switch (cmd.type) {
     case SMTPCommand::Connect: {
         QString hostName = cmd.data.toList().at(0).toString();
@@ -407,6 +407,23 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
     break;
     case SMTPCommand::Authenticate: {
         QwwSmtpClient::AuthMode authmode = (QwwSmtpClient::AuthMode)cmd.data.toList().at(0).toInt();
+
+        if (authmode == QwwSmtpClient::AuthAny){
+            bool modified = false;
+            if (authModes.testFlag(QwwSmtpClient::AuthPlain)) {
+                authmode = QwwSmtpClient::AuthPlain;
+                modified = true;
+            } else if (authModes.testFlag(QwwSmtpClient::AuthLogin)) {
+                authmode = QwwSmtpClient::AuthLogin;
+                modified = true;
+            }
+            if (modified) {
+                QVariantList data = cmd.data.toList();
+                data[0] = (int)authmode;
+                cmd.data = data;
+            }
+        }
+
         switch (authmode) {
         case QwwSmtpClient::AuthPlain:
             qDebug() << "SMTP >>> AUTH PLAIN";
@@ -419,8 +436,8 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
             setState(QwwSmtpClient::Authenticating);
             break;
         default:
-            qWarning("Unsupported or unknown authentication scheme");
-            //processNextCommand(false);
+            errorString = q->tr("Unsupported or unknown authentication scheme");
+            emit q->done(false);
         }
     }
     break;
@@ -623,10 +640,6 @@ void QwwSmtpClient::setLocalNameEncrypted(const QString & ln) {
 
 
 int QwwSmtpClient::authenticate(const QString &user, const QString &password, AuthMode mode) {
-    if(mode==AuthAny){
-    	// negotiate
-    	mode = AuthLogin;
-    }
     SMTPCommand cmd;
     cmd.type = SMTPCommand::Authenticate;
     cmd.data = QVariantList() << (int)mode << user << password;
