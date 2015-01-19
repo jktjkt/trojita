@@ -188,11 +188,11 @@ protected:
 
 #define IMAP_TASK_CHECK_ABORT_DIE \
     if (_dead) {\
-        _failed(tr("Asked to die"));\
+        _failed(ImapTask::tr("Asked to die"));\
         return;\
     } \
     if (_aborted) {\
-        _failed(tr("Aborted"));\
+        _failed(ImapTask::tr("Aborted"));\
         return;\
     }
 

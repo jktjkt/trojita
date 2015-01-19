@@ -42,6 +42,8 @@ private slots:
     void testBackslashes();
 
     void testNoStatusForCachedItems();
+
+    void testFailingList();
 };
 
 #endif

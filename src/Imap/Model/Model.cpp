@@ -762,17 +762,15 @@ bool Model::hasChildren(const QModelIndex &parent) const
         return false;
 }
 
-void Model::askForTopLevelChildren(const CacheLoadingMode cacheMode)
-{
-    askForChildrenOfMailbox(m_mailboxes, cacheMode == LOAD_FORCE_RELOAD);
-}
-
 void Model::askForChildrenOfMailbox(const QModelIndex &index, const CacheLoadingMode cacheMode)
 {
-    if (!index.isValid())
-        return;
-    Q_ASSERT(index.model() == this);
-    auto mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(index.internalPointer()));
+    TreeItemMailbox *mailbox = 0;
+    if (index.isValid()) {
+        Q_ASSERT(index.model() == this);
+        mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(index.internalPointer()));
+    } else {
+        mailbox = m_mailboxes;
+    }
     Q_ASSERT(mailbox);
     askForChildrenOfMailbox(mailbox, cacheMode == LOAD_FORCE_RELOAD);
 }
@@ -1747,6 +1745,7 @@ The relevantIndex argument is used for finding out what parser to send the messa
 */
 void Model::logTrace(const QModelIndex &relevantIndex, const Common::LogKind kind, const QString &source, const QString &message)
 {
+    Q_ASSERT(relevantIndex.isValid());
     QModelIndex translatedIndex;
     realTreeItem(relevantIndex, 0, &translatedIndex);
 

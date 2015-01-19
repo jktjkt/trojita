@@ -48,10 +48,12 @@ public:
     virtual bool needsMailbox() const {return false;}
 protected:
     void applyCachedStatus();
+    virtual void _failed(const QString &errorMessage);
 
     CommandHandle tag;
     ImapTask *conn;
     QPersistentModelIndex mailboxIndex;
+    bool mailboxIsRootMailbox;
     QList<Imap::Responses::Status*> m_pendingStatusResponses;
 };
 

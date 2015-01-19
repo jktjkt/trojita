@@ -27,18 +27,11 @@
 #include <QSslError>
 
 #include "Common/ConnectionMethod.h"
-#include "Imap/Model/MailboxModel.h"
-#include "Imap/Model/Model.h"
-#include "Imap/Model/MsgListModel.h"
-#include "Imap/Model/NetworkWatcher.h"
-#include "Imap/Model/OneMessageModel.h"
-#include "Imap/Model/SubtreeModel.h"
-#include "Imap/Model/Utils.h"
-#include "Imap/Model/VisibleTasksModel.h"
-#include "Imap/Model/ThreadingMsgListModel.h"
+#include "Common/Logging.h"
+#include "Imap/Model/NetworkPolicy.h"
 #include "UiUtils/Formatting.h"
-#include "UiUtils/PasswordWatcher.h"
 
+class QModelIndex;
 class QNetworkAccessManager;
 class QSettings;
 
@@ -46,7 +39,22 @@ namespace Plugins {
 class PluginManager;
 }
 
+namespace UiUtils {
+class PasswordWatcher;
+}
+
 namespace Imap {
+
+namespace Mailbox {
+class MailboxModel;
+class Model;
+class MsgListModel;
+class NetworkWatcher;
+class OneMessageModel;
+class SubtreeModelOfMailboxModel;
+class ThreadingMsgListModel;
+class VisibleTasksModel;
+}
 
 class ImapAccess : public QObject
 {

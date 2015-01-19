@@ -62,12 +62,12 @@ protected:
     Model *m_model;
     NetworkPolicy m_desiredPolicy;
 
-private slots:
+protected slots:
     void attemptReconnect();
     void tryReconnect();
     void handleConnectionStateChanged(uint parserId, Imap::ConnectionState state);
 
-private:
+protected:
     void resetReconnectTimer();
 
     /** @short Single shot timer to trigger reconnect attempts with time-outs */

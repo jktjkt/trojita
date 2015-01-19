@@ -579,7 +579,6 @@ protected slots:
     void responseReceived();
     void responseReceived(Imap::Parser *parser);
     void askForChildrenOfMailbox(const QModelIndex &index, const Imap::Mailbox::CacheLoadingMode cacheMode);
-    void askForTopLevelChildren(const Imap::Mailbox::CacheLoadingMode cacheMode);
     void askForMessagesInMailbox(const QModelIndex &index);
 
     void runReadyTasks();

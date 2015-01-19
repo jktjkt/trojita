@@ -104,7 +104,7 @@ TreeItemChildrenList TreeItem::setChildren(const TreeItemChildrenList &items)
     return res;
 }
 
-bool TreeItem::isUnavailable(Model *const model) const
+bool TreeItem::isUnavailable() const
 {
     return accessFetchStatus() == UNAVAILABLE;
 }
@@ -124,6 +124,8 @@ TreeItem *TreeItem::specialColumnPtr(int row, int column) const
 QModelIndex TreeItem::toIndex(Model *const model) const
 {
     Q_ASSERT(model);
+    if (this == model->m_mailboxes)
+        return QModelIndex();
     // void* != const void*, but I believe that it's safe in this context
     return model->createIndex(row(), 0, const_cast<TreeItem *>(this));
 }
@@ -163,7 +165,7 @@ void TreeItemMailbox::fetch(Model *const model)
 
 void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload)
 {
-    if (fetched() || isUnavailable(model))
+    if (fetched() || isUnavailable())
         return;
 
     if (hasNoChildMailboxesAlreadyKnown()) {
@@ -174,21 +176,17 @@ void TreeItemMailbox::fetchWithCacheControl(Model *const model, bool forceReload
     if (! loading()) {
         setFetchStatus(LOADING);
         QModelIndex mailboxIndex = toIndex(model);
-        if (mailboxIndex.isValid()) {
-            CALL_LATER(model, askForChildrenOfMailbox, Q_ARG(QModelIndex, mailboxIndex),
-                       Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
-        } else {
-            CALL_LATER(model, askForTopLevelChildren, Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
-        }
+        CALL_LATER(model, askForChildrenOfMailbox, Q_ARG(QModelIndex, mailboxIndex),
+                   Q_ARG(Imap::Mailbox::CacheLoadingMode, forceReload ? LOAD_FORCE_RELOAD : LOAD_CACHED_IS_OK));
     }
 }
 
 void TreeItemMailbox::rescanForChildMailboxes(Model *const model)
 {
-    // FIXME: fix duplicate requests (ie. don't allow more when some are on their way)
-    // FIXME: gotta be fixed in the Model, or spontaneous replies from server can break us
-    setFetchStatus(NONE);
-    fetchWithCacheControl(model, true);
+    if (accessFetchStatus() != LOADING) {
+        setFetchStatus(NONE);
+        fetchWithCacheControl(model, true);
+    }
 }
 
 unsigned int TreeItemMailbox::rowCount(Model *const model)
@@ -199,6 +197,13 @@ unsigned int TreeItemMailbox::rowCount(Model *const model)
 
 QVariant TreeItemMailbox::data(Model *const model, int role)
 {
+    switch (role) {
+    case RoleIsFetched:
+        return fetched();
+    case RoleIsUnavailable:
+        return isUnavailable();
+    };
+
     if (!parent())
         return QVariant();
 
@@ -212,10 +217,6 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
         QString res = separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
         return loading() ? res + QLatin1String(" [loading]") : res;
     }
-    case RoleIsFetched:
-        return fetched();
-    case RoleIsUnavailable:
-        return isUnavailable(model);
     case RoleShortMailboxName:
         return separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
     case RoleMailboxName:
@@ -293,7 +294,7 @@ bool TreeItemMailbox::hasNoChildMailboxesAlreadyKnown()
 
 bool TreeItemMailbox::hasChildMailboxes(Model *const model)
 {
-    if (fetched() || isUnavailable(model)) {
+    if (fetched() || isUnavailable()) {
         return m_children.size() > 1;
     } else if (hasNoChildMailboxesAlreadyKnown()) {
         return false;
@@ -323,12 +324,7 @@ TreeItemChildrenList TreeItemMailbox::setChildren(const TreeItemChildrenList &it
     m_children.erase(m_children.begin());
 
     auto list = TreeItem::setChildren(items);  // this also adjusts m_loading and m_fetched
-
     m_children.prepend(msgList);
-
-    // FIXME: anything else required for \Noselect?
-    if (! isSelectable())
-        msgList->setFetchStatus(DONE);
 
     return list;
 }
@@ -846,7 +842,7 @@ TreeItemMsgList::TreeItemMsgList(TreeItem *parent):
 
 void TreeItemMsgList::fetch(Model *const model)
 {
-    if (fetched() || isUnavailable(model))
+    if (fetched() || isUnavailable())
         return;
 
     if (!loading()) {
@@ -874,7 +870,7 @@ QVariant TreeItemMsgList::data(Model *const model, int role)
     if (role == RoleIsFetched)
         return fetched();
     if (role == RoleIsUnavailable)
-        return isUnavailable(model);
+        return isUnavailable();
 
     if (role != Qt::DisplayRole)
         return QVariant();
@@ -885,7 +881,7 @@ QVariant TreeItemMsgList::data(Model *const model, int role)
     if (loading())
         return QLatin1String("[loading messages...]");
 
-    if (isUnavailable(model))
+    if (isUnavailable())
         return QLatin1String("[offline]");
 
     if (fetched())
@@ -1003,7 +999,7 @@ TreeItemMessage::~TreeItemMessage()
 
 void TreeItemMessage::fetch(Model *const model)
 {
-    if (fetched() || loading() || isUnavailable(model))
+    if (fetched() || loading() || isUnavailable())
         return;
 
     if (m_uid) {
@@ -1083,7 +1079,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case RoleIsFetched:
         return fetched();
     case RoleIsUnavailable:
-        return isUnavailable(model);
+        return isUnavailable();
     case RoleMessageFlags:
         // The flags are already sorted by Model::normalizeFlags()
         return m_flags;
@@ -1143,7 +1139,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case Qt::DisplayRole:
         if (loading()) {
             return QString::fromUtf8("[loading UID %1...]").arg(QString::number(uid()));
-        } else if (isUnavailable(model)) {
+        } else if (isUnavailable()) {
             return QString::fromUtf8("[offline UID %1]").arg(QString::number(uid()));
         } else {
             return QString::fromUtf8("UID %1: %2").arg(QString::number(uid()), data()->m_envelope.subject);
@@ -1451,7 +1447,7 @@ TreeItemChildrenList TreeItemPart::setChildren(const TreeItemChildrenList &items
 
 void TreeItemPart::fetch(Model *const model)
 {
-    if (fetched() || loading() || isUnavailable(model))
+    if (fetched() || loading() || isUnavailable())
         return;
 
     setFetchStatus(LOADING);
@@ -1460,7 +1456,7 @@ void TreeItemPart::fetch(Model *const model)
 
 void TreeItemPart::fetchFromCache(Model *const model)
 {
-    if (fetched() || loading() || isUnavailable(model))
+    if (fetched() || loading() || isUnavailable())
         return;
 
     model->askForMsgPart(this, true);
@@ -1483,7 +1479,7 @@ QVariant TreeItemPart::data(Model *const model, int role)
     case RoleIsFetched:
         return fetched();
     case RoleIsUnavailable:
-        return isUnavailable(model);
+        return isUnavailable();
     case RolePartMimeType:
         return m_mimeType;
     case RolePartCharset:

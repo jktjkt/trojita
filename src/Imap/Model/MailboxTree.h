@@ -40,6 +40,7 @@ namespace Mailbox
 class Model;
 class MailboxModel;
 class KeepMailboxOpenTask;
+class ListChildMailboxesTask;
 
 class TreeItem
 {
@@ -49,6 +50,7 @@ class TreeItem
     friend class DeleteMailboxTask; // for direct access to m_children
     friend class ObtainSynchronizedMailboxTask;
     friend class KeepMailboxOpenTask; // for direct access to m_children
+    friend class ListChildMailboxesTask; // setStatus() in case of failure
     friend class MsgListModel; // for direct access to m_children
     friend class ThreadingMsgListModel; // for direct access to m_children
     friend class UpdateFlagsOfAllMessagesTask; // for direct access to m_children
@@ -120,7 +122,7 @@ public:
     virtual bool hasChildren(Model *const model) = 0;
     virtual bool fetched() const { return accessFetchStatus() == DONE; }
     virtual bool loading() const { return accessFetchStatus() == LOADING; }
-    virtual bool isUnavailable(Model *const model) const;
+    virtual bool isUnavailable() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     virtual QModelIndex toIndex(Model *const model) const;
 };

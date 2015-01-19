@@ -45,7 +45,7 @@ Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recurs
     Q_ASSERT(partIndex.isValid());
 
     if (recursionDepth > 1000) {
-        return m_visitor->visitError(tr("This message contains too deep nesting of MIME message parts.\n"
+        return m_visitor->visitError(PartWalker::tr("This message contains too deep nesting of MIME message parts.\n"
                              "To prevent stack exhaustion and your head from exploding, only\n"
                              "the top-most thousand items or so are shown."), 0);
     }

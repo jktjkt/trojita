@@ -82,6 +82,28 @@ void ImapModelListChildMailboxesTest::testSimpleListing()
     cEmpty();
 }
 
+void ImapModelListChildMailboxesTest::testFailingList()
+{
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    QCOMPARE(model->data(QModelIndex(), Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->data(QModelIndex(), Imap::Mailbox::RoleIsUnavailable).toBool(), false);
+    cServer(t.last("NO no joy today\r\n"));
+    QCOMPARE(model->data(QModelIndex(), Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->data(QModelIndex(), Imap::Mailbox::RoleIsUnavailable).toBool(), true);
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    cEmpty();
+    model->reloadMailboxList();
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    QCOMPARE(model->data(QModelIndex(), Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->data(QModelIndex(), Imap::Mailbox::RoleIsUnavailable).toBool(), false);
+    cServer(t.last("OK listed\r\n"));
+    QCOMPARE(model->data(QModelIndex(), Imap::Mailbox::RoleIsFetched).toBool(), true);
+    QCOMPARE(model->data(QModelIndex(), Imap::Mailbox::RoleIsUnavailable).toBool(), false);
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    cEmpty();
+}
+
 void ImapModelListChildMailboxesTest::testFakeListing()
 {
     taskFactoryUnsafe->fakeListChildMailboxes = true;
