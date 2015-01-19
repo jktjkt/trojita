@@ -184,7 +184,7 @@ QString systemPlatformVersion()
     }
 #endif
     if (platformVersion.isEmpty()) {
-#ifdef Q_OS_WIN32
+#if defined(Q_OS_WIN32) || defined(Q_OS_WINCE)
         switch (QSysInfo::WindowsVersion) {
         case QSysInfo::WV_32s:
             platformVersion = QLatin1String("3.1");
@@ -216,15 +216,21 @@ QString systemPlatformVersion()
         case QSysInfo::WV_WINDOWS7:
             platformVersion = QLatin1String("7");
             break;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 3) // and 5.0
         case QSysInfo::WV_WINDOWS8:
             platformVersion = QLatin1String("8");
             break;
 #endif
-        }
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 6) // and 5.2
+        case QSysInfo::WV_WINDOWS8_1:
+            platformVersion = QLatin1String("8.1");
+            break;
 #endif
-#ifdef Q_OS_WINCE
-        switch (QSysInfo::WindowsVersion) {
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 7) && QT_VERSION < QT_VERSION_CHECK(5, 0, 0)) || QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+        case QSysInfo::WV_WINDOWS10:
+            platformVersion = QLatin1String("10");
+            break;
+#endif
         case QSysInfo::WV_CE:
             platformVersion = QLatin1String("CE");
             break;
@@ -236,6 +242,15 @@ QString systemPlatformVersion()
             break;
         case QSysInfo::WV_CE_6:
             platformVersion = QLatin1String("CE6.x");
+            break;
+        case QSysInfo::WV_DOS_based:
+            platformVersion = QLatin1String("DOS-based");
+            break;
+        case QSysInfo::WV_NT_based:
+            platformVersion = QLatin1String("NT-based");
+            break;
+        case QSysInfo::WV_CE_based:
+            platformVersion = QLatin1String("CE-based");
             break;
         }
 #endif
@@ -265,23 +280,56 @@ QString systemPlatformVersion()
         case QSysInfo::MV_10_6:
             platformVersion = QLatin1String("X 10.6");
             break;
-#if QT_VERSION >= 0x040800
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0) // 5.0
         case QSysInfo::MV_10_7:
             platformVersion = QLatin1String("X 10.7");
             break;
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 3) // 5.0
         case QSysInfo::MV_10_8:
             platformVersion = QLatin1String("X 10.8");
             break;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 6) // 5.1
         case QSysInfo::MV_10_9:
             platformVersion = QLatin1String("X 10.9");
             break;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+#endif
+#if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 7) && QT_VERSION < QT_VERSION_CHECK(5, 0, 0)) || QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
         case QSysInfo::MV_10_10:
             platformVersion = QLatin1String("X 10.10");
             break;
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+        case QSysInfo::MV_IOS:
+            platformVersion = QLatin1String("iOS");
+            break;
+        case QSysInfo::MV_IOS_4_3:
+            platformVersion = QLatin1String("iOS 4.3");
+            break;
+        case QSysInfo::MV_IOS_5_0:
+            platformVersion = QLatin1String("iOS 5.0");
+            break;
+        case QSysInfo::MV_IOS_5_1:
+            platformVersion = QLatin1String("iOS 5.1");
+            break;
+        case QSysInfo::MV_IOS_6_0:
+            platformVersion = QLatin1String("iOS 6.0");
+            break;
+        case QSysInfo::MV_IOS_6_1:
+            platformVersion = QLatin1String("iOS 6.1");
+            break;
+        case QSysInfo::MV_IOS_7_0:
+            platformVersion = QLatin1String("iOS 7.0");
+            break;
 #endif
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+        case QSysInfo::MV_IOS_7_1:
+            platformVersion = QLatin1String("iOS 7.1");
+            break;
+        case QSysInfo::MV_IOS_8_0:
+            platformVersion = QLatin1String("iOS 8.0");
+            break;
 #endif
         }
 #endif
