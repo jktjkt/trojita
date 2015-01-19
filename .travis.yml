@@ -6,7 +6,6 @@ env:
  - CONFIG=debug RAGEL=OFF
  - CONFIG=debug RAGEL=ON
  - CONFIG=debug ZLIB=OFF
- - CONFIG=debug QT5=qt5
  - CONFIG=release
  - CONFIG=release QT5=qt5
 before_install:
