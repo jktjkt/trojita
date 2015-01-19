@@ -830,24 +830,7 @@ if(WITH_HARMATTAN)
 endif()
 
 if(WITH_NSIS)
-    if(CMAKE_SIZEOF_VOID_P STREQUAL 4)
-        set(MAKENSIS_OUTPUT Trojita-installer.exe)
-    else()
-        set(MAKENSIS_FLAGS -DX86_64 ${MAKENSIS_FLAGS})
-        set(MAKENSIS_OUTPUT Trojita-installer-x86_64.exe)
-    endif()
-
-    if(NOT CMAKE_VERBOSE_MAKEFILE)
-        set(MAKENSIS_FLAGS -V2 -DQUIET ${MAKENSIS_FLAGS})
-    endif()
-
-    set(MAKENSIS_FLAGS ${MAKENSIS_FLAGS} -NOCD)
-
-    add_custom_command(OUTPUT ${MAKENSIS_OUTPUT}
-        COMMAND ${MAKENSIS}
-        ARGS ${MAKENSIS_FLAGS} ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi
-        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi ${CMAKE_CURRENT_BINARY_DIR}/trojita.exe version)
-    add_custom_target(installer ALL DEPENDS ${MAKENSIS_OUTPUT})
+    include(TrojitaNSIS)
 endif()
 
 
