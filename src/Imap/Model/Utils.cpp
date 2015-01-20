@@ -322,15 +322,18 @@ QString systemPlatformVersion()
         case QSysInfo::MV_IOS_7_0:
             platformVersion = QLatin1String("iOS 7.0");
             break;
-#endif
-#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
         case QSysInfo::MV_IOS_7_1:
             platformVersion = QLatin1String("iOS 7.1");
             break;
+#endif
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
         case QSysInfo::MV_IOS_8_0:
             platformVersion = QLatin1String("iOS 8.0");
             break;
 #endif
+        case QSysInfo::MV_Unknown:
+            platformVersion = QLatin1String("iOS (unknown)");
+            break;
         }
 #endif
         if (platformVersion.isEmpty()) {
