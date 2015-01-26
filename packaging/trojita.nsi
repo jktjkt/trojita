@@ -36,9 +36,8 @@
 
 ;--------------------------------
 
-!include "MUI2.nsh"
-
 !include "trojita-version.nsi"
+!include "trojita-files.nsi"
 
 ;--------------------------------
 
@@ -51,14 +50,16 @@
 
 ;--------------------------------
 
-!define EXE "trojita.exe"
+!define ICON "${TROJITA_ICON_PATH}"
+!define EXE_PATH "${TROJITA_EXE_PATH}"
+!define EXE "${TROJITA_EXE}"
 !define UNINSTALL "uninstall.exe"
-!define INSTALLER "${NAME}-installer.exe"
+!define INSTALLER "${NAME}-Setup.exe"
 !define INSTALLDIR "$PROGRAMFILES\${NAME}\"
 !define LANGUAGE "English"
 
 !ifdef x86_64
-${redefine} INSTALLER "${NAME}-installer-x86_64.exe"
+${redefine} INSTALLER "${NAME}-Setup-x86_64.exe"
 ${redefine} INSTALLDIR "$PROGRAMFILES64\${NAME}\"
 ${redefine} NAME "${NAME} (64 bit)"
 !endif
@@ -67,16 +68,29 @@ ${redefine} NAME "${NAME} (64 bit)"
 
 ;--------------------------------
 
-LangString INSTALLER_RUNNING ${LANG_ENGLISH} "${NAME} Installer is already running"
-LangString REMOVEPREVIOUS ${LANG_ENGLISH} "Removing previous installation"
+SetCompressor /SOLID /FINAL lzma
+Name "${NAME}"
+Icon "${ICON}"
+OutFile "${INSTALLER}"
+InstallDir "${INSTALLDIR}"
+InstallDirRegKey HKLM "${REGKEY}" "InstallLocation"
+BrandingText "${NAME} - ${DESCRIPTION}, version ${VERSION}  ${HOMEPAGE}"
+ShowInstDetails Show
+ShowUnInstDetails Show
+XPStyle on
+ManifestSupportedOS all
+RequestExecutionLevel admin
 
-!ifdef x86_64
-LangString x86_64_ONLY ${LANG_ENGLISH} "This version is for 64 bits computers only"
-!endif
+;--------------------------------
+
+!include "MUI2.nsh"
 
 ;--------------------------------
 
 Var STARTMENUDIR
+
+!define MUI_ICON "${ICON}"
+!define MUI_UNICON "${ICON}"
 
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_NOAUTOCLOSE
@@ -96,27 +110,25 @@ Var STARTMENUDIR
 
 ;--------------------------------
 
-Name "${NAME}"
-OutFile "${INSTALLER}"
-InstallDir "${INSTALLDIR}"
-InstallDirRegKey HKLM "${REGKEY}" "InstallLocation"
-
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${NAME} Installer - ${DESCRIPTION}"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${NAME} Setup - ${DESCRIPTION}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" "${NAME} Installer"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" "${NAME} Setup"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "${COPYRIGHT}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "License" "${LICENSE}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "Homepage" "${HOMEPAGE}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename" "${INSTALLER}"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${NAME} Installer"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${NAME} Setup"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
 VIProductVersion "${TROJITA_VERNUM1}.${TROJITA_VERNUM2}.${TROJITA_VERNUM3}.${TROJITA_VERNUM4}"
 
-BrandingText "${NAME} - ${DESCRIPTION}, version ${VERSION}  ${HOMEPAGE}"
-ShowInstDetails Show
-ShowUnInstDetails Show
-XPStyle on
-RequestExecutionLevel admin
+;--------------------------------
+
+LangString INSTALLER_RUNNING ${LANG_ENGLISH} "${NAME} Setup is already running"
+LangString REMOVEPREVIOUS ${LANG_ENGLISH} "Removing previous installation"
+
+!ifdef x86_64
+LangString x86_64_ONLY ${LANG_ENGLISH} "This version is for 64 bits computers only"
+!endif
 
 ;--------------------------------
 
@@ -164,8 +176,9 @@ Section "${NAME}"
 
 	SectionIn RO
 
-	SetOutPath $INSTDIR
-	File "${EXE}"
+	SetOutPath "$INSTDIR"
+	File "${EXE_PATH}"
+	!insertmacro TROJITA_INSTALL_FILES
 
 	!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 	CreateDirectory "$SMPROGRAMS\$STARTMENUDIR"
@@ -203,6 +216,7 @@ Section "un.${NAME}"
 	Delete "$DESKTOP\${NAME}.lnk"
 
 	Delete "$INSTDIR\${EXE}"
+	!insertmacro TROJITA_UNINSTALL_FILES
 
 	DeleteRegKey HKLM "${REGKEY}"
 
