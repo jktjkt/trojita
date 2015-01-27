@@ -1,3 +1,9 @@
+trojita-tp (THIS_VERSION) unstable; urgency=low
+  * Version bump
+  * Switch to a release build
+
+ -- Jan Kundrát <jkt@kde.org>  Wed, 27 Jan 2015 08:00:00 -0400
+
 trojita-tp (0.4.1) unstable; urgency=low
   * Fix security problem, an information leak with STARTTLS and PREAUTH
 
