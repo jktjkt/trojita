@@ -19,6 +19,7 @@ configure-stamp:
 	GCCWRAPPER_PATHMANGLE=/usr mad -t $(shell basename "${MA_SESSION_DIR}") cmake .. \
 						  -DWITH_HARMATTAN=ON -DWITH_DESKTOP=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo \
 						  -DCMAKE_INSTALL_PREFIX=/opt/trojita-tp \
+						  -DCMAKE_INSTALL_RPATH=/opt/trojita-tp/lib -DCMAKE_BUILD_WITH_INSTALL_RPATH=TRUE \
 						  -DWITH_RAGEL=OFF \
 						  -DQT_MOC_EXECUTABLE=${MA_SESSION_DIR}/bin/moc
 	touch configure-stamp
