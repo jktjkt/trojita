@@ -40,15 +40,19 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
     execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -dumpversion OUTPUT_VARIABLE GNU_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
     execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -dumpmachine OUTPUT_VARIABLE GNU_TARGET OUTPUT_STRIP_TRAILING_WHITESPACE)
-    # Detect exceptions handling: http://stackoverflow.com/a/16103497
-    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -v ERROR_VARIABLE GNU_EXCEPTIONS ERROR_STRIP_TRAILING_WHITESPACE)
-    if(GNU_EXCEPTIONS MATCHES "--enable-[a-z]+-exceptions")
-        string(REGEX REPLACE ".*--enable-([a-z]+)-exceptions.*" "\\1" GNU_EXCEPTIONS "${GNU_EXCEPTIONS}")
+    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -v ERROR_VARIABLE GNU_OUTPUT ERROR_STRIP_TRAILING_WHITESPACE)
+    # Detect exceptions handling and threading model: http://stackoverflow.com/a/16103497
+    if(GNU_OUTPUT MATCHES "--enable-[a-z]+-exceptions")
+        string(REGEX REPLACE ".*--enable-([a-z]+)-exceptions.*" "\\1" GNU_EXCEPTIONS "${GNU_OUTPUT}")
         message(STATUS "Detected ${GNU_EXCEPTIONS} exceptions handling")
     elseif(NOT GNU_VERSION VERSION_LESS "4.8")
         set(GNU_EXCEPTIONS seh)
     else()
         set(GNU_EXCEPTIONS sjlj)
+    endif()
+    if(GNU_OUTPUT MATCHES "--enable-threads=posix")
+        # Posix threading model needs libwinpthread-1.dll library
+        list(APPEND TROJITA_LIBRARIES libwinpthread-1.dll)
     endif()
     # All not static linked mingw/gcc binaries depends on libstdc++ and GNU runtime library, name pattern is: libgcc_s_<exceptions>-1.dll
     list(APPEND TROJITA_LIBRARIES libgcc_s_${GNU_EXCEPTIONS}-1.dll libstdc++-6.dll)
