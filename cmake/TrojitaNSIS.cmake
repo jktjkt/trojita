@@ -27,7 +27,8 @@ else()
     endif()
 endif()
 
-if(WITH_ZLIB)
+# Check if Qt depends on external system zlib library
+if(WITH_ZLIB AND NOT ZLIB_LIBRARIES STREQUAL QT_QTCORE_LIBRARY)
     list(APPEND TROJITA_LIBRARIES "${ZLIB_LIBRARIES}")
 endif()
 
