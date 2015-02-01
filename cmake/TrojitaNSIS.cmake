@@ -32,10 +32,19 @@ if(WITH_ZLIB AND NOT ZLIB_LIBRARIES STREQUAL QT_QTCORE_LIBRARY)
     list(APPEND TROJITA_LIBRARIES "${ZLIB_LIBRARIES}")
 endif()
 
-if(PNG_VERSION_STRING)
-    # QtGui depends on libpng, name pattern is: "libpng<maj><min>-<maj><min>.dll"
-    string(REGEX REPLACE "^([0-9])\\.([0-9])\\..*\$" "libpng\\1\\2-\\1\\2.dll" LIBRARY "${PNG_VERSION_STRING}")
-    list(APPEND TROJITA_LIBRARIES "${LIBRARY}")
+# Check if Qt depends on external system libpng library
+if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
+    file(READ ${QT_MKSPECS_DIR}/qconfig.pri QT_CONFIG_PNG)
+    string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG_PNG ${QT_CONFIG_PNG})
+    if(QT_CONFIG_PNG MATCHES " system-png ")
+        if(PNG_VERSION_STRING)
+            # QtGui depends on libpng, name pattern is: "libpng<maj><min>-<maj><min>.dll"
+            string(REGEX REPLACE "^([0-9])\\.([0-9])\\..*\$" "libpng\\1\\2-\\1\\2.dll" LIBRARY "${PNG_VERSION_STRING}")
+            list(APPEND TROJITA_LIBRARIES "${LIBRARY}")
+        else()
+            message(SEND_ERROR "External PNG library is required but version was not detected")
+        endif()
+    endif()
 endif()
 
 if(CMAKE_COMPILER_IS_GNUCXX)
