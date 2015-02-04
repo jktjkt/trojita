@@ -965,4 +965,52 @@ void ImapModelSelectedMailboxUpdatesTest::testUid0()
     }
 }
 
+/** @short Check that marking of all messages as read doesn't report dataChanged about messages with UID 0 */
+void ImapModelSelectedMailboxUpdatesTest::testMarkAllConcurrentArrival()
+{
+    initialMessages(1);
+    cServer("* 1 FETCH (FLAGS ())\r\n");
+    justKeepTask();
+    cEmpty();
+
+    QSignalSpy changedSpy(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(helperDataChangedUidNonZero(QModelIndex,QModelIndex)));
+    model->markMailboxAsRead(idxA);
+    cClient(t.mk("STORE 1:* +FLAGS.SILENT \\Seen\r\n"));
+    cServer("* 2 EXISTS\r\n" + t.last("OK marked\r\n"));
+
+    // 1st signal for TreeItemMsgList due to the EXISTS
+    // 2nd for each changed message
+    // 3rd for the whole mailbox because its "unread message count" might have changed
+    // One signal for each message, one for the TreeItemMsgList, one for the whole mailbox
+    QCOMPARE(changedSpy.size(), 3);
+    QCOMPARE(changedSpy[0][0].value<QModelIndex>(), QModelIndex(msgListA));
+    QCOMPARE(changedSpy[0][1].value<QModelIndex>(), QModelIndex(msgListA));
+    QCOMPARE(changedSpy[1][0].value<QModelIndex>(), QModelIndex(msgListA.child(0, 0)));
+    QCOMPARE(changedSpy[1][1].value<QModelIndex>(), QModelIndex(msgListA.child(0, 0)));
+    QCOMPARE(changedSpy[2][0].value<QModelIndex>(), QModelIndex(idxA));
+    QCOMPARE(changedSpy[2][1].value<QModelIndex>(), QModelIndex(idxA));
+
+    // This is a crude thing, but the point is that the cache should not have been called with an update to an unknown message
+    QCOMPARE(model->cache()->msgFlags(QLatin1String("a"), 0), QStringList());
+
+    cClient(t.mk("UID FETCH 2:* (FLAGS)\r\n"));
+    cServer("* 2 FETCH (UID 1002 FLAGS (foo))\r\n" + t.last("OK done\r\n"));
+    QCOMPARE(model->cache()->msgFlags(QLatin1String("a"), 0), QStringList());
+    QCOMPARE(model->cache()->msgFlags(QLatin1String("a"), 1002), QStringList() << QLatin1String("foo"));
+    justKeepTask();
+    cEmpty();
+}
+
+/** @short Helper for testMarkAllConcurrentArrival */
+void ImapModelSelectedMailboxUpdatesTest::helperDataChangedUidNonZero(const QModelIndex &a, const QModelIndex &b)
+{
+    QVERIFY(a.isValid());
+    QVERIFY(b.isValid());
+    if (a.parent() == msgListA) {
+        QVERIFY(a.data(Imap::Mailbox::RoleMessageUid).toUInt() != 0);
+        QVERIFY(b.data(Imap::Mailbox::RoleMessageUid).toUInt() != 0);
+    }
+}
+
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

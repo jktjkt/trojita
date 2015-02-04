@@ -76,6 +76,11 @@ bool UpdateFlagsOfAllMessagesTask::handleStateHelper(const Imap::Responses::Stat
                 TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(item);
                 Q_ASSERT(message);
 
+                if (message->uid() == 0) {
+                    // UID not determined yet, so we cannot really modify its flags
+                    continue;
+                }
+
                 Q_ASSERT(flagOperation == Imap::Mailbox::FLAG_ADD || flagOperation == Imap::Mailbox::FLAG_ADD_SILENT);
                 QStringList newFlags = message->m_flags;
                 if (!newFlags.contains(flags)) {
