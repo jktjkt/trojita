@@ -955,4 +955,14 @@ void ImapModelSelectedMailboxUpdatesTest::testFlagsRecalcOnExpunge()
     cEmpty();
 }
 
+/** @short Servers reporting UID 0 are buggy, full stop */
+void ImapModelSelectedMailboxUpdatesTest::testUid0()
+{
+    initialMessages(2);
+    {
+        ExpectSingleErrorHere blocker(this);
+        cServer("* 3 EXISTS\r\n* 3 FETCH (UID 0)\r\n");
+    }
+}
+
 TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )

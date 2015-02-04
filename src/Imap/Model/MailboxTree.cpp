@@ -359,7 +359,10 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     // At first, have a look at the response and check the UID of the message
     if (uidRecord != response.data.constEnd()) {
         uint receivedUid = static_cast<const Responses::RespData<uint>&>(*(uidRecord.value())).data;
-        if (message->uid() == receivedUid) {
+        if (receivedUid == 0) {
+            throw MailboxException(QString::fromUtf8("Server claims that message #%1 has UID 0")
+                                   .arg(QString::number(response.number)).toUtf8().constData(), response);
+        } else if (message->uid() == receivedUid) {
             // That's what we expect -> do nothing
         } else if (message->uid() == 0) {
             // This is the first time we see the UID, so let's take a note
