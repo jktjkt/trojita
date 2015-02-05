@@ -1,4 +1,0 @@
-REVIEWBOARD_URL = "https://git.reviewboard.kde.org"
-TARGET_GROUPS = "trojita"
-GUESS_FIELDS = True
-REPOSITORY = "trojita"
