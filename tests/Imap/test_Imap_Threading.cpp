@@ -1455,4 +1455,26 @@ void ImapModelThreadingTest::testFlatThreadDeletionPerformance()
     cEmpty();
 }
 
+/** @short Make sure that changes of a yet unsynced message doesn't confuse us */
+void ImapModelThreadingTest::testDataChangedUnknownUid()
+{
+    initialMessages(1);
+    cServer("* 1 FETCH (FLAGS ())\r\n");
+    cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    cServer("* THREAD (1)\r\n" + t.last("OK thread\r\n"));
+    justKeepTask();
+    cEmpty();
+
+    model->markMailboxAsRead(idxA);
+    cClient(t.mk("STORE 1:* +FLAGS.SILENT \\Seen\r\n"));
+    cServer("* 2 EXISTS\r\n* 2 FETCH (FLAGS (pwn))\r\n" + t.last("OK marked\r\n"));
+    cClient(t.mk("UID FETCH 2:* (FLAGS)\r\n"));
+    cServer("* 2 FETCH (UID 1002 FLAGS (ahoy))\r\n" + t.last("OK done\r\n"));
+    cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    cServer("* THREAD (1)(1002)\r\n" + t.last("OK thread\r\n"));
+    QCOMPARE(model->cache()->msgFlags(QLatin1String("a"), 1002), QStringList() << QLatin1String("ahoy"));
+    justKeepTask();
+    cEmpty();
+}
+
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )
