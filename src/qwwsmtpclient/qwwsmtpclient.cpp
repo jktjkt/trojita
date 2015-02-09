@@ -436,7 +436,7 @@ void QwwSmtpClientPrivate::processNextCommand(bool ok) {
             setState(QwwSmtpClient::Authenticating);
             break;
         default:
-            errorString = q->tr("Unsupported or unknown authentication scheme");
+            errorString = QwwSmtpClient::tr("Unsupported or unknown authentication scheme");
             emit q->done(false);
         }
     }
