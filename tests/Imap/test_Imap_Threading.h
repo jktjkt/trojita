@@ -45,6 +45,7 @@ private slots:
     void testRemovingRootWithThreadingInFlight();
     void testMultipleExpunges();
     void testVanishedHierarchyReplacement();
+    void testDataChangedUnknownUid();
     void testThreadingPerformance();
     void testSortingPerformance();
     void testSearchingPerformance();

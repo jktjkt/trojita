@@ -47,6 +47,10 @@ private slots:
     void testFetchAndConcurrentArrival();
     void testGMailSpontaneousFlagsAndNoRecent();
     void testFlagsRecalcOnExpunge();
+    void testUid0();
+    void testMarkAllConcurrentArrival();
+
+    void helperDataChangedUidNonZero(const QModelIndex &a, const QModelIndex &b);
 private:
     void helperTestExpungeImmediatelyAfterArrival(bool sendUidNext);
     void helperGenericTraffic(bool askForEnvelopes);

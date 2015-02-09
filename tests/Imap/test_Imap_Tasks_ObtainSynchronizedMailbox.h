@@ -115,6 +115,8 @@ private slots:
 
     void testDanglingSelect();
 
+    void testUid0();
+
     // We put the benchmark to the last position as this one takes a long time
     void testFlagReSyncBenchmark();
 

@@ -2785,4 +2785,16 @@ void ImapModelObtainSynchronizedMailboxTest::testUnselectClosed()
     cEmpty();
 }
 
+/** @short Servers speaking about UID 0 are buggy, full stop */
+void ImapModelObtainSynchronizedMailboxTest::testUid0()
+{
+    QCOMPARE(model->rowCount(msgListA), 0);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 1 EXISTS\r\n");
+    {
+        ExpectSingleErrorHere blocker(this);
+        cServer("* 1 FETCH (UID 0)\r\n");
+    }
+}
+
 TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )

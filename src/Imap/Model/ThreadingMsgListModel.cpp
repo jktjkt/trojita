@@ -139,7 +139,15 @@ void ThreadingMsgListModel::handleDataChanged(const QModelIndex &topLeft, const 
         emit dataChanged(rootCandidate, rootCandidate.sibling(rootCandidate.row(), bottomRight.column()));
     }
 
-    QSet<TreeItem*>::iterator persistent = unknownUids.find(static_cast<TreeItem*>(topLeft.internalPointer()));
+    auto message = dynamic_cast<TreeItemMessage*>(static_cast<TreeItemMessage*>(topLeft.internalPointer()));
+    Q_ASSERT(message);
+    if (message->uid() == 0) {
+        // UID is not yet known.
+        // This is a legal situation, for example when an unsolicited FETCH FLAGS arrives and there's no UID in there.
+        return;
+    }
+
+    QSet<TreeItem*>::iterator persistent = unknownUids.find(message);
     if (persistent != unknownUids.end()) {
         // The message wasn't fully synced before, and now it is
         persistent = unknownUids.erase(persistent);
