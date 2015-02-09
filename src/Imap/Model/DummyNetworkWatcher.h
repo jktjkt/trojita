@@ -32,7 +32,7 @@ class DummyNetworkWatcher: public NetworkWatcher
 {
     Q_OBJECT
 public:
-    DummyNetworkWatcher(QObject *parent, Model *model);
+    DummyNetworkWatcher(ImapAccess *parent, Model *model);
 
     virtual NetworkPolicy effectiveNetworkPolicy() const;
 

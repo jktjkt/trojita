@@ -22,18 +22,20 @@
 
 #include <QTimer>
 #include "NetworkWatcher.h"
+#include "ImapAccess.h"
 #include "Model.h"
 
 namespace Imap {
 namespace Mailbox {
 
-NetworkWatcher::NetworkWatcher(QObject *parent, Model *model):
-    QObject(parent), m_model(model), m_desiredPolicy(NETWORK_OFFLINE)
+NetworkWatcher::NetworkWatcher(ImapAccess *parent, Model *model):
+    QObject(parent), m_imapAccess(parent), m_model(model), m_desiredPolicy(NETWORK_OFFLINE)
 {
+    // No assert for m_imapAccess. The test suite doesn't create one.
     Q_ASSERT(m_model);
-    connect(model, SIGNAL(networkPolicyChanged()), this, SIGNAL(effectiveNetworkPolicyChanged()));
-    connect(model, SIGNAL(networkError(const QString &)), this, SLOT(attemptReconnect()));
-    connect(model, SIGNAL(connectionStateChanged(uint,Imap::ConnectionState)),
+    connect(m_model, SIGNAL(networkPolicyChanged()), this, SIGNAL(effectiveNetworkPolicyChanged()));
+    connect(m_model, SIGNAL(networkError(const QString &)), this, SLOT(attemptReconnect()));
+    connect(m_model, SIGNAL(connectionStateChanged(uint,Imap::ConnectionState)),
             this, SLOT(handleConnectionStateChanged(uint,Imap::ConnectionState)));
 
     m_reconnectTimer = new QTimer(this);
@@ -87,6 +89,9 @@ void NetworkWatcher::setNetworkOffline()
 /** @short Set the network access policy to "possible, but expensive" */
 void NetworkWatcher::setNetworkExpensive()
 {
+    if (!m_imapAccess || !m_imapAccess->isConfigured())
+        return;
+
     resetReconnectTimer();
     setDesiredNetworkPolicy(NETWORK_EXPENSIVE);
     emit desiredNetworkPolicyChanged(NETWORK_EXPENSIVE);
@@ -95,6 +100,9 @@ void NetworkWatcher::setNetworkExpensive()
 /** @short Set the network access policy to "it's cheap to use it" */
 void NetworkWatcher::setNetworkOnline()
 {
+    if (!m_imapAccess || !m_imapAccess->isConfigured())
+        return;
+
     resetReconnectTimer();
     setDesiredNetworkPolicy(NETWORK_ONLINE);
     emit desiredNetworkPolicyChanged(NETWORK_ONLINE);

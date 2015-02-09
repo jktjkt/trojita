@@ -39,7 +39,7 @@ class SystemNetworkWatcher: public NetworkWatcher
 {
     Q_OBJECT
 public:
-    SystemNetworkWatcher(QObject *parent, Model *model);
+    SystemNetworkWatcher(ImapAccess *parent, Model *model);
 
     virtual NetworkPolicy effectiveNetworkPolicy() const;
 

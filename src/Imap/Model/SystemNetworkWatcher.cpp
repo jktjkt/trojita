@@ -44,7 +44,7 @@ QString policyToString(const NetworkPolicy policy)
     return QString();
 }
 
-SystemNetworkWatcher::SystemNetworkWatcher(QObject *parent, Model *model):
+SystemNetworkWatcher::SystemNetworkWatcher(ImapAccess *parent, Model *model):
     NetworkWatcher(parent, model), m_netConfManager(0), m_session(0)
 {
 #ifdef TROJITA_HAS_QNETWORKSESSION

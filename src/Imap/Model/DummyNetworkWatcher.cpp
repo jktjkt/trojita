@@ -26,7 +26,7 @@
 namespace Imap {
 namespace Mailbox {
 
-DummyNetworkWatcher::DummyNetworkWatcher(QObject *parent, Model *model):
+DummyNetworkWatcher::DummyNetworkWatcher(ImapAccess *parent, Model *model):
     NetworkWatcher(parent, model)
 {
 }

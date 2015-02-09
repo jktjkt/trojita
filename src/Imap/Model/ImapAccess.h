@@ -60,6 +60,7 @@ class ImapAccess : public QObject
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool isConfigured READ isConfigured NOTIFY modelsChanged)
     Q_PROPERTY(QObject *imapModel READ imapModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *mailboxModel READ mailboxModel NOTIFY modelsChanged)
     Q_PROPERTY(QObject *msgListModel READ msgListModel NOTIFY modelsChanged)
@@ -81,6 +82,7 @@ class ImapAccess : public QObject
 public:
     ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginManager *pluginManager, const QString &accountName);
 
+    bool isConfigured() const;
     QObject *imapModel() const;
     QObject *mailboxModel() const;
     QObject *msgListModel() const;

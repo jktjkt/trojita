@@ -30,6 +30,7 @@
 class QTimer;
 
 namespace Imap {
+class ImapAccess;
 namespace Mailbox {
 class Model;
 
@@ -41,7 +42,7 @@ class NetworkWatcher: public QObject
 {
     Q_OBJECT
 public:
-    NetworkWatcher(QObject *parent, Model *model);
+    NetworkWatcher(ImapAccess *parent, Model *model);
 
     NetworkPolicy desiredNetworkPolicy() const;
     virtual NetworkPolicy effectiveNetworkPolicy() const = 0;
@@ -59,6 +60,7 @@ signals:
 
 protected:
     virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) = 0;
+    ImapAccess *m_imapAccess;
     Model *m_model;
     NetworkPolicy m_desiredPolicy;
 

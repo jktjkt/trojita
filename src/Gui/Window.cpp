@@ -509,6 +509,8 @@ void MainWindow::connectModelActions()
     connect(netOffline, SIGNAL(triggered()), m_imapAccess->networkWatcher(), SLOT(setNetworkOffline()));
     connect(netExpensive, SIGNAL(triggered()), m_imapAccess->networkWatcher(), SLOT(setNetworkExpensive()));
     connect(netOnline, SIGNAL(triggered()), m_imapAccess->networkWatcher(), SLOT(setNetworkOnline()));
+    netExpensive->setEnabled(imapAccess()->isConfigured());
+    netOnline->setEnabled(imapAccess()->isConfigured());
 }
 
 void MainWindow::createMenus()
@@ -1065,22 +1067,14 @@ void MainWindow::imapError(const QString &message)
 
 void MainWindow::networkError(const QString &message)
 {
-    if (m_settings->contains(Common::SettingsNames::imapMethodKey)) {
-        if (!m_networkErrorMessageBox) {
-            m_networkErrorMessageBox = new QMessageBox(QMessageBox::Critical, tr("Network Error"),
-                                                       QString(), QMessageBox::Ok, this);
-        }
-        // User must be informed about a new (but not recurring) error
-        if (message != m_networkErrorMessageBox->text()) {
-            m_networkErrorMessageBox->setText(message);
-            m_networkErrorMessageBox->show();
-        }
-
-    } else {
-        // hack: this slot is called even on the first run with no configuration
-        // We shouldn't have to worry about that, since the dialog is already scheduled for calling
-        // But we should set the network policy to offline, to stop any ongoing reconnect attempts
-        qobject_cast<Imap::Mailbox::NetworkWatcher*>(m_imapAccess->networkWatcher())->setNetworkOffline();
+    if (!m_networkErrorMessageBox) {
+        m_networkErrorMessageBox = new QMessageBox(QMessageBox::Critical, tr("Network Error"),
+                                                   QString(), QMessageBox::Ok, this);
+    }
+    // User must be informed about a new (but not recurring) error
+    if (message != m_networkErrorMessageBox->text()) {
+        m_networkErrorMessageBox->setText(message);
+        m_networkErrorMessageBox->show();
     }
 }
 
