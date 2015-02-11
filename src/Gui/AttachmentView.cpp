@@ -20,16 +20,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "AttachmentView.h"
-#include "IconLoader.h"
-#include "MessageView.h" // so that the compiler knows it's a QObject
-#include "Common/DeleteAfter.h"
-#include "Common/Paths.h"
-#include "Imap/Network/FileDownloadManager.h"
-#include "Imap/Model/DragAndDrop.h"
-#include "Imap/Model/MailboxTree.h"
-#include "Imap/Model/ItemRoles.h"
-#include "UiUtils/Formatting.h"
-
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
@@ -52,6 +42,16 @@
 #else
 #  include "mimetypes-qt4/include/QMimeDatabase"
 #endif
+
+#include "Common/DeleteAfter.h"
+#include "Common/Paths.h"
+#include "Gui/IconLoader.h"
+#include "Gui/MessageView.h" // so that the compiler knows it's a QObject
+#include "Imap/Network/FileDownloadManager.h"
+#include "Imap/Model/DragAndDrop.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/ItemRoles.h"
+#include "UiUtils/Formatting.h"
 
 namespace Gui
 {
