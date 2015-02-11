@@ -47,6 +47,7 @@
 #include "Common/Paths.h"
 #include "Gui/IconLoader.h"
 #include "Gui/MessageView.h" // so that the compiler knows it's a QObject
+#include "Gui/Window.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/DragAndDrop.h"
 #include "Imap/Model/MailboxTree.h"
@@ -59,7 +60,7 @@ namespace Gui
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
                                const QModelIndex &partIndex, MessageView *messageView, QWidget *contentWidget):
     QFrame(parent), m_partIndex(partIndex), m_messageView(messageView), m_downloadAttachment(0),
-    m_openAttachment(0), m_showHideAttachment(0), m_netAccess(manager), m_tmpFile(0),
+    m_openAttachment(0), m_showHideAttachment(0), m_showSource(0), m_netAccess(manager), m_tmpFile(0),
     m_contentWidget(contentWidget)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
@@ -95,6 +96,10 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
         m_showHideAttachment->setChecked(!m_contentWidget->isHidden());
         connect(m_showHideAttachment, SIGNAL(triggered(bool)), m_contentWidget, SLOT(setVisible(bool)));
         connect(m_showHideAttachment, SIGNAL(triggered()), this, SLOT(updateShowHideAttachmentState()));
+    }
+    if (partIndex.data(Imap::Mailbox::RolePartMimeType).toByteArray() == "message/rfc822") {
+        m_showSource = m_menu->addAction(loadIcon(QLatin1String("text-x-hex")), tr("Show Message Source"));
+        connect(m_showSource, SIGNAL(triggered()), this, SLOT(showMessageSource()));
     }
 
     // Icon on the left
@@ -371,6 +376,13 @@ void AttachmentView::reloadContents()
 {
     if (AbstractPartWidget *w = dynamic_cast<AbstractPartWidget*>(m_contentWidget))
         w->reloadContents();
+}
+
+void AttachmentView::showMessageSource()
+{
+    auto w = MainWindow::messageSourceWidget(m_partIndex);
+    w->setWindowTitle(tr("Source of Attached Message"));
+    w->show();
 }
 
 }

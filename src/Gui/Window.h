@@ -115,6 +115,8 @@ public:
 
     void enableLoggingToDisk();
 
+    static QWidget *messageSourceWidget(const QModelIndex &message);
+
 public slots:
     void slotComposeMailUrl(const QUrl &url);
     void slotComposeMail();

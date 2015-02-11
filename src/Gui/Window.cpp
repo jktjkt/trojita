@@ -1751,21 +1751,26 @@ void MainWindow::slotViewMsgSource()
             continue;
         if (! item.data(Imap::Mailbox::RoleMessageUid).isValid())
             continue;
-        QModelIndex messageIndex = Imap::deproxifiedIndex(item);
-
-        MessageSourceWidget *sourceWidget = new MessageSourceWidget(0, messageIndex);
-        sourceWidget->setAttribute(Qt::WA_DeleteOnClose);
-        QAction *close = new QAction(loadIcon(QLatin1String("window-close")), tr("Close"), sourceWidget);
-        sourceWidget->addAction(close);
-        close->setShortcut(tr("Ctrl+W"));
-        connect(close, SIGNAL(triggered()), sourceWidget, SLOT(close()));
+        auto w = messageSourceWidget(item);
         //: Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
-        sourceWidget->setWindowTitle(tr("Message source of UID %1 in %2").arg(
-                                    QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
-                                    messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
-                                    ));
-        sourceWidget->show();
+        w->setWindowTitle(tr("Message source of UID %1 in %2").arg(
+                              QString::number(item.data(Imap::Mailbox::RoleMessageUid).toUInt()),
+                              Imap::deproxifiedIndex(item).parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
+                              ));
+        w->show();
     }
+}
+
+QWidget *MainWindow::messageSourceWidget(const QModelIndex &message)
+{
+    QModelIndex messageIndex = Imap::deproxifiedIndex(message);
+    MessageSourceWidget *sourceWidget = new MessageSourceWidget(0, messageIndex);
+    sourceWidget->setAttribute(Qt::WA_DeleteOnClose);
+    QAction *close = new QAction(loadIcon(QLatin1String("window-close")), tr("Close"), sourceWidget);
+    sourceWidget->addAction(close);
+    close->setShortcut(tr("Ctrl+W"));
+    connect(close, SIGNAL(triggered()), sourceWidget, SLOT(close()));
+    return sourceWidget;
 }
 
 void MainWindow::slotViewMsgHeaders()

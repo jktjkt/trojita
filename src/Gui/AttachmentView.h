@@ -68,6 +68,7 @@ protected:
 private slots:
     void slotDownloadAttachment();
     void slotOpenAttachment();
+    void showMessageSource();
 
     void indicateHover();
     void openDownloadedAttachment();
@@ -88,6 +89,7 @@ private:
     QAction *m_downloadAttachment;
     QAction *m_openAttachment;
     QAction *m_showHideAttachment;
+    QAction *m_showSource;
     QMenu *m_menu;
     QToolButton *m_icon;
     QLabel *m_fileName;
