@@ -41,11 +41,11 @@ if(WITH_ZLIB AND NOT ZLIB_LIBRARIES STREQUAL QT_QTCORE_LIBRARY)
     list(APPEND TROJITA_LIBRARIES "${ZLIB_LIBRARIES}")
 endif()
 
-# Check if Qt depends on external system libpng library
 if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
-    file(READ ${QT_MKSPECS_DIR}/qconfig.pri QT_CONFIG_PNG)
-    string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG_PNG ${QT_CONFIG_PNG})
-    if(QT_CONFIG_PNG MATCHES " system-png ")
+    file(READ ${QT_MKSPECS_DIR}/qconfig.pri QT_CONFIG)
+    string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG ${QT_CONFIG})
+    # Check if Qt depends on external system libpng library
+    if(QT_CONFIG MATCHES " system-png ")
         find_package(PNG)
         if(PNG_VERSION_STRING)
             # QtGui depends on libpng, name pattern is: "libpng<maj><min>-<maj><min>.dll"
@@ -54,6 +54,15 @@ if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
         else()
             message(SEND_ERROR "External PNG library is required but version was not detected")
         endif()
+    endif()
+    # Check if Qt was compiled with openssl support
+    if((QT_CONFIG MATCHES " openssl " OR QT_CONFIG MATCHES " openssl-linked ") AND NOT QT_CONFIG MATCHES " no-openssl ")
+        # By default use MSVC name scheme of openssl libraries because other name schemes are not supported by standard Qt
+        if(NOT OPENSSL_DLL_LIBRARIES)
+            set(OPENSSL_DLL_LIBRARIES ssleay32.dll libeay32.dll CACHE STRING "" FORCE)
+        endif()
+        # Append windows openssl libraries
+        list(APPEND TROJITA_LIBRARIES ${OPENSSL_DLL_LIBRARIES})
     endif()
 endif()
 
