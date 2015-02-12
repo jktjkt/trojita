@@ -101,6 +101,11 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
     EMIT_LATER_NOARG(this, reloadPasswordsRequested);
 }
 
+void SettingsDialog::setOriginalPasswordPlugin(const QString &plugin)
+{
+    m_originalPasswordPlugin = plugin;
+}
+
 void SettingsDialog::adjustSizeToScrollAreas()
 {
     QScrollArea *area = qobject_cast<QScrollArea*>(sender());
@@ -215,6 +220,11 @@ void SettingsDialog::slotAccept()
 void SettingsDialog::reject()
 {
     // The changes were performed on the live data, so we have to make sure they are discarded when user cancels
+    if (!m_originalPasswordPlugin.isEmpty() && pluginManager()->passwordPlugin() != m_originalPasswordPlugin) {
+        // Password plugin was changed, revert back to original one
+        pluginManager()->setPasswordPlugin(m_originalPasswordPlugin);
+        pluginManager()->reloadPlugins();
+    }
     m_senderIdentities->loadFromSettings(*m_settings);
     QDialog::reject();
 }
@@ -274,6 +284,8 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     }
 
     passwordBox->setCurrentIndex(passwordIndex);
+
+    m_parent->setOriginalPasswordPlugin(passwordPlugin);
 
 
     markReadCheckbox->setChecked(s.value(Common::SettingsNames::autoMarkReadEnabled, QVariant(true)).toBool());
@@ -541,6 +553,7 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
     connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));
     connect(m_pwWatcher, SIGNAL(readingDone()), this, SLOT(slotSetPassword()));
+    connect(m_parent, SIGNAL(reloadPasswordsRequested()), imapPass, SLOT(clear()));
     connect(m_parent, SIGNAL(reloadPasswordsRequested()), m_pwWatcher, SLOT(reloadPassword()));
 
     updateWidgets();
@@ -600,6 +613,9 @@ void ImapPage::updateWidgets()
             imapPort->setText(QString::number(Common::PORT_IMAPS));
     }
 
+    if (!m_pwWatcher->isPluginAvailable())
+        imapPass->setText(QString());
+
     passwordWarning->setVisible(!imapPass->text().isEmpty());
     if (m_pwWatcher->isStorageEncrypted()) {
         passwordWarning->setStyleSheet(QString());
@@ -611,11 +627,11 @@ void ImapPage::updateWidgets()
             "If you do not enter password here, Trojitá will prompt for one when needed."));
     }
 
-    passwordPluginStatus->setVisible(m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk());
+    passwordPluginStatus->setVisible(!m_pwWatcher->isPluginAvailable() || m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk());
     passwordPluginStatus->setText(m_pwWatcher->progressMessage());
 
-    imapPass->setEnabled(!m_pwWatcher->isWaitingForPlugin());
-    imapPassLabel->setEnabled(!m_pwWatcher->isWaitingForPlugin());
+    imapPass->setEnabled(m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin());
+    imapPassLabel->setEnabled(m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin());
 
     emit widgetsUpdated();
 }
@@ -659,7 +675,11 @@ void ImapPage::save(QSettings &s)
     s.setValue(SettingsNames::imapIdleRenewal, imapIdleRenewal->value());
     m_parent->imapAccess()->setNumberRefreshInterval(imapNumberRefreshInterval->value());
 
-    m_pwWatcher->setPassword(imapPass->text());
+    if (m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin()) {
+        m_pwWatcher->setPassword(imapPass->text());
+    } else {
+        emit saved();
+    }
 }
 
 QWidget *ImapPage::asWidget()
@@ -704,7 +724,7 @@ void ImapPage::maybeShowPortWarning()
 
 bool ImapPage::passwordFailures(QString &message) const
 {
-    if (m_pwWatcher->didWriteOk()) {
+    if (!m_pwWatcher->isPluginAvailable() || m_pwWatcher->isWaitingForPlugin() || m_pwWatcher->didWriteOk()) {
         return false;
     } else {
         message = m_pwWatcher->progressMessage();
@@ -815,6 +835,7 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
     connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));
     connect(m_pwWatcher, SIGNAL(readingDone()), this, SLOT(slotSetPassword()));
+    connect(m_parent, SIGNAL(reloadPasswordsRequested()), smtpPass, SLOT(clear()));
     connect(m_parent, SIGNAL(reloadPasswordsRequested()), m_pwWatcher, SLOT(reloadPassword()));
 
     updateWidgets();
@@ -919,6 +940,9 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpBurl)->setVisible(saveToImap->isChecked());
         smtpBurl->setChecked(m_smtpAccountSettings->useBurl());
 
+        if (!m_pwWatcher->isPluginAvailable())
+            smtpPass->setText(QString());
+
         passwordWarning->setVisible(authEnabled && !smtpPass->text().isEmpty());
         if (m_pwWatcher->isStorageEncrypted()) {
             passwordWarning->setStyleSheet(QString());
@@ -931,13 +955,13 @@ void OutgoingPage::updateWidgets()
         }
 
         passwordPluginStatus->setVisible(authEnabled &&
-                                         (m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk()));
+                                         (!m_pwWatcher->isPluginAvailable() || m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk()));
         passwordPluginStatus->setText(m_pwWatcher->progressMessage());
 
         smtpPass->setVisible(authEnabled);
-        smtpPass->setEnabled(!m_pwWatcher->isWaitingForPlugin());
+        smtpPass->setEnabled(m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin());
         lay->labelForField(smtpPass)->setVisible(authEnabled);
-        lay->labelForField(smtpPass)->setEnabled(!m_pwWatcher->isWaitingForPlugin());
+        lay->labelForField(smtpPass)->setEnabled(m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin());
 
         break;
     }
@@ -991,7 +1015,7 @@ void OutgoingPage::save(QSettings &s)
 {
     m_smtpAccountSettings->saveSettings();
 
-    if (smtpAuth->isVisibleTo(this) && smtpAuth->isChecked()) {
+    if (smtpAuth->isVisibleTo(this) && smtpAuth->isChecked() && m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin()) {
         m_pwWatcher->setPassword(smtpPass->text());
     } else {
         emit saved();
@@ -1044,7 +1068,7 @@ bool OutgoingPage::checkValidity() const
 bool OutgoingPage::passwordFailures(QString &message) const
 {
     // The const_cast is needed as Qt4 does not define the arguement of isVisibleTo as const
-    if (!smtpAuth->isVisibleTo(const_cast<Gui::OutgoingPage*>(this)) || !smtpAuth->isChecked() || m_pwWatcher->didWriteOk()) {
+    if (!smtpAuth->isVisibleTo(const_cast<Gui::OutgoingPage*>(this)) || !smtpAuth->isChecked() || !m_pwWatcher->isPluginAvailable() || m_pwWatcher->isWaitingForPlugin() || m_pwWatcher->didWriteOk()) {
         return false;
     } else {
         message = m_pwWatcher->progressMessage();

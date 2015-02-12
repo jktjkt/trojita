@@ -39,6 +39,7 @@ class PasswordWatcher: public QObject
 
     Q_PROPERTY(bool isStorageEncrypted READ isStorageEncrypted NOTIFY backendMaybeChanged)
     Q_PROPERTY(bool isWaitingForPlugin READ isWaitingForPlugin NOTIFY stateChanged)
+    Q_PROPERTY(bool isPluginAvailable READ isPluginAvailable NOTIFY stateChanged)
     Q_PROPERTY(QString progressMessage READ progressMessage NOTIFY stateChanged)
     Q_PROPERTY(QString password READ password NOTIFY stateChanged)
     Q_PROPERTY(bool didReadOk READ didReadOk NOTIFY stateChanged)
@@ -49,6 +50,7 @@ public:
 
     bool isStorageEncrypted() const;
     bool isWaitingForPlugin() const;
+    bool isPluginAvailable() const;
     bool didReadOk() const;
     bool didWriteOk() const;
     QString progressMessage() const;

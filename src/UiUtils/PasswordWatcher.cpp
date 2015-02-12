@@ -47,6 +47,11 @@ bool PasswordWatcher::isWaitingForPlugin() const
     return m_pendingActions > 0;
 }
 
+bool PasswordWatcher::isPluginAvailable() const
+{
+    return m_manager->password();
+}
+
 QString PasswordWatcher::password() const
 {
     return m_password;
