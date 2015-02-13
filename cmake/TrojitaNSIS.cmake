@@ -46,6 +46,7 @@ if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
     file(READ ${QT_MKSPECS_DIR}/qconfig.pri QT_CONFIG_PNG)
     string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG_PNG ${QT_CONFIG_PNG})
     if(QT_CONFIG_PNG MATCHES " system-png ")
+        find_package(PNG)
         if(PNG_VERSION_STRING)
             # QtGui depends on libpng, name pattern is: "libpng<maj><min>-<maj><min>.dll"
             string(REGEX REPLACE "^([0-9])\\.([0-9])\\..*\$" "libpng\\1\\2-\\1\\2.dll" LIBRARY "${PNG_VERSION_STRING}")
