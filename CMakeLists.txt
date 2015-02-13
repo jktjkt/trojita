@@ -569,6 +569,11 @@ set(trojita_desktop_SOURCES
 
 if(WIN32)
     list(APPEND trojita_desktop_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_win32.rc)
+    set_property(SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/trojita_win32.rc APPEND PROPERTY OBJECT_DEPENDS
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.ico
+        ${CMAKE_CURRENT_BINARY_DIR}/trojita-git-version.h
+        ${CMAKE_CURRENT_BINARY_DIR}/trojita-version.h
+    )
 endif()
 
 set(be_contacts_SOURCES
