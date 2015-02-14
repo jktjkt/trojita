@@ -11,6 +11,11 @@ if(POLICY CMP0054)
     cmake_policy(SET CMP0054 NEW)
 endif()
 
+if(POLICY CMP0043)
+    # We make use of CMAKE_CXXFLAGS_DEBUG...
+    cmake_policy(SET CMP0043 OLD)
+endif()
+
 # Set a default build type if none was specified. This was shamelessly stolen
 # from VTK's cmake setup because these guys produce both CMake and a project that
 # manipulates this variable, and the web is full of posts where people say that
@@ -188,6 +193,7 @@ else()
     # might bring along), but it's a default in debug mode. The idea is that developers should care
     # about a warning-free build, and that this is easier than messing with yet another configure option.
     set(CMAKE_CXX_FLAGS_DEBUG "-Werror ${CMAKE_CXX_FLAGS_DEBUG}")
+    # Also see CMP0043...
 
     # Optimizations are enabled unconditionally because they make a big difference in the speed of the
     # resulting binaries, and that it is better to allow an opt-out from them by adjusting CXXFLAGS through
