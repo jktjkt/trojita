@@ -21,7 +21,7 @@ if(WITH_QT5)
     message(SEND_ERROR "Windows NSIS installer is not supported for Qt5 version yet")
 else()
     # All Qt4 libraries which are required for Trojita
-    list(APPEND TROJITA_LIBRARIES "${QT_QTMAIN_LIBRARY}" "${QT_QTNETWORK_LIBRARY}" "${QT_QTSQL_LIBRARY}" "${QT_QTGUI_LIBRARY}" "${QT_QTCORE_LIBRARY}" "${QT_QTWEBKIT_LIBRARY}")
+    list(APPEND TROJITA_LIBRARIES "${QT_QTNETWORK_LIBRARY}" "${QT_QTSQL_LIBRARY}" "${QT_QTGUI_LIBRARY}" "${QT_QTCORE_LIBRARY}" "${QT_QTWEBKIT_LIBRARY}")
     if(WITH_DBUS)
         list(APPEND TROJITA_LIBRARIES "${QT_QTDBUS_LIBRARY}" "${QT_QTXML_LIBRARY}" libdbus-1-3.dll)
     endif()

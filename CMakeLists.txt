@@ -1,4 +1,13 @@
-if(WITH_QT5)
+project(trojita)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+if(WIN32)
+    # Due to QtMain linking
+    cmake_minimum_required(VERSION 2.8.11)
+    if(POLICY CMP0020)
+        cmake_policy(SET CMP0020 NEW)
+    endif()
+elseif(WITH_QT5)
     # The Qt5's qt5_use_modules is only available on 2.8.9 or later -- sweet, isn't it?
     cmake_minimum_required(VERSION 2.8.9)
 else()
@@ -29,9 +38,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     # Set the possible values of build type for cmake-gui
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-
-project(trojita)
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # POSITION_INDEPENDENT_CODE is only available on cmake 2.8.9 or later
 # Add needed flags for supported compilers which simulate POSITION_INDEPENDENT_CODE property
@@ -780,7 +786,7 @@ if(WITH_DESKTOP)
     # On other platforms WIN32 flag is ignored
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
     set_property(TARGET trojita APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-    target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS} ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
     if(NOT WITH_QT5)
         target_link_libraries(trojita MimetypesQt4)
     endif()
