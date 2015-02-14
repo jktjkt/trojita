@@ -5,6 +5,12 @@ else()
     cmake_minimum_required(VERSION 2.8.7)
 endif()
 
+if(POLICY CMP0054)
+    # Silence warnings in TrojitaOption.cmake; we are fine with only doing the
+    # expansion by hand
+    cmake_policy(SET CMP0054 NEW)
+endif()
+
 # Set a default build type if none was specified. This was shamelessly stolen
 # from VTK's cmake setup because these guys produce both CMake and a project that
 # manipulates this variable, and the web is full of posts where people say that
