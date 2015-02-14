@@ -1,6 +1,10 @@
 #include "winver.h"
 #include "trojita-git-version.h"
 
+#ifndef IDI_ICON1
+#define IDI_ICON1 1
+#endif
+
 #ifdef TROJITA_GIT_VERSION
 #define VERSION TROJITA_GIT_VERSION
 #define VERNUM1 TROJITA_GIT_VERNUM1

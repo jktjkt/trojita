@@ -202,5 +202,5 @@ set(MAKENSIS_FLAGS ${MAKENSIS_FLAGS} -NOCD)
 add_custom_command(OUTPUT ${MAKENSIS_OUTPUT}
     COMMAND ${MAKENSIS}
     ARGS ${MAKENSIS_FLAGS} ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi ${TROJITA_EXE_PATH} version)
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/packaging/trojita.nsi ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi ${TROJITA_EXE_PATH} ${TROJITA_ICON_PATH} ${TROJITA_INSTALL_FILES} version)
 add_custom_target(installer ALL DEPENDS ${MAKENSIS_OUTPUT})
