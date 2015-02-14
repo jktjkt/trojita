@@ -794,7 +794,7 @@ if(WITH_DESKTOP)
         target_link_libraries(trojita ${ZLIB_LIBRARIES})
     endif()
 
-    add_executable(be.contacts ${be_contacts_SOURCES})
+    add_executable(be.contacts WIN32 ${be_contacts_SOURCES})
     set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     target_link_libraries(be.contacts AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 elseif(WITH_HARMATTAN)
