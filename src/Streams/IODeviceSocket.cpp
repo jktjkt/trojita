@@ -272,11 +272,16 @@ void SslTlsSocket::handleStateChanged()
     switch (sock->proxy().type()) {
     case QNetworkProxy::NoProxy:
         break;
-    case QNetworkProxy::DefaultProxy:
     case QNetworkProxy::HttpCachingProxy:
+        Q_ASSERT_X(false, "proxy detection",
+                   "Qt should have returned a proxy capable of tunneling, but we got back an HTTP proxy.");
+        break;
     case QNetworkProxy::FtpCachingProxy:
-        // these proxy types are not supposed to be supported
-        Q_ASSERT(false);
+        Q_ASSERT_X(false, "proxy detection",
+                   "Qt should have returned a proxy capable of tunneling, but we got back an FTP proxy.");
+        break;
+    case QNetworkProxy::DefaultProxy:
+        proxyMsg = tr(" (via proxy %1)").arg(sock->proxy().hostName());
         break;
     case QNetworkProxy::Socks5Proxy:
         proxyMsg = tr(" (via SOCKS5 proxy %1)").arg(sock->proxy().hostName());
