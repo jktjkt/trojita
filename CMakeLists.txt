@@ -160,12 +160,14 @@ if(WIN32)
 endif()
 
 if (WITH_QT5)
-    trojita_find_package(Qt5Keychain "" "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library (Qt5 version)" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
+    trojita_find_package(Qt5Keychain QUIET "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library (Qt5 version)" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
 else()
-    trojita_find_package(QtKeychain "" "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
+    trojita_find_package(QtKeychain QUIET "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
 endif()
 if(Qt5Keychain_FOUND OR QtKeychain_FOUND)
     message(STATUS "Found QtKeychain library (includes at ${QTKEYCHAIN_INCLUDE_DIRS}, lib at ${QTKEYCHAIN_LIBRARIES})")
+else()
+    message(STATUS "Could not find QtKeychain library")
 endif()
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
@@ -292,7 +294,7 @@ endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/configure.cmake.h)
 
-feature_summary(FATAL_ON_MISSING_REQUIRED_PACKAGES DESCRIPTION "\n" WHAT ALL)
+feature_summary(FATAL_ON_MISSING_REQUIRED_PACKAGES INCLUDE_QUIET_PACKAGES DESCRIPTION "\n" WHAT ALL)
 
 set(path_Common ${CMAKE_CURRENT_SOURCE_DIR}/src/Common)
 set(libCommon_SOURCES
