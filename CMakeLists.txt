@@ -1,8 +1,28 @@
-if(WITH_QT5)
+project(trojita)
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
+
+if(WIN32)
+    # Due to QtMain linking
+    cmake_minimum_required(VERSION 2.8.11)
+    if(POLICY CMP0020)
+        cmake_policy(SET CMP0020 NEW)
+    endif()
+elseif(WITH_QT5)
     # The Qt5's qt5_use_modules is only available on 2.8.9 or later -- sweet, isn't it?
     cmake_minimum_required(VERSION 2.8.9)
 else()
     cmake_minimum_required(VERSION 2.8.7)
+endif()
+
+if(POLICY CMP0054)
+    # Silence warnings in TrojitaOption.cmake; we are fine with only doing the
+    # expansion by hand
+    cmake_policy(SET CMP0054 NEW)
+endif()
+
+if(POLICY CMP0043)
+    # We make use of CMAKE_CXXFLAGS_DEBUG...
+    cmake_policy(SET CMP0043 OLD)
 endif()
 
 # Set a default build type if none was specified. This was shamelessly stolen
@@ -18,9 +38,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     # Set the possible values of build type for cmake-gui
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
-
-project(trojita)
-set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
 # POSITION_INDEPENDENT_CODE is only available on cmake 2.8.9 or later
 # Add needed flags for supported compilers which simulate POSITION_INDEPENDENT_CODE property
@@ -182,6 +199,7 @@ else()
     # might bring along), but it's a default in debug mode. The idea is that developers should care
     # about a warning-free build, and that this is easier than messing with yet another configure option.
     set(CMAKE_CXX_FLAGS_DEBUG "-Werror ${CMAKE_CXX_FLAGS_DEBUG}")
+    # Also see CMP0043...
 
     # Optimizations are enabled unconditionally because they make a big difference in the speed of the
     # resulting binaries, and that it is better to allow an opt-out from them by adjusting CXXFLAGS through
@@ -768,7 +786,7 @@ if(WITH_DESKTOP)
     # On other platforms WIN32 flag is ignored
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
     set_property(TARGET trojita APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-    target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS} ${QT_QTMAIN_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
     if(NOT WITH_QT5)
         target_link_libraries(trojita MimetypesQt4)
     endif()
@@ -776,7 +794,7 @@ if(WITH_DESKTOP)
         target_link_libraries(trojita ${ZLIB_LIBRARIES})
     endif()
 
-    add_executable(be.contacts ${be_contacts_SOURCES})
+    add_executable(be.contacts WIN32 ${be_contacts_SOURCES})
     set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     target_link_libraries(be.contacts AbookAddressbook ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 elseif(WITH_HARMATTAN)
