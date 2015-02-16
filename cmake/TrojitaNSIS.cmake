@@ -2,6 +2,11 @@
 
 ### Generate list of files for inclusion into installer ###
 
+if(POLICY CMP0026)
+    # reading the LOCATION property
+    cmake_policy(SET CMP0026 OLD)
+endif()
+
 # Include trojita executable
 get_target_property(TROJITA_EXE_PATH trojita LOCATION)
 get_filename_component(TROJITA_EXE ${TROJITA_EXE_PATH} NAME)
