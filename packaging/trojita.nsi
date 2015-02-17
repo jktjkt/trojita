@@ -42,6 +42,7 @@
 ;--------------------------------
 
 !define NAME "Trojita"
+!define NAME_UNICODE "Trojitá"
 !define VERSION "${TROJITA_VERSION}"
 !define DESCRIPTION "Qt IMAP e-mail client"
 !define HOMEPAGE "http://trojita.flaska.net/"
@@ -68,13 +69,14 @@ ${redefine} NAME "${NAME} (64 bit)"
 
 ;--------------------------------
 
+Unicode true
 SetCompressor /SOLID /FINAL lzma
-Name "${NAME}"
+Name "${NAME_UNICODE}"
 Icon "${ICON}"
 OutFile "${INSTALLER}"
 InstallDir "${INSTALLDIR}"
 InstallDirRegKey HKLM "${REGKEY}" "InstallLocation"
-BrandingText "${NAME} - ${DESCRIPTION}, version ${VERSION}  ${HOMEPAGE}"
+BrandingText "${NAME_UNICODE} - ${DESCRIPTION}, version ${VERSION}  ${HOMEPAGE}"
 ShowInstDetails Show
 ShowUnInstDetails Show
 XPStyle on
@@ -110,20 +112,20 @@ Var STARTMENUDIR
 
 ;--------------------------------
 
-VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${NAME} Setup - ${DESCRIPTION}"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "FileDescription" "${NAME_UNICODE} Setup - ${DESCRIPTION}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "FileVersion" "${VERSION}"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" "${NAME} Setup"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "InternalName" "${NAME_UNICODE} Setup"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "LegalCopyright" "${COPYRIGHT}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "License" "${LICENSE}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "Homepage" "${HOMEPAGE}"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "OriginalFilename" "${INSTALLER}"
-VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${NAME} Setup"
+VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductName" "${NAME_UNICODE} Setup"
 VIAddVersionKey /LANG=${LANG_ENGLISH} "ProductVersion" "${VERSION}"
 VIProductVersion "${TROJITA_VERNUM1}.${TROJITA_VERNUM2}.${TROJITA_VERNUM3}.${TROJITA_VERNUM4}"
 
 ;--------------------------------
 
-LangString INSTALLER_RUNNING ${LANG_ENGLISH} "${NAME} Setup is already running"
+LangString INSTALLER_RUNNING ${LANG_ENGLISH} "${NAME_UNICODE} Setup is already running"
 LangString REMOVEPREVIOUS ${LANG_ENGLISH} "Removing previous installation"
 
 !ifdef x86_64
@@ -182,12 +184,12 @@ Section "${NAME}"
 
 	!insertmacro MUI_STARTMENU_WRITE_BEGIN Application
 	CreateDirectory "$SMPROGRAMS\$STARTMENUDIR"
-	CreateShortCut "$SMPROGRAMS\$STARTMENUDIR\${NAME}.lnk" "$INSTDIR\${EXE}"
+	CreateShortCut "$SMPROGRAMS\$STARTMENUDIR\${NAME_UNICODE}.lnk" "$INSTDIR\${EXE}"
 	CreateShortCut "$SMPROGRAMS\$STARTMENUDIR\Uninstall.lnk" "$INSTDIR\${UNINSTALL}"
-	CreateShortcut "$DESKTOP\${NAME}.lnk" "$INSTDIR\${EXE}"
+	CreateShortcut "$DESKTOP\${NAME_UNICODE}.lnk" "$INSTDIR\${EXE}"
 	!insertmacro MUI_STARTMENU_WRITE_END
 
-	WriteRegStr HKLM "${REGKEY}" "DisplayName" "${NAME} - ${DESCRIPTION}"
+	WriteRegStr HKLM "${REGKEY}" "DisplayName" "${NAME_UNICODE} - ${DESCRIPTION}"
 	WriteRegStr HKLM "${REGKEY}" "UninstallString" "$\"$INSTDIR\${UNINSTALL}$\""
 	WriteRegStr HKLM "${REGKEY}" "QuietUninstallString" "$\"$INSTDIR\${UNINSTALL}$\" /S"
 	WriteRegStr HKLM "${REGKEY}" "InstallLocation" "$INSTDIR"
@@ -210,10 +212,10 @@ Section "un.${NAME}"
 	SectionIn RO
 
 	!insertmacro MUI_STARTMENU_GETFOLDER Application $STARTMENUDIR
-	Delete "$SMPROGRAMS\$STARTMENUDIR\${NAME}.lnk"
+	Delete "$SMPROGRAMS\$STARTMENUDIR\${NAME_UNICODE}.lnk"
 	Delete "$SMPROGRAMS\$STARTMENUDIR\Uninstall.lnk"
 	RMDir "$SMPROGRAMS\$STARTMENUDIR"
-	Delete "$DESKTOP\${NAME}.lnk"
+	Delete "$DESKTOP\${NAME_UNICODE}.lnk"
 
 	Delete "$INSTDIR\${EXE}"
 	!insertmacro TROJITA_UNINSTALL_FILES
