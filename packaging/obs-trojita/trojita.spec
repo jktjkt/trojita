@@ -50,6 +50,7 @@ BuildRequires: update-desktop-files
 BuildRequires: xorg-x11-Xvfb xkeyboard-config
 BuildRequires: cmake >= 2.8.7
 %endif
+BuildRequires: libqtkeychain-devel
 %define         X_display         ":98"
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
@@ -71,6 +72,13 @@ Trojita is a Qt IMAP e-mail client which:
   * Is efficient — be it at conserving the network bandwidth, keeping memory use at a reasonable level or not hogging the system's CPU.
   * Can be used on many platforms. One UI is not enough for everyone, but our IMAP core works fine on anything from desktop computers to cell phones and big ERP systems.
   * Plays well with the rest of the ecosystem. We don't like reinventing wheels, but when the existing wheels quite don't fit the tracks, we're not afraid of making them work.
+
+%package plugin-qtkeychain
+Summary: Add secure password storage to Trojitá, a fast e-mail client
+Group:   Productivity/Networking/Email/Clients
+
+%description plugin-qtkeychain
+Plugin which enables Trojitá to save passwords in platform-specific encrypted storage.
  
 %prep
 %setup -q
@@ -83,8 +91,9 @@ export LDFLAGS="-pie"
 export CXXFLAGS="${CXXFLAGS:-%optflags}"
 %endif
 cmake \
-    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_VERBOSE_MAKEFILE=ON \
+    -DWITH_QTKEYCHAIN_PLUGIN=ON \
     -DCMAKE_INSTALL_PREFIX:PATH=%{_prefix} \
     -DCMAKE_INSTALL_LIBDIR:PATH=%{_libdir} %{my_cmake_lib_suffix} \
     -DSHARE_INSTALL_PREFIX:PATH=%{_datadir}
@@ -114,6 +123,13 @@ make %{?_smp_mflags} DESTDIR=%{buildroot} install
 %dir %{_datadir}/trojita
 %dir %{_datadir}/trojita/locale
 %{_datadir}/trojita/locale/trojita_common_*.qm
+%dir %{_datadir}/appdata
+%{_datadir}/appdata/trojita.appdata.xml
+
+%files plugin-qtkeychain
+%defattr(-,root,root)
+%dir %{_libdir}/trojita
+%{_libdir}/trojita/trojita_plugin_QtKeychainPasswordPlugin.so
 
 %check
 export DISPLAY=%{X_display}

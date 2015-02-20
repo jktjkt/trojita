@@ -2,7 +2,7 @@ Source: trojita
 Section: mail
 Priority: optional
 Maintainer: Jan Kundrát <jkt@flaska.net>
-Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8.7), libqt4-dev (>= 4:4.6), qt4-dev-tools (>= 4:4.6), libqtwebkit-dev, zlib1g-dev, xvfb, xauth
+Build-Depends: debhelper (>= 8.0.0), cmake (>= 2.8.7), libqt4-dev (>= 4:4.6), qt4-dev-tools (>= 4:4.6), libqtwebkit-dev, zlib1g-dev, xvfb, xauth, qtkeychain-dev
 Standards-Version: 3.9.3
 Homepage: http://trojita.flaska.net/
 Vcs-Git: git://anongit.kde.org/trojita
@@ -11,6 +11,7 @@ Vcs-Browser: https://projects.kde.org/projects/extragear/pim/trojita/repository
 Package: trojita
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libqt4-sql-sqlite
+Suggests: trojita-plugin-qtkeychain
 Description: Trojita is a fast Qt IMAP e-mail client.
  Trojita is a Qt IMAP e-mail client which:
   * Enables you to access your mail anytime, anywhere.
@@ -19,3 +20,8 @@ Description: Trojita is a fast Qt IMAP e-mail client.
   * Is efficient — be it at conserving the network bandwidth, keeping memory use at a reasonable level or not hogging the system's CPU.
   * Can be used on many platforms. One UI is not enough for everyone, but our IMAP core works fine on anything from desktop computers to cell phones and big ERP systems.
   * Plays well with the rest of the ecosystem. We don't like reinventing wheels, but when the existing wheels quite don't fit the tracks, we're not afraid of making them work.
+
+Package: trojita-plugin-qtkeychain
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A plugin for secure password storage for Trojitá

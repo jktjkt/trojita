@@ -11,7 +11,7 @@ Vcs-Browser: https://projects.kde.org/projects/extragear/pim/trojita/repository
 Package: trojita-nightly
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, libqt4-sql-sqlite
-Suggests: trojita-plugin-qtkeychain
+Suggests: trojita-nightly-plugin-qtkeychain
 Description: Trojita is a fast Qt IMAP e-mail client.
  Trojita is a Qt IMAP e-mail client which:
   * Enables you to access your mail anytime, anywhere.
@@ -21,7 +21,7 @@ Description: Trojita is a fast Qt IMAP e-mail client.
   * Can be used on many platforms. One UI is not enough for everyone, but our IMAP core works fine on anything from desktop computers to cell phones and big ERP systems.
   * Plays well with the rest of the ecosystem. We don't like reinventing wheels, but when the existing wheels quite don't fit the tracks, we're not afraid of making them work.
 
-Package: trojita-plugin-qtkeychain
+Package: trojita-nightly-plugin-qtkeychain
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: A plugin for secure password storage for Trojitá
