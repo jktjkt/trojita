@@ -4,7 +4,7 @@
     <param name="url">git://anongit.kde.org/trojita</param>
     <!--param name="url">https://github.com/jktjkt/trojita.git</param-->
     <param name="filename">trojita-nightly</param>
-    <param name="versionformat">0.4.1.git.%ct.%h</param>
+    <param name="versionformat">0.5.git.%ct.%h</param>
   </service>
   <service name="recompress">
     <param name="file">*.tar</param>
