@@ -492,7 +492,9 @@ void Model::emitMessageCountChanged(TreeItemMailbox *const mailbox)
     TreeItemMsgList *list = static_cast<TreeItemMsgList *>(mailbox->m_children[0]);
     QModelIndex msgListIndex = list->toIndex(this);
     emit dataChanged(msgListIndex, msgListIndex);
-    emit messageCountPossiblyChanged(mailbox->toIndex(this));
+    QModelIndex mailboxIndex = mailbox->toIndex(this);
+    emit dataChanged(mailboxIndex, mailboxIndex);
+    emit messageCountPossiblyChanged(mailboxIndex);
 }
 
 /** @short Retrieval of a message part has completed */

@@ -94,7 +94,7 @@ bool UpdateFlagsOfAllMessagesTask::handleStateHelper(const Imap::Responses::Stat
                     model->dataChanged(messageIndex, messageIndex);
                 }
             }
-            model->dataChanged(mailboxIndex, mailboxIndex);
+            model->emitMessageCountChanged(mailbox);
             list->fetchNumbers(model);
             _completed();
         } else {

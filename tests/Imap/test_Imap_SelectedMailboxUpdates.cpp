@@ -975,21 +975,29 @@ void ImapModelSelectedMailboxUpdatesTest::testMarkAllConcurrentArrival()
 
     QSignalSpy changedSpy(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
     connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(helperDataChangedUidNonZero(QModelIndex,QModelIndex)));
+    QSignalSpy messageCountChangedSpy(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)));
     model->markMailboxAsRead(idxA);
     cClient(t.mk("STORE 1:* +FLAGS.SILENT \\Seen\r\n"));
     cServer("* 2 EXISTS\r\n" + t.last("OK marked\r\n"));
 
-    // 1st signal for TreeItemMsgList due to the EXISTS
-    // 2nd for each changed message
-    // 3rd for the whole mailbox because its "unread message count" might have changed
-    // One signal for each message, one for the TreeItemMsgList, one for the whole mailbox
-    QCOMPARE(changedSpy.size(), 3);
+    QCOMPARE(changedSpy.size(), 5);
+    // 1st pair of signals is for TreeItemMsgList (and also TreeItemMailbox because it uses data from that layer) due to the EXISTS
     QCOMPARE(changedSpy[0][0].value<QModelIndex>(), QModelIndex(msgListA));
     QCOMPARE(changedSpy[0][1].value<QModelIndex>(), QModelIndex(msgListA));
-    QCOMPARE(changedSpy[1][0].value<QModelIndex>(), QModelIndex(msgListA.child(0, 0)));
-    QCOMPARE(changedSpy[1][1].value<QModelIndex>(), QModelIndex(msgListA.child(0, 0)));
-    QCOMPARE(changedSpy[2][0].value<QModelIndex>(), QModelIndex(idxA));
-    QCOMPARE(changedSpy[2][1].value<QModelIndex>(), QModelIndex(idxA));
+    QCOMPARE(changedSpy[1][0].value<QModelIndex>(), QModelIndex(idxA));
+    QCOMPARE(changedSpy[1][1].value<QModelIndex>(), QModelIndex(idxA));
+    // now report each changed message
+    QCOMPARE(changedSpy[2][0].value<QModelIndex>(), QModelIndex(msgListA.child(0, 0)));
+    QCOMPARE(changedSpy[2][1].value<QModelIndex>(), QModelIndex(msgListA.child(0, 0)));
+    // and now a pair of signals for the (list, mailbox) pair due to the mass-update of indexes
+    QCOMPARE(changedSpy[3][0].value<QModelIndex>(), QModelIndex(msgListA));
+    QCOMPARE(changedSpy[3][1].value<QModelIndex>(), QModelIndex(msgListA));
+    QCOMPARE(changedSpy[4][0].value<QModelIndex>(), QModelIndex(idxA));
+    QCOMPARE(changedSpy[4][1].value<QModelIndex>(), QModelIndex(idxA));
+    // Two bits, one for the initial EXISTS, second for the flag update
+    QCOMPARE(messageCountChangedSpy.size(), 2);
+    QCOMPARE(messageCountChangedSpy[0][0].value<QModelIndex>(), QModelIndex(idxA));
+    QCOMPARE(messageCountChangedSpy[1][0].value<QModelIndex>(), QModelIndex(idxA));
 
     // This is a crude thing, but the point is that the cache should not have been called with an update to an unknown message
     QCOMPARE(model->cache()->msgFlags(QLatin1String("a"), 0), QStringList());
