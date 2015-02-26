@@ -29,18 +29,23 @@
 class FakeCapabilitiesInjector
 {
 public:
-    explicit FakeCapabilitiesInjector(Imap::Mailbox::Model *_model): model(_model)
+    explicit FakeCapabilitiesInjector(Imap::Mailbox::Model *model): model(model)
     {}
 
     /** @short Add the specified capability to the list of capabilities "supported" by the server */
     void injectCapability(const QString& cap)
     {
         Q_ASSERT(!model->m_parsers.isEmpty());
-        QStringList existingCaps = model->capabilities();
-        if (!existingCaps.contains(QLatin1String("IMAP4REV1"))) {
-            existingCaps << QLatin1String("IMAP4rev1");
+        for (auto it = model->m_parsers.begin(); it != model->m_parsers.end(); ++it) {
+            auto existingCaps = it->capabilities;
+            if (!existingCaps.contains(QLatin1String("IMAP4REV1"))) {
+                existingCaps << QLatin1String("IMAP4rev1");
+            }
+            if (!existingCaps.contains(cap.toUpper())) {
+                existingCaps << cap;
+            }
+            model->updateCapabilities(it.key(), existingCaps);
         }
-        model->updateCapabilities( model->m_parsers.begin().key(), existingCaps << cap );
     }
 private:
     Imap::Mailbox::Model *model;
