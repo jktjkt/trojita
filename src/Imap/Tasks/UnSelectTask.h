@@ -48,6 +48,7 @@ public:
 private slots:
     /** @short Try to guess a non-existing mailbox name */
     void doFakeSelect();
+    void resetConnectionState();
 private:
     CommandHandle unSelectTag;
     CommandHandle selectMissingTag;

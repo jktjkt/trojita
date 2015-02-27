@@ -103,6 +103,7 @@ private slots:
     void testQresyncClosedHandover();
     void testNoClosedRouting();
     void testUnselectClosed();
+    void testUnselectClosedDuringSelecting();
 
     void testSpuriousSearch();
     void testSpuriousESearch();

@@ -38,6 +38,7 @@ UnSelectTask::UnSelectTask(Model *model, ImapTask *parentTask) :
     conn = parentTask;
     parser = conn->parser;
     Q_ASSERT(parser);
+    connect(this, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(resetConnectionState()));
 }
 
 void UnSelectTask::perform()
@@ -149,6 +150,15 @@ QVariant UnSelectTask::taskData(const int role) const
 {
     Q_UNUSED(role);
     return QVariant();
+}
+
+/** @short Reset the "waiting for [CLOSED]" state */
+void UnSelectTask::resetConnectionState()
+{
+    auto const state = model->accessParser(parser).connState;
+    if (state > CONN_STATE_AUTHENTICATED && state < CONN_STATE_LOGOUT) {
+        model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
+    }
 }
 
 }

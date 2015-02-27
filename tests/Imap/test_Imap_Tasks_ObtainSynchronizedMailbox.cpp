@@ -2785,6 +2785,57 @@ void ImapModelObtainSynchronizedMailboxTest::testUnselectClosed()
     cEmpty();
 }
 
+/** @short Similar to testUnselectClosed, but mailbox invalidation happens during the initial sync */
+void ImapModelObtainSynchronizedMailboxTest::testUnselectClosedDuringSelecting()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("UNSELECT");
+    injector.injectCapability("QRESYNC");
+    Imap::Mailbox::SyncState sync;
+    helperQresyncAInitial(sync);
+
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
+    cClient(t.mk("LOGOUT\r\n"));
+    cServer(t.last("OK loggedeout\r\n") + "* BYE see ya\r\n");
+
+    taskFactoryUnsafe->fakeListChildMailboxes = false;
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
+    t.reset();
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    model->switchToMailbox(idxA);
+    injector.injectCapability("UNSELECT");
+    injector.injectCapability("QRESYNC");
+    cServer("* LIST () \".\" a\r\n" + t.last("OK listed\r\n"));
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+
+    // This simulates the first sync after a reconnect.
+    // There's no [CLOSED] because it's a new connection.
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            + t.last("OK selected\r\n"));
+    cClient(t.mk("UNSELECT\r\n"));
+    cServer(t.last("OK unselected\r\n"));
+    cEmpty();
+
+    idxA = model->index(1, 0, QModelIndex());
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleMailboxName), QVariant(QLatin1String("a")));
+
+    // Now perform a sync after the failed one.
+    // There will again be no [CLOSED], bug Trojita had a bug and expected to see a [CLOSED].
+    model->switchToMailbox(idxA);
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 33] .\r\n"
+            + t.last("OK selected\r\n"));
+
+    justKeepTask();
+    cEmpty();
+}
+
 /** @short Servers speaking about UID 0 are buggy, full stop */
 void ImapModelObtainSynchronizedMailboxTest::testUid0()
 {
