@@ -326,6 +326,12 @@ ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &
     }
 
     w->setResponseData(recipients, subject, body, inReplyTo, references, QModelIndex());
+    if (!inReplyTo.isEmpty() || !references.isEmpty()) {
+      // We don't need to expose any UI here, but we want the in-reply-to and references information to be carried with this message
+      w->m_actionInReplyTo->setChecked(true);
+    }
+    // Only those changes that are made to the composer's fields *after* it has been created should qualify as "edits"
+    w->m_messageEverEdited = false;
     Util::centerWidgetOnScreen(w);
     w->show();
     return w;
