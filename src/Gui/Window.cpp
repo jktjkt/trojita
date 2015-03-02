@@ -65,6 +65,7 @@
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/FileDownloadManager.h"
+#include "MSA/ImapSubmit.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
 #include "Plugins/PasswordPlugin.h"
@@ -1584,10 +1585,10 @@ MSA::MSAFactory *MainWindow::msaFactory()
         QString appName = args.takeFirst();
         msaFactory = new MSA::SendmailFactory(appName, args);
     } else if (method == SettingsNames::methodImapSendmail) {
-        if (!imapModel()->capabilities().contains(QLatin1String(""))) {
+        if (!imapModel()->capabilities().contains(QLatin1String("X-DRAFT-I01-SENDMAIL"))) {
             return 0;
         }
-        // no particular preparation needed here
+        msaFactory = new MSA::ImapSubmitFactory(qobject_cast<Imap::Mailbox::Model*>(imapAccess()->imapModel()));
     } else {
         return 0;
     }
