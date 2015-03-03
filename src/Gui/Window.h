@@ -204,6 +204,7 @@ private slots:
     void saveSizesAndState();
     void saveRawStateSetting(bool enabled);
     void possiblyLoadMessageOnSplittersChanged();
+    void updateMenuHidingButton();
 
     void desktopGeometryChanged();
 

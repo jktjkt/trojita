@@ -289,7 +289,7 @@ void MainWindow::createActions()
     showMenuBar->setCheckable(true);
     showMenuBar->setChecked(true);
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
-    connect(showMenuBar, SIGNAL(triggered(bool)), menuShow, SLOT(setHidden(bool)));
+    connect(showMenuBar, SIGNAL(triggered(bool)), this, SLOT(updateMenuHidingButton()));
     connect(showMenuBar, SIGNAL(triggered(bool)), m_delayedStateSaving, SLOT(start()));
     connect(menuShow, SIGNAL(clicked()), showMenuBar , SLOT(trigger()));
 
@@ -299,6 +299,7 @@ void MainWindow::createActions()
     connect(showToolBar, SIGNAL(triggered(bool)), m_mainToolbar, SLOT(setVisible(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), showToolBar, SLOT(setChecked(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), m_delayedStateSaving, SLOT(start()));
+    connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), this, SLOT(updateMenuHidingButton()));
 
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
@@ -2402,7 +2403,7 @@ void MainWindow::applySizesAndState()
         if (ok) {
             menuBar()->setVisible(visibility);
             showMenuBar->setChecked(visibility);
-            menuShow->setVisible(!visibility);
+            updateMenuHidingButton();
         }
     }
 
@@ -2436,6 +2437,11 @@ Imap::ImapAccess *MainWindow::imapAccess() const
 void MainWindow::enableLoggingToDisk()
 {
     imapLogger->slotSetPersistentLogging(true);
+}
+
+void MainWindow::updateMenuHidingButton()
+{
+    menuShow->setVisible(!menuBar()->isVisibleTo(this) && !m_mainToolbar->isVisibleTo(this));
 }
 
 }
