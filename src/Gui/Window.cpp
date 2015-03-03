@@ -291,15 +291,23 @@ void MainWindow::createActions()
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
     connect(showMenuBar, SIGNAL(triggered(bool)), this, SLOT(updateMenuHidingButton()));
     connect(showMenuBar, SIGNAL(triggered(bool)), m_delayedStateSaving, SLOT(start()));
-    connect(menuShow, SIGNAL(clicked()), showMenuBar , SLOT(trigger()));
 
     showToolBar = new QAction(tr("Show &Toolbar"), this);
     showToolBar->setCheckable(true);
     showToolBar->setChecked(true);
+    // Ideally, we would like to reuse the original action in this context.
+    // However, that action is checkable, and we want a simple button toggle here.
+    // Let's just copy around the title and icon.
+    // We cannot set the shortcut because the original action is still enabled and handles Ctrl+M just fine.
+    menuShow->setText(showMenuBar->text());
+    menuShow->setIcon(showMenuBar->icon());
+    // Make sure that the button clearly shows what it's all about
+    menuShow->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     connect(showToolBar, SIGNAL(triggered(bool)), m_mainToolbar, SLOT(setVisible(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), showToolBar, SLOT(setChecked(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), m_delayedStateSaving, SLOT(start()));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), this, SLOT(updateMenuHidingButton()));
+    connect(menuShow, SIGNAL(clicked()), showMenuBar , SLOT(trigger()));
 
     configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
@@ -667,7 +675,6 @@ void MainWindow::createWidgets()
     busyParsersIndicator->hide();
 
     menuShow = new QToolButton(this);
-    menuShow->setText(tr("Show Menu Bar"));
     statusBar()->addPermanentWidget(menuShow);
     menuShow->hide();
 
