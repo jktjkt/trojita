@@ -801,7 +801,7 @@ void MainWindow::removeSysTray()
 void MainWindow::slotToggleSysTray()
 {
     bool showSystray = m_settings->value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool();
-    if (showSystray && !m_trayIcon) {
+    if (showSystray && !m_trayIcon && QSystemTrayIcon::isSystemTrayAvailable()) {
         createSysTray();
     } else if (!showSystray && m_trayIcon) {
         removeSysTray();
