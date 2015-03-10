@@ -25,6 +25,7 @@
 #ifndef ABOOK_ADDRESSBOOK
 #define ABOOK_ADDRESSBOOK
 
+#include <QObject>
 #include <QPair>
 #include "Gui/AbstractAddressbook.h"
 

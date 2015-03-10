@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "MailboxMetadata.h"
+#include <QDataStream>
 
 namespace Imap
 {
