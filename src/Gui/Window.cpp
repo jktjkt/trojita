@@ -1247,7 +1247,9 @@ void MainWindow::slotEditDraft()
     QString path(Common::writablePath(Common::LOCATION_DATA) + tr("Drafts"));
     QDir().mkpath(path);
     path = QFileDialog::getOpenFileName(this, tr("Edit draft"), path, tr("Drafts") + QLatin1String(" (*.draft)"));
-    ComposeWidget::warnIfMsaNotConfigured(ComposeWidget::createDraft(this, path), this);
+    if (!path.isNull()) {
+        ComposeWidget::warnIfMsaNotConfigured(ComposeWidget::createDraft(this, path), this);
+    }
 }
 
 void MainWindow::handleMarkAsRead(bool value)
