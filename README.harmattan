@@ -7,9 +7,8 @@ uses both the ancient toolchain and a recent clang.
 
 For compiling with clang, make sure that it's built with the required targets
 (Gentoo: USE=multitarget) and provide a custom "profile" for Madde. Instructions
-for that are in packaging/harmattan-rm680-madde-c++ . New enough clang is
-required (tested with 3.3) because the support for exceptions on ARM is not
-enabled by default.
+for that are in packaging/harmattan-rm680-madde-c++ . Clang 3.5 is required,
+see the git log for how it worked on 3.3.
 
 You'll also need to patch the QtSDK's headers so that they work with clang, see
 [1]. A patch for the STL [2] shall be applied inside

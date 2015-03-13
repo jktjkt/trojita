@@ -57,11 +57,7 @@
 # crude hack for detecting whether to forward this to GCC's c++ in case it's about linking...
 echo "${@}" | grep -q -E -- '-rdynamic|-soname'
 if [[ $? -eq 1 ]]; then
-    # Funny fact: clang 3.3 doesn't do exceptions on ARM by default
-    # See http://lists.cs.uiuc.edu/pipermail/llvmdev/2013-February/059015.html
-    # and the rest of the thread
     clang++ -target armv7l-linux-gnueabi -mfloat-abi=hard \
-        -mllvm -arm-enable-ehabi -mllvm -arm-enable-ehabi-descriptors \
         --sysroot ${SYSROOT_DIR} -integrated-as $@
     # Theoretically, we could perhaps pass the -B $(dirname "${BASH_SOURCE[0]}")
     # but that should not be needed as we really want to delegate the linking to
