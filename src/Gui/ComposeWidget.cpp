@@ -101,6 +101,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     connect(m_submission, SIGNAL(succeeded()), this, SLOT(sent()));
     connect(m_submission, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
     connect(m_submission, SIGNAL(passwordRequested(QString,QString)), this, SLOT(passwordRequested(QString,QString)), Qt::QueuedConnection);
+    m_submission->composer()->setReportTrojitaVersions(m_settings->value(Common::SettingsNames::interopRevealVersions, true).toBool());
 
     ui->setupUi(this);
     ui->attachmentsView->setComposer(m_submission->composer());

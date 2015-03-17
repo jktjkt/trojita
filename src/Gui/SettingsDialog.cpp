@@ -302,6 +302,7 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     guiStartMinimizedCheckbox->setChecked(s.value(Common::SettingsNames::guiStartMinimized, QVariant(false)).toBool());
 
     preferPlaintextCheckbox->setChecked(s.value(Common::SettingsNames::guiPreferPlaintextRendering).toBool());
+    revealTrojitaVersions->setChecked(s.value(Common::SettingsNames::interopRevealVersions, QVariant(true)).toBool());
 
     connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(updateWidgets()));
     connect(identityTabelView, SIGNAL(doubleClicked(QModelIndex)), SLOT(editButtonClicked()));
@@ -409,6 +410,7 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::guiPreferPlaintextRendering, preferPlaintextCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiShowSystray, guiSystrayCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiStartMinimized, guiStartMinimizedCheckbox->isChecked());
+    s.setValue(Common::SettingsNames::interopRevealVersions, revealTrojitaVersions->isChecked());
 
     bool reload = false;
 
@@ -536,7 +538,6 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     imapUser->setText(s.value(SettingsNames::imapUserKey).toString());
     processPath->setText(s.value(SettingsNames::imapProcessKey).toString());
 
-    imapEnableId->setChecked(s.value(SettingsNames::imapEnableId, true).toBool());
     imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QLatin1String(" ")));
     imapUseSystemProxy->setChecked(s.value(SettingsNames::imapUseSystemProxy, true).toBool());
     imapNeedsNetwork->setChecked(s.value(SettingsNames::imapNeedsNetwork, true).toBool());
@@ -669,7 +670,6 @@ void ImapPage::save(QSettings &s)
         s.setValue(SettingsNames::imapProcessKey, processPath->text());
     }
     s.setValue(SettingsNames::imapUserKey, imapUser->text());
-    s.setValue(SettingsNames::imapEnableId, imapEnableId->isChecked());
     s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QLatin1String(" ")));
     s.setValue(SettingsNames::imapNeedsNetwork, imapNeedsNetwork->isChecked());
     s.setValue(SettingsNames::imapIdleRenewal, imapIdleRenewal->value());

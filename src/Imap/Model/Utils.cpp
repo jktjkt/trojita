@@ -437,6 +437,13 @@ void migrateSettings(QSettings *settings)
         settings->setValue(SettingsNames::imapStartMode, offlineSetting.toBool() ? Common::SettingsNames::netOffline : Common::SettingsNames::netOnline);
         settings->remove(SettingsNames::obsImapStartOffline);
     }
+
+    const QString obsImapEnableId = QLatin1String("imap.enableId");
+    auto enableId = settings->value(obsImapEnableId);
+    if (enableId.isValid() && enableId.toBool() == false && !settings->contains(Common::SettingsNames::interopRevealVersions)) {
+        settings->setValue(Common::SettingsNames::interopRevealVersions, QVariant(false));
+        settings->remove(obsImapEnableId);
+    }
 }
 
 /** @short Return the matching QModelIndex after stripping all proxy layers */

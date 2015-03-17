@@ -54,6 +54,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     factory->setStartTlsRequired( startTlsRequired );
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory));
+    model->setProperty("trojita-imap-id-no-versions", QVariant(true));
     connect(model, SIGNAL(authRequested()), this, SLOT(provideAuthDetails()), Qt::QueuedConnection);
     connect(model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
             this, SLOT(acceptSsl(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
@@ -514,10 +515,10 @@ void ImapModelOpenConnectionTest::testCompressDeflateOk()
     QCOMPARE(SOCK->writtenStuff(), QByteArray("[*** DEFLATE ***]"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID NIL\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID (\"name\" \"Trojita\")\r\n"));
     SOCK->fakeReading("* ID nil\r\ny2 OK you courious peer\r\n");
 #else
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID NIL\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID (\"name\" \"Trojita\")\r\n"));
     SOCK->fakeReading("* ID nil\r\ny1 OK you courious peer\r\n");
 #endif
     QCoreApplication::processEvents();
@@ -556,10 +557,10 @@ void ImapModelOpenConnectionTest::testCompressDeflateNo()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID NIL\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID (\"name\" \"Trojita\")\r\n"));
     SOCK->fakeReading("* ID nil\r\ny2 OK you courious peer\r\n");
 #else
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID NIL\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID (\"name\" \"Trojita\")\r\n"));
     SOCK->fakeReading("* ID nil\r\ny1 OK you courious peer\r\n");
 #endif
     QCoreApplication::processEvents();
@@ -599,10 +600,10 @@ void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID NIL\r\ny3 LIST \"\" \"%\"\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID (\"name\" \"Trojita\")\r\ny3 LIST \"\" \"%\"\r\n"));
     SOCK->fakeReading("* ID nil\r\ny3 OK listed, nothing like that in there\r\ny2 OK you courious peer\r\n");
 #else
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID NIL\r\ny2 LIST \"\" \"%\"\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID (\"name\" \"Trojita\")\r\ny2 LIST \"\" \"%\"\r\n"));
     SOCK->fakeReading("* ID nil\r\ny2 OK listed, nothing like that in there\r\ny1 OK you courious peer\r\n");
 #endif
     QCoreApplication::processEvents();

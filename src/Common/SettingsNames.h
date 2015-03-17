@@ -35,7 +35,7 @@ struct SettingsNames {
            sendmailKey, sendmailDefaultCmd;
     static const QString imapMethodKey, methodTCP, methodSSL, methodProcess, imapHostKey,
            imapPortKey, imapStartTlsKey, imapUserKey, imapProcessKey, imapStartMode, netOffline, netExpensive, netOnline,
-           obsImapStartOffline, imapEnableId, obsImapSslPemCertificate, imapSslPemPubKey,
+           obsImapStartOffline, obsImapSslPemCertificate, imapSslPemPubKey,
            imapBlacklistedCapabilities, imapUseSystemProxy, imapNeedsNetwork, imapNumberRefreshInterval;
     static const QString composerSaveToImapKey, composerImapSentKey, smtpUseBurlKey;
     static const QString cacheMetadataKey, cacheMetadataMemory,
@@ -55,6 +55,7 @@ struct SettingsNames {
     static const QString addressbookPlugin, passwordPlugin;
     static const QString imapIdleRenewal;
     static const QString autoMarkReadEnabled, autoMarkReadSeconds;
+    static const QString interopRevealVersions;
 };
 
 }

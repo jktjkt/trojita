@@ -61,7 +61,6 @@ const QString SettingsNames::netOffline = QLatin1String("OFFLINE");
 const QString SettingsNames::netExpensive = QLatin1String("EXPENSIVE");
 const QString SettingsNames::netOnline = QLatin1String("ONLINE");
 const QString SettingsNames::obsImapStartOffline = QLatin1String("imap.offline");
-const QString SettingsNames::imapEnableId = QLatin1String("imap.enableId");
 const QString SettingsNames::obsImapSslPemCertificate = QLatin1String("imap.ssl.pemCertificate");
 const QString SettingsNames::imapSslPemPubKey = QLatin1String("imap.ssl.pemPubKey");
 const QString SettingsNames::imapBlacklistedCapabilities = QLatin1String("imap.capabilities.blacklist");
@@ -104,5 +103,6 @@ const QString SettingsNames::passwordPlugin = QLatin1String("plugin/password");
 const QString SettingsNames::imapIdleRenewal = QLatin1String("imapIdleRenewal");
 const QString SettingsNames::autoMarkReadEnabled = QLatin1String("autoMarkRead/enabled");
 const QString SettingsNames::autoMarkReadSeconds = QLatin1String("autoMarkRead/seconds");
+const QString SettingsNames::interopRevealVersions = QLatin1String("interoperability/revealVersions");
 
 }

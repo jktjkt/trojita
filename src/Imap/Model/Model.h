@@ -253,8 +253,9 @@ public:
     /** @short Return the server's response to the ID command
 
     When the server indicates that the ID command is available, Trojitá will always send the ID command.  The information sent to
-    the server is controlled by the trojita-imap-enable-id property; if it is set, Trojitá will tell the truth and proudly present
-    herself under her own name. If it isn't set, it will just send NIL on the wire.
+    the server is controlled by the trojita-imap-id-no-versions property.  By default, Trojitá will tell the truth and proudly
+    present herself under her own name and using detailed version information and OS info. If set, it will just send the Trojita
+    name, but no version info.
 
     The command is always sent upon each connection (ie. one protocol session, not the mailbox session).  The result of this
     function will therefore not make much sense (like be empty) when the model has always been offline.  Each reconnection updates

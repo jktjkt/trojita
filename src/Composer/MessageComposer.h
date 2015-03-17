@@ -87,6 +87,7 @@ public:
     void setAttachmentName(const QModelIndex &index, const QString &newName);
 
     void setPreloadEnabled(const bool preload);
+    void setReportTrojitaVersions(const bool reportVersion);
 
 private:
     static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);
@@ -119,6 +120,7 @@ private:
     QList<AttachmentItem *> m_attachments;
     QPointer<Imap::Mailbox::Model> m_model;
     bool m_shouldPreload;
+    bool m_reportTrojitaVersions;
 };
 
 }

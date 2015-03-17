@@ -47,7 +47,7 @@ namespace {
 namespace Composer {
 
 MessageComposer::MessageComposer(Imap::Mailbox::Model *model, QObject *parent) :
-    QAbstractListModel(parent), m_model(model), m_shouldPreload(false)
+    QAbstractListModel(parent), m_model(model), m_shouldPreload(false), m_reportTrojitaVersions(true)
 {
 }
 
@@ -550,8 +550,6 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     // Other message metadata
     target->write(encodeHeaderField(QLatin1String("Subject: ") + m_subject) + "\r\n" +
                   "Date: " + Imap::dateTimeToRfc2822(m_timestamp).toUtf8() + "\r\n" +
-                  QString::fromUtf8("User-Agent: Trojita/%1; %2\r\n").arg(
-                      Common::Application::version, Imap::Mailbox::systemPlatformVersion()).toUtf8() +
                   "MIME-Version: 1.0\r\n");
     QByteArray messageId = generateMessageId(m_from);
     if (!messageId.isEmpty()) {
@@ -561,6 +559,12 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     writeHeaderWithMsgIds(target, "References", m_references);
     if (!m_organization.isEmpty()) {
         target->write(encodeHeaderField(QLatin1String("Organization: ") + m_organization) + "\r\n");
+    }
+    if (m_reportTrojitaVersions) {
+        target->write(QString::fromUtf8("User-Agent: Trojita/%1; %2\r\n").arg(
+                      Common::Application::version, Imap::Mailbox::systemPlatformVersion()).toUtf8());
+    } else {
+        target->write("User-Agent: Trojita\r\n");
     }
 
     // Headers depending on actual message body data
@@ -837,4 +841,10 @@ void MessageComposer::prepareForwarding(const QModelIndex &index, const ForwardM
     }
     }
 }
+
+void MessageComposer::setReportTrojitaVersions(const bool reportVersions)
+{
+    m_reportTrojitaVersions = reportVersions;
+}
+
 }

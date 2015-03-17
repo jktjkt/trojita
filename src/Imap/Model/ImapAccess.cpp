@@ -348,7 +348,7 @@ void ImapAccess::doConnect()
     m_imapModel = new Imap::Mailbox::Model(this, cache, std::move(factory), std::move(taskFactory));
     m_imapModel->setObjectName(QString::fromUtf8("imapModel-%1").arg(m_accountName));
     m_imapModel->setCapabilitiesBlacklist(m_settings->value(Common::SettingsNames::imapBlacklistedCapabilities).toStringList());
-    m_imapModel->setProperty("trojita-imap-enable-id", m_settings->value(Common::SettingsNames::imapEnableId, true).toBool());
+    m_imapModel->setProperty("trojita-imap-id-no-versions", !m_settings->value(Common::SettingsNames::interopRevealVersions, true).toBool());
     m_imapModel->setProperty("trojita-imap-idle-renewal", m_settings->value(Common::SettingsNames::imapIdleRenewal).toUInt() * 60 * 1000);
     m_imapModel->setNumberRefreshInterval(numberRefreshInterval());
     connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));

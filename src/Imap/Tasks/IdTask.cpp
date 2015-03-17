@@ -45,15 +45,13 @@ void IdTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    if (model->property("trojita-imap-enable-id").toBool()) {
-        QMap<QByteArray,QByteArray> identification;
-        identification["name"] = "Trojita";
+    QMap<QByteArray,QByteArray> identification;
+    identification["name"] = "Trojita";
+    if (!model->property("trojita-imap-id-no-versions").toBool()) {
         identification["version"] = Common::Application::version.toUtf8();
         identification["os"] = systemPlatformVersion().toUtf8();
-        tag = parser->idCommand(identification);
-    } else {
-        tag = parser->idCommand();
     }
+    tag = parser->idCommand(identification);
 }
 
 bool IdTask::handleStateHelper(const Imap::Responses::State *const resp)
