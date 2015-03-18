@@ -72,7 +72,6 @@
 #include "Plugins/PluginManager.h"
 #include "CompleteMessageWidget.h"
 #include "ComposeWidget.h"
-#include "IconLoader.h"
 #include "MailBoxTreeView.h"
 #include "MessageListWidget.h"
 #include "MessageView.h"
@@ -93,6 +92,7 @@
 #include "ui_AboutDialog.h"
 
 #include "Imap/Model/ModelTest/modeltest.h"
+#include "UiUtils/IconLoader.h"
 
 /** @short All user-facing widgets and related classes */
 namespace Gui
@@ -234,7 +234,7 @@ void MainWindow::createActions()
     reloadMboxList = new QAction(style()->standardIcon(QStyle::SP_ArrowRight), tr("&Update List of Child Mailboxes"), this);
     connect(reloadMboxList, SIGNAL(triggered()), this, SLOT(slotReloadMboxList()));
 
-    resyncMbox = new QAction(loadIcon(QLatin1String("view-refresh")), tr("Check for &New Messages"), this);
+    resyncMbox = new QAction(UiUtils::loadIcon(QLatin1String("view-refresh")), tr("Check for &New Messages"), this);
     connect(resyncMbox, SIGNAL(triggered()), this, SLOT(slotResyncMbox()));
 
     reloadAllMailboxes = new QAction(tr("&Reload Everything"), this);
@@ -260,7 +260,7 @@ void MainWindow::createActions()
     netPolicyGroup->addAction(netOnline);
 
     //: a debugging tool showing the full contents of the whole IMAP server; all folders, messages and their parts
-    showFullView = new QAction(loadIcon(QLatin1String("edit-find-mail")), tr("Show Full &Tree Window"), this);
+    showFullView = new QAction(UiUtils::loadIcon(QLatin1String("edit-find-mail")), tr("Show Full &Tree Window"), this);
     showFullView->setCheckable(true);
     connect(showFullView, SIGNAL(triggered(bool)), allDock, SLOT(setVisible(bool)));
     connect(allDock, SIGNAL(visibilityChanged(bool)), showFullView, SLOT(setChecked(bool)));
@@ -309,7 +309,7 @@ void MainWindow::createActions()
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), this, SLOT(updateMenuHidingButton()));
     connect(menuShow, SIGNAL(clicked()), showMenuBar , SLOT(trigger()));
 
-    configSettings = new QAction(loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
+    configSettings = new QAction(UiUtils::loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
 
     QAction *triggerSearch = new QAction(this);
@@ -322,7 +322,7 @@ void MainWindow::createActions()
     triggerSearch->setShortcut(QKeySequence(QLatin1String("/")));
     connect(triggerSearch, SIGNAL(triggered()), msgListWidget, SLOT(focusSearch()));
 
-    m_oneAtTimeGoBack = new QAction(loadIcon(QLatin1String("go-previous")), tr("Navigate Back"), this);
+    m_oneAtTimeGoBack = new QAction(UiUtils::loadIcon(QLatin1String("go-previous")), tr("Navigate Back"), this);
     m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
     m_oneAtTimeGoBack->setEnabled(false);
 
@@ -399,7 +399,7 @@ void MainWindow::createActions()
     m_replyGuess = ShortcutHandler::instance()->createAction(QLatin1String("action_reply_guess"), this, SLOT(slotReplyGuess()), this);
     m_replyGuess->setEnabled(true);
 
-    actionThreadMsgList = new QAction(Gui::loadIcon(QLatin1String("mail-view-threaded")), tr("Show Messages in &Threads"), this);
+    actionThreadMsgList = new QAction(UiUtils::loadIcon(QLatin1String("mail-view-threaded")), tr("Show Messages in &Threads"), this);
     actionThreadMsgList->setCheckable(true);
     // This action is enabled/disabled by model's capabilities
     actionThreadMsgList->setEnabled(false);
@@ -1777,7 +1777,7 @@ QWidget *MainWindow::messageSourceWidget(const QModelIndex &message)
     QModelIndex messageIndex = Imap::deproxifiedIndex(message);
     MessageSourceWidget *sourceWidget = new MessageSourceWidget(0, messageIndex);
     sourceWidget->setAttribute(Qt::WA_DeleteOnClose);
-    QAction *close = new QAction(loadIcon(QLatin1String("window-close")), tr("Close"), sourceWidget);
+    QAction *close = new QAction(UiUtils::loadIcon(QLatin1String("window-close")), tr("Close"), sourceWidget);
     sourceWidget->addAction(close);
     close->setShortcut(tr("Ctrl+W"));
     connect(close, SIGNAL(triggered()), sourceWidget, SLOT(close()));
@@ -1802,7 +1802,7 @@ void MainWindow::slotViewMsgHeaders()
                                                          0);
         headers->setAttribute(Qt::WA_DeleteOnClose);
         connect(headers, SIGNAL(destroyed()), netAccess, SLOT(deleteLater()));
-        QAction *close = new QAction(loadIcon(QLatin1String("window-close")), tr("Close"), headers);
+        QAction *close = new QAction(UiUtils::loadIcon(QLatin1String("window-close")), tr("Close"), headers);
         headers->addAction(close);
         close->setShortcut(tr("Ctrl+W"));
         connect(close, SIGNAL(triggered()), headers, SLOT(close()));
@@ -1811,7 +1811,7 @@ void MainWindow::slotViewMsgHeaders()
                                     QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
                                     messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
                                     ));
-        headers->setWindowIcon(loadIcon(QLatin1String("text-x-hex")));
+        headers->setWindowIcon(UiUtils::loadIcon(QLatin1String("text-x-hex")));
         headers->show();
     }
 }

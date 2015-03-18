@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2015 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -20,13 +20,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef TROJITA_GUI_ICONLOADER_H
-#define TROJITA_GUI_ICONLOADER_H
+#include "IconLoader.h"
 
-#include <QIcon>
-
-namespace Gui
-{
+namespace UiUtils {
 
 /** @short Wrapper around the QIcon::fromTheme with sane fallback
  *
@@ -39,7 +35,7 @@ namespace Gui
  * It is implemented inline in order to prevent a dependency from the Imap lib
  * into the Gui lib.
  * */
-inline QIcon loadIcon(const QString &name)
+QIcon loadIcon(const QString &name)
 {
     // A QIcon(QString) constructor creates non-null QIcons, even though the resulting icon will
     // not ever return a valid and usable pixmap. This means that we have to actually look at the
@@ -55,5 +51,3 @@ inline QIcon loadIcon(const QString &name)
 }
 
 }
-
-#endif // TROJITA_GUI_ICONLOADER_H

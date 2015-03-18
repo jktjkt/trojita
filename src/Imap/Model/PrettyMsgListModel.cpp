@@ -21,11 +21,11 @@
 */
 #include "PrettyMsgListModel.h"
 #include <QFont>
-#include "Gui/IconLoader.h"
 #include "ItemRoles.h"
 #include "MsgListModel.h"
 #include "ThreadingMsgListModel.h"
 #include "UiUtils/Formatting.h"
+#include "UiUtils/IconLoader.h"
 
 
 namespace Imap
@@ -133,15 +133,15 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             bool isReplied = translated.data(RoleMessageIsMarkedReplied).toBool();
 
             if (translated.data(RoleMessageIsMarkedDeleted).toBool())
-                return Gui::loadIcon(QLatin1String("mail-deleted"));
+                return UiUtils::loadIcon(QLatin1String("mail-deleted"));
             else if (isForwarded && isReplied)
-                return Gui::loadIcon(QLatin1String("mail-replied-forw"));
+                return UiUtils::loadIcon(QLatin1String("mail-replied-forw"));
             else if (isReplied)
-                return Gui::loadIcon(QLatin1String("mail-replied"));
+                return UiUtils::loadIcon(QLatin1String("mail-replied"));
             else if (isForwarded)
-                return Gui::loadIcon(QLatin1String("mail-forwarded"));
+                return UiUtils::loadIcon(QLatin1String("mail-forwarded"));
             else if (translated.data(RoleMessageIsMarkedRecent).toBool())
-                return Gui::loadIcon(QLatin1String("mail-recent"));
+                return UiUtils::loadIcon(QLatin1String("mail-recent"));
             else
                 return QIcon(QLatin1String(":/icons/transparent.png"));
         }

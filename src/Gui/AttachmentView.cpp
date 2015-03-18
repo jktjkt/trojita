@@ -45,7 +45,6 @@
 
 #include "Common/DeleteAfter.h"
 #include "Common/Paths.h"
-#include "Gui/IconLoader.h"
 #include "Gui/MessageView.h" // so that the compiler knows it's a QObject
 #include "Gui/Window.h"
 #include "Imap/Network/FileDownloadManager.h"
@@ -53,6 +52,7 @@
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/ItemRoles.h"
 #include "UiUtils/Formatting.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui
 {
@@ -85,20 +85,20 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     layout->setSpacing(0);
 
     m_menu = new QMenu(this);
-    m_downloadAttachment = m_menu->addAction(loadIcon(QLatin1String("document-save-as")), tr("Download"));
+    m_downloadAttachment = m_menu->addAction(UiUtils::loadIcon(QLatin1String("document-save-as")), tr("Download"));
     m_openAttachment = m_menu->addAction(tr("Open Directly"));
     connect(m_downloadAttachment, SIGNAL(triggered()), this, SLOT(slotDownloadAttachment()));
     connect(m_openAttachment, SIGNAL(triggered()), this, SLOT(slotOpenAttachment()));
     connect(m_menu, SIGNAL(aboutToShow()), this, SLOT(updateShowHideAttachmentState()));
     if (m_contentWidget) {
-        m_showHideAttachment = m_menu->addAction(loadIcon(QLatin1String("view-preview")), tr("Show Preview"));
+        m_showHideAttachment = m_menu->addAction(UiUtils::loadIcon(QLatin1String("view-preview")), tr("Show Preview"));
         m_showHideAttachment->setCheckable(true);
         m_showHideAttachment->setChecked(!m_contentWidget->isHidden());
         connect(m_showHideAttachment, SIGNAL(triggered(bool)), m_contentWidget, SLOT(setVisible(bool)));
         connect(m_showHideAttachment, SIGNAL(triggered()), this, SLOT(updateShowHideAttachmentState()));
     }
     if (partIndex.data(Imap::Mailbox::RolePartMimeType).toByteArray() == "message/rfc822") {
-        m_showSource = m_menu->addAction(loadIcon(QLatin1String("text-x-hex")), tr("Show Message Source"));
+        m_showSource = m_menu->addAction(UiUtils::loadIcon(QLatin1String("text-x-hex")), tr("Show Message Source"));
         connect(m_showSource, SIGNAL(triggered()), this, SLOT(showMessageSource()));
     }
 
@@ -126,15 +126,15 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
             // with a pixmap which shows something like a sheet of paper as the background. I find it rather dumb
             // to do this in the context of a MUA where attached messages are pretty common, which is why this special
             // case is in place. Comments welcome.
-            icon = loadIcon(QLatin1String("trojita"));
+            icon = UiUtils::loadIcon(QLatin1String("trojita"));
         } else {
             icon = QIcon::fromTheme(mimeType.iconName(),
-                                    QIcon::fromTheme(mimeType.genericIconName(), loadIcon(QLatin1String("mail-attachment")))
+                                    QIcon::fromTheme(mimeType.genericIconName(), UiUtils::loadIcon(QLatin1String("mail-attachment")))
                                     );
         }
         m_icon->setIcon(icon);
     } else {
-        m_icon->setIcon(loadIcon(QLatin1String("mail-attachment")));
+        m_icon->setIcon(UiUtils::loadIcon(QLatin1String("mail-attachment")));
     }
 
     layout->addWidget(m_icon);

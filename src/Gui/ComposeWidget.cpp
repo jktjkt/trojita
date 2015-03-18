@@ -51,7 +51,6 @@
 #include "Gui/AutoCompletion.h"
 #include "Gui/ComposeWidget.h"
 #include "Gui/FromAddressProxyModel.h"
-#include "Gui/IconLoader.h"
 #include "Gui/LineEdit.h"
 #include "Gui/OverlayWidget.h"
 #include "Gui/PasswordDialog.h"
@@ -66,6 +65,7 @@
 #include "Plugins/PluginManager.h"
 #include "ShortcutHandler/ShortcutHandler.h"
 #include "UiUtils/Color.h"
+#include "UiUtils/IconLoader.h"
 
 namespace
 {
@@ -139,11 +139,11 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_markAsReply->setExclusive(true);
     auto *asReplyMenu = new QMenu(m_markButton);
     m_markButton->setMenu(asReplyMenu);
-    m_actionStandalone = asReplyMenu->addAction(Gui::loadIcon(QLatin1String("mail-view-flat")), tr("New Thread"));
+    m_actionStandalone = asReplyMenu->addAction(UiUtils::loadIcon(QLatin1String("mail-view-flat")), tr("New Thread"));
     m_actionStandalone->setActionGroup(m_markAsReply);
     m_actionStandalone->setCheckable(true);
     m_actionStandalone->setToolTip(tr("This mail will be sent as a standalone message.<hr/>Change to preserve the reply hierarchy."));
-    m_actionInReplyTo = asReplyMenu->addAction(Gui::loadIcon(QLatin1String("mail-view-threaded")), tr("Threaded"));
+    m_actionInReplyTo = asReplyMenu->addAction(UiUtils::loadIcon(QLatin1String("mail-view-threaded")), tr("Threaded"));
     m_actionInReplyTo->setActionGroup(m_markAsReply);
     m_actionInReplyTo->setCheckable(true);
 
@@ -167,7 +167,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_replyModeActions = new QActionGroup(m_replyModeButton);
     m_replyModeActions->setExclusive(true);
 
-    m_actionHandPickedRecipients = new QAction(Gui::loadIcon(QLatin1String("document-edit")) ,QLatin1String("Hand Picked Recipients"), this);
+    m_actionHandPickedRecipients = new QAction(UiUtils::loadIcon(QLatin1String("document-edit")) ,QLatin1String("Hand Picked Recipients"), this);
     replyModeMenu->addAction(m_actionHandPickedRecipients);
     m_actionHandPickedRecipients->setActionGroup(m_replyModeActions);
     m_actionHandPickedRecipients->setCheckable(true);

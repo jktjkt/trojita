@@ -30,10 +30,10 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidgetAction>
-#include "IconLoader.h"
 #include "LineEdit.h"
 #include "MsgListView.h"
 #include "ReplaceCharValidator.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui {
 
@@ -65,7 +65,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_searchOptions->setAutoRaise(true);
     m_searchOptions->setPopupMode(QToolButton::InstantPopup);
     m_searchOptions->setText(QLatin1String("*"));
-    m_searchOptions->setIcon(loadIcon(QLatin1String("imap-search-details")));
+    m_searchOptions->setIcon(UiUtils::loadIcon(QLatin1String("imap-search-details")));
     QMenu *optionsMenu = new QMenu(m_searchOptions);
     m_searchFuzzy = optionsMenu->addAction(tr("Fuzzy Search"));
     m_searchFuzzy->setCheckable(true);

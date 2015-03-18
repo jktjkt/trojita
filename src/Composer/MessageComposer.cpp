@@ -32,11 +32,11 @@
 #include <QUuid>
 #include "Common/Application.h"
 #include "Composer/ComposerAttachments.h"
-#include "Gui/IconLoader.h"
 #include "Imap/Encoders.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
+#include "UiUtils/IconLoader.h"
 
 namespace {
     static QString xTrojitaAttachmentList = QLatin1String("application/x-trojita-attachments-list");
@@ -77,9 +77,9 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
         // is not trivial due to the way how the static libraries are currently built.
         QMimeType mimeType = QMimeDatabase().mimeTypeForName(QString::fromUtf8(m_attachments[index.row()]->mimeType()));
         if (mimeType.isValid() && !mimeType.isDefault()) {
-            return QIcon::fromTheme(mimeType.iconName(), Gui::loadIcon(QLatin1String("mail-attachment")));
+            return QIcon::fromTheme(mimeType.iconName(), UiUtils::loadIcon(QLatin1String("mail-attachment")));
         } else {
-            return Gui::loadIcon(QLatin1String("mail-attachment"));
+            return UiUtils::loadIcon(QLatin1String("mail-attachment"));
         }
     }
     case Imap::Mailbox::RoleAttachmentContentDispositionMode:

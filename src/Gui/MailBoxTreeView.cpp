@@ -25,7 +25,7 @@
 #include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QMenu>
-#include "IconLoader.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui {
 
@@ -76,9 +76,9 @@ void MailBoxTreeView::dropEvent(QDropEvent *event)
         event->setDropAction(Qt::MoveAction);
     } else {
         QMenu menu;
-        QAction *moveAction = menu.addAction(loadIcon(QLatin1String("go-jump")), tr("Move here\tShift"));
-        menu.addAction(loadIcon(QLatin1String("edit-copy")), tr("Copy here\tCtrl"));
-        QAction *cancelAction = menu.addAction(loadIcon(QLatin1String("process-stop")), tr("Cancel"));
+        QAction *moveAction = menu.addAction(UiUtils::loadIcon(QLatin1String("go-jump")), tr("Move here\tShift"));
+        menu.addAction(UiUtils::loadIcon(QLatin1String("edit-copy")), tr("Copy here\tCtrl"));
+        QAction *cancelAction = menu.addAction(UiUtils::loadIcon(QLatin1String("process-stop")), tr("Cancel"));
 
         QAction *selectedAction = menu.exec(QCursor::pos());
 

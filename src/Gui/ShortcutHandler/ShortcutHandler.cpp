@@ -25,10 +25,10 @@
 #include <QAction>
 #include <QSettings>
 
-#include "IconLoader.h"
 #include "ShortcutConfigDialog.h"
 #include "ShortcutConfigWidget.h"
 #include "Common/SettingsCategoryGuard.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui
 {
@@ -88,7 +88,7 @@ QAction *ShortcutHandler::createAction(const QString &actionName, QObject *recei
     QAction *action = new QAction(parent);
     action->setObjectName(actionName);
     if (!actionDescription.iconName.isEmpty()) {
-        action->setIcon(loadIcon(actionDescription.iconName));
+        action->setIcon(UiUtils::loadIcon(actionDescription.iconName));
     }
     action->setText(actionDescription.text);
     action->setShortcut(actionDescription.shortcut);
@@ -141,7 +141,7 @@ QAction *ShortcutHandler::shortcutConfigAction()
 {
     Q_ASSERT_X(!m_shortcutConfigWidget, "ShortcutHandler", "a shortcut configuration dialog and a shortcut configuration widget cannot exist at the same time in one application");
     if (!m_shortcutConfigAction) {
-        m_shortcutConfigAction = new QAction(loadIcon(QLatin1String("configure-shortcuts")), tr("Configure S&hortcuts..."), qobject_cast<QWidget*>(parent()));
+        m_shortcutConfigAction = new QAction(UiUtils::loadIcon(QLatin1String("configure-shortcuts")), tr("Configure S&hortcuts..."), qobject_cast<QWidget*>(parent()));
         QObject::connect(m_shortcutConfigAction, SIGNAL(triggered()), this, SLOT(openShortcutConfigDialog()));
     }
     return m_shortcutConfigAction;

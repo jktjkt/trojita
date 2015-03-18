@@ -26,9 +26,9 @@
 #include <QMessageBox>
 #include <QSettings>
 
-#include "IconLoader.h"
 #include "ShortcutHandler.h"
 #include "Common/SettingsCategoryGuard.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui
 {
@@ -127,7 +127,7 @@ void ShortcutConfigWidget::setActionDescriptions(const QHash<QString, ActionDesc
     ui.shortcutTreeWidget->clear();
     for (QHash<QString, ActionDescription>::const_iterator it = m_actionDescriptions.constBegin(); it != m_actionDescriptions.constEnd(); ++it) {
         ActionDescription actionDescription = it.value();
-        addItem(it.key(), actionDescription.text, actionDescription.shortcut, loadIcon(actionDescription.iconName), actionDescription.parentId);
+        addItem(it.key(), actionDescription.text, actionDescription.shortcut, UiUtils::loadIcon(actionDescription.iconName), actionDescription.parentId);
     }
     ui.shortcutTreeWidget->expandAll();
 }

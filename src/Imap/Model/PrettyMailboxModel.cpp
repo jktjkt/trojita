@@ -28,7 +28,7 @@
 #endif
 
 #include <QFont>
-#include "Gui/IconLoader.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Imap
 {
@@ -105,20 +105,20 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
     {
         QModelIndex translated = mapToSource(index);
         if (translated.data(RoleMailboxItemsAreLoading).toBool())
-            return Gui::loadIcon(QLatin1String("folder-grey"));
+            return UiUtils::loadIcon(QLatin1String("folder-grey"));
 #ifdef XTUPLE_CONNECT
         else if (QSettings().value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
                      translated.data(RoleMailboxName).toString()))
-            return Gui::loadIcon(QLatin1String("folder-xt-sync.png"));
+            return UiUtils::loadIcon(QLatin1String("folder-xt-sync.png"));
 #endif
         else if (translated.data(RoleMailboxIsINBOX).toBool())
-            return Gui::loadIcon(QLatin1String("mail-folder-inbox"));
+            return UiUtils::loadIcon(QLatin1String("mail-folder-inbox"));
         else if (translated.data(RoleRecentMessageCount).toInt() > 0)
-            return Gui::loadIcon(QLatin1String("folder-bookmark"));
+            return UiUtils::loadIcon(QLatin1String("folder-bookmark"));
         else if (translated.data(RoleMailboxIsSelectable).toBool())
-            return Gui::loadIcon(QLatin1String("folder"));
+            return UiUtils::loadIcon(QLatin1String("folder"));
         else
-            return Gui::loadIcon(QLatin1String("folder-open"));
+            return UiUtils::loadIcon(QLatin1String("folder-open"));
     }
     case Qt::ToolTipRole:
     {
