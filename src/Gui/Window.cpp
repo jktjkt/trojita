@@ -510,6 +510,33 @@ void MainWindow::createActions()
     m_mainToolbar->addAction(showMenuBar);
     m_mainToolbar->addAction(configSettings);
 
+    // Push the status indicators all the way to the other side of the toolbar -- either to the far right, or far bottom.
+    QWidget *toolbarSpacer = new QWidget(m_mainToolbar);
+    toolbarSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_mainToolbar->addWidget(toolbarSpacer);
+
+    m_mainToolbar->addSeparator();
+    networkIndicator = new QToolButton(this);
+    networkIndicator->setPopupMode(QToolButton::InstantPopup);
+    m_mainToolbar->addWidget(networkIndicator);
+
+    {
+        // Custom widgets which are added into a QToolBar are by default aligned to the left, while QActions are justified.
+        // That sucks, because some of our widgets use multiple actions with an expanding arrow at right.
+        // Make sure everything is aligned to the left, so that the actual buttons are aligned properly and the extra arrows
+        // are, well, at right.
+        // I have no idea how this works on RTL layouts.
+        QLayout *lay = m_mainToolbar->layout();
+        for (int i = 0; i < lay->count(); ++i) {
+            QLayoutItem *it = lay->itemAt(i);
+            if (it->widget() == toolbarSpacer) {
+                // Don't align this one, otherwise it won't push stuff when in horizontal direction
+                continue;
+            }
+            it->setAlignment(Qt::AlignLeft);
+        }
+    }
+
     updateMessageFlags();
 }
 
@@ -674,10 +701,6 @@ void MainWindow::createWidgets()
     menuShow = new QToolButton(this);
     statusBar()->addPermanentWidget(menuShow);
     menuShow->hide();
-
-    networkIndicator = new QToolButton(this);
-    networkIndicator->setPopupMode(QToolButton::InstantPopup);
-    statusBar()->addPermanentWidget(networkIndicator);
 }
 
 void MainWindow::setupModels()
