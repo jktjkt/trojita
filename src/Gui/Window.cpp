@@ -42,6 +42,7 @@
 #include <QTextDocument>
 #include <QToolBar>
 #include <QToolButton>
+#include <QToolTip>
 #include <QUrl>
 #include <QWheelEvent>
 
@@ -289,25 +290,14 @@ void MainWindow::createActions()
     showMenuBar->setCheckable(true);
     showMenuBar->setChecked(true);
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
-    connect(showMenuBar, SIGNAL(triggered(bool)), this, SLOT(updateMenuHidingButton()));
     connect(showMenuBar, SIGNAL(triggered(bool)), m_delayedStateSaving, SLOT(start()));
 
     showToolBar = new QAction(tr("Show &Toolbar"), this);
     showToolBar->setCheckable(true);
     showToolBar->setChecked(true);
-    // Ideally, we would like to reuse the original action in this context.
-    // However, that action is checkable, and we want a simple button toggle here.
-    // Let's just copy around the title and icon.
-    // We cannot set the shortcut because the original action is still enabled and handles Ctrl+M just fine.
-    menuShow->setText(showMenuBar->text());
-    menuShow->setIcon(showMenuBar->icon());
-    // Make sure that the button clearly shows what it's all about
-    menuShow->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     connect(showToolBar, SIGNAL(triggered(bool)), m_mainToolbar, SLOT(setVisible(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), showToolBar, SLOT(setChecked(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), m_delayedStateSaving, SLOT(start()));
-    connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), this, SLOT(updateMenuHidingButton()));
-    connect(menuShow, SIGNAL(clicked()), showMenuBar , SLOT(trigger()));
 
     configSettings = new QAction(UiUtils::loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
@@ -710,10 +700,6 @@ void MainWindow::createWidgets()
     addDockWidget(Qt::BottomDockWidgetArea, imapLoggerDock);
 
     busyParsersIndicator = new TaskProgressIndicator(this);
-
-    menuShow = new QToolButton(this);
-    statusBar()->addPermanentWidget(menuShow);
-    menuShow->hide();
 }
 
 void MainWindow::setupModels()
@@ -1131,7 +1117,7 @@ void MainWindow::networkPolicyOffline()
     netOnline->setChecked(false);
     netOffline->setChecked(true);
     updateActionsOnlineOffline(false);
-    statusBar()->showMessage(tr("Offline"), 0);
+    showStatusMessage(tr("Offline"));
 }
 
 void MainWindow::networkPolicyExpensive()
@@ -1153,7 +1139,6 @@ void MainWindow::networkPolicyOnline()
 /** @short Updates GUI about reconnection attempts */
 void MainWindow::slotReconnectAttemptScheduled(const int timeout)
 {
-    statusBar()->showMessage(tr("Attempting to reconnect in %n seconds..", 0, timeout/1000));
 }
 
 /** @short Deletes a network error message box instance upon resetting of reconnect state */
@@ -1681,30 +1666,16 @@ void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
 void MainWindow::showConnectionStatus(uint parserId, Imap::ConnectionState state)
 {
     Q_UNUSED(parserId);
-    using namespace Imap;
     QString message = connectionStateToString(state);
-    enum { DURATION = 10000 };
-    bool transient = false;
-
-    switch (state) {
-    case CONN_STATE_AUTHENTICATED:
-    case CONN_STATE_SELECTED:
-        transient = true;
-        break;
-    default:
-        // only the stuff above is transient
-        break;
-    }
-    statusBar()->showMessage(message, transient ? DURATION : 0);
+    showStatusMessage(message);
 }
 
 void MainWindow::slotShowLinkTarget(const QString &link)
 {
     if (link.isEmpty()) {
-        statusBar()->clearMessage();
+        QToolTip::hideText();
     } else {
-        //: target of a hyperlink from the currently visible e-mail that the mouse is pointing to
-        statusBar()->showMessage(tr("Link target: %1").arg(link));
+        QToolTip::showText(QCursor::pos(), tr("Link target: %1").arg(UiUtils::Formatting::htmlEscaped(link)));
     }
 }
 
@@ -2436,7 +2407,6 @@ void MainWindow::applySizesAndState()
         if (ok) {
             menuBar()->setVisible(visibility);
             showMenuBar->setChecked(visibility);
-            updateMenuHidingButton();
         }
     }
 
@@ -2472,11 +2442,6 @@ void MainWindow::enableLoggingToDisk()
     imapLogger->slotSetPersistentLogging(true);
 }
 
-void MainWindow::updateMenuHidingButton()
-{
-    menuShow->setVisible(!menuBar()->isVisibleTo(this) && !m_mainToolbar->isVisibleTo(this));
-}
-
 void MainWindow::slotPluginsChanged()
 {
     Plugins::AddressbookPlugin *addressbook = pluginManager()->addressbook();
@@ -2494,6 +2459,11 @@ void MainWindow::updateNetworkIndication()
             m_netToolbarDefaultAction->setIcon(action->icon());
         }
     }
+}
+
+void MainWindow::showStatusMessage(const QString &message)
+{
+    QToolTip::showText(networkIndicator->mapToGlobal(QPoint(0, 0)), message);
 }
 
 }
