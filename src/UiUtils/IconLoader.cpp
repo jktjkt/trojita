@@ -21,6 +21,7 @@
 */
 
 #include "IconLoader.h"
+#include <QFileInfo>
 
 namespace UiUtils {
 
@@ -37,6 +38,10 @@ namespace UiUtils {
  * */
 QIcon loadIcon(const QString &name)
 {
+    auto overrideIcon = QString(QLatin1String(":/icons/%1/%2.svg")).arg(QIcon::themeName(), name);
+    if (QFileInfo(overrideIcon).exists())
+        return QIcon(overrideIcon);
+
     // A QIcon(QString) constructor creates non-null QIcons, even though the resulting icon will
     // not ever return a valid and usable pixmap. This means that we have to actually look at the
     // icon's pixmap to find out what to return.
