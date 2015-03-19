@@ -46,6 +46,14 @@ QIcon loadIcon(const QString &name)
     if (QIcon::themeName().toLower() == QLatin1String("breeze")) {
         if (name == QLatin1String("mail-flagged")) {
             iconInTheme = QLatin1String("flag-yellow");
+        } else if (name == QLatin1String("folder-bookmark")) {
+            iconInTheme = QLatin1String("folder-blue");
+        } else if (name == QLatin1String("folder-open")) {
+            iconInTheme = QLatin1String("folder");
+        } else if (name == QLatin1String("mail-read")) {
+            iconInTheme = QLatin1String("mail-mark-read");
+        } else if (name == QLatin1String("mail-unread")) {
+            iconInTheme = QLatin1String("mail-mark-unread");
         }
     }
 
