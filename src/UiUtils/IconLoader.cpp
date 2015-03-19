@@ -42,12 +42,19 @@ QIcon loadIcon(const QString &name)
     if (QFileInfo(overrideIcon).exists())
         return QIcon(overrideIcon);
 
+    QString iconInTheme = name;
+    if (QIcon::themeName().toLower() == QLatin1String("breeze")) {
+        if (name == QLatin1String("mail-flagged")) {
+            iconInTheme = QLatin1String("flag-yellow");
+        }
+    }
+
     // A QIcon(QString) constructor creates non-null QIcons, even though the resulting icon will
     // not ever return a valid and usable pixmap. This means that we have to actually look at the
     // icon's pixmap to find out what to return.
     // If we do not do that, the GUI shows empty pixmaps instead of a text fallback, which is
     // clearly suboptimal.
-    QIcon res = QIcon::fromTheme(name, QIcon(QString::fromUtf8(":/icons/%1").arg(name)));
+    QIcon res = QIcon::fromTheme(iconInTheme, QIcon(QString::fromUtf8(":/icons/%1").arg(name)));
     if (res.pixmap(QSize(16, 16)).isNull()) {
         return QIcon();
     } else {
