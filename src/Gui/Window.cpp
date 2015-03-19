@@ -516,10 +516,14 @@ void MainWindow::createActions()
     m_mainToolbar->addWidget(toolbarSpacer);
 
     m_mainToolbar->addSeparator();
+    m_mainToolbar->addWidget(busyParsersIndicator);
+
     networkIndicator = new QToolButton(this);
     // This is deliberate; we want to show this button in the same style as the other ones in the toolbar
     networkIndicator->setPopupMode(QToolButton::MenuButtonPopup);
     m_mainToolbar->addWidget(networkIndicator);
+
+    busyParsersIndicator->setFixedSize(m_mainToolbar->iconSize());
 
     {
         // Custom widgets which are added into a QToolBar are by default aligned to the left, while QActions are justified.
@@ -532,6 +536,11 @@ void MainWindow::createActions()
             QLayoutItem *it = lay->itemAt(i);
             if (it->widget() == toolbarSpacer) {
                 // Don't align this one, otherwise it won't push stuff when in horizontal direction
+                continue;
+            }
+            if (it->widget() == busyParsersIndicator) {
+                // It looks much better when centered
+                it->setAlignment(Qt::AlignJustify);
                 continue;
             }
             it->setAlignment(Qt::AlignLeft);
@@ -701,8 +710,6 @@ void MainWindow::createWidgets()
     addDockWidget(Qt::BottomDockWidgetArea, imapLoggerDock);
 
     busyParsersIndicator = new TaskProgressIndicator(this);
-    statusBar()->addPermanentWidget(busyParsersIndicator);
-    busyParsersIndicator->hide();
 
     menuShow = new QToolButton(this);
     statusBar()->addPermanentWidget(menuShow);
