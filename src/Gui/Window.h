@@ -198,6 +198,7 @@ private slots:
     void saveRawStateSetting(bool enabled);
     void possiblyLoadMessageOnSplittersChanged();
     void updateMenuHidingButton();
+    void updateNetworkIndication();
 
     void desktopGeometryChanged();
 
@@ -265,6 +266,7 @@ private:
     QAction *netOffline;
     QAction *netExpensive;
     QAction *netOnline;
+    QAction *m_netToolbarDefaultAction;
     QAction *exitAction;
     QAction *showFullView;
     QAction *showTaskView;

@@ -517,7 +517,8 @@ void MainWindow::createActions()
 
     m_mainToolbar->addSeparator();
     networkIndicator = new QToolButton(this);
-    networkIndicator->setPopupMode(QToolButton::InstantPopup);
+    // This is deliberate; we want to show this button in the same style as the other ones in the toolbar
+    networkIndicator->setPopupMode(QToolButton::MenuButtonPopup);
     m_mainToolbar->addWidget(networkIndicator);
 
     {
@@ -625,7 +626,12 @@ void MainWindow::createMenus()
     ADD_ACTION(helpMenu, aboutTrojita);
 
     networkIndicator->setMenu(netPolicyMenu);
-    networkIndicator->setDefaultAction(netOnline);
+    m_netToolbarDefaultAction = new QAction(this);
+    networkIndicator->setDefaultAction(m_netToolbarDefaultAction);
+    connect(m_netToolbarDefaultAction, SIGNAL(triggered(bool)), networkIndicator, SLOT(showMenu()));
+    connect(netOffline, SIGNAL(toggled(bool)), this, SLOT(updateNetworkIndication()));
+    connect(netExpensive, SIGNAL(toggled(bool)), this, SLOT(updateNetworkIndication()));
+    connect(netOnline, SIGNAL(toggled(bool)), this, SLOT(updateNetworkIndication()));
 
 #undef ADD_ACTION
 }
@@ -1114,21 +1120,19 @@ void MainWindow::cacheError(const QString &message)
 
 void MainWindow::networkPolicyOffline()
 {
-    netOffline->setChecked(true);
     netExpensive->setChecked(false);
     netOnline->setChecked(false);
+    netOffline->setChecked(true);
     updateActionsOnlineOffline(false);
-    networkIndicator->setDefaultAction(netOffline);
     statusBar()->showMessage(tr("Offline"), 0);
 }
 
 void MainWindow::networkPolicyExpensive()
 {
     netOffline->setChecked(false);
-    netExpensive->setChecked(true);
     netOnline->setChecked(false);
+    netExpensive->setChecked(true);
     updateActionsOnlineOffline(true);
-    networkIndicator->setDefaultAction(netExpensive);
 }
 
 void MainWindow::networkPolicyOnline()
@@ -1137,7 +1141,6 @@ void MainWindow::networkPolicyOnline()
     netExpensive->setChecked(false);
     netOnline->setChecked(true);
     updateActionsOnlineOffline(true);
-    networkIndicator->setDefaultAction(netOnline);
 }
 
 /** @short Updates GUI about reconnection attempts */
@@ -2474,6 +2477,16 @@ void MainWindow::slotPluginsChanged()
         m_actionContactEditor->setEnabled(false);
     else
         m_actionContactEditor->setEnabled(true);
+}
+
+/** @short Update the default action to make sure that we show a correct status of the network connection */
+void MainWindow::updateNetworkIndication()
+{
+    if (QAction *action = qobject_cast<QAction*>(sender())) {
+        if (action->isChecked()) {
+            m_netToolbarDefaultAction->setIcon(action->icon());
+        }
+    }
 }
 
 }
