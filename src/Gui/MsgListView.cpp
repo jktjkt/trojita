@@ -121,6 +121,7 @@ int MsgListView::sizeHintForColumn(int column) const
     QFontMetrics metric(boldFont);
     switch (column) {
     case Imap::Mailbox::MsgListModel::SEEN:
+        return 0;
     case Imap::Mailbox::MsgListModel::FLAGGED:
     case Imap::Mailbox::MsgListModel::ATTACHMENT:
         return 16;
@@ -247,7 +248,7 @@ void MsgListView::slotFixSize()
     if (!m_autoResizeSections)
         return;
 
-    if (header()->visualIndex(Imap::Mailbox::MsgListModel::SEEN) == -1) {
+    if (header()->visualIndex(Imap::Mailbox::MsgListModel::SUBJECT) == -1) {
         // calling setResizeMode() would assert()
         return;
     }

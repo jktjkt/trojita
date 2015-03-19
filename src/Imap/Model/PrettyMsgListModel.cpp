@@ -142,16 +142,15 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                 return UiUtils::loadIcon(QLatin1String("mail-forwarded"));
             else if (translated.data(RoleMessageIsMarkedRecent).toBool())
                 return UiUtils::loadIcon(QLatin1String("mail-recent"));
+            else if (!translated.data(RoleMessageIsMarkedRead).toBool())
+                return UiUtils::loadIcon(QLatin1String("mail-unread"));
             else
-                return QIcon(QLatin1String(":/icons/transparent.png"));
+                return UiUtils::loadIcon(QLatin1String("mail-read"));
         }
         case MsgListModel::SEEN:
             if (! translated.data(RoleIsFetched).toBool())
                 return QVariant();
-            if (! translated.data(RoleMessageIsMarkedRead).toBool())
-                return UiUtils::loadIcon(QLatin1String("mail-unread"));
-            else
-                return UiUtils::loadIcon(QLatin1String("mail-read"));
+            break;
         case MsgListModel::FLAGGED:
             if (! translated.data(RoleIsFetched).toBool())
                 return QVariant();
