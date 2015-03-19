@@ -29,6 +29,7 @@
 #include <QFontMetrics>
 #include <QIcon>
 #include <QMimeData>
+#include "UiUtils/IconLoader.h"
 
 namespace Imap
 {
@@ -285,7 +286,7 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
 QVariant MsgListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DecorationRole && section == ATTACHMENT)
-        return QIcon(QLatin1String(":/icons/mail-attachment.png"));
+        return UiUtils::loadIcon(QLatin1String("mail-attachment"));
 
     if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
         return QAbstractItemModel::headerData(section, orientation, role);
