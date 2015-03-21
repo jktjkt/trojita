@@ -37,8 +37,17 @@ class Spinner : public QWidget {
     Q_OBJECT
 public:
     enum Type { Aperture = 0, Scythe, Elastic, Sun };
+    enum Context { Overlay = 0, Throbber };
     /** Providing a @p parent that is NOT Null is mandatory! */
     explicit Spinner(QWidget *parent);
+    /**
+     * Set the context. Throbber suits the needs of a small icon with opaque foreground.
+     * You might recall that browsers used to have such when loading webpages took minutes.
+     * Throbbers have the optional text as tooltip.
+     * The default context is "Overlay"
+     */
+    void setContext(const Context c);
+    Context context() const;
     /** The optional text */
     QString text() const;
     /** Set a type to control the look a bit */
@@ -81,6 +90,7 @@ private:
     int m_textCols;
     Type m_type;
     bool m_geometryDirty;
+    Context m_context;
 };
 
 } // namespace

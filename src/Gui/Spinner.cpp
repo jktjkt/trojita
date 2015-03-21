@@ -34,7 +34,8 @@
 using namespace Gui;
 
 Spinner::Spinner(QWidget *parent) : QWidget(parent), m_step(0), m_fadeStep(0), m_timer(0),
-                                    m_startTimer(0), m_textCols(0), m_type(Sun), m_geometryDirty(false)
+                                    m_startTimer(0), m_textCols(0), m_type(Sun),
+                                    m_geometryDirty(false), m_context(Overlay)
 {
     updateAncestors();
     hide();
@@ -58,11 +59,31 @@ void Spinner::setText(const QString &text)
         idx = text.indexOf(newLine, lidx);
     }
     m_textCols = qMax(m_textCols, text.length() - lidx);
+
+    if (m_context == Throbber)
+        setToolTip(text);
 }
 
 QString Spinner::text() const
 {
     return m_text;
+}
+
+void Spinner::setContext(const Context c)
+{
+    m_context = c;
+    if (m_context == Throbber) {
+        setToolTip(m_text);
+        show();
+    } else {
+        setToolTip(QString());
+    }
+    updateAncestors(); // Throbbers don't resize with their parents etc.
+}
+
+Spinner::Context Spinner::context() const
+{
+    return m_context;
 }
 
 void Spinner::setType(const Type t)
@@ -140,11 +161,17 @@ bool Spinner::eventFilter(QObject *o, QEvent *e)
 
 void Spinner::paintEvent(QPaintEvent *)
 {
+    if (!m_timer)
+        return; // w/o animation, we're just a spacer or hidden anyway.
+
     QColor c1(palette().color(backgroundRole())),
            c2(palette().color(foregroundRole()));
+
     const int a = c1.alpha();
-    c1.setAlpha(170); // 2/3
-    c2 = UiUtils::tintColor(c2, c1);
+    if (m_context == Overlay) {
+        c1.setAlpha(170); // 2/3
+        c2 = UiUtils::tintColor(c2, c1);
+    }
     c2.setAlpha(qAbs(m_fadeStep)*a/18);
 
     int startAngle(16*90), span(360*16); // full circle starting at 12 o'clock
@@ -225,7 +252,7 @@ void Spinner::paintEvent(QPaintEvent *)
 
     }
 
-    if (!m_text.isEmpty()) {
+    if (m_context == Overlay && !m_text.isEmpty()) {
         QFont fnt;
         if (fnt.pointSize() > -1) {
             fnt.setBold(true);
@@ -257,7 +284,8 @@ void Spinner::timerEvent(QTimerEvent *e)
         if (++m_step > 11)
             m_step = 0;
         if (m_fadeStep == -1) { // stop
-            hide();
+            if (m_context == Overlay)
+                hide();
             killTimer(m_timer);
             m_timer = 0;
             m_step = 0;
@@ -277,13 +305,15 @@ void Spinner::updateAncestors()
 
     m_ancestors.clear();
 
-    QWidget *w = this;
-    while ((w = w->parentWidget())) {
-        m_ancestors << w;
-        w->installEventFilter(this);
-        connect(w, SIGNAL(destroyed()), SLOT(updateAncestors()));
+    if (m_context == Overlay) {
+        QWidget *w = this;
+        while ((w = w->parentWidget())) {
+            m_ancestors << w;
+            w->installEventFilter(this);
+            connect(w, SIGNAL(destroyed()), SLOT(updateAncestors()));
+        }
+        updateGeometry();
     }
-    updateGeometry();
 }
 
 void Spinner::updateGeometry()
@@ -292,6 +322,8 @@ void Spinner::updateGeometry()
         m_geometryDirty = true;
         return;
     }
+    if (m_ancestors.isEmpty())
+        return; // valid for Throbbers
     QRect visibleRect(m_ancestors.last()->rect());
     QPoint offset;
     for (int i = m_ancestors.count() - 2; i > -1; --i) {
