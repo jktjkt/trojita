@@ -54,6 +54,7 @@
 #include "MSA/Account.h"
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginManager.h"
+#include "UiUtils/IconLoader.h"
 #include "UiUtils/PasswordWatcher.h"
 
 namespace Gui
@@ -244,8 +245,8 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     Q_ASSERT(m_identitiesModel);
     editButton->setEnabled(false);
     deleteButton->setEnabled(false);
-    moveUpButton->setIcon(QIcon::fromTheme(QLatin1String("go-up"), QIcon(QLatin1String(":/icons/arrow-up.png"))));
-    moveDownButton->setIcon(QIcon::fromTheme(QLatin1String("go-down"), QIcon(QLatin1String(":/icons/arrow-down.png"))));
+    moveUpButton->setIcon(UiUtils::loadIcon(QLatin1String("go-up")));
+    moveDownButton->setIcon(UiUtils::loadIcon(QLatin1String("go-down")));
     moveUpButton->setEnabled(false);
     moveDownButton->setEnabled(false);
     identityTabelView->setModel(m_identitiesModel);

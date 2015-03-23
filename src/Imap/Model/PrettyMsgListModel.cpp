@@ -142,26 +142,25 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                 return UiUtils::loadIcon(QLatin1String("mail-forwarded"));
             else if (translated.data(RoleMessageIsMarkedRecent).toBool())
                 return UiUtils::loadIcon(QLatin1String("mail-recent"));
+            else if (!translated.data(RoleMessageIsMarkedRead).toBool())
+                return UiUtils::loadIcon(QLatin1String("mail-unread"));
             else
-                return QIcon(QLatin1String(":/icons/transparent.png"));
+                return UiUtils::loadIcon(QLatin1String("mail-read"));
         }
         case MsgListModel::SEEN:
             if (! translated.data(RoleIsFetched).toBool())
                 return QVariant();
-            if (! translated.data(RoleMessageIsMarkedRead).toBool())
-                return QIcon(QLatin1String(":/icons/mail-unread.png"));
-            else
-                return QIcon(QLatin1String(":/icons/mail-read.png"));
+            break;
         case MsgListModel::FLAGGED:
             if (! translated.data(RoleIsFetched).toBool())
                 return QVariant();
             if (translated.data(RoleMessageIsMarkedFlagged).toBool())
-                return QIcon(QLatin1String(":/icons/mail-flagged.png"));
+                return UiUtils::loadIcon(QLatin1String("mail-flagged"));
             else
-                return QIcon(QLatin1String(":/icons/mail-unflagged.png"));
+                return UiUtils::loadIcon(QLatin1String("mail-unflagged"));
         case MsgListModel::ATTACHMENT:
             if (translated.data(RoleMessageHasAttachments).toBool())
-                return QIcon(QLatin1String(":/icons/mail-attachment.png"));
+                return UiUtils::loadIcon(QLatin1String("mail-attachment"));
             else
                 return QVariant();
         default:

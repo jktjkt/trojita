@@ -49,5 +49,9 @@
         <file>icons/mail-flagged.png</file>
         <file>icons/mail-unflagged.png</file>
         <file>icons/mail-forward.png</file>
+        <file>icons/breeze/mail-reply-sender.svg</file>
+        <file>icons/breeze/mail-reply-list.svg</file>
+        <file>icons/breeze/mail-reply-all.svg</file>
+        <file>icons/breeze/mail-forward.svg</file>
     </qresource>
 </RCC>

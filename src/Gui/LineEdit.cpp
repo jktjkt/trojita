@@ -18,6 +18,7 @@
 #include <QToolButton>
 #include <QStyle>
 #include "Common/InvokeMethod.h"
+#include "UiUtils/IconLoader.h"
 
 LineEdit::LineEdit(const QString &text, QWidget *parent)
     : QLineEdit(parent), m_historyEnabled(false), m_historyPosition(0)
@@ -35,9 +36,7 @@ LineEdit::LineEdit(QWidget *parent)
 void LineEdit::init()
 {
     m_clearButton = new QToolButton(this);
-    const QPixmap pixmap(QLatin1String(":/icons/edit-clear-locationbar-rtl.png"));
-    m_clearButton->setIcon(QIcon(pixmap));
-    m_clearButton->setIconSize(pixmap.size());
+    m_clearButton->setIcon(UiUtils::loadIcon(QLatin1String("edit-clear-locationbar")));
     m_clearButton->setCursor(Qt::ArrowCursor);
     m_clearButton->setToolTip(tr("Clear input field"));
     m_clearButton->setFocusPolicy(Qt::NoFocus);
