@@ -77,19 +77,19 @@ QString Formatting::prettyDate(const QDateTime &dateTime)
         // also periodically emit dataChanged() in order to force a wrap once the view has been open for too long, but that will
         // have to wait a bit.
         // The time is displayed without seconds to conserve space as well.
-        //: please do not translate the format specifier (you can change their order
-        //: or the separator to follow the local conventions)
-        return dateTime.time().toString(tr("hh:mm"));
+        return dateTime.time().toString(tr("hh:mm", "Please do not translate the format specifiers. "
+            "You can change their order or the separator to follow the local conventions. "
+            "For valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"));
     } else if (dateTime > now.addDays(-7)) {
         // Messages from the last seven days can be formatted just with the weekday name
-        //: please do not translate the format specifier (you can change their order
-        //: or the separator to follow the local conventions)
-        return dateTime.toString(tr("ddd hh:mm"));
+        return dateTime.toString(tr("ddd hh:mm", "Please do not translate the format specifiers. "
+            "You can change their order or the separator to follow the local conventions. "
+            "For valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"));
     } else if (dateTime > now.addYears(-1)) {
         // Messages newer than one year don't have to show year
-        //: please do not translate the format specifier (you can change their order
-        //: or the separator to follow the local conventions)
-        return dateTime.toString(tr("d MMM hh:mm"));
+        return dateTime.toString(tr("d MMM hh:mm", "Please do not translate the format specifiers. "
+            "You can change their order or the separator to follow the local conventions. "
+            "For valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"));
     } else {
         // Old messagees shall have a full date
         return dateTime.toString(Qt::DefaultLocaleShortDate);

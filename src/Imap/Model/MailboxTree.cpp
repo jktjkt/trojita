@@ -1120,9 +1120,10 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         if (beforeDays >= 0 && beforeDays < 7)
             return Model::tr("Last Week");
 
-        //: The format specifiers (yyyy, etc) must not be translated, but
-        //: their order can be changed to follow the local conventions
-        return QDate(timestamp.date().year(), timestamp.date().month(), 1).toString(Model::tr("MMMM yyyy"));
+        return QDate(timestamp.date().year(), timestamp.date().month(), 1).toString(
+            Model::tr("MMMM yyyy", "The format specifiers (yyyy, etc) must not be translated, "
+                      "but their order can be changed to follow the local conventions. "
+                      "For valid specifiers see http://doc.qt.io/qt-5/qdate.html#toString"));
     }
     case RoleMessageWasUnread:
         return m_wasUnread;
