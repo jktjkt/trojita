@@ -49,7 +49,8 @@ static QDBusInterface &interface()
 
 bool isRunning()
 {
-    return QDBusConnection::sessionBus().interface()->isServiceRegistered(service());
+    return QDBusConnection::sessionBus().isConnected() &&
+        QDBusConnection::sessionBus().interface()->isServiceRegistered(service());
 }
 
 void showMainWindow()
