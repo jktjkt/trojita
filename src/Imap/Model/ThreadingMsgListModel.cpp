@@ -479,6 +479,9 @@ void ThreadingMsgListModel::updateNoThreading()
         TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(firstMessagePtr->parent());
         Q_ASSERT(list);
 
+        newThreading.reserve(upstreamMessages);
+        newPtrToInternal.reserve(upstreamMessages);
+
         for (int i = 0; i < upstreamMessages; ++i) {
             TreeItemMessage *ptr = static_cast<TreeItemMessage*>(list->m_children[i]);
             Q_ASSERT(ptr);
