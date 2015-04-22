@@ -31,6 +31,11 @@
 #include "MsgListModel.h"
 #include "QAIM_reset.h"
 
+namespace {
+    /** @short Preallocate a bit more space in the hashmaps for future new arrivals */
+    const int headroomForNewmessages = 1000;
+}
+
 #if 0
 namespace
 {
@@ -479,6 +484,9 @@ void ThreadingMsgListModel::updateNoThreading()
         TreeItemMsgList *list = dynamic_cast<TreeItemMsgList *>(firstMessagePtr->parent());
         Q_ASSERT(list);
 
+        newThreading.reserve(upstreamMessages + headroomForNewmessages);
+        newPtrToInternal.reserve(upstreamMessages + headroomForNewmessages);
+
         for (int i = 0; i < upstreamMessages; ++i) {
             TreeItemMessage *ptr = static_cast<TreeItemMessage*>(list->m_children[i]);
             Q_ASSERT(ptr);
@@ -879,7 +887,7 @@ void ThreadingMsgListModel::calculateNullSort()
 {
     m_currentSortResult.clear();
 #if QT_VERSION >= 0x040700
-    m_currentSortResult.reserve(threadedRootIds.size());
+    m_currentSortResult.reserve(threadedRootIds.size() + headroomForNewmessages);
 #endif
     Q_FOREACH(const uint internalId, threadedRootIds) {
         QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(internalId);
@@ -914,9 +922,9 @@ void ThreadingMsgListModel::applyThreading(const QVector<Imap::Responses::Thread
     int upstreamMessages = sourceModel()->rowCount();
     QHash<uint,void *> uidToPtrCache;
     QSet<uint> usedNodes;
-    uidToPtrCache.reserve(upstreamMessages);
-    threading.reserve(upstreamMessages);
-    ptrToInternal.reserve(upstreamMessages);
+    uidToPtrCache.reserve(upstreamMessages + headroomForNewmessages);
+    threading.reserve(upstreamMessages + headroomForNewmessages);
+    ptrToInternal.reserve(upstreamMessages + headroomForNewmessages);
 
     if (upstreamMessages) {
         // Work with pointers instead going through the MVC API for performance.
@@ -1391,7 +1399,7 @@ void ThreadingMsgListModel::applySort()
     QSet<uint> newlyUnreachable(threading[0].children.toSet());
     threading[0].children.clear();
 #if QT_VERSION >= 0x040700
-    threading[0].children.reserve(m_currentSortResult.size());
+    threading[0].children.reserve(m_currentSortResult.size() + headroomForNewmessages);
 #endif
 
     QSet<uint> allRootIds(threadedRootIds.toSet());
