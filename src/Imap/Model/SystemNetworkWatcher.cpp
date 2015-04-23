@@ -174,10 +174,16 @@ void SystemNetworkWatcher::networkConfigurationChanged(const QNetworkConfigurati
 {
     bool reconnect = false;
 
-    if (conf == sessionsActiveConfiguration() && !conf.state().testFlag(QNetworkConfiguration::Active)) {
-        // Change of the "session's own configuration" -- perhaps it is no longer available
+    if (conf == sessionsActiveConfiguration() && !conf.state().testFlag(QNetworkConfiguration::Active) &&
+            conf != m_netConfManager->defaultConfiguration() && m_netConfManager->defaultConfiguration().isValid()) {
+        // Change of the "session's own configuration" which is not a default config of the system (anymore?), and the new default
+        // is something valid.
+        // I'm seeing (Qt 5.5-git, Linux, NetworkManager,...) quite a few of these as false positives on a random hotel WiFi.
+        // Let's prevent a ton of useless reconnects here by only handling this if the system now believes that a default session
+        // is something else.
         m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
-                          QString::fromUtf8("Change of configuration of the current session"));
+                          QString::fromUtf8("Change of configuration of the current session (%1); current default session is %2")
+                          .arg(conf.name(), m_netConfManager->defaultConfiguration().name()));
         reconnect = true;
     } else if (conf.state().testFlag(QNetworkConfiguration::Active) && conf.type() == QNetworkConfiguration::InternetAccessPoint &&
                conf != sessionsActiveConfiguration() && conf == m_netConfManager->defaultConfiguration()) {
