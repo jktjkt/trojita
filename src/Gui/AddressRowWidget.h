@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2015 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -19,10 +19,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef GUI_ENVELOPEVIEW_H
-#define GUI_ENVELOPEVIEW_H
+#ifndef GUI_ADDRESSROWWIDGET_H
+#define GUI_ADDRESSROWWIDGET_H
 
-#include <QModelIndex>
 #include <QWidget>
 
 namespace Imap {
@@ -36,25 +35,17 @@ namespace Gui {
 class MessageView;
 
 /** @short Widget displaying the message envelope */
-class EnvelopeView : public QWidget
+class AddressRowWidget : public QWidget
 {
     Q_OBJECT
 public:
-    EnvelopeView(QWidget *parent, MessageView *messageView);
-
-    void setMessage(const QModelIndex &index);
+    AddressRowWidget(QWidget *parent, const QString &headerName, const QList<Imap::Message::MailAddress> &addresses, MessageView *messageView);
 
 private:
-    QString headerText(const QModelIndex &index);
-
-    QString htmlizeAddresses(const QList<Imap::Message::MailAddress> &addresses);
-
-    MessageView *m_messageView;
-
-    EnvelopeView(const EnvelopeView &); // don't implement
-    EnvelopeView &operator=(const EnvelopeView &); // don't implement
+    AddressRowWidget(const AddressRowWidget &) = delete;
+    AddressRowWidget &operator=(const AddressRowWidget &) = delete;
 };
 
 }
 
-#endif // GUI_ENVELOPEVIEW_H
+#endif

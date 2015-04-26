@@ -408,6 +408,7 @@ endif()
 
 set(path_DesktopGui ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui)
 set(libDesktopGui_SOURCES
+    ${path_DesktopGui}/AddressRowWidget.cpp
     ${path_DesktopGui}/AttachmentView.cpp
     ${path_DesktopGui}/AutoCompletion.cpp
     ${path_DesktopGui}/CompleteMessageWidget.cpp
@@ -428,6 +429,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/MessageView.cpp
     ${path_DesktopGui}/MsgListView.cpp
     ${path_DesktopGui}/OnePanelAtTimeWidget.cpp
+    ${path_DesktopGui}/OneEnvelopeAddress.cpp
     ${path_DesktopGui}/OverlayWidget.cpp
     ${path_DesktopGui}/PartWalker.cpp
     ${path_DesktopGui}/PartWidget.cpp
