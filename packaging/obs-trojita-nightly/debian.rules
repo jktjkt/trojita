@@ -30,7 +30,6 @@ override_dh_auto_install:
 	echo "usr/bin/be.contacts" >> debian/trojita.install
 	echo "usr/share/applications/trojita.desktop" >> debian/trojita.install
 	echo "usr/share/icons/hicolor/*/apps/*" >> debian/trojita.install
-	echo "usr/share/trojita/locale/trojita_common_*.qm" >> debian/trojita.install
 	echo "usr/share/appdata/trojita.appdata.xml" >> debian/trojita.install
 
 ifndef DEB_HOST_MULTIARCH
@@ -40,6 +39,6 @@ else
 	echo "usr/lib/*/libtrojita_plugins.so*" >> debian/trojita.install
 	echo "usr/lib/*/trojita/trojita_plugin_QtKeychainPasswordPlugin.so*" > debian/trojita-plugin-qtkeychain.install
 endif
-	mv debian/trojita{,-nightly}.install
-	mv debian/trojita{,-nightly}-plugin-qtkeychain.install
+	mv debian/trojita.install debian/trojita-nightly.install
+	mv debian/trojita-plugin-qtkeychain.install debian/trojita-nightly-plugin-qtkeychain.install
 	dh_auto_install
