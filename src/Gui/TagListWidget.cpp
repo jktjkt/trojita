@@ -30,9 +30,7 @@ TagListWidget::TagListWidget(QWidget *parent) :
     addButton = new TagWidget(QLatin1String("+"));
     connect(addButton, SIGNAL(clicked()), this, SLOT(newTagRequested()));
 
-    QLabel *lbl = new QLabel(tr("<b>Tags:</b>"));
-    lbl->setIndent(5);
-    parentLayout->addWidget(lbl);
+    parentLayout->addWidget(new QLabel(tr("<b>Tags:</b>")));
     parentLayout->addWidget(addButton);
 
     m_ignoredFlags.insert(QLatin1String("\\seen"));

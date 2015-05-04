@@ -117,6 +117,7 @@ MessageView::MessageView(QWidget *parent, QSettings *settings): QWidget(parent),
 
     // layout the header
     layout = new QVBoxLayout(headerSection);
+    layout->setSpacing(0);
     layout->addWidget(m_envelope, 1);
     layout->addWidget(tags, 3);
     layout->addWidget(externalElements, 1);
