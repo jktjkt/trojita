@@ -177,6 +177,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     contentLayout->addLayout(layout);
     if (m_contentWidget) {
         contentLayout->addWidget(m_contentWidget);
+        m_contentWidget->setCursor(Qt::ArrowCursor);
     }
 
     updateShowHideAttachmentState();
