@@ -1802,10 +1802,15 @@ TreeItemPartMultipartMessage::~TreeItemPartMultipartMessage()
 /** @short Overridden from TreeItemPart::data with added support for RoleMessageEnvelope */
 QVariant TreeItemPartMultipartMessage::data(Model * const model, int role)
 {
-    if (role == RoleMessageEnvelope) {
-        fetch(model);
+    switch (role) {
+    case RoleMessageEnvelope:
         return QVariant::fromValue<Message::Envelope>(m_envelope);
-    } else {
+    case RoleMessageHeaderReferences:
+    case RoleMessageHeaderListPost:
+    case RoleMessageHeaderListPostNo:
+        // FIXME: implement me; TreeItemPart has no path for this
+        return QVariant();
+    default:
         return TreeItemPart::data(model, role);
     }
 }
