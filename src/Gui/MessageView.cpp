@@ -448,6 +448,7 @@ void MessageView::partContextMenuRequested(const QPoint &point)
         QMenu menu(w);
         Q_FOREACH(QAction *action, w->contextMenuSpecificActions())
             menu.addAction(action);
+        menu.addAction(w->pageAction(QWebPage::Copy));
         menu.addAction(w->pageAction(QWebPage::SelectAll));
         if (!w->page()->mainFrame()->hitTestContent(point).linkUrl().isEmpty()) {
             menu.addSeparator();
