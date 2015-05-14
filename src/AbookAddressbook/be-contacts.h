@@ -42,12 +42,12 @@ namespace Gui {
 class AbookAddressbook;
 }
 
-#include <QDialog>
+#include <QWidget>
 #include <QPixmap>
 
 namespace BE {
     class Field;
-    class Contacts : public QDialog {
+    class Contacts : public QWidget {
         Q_OBJECT
     public:
         explicit Contacts(Gui::AbookAddressbook *abook);
