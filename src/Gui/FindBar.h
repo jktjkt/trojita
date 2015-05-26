@@ -63,6 +63,7 @@ private slots:
     void findNext();
     void findPrevious();
     void updateHighlight();
+    void resetAssociatedWebView();
 
 signals:
     void searchString(const QString &);

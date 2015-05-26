@@ -135,6 +135,12 @@ bool FindBar::highlightAllState() const
     return m_highlightAll->isChecked();
 }
 
+void FindBar::resetAssociatedWebView()
+{
+    m_associatedWebView = nullptr;
+    m_lineEdit->clear();
+    QWidget::hide();
+}
 
 void FindBar::setVisible(bool visible)
 {
@@ -183,6 +189,8 @@ void FindBar::notifyMatch(bool match)
 
 void FindBar::find(const QString & search)
 {
+    if (!m_associatedWebView)
+        return;
     _lastStringSearched = search;
     updateHighlight();
     findNext();
@@ -304,7 +312,8 @@ void FindBar::setAssociatedWebView(EmbeddedWebView *webView)
         // highlighting is fancy, but terribly expensive - disable by default for fat messages
         m_highlightAll->setChecked(!m_associatedWebView->staticWidth());
         // Automatically hide this FindBar widget when the underlying webview goes away
-        connect(m_associatedWebView, SIGNAL(destroyed(QObject*)), this, SLOT(hide()));
+        connect(m_associatedWebView, SIGNAL(destroyed(QObject*)),
+                this, SLOT(resetAssociatedWebView()));
     }
 }
 
