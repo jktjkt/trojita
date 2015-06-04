@@ -78,9 +78,11 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
                 break;
             }
             QVariantList items = translated.data(backendRole).toList();
-            return Imap::Message::MailAddress::prettyList(items, role == Qt::DisplayRole ?
-                    Imap::Message::MailAddress::FORMAT_JUST_NAME :
-                    Imap::Message::MailAddress::FORMAT_READABLE);
+            if (role == Qt::DisplayRole) {
+                return Imap::Message::MailAddress::prettyList(items, Imap::Message::MailAddress::FORMAT_JUST_NAME);
+            } else {
+                return UiUtils::Formatting::htmlEscaped(Imap::Message::MailAddress::prettyList(items, Imap::Message::MailAddress::FORMAT_READABLE));
+            }
         }
         case MsgListModel::DATE:
         case MsgListModel::RECEIVED_DATE:
@@ -105,6 +107,9 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             if (!translated.data(RoleIsFetched).toBool())
                 return tr("Loading...");
             QString subject = translated.data(RoleMessageSubject).toString();
+            if (role == Qt::ToolTipRole) {
+                subject = UiUtils::Formatting::htmlEscaped(subject);
+            }
             return subject.isEmpty() ? tr("(no subject)") : subject;
         }
         }

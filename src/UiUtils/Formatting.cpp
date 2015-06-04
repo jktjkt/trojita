@@ -207,6 +207,23 @@ void Formatting::formatSslState(const QList<QSslCertificate> &sslChain, const QB
     }
 }
 
+/** @short Input formatted as HTML with proper escaping and forced to be detected as HTML */
+QString Formatting::htmlEscaped(const QString &input)
+{
+    if (input.isEmpty())
+        return QString();
+
+    QString res;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    res = input.toHtmlEscaped();
+#else
+    res = Qt::escape(input);
+#endif
+
+    // HTML entities are escaped, but not auto-detected as HTML
+    return QLatin1String("<span>") + res + QLatin1String("</span>");
+}
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 QObject *Formatting::factory(QQmlEngine *engine, QJSEngine *scriptEngine)
 {

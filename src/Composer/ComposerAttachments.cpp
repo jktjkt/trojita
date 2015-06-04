@@ -141,8 +141,12 @@ QString FileAttachmentItem::tooltip() const
     if (!f.isReadable())
         return MessageComposer::tr("File is not readable");
 
-    return MessageComposer::tr("%1: %2, %3")
-            .arg(fileName, QString::fromUtf8(mimeType()), UiUtils::Formatting::prettySize(f.size(), UiUtils::Formatting::BytesSuffix::WITH_BYTES_SUFFIX));
+    return UiUtils::Formatting::htmlEscaped(
+                MessageComposer::tr("%1: %2, %3").arg(
+                    fileName,
+                    QString::fromUtf8(mimeType()),
+                    UiUtils::Formatting::prettySize(f.size(), UiUtils::Formatting::BytesSuffix::WITH_BYTES_SUFFIX)
+                    ));
 }
 
 bool FileAttachmentItem::isAvailableLocally() const

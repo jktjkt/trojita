@@ -28,6 +28,7 @@
 #endif
 
 #include <QFont>
+#include "UiUtils/Formatting.h"
 #include "UiUtils/IconLoader.h"
 
 namespace Imap
@@ -123,10 +124,11 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
     case Qt::ToolTipRole:
     {
         QModelIndex translated = mapToSource(index);
-        return QString(QLatin1String("<p>%1</p>\n<p>%2<br/>%3<br/>%4</p>")).arg(translated.data(RoleShortMailboxName).toString(),
-                                                 tr("%n messages", 0, translated.data(RoleTotalMessageCount).toInt()),
-                                                 tr("%n unread", 0, translated.data(RoleUnreadMessageCount).toInt()),
-                                                 tr("%n recent", 0, translated.data(RoleRecentMessageCount).toInt()));
+        return QString(QLatin1String("<p>%1</p>\n<p>%2<br/>%3<br/>%4</p>")).arg(
+                    UiUtils::Formatting::htmlEscaped(translated.data(RoleShortMailboxName).toString()),
+                    tr("%n messages", 0, translated.data(RoleTotalMessageCount).toInt()),
+                    tr("%n unread", 0, translated.data(RoleUnreadMessageCount).toInt()),
+                    tr("%n recent", 0, translated.data(RoleRecentMessageCount).toInt()));
     }
     default:
         return QSortFilterProxyModel::data(index, role);

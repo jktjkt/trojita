@@ -28,6 +28,7 @@
 #include "Imap/Encoders.h"
 #include "Imap/Parser/Rfc5322HeaderParser.h"
 #include "Imap/Tasks/KeepMailboxOpenTask.h"
+#include "UiUtils/Formatting.h"
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "Model.h"
@@ -1153,7 +1154,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
             QString buf;
             QTextStream stream(&buf);
             stream << data()->m_envelope;
-            return buf;
+            return UiUtils::Formatting::htmlEscaped(buf);
         } else {
             return QVariant();
         }

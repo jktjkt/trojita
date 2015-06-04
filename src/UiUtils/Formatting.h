@@ -69,6 +69,8 @@ public:
 
     static QString htmlHexifyByteArray(const QByteArray &rawInput);
 
+    static QString htmlEscaped(const QString &input);
+
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     static QObject *factory(QQmlEngine *engine, QJSEngine *scriptEngine);
 #endif
