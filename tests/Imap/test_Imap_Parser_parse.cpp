@@ -845,9 +845,6 @@ void ImapParserParseTest::testParseUntagged_data()
                           "(\"MESSAGE\" \"RFC822\" NIL NIL NIL \"7BIT\" 50785 NIL (\"ATTACHMENT\" NIL) NIL) "
                           "\"MIXED\" (\"BOUNDARY\" \"----=_NextPart_000_0077_01CBB179.57530990\") NIL NIL))\r\n")
             << QSharedPointer<AbstractResponse>( new Fetch( 6116, fetchData ) );
-#if 0
-
-#endif
 
     fetchData.clear();
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(42463));
