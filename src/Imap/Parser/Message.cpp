@@ -344,12 +344,21 @@ AbstractMessage::bodyFldDsp_t AbstractMessage::makeBodyFldDsp(const QVariant &in
         throw UnexpectedHere("body-fld-dsp: not a list / nil", line, start);
     }
     QVariantList list = input.toList();
-    if (list.size() != 2)
-        throw ParseError("body-fld-dsp: wrong number of entries in the list", line, start);
-    if (list[0].type() != QVariant::ByteArray)
+
+    if (list.size() < 1) {
+        throw ParseError("body-fld-dsp: empty list is not allowed", line, start);
+    }
+    if (list[0].type() != QVariant::ByteArray) {
         throw UnexpectedHere("body-fld-dsp: first item is not a string", line, start);
+    }
     res.first = list[0].toByteArray();
-    res.second = makeBodyFldParam(list[1], line, start);
+    if (list.size() > 2) {
+        throw ParseError("body-fld-dsp: too many items in the list", line, start);
+    } else if (list.size() == 2) {
+        res.second = makeBodyFldParam(list[1], line, start);
+    } else {
+        qDebug() << "IMAP Parser warning: body-fld-dsp: second item not present, ignoring";
+    }
     return res;
 }
 

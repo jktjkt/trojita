@@ -782,6 +782,17 @@ void ImapParserParseTest::testParseUntagged_data()
                           "\"alternative\" (\"boundary\" \"=_1234\") \"random@exchange!crap!goes!here!\" NIL))\r\n")
             << QSharedPointer<AbstractResponse>(new Fetch(1, fetchData));
 
+    fetchData.clear();
+    bodyFldParam.clear();
+    bodyFldDsp = AbstractMessage::bodyFldDsp_t();
+    bodyFldDsp.first = "inline";
+    bodyFldParam["CHARSET"] = "utf-8";
+    fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(
+                new TextMessage("text", "html", bodyFldParam, QByteArray(), QByteArray(), "quoted-printable", 4848,
+                                QByteArray(), bodyFldDsp, QList<QByteArray>(), QByteArray(), QVariant(), 25));
+    QTest::newRow("fetch-body-fld-dsp-inline-citadel")
+            << QByteArray("* 12 FETCH (BODYSTRUCTURE (\"text\" \"html\" (\"CHARSET\" \"utf-8\") NIL NIL \"quoted-printable\" 4848 25 NIL (\"inline\") NIL))\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(12, fetchData));
 
     // GMail and its flawed representation of a nested message/rfc822
     fetchData.clear();
