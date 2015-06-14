@@ -110,7 +110,7 @@ void parseRFC6068Mailto(const QUrl &url, QString &subject, QString &body,
         } else if (items[i].first.toLower() == "subject") {
             subject = fromRFC2047PercentEncoding(items[i].second);
         } else if (items[i].first.toLower() == "body") {
-            // RFC 6080: Body does not contain MIME encoded words
+            // RFC 6068: Body does not contain MIME encoded words
             body = QUrl::fromPercentEncoding(items[i].second);
         } else if (items[i].first.toLower() == "in-reply-to") {
             inReplyTo << arrayListFromPercentEncoding(items[i].second);
