@@ -63,6 +63,7 @@
     <p xml:lang="en-GB">Trojitá is an email program ("client") specialised in giving fast and efficient access to mailboxes over the IMAP protocol. An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.</p>
     <p xml:lang="es">Trojitá es un programa de correo electrónico («cliente») especializado en dar un acceso rápido y eficiente a los buzones de correo sobre el protocolo IMAP. Un servidor de correo IMAP almacena los mensajes y permite a los clientes extraerlos en un sistema local cuando se le pida.</p>
     <p xml:lang="fi">Trojitá on sähköpostiohjelma (”-asiakas”), joka on erikoistunut nopeaan ja tehokkaaseen IMAP-yhteyskäytännön yli tapahtuvaan käyttöön. IMAP-postipalvelin tallentaa viestit ja antaa asiakkaiden noutaa viestejä paikalliselle tietokoneelle pyydettäessä.</p>
+    <p xml:lang="gl">Trojitá é un programa de correo electrónico ("cliente") especializado en fornecer acceso rápido e eficiente a caixas de correo mediante o protocolo IMAP. Os servidores de correo de IMAP almacenan mensaxes e permiten que os clientes obteñas as mensaxes cando as solicitan.</p>
     <p xml:lang="it">Trojitá è un programma di posta elettronica («client») specializzato nel fornire, tramite protocollo IMAP, un accesso rapido ed efficiente alle caselle di posta. Un server di posta IMAP conserva i messaggi e permette ai client di scaricare, a richiesta, i messaggi nel computer locale.</p>
     <p xml:lang="nl">Trojitá is een e-mailprogramma ("client") gespecialiseerd in het geven van snelle en efficiënte toegang tot e-mailboxen over het IMAP-protocol. Een IMAP-e-mailserver slaat berichten op en biedt clients de mogelijkheid om berichten naar de lokale computer te halen wanneer dat wordt gevraagd.</p>
     <p xml:lang="pl">Trojitá jest programem pocztowym ("klientem") specjalizującym się w zapewnianiu szybkiego i wydajnego dostępu do skrzynek pocztowych przez protokół IMAP. Serwer pocztowy IMAP przechowuje wiadomości i umożliwia klientom pobieranie wiadomości na komputer lokalny wtedy, gdy tego chcą.</p>
@@ -103,6 +104,7 @@
     <p xml:lang="en-GB">What could make Trojitá interesting for you:</p>
     <p xml:lang="es">Qué puede hacer a Trojitá interesante para usted:</p>
     <p xml:lang="fi">Miksi Trojitá voisi kiinnostaa sinua:</p>
+    <p xml:lang="gl">Trojitá podería interesarlle polo seguinte:</p>
     <p xml:lang="it">Ecco cosa ti può rendere interessante Trojitá:</p>
     <p xml:lang="nl">Wat zou Trojitá voor u interessant kunnen maken:</p>
     <p xml:lang="pl">Co może cię zainteresować w Trojitá:</p>
