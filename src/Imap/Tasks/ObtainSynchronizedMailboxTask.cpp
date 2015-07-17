@@ -931,8 +931,18 @@ bool ObtainSynchronizedMailboxTask::handleEnabled(const Responses::Enabled * con
     // the ENABLE command; the log submitted at https://bugs.kde.org/show_bug.cgi?id=329204#c5 shows that Trojita receives
     // an extra * ENABLED CONDSTORE QRESYNC even after we have issued the x ENABLE QRESYNC previously and the server already
     // replied with * ENABLED QRESYNC to that.
+    if (resp->extensions.contains("CONDSTORE") || resp->extensions.contains("QRESYNC")) {
+        return true;
+    }
 
-    return resp->extensions.contains("CONDSTORE") || resp->extensions.contains("QRESYNC");
+    // In addition, https://bugs.kde.org/show_bug.cgi?id=350006 reports that Cyrus occasionally sends empty * ENABLED reponse.
+    // At this point we don't have many options left, so let's just eat each and every ENABLED while we select mailboxes.
+    // https://bugzilla.cyrusimap.org/show_bug.cgi?id=3898
+    if (resp->extensions.isEmpty()) {
+        return true;
+    }
+
+    return false;
 }
 
 /** @short Process the result of UID SEARCH or UID ESEARCH commands */

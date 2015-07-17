@@ -1793,8 +1793,16 @@ void ImapModelObtainSynchronizedMailboxTest::helperTestQresyncNoChanges(ModeForH
     model->cache()->setMsgFlags("a", 10, QStringList() << "z");
     model->resyncMailbox(idxA);
     cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
-    if (mode == EXTRA_ENABLED) {
+    switch (mode) {
+    case JUST_QRESYNC:
+        // do nothing
+        break;
+    case EXTRA_ENABLED:
         cServer("* ENABLED CONDSTORE QRESYNC\r\n");
+        break;
+    case EXTRA_ENABLED_EMPTY:
+        cServer("* ENABLED\r\n");
+        break;
     }
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
@@ -2596,6 +2604,12 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreQresyncNomodseqHighest
 void ImapModelObtainSynchronizedMailboxTest::testQresyncExtraEnabled()
 {
     helperTestQresyncNoChanges(EXTRA_ENABLED);
+}
+
+/** @short Bug #350006 -- spurious and empty * ENABLED untagged responses from Cyrus on mailbox switchover */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncExtraEnabledEmptySwitchover()
+{
+    helperTestQresyncNoChanges(EXTRA_ENABLED_EMPTY);
 }
 
 /** @short Check that we can recover when a SELECT ends up in a BAD or NO response */
