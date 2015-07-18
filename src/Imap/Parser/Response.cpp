@@ -176,7 +176,7 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
         stream << "ID";
         break;
     case ENABLED:
-        stream << "ENABLE";
+        stream << "ENABLED";
         break;
     case VANISHED:
         stream << "VANISHED";
@@ -1279,7 +1279,7 @@ QTextStream &Id::dump(QTextStream &s) const
 
 QTextStream &Enabled::dump(QTextStream &s) const
 {
-    s << "ENABLE ";
+    s << "ENABLED ";
     Q_FOREACH(const QByteArray &extension, extensions) {
         s << extension << ' ';
     }
