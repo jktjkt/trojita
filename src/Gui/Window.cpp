@@ -812,8 +812,7 @@ void MainWindow::handleTrayIconChange()
 {
     QModelIndex mailbox = imapModel()->index(1, 0, QModelIndex());
 
-    if (mailbox.isValid()) {
-        Q_ASSERT(mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX"));
+    if (mailbox.isValid() && mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX")) {
         QPixmap pixmap = QPixmap(QLatin1String(":/icons/trojita.png"));
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
             QPainter painter(&pixmap);
