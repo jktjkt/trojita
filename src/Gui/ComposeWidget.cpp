@@ -1169,13 +1169,13 @@ void ComposeWidget::completeRecipients(const QString &text)
         return; // we do not suggest "nothing"
     }
     Q_ASSERT(sender());
-    QLineEdit *toEdit = static_cast<QLineEdit*>(sender());
+    QLineEdit *toEdit = qobject_cast<QLineEdit*>(sender());
+    Q_ASSERT(toEdit);
     QStringList contacts = m_mainWindow->addressBook()->complete(text, QStringList(), m_completionCount);
     if (contacts.isEmpty() && m_completionPopup) {
         m_completionPopup->close();
         m_completionReceiver = 0;
-    }
-    else {
+    } else {
         m_completionReceiver = toEdit;
         m_completionPopup->setUpdatesEnabled(false);
         m_completionPopup->clear();
