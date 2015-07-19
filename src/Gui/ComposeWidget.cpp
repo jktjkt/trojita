@@ -87,7 +87,10 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_explicitDraft(false),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(mainWindow),
-    m_settings(mainWindow->settings())
+    m_settings(mainWindow->settings()),
+    m_submission(nullptr),
+    m_completionPopup(nullptr),
+    m_completionReceiver(nullptr)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
 
