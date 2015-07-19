@@ -829,7 +829,7 @@ void ThreadingMsgListModel::slotSortingAvailable(const Imap::Uids &uids)
 
 void ThreadingMsgListModel::slotSortingFailed()
 {
-    disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(QList<uint>)));
+    disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(Imap::Uids)));
     disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
     disconnect(m_sortTask, 0, this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
 
