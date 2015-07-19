@@ -1001,6 +1001,11 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     expectedUidOrder << 15 << 17 << 16 << 6 << 18 << 10;
     checkUidMapFromThreading(expectedUidOrder);
 
+    // Insert one message at the end
+    cServer("* ESEARCH (TAG \"" + sortTag + "\") UID ADDTO (7 18)\r\n");
+    expectedUidOrder << 18;
+    checkUidMapFromThreading(expectedUidOrder);
+
     model->switchToMailbox(idxB);
     cClient(t.mk("CANCELUPDATE \"" + sortTag + "\"\r\n"));
     cServer(t.last("OK no further updates\r\n"));

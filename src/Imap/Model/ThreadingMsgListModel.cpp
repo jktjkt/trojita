@@ -854,7 +854,7 @@ void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearc
                     // IMAP uses one-based indexing, we use zero-based offsets
                     offset = it->offset + i - 1;
                 }
-                if (offset < 0 || offset >= m_currentSortResult.size()) {
+                if (offset < 0 || offset > m_currentSortResult.size()) {
                     throw MailboxException("ESEARCH: ADDTO out of bounds");
                 }
                 m_currentSortResult.insert(offset, it->uids[i]);
