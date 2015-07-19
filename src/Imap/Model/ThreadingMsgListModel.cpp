@@ -846,7 +846,14 @@ void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearc
         switch (it->modification) {
         case Responses::ESearch::ContextIncrementalItem::ADDTO:
             for (int i = 0; i < it->uids.size(); ++i)  {
-                int offset = it->offset + i;
+                int offset;
+                if (it->offset == 0) {
+                    // FIXME: use mailbox order later on
+                    offset = 0;
+                } else {
+                    // IMAP uses one-based indexing, we use zero-based offsets
+                    offset = it->offset + i - 1;
+                }
                 if (offset < 0 || offset >= m_currentSortResult.size()) {
                     throw MailboxException("ESEARCH: ADDTO out of bounds");
                 }

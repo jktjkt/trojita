@@ -998,7 +998,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     // Try to push it back now
     cServer("* ESEARCH (TAG \"" + sortTag + "\") UID ADDTO (2 17)\r\n");
     expectedUidOrder.clear();
-    expectedUidOrder << 15 << 16 << 17 << 6 << 18 << 10;
+    expectedUidOrder << 15 << 17 << 16 << 6 << 18 << 10;
     checkUidMapFromThreading(expectedUidOrder);
 
     model->switchToMailbox(idxB);
