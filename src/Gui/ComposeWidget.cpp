@@ -1201,11 +1201,15 @@ void ComposeWidget::completeRecipient(QAction *act)
 bool ComposeWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (o == m_completionPopup) {
+        if (!m_completionPopup->isVisible())
+            return false;
+
         if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
             QKeyEvent *ke = static_cast<QKeyEvent*>(e);
             if (!(  ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down || // Navigation
                     ke->key() == Qt::Key_Escape || // "escape"
                     ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter)) { // selection
+                Q_ASSERT(m_completionReceiver);
                 QCoreApplication::sendEvent(m_completionReceiver, e);
                 return true;
             }
