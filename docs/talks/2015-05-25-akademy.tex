@@ -1,0 +1,96 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass{beamer}
+\usepackage[english]{babel}
+\definecolor{links}{HTML}{2A1B81}
+%\usepackage[utf8]{inputenc}
+%\usepackage{ucs}
+\usepackage[utf8x]{inputenc}
+\usetheme{Pittsburgh}
+\usepackage{hyperref}
+\usepackage[overlay]{textpos}
+\hypersetup{colorlinks,urlcolor=links}
+\setbeamertemplate{navigation symbols}{}
+
+\begin{document}
+
+\title{Trojitá, a Qt IMAP e-mail client}
+\author{Jan Kundrát \\ \href{mailto:jkt@kde.org}{\nolinkurl{jkt@kde.org}}}
+% FIXME
+\institute{\url{http://trojita.flaska.net/}}
+\date{}
+
+\begin{frame}
+\begin{center}
+\includegraphics[width=66mm,clip, trim=0mm 20mm 0mm 30mm]{trojita-from-svg.png}
+\maketitle
+\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{What is Trojitá?}
+  \begin{center}
+    \textbf{\Huge{A fast thing.}}
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{}
+  \begin{center}
+    Demo: opening a mailbox with 517,424 messages \\ (the ENRON corpus)
+  \end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Why is it fast?}
+  \begin{itemize}
+    \item Uses IMAP's features, delegates processing to the server
+    \item Lazy, on-demand loading
+    \item Heavy caching
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{But I have a crappy IMAP server}
+  \begin{itemize}
+    \item Servers which do not implement optional features result in degraded mode
+      \begin{itemize}
+        \item Slower operation
+        \item Waste of network traffic
+      \end{itemize}
+    \item Lack of features
+      \begin{itemize}
+        \item Server-side threading (``conversations'') not supported on GMail
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Project status}
+  \begin{itemize}
+    \item Started in 2006, joined KDE in 2012
+    \item Participated in two GSoC and multiple GCI rounds
+    \item Ohloh/OpenHub graphs \& stats
+      \begin{itemize}
+        \item 70+ contributors, about 100k LOC
+        \item Project size roughly comparable to, e.g., Krusader, Konversation, Okular,\ldots
+      \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Roadmap}
+  \begin{itemize}
+    \item Multiple accounts in a single GUI
+    \item OpenPGP/GnuPG encryption and signatures (GSoC)
+    \item Merge Dekko, the Ubuntu Phone fork, back?
+    \item \ldots
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[plain]
+  \begin{center}
+    \textbf{\LARGE{Thanks for being here :)}}
+  \end{center}
+\end{frame}
+
+\end{document}
