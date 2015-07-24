@@ -237,6 +237,7 @@ void MessageView::setMessage(const QModelIndex &index)
         viewer = factory->walk(rootPartIndex, 0, loadingMode);
         viewer->setParent(this);
         layout->addWidget(viewer);
+        layout->setAlignment(viewer, Qt::AlignTop|Qt::AlignLeft);
         viewer->show();
         m_envelope->setMessage(message);
 
