@@ -87,7 +87,10 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_explicitDraft(false),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(mainWindow),
-    m_settings(mainWindow->settings())
+    m_settings(mainWindow->settings()),
+    m_submission(nullptr),
+    m_completionPopup(nullptr),
+    m_completionReceiver(nullptr)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
 
@@ -1166,13 +1169,13 @@ void ComposeWidget::completeRecipients(const QString &text)
         return; // we do not suggest "nothing"
     }
     Q_ASSERT(sender());
-    QLineEdit *toEdit = static_cast<QLineEdit*>(sender());
+    QLineEdit *toEdit = qobject_cast<QLineEdit*>(sender());
+    Q_ASSERT(toEdit);
     QStringList contacts = m_mainWindow->addressBook()->complete(text, QStringList(), m_completionCount);
     if (contacts.isEmpty() && m_completionPopup) {
         m_completionPopup->close();
         m_completionReceiver = 0;
-    }
-    else {
+    } else {
         m_completionReceiver = toEdit;
         m_completionPopup->setUpdatesEnabled(false);
         m_completionPopup->clear();
@@ -1198,11 +1201,15 @@ void ComposeWidget::completeRecipient(QAction *act)
 bool ComposeWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (o == m_completionPopup) {
+        if (!m_completionPopup->isVisible())
+            return false;
+
         if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
             QKeyEvent *ke = static_cast<QKeyEvent*>(e);
             if (!(  ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down || // Navigation
                     ke->key() == Qt::Key_Escape || // "escape"
                     ke->key() == Qt::Key_Return || ke->key() == Qt::Key_Enter)) { // selection
+                Q_ASSERT(m_completionReceiver);
                 QCoreApplication::sendEvent(m_completionReceiver, e);
                 return true;
             }
