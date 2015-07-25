@@ -22,6 +22,7 @@
 
 #include "IconLoader.h"
 #include <QFileInfo>
+#include <QHash>
 
 namespace UiUtils {
 
@@ -38,9 +39,17 @@ namespace UiUtils {
  * */
 QIcon loadIcon(const QString &name)
 {
+    static QHash<QString, QIcon> iconDict;
+    QHash<QString, QIcon>::const_iterator it = iconDict.constFind(name);
+    if (it != iconDict.constEnd())
+        return *it;
+
     auto overrideIcon = QString(QLatin1String(":/icons/%1/%2.svg")).arg(QIcon::themeName(), name);
-    if (QFileInfo(overrideIcon).exists())
-        return QIcon(overrideIcon);
+    if (QFileInfo(overrideIcon).exists()) {
+        QIcon icon(overrideIcon);
+        iconDict.insert(name, icon);
+        return icon;
+    }
 
     QString iconInTheme = name;
     if (QIcon::themeName().toLower() == QLatin1String("breeze")) {
@@ -64,10 +73,10 @@ QIcon loadIcon(const QString &name)
     // clearly suboptimal.
     QIcon res = QIcon::fromTheme(iconInTheme, QIcon(QString::fromUtf8(":/icons/%1").arg(name)));
     if (res.pixmap(QSize(16, 16)).isNull()) {
-        return QIcon();
-    } else {
-        return res;
+        res = QIcon();
     }
+    iconDict.insert(name, res);
+    return res;
 }
 
 }
