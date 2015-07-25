@@ -38,9 +38,7 @@ namespace Ui {
     class OneContact;
 }
 
-namespace Gui {
 class AbookAddressbook;
-}
 
 #include <QWidget>
 #include <QPixmap>
@@ -50,7 +48,7 @@ namespace BE {
     class Contacts : public QWidget {
         Q_OBJECT
     public:
-        explicit Contacts(Gui::AbookAddressbook *abook);
+        explicit Contacts(AbookAddressbook *abook);
         virtual ~Contacts();
 
         void manageContact(const QString &mail, const QString &prettyName);
@@ -74,7 +72,7 @@ namespace BE {
         Ui::Contacts *m_ui;
         Ui::OneContact *m_ui2;
         QPixmap m_incognitoPic;
-        Gui::AbookAddressbook *m_abook;
+        AbookAddressbook *m_abook;
         QList<Field> fields;
         bool m_dirty;
     };

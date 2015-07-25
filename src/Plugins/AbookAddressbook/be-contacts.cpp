@@ -46,13 +46,13 @@
 #include "be-contacts.h"
 #include "ui_be-contacts.h"
 #include "ui_onecontact.h"
-#include "AbookAddressbook/AbookAddressbook.h"
+#include "AbookAddressbook.h"
 
 namespace BE {
 
 class Field {
 public:
-    typedef Gui::AbookAddressbook::Type Type;
+    typedef AbookAddressbook::Type Type;
     Field(Type type, QLabel *label, QString key)
     {
         this->type = type;
@@ -71,7 +71,7 @@ public:
 };
 }
 
-BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(false)
+BE::Contacts::Contacts(AbookAddressbook *abook): m_abook(abook), m_dirty(false)
 {
     m_currentContact = 0;
     QImage img(QDir::homePath() + QLatin1String("/.abook/incognito.png"));
@@ -85,14 +85,14 @@ BE::Contacts::Contacts(Gui::AbookAddressbook *abook): m_abook(abook), m_dirty(fa
     m_ui2 = new Ui::OneContact;
     m_ui2->setupUi(m_ui->oneContact);
 
-    fields <<   Field(Gui::AbookAddressbook::Name, m_ui2->name, QLatin1String("name")) << Field(Gui::AbookAddressbook::Mail, m_ui2->mail, QLatin1String("email")) <<
-                Field(Gui::AbookAddressbook::Address, m_ui2->address, QLatin1String("address")) << Field(Gui::AbookAddressbook::City, m_ui2->city, QLatin1String("city")) <<
-                Field(Gui::AbookAddressbook::State, m_ui2->state, QLatin1String("state")) << Field(Gui::AbookAddressbook::ZIP, m_ui2->zip, QLatin1String("zip")) <<
-                Field(Gui::AbookAddressbook::Country, m_ui2->country, QLatin1String("country")) << Field(Gui::AbookAddressbook::Phone, m_ui2->phone, QLatin1String("phone")) <<
-                Field(Gui::AbookAddressbook::Workphone, m_ui2->workphone, QLatin1String("workphone")) << Field(Gui::AbookAddressbook::Fax, m_ui2->fax, QLatin1String("fax")) <<
-                Field(Gui::AbookAddressbook::Mobile, m_ui2->mobile, QLatin1String("mobile")) << Field(Gui::AbookAddressbook::Nick, m_ui2->nick, QLatin1String("nick")) <<
-                Field(Gui::AbookAddressbook::URL, m_ui2->url, QLatin1String("url")) << Field(Gui::AbookAddressbook::Notes, m_ui2->notes, QLatin1String("notes")) <<
-                Field(Gui::AbookAddressbook::Anniversary, m_ui2->anniversary, QLatin1String("anniversary")) << Field(Gui::AbookAddressbook::Photo, m_ui2->photo, QLatin1String("photo"));
+    fields <<   Field(AbookAddressbook::Name, m_ui2->name, QLatin1String("name")) << Field(AbookAddressbook::Mail, m_ui2->mail, QLatin1String("email")) <<
+                Field(AbookAddressbook::Address, m_ui2->address, QLatin1String("address")) << Field(AbookAddressbook::City, m_ui2->city, QLatin1String("city")) <<
+                Field(AbookAddressbook::State, m_ui2->state, QLatin1String("state")) << Field(AbookAddressbook::ZIP, m_ui2->zip, QLatin1String("zip")) <<
+                Field(AbookAddressbook::Country, m_ui2->country, QLatin1String("country")) << Field(AbookAddressbook::Phone, m_ui2->phone, QLatin1String("phone")) <<
+                Field(AbookAddressbook::Workphone, m_ui2->workphone, QLatin1String("workphone")) << Field(AbookAddressbook::Fax, m_ui2->fax, QLatin1String("fax")) <<
+                Field(AbookAddressbook::Mobile, m_ui2->mobile, QLatin1String("mobile")) << Field(AbookAddressbook::Nick, m_ui2->nick, QLatin1String("nick")) <<
+                Field(AbookAddressbook::URL, m_ui2->url, QLatin1String("url")) << Field(AbookAddressbook::Notes, m_ui2->notes, QLatin1String("notes")) <<
+                Field(AbookAddressbook::Anniversary, m_ui2->anniversary, QLatin1String("anniversary")) << Field(AbookAddressbook::Photo, m_ui2->photo, QLatin1String("photo"));
 
     m_sortFilterProxy = new QSortFilterProxyModel(this);
     m_sortFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -237,7 +237,7 @@ bool BE::Contacts::eventFilter(QObject *o, QEvent *e)
         const int key = static_cast<QKeyEvent*>(e)->key();
         if (key == Qt::Key_Delete && o == m_ui2->photo) { // reset photo
             if (m_currentContact)
-                m_currentContact->setData(QString(), Gui::AbookAddressbook::Photo);
+                m_currentContact->setData(QString(), AbookAddressbook::Photo);
             m_ui2->photo->setPixmap(m_incognitoPic);
         }
         else if (key == Qt::Key_Escape && o != m_ui2->photo)
@@ -268,7 +268,7 @@ void BE::Contacts::importPhoto(const QString &path)
 
     const QString file = QDir::homePath() + QLatin1String("/.abook/") + photo;
     if (QFile::copy(path, file)) {
-        m_currentContact->setData(photo, Gui::AbookAddressbook::Photo);
+        m_currentContact->setData(photo, AbookAddressbook::Photo);
         setPhoto(file);
     }
 }
@@ -279,7 +279,7 @@ void BE::Contacts::addContact()
     QStandardItem *item = new QStandardItem(tr("[New Contact]"));
     for (QList<Field>::const_iterator   it = fields.constBegin(),
                                         end = fields.constEnd(); it != end; ++it) {
-        if (it->type == Gui::AbookAddressbook::Name || it->type == Gui::AbookAddressbook::Photo)
+        if (it->type == AbookAddressbook::Name || it->type == AbookAddressbook::Photo)
             continue;
         item->setData( QLatin1Char('[') + it->key + QLatin1Char(']'), it->type );
     }
@@ -312,12 +312,12 @@ void BE::Contacts::setContact(const QModelIndex &index)
             return; // same one
         for (QList<Field>::const_iterator   it = fields.constBegin(),
                                             end = fields.constEnd(); it != end; ++it) {
-            if (it->type != Gui::AbookAddressbook::Photo) {
+            if (it->type != AbookAddressbook::Photo) {
                 QString s = lifeText(it->label);
                 if (s.startsWith(QLatin1String("[")))
                     s.clear();
                 if (m_currentContact->data(it->type).toString() != s) {
-                    m_currentContact->setData( true, Gui::AbookAddressbook::Dirty );
+                    m_currentContact->setData( true, AbookAddressbook::Dirty );
                     if (s.isEmpty())
                         m_currentContact->setData( QVariant(), it->type ); // invalidate
                     else
@@ -334,7 +334,7 @@ void BE::Contacts::setContact(const QModelIndex &index)
 
     for (QList<Field>::const_iterator   it = fields.constBegin(),
         end = fields.constEnd(); it != end; ++it) {
-        if (it->type != Gui::AbookAddressbook::Photo) {
+        if (it->type != AbookAddressbook::Photo) {
             QString s;
             QVariant v = m_currentContact->data(it->type);
             if (v.isValid())
@@ -345,7 +345,7 @@ void BE::Contacts::setContact(const QModelIndex &index)
         }
     }
     QPixmap userPic = m_incognitoPic;
-    QString photo = m_currentContact->data(Gui::AbookAddressbook::Photo).toString();
+    QString photo = m_currentContact->data(AbookAddressbook::Photo).toString();
     if (!photo.isEmpty()) {
         if (QDir::isRelativePath(photo))
             photo = QDir::homePath() + QLatin1String("/.abook/") + photo;
@@ -444,7 +444,7 @@ void BE::Contacts::manageContact(const QString &mail, const QString &prettyName)
     QStandardItemModel *model = m_abook->model();
     for (int i = 0; i < model->rowCount(); ++i) {
         QStandardItem *item = model->item(i);
-        if (QString::compare(item->data(Gui::AbookAddressbook::Mail).toString(), mail, Qt::CaseInsensitive) == 0) {
+        if (QString::compare(item->data(AbookAddressbook::Mail).toString(), mail, Qt::CaseInsensitive) == 0) {
             setContact(model->index(i, 0));
             return;
         }

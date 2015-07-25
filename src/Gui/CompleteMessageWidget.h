@@ -28,6 +28,10 @@ class QScrollArea;
 class QSettings;
 class QPropertyAnimation;
 
+namespace Plugins {
+class PluginManager;
+}
+
 namespace Gui
 {
 
@@ -39,7 +43,7 @@ class CompleteMessageWidget: public QWidget
 {
     Q_OBJECT
 public:
-    CompleteMessageWidget(QWidget *parent, QSettings *settings);
+    CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager);
 
     MessageView *messageView;
     QScrollArea *area;

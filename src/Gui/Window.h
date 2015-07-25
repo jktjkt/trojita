@@ -46,10 +46,6 @@ class QStackedWidget;
 class QToolButton;
 class QTreeView;
 
-namespace BE {
-class Contacts;
-}
-
 namespace Composer
 {
 class SenderIdentitiesModel;
@@ -83,7 +79,6 @@ class MSAFactory;
 namespace Gui
 {
 
-class AbstractAddressbook;
 class CompleteMessageWidget;
 class ComposeWidget;
 class MailBoxTreeView;
@@ -104,7 +99,6 @@ public:
 
     Imap::Mailbox::Model *imapModel() const;
 
-    const AbstractAddressbook *addressBook() const { return m_addressBook; }
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
     Plugins::PluginManager *pluginManager() { return m_pluginManager; }
     QSettings *settings() const { return m_settings; }
@@ -173,7 +167,6 @@ private slots:
     void scrollMessageUp();
     void showConnectionStatus(uint parserId, Imap::ConnectionState state);
     void slotShowLinkTarget(const QString &link);
-    void fillMatchingAbookEntries(const QString &mail, QStringList &displayNames);
     void slotShowAboutTrojita();
     void slotDonateToTrojita();
 
@@ -213,6 +206,8 @@ private slots:
 
     void slotReconnectAttemptScheduled(const int timeout);
     void slotResetReconnectState();
+
+    void slotPluginsChanged();
 
 protected:
     void resizeEvent(QResizeEvent *);
@@ -328,6 +323,8 @@ private:
     QAction *m_actionSubscribeMailbox;
     QAction *m_actionShowOnlySubscribed;
 
+    QAction *m_actionContactEditor;
+
     QToolBar *m_mainToolbar;
     QToolButton *m_replyButton;
     QMenu *m_replyMenu;
@@ -342,9 +339,6 @@ private:
 
     QSettings *m_settings;
     Plugins::PluginManager *m_pluginManager;
-
-    AbstractAddressbook *m_addressBook;
-    QPointer<BE::Contacts> m_contactsWidget;
 
     QMessageBox *m_networkErrorMessageBox;
 

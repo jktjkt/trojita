@@ -23,7 +23,7 @@
 #define GUI_ENVELOPEVIEW_H
 
 #include <QModelIndex>
-#include <QLabel>
+#include <QWidget>
 
 namespace Imap {
 namespace Message {
@@ -36,7 +36,7 @@ namespace Gui {
 class MessageView;
 
 /** @short Widget displaying the message envelope */
-class EnvelopeView : public QLabel
+class EnvelopeView : public QWidget
 {
     Q_OBJECT
 public:
@@ -44,19 +44,12 @@ public:
 
     void setMessage(const QModelIndex &index);
 
-signals:
-    /** Emitted when requesting a list of addresses for a given mail */
-    void addressDetailsRequested(const QString &mail, QStringList &addresses);
-
-private slots:
-    void onLinkHovered(const QString &target);
-
 private:
     QString headerText(const QModelIndex &index);
 
     QString htmlizeAddresses(const QList<Imap::Message::MailAddress> &addresses);
 
-    QString contactKnownUrl, contactUnknownUrl;
+    MessageView *m_messageView;
 
     EnvelopeView(const EnvelopeView &); // don't implement
     EnvelopeView &operator=(const EnvelopeView &); // don't implement

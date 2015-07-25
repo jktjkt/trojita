@@ -25,9 +25,16 @@
 #include <QApplication>
 #include <QDir>
 #include <QSettings>
-#include "AbookAddressbook/AbookAddressbook.h"
-#include "AbookAddressbook/be-contacts.h"
+
+#include "Plugins/AddressbookPlugin.h"
+#include "Plugins/PluginManager.h"
+
 #include "Common/SettingsCategoryGuard.h"
+
+#ifdef QT_STATICPLUGIN
+#include <QtPlugin>
+Q_IMPORT_PLUGIN(trojita_plugin_AbookAddressbookPlugin)
+#endif
 
 int main(int argc, char **argv) {
     if (argc > 1 && argv[1][0] != '-') {
@@ -105,10 +112,15 @@ int main(int argc, char **argv) {
         return 0;
     }
     QApplication a(argc, argv);
-    BE::Contacts w(new Gui::AbookAddressbook());
-    //: Translators: BE::Contacts is the name of a stand-alone address book application.
-    //: BE refers to Bose/Einstein (condensate).
-    w.setWindowTitle(BE::Contacts::tr("BE::Contacts"));
-    w.show();
-    return a.exec();
+    QSettings s(QLatin1String("flaska.net"), QLatin1String("be.contacts"));
+    s.setValue(QLatin1String("plugin"), QLatin1String("abookaddressbook"));
+    Plugins::PluginManager m(nullptr, &s, QLatin1String("plugin"), QLatin1String("plugin"));
+    Plugins::AddressbookPlugin *addressbook = m.addressbook();
+    if (addressbook) {
+        addressbook->openAddressbookWindow();
+        return a.exec();
+    } else {
+        qWarning("cannot load abookaddressbook plugin");
+        return 1;
+    }
 }

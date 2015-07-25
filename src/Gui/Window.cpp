@@ -1,5 +1,5 @@
 /* Copyright (C) 2006 - 2015 Jan Kundrát <jkt@flaska.net>
-   Copyright (C) 2013 Pali Rohár <pali.rohar@gmail.com>
+   Copyright (C) 2013 - 2015 Pali Rohár <pali.rohar@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -45,8 +45,6 @@
 #include <QUrl>
 #include <QWheelEvent>
 
-#include "AbookAddressbook/AbookAddressbook.h"
-#include "AbookAddressbook/be-contacts.h"
 #include "Common/Application.h"
 #include "Common/Paths.h"
 #include "Common/PortNumbers.h"
@@ -68,6 +66,7 @@
 #include "MSA/ImapSubmit.h"
 #include "MSA/Sendmail.h"
 #include "MSA/SMTP.h"
+#include "Plugins/AddressbookPlugin.h"
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginManager.h"
 #include "CompleteMessageWidget.h"
@@ -110,6 +109,7 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     // m_pluginManager must be created before calling createWidgets
     m_pluginManager = new Plugins::PluginManager(this, m_settings,
                                                  Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
+    connect(m_pluginManager, SIGNAL(pluginsChanged()), this, SLOT(slotPluginsChanged()));
 
     // ImapAccess contains a wrapper for retrieving passwords through some plugin.
     // That PasswordWatcher is used by the SettingsDialog's widgets *and* by this class,
@@ -137,13 +137,11 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     }
 
 
-    // TODO write more addressbook backends and make this configurable
-    m_addressBook = new AbookAddressbook();
-
     setupModels();
     createActions();
     createMenus();
     slotToggleSysTray();
+    slotPluginsChanged();
 
     // Please note that Qt 4.6.1 really requires passing the method signature this way, *not* using the SLOT() macro
     QDesktopServices::setUrlHandler(QLatin1String("mailto"), this, "slotComposeMailUrl");
@@ -227,6 +225,8 @@ void MainWindow::createActions()
     // forward inline: Shift+F
     // bounce: E
     // new: Ctrl+N
+
+    m_actionContactEditor = ShortcutHandler::instance()->createAction(QLatin1String("action_contact_editor"), this, SLOT(invokeContactEditor()), this);
 
     m_mainToolbar = addToolBar(tr("Navigation"));
     m_mainToolbar->setObjectName(QLatin1String("mainToolbar"));
@@ -531,8 +531,7 @@ void MainWindow::createMenus()
 
     QMenu *imapMenu = menuBar()->addMenu(tr("&IMAP"));
     imapMenu->addMenu(m_composeMenu);
-    QAction *actionContactEditor = ShortcutHandler::instance()->createAction(QLatin1String("action_contact_editor"), this, SLOT(invokeContactEditor()), this);
-    ADD_ACTION(imapMenu, actionContactEditor);
+    ADD_ACTION(imapMenu, m_actionContactEditor);
     ADD_ACTION(imapMenu, m_replyGuess);
     ADD_ACTION(imapMenu, m_replyPrivate);
     ADD_ACTION(imapMenu, m_replyAll);
@@ -634,12 +633,10 @@ void MainWindow::createWidgets()
 
     msgListWidget->tree->installEventFilter(this);
 
-    m_messageWidget = new CompleteMessageWidget(this, m_settings);
+    m_messageWidget = new CompleteMessageWidget(this, m_settings, m_pluginManager);
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(scrollMessageUp()));
     connect(m_messageWidget->messageView, SIGNAL(messageChanged()), this, SLOT(slotUpdateMessageActions()));
     connect(m_messageWidget->messageView, SIGNAL(linkHovered(QString)), this, SLOT(slotShowLinkTarget(QString)));
-    connect(m_messageWidget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
-            this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
     connect(m_messageWidget->messageView, SIGNAL(transferError(QString)), this, SLOT(slotDownloadTransferError(QString)));
     // Do not try to get onto the homepage when we are on EXPENSIVE connection
     if (m_settings->value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
@@ -971,9 +968,7 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
 
-    CompleteMessageWidget *widget = new CompleteMessageWidget(0, m_settings);
-    connect(widget->messageView, SIGNAL(addressDetailsRequested(QString,QStringList&)),
-            this, SLOT(fillMatchingAbookEntries(QString,QStringList&)));
+    CompleteMessageWidget *widget = new CompleteMessageWidget(0, m_settings, m_pluginManager);
     widget->messageView->setMessage(index);
     widget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(m_imapAccess->networkWatcher()));
     widget->setFocusPolicy(Qt::StrongFocus);
@@ -1558,18 +1553,20 @@ void MainWindow::slotManageContact(const QUrl &url)
     if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("x-trojita-manage-contact")))
         return;
 
-    invokeContactEditor();
-    m_contactsWidget->manageContact(addr.mailbox + QLatin1Char('@') + addr.host, addr.name);
+    Plugins::AddressbookPlugin *addressbook = pluginManager()->addressbook();
+    if (!addressbook)
+        return;
+
+    addressbook->openContactWindow(addr.mailbox + QLatin1Char('@') + addr.host, addr.name);
 }
 
 void MainWindow::invokeContactEditor()
 {
-    if (m_contactsWidget)
+    Plugins::AddressbookPlugin *addressbook = pluginManager()->addressbook();
+    if (!addressbook)
         return;
 
-    m_contactsWidget = new BE::Contacts(dynamic_cast<AbookAddressbook*>(m_addressBook));
-    m_contactsWidget->setAttribute(Qt::WA_DeleteOnClose, true);
-    m_contactsWidget->show();
+    addressbook->openAddressbookWindow();
 }
 
 /** @short Create an MSAFactory as per the settings */
@@ -1676,11 +1673,6 @@ void MainWindow::slotShowLinkTarget(const QString &link)
         //: target of a hyperlink from the currently visible e-mail that the mouse is pointing to
         statusBar()->showMessage(tr("Link target: %1").arg(link));
     }
-}
-
-void MainWindow::fillMatchingAbookEntries(const QString &mail, QStringList &displayNames)
-{
-    displayNames = addressBook()->prettyNamesForAddress(mail);
 }
 
 void MainWindow::slotShowAboutTrojita()
@@ -2450,6 +2442,15 @@ void MainWindow::enableLoggingToDisk()
 void MainWindow::updateMenuHidingButton()
 {
     menuShow->setVisible(!menuBar()->isVisibleTo(this) && !m_mainToolbar->isVisibleTo(this));
+}
+
+void MainWindow::slotPluginsChanged()
+{
+    Plugins::AddressbookPlugin *addressbook = pluginManager()->addressbook();
+    if (!addressbook || !(addressbook->features() & Plugins::AddressbookPlugin::FeatureAddressbookWindow))
+        m_actionContactEditor->setEnabled(false);
+    else
+        m_actionContactEditor->setEnabled(true);
 }
 
 }

@@ -52,10 +52,12 @@
 #include "Gui/Window.h"
 #include "Imap/Model/ImapAccess.h"
 #include "MSA/Account.h"
+#include "Plugins/AddressbookPlugin.h"
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginManager.h"
 #include "UiUtils/IconLoader.h"
 #include "UiUtils/PasswordWatcher.h"
+#include "ShortcutHandler/ShortcutHandler.h"
 
 namespace Gui
 {
@@ -263,6 +265,30 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     QMap<QString, QString>::const_iterator it;
     int i;
 
+    const QMap<QString, QString> &addressbookPlugins = pluginManager->availableAddressbookPlugins();
+    const QString &addressbookPlugin = pluginManager->addressbookPlugin();
+    int addressbookIndex = -1;
+
+    for (it = addressbookPlugins.constBegin(), i = 0; it != addressbookPlugins.constEnd(); ++it, ++i) {
+        addressbookBox->addItem(it.value(), it.key());
+        if (addressbookIndex < 0 && addressbookPlugin == it.key())
+            addressbookIndex = i;
+    }
+
+    addressbookBox->addItem(tr("Disable address book"));
+
+    if (addressbookPlugin == QLatin1String("none"))
+        addressbookIndex = addressbookBox->count()-1;
+
+    if (addressbookIndex == -1) {
+        if (!addressbookPlugin.isEmpty())
+            addressbookBox->addItem(tr("Plugin not found (%1)").arg(addressbookPlugin), addressbookPlugin);
+        addressbookIndex = addressbookBox->count()-1;
+    }
+
+    addressbookBox->setCurrentIndex(addressbookIndex);
+
+
     const QMap<QString, QString> &passwordPlugins = pluginManager->availablePasswordPlugins();
     const QString &passwordPlugin = pluginManager->passwordPlugin();
     int passwordIndex = -1;
@@ -414,6 +440,14 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::interopRevealVersions, revealTrojitaVersions->isChecked());
 
     bool reload = false;
+
+    const QString &addressbookPlugin = m_parent->pluginManager()->addressbookPlugin();
+    const QString &selectedAddressbookPlugin = addressbookBox->itemData(addressbookBox->currentIndex()).toString();
+
+    if (selectedAddressbookPlugin != addressbookPlugin) {
+        m_parent->pluginManager()->setAddressbookPlugin(selectedAddressbookPlugin);
+        reload = true;
+    }
 
     const QString &passwordPlugin = m_parent->pluginManager()->passwordPlugin();
     const QString &selectedPasswordPlugin = passwordBox->itemData(passwordBox->currentIndex()).toString();

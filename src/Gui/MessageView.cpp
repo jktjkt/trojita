@@ -63,7 +63,7 @@
 namespace Gui
 {
 
-MessageView::MessageView(QWidget *parent, QSettings *settings): QWidget(parent), m_settings(settings)
+MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager): QWidget(parent), m_settings(settings), m_pluginManager(pluginManager)
 {
     QPalette pal = palette();
     pal.setColor(backgroundRole(), palette().color(QPalette::Active, QPalette::Base));
@@ -237,6 +237,7 @@ void MessageView::setMessage(const QModelIndex &index)
         viewer = factory->walk(rootPartIndex, 0, loadingMode);
         viewer->setParent(this);
         layout->addWidget(viewer);
+        layout->setAlignment(viewer, Qt::AlignTop|Qt::AlignLeft);
         viewer->show();
         m_envelope->setMessage(message);
 
@@ -493,6 +494,11 @@ void MessageView::onWebViewLoadFinished()
     m_loadingItems.remove(wv);
     if (m_loadingItems.isEmpty())
         m_loadingSpinner->stop();
+}
+
+Plugins::PluginManager *MessageView::pluginManager() const
+{
+    return m_pluginManager;
 }
 
 }

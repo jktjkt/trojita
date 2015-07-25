@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2011 Thomas Gahr <thomas.gahr@physik.uni-muenchen.de>
+/* Copyright (C) 2006 - 2015 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -19,35 +19,33 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#ifndef GUI_ADDRESSROWWIDGET_H
+#define GUI_ADDRESSROWWIDGET_H
 
-#include <QSettings>
+#include <QWidget>
 
-#include "AutoCompletion.h"
-#include "Common/SettingsNames.h"
-
-
-namespace Gui
-{
-
-AutoCompletionModel::AutoCompletionModel(QObject *parent):
-    QStringListModel(parent)
-{
-    QSettings s;
-    // load list of known emails from QSettings
-    QStringList knownEmails = s.value(Common::SettingsNames::knownEmailsKey).toStringList();
-    setStringList(knownEmails);
+namespace Imap {
+namespace Message {
+class MailAddress;
+}
 }
 
-AutoCompletionModel::~AutoCompletionModel()
+namespace Gui {
+
+class MessageView;
+
+/** @short Widget displaying the message envelope */
+class AddressRowWidget : public QWidget
 {
-    saveKnownEMails();
+    Q_OBJECT
+public:
+    AddressRowWidget(QWidget *parent, const QString &headerName, const QList<Imap::Message::MailAddress> &addresses, MessageView *messageView);
+
+private:
+    AddressRowWidget(const AddressRowWidget &) = delete;
+    AddressRowWidget &operator=(const AddressRowWidget &) = delete;
+};
+
 }
 
-void AutoCompletionModel::saveKnownEMails()const
-{
-    QSettings s;
-    s.setValue(Common::SettingsNames::knownEmailsKey, stringList());
-}
-
-} // namespace Gui
-
+#endif
