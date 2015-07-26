@@ -85,14 +85,14 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     QMenu *complexMenu = new QMenu(tr("Complex IMAP query"), optionsMenu);
     connect(complexMenu, SIGNAL(triggered(QAction*)), this, SLOT(slotComplexSearchInput(QAction*)));
-    complexMenu->addAction(tr("Not ..."))->setData(QLatin1String("NOT ") + m_queryPlaceholder);
-    complexMenu->addAction(tr("Either... or..."))->setData(QLatin1String("OR ") + m_queryPlaceholder + QLatin1Char(' ') + m_queryPlaceholder);
+    complexMenu->addAction(tr("Not ..."))->setData(QString(QLatin1String("NOT ") + m_queryPlaceholder));
+    complexMenu->addAction(tr("Either... or..."))->setData(QString(QLatin1String("OR ") + m_queryPlaceholder + QLatin1Char(' ') + m_queryPlaceholder));
     complexMenu->addSeparator();
-    complexMenu->addAction(tr("From sender"))->setData(QLatin1String("FROM ") + m_queryPlaceholder);
-    complexMenu->addAction(tr("To receiver"))->setData(QLatin1String("TO ") + m_queryPlaceholder);
+    complexMenu->addAction(tr("From sender"))->setData(QString(QLatin1String("FROM ") + m_queryPlaceholder));
+    complexMenu->addAction(tr("To receiver"))->setData(QString(QLatin1String("TO ") + m_queryPlaceholder));
     complexMenu->addSeparator();
-    complexMenu->addAction(tr("About subject"))->setData(QLatin1String("SUBJECT " )+ m_queryPlaceholder);
-    complexMenu->addAction(tr("Message contains ..."))->setData(QLatin1String("BODY ") + m_queryPlaceholder);
+    complexMenu->addAction(tr("About subject"))->setData(QString(QLatin1String("SUBJECT " )+ m_queryPlaceholder));
+    complexMenu->addAction(tr("Message contains ..."))->setData(QString(QLatin1String("BODY ") + m_queryPlaceholder));
     complexMenu->addSeparator();
     complexMenu->addAction(tr("Before date"))->setData(QLatin1String("BEFORE <d-mmm-yyyy>"));
     complexMenu->addAction(tr("Since date"))->setData(QLatin1String("SINCE <d-mmm-yyyy>"));

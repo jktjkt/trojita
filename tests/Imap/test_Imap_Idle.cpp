@@ -124,7 +124,7 @@ void ImapModelIdleTest::testIdleBreakTask()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("DONE\r\n") + t.mk("UID FETCH 1,7,9 (" FETCH_METADATA_ITEMS ")\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), QByteArray(QByteArray("DONE\r\n") + t.mk("UID FETCH 1,7,9 (" FETCH_METADATA_ITEMS ")\r\n")));
     SOCK->fakeReading(t.last("OK done\r\n"));
     QTest::qWait(40);
     QVERIFY(SOCK->writtenStuff().isEmpty());
@@ -215,7 +215,7 @@ void ImapModelIdleTest::testIdleNoPerpetuateRenewal()
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("DONE\r\n") + t.mk("UID FETCH 1,7,9 (" FETCH_METADATA_ITEMS ")\r\n"));
+    QCOMPARE(SOCK->writtenStuff(), QByteArray(QByteArray("DONE\r\n") + t.mk("UID FETCH 1,7,9 (" FETCH_METADATA_ITEMS ")\r\n")));
     SOCK->fakeReading(t.last("OK done\r\n"));
     // Make sure we won't try to "renew" it automatically...
     QTest::qWait(30);

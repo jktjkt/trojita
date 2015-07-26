@@ -700,7 +700,7 @@ template<>
 char *toString(const NetDataRegexp &x)
 {
     if (x.isPattern) {
-        return qstrdup(("[regexp: " + x.pattern + "]").constData());
+        return qstrdup(QByteArray("[regexp: " + x.pattern + "]").constData());
     } else {
         return toString(QString::fromUtf8(x.raw));
     }

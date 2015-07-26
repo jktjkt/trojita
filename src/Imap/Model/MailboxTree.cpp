@@ -786,7 +786,7 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
     } else if (msgId.startsWith("BINARY[")) {
         partIdentification = msgId.mid(7, msgId.size() - 8);
     } else {
-        throw UnknownMessageIndex(("Fetch identifier doesn't start with reasonable prefix: " + msgId).constData());
+        throw UnknownMessageIndex(QByteArray("Fetch identifier doesn't start with reasonable prefix: " + msgId).constData());
     }
 
     TreeItem *item = message;
@@ -799,7 +799,7 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
             // It isn't a number, so let's check for that special modifiers
             if (it + 1 != separated.constEnd()) {
                 // If it isn't at the very end, it's an error
-                throw UnknownMessageIndex(("Part offset contains non-numeric identifiers in the middle: " + msgId).constData());
+                throw UnknownMessageIndex(QByteArray("Part offset contains non-numeric identifiers in the middle: " + msgId).constData());
             }
             // Recognize the valid modifiers
             if (*it == "HEADER")
@@ -809,7 +809,7 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
             else if (*it == "MIME")
                 item = item->specialColumnPtr(0, OFFSET_MIME);
             else
-                throw UnknownMessageIndex(("Can't translate received offset of the message part to a number: " + msgId).constData());
+                throw UnknownMessageIndex(QByteArray("Can't translate received offset of the message part to a number: " + msgId).constData());
             break;
         }
 

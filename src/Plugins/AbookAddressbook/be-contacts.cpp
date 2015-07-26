@@ -281,7 +281,7 @@ void BE::Contacts::addContact()
                                         end = fields.constEnd(); it != end; ++it) {
         if (it->type == AbookAddressbook::Name || it->type == AbookAddressbook::Photo)
             continue;
-        item->setData( QLatin1Char('[') + it->key + QLatin1Char(']'), it->type );
+        item->setData( QString(QLatin1Char('[') + it->key + QLatin1Char(']')), it->type );
     }
     if (m_currentContact)
         m_abook->model()->insertRow(m_currentContact->index().row() + 1, item);

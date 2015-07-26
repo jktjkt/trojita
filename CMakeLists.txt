@@ -259,6 +259,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(-DQT_STRICT_ITERATORS)
 
+if(WITH_QT5)
+    add_definitions(-DQT_USE_QSTRINGBUILDER)
+    add_definitions(-DQT_USE_FAST_OPERATOR_PLUS)
+    add_definitions(-DQT_USE_FAST_CONCATENATION)
+endif()
+
 # Make sure that plugins not export all symbols, only that which are explicitly marked
 include(GenerateExportHeader)
 add_compiler_export_flags()
