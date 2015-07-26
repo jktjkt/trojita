@@ -109,8 +109,10 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     ui->setupUi(this);
     ui->attachmentsView->setComposer(m_submission->composer());
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
+    sendButton->setIcon(UiUtils::loadIcon(QLatin1String("mail-send")));
     connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
     cancelButton = ui->buttonBox->addButton(QDialogButtonBox::Cancel);
+    cancelButton->setIcon(UiUtils::loadIcon(QLatin1String("dialog-cancel")));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
 
