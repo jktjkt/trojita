@@ -1482,4 +1482,45 @@ void ImapModelThreadingTest::testDataChangedUnknownUid()
     cEmpty();
 }
 
+/** @short Verify parsing of various ESEARCH return results */
+void ImapModelThreadingTest::testESearchResults()
+{
+    using namespace Imap::Mailbox;
+    threadingModel->setUserWantsThreading(false);
+    initialMessages(1);
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+    injector.injectCapability("ESEARCH");
+
+    // An empty result, Dovecot style
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("x"),
+                                                      ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
+    cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT x\r\n"));
+    // Dovecot sends the UID response, as expected
+    cServer("* ESEARCH (TAG \"" + t.last() + "\") UID \r\n");
+    cServer(t.last("OK searched\r\n"));
+    QCOMPARE(threadingModel->rowCount(), 0);
+
+    // Some extra data in the ESEARCH response -- just to make sure that the code doesn't expect a fixed position
+    // of the ALL data set
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("y"),
+                                                      ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
+    cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT y\r\n"));
+    // Check if random crap in these resplies doesn't break stuff
+    cServer("* ESEARCH (TAG \"" + t.last() + "\") UID random0 0 Random00 0 ALL 1 random1 666 RANDOM2 333\r\n");
+    cServer(t.last("OK searched\r\n"));
+    QCOMPARE(threadingModel->rowCount(), 1);
+
+    // Empty result, Cyrus 2.9.17-style
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("z"),
+                                                      ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
+    cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT z\r\n"));
+    // Cyrus, however, omits the UID part of the response
+    // https://bugs.kde.org/show_bug.cgi?id=350698
+    // https://bugzilla.cyrusimap.org/show_bug.cgi?id=3900
+    cServer("* ESEARCH (TAG \"" + t.last() + "\")\r\n");
+    cServer(t.last("OK searched\r\n"));
+    QCOMPARE(threadingModel->rowCount(), 0);
+}
+
 TROJITA_HEADLESS_TEST( ImapModelThreadingTest )

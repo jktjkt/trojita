@@ -189,10 +189,6 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
     if (resp->tag != sortTag)
         return false;
 
-    if (resp->seqOrUids != Imap::Responses::ESearch::UIDS)
-        throw UnexpectedResponseReceived("ESEARCH response to a UID SORT command with matching tag uses "
-                                         "sequence numbers instead of UIDs", *resp);
-
     Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> allComparator("ALL");
     Responses::ESearch::ListData_t::const_iterator allIterator =
             std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), allComparator);
@@ -200,6 +196,14 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
     if (allIterator != resp->listData.constEnd()) {
         m_firstUntaggedReceived = true;
         sortResult = allIterator->second;
+
+        if (!sortResult.isEmpty()) {
+            // Only check when the result set is non-empty, https://bugs.kde.org/show_bug.cgi?id=350698
+            if (resp->seqOrUids != Imap::Responses::ESearch::UIDS) {
+                throw UnexpectedResponseReceived("ESEARCH response to a UID SEARCH / UID SORT command with matching tag uses "
+                                                 "sequence numbers instead of UIDs", *resp);
+            }
+        }
 
         ++allIterator;
         if (std::find_if(allIterator, resp->listData.constEnd(), allComparator) != resp->listData.constEnd())
@@ -218,6 +222,11 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
         // This means that there have been no matches
         // FIXME: cover this in the test suite!
         return true;
+    } else {
+        if (resp->seqOrUids != Imap::Responses::ESearch::UIDS) {
+            throw UnexpectedResponseReceived("ESEARCH response to a UID SEARCH / UID SORT command with matching tag uses "
+                                             "sequence numbers instead of UIDs", *resp);
+        }
     }
 
     Q_ASSERT(!resp->incrementalContextData.isEmpty());
