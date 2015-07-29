@@ -1666,8 +1666,16 @@ void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
 void MainWindow::showConnectionStatus(uint parserId, Imap::ConnectionState state)
 {
     Q_UNUSED(parserId);
+    static Imap::ConnectionState previousState = Imap::ConnectionState::CONN_STATE_NONE;
     QString message = connectionStateToString(state);
-    showStatusMessage(message);
+
+    if (state == Imap::ConnectionState::CONN_STATE_SELECTED && previousState >= Imap::ConnectionState::CONN_STATE_SELECTED) {
+        // prevent excessive popups when we "reset the state" to something which is shown quite often
+        showStatusMessage(QString());
+    } else {
+        showStatusMessage(message);
+    }
+    previousState = state;
 }
 
 void MainWindow::slotShowLinkTarget(const QString &link)
