@@ -56,7 +56,7 @@ public:
     enum State { Disconnected, Connecting, Connected, TLSRequested, Authenticating, Sending, Disconnecting };
     enum Option { NoOptions = 0, StartTlsOption, SizeOption, PipeliningOption, EightBitMimeOption, AuthOption };
     Q_DECLARE_FLAGS ( Options, Option );
-    enum AuthMode { AuthNone, AuthAny, AuthPlain, AuthLogin };
+    enum AuthMode { AuthNone = 0, AuthAny = 1, AuthPlain = 2, AuthLogin = 4 };
     Q_DECLARE_FLAGS ( AuthModes, AuthMode );
     void setLocalName(const QString &ln);
     void setLocalNameEncrypted(const QString &ln);
