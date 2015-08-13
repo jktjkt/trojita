@@ -42,6 +42,7 @@
 #include <QTextDocument>
 #include <QToolBar>
 #include <QToolButton>
+#include <QToolTip>
 #include <QUrl>
 #include <QWheelEvent>
 
@@ -289,25 +290,14 @@ void MainWindow::createActions()
     showMenuBar->setCheckable(true);
     showMenuBar->setChecked(true);
     connect(showMenuBar, SIGNAL(triggered(bool)), menuBar(), SLOT(setVisible(bool)));
-    connect(showMenuBar, SIGNAL(triggered(bool)), this, SLOT(updateMenuHidingButton()));
     connect(showMenuBar, SIGNAL(triggered(bool)), m_delayedStateSaving, SLOT(start()));
 
     showToolBar = new QAction(tr("Show &Toolbar"), this);
     showToolBar->setCheckable(true);
     showToolBar->setChecked(true);
-    // Ideally, we would like to reuse the original action in this context.
-    // However, that action is checkable, and we want a simple button toggle here.
-    // Let's just copy around the title and icon.
-    // We cannot set the shortcut because the original action is still enabled and handles Ctrl+M just fine.
-    menuShow->setText(showMenuBar->text());
-    menuShow->setIcon(showMenuBar->icon());
-    // Make sure that the button clearly shows what it's all about
-    menuShow->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
     connect(showToolBar, SIGNAL(triggered(bool)), m_mainToolbar, SLOT(setVisible(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), showToolBar, SLOT(setChecked(bool)));
     connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), m_delayedStateSaving, SLOT(start()));
-    connect(m_mainToolbar, SIGNAL(visibilityChanged(bool)), this, SLOT(updateMenuHidingButton()));
-    connect(menuShow, SIGNAL(clicked()), showMenuBar , SLOT(trigger()));
 
     configSettings = new QAction(UiUtils::loadIcon(QLatin1String("configure")),  tr("&Settings..."), this);
     connect(configSettings, SIGNAL(triggered()), this, SLOT(slotShowSettings()));
@@ -510,6 +500,43 @@ void MainWindow::createActions()
     m_mainToolbar->addAction(showMenuBar);
     m_mainToolbar->addAction(configSettings);
 
+    // Push the status indicators all the way to the other side of the toolbar -- either to the far right, or far bottom.
+    QWidget *toolbarSpacer = new QWidget(m_mainToolbar);
+    toolbarSpacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_mainToolbar->addWidget(toolbarSpacer);
+
+    m_mainToolbar->addSeparator();
+    m_mainToolbar->addWidget(busyParsersIndicator);
+
+    networkIndicator = new QToolButton(this);
+    // This is deliberate; we want to show this button in the same style as the other ones in the toolbar
+    networkIndicator->setPopupMode(QToolButton::MenuButtonPopup);
+    m_mainToolbar->addWidget(networkIndicator);
+
+    busyParsersIndicator->setFixedSize(m_mainToolbar->iconSize());
+
+    {
+        // Custom widgets which are added into a QToolBar are by default aligned to the left, while QActions are justified.
+        // That sucks, because some of our widgets use multiple actions with an expanding arrow at right.
+        // Make sure everything is aligned to the left, so that the actual buttons are aligned properly and the extra arrows
+        // are, well, at right.
+        // I have no idea how this works on RTL layouts.
+        QLayout *lay = m_mainToolbar->layout();
+        for (int i = 0; i < lay->count(); ++i) {
+            QLayoutItem *it = lay->itemAt(i);
+            if (it->widget() == toolbarSpacer) {
+                // Don't align this one, otherwise it won't push stuff when in horizontal direction
+                continue;
+            }
+            if (it->widget() == busyParsersIndicator) {
+                // It looks much better when centered
+                it->setAlignment(Qt::AlignJustify);
+                continue;
+            }
+            it->setAlignment(Qt::AlignLeft);
+        }
+    }
+
     updateMessageFlags();
 }
 
@@ -598,7 +625,12 @@ void MainWindow::createMenus()
     ADD_ACTION(helpMenu, aboutTrojita);
 
     networkIndicator->setMenu(netPolicyMenu);
-    networkIndicator->setDefaultAction(netOnline);
+    m_netToolbarDefaultAction = new QAction(this);
+    networkIndicator->setDefaultAction(m_netToolbarDefaultAction);
+    connect(m_netToolbarDefaultAction, SIGNAL(triggered(bool)), networkIndicator, SLOT(showMenu()));
+    connect(netOffline, SIGNAL(toggled(bool)), this, SLOT(updateNetworkIndication()));
+    connect(netExpensive, SIGNAL(toggled(bool)), this, SLOT(updateNetworkIndication()));
+    connect(netOnline, SIGNAL(toggled(bool)), this, SLOT(updateNetworkIndication()));
 
 #undef ADD_ACTION
 }
@@ -668,16 +700,6 @@ void MainWindow::createWidgets()
     addDockWidget(Qt::BottomDockWidgetArea, imapLoggerDock);
 
     busyParsersIndicator = new TaskProgressIndicator(this);
-    statusBar()->addPermanentWidget(busyParsersIndicator);
-    busyParsersIndicator->hide();
-
-    menuShow = new QToolButton(this);
-    statusBar()->addPermanentWidget(menuShow);
-    menuShow->hide();
-
-    networkIndicator = new QToolButton(this);
-    networkIndicator->setPopupMode(QToolButton::InstantPopup);
-    statusBar()->addPermanentWidget(networkIndicator);
 }
 
 void MainWindow::setupModels()
@@ -1091,21 +1113,19 @@ void MainWindow::cacheError(const QString &message)
 
 void MainWindow::networkPolicyOffline()
 {
-    netOffline->setChecked(true);
     netExpensive->setChecked(false);
     netOnline->setChecked(false);
+    netOffline->setChecked(true);
     updateActionsOnlineOffline(false);
-    networkIndicator->setDefaultAction(netOffline);
-    statusBar()->showMessage(tr("Offline"), 0);
+    showStatusMessage(tr("Offline"));
 }
 
 void MainWindow::networkPolicyExpensive()
 {
     netOffline->setChecked(false);
-    netExpensive->setChecked(true);
     netOnline->setChecked(false);
+    netExpensive->setChecked(true);
     updateActionsOnlineOffline(true);
-    networkIndicator->setDefaultAction(netExpensive);
 }
 
 void MainWindow::networkPolicyOnline()
@@ -1114,13 +1134,11 @@ void MainWindow::networkPolicyOnline()
     netExpensive->setChecked(false);
     netOnline->setChecked(true);
     updateActionsOnlineOffline(true);
-    networkIndicator->setDefaultAction(netOnline);
 }
 
 /** @short Updates GUI about reconnection attempts */
 void MainWindow::slotReconnectAttemptScheduled(const int timeout)
 {
-    statusBar()->showMessage(tr("Attempting to reconnect in %n seconds..", 0, timeout/1000));
 }
 
 /** @short Deletes a network error message box instance upon resetting of reconnect state */
@@ -1648,30 +1666,24 @@ void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
 void MainWindow::showConnectionStatus(uint parserId, Imap::ConnectionState state)
 {
     Q_UNUSED(parserId);
-    using namespace Imap;
+    static Imap::ConnectionState previousState = Imap::ConnectionState::CONN_STATE_NONE;
     QString message = connectionStateToString(state);
-    enum { DURATION = 10000 };
-    bool transient = false;
 
-    switch (state) {
-    case CONN_STATE_AUTHENTICATED:
-    case CONN_STATE_SELECTED:
-        transient = true;
-        break;
-    default:
-        // only the stuff above is transient
-        break;
+    if (state == Imap::ConnectionState::CONN_STATE_SELECTED && previousState >= Imap::ConnectionState::CONN_STATE_SELECTED) {
+        // prevent excessive popups when we "reset the state" to something which is shown quite often
+        showStatusMessage(QString());
+    } else {
+        showStatusMessage(message);
     }
-    statusBar()->showMessage(message, transient ? DURATION : 0);
+    previousState = state;
 }
 
 void MainWindow::slotShowLinkTarget(const QString &link)
 {
     if (link.isEmpty()) {
-        statusBar()->clearMessage();
+        QToolTip::hideText();
     } else {
-        //: target of a hyperlink from the currently visible e-mail that the mouse is pointing to
-        statusBar()->showMessage(tr("Link target: %1").arg(link));
+        QToolTip::showText(QCursor::pos(), tr("Link target: %1").arg(UiUtils::Formatting::htmlEscaped(link)));
     }
 }
 
@@ -2403,7 +2415,6 @@ void MainWindow::applySizesAndState()
         if (ok) {
             menuBar()->setVisible(visibility);
             showMenuBar->setChecked(visibility);
-            updateMenuHidingButton();
         }
     }
 
@@ -2439,11 +2450,6 @@ void MainWindow::enableLoggingToDisk()
     imapLogger->slotSetPersistentLogging(true);
 }
 
-void MainWindow::updateMenuHidingButton()
-{
-    menuShow->setVisible(!menuBar()->isVisibleTo(this) && !m_mainToolbar->isVisibleTo(this));
-}
-
 void MainWindow::slotPluginsChanged()
 {
     Plugins::AddressbookPlugin *addressbook = pluginManager()->addressbook();
@@ -2451,6 +2457,21 @@ void MainWindow::slotPluginsChanged()
         m_actionContactEditor->setEnabled(false);
     else
         m_actionContactEditor->setEnabled(true);
+}
+
+/** @short Update the default action to make sure that we show a correct status of the network connection */
+void MainWindow::updateNetworkIndication()
+{
+    if (QAction *action = qobject_cast<QAction*>(sender())) {
+        if (action->isChecked()) {
+            m_netToolbarDefaultAction->setIcon(action->icon());
+        }
+    }
+}
+
+void MainWindow::showStatusMessage(const QString &message)
+{
+    QToolTip::showText(networkIndicator->mapToGlobal(QPoint(0, 0)), message);
 }
 
 }

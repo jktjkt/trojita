@@ -25,6 +25,7 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QTimer>
+#include "Gui/Spinner.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/VisibleTasksModel.h"
 
@@ -32,13 +33,14 @@ namespace Gui
 {
 
 TaskProgressIndicator::TaskProgressIndicator(QWidget *parent) :
-    QProgressBar(parent), m_busyCursorTrigger(new QTimer(this)), m_busy(false)
+    Spinner(parent), m_busyCursorTrigger(new QTimer(this)), m_busy(false)
 {
-    setMinimum(0);
-    setMaximum(0);
     connect(m_busyCursorTrigger, SIGNAL(timeout()), this, SLOT(setCursorBusy()));
     m_busyCursorTrigger->setSingleShot(true);
     m_busyCursorTrigger->setInterval(666);
+
+    setType(Spinner::Elastic);
+    setContext(Spinner::Throbber);
 }
 
 /** @short Connect to the specified IMAP model as the source of the activity information */
@@ -60,13 +62,14 @@ void TaskProgressIndicator::updateActivityIndication()
         return;
 
     bool busy = m_visibleTasksModel->hasChildren();
-    setVisible(busy);
     if (!m_busy && busy) {
+        start();
         if (!m_busyCursorTrigger->isActive()) {
             // do NOT restart, we don't want to prolong this delay
             m_busyCursorTrigger->start();
         }
     } else if (m_busy && !busy) {
+        stop();
         if (!m_busyCursorTrigger->isActive()) {
             // don't restore unless we've alredy set it
             QApplication::restoreOverrideCursor();
@@ -87,19 +90,6 @@ void TaskProgressIndicator::updateActivityIndication()
 void TaskProgressIndicator::setCursorBusy()
 {
     QApplication::setOverrideCursor(Qt::BusyCursor);
-}
-
-/** @short Reimplemented from QProgressBar for launching the pop-up widgets with detailed activity */
-void TaskProgressIndicator::mousePressEvent(QMouseEvent *event)
-{
-    if (!m_visibleTasksModel)
-        return;
-
-    if (event->buttons() == Qt::LeftButton) {
-        event->accept();
-    } else {
-        QProgressBar::mousePressEvent(event);
-    }
 }
 
 }

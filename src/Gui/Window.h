@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2015 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -197,7 +197,7 @@ private slots:
     void saveSizesAndState();
     void saveRawStateSetting(bool enabled);
     void possiblyLoadMessageOnSplittersChanged();
-    void updateMenuHidingButton();
+    void updateNetworkIndication();
 
     void desktopGeometryChanged();
 
@@ -208,6 +208,8 @@ private slots:
     void slotResetReconnectState();
 
     void slotPluginsChanged();
+
+    void showStatusMessage(const QString &message);
 
 protected:
     void resizeEvent(QResizeEvent *);
@@ -265,6 +267,7 @@ private:
     QAction *netOffline;
     QAction *netExpensive;
     QAction *netOnline;
+    QAction *m_netToolbarDefaultAction;
     QAction *exitAction;
     QAction *showFullView;
     QAction *showTaskView;
@@ -333,7 +336,6 @@ private:
 
     TaskProgressIndicator *busyParsersIndicator;
     QToolButton *networkIndicator;
-    QToolButton *menuShow;
 
     bool m_ignoreStoredPassword;
 

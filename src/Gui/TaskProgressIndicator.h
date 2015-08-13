@@ -24,7 +24,7 @@
 #define GUI_TASKPROGRESSINDICATOR_H
 
 #include <QPointer>
-#include <QProgressBar>
+#include "Gui/Spinner.h"
 
 class QTimer;
 
@@ -40,8 +40,10 @@ class VisibleTasksModel;
 namespace Gui
 {
 
+class Spinner;
+
 /** @short A GUI element for showing whether anything is "using" the IMAP connection */
-class TaskProgressIndicator : public QProgressBar
+class TaskProgressIndicator : public Spinner
 {
     Q_OBJECT
 public:
@@ -51,9 +53,6 @@ public:
 
 public slots:
     void updateActivityIndication();
-
-protected:
-    void mousePressEvent(QMouseEvent *event);
 
 private slots:
     void setCursorBusy();
