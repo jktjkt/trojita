@@ -23,6 +23,7 @@
 */
 #include <QAbstractProxyModel>
 #include <QBuffer>
+#include <QDesktopWidget>
 #include <QFileDialog>
 #include <QGraphicsOpacityEffect>
 #include <QKeyEvent>
@@ -233,8 +234,6 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_markButton->hide();
     m_replyModeButton->hide();
 
-    ui->mailText->setFont(Gui::Util::systemMonospaceFont());
-
     connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
     connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
     connect(ui->mailText, SIGNAL(textChanged()), SLOT(setMessageUpdated()));
@@ -269,6 +268,13 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE, QFormLayout::FieldRole)->widget()->setFocus();
 
     slotUpdateSignature();
+
+    // default size
+    int sz = ui->mailText->idealWidth();
+    ui->mailText->setMinimumSize(sz, 1000*sz/1618); // golden mean editor
+    adjustSize();
+    ui->mailText->setMinimumSize(0, 0);
+    resize(size().boundedTo(qApp->desktop()->availableGeometry().size()));
 }
 
 ComposeWidget::~ComposeWidget()

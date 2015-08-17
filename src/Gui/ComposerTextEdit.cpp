@@ -31,13 +31,22 @@
 #include <QTimer>
 #include <QUrl>
 
+#include "Gui/Util.h"
+#include "UiUtils/Color.h"
+
 ComposerTextEdit::ComposerTextEdit(QWidget *parent) : QTextEdit(parent)
 , m_couldBeSendRequest(false)
+, m_wrapIndicatorOffset(-1)
 {
+    setFont(Gui::Util::systemMonospaceFont());
     setAcceptRichText(false);
-    setLineWrapMode(QTextEdit::FixedColumnWidth);
+    setLineWrapMode(QTextEdit::WidgetWidth);
     setWordWrapMode(QTextOption::WordWrap);
-    setLineWrapColumnOrWidth(78);
+    m_wrapIndicatorOffset = fontMetrics().averageCharWidth() * 78;
+    QColor c = palette().color(QPalette::Active, foregroundRole());
+    c.setAlpha(26);
+    m_wrapIndicatorColor = UiUtils::tintColor(palette().color(QPalette::Active, backgroundRole()), c);
+
     m_notificationTimer = new QTimer(this);
     m_notificationTimer->setSingleShot(true);
     connect (m_notificationTimer, SIGNAL(timeout()), SLOT(resetNotification()));
@@ -55,6 +64,13 @@ void ComposerTextEdit::notify(const QString &n, uint timeout)
         m_notificationTimer->start(timeout);
     }
     viewport()->update();
+}
+
+int ComposerTextEdit::idealWidth() const
+{
+    int l,d,r;
+    getContentsMargins(&l, &d, &r, &d);
+    return l + r+ 80*QFontMetrics(font()).averageCharWidth();
 }
 
 void ComposerTextEdit::resetNotification()
@@ -118,7 +134,16 @@ void ComposerTextEdit::keyReleaseEvent(QKeyEvent *ke)
 
 void ComposerTextEdit::paintEvent(QPaintEvent *pe)
 {
+    // wrap indicator
+    QPainter p(viewport());
+    p.setPen(m_wrapIndicatorColor);
+    const QRect geo = viewport()->geometry();
+    const int x = geo.x() + m_wrapIndicatorOffset;
+    p.drawLine(x, geo.y(), x, geo.x() + viewport()->height());
+    p.end();
+
     QTextEdit::paintEvent(pe);
+
     if ( !m_notification.isEmpty() )
     {
         const int s = width()/5;
