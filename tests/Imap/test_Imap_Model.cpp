@@ -25,6 +25,7 @@
 #include "Utils/headless_test.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
 
@@ -145,6 +146,22 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE(deletionSucceded.count(), 0);
     QModelIndex mbox_zzz = model->index(5, 0, QModelIndex());
     QCOMPARE(model->data(mbox_zzz, Qt::DisplayRole), QVariant("zzz_newly-Created2"));
+    cEmpty();
+
+    // Verify automated subscription
+    model->createMailbox(QLatin1String("zzz_newly-Created3"), Imap::Mailbox::AutoSubscription::SUBSCRIBE);
+    cClient(t.mk("CREATE zzz_newly-Created3\r\n"));
+    cServer(t.last("OK created\r\n"));
+    cClient(t.mk("LIST \"\" zzz_newly-Created3\r\n"));
+    cServer("* LIST (\\HasNoChildren) \".\" zzz_newly-Created3\r\n"
+            + t.last("OK listed\r\n"));
+    cClient(t.mk("SUBSCRIBE zzz_newly-Created3\r\n"));
+    cServer(t.last("OK subscribed\r\n"));
+    QModelIndex mbox_created3 = model->index(6, 0, QModelIndex());
+    QVERIFY(mbox_created3.isValid());
+    QCOMPARE(mbox_created3.data(Qt::DisplayRole), QVariant("zzz_newly-Created3"));
+    QCOMPARE(mbox_created3.data(Imap::Mailbox::RoleMailboxIsSubscribed), QVariant(true));
+    QCOMPARE(mbox_inbox.data(Imap::Mailbox::RoleMailboxIsSubscribed), QVariant(false));
     cEmpty();
 }
 

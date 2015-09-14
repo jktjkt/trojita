@@ -185,10 +185,16 @@ AppendTask *TaskFactory::createAppendTask(Model *model, const QString &targetMai
     return new AppendTask(model, targetMailbox, data, flags, timestamp);
 }
 
-SubscribeUnsubscribeTask *TaskFactory::createSubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox,
+SubscribeUnsubscribeTask *TaskFactory::createSubscribeUnsubscribeTask(Model *model, const QString &mailboxName,
                                                                       const SubscribeUnsubscribeOperation operation)
 {
-    return new SubscribeUnsubscribeTask(model, mailbox, operation);
+    return new SubscribeUnsubscribeTask(model, mailboxName, operation);
+}
+
+SubscribeUnsubscribeTask *TaskFactory::createSubscribeUnsubscribeTask(Model *model, ImapTask *parentTask, const QString &mailboxName,
+                                                                      const SubscribeUnsubscribeOperation operation)
+{
+    return new SubscribeUnsubscribeTask(model, parentTask, mailboxName, operation);
 }
 
 GenUrlAuthTask *TaskFactory::createGenUrlAuthTask(Model *model, const QString &host, const QString &user, const QString &mailbox,

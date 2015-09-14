@@ -37,7 +37,8 @@ class SubscribeUnsubscribeTask : public ImapTask
 {
     Q_OBJECT
 public:
-    SubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox, SubscribeUnsubscribeOperation operation);
+    SubscribeUnsubscribeTask(Model *model, const QString &mailboxName, SubscribeUnsubscribeOperation operation);
+    SubscribeUnsubscribeTask(Model *model, ImapTask *parentTask, const QString &mailboxName, SubscribeUnsubscribeOperation operation);
     virtual void perform();
 
     virtual bool handleStateHelper(const Imap::Responses::State *const resp);
@@ -49,7 +50,7 @@ private:
     CommandHandle tag;
     ImapTask *conn;
     SubscribeUnsubscribeOperation operation;
-    QPersistentModelIndex mailboxIndex;
+    QString mailboxName;
 };
 
 }
