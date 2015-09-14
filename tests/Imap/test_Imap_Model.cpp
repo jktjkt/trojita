@@ -23,7 +23,6 @@
 #include <QtTest>
 #include "test_Imap_Model.h"
 #include "Utils/headless_test.h"
-#include "Utils/LibMailboxSync.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/MemoryCache.h"
@@ -32,7 +31,6 @@
 void ImapModelTest::initTestCase()
 {
     Common::registerMetaTypes();
-    model = 0;
     mboxModel = 0;
 }
 
@@ -42,18 +40,10 @@ void ImapModelTest::init()
     factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
+    setupLogging();
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     QCoreApplication::processEvents();
 }
-
-void ImapModelTest::cleanup()
-{
-    delete model;
-    model = 0;
-    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
-}
-
-#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 void ImapModelTest::testSyncMailbox()
 {

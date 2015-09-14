@@ -64,6 +64,9 @@ public:
 
     static void setModelNetworkPolicy(Imap::Mailbox::Model *model, const Imap::Mailbox::NetworkPolicy policy);
 
+protected:
+    void setupLogging();
+
 protected slots:
     virtual void init();
     virtual void cleanup();

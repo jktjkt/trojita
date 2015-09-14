@@ -24,7 +24,7 @@
 #define TEST_IMAP_MODEL
 
 #include "Imap/Model/Model.h"
-#include "Streams/SocketFactory.h"
+#include "Utils/LibMailboxSync.h"
 
 
 /** @short Unit tests for the Imap::Mailbox::Model
@@ -32,12 +32,11 @@
 The purpose of these unit tests is to verify the high-level operation of the
 Imap::Mailbox::Model, for example mailbox re-synchronization.
 */
-class ImapModelTest : public QObject
+class ImapModelTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
     void init();
-    void cleanup();
     void initTestCase();
 
     void testSyncMailbox();
@@ -48,8 +47,6 @@ private slots:
     void testCreationDeletionHandling();
 
 private:
-    Imap::Mailbox::Model* model;
-    Streams::FakeSocketFactory* factory;
     Imap::Mailbox::MailboxModel* mboxModel;
 };
 

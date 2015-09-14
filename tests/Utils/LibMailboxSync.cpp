@@ -49,17 +49,26 @@ ExpectSingleErrorHere::~ExpectSingleErrorHere()
     m_syncer->errorSpy->removeFirst();
 }
 
-LibMailboxSync::LibMailboxSync(): m_fakeListCommand(true)
+LibMailboxSync::LibMailboxSync(): model(0), msgListModel(0), threadingModel(0), factory(0), taskFactoryUnsafe(0),
+    errorSpy(0), netErrorSpy(0), m_verbose(false), m_expectsError(false), m_fakeListCommand(true)
 {
+    m_verbose = qgetenv("TROJITA_IMAP_DEBUG") == QByteArray("1");
 }
 
 LibMailboxSync::~LibMailboxSync()
 {
 }
 
+void LibMailboxSync::setupLogging()
+{
+    errorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
+    netErrorSpy = new QSignalSpy(model, SIGNAL(networkError(QString)));
+    connect(model, SIGNAL(imapError(QString)), this, SLOT(modelSignalsError(QString)));
+    connect(model, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(modelLogged(uint,Common::LogMessage)));
+}
+
 void LibMailboxSync::init()
 {
-    m_verbose = qgetenv("TROJITA_IMAP_DEBUG") == QByteArray("1");
     m_expectsError = false;
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
     factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
@@ -82,10 +91,7 @@ void LibMailboxSync::init()
             QLatin1String("y") << QLatin1String("z");
     }
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
-    errorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
-    netErrorSpy = new QSignalSpy(model, SIGNAL(networkError(QString)));
-    connect(model, SIGNAL(imapError(QString)), this, SLOT(modelSignalsError(QString)));
-    connect(model, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(modelLogged(uint,Common::LogMessage)));
+    setupLogging();
 
     msgListModel = new Imap::Mailbox::MsgListModel(this, model);
 
@@ -147,12 +153,16 @@ void LibMailboxSync::cleanup()
 {
     delete model;
     model = 0;
-    msgListModel->deleteLater();
+    if (msgListModel) {
+        msgListModel->deleteLater();
+    }
     msgListModel = 0;
-    threadingModel->deleteLater();
+    if (threadingModel) {
+        threadingModel->deleteLater();
+    }
     threadingModel = 0;
     taskFactoryUnsafe = 0;
-    QVERIFY( errorSpy->isEmpty() );
+    QVERIFY(errorSpy->isEmpty());
     delete errorSpy;
     errorSpy = 0;
     delete netErrorSpy;
