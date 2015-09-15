@@ -971,7 +971,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     // At the same time, request a different sorting criteria
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_CC, Qt::AscendingOrder);
 
-    QByteArray cancelReq = t.mk("CANCELUPDATE \"" + sortTag + "\"\r\n");
+    QByteArray cancelReq = t.mk(QByteArray("CANCELUPDATE \"" + sortTag + "\"\r\n"));
     QByteArray cancelResponse = t.last("OK no more updates for you\r\n");
     cClient(cancelReq + t.mk("UID SORT RETURN (ALL UPDATE) (CC) utf-8 ALL\r\n"));
     sortTag = t.last();
@@ -1007,7 +1007,7 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     checkUidMapFromThreading(expectedUidOrder);
 
     model->switchToMailbox(idxB);
-    cClient(t.mk("CANCELUPDATE \"" + sortTag + "\"\r\n"));
+    cClient(t.mk(QByteArray("CANCELUPDATE \"" + sortTag + "\"\r\n")));
     cServer(t.last("OK no further updates\r\n"));
     cClient(t.mk("SELECT b\r\n"));
     cServer("* OK [CLOSED] previous mailbox closed\r\n* 0 EXISTS\r\n" + t.last("OK selected\r\n"));
@@ -1433,7 +1433,7 @@ void ImapModelThreadingTest::testFlatThreadDeletionPerformance()
     auto numDeletes = num / 2;
 
     // perform the deletes in the middle
-    QByteArray deletes = ("* " + QByteArray::number(num - numDeletes - 5) + " EXPUNGE\r\n").repeated(numDeletes);
+    QByteArray deletes = QByteArray("* " + QByteArray::number(num - numDeletes - 5) + " EXPUNGE\r\n").repeated(numDeletes);
 
     QSignalSpy layoutChanged(threadingModel, SIGNAL(layoutChanged()));
 

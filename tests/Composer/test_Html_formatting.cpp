@@ -399,7 +399,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                                        "laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in "
                                        "voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat "
                                        "cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
-    QString shortLipsum = (lipsum + QLatin1Char(' ') + lipsum).left(5*160);
+    QString shortLipsum = QString(lipsum + QLatin1Char(' ') + lipsum).left(5*160);
 
     QTest::newRow("collapsed-last-quote")
             << QString::fromUtf8("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum

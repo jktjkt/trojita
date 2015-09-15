@@ -78,7 +78,7 @@ namespace QTest {
     template <>
     char *toString(const Composer::RecipientList::value_type &item)
     {
-        return qstrdup((recipientKindtoString(item.first).toUtf8() + ' ' + item.second.asSMTPMailbox()).constData());
+        return qstrdup(QByteArray(recipientKindtoString(item.first).toUtf8() + ' ' + item.second.asSMTPMailbox()).constData());
     }
 }
 

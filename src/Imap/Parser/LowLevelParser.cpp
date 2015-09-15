@@ -340,7 +340,7 @@ QVariant getAnything(const QByteArray &line, int &start)
             ++start;
             return QByteArray("\\*");
         }
-        return QByteArray(1, '\\') + getAtom(line, start);
+        return QByteArray(QByteArray(1, '\\') + getAtom(line, start));
     } else {
         QByteArray atom = getAtom(line, start);
         if (atom.indexOf('[', 0) != -1) {
