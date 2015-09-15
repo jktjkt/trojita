@@ -27,6 +27,7 @@
 #include <QVariantList>
 
 class QTextStream;
+class ImapMessageTest;
 
 /** @short Namespace for IMAP interaction */
 namespace Imap
@@ -36,6 +37,8 @@ namespace Imap
 /** @short Classes for handling e-mail messages */
 namespace Message
 {
+
+class Envelope;
 
 /** @short Storage container for one address from an envelope */
 class MailAddress {
@@ -60,11 +63,14 @@ public:
     /** @short RFC2822 Domain Name */
     QString host;
 
+    /** @short Construct from already decoded Unicode data */
     MailAddress(const QString &name, const QString &adl,
                 const QString &mailbox, const QString &host):
         name(name), adl(adl), mailbox(mailbox), host(host) {}
-    MailAddress(const QVariantList &input, const QByteArray &line, const int start);
+
+    /** @short Construct an invalid, empty MailAddress, something with no content */
     MailAddress() {}
+
     QString prettyName(FormattingMode mode) const;
 
     QByteArray asSMTPMailbox() const;
@@ -82,6 +88,12 @@ public:
     static bool fromUrl(MailAddress &into, const QUrl &url, const QString &expectedScheme);
 
     static MailAddress fromNameAndMail(const QString &name, const QString &email);
+
+private:
+    /** @short Construct from a list of raw items as found in an IMAP ENVELOPE */
+    MailAddress(const QVariantList &input, const QByteArray &line, const int start);
+    friend class Envelope;
+    friend class ::ImapMessageTest;
 };
 
 QTextStream &operator<<(QTextStream &stream, const MailAddress &address);
