@@ -30,6 +30,12 @@ namespace Mailbox
 
 typedef enum { SUBSCRIBE, UNSUBSCRIBE } SubscribeUnsubscribeOperation;
 
+/** @short Automatic subscribe during mailbox creation */
+enum class AutoSubscription {
+    NO_EXPLICIT_SUBSCRIPTION, /**< Do not do anything, leave stuff to server */
+    SUBSCRIBE, /**< Request subscription */
+};
+
 }
 }
 

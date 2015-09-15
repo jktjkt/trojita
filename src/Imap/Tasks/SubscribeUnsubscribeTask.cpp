@@ -33,11 +33,16 @@ namespace Mailbox
 {
 
 
-SubscribeUnsubscribeTask::SubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox, SubscribeUnsubscribeOperation operation):
-    ImapTask(model), operation(operation), mailboxIndex(mailbox)
+SubscribeUnsubscribeTask::SubscribeUnsubscribeTask(Model *model, const QString &mailboxName, SubscribeUnsubscribeOperation operation):
+    ImapTask(model), operation(operation), mailboxName(mailboxName)
 {
-    Q_ASSERT(dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailbox.internalPointer())));
     conn = model->m_taskFactory->createGetAnyConnectionTask(model);
+    conn->addDependentTask(this);
+}
+
+SubscribeUnsubscribeTask::SubscribeUnsubscribeTask(Model *model, ImapTask *parentTask, const QString &mailboxName, SubscribeUnsubscribeOperation operation):
+    ImapTask(model), conn(parentTask), operation(operation), mailboxName(mailboxName)
+{
     conn->addDependentTask(this);
 }
 
@@ -48,21 +53,12 @@ void SubscribeUnsubscribeTask::perform()
 
     IMAP_TASK_CHECK_ABORT_DIE;
 
-    if (! mailboxIndex.isValid()) {
-        // FIXME: add proper fix
-        log(QLatin1String("Mailbox vanished before we could ask for number of messages inside"));
-        _completed();
-        return;
-    }
-    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
-    Q_ASSERT(mailbox);
-
     switch (operation) {
     case SUBSCRIBE:
-        tag = parser->subscribe(mailbox->mailbox());
+        tag = parser->subscribe(mailboxName);
         break;
     case UNSUBSCRIBE:
-        tag = parser->unSubscribe(mailbox->mailbox());
+        tag = parser->unSubscribe(mailboxName);
         break;
     default:
         Q_ASSERT(false);
@@ -76,7 +72,7 @@ bool SubscribeUnsubscribeTask::handleStateHelper(const Imap::Responses::State *c
 
     if (resp->tag == tag) {
         if (resp->kind == Responses::OK) {
-            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
+            TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(model->findMailboxByName(mailboxName));
             QString subscribed = QLatin1String("\\SUBSCRIBED");
             switch (operation) {
             case SUBSCRIBE:
@@ -88,6 +84,10 @@ bool SubscribeUnsubscribeTask::handleStateHelper(const Imap::Responses::State *c
                 if (mailbox) {
                     mailbox->m_metadata.flags.removeOne(subscribed);
                 }
+            }
+            if (mailbox) {
+                auto index = mailbox->toIndex(model);
+                emit model->dataChanged(index, index);
             }
             _completed();
         } else {
@@ -102,17 +102,12 @@ bool SubscribeUnsubscribeTask::handleStateHelper(const Imap::Responses::State *c
 
 QString SubscribeUnsubscribeTask::debugIdentification() const
 {
-    if (! mailboxIndex.isValid())
-        return QLatin1String("[invalid mailboxIndex]");
-
-    TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
-    Q_ASSERT(mailbox);
-    return QString::fromUtf8("attached to %1").arg(mailbox->mailbox());
+    return QString::fromUtf8("Subscription update for %1").arg(mailboxName);
 }
 
 QVariant SubscribeUnsubscribeTask::taskData(const int role) const
 {
-    return role == RoleTaskCompactName ? QVariant(tr("Looking for messages")) : QVariant();
+    return role == RoleTaskCompactName ? QVariant(tr("Updating subscription information")) : QVariant();
 }
 
 }

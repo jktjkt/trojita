@@ -23,16 +23,15 @@
 #include <QtTest>
 #include "test_Imap_Model.h"
 #include "Utils/headless_test.h"
-#include "Utils/LibMailboxSync.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/MailboxModel.h"
 
 void ImapModelTest::initTestCase()
 {
     Common::registerMetaTypes();
-    model = 0;
     mboxModel = 0;
 }
 
@@ -42,151 +41,128 @@ void ImapModelTest::init()
     factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TaskFactory());
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
+    setupLogging();
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     QCoreApplication::processEvents();
 }
-
-void ImapModelTest::cleanup()
-{
-    delete model;
-    model = 0;
-    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
-}
-
-#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
 
 void ImapModelTest::testSyncMailbox()
 {
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
-    SOCK->fakeReading( "* PREAUTH [CAPABILITY Imap4Rev1] foo\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
-    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
-                       "* CAPABILITY IMAP4rev1\r\n"
-                       "y0 ok list completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QModelIndex inbox = model->index( 1, 0, QModelIndex() );
-    QCOMPARE( model->data( inbox, Qt::DisplayRole ), QVariant("INBOX") );
-    QCoreApplication::processEvents();
+    cServer("* PREAUTH [CAPABILITY Imap4Rev1] foo\r\n");
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer("* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
+            "* CAPABILITY IMAP4rev1\r\n"
+            + t.last("ok list completed\r\n"));
+    QModelIndex inbox = model->index(1, 0, QModelIndex());
+    QCOMPARE(model->data( inbox, Qt::DisplayRole), QVariant("INBOX"));
+    cEmpty();
 
     // further tests are especially in the Imap_Task_ObtainSynchronizedMailboxTest
 }
 
 void ImapModelTest::testInboxCaseSensitivity()
 {
-    mboxModel = new Imap::Mailbox::MailboxModel( this, model );
-    mboxModel->rowCount( QModelIndex() );
+    mboxModel = new Imap::Mailbox::MailboxModel(this, model);
+    mboxModel->rowCount(QModelIndex());
     QCoreApplication::processEvents();
-    SOCK->fakeReading( "* PREAUTH [Capability imap4rev1] foo\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
-    SOCK->fakeReading( "* LIST (\\Noinferiors) \".\" \"Inbox\"\r\n"
-                       "y0 ok list completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( mboxModel->data( mboxModel->index( 0, 0, QModelIndex() ), Qt::DisplayRole ), QVariant("INBOX") );
+    cServer("* PREAUTH [Capability imap4rev1] foo\r\n");
+    t.reset();
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer("* LIST (\\Noinferiors) \".\" \"Inbox\"\r\n"
+            + t.last("ok list completed\r\n"));
+    QCOMPARE(mboxModel->data(mboxModel->index(0, 0, QModelIndex()), Qt::DisplayRole), QVariant("INBOX"));
+    cEmpty();
     mboxModel->deleteLater();
     mboxModel = 0;
 }
 
 void ImapModelTest::testCreationDeletionHandling()
 {
-    QSignalSpy noParseError( model, SIGNAL(imapError(QString)) );
-    QVERIFY( noParseError.isValid() );
     // Start the conversation
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
-    SOCK->fakeReading( "* PREAUTH [CAPABILITY imap4rev1] foo\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer("* PREAUTH [CAPABILITY imap4rev1] foo\r\n");
 
     // Ask for capabilities and list top-level mailboxes
     // These commands are interleaved with each other
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LIST \"\" \"%\"\r\n") );
-    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
-                       "* LIST (\\HasChildren) \".\" \"SomeParent\"\r\n"
-                       "* LIST (\\HasNoChildren) \".\" \"one\"\r\n"
-                       "* LIST (\\HasNoChildren) \".\" two\r\n"
-                       "y0 ok list completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    t.reset();
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer("* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
+            "* LIST (\\HasChildren) \".\" \"SomeParent\"\r\n"
+            "* LIST (\\HasNoChildren) \".\" \"one\"\r\n"
+            "* LIST (\\HasNoChildren) \".\" two\r\n"
+            + t.last("ok list completed\r\n"));
 
     // Note that the ordering is case-insensitive
-    QModelIndex mbox_inbox = model->index( 1, 0, QModelIndex() );
-    QModelIndex mbox_one = model->index( 2, 0, QModelIndex() );
-    QModelIndex mbox_SomeParent = model->index( 3, 0, QModelIndex() );
-    QModelIndex mbox_two = model->index( 4, 0, QModelIndex() );
-    QCOMPARE( model->data( mbox_inbox, Qt::DisplayRole ), QVariant("INBOX") );
-    QCOMPARE( model->data( mbox_one, Qt::DisplayRole ), QVariant("one") );
-    QCOMPARE( model->data( mbox_two, Qt::DisplayRole ), QVariant("two") );
-    QCOMPARE( model->data( mbox_SomeParent, Qt::DisplayRole ), QVariant("SomeParent") );
-    QVERIFY( noParseError.isEmpty() );
+    QModelIndex mbox_inbox = model->index(1, 0, QModelIndex());
+    QModelIndex mbox_one = model->index(2, 0, QModelIndex());
+    QModelIndex mbox_SomeParent = model->index(3, 0, QModelIndex());
+    QModelIndex mbox_two = model->index(4, 0, QModelIndex());
+    QCOMPARE( model->data(mbox_inbox, Qt::DisplayRole), QVariant("INBOX"));
+    QCOMPARE( model->data(mbox_one, Qt::DisplayRole), QVariant("one"));
+    QCOMPARE( model->data(mbox_two, Qt::DisplayRole), QVariant("two"));
+    QCOMPARE( model->data(mbox_SomeParent, Qt::DisplayRole), QVariant("SomeParent"));
 
     // Try to create mailbox
-    model->createMailbox( QLatin1String("zzz_newly-Created") );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 CREATE zzz_newly-Created\r\n") );
+    model->createMailbox(QLatin1String("zzz_newly-Created"));
+    cClient(t.mk("CREATE zzz_newly-Created\r\n"));
 
     // Sane invariants
-    QSignalSpy creationFailed( model, SIGNAL(mailboxCreationFailed(QString,QString)) );
-    QVERIFY( creationFailed.isValid() );
-    QSignalSpy creationSucceded( model, SIGNAL(mailboxCreationSucceded(QString)) );
-    QVERIFY( creationSucceded.isValid() );
-    QSignalSpy deletionFailed( model, SIGNAL(mailboxDeletionFailed(QString,QString)) );
-    QVERIFY( deletionFailed.isValid() );
-    QSignalSpy deletionSucceded( model, SIGNAL(mailboxDeletionSucceded(QString)) );
-    QVERIFY( deletionSucceded.isValid() );
+    QSignalSpy creationFailed(model, SIGNAL(mailboxCreationFailed(QString,QString)));
+    QVERIFY(creationFailed.isValid());
+    QSignalSpy creationSucceded(model, SIGNAL(mailboxCreationSucceded(QString)));
+    QVERIFY(creationSucceded.isValid());
+    QSignalSpy deletionFailed(model, SIGNAL(mailboxDeletionFailed(QString,QString)));
+    QVERIFY(deletionFailed.isValid());
+    QSignalSpy deletionSucceded(model, SIGNAL(mailboxDeletionSucceded(QString)));
+    QVERIFY(deletionSucceded.isValid());
 
     // Test that we handle failure of the CREATE command
-    SOCK->fakeReading( "y1 NO go away\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( creationFailed.count(), 1 );
+    cServer(t.last("NO go away\r\n"));
+    QCOMPARE(creationFailed.count(), 1);
     QList<QVariant> args = creationFailed.takeFirst();
-    QCOMPARE( args.size(), 2 );
-    QCOMPARE( args[0], QVariant("zzz_newly-Created") );
-    QCOMPARE( args[1], QVariant("go away") );
-    QCOMPARE( creationSucceded.count(), 0 );
-    QCOMPARE( deletionFailed.count(), 0 );
-    QCOMPARE( deletionSucceded.count(), 0 );
-    QVERIFY( noParseError.isEmpty() );
+    QCOMPARE(args.size(), 2);
+    QCOMPARE(args[0], QVariant("zzz_newly-Created"));
+    QCOMPARE(args[1], QVariant("go away"));
+    QCOMPARE(creationSucceded.count(), 0);
+    QCOMPARE(deletionFailed.count(), 0);
+    QCOMPARE(deletionSucceded.count(), 0);
 
     // Now test its successful completion
-    model->createMailbox( QLatin1String("zzz_newly-Created2") );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 CREATE zzz_newly-Created2\r\n") );
-    SOCK->fakeReading( "y2 OK mailbox created\r\n" );
-    // This one results in issuing another command -> got to make two passes through the event loop
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 LIST \"\" zzz_newly-Created2\r\n") );
-    SOCK->fakeReading( "* LIST (\\HasNoChildren) \".\" zzz_newly-Created2\r\ny3 OK x\r\n");
-    QCOMPARE( creationFailed.count(), 0 );
-    QCOMPARE( creationSucceded.count(), 1 );
+    model->createMailbox(QLatin1String("zzz_newly-Created2"));
+    cClient(t.mk("CREATE zzz_newly-Created2\r\n"));
+    cServer(t.last("OK mailbox created\r\n"));
+    cClient(t.mk("LIST \"\" zzz_newly-Created2\r\n"));
+    cServer("* LIST (\\HasNoChildren) \".\" zzz_newly-Created2\r\n"
+            + t.last("OK x\r\n"));
+    QCOMPARE(creationFailed.count(), 0);
+    QCOMPARE(creationSucceded.count(), 1);
     args = creationSucceded.takeFirst();
-    QCOMPARE( args.size(), 1 );
-    QCOMPARE( args[0], QVariant("zzz_newly-Created2") );
-    QCOMPARE( deletionFailed.count(), 0 );
-    QCOMPARE( deletionSucceded.count(), 0 );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QModelIndex mbox_zzz = model->index( 5, 0, QModelIndex() );
-    QCOMPARE( model->data( mbox_zzz, Qt::DisplayRole ), QVariant("zzz_newly-Created2") );
-    QVERIFY( noParseError.isEmpty() );
+    QCOMPARE(args.size(), 1);
+    QCOMPARE(args[0], QVariant("zzz_newly-Created2"));
+    QCOMPARE(deletionFailed.count(), 0);
+    QCOMPARE(deletionSucceded.count(), 0);
+    QModelIndex mbox_zzz = model->index(5, 0, QModelIndex());
+    QCOMPARE(model->data(mbox_zzz, Qt::DisplayRole), QVariant("zzz_newly-Created2"));
+    cEmpty();
 
+    // Verify automated subscription
+    model->createMailbox(QLatin1String("zzz_newly-Created3"), Imap::Mailbox::AutoSubscription::SUBSCRIBE);
+    cClient(t.mk("CREATE zzz_newly-Created3\r\n"));
+    cServer(t.last("OK created\r\n"));
+    cClient(t.mk("LIST \"\" zzz_newly-Created3\r\n"));
+    cServer("* LIST (\\HasNoChildren) \".\" zzz_newly-Created3\r\n"
+            + t.last("OK listed\r\n"));
+    cClient(t.mk("SUBSCRIBE zzz_newly-Created3\r\n"));
+    cServer(t.last("OK subscribed\r\n"));
+    QModelIndex mbox_created3 = model->index(6, 0, QModelIndex());
+    QVERIFY(mbox_created3.isValid());
+    QCOMPARE(mbox_created3.data(Qt::DisplayRole), QVariant("zzz_newly-Created3"));
+    QCOMPARE(mbox_created3.data(Imap::Mailbox::RoleMailboxIsSubscribed), QVariant(true));
+    QCOMPARE(mbox_inbox.data(Imap::Mailbox::RoleMailboxIsSubscribed), QVariant(false));
+    cEmpty();
 }
 
-TROJITA_HEADLESS_TEST( ImapModelTest )
+TROJITA_HEADLESS_TEST(ImapModelTest)

@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>CreateMailboxDialog</class>
  <widget class="QDialog" name="CreateMailboxDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>276</width>
+    <height>110</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Create Mailbox</string>
   </property>
@@ -11,7 +19,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Mailbox:</string>
+        <string>&amp;Mailbox:</string>
        </property>
        <property name="buddy">
         <cstring>mailboxName</cstring>
@@ -28,7 +36,7 @@
      <item>
       <widget class="QRadioButton" name="otherMailboxes">
        <property name="text">
-        <string>Other Mailboxes</string>
+        <string>Other Mai&amp;lboxes</string>
        </property>
       </widget>
      </item>
@@ -45,6 +53,16 @@
     </layout>
    </item>
    <item>
+    <widget class="QCheckBox" name="subscribe">
+     <property name="toolTip">
+      <string>Check to add this mailbox to the server-side list of subscribed mailboxes</string>
+     </property>
+     <property name="text">
+      <string>&amp;Subscribe</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -56,13 +74,6 @@
    </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>mailboxName</tabstop>
-  <tabstop>otherMailboxes</tabstop>
-  <tabstop>justMessages</tabstop>
-  <tabstop>buttonBox</tabstop>
- </tabstops>
- <resources/>
  <customwidgets>
   <customwidget>
    <class>LineEdit</class>
@@ -70,6 +81,13 @@
    <header>LineEdit.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>mailboxName</tabstop>
+  <tabstop>otherMailboxes</tabstop>
+  <tabstop>justMessages</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

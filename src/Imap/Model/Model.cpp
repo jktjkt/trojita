@@ -35,6 +35,7 @@
 #include "Common/InvokeMethod.h"
 #include "Imap/Encoders.h"
 #include "Imap/Tasks/AppendTask.h"
+#include "Imap/Tasks/CreateMailboxTask.h"
 #include "Imap/Tasks/GetAnyConnectionTask.h"
 #include "Imap/Tasks/KeepMailboxOpenTask.h"
 #include "Imap/Tasks/OpenConnectionTask.h"
@@ -1365,14 +1366,17 @@ void Model::expungeMailbox(const QModelIndex &mailbox)
     m_taskFactory->createExpungeMailboxTask(this, mailbox);
 }
 
-void Model::createMailbox(const QString &name)
+void Model::createMailbox(const QString &name, const AutoSubscription subscription)
 {
     if (m_netPolicy == NETWORK_OFFLINE) {
         qDebug() << "Can't create mailboxes while offline";
         return;
     }
 
-    m_taskFactory->createCreateMailboxTask(this, name);
+    auto task = m_taskFactory->createCreateMailboxTask(this, name);
+    if (subscription == AutoSubscription::SUBSCRIBE) {
+        m_taskFactory->createSubscribeUnsubscribeTask(this, task, name, SUBSCRIBE);
+    }
 }
 
 void Model::deleteMailbox(const QString &name)
@@ -1397,9 +1401,7 @@ void Model::subscribeMailbox(const QString &name)
         qDebug() << "SUBSCRIBE: No such mailbox.";
         return;
     }
-    QModelIndex index = mailbox->toIndex(this);
-    Q_ASSERT(index.isValid());
-    m_taskFactory->createSubscribeUnsubscribeTask(this, index, SUBSCRIBE);
+    m_taskFactory->createSubscribeUnsubscribeTask(this, name, SUBSCRIBE);
 }
 
 void Model::unsubscribeMailbox(const QString &name)
@@ -1414,9 +1416,7 @@ void Model::unsubscribeMailbox(const QString &name)
         qDebug() << "UNSUBSCRIBE: No such mailbox.";
         return;
     }
-    QModelIndex index = mailbox->toIndex(this);
-    Q_ASSERT(index.isValid());
-    m_taskFactory->createSubscribeUnsubscribeTask(this, index, UNSUBSCRIBE);
+    m_taskFactory->createSubscribeUnsubscribeTask(this, name, UNSUBSCRIBE);
 }
 
 void Model::saveUidMap(TreeItemMsgList *list)

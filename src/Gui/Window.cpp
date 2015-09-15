@@ -1431,7 +1431,11 @@ void MainWindow::createMailboxBelow(const QModelIndex &index)
         if (ui.otherMailboxes->isChecked())
             parts << QString();
         QString targetName = parts.join(mboxPtr ? mboxPtr->separator() : QString());   // FIXME: top-level separator
-        imapModel()->createMailbox(targetName);
+        imapModel()->createMailbox(targetName,
+                                   ui.subscribe->isChecked() ?
+                                       Imap::Mailbox::AutoSubscription::SUBSCRIBE :
+                                       Imap::Mailbox::AutoSubscription::NO_EXPLICIT_SUBSCRIPTION
+                                       );
     }
 }
 

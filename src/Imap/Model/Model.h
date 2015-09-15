@@ -183,7 +183,7 @@ public:
     void copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMboxName, Imap::Uids uids, const CopyMoveOperation op);
 
     /** @short Create a new mailbox */
-    void createMailbox(const QString &name);
+    void createMailbox(const QString &name, const AutoSubscription subscription = AutoSubscription::NO_EXPLICIT_SUBSCRIPTION);
     /** @short Delete an existing mailbox */
     void deleteMailbox(const QString &name);
 

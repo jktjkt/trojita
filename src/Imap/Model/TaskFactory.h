@@ -106,7 +106,9 @@ public:
                                          const QStringList &flags, const QDateTime &timestamp);
     virtual AppendTask *createAppendTask(Model *model, const QString &targetMailbox, const QList<CatenatePair> &data,
                                          const QStringList &flags, const QDateTime &timestamp);
-    virtual SubscribeUnsubscribeTask *createSubscribeUnsubscribeTask(Model *model, const QModelIndex &mailbox,
+    virtual SubscribeUnsubscribeTask *createSubscribeUnsubscribeTask(Model *model, const QString &mailboxName,
+                                                                     const SubscribeUnsubscribeOperation operation);
+    virtual SubscribeUnsubscribeTask *createSubscribeUnsubscribeTask(Model *model, ImapTask *parentTask, const QString &mailboxName,
                                                                      const SubscribeUnsubscribeOperation operation);
     virtual GenUrlAuthTask *createGenUrlAuthTask(Model *model, const QString &host, const QString &user, const QString &mailbox,
                                                  const uint uidValidity, const uint uid, const QString &part, const QString &access);
