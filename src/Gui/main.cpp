@@ -35,6 +35,7 @@
 #include "Gui/Util.h"
 #include "Gui/Window.h"
 #include "IPC/IPC.h"
+#include "UiUtils/IconLoader.h"
 
 #include "static_plugins.h"
 
@@ -71,7 +72,7 @@ int main(int argc, char **argv)
     AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
 
-    app.setWindowIcon(QIcon(QStringLiteral(":/icons/trojita.png")));
+    app.setWindowIcon(UiUtils::loadIcon(QStringLiteral("trojita")));
 
     QTextStream qOut(stdout, QIODevice::WriteOnly);
     QTextStream qErr(stderr, QIODevice::WriteOnly);

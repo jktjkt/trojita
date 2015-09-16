@@ -874,7 +874,7 @@ void MainWindow::handleTrayIconChange()
     QModelIndex mailbox = imapModel()->index(1, 0, QModelIndex());
 
     if (mailbox.isValid() && mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX")) {
-        QPixmap pixmap = QPixmap(QStringLiteral(":/icons/trojita.png"));
+        QPixmap pixmap = UiUtils::loadIcon(QStringLiteral("trojita")).pixmap(32, 32);
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
             QPainter painter(&pixmap);
             QFont f;
@@ -913,7 +913,7 @@ void MainWindow::handleTrayIconChange()
         }
     }
     m_trayIcon->setToolTip(trUtf8("Trojitá"));
-    m_trayIcon->setIcon(QIcon(QStringLiteral(":/icons/trojita.png")));
+    m_trayIcon->setIcon(UiUtils::loadIcon(QStringLiteral("trojita")));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
