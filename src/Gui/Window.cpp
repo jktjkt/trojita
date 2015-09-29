@@ -199,9 +199,9 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QLatin1String("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
     shortcutHandler->defineAction(QLatin1String("action_forward_attachment"), QLatin1String("mail-forward"), tr("&Forward"), tr("Ctrl+Shift+F"));
     shortcutHandler->defineAction(QLatin1String("action_contact_editor"), QLatin1String("contact-unknown"), tr("Address Book..."));
-    shortcutHandler->defineAction(QLatin1String("action_network_offline"), QLatin1String("network-offline"), tr("&Offline"));
-    shortcutHandler->defineAction(QLatin1String("action_network_expensive"), QLatin1String("network-expensive"), tr("&Expensive Connection"));
-    shortcutHandler->defineAction(QLatin1String("action_network_online"), QLatin1String("network-online"), tr("&Free Access"));
+    shortcutHandler->defineAction(QLatin1String("action_network_offline"), QLatin1String("network-disconnect"), tr("&Offline"));
+    shortcutHandler->defineAction(QLatin1String("action_network_expensive"), QLatin1String("network-wireless"), tr("&Expensive Connection"));
+    shortcutHandler->defineAction(QLatin1String("action_network_online"), QLatin1String("network-connect"), tr("&Free Access"));
 }
 
 void MainWindow::createActions()
