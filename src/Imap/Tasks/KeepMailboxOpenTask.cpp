@@ -651,7 +651,7 @@ void KeepMailboxOpenTask::detachFromMailbox()
         if (mailbox->maintainingTask == this)
             mailbox->maintainingTask = 0;
     }
-    if (model->accessParser(parser).maintainingTask == this) {
+    if (model->m_parsers.contains(parser) && model->accessParser(parser).maintainingTask == this) {
         model->accessParser(parser).maintainingTask = 0;
     }
 }
