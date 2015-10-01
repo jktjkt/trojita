@@ -53,5 +53,6 @@
         <file>icons/breeze/mail-reply-list.svg</file>
         <file>icons/breeze/mail-reply-all.svg</file>
         <file>icons/breeze/mail-forward.svg</file>
+        <file>icons/breeze/network-disconnect.svg</file>
     </qresource>
 </RCC>
