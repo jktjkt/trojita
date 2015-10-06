@@ -77,7 +77,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 include(TrojitaOption)
 
 trojita_option(WITH_DESKTOP "Build desktop version" ON)
-trojita_option(WITH_QT5 "Build with Qt5 library" OFF)
+trojita_option(WITH_QT5 "Build with Qt5 library" ON)
 trojita_option(WITH_DBUS "Build with DBus library" AUTO)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
