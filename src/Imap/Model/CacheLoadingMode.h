@@ -23,7 +23,7 @@
 #ifndef IMAP_MODEL_CACHELOADINGMODE_H
 #define IMAP_MODEL_CACHELOADINGMODE_H
 
-#include <QMetaTypeId2>
+#include <QMetaType>
 
 namespace Imap {
 namespace Mailbox {

@@ -22,7 +22,7 @@
 #ifndef COMMON_METATYPES_H
 #define COMMON_METATYPES_H
 
-#include <QMetaTypeId2>
+#include <QMetaType>
 #include <QModelIndex>
 #include <QSslCertificate>
 #include <QSslError>
