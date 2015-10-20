@@ -77,14 +77,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 include(TrojitaOption)
 
 trojita_option(WITH_DESKTOP "Build desktop version" ON)
-trojita_option(WITH_HARMATTAN "Build MeeGo Harmattan version" OFF "NOT WITH_DESKTOP")
-trojita_option(WITH_QT5 "Build with Qt5 library" OFF)
+trojita_option(WITH_QT5 "Build with Qt5 library" ON)
 trojita_option(WITH_DBUS "Build with DBus library" AUTO)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
 trojita_option(WITH_KDE "Enable KDE support" AUTO "WITH_DESKTOP;NOT WITH_QT5;WITH_DBUS")
-trojita_option(WITH_TESTS "Build tests" ON "NOT WITH_HARMATTAN")
+trojita_option(WITH_TESTS "Build tests" ON)
 
 if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
@@ -121,9 +120,6 @@ else()
     if(WITH_TESTS)
         set(QT_USE_QTTEST 1)
     endif()
-    if(WITH_HARMATTAN)
-        set(QT_USE_QTDECLARATIVE 1)
-    endif()
     trojita_find_package(Qt4 4.6 "http://qt-project.org" "Qt4" "Needed for building" REQUIRED)
     include(${QT_USE_FILE})
     trojita_check_qt4_module(QTCORE REQUIRED)
@@ -133,16 +129,15 @@ else()
     trojita_check_qt4_module(QTWEBKIT REQUIRED)
     trojita_check_qt4_module(QTDBUS WITH_DBUS)
     trojita_check_qt4_module(QTTEST WITH_TESTS)
-    trojita_check_qt4_module(QTDECLARATIVE WITH_HARMATTAN)
     trojita_find_package(LinguistForTrojita "" "" "" "")
     if(NOT QT_QCONFIG MATCHES "openssl" OR QT_QCONFIG MATCHES "no-openssl")
         message(FATAL_ERROR "Your copy of Qt was build without SSL support. Please get openssl and rebuild Qt or a Qt binary with SSL support compiled in")
     endif()
 endif()
 
-trojita_plugin_option(WITH_ABOOKADDRESSBOOK_PLUGIN "Build AbookAddressbook plugin" "NOT WITH_HARMATTAN" STATIC)
+trojita_plugin_option(WITH_ABOOKADDRESSBOOK_PLUGIN "Build AbookAddressbook plugin" STATIC)
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
-trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "NOT WITH_HARMATTAN${QTKEYCHAIN_DEPENDS}")
+trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "${QTKEYCHAIN_DEPENDS}")
 trojita_plugin_option(WITH_KRESOURCE_PLUGIN "Build KDE Kresource addressbook plugin" "WITH_KDE")
 trojita_plugin_option(WITH_AKONADI_PLUGIN "Build KDE Akonadi addressbook plugin" "WITH_KDE")
 
@@ -275,7 +270,6 @@ if(NOT WITH_QT5 AND CMAKE_VERSION VERSION_LESS 2.8.10)
         ${QT_MKSPECS_DIR}/default
         ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/mimetypes-qt4/io/
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan/qmlapplicationviewer
         ${CMAKE_CURRENT_SOURCE_DIR}/tests
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_LibMailboxSync)
 else()
@@ -632,16 +626,6 @@ if(WIN32)
     )
 endif()
 
-set(libQNAMWebView_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/QNAMWebView/plugin.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/QNAMWebView/qdeclarativewebview.cpp
-)
-
-set(trojitaHarmattan_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan/qmlapplicationviewer/qmlapplicationviewer.cpp
-)
-
 if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
     file(GLOB_RECURSE lang_PO "${CMAKE_CURRENT_SOURCE_DIR}/po/trojita_common_*.po")
     if(WITH_QT5)
@@ -887,16 +871,6 @@ if(WITH_DESKTOP)
     if(WITH_ZLIB)
         target_link_libraries(trojita ${ZLIB_LIBRARIES})
     endif()
-elseif(WITH_HARMATTAN)
-    add_library(trojitaqnamwebviewplugin SHARED ${libQNAMWebView_SOURCES})
-    add_executable(trojita-tp ${trojitaHarmattan_SOURCES})
-    set_property(TARGET trojita-tp APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-    if(SUPPORTS_TARGET_INCLUDES)
-        set_property(TARGET trojita-tp APPEND PROPERTY INCLUDE_DIRECTORIES
-            ${QT_MKSPECS_DIR}/default ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan/qmlapplicationviewer)
-    endif()
-    target_link_libraries(trojita-tp AppVersion Imap MSA Streams qwwsmtpclient Common Composer MimetypesQt4
-        ${QT_QTSQL_LIBRARY} ${QT_QTNETWORK_LIBRARY} ${QT_QTWEBKIT_LIBRARY} ${QT_QTDECLARATIVE_LIBRARY})
 endif()
 
 if(WITH_QT5)
@@ -932,16 +906,6 @@ if(WITH_DESKTOP)
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/trojita.appdata.xml DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata/")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.png DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps/")
     install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/icons/trojita.svg DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps/")
-endif()
-
-if(WITH_HARMATTAN)
-    set(trojita_harmattan_path ${CMAKE_CURRENT_SOURCE_DIR}/src/Harmattan)
-    install(TARGETS trojita-tp RUNTIME DESTINATION bin)
-    install(TARGETS trojitaqnamwebviewplugin LIBRARY DESTINATION bin/net/flaska/QNAMWebView)
-    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/QmlSupport/QNAMWebView/qmldir DESTINATION bin/net/flaska/QNAMWebView)
-    install(DIRECTORY ${trojita_harmattan_path}/qml DESTINATION ${CMAKE_INSTALL_PREFIX})
-    install(FILES ${trojita_harmattan_path}/trojita-tp.desktop DESTINATION share/applications)
-    install(FILES ${trojita_harmattan_path}/trojita-tp80.png DESTINATION share/icons/hicolor/80x80/apps)
 endif()
 
 if(WITH_NSIS)
