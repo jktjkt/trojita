@@ -105,6 +105,7 @@ AbookAddressbook::AbookAddressbook(QObject *parent): AddressbookPlugin(parent), 
     ADD(Mobile, "mobile");
     ADD(Nick, "nick");
     ADD(URL, "url");
+    ADD(Notes, "notes");
     ADD(Anniversary, "anniversary");
     ADD(Photo, "photo");
 #undef ADD
