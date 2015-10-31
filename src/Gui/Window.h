@@ -148,6 +148,8 @@ private slots:
     void handleMarkAsRead(bool);
     void handleMarkAsDeleted(bool);
     void handleMarkAsFlagged(const bool);
+    void handleMarkAsJunk(const bool);
+    void handleMarkAsNotJunk(const bool);
     void slotNextUnread();
     void slotPreviousUnread();
     void msgListClicked(const QModelIndex &);
@@ -299,6 +301,8 @@ private:
     QAction *markAsRead;
     QAction *markAsDeleted;
     QAction *markAsFlagged;
+    QAction *markAsJunk;
+    QAction *markAsNotJunk;
     QAction *saveWholeMessage;
     QAction *viewMsgSource;
     QAction *viewMsgHeaders;

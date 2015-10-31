@@ -182,6 +182,19 @@ bool OneMessageModel::isMarkedFlagged() const
     return m_message.data(RoleMessageIsMarkedFlagged).toBool();
 }
 
+bool OneMessageModel::isMarkedJunk() const
+{
+    return m_message.data(RoleMessageIsMarkedJunk).toBool() &&
+        !m_message.data(RoleMessageIsMarkedNotJunk).toBool();
+}
+
+bool OneMessageModel::isMarkedNotJunk() const
+{
+    return (m_message.data(RoleMessageIsMarkedNotJunk).toBool() &&
+        !m_message.data(RoleMessageIsMarkedJunk).toBool());
+}
+
+
 QUrl OneMessageModel::mainPartUrl() const
 {
     return m_mainPartUrl;

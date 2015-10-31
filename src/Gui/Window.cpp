@@ -189,6 +189,8 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QLatin1String("action_go_to_previous_unread"), QLatin1String("arrow-left"), tr("&Previous Unread Message"), QLatin1String("P"));
     shortcutHandler->defineAction(QLatin1String("action_mark_as_deleted"), QLatin1String("list-remove"), tr("Mark as &Deleted"), QKeySequence(Qt::Key_Delete).toString());
     shortcutHandler->defineAction(QLatin1String("action_mark_as_flagged"), QLatin1String("mail-flagged"), tr("Mark as &Flagged"), QLatin1String("S"));
+    shortcutHandler->defineAction(QLatin1String("action_mark_as_junk"), QLatin1String("mail-mark-junk"), tr("Mark as &Junk"), QLatin1String("J"));
+    shortcutHandler->defineAction(QLatin1String("action_mark_as_notjunk"), QLatin1String("mail-mark-notjunk"), tr("Mark as Not &junk"), QLatin1String("Shift+J"));
     shortcutHandler->defineAction(QLatin1String("action_save_message_as"), QLatin1String("document-save"), tr("&Save Message..."));
     shortcutHandler->defineAction(QLatin1String("action_view_message_source"), QString(), tr("View Message &Source..."));
     shortcutHandler->defineAction(QLatin1String("action_view_message_headers"), QString(), tr("View Message &Headers..."), tr("Ctrl+U"));
@@ -344,6 +346,14 @@ void MainWindow::createActions()
     markAsFlagged->setCheckable(true);
     connect(markAsFlagged, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsFlagged(bool)));
 
+    markAsJunk = ShortcutHandler::instance()->createAction(QLatin1String("action_mark_as_junk"), this);
+    markAsJunk->setCheckable(true);
+    connect(markAsJunk, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsJunk(bool)));
+
+    markAsNotJunk = ShortcutHandler::instance()->createAction(QLatin1String("action_mark_as_notjunk"), this);
+    markAsNotJunk->setCheckable(true);
+    connect(markAsNotJunk, SIGNAL(triggered(bool)), this, SLOT(handleMarkAsNotJunk(bool)));
+
     saveWholeMessage = ShortcutHandler::instance()->createAction(QLatin1String("action_save_message_as"), this, SLOT(slotSaveCurrentMessageBody()), this);
     msgListWidget->tree->addAction(saveWholeMessage);
 
@@ -496,6 +506,8 @@ void MainWindow::createActions()
     m_mainToolbar->addAction(markAsRead);
     m_mainToolbar->addAction(markAsDeleted);
     m_mainToolbar->addAction(markAsFlagged);
+    m_mainToolbar->addAction(markAsJunk);
+    m_mainToolbar->addAction(markAsNotJunk);
     m_mainToolbar->addSeparator();
     m_mainToolbar->addAction(showMenuBar);
     m_mainToolbar->addAction(configSettings);
@@ -1036,6 +1048,8 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         actionList.append(markAsRead);
         actionList.append(markAsDeleted);
         actionList.append(markAsFlagged);
+        actionList.append(markAsJunk);
+        actionList.append(markAsNotJunk);
         actionList.append(m_actionMarkMailboxAsRead);
         actionList.append(saveWholeMessage);
         actionList.append(viewMsgSource);
@@ -1388,6 +1402,50 @@ void MainWindow::handleMarkAsFlagged(const bool value)
         imapModel()->setMessageFlags(translatedIndexes, Imap::Mailbox::FlagNames::flagged, value ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
     }
 }
+
+void MainWindow::handleMarkAsJunk(const bool value)
+{
+    QModelIndexList translatedIndexes;
+    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
+            continue;
+        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
+            continue;
+        translatedIndexes << Imap::deproxifiedIndex(item);
+    }
+    if (translatedIndexes.isEmpty()) {
+        qDebug() << "Model::handleMarkAsJunk: no valid messages";
+    } else {
+        if (value) {
+            imapModel()->setMessageFlags(translatedIndexes, Imap::Mailbox::FlagNames::notjunk, Imap::Mailbox::FLAG_REMOVE);
+        }
+        imapModel()->setMessageFlags(translatedIndexes, Imap::Mailbox::FlagNames::junk, value ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
+    }
+}
+
+void MainWindow::handleMarkAsNotJunk(const bool value)
+{
+    QModelIndexList translatedIndexes;
+    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
+        Q_ASSERT(item.isValid());
+        if (item.column() != 0)
+            continue;
+        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
+            continue;
+        translatedIndexes << Imap::deproxifiedIndex(item);
+    }
+    if (translatedIndexes.isEmpty()) {
+        qDebug() << "Model::handleMarkAsNotJunk: no valid messages";
+    } else {
+        if (value) {
+          imapModel()->setMessageFlags(translatedIndexes, Imap::Mailbox::FlagNames::junk, Imap::Mailbox::FLAG_REMOVE);
+        }
+        imapModel()->setMessageFlags(translatedIndexes, Imap::Mailbox::FlagNames::notjunk, value ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
+    }
+}
+
+
 void MainWindow::slotExpunge()
 {
     imapModel()->expungeMailbox(qobject_cast<Imap::Mailbox::MsgListModel *>(m_imapAccess->msgListModel())->currentMailbox());
@@ -1466,9 +1524,17 @@ void MainWindow::updateMessageFlags(const QModelIndex &index)
     markAsRead->setEnabled(okToModify);
     markAsDeleted->setEnabled(okToModify);
     markAsFlagged->setEnabled(okToModify);
+    markAsJunk->setEnabled(okToModify);
+    markAsNotJunk->setEnabled(okToModify);
     markAsRead->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
     markAsDeleted->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedDeleted).toBool());
     markAsFlagged->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedFlagged).toBool());
+    markAsJunk->setChecked(okToModify
+                           && index.data(Imap::Mailbox::RoleMessageIsMarkedJunk).toBool()
+                           && !index.data(Imap::Mailbox::RoleMessageIsMarkedNotJunk).toBool());
+    markAsNotJunk->setChecked(okToModify
+                              && index.data(Imap::Mailbox::RoleMessageIsMarkedNotJunk).toBool()
+                              && !index.data(Imap::Mailbox::RoleMessageIsMarkedJunk).toBool());
 }
 
 void MainWindow::updateActionsOnlineOffline(bool online)
@@ -1483,6 +1549,8 @@ void MainWindow::updateActionsOnlineOffline(bool online)
     markAsDeleted->setEnabled(online);
     markAsRead->setEnabled(online);
     markAsFlagged->setEnabled(online);
+    markAsJunk->setEnabled(online);
+    markAsNotJunk->setEnabled(online);
     showImapCapabilities->setEnabled(online);
     if (!online) {
         m_replyGuess->setEnabled(false);

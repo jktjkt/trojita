@@ -38,6 +38,8 @@ struct FlagNames {
     static const QString forwarded;
     static const QString recent;
     static const QString flagged;
+    static const QString junk;
+    static const QString notjunk;
 };
 
 }

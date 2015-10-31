@@ -64,6 +64,8 @@ class OneMessageModel: public QObject
     Q_PROPERTY(bool isMarkedReplied READ isMarkedReplied NOTIFY flagsChanged)
     Q_PROPERTY(bool isMarkedRecent READ isMarkedRecent NOTIFY flagsChanged)
     Q_PROPERTY(bool isMarkedFlagged READ isMarkedFlagged NOTIFY flagsChanged)
+    Q_PROPERTY(bool isMarkedJunk READ isMarkedJunk NOTIFY flagsChanged)
+    Q_PROPERTY(bool isMarkedNotJunk READ isMarkedNotJunk NOTIFY flagsChanged)
     Q_PROPERTY(QUrl mainPartUrl READ mainPartUrl NOTIFY mainPartUrlChanged)
     Q_PROPERTY(QObject* attachmentsModel READ attachmentsModel NOTIFY mainPartUrlChanged)
     Q_PROPERTY(bool hasValidIndex READ hasValidIndex NOTIFY envelopeChanged)
@@ -91,6 +93,8 @@ public:
     bool isMarkedReplied() const;
     bool isMarkedRecent() const;
     bool isMarkedFlagged() const;
+    bool isMarkedJunk() const;
+    bool isMarkedNotJunk() const;
     QUrl mainPartUrl() const;
     QObject *attachmentsModel() const;
     bool hasValidIndex() const;
