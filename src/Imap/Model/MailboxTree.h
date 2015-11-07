@@ -290,6 +290,8 @@ public:
     bool isMarkedAsForwarded() const;
     bool isMarkedAsRecent() const;
     bool isMarkedAsFlagged() const;
+    bool isMarkedAsJunk() const;
+    bool isMarkedAsNotJunk() const;
     void checkFlagsReadRecent(bool &isRead, bool &isRecent) const;
     uint uid() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;

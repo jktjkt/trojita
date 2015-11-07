@@ -43,6 +43,8 @@ TagListWidget::TagListWidget(QWidget *parent) :
     m_ignoredFlags.insert(QLatin1String("$forwarded"));
     m_ignoredFlags.insert(QLatin1String("$submitpending"));
     m_ignoredFlags.insert(QLatin1String("$submitted"));
+    m_ignoredFlags.insert(QLatin1String("$junk"));
+    m_ignoredFlags.insert(QLatin1String("$notjunk"));
 }
 
 void TagListWidget::setTagList(QStringList list)

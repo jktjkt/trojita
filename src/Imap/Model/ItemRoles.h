@@ -107,6 +107,10 @@ enum {
     RoleMessageIsMarkedRecent,
     /** @short Is the message markes as flagged? */
     RoleMessageIsMarkedFlagged,
+    /** @short Is the message markes as junk? */
+    RoleMessageIsMarkedJunk,
+    /** @short Is the message markes as notjunk? */
+    RoleMessageIsMarkedNotJunk,
     /** @short IMAP flags of a message */
     RoleMessageFlags,
     /** @short Is the current item a root of thread with unread messages */

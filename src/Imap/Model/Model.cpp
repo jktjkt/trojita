@@ -135,6 +135,9 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     m_specialFlagNames[QLatin1String("\\recent")] = FlagNames::recent;
     m_specialFlagNames[QLatin1String("\\flagged")] = FlagNames::flagged;
     m_specialFlagNames[QLatin1String("$forwarded")] = FlagNames::forwarded;
+    m_specialFlagNames[QLatin1String("$junk")] = FlagNames::junk;
+    m_specialFlagNames[QLatin1String("$notjunk")] = FlagNames::notjunk;
+
 
     m_periodicMailboxNumbersRefresh = new QTimer(this);
     // polling every five minutes
