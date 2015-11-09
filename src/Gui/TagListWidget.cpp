@@ -16,6 +16,7 @@
 #include "TagListWidget.h"
 #include "FlowLayout.h"
 #include "TagWidget.h"
+#include "Imap/Model/SpecialFlagNames.h"
 
 namespace Gui
 {
@@ -32,19 +33,6 @@ TagListWidget::TagListWidget(QWidget *parent) :
 
     parentLayout->addWidget(new QLabel(tr("<b>Tags:</b>")));
     parentLayout->addWidget(addButton);
-
-    m_ignoredFlags.insert(QLatin1String("\\seen"));
-    m_ignoredFlags.insert(QLatin1String("\\recent"));
-    m_ignoredFlags.insert(QLatin1String("\\deleted"));
-    m_ignoredFlags.insert(QLatin1String("\\answered"));
-    m_ignoredFlags.insert(QLatin1String("\\flagged"));
-    m_ignoredFlags.insert(QLatin1String("\\draft"));
-    m_ignoredFlags.insert(QLatin1String("$mdnsent"));
-    m_ignoredFlags.insert(QLatin1String("$forwarded"));
-    m_ignoredFlags.insert(QLatin1String("$submitpending"));
-    m_ignoredFlags.insert(QLatin1String("$submitted"));
-    m_ignoredFlags.insert(QLatin1String("$junk"));
-    m_ignoredFlags.insert(QLatin1String("$notjunk"));
 }
 
 void TagListWidget::setTagList(QStringList list)
@@ -53,7 +41,7 @@ void TagListWidget::setTagList(QStringList list)
     parentLayout->removeWidget(addButton);
 
     foreach(const QString &tagName, list) {
-        if (m_ignoredFlags.contains(tagName.toLower()))
+        if (Imap::Mailbox::FlagNames::toCanonical.contains(tagName.toLower()))
             continue;
         TagWidget *lbl = new TagWidget(tagName, QLatin1String("x"));
         parentLayout->addWidget(lbl);
@@ -77,7 +65,7 @@ void TagListWidget::newTagRequested()
     if (tag.isEmpty()) {
         return;
     }
-    if (m_ignoredFlags.contains(tag.toLower())) {
+    if (Imap::Mailbox::FlagNames::toCanonical.contains(tag.toLower())) {
         QMessageBox::warning(this, tr("Invalid tag value"),
                              tr("Tag name %1 is a reserved name which cannot be manipulated this way.").arg(tag));
         return;

@@ -128,17 +128,6 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 
     m_taskModel = new TaskPresentationModel(this);
 
-    // Make sure to update the first-character check inside normalizeFlags() when adding new flags here
-    m_specialFlagNames[QLatin1String("\\seen")] = FlagNames::seen;
-    m_specialFlagNames[QLatin1String("\\deleted")] = FlagNames::deleted;
-    m_specialFlagNames[QLatin1String("\\answered")] = FlagNames::answered;
-    m_specialFlagNames[QLatin1String("\\recent")] = FlagNames::recent;
-    m_specialFlagNames[QLatin1String("\\flagged")] = FlagNames::flagged;
-    m_specialFlagNames[QLatin1String("$forwarded")] = FlagNames::forwarded;
-    m_specialFlagNames[QLatin1String("$junk")] = FlagNames::junk;
-    m_specialFlagNames[QLatin1String("$notjunk")] = FlagNames::notjunk;
-
-
     m_periodicMailboxNumbersRefresh = new QTimer(this);
     // polling every five minutes
     m_periodicMailboxNumbersRefresh->setInterval(5 * 60 * 1000);
@@ -1801,8 +1790,8 @@ QStringList Model::normalizeFlags(const QStringList &source) const
         // a good approximation.
         if (!flag->isEmpty() && ((*flag)[0] == QLatin1Char('\\') || (*flag)[0] == QLatin1Char('$'))) {
             QString lowerCase = flag->toLower();
-            QHash<QString,QString>::const_iterator known = m_specialFlagNames.constFind(lowerCase);
-            if (known != m_specialFlagNames.constEnd()) {
+            QHash<QString,QString>::const_iterator known = FlagNames::toCanonical.constFind(lowerCase);
+            if (known != FlagNames::toCanonical.constEnd()) {
                 res.append(*known);
                 continue;
             }

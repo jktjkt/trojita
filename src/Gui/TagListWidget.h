@@ -11,7 +11,6 @@
 #define TAGLISTWIDGET_H
 
 #include <QList>
-#include <QSet>
 #include <QWidget>
 
 class QPushButton;
@@ -40,7 +39,6 @@ private:
     FlowLayout *parentLayout;
     TagWidget *addButton;
     QList<QObject *> children;
-    QSet<QString> m_ignoredFlags;
 
     void empty();
 };

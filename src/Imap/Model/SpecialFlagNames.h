@@ -24,6 +24,7 @@
 #define TROJITA_IMAP_SPECIALFLAGNAMES_H
 
 #include <QString>
+#include <QHash>
 
 namespace Imap
 {
@@ -32,6 +33,7 @@ namespace Mailbox
 
 /** @short Some of the well-known IMAP flag names */
 struct FlagNames {
+    /** The flag names themselves, with canonical capitalization */
     static const QString answered;
     static const QString seen;
     static const QString deleted;
@@ -40,6 +42,12 @@ struct FlagNames {
     static const QString flagged;
     static const QString junk;
     static const QString notjunk;
+    static const QString mdnsent;
+    static const QString submitted;
+    static const QString submitpending;
+
+    /** A mapping from lower-case flag names to canonical ones */
+    static const QHash<QString,QString> toCanonical;
 };
 
 }

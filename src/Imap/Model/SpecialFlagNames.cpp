@@ -20,6 +20,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QSet>
+
 #include "SpecialFlagNames.h"
 
 namespace Imap
@@ -27,6 +29,7 @@ namespace Imap
 namespace Mailbox
 {
 
+// Make sure to update the first-character check inside Model::normalizeFlags() when adding new flags here
 const QString FlagNames::answered = QLatin1String("\\Answered");
 const QString FlagNames::seen = QLatin1String("\\Seen");
 const QString FlagNames::deleted = QLatin1String("\\Deleted");
@@ -35,6 +38,31 @@ const QString FlagNames::recent = QLatin1String("\\Recent");
 const QString FlagNames::flagged = QLatin1String("\\Flagged");
 const QString FlagNames::junk = QLatin1String("$Junk");
 const QString FlagNames::notjunk = QLatin1String("$NotJunk");
+const QString FlagNames::mdnsent = QLatin1String("$MDNSent");
+const QString FlagNames::submitted = QLatin1String("$Submitted");
+const QString FlagNames::submitpending = QLatin1String("$SubmitPending");
+
+QHash<QString,QString> toCanonicalInit()
+{
+  QSet<QString> flagNames = QSet<QString>();
+  flagNames << FlagNames::answered
+            << FlagNames::seen
+            << FlagNames::deleted
+            << FlagNames::forwarded
+            << FlagNames::recent
+            << FlagNames::flagged
+            << FlagNames::junk
+            << FlagNames::notjunk
+            << FlagNames::mdnsent
+            << FlagNames::submitted
+            << FlagNames::submitpending;
+  QHash<QString,QString> flagNamesCanonical = QHash<QString,QString>();
+  Q_FOREACH(const QString &flagName, flagNames) {
+    flagNamesCanonical[flagName.toLower()] = flagName;
+  }
+  return flagNamesCanonical;
+}
+const QHash<QString,QString> FlagNames::toCanonical = toCanonicalInit();
 
 }
 }

@@ -560,7 +560,6 @@ private:
 
     QMap<QByteArray,QByteArray> m_idResult;
 
-    QHash<QString,QString> m_specialFlagNames;
     mutable QSet<QString> m_flagLiterals;
 
     /** @short Username for login */
