@@ -903,9 +903,7 @@ bool MainWindow::eventFilter(QObject *o, QEvent *e)
         if (e->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
             if (keyEvent->key() == Qt::Key_Space || keyEvent->key() == Qt::Key_Backspace) {
-                const int delta = keyEvent->key() == Qt::Key_Space ? -120 : 120;
-                QWheelEvent we(QPoint(1,1), delta, Qt::NoButton, Qt::NoModifier);
-                QCoreApplication::sendEvent(m_messageWidget->messageView, &we);
+                QCoreApplication::sendEvent(m_messageWidget, keyEvent);
                 return true;
             }
             return false;

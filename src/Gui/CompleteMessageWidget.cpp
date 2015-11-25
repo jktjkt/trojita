@@ -73,6 +73,11 @@ void CompleteMessageWidget::keyPressEvent(QKeyEvent *ke)
     } else if (ke->key() == Qt::Key_End) {
         animator->setEndValue(area->verticalScrollBar()->maximum());
         animator->start();
+    } else if (ke->key() == Qt::Key_Space || ke->key() == Qt::Key_Backspace) {
+        const int delta = area->verticalScrollBar()->pageStep() * (ke->key() == Qt::Key_Backspace ? -1 : 1);
+        animator->setEndValue(qMin(qMax(area->verticalScrollBar()->value() + delta, area->verticalScrollBar()->minimum()),
+                                   area->verticalScrollBar()->maximum()));
+        animator->start();
     } else { // noop, but hey.
         QWidget::keyPressEvent(ke);
     }
