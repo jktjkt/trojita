@@ -237,6 +237,8 @@ private:
     void createSysTray();
     void removeSysTray();
 
+    QModelIndexList translatedSelection() const;
+
     Imap::ImapAccess *m_imapAccess;
 
     Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;

@@ -1278,7 +1278,7 @@ void MainWindow::slotEditDraft()
     }
 }
 
-void MainWindow::handleMarkAsRead(bool value)
+QModelIndexList MainWindow::translatedSelection() const
 {
     QModelIndexList translatedIndexes;
     Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
@@ -1289,6 +1289,12 @@ void MainWindow::handleMarkAsRead(bool value)
             continue;
         translatedIndexes << Imap::deproxifiedIndex(item);
     }
+    return translatedIndexes;
+}
+
+void MainWindow::handleMarkAsRead(bool value)
+{
+    const QModelIndexList translatedIndexes = translatedSelection();
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsRead: no valid messages";
     } else {
@@ -1369,15 +1375,7 @@ void MainWindow::slotPreviousUnread()
 
 void MainWindow::handleMarkAsDeleted(bool value)
 {
-    QModelIndexList translatedIndexes;
-    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
-        Q_ASSERT(item.isValid());
-        if (item.column() != 0)
-            continue;
-        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
-            continue;
-        translatedIndexes << Imap::deproxifiedIndex(item);
-    }
+    const QModelIndexList translatedIndexes = translatedSelection();
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsDeleted: no valid messages";
     } else {
@@ -1387,15 +1385,7 @@ void MainWindow::handleMarkAsDeleted(bool value)
 
 void MainWindow::handleMarkAsFlagged(const bool value)
 {
-    QModelIndexList translatedIndexes;
-    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
-        Q_ASSERT(item.isValid());
-        if (item.column() != 0)
-            continue;
-        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
-            continue;
-        translatedIndexes << Imap::deproxifiedIndex(item);
-    }
+    const QModelIndexList translatedIndexes = translatedSelection();
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsFlagged: no valid messages";
     } else {
@@ -1405,15 +1395,7 @@ void MainWindow::handleMarkAsFlagged(const bool value)
 
 void MainWindow::handleMarkAsJunk(const bool value)
 {
-    QModelIndexList translatedIndexes;
-    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
-        Q_ASSERT(item.isValid());
-        if (item.column() != 0)
-            continue;
-        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
-            continue;
-        translatedIndexes << Imap::deproxifiedIndex(item);
-    }
+    const QModelIndexList translatedIndexes = translatedSelection();
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsJunk: no valid messages";
     } else {
@@ -1426,15 +1408,7 @@ void MainWindow::handleMarkAsJunk(const bool value)
 
 void MainWindow::handleMarkAsNotJunk(const bool value)
 {
-    QModelIndexList translatedIndexes;
-    Q_FOREACH(const QModelIndex &item, msgListWidget->tree->selectionModel()->selectedIndexes()) {
-        Q_ASSERT(item.isValid());
-        if (item.column() != 0)
-            continue;
-        if (!item.data(Imap::Mailbox::RoleMessageUid).isValid())
-            continue;
-        translatedIndexes << Imap::deproxifiedIndex(item);
-    }
+    const QModelIndexList translatedIndexes = translatedSelection();
     if (translatedIndexes.isEmpty()) {
         qDebug() << "Model::handleMarkAsNotJunk: no valid messages";
     } else {
