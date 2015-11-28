@@ -782,6 +782,8 @@ void MainWindow::setupModels()
 
     mboxTree->setModel(prettyMboxModel);
     msgListWidget->tree->setModel(prettyMsgListModel);
+    connect(msgListWidget->tree->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            this, SLOT(updateMessageFlags()));
 
     allTree->setModel(imapModel());
     taskTree->setModel(imapModel()->taskModel());
@@ -960,9 +962,6 @@ void MainWindow::msgListClicked(const QModelIndex &index)
 
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
-
-    // Be sure to update the toolbar/actions with the state of the current message
-    updateMessageFlags();
 
     // Because it's quite possible that we have switched into another mailbox, make sure that we're in the "current" one so that
     // user will be notified about new arrivals, etc.
@@ -1489,26 +1488,44 @@ void MainWindow::slotDeleteCurrentMailbox()
 
 void MainWindow::updateMessageFlags()
 {
-    updateMessageFlags(msgListWidget->tree->currentIndex());
+    updateMessageFlags(QModelIndex());
 }
 
 void MainWindow::updateMessageFlags(const QModelIndex &index)
 {
-    bool okToModify = imapModel()->isNetworkAvailable() && index.isValid() && index.data(Imap::Mailbox::RoleMessageUid).toUInt() > 0;
+    QModelIndexList indexes = index.isValid() ? QModelIndexList() << index : translatedSelection();
+    const bool isValid = !indexes.isEmpty() &&
+                         // either we operate on the -already valided- selection or the index must be valid
+                         (!index.isValid() || index.data(Imap::Mailbox::RoleMessageUid).toUInt() > 0);
+    const bool okToModify = imapModel()->isNetworkAvailable() && isValid;
+
     markAsRead->setEnabled(okToModify);
     markAsDeleted->setEnabled(okToModify);
     markAsFlagged->setEnabled(okToModify);
     markAsJunk->setEnabled(okToModify);
     markAsNotJunk->setEnabled(okToModify);
-    markAsRead->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
-    markAsDeleted->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedDeleted).toBool());
-    markAsFlagged->setChecked(okToModify && index.data(Imap::Mailbox::RoleMessageIsMarkedFlagged).toBool());
-    markAsJunk->setChecked(okToModify
-                           && index.data(Imap::Mailbox::RoleMessageIsMarkedJunk).toBool()
-                           && !index.data(Imap::Mailbox::RoleMessageIsMarkedNotJunk).toBool());
-    markAsNotJunk->setChecked(okToModify
-                              && index.data(Imap::Mailbox::RoleMessageIsMarkedNotJunk).toBool()
-                              && !index.data(Imap::Mailbox::RoleMessageIsMarkedJunk).toBool());
+
+    bool isRead    = isValid,
+         isDeleted = isValid,
+         isFlagged = isValid,
+         isJunk    = isValid,
+         isNotJunk = isValid;
+    Q_FOREACH (const QModelIndex &i, indexes) {
+#define UPDATE_STATE(PROP) \
+        if (is##PROP && !i.data(Imap::Mailbox::RoleMessageIsMarked##PROP).toBool()) \
+            is##PROP = false;
+        UPDATE_STATE(Read)
+        UPDATE_STATE(Deleted)
+        UPDATE_STATE(Flagged)
+        UPDATE_STATE(Junk)
+        UPDATE_STATE(NotJunk)
+#undef UPDATE_STATE
+    }
+    markAsRead->setChecked(isRead);
+    markAsDeleted->setChecked(isDeleted);
+    markAsFlagged->setChecked(isFlagged);
+    markAsJunk->setChecked(isJunk && !isNotJunk);
+    markAsNotJunk->setChecked(isNotJunk && !isJunk);
 }
 
 void MainWindow::updateActionsOnlineOffline(bool online)
