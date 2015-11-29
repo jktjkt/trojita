@@ -137,9 +137,7 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             bool isForwarded = translated.data(RoleMessageIsMarkedForwarded).toBool();
             bool isReplied = translated.data(RoleMessageIsMarkedReplied).toBool();
 
-            if (translated.data(RoleMessageIsMarkedDeleted).toBool())
-                return UiUtils::loadIcon(QLatin1String("mail-deleted"));
-            else if (isForwarded && isReplied)
+            if (isForwarded && isReplied)
                 return UiUtils::loadIcon(QLatin1String("mail-replied-forw"));
             else if (isReplied)
                 return UiUtils::loadIcon(QLatin1String("mail-replied"));

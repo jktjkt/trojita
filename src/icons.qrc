@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>icons/folder-grey.png</file>
-        <file>icons/mail-deleted.png</file>
         <file>icons/mail-folder-inbox.png</file>
         <file>icons/mail-forwarded.png</file>
         <file>icons/mail-read.png</file>
