@@ -59,6 +59,7 @@ public:
                           const UiUtils::PartLoadingOptions loadingOptions);
     virtual QString quoteMe() const;
     virtual void reloadContents();
+    virtual bool event(QEvent *e);
 };
 
 /** @short Message quoting support for generic multipart/ * */

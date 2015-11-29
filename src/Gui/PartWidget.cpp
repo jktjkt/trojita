@@ -202,6 +202,18 @@ QString MultipartSignedWidget::quoteMe() const
     return quoteMeHelper(children());
 }
 
+bool MultipartSignedWidget::event(QEvent *e)
+{
+    if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
+        // Space is used by Qt for manipulating the checked/unchecked state, apparently.
+        // We don't use that, but we need the Space key for scrolling.
+        // In fact, this container should not accept any keyboard input anyway; it's just
+        // a visual indicator saying "hey, this is a signed piece of data".
+        return false;
+    }
+    return QGroupBox::event(e);
+}
+
 GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
         int recursionDepth, const UiUtils::PartLoadingOptions options):
