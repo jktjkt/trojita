@@ -77,6 +77,28 @@ namespace Gui
 
 static const QString trojita_opacityAnimation = QLatin1String("trojita_opacityAnimation");
 
+/** @short Ignore dirtying events while we're preparing the widget's contents
+
+Under the normal course of operation, there's plenty of events (user typing some text, etc) which lead to the composer widget
+"remembering" that the human being has made some changes, and that these changes are probably worth a prompt for saving them
+upon a close.
+
+This guard object makes sure (via RAII) that these dirtifying events are ignored during its lifetime.
+*/
+class InhibitComposerDirtying
+{
+public:
+    explicit InhibitComposerDirtying(ComposeWidget *w): w(w), wasEverEdited(w->m_messageEverEdited), wasEverUpdated(w->m_messageUpdated) {}
+    ~InhibitComposerDirtying()
+    {
+        w->m_messageEverEdited = wasEverEdited;
+        w->m_messageUpdated = wasEverUpdated;
+    }
+private:
+    ComposeWidget *w;
+    bool wasEverEdited, wasEverUpdated;
+};
+
 ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory) :
     QWidget(0, Qt::Window),
     ui(new Ui::ComposeWidget),
@@ -297,6 +319,7 @@ ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &
         return 0;
 
     ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    InhibitComposerDirtying inhibitor(w);
     QString subject;
     QString body;
     QList<QPair<Composer::RecipientKind,QString> > recipients;
@@ -336,8 +359,6 @@ ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &
       // We don't need to expose any UI here, but we want the in-reply-to and references information to be carried with this message
       w->m_actionInReplyTo->setChecked(true);
     }
-    // Only those changes that are made to the composer's fields *after* it has been created should qualify as "edits"
-    w->m_messageEverEdited = false;
     Util::centerWidgetOnScreen(w);
     w->show();
     return w;
@@ -353,6 +374,7 @@ ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer
         return 0;
 
     ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    InhibitComposerDirtying inhibitor(w);
     w->setResponseData(recipients, subject, body, inReplyTo, references, replyingToMessage);
     bool ok = w->setReplyMode(mode);
     if (!ok) {
@@ -387,12 +409,10 @@ ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Compos
         return 0;
 
     ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    InhibitComposerDirtying inhibitor(w);
     w->setResponseData(QList<QPair<Composer::RecipientKind, QString>>(), subject, QString(), inReplyTo, references, QModelIndex());
     // We don't need to expose any UI here, but we want the in-reply-to and references information to be carried with this message
     w->m_actionInReplyTo->setChecked(true);
-
-    // Only those changes that are made to the composer's fields *after* it has been created should qualify as "edits"
-    w->m_messageEverEdited = false;
 
     // Prepare the message to be forwarded and add it to the attachments view
     w->m_submission->composer()->prepareForwarding(forwardingMessage, mode);
@@ -661,15 +681,14 @@ void ComposeWidget::setResponseData(const QList<QPair<Composer::RecipientKind, Q
                             const QString &subject, const QString &body, const QList<QByteArray> &inReplyTo,
                             const QList<QByteArray> &references, const QModelIndex &replyingToMessage)
 {
+    InhibitComposerDirtying inhibitor(this);
     for (int i = 0; i < recipients.size(); ++i) {
         addRecipient(i, recipients.at(i).first, recipients.at(i).second);
     }
     updateRecipientList();
     ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE, QFormLayout::FieldRole)->widget()->setFocus();
     ui->subject->setText(subject);
-    const bool wasEdited = m_messageEverEdited;
     ui->mailText->setText(body);
-    m_messageEverEdited = wasEdited;
     m_inReplyTo = inReplyTo;
 
     // Trim the References header as per RFC 5537
@@ -1374,6 +1393,7 @@ void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
 
 void ComposeWidget::slotUpdateSignature()
 {
+    InhibitComposerDirtying inhibitor(this);
     QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
     Q_ASSERT(proxy);
     QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
@@ -1387,9 +1407,7 @@ void ComposeWidget::slotUpdateSignature()
                                                                   Composer::SenderIdentitiesModel::COLUMN_SIGNATURE)
             .data().toString();
 
-    const bool wasEdited = m_messageEverEdited;
     Composer::Util::replaceSignature(ui->mailText->document(), newSignature);
-    m_messageEverEdited = wasEdited;
 }
 
 /** @short Massage the list of recipients so that they match the desired type of reply
