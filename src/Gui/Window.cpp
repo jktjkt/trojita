@@ -1535,11 +1535,7 @@ void MainWindow::updateActionsOnlineOffline(bool online)
     createTopMailbox->setEnabled(online);
     deleteCurrentMailbox->setEnabled(online);
     m_actionMarkMailboxAsRead->setEnabled(online);
-    markAsDeleted->setEnabled(online);
-    markAsRead->setEnabled(online);
-    markAsFlagged->setEnabled(online);
-    markAsJunk->setEnabled(online);
-    markAsNotJunk->setEnabled(online);
+    updateMessageFlags();
     showImapCapabilities->setEnabled(online);
     if (!online) {
         m_replyGuess->setEnabled(false);
