@@ -28,6 +28,7 @@
 #include <QCursor> // for Util::centerWidgetOnScreen
 #include <QDesktopWidget> // for Util::centerWidgetOnScreen
 #include <QDir>
+#include <QFontDatabase>
 #include <QGridLayout>
 #include <QIcon>
 #include <QProcess>
@@ -37,6 +38,7 @@
 #include "Util.h"
 #include "Window.h"
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 2, 0)
 namespace {
 
 bool isRunningKde4()
@@ -77,6 +79,7 @@ QString kdeHome()
 }
 
 }
+#endif
 
 namespace Gui
 {
@@ -122,6 +125,9 @@ QString pkgDataDir()
 /** @short Return the monospace font according to the systemwide settings */
 QFont systemMonospaceFont()
 {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
+    return QFontDatabase::systemFont(QFontDatabase::FixedFont);
+#else
     static bool initialized = false;
     static QFont font;
 
@@ -186,6 +192,7 @@ QFont systemMonospaceFont()
     }
 
     return font;
+#endif
 }
 
 /** @short Ask for something and provide a facility to not ask again
