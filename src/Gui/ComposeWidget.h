@@ -59,6 +59,8 @@ namespace Gui
 
 class MainWindow;
 
+class InhibitComposerDirtying;
+
 /** @short A "Compose New Mail..." dialog
 
   Implements a widget which can act as a standalone window for composing e-mail messages.
@@ -199,6 +201,7 @@ private:
     QMap<QLineEdit *, Plugins::AddressbookJob *> m_firstCompletionRequests;
     QMap<QLineEdit *, Plugins::AddressbookJob *> m_secondCompletionRequests;
 
+    friend class InhibitComposerDirtying;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement
