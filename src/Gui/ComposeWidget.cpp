@@ -284,6 +284,55 @@ ComposeWidget *ComposeWidget::warnIfMsaNotConfigured(ComposeWidget *widget, Main
     return widget;
 }
 
+/** @short Find a nice position near the mid of the main window, try to not fully occlude another sibling */
+void ComposeWidget::placeOnMainWindow()
+{
+    QRect area = m_mainWindow->geometry();
+    QRect origin(0, 0, width(), height());
+    origin.moveTo(area.x() + (area.width() - width()) / 2,
+                  area.y() + (area.height() - height()) / 2);
+    QRect target = origin;
+
+    QWidgetList siblings;
+    foreach(const QWidget *w, QApplication::topLevelWidgets()) {
+        if (w == this)
+            continue; // I'm not a sibling of myself
+        if (!qobject_cast<const ComposeWidget*>(w))
+            continue; // random other stuff
+        siblings << const_cast<QWidget*>(w);
+    }
+    int dx = 20, dy = 20;
+    int i = 0;
+    // look for a position where the window would not fully cover another composer
+    // (we don't want to mass open 10 composers stashing each other)
+    // if such composer blocks our desired geometry, the new desired geometry is
+    // tested at positions shifted by 20px circling around the original one.
+    // if we're already more than 100px off the center (what implies the user
+    // has > 20 composers open ...) we give up to not shift the window
+    // too far away, maybe even off-screen.
+    // Notice that it may still happen that some composers *together* stash a 3rd one
+    while (i < siblings.count()) {
+        if (target.contains(siblings.at(i)->geometry())) {
+            target = origin.translated(dx, dy);
+            if (dx < 0 && dy < 0) {
+                dx = dy = -dx + 20;
+                if (dx >= 120) // give up
+                    break;
+            } else if (dx < 0 || dy < 0) {
+                dx = -dx;
+                if (dy > 0)
+                    dy = -dy;
+            } else {
+                dx = -dx;
+            }
+            i = 0;
+        } else {
+            ++i;
+        }
+    }
+    setGeometry(target);
+}
+
 /** @short Create a blank composer window */
 ComposeWidget *ComposeWidget::createBlank(MainWindow *mainWindow)
 {
@@ -292,7 +341,7 @@ ComposeWidget *ComposeWidget::createBlank(MainWindow *mainWindow)
         return 0;
 
     ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
-    Util::centerWidgetOnScreen(w);
+    w->placeOnMainWindow();
     w->show();
     return w;
 }
@@ -306,7 +355,7 @@ ComposeWidget *ComposeWidget::createDraft(MainWindow *mainWindow, const QString 
 
     ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
     w->loadDraft(path);
-    Util::centerWidgetOnScreen(w);
+    w->placeOnMainWindow();
     w->show();
     return w;
 }
@@ -359,7 +408,7 @@ ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &
       // We don't need to expose any UI here, but we want the in-reply-to and references information to be carried with this message
       w->m_actionInReplyTo->setChecked(true);
     }
-    Util::centerWidgetOnScreen(w);
+    w->placeOnMainWindow();
     w->show();
     return w;
 }
@@ -395,7 +444,7 @@ ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer
         if (!err.isEmpty())
             QMessageBox::warning(w, tr("Cannot Determine Recipients"), err);
     }
-    Util::centerWidgetOnScreen(w);
+    w->placeOnMainWindow();
     w->show();
     return w;
 }
@@ -417,7 +466,7 @@ ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Compos
     // Prepare the message to be forwarded and add it to the attachments view
     w->m_submission->composer()->prepareForwarding(forwardingMessage, mode);
 
-    Util::centerWidgetOnScreen(w);
+    w->placeOnMainWindow();
     w->show();
     return w;
 }

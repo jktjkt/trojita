@@ -81,6 +81,7 @@ public:
                                       const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
     static ComposeWidget *createForward(MainWindow *mainWindow, const Composer::ForwardMode mode, const QModelIndex &forwardingMessage,
                                         const QString &subject, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
+    void placeOnMainWindow();
 protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *ce);
