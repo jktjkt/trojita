@@ -2528,7 +2528,9 @@ void MainWindow::updateNetworkIndication()
 
 void MainWindow::showStatusMessage(const QString &message)
 {
-    QToolTip::showText(networkIndicator->mapToGlobal(QPoint(0, 0)), message);
+    networkIndicator->setToolTip(message);
+    if (isActiveWindow())
+        QToolTip::showText(networkIndicator->mapToGlobal(QPoint(0, 0)), message);
 }
 
 }
