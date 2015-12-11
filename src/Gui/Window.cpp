@@ -107,6 +107,7 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true), m_delayedStateSaving(0), m_actionSortNone(0),
     m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_networkErrorMessageBox(0), m_trayIcon(0)
 {
+    setAttribute(Qt::WA_AlwaysShowToolTips);
     // m_pluginManager must be created before calling createWidgets
     m_pluginManager = new Plugins::PluginManager(this, m_settings,
                                                  Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
