@@ -466,7 +466,7 @@ void ImapAccess::openMessage(const QString &mailboxName, const uint uid)
 
 QString ImapAccess::prettySize(const uint bytes) const
 {
-    return UiUtils::Formatting::prettySize(bytes, UiUtils::Formatting::BytesSuffix::WITH_BYTES_SUFFIX);
+    return UiUtils::Formatting::prettySize(bytes);
 }
 
 void ImapAccess::slotSslErrors(const QList<QSslCertificate> &sslCertificateChain, const QList<QSslError> &sslErrors)

@@ -145,7 +145,7 @@ QString FileAttachmentItem::tooltip() const
                 MessageComposer::tr("%1: %2, %3").arg(
                     fileName,
                     QString::fromUtf8(mimeType()),
-                    UiUtils::Formatting::prettySize(f.size(), UiUtils::Formatting::BytesSuffix::WITH_BYTES_SUFFIX)
+                    UiUtils::Formatting::prettySize(f.size())
                     ));
 }
 

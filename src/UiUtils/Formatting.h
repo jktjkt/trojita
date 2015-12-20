@@ -41,11 +41,6 @@ class Formatting: public QObject
 {
     Q_OBJECT
 public:
-    enum class BytesSuffix {
-        COMPACT_FORM, /**< @short Do not append "B" when the size is less than 1kB */
-        WITH_BYTES_SUFFIX /**< @short Always prepend the units, even if it's just in bytes */
-    };
-
     /** @short Shamelessly stolen from QMessageBox */
     enum class IconType {
         NoIcon = 0,
@@ -55,7 +50,7 @@ public:
         Question = 4
     };
 
-    Q_INVOKABLE static QString prettySize(uint bytes, const BytesSuffix compactUnitFormat = BytesSuffix::COMPACT_FORM);
+    Q_INVOKABLE static QString prettySize(uint bytes);
     Q_INVOKABLE static QString prettyDate(const QDateTime &dateTime);
     Q_INVOKABLE static QString htmlizedTextPart(const QModelIndex &partIndex, const QFont &font,
                                                 const QColor &backgroundColor, const QColor &textColor,

@@ -34,31 +34,30 @@ Formatting::Formatting(QObject *parent): QObject(parent)
 {
 }
 
-QString Formatting::prettySize(uint bytes, const BytesSuffix compactUnitFormat)
+QString Formatting::prettySize(uint bytes)
 {
-    if (bytes == 0) {
-        return tr("0");
+    const QStringList suffixes = QStringList() << tr("B")
+                                               << tr("kB")
+                                               << tr("MB")
+                                               << tr("GB")
+                                               << tr("TB");
+    const int max_order = suffixes.size() - 1;
+    double number = bytes;
+    int magnitude = std::log10(number);
+    number /= std::pow(10.0, magnitude); // x.yz... * 10^magnitude
+    number = qRound(number * 100.0) / 100.0; // round to 3 significant digits
+    if (number >= 10.0) { // rounding has caused one increase in magnitude
+        magnitude += 1;
+        number /= 10.0;
     }
-    int order = std::log(static_cast<double>(bytes)) / std::log(1024.0);
-    double number = bytes / std::pow(1024.0, order);
-
-    QString suffix;
-    if (order <= 0) {
-        if (compactUnitFormat == BytesSuffix::COMPACT_FORM)
-            return QString::number(bytes);
-        else
-            return tr("%n bytes", 0, bytes);
-    } else if (order == 1) {
-        suffix = tr("kB");
-    } else if (order == 2) {
-        suffix = tr("MB");
-    } else if (order == 3) {
-        suffix = tr("GB");
-    } else {
-        // make sure not to show wrong size for those that have > 1024 TB e-mail messages
-        suffix = tr("TB"); // shame on you for such mails
+    int order = magnitude / 3;
+    int rem = magnitude % 3;
+    number *= std::pow(10.0, rem); // xy.z * 1000^order
+    if (order > max_order) { // shame on you for such large mails
+        number *= std::pow(1000.0, order - max_order);
+        order = max_order;
     }
-    return tr("%1 %2").arg(QString::number(number, 'f', number < 100 ? 1 : 0), suffix);
+    return tr("%1 %2").arg(QString::number(number, 'f', 2 - rem), suffixes.at(order));
 }
 
 /** @short Format a QDateTime for compact display in one column of the view */

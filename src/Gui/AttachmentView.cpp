@@ -155,8 +155,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
 
     // Some metainformation -- the MIME type and the file size
     QLabel *lbl = new QLabel(tr("%2, %3").arg(mimeDescription,
-                                      UiUtils::Formatting::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt(),
-                                                                      UiUtils::Formatting::BytesSuffix::WITH_BYTES_SUFFIX)));
+                                      UiUtils::Formatting::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt())));
     if (rawMime != mimeDescription) {
         lbl->setToolTip(rawMime);
     }
