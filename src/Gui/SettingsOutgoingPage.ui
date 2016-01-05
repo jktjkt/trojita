@@ -24,7 +24,7 @@
     <item row="0" column="0">
      <widget class="QLabel" name="methodLabel">
       <property name="text">
-       <string>M&amp;ethod</string>
+       <string>&amp;Method</string>
       </property>
       <property name="buddy">
        <cstring>method</cstring>
@@ -33,6 +33,16 @@
     </item>
     <item row="0" column="1">
      <widget class="QComboBox" name="method"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="encryptionLabel">
+      <property name="text">
+       <string>Encryption</string>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QComboBox" name="encryption"/>
     </item>
     <item row="2" column="0">
      <widget class="QLabel" name="smtpHostLabel">
@@ -60,6 +70,13 @@
     <item row="3" column="1">
      <widget class="LineEdit" name="smtpPort"/>
     </item>
+    <item row="4" column="0" colspan="2">
+     <widget class="QLabel" name="portWarningLabel">
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
     <item row="5" column="0">
      <widget class="QLabel" name="smtpAuthLabel">
       <property name="text">
@@ -77,7 +94,7 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="0">
+    <item row="7" column="0">
      <widget class="QLabel" name="smtpUserLabel">
       <property name="text">
        <string>&amp;Username</string>
@@ -87,10 +104,10 @@
       </property>
      </widget>
     </item>
-    <item row="6" column="1">
+    <item row="7" column="1">
      <widget class="LineEdit" name="smtpUser"/>
     </item>
-    <item row="7" column="0">
+    <item row="9" column="0">
      <widget class="QLabel" name="smtpPassLabel">
       <property name="text">
        <string>Pass&amp;word</string>
@@ -100,21 +117,21 @@
       </property>
      </widget>
     </item>
-    <item row="7" column="1">
+    <item row="9" column="1">
      <widget class="LineEdit" name="smtpPass">
       <property name="echoMode">
        <enum>QLineEdit::Password</enum>
       </property>
      </widget>
     </item>
-    <item row="8" column="0" colspan="2">
+    <item row="10" column="0" colspan="2">
      <widget class="QLabel" name="passwordWarning">
       <property name="wordWrap">
        <bool>true</bool>
       </property>
      </widget>
     </item>
-    <item row="9" column="0" colspan="2">
+    <item row="11" column="0" colspan="2">
      <widget class="QLabel" name="passwordPluginStatus">
       <property name="text">
        <string notr="true">plugin status</string>
@@ -127,7 +144,7 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
+    <item row="12" column="0">
      <widget class="QLabel" name="sendmailLabel">
       <property name="text">
        <string>Sendmail E&amp;xecutable</string>
@@ -137,10 +154,10 @@
       </property>
      </widget>
     </item>
-    <item row="10" column="1">
+    <item row="12" column="1">
      <widget class="LineEdit" name="sendmail"/>
     </item>
-    <item row="11" column="0">
+    <item row="13" column="0">
      <widget class="QLabel" name="saveToImapLabel">
       <property name="text">
        <string>Save Ou&amp;tgoing Mail</string>
@@ -150,23 +167,23 @@
       </property>
      </widget>
     </item>
-    <item row="11" column="1">
+    <item row="13" column="1">
      <widget class="QCheckBox" name="saveToImap"/>
     </item>
-    <item row="12" column="0">
+    <item row="14" column="0">
      <widget class="QLabel" name="saveFolderLabel">
       <property name="text">
-       <string>Sent &amp;Folder Name</string>
+       <string>Sent Folder &amp;Name</string>
       </property>
       <property name="buddy">
        <cstring>saveFolderName</cstring>
       </property>
      </widget>
     </item>
-    <item row="12" column="1">
+    <item row="14" column="1">
      <widget class="LineEdit" name="saveFolderName"/>
     </item>
-    <item row="13" column="0">
+    <item row="15" column="0">
      <widget class="QLabel" name="smtpBurlLabel">
       <property name="toolTip">
        <string>Enable forward-without-download via BURL (RFC 4468) when the IMAP and ESMTP servers support it. Extra server-side configuration is required.</string>
@@ -179,23 +196,20 @@
       </property>
      </widget>
     </item>
-    <item row="13" column="1">
+    <item row="15" column="1">
      <widget class="QCheckBox" name="smtpBurl"/>
     </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="encryptionLabel">
+    <item row="6" column="1">
+     <widget class="QCheckBox" name="smtpAuthReuseImapCreds">
       <property name="text">
-       <string>Encryption</string>
+       <string/>
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="QComboBox" name="encryption"/>
-    </item>
-    <item row="4" column="0" colspan="2">
-     <widget class="QLabel" name="portWarningLabel">
+    <item row="6" column="0">
+     <widget class="QLabel" name="smtpAuthReuseImapCredsLabel">
       <property name="text">
-       <string/>
+       <string>Use IMAP Credentials</string>
       </property>
      </widget>
     </item>

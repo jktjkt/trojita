@@ -1,5 +1,5 @@
 /* Copyright (C) 2014 Dan Chapman <dpniel@ubuntu.com>
-   Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -32,7 +32,7 @@ namespace MSA {
 
 Account::Account(QObject *parent, QSettings *settings, const QString &accountName) :
     QObject(parent), m_settings(settings), m_accountName(accountName),
-    m_port(0), m_authenticateEnabled(false), m_saveToImap(false), m_useBurl(false)
+    m_port(0), m_authenticateEnabled(false), m_reuseImapAuth(false), m_saveToImap(false), m_useBurl(false)
 {
     restoreSettings();
 }
@@ -93,6 +93,20 @@ void Account::setAuthenticateEnabled(const bool auth)
     }
     m_authenticateEnabled = auth;
     emit authenticateEnabledChanged();
+}
+
+bool Account::reuseImapAuthentication() const
+{
+    return m_reuseImapAuth;
+}
+
+void Account::setReuseImapAuthentication(const bool reuseImapAuth)
+{
+    if (reuseImapAuth == m_reuseImapAuth) {
+        return;
+    }
+    m_reuseImapAuth = reuseImapAuth;
+    emit reuseImapAuthenticationChanged();
 }
 
 QString Account::pathToSendmail() const
@@ -230,6 +244,7 @@ void Account::saveSettings()
         m_settings->setValue(Common::SettingsNames::smtpStartTlsKey,
                              m_msaSubmissionMethod == Method::SMTP_STARTTLS); // unconditionally
         m_settings->setValue(Common::SettingsNames::smtpAuthKey, m_authenticateEnabled);
+        m_settings->setValue(Common::SettingsNames::smtpAuthReuseImapCredsKey, m_reuseImapAuth);
         m_settings->setValue(Common::SettingsNames::smtpUserKey, m_username);
         m_settings->setValue(Common::SettingsNames::smtpHostKey, m_server);
         m_settings->setValue(Common::SettingsNames::smtpPortKey, m_port);
@@ -237,6 +252,7 @@ void Account::saveSettings()
     case Method::SSMTP:
         m_settings->setValue(Common::SettingsNames::msaMethodKey, Common::SettingsNames::methodSSMTP);
         m_settings->setValue(Common::SettingsNames::smtpAuthKey, m_authenticateEnabled);
+        m_settings->setValue(Common::SettingsNames::smtpAuthReuseImapCredsKey, m_reuseImapAuth);
         m_settings->setValue(Common::SettingsNames::smtpUserKey, m_username);
         m_settings->setValue(Common::SettingsNames::smtpHostKey, m_server);
         m_settings->setValue(Common::SettingsNames::smtpPortKey, m_port);
@@ -301,6 +317,7 @@ void Account::restoreSettings()
         }
     }
     m_authenticateEnabled = m_settings->value(Common::SettingsNames::smtpAuthKey, false).toBool();
+    m_reuseImapAuth = m_settings->value(Common::SettingsNames::smtpAuthReuseImapCredsKey, false).toBool();
     m_pathToSendmail = m_settings->value(Common::SettingsNames::sendmailKey,
                                          Common::SettingsNames::sendmailDefaultCmd).toString();
     m_saveToImap = m_settings->value(Common::SettingsNames::composerSaveToImapKey, true).toBool();

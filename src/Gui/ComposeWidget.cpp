@@ -56,6 +56,7 @@
 #include "Gui/ProgressPopUp.h"
 #include "Gui/Util.h"
 #include "Gui/Window.h"
+#include "Imap/Model/ImapAccess.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Parser/MailAddress.h"
@@ -507,6 +508,22 @@ void ComposeWidget::markReplyModeHandpicked()
 
 void ComposeWidget::passwordRequested(const QString &user, const QString &host)
 {
+    if (m_settings->value(Common::SettingsNames::smtpAuthReuseImapCredsKey, false).toBool()) {
+        auto password = qobject_cast<const Imap::Mailbox::Model*>(m_mainWindow->imapAccess()->imapModel())->imapPassword();
+        if (password.isNull()) {
+            // This can happen for example when we've always been offline since the last profile change,
+            // and the IMAP password is therefore not already cached in the IMAP model.
+
+            // FIXME: it would be nice to "just" call out to MainWindow::authenticationRequested() in that case,
+            // but there's no async callback when the password is available. Just some food for thought when
+            // that part gets refactored :), eventually...
+            askPassword(user, host);
+        } else {
+            m_submission->setPassword(password);
+        }
+        return;
+    }
+
     Plugins::PasswordPlugin *password = m_mainWindow->pluginManager()->password();
     if (!password) {
         askPassword(user, host);
@@ -693,14 +710,16 @@ void ComposeWidget::send()
     if (!buildMessageData())
         return;
 
+    const bool reuseImapCreds = m_settings->value(Common::SettingsNames::smtpAuthReuseImapCredsKey, false).toBool();
     m_submission->setImapOptions(m_settings->value(Common::SettingsNames::composerSaveToImapKey, true).toBool(),
                                  m_settings->value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(),
                                  m_settings->value(Common::SettingsNames::imapHostKey).toString(),
                                  m_settings->value(Common::SettingsNames::imapUserKey).toString(),
                                  m_settings->value(Common::SettingsNames::msaMethodKey).toString() == Common::SettingsNames::methodImapSendmail);
     m_submission->setSmtpOptions(m_settings->value(Common::SettingsNames::smtpUseBurlKey, false).toBool(),
-                                 m_settings->value(Common::SettingsNames::smtpUserKey).toString());
-
+                                 reuseImapCreds ?
+                                     m_mainWindow->imapAccess()->username() :
+                                     m_settings->value(Common::SettingsNames::smtpUserKey).toString());
 
     ProgressPopUp *progress = new ProgressPopUp();
     OverlayWidget *overlay = new OverlayWidget(progress, this);
