@@ -853,9 +853,6 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     connect(m_smtpAccountSettings, SIGNAL(saveToImapChanged()), this, SLOT(updateWidgets()));
     connect(m_smtpAccountSettings, SIGNAL(authenticateEnabledChanged()), this, SLOT(updateWidgets()));
     connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
-    connect(smtpAuth, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setAuthenticateEnabled(bool)));
-    connect(saveToImap, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setSaveToImap(bool)));
-
     connect(smtpHost, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setServer(QString)));
     connect(smtpUser, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setUsername(QString)));
     connect(smtpPort, SIGNAL(textEditingFinished(QString)), this, SLOT(setPortByText(QString)));
