@@ -1,5 +1,5 @@
 /* Copyright (C) 2014 Dan Chapman <dpniel@ubuntu.com>
-   Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -37,6 +37,7 @@ class Account : public QObject
     Q_PROPERTY(int port READ port WRITE setPort NOTIFY portChanged)
     Q_PROPERTY(QString username READ username WRITE setUsername NOTIFY usernameChanged)
     Q_PROPERTY(bool authenticateEnabled READ authenticateEnabled WRITE setAuthenticateEnabled NOTIFY authenticateEnabledChanged)
+    Q_PROPERTY(bool reuseImapAuthentication READ reuseImapAuthentication WRITE setReuseImapAuthentication NOTIFY reuseImapAuthenticationChanged)
     Q_PROPERTY(QString pathToSendmail READ pathToSendmail WRITE setPathToSendmail NOTIFY pathToSendmailChanged)
     Q_PROPERTY(bool saveToImap READ saveToImap WRITE setSaveToImap NOTIFY saveToImapChanged)
     Q_PROPERTY(QString sentMailboxName READ sentMailboxName WRITE setSentMailboxName NOTIFY sentMailboxNameChanged)
@@ -60,6 +61,7 @@ public:
     int port() const;
     QString username() const;
     bool authenticateEnabled() const;
+    bool reuseImapAuthentication() const;
     QString pathToSendmail() const;
     bool saveToImap() const;
     QString sentMailboxName() const;
@@ -76,6 +78,7 @@ signals:
     void portChanged();
     void usernameChanged();
     void authenticateEnabledChanged();
+    void reuseImapAuthenticationChanged();
     void pathToSendmailChanged();
     void saveToImapChanged();
     void sentMailboxNameChanged();
@@ -90,6 +93,7 @@ public slots:
     void setPort(const quint16 port);
     void setUsername(const QString &username);
     void setAuthenticateEnabled(const bool auth);
+    void setReuseImapAuthentication(const bool reuseImapAuth);
     void setPathToSendmail(const QString &pathToSendmail);
     void setSaveToImap(const bool selected);
     void setSentMailboxName(const QString &location);
@@ -106,6 +110,7 @@ private:
     quint16 m_port;
     QString m_password;
     bool m_authenticateEnabled;
+    bool m_reuseImapAuth;
     QString m_pathToSendmail;
     bool m_saveToImap;
     QString m_sentMailboxName;

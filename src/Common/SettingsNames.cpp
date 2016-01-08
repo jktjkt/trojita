@@ -42,6 +42,7 @@ const QString SettingsNames::smtpPortKey = QLatin1String("msa.smtp.port");
 const QString SettingsNames::smtpAuthKey = QLatin1String("msa.smtp.auth");
 const QString SettingsNames::smtpStartTlsKey = QLatin1String("msa.smtp.starttls");
 const QString SettingsNames::smtpUserKey = QLatin1String("msa.smtp.auth.user");
+const QString SettingsNames::smtpAuthReuseImapCredsKey = QLatin1String("msa.smtp.auth.reuseImapCredentials");
 // in use by the cleartext password plugin: "msa.smtp.auth.pass"
 const QString SettingsNames::sendmailKey = QLatin1String("msa.sendmail");
 const QString SettingsNames::sendmailDefaultCmd = QLatin1String("sendmail -bm -oi");

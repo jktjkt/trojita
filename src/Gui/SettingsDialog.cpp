@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
    Copyright (C) 2014        Luke Dashjr <luke+trojita@dashjr.org>
    Copyright (C) 2012        Mohammed Nafees <nafees.technocool@gmail.com>
    Copyright (C) 2013        Pali Rohár <pali.rohar@gmail.com>
@@ -852,15 +852,14 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     connect(m_smtpAccountSettings, SIGNAL(submissionMethodChanged()), this, SLOT(updateWidgets()));
     connect(m_smtpAccountSettings, SIGNAL(saveToImapChanged()), this, SLOT(updateWidgets()));
     connect(m_smtpAccountSettings, SIGNAL(authenticateEnabledChanged()), this, SLOT(updateWidgets()));
+    connect(m_smtpAccountSettings, SIGNAL(reuseImapAuthenticationChanged()), this, SLOT(updateWidgets()));
     connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
-    connect(smtpAuth, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setAuthenticateEnabled(bool)));
-    connect(saveToImap, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setSaveToImap(bool)));
-
     connect(smtpHost, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setServer(QString)));
     connect(smtpUser, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setUsername(QString)));
     connect(smtpPort, SIGNAL(textEditingFinished(QString)), this, SLOT(setPortByText(QString)));
     connect(m_smtpAccountSettings, SIGNAL(showPortWarning(QString)), this, SLOT(showPortWarning(QString)));
     connect(smtpAuth, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setAuthenticateEnabled(bool)));
+    connect(smtpAuthReuseImapCreds, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setReuseImapAuthentication(bool)));
     connect(saveToImap, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setSaveToImap(bool)));
     connect(saveFolderName, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setSentMailboxName(QString)));
     connect(smtpBurl, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setUseBurl(bool)));
@@ -963,8 +962,12 @@ void OutgoingPage::updateWidgets()
         lay->labelForField(smtpAuth)->setVisible(true);
         bool authEnabled = m_smtpAccountSettings->authenticateEnabled();
         smtpAuth->setChecked(authEnabled);
-        smtpUser->setVisible(authEnabled);
-        lay->labelForField(smtpUser)->setVisible(authEnabled);
+        smtpAuthReuseImapCreds->setVisible(authEnabled);
+        lay->labelForField(smtpAuthReuseImapCreds)->setVisible(authEnabled);
+        bool reuseImapCreds = m_smtpAccountSettings->reuseImapAuthentication();
+        smtpAuthReuseImapCreds->setChecked(reuseImapCreds);
+        smtpUser->setVisible(authEnabled && !reuseImapCreds);
+        lay->labelForField(smtpUser)->setVisible(authEnabled && !reuseImapCreds);
         smtpUser->setText(m_smtpAccountSettings->username());
         sendmail->setVisible(false);
         lay->labelForField(sendmail)->setVisible(false);
@@ -978,7 +981,7 @@ void OutgoingPage::updateWidgets()
         if (!m_pwWatcher->isPluginAvailable())
             smtpPass->setText(QString());
 
-        passwordWarning->setVisible(authEnabled && !smtpPass->text().isEmpty());
+        passwordWarning->setVisible(authEnabled && !reuseImapCreds && !smtpPass->text().isEmpty());
         if (m_pwWatcher->isStorageEncrypted()) {
             passwordWarning->setStyleSheet(QString());
             passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
@@ -989,13 +992,13 @@ void OutgoingPage::updateWidgets()
                 "If you do not enter password here, Trojitá will prompt for one when needed."));
         }
 
-        passwordPluginStatus->setVisible(authEnabled &&
+        passwordPluginStatus->setVisible(authEnabled && !reuseImapCreds &&
                                          (!m_pwWatcher->isPluginAvailable() || m_pwWatcher->isWaitingForPlugin() || !m_pwWatcher->didReadOk() || !m_pwWatcher->didWriteOk()));
         passwordPluginStatus->setText(m_pwWatcher->progressMessage());
 
-        smtpPass->setVisible(authEnabled);
+        smtpPass->setVisible(authEnabled && !reuseImapCreds);
         smtpPass->setEnabled(m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin());
-        lay->labelForField(smtpPass)->setVisible(authEnabled);
+        lay->labelForField(smtpPass)->setVisible(authEnabled && !reuseImapCreds);
         lay->labelForField(smtpPass)->setEnabled(m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin());
 
         break;
@@ -1083,7 +1086,7 @@ bool OutgoingPage::checkValidity() const
     case MSA::Account::Method::SSMTP:
         if (checkProblemWithEmptyTextField(smtpHost, tr("The SMTP server hostname is missing here")))
             return false;
-        if (smtpAuth->isChecked() && checkProblemWithEmptyTextField(smtpUser, tr("The SMTP username is missing here")))
+        if (smtpAuth->isChecked() && !smtpAuthReuseImapCreds->isChecked() && checkProblemWithEmptyTextField(smtpUser, tr("The SMTP username is missing here")))
             return false;
         break;
     case MSA::Account::Method::SENDMAIL:
