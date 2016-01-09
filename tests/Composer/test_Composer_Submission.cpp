@@ -393,7 +393,7 @@ void ComposerSubmissionTest::helperAttachImapMessage(const uint uid)
     bool numberOk = false; \
     QString numericPart = sentSoFar.mid(expected.size()); \
     QCOMPARE(numericPart.right(3), QString::fromUtf8("}\r\n")); \
-    int num = numericPart.left(numericPart.size() - 3).toInt(&numberOk); \
+    int num = numericPart.leftRef(numericPart.size() - 3).toInt(&numberOk); \
     QVERIFY(numberOk); \
     NUM = num; \
 }

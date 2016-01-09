@@ -312,7 +312,7 @@ namespace {
         }
 
         // Copy anything left
-        out.append(str.mid(lastPos));
+        out.append(str.midRef(lastPos));
 
         return out;
     }
