@@ -274,8 +274,8 @@ void BodyPartsTest::testFetchingRawParts()
     QSignalSpy dataChangedSpy(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
 
 #define CHECK_DATACHANGED(ROW, INDEX) \
-    QCOMPARE(dataChangedSpy[ROW][0].value<QModelIndex>(), INDEX); \
-    QCOMPARE(dataChangedSpy[ROW][1].value<QModelIndex>(), INDEX);
+    QCOMPARE(dataChangedSpy[ROW][0].toModelIndex(), INDEX); \
+    QCOMPARE(dataChangedSpy[ROW][1].toModelIndex(), INDEX);
 
     QModelIndex part, rawPart;
     QByteArray fakePartData = "Canary 1";
