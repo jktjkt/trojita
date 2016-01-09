@@ -203,7 +203,7 @@ bool ShortcutConfigWidget::eventFilter(QObject *obj, QEvent *event)
                                                      tr("Shortcut Conflicts") + QLatin1String(" - ") + trUtf8("Trojitá"),
                                                      tr("<p>The \"%1\" shortcut is ambiguous with the following shortcut:</p>"
                                                         "<p>%2</p><p>Do you want to assign an empty shortcut to this action?</p>")
-                                                     .arg(keySequence).arg(childItem->text(0)),
+                                                     .arg(keySequence, childItem->text(0)),
                                                      QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
                 if (result == QMessageBox::Ok)
                     childItem->setText(1, QString());

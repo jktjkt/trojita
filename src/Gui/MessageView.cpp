@@ -334,7 +334,7 @@ QString MessageView::quoteText() const
         // One extra newline at the end of the quoted text to separate the response
         quote << QString();
 
-        return tr("On %1, %2 wrote:\n").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate)).arg(sender) + quote.join(QLatin1String("\n"));
+        return tr("On %1, %2 wrote:\n").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate), sender) + quote.join(QLatin1String("\n"));
     }
     return QString();
 }

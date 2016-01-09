@@ -525,10 +525,8 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
     for ( int year = 1970; year < 2035; year += 1, plusOrSpace = !plusOrSpace ) {
         QDateTime date( QDate( year, month, day), time, Qt::UTC );
         QString str = date.toString( "%1, dd %2 yyyy hh:mm:ss %3%4%5" ).arg(
-                        wDays[ date.date().dayOfWeek() - 1 ]
-                    ).arg(
-                        months[ month - 1 ]
-                    ).arg(
+                        wDays[ date.date().dayOfWeek() - 1 ],
+                        months[ month - 1 ],
                         ( tz >= 12* 60 ) ? ( plusOrSpace ? "" : "+" ) : "-"
                     ).arg(
                         qAbs(int( ( tz - 12*60 ) / 60 )), 2, 10, QChar('0')

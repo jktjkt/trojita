@@ -151,7 +151,7 @@ int main(int argc, char **argv)
             "\n"
             "Arguments:\n"
             "  url                      Mailto: url address for composing new email\n"
-        ).arg(arguments.at(0)).arg(Common::Application::version) << endl;
+        ).arg(arguments.at(0), Common::Application::version) << endl;
         return error ? 1 : 0;
     }
 
