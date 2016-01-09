@@ -36,28 +36,34 @@ Formatting::Formatting(QObject *parent): QObject(parent)
 
 QString Formatting::prettySize(uint bytes)
 {
-    const QStringList suffixes = QStringList() << tr("B")
-                                               << tr("kB")
-                                               << tr("MB")
-                                               << tr("GB")
-                                               << tr("TB");
+    static const QStringList suffixes = QStringList() << tr("B")
+                                                      << tr("kB")
+                                                      << tr("MB")
+                                                      << tr("GB")
+                                                      << tr("TB");
     const int max_order = suffixes.size() - 1;
     double number = bytes;
-    int magnitude = std::log10(number);
-    number /= std::pow(10.0, magnitude); // x.yz... * 10^magnitude
-    number = qRound(number * 100.0) / 100.0; // round to 3 significant digits
-    if (number >= 10.0) { // rounding has caused one increase in magnitude
-        magnitude += 1;
-        number /= 10.0;
+    int order = 0;
+    int frac_digits = 0;
+    if (bytes >= 1000) {
+        int magnitude = std::log10(number);
+        number /= std::pow(10.0, magnitude); // x.yz... * 10^magnitude
+        number = qRound(number * 100.0) / 100.0; // round to 3 significant digits
+        if (number >= 10.0) { // rounding has caused one increase in magnitude
+            magnitude += 1;
+            number /= 10.0;
+        }
+        order = magnitude / 3;
+        int rem = magnitude % 3;
+        number *= std::pow(10.0, rem); // xy.z * 1000^order
+        if (order <= max_order) {
+            frac_digits = 2 - rem;
+        } else { // shame on you for such large mails
+            number *= std::pow(1000.0, order - max_order);
+            order = max_order;
+        }
     }
-    int order = magnitude / 3;
-    int rem = magnitude % 3;
-    number *= std::pow(10.0, rem); // xy.z * 1000^order
-    if (order > max_order) { // shame on you for such large mails
-        number *= std::pow(1000.0, order - max_order);
-        order = max_order;
-    }
-    return tr("%1 %2").arg(QString::number(number, 'f', 2 - rem), suffixes.at(order));
+    return tr("%1 %2").arg(QString::number(number, 'f', frac_digits), suffixes.at(order));
 }
 
 /** @short Format a QDateTime for compact display in one column of the view */
