@@ -103,8 +103,6 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
 
     // the tag bar
     tags = new TagListWidget(headerSection);
-    tags->setBackgroundRole(helpingHeader.backgroundRole());
-    tags->setForegroundRole(helpingHeader.foregroundRole());
     tags->hide();
     connect(tags, &TagListWidget::tagAdded, this, &MessageView::newLabelAction);
     connect(tags, &TagListWidget::tagRemoved, this, &MessageView::deleteLabelAction);
