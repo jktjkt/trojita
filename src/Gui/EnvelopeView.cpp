@@ -33,6 +33,7 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
+#include "UiUtils/Formatting.h"
 
 namespace Gui {
 
@@ -161,18 +162,25 @@ void EnvelopeView::setMessage(const QModelIndex &index)
     QVariantList headerListPost = index.data(Imap::Mailbox::RoleMessageHeaderListPost).toList();
     if (!headerListPost.isEmpty()) {
         QStringList buf;
+        bool elided = false;
         Q_FOREACH(const QVariant &item, headerListPost) {
             const QString scheme = item.toUrl().scheme().toLower();
-            if (scheme == QLatin1String("http") || scheme == QLatin1String("https") || scheme == QLatin1String("mailto")) {
+            const bool isMailTo = scheme == QLatin1String("mailto");
+            if (isMailTo || scheme == QLatin1String("http") || scheme == QLatin1String("https")) {
                 QString target = item.toUrl().toString();
-                QString caption = item.toUrl().toString(scheme == QLatin1String("mailto") ? QUrl::RemoveScheme : QUrl::None);
-                buf << tr("<a href=\"%1\">%2</a>").arg(target.toHtmlEscaped(), caption.toHtmlEscaped());
+                // eg. github uses reply+<some hash>@reply.github.com
+                QString caption = isMailTo ? item.toUrl().toString(QUrl::RemoveScheme) : target;
+                elided = elided || UiUtils::elideAddress(caption);
+                target = target.toHtmlEscaped();
+                buf << tr("<a href=\"%1\">%2</a>").arg(target, caption.toHtmlEscaped());
             } else {
                 buf << item.toUrl().toString().toHtmlEscaped();
             }
         }
         auto lbl = new QLabel(QString(QLatin1String("<html>&nbsp;%1</html>")).arg(buf.join(tr(", "))));
         SET_LABEL_OPTIONS(lbl)
+        if (elided)
+            connect(lbl, &QLabel::linkHovered, lbl, &QLabel::setToolTip);
         ADD_ROW(tr("Mailing List"), lbl)
     }
 
@@ -181,5 +189,6 @@ void EnvelopeView::setMessage(const QModelIndex &index)
     line->setFrameStyle(QFrame::HLine|QFrame::Plain);
     layout()->addWidget(line);
 }
+
 
 }

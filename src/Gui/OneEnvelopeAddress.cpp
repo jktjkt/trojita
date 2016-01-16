@@ -78,7 +78,8 @@ void OneEnvelopeAddress::finishProcessAddress(const QStringList &matchingDisplay
                                      "<img src='%2' align='center'/></a>").arg(
                 url.toString(QUrl::RemoveScheme),
                 matchingDisplayNames.isEmpty() ? contactUnknownUrl : contactKnownUrl);
-    setText(m_address.prettyName(Imap::Message::MailAddress::FORMAT_CLICKABLE) + icon + (m_lastOneInRow == Position::Middle ? tr(","): QString()));
+    QString address = m_address.prettyName(Imap::Message::MailAddress::FORMAT_SHORT_CLICKABLE);
+    setText(address + icon + (m_lastOneInRow == Position::Middle ? tr(",") : QString()));
 }
 
 void OneEnvelopeAddress::onLinkHovered(const QString &target)

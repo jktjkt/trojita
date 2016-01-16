@@ -705,6 +705,7 @@ if(WITH_TESTS)
     trojita_test(Misc algorithms)
     trojita_test(Misc rfccodecs)
     trojita_test(Misc prettySize)
+    trojita_test(Misc Formatting)
 
 endif()
 
