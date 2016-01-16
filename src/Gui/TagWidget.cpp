@@ -54,7 +54,7 @@ TagWidget::TagWidget(const Mode mode, const QString &tagName, const QColor &back
 TagWidget *TagWidget::addingWidget()
 {
     auto res = new TagWidget(Mode::AddingWidget, QString(), Qt::green);
-    res->setText(QStringLiteral("+"));
+    res->setText(tr("Tag", "This is a verb!"));
     return res;
 }
 
