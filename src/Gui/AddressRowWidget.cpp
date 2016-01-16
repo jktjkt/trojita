@@ -30,6 +30,8 @@
 
 namespace Gui {
 
+static const int nonExpandingLength = 3*33;
+
 static int plainChars(const QLabel *l)
 {
     static QTextDocument converter;
@@ -37,43 +39,55 @@ static int plainChars(const QLabel *l)
     return converter.toPlainText().length();
 }
 
-AddressRowWidget::AddressRowWidget(QWidget *parent, const QString &headerName,
+AddressRowWidget::AddressRowWidget(QWidget *parent, const QString &description,
                                    const QList<Imap::Message::MailAddress> &addresses, MessageView *messageView):
-    QWidget(parent), m_expander(0)
+    QWidget(parent), m_expander(0), m_expandedLength(0)
 {
     FlowLayout *lay = new FlowLayout(this, 0, 0, -1);
     setLayout(lay);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    QLabel *title = new QLabel(QStringLiteral("<b>%1:</b>").arg(headerName.toHtmlEscaped()), this);
-    title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    title->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
-    lay->addWidget(title);
-    int chars = 0;
-    bool collapse = false;
+    addAddresses(description, addresses, messageView);
+}
+
+void AddressRowWidget::addAddresses(const QString &description, const QList<Imap::Message::MailAddress> &addresses, MessageView *messageView)
+{
+    if (m_expander)
+        layout()->removeWidget(m_expander);
+    if (!description.isEmpty()) {
+        QLabel *title = new QLabel(description, this);
+        title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        title->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
+        layout()->addWidget(title);
+        if (m_expander)
+            title->hide();
+    }
+    int collapse = m_expander ? m_expander->expanding() : 0;
     for (int i = 0; i < addresses.size(); ++i) {
         auto *w = new OneEnvelopeAddress(this, addresses[i], messageView,
                                          i == addresses.size() - 1 ?
                                          OneEnvelopeAddress::Position::Last :
                                          OneEnvelopeAddress::Position::Middle);
-        chars += plainChars(w);
-        lay->addWidget(w);
-        if (i > 1 && chars > 66) {
+        m_expandedLength += plainChars(w);
+        layout()->addWidget(w);
+        if (collapse || (i > 1 && m_expandedLength > nonExpandingLength)) {
             w->hide();
-            collapse = true;
+            ++collapse;
         }
     }
-    if (collapse) {
-        lay->addWidget(m_expander = new Expander(this));
+    if (collapse && !m_expander) {
+        m_expander = new Expander(this, collapse);
         connect(m_expander, &Expander::clicked, this, &AddressRowWidget::toggle);
     }
+    if (m_expander)
+        layout()->addWidget(m_expander);
 }
 
 void AddressRowWidget::toggle()
 {
     Q_ASSERT(m_expander);
-    if (m_expander->isExpanding()) {
+    if (m_expander->expanding()) {
         m_expander->setExpanding(false);
         for (int i = 0; i < layout()->count(); ++i) {
             if (QWidget *w = layout()->itemAt(i)->widget())
@@ -83,27 +97,30 @@ void AddressRowWidget::toggle()
         int chars = 0, addresses = 0;
         int collapse = 0;
         for (int i = 0; i < layout()->count(); ++i) {
-            if (OneEnvelopeAddress *w =
-                qobject_cast<OneEnvelopeAddress*>(layout()->itemAt(i)->widget())) {
+            QWidget *w = layout()->itemAt(i)->widget();
+            if (collapse && w != m_expander) {
+                ++collapse;
+                w->hide();
+                continue;
+            }
+            if (OneEnvelopeAddress *oea = qobject_cast<OneEnvelopeAddress*>(w)) {
                 ++addresses;
-                chars += plainChars(w);
-                if (addresses > 1 && chars > 66) {
-                    ++collapse;
+                chars += plainChars(oea);
+                if ((collapse = (addresses > 1 && chars > nonExpandingLength)))
                     w->hide();
-                }
             }
         }
         m_expander->setExpanding(collapse);
     }
 }
 
-Expander::Expander(QWidget *parent, Expander::Direction d) : QLabel(parent)
+Expander::Expander(QWidget *parent, int count) : QLabel(parent)
 {
     setCursor(Qt::PointingHandCursor);
-    setExpanding(d == Direction::Expanding);
+    setExpanding(count);
 }
 
-bool Expander::isExpanding() const {
+int Expander::expanding() const {
     return m_expanding;
 }
 
