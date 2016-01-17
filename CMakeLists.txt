@@ -706,6 +706,7 @@ if(WITH_TESTS)
     trojita_test(Misc SqlCache)
     trojita_test(Misc algorithms)
     trojita_test(Misc rfccodecs)
+    trojita_test(Misc prettySize)
 
 endif()
 
