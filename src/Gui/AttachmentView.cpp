@@ -224,8 +224,13 @@ void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
 
 void AttachmentView::slotFileNameRequested(QString *fileName)
 {
-    QString fileLocation = QDir(Common::writablePath(Common::LOCATION_DOWNLOAD)).filePath(*fileName);
+    static QDir lastDir = QDir(Common::writablePath(Common::LOCATION_DOWNLOAD));
+    if (!lastDir.exists())
+        lastDir = QDir(Common::writablePath(Common::LOCATION_DOWNLOAD));
+    QString fileLocation = lastDir.filePath(*fileName);
     *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), fileLocation, QString(), 0, QFileDialog::HideNameFilterDetails);
+    if (!fileName->isEmpty())
+        lastDir = QFileInfo(*fileName).absoluteDir();
 }
 
 void AttachmentView::enableDownloadAgain()
