@@ -98,11 +98,6 @@
 namespace Gui
 {
 
-enum {
-    MINIMUM_WIDTH_NORMAL = 800,
-    MINIMUM_WIDTH_WIDE = 1250
-};
-
 MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_mainHSplitter(0), m_mainVSplitter(0),
     m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true), m_delayedStateSaving(0), m_actionSortNone(0),
     m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_networkErrorMessageBox(0), m_trayIcon(0)
@@ -2238,7 +2233,6 @@ void MainWindow::slotLayoutCompact()
     m_mainHSplitter->setStretchFactor(1, 1);
 
     setCentralWidget(m_mainHSplitter);
-    setMinimumWidth(MINIMUM_WIDTH_NORMAL);
 
     delete m_mainStack;
 
@@ -2271,7 +2265,6 @@ void MainWindow::slotLayoutWide()
     m_mainHSplitter->show();
 
     setCentralWidget(m_mainHSplitter);
-    setMinimumWidth(MINIMUM_WIDTH_WIDE);
 
     delete m_mainStack;
     delete m_mainVSplitter;
@@ -2289,7 +2282,6 @@ void MainWindow::slotLayoutOneAtTime()
 
     m_mainStack = new OnePanelAtTimeWidget(this, mboxTree, msgListWidget, m_messageWidget, m_mainToolbar, m_oneAtTimeGoBack);
     setCentralWidget(m_mainStack);
-    setMinimumWidth(MINIMUM_WIDTH_NORMAL);
 
     delete m_mainHSplitter;
     delete m_mainVSplitter;
@@ -2306,11 +2298,6 @@ Imap::Mailbox::Model *MainWindow::imapModel() const
 
 void MainWindow::desktopGeometryChanged()
 {
-    QRect geometry = qApp->desktop()->availableGeometry(this);
-    m_actionLayoutWide->setEnabled(geometry.width() >= MINIMUM_WIDTH_WIDE);
-    if (m_layoutMode == LAYOUT_WIDE && !m_actionLayoutWide->isEnabled()) {
-        m_actionLayoutCompact->trigger();
-    }
     saveSizesAndState();
 }
 
