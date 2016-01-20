@@ -200,6 +200,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_network_offline"), QStringLiteral("network-disconnect"), tr("&Offline"));
     shortcutHandler->defineAction(QStringLiteral("action_network_expensive"), QStringLiteral("network-wireless"), tr("&Expensive Connection"));
     shortcutHandler->defineAction(QStringLiteral("action_network_online"), QStringLiteral("network-connect"), tr("&Free Access"));
+    shortcutHandler->defineAction(QStringLiteral("action_messagewindow_close"), QStringLiteral("window-close"), tr("Close Standalone Message Window"));
 }
 
 void MainWindow::createActions()
@@ -1034,6 +1035,8 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     widget->setWindowTitle(index.data(Imap::Mailbox::RoleMessageSubject).toString());
     widget->setAttribute(Qt::WA_DeleteOnClose);
     widget->resize(800, 600);
+    QAction *closeAction = ShortcutHandler::instance()->createAction(QStringLiteral("action_messagewindow_close"), widget, SLOT(close()), widget);
+    widget->addAction(closeAction);
     widget->show();
 }
 
