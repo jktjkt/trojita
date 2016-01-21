@@ -1444,9 +1444,11 @@ bool ComposeWidget::eventFilter(QObject *o, QEvent *e)
 
 void ComposeWidget::slotAskForFileAttachment()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Attach File..."), QString(), QString(), 0,
+    static QDir directory = QDir::home();
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Attach File..."), directory.absolutePath(), QString(), 0,
                                                     QFileDialog::DontResolveSymlinks);
     if (!fileName.isEmpty()) {
+        directory = QFileInfo(fileName).absoluteDir();
         m_submission->composer()->addFileAttachment(fileName);
     }
 }
