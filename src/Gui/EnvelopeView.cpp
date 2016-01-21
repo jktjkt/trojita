@@ -20,7 +20,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "EnvelopeView.h"
-#include <QHeaderView>
 #include <QFontMetrics>
 #include <QLabel>
 #include <QUrlQuery>
@@ -39,14 +38,6 @@ namespace Gui {
 
 EnvelopeView::EnvelopeView(QWidget *parent, MessageView *messageView): QWidget(parent), m_messageView(messageView)
 {
-    // we create a dummy header, pass it through the style and the use it's color roles so we
-    // know what headers in general look like in the system
-    QHeaderView helpingHeader(Qt::Horizontal);
-    helpingHeader.ensurePolished();
-
-    setBackgroundRole(helpingHeader.backgroundRole());
-    setForegroundRole(helpingHeader.foregroundRole());
-
     QVBoxLayout *lay = new QVBoxLayout(this);
     lay->setContentsMargins(0, 0, 0, 0);
     setLayout(lay);
