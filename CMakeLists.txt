@@ -82,7 +82,7 @@ trojita_option(WITH_DBUS "Build with DBus library" AUTO)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
-trojita_option(WITH_KDE "Enable KDE support" AUTO "WITH_DESKTOP;NOT WITH_QT5;WITH_DBUS")
+trojita_option(WITH_KDE "Enable KDE support" OFF "WITH_DESKTOP;NOT WITH_QT5;WITH_DBUS")
 trojita_option(WITH_TESTS "Build tests" ON)
 
 if(WIN32)
