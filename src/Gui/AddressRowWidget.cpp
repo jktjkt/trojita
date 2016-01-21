@@ -43,7 +43,7 @@ AddressRowWidget::AddressRowWidget(QWidget *parent, const QString &description,
                                    const QList<Imap::Message::MailAddress> &addresses, MessageView *messageView):
     QWidget(parent), m_expander(0), m_expandedLength(0)
 {
-    FlowLayout *lay = new FlowLayout(this, 0, 0, -1);
+    FlowLayout *lay = new FlowLayout(this, 0, 0, 0);
     setLayout(lay);
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
