@@ -252,6 +252,11 @@ QString systemPlatformVersion()
         case QSysInfo::WV_CE_based:
             platformVersion = QLatin1String("CE-based");
             break;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+        case QSysInfo::WV_None:
+            platformVersion = QLatin1String("non-Windows");
+            break;
+#endif
         }
 #endif
 #ifdef Q_OS_MAC
@@ -334,6 +339,11 @@ QString systemPlatformVersion()
         case QSysInfo::MV_Unknown:
             platformVersion = QLatin1String("iOS (unknown)");
             break;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+        case QSysInfo::MV_None:
+            platformVersion = QLatin1String("non-Mac");
+            break;
+#endif
         }
 #endif
         if (platformVersion.isEmpty()) {
