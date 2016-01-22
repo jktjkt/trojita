@@ -1,18 +1,11 @@
 project(trojita)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-if(WIN32)
-    # Due to QtMain linking
-    cmake_minimum_required(VERSION 2.8.11)
-    if(POLICY CMP0020)
-        cmake_policy(SET CMP0020 NEW)
-    endif()
-elseif(WITH_QT5)
-    # The Qt5's qt5_use_modules is only available on 2.8.9 or later -- sweet, isn't it?
-    cmake_minimum_required(VERSION 2.8.9)
-else()
-    cmake_minimum_required(VERSION 2.8.7)
-endif()
+# Qt5's qt5_use_modules need 2.8.9+
+# On win32, we need QtMain linking, which means 2.8.11+
+# EL7 ships 2.8.11, Debian 8 ships 3.0.2, and Ubuntu 14.04 LTS has 2.8.12
+cmake_minimum_required(VERSION 2.8.11)
+cmake_policy(SET CMP0020 NEW)
 
 if(POLICY CMP0054)
     # Silence warnings in TrojitaOption.cmake; we are fine with only doing the
@@ -39,17 +32,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-# POSITION_INDEPENDENT_CODE is only available on cmake 2.8.9 or later
-# Add needed flags for supported compilers which simulate POSITION_INDEPENDENT_CODE property
-if(CMAKE_VERSION VERSION_LESS "2.8.9")
-    if(CMAKE_COMPILER_IS_GNUCXX OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-    else()
-        message(FATAL_ERROR "Needs GNU or Clang C++ compiler or CMake 2.8.9 (or later)")
-    endif()
-else()
-    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-endif()
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(FindCXXFeatures)
 if(NOT CXXFeatures_auto_FOUND)
