@@ -247,18 +247,6 @@ endif()
 include(GenerateExportHeader)
 add_compiler_export_flags()
 
-if(NOT WITH_QT5 AND CMAKE_VERSION VERSION_LESS 2.8.10)
-    set(SUPPORTS_TARGET_INCLUDES 0)
-    include_directories(
-        ${QT_MKSPECS_DIR}/default
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui/
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/mimetypes-qt4/io/
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_LibMailboxSync)
-else()
-    set(SUPPORTS_TARGET_INCLUDES 1)
-endif()
-
 set(CMAKE_AUTOMOC True)
 
 trojita_find_package(RagelForTrojita "" "" "" "" WITH_RAGEL)
@@ -719,10 +707,8 @@ endif()
 
 if(NOT WITH_QT5)
     add_library(MimetypesQt4 STATIC ${libMimetypesQt4_SOURCES})
-    if(SUPPORTS_TARGET_INCLUDES)
-        set_property(TARGET MimetypesQt4 APPEND PROPERTY INCLUDE_DIRECTORIES
-            ${QT_MKSPECS_DIR}/default ${path_mimetypesqt4}/io/)
-    endif()
+    set_property(TARGET MimetypesQt4 APPEND PROPERTY INCLUDE_DIRECTORIES
+        ${QT_MKSPECS_DIR}/default ${path_mimetypesqt4}/io/)
     target_link_libraries(MimetypesQt4 ${QT_QTCORE_LIBRARY})
     if(APPLE)
         find_library(CARBON_LIBRARY Carbon REQUIRED)
@@ -744,11 +730,7 @@ if(WITH_QTKEYCHAIN_PLUGIN)
         target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY})
     endif()
     target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QTKEYCHAIN_LIBRARIES})
-    if(SUPPORTS_TARGET_INCLUDES)
-        set_property(TARGET trojita_plugin_QtKeychainPasswordPlugin APPEND PROPERTY INCLUDE_DIRECTORIES ${QTKEYCHAIN_INCLUDE_DIRS})
-    else()
-        include_directories(${QTKEYCHAIN_INCLUDE_DIRS})
-    endif()
+    set_property(TARGET trojita_plugin_QtKeychainPasswordPlugin APPEND PROPERTY INCLUDE_DIRECTORIES ${QTKEYCHAIN_INCLUDE_DIRS})
 endif()
 
 ## AbookAddressbook plugin
@@ -838,9 +820,7 @@ if(WITH_DESKTOP)
     set_property(TARGET DesktopGui APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
-    if(SUPPORTS_TARGET_INCLUDES)
-        set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
-    endif()
+    set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
     target_link_libraries(DesktopGui Common UiUtils Composer Imap IPC MSA Plugins Streams qwwsmtpclient ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     # On Windows build a real Win32 GUI application without console window
@@ -905,11 +885,9 @@ if(WITH_TESTS)
     if(WITH_QT5)
         qt5_use_modules(test_LibMailboxSync Test Network)
     endif()
-    if(SUPPORTS_TARGET_INCLUDES)
-        set_property(TARGET test_LibMailboxSync APPEND PROPERTY INCLUDE_DIRECTORIES
-            ${CMAKE_CURRENT_SOURCE_DIR}/tests
-            ${CMAKE_CURRENT_SOURCE_DIR}/tests/Utils)
-    endif()
+    set_property(TARGET test_LibMailboxSync APPEND PROPERTY INCLUDE_DIRECTORIES
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/Utils)
     target_link_libraries(test_LibMailboxSync Imap MSA Streams Common Composer ${QT_QTTEST_LIBRARY} ${QT_QTCORE_LIBRARY})
 
     macro(trojita_test dir fname)
@@ -924,9 +902,7 @@ if(WITH_TESTS)
         if(WITH_ZLIB)
             target_link_libraries(test_${fname} ${ZLIB_LIBRARIES})
         endif()
-        if(SUPPORTS_TARGET_INCLUDES)
-            set_property(TARGET test_${fname} APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-        endif()
+        set_property(TARGET test_${fname} APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/tests)
         if(NOT CMAKE_CROSSCOMPILING)
             add_test(test_${fname} test_${fname})
         endif()
