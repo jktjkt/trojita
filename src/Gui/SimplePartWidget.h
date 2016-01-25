@@ -65,6 +65,7 @@ private slots:
     void slotMarkupPlainText();
     void slotDownloadPart();
     void slotDownloadMessage();
+    void slotDownloadImage(const QNetworkRequest &req);
 signals:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void searchDialogRequested();

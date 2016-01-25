@@ -45,6 +45,7 @@ class FileDownloadManager : public QObject
     Q_OBJECT
 public:
     FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex);
+    FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *manager, const QUrl &url, const QModelIndex &relativeRoot);
     static QString toRealFileName(const QModelIndex &index);
 private slots:
     void onPartDataTransfered();
@@ -67,6 +68,7 @@ private:
     QFile saving;
     bool saved;
     QPointer<Imap::Mailbox::FullMessageCombiner> m_combiner;
+    QString m_errorMessage;
 
     FileDownloadManager(const FileDownloadManager &); // don't implement
     FileDownloadManager &operator=(const FileDownloadManager &); // don't implement

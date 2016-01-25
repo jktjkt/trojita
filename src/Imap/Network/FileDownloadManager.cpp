@@ -37,6 +37,30 @@ FileDownloadManager::FileDownloadManager(QObject *parent, Imap::Network::MsgPart
 {
 }
 
+FileDownloadManager::FileDownloadManager(QObject *parent, Imap::Network::MsgPartNetAccessManager *manager, const QUrl &url, const QModelIndex &relativeRoot):
+    QObject(parent), manager(manager), partIndex(QModelIndex()), reply(0), saved(false)
+{
+    if (url.scheme().toLower() == QLatin1String("cid")) {
+        if (!relativeRoot.isValid()) {
+            m_errorMessage = tr("Cannot translate CID URL: message is gone");
+            return;
+        }
+        auto cid = url.path().toUtf8();
+        if (!cid.startsWith('<')) {
+            cid = '<' + cid;
+        }
+        if (!cid.endsWith('>')) {
+            cid += '>';
+        }
+        partIndex = manager->cidToPart(relativeRoot, cid);
+        if (!partIndex.isValid()) {
+            m_errorMessage = tr("CID not found (%1)").arg(url.toString());
+        }
+    } else {
+        m_errorMessage = tr("Unsupported URL (%1)").arg(url.toString());
+    }
+}
+
 QString FileDownloadManager::toRealFileName(const QModelIndex &index)
 {
     QString fileName = index.data(Imap::Mailbox::RolePartFileName).toString();
@@ -56,6 +80,11 @@ QString FileDownloadManager::toRealFileName(const QModelIndex &index)
 
 void FileDownloadManager::downloadPart()
 {
+    if (!m_errorMessage.isNull()) {
+        emit transferError(m_errorMessage);
+        return;
+    }
+
     if (!partIndex.isValid()) {
         emit transferError(tr("FileDownloadManager::downloadPart(): part has disappeared"));
         return;

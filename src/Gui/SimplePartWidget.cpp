@@ -96,8 +96,8 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
         // The targets expect the sender() of the signal to be a SimplePartWidget, not a QWebPage,
         // which means we have to do this indirection
         connect(page(), &QWebPage::linkHovered, this, &SimplePartWidget::linkHovered);
-        connect(this, &SimplePartWidget::linkHovered,
-                m_messageView, &MessageView::partLinkHovered);
+        connect(this, &SimplePartWidget::linkHovered, m_messageView, &MessageView::partLinkHovered);
+        connect(page(), &QWebPage::downloadRequested, this, &SimplePartWidget::slotDownloadImage);
 
         installEventFilter(m_messageView);
     }
@@ -154,6 +154,9 @@ void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const
     menu.addSeparator();
     menu.addAction(m_savePart);
     menu.addAction(m_saveMessage);
+    if (!page()->mainFrame()->hitTestContent(point).imageUrl().isEmpty()) {
+        menu.addAction(pageAction(QWebPage::DownloadImageToDisk));
+    }
 }
 
 void SimplePartWidget::slotDownloadPart()
@@ -175,6 +178,16 @@ void SimplePartWidget::slotDownloadMessage()
     connect(manager, &Imap::Network::FileDownloadManager::transferError, manager, &QObject::deleteLater);
     connect(manager, &Imap::Network::FileDownloadManager::succeeded, manager, &QObject::deleteLater);
     manager->downloadMessage();
+}
+
+void SimplePartWidget::slotDownloadImage(const QNetworkRequest &req)
+{
+    Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccessManager, req.url(), m_partIndex.parent());
+    connect(manager, &Imap::Network::FileDownloadManager::fileNameRequested, this, &SimplePartWidget::slotFileNameRequested);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, m_messageView, &MessageView::transferError);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, manager, &QObject::deleteLater);
+    connect(manager, &Imap::Network::FileDownloadManager::succeeded, manager, &QObject::deleteLater);
+    manager->downloadPart();
 }
 
 }
