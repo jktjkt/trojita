@@ -22,6 +22,7 @@
 #include <QApplication>
 #include <QFileDialog>
 #include <QFontDatabase>
+#include <QMenu>
 #include <QNetworkReply>
 #include <QWebFrame>
 
@@ -141,9 +142,18 @@ void SimplePartWidget::reloadContents()
     EmbeddedWebView::reload();
 }
 
-QList<QAction *> SimplePartWidget::contextMenuSpecificActions() const
+void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const
 {
-    return QList<QAction*>() << m_savePart << m_saveMessage << m_findAction;
+    menu.addAction(m_findAction);
+    menu.addAction(pageAction(QWebPage::Copy));
+    menu.addAction(pageAction(QWebPage::SelectAll));
+    if (!page()->mainFrame()->hitTestContent(point).linkUrl().isEmpty()) {
+        menu.addSeparator();
+        menu.addAction(pageAction(QWebPage::CopyLinkToClipboard));
+    }
+    menu.addSeparator();
+    menu.addAction(m_savePart);
+    menu.addAction(m_saveMessage);
 }
 
 void SimplePartWidget::slotDownloadPart()

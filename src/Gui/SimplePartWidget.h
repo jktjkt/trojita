@@ -59,7 +59,7 @@ public:
                      MessageView *messageView);
     virtual QString quoteMe() const;
     virtual void reloadContents();
-    QList<QAction *> contextMenuSpecificActions() const;
+    void buildContextMenu(const QPoint &point, QMenu &menu) const;
 private slots:
     void slotFileNameRequested(QString *fileName);
     void slotMarkupPlainText();
