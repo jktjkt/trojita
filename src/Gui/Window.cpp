@@ -494,18 +494,6 @@ void MainWindow::createActions()
     m_replyButton->setMenu(m_replyMenu);
     m_replyButton->setDefaultAction(m_replyPrivate);
 
-    m_menuFromToolBar = new QToolButton(this);
-    m_menuFromToolBar->setIcon(UiUtils::loadIcon(QLatin1String("menu_new")));
-    m_menuFromToolBar->setText(QChar(0x205d)); // Unicode 'TRICOLON'
-    m_menuFromToolBar->setPopupMode(QToolButton::MenuButtonPopup);
-    connect(m_menuFromToolBar, &QAbstractButton::clicked, m_menuFromToolBar, &QToolButton::showMenu);
-    m_mainToolbar->addWidget(m_menuFromToolBar);
-    connect(showMenuBar, &QAction::toggled, [this](const bool menuBarVisible) {
-        // https://bugreports.qt.io/browse/QTBUG-35768 , we have to work on the QAction, not QToolButton
-        m_mainToolbar->actions()[0]->setVisible(!menuBarVisible);
-    });
-    m_mainToolbar->actions()[0]->setVisible(false); // initial state to complement the default of the QMenuBar's visibility
-
     m_mainToolbar->addWidget(m_composeButton);
     m_mainToolbar->addWidget(m_replyButton);
     m_mainToolbar->addAction(m_forwardAsAttachment);
@@ -529,6 +517,18 @@ void MainWindow::createActions()
     // This is deliberate; we want to show this button in the same style as the other ones in the toolbar
     networkIndicator->setPopupMode(QToolButton::MenuButtonPopup);
     m_mainToolbar->addWidget(networkIndicator);
+
+    m_menuFromToolBar = new QToolButton(this);
+    m_menuFromToolBar->setIcon(UiUtils::loadIcon(QLatin1String("menu_new")));
+    m_menuFromToolBar->setText(QChar(0x205d)); // Unicode 'TRICOLON'
+    m_menuFromToolBar->setPopupMode(QToolButton::MenuButtonPopup);
+    connect(m_menuFromToolBar, &QAbstractButton::clicked, m_menuFromToolBar, &QToolButton::showMenu);
+    m_mainToolbar->addWidget(m_menuFromToolBar);
+    connect(showMenuBar, &QAction::toggled, [this](const bool menuBarVisible) {
+        // https://bugreports.qt.io/browse/QTBUG-35768 , we have to work on the QAction, not QToolButton
+        m_mainToolbar->actions().last()->setVisible(!menuBarVisible);
+    });
+    m_mainToolbar->actions().last()->setVisible(false); // initial state to complement the default of the QMenuBar's visibility
 
     busyParsersIndicator->setFixedSize(m_mainToolbar->iconSize());
 
