@@ -21,139 +21,83 @@ set(TROJITA_INSTALL_FILES "")
 set(TROJITA_LIBRARIES "")
 set(TROJITA_LIBRARIES_PATHS "")
 
-if(WITH_QT5)
-    # TODO: List all required Qt5 libraries
-    message(SEND_ERROR "Windows NSIS installer is not supported for Qt5 version yet")
-else()
-    # All Qt4 libraries which are required for Trojita
-    set(TROJITA_QT_LIBRARIES QT_QTNETWORK_LIBRARY QT_QTSQL_LIBRARY QT_QTGUI_LIBRARY QT_QTCORE_LIBRARY QT_QTWEBKIT_LIBRARY)
-    if(WITH_DBUS)
-        list(APPEND TROJITA_QT_LIBRARIES QT_QTDBUS_LIBRARY QT_QTXML_LIBRARY)
-        list(APPEND TROJITA_LIBRARIES libdbus-1-3.dll)
-    endif()
-    foreach(LIBRARY ${TROJITA_QT_LIBRARIES})
-        if(${LIBRARY}_RELEASE AND ${LIBRARY}_DEBUG AND (CMAKE_CONFIGURATION_TYPES OR CMAKE_BUILD_TYPE))
-            if(${LIBRARY}_DEBUG AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-                list(APPEND TROJITA_LIBRARIES ${${LIBRARY}_DEBUG})
-            else()
-                list(APPEND TROJITA_LIBRARIES ${${LIBRARY}_RELEASE})
-            endif()
-        else()
-            list(APPEND TROJITA_LIBRARIES ${${LIBRARY}})
-        endif()
-    endforeach()
-endif()
+# Prepare a list of all Qt plugins which are needed.
+# We need a hardcoded list of plugin types because I'm too lazy to find out how to work with associative arrays/hashmaps in cmake.
+set(TROJITA_QT_PLUGIN_TYPES bearer generic imageformats sqldrivers platforms)
 
-# Check if QtWebKit depends on external system sqlite3 library
-# NOTE: Only pkgconfig file in Libs.private section contains this information
-#       Output of Libs.private is in list of static libraries needed to link
-include(FindPkgConfig)
-pkg_check_modules(QTWEBKIT QUIET QtWebKit)
-if(QTWEBKIT_STATIC_LIBRARIES AND QTWEBKIT_STATIC_LIBRARIES MATCHES "sqlite3")
-    list(APPEND TROJITA_LIBRARIES libsqlite3-0.dll)
-endif()
-
-# Check if Qt depends on external system zlib library
-if(WITH_ZLIB AND NOT ZLIB_LIBRARIES STREQUAL QT_QTCORE_LIBRARY)
-    list(APPEND TROJITA_LIBRARIES "${ZLIB_LIBRARIES}")
-endif()
-
-if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
-    file(READ ${QT_MKSPECS_DIR}/qconfig.pri QT_CONFIG)
-    string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG ${QT_CONFIG})
-    # Check if Qt depends on external system libpng library
-    if(QT_CONFIG MATCHES " system-png ")
-        find_package(PNG)
-        if(PNG_VERSION_STRING)
-            # QtGui depends on libpng, name pattern is: "libpng<maj><min>-<maj><min>.dll"
-            string(REGEX REPLACE "^([0-9])\\.([0-9])\\..*\$" "libpng\\1\\2-\\1\\2.dll" LIBRARY "${PNG_VERSION_STRING}")
-            list(APPEND TROJITA_LIBRARIES "${LIBRARY}")
-        else()
-            message(SEND_ERROR "External PNG library is required but version was not detected")
-        endif()
-    endif()
-    # Check if Qt was compiled with openssl support
-    if((QT_CONFIG MATCHES " openssl " OR QT_CONFIG MATCHES " openssl-linked ") AND NOT QT_CONFIG MATCHES " no-openssl ")
-        # By default use MSVC name scheme of openssl libraries because other name schemes are not supported by standard Qt
-        if(NOT OPENSSL_DLL_LIBRARIES)
-            set(OPENSSL_DLL_LIBRARIES ssleay32.dll libeay32.dll CACHE STRING "" FORCE)
-        endif()
-        # Append windows openssl libraries
-        list(APPEND TROJITA_LIBRARIES ${OPENSSL_DLL_LIBRARIES})
-    endif()
-endif()
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -dumpversion OUTPUT_VARIABLE GNU_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -dumpmachine OUTPUT_VARIABLE GNU_TARGET OUTPUT_STRIP_TRAILING_WHITESPACE)
-    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -v ERROR_VARIABLE GNU_OUTPUT ERROR_STRIP_TRAILING_WHITESPACE)
-    # Detect exceptions handling and threading model: http://stackoverflow.com/a/16103497
-    if(GNU_OUTPUT MATCHES "--enable-[a-z]+-exceptions")
-        string(REGEX REPLACE ".*--enable-([a-z]+)-exceptions.*" "\\1" GNU_EXCEPTIONS "${GNU_OUTPUT}")
-        message(STATUS "Detected ${GNU_EXCEPTIONS} exceptions handling")
-    elseif(CMAKE_SIZEOF_VOID_P STREQUAL 8 AND NOT GNU_VERSION VERSION_LESS "4.8")
-        set(GNU_EXCEPTIONS seh)
-    else()
-        set(GNU_EXCEPTIONS sjlj)
-    endif()
-    if(GNU_OUTPUT MATCHES "--enable-threads=posix" OR GNU_OUTPUT MATCHES "Thread model: posix")
-        # Posix threading model needs libwinpthread-1.dll library
-        list(APPEND TROJITA_LIBRARIES libwinpthread-1.dll)
-    endif()
-    # All not static linked mingw/gcc binaries depends on libstdc++ and GNU runtime library, name pattern is: libgcc_s_<exceptions>-1.dll
-    list(APPEND TROJITA_LIBRARIES libgcc_s_${GNU_EXCEPTIONS}-1.dll libstdc++-6.dll)
-    # Detect gcc install path
-    execute_process(COMMAND "${CMAKE_CXX_COMPILER}" -print-search-dirs OUTPUT_VARIABLE GNU_INSTALL OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if(GNU_INSTALL MATCHES "install: ")
-        string(REGEX REPLACE ".*install: ([^\n]+)\n.*" "\\1" GNU_INSTALL "${GNU_INSTALL}")
-        list(APPEND TROJITA_LIBRARIES_PATHS ${GNU_INSTALL})
-    else()
-        # Add additional gcc directories where runtime libraries can be stored if install path is not detected
-        foreach(PREFIX ${CMAKE_SYSTEM_PREFIX_PATH})
-            list(APPEND TROJITA_LIBRARIES_PATHS ${PREFIX}/lib/gcc/${GNU_TARGET}/${GNU_VERSION})
-        endforeach()
-    endif()
-else()
-    # TODO: List all MSVC and CLang required runtime libraries
-    message(SEND_ERROR "Windows NSIS installer is not supported without GCC compiler yet")
-endif()
-
-# Include all DLL libraries
-foreach(LIBRARY ${TROJITA_LIBRARIES})
-    # By default mingw/gcc application are linked with dll.a archives and not dll libraries. In dll.a archive is stored real dll name, but from cmake we cannot read it. Solution is to convert dll.a basename to dll and find new dll file in system.
-    # TODO: Add support for MSVC lib naming scheme
-    if(LIBRARY MATCHES "lib.*\\.dll\\.a\$")
-        if(IS_ABSOLUTE "${LIBRARY}")
-            get_filename_component(LIBRARY ${LIBRARY} NAME)
-        endif()
-        # Convert .dll.a filename to .dll filename
-        string(REGEX REPLACE "^lib(.*\\.dll)\\.a\$" "\\1" LIBRARY "${LIBRARY}")
-    endif()
-    if(NOT IS_ABSOLUTE "${LIBRARY}" AND LIBRARY MATCHES "^.*\\.dll\$")
-        if("${LIBRARY}" STREQUAL "z.dll")
-            # Correct name of libz dll library is zlib1.dll
-            set(LIBRARY "zlib1.dll")
-        endif()
-        set(ORIGINAL_SUFFIX "${CMAKE_FIND_LIBRARY_SUFFIXES}")
-        set(CMAKE_FIND_LIBRARY_SUFFIXES .dll)
-        find_library(LIBRARY_PATH "${LIBRARY}" PATHS ${TROJITA_LIBRARIES_PATHS} CMAKE_FIND_ROOT_PATH_BOTH)
-        set(CMAKE_FIND_LIBRARY_SUFFIXES "${ORIGINAL_SUFFIX}")
-        if(LIBRARY_PATH AND NOT LIBRARY_PATH MATCHES "^lib.*\\.dll\\.a\$")
-            set(LIBRARY "${LIBRARY_PATH}")
-        endif()
-        unset(LIBRARY_PATH CACHE)
-    endif()
-    if(LIBRARY MATCHES ".*\\.dll\$")
-        if(IS_ABSOLUTE "${LIBRARY}" AND EXISTS "${LIBRARY}")
-            message(STATUS "Including library ${LIBRARY} into NSIS installer")
-            list(APPEND TROJITA_INSTALL_FILES "${LIBRARY}")
-        else()
-            message(SEND_ERROR "Full path for library ${LIBRARY} was not detected")
-        endif()
-    else()
-        message(SEND_ERROR "Library ${LIBRARY} doesn't match expected pattern for a DLL")
-    endif()
+foreach(plugintype ${TROJITA_QT_PLUGIN_TYPES})
+    set(TROJITA_QT_${plugintype}_PLUGINS "")
 endforeach()
+
+foreach(plugin ${Qt5Gui_PLUGINS} ${Qt5Network_PLUGINS} Qt5::QSQLiteDriverPlugin)
+  get_target_property(_loc ${plugin} LOCATION)
+
+  set(plugin_recognized FALSE)
+
+  foreach(plugintype ${TROJITA_QT_PLUGIN_TYPES})
+      if(${_loc} MATCHES "/plugins/${plugintype}/.*\\.dll$")
+          list(APPEND TROJITA_QT_${plugintype}_PLUGINS ${_loc})
+          set(plugin_recognized TRUE)
+      endif()
+  endforeach()
+
+  if(NOT ${plugin_recognized})
+      message(FATAL_ERROR "Unrecognized Qt plugin -- don't know where to put it: ${_loc}")
+  endif()
+
+endforeach()
+
+# Qt doesn't really link with OpenSSL, but loads it during runtime, which means that our objdump won't find the DLL names.
+# Of course, the library names are provided through the .dll.a convention, and I'm too lazy to write code which converts
+# them to just DLLs, so we support either passing them explicitly, or we require CMake 4.4 and its OpenSSL imported targets.
+# The reason for this is that we only have cmake-3.3 in the CI so far.
+if(NOT (EXISTS "${OpenSSL_Crypto_LOC}" AND EXISTS "${OpenSSL_SSL_LOC}"))
+    find_package(OpenSSL REQUIRED)
+    cmake_minimum_required(VERSION 3.4.0)
+    get_target_property(OpenSSL_SSL_LOC OpenSSL::SSL LOCATION)
+    get_target_property(OpenSSL_Crypto_LOC OpenSSL::Crypto LOCATION)
+endif()
+
+# We don't have trojita.exe at CMake time yet, so we have to take a look at all the stuff which we know is going to be needed.
+# I could probably write some CMake code to handle this, but sorry, that's ETOOCOMPLEX for me. Instead, I chose to write this
+# ugly beast and to swear each time in future when the list of libraries which Trojita links against gets extended, and someone
+# forgets to update *this* hardcoded list. Patches which improve this are very welcome.
+
+get_target_property(QtCore_LOC Qt5::Core LOCATION)
+get_target_property(QtGui_LOC Qt5::Gui LOCATION)
+get_target_property(QtNetwork_LOC Qt5::Network LOCATION)
+get_target_property(QtSql_LOC Qt5::Sql LOCATION)
+get_target_property(QtWebKitWidgets_LOC Qt5::WebKitWidgets LOCATION)
+get_target_property(QtWidgets_LOC Qt5::Widgets LOCATION)
+set(required_dll_names ${QtCore_LOC} ${QtGui_LOC} ${QtNetwork_LOC} ${QtSql_LOC} ${QtWebKitWidgets_LOC} ${QtWidgets_LOC} ${OpenSSL_SSL_LOC} ${OpenSSL_Crypto_LOC})
+if(WITH_DBUS)
+    get_target_property(QtDBus_LOC Qt5::DBus LOCATION)
+    list(APPEND required_dll_names ${QtDBus_LOC})
+endif()
+
+find_package(PythonInterp REQUIRED interpreter)
+
+message(STATUS "Determining the list of required DLL files...")
+set(all_plugin_dlls "")
+foreach(plugintype ${TROJITA_QT_PLUGIN_TYPES})
+    list(APPEND all_plugin_dlls ${TROJITA_QT_${plugintype}_PLUGINS})
+endforeach()
+execute_process(COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/packaging/mingw-bundledlls
+    ${required_dll_names} ${all_plugin_dlls}
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    OUTPUT_VARIABLE library_dependencies_STR)
+# convert from one-file-per-line into a cmake list
+string(REPLACE "\n" ";" library_dependencies "${library_dependencies_STR}")
+
+# because mingw-bundledlls filters out the name of the libraries which were passed on the command line
+list(APPEND library_dependencies ${required_dll_names})
+
+# ...and here we go!
+foreach(dll_lib ${library_dependencies})
+    message(STATUS "Including DLL: ${dll_lib}")
+endforeach()
+set(TROJITA_INSTALL_FILES "${TROJITA_INSTALL_FILES};${library_dependencies}")
+
 
 # Include be.contacts executable
 get_target_property(FILE_PATH be.contacts LOCATION)
@@ -176,49 +120,6 @@ endforeach()
 list(APPEND TROJITA_INSTALL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/README")
 list(APPEND TROJITA_INSTALL_FILES "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 
-# Set list of Qt plugins
-set(TROJITA_QT_PLUGIN_TYPES bearer codecs imageformats sqldrivers)
-set(TROJITA_QT_BEARER_PLUGINS ${QT_BEARER_PLUGINS})
-set(TROJITA_QT_CODECS_PLUGINS ${QT_CODECS_PLUGINS})
-set(TROJITA_QT_IMAGEFORMATS_PLUGINS ${QT_IMAGEFORMATS_PLUGINS})
-set(TROJITA_QT_SQLDRIVERS_PLUGINS qsqlite)
-
-set(TROJITA_QT_BEARER_PLUGIN_PATHS "")
-set(TROJITA_QT_CODECS_PLUGIN_PATHS "")
-set(TROJITA_QT_IMAGEFORMATS_PLUGIN_PATHS "")
-set(TROJITA_QT_SQLDRIVERS_PLUGIN_PATHS "")
-
-foreach(TYPE ${TROJITA_QT_PLUGIN_TYPES})
-    string(TOUPPER ${TYPE} TYPE)
-    foreach(PLUGIN ${TROJITA_QT_${TYPE}_PLUGINS})
-        string(TOUPPER ${PLUGIN} PLUGIN)
-        # Variable name is QT_<NAME>_PLUGIN_(RELEASE|DEBUG) or QT_<NAME>_LIBRARY_(RELEASE|DEBUG)
-        set(PATH_DEBUG "")
-        set(PATH_RELEASE "")
-        if(QT_${PLUGIN}_PLUGIN_DEBUG AND QT_${PLUGIN}_PLUGIN_DEBUG MATCHES ".*\\.dll")
-           set(PATH_DEBUG ${QT_${PLUGIN}_PLUGIN_DEBUG})
-        elseif(QT_${PLUGIN}_LIBRARY_DEBUG AND QT_${PLUGIN}_LIBRARY_DEBUG MATCHES ".*\\.dll")
-           set(PATH_DEBUG ${QT_${PLUGIN}_LIBRARY_DEBUG})
-        endif()
-        if(QT_${PLUGIN}_PLUGIN_RELEASE AND QT_${PLUGIN}_PLUGIN_RELEASE MATCHES ".*\\.dll")
-           set(PATH_RELEASE ${QT_${PLUGIN}_PLUGIN_RELEASE})
-        elseif(QT_${PLUGIN}_LIBRARY_RELEASE AND QT_${PLUGIN}_LIBRARY_RELEASE MATCHES ".*\\.dll")
-           set(PATH_RELEASE ${QT_${PLUGIN}_LIBRARY_RELEASE})
-        elseif(QT_${PLUGIN}_PLUGIN AND QT_${PLUGIN}_LIBRARY MATCHES ".*\\.dll")
-           set(PATH_RELEASE ${QT_${PLUGIN}_PLUGIN})
-        elseif(QT_${PLUGIN}_LIBRARY AND QT_${PLUGIN}_PLUGIN MATCHES ".*\\.dll")
-           set(PATH_RELEASE ${QT_${PLUGIN}_LIBRARY})
-        endif()
-        if(PATH_DEBUG AND CMAKE_BUILD_TYPE STREQUAL "Debug")
-            message(STATUS "Including Debug Qt ${TYPE} plugin ${PATH_DEBUG} into NSIS installer")
-            list(APPEND TROJITA_QT_${TYPE}_PLUGIN_PATHS ${PATH_DEBUG})
-        elseif(PATH_RELEASE)
-            message(STATUS "Including Release Qt ${TYPE} plugin ${PATH_RELEASE} into NSIS installer")
-            list(APPEND TROJITA_QT_${TYPE}_PLUGIN_PATHS ${PATH_RELEASE})
-        endif()
-    endforeach()
-endforeach()
-
 # Generate list of install files
 file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "!macro TROJITA_INSTALL_FILES\n")
 foreach(FILE_PATH ${TROJITA_INSTALL_FILES})
@@ -229,15 +130,14 @@ if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
         file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "File /r /x *.ts /x x_test locale\n")
     endif()
 endif()
-foreach(PTYPE ${TROJITA_QT_PLUGIN_TYPES})
-    string(TOUPPER ${PTYPE} TYPE)
-    if(TROJITA_QT_${TYPE}_PLUGIN_PATHS)
-        file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "SetOutPath \"\$INSTDIR\\${PTYPE}\"\n")
-        foreach(PLUGIN_PATH ${TROJITA_QT_${TYPE}_PLUGIN_PATHS})
-            file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "File \"${PLUGIN_PATH}\"\n")
-        endforeach()
-    endif()
+foreach(plugintype ${TROJITA_QT_PLUGIN_TYPES})
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "SetOutPath \"\$INSTDIR\\${plugintype}\"\n")
+    foreach(plugin ${TROJITA_QT_${plugintype}_PLUGINS})
+        file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "File \"${plugin}\"\n")
+        message(STATUS "Including ${plugintype} plugin: ${plugin}")
+    endforeach()
 endforeach()
+
 file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "!macroend\n")
 
 # Generate list of uninstall files
@@ -247,16 +147,15 @@ if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
         file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "RMDir /r \"\$INSTDIR\\locale\"\n")
     endif()
 endif()
-foreach(PTYPE ${TROJITA_QT_PLUGIN_TYPES})
-    string(TOUPPER ${PTYPE} TYPE)
-    if(TROJITA_QT_${TYPE}_PLUGIN_PATHS)
-        foreach(PLUGIN_PATH ${TROJITA_QT_${TYPE}_PLUGIN_PATHS})
-            get_filename_component(PLUGIN_NAME ${PLUGIN_PATH} NAME)
-            file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "Delete \"\$INSTDIR\\${PTYPE}\\${PLUGIN_NAME}\"\n")
-        endforeach()
-        file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "RMDir \"$INSTDIR\\${PTYPE}\"\n")
-    endif()
+
+foreach(plugintype ${TROJITA_QT_PLUGIN_TYPES})
+    foreach(plugin ${TROJITA_QT_${plugintype}_PLUGINS})
+        get_filename_component(plugin_basename ${plugin} NAME)
+        file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "Delete \"\$INSTDIR\\${plugintype}\\${plugin_basename}\"\n")
+    endforeach()
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "RMDir \"\$INSTDIR\\${plugintype}\"\n")
 endforeach()
+
 foreach(FILE_PATH ${TROJITA_INSTALL_FILES})
     get_filename_component(FILE_NAME ${FILE_PATH} NAME)
     file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "Delete \"\$INSTDIR\\${FILE_NAME}\"\n")

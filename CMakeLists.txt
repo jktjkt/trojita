@@ -69,7 +69,7 @@ trojita_option(WITH_KDE "Enable KDE support" OFF "WITH_DESKTOP;NOT WITH_QT5;WITH
 trojita_option(WITH_TESTS "Build tests" ON)
 
 if(WIN32)
-    trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
+    trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP;WITH_QT5")
 endif()
 
 if(UNIX AND NOT APPLE)
