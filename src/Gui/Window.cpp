@@ -516,8 +516,6 @@ void MainWindow::createActions()
     m_mainToolbar->addAction(markAsFlagged);
     m_mainToolbar->addAction(markAsJunk);
     m_mainToolbar->addAction(markAsNotJunk);
-    m_mainToolbar->addSeparator();
-    m_mainToolbar->addAction(configSettings);
 
     // Push the status indicators all the way to the other side of the toolbar -- either to the far right, or far bottom.
     QWidget *toolbarSpacer = new QWidget(m_mainToolbar);
