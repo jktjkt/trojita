@@ -47,7 +47,7 @@ LoadablePartWidget::LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNe
         loadButton = new QPushButton(tr("Load %1 (%2)").arg(partIndex.data(Imap::Mailbox::RolePartMimeType).toString(),
                                      UiUtils::Formatting::prettySize(partIndex.data(Imap::Mailbox::RolePartOctets).toUInt())),
                                      this);
-        connect(loadButton, SIGNAL(clicked()), this, SLOT(loadClicked()));
+        connect(loadButton, &QAbstractButton::clicked, this, &LoadablePartWidget::loadClicked);
         addWidget(loadButton);
     }
 }

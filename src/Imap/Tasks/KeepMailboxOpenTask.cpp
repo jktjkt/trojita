@@ -94,7 +94,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
 
         // We shall catch destruction of any preexisting tasks so that we can properly launch IDLE etc in response to their termination
         Q_FOREACH(ImapTask *task, model->accessParser(parser).activeTasks) {
-            connect(task, SIGNAL(destroyed(QObject*)), this, SLOT(slotTaskDeleted(QObject*)));
+            connect(task, &QObject::destroyed, this, &KeepMailboxOpenTask::slotTaskDeleted);
         }
     } else {
         ImapTask *conn = 0;
@@ -114,7 +114,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
 
     // Setup the timer for NOOPing. It won't get started at this time, though.
     noopTimer = new QTimer(this);
-    connect(noopTimer, SIGNAL(timeout()), this, SLOT(slotPerformNoop()));
+    connect(noopTimer, &QTimer::timeout, this, &KeepMailboxOpenTask::slotPerformNoop);
     bool ok;
     int timeout = model->property("trojita-imap-noop-period").toUInt(&ok);
     if (! ok)
@@ -123,7 +123,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     noopTimer->setSingleShot(true);
 
     fetchPartTimer = new QTimer(this);
-    connect(fetchPartTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedParts()));
+    connect(fetchPartTimer, &QTimer::timeout, this, &KeepMailboxOpenTask::slotFetchRequestedParts);
     timeout = model->property("trojita-imap-delayed-fetch-part").toUInt(&ok);
     if (! ok)
         timeout = 50;
@@ -131,7 +131,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     fetchPartTimer->setSingleShot(true);
 
     fetchEnvelopeTimer = new QTimer(this);
-    connect(fetchEnvelopeTimer, SIGNAL(timeout()), this, SLOT(slotFetchRequestedEnvelopes()));
+    connect(fetchEnvelopeTimer, &QTimer::timeout, this, &KeepMailboxOpenTask::slotFetchRequestedEnvelopes);
     fetchEnvelopeTimer->setInterval(0); // message metadata is pretty important, hence an immediate fetch
     fetchEnvelopeTimer->setSingleShot(true);
 
@@ -154,7 +154,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     CHECK_TASK_TREE
     emit model->mailboxSyncingProgress(mailboxIndex, STATE_WAIT_FOR_CONN);
 
-    connect(this, SIGNAL(failed(QString)), this, SLOT(signalSyncFailure(QString)));
+    connect(this, &ImapTask::failed, this, &KeepMailboxOpenTask::signalSyncFailure);
 
     /** @short How often to reset the time window (in ms) for determining mass-change mode */
     const int throttlingWindowLength = 1000;
@@ -166,7 +166,7 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     // arrive, the rate of saving is only moderated based on the number of reponses which were already received,
     // but which did not result in state saving yet.
     m_syncingTimer->setInterval(throttlingWindowLength);
-    connect(m_syncingTimer, SIGNAL(timeout()), this, SLOT(syncingTimeout()));
+    connect(m_syncingTimer, &QTimer::timeout, this, &KeepMailboxOpenTask::syncingTimeout);
 }
 
 void KeepMailboxOpenTask::slotPerformConnection()
@@ -180,7 +180,7 @@ void KeepMailboxOpenTask::slotPerformConnection()
         return;
     }
 
-    connect(synchronizeConn, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
+    connect(synchronizeConn, &QObject::destroyed, this, &KeepMailboxOpenTask::slotTaskDeleted);
     synchronizeConn->perform();
 }
 
@@ -232,13 +232,13 @@ void KeepMailboxOpenTask::addDependentTask(ImapTask *task)
 
         m_deleteCurrentMailboxTask = deleteTask;
         shouldExit = true;
-        connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
+        connect(task, &QObject::destroyed, this, &KeepMailboxOpenTask::slotTaskDeleted);
         ImapTask::addDependentTask(task);
         QTimer::singleShot(0, this, SLOT(slotActivateTasks()));
 
     } else {
         // This branch calls the inherited ImapTask::addDependentTask()
-        connect(task, SIGNAL(destroyed(QObject *)), this, SLOT(slotTaskDeleted(QObject *)));
+        connect(task, &QObject::destroyed, this, &KeepMailboxOpenTask::slotTaskDeleted);
         ImapTask::addDependentTask(task);
         if (task->needsMailbox()) {
             // it's a task which is tied to a particular mailbox
@@ -344,7 +344,7 @@ void KeepMailboxOpenTask::terminate()
         first->keepTaskChild->waitingObtainTasks = waitingObtainTasks + first->keepTaskChild->waitingObtainTasks;
         model->accessParser(parser).maintainingTask = first->keepTaskChild;
         // make sure that if the SELECT dies uncleanly, such as with a missing [CLOSED], we get killed as well
-        connect(first->keepTaskChild, SIGNAL(failed(QString)), this, SLOT(finalizeTermination()));
+        connect(first->keepTaskChild, &ImapTask::failed, this, &KeepMailboxOpenTask::finalizeTermination);
         first->keepTaskChild->slotPerformConnection();
     } else {
         Q_ASSERT(dependentTasks.isEmpty());
@@ -959,7 +959,7 @@ bool KeepMailboxOpenTask::dieIfInvalidMailbox()
     // See ObtainSynchronizedMailboxTask::dieIfInvalidMailbox() for details
     if (!unSelectTask && isRunning == Running::RUNNING) {
         unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
-        connect(unSelectTask, SIGNAL(completed(Imap::Mailbox::ImapTask *)), this, SLOT(slotUnselected()));
+        connect(unSelectTask, &ImapTask::completed, this, &KeepMailboxOpenTask::slotUnselected);
         unSelectTask->perform();
     }
 

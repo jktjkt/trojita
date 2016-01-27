@@ -40,24 +40,19 @@ MsgListModel::MsgListModel(QObject *parent, Model *model): QAbstractProxyModel(p
     setSourceModel(model);
 
     // FIXME: will need to be expanded when Model supports more signals...
-    connect(model, SIGNAL(modelAboutToBeReset()), this, SLOT(resetMe()));
-    connect(model, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged()));
-    connect(model, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
-    connect(model, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(handleDataChanged(const QModelIndex &, const QModelIndex &)));
-    connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsAboutToBeRemoved(const QModelIndex &, int,int)));
-    connect(model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsRemoved(const QModelIndex &, int,int)));
-    connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsAboutToBeInserted(const QModelIndex &, int,int)));
-    connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsInserted(const QModelIndex &, int,int)));
+    connect(model, &QAbstractItemModel::modelAboutToBeReset, this, &MsgListModel::resetMe);
+    connect(model, &QAbstractItemModel::layoutAboutToBeChanged, this, &QAbstractItemModel::layoutAboutToBeChanged);
+    connect(model, &QAbstractItemModel::layoutChanged, this, &QAbstractItemModel::layoutChanged);
+    connect(model, &QAbstractItemModel::dataChanged, this, &MsgListModel::handleDataChanged);
+    connect(model, &QAbstractItemModel::rowsAboutToBeRemoved, this, &MsgListModel::handleRowsAboutToBeRemoved);
+    connect(model, &QAbstractItemModel::rowsRemoved, this, &MsgListModel::handleRowsRemoved);
+    connect(model, &QAbstractItemModel::rowsAboutToBeInserted, this, &MsgListModel::handleRowsAboutToBeInserted);
+    connect(model, &QAbstractItemModel::rowsInserted, this, &MsgListModel::handleRowsInserted);
 
-    connect(this, SIGNAL(layoutChanged()), this, SIGNAL(indexStateChanged()));
-    connect(this, SIGNAL(modelReset()), this, SIGNAL(indexStateChanged()));
-    connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(indexStateChanged()));
-    connect(this, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(indexStateChanged()));
+    connect(this, &QAbstractItemModel::layoutChanged, this, &MsgListModel::indexStateChanged);
+    connect(this, &QAbstractItemModel::modelReset, this, &MsgListModel::indexStateChanged);
+    connect(this, &QAbstractItemModel::rowsInserted, this, &MsgListModel::indexStateChanged);
+    connect(this, &QAbstractItemModel::rowsRemoved, this, &MsgListModel::indexStateChanged);
 }
 
 QHash<int, QByteArray> MsgListModel::roleNames() const

@@ -119,7 +119,7 @@ AbookAddressbook::AbookAddressbook(QObject *parent): AddressbookPlugin(parent), 
 
     m_filesystemWatcher = new QFileSystemWatcher(this);
     m_filesystemWatcher->addPath(QDir::homePath() + QLatin1String("/.abook/addressbook"));
-    connect (m_filesystemWatcher, SIGNAL(fileChanged(QString)), SLOT(scheduleAbookUpdate()));
+    connect (m_filesystemWatcher, &QFileSystemWatcher::fileChanged, this, &AbookAddressbook::scheduleAbookUpdate);
 }
 
 AbookAddressbook::~AbookAddressbook()
@@ -211,7 +211,7 @@ void AbookAddressbook::scheduleAbookUpdate()
     if (!m_updateTimer) {
         m_updateTimer = new QTimer(this);
         m_updateTimer->setSingleShot(true);
-        connect (m_updateTimer, SIGNAL(timeout()), SLOT(updateAbook()));
+        connect(m_updateTimer, &QTimer::timeout, this, &AbookAddressbook::updateAbook);
     }
     m_updateTimer->start(500);
 }

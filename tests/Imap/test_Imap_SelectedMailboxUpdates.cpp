@@ -973,7 +973,7 @@ void ImapModelSelectedMailboxUpdatesTest::testMarkAllConcurrentArrival()
     cEmpty();
 
     QSignalSpy changedSpy(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(helperDataChangedUidNonZero(QModelIndex,QModelIndex)));
+    connect(model, &QAbstractItemModel::dataChanged, this, &ImapModelSelectedMailboxUpdatesTest::helperDataChangedUidNonZero);
     QSignalSpy messageCountChangedSpy(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)));
     model->markMailboxAsRead(idxA);
     cClient(t.mk("STORE 1:* +FLAGS.SILENT \\Seen\r\n"));

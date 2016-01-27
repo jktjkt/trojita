@@ -37,10 +37,10 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
 {
     m_subtree = new SubtreeModelOfModel(this);
     m_subtree->setSourceModel(model);
-    connect(m_subtree, SIGNAL(modelReset()), this, SIGNAL(envelopeChanged()));
-    connect(m_subtree, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SIGNAL(envelopeChanged()));
-    connect(this, SIGNAL(envelopeChanged()), this, SIGNAL(flagsChanged()));
-    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleModelDataChanged(QModelIndex,QModelIndex)));
+    connect(m_subtree, &QAbstractItemModel::modelReset, this, &OneMessageModel::envelopeChanged);
+    connect(m_subtree, &QAbstractItemModel::dataChanged, this, &OneMessageModel::envelopeChanged);
+    connect(this, &OneMessageModel::envelopeChanged, this, &OneMessageModel::flagsChanged);
+    connect(model, &QAbstractItemModel::dataChanged, this, &OneMessageModel::handleModelDataChanged);
     m_flatteningModel = new KDescendantsProxyModel(this);
     m_flatteningModel->setSourceModel(m_subtree);
     QHash<int, QByteArray> roleNames;

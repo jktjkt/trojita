@@ -96,7 +96,7 @@ BE::Contacts::Contacts(AbookAddressbook *abook): m_abook(abook), m_dirty(false)
     m_sortFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_sortFilterProxy->setFilterKeyColumn(-1);
     m_sortFilterProxy->setSourceModel(m_abook->model());
-    connect (m_ui->filter, SIGNAL(textChanged(QString)), m_sortFilterProxy, SLOT(setFilterWildcard(QString)));
+    connect(m_ui->filter, &QLineEdit::textChanged, m_sortFilterProxy, &QSortFilterProxyModel::setFilterWildcard);
     m_ui->filter->installEventFilter(this);
 
     QFont fnt = m_ui2->name->font();
@@ -109,22 +109,23 @@ BE::Contacts::Contacts(AbookAddressbook *abook): m_abook(abook), m_dirty(false)
 
     m_ui->contacts->setModel(m_sortFilterProxy);
     m_ui->contacts->setSelectionMode(QAbstractItemView::SingleSelection);
-    connect (m_ui->contacts->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)), SLOT(setContact(QModelIndex)));
+    connect(m_ui->contacts->selectionModel(), &QItemSelectionModel::currentChanged, this, &Contacts::setContact);
     QModelIndex idx = m_sortFilterProxy->index(0,0);
     if (idx.isValid())
         m_ui->contacts->setCurrentIndex(idx);
     m_ui->contacts->installEventFilter(this);
 
-    connect (m_ui->add, SIGNAL(clicked()), SLOT(addContact()));
-    connect (m_ui->remove, SIGNAL(clicked()), SLOT(removeCurrentContact()));
-    connect (qApp, SIGNAL(focusChanged(QWidget*, QWidget*)), SLOT(updateFocusPolicy(QWidget*, QWidget*)));
+    connect(m_ui->add, &QAbstractButton::clicked, this, &Contacts::addContact);
+    connect(m_ui->remove, &QAbstractButton::clicked, this, &Contacts::removeCurrentContact);
+    connect(qApp, &QApplication::focusChanged, this, &Contacts::updateFocusPolicy);
 
     // cheat to correct the focuspolicies ;-)
     updateFocusPolicy(m_ui2->name, m_ui->filter);
 
     Q_FOREACH(const Field &field, fields) {
-        if (QTextDocument *doc = field.label->findChild<QTextDocument*>())
-            connect(doc, SIGNAL(contentsChanged()), SLOT(updateLabel()));
+        if (QTextDocument *doc = field.label->findChild<QTextDocument*>()) {
+            connect(doc, &QTextDocument::contentsChanged, this, &Contacts::updateLabel);
+        }
     }
 }
 

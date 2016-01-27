@@ -41,8 +41,8 @@ void LineEdit::init()
     m_clearButton->setToolTip(tr("Clear input field"));
     m_clearButton->setFocusPolicy(Qt::NoFocus);
     m_clearButton->hide();
-    connect(m_clearButton, SIGNAL(clicked()), this, SLOT(clear()));
-    connect(this, SIGNAL(textChanged(QString)), this, SLOT(updateClearButton(QString)));
+    connect(m_clearButton, &QAbstractButton::clicked, this, &QLineEdit::clear);
+    connect(this, &QLineEdit::textChanged, this, &LineEdit::updateClearButton);
 
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     m_clearButton->setStyleSheet(QString::fromUtf8("QToolButton { border: none; padding-left: 1px; padding-top: %1px; padding-bottom: %1px; padding-right: %1px; }")
@@ -55,7 +55,7 @@ void LineEdit::init()
     layout->addStretch();
     layout->addWidget(m_clearButton);
 
-    connect(this, SIGNAL(editingFinished()), this, SLOT(doEmitTextEditingFinished()));
+    connect(this, &QLineEdit::editingFinished, this, &LineEdit::doEmitTextEditingFinished);
 }
 
 QToolButton *LineEdit::clearButton()
@@ -75,13 +75,13 @@ void LineEdit::setHistoryEnabled(bool enabled)
     m_historyEnabled = enabled;
     if (m_historyEnabled) {
         // queued so we learn and update the history list *after* the user selected an item from popup
-        connect(this, SIGNAL(returnPressed()), this, SLOT(learnEntry()), Qt::QueuedConnection);
+        connect(this, &QLineEdit::returnPressed, this, &LineEdit::learnEntry, Qt::QueuedConnection);
         QCompleter *completer = new QCompleter(QStringList(), this);
         completer->setCaseSensitivity(Qt::CaseInsensitive);
         completer->setCompletionMode(QCompleter::InlineCompletion);
         setCompleter(completer);
     } else {
-        disconnect(this, SIGNAL(returnPressed()), this, SLOT(learnEntry()));
+        disconnect(this, &QLineEdit::returnPressed, this, &LineEdit::learnEntry);
         delete completer();
         setCompleter(NULL);
     }

@@ -97,8 +97,8 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
 #endif
 
     buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, Qt::Horizontal, this);
-    connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttons, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttons, &QDialogButtonBox::accepted, this, &SettingsDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, this, &SettingsDialog::reject);
     layout->addWidget(buttons);
 
     EMIT_LATER_NOARG(this, reloadPasswordsRequested);
@@ -168,7 +168,7 @@ void SettingsDialog::accept()
             stack->setCurrentWidget(page->asWidget());
             return;
         }
-        connect(page->asWidget(), SIGNAL(saved()), this, SLOT(slotAccept()));
+        connect(page->asWidget(), SIGNAL(saved()), this, SLOT(slotAccept())); // new-signal-slot: we're abusing the type system a bit here, cannot use the new syntax
         ++m_saveSignalCount;
     }
 
@@ -198,7 +198,7 @@ void SettingsDialog::accept()
 
 void SettingsDialog::slotAccept()
 {
-    disconnect(sender(), SIGNAL(saved()), this, SLOT(slotAccept()));
+    disconnect(sender(), SIGNAL(saved()), this, SLOT(slotAccept())); // new-signal-slot: we're abusing the type system a bit here, cannot use the new syntax
     if (--m_saveSignalCount > 0) {
         return;
     }
@@ -235,7 +235,7 @@ void SettingsDialog::reject()
 void SettingsDialog::addPage(ConfigurationWidgetInterface *page, const QString &title)
 {
     stack->addTab(page->asWidget(), title);
-    connect(page->asWidget(), SIGNAL(widgetsUpdated()), SLOT(adjustSizeToScrollAreas()));
+    connect(page->asWidget(), SIGNAL(widgetsUpdated()), SLOT(adjustSizeToScrollAreas())); // new-signal-slot: we're abusing the type system a bit here, cannot use the new syntax
     QMetaObject::invokeMethod(page->asWidget(), "updateWidgets", Qt::QueuedConnection);
     pages << page;
 }
@@ -317,7 +317,7 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
 
     markReadCheckbox->setChecked(s.value(Common::SettingsNames::autoMarkReadEnabled, QVariant(true)).toBool());
     markReadSeconds->setValue(s.value(Common::SettingsNames::autoMarkReadSeconds, QVariant(0)).toUInt());
-    connect(markReadCheckbox, SIGNAL(toggled(bool)), markReadSeconds, SLOT(setEnabled(bool)));
+    connect(markReadCheckbox, &QAbstractButton::toggled, markReadSeconds, &QWidget::setEnabled);
 
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
     showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
@@ -331,20 +331,20 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     preferPlaintextCheckbox->setChecked(s.value(Common::SettingsNames::guiPreferPlaintextRendering).toBool());
     revealTrojitaVersions->setChecked(s.value(Common::SettingsNames::interopRevealVersions, QVariant(true)).toBool());
 
-    connect(identityTabelView, SIGNAL(clicked(QModelIndex)), SLOT(updateWidgets()));
-    connect(identityTabelView, SIGNAL(doubleClicked(QModelIndex)), SLOT(editButtonClicked()));
-    connect(m_identitiesModel, SIGNAL(layoutChanged()), SLOT(updateWidgets()));
-    connect(m_identitiesModel, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(updateWidgets()));
-    connect(m_identitiesModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(updateWidgets()));
-    connect(m_identitiesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SLOT(updateWidgets()));
-    connect(moveUpButton, SIGNAL(clicked()), SLOT(moveIdentityUp()));
-    connect(moveDownButton, SIGNAL(clicked()), SLOT(moveIdentityDown()));
-    connect(addButton, SIGNAL(clicked()), SLOT(addButtonClicked()));
-    connect(editButton, SIGNAL(clicked()), SLOT(editButtonClicked()));
-    connect(deleteButton, SIGNAL(clicked()), SLOT(deleteButtonClicked()));
-    connect(passwordBox, SIGNAL(currentIndexChanged(int)), SLOT(passwordPluginChanged()));
+    connect(identityTabelView, &QAbstractItemView::clicked, this, &GeneralPage::updateWidgets);
+    connect(identityTabelView, &QAbstractItemView::doubleClicked, this, &GeneralPage::editButtonClicked);
+    connect(m_identitiesModel, &QAbstractItemModel::layoutChanged, this, &GeneralPage::updateWidgets);
+    connect(m_identitiesModel, &QAbstractItemModel::rowsInserted, this, &GeneralPage::updateWidgets);
+    connect(m_identitiesModel, &QAbstractItemModel::rowsRemoved, this, &GeneralPage::updateWidgets);
+    connect(m_identitiesModel, &QAbstractItemModel::dataChanged, this, &GeneralPage::updateWidgets);
+    connect(moveUpButton, &QAbstractButton::clicked, this, &GeneralPage::moveIdentityUp);
+    connect(moveDownButton, &QAbstractButton::clicked, this, &GeneralPage::moveIdentityDown);
+    connect(addButton, &QAbstractButton::clicked, this, &GeneralPage::addButtonClicked);
+    connect(editButton, &QAbstractButton::clicked, this, &GeneralPage::editButtonClicked);
+    connect(deleteButton, &QAbstractButton::clicked, this, &GeneralPage::deleteButtonClicked);
+    connect(passwordBox, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &GeneralPage::passwordPluginChanged);
 
-    connect(this, SIGNAL(reloadPasswords()), m_parent, SIGNAL(reloadPasswordsRequested()));
+    connect(this, &GeneralPage::reloadPasswords, m_parent, &SettingsDialog::reloadPasswordsRequested);
 
     updateWidgets();
 }
@@ -498,14 +498,14 @@ EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *ide
     m_mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
     m_mapper->setCurrentIndex(currentIndex.row());
     buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
-    connect(realNameLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
-    connect(emailLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
-    connect(organisationLineEdit, SIGNAL(textChanged(QString)), this, SLOT(enableButton()));
-    connect(signaturePlainTextEdit, SIGNAL(textChanged()), this, SLOT(enableButton()));
-    connect(buttonBox->button(QDialogButtonBox::Ok), SIGNAL(clicked()), this, SLOT(accept()));
-    connect(buttonBox->button(QDialogButtonBox::Cancel), SIGNAL(clicked()), this, SLOT(reject()));
-    connect(this, SIGNAL(accepted()), m_mapper, SLOT(submit()));
-    connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
+    connect(realNameLineEdit, &QLineEdit::textChanged, this, &EditIdentity::enableButton);
+    connect(emailLineEdit, &QLineEdit::textChanged, this, &EditIdentity::enableButton);
+    connect(organisationLineEdit, &QLineEdit::textChanged, this, &EditIdentity::enableButton);
+    connect(signaturePlainTextEdit, &QPlainTextEdit::textChanged, this, &EditIdentity::enableButton);
+    connect(buttonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
+    connect(buttonBox->button(QDialogButtonBox::Cancel), &QAbstractButton::clicked, this, &QDialog::reject);
+    connect(this, &QDialog::accepted, m_mapper, &QDataWidgetMapper::submit);
+    connect(this, &QDialog::rejected, this, &EditIdentity::onReject);
     setModal(true);
     signaturePlainTextEdit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 }
@@ -564,12 +564,12 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     imapHost->setText(s.value(SettingsNames::imapHostKey).toString());
     imapPort->setText(s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).toString());
     imapPort->setValidator(new QIntValidator(1, 65535, this));
-    connect(imapPort, SIGNAL(textChanged(QString)), this, SLOT(maybeShowPortWarning()));
-    connect(encryption, SIGNAL(currentIndexChanged(int)), this, SLOT(maybeShowPortWarning()));
-    connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(maybeShowPortWarning()));
-    connect(encryption, SIGNAL(currentIndexChanged(int)), this, SLOT(changePort()));
+    connect(imapPort, &QLineEdit::textChanged, this, &ImapPage::maybeShowPortWarning);
+    connect(encryption, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ImapPage::maybeShowPortWarning);
+    connect(method, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ImapPage::maybeShowPortWarning);
+    connect(encryption, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ImapPage::changePort);
     portWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
-    connect(imapPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
+    connect(imapPass, &QLineEdit::textChanged, this, &ImapPage::updateWidgets);
     imapUser->setText(s.value(SettingsNames::imapUserKey).toString());
     processPath->setText(s.value(SettingsNames::imapProcessKey).toString());
 
@@ -581,16 +581,16 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
 
     m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
 
-    connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(updateWidgets()));
+    connect(method, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ImapPage::updateWidgets);
 
     // FIXME: use another account-id
     m_pwWatcher = m_parent->imapAccess()->passwordWatcher();
-    connect(m_pwWatcher, SIGNAL(stateChanged()), SLOT(updateWidgets()));
-    connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
-    connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));
-    connect(m_pwWatcher, SIGNAL(readingDone()), this, SLOT(slotSetPassword()));
-    connect(m_parent, SIGNAL(reloadPasswordsRequested()), imapPass, SLOT(clear()));
-    connect(m_parent, SIGNAL(reloadPasswordsRequested()), m_pwWatcher, SLOT(reloadPassword()));
+    connect(m_pwWatcher, &UiUtils::PasswordWatcher::stateChanged, this, &ImapPage::updateWidgets);
+    connect(m_pwWatcher, &UiUtils::PasswordWatcher::savingFailed, this, &ImapPage::saved);
+    connect(m_pwWatcher, &UiUtils::PasswordWatcher::savingDone, this, &ImapPage::saved);
+    connect(m_pwWatcher, &UiUtils::PasswordWatcher::readingDone, this, &ImapPage::slotSetPassword);
+    connect(m_parent, &SettingsDialog::reloadPasswordsRequested, imapPass, &QLineEdit::clear);
+    connect(m_parent, &SettingsDialog::reloadPasswordsRequested, m_pwWatcher, &UiUtils::PasswordWatcher::reloadPassword);
 
     updateWidgets();
     maybeShowPortWarning();
@@ -787,9 +787,9 @@ CachePage::CachePage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_Cac
 
     updateWidgets();
 
-    connect(offlineNope, SIGNAL(clicked()), this, SLOT(updateWidgets()));
-    connect(offlineXDays, SIGNAL(clicked()), this, SLOT(updateWidgets()));
-    connect(offlineEverything, SIGNAL(clicked()), this, SLOT(updateWidgets()));
+    connect(offlineNope, &QAbstractButton::clicked, this, &CachePage::updateWidgets);
+    connect(offlineXDays, &QAbstractButton::clicked, this, &CachePage::updateWidgets);
+    connect(offlineEverything, &QAbstractButton::clicked, this, &CachePage::updateWidgets);
 }
 
 void CachePage::updateWidgets()
@@ -846,31 +846,31 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     encryption->insertItem(SSMTP, tr("Force encryption (TLS)"));
     encryption->setCurrentIndex(SSMTP);
 
-    connect(method, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetSubmissionMethod()));
-    connect(encryption, SIGNAL(currentIndexChanged(int)), this, SLOT(slotSetSubmissionMethod()));
+    connect(method, static_cast<void (QComboBox::*)(const int)>(&QComboBox::currentIndexChanged), this, &OutgoingPage::slotSetSubmissionMethod);
+    connect(encryption, static_cast<void (QComboBox::*)(const int)>(&QComboBox::currentIndexChanged), this, &OutgoingPage::slotSetSubmissionMethod);
 
-    connect(m_smtpAccountSettings, SIGNAL(submissionMethodChanged()), this, SLOT(updateWidgets()));
-    connect(m_smtpAccountSettings, SIGNAL(saveToImapChanged()), this, SLOT(updateWidgets()));
-    connect(m_smtpAccountSettings, SIGNAL(authenticateEnabledChanged()), this, SLOT(updateWidgets()));
-    connect(m_smtpAccountSettings, SIGNAL(reuseImapAuthenticationChanged()), this, SLOT(updateWidgets()));
-    connect(smtpPass, SIGNAL(textChanged(QString)), this, SLOT(updateWidgets()));
-    connect(smtpHost, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setServer(QString)));
-    connect(smtpUser, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setUsername(QString)));
-    connect(smtpPort, SIGNAL(textEditingFinished(QString)), this, SLOT(setPortByText(QString)));
-    connect(m_smtpAccountSettings, SIGNAL(showPortWarning(QString)), this, SLOT(showPortWarning(QString)));
-    connect(smtpAuth, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setAuthenticateEnabled(bool)));
-    connect(smtpAuthReuseImapCreds, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setReuseImapAuthentication(bool)));
-    connect(saveToImap, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setSaveToImap(bool)));
-    connect(saveFolderName, SIGNAL(textEditingFinished(QString)), m_smtpAccountSettings, SLOT(setSentMailboxName(QString)));
-    connect(smtpBurl, SIGNAL(toggled(bool)), m_smtpAccountSettings, SLOT(setUseBurl(bool)));
+    connect(m_smtpAccountSettings, &MSA::Account::submissionMethodChanged, this, &OutgoingPage::updateWidgets);
+    connect(m_smtpAccountSettings, &MSA::Account::saveToImapChanged, this, &OutgoingPage::updateWidgets);
+    connect(m_smtpAccountSettings, &MSA::Account::authenticateEnabledChanged, this, &OutgoingPage::updateWidgets);
+    connect(m_smtpAccountSettings, &MSA::Account::reuseImapAuthenticationChanged, this, &OutgoingPage::updateWidgets);
+    connect(smtpPass, &QLineEdit::textChanged, this, &OutgoingPage::updateWidgets);
+    connect(smtpHost, &LineEdit::textEditingFinished, m_smtpAccountSettings, &MSA::Account::setServer);
+    connect(smtpUser, &LineEdit::textEditingFinished, m_smtpAccountSettings, &MSA::Account::setUsername);
+    connect(smtpPort, &LineEdit::textEditingFinished, this, &OutgoingPage::setPortByText);
+    connect(m_smtpAccountSettings, &MSA::Account::showPortWarning, this, &OutgoingPage::showPortWarning);
+    connect(smtpAuth, &QAbstractButton::toggled, m_smtpAccountSettings, &MSA::Account::setAuthenticateEnabled);
+    connect(smtpAuthReuseImapCreds, &QAbstractButton::toggled, m_smtpAccountSettings, &MSA::Account::setReuseImapAuthentication);
+    connect(saveToImap, &QAbstractButton::toggled, m_smtpAccountSettings, &MSA::Account::setSaveToImap);
+    connect(saveFolderName, &LineEdit::textEditingFinished, m_smtpAccountSettings, &MSA::Account::setSentMailboxName);
+    connect(smtpBurl, &QAbstractButton::toggled, m_smtpAccountSettings, &MSA::Account::setUseBurl);
 
     m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QLatin1String("account-0"), QLatin1String("smtp"));
-    connect(m_pwWatcher, SIGNAL(stateChanged()), SLOT(updateWidgets()));
-    connect(m_pwWatcher, SIGNAL(savingFailed(QString)), this, SIGNAL(saved()));
-    connect(m_pwWatcher, SIGNAL(savingDone()), this, SIGNAL(saved()));
-    connect(m_pwWatcher, SIGNAL(readingDone()), this, SLOT(slotSetPassword()));
-    connect(m_parent, SIGNAL(reloadPasswordsRequested()), smtpPass, SLOT(clear()));
-    connect(m_parent, SIGNAL(reloadPasswordsRequested()), m_pwWatcher, SLOT(reloadPassword()));
+    connect(m_pwWatcher, &UiUtils::PasswordWatcher::stateChanged, this, &OutgoingPage::updateWidgets);
+    connect(m_pwWatcher, &UiUtils::PasswordWatcher::savingFailed, this, &OutgoingPage::saved);
+    connect(m_pwWatcher, &UiUtils::PasswordWatcher::savingDone, this, &OutgoingPage::saved);
+    connect(m_pwWatcher, &UiUtils::PasswordWatcher::readingDone, this, &OutgoingPage::slotSetPassword);
+    connect(m_parent, &SettingsDialog::reloadPasswordsRequested, smtpPass, &QLineEdit::clear);
+    connect(m_parent, &SettingsDialog::reloadPasswordsRequested, m_pwWatcher, &UiUtils::PasswordWatcher::reloadPassword);
 
     updateWidgets();
 }

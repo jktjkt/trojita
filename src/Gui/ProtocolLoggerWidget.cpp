@@ -46,16 +46,16 @@ ProtocolLoggerWidget::ProtocolLoggerWidget(QWidget *parent) :
     tabs->setTabsClosable(true);
     tabs->setTabPosition(QTabWidget::South);
     layout->addWidget(tabs);
-    connect(tabs, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
+    connect(tabs, &QTabWidget::tabCloseRequested, this, &ProtocolLoggerWidget::closeTab);
 
     clearAll = new QPushButton(tr("Clear all"), this);
-    connect(clearAll, SIGNAL(clicked()), this, SLOT(clearLogDisplay()));
+    connect(clearAll, &QAbstractButton::clicked, this, &ProtocolLoggerWidget::clearLogDisplay);
     tabs->setCornerWidget(clearAll, Qt::BottomRightCorner);
 
     delayedDisplay = new QTimer(this);
     delayedDisplay->setSingleShot(true);
     delayedDisplay->setInterval(300);
-    connect(delayedDisplay, SIGNAL(timeout()), this, SLOT(slotShowLogs()));
+    connect(delayedDisplay, &QTimer::timeout, this, &ProtocolLoggerWidget::slotShowLogs);
 }
 
 void ProtocolLoggerWidget::slotSetPersistentLogging(const bool enabled)

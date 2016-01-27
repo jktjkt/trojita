@@ -69,7 +69,7 @@ ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
     m_delayedPrune = new QTimer(this);
     m_delayedPrune->setSingleShot(true);
     m_delayedPrune->setInterval(0);
-    connect(m_delayedPrune, SIGNAL(timeout()), this, SLOT(delayedPrune()));
+    connect(m_delayedPrune, &QTimer::timeout, this, &ThreadingMsgListModel::delayedPrune);
 }
 
 void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
@@ -97,19 +97,14 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
     QAbstractProxyModel::setSourceModel(msgList);
 
     // FIXME: will need to be expanded when Model supports more signals...
-    connect(sourceModel, SIGNAL(modelReset()), this, SLOT(resetMe()));
-    connect(sourceModel, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged()));
-    connect(sourceModel, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
-    connect(sourceModel, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(handleDataChanged(const QModelIndex &, const QModelIndex &)));
-    connect(sourceModel, SIGNAL(rowsAboutToBeRemoved(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsAboutToBeRemoved(const QModelIndex &, int,int)));
-    connect(sourceModel, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsRemoved(const QModelIndex &, int,int)));
-    connect(sourceModel, SIGNAL(rowsAboutToBeInserted(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsAboutToBeInserted(const QModelIndex &, int,int)));
-    connect(sourceModel, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsInserted(const QModelIndex &, int,int)));
+    connect(sourceModel, &QAbstractItemModel::modelReset, this, &ThreadingMsgListModel::resetMe);
+    connect(sourceModel, &QAbstractItemModel::layoutAboutToBeChanged, this, &QAbstractItemModel::layoutAboutToBeChanged);
+    connect(sourceModel, &QAbstractItemModel::layoutChanged, this, &QAbstractItemModel::layoutChanged);
+    connect(sourceModel, &QAbstractItemModel::dataChanged, this, &ThreadingMsgListModel::handleDataChanged);
+    connect(sourceModel, &QAbstractItemModel::rowsAboutToBeRemoved, this, &ThreadingMsgListModel::handleRowsAboutToBeRemoved);
+    connect(sourceModel, &QAbstractItemModel::rowsRemoved, this, &ThreadingMsgListModel::handleRowsRemoved);
+    connect(sourceModel, &QAbstractItemModel::rowsAboutToBeInserted, this, &ThreadingMsgListModel::handleRowsAboutToBeInserted);
+    connect(sourceModel, &QAbstractItemModel::rowsInserted, this, &ThreadingMsgListModel::handleRowsInserted);
     resetMe();
 }
 
@@ -652,16 +647,14 @@ void ThreadingMsgListModel::askForThreading(const uint firstUnknownUid)
                     createIncrementalThreadTask(const_cast<Model *>(realModel), mailboxIndex, requestedAlgorithm,
                                                                     QStringList() << QLatin1String("INTHREAD") << QString::fromUtf8(requestedAlgorithm) << QLatin1String("UID") <<
                                                                         QString::fromUtf8(Sequence::startingAt(firstUnknownUid).toByteArray()));
-            connect(threadTask, SIGNAL(incrementalThreadingAvailable(Responses::ESearch::IncrementalThreadingData_t)),
-                    this, SLOT(slotIncrementalThreadingAvailable(Responses::ESearch::IncrementalThreadingData_t)));
-            connect(threadTask, SIGNAL(failed(QString)), this, SLOT(slotIncrementalThreadingFailed()));
+            connect(threadTask, &ThreadTask::incrementalThreadingAvailable,
+                    this, &ThreadingMsgListModel::slotIncrementalThreadingAvailable);
+            connect(threadTask, &ImapTask::failed, this, &ThreadingMsgListModel::slotIncrementalThreadingFailed);
         } else {
             threadTask = realModel->m_taskFactory->createThreadTask(const_cast<Model *>(realModel), mailboxIndex,
                                                                     requestedAlgorithm, QStringList() << QLatin1String("ALL"));
-            connect(realModel, SIGNAL(threadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)),
-                    this, SLOT(slotThreadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)));
-            connect(realModel, SIGNAL(threadingFailed(QModelIndex,QByteArray,QStringList)),
-                    this, SLOT(slotThreadingFailed(QModelIndex,QByteArray,QStringList)));
+            connect(realModel, &Model::threadingAvailable, this, &ThreadingMsgListModel::slotThreadingAvailable);
+            connect(realModel, &Model::threadingFailed, this, &ThreadingMsgListModel::slotThreadingFailed);
         }
     }
 }
@@ -780,10 +773,10 @@ void ThreadingMsgListModel::slotThreadingFailed(const QModelIndex &mailbox, cons
     if (shouldIgnoreThisThreadingResponse(mailbox, algorithm, searchCriteria))
         return;
 
-    disconnect(sender(), 0, this,
-               SLOT(slotThreadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)));
-    disconnect(sender(), 0, this,
-               SLOT(slotThreadingFailed(QModelIndex,QByteArray,QStringList)));
+    auto model = qobject_cast<Model*>(sender());
+    Q_ASSERT(model);
+    disconnect(model, &Model::threadingAvailable, this, &ThreadingMsgListModel::slotThreadingAvailable);
+    disconnect(model, &Model::threadingFailed, this, &ThreadingMsgListModel::slotThreadingFailed);
 
     updateNoThreading();
 }
@@ -799,10 +792,9 @@ void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, c
     if (shouldIgnoreThisThreadingResponse(mailbox, algorithm, searchCriteria, &model))
         return;
 
-    disconnect(sender(), 0, this,
-               SLOT(slotThreadingAvailable(QModelIndex,QByteArray,QStringList,QVector<Imap::Responses::ThreadingNode>)));
-    disconnect(sender(), 0, this,
-               SLOT(slotThreadingFailed(QModelIndex,QByteArray,QStringList)));
+    Q_ASSERT(model);
+    disconnect(model, &Model::threadingAvailable, this, &ThreadingMsgListModel::slotThreadingAvailable);
+    disconnect(model, &Model::threadingFailed, this, &ThreadingMsgListModel::slotThreadingFailed);
 
     model->cache()->setMessageThreading(mailbox.data(RoleMailboxName).toString(), mapping);
 
@@ -815,9 +807,9 @@ void ThreadingMsgListModel::slotThreadingAvailable(const QModelIndex &mailbox, c
 void ThreadingMsgListModel::slotSortingAvailable(const Imap::Uids &uids)
 {
     if (!m_sortTask->isPersistent()) {
-        disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(Imap::Uids)));
-        disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
-        disconnect(m_sortTask, 0, this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
+        disconnect(m_sortTask.data(), &SortTask::sortingAvailable, this, &ThreadingMsgListModel::slotSortingAvailable);
+        disconnect(m_sortTask.data(), &SortTask::sortingFailed, this, &ThreadingMsgListModel::slotSortingFailed);
+        disconnect(m_sortTask.data(), &SortTask::incrementalSortUpdate, this, &ThreadingMsgListModel::slotSortingIncrementalUpdate);
 
         m_sortTask = 0;
     }
@@ -830,9 +822,9 @@ void ThreadingMsgListModel::slotSortingAvailable(const Imap::Uids &uids)
 
 void ThreadingMsgListModel::slotSortingFailed()
 {
-    disconnect(m_sortTask, 0, this, SLOT(slotSortingAvailable(Imap::Uids)));
-    disconnect(m_sortTask, 0, this, SLOT(slotSortingFailed()));
-    disconnect(m_sortTask, 0, this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
+    disconnect(m_sortTask.data(), &SortTask::sortingAvailable, this, &ThreadingMsgListModel::slotSortingAvailable);
+    disconnect(m_sortTask.data(), &SortTask::sortingFailed, this, &ThreadingMsgListModel::slotSortingFailed);
+    disconnect(m_sortTask.data(), &SortTask::incrementalSortUpdate, this, &ThreadingMsgListModel::slotSortingIncrementalUpdate);
 
     m_sortTask = 0;
     m_sortReverse = false;
@@ -1341,10 +1333,9 @@ bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList
             // We have to update our search conditions
             m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, searchConditions,
                                                                   QStringList());
-            connect(m_sortTask, SIGNAL(sortingAvailable(Imap::Uids)), this, SLOT(slotSortingAvailable(Imap::Uids)));
-            connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
-            connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
-                    this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
+            connect(m_sortTask.data(), &SortTask::sortingAvailable, this, &ThreadingMsgListModel::slotSortingAvailable);
+            connect(m_sortTask.data(), &SortTask::sortingFailed, this, &ThreadingMsgListModel::slotSortingFailed);
+            connect(m_sortTask.data(), &SortTask::incrementalSortUpdate, this, &ThreadingMsgListModel::slotSortingIncrementalUpdate);
             m_currentSearchConditions = searchConditions;
             m_searchValidity = RESULT_ASKED;
         } else {
@@ -1376,10 +1367,9 @@ bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList
             m_sortTask->cancelSortingUpdates();
 
         m_sortTask = realModel->m_taskFactory->createSortTask(const_cast<Model *>(realModel), mailboxIndex, searchConditions, sortOptions);
-        connect(m_sortTask, SIGNAL(sortingAvailable(Imap::Uids)), this, SLOT(slotSortingAvailable(Imap::Uids)));
-        connect(m_sortTask, SIGNAL(sortingFailed()), this, SLOT(slotSortingFailed()));
-        connect(m_sortTask, SIGNAL(incrementalSortUpdate(Imap::Responses::ESearch::IncrementalContextData_t)),
-                this, SLOT(slotSortingIncrementalUpdate(Imap::Responses::ESearch::IncrementalContextData_t)));
+        connect(m_sortTask.data(), &SortTask::sortingAvailable, this, &ThreadingMsgListModel::slotSortingAvailable);
+        connect(m_sortTask.data(), &SortTask::sortingFailed, this, &ThreadingMsgListModel::slotSortingFailed);
+        connect(m_sortTask.data(), &SortTask::incrementalSortUpdate, this, &ThreadingMsgListModel::slotSortingIncrementalUpdate);
         m_searchValidity = RESULT_ASKED;
     }
 

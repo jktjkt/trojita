@@ -134,7 +134,8 @@ private slots:
     void networkError(const QString &message);
     void cacheError(const QString &message);
     void authenticationRequested();
-    void authenticationContinue(const QString &pass = QString());
+    void authenticationContinue(const QString &pass);
+    void authenticationContinueNoPassword();
     void checkSslPolicy();
     void slotManageContact(const QUrl &url);
     void slotEditDraft();
@@ -165,7 +166,7 @@ private slots:
     void slotSubscribeCurrentMailbox();
     void slotShowOnlySubscribed();
     void updateMessageFlags();
-    void updateMessageFlags(const QModelIndex &index);
+    void updateMessageFlagsOf(const QModelIndex &index);
     void scrollMessageUp();
     void showConnectionStatus(uint parserId, Imap::ConnectionState state);
     void slotShowLinkTarget(const QString &link);

@@ -101,7 +101,7 @@ private slots:
     void scrollToFocus();
     void slotFadeFinished();
 
-    void slotCheckAddress();
+    void slotCheckAddressOfSender();
     void slotCheckAddress(QLineEdit *edit);
 
     void slotAskForFileAttachment();

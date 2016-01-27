@@ -29,10 +29,10 @@ namespace Plugins
 
 PasswordJob::PasswordJob(QObject *parent) : PluginJob(parent)
 {
-    connect(this, SIGNAL(error(Plugins::PasswordJob::Error,QString)), this, SLOT(finished()));
-    connect(this, SIGNAL(passwordAvailable(QString)), this, SLOT(finished()));
-    connect(this, SIGNAL(passwordDeleted()), this, SLOT(finished()));
-    connect(this, SIGNAL(passwordStored()), this, SLOT(finished()));
+    connect(this, &PasswordJob::error, this, &PluginJob::finished);
+    connect(this, &PasswordJob::passwordAvailable, this, &PluginJob::finished);
+    connect(this, &PasswordJob::passwordDeleted, this, &PluginJob::finished);
+    connect(this, &PasswordJob::passwordStored, this, &PluginJob::finished);
 }
 
 PasswordPlugin::PasswordPlugin(QObject *parent) : QObject(parent)

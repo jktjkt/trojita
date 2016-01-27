@@ -240,8 +240,7 @@ void ImapAccess::doConnect()
     if (m_netWatcher) {
         // We're temporarily "disabling" this connection. Otherwise this "offline preference"
         // would get saved into the config file, which would be bad.
-        disconnect(m_netWatcher, SIGNAL(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)),
-                   this, SLOT(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)));
+        disconnect(m_netWatcher, &Mailbox::NetworkWatcher::desiredNetworkPolicyChanged, this, &ImapAccess::desiredNetworkPolicyChanged);
     }
 
     if (m_imapModel) {
@@ -326,7 +325,7 @@ void ImapAccess::doConnect()
         cache = new Imap::Mailbox::MemoryCache(this);
     } else {
         cache = new Imap::Mailbox::CombinedCache(this, QLatin1String("trojita-imap-cache"), m_cacheDir);
-        connect(cache, SIGNAL(error(QString)), this, SLOT(onCacheError(QString)));
+        connect(cache, &Mailbox::AbstractCache::error, this, &ImapAccess::onCacheError);
         if (! static_cast<Imap::Mailbox::CombinedCache *>(cache)->open()) {
             // Error message was already shown by the cacheError() slot
             cache->deleteLater();
@@ -351,21 +350,19 @@ void ImapAccess::doConnect()
     m_imapModel->setProperty("trojita-imap-id-no-versions", !m_settings->value(Common::SettingsNames::interopRevealVersions, true).toBool());
     m_imapModel->setProperty("trojita-imap-idle-renewal", m_settings->value(Common::SettingsNames::imapIdleRenewal).toUInt() * 60 * 1000);
     m_imapModel->setNumberRefreshInterval(numberRefreshInterval());
-    connect(m_imapModel, SIGNAL(alertReceived(QString)), this, SLOT(alertReceived(QString)));
-    connect(m_imapModel, SIGNAL(imapError(QString)), this, SLOT(imapError(QString)));
-    connect(m_imapModel, SIGNAL(networkError(QString)), this, SLOT(networkError(QString)));
-    //connect(m_imapModel, SIGNAL(logged(uint,Common::LogMessage)), this, SLOT(slotLogged(uint,Common::LogMessage)));
-    connect(m_imapModel, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
-            this, SLOT(slotSslErrors(QList<QSslCertificate>,QList<QSslError>)));
-    connect(m_imapModel, SIGNAL(requireStartTlsInFuture()), this, SLOT(onRequireStartTlsInFuture()));
+    connect(m_imapModel, &Mailbox::Model::alertReceived, this, &ImapAccess::alertReceived);
+    connect(m_imapModel, &Mailbox::Model::imapError, this, &ImapAccess::imapError);
+    connect(m_imapModel, &Mailbox::Model::networkError, this, &ImapAccess::networkError);
+    //connect(m_imapModel, &Mailbox::Model::logged, this, &ImapAccess::slotLogged);
+    connect(m_imapModel, &Mailbox::Model::needsSslDecision, this, &ImapAccess::slotSslErrors);
+    connect(m_imapModel, &Mailbox::Model::requireStartTlsInFuture, this, &ImapAccess::onRequireStartTlsInFuture);
 
     if (m_settings->value(Common::SettingsNames::imapNeedsNetwork, true).toBool()) {
         m_netWatcher = new Imap::Mailbox::SystemNetworkWatcher(this, m_imapModel);
     } else {
         m_netWatcher = new Imap::Mailbox::DummyNetworkWatcher(this, m_imapModel);
     }
-    connect(m_netWatcher, SIGNAL(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)),
-            this, SLOT(desiredNetworkPolicyChanged(Imap::Mailbox::NetworkPolicy)));
+    connect(m_netWatcher, &Mailbox::NetworkWatcher::desiredNetworkPolicyChanged, this, &ImapAccess::desiredNetworkPolicyChanged);
     switch (preferredNetworkPolicy()) {
     case Imap::Mailbox::NETWORK_OFFLINE:
         QMetaObject::invokeMethod(m_netWatcher, "setNetworkOffline", Qt::QueuedConnection);
@@ -412,22 +409,22 @@ void ImapAccess::onCacheError(const QString &message)
     emit cacheError(message);
 }
 
-QObject *ImapAccess::imapModel() const
+QAbstractItemModel *ImapAccess::imapModel() const
 {
     return m_imapModel;
 }
 
-QObject *ImapAccess::mailboxModel() const
+QAbstractItemModel *ImapAccess::mailboxModel() const
 {
     return m_mailboxSubtreeModel;
 }
 
-QObject *ImapAccess::msgListModel() const
+QAbstractItemModel *ImapAccess::msgListModel() const
 {
     return m_msgListModel;
 }
 
-QObject *ImapAccess::visibleTasksModel() const
+QAbstractItemModel *ImapAccess::visibleTasksModel() const
 {
     return m_visibleTasksModel;
 }
@@ -447,7 +444,7 @@ QObject *ImapAccess::msgQNAM() const
     return m_msgQNAM;
 }
 
-QObject *ImapAccess::threadingMsgListModel() const
+QAbstractItemModel *ImapAccess::threadingMsgListModel() const
 {
     return m_threadingMsgListModel;
 }

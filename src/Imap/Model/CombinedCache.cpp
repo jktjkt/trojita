@@ -33,9 +33,9 @@ CombinedCache::CombinedCache(QObject *parent, const QString &name, const QString
     AbstractCache(parent), name(name), cacheDir(cacheDir)
 {
     sqlCache = new SQLCache(this);
-    connect(sqlCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
+    connect(sqlCache, &AbstractCache::error, this, &AbstractCache::error);
     diskPartCache = new DiskPartCache(this, cacheDir);
-    connect(diskPartCache, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
+    connect(diskPartCache, &DiskPartCache::error, this, &AbstractCache::error);
 }
 
 CombinedCache::~CombinedCache()

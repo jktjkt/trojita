@@ -83,19 +83,19 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     m_menu = new QMenu(this);
     m_downloadAttachment = m_menu->addAction(UiUtils::loadIcon(QLatin1String("document-save-as")), tr("Download"));
     m_openAttachment = m_menu->addAction(tr("Open Directly"));
-    connect(m_downloadAttachment, SIGNAL(triggered()), this, SLOT(slotDownloadAttachment()));
-    connect(m_openAttachment, SIGNAL(triggered()), this, SLOT(slotOpenAttachment()));
-    connect(m_menu, SIGNAL(aboutToShow()), this, SLOT(updateShowHideAttachmentState()));
+    connect(m_downloadAttachment, &QAction::triggered, this, &AttachmentView::slotDownloadAttachment);
+    connect(m_openAttachment, &QAction::triggered, this, &AttachmentView::slotOpenAttachment);
+    connect(m_menu, &QMenu::aboutToShow, this, &AttachmentView::updateShowHideAttachmentState);
     if (m_contentWidget) {
         m_showHideAttachment = m_menu->addAction(UiUtils::loadIcon(QLatin1String("view-preview")), tr("Show Preview"));
         m_showHideAttachment->setCheckable(true);
         m_showHideAttachment->setChecked(!m_contentWidget->isHidden());
-        connect(m_showHideAttachment, SIGNAL(triggered(bool)), m_contentWidget, SLOT(setVisible(bool)));
-        connect(m_showHideAttachment, SIGNAL(triggered()), this, SLOT(updateShowHideAttachmentState()));
+        connect(m_showHideAttachment, &QAction::triggered, m_contentWidget, &QWidget::setVisible);
+        connect(m_showHideAttachment, &QAction::triggered, this, &AttachmentView::updateShowHideAttachmentState);
     }
     if (partIndex.data(Imap::Mailbox::RolePartMimeType).toByteArray() == "message/rfc822") {
         m_showSource = m_menu->addAction(UiUtils::loadIcon(QLatin1String("text-x-hex")), tr("Show Message Source"));
-        connect(m_showSource, SIGNAL(triggered()), this, SLOT(showMessageSource()));
+        connect(m_showSource, &QAction::triggered, this, &AttachmentView::showMessageSource);
     }
 
     // Icon on the left
@@ -106,9 +106,9 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     m_icon->setToolButtonStyle(Qt::ToolButtonIconOnly);
     m_icon->setPopupMode(QToolButton::MenuButtonPopup);
     m_icon->setMenu(m_menu);
-    connect(m_icon, SIGNAL(pressed()), SLOT(toggleIconCursor()));
-    connect(m_icon, SIGNAL(clicked()), SLOT(showMenuOrPreview()));
-    connect(m_icon, SIGNAL(released()), SLOT(toggleIconCursor()));
+    connect(m_icon, &QAbstractButton::pressed, this, &AttachmentView::toggleIconCursor);
+    connect(m_icon, &QAbstractButton::clicked, this, &AttachmentView::showMenuOrPreview);
+    connect(m_icon, &QAbstractButton::released, this, &AttachmentView::toggleIconCursor);
     m_icon->setCursor(Qt::ArrowCursor);
 
     QString mimeDescription = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
@@ -183,14 +183,14 @@ void AttachmentView::slotDownloadAttachment()
     m_downloadAttachment->setEnabled(false);
 
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccess, m_partIndex);
-    connect(manager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequested(QString*)));
-    connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
-    connect(manager, SIGNAL(transferError(QString)), this, SLOT(enableDownloadAgain()));
-    connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
-    connect(manager, SIGNAL(cancelled()), this, SLOT(enableDownloadAgain()));
-    connect(manager, SIGNAL(cancelled()), manager, SLOT(deleteLater()));
-    connect(manager, SIGNAL(succeeded()), this, SLOT(enableDownloadAgain()));
-    connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
+    connect(manager, &Imap::Network::FileDownloadManager::fileNameRequested, this, &AttachmentView::slotFileNameRequested);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, m_messageView, &MessageView::transferError);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, this, &AttachmentView::enableDownloadAgain);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, manager, &QObject::deleteLater);
+    connect(manager, &Imap::Network::FileDownloadManager::cancelled, this, &AttachmentView::enableDownloadAgain);
+    connect(manager, &Imap::Network::FileDownloadManager::cancelled, manager, &QObject::deleteLater);
+    connect(manager, &Imap::Network::FileDownloadManager::succeeded, this, &AttachmentView::enableDownloadAgain);
+    connect(manager, &Imap::Network::FileDownloadManager::succeeded, manager, &QObject::deleteLater);
     manager->downloadPart();
 }
 
@@ -199,13 +199,13 @@ void AttachmentView::slotOpenAttachment()
     m_openAttachment->setEnabled(false);
 
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccess, m_partIndex);
-    connect(manager, SIGNAL(fileNameRequested(QString*)), this, SLOT(slotFileNameRequestedOnOpen(QString*)));
-    connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
-    connect(manager, SIGNAL(transferError(QString)), this, SLOT(onOpenFailed()));
-    connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
+    connect(manager, &Imap::Network::FileDownloadManager::fileNameRequested, this, &AttachmentView::slotFileNameRequestedOnOpen);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, m_messageView, &MessageView::transferError);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, this, &AttachmentView::onOpenFailed);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, manager, &QObject::deleteLater);
     // we aren't connecting to cancelled() as it cannot really happen -- the filename is never empty
-    connect(manager, SIGNAL(succeeded()), this, SLOT(openDownloadedAttachment()));
-    connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
+    connect(manager, &Imap::Network::FileDownloadManager::succeeded, this, &AttachmentView::openDownloadedAttachment);
+    connect(manager, &Imap::Network::FileDownloadManager::succeeded, manager, &QObject::deleteLater);
     manager->downloadPart();
 }
 

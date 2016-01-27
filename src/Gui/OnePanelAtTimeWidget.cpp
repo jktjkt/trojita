@@ -41,11 +41,11 @@ OnePanelAtTimeWidget::OnePanelAtTimeWidget(QMainWindow *mainWindow, MailBoxTreeV
     addWidget(m_messageWidget);
     setCurrentWidget(m_mboxTree);
 
-    connect(m_msgListWidget->tree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
-    connect(m_msgListWidget->tree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
-    connect(m_mboxTree, SIGNAL(clicked(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
-    connect(m_mboxTree, SIGNAL(activated(QModelIndex)), this, SLOT(slotOneAtTimeGoDeeper()));
-    connect(m_actionGoBack, SIGNAL(triggered()), this, SLOT(slotOneAtTimeGoBack()));
+    connect(m_msgListWidget->tree, &QAbstractItemView::clicked, this, &OnePanelAtTimeWidget::slotOneAtTimeGoDeeper);
+    connect(m_msgListWidget->tree, &QAbstractItemView::activated, this, &OnePanelAtTimeWidget::slotOneAtTimeGoDeeper);
+    connect(m_mboxTree, &QAbstractItemView::clicked, this, &OnePanelAtTimeWidget::slotOneAtTimeGoDeeper);
+    connect(m_mboxTree, &QAbstractItemView::activated, this, &OnePanelAtTimeWidget::slotOneAtTimeGoDeeper);
+    connect(m_actionGoBack, &QAction::triggered, this, &OnePanelAtTimeWidget::slotOneAtTimeGoBack);
 
     // The list view is configured to auto-emit activated(QModelIndex) after a short while when the user has navigated
     // to an index through keyboard. Of course, this doesn't play terribly well with this layout.

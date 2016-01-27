@@ -47,7 +47,7 @@ MsgPartNetworkReply::MsgPartNetworkReply(MsgPartNetAccessManager *parent, const 
     setOpenMode(QIODevice::ReadOnly | QIODevice::Unbuffered);
     Q_ASSERT(part.isValid());
 
-    connect(part.model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotModelDataChanged(QModelIndex,QModelIndex)));
+    connect(part.model(), &QAbstractItemModel::dataChanged, this, &MsgPartNetworkReply::slotModelDataChanged);
 
     // We have to ask for contents before we check whether it's already fetched
     part.data(Imap::Mailbox::RolePartData);

@@ -68,7 +68,8 @@ public slots:
      * the spinner will never actually start (because the stop call arrives before the delay times
      * out)
      */
-    void start(uint delay = 0);
+    void start(uint delay);
+    void start();
     /** Stop the spinner, the spinner will fade out for around a second before it's really hidden */
     void stop();
 

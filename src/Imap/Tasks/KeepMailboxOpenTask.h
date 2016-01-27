@@ -281,6 +281,7 @@ protected:
     QList<CommandHandle> newArrivalsFetch;
     CommandHandle tagClose;
     friend class IdleLauncher;
+    friend class ImapTask; // needs access to slotTaskDeleted()
     friend class ObtainSynchronizedMailboxTask; // needs access to slotUnSelectCompleted()
     friend class SortTask; // needs access to breakOrCancelPossibleIdle()
     friend class UnSelectTask; // needs access to breakPossibleIdle()

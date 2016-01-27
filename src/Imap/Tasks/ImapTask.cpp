@@ -34,7 +34,7 @@ namespace Mailbox
 ImapTask::ImapTask(Model *model) :
     QObject(model), parser(0), parentTask(0), model(model), _finished(false), _dead(false), _aborted(false)
 {
-    connect(this, SIGNAL(destroyed(QObject *)), model, SLOT(slotTaskDying(QObject *)));
+    connect(this, &QObject::destroyed, model, &Model::slotTaskDying);
     CHECK_TASK_TREE;
 }
 
@@ -94,7 +94,7 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
 
     if (model->accessParser(parser).maintainingTask && model->accessParser(parser).maintainingTask != this) {
         // Got to inform the currently responsible maintaining task about our demise
-        connect(this, SIGNAL(destroyed(QObject*)), model->accessParser(parser).maintainingTask, SLOT(slotTaskDeleted(QObject*)));
+        connect(this, &QObject::destroyed, model->accessParser(parser).maintainingTask.data(), &KeepMailboxOpenTask::slotTaskDeleted);
     }
 
     log(QLatin1String("Activated"));

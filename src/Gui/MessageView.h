@@ -94,7 +94,6 @@ private slots:
     void newLabelAction(const QString &tag);
     void deleteLabelAction(const QString &tag);
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void headerLinkActivated(QString);
     void partContextMenuRequested(const QPoint &point);
     void partLinkHovered(const QString &link, const QString &title, const QString &textContent);
     void triggerSearchDialog();
@@ -129,6 +128,8 @@ private:
 
     MessageView(const MessageView &); // don't implement
     MessageView &operator=(const MessageView &); // don't implement
+
+    friend class SimplePartWidget; // needs access to onWebViewLoadStarted/onWebViewLoadFinished
 };
 
 }

@@ -28,11 +28,10 @@ Sendmail::Sendmail(QObject *parent, const QString &command, const QStringList &a
     AbstractMSA(parent), command(command), args(args)
 {
     proc = new QProcess(this);
-    connect(proc, SIGNAL(started()), this, SLOT(handleStarted()));
-    connect(proc, SIGNAL(finished(int)), this, SLOT(handleFinished(int)));
-    connect(proc, SIGNAL(error(QProcess::ProcessError)),
-            this, SLOT(handleError(QProcess::ProcessError)));
-    connect(proc, SIGNAL(bytesWritten(qint64)), this, SLOT(handleBytesWritten(qint64)));
+    connect(proc, &QProcess::started, this, &Sendmail::handleStarted);
+    connect(proc, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &Sendmail::handleFinished);
+    connect(proc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error), this, &Sendmail::handleError);
+    connect(proc, &QIODevice::bytesWritten, this, &Sendmail::handleBytesWritten);
 }
 
 Sendmail::~Sendmail()

@@ -48,8 +48,8 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     Q_ASSERT(partIndex.isValid());
 
     if (m_messageView) {
-        connect(this, SIGNAL(loadStarted()), m_messageView, SLOT(onWebViewLoadStarted()));
-        connect(this, SIGNAL(loadFinished(bool)), m_messageView, SLOT(onWebViewLoadFinished()));
+        connect(this, &QWebView::loadStarted, m_messageView, &MessageView::onWebViewLoadStarted);
+        connect(this, &QWebView::loadFinished, m_messageView, &MessageView::onWebViewLoadFinished);
     }
 
     QUrl url;
@@ -58,7 +58,7 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == QLatin1String("text/plain")) {
         if (partIndex.data(Imap::Mailbox::RolePartOctets).toUInt() < 100 * 1024) {
-            connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
+            connect(this, &QWebView::loadFinished, this, &SimplePartWidget::slotMarkupPlainText);
         } else {
             QFont font(QFontDatabase::systemFont(QFontDatabase::FixedFont));
             setStaticWidth(QFontMetrics(font).maxWidth()*90);
@@ -73,16 +73,16 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     load(url);
 
     m_savePart = new QAction(tr("Save this message part..."), this);
-    connect(m_savePart, SIGNAL(triggered()), this, SLOT(slotDownloadPart()));
+    connect(m_savePart, &QAction::triggered, this, &SimplePartWidget::slotDownloadPart);
     this->addAction(m_savePart);
 
     m_saveMessage = new QAction(tr("Save whole message..."), this);
-    connect(m_saveMessage, SIGNAL(triggered()), this, SLOT(slotDownloadMessage()));
+    connect(m_saveMessage, &QAction::triggered, this, &SimplePartWidget::slotDownloadMessage);
     this->addAction(m_saveMessage);
 
     m_findAction = new QAction(tr("Search..."), this);
     m_findAction->setShortcut(tr("Ctrl+F"));
-    connect(m_findAction, SIGNAL(triggered()), this, SIGNAL(searchDialogRequested()));
+    connect(m_findAction, &QAction::triggered, this, &SimplePartWidget::searchDialogRequested);
     addAction(m_findAction);
 
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -90,13 +90,13 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     // It is actually OK to construct this widget without any connection to a messageView -- this is often used when
     // displaying message source or message headers. Let's silence the QObject::connect warning.
     if (m_messageView) {
-        connect(this, SIGNAL(customContextMenuRequested(QPoint)), m_messageView, SLOT(partContextMenuRequested(QPoint)));
-        connect(this, SIGNAL(searchDialogRequested()), m_messageView, SLOT(triggerSearchDialog()));
+        connect(this, &QWidget::customContextMenuRequested, m_messageView, &MessageView::partContextMenuRequested);
+        connect(this, &SimplePartWidget::searchDialogRequested, m_messageView, &MessageView::triggerSearchDialog);
         // The targets expect the sender() of the signal to be a SimplePartWidget, not a QWebPage,
         // which means we have to do this indirection
-        connect(page(), SIGNAL(linkHovered(QString,QString,QString)), this, SIGNAL(linkHovered(QString,QString,QString)));
-        connect(this, SIGNAL(linkHovered(QString,QString,QString)),
-                m_messageView, SLOT(partLinkHovered(QString,QString,QString)));
+        connect(page(), &QWebPage::linkHovered, this, &SimplePartWidget::linkHovered);
+        connect(this, &SimplePartWidget::linkHovered,
+                m_messageView, &MessageView::partLinkHovered);
 
         installEventFilter(m_messageView);
     }
@@ -105,7 +105,7 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
 void SimplePartWidget::slotMarkupPlainText()
 {
     // NOTICE "single shot", we get a recursion otherwise!
-    disconnect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
+    disconnect(this, &QWebView::loadFinished, this, &SimplePartWidget::slotMarkupPlainText);
 
     // If there's no data, don't try to "fix it up"
     if (!m_partIndex.isValid() || !m_partIndex.data(Imap::Mailbox::RoleIsFetched).toBool())
@@ -149,10 +149,10 @@ QList<QAction *> SimplePartWidget::contextMenuSpecificActions() const
 void SimplePartWidget::slotDownloadPart()
 {
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccessManager, m_partIndex);
-    connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
-    connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
-    connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
-    connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
+    connect(manager, &Imap::Network::FileDownloadManager::fileNameRequested, this, &SimplePartWidget::slotFileNameRequested);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, m_messageView, &MessageView::transferError);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, manager, &QObject::deleteLater);
+    connect(manager, &Imap::Network::FileDownloadManager::succeeded, manager, &QObject::deleteLater);
     manager->downloadPart();
 }
 
@@ -160,10 +160,10 @@ void SimplePartWidget::slotDownloadMessage()
 {
     QModelIndex index = m_partIndex.data(Imap::Mailbox::RolePartMessageIndex).value<QModelIndex>();
     Imap::Network::FileDownloadManager *manager = new Imap::Network::FileDownloadManager(this, m_netAccessManager, index);
-    connect(manager, SIGNAL(fileNameRequested(QString *)), this, SLOT(slotFileNameRequested(QString *)));
-    connect(manager, SIGNAL(transferError(QString)), m_messageView, SIGNAL(transferError(QString)));
-    connect(manager, SIGNAL(transferError(QString)), manager, SLOT(deleteLater()));
-    connect(manager, SIGNAL(succeeded()), manager, SLOT(deleteLater()));
+    connect(manager, &Imap::Network::FileDownloadManager::fileNameRequested, this, &SimplePartWidget::slotFileNameRequested);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, m_messageView, &MessageView::transferError);
+    connect(manager, &Imap::Network::FileDownloadManager::transferError, manager, &QObject::deleteLater);
+    connect(manager, &Imap::Network::FileDownloadManager::succeeded, manager, &QObject::deleteLater);
     manager->downloadMessage();
 }
 

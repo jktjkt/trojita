@@ -38,7 +38,7 @@ FetchMsgPartTask::FetchMsgPartTask(Model *model, const QModelIndex &mailbox, con
     Q_ASSERT(!uids.isEmpty());
     conn = model->findTaskResponsibleFor(mailboxIndex);
     conn->addDependentTask(this);
-    connect(this, SIGNAL(failed(QString)), this, SLOT(markPendingItemsUnavailable()));
+    connect(this, &ImapTask::failed, this, &FetchMsgPartTask::markPendingItemsUnavailable);
 }
 
 void FetchMsgPartTask::perform()

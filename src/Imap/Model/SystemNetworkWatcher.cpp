@@ -47,9 +47,8 @@ SystemNetworkWatcher::SystemNetworkWatcher(ImapAccess *parent, Model *model):
 {
     m_netConfManager = new QNetworkConfigurationManager(this);
     resetSession();
-    connect(m_netConfManager, SIGNAL(onlineStateChanged(bool)), this, SLOT(onGlobalOnlineStateChanged(bool)));
-    connect(m_netConfManager, SIGNAL(configurationChanged(QNetworkConfiguration)),
-            this, SLOT(networkConfigurationChanged(QNetworkConfiguration)));
+    connect(m_netConfManager, &QNetworkConfigurationManager::onlineStateChanged, this, &SystemNetworkWatcher::onGlobalOnlineStateChanged);
+    connect(m_netConfManager, &QNetworkConfigurationManager::configurationChanged, this, &SystemNetworkWatcher::networkConfigurationChanged);
 }
 
 void SystemNetworkWatcher::onGlobalOnlineStateChanged(const bool online)
@@ -210,10 +209,8 @@ void SystemNetworkWatcher::resetSession()
     QTextStream ss(&buf);
     ss << "Switched to network configuration " << conf.name() << " (" << conf.bearerTypeName() << ", " << conf.identifier() << ")";
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), buf);
-    connect(m_session, SIGNAL(opened()), this, SLOT(reconnectModelNetwork()));
-    // We cannot pass the argument here because one cannot really have #ifdef-ed slots with MOC, and QNetworkSession::SessionError
-    // is not available on Qt 4.6 (RHEL6).
-    connect(m_session, SIGNAL(error(QNetworkSession::SessionError)), this, SLOT(networkSessionError()));
+    connect(m_session, &QNetworkSession::opened, this, &SystemNetworkWatcher::reconnectModelNetwork);
+    connect(m_session, static_cast<void (QNetworkSession::*)(QNetworkSession::SessionError)>(&QNetworkSession::error), this, &SystemNetworkWatcher::networkSessionError);
 }
 
 QNetworkConfiguration SystemNetworkWatcher::sessionsActiveConfiguration() const

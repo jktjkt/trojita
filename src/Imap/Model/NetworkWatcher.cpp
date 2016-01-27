@@ -33,15 +33,14 @@ NetworkWatcher::NetworkWatcher(ImapAccess *parent, Model *model):
 {
     // No assert for m_imapAccess. The test suite doesn't create one.
     Q_ASSERT(m_model);
-    connect(m_model, SIGNAL(networkPolicyChanged()), this, SIGNAL(effectiveNetworkPolicyChanged()));
-    connect(m_model, SIGNAL(networkError(const QString &)), this, SLOT(attemptReconnect()));
-    connect(m_model, SIGNAL(connectionStateChanged(uint,Imap::ConnectionState)),
-            this, SLOT(handleConnectionStateChanged(uint,Imap::ConnectionState)));
+    connect(m_model, &Model::networkPolicyChanged, this, &NetworkWatcher::effectiveNetworkPolicyChanged);
+    connect(m_model, &Model::networkError, this, &NetworkWatcher::attemptReconnect);
+    connect(m_model, &Model::connectionStateChanged, this, &NetworkWatcher::handleConnectionStateChanged);
 
     m_reconnectTimer = new QTimer(this);
     m_reconnectTimer->setSingleShot(true);
     m_reconnectTimer->setInterval(MIN_RECONNECT_TIMEOUT/2);
-    connect(m_reconnectTimer, SIGNAL(timeout()), this, SLOT(tryReconnect()));
+    connect(m_reconnectTimer, &QTimer::timeout, this, &NetworkWatcher::tryReconnect);
 }
 
 /** @short Start the reconnect attempt cycle */

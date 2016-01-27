@@ -29,7 +29,7 @@ PasswordWatcher::PasswordWatcher(QObject *parent, Plugins::PluginManager *manage
     QObject(parent), m_manager(manager), m_isStorageEncrypted(false), m_pendingActions(0), m_didReadOk(false), m_didWriteOk(false),
     m_accountName(accountName), m_accountType(accountType)
 {
-    connect(m_manager, SIGNAL(pluginsChanged()), this, SIGNAL(backendMaybeChanged()));
+    connect(m_manager, &Plugins::PluginManager::pluginsChanged, this, &PasswordWatcher::backendMaybeChanged);
 }
 
 QString PasswordWatcher::progressMessage() const
@@ -75,9 +75,8 @@ void PasswordWatcher::reloadPassword()
     if (Plugins::PasswordPlugin *plugin = m_manager->password()) {
         if (Plugins::PasswordJob *job = plugin->requestPassword(m_accountName, m_accountType)) {
             m_isStorageEncrypted = plugin->features() & Plugins::PasswordPlugin::FeatureEncryptedStorage;
-            connect(job, SIGNAL(passwordAvailable(QString)), this, SLOT(passwordRetrieved(QString)));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
-                    this, SLOT(passwordReadingFailed(Plugins::PasswordJob::Error,QString)));
+            connect(job, &Plugins::PasswordJob::passwordAvailable, this, &PasswordWatcher::passwordRetrieved);
+            connect(job, &Plugins::PasswordJob::error, this, &PasswordWatcher::passwordReadingFailed);
             job->setAutoDelete(true);
             job->start();
             m_progressMessage = tr("Loading password from plugin %1...").arg(m_manager->passwordPlugin());
@@ -162,9 +161,8 @@ void PasswordWatcher::setPassword(const QString &password)
     ++m_pendingActions;
     if (Plugins::PasswordPlugin *plugin = m_manager->password()) {
         if (Plugins::PasswordJob *job = plugin->storePassword(m_accountName, m_accountType, password)) {
-            connect(job, SIGNAL(passwordStored()), this, SLOT(passwordWritten()));
-            connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)),
-                    this, SLOT(passwordWritingFailed(Plugins::PasswordJob::Error,QString)));
+            connect(job, &Plugins::PasswordJob::passwordStored, this, &PasswordWatcher::passwordWritten);
+            connect(job, &Plugins::PasswordJob::error, this, &PasswordWatcher::passwordWritingFailed);
             job->setAutoDelete(true);
             job->start();
             m_progressMessage = tr("Saving password from plugin %1...").arg(m_manager->passwordPlugin());

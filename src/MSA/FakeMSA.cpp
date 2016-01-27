@@ -59,12 +59,12 @@ FakeFactory::~FakeFactory()
 AbstractMSA *FakeFactory::create(QObject *parent) const
 {
     m_lastOne = new Fake(parent, const_cast<FakeFactory *>(this), m_supportsBurl, m_supportsImap);
-    connect(m_lastOne, SIGNAL(connecting()), this, SIGNAL(connecting()));
-    connect(m_lastOne, SIGNAL(sending()), this, SIGNAL(sending()));
-    connect(m_lastOne, SIGNAL(sent()), this, SIGNAL(sent()));
-    connect(m_lastOne, SIGNAL(error(QString)), this, SIGNAL(error(QString)));
-    connect(m_lastOne, SIGNAL(progressMax(int)), this, SIGNAL(progressMax(int)));
-    connect(m_lastOne, SIGNAL(progress(int)), this, SIGNAL(progress(int)));
+    connect(m_lastOne.data(), &AbstractMSA::connecting, this, &FakeFactory::connecting);
+    connect(m_lastOne.data(), &AbstractMSA::sending, this, &FakeFactory::sending);
+    connect(m_lastOne.data(), &AbstractMSA::sent, this, &FakeFactory::sent);
+    connect(m_lastOne.data(), &AbstractMSA::error, this, &FakeFactory::error);
+    connect(m_lastOne.data(), &AbstractMSA::progressMax, this, &FakeFactory::progressMax);
+    connect(m_lastOne.data(), &AbstractMSA::progress, this, &FakeFactory::progress);
     return m_lastOne;
 }
 

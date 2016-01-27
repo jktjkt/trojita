@@ -21,7 +21,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QDebug>
-#include <QDesktopServices>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QMenu>
@@ -72,7 +71,7 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
     setAutoFillBackground(true);
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
-    connect(netAccess, SIGNAL(requestingExternal(QUrl)), this, SLOT(externalsRequested(QUrl)));
+    connect(netAccess, &Imap::Network::MsgPartNetAccessManager::requestingExternal, this, &MessageView::externalsRequested);
     factory = new PartWidgetFactory(netAccess, this,
                                     std::unique_ptr<PartWidgetFactoryVisitor>(new PartWidgetFactoryVisitor()));
 
@@ -107,13 +106,13 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
     tags->setBackgroundRole(helpingHeader.backgroundRole());
     tags->setForegroundRole(helpingHeader.foregroundRole());
     tags->hide();
-    connect(tags, SIGNAL(tagAdded(QString)), this, SLOT(newLabelAction(QString)));
-    connect(tags, SIGNAL(tagRemoved(QString)), this, SLOT(deleteLabelAction(QString)));
+    connect(tags, &TagListWidget::tagAdded, this, &MessageView::newLabelAction);
+    connect(tags, &TagListWidget::tagRemoved, this, &MessageView::deleteLabelAction);
 
     // whether we allow to load external elements
     externalElements = new ExternalElementsWidget(this);
     externalElements->hide();
-    connect(externalElements, SIGNAL(loadingEnabled()), this, SLOT(externalsEnabled()));
+    connect(externalElements, &ExternalElementsWidget::loadingEnabled, this, &MessageView::externalsEnabled);
 
     // layout the header
     layout = new QVBoxLayout(headerSection);
@@ -151,7 +150,7 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
 
     markAsReadTimer = new QTimer(this);
     markAsReadTimer->setSingleShot(true);
-    connect(markAsReadTimer, SIGNAL(timeout()), this, SLOT(markAsRead()));
+    connect(markAsReadTimer, &QTimer::timeout, this, &MessageView::markAsRead);
 
     m_loadingSpinner = new Spinner(this);
     m_loadingSpinner->setText(tr("Fetching\nMessage"));
@@ -177,8 +176,10 @@ void MessageView::setEmpty()
     markAsReadTimer->stop();
     m_envelope->setMessage(QModelIndex());
     headerSection->hide();
+    if (message.isValid()) {
+        disconnect(message.model(), &QAbstractItemModel::dataChanged, this, &MessageView::handleDataChanged);
+    }
     message = QModelIndex();
-    disconnect(this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
     tags->hide();
     if (viewer != emptyView) {
         layout->removeWidget(viewer);
@@ -207,7 +208,7 @@ void MessageView::setMessage(const QModelIndex &index)
         // loaded yet. This is especially common with the threading model.
         // Note that the data might be already available in the cache, it's just that it isn't in the mailbox tree yet.
         setEmpty();
-        connect(messageIndex.model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+        connect(messageIndex.model(), &QAbstractItemModel::dataChanged, this, &MessageView::handleDataChanged);
         message = messageIndex;
         return;
     }
@@ -222,6 +223,11 @@ void MessageView::setMessage(const QModelIndex &index)
             viewer->setParent(0);
             viewer->deleteLater();
         }
+
+        if (message.isValid()) {
+            disconnect(message.model(), &QAbstractItemModel::dataChanged, this, &MessageView::handleDataChanged);
+        }
+
         message = messageIndex;
         netAccess->setExternalsEnabled(false);
         externalElements->hide();
@@ -243,8 +249,7 @@ void MessageView::setMessage(const QModelIndex &index)
 
         tags->show();
         tags->setTagList(messageIndex.data(Imap::Mailbox::RoleMessageFlags).toStringList());
-        disconnect(this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
-        connect(messageIndex.model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
+        connect(messageIndex.model(), &QAbstractItemModel::dataChanged, this, &MessageView::handleDataChanged);
 
         emit messageChanged();
 
@@ -435,12 +440,6 @@ void MessageView::showEvent(QShowEvent *se)
     // The Oxygen style reset the attribute - since we're gonna cause an update() here anyway, it's
     // a good moment to stress that "we know better, Hugo ;-)" -- Thomas
     setAutoFillBackground(true);
-}
-
-void MessageView::headerLinkActivated(QString s)
-{
-    // Trojita is registered to handle any mailto: URL
-    QDesktopServices::openUrl(QUrl(s));
 }
 
 void MessageView::partContextMenuRequested(const QPoint &point)

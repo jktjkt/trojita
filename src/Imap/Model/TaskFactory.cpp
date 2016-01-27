@@ -216,10 +216,11 @@ Parser *TestingTaskFactory::newParser(Model *model)
 {
     Parser *parser = new Parser(model, model->m_socketFactory->create(), Common::ConnectionId::next());
     ParserState parserState(parser);
-    QObject::connect(parser, SIGNAL(responseReceived(Imap::Parser*)), model, SLOT(responseReceived(Imap::Parser*)), Qt::QueuedConnection);
-    QObject::connect(parser, SIGNAL(connectionStateChanged(Imap::Parser*,Imap::ConnectionState)), model, SLOT(handleSocketStateChanged(Imap::Parser*,Imap::ConnectionState)));
-    QObject::connect(parser, SIGNAL(lineReceived(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineReceived(Imap::Parser*,QByteArray)));
-    QObject::connect(parser, SIGNAL(lineSent(Imap::Parser*,QByteArray)), model, SLOT(slotParserLineSent(Imap::Parser*,QByteArray)));
+    QObject::connect(parser, &Parser::responseReceived,
+                     model, static_cast<void (Model::*)(Parser *)>(&Model::responseReceived), Qt::QueuedConnection);
+    QObject::connect(parser, &Parser::connectionStateChanged, model, &Model::handleSocketStateChanged);
+    QObject::connect(parser, &Parser::lineReceived, model, &Model::slotParserLineReceived);
+    QObject::connect(parser, &Parser::lineSent, model, &Model::slotParserLineSent);
     model->m_parsers[ parser ] = parserState;
     model->m_taskModel->slotParserCreated(parser);
     return parser;

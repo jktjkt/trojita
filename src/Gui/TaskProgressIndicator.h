@@ -54,9 +54,6 @@ public:
 public slots:
     void updateActivityIndication();
 
-private slots:
-    void setCursorBusy();
-
 private:
     /** @short Model for a list of "visible tasks" */
     QPointer<Imap::Mailbox::VisibleTasksModel> m_visibleTasksModel;

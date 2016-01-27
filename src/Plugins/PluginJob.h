@@ -77,6 +77,8 @@ protected slots:
 
     /** @short Call when job finish (successful or unsuccessful) */
     void finished();
+
+    friend class PasswordJob;
 };
 
 }

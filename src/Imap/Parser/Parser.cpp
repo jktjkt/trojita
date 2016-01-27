@@ -92,11 +92,10 @@ Parser::Parser(QObject *parent, Streams::Socket *socket, const uint myId):
     waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), waitingForSslPolicy(false),
     m_expectsInitialGreeting(true), readingMode(ReadingLine), oldLiteralPosition(0), m_parserId(myId)
 {
-    connect(socket, SIGNAL(disconnected(const QString &)),
-            this, SLOT(handleDisconnected(const QString &)));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
-    connect(socket, SIGNAL(stateChanged(Imap::ConnectionState,QString)), this, SLOT(slotSocketStateChanged(Imap::ConnectionState,QString)));
-    connect(socket, SIGNAL(encrypted()), this, SLOT(handleSocketEncrypted()));
+    connect(socket, &Streams::Socket::disconnected, this, &Parser::handleDisconnected);
+    connect(socket, &Streams::Socket::readyRead, this, &Parser::handleReadyRead);
+    connect(socket, &Streams::Socket::stateChanged, this, &Parser::slotSocketStateChanged);
+    connect(socket, &Streams::Socket::encrypted, this, &Parser::handleSocketEncrypted);
 }
 
 CommandHandle Parser::noop()

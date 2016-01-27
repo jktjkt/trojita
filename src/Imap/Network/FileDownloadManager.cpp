@@ -77,9 +77,10 @@ void FileDownloadManager::downloadPart()
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     request.setUrl(url);
     reply = manager->get(request);
-    connect(reply, SIGNAL(finished()), this, SLOT(onPartDataTransfered()));
-    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), this, SLOT(onReplyTransferError()));
-    connect(manager, SIGNAL(finished(QNetworkReply *)), this, SLOT(deleteReply(QNetworkReply *)));
+    connect(reply, &QNetworkReply::finished, this, &FileDownloadManager::onPartDataTransfered);
+    connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+            this, &FileDownloadManager::onReplyTransferError);
+    connect(manager, &QNetworkAccessManager::finished, this, &FileDownloadManager::deleteReply);
 }
 
 void FileDownloadManager::downloadMessage()
@@ -100,10 +101,10 @@ void FileDownloadManager::downloadMessage()
 
     saving.setFileName(saveFileName);
     saved = false;
-    connect(m_combiner, SIGNAL(completed()), this, SLOT(onMessageDataTransferred()));
-    connect(m_combiner, SIGNAL(failed(QString)), this, SLOT(onCombinerTransferError(QString)));
-    connect(m_combiner, SIGNAL(completed()), m_combiner, SLOT(deleteLater()), Qt::QueuedConnection);
-    connect(m_combiner, SIGNAL(failed(QString)), m_combiner, SLOT(deleteLater()), Qt::QueuedConnection);
+    connect(m_combiner.data(), &Mailbox::FullMessageCombiner::completed, this, &FileDownloadManager::onMessageDataTransferred);
+    connect(m_combiner.data(), &Mailbox::FullMessageCombiner::failed, this, &FileDownloadManager::onCombinerTransferError);
+    connect(m_combiner.data(), &Mailbox::FullMessageCombiner::completed, m_combiner.data(), &QObject::deleteLater, Qt::QueuedConnection);
+    connect(m_combiner.data(), &Mailbox::FullMessageCombiner::failed, m_combiner.data(), &QObject::deleteLater, Qt::QueuedConnection);
     m_combiner->load();
 }
 

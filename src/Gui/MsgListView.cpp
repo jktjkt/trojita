@@ -39,12 +39,12 @@ namespace Gui
 
 MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfterKeyNavigation(true), m_autoResizeSections(true)
 {
-    connect(header(), SIGNAL(geometriesChanged()), this, SLOT(slotFixSize()));
-    connect(this, SIGNAL(expanded(QModelIndex)), this, SLOT(slotExpandWholeSubtree(QModelIndex)));
-    connect(header(), SIGNAL(sectionCountChanged(int,int)), this, SLOT(slotUpdateHeaderActions()));
+    connect(header(), &QHeaderView::geometriesChanged, this, &MsgListView::slotFixSize);
+    connect(this, &QTreeView::expanded, this, &MsgListView::slotExpandWholeSubtree);
+    connect(header(), &QHeaderView::sectionCountChanged, this, &MsgListView::slotUpdateHeaderActions);
     header()->setContextMenuPolicy(Qt::ActionsContextMenu);
     headerFieldsMapper = new QSignalMapper(this);
-    connect(headerFieldsMapper, SIGNAL(mapped(int)), this, SLOT(slotHeaderSectionVisibilityToggled(int)));
+    connect(headerFieldsMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this, &MsgListView::slotHeaderSectionVisibilityToggled);
 
     setUniformRowHeights(true);
     setAllColumnsShowFocus(true);
@@ -60,7 +60,7 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfte
 
     m_naviActivationTimer = new QTimer(this);
     m_naviActivationTimer->setSingleShot(true);
-    connect(m_naviActivationTimer, SIGNAL(timeout()), SLOT(slotCurrentActivated()));
+    connect(m_naviActivationTimer, &QTimer::timeout, this, &MsgListView::slotCurrentActivated);
 }
 
 // left might collapse a thread, question is whether ending there (on closing the thread) should be
@@ -308,7 +308,7 @@ void MsgListView::slotUpdateHeaderActions()
         QAction *action = new QAction(message, this);
         action->setCheckable(true);
         action->setChecked(true);
-        connect(action, SIGNAL(toggled(bool)), headerFieldsMapper, SLOT(map()));
+        connect(action, &QAction::toggled, headerFieldsMapper, static_cast<void (QSignalMapper::*)()>(&QSignalMapper::map));
         headerFieldsMapper->setMapping(action, i);
         header()->addAction(action);
 
@@ -394,14 +394,14 @@ void MsgListView::setModel(QAbstractItemModel *model)
 {
     if (this->model()) {
         if (Imap::Mailbox::PrettyMsgListModel *prettyModel = findPrettyMsgListModel(this->model())) {
-            disconnect(prettyModel, SIGNAL(sortingPreferenceChanged(int,Qt::SortOrder)),
-                       this, SLOT(slotHandleSortCriteriaChanged(int,Qt::SortOrder)));
+            disconnect(prettyModel, &Imap::Mailbox::PrettyMsgListModel::sortingPreferenceChanged,
+                       this, &MsgListView::slotHandleSortCriteriaChanged);
         }
     }
     QTreeView::setModel(model);
     if (Imap::Mailbox::PrettyMsgListModel *prettyModel = findPrettyMsgListModel(model)) {
-        connect(prettyModel, SIGNAL(sortingPreferenceChanged(int,Qt::SortOrder)),
-                this, SLOT(slotHandleSortCriteriaChanged(int,Qt::SortOrder)));
+        connect(prettyModel, &Imap::Mailbox::PrettyMsgListModel::sortingPreferenceChanged,
+                this, &MsgListView::slotHandleSortCriteriaChanged);
     }
 }
 

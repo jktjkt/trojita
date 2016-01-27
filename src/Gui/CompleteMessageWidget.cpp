@@ -26,6 +26,7 @@
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QVBoxLayout>
+#include "Gui/EmbeddedWebView.h"
 #include "Gui/FindBar.h"
 #include "Gui/MessageView.h"
 #include "UiUtils/IconLoader.h"
@@ -49,7 +50,7 @@ CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *setting
     m_findBar = new FindBar(this);
     layout->addWidget(m_findBar);
 
-    connect(messageView, SIGNAL(searchRequestedBy(EmbeddedWebView*)), this, SLOT(searchRequestedBy(EmbeddedWebView*)));
+    connect(messageView, &MessageView::searchRequestedBy, this, &CompleteMessageWidget::searchRequestedBy);
 }
 
 void CompleteMessageWidget::searchRequestedBy(EmbeddedWebView *webView)

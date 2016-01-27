@@ -83,9 +83,9 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     s->clearMemoryCaches();
 
     page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-    connect(this, SIGNAL(linkClicked(QUrl)), this, SLOT(slotLinkClicked(QUrl)));
-    connect(this, SIGNAL(loadFinished(bool)), this, SLOT(handlePageLoadFinished()));
-    connect(page()->mainFrame(), SIGNAL(contentsSizeChanged(QSize)), this, SLOT(handlePageLoadFinished()));
+    connect(this, &QWebView::linkClicked, this, &EmbeddedWebView::slotLinkClicked);
+    connect(this, &QWebView::loadFinished, this, &EmbeddedWebView::handlePageLoadFinished);
+    connect(page()->mainFrame(), &QWebFrame::contentsSizeChanged, this, &EmbeddedWebView::handlePageLoadFinished);
 
     // Scrolling is implemented on upper layers
     page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
@@ -107,12 +107,12 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
 
     m_autoScrollTimer = new QTimer(this);
     m_autoScrollTimer->setInterval(50);
-    connect(m_autoScrollTimer, SIGNAL(timeout()), SLOT(autoScroll()));
+    connect(m_autoScrollTimer, &QTimer::timeout, this, &EmbeddedWebView::autoScroll);
 
     m_sizeContrainTimer = new QTimer(this);
     m_sizeContrainTimer->setInterval(50);
     m_sizeContrainTimer->setSingleShot(true);
-    connect(m_sizeContrainTimer, SIGNAL(timeout()), SLOT(constrainSize()));
+    connect(m_sizeContrainTimer, &QTimer::timeout, this, &EmbeddedWebView::constrainSize);
 
     setContextMenuPolicy(Qt::NoContextMenu);
     findScrollParent();

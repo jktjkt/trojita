@@ -80,6 +80,8 @@ private:
     bool m_supportsFuzzySearch;
     QTimer *m_searchResetTimer;
     QString m_queryPlaceholder;
+
+    friend class MainWindow; // needs access to our private slots
 };
 
 }

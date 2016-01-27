@@ -45,7 +45,7 @@ TagListWidget::TagListWidget(QWidget *parent) :
     setLayout(parentLayout);
 
     addButton = TagWidget::addingWidget();
-    connect(addButton, SIGNAL(addingClicked()), this, SLOT(newTagsRequested()));
+    connect(addButton, &TagWidget::addingClicked, this, &TagListWidget::newTagsRequested);
 
     parentLayout->addWidget(new QLabel(tr("<b>Tags:</b>")));
     parentLayout->addWidget(addButton);
@@ -73,7 +73,7 @@ void TagListWidget::setTagList(QStringList list)
         } else {
             TagWidget *lbl = TagWidget::userKeyword(tagName);
             parentLayout->addWidget(lbl);
-            connect(lbl, SIGNAL(removeClicked(QString)), this, SIGNAL(tagRemoved(QString)));
+            connect(lbl, &TagWidget::removeClicked, this, &TagListWidget::tagRemoved);
             children << lbl;
         }
     }

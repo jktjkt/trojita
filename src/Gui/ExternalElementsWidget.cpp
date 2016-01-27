@@ -38,7 +38,7 @@ ExternalElementsWidget::ExternalElementsWidget(QWidget *parent):
     layout->addWidget(loadStuffButton);
     layout->addStretch();
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    connect(loadStuffButton, SIGNAL(clicked()), this, SIGNAL(loadingEnabled()));
+    connect(loadStuffButton, &QAbstractButton::clicked, this, &ExternalElementsWidget::loadingEnabled);
 
     /*
     FIXME: would be cool to have more clear error messages

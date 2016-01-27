@@ -37,22 +37,16 @@ MailboxModel::MailboxModel(QObject *parent, Model *model): QAbstractProxyModel(p
     setSourceModel(model);
 
     // FIXME: will need to be expanded when Model supports more signals...
-    connect(model, SIGNAL(modelAboutToBeReset()), this, SLOT(handleModelAboutToBeReset()));
-    connect(model, SIGNAL(modelReset()), this, SLOT(handleModelReset()));
-    connect(model, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged()));
-    connect(model, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
-    connect(model, SIGNAL(dataChanged(const QModelIndex &, const QModelIndex &)),
-            this, SLOT(handleDataChanged(const QModelIndex &, const QModelIndex &)));
-    connect(model, SIGNAL(rowsAboutToBeRemoved(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsAboutToBeRemoved(const QModelIndex &, int, int)));
-    connect(model, SIGNAL(rowsRemoved(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsRemoved(const QModelIndex &, int, int)));
-    connect(model, SIGNAL(rowsAboutToBeInserted(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsAboutToBeInserted(const QModelIndex &, int, int)));
-    connect(model, SIGNAL(rowsInserted(const QModelIndex &, int, int)),
-            this, SLOT(handleRowsInserted(const QModelIndex &, int, int)));
-    connect(model, SIGNAL(messageCountPossiblyChanged(const QModelIndex &)),
-            this, SLOT(handleMessageCountPossiblyChanged(const QModelIndex &)));
+    connect(model, &QAbstractItemModel::modelAboutToBeReset, this, &MailboxModel::handleModelAboutToBeReset);
+    connect(model, &QAbstractItemModel::modelReset, this, &MailboxModel::handleModelReset);
+    connect(model, &QAbstractItemModel::layoutAboutToBeChanged, this, &QAbstractItemModel::layoutAboutToBeChanged);
+    connect(model, &QAbstractItemModel::layoutChanged, this, &QAbstractItemModel::layoutChanged);
+    connect(model, &QAbstractItemModel::dataChanged, this, &MailboxModel::handleDataChanged);
+    connect(model, &QAbstractItemModel::rowsAboutToBeRemoved, this, &MailboxModel::handleRowsAboutToBeRemoved);
+    connect(model, &QAbstractItemModel::rowsRemoved, this, &MailboxModel::handleRowsRemoved);
+    connect(model, &QAbstractItemModel::rowsAboutToBeInserted, this, &MailboxModel::handleRowsAboutToBeInserted);
+    connect(model, &QAbstractItemModel::rowsInserted, this, &MailboxModel::handleRowsInserted);
+    connect(model, &Model::messageCountPossiblyChanged, this, &MailboxModel::handleMessageCountPossiblyChanged);
 }
 
 QHash<int, QByteArray> MailboxModel::roleNames() const

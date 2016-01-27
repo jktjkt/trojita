@@ -21,6 +21,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "OneEnvelopeAddress.h"
+#include <QDesktopServices>
 #include <QHeaderView>
 #include <QFontMetrics>
 #include <QUrlQuery>
@@ -36,14 +37,17 @@ OneEnvelopeAddress::OneEnvelopeAddress(QWidget *parent, const Imap::Message::Mai
 {
     setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
     setIndent(5);
-    connect(this, SIGNAL(linkHovered(QString)), this, SLOT(onLinkHovered(QString)));
+    connect(this, &QLabel::linkHovered, this, &OneEnvelopeAddress::onLinkHovered);
 
     QFontMetrics fm(font());
     int iconSize = fm.boundingRect(QLatin1Char('M')).height();
     contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-known.png"), iconSize);
     contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-unknown.png"), iconSize);
 
-    connect(this, SIGNAL(linkActivated(QString)), messageView, SLOT(headerLinkActivated(QString)));
+    connect(this, &QLabel::linkActivated, [](const QString &link) {
+        // Trojita is registered to handle any mailto: URL
+        QDesktopServices::openUrl(QUrl(link));
+    });
 
     processAddress();
 }
@@ -58,11 +62,11 @@ void OneEnvelopeAddress::processAddress()
     if (!addressbook || !(addressbook->features() & Plugins::AddressbookPlugin::FeaturePrettyNames))
         return;
 
-    Plugins::AddressbookJob *job = addressbook->requestPrettyNamesForAddress(m_address.mailbox + QLatin1Char('@') + m_address.host);
+    auto job = addressbook->requestPrettyNamesForAddress(m_address.mailbox + QLatin1Char('@') + m_address.host);
     if (!job)
         return;
 
-    connect(job, SIGNAL(prettyNamesForAddressAvailable(QStringList)), this, SLOT(finishProcessAddress(QStringList)));
+    connect(job, &Plugins::AddressbookNamesJob::prettyNamesForAddressAvailable, this, &OneEnvelopeAddress::finishProcessAddress);
     job->setAutoDelete(true);
     job->start();
 }
@@ -97,11 +101,11 @@ void OneEnvelopeAddress::onLinkHovered(const QString &target)
     if (!addressbook || !(addressbook->features() & Plugins::AddressbookPlugin::FeaturePrettyNames))
         return;
 
-    Plugins::AddressbookJob *job = addressbook->requestPrettyNamesForAddress(addr.mailbox + QLatin1Char('@') + addr.host);
+    auto job = addressbook->requestPrettyNamesForAddress(addr.mailbox + QLatin1Char('@') + addr.host);
     if (!job)
         return;
 
-    connect(job, SIGNAL(prettyNamesForAddressAvailable(QStringList)), this, SLOT(finishOnLinkHovered(QStringList)));
+    connect(job, &Plugins::AddressbookNamesJob::prettyNamesForAddressAvailable, this, &OneEnvelopeAddress::finishOnLinkHovered);
     job->setAutoDelete(true);
     job->start();
 }

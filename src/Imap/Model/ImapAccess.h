@@ -83,13 +83,13 @@ public:
     ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginManager *pluginManager, const QString &accountName);
 
     bool isConfigured() const;
-    QObject *imapModel() const;
-    QObject *mailboxModel() const;
-    QObject *msgListModel() const;
-    QObject *visibleTasksModel() const;
+    QAbstractItemModel *imapModel() const;
+    QAbstractItemModel *mailboxModel() const;
+    QAbstractItemModel *msgListModel() const;
+    QAbstractItemModel *visibleTasksModel() const;
     QObject *oneMessageModel() const;
     QObject *networkWatcher() const;
-    QObject *threadingMsgListModel() const;
+    QAbstractItemModel *threadingMsgListModel() const;
     QObject *msgQNAM() const;
     UiUtils::PasswordWatcher *passwordWatcher() const;
 

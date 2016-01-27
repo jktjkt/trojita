@@ -229,7 +229,7 @@ WebRenderingTester::WebRenderingTester()
 {
     m_web = new QWebView(0);
     m_loop = new QEventLoop(this);
-    connect(m_web, SIGNAL(loadFinished(bool)), m_loop, SLOT(quit()));
+    connect(m_web, &QWebView::loadFinished, m_loop, &QEventLoop::quit);
 }
 
 WebRenderingTester::~WebRenderingTester()

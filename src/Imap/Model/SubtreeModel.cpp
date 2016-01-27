@@ -63,10 +63,10 @@ SubtreeModelOfModel::SubtreeModelOfModel(QObject *parent):
 SubtreeModel::SubtreeModel(QObject *parent, SubtreeClassAdaptor *classSpecificAdaptor):
     QAbstractProxyModel(parent), m_classAdaptor(classSpecificAdaptor), m_usingInvalidRoot(false)
 {
-    connect(this, SIGNAL(layoutChanged()), this, SIGNAL(validityChanged()));
-    connect(this, SIGNAL(modelReset()), this, SIGNAL(validityChanged()));
-    connect(this, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(validityChanged()));
-    connect(this, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(validityChanged()));
+    connect(this, &QAbstractItemModel::layoutChanged, this, &SubtreeModel::validityChanged);
+    connect(this, &QAbstractItemModel::modelReset, this, &SubtreeModel::validityChanged);
+    connect(this, &QAbstractItemModel::rowsInserted, this, &SubtreeModel::validityChanged);
+    connect(this, &QAbstractItemModel::rowsRemoved, this, &SubtreeModel::validityChanged);
 }
 
 SubtreeModel::~SubtreeModel()
@@ -79,20 +79,20 @@ void SubtreeModel::setSourceModel(QAbstractItemModel *sourceModel)
     m_classAdaptor->assertCorrectClass(sourceModel);
 
     if (this->sourceModel()) {
-        disconnect(this->sourceModel(), 0, this, 0);
+        disconnect(this->sourceModel(), nullptr, this, nullptr);
     }
     QAbstractProxyModel::setSourceModel(sourceModel);
     if (sourceModel) {
         // FIXME: will need to be expanded when the source model supports more signals...
-        connect(sourceModel, SIGNAL(modelAboutToBeReset()), this, SLOT(handleModelAboutToBeReset()));
-        connect(sourceModel, SIGNAL(modelReset()), this, SLOT(handleModelReset()));
-        connect(sourceModel, SIGNAL(layoutAboutToBeChanged()), this, SIGNAL(layoutAboutToBeChanged()));
-        connect(sourceModel, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
-        connect(sourceModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(handleDataChanged(QModelIndex,QModelIndex)));
-        connect(sourceModel, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)), this, SLOT(handleRowsAboutToBeRemoved(QModelIndex,int,int)));
-        connect(sourceModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(handleRowsRemoved(QModelIndex,int,int)));
-        connect(sourceModel, SIGNAL(rowsAboutToBeInserted(QModelIndex,int,int)), this, SLOT(handleRowsAboutToBeInserted(QModelIndex,int,int)));
-        connect(sourceModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(handleRowsInserted(QModelIndex,int,int)));
+        connect(sourceModel, &QAbstractItemModel::modelAboutToBeReset, this, &SubtreeModel::handleModelAboutToBeReset);
+        connect(sourceModel, &QAbstractItemModel::modelReset, this, &SubtreeModel::handleModelReset);
+        connect(sourceModel, &QAbstractItemModel::layoutAboutToBeChanged, this, &QAbstractItemModel::layoutAboutToBeChanged);
+        connect(sourceModel, &QAbstractItemModel::layoutChanged, this, &QAbstractItemModel::layoutChanged);
+        connect(sourceModel, &QAbstractItemModel::dataChanged, this, &SubtreeModel::handleDataChanged);
+        connect(sourceModel, &QAbstractItemModel::rowsAboutToBeRemoved, this, &SubtreeModel::handleRowsAboutToBeRemoved);
+        connect(sourceModel, &QAbstractItemModel::rowsRemoved, this, &SubtreeModel::handleRowsRemoved);
+        connect(sourceModel, &QAbstractItemModel::rowsAboutToBeInserted, this, &SubtreeModel::handleRowsAboutToBeInserted);
+        connect(sourceModel, &QAbstractItemModel::rowsInserted, this, &SubtreeModel::handleRowsInserted);
     }
 }
 

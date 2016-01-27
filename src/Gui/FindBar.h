@@ -58,7 +58,7 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 private slots:
-    void find(const QString &);
+    void findText(const QString &search);
     void matchCaseUpdate();
     void findNext();
     void findPrevious();

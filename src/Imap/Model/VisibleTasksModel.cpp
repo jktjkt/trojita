@@ -37,10 +37,10 @@ VisibleTasksModel::VisibleTasksModel(QObject *parent, QAbstractItemModel *taskMo
     m_flatteningModel->setSourceModel(taskModel);
     setSourceModel(m_flatteningModel);
     setDynamicSortFilter(true);
-    connect(m_flatteningModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SIGNAL(hasVisibleTasksChanged()));
-    connect(m_flatteningModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(hasVisibleTasksChanged()));
-    connect(m_flatteningModel, SIGNAL(modelReset()), this, SIGNAL(hasVisibleTasksChanged()));
-    connect(m_flatteningModel, SIGNAL(layoutChanged()), this, SIGNAL(hasVisibleTasksChanged()));
+    connect(m_flatteningModel, &QAbstractItemModel::rowsInserted, this, &VisibleTasksModel::hasVisibleTasksChanged);
+    connect(m_flatteningModel, &QAbstractItemModel::rowsRemoved, this, &VisibleTasksModel::hasVisibleTasksChanged);
+    connect(m_flatteningModel, &QAbstractItemModel::modelReset, this, &VisibleTasksModel::hasVisibleTasksChanged);
+    connect(m_flatteningModel, &QAbstractItemModel::layoutChanged, this, &VisibleTasksModel::hasVisibleTasksChanged);
 }
 
 QHash<int, QByteArray> VisibleTasksModel::roleNames() const

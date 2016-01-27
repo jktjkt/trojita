@@ -38,7 +38,7 @@ UnSelectTask::UnSelectTask(Model *model, ImapTask *parentTask) :
     conn = parentTask;
     parser = conn->parser;
     Q_ASSERT(parser);
-    connect(this, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(resetConnectionState()));
+    connect(this, &ImapTask::completed, this, &UnSelectTask::resetConnectionState);
 }
 
 void UnSelectTask::perform()

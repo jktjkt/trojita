@@ -37,13 +37,13 @@ ShortcutConfigDialog::ShortcutConfigDialog(QWidget *parent)
     setWindowTitle(tr("Configure Shortcuts") + QLatin1String(" - ") + trUtf8("Trojitá"));
 
     m_shortcutConfigWidget = new ShortcutConfigWidget(this);
-    connect(m_shortcutConfigWidget, SIGNAL(shortcutsChanged(QHash<QString,ActionDescription>)), this, SIGNAL(shortcutsChanged(QHash<QString,ActionDescription>)));
+    connect(m_shortcutConfigWidget, &ShortcutConfigWidget::shortcutsChanged, this, &ShortcutConfigDialog::shortcutsChanged);
 
     QDialogButtonBox *buttonBox = new QDialogButtonBox(this);
     buttonBox->addButton(QDialogButtonBox::Ok);
     buttonBox->addButton(QDialogButtonBox::Cancel);
-    connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &ShortcutConfigDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &ShortcutConfigDialog::reject);
 
     QWidget *buttonWidget = new QWidget(this);
     QHBoxLayout *buttonLayout = new QHBoxLayout(buttonWidget);

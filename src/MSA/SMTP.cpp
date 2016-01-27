@@ -33,11 +33,10 @@ SMTP::SMTP(QObject *parent, const QString &host, quint16 port, bool encryptedCon
 {
     qwwSmtp = new QwwSmtpClient(this);
     // FIXME: handle SSL errors properly
-    connect(qwwSmtp, SIGNAL(sslErrors(QList<QSslError>)), qwwSmtp, SLOT(ignoreSslErrors()));
-    connect(qwwSmtp, SIGNAL(connected()), this, SIGNAL(sending()));
-    connect(qwwSmtp, SIGNAL(done(bool)), this, SLOT(handleDone(bool)));
-    connect(qwwSmtp, SIGNAL(socketError(QAbstractSocket::SocketError,QString)),
-            this, SLOT(handleError(QAbstractSocket::SocketError,QString)));
+    connect(qwwSmtp, &QwwSmtpClient::sslErrors, qwwSmtp, &QwwSmtpClient::ignoreSslErrors);
+    connect(qwwSmtp, &QwwSmtpClient::connected, this, &AbstractMSA::sending);
+    connect(qwwSmtp, &QwwSmtpClient::done, this, &SMTP::handleDone);
+    connect(qwwSmtp, &QwwSmtpClient::socketError, this, &SMTP::handleError);
 }
 
 void SMTP::cancel()

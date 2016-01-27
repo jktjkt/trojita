@@ -41,8 +41,8 @@ MailboxFinder::MailboxFinder( QObject *parent, Imap::Mailbox::Model *model ) :
     QObject(parent), m_model(model)
 {
     Q_ASSERT(m_model);
-    connect( m_model, SIGNAL(layoutChanged()), this, SLOT(checkArrivals()) );
-    connect( m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(slotRowsInserted(QModelIndex,int,int)) );
+    connect(m_model, &QAbstractItemModel::layoutChanged, this, &MailboxFinder::checkArrivals);
+    connect(m_model, &Model::rowsInserted, this, &MailboxFinder::slotRowsInserted);
 }
 
 void MailboxFinder::addMailbox( const QString &mailbox )

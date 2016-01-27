@@ -39,24 +39,24 @@ ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
     setDragEnabled(true);
     setDropIndicatorShown(false);
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+    connect(this, &QWidget::customContextMenuRequested, this, &ComposerAttachmentsList::showContextMenu);
 
     m_actionSendInline = new QAction(tr("Send Inline"), this);
     m_actionSendInline->setCheckable(true);
-    connect(m_actionSendInline, SIGNAL(triggered(bool)), this, SLOT(slotToggledContentDispositionInline(bool)));
+    connect(m_actionSendInline, &QAction::triggered, this, &ComposerAttachmentsList::slotToggledContentDispositionInline);
     addAction(m_actionSendInline);
 
     m_actionRename = new QAction(tr("Rename..."), this);
-    connect(m_actionRename, SIGNAL(triggered()), this, SLOT(slotRenameAttachment()));
+    connect(m_actionRename, &QAction::triggered, this, &ComposerAttachmentsList::slotRenameAttachment);
     addAction(m_actionRename);
 
     m_actionRemoveAttachment = new QAction(tr("Remove"), this);
-    connect(m_actionRemoveAttachment, SIGNAL(triggered()), this, SLOT(slotRemoveAttachment()));
+    connect(m_actionRemoveAttachment, &QAction::triggered, this, &ComposerAttachmentsList::slotRemoveAttachment);
     addAction(m_actionRemoveAttachment);
 
-    connect(this, SIGNAL(itemDroppedOut()), this, SLOT(slotRemoveAttachment()));
-    connect(this, SIGNAL(clicked(QModelIndex)), this, SLOT(onCurrentChanged()));
-    connect(this, SIGNAL(activated(QModelIndex)), this, SLOT(onCurrentChanged()));
+    connect(this, &ComposerAttachmentsList::itemDroppedOut, this, &ComposerAttachmentsList::slotRemoveAttachment);
+    connect(this, &QAbstractItemView::clicked, this, &ComposerAttachmentsList::onCurrentChanged);
+    connect(this, &QAbstractItemView::activated, this, &ComposerAttachmentsList::onCurrentChanged);
 }
 
 void ComposerAttachmentsList::setComposer(Composer::MessageComposer *composer)
@@ -66,10 +66,10 @@ void ComposerAttachmentsList::setComposer(Composer::MessageComposer *composer)
 
     m_composer = composer;
     setModel(m_composer);
-    connect(model(), SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(onAttachmentNumberChanged()));
-    connect(model(), SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(onAttachmentNumberChanged()));
-    connect(model(), SIGNAL(layoutChanged()), this, SLOT(onAttachmentNumberChanged()));
-    connect(model(), SIGNAL(modelReset()), this, SLOT(onAttachmentNumberChanged()));
+    connect(model(), &QAbstractItemModel::rowsRemoved, this, &ComposerAttachmentsList::onAttachmentNumberChanged);
+    connect(model(), &QAbstractItemModel::rowsInserted, this, &ComposerAttachmentsList::onAttachmentNumberChanged);
+    connect(model(), &QAbstractItemModel::layoutChanged, this, &ComposerAttachmentsList::onAttachmentNumberChanged);
+    connect(model(), &QAbstractItemModel::modelReset, this, &ComposerAttachmentsList::onAttachmentNumberChanged);
 
     onAttachmentNumberChanged();
 }

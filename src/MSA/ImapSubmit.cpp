@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "ImapSubmit.h"
+#include "Common/InvokeMethod.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/UidSubmitTask.h"
 
@@ -47,9 +48,9 @@ void ImapSubmit::sendImap(const QString &mailbox, const int uidValidity, const i
 {
     Imap::Mailbox::UidSubmitTask *submitTask = m_model->sendMailViaUidSubmit(mailbox, uidValidity, uid, options);
     Q_ASSERT(submitTask);
-    connect(submitTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SIGNAL(sent()));
-    connect(submitTask, SIGNAL(failed(QString)), this, SIGNAL(error(QString)));
-    QTimer::singleShot(0, this, SIGNAL(sending()));
+    connect(submitTask, &Imap::Mailbox::ImapTask::completed, this, &AbstractMSA::sent);
+    connect(submitTask, &Imap::Mailbox::ImapTask::failed, this, &AbstractMSA::error);
+    EMIT_LATER_NOARG(this, sending);
 }
 
 ImapSubmitFactory::ImapSubmitFactory(Imap::Mailbox::Model *model):

@@ -33,7 +33,7 @@ FakeSocket::FakeSocket(const Imap::ConnectionState initialState): m_initialState
     writeChannel = new QBuffer(&w, this);
     writeChannel->open(QIODevice::WriteOnly);
     QTimer::singleShot(0, this, SLOT(slotEmitConnected()));
-    connect(readChannel, SIGNAL(readyRead()), this, SIGNAL(readyRead()));
+    connect(readChannel, &QIODevice::readyRead, this, &Socket::readyRead);
 }
 
 FakeSocket::~FakeSocket()

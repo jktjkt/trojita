@@ -80,7 +80,7 @@ void SQLCache::init()
         num = 10000;
     delayedCommit->setInterval(num);
     delayedCommit->setObjectName(QString::fromUtf8("delayedCommit-%1").arg(objectName()));
-    connect(delayedCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()));
+    connect(delayedCommit, &QTimer::timeout, this, &SQLCache::timeToCommit);
     if (tooMuchTimeWithoutCommit)
         tooMuchTimeWithoutCommit->deleteLater();
     tooMuchTimeWithoutCommit = new QTimer(this);
@@ -89,7 +89,7 @@ void SQLCache::init()
         num = 60000;
     tooMuchTimeWithoutCommit->setInterval(num);
     tooMuchTimeWithoutCommit->setObjectName(QString::fromUtf8("tooMuchTimeWithoutCommit-%1").arg(objectName()));
-    connect(tooMuchTimeWithoutCommit, SIGNAL(timeout()), this, SLOT(timeToCommit()));
+    connect(tooMuchTimeWithoutCommit, &QTimer::timeout, this, &SQLCache::timeToCommit);
 }
 
 SQLCache::~SQLCache()

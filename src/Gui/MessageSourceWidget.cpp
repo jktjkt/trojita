@@ -42,8 +42,8 @@ MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &mes
     m_loadingSpinner->start(250);
 
     m_combiner = new Imap::Mailbox::FullMessageCombiner(messageIndex, this);
-    connect(m_combiner, SIGNAL(completed()), this, SLOT(slotCompleted()));
-    connect(m_combiner, SIGNAL(failed(QString)), this, SLOT(slotError(QString)));
+    connect(m_combiner, &Imap::Mailbox::FullMessageCombiner::completed, this, &MessageSourceWidget::slotCompleted);
+    connect(m_combiner, &Imap::Mailbox::FullMessageCombiner::failed, this, &MessageSourceWidget::slotError);
     m_combiner->load();
 }
 

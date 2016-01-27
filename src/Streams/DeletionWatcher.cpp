@@ -27,7 +27,7 @@ namespace Streams {
 DeletionWatcher::DeletionWatcher(QObject *parent, QObject *what) :
     QObject(parent)
 {
-    connect(what, SIGNAL(destroyed()), this, SLOT(handleDeleted()));
+    connect(what, &QObject::destroyed, this, &DeletionWatcher::handleDeleted);
 }
 
 void DeletionWatcher::handleDeleted()

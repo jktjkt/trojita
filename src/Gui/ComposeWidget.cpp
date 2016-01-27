@@ -123,24 +123,24 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
 
     Q_ASSERT(m_mainWindow);
     m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory);
-    connect(m_submission, SIGNAL(succeeded()), this, SLOT(sent()));
-    connect(m_submission, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
-    connect(m_submission, SIGNAL(passwordRequested(QString,QString)), this, SLOT(passwordRequested(QString,QString)), Qt::QueuedConnection);
+    connect(m_submission, &Composer::Submission::succeeded, this, &ComposeWidget::sent);
+    connect(m_submission, &Composer::Submission::failed, this, &ComposeWidget::gotError);
+    connect(m_submission, &Composer::Submission::passwordRequested, this, &ComposeWidget::passwordRequested, Qt::QueuedConnection);
     m_submission->composer()->setReportTrojitaVersions(m_settings->value(Common::SettingsNames::interopRevealVersions, true).toBool());
 
     ui->setupUi(this);
     ui->attachmentsView->setComposer(m_submission->composer());
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     sendButton->setIcon(UiUtils::loadIcon(QLatin1String("mail-send")));
-    connect(sendButton, SIGNAL(clicked()), this, SLOT(send()));
+    connect(sendButton, &QAbstractButton::clicked, this, &ComposeWidget::send);
     cancelButton = ui->buttonBox->addButton(QDialogButtonBox::Cancel);
     cancelButton->setIcon(UiUtils::loadIcon(QLatin1String("dialog-cancel")));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(ui->attachButton, SIGNAL(clicked()), this, SLOT(slotAskForFileAttachment()));
+    connect(cancelButton, &QAbstractButton::clicked, this, &QWidget::close);
+    connect(ui->attachButton, &QAbstractButton::clicked, this, &ComposeWidget::slotAskForFileAttachment);
 
     m_completionPopup = new QMenu(this);
     m_completionPopup->installEventFilter(this);
-    connect(m_completionPopup, SIGNAL(triggered(QAction*)), SLOT(completeRecipient(QAction*)));
+    connect(m_completionPopup, &QMenu::triggered, this, &ComposeWidget::completeRecipient);
 
     // TODO: make this configurable?
     m_completionCount = 8;
@@ -148,13 +148,13 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_recipientListUpdateTimer = new QTimer(this);
     m_recipientListUpdateTimer->setSingleShot(true);
     m_recipientListUpdateTimer->setInterval(250);
-    connect(m_recipientListUpdateTimer, SIGNAL(timeout()), SLOT(updateRecipientList()));
+    connect(m_recipientListUpdateTimer, &QTimer::timeout, this, &ComposeWidget::updateRecipientList);
 
-    connect(ui->verticalSplitter, SIGNAL(splitterMoved(int, int)), SLOT(calculateMaxVisibleRecipients()));
+    connect(ui->verticalSplitter, &QSplitter::splitterMoved, this, &ComposeWidget::calculateMaxVisibleRecipients);
     calculateMaxVisibleRecipients();
 
-    connect(ui->recipientSlider, SIGNAL(valueChanged(int)), SLOT(scrollRecipients(int)));
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(handleFocusChange()));
+    connect(ui->recipientSlider, &QAbstractSlider::valueChanged, this, &ComposeWidget::scrollRecipients);
+    connect(qApp, &QApplication::focusChanged, this, &ComposeWidget::handleFocusChange);
     ui->recipientSlider->setMinimum(0);
     ui->recipientSlider->setMaximum(0);
     ui->recipientSlider->setVisible(false);
@@ -178,11 +178,11 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     // This is a "quick shortcut action". It shows the UI bits of the current option, but when the user clicks it,
     // the *other* action is triggered.
     m_actionToggleMarking = new QAction(m_markButton);
-    connect(m_actionToggleMarking, SIGNAL(triggered()), this, SLOT(toggleReplyMarking()));
+    connect(m_actionToggleMarking, &QAction::triggered, this, &ComposeWidget::toggleReplyMarking);
     m_markButton->setDefaultAction(m_actionToggleMarking);
 
     // Unfortunately, there's no signal for toggled(QAction*), so we'll have to call QAction::trigger() to have this working
-    connect(m_markAsReply, SIGNAL(triggered(QAction*)), this, SLOT(updateReplyMarkingAction()));
+    connect(m_markAsReply, &QActionGroup::triggered, this, &ComposeWidget::updateReplyMarkingAction);
     m_actionStandalone->trigger();
 
     m_replyModeButton = new QToolButton(ui->buttonBox);
@@ -222,7 +222,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_actionReplyModeList->setActionGroup(m_replyModeActions);
     m_actionReplyModeList->setCheckable(true);
 
-    connect(m_replyModeActions, SIGNAL(triggered(QAction*)), this, SLOT(updateReplyMode()));
+    connect(m_replyModeActions, &QActionGroup::triggered, this, &ComposeWidget::updateReplyMode);
 
     // We want to have the button aligned to the left; the only "portable" way of this is the ResetRole
     // (thanks to TL for mentioning this, and for the Qt's doc for providing pretty pictures on different platforms)
@@ -233,23 +233,23 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_markButton->hide();
     m_replyModeButton->hide();
 
-    connect(ui->mailText, SIGNAL(urlsAdded(QList<QUrl>)), SLOT(slotAttachFiles(QList<QUrl>)));
-    connect(ui->mailText, SIGNAL(sendRequest()), SLOT(send()));
-    connect(ui->mailText, SIGNAL(textChanged()), SLOT(setMessageUpdated()));
-    connect(ui->subject, SIGNAL(textChanged(QString)), SLOT(updateWindowTitle()));
-    connect(ui->subject, SIGNAL(textChanged(QString)), SLOT(setMessageUpdated()));
+    connect(ui->mailText, &ComposerTextEdit::urlsAdded, this, &ComposeWidget::slotAttachFiles);
+    connect(ui->mailText, &ComposerTextEdit::sendRequest, this, &ComposeWidget::send);
+    connect(ui->mailText, &QTextEdit::textChanged, this, &ComposeWidget::setMessageUpdated);
+    connect(ui->subject, &QLineEdit::textChanged, this, &ComposeWidget::updateWindowTitle);
+    connect(ui->subject, &QLineEdit::textChanged, this, &ComposeWidget::setMessageUpdated);
     updateWindowTitle();
 
     FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
     proxy->setSourceModel(m_mainWindow->senderIdentitiesModel());
     ui->sender->setModel(proxy);
 
-    connect(ui->sender, SIGNAL(currentIndexChanged(int)), SLOT(slotUpdateSignature()));
-    connect(ui->sender, SIGNAL(editTextChanged(QString)), SLOT(setMessageUpdated()));
-    connect(ui->sender->lineEdit(), SIGNAL(textChanged(QString)), SLOT(slotCheckAddress()));
+    connect(ui->sender, static_cast<void (QComboBox::*)(const int)>(&QComboBox::currentIndexChanged), this, &ComposeWidget::slotUpdateSignature);
+    connect(ui->sender, &QComboBox::editTextChanged, this, &ComposeWidget::setMessageUpdated);
+    connect(ui->sender->lineEdit(), &QLineEdit::textChanged, this, &ComposeWidget::slotCheckAddressOfSender);
 
     QTimer *autoSaveTimer = new QTimer(this);
-    connect(autoSaveTimer, SIGNAL(timeout()), SLOT(autoSaveDraft()));
+    connect(autoSaveTimer, &QTimer::timeout, this, &ComposeWidget::autoSaveDraft);
     autoSaveTimer->start(30*1000);
 
     // these are for the automatically saved drafts, i.e. no i18n for the dir name
@@ -525,8 +525,8 @@ void ComposeWidget::passwordRequested(const QString &user, const QString &host)
         return;
     }
 
-    connect(job, SIGNAL(passwordAvailable(QString)), m_submission, SLOT(setPassword(QString)));
-    connect(job, SIGNAL(error(Plugins::PasswordJob::Error,QString)), this, SLOT(passwordError()));
+    connect(job, &Plugins::PasswordJob::passwordAvailable, m_submission, &Composer::Submission::setPassword);
+    connect(job, &Plugins::PasswordJob::error, this, &ComposeWidget::passwordError);
 
     job->setAutoDelete(true);
     job->setProperty("user", user);
@@ -710,12 +710,12 @@ void ComposeWidget::send()
     overlay->show();
     setUiWidgetsEnabled(false);
 
-    connect(m_submission, SIGNAL(progressMin(int)), progress, SLOT(setMinimum(int)));
-    connect(m_submission, SIGNAL(progressMax(int)), progress, SLOT(setMaximum(int)));
-    connect(m_submission, SIGNAL(progress(int)), progress, SLOT(setValue(int)));
-    connect(m_submission, SIGNAL(updateStatusMessage(QString)), progress, SLOT(setLabelText(QString)));
-    connect(m_submission, SIGNAL(succeeded()), overlay, SLOT(deleteLater()));
-    connect(m_submission, SIGNAL(failed(QString)), overlay, SLOT(deleteLater()));
+    connect(m_submission, &Composer::Submission::progressMin, progress, &ProgressPopUp::setMinimum);
+    connect(m_submission, &Composer::Submission::progressMax, progress, &ProgressPopUp::setMaximum);
+    connect(m_submission, &Composer::Submission::progress, progress, &ProgressPopUp::setValue);
+    connect(m_submission, &Composer::Submission::updateStatusMessage, progress, &ProgressPopUp::setLabelText);
+    connect(m_submission, &Composer::Submission::succeeded, overlay, &QObject::deleteLater);
+    connect(m_submission, &Composer::Submission::failed, overlay, &QObject::deleteLater);
 
     m_submission->send();
 }
@@ -942,12 +942,12 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     combo->setCurrentIndex(combo->findData(kind));
     LineEdit *edit = new LineEdit(address, this);
     slotCheckAddress(edit);
-    connect(edit, SIGNAL(textChanged(QString)), this, SLOT(slotCheckAddress()));
-    connect(edit, SIGNAL(textChanged(QString)), this, SLOT(setMessageUpdated()));
-    connect(edit, SIGNAL(textEdited(QString)), SLOT(completeRecipients(QString)));
-    connect(edit, SIGNAL(editingFinished()), SLOT(collapseRecipients()));
-    connect(edit, SIGNAL(textChanged(QString)), m_recipientListUpdateTimer, SLOT(start()));
-    connect(edit, SIGNAL(textChanged(QString)), this, SLOT(markReplyModeHandpicked()));
+    connect(edit, &QLineEdit::textChanged, this, &ComposeWidget::slotCheckAddressOfSender);
+    connect(edit, &QLineEdit::textChanged, this, &ComposeWidget::setMessageUpdated);
+    connect(edit, &QLineEdit::textEdited, this, &ComposeWidget::completeRecipients);
+    connect(edit, &QLineEdit::editingFinished, this, &ComposeWidget::collapseRecipients);
+    connect(edit, &QLineEdit::textChanged, m_recipientListUpdateTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+    connect(edit, &QLineEdit::textChanged, this, &ComposeWidget::markReplyModeHandpicked);
     m_recipients.insert(position, Recipient(combo, edit));
     ui->envelopeWidget->setUpdatesEnabled(false);
     ui->envelopeLayout->insertRow(actualRow(ui->envelopeLayout, position + OFFSET_OF_FIRST_ADDRESSEE), combo, edit);
@@ -973,7 +973,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     ui->envelopeWidget->setUpdatesEnabled(true);
 }
 
-void ComposeWidget::slotCheckAddress()
+void ComposeWidget::slotCheckAddressOfSender()
 {
     QLineEdit *edit = qobject_cast<QLineEdit*>(sender());
     Q_ASSERT(edit);
@@ -1096,7 +1096,7 @@ void ComposeWidget::fadeIn(QWidget *w)
     QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(w);
     w->setGraphicsEffect(effect);
     QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity", w);
-    connect(animation, SIGNAL(finished()), SLOT(slotFadeFinished()));
+    connect(animation, &QAbstractAnimation::finished, this, &ComposeWidget::slotFadeFinished);
     animation->setObjectName(trojita_opacityAnimation);
     animation->setDuration(333);
     animation->setStartValue(0.0);
@@ -1115,7 +1115,7 @@ void ComposeWidget::slotFadeFinished()
 void ComposeWidget::scrollRecipients(int value)
 {
     // ignore focus changes caused by "scrolling"
-    disconnect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), this, SLOT(handleFocusChange()));
+    disconnect(qApp, &QApplication::focusChanged, this, &ComposeWidget::handleFocusChange);
 
     QList<QWidget*> visibleWidgets;
     for (int i = 0; i < m_recipients.count(); ++i) {
@@ -1171,7 +1171,7 @@ void ComposeWidget::scrollRecipients(int value)
         if (QPropertyAnimation *pa = w->findChild<QPropertyAnimation*>(trojita_opacityAnimation))
             pa->stop();
     }
-    connect(qApp, SIGNAL(focusChanged(QWidget*,QWidget*)), SLOT(handleFocusChange()));
+    connect(qApp, &QApplication::focusChanged, this, &ComposeWidget::handleFocusChange);
 }
 
 void ComposeWidget::collapseRecipients()
@@ -1253,7 +1253,7 @@ void ComposeWidget::completeRecipients(const QString &text)
     // if two jobs are running, first was started before second so first should finish earlier
     // stop second job
     if (firstJob && secondJob) {
-        disconnect(secondJob, 0, this, 0);
+        disconnect(secondJob, nullptr, this, nullptr);
         secondJob->stop();
         secondJob->deleteLater();
         secondJob = 0;
@@ -1264,7 +1264,7 @@ void ComposeWidget::completeRecipients(const QString &text)
     if (!addressbook || !(addressbook->features() & Plugins::AddressbookPlugin::FeatureCompletion))
         return;
 
-    Plugins::AddressbookJob *newJob = addressbook->requestCompletion(text, QStringList(), m_completionCount);
+    auto newJob = addressbook->requestCompletion(text, QStringList(), m_completionCount);
 
     if (!newJob)
         return;
@@ -1287,8 +1287,8 @@ void ComposeWidget::completeRecipients(const QString &text)
     if (secondJob)
         m_secondCompletionRequests.insert(toEdit, secondJob);
 
-    connect(newJob, SIGNAL(completionAvailable(Plugins::NameEmailList)), this, SLOT(onCompletionAvailable(Plugins::NameEmailList)));
-    connect(newJob, SIGNAL(error(Plugins::AddressbookJob::Error)), this, SLOT(onCompletionFailed(Plugins::AddressbookJob::Error)));
+    connect(newJob, &Plugins::AddressbookCompletionJob::completionAvailable, this, &ComposeWidget::onCompletionAvailable);
+    connect(newJob, &Plugins::AddressbookCompletionJob::error, this, &ComposeWidget::onCompletionFailed);
 
     newJob->setAutoDelete(true);
     newJob->start();
@@ -1320,7 +1320,7 @@ void ComposeWidget::onCompletionAvailable(const Plugins::NameEmailList &completi
         // second job finished before first and first was started before second
         // so stop first because it has old data
         if (firstJob) {
-            disconnect(firstJob, 0, this, 0);
+            disconnect(firstJob, nullptr, this, nullptr);
             firstJob->stop();
             firstJob->deleteLater();
             firstJob = nullptr;

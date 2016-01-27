@@ -1394,9 +1394,9 @@ void ImapModelThreadingTest::testMultipleExpunges()
     // index was, however, not updated by the delayedPrune method, and therefore it was left dangling. In the GUI, this
     // was apparent because some items were suddenly getting selected after some other messages were removed, and the visual
     // position of the now bogous selection was conspicuously similar to the expunged messages.
-    connect(threadingModel, SIGNAL(layoutAboutToBeChanged()), this, SLOT(helper_multipleExpunges()));
+    connect(threadingModel, &QAbstractItemModel::layoutAboutToBeChanged, this, &ImapModelThreadingTest::helper_multipleExpunges);
     cServer("* 2 EXPUNGE\r\n* 2 EXPUNGE\r\n");
-    disconnect(threadingModel, SIGNAL(layoutAboutToBeChanged()), this, SLOT(helper_multipleExpunges()));
+    disconnect(threadingModel, &QAbstractItemModel::layoutAboutToBeChanged, this, &ImapModelThreadingTest::helper_multipleExpunges);
     QCOMPARE(helper_multipleExpunges_hit, 1);
 
     QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(1)(4)"));

@@ -107,7 +107,7 @@ void Spinner::start(uint delay)
         if (!m_startTimer) {
             m_startTimer = new QTimer(this);
             m_startTimer->setSingleShot(true);
-            connect(m_startTimer, SIGNAL(timeout()), SLOT(start()));
+            connect(m_startTimer, &QTimer::timeout, this, static_cast<void (Spinner::*)()>(&Spinner::start));
         }
         if (m_startTimer->remainingTime() > -1) // preserve oldest request original delay
             delay = m_startTimer->remainingTime();
@@ -122,6 +122,12 @@ void Spinner::start(uint delay)
     show();
     raise();
     m_timer = startTimer(100);
+}
+
+/** @short Forwarder to solve Qt5's new signal-slot ambiguity wrt QPrivateSlot */
+void Spinner::start()
+{
+    start(0);
 }
 
 void Spinner::stop()
@@ -308,7 +314,7 @@ void Spinner::updateAncestors()
         while ((w = w->parentWidget())) {
             m_ancestors << w;
             w->installEventFilter(this);
-            connect(w, SIGNAL(destroyed()), SLOT(updateAncestors()));
+            connect(w, &QObject::destroyed, this, &Spinner::updateAncestors);
         }
         updateGeometry();
     }

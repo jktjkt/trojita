@@ -50,10 +50,10 @@ ComposerTextEdit::ComposerTextEdit(QWidget *parent) : QTextEdit(parent)
 
     m_notificationTimer = new QTimer(this);
     m_notificationTimer->setSingleShot(true);
-    connect (m_notificationTimer, SIGNAL(timeout()), SLOT(resetNotification()));
+    connect(m_notificationTimer, &QTimer::timeout, this, &ComposerTextEdit::resetNotification);
 
     m_pasteQuoted = new QAction(tr("Paste as Quoted Text"), this);
-    connect(m_pasteQuoted, SIGNAL(triggered()), this, SLOT(slotPasteAsQuotation()));
+    connect(m_pasteQuoted, &QAction::triggered, this, &ComposerTextEdit::slotPasteAsQuotation);
 }
 
 void ComposerTextEdit::notify(const QString &n, uint timeout)

@@ -31,7 +31,7 @@ QQuickNetworkReplyWrapper::QQuickNetworkReplyWrapper(QObject *qQuickReply, QNetw
     Q_ASSERT(qQuickReply);
     Q_ASSERT(qNetworkReply);
     Q_ASSERT(qQuickReply->metaObject()->className() == QByteArray("QQuickNetworkReply"));
-    connect(qNetworkReply, SIGNAL(finished()), this, SLOT(dataRecieved()));
+    connect(qNetworkReply, &QNetworkReply::finished, this, &QQuickNetworkReplyWrapper::dataRecieved);
 }
 
 void QQuickNetworkReplyWrapper::dataRecieved()

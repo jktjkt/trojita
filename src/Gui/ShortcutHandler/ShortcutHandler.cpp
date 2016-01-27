@@ -93,7 +93,7 @@ QAction *ShortcutHandler::createAction(const QString &actionName, QObject *recei
     action->setText(actionDescription.text);
     action->setShortcut(actionDescription.shortcut);
     if (receiver)
-        connect(action, SIGNAL(triggered()), receiver, member);
+        connect(action, SIGNAL(triggered()), receiver, member); // new-signal-slot: this is a candidate for an overload to support type-safety
     m_actionDescriptions[actionName].action = action;
     return action;
 }
@@ -142,7 +142,7 @@ QAction *ShortcutHandler::shortcutConfigAction()
     Q_ASSERT_X(!m_shortcutConfigWidget, "ShortcutHandler", "a shortcut configuration dialog and a shortcut configuration widget cannot exist at the same time in one application");
     if (!m_shortcutConfigAction) {
         m_shortcutConfigAction = new QAction(UiUtils::loadIcon(QLatin1String("configure-shortcuts")), tr("Configure S&hortcuts..."), qobject_cast<QWidget*>(parent()));
-        QObject::connect(m_shortcutConfigAction, SIGNAL(triggered()), this, SLOT(openShortcutConfigDialog()));
+        connect(m_shortcutConfigAction.data(), &QAction::triggered, this, &ShortcutHandler::openShortcutConfigDialog);
     }
     return m_shortcutConfigAction;
 }
@@ -153,7 +153,7 @@ void ShortcutHandler::openShortcutConfigDialog()
         m_shortcutConfigDialog = new ShortcutConfigDialog(qobject_cast<QWidget*>(parent()));
         m_shortcutConfigDialog->setActionDescriptions(m_actionDescriptions);
         m_shortcutConfigDialog->setExclusivityGroups(m_exclusivityGroups);
-        connect(m_shortcutConfigDialog, SIGNAL(shortcutsChanged(QHash<QString,ActionDescription>)), this, SLOT(changeShortcuts(QHash<QString,ActionDescription>)));
+        connect(m_shortcutConfigDialog.data(), &ShortcutConfigDialog::shortcutsChanged, this, &ShortcutHandler::changeShortcuts);
     }
     m_shortcutConfigDialog->exec();
 }
@@ -167,7 +167,7 @@ ShortcutConfigWidget *ShortcutHandler::configWidget()
         m_shortcutConfigWidget = new ShortcutConfigWidget(qobject_cast<QWidget*>(parent()));
         m_shortcutConfigWidget->setActionDescriptions(m_actionDescriptions);
         m_shortcutConfigWidget->setExclusivityGroups(m_exclusivityGroups);
-        connect(m_shortcutConfigWidget, SIGNAL(shortcutsChanged(QHash<QString,ActionDescription>)), this, SLOT(changeShortcuts(QHash<QString,ActionDescription>)));
+        connect(m_shortcutConfigWidget.data(), &ShortcutConfigWidget::shortcutsChanged, this, &ShortcutHandler::changeShortcuts);
     }
     return m_shortcutConfigWidget;
 }

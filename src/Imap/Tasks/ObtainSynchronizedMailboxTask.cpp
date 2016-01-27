@@ -51,7 +51,7 @@ ObtainSynchronizedMailboxTask::ObtainSynchronizedMailboxTask(Model *model, const
     CHECK_TASK_TREE
     addDependentTask(keepTaskChild);
     CHECK_TASK_TREE
-    connect(this, SIGNAL(failed(QString)), this, SLOT(signalSyncFailure(QString)));
+    connect(this, &ImapTask::failed, this, &ObtainSynchronizedMailboxTask::signalSyncFailure);
 }
 
 void ObtainSynchronizedMailboxTask::addDependentTask(ImapTask *task)
@@ -1199,7 +1199,7 @@ bool ObtainSynchronizedMailboxTask::dieIfInvalidMailbox()
 
     if (!unSelectTask) {
         unSelectTask = model->m_taskFactory->createUnSelectTask(model, this);
-        connect(unSelectTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(slotUnSelectCompleted()));
+        connect(unSelectTask, &ImapTask::completed, this, &ObtainSynchronizedMailboxTask::slotUnSelectCompleted);
         unSelectTask->perform();
     }
 

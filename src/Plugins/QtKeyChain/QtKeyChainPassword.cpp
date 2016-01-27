@@ -50,7 +50,7 @@ void QtKeyChainPasswordJob::doStart()
         break;
     }
     m_job->setAutoDelete(true);
-    connect(m_job, SIGNAL(finished(QKeychain::Job*)), this, SLOT(result()));
+    connect(m_job, &QKeychain::Job::finished, this, &QtKeyChainPasswordJob::result);
     m_job->start();
 }
 
@@ -84,7 +84,7 @@ void QtKeyChainPasswordJob::result()
 void QtKeyChainPasswordJob::doStop()
 {
     if (m_job) {
-        disconnect(m_job, 0, this, 0);
+        disconnect(m_job, nullptr, this, nullptr);
         m_job->deleteLater();
         m_job = 0;
     }

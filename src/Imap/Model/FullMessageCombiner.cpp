@@ -48,7 +48,7 @@ FullMessageCombiner::FullMessageCombiner(const QModelIndex &messageIndex, QObjec
     m_bodyPartIndex = bodyPart->toIndex(const_cast<Mailbox::Model *>(m_model));
     Q_ASSERT(m_bodyPartIndex.isValid());
 
-    connect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), SLOT(slotDataChanged(QModelIndex,QModelIndex)));
+    connect(m_model, &QAbstractItemModel::dataChanged, this, &FullMessageCombiner::slotDataChanged);
 }
 
 QByteArray FullMessageCombiner::data() const
@@ -105,7 +105,7 @@ void FullMessageCombiner::slotDataChanged(const QModelIndex &left, const QModelI
        emit completed();
        // Disconnect this slot from its connected signal to prevent emitting completed() many times
        // when dataChanged() is emitted and the parts are already fetched.
-       disconnect(m_model, SIGNAL(dataChanged(QModelIndex,QModelIndex)), this, SLOT(slotDataChanged(QModelIndex,QModelIndex)));
+       disconnect(m_model, &QAbstractItemModel::dataChanged, this, &FullMessageCombiner::slotDataChanged);
     }
 
     bool headerOffline = headerPartPtr()->isUnavailable();

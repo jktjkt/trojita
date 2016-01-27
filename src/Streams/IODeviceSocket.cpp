@@ -32,17 +32,18 @@
 #if TROJITA_COMPRESS_DEFLATE
 #include "3rdparty/rfc1951.h"
 #endif
+#include "Common/InvokeMethod.h"
 
 namespace Streams {
 
 IODeviceSocket::IODeviceSocket(QIODevice *device): d(device), m_compressor(0), m_decompressor(0)
 {
-    connect(d, SIGNAL(readyRead()), this, SLOT(handleReadyRead()));
-    connect(d, SIGNAL(readChannelFinished()), this, SLOT(handleStateChanged()));
+    connect(d, &QIODevice::readyRead, this, &IODeviceSocket::handleReadyRead);
+    connect(d, &QIODevice::readChannelFinished, this, &IODeviceSocket::handleStateChanged);
     delayedDisconnect = new QTimer();
     delayedDisconnect->setSingleShot(true);
-    connect(delayedDisconnect, SIGNAL(timeout()), this, SLOT(emitError()));
-    QTimer::singleShot(0, this, SLOT(delayedStart()));
+    connect(delayedDisconnect, &QTimer::timeout, this, &IODeviceSocket::emitError);
+    EMIT_LATER_NOARG(this, delayedStart);
 }
 
 IODeviceSocket::~IODeviceSocket()
@@ -139,8 +140,8 @@ void IODeviceSocket::emitError()
 ProcessSocket::ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args):
     IODeviceSocket(proc), executable(executable), args(args)
 {
-    connect(proc, SIGNAL(stateChanged(QProcess::ProcessState)), this, SLOT(handleStateChanged()));
-    connect(proc, SIGNAL(error(QProcess::ProcessError)), this, SLOT(handleProcessError(QProcess::ProcessError)));
+    connect(proc, &QProcess::stateChanged, this, &ProcessSocket::handleStateChanged);
+    connect(proc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error), this, &ProcessSocket::handleProcessError);
 }
 
 ProcessSocket::~ProcessSocket()
@@ -238,9 +239,10 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
     sslConf.setSslOption(QSsl::SslOptionDisableCompression, false);
     sock->setSslConfiguration(sslConf);
 
-    connect(sock, SIGNAL(encrypted()), this, SIGNAL(encrypted()));
-    connect(sock, SIGNAL(stateChanged(QAbstractSocket::SocketState)), this, SLOT(handleStateChanged()));
-    connect(sock, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(handleSocketError(QAbstractSocket::SocketError)));
+    connect(sock, &QSslSocket::encrypted, this, &Socket::encrypted);
+    connect(sock, &QAbstractSocket::stateChanged, this, &SslTlsSocket::handleStateChanged);
+    connect(sock, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
+            this, &SslTlsSocket::handleSocketError);
 }
 
 void SslTlsSocket::setProxySettings(const ProxySettings proxySettings, const QString &protocolTag)

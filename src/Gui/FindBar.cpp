@@ -59,7 +59,7 @@ FindBar::FindBar(QWidget *parent)
     hideButton->setAutoRaise(true);
     hideButton->setIcon(QIcon::fromTheme(QLatin1String("dialog-close")));
     hideButton->setShortcut(tr("Esc"));
-    connect(hideButton, SIGNAL(clicked()), this, SLOT(hide()));
+    connect(hideButton, &QAbstractButton::clicked, this, &QWidget::hide);
     layout->addWidget(hideButton);
     layout->setAlignment(hideButton, Qt::AlignLeft | Qt::AlignTop);
 
@@ -68,12 +68,12 @@ FindBar::FindBar(QWidget *parent)
     layout->addWidget(label);
 
     // Find Bar signal
-    connect(this, SIGNAL(searchString(QString)), this, SLOT(find(QString)));
+    connect(this, &FindBar::searchString, this, &FindBar::findText);
 
     // lineEdit, focusProxy
     setFocusProxy(m_lineEdit);
     m_lineEdit->setMaximumWidth(250);
-    connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(find(QString)));
+    connect(m_lineEdit, &QLineEdit::textChanged, this, &FindBar::findText);
     layout->addWidget(m_lineEdit);
 
     // buttons
@@ -83,21 +83,21 @@ FindBar::FindBar(QWidget *parent)
     //: Translators: You can change this shortcut, but button names like Shift should not be localized here.
     //: That will break setting the shortcut. Button names will still appear localized in the UI.
     findPrev->setShortcut(tr("Shift+F3"));
-    connect(findNext, SIGNAL(clicked()), this, SLOT(findNext()));
-    connect(findPrev, SIGNAL(clicked()), this, SLOT(findPrevious()));
+    connect(findNext, &QAbstractButton::clicked, this, &FindBar::findNext);
+    connect(findPrev, &QAbstractButton::clicked, this, &FindBar::findPrevious);
     layout->addWidget(findNext);
     layout->addWidget(findPrev);
 
     // Case sensitivity. Deliberately set so this is off by default.
     m_matchCase->setCheckState(Qt::Unchecked);
     m_matchCase->setTristate(false);
-    connect(m_matchCase, SIGNAL(toggled(bool)), this, SLOT(matchCaseUpdate()));
+    connect(m_matchCase, &QAbstractButton::toggled, this, &FindBar::matchCaseUpdate);
     layout->addWidget(m_matchCase);
 
     // Hightlight All. On by default
     m_highlightAll->setCheckState(Qt::Checked);
     m_highlightAll->setTristate(false);
-    connect(m_highlightAll, SIGNAL(toggled(bool)), this, SLOT(updateHighlight()));
+    connect(m_highlightAll, &QAbstractButton::toggled, this, &FindBar::updateHighlight);
     layout->addWidget(m_highlightAll);
 
     // stretching widget on the left
@@ -187,7 +187,7 @@ void FindBar::notifyMatch(bool match)
     }
 }
 
-void FindBar::find(const QString & search)
+void FindBar::findText(const QString &search)
 {
     if (!m_associatedWebView)
         return;
@@ -304,7 +304,7 @@ void FindBar::updateHighlight()
 void FindBar::setAssociatedWebView(EmbeddedWebView *webView)
 {
     if (m_associatedWebView)
-        disconnect(m_associatedWebView, 0, this, 0);
+        disconnect(m_associatedWebView, nullptr, this, nullptr);
 
     m_associatedWebView = webView;
 
@@ -312,8 +312,8 @@ void FindBar::setAssociatedWebView(EmbeddedWebView *webView)
         // highlighting is fancy, but terribly expensive - disable by default for fat messages
         m_highlightAll->setChecked(!m_associatedWebView->staticWidth());
         // Automatically hide this FindBar widget when the underlying webview goes away
-        connect(m_associatedWebView, SIGNAL(destroyed(QObject*)),
-                this, SLOT(resetAssociatedWebView()));
+        connect(m_associatedWebView.data(), &QObject::destroyed,
+                this, &FindBar::resetAssociatedWebView);
     }
 }
 

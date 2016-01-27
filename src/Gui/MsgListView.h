@@ -77,6 +77,8 @@ private:
     QTimer *m_naviActivationTimer;
     bool m_autoActivateAfterKeyNavigation;
     bool m_autoResizeSections;
+
+    friend class MainWindow; // needs access to slotHandleNewColumns
 };
 
 }

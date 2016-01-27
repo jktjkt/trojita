@@ -50,9 +50,9 @@ ShortcutConfigWidget::ShortcutConfigWidget(QWidget *parent)
 
     setFocusProxy(ui.shortcutTreeWidget);
 
-    connect(ui.searchLineEdit, SIGNAL(textChanged(QString)), this, SLOT(searchItems(QString)));
-    connect(ui.clearPushButton, SIGNAL(clicked()), this, SLOT(clearShortcut()));
-    connect(ui.useDefaultPushButton, SIGNAL(clicked()), this, SLOT(restoreDefaultShortcut()));
+    connect(ui.searchLineEdit, &QLineEdit::textChanged, this, &ShortcutConfigWidget::searchItems);
+    connect(ui.clearPushButton, &QAbstractButton::clicked, this, &ShortcutConfigWidget::clearShortcut);
+    connect(ui.useDefaultPushButton, &QAbstractButton::clicked, this, &ShortcutConfigWidget::restoreDefaultShortcut);
 }
 
 ShortcutConfigWidget::~ShortcutConfigWidget()

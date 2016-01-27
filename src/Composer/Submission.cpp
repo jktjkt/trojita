@@ -235,9 +235,9 @@ void Submission::slotMessageDataAvailable()
         }
 
         Q_ASSERT(appendTask);
-        connect(appendTask.data(), SIGNAL(appendUid(uint,uint)), this, SLOT(slotAppendUidKnown(uint,uint)));
-        connect(appendTask.data(), SIGNAL(completed(Imap::Mailbox::ImapTask*)), this, SLOT(slotAppendSucceeded()));
-        connect(appendTask.data(), SIGNAL(failed(QString)), this, SLOT(slotAppendFailed(QString)));
+        connect(appendTask.data(), &Imap::Mailbox::AppendTask::appendUid, this, &Submission::slotAppendUidKnown);
+        connect(appendTask.data(), &Imap::Mailbox::ImapTask::completed, this, &Submission::slotAppendSucceeded);
+        connect(appendTask.data(), &Imap::Mailbox::ImapTask::failed, this, &Submission::slotAppendFailed);
     } else {
         slotInvokeMsaNow();
     }
@@ -255,21 +255,21 @@ void Submission::slotAskForUrl()
                                                    QString::fromUtf8("submit+%1").arg(
                                                        killDomainPartFromString(m_smtpUsername))
                                                    ));
-    connect(genUrlAuthTask, SIGNAL(gotAuth(QString)), this, SLOT(slotGenUrlAuthReceived(QString)));
-    connect(genUrlAuthTask, SIGNAL(failed(QString)), this, SLOT(gotError(QString)));
+    connect(genUrlAuthTask, &Imap::Mailbox::GenUrlAuthTask::gotAuth, this, &Submission::slotGenUrlAuthReceived);
+    connect(genUrlAuthTask, &Imap::Mailbox::ImapTask::failed, this, &Submission::gotError);
 }
 
 void Submission::slotInvokeMsaNow()
 {
     changeConnectionState(STATE_SUBMITTING);
     MSA::AbstractMSA *msa = m_msaFactory->create(this);
-    connect(msa, SIGNAL(progressMax(int)), this, SLOT(onMsaProgressMaxChanged(int)));
-    connect(msa, SIGNAL(progress(int)), this, SLOT(onMsaProgressCurrentChanged(int)));
-    connect(msa, SIGNAL(sent()), this, SLOT(sent()));
-    connect(msa, SIGNAL(error(QString)), this, SLOT(gotError(QString)));
-    connect(msa, SIGNAL(passwordRequested(QString,QString)), this, SIGNAL(passwordRequested(QString,QString)));
-    connect(this, SIGNAL(gotPassword(QString)), msa, SLOT(setPassword(QString)));
-    connect(this, SIGNAL(canceled()), msa, SLOT(cancel()));
+    connect(msa, &MSA::AbstractMSA::progressMax, this, &Submission::onMsaProgressMaxChanged);
+    connect(msa, &MSA::AbstractMSA::progress, this, &Submission::onMsaProgressCurrentChanged);
+    connect(msa, &MSA::AbstractMSA::sent, this, &Submission::sent);
+    connect(msa, &MSA::AbstractMSA::error, this, &Submission::gotError);
+    connect(msa, &MSA::AbstractMSA::passwordRequested, this, &Submission::passwordRequested);
+    connect(this, &Submission::gotPassword, msa, &MSA::AbstractMSA::setPassword);
+    connect(this, &Submission::canceled, msa, &MSA::AbstractMSA::cancel);
 
     if (m_useImapSubmit && msa->supportsImapSending() && m_appendUidReceived) {
         Imap::Mailbox::UidSubmitOptionsList options;
@@ -308,18 +308,18 @@ void Submission::sent()
     if (m_composer->replyingToMessage().isValid()) {
         m_updateReplyingToMessageFlagsTask = m_model->setMessageFlags(QModelIndexList() << m_composer->replyingToMessage(),
                                                                       QLatin1String("\\Answered"), Imap::Mailbox::FLAG_ADD);
-        connect(m_updateReplyingToMessageFlagsTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)),
-                this, SLOT(onUpdatingFlagsOfReplyingToSucceded()));
-        connect(m_updateReplyingToMessageFlagsTask, SIGNAL(failed(QString)),
-                this, SLOT(onUpdatingFlagsOfReplyingToFailed()));
+        connect(m_updateReplyingToMessageFlagsTask, &Imap::Mailbox::ImapTask::completed,
+                this, &Submission::onUpdatingFlagsOfReplyingToSucceded);
+        connect(m_updateReplyingToMessageFlagsTask, &Imap::Mailbox::ImapTask::failed,
+                this, &Submission::onUpdatingFlagsOfReplyingToFailed);
         changeConnectionState(STATE_UPDATING_FLAGS);
     } else if (m_composer->forwardingMessage().isValid()) {
         m_updateForwardingMessageFlagsTask = m_model->setMessageFlags(QModelIndexList() << m_composer->forwardingMessage(),
                                                                       QLatin1String("$Forwarded"), Imap::Mailbox::FLAG_ADD);
-        connect(m_updateForwardingMessageFlagsTask, SIGNAL(completed(Imap::Mailbox::ImapTask*)),
-                this, SLOT(onUpdatingFlagsOfForwardingSucceeded()));
-        connect(m_updateForwardingMessageFlagsTask, SIGNAL(failed(QString)),
-                this, SLOT(onUpdatingFlagsOfForwardingFailed()));
+        connect(m_updateForwardingMessageFlagsTask, &Imap::Mailbox::ImapTask::completed,
+                this, &Submission::onUpdatingFlagsOfForwardingSucceeded);
+        connect(m_updateForwardingMessageFlagsTask, &Imap::Mailbox::ImapTask::failed,
+                this, &Submission::onUpdatingFlagsOfForwardingFailed);
         changeConnectionState(STATE_UPDATING_FLAGS);
     } else {
         changeConnectionState(STATE_SENT);

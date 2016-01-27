@@ -35,7 +35,9 @@ namespace Gui
 TaskProgressIndicator::TaskProgressIndicator(QWidget *parent) :
     Spinner(parent), m_busyCursorTrigger(new QTimer(this)), m_busy(false)
 {
-    connect(m_busyCursorTrigger, SIGNAL(timeout()), this, SLOT(setCursorBusy()));
+    connect(m_busyCursorTrigger, &QTimer::timeout, []() {
+        QApplication::setOverrideCursor(Qt::BusyCursor);
+    });
     m_busyCursorTrigger->setSingleShot(true);
     m_busyCursorTrigger->setInterval(666);
 
@@ -48,10 +50,10 @@ void TaskProgressIndicator::setImapModel(Imap::Mailbox::Model *model)
 {
     if (model) {
         m_visibleTasksModel = new Imap::Mailbox::VisibleTasksModel(model, model->taskModel());
-        connect(m_visibleTasksModel, SIGNAL(layoutChanged()), this, SLOT(updateActivityIndication()));
-        connect(m_visibleTasksModel, SIGNAL(modelReset()), this, SLOT(updateActivityIndication()));
-        connect(m_visibleTasksModel, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(updateActivityIndication()));
-        connect(m_visibleTasksModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SLOT(updateActivityIndication()));
+        connect(m_visibleTasksModel.data(), &QAbstractItemModel::layoutChanged, this, &TaskProgressIndicator::updateActivityIndication);
+        connect(m_visibleTasksModel.data(), &QAbstractItemModel::modelReset, this, &TaskProgressIndicator::updateActivityIndication);
+        connect(m_visibleTasksModel.data(), &QAbstractItemModel::rowsInserted, this, &TaskProgressIndicator::updateActivityIndication);
+        connect(m_visibleTasksModel.data(), &QAbstractItemModel::rowsRemoved, this, &TaskProgressIndicator::updateActivityIndication);
     }
 }
 
@@ -85,11 +87,6 @@ void TaskProgressIndicator::updateActivityIndication()
     }
 
     m_busy = busy;
-}
-
-void TaskProgressIndicator::setCursorBusy()
-{
-    QApplication::setOverrideCursor(Qt::BusyCursor);
 }
 
 }

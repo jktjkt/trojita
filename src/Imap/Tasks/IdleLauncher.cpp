@@ -45,7 +45,7 @@ IdleLauncher::IdleLauncher(KeepMailboxOpenTask *parent):
     if (! ok)
         timeout = 6 * 1000;
     delayedEnter->setInterval(timeout);
-    connect(delayedEnter, SIGNAL(timeout()), this, SLOT(slotEnterIdleNow()));
+    connect(delayedEnter, &QTimer::timeout, this, &IdleLauncher::slotEnterIdleNow);
     renewal = new QTimer(this);
     renewal->setObjectName(QString::fromUtf8("%1-IdleLauncher-renewal").arg(task->objectName()));
     renewal->setSingleShot(true);
@@ -53,7 +53,7 @@ IdleLauncher::IdleLauncher(KeepMailboxOpenTask *parent):
     if (! ok)
         timeout = 1000 * 29 * 60; // 29 minutes -- that's the longest allowed time to IDLE
     renewal->setInterval(timeout);
-    connect(renewal, SIGNAL(timeout()), this, SLOT(slotTerminateLongIdle()));
+    connect(renewal, &QTimer::timeout, this, &IdleLauncher::slotTerminateLongIdle);
 }
 
 void IdleLauncher::slotEnterIdleNow()

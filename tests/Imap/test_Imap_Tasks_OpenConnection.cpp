@@ -54,9 +54,8 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory));
     model->setProperty("trojita-imap-id-no-versions", QVariant(true));
-    connect(model, SIGNAL(authRequested()), this, SLOT(provideAuthDetails()), Qt::QueuedConnection);
-    connect(model, SIGNAL(needsSslDecision(QList<QSslCertificate>,QList<QSslError>)),
-            this, SLOT(acceptSsl(QList<QSslCertificate>,QList<QSslError>)), Qt::QueuedConnection);
+    connect(model, &Imap::Mailbox::Model::authRequested, this, &ImapModelOpenConnectionTest::provideAuthDetails, Qt::QueuedConnection);
+    connect(model, &Imap::Mailbox::Model::needsSslDecision, this, &ImapModelOpenConnectionTest::acceptSsl, Qt::QueuedConnection);
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     QCoreApplication::processEvents();
     task = new Imap::Mailbox::OpenConnectionTask(model);

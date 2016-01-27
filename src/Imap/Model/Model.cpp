@@ -121,7 +121,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 #ifdef DEBUG_PERIODICALLY_DUMP_TASKS
     QTimer *periodicTaskDumper = new QTimer(this);
     periodicTaskDumper->setInterval(1000);
-    connect(periodicTaskDumper, SIGNAL(timeout()), this, SLOT(slotTasksChanged()));
+    connect(periodicTaskDumper, &QTimer::timeout, this, &Model::slotTasksChanged);
     periodicTaskDumper->start();
 #endif
 
@@ -130,7 +130,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     m_periodicMailboxNumbersRefresh = new QTimer(this);
     // polling every five minutes
     m_periodicMailboxNumbersRefresh->setInterval(5 * 60 * 1000);
-    connect(m_periodicMailboxNumbersRefresh, SIGNAL(timeout()), this, SLOT(invalidateAllMessageCounts()));
+    connect(m_periodicMailboxNumbersRefresh, &QTimer::timeout, this, &Model::invalidateAllMessageCounts);
 }
 
 Model::~Model()

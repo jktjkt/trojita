@@ -55,9 +55,9 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
                                      "Experts who have read RFC3501 can use the <code>:=</code> prefix and switch to a raw IMAP mode."));
     m_queryPlaceholder = tr("<query>");
 
-    connect(m_quickSearchText, SIGNAL(returnPressed()), this, SLOT(slotApplySearch()));
-    connect(m_quickSearchText, SIGNAL(textChanged(QString)), this, SLOT(slotConditionalSearchReset()));
-    connect(m_quickSearchText, SIGNAL(cursorPositionChanged(int, int)), this, SLOT(slotUpdateSearchCursor()));
+    connect(m_quickSearchText, &QLineEdit::returnPressed, this, &MessageListWidget::slotApplySearch);
+    connect(m_quickSearchText, &QLineEdit::textChanged, this, &MessageListWidget::slotConditionalSearchReset);
+    connect(m_quickSearchText, &QLineEdit::cursorPositionChanged, this, &MessageListWidget::slotUpdateSearchCursor);
 
     m_searchOptions = new QToolButton(this);
     m_searchOptions->setAutoRaise(true);
@@ -82,7 +82,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     optionsMenu->addSeparator();
 
     QMenu *complexMenu = new QMenu(tr("Complex IMAP query"), optionsMenu);
-    connect(complexMenu, SIGNAL(triggered(QAction*)), this, SLOT(slotComplexSearchInput(QAction*)));
+    connect(complexMenu, &QMenu::triggered, this, &MessageListWidget::slotComplexSearchInput);
     complexMenu->addAction(tr("Not ..."))->setData(QString(QLatin1String("NOT ") + m_queryPlaceholder));
     complexMenu->addAction(tr("Either... or..."))->setData(QString(QLatin1String("OR ") + m_queryPlaceholder + QLatin1Char(' ') + m_queryPlaceholder));
     complexMenu->addSeparator();
@@ -101,11 +101,11 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_rawSearch->setCheckable(true);
     QAction *rawSearchMenu = optionsMenu->addMenu(complexMenu);
     rawSearchMenu->setVisible(false);
-    connect (m_rawSearch, SIGNAL(toggled(bool)), rawSearchMenu, SLOT(setVisible(bool)));
-    connect (m_rawSearch, SIGNAL(toggled(bool)), SIGNAL(rawSearchSettingChanged(bool)));
+    connect(m_rawSearch, &QAction::toggled, rawSearchMenu, &QAction::setVisible);
+    connect(m_rawSearch, &QAction::toggled, this, &MessageListWidget::rawSearchSettingChanged);
 
     m_searchOptions->setMenu(optionsMenu);
-    connect (optionsMenu, SIGNAL(aboutToShow()), SLOT(slotDeActivateSimpleSearch()));
+    connect(optionsMenu, &QMenu::aboutToShow, this, &MessageListWidget::slotDeActivateSimpleSearch);
 
     delete m_quickSearchText->layout();
     QHBoxLayout *hlayout = new QHBoxLayout(m_quickSearchText);
@@ -128,7 +128,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
 
     m_searchResetTimer = new QTimer(this);
     m_searchResetTimer->setSingleShot(true);
-    connect(m_searchResetTimer, SIGNAL(timeout()), SLOT(slotApplySearch()));
+    connect(m_searchResetTimer, &QTimer::timeout, this, &MessageListWidget::slotApplySearch);
 
     slotAutoEnableDisableSearch();
 }
