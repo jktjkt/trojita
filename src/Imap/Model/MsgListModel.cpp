@@ -23,7 +23,6 @@
 #include "MsgListModel.h"
 #include "MailboxTree.h"
 #include "MailboxModel.h"
-#include "QAIM_reset.h"
 
 #include <QDebug>
 #include <QFontMetrics>
@@ -372,9 +371,10 @@ QMimeData *MsgListModel::mimeData(const QModelIndexList &indexes) const
 
 void MsgListModel::resetMe()
 {
+    beginResetModel();
     msgListPtr = 0;
     msgList = QModelIndex();
-    RESET_MODEL;
+    endResetModel();
 }
 
 void MsgListModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
@@ -496,7 +496,8 @@ void MsgListModel::setMailbox(const QModelIndex &index)
         msgListPtr = newList;
         msgList = msgListPtr->toIndex(const_cast<Model*>(model));
         msgListPtr->resetWasUnreadState();
-        RESET_MODEL;
+        beginResetModel();
+        endResetModel();
         emit mailboxChanged(index);
     }
 

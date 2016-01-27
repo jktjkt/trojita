@@ -27,7 +27,6 @@
 #include <QtAlgorithms>
 #include "Model.h"
 #include "MailboxTree.h"
-#include "QAIM_reset.h"
 #include "SpecialFlagNames.h"
 #include "TaskPresentationModel.h"
 #include "Utils.h"
@@ -261,9 +260,10 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
 
     if (!it->parser) {
         // He's dead, Jim
+        m_taskModel->beginResetModel();
         killParser(it.key(), PARSER_JUST_DELETE_LATER);
         m_parsers.erase(it);
-        RESET_MODEL_2(m_taskModel);
+        m_taskModel->endResetModel();
     }
 }
 

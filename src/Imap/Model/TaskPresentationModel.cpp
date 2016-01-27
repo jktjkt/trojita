@@ -29,7 +29,6 @@
 #include "Imap/Tasks/UnSelectTask.h"
 #include "ItemRoles.h"
 #include "Model.h"
-#include "QAIM_reset.h"
 
 #ifdef TROJITA_DEBUG_TASK_TREE
 #undef CHECK_TASK_TREE
@@ -221,7 +220,8 @@ void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
 {
     Q_UNUSED(task);
     CHECK_TASK_TREE
-    RESET_MODEL;
+    beginResetModel();
+    endResetModel();
     CHECK_TASK_TREE
 }
 
@@ -233,7 +233,8 @@ void TaskPresentationModel::slotParserCreated(Parser *parser)
 {
     Q_UNUSED(parser);
     CHECK_TASK_TREE
-    RESET_MODEL;
+    beginResetModel();
+    endResetModel();
     CHECK_TASK_TREE
 }
 
@@ -245,7 +246,8 @@ void TaskPresentationModel::slotParserDeleted(Parser *parser)
 {
     Q_UNUSED(parser);
     CHECK_TASK_TREE
-    RESET_MODEL;
+    beginResetModel();
+    endResetModel();
     CHECK_TASK_TREE
 }
 
@@ -257,7 +259,8 @@ void TaskPresentationModel::slotTaskGotReparented(const ImapTask *const task)
 {
     Q_UNUSED(task);
     CHECK_TASK_TREE
-    RESET_MODEL;
+    beginResetModel();
+    endResetModel();
     CHECK_TASK_TREE
 }
 

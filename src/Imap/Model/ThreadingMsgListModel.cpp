@@ -29,7 +29,6 @@
 #include "ItemRoles.h"
 #include "MailboxTree.h"
 #include "MsgListModel.h"
-#include "QAIM_reset.h"
 
 namespace {
     /** @short Preallocate a bit more space in the hashmaps for future new arrivals */
@@ -75,6 +74,7 @@ ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
 
 void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
 {
+    beginResetModel();
     threading.clear();
     ptrToInternal.clear();
     unknownUids.clear();
@@ -87,7 +87,7 @@ void ThreadingMsgListModel::setSourceModel(QAbstractItemModel *sourceModel)
         this->sourceModel()->disconnect(this);
     }
 
-    RESET_MODEL;
+    endResetModel();
 
     if (!sourceModel)
         return;
@@ -428,6 +428,7 @@ void ThreadingMsgListModel::resetMe()
     if (modelResetInProgress)
         return;
 
+    beginResetModel();
     modelResetInProgress = true;
     threading.clear();
     ptrToInternal.clear();
@@ -435,7 +436,7 @@ void ThreadingMsgListModel::resetMe()
     threadedRootIds.clear();
     m_currentSortResult.clear();
     m_searchValidity = RESULT_INVALIDATED;
-    RESET_MODEL;
+    endResetModel();
     updateNoThreading();
     modelResetInProgress = false;
     // Refresh the sorting/searching/threading preferences.
