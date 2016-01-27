@@ -60,16 +60,14 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 include(TrojitaOption)
 
 trojita_option(WITH_DESKTOP "Build desktop version" ON)
-trojita_option(WITH_QT5 "Build with Qt5 library" ON)
 trojita_option(WITH_DBUS "Build with DBus library" AUTO)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
-trojita_option(WITH_KDE "Enable KDE support" OFF "WITH_DESKTOP;NOT WITH_QT5;WITH_DBUS")
 trojita_option(WITH_TESTS "Build tests" ON)
 
 if(WIN32)
-    trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP;WITH_QT5")
+    trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
 endif()
 
 if(UNIX AND NOT APPLE)
@@ -78,51 +76,22 @@ else()
     set(QTKEYCHAIN_DEPENDS "")
 endif()
 
-if(WITH_QT5)
-    message(STATUS "Building the Qt5 version")
-    find_package(Qt5Core 5.2 REQUIRED)
-    find_package(Qt5Gui REQUIRED)
-    find_package(Qt5Network REQUIRED)
-    find_package(Qt5Sql REQUIRED)
-    find_package(Qt5WebKitWidgets REQUIRED)
-    find_package(Qt5Widgets REQUIRED)
-    find_package(Qt5LinguistTools)
-    trojita_find_package(Qt5DBus "" "http://qt-project.org" "Qt5 D-Bus support" "Needed for IPC and for some plugins" WITH_DBUS)
-    trojita_find_package(Qt5Test "" "http://qt-project.org" "Qt5 QTest library" "Needed for automated tests" WITH_TESTS)
-    if(Qt5LinguistTools_FOUND)
-        find_package(Qt5LinguistForTrojita)
-    endif()
-else()
-    message(STATUS "Building the Qt4 version")
-    set(QT_USE_QTNETWORK 1)
-    set(QT_USE_QTSQL 1)
-    set(QT_USE_QTWEBKIT 1)
-    if(WITH_DBUS)
-        set(QT_USE_QTDBUS 1)
-    endif()
-    if(WITH_TESTS)
-        set(QT_USE_QTTEST 1)
-    endif()
-    trojita_find_package(Qt4 4.6 "http://qt-project.org" "Qt4" "Needed for building" REQUIRED)
-    include(${QT_USE_FILE})
-    trojita_check_qt4_module(QTCORE REQUIRED)
-    trojita_check_qt4_module(QTGUI REQUIRED)
-    trojita_check_qt4_module(QTNETWORK REQUIRED)
-    trojita_check_qt4_module(QTSQL REQUIRED)
-    trojita_check_qt4_module(QTWEBKIT REQUIRED)
-    trojita_check_qt4_module(QTDBUS WITH_DBUS)
-    trojita_check_qt4_module(QTTEST WITH_TESTS)
-    trojita_find_package(LinguistForTrojita "" "" "" "")
-    if(NOT QT_QCONFIG MATCHES "openssl" OR QT_QCONFIG MATCHES "no-openssl")
-        message(FATAL_ERROR "Your copy of Qt was build without SSL support. Please get openssl and rebuild Qt or a Qt binary with SSL support compiled in")
-    endif()
+find_package(Qt5Core 5.2 REQUIRED)
+find_package(Qt5Gui REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Qt5Sql REQUIRED)
+find_package(Qt5WebKitWidgets REQUIRED)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5LinguistTools)
+trojita_find_package(Qt5DBus "" "http://qt-project.org" "Qt5 D-Bus support" "Needed for IPC and for some plugins" WITH_DBUS)
+trojita_find_package(Qt5Test "" "http://qt-project.org" "Qt5 QTest library" "Needed for automated tests" WITH_TESTS)
+if(Qt5LinguistTools_FOUND)
+    find_package(Qt5LinguistForTrojita)
 endif()
 
 trojita_plugin_option(WITH_ABOOKADDRESSBOOK_PLUGIN "Build AbookAddressbook plugin" STATIC)
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
 trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "${QTKEYCHAIN_DEPENDS}")
-trojita_plugin_option(WITH_KRESOURCE_PLUGIN "Build KDE Kresource addressbook plugin" "WITH_KDE")
-trojita_plugin_option(WITH_AKONADI_PLUGIN "Build KDE Akonadi addressbook plugin" "WITH_KDE")
 
 trojita_find_package(Git "" "" "" "")
 
@@ -141,48 +110,12 @@ if(WIN32)
     endif()
 endif()
 
-if (WITH_QT5)
-    trojita_find_package(Qt5Keychain QUIET "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library (Qt5 version)" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
-else()
-    trojita_find_package(QtKeychain QUIET "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
-endif()
+trojita_find_package(Qt5Keychain QUIET "https://github.com/frankosterfeld/qtkeychain" "QtKeychain library (Qt5 version)" "Needed for QtKeychain password plugin" WITH_QTKEYCHAIN_PLUGIN)
 if(Qt5Keychain_FOUND OR QtKeychain_FOUND)
     message(STATUS "Found QtKeychain library (includes at ${QTKEYCHAIN_INCLUDE_DIRS}, lib at ${QTKEYCHAIN_LIBRARIES})")
 else()
     message(STATUS "Could not find QtKeychain library")
 endif()
-
-if(WITH_KDE)
-    # Store cmake variables which FindKDE4.cmake changes
-    set(OLD_LIBRARY_OUTPUT_PATH ${LIBRARY_OUTPUT_PATH})
-    set(OLD_EXECUTABLE_OUTPUT_PATH ${EXECUTABLE_OUTPUT_PATH})
-    set(OLD_CMAKE_SHARED_LINKER_FLAGS ${CMAKE_SHARED_LINKER_FLAGS})
-    set(OLD_CMAKE_MODULE_LINKER_FLAGS ${CMAKE_MODULE_LINKER_FLAGS})
-
-    trojita_find_package(KDE4 "" "http://www.kde.org/" "KDE4 libraries" "Needed for KDE plugins" WITH_KDE)
-
-    # KDE4_DATA_DIR is set when KDE4 is found
-    if(KDE4_DATA_DIR)
-        include(KDE4Defaults)
-
-        # FindKDE4.cmake disables c++ exceptions, need to reenable them for compiling trojita
-        add_definitions(${KDE4_ENABLE_EXCEPTIONS})
-
-        # FindKDE4.cmake changes cmake output paths and some linker flags which cause that some (KDE too) plugins do not compile, change them back to defaults
-        set(LIBRARY_OUTPUT_PATH ${OLD_LIBRARY_OUTPUT_PATH})
-        set(EXECUTABLE_OUTPUT_PATH ${OLD_EXECUTABLE_OUTPUT_PATH})
-        set(CMAKE_SHARED_LINKER_FLAGS ${OLD_CMAKE_SHARED_LINKER_FLAGS})
-        set(CMAKE_MODULE_LINKER_FLAGS ${OLD_CMAKE_MODULE_LINKER_FLAGS})
-    endif()
-endif()
-
-# Akonadi was added to KdepimLibs 4.5
-if(WITH_AKONADI_PLUGIN)
-    set(KdepimLibsVersion 4.5)
-else()
-    set(KdepimLibsVersion)
-endif()
-trojita_find_package(KdepimLibs "${KdepimLibsVersion}" "http://www.kde.org/" "KdepimLibs libraries" "Needed for KDE Kresource and Akonadi addressbook plugins" WITH_AKONADI_PLUGIN WITH_KRESOURCE_PLUGIN)
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}")
@@ -235,13 +168,11 @@ endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 # The following is required so that the moc_*.cpp and ui_*.h are found
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
-add_definitions(-DQT_STRICT_ITERATORS)
 
-if(WITH_QT5)
-    add_definitions(-DQT_USE_QSTRINGBUILDER)
-    add_definitions(-DQT_USE_FAST_OPERATOR_PLUS)
-    add_definitions(-DQT_USE_FAST_CONCATENATION)
-endif()
+add_definitions(-DQT_STRICT_ITERATORS)
+add_definitions(-DQT_USE_QSTRINGBUILDER)
+add_definitions(-DQT_USE_FAST_OPERATOR_PLUS)
+add_definitions(-DQT_USE_FAST_CONCATENATION)
 
 # Make sure that plugins not export all symbols, only that which are explicitly marked
 include(GenerateExportHeader)
@@ -250,47 +181,7 @@ add_compiler_export_flags()
 set(CMAKE_AUTOMOC True)
 
 trojita_find_package(RagelForTrojita "" "" "" "" WITH_RAGEL)
-
-if(WIN32) # Check if we are on Windows
-    # On win32, qt can statically link to zlib and export their symbols.
-    # We check if we can find the string " zlib " in the QT_CONFIG list in
-    # ${QT_MKSPECS_DIR}/qconfig.pri and include on success ${QT_QTCORE_LIBRARY}
-    # and ${QTDIR}/src/3rdparty/zlib as lib and include folder
-    if(QT_QTCORE_FOUND)
-        message(STATUS "We are on Windows with Qt. Checking if zlib is built into Qt")
-
-        if(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
-            file(READ ${QT_MKSPECS_DIR}/qconfig.pri _qconfig_FILE_contents_ZLIB_CHECK)
-            string(REGEX MATCH "QT_CONFIG[^\n]+" QT_CONFIG_ZLIB_CHECK ${_qconfig_FILE_contents_ZLIB_CHECK})
-
-            set(ENV_QTDIR $ENV{QTDIR})
-            if(NOT DEFINED ENV_QTDIR)
-                message(STATUS "QTDIR not specified in environment, will not use zlib")
-            elseif(QT_CONFIG_ZLIB_CHECK)
-                if(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
-                    message(STATUS "Found zlib in QT_QCONFIG. zlib seems to be built into Qt")
-                    set(ZLIB_LIBRARY_RELEASE ${QT_QTCORE_LIBRARY_RELEASE})
-                    set(ZLIB_LIBRARY_DEBUG ${QT_QTCORE_LIBRARY_DEBUG})
-                    set(ZLIB_LIBRARY ${QT_QTCORE_LIBRARY})
-
-                    string(REGEX REPLACE "\\\\" "/" QTDIR ${ENV_QTDIR})
-                    set(ZLIB_INCLUDE_DIR "${QTDIR}/src/3rdparty/zlib")
-
-                    set(ZLIB_FOUND TRUE)
-                    set(ZLIB_LIBRARIES ${ZLIB_LIBRARY} )
-                    mark_as_advanced(ZLIB_LIBRARY ZLIB_INCLUDE_DIR ZLIB_FOUND)
-                else(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
-                    message(STATUS "Could not determine if Qt was built with zlib support.")
-                endif(QT_CONFIG_ZLIB_CHECK MATCHES " zlib ")
-
-            endif()
-        endif(EXISTS "${QT_MKSPECS_DIR}/qconfig.pri")
-    endif(QT_QTCORE_FOUND)
-endif()
-
-if(NOT ZLIB_FOUND)
-    trojita_find_package(ZLIB "" "" "" "" WITH_ZLIB)
-endif()
+trojita_find_package(ZLIB "" "" "" "" WITH_ZLIB)
 
 if(WITH_ZLIB)
     set(TROJITA_HAVE_ZLIB True)
@@ -381,36 +272,6 @@ set(libStreams_SOURCES
 if(WITH_ZLIB)
     set(libStreams_SOURCES ${libStreams_SOURCES}
         ${path_Streams}/3rdparty/rfc1951.cpp)
-    include_directories(${ZLIB_INCLUDE_DIR})
-endif()
-
-if(NOT WITH_QT5)
-    set(path_mimetypesqt4 ${CMAKE_CURRENT_SOURCE_DIR}/src/mimetypes-qt4)
-    set(libMimetypesQt4_SOURCES
-        ${path_mimetypesqt4}/io/qstandardpaths.cpp
-        ${path_mimetypesqt4}/mimetypes/qmimedatabase.cpp
-        ${path_mimetypesqt4}/mimetypes/qmimeglobpattern.cpp
-        ${path_mimetypesqt4}/mimetypes/qmimemagicrule.cpp
-        ${path_mimetypesqt4}/mimetypes/qmimemagicrulematcher.cpp
-        ${path_mimetypesqt4}/mimetypes/qmimetype.cpp
-        ${path_mimetypesqt4}/mimetypes/qmimetypeparser.cpp
-        ${path_mimetypesqt4}/mimetypes/qmimeprovider.cpp
-    )
-    if(WIN32)
-        set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
-            ${path_mimetypesqt4}/io/qstandardpaths_win.cpp)
-    elseif(APPLE)
-        set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
-            ${path_mimetypesqt4}/io/qstandardpaths_mac.cpp)
-    elseif (OS2)
-        set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
-            ${path_mimetypesqt4}/io/qstandardpaths_os2.cpp)
-    elseif (UNIX)
-        set(libMimetypesQt4_SOURCES ${libMimetypesQt4_SOURCES}
-            ${path_mimetypesqt4}/io/qstandardpaths_unix.cpp)
-    else()
-        message(FATAL_ERROR "Unsupported platform -- mimetypes-Qt4 support only Unix, MacOSX, Windows and OS/2")
-    endif()
 endif()
 
 set(path_DesktopGui ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui)
@@ -599,11 +460,7 @@ endif()
 
 if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
     file(GLOB_RECURSE lang_PO "${CMAKE_CURRENT_SOURCE_DIR}/po/trojita_common_*.po")
-    if(WITH_QT5)
-        qt5_wrap_po(trojita_QM ${lang_PO})
-    else()
-        qt4_wrap_po(trojita_QM ${lang_PO})
-    endif()
+    qt5_wrap_po(trojita_QM ${lang_PO})
     set(language_summary "")
     foreach(po ${lang_PO})
         string(REGEX REPLACE "^(.*)/trojita_common_(.*).po" "\\2" lang ${po})
@@ -639,12 +496,13 @@ set_source_files_properties(${version_files}
 add_library(Common STATIC ${libCommon_SOURCES})
 set_property(TARGET Common APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 add_dependencies(Common version)
-target_link_libraries(Common ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+qt5_use_modules(Common Core Network)
 
 add_library(AppVersion STATIC ${libAppVersion_SOURCES})
 set_property(TARGET AppVersion APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 add_dependencies(AppVersion version)
-target_link_libraries(AppVersion Common ${QT_QTCORE_LIBRARY})
+target_link_libraries(AppVersion Common)
+qt5_use_modules(AppVersion Core)
 
 if(WITH_SHARED_PLUGINS)
     add_library(Plugins SHARED ${libPlugins_SOURCES})
@@ -654,67 +512,46 @@ else()
 endif()
 set_target_properties(Plugins PROPERTIES OUTPUT_NAME trojita_plugins)
 set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-if(WITH_QT5)
-    qt5_use_modules(Plugins Core)
-else()
-    target_link_libraries(Plugins ${QT_QTCORE_LIBRARY})
-endif()
+qt5_use_modules(Plugins Core)
 
 add_library(UiUtils STATIC ${libUiUtils_SOURCES})
 set_property(TARGET UiUtils APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-target_link_libraries(UiUtils Plugins Common ${QT_QTCORE_LIBRARY})
+target_link_libraries(UiUtils Plugins Common)
+qt5_use_modules(UiUtils Core Gui Network)
 
 add_library(Streams STATIC ${libStreams_SOURCES})
 set_property(TARGET Streams APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-target_link_libraries(Streams ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
 if(WITH_ZLIB)
+    set_property(TARGET Streams APPEND PROPERTY INCLUDE_DIRECTORIES ${ZLIB_INCLUDE_DIR})
     target_link_libraries(Streams ${ZLIB_LIBRARIES})
 endif()
+qt5_use_modules(Streams Network)
 
 add_library(IPC STATIC ${libIPC_SOURCES})
 set_property(TARGET IPC APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 if(WITH_DBUS)
-    target_link_libraries(IPC ${QT_QTDBUS_LIBRARY})
-    if(WITH_QT5)
-        qt5_use_modules(IPC DBus Widgets)
-    endif()
+    qt5_use_modules(IPC DBus Widgets)
 else()
-    if(WITH_QT5)
-        qt5_use_modules(IPC Core)
-    endif()
+    qt5_use_modules(IPC Core)
 endif()
 
 add_library(qwwsmtpclient STATIC ${libqwwsmtpclient_SOURCES})
-target_link_libraries(qwwsmtpclient ${QT_QTNETWORK_LIBRARY} ${QT_QTCORE_LIBRARY})
+qt5_use_modules(qwwsmtpclient Network)
 
 add_library(MSA STATIC ${libMSA_SOURCES})
 set_property(TARGET MSA APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-target_link_libraries(MSA Imap Streams qwwsmtpclient ${QT_QTCORE_LIBRARY})
+target_link_libraries(MSA Imap Streams qwwsmtpclient)
+qt5_use_modules(MSA Network)
 
 add_library(Composer STATIC ${libComposer_SOURCES})
 set_property(TARGET Composer APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-target_link_libraries(Composer Common MSA Streams UiUtils qwwsmtpclient ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
-if(NOT WITH_QT5)
-    target_link_libraries(Composer MimetypesQt4)
-endif()
+target_link_libraries(Composer Common MSA Streams UiUtils qwwsmtpclient)
+qt5_use_modules(Composer Gui Network)
 
 add_library(Imap STATIC ${libImap_SOURCES})
 set_property(TARGET Imap APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-target_link_libraries(Imap Common Streams UiUtils ${QT_QTNETWORK_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
-if(WITH_ZLIB)
-    target_link_libraries(Imap ${ZLIB_LIBRARIES})
-endif()
-
-if(NOT WITH_QT5)
-    add_library(MimetypesQt4 STATIC ${libMimetypesQt4_SOURCES})
-    set_property(TARGET MimetypesQt4 APPEND PROPERTY INCLUDE_DIRECTORIES
-        ${QT_MKSPECS_DIR}/default ${path_mimetypesqt4}/io/)
-    target_link_libraries(MimetypesQt4 ${QT_QTCORE_LIBRARY})
-    if(APPLE)
-        find_library(CARBON_LIBRARY Carbon REQUIRED)
-        target_link_libraries(MimetypesQt4 ${CARBON_LIBRARY})
-    endif()
-endif()
+target_link_libraries(Imap Common Streams UiUtils)
+qt5_use_modules(Imap Gui Network Sql)
 
 ## ClearText password plugin
 if(WITH_CLEARTEXT_PLUGIN)
@@ -724,11 +561,7 @@ endif()
 ## QtKeyChain plugin
 if(WITH_QTKEYCHAIN_PLUGIN)
     trojita_add_plugin(trojita_plugin_QtKeychainPasswordPlugin WITH_QTKEYCHAIN_PLUGIN src/Plugins/QtKeyChain/QtKeyChainPassword.cpp)
-    if(WITH_QT5)
-        qt5_use_modules(trojita_plugin_QtKeychainPasswordPlugin Core DBus)
-    else()
-        target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY})
-    endif()
+    qt5_use_modules(trojita_plugin_QtKeychainPasswordPlugin Core DBus)
     target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QTKEYCHAIN_LIBRARIES})
     set_property(TARGET trojita_plugin_QtKeychainPasswordPlugin APPEND PROPERTY INCLUDE_DIRECTORIES ${QTKEYCHAIN_INCLUDE_DIRS})
 endif()
@@ -749,19 +582,12 @@ if(WITH_ABOOKADDRESSBOOK_PLUGIN)
         ${path_AbookAddressbook}/onecontact.ui
     )
 
-    if(WITH_QT5)
-        qt5_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
-    else()
-        qt4_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
-    endif()
+    qt5_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
 
     trojita_add_plugin(trojita_plugin_AbookAddressbookPlugin WITH_ABOOKADDRESSBOOK_PLUGIN ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
     set_property(TARGET trojita_plugin_AbookAddressbookPlugin APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-    target_link_libraries(trojita_plugin_AbookAddressbookPlugin ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 
-    if(WITH_QT5)
-        qt5_use_modules(trojita_plugin_AbookAddressbookPlugin Widgets)
-    endif()
+    qt5_use_modules(trojita_plugin_AbookAddressbookPlugin Widgets)
 
     set(be_contacts_SOURCES
         ${path_AbookAddressbook}/main.cpp
@@ -769,34 +595,12 @@ if(WITH_ABOOKADDRESSBOOK_PLUGIN)
 
     add_executable(be.contacts WIN32 ${be_contacts_SOURCES})
     set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-    target_link_libraries(be.contacts Plugins ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(be.contacts Plugins)
     if("${WITH_ABOOKADDRESSBOOK_PLUGIN}" STREQUAL "STATIC")
         set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_STATICPLUGIN)
         target_link_libraries(be.contacts trojita_plugin_AbookAddressbookPlugin)
     endif()
-    if(WITH_QT5)
-        qt5_use_modules(be.contacts Widgets)
-    endif()
-endif()
-
-## KDE plugins
-if(WITH_KDE)
-    include_directories(
-        ${KDE4_INCLUDES}
-        ${KDEPIMLIBS_INCLUDE_DIRS}
-    )
-endif()
-
-## KResource addressbook plugin
-if(WITH_KRESOURCE_PLUGIN)
-    trojita_add_plugin(trojita_plugin_kresourceaddressbook WITH_KRESOURCE_PLUGIN src/Plugins/KDE/KResourceAddressbook.cpp)
-    target_link_libraries(trojita_plugin_kresourceaddressbook ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY} ${KDEPIMLIBS_KABC_LIBS})
-endif()
-
-## Akonadi addressbook plugin
-if(WITH_AKONADI_PLUGIN)
-    trojita_add_plugin(trojita_plugin_akonadiaddressbook WITH_AKONADI_PLUGIN src/Plugins/KDE/AkonadiAddressbook.cpp)
-    target_link_libraries(trojita_plugin_akonadiaddressbook ${QT_QTCORE_LIBRARY} ${QT_QTDBUS_LIBRARY} ${KDEPIMLIBS_AKONADI_CONTACT_LIBS})
+    qt5_use_modules(be.contacts Widgets)
 endif()
 
 # Generate file static_plugins.h.in
@@ -808,47 +612,23 @@ endforeach()
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h.in ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h)
 
 if(WITH_DESKTOP)
-    if(WITH_QT5)
-        qt5_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
-        qt5_add_resources(libDesktopGui_RESOURCES_OUT ${libDesktopGui_RESOURCES})
-    else()
-        qt4_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
-        qt4_add_resources(libDesktopGui_RESOURCES_OUT ${libDesktopGui_RESOURCES})
-    endif()
+    qt5_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
+    qt5_add_resources(libDesktopGui_RESOURCES_OUT ${libDesktopGui_RESOURCES})
 
     add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
     set_property(TARGET DesktopGui APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
     set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
-    target_link_libraries(DesktopGui Common UiUtils Composer Imap IPC MSA Plugins Streams qwwsmtpclient ${QT_QTWEBKIT_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(DesktopGui Common UiUtils Composer Imap IPC MSA Plugins Streams qwwsmtpclient)
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
     set_property(TARGET trojita APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-    target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY})
-    if(NOT WITH_QT5)
-        target_link_libraries(trojita MimetypesQt4)
-    endif()
-    if(WITH_ZLIB)
-        target_link_libraries(trojita ${ZLIB_LIBRARIES})
-    endif()
-endif()
-
-if(WITH_QT5)
-    qt5_use_modules(AppVersion Core)
-    qt5_use_modules(Common Core Network)
-    qt5_use_modules(UiUtils Core Gui Network)
-    qt5_use_modules(Streams Network)
-    qt5_use_modules(qwwsmtpclient Network)
-    qt5_use_modules(MSA Network)
-    qt5_use_modules(Composer Gui Network)
-    qt5_use_modules(Imap Gui Network Sql)
-    if (WITH_DESKTOP)
-        qt5_use_modules(DesktopGui Network WebKitWidgets)
-        qt5_use_modules(trojita Widgets Network)
-    endif()
+    target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS})
+    qt5_use_modules(DesktopGui Network WebKitWidgets)
+    qt5_use_modules(trojita Widgets Network)
 endif()
 
 
@@ -882,26 +662,17 @@ if(WITH_TESTS)
         tests/Utils/LibMailboxSync.cpp
     )
     add_library(test_LibMailboxSync STATIC ${test_LibMailboxSync_SOURCES})
-    if(WITH_QT5)
-        qt5_use_modules(test_LibMailboxSync Test Network)
-    endif()
+    qt5_use_modules(test_LibMailboxSync Test Network)
     set_property(TARGET test_LibMailboxSync APPEND PROPERTY INCLUDE_DIRECTORIES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/Utils)
-    target_link_libraries(test_LibMailboxSync Imap MSA Streams Common Composer ${QT_QTTEST_LIBRARY} ${QT_QTCORE_LIBRARY})
+    target_link_libraries(test_LibMailboxSync Imap MSA Streams Common Composer)
 
     macro(trojita_test dir fname)
         set(test_${fname}_SOURCES tests/${dir}/test_${fname}.cpp)
         add_executable(test_${fname} ${test_${fname}_SOURCES})
         target_link_libraries(test_${fname} Imap MSA Streams Common Composer test_LibMailboxSync)
-        if(WITH_QT5)
-            qt5_use_modules(test_${fname} Network Sql Test Widgets)
-        else()
-            target_link_libraries(test_${fname} ${QT_QTSQL_LIBRARY} ${QT_QTTEST_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTCORE_LIBRARY} ${QT_QTNETWORK_LIBRARY})
-        endif()
-        if(WITH_ZLIB)
-            target_link_libraries(test_${fname} ${ZLIB_LIBRARIES})
-        endif()
+        qt5_use_modules(test_${fname} Network Sql Test Widgets)
         set_property(TARGET test_${fname} APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/tests)
         if(NOT CMAKE_CROSSCOMPILING)
             add_test(test_${fname} test_${fname})
@@ -912,12 +683,8 @@ if(WITH_TESTS)
     trojita_test(Composer Composer_Submission)
     trojita_test(Composer Composer_responses)
     trojita_test(Composer Html_formatting)
-    if(WITH_QT5)
-        qt5_use_modules(test_Composer_responses WebKitWidgets)
-        qt5_use_modules(test_Html_formatting WebKitWidgets)
-    else()
-        target_link_libraries(test_Html_formatting ${QT_QTWEBKIT_LIBRARY})
-    endif()
+    qt5_use_modules(test_Composer_responses WebKitWidgets)
+    qt5_use_modules(test_Html_formatting WebKitWidgets)
     trojita_test(Imap Imap_DisappearingMailboxes)
     trojita_test(Imap Imap_Idle)
     trojita_test(Imap Imap_LowLevelParser)
