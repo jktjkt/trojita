@@ -47,13 +47,7 @@ if(NOT CXXFeatures_alignof_FOUND)
     endif()
 endif()
 if(NOT CXXFeatures_nullptr_FOUND)
-    # Yes, this is extremely fragile; it will break on any code which wants to
-    # distinguish between an int and nullptr_t. So far, we don't have anything
-    # like that in Trojita. Let's just pretend that it won't ever happen, and
-    # if it happens, then let's hope that an "ambiguous overload" would come up.
-    add_definitions(-Dnullptr=0)
-    message(WARNING "Your C++ compiler doesn't support C++11's nullptr. Activating a very hackish workaround "
-            "which can break existing code because nullptr is not plain 0.")
+    message(SEND_ERROR "Your compiler doesn't support C++11's nullptr")
 endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 
