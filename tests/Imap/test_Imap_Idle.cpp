@@ -22,7 +22,6 @@
 
 #include <QtTest>
 #include "test_Imap_Idle.h"
-#include "Utils/headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Tasks/IdleLauncher.h"
 #include "Imap/Model/ItemRoles.h"
@@ -279,4 +278,4 @@ void ImapModelIdleTest::testIdleMailboxChange()
 }
 
 
-TROJITA_HEADLESS_TEST( ImapModelIdleTest )
+QTEST_GUILESS_MAIN( ImapModelIdleTest )

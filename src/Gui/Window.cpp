@@ -1204,13 +1204,8 @@ void MainWindow::authenticationContinue(const QString &password)
         bool ok;
         pass = PasswordDialog::getPassword(this, tr("Authentication Required"),
                                            tr("<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                                               Qt::escape(user),
-                                               Qt::escape(m_settings->value(Common::SettingsNames::imapHostKey).toString())
-#else
                                                user.toHtmlEscaped(),
                                                m_settings->value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
-#endif
                                            ),
                                            QString(), &ok,
                                            imapModel()->imapAuthError());
@@ -2120,13 +2115,8 @@ void MainWindow::slotShowImapInfo()
     if (!imapModel()->serverId().isEmpty() && imapModel()->capabilities().contains(QLatin1String("ID"))) {
         QMap<QByteArray,QByteArray> serverId = imapModel()->serverId();
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #define IMAP_ID_FIELD(Var, Name) bool has_##Var = serverId.contains(Name); \
     QString Var = has_##Var ? QString::fromUtf8(serverId[Name]).toHtmlEscaped() : tr("Unknown");
-#else
-#define IMAP_ID_FIELD(Var, Name) bool has_##Var = serverId.contains(Name); \
-    QString Var = has_##Var ? Qt::escape(QString::fromAscii(serverId[Name])) : tr("Unknown");
-#endif
         IMAP_ID_FIELD(serverName, "name");
         IMAP_ID_FIELD(serverVersion, "version");
         IMAP_ID_FIELD(os, "os");
@@ -2161,11 +2151,7 @@ void MainWindow::slotShowImapInfo()
         }
         QString fullId;
         for (QMap<QByteArray,QByteArray>::const_iterator it = serverId.constBegin(); it != serverId.constEnd(); ++it) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             fullId += tr("<li>%1: %2</li>").arg(QString::fromUtf8(it.key()).toHtmlEscaped(), QString::fromUtf8(it.value()).toHtmlEscaped());
-#else
-            fullId += tr("<li>%1: %2</li>").arg(Qt::escape(QString::fromAscii(it.key())), Qt::escape(QString::fromAscii(it.value())));
-#endif
         }
         idString += tr("<ul>%1</ul>").arg(fullId);
     } else {
@@ -2444,11 +2430,7 @@ void MainWindow::applySizesAndState()
                 } else {
                     msgListWidget->tree->setColumnWidth(i, msgListWidget->tree->sizeHintForColumn(i));
                 }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
                 msgListWidget->tree->header()->setSectionResizeMode(i, resizeMode);
-#else
-                msgListWidget->tree->header()->setResizeMode(i, resizeMode);
-#endif
             }
         }
     }

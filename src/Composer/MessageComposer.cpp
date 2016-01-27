@@ -23,11 +23,7 @@
 #include "MessageComposer.h"
 #include <QBuffer>
 #include <QMimeData>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#  include <QMimeDatabase>
-#else
-#  include "mimetypes-qt4/include/QMimeDatabase"
-#endif
+#include <QMimeDatabase>
 #include <QUrl>
 #include <QUuid>
 #include "Common/Application.h"
@@ -163,11 +159,7 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
         bool attached = false;
         QList<QUrl> urls = data->urls();
         foreach (const QUrl &url, urls) {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
             if (url.isLocalFile()) {
-#else
-            if (url.scheme() == QLatin1String("file")) {
-#endif
                 // Careful here -- we definitely don't want the boolean evaluation shortcuts taking effect!
                 // At the same time, any file being recognized and attached is enough to "satisfy" the drop
                 attached = addFileAttachment(url.path()) || attached;
@@ -471,26 +463,14 @@ QByteArray MessageComposer::generateMessageId(const Imap::Message::MailAddress &
         // There's no usable domain, let's just bail out of here
         return QByteArray();
     }
-    return QUuid::createUuid()
-#if QT_VERSION >= 0x040800
-            .toByteArray()
-#else
-            .toString().toAscii()
-#endif
-            .replace("{", "").replace("}", "") + "@" + sender.host.toUtf8();
+    return QUuid::createUuid().toByteArray().replace("{", "").replace("}", "") + "@" + sender.host.toUtf8();
 }
 
 /** @short Generate a random enough MIME boundary */
 QByteArray MessageComposer::generateMimeBoundary()
 {
     // Usage of "=_" is recommended by RFC2045 as it's guaranteed to never occur in a quoted-printable source
-    return QByteArray("trojita=_") + QUuid::createUuid()
-#if QT_VERSION >= 0x040800
-            .toByteArray()
-#else
-            .toString().toAscii()
-#endif
-            .replace("{", "").replace("}", "");
+    return QByteArray("trojita=_") + QUuid::createUuid().toByteArray().replace("{", "").replace("}", "");
 }
 
 QByteArray MessageComposer::encodeHeaderField(const QString &text)

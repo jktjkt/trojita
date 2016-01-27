@@ -23,7 +23,6 @@
 #include <QTest>
 
 #include "test_Imap_Responses.h"
-#include "Utils/headless_test.h"
 
 Q_DECLARE_METATYPE(Imap::Responses::State)
 Q_DECLARE_METATYPE(respPtr)
@@ -305,7 +304,7 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr(new Enabled(QList<QByteArray>() << "blah"));
 }
 
-TROJITA_HEADLESS_TEST( ImapResponsesTest )
+QTEST_GUILESS_MAIN( ImapResponsesTest )
 
 namespace QTest {
 

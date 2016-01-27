@@ -82,9 +82,7 @@ class trojita_plugin_QtKeyChainPasswordPlugin : public QObject, public Plugins::
 {
     Q_OBJECT
     Q_INTERFACES(Plugins::PluginInterface)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.password.qtkeychain")
-#endif
 
 public:
     virtual QString name() const;

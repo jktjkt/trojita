@@ -47,9 +47,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     // Filter out newline. It will wreak havoc into the direct IMAP passthrough and could lead to data loss.
     QValidator *validator = new ReplaceCharValidator(QLatin1Char('\n'), QLatin1Char(' '), m_quickSearchText);
     m_quickSearchText->setValidator(validator);
-#if QT_VERSION >= 0x040700
     m_quickSearchText->setPlaceholderText(tr("Quick Search"));
-#endif
     m_quickSearchText->setToolTip(tr("Type in a text to search for within this mailbox. "
                                      "The icon on the left can be used to limit the search options "
                                      "(like whether to include addresses or message bodies, etc)."
@@ -116,11 +114,7 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     hlayout->addStretch();
     hlayout->addWidget(m_quickSearchText->clearButton());
     hlayout->activate(); // this processes the layout and ensures the toolbutton has it's final dimensions
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     if (QGuiApplication::isLeftToRight())
-#else
-    if (qApp->keyboardInputDirection() == Qt::LeftToRight)
-#endif
         m_quickSearchText->setTextMargins(m_searchOptions->width(), 0, 0, 0);
     else // ppl. in N Africa and the middle east write the wrong direction...
         m_quickSearchText->setTextMargins(0, 0, m_searchOptions->width(), 0);

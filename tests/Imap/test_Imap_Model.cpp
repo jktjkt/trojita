@@ -22,7 +22,6 @@
 
 #include <QtTest>
 #include "test_Imap_Model.h"
-#include "Utils/headless_test.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
@@ -165,4 +164,4 @@ void ImapModelTest::testCreationDeletionHandling()
     cEmpty();
 }
 
-TROJITA_HEADLESS_TEST(ImapModelTest)
+QTEST_GUILESS_MAIN(ImapModelTest)

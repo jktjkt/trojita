@@ -59,12 +59,7 @@ public:
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
     virtual Qt::DropActions supportedDragActions() const;
     virtual Qt::DropActions supportedDropActions() const;
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QHash<int, QByteArray> trojitaProxyRoleNames() const;
-#else
     virtual QHash<int, QByteArray> roleNames() const;
-#endif
 
     QModelIndex currentMailbox() const;
 

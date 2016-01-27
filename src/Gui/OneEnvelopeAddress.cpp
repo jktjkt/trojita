@@ -23,12 +23,7 @@
 #include "OneEnvelopeAddress.h"
 #include <QHeaderView>
 #include <QFontMetrics>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#  include <QUrl>
-#  include <QTextDocument>
-#else
-#  include <QUrlQuery>
-#endif
+#include <QUrlQuery>
 #include "Gui/MessageView.h"
 #include "Gui/Util.h"
 #include "Plugins/PluginManager.h"
@@ -94,11 +89,7 @@ void OneEnvelopeAddress::onLinkHovered(const QString &target)
     }
 
     // show fast version without data from addressbook now
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    m_link = Qt::escape(addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE));
-#else
     m_link = addr.prettyName(Imap::Message::MailAddress::FORMAT_READABLE).toHtmlEscaped();
-#endif
     setToolTip(m_link);
 
     // and later if there is an addressbook and all addressbook jobs have finished, show the full version
@@ -124,12 +115,7 @@ void OneEnvelopeAddress::finishOnLinkHovered(const QStringList &matchingDisplayN
     // Instead empty line show something better in tooltip
     QStringList matchingIdentities;
     Q_FOREACH(const QString &str, matchingDisplayNames) {
-        const QString &strToEscape = str.isEmpty() ? tr("(empty display name)") : str;
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        matchingIdentities << Qt::escape(strToEscape);
-#else
-        matchingIdentities << strToEscape.toHtmlEscaped();
-#endif
+        matchingIdentities << (str.isEmpty() ? tr("(empty display name)") : str.toHtmlEscaped());
     }
 
     QString identities = matchingIdentities.join(QLatin1String("<br/>\n"));

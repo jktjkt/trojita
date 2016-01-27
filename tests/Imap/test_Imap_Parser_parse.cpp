@@ -27,7 +27,6 @@
 #include "Streams/FakeSocket.h"
 
 #include "test_Imap_Parser_parse.h"
-#include "Utils/headless_test.h"
 
 Q_DECLARE_METATYPE(QSharedPointer<Imap::Responses::AbstractResponse>)
 Q_DECLARE_METATYPE(Imap::Responses::State)
@@ -1203,7 +1202,7 @@ void ImapParserParseTest::testThrow_data()
             << QByteArray("* THREAD (ahoj)\r\n") << QString("UnexpectedHere") << QString("THREAD response: cannot parse \"ahoj\" as an unsigned integer");
 }
 
-TROJITA_HEADLESS_TEST( ImapParserParseTest )
+QTEST_GUILESS_MAIN( ImapParserParseTest )
 
 namespace QTest {
 

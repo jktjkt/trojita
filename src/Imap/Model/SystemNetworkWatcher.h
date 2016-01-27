@@ -24,9 +24,6 @@
 #define TROJITA_IMAP_SYSTEMNETWORKWATCHER_H
 
 #include "Imap/Model/NetworkWatcher.h"
-#if QT_VERSION >= QT_VERSION_CHECK(4, 7, 0)
-#define TROJITA_HAS_QNETWORKSESSION
-#endif
 
 class QNetworkConfigurationManager;
 class QNetworkConfiguration;
@@ -57,10 +54,8 @@ private:
     QNetworkSession *m_session;
 
     bool isOnline() const;
-#ifdef TROJITA_HAS_QNETWORKSESSION
     void resetSession();
     QNetworkConfiguration sessionsActiveConfiguration() const;
-#endif
 };
 
 }

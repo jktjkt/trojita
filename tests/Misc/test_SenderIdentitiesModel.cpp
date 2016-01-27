@@ -24,7 +24,6 @@
 #include <QtTest>
 #include "test_SenderIdentitiesModel.h"
 #include "Utils/ModelEvents.h"
-#include "Utils/headless_test.h"
 #include "Common/MetaTypes.h"
 
 #define COMPARE_ROWNUM(identity, rowNumber) \
@@ -215,4 +214,4 @@ void SenderIdentitiesModelTest::cleanup()
 
 
 
-TROJITA_HEADLESS_TEST( SenderIdentitiesModelTest )
+QTEST_GUILESS_MAIN( SenderIdentitiesModelTest )

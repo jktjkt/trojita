@@ -22,7 +22,6 @@
 
 #include <QTest>
 #include "test_algorithms.h"
-#include "Utils/headless_test.h"
 
 #include "Common/FindWithUnknown.h"
 
@@ -78,4 +77,4 @@ void TestCommonAlgorithms::testLowerBoundWithUnknown_data()
     QTest::newRow("many-items-just-one-fake") << list << 13 << 12;
 }
 
-TROJITA_HEADLESS_TEST(TestCommonAlgorithms)
+QTEST_GUILESS_MAIN(TestCommonAlgorithms)

@@ -399,7 +399,3 @@ QObject *trojita_plugin_AbookAddressbookPlugin::create(QObject *parent, QSetting
 {
     return new AbookAddressbook(parent);
 }
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Q_EXPORT_PLUGIN2(trojita_plugin_AbookAddressbookPlugin, trojita_plugin_AbookAddressbookPlugin)
-#endif

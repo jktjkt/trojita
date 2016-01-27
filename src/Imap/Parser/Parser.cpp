@@ -1036,11 +1036,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseUntaggedText(
             QByteArray str = *it;
             if (str.endsWith("\r\n"))
                 str.chop(2);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
             capabilities << QString::fromUtf8(str);
-#else
-            capabilities << QString::fromUtf8(str.constData());
-#endif
         }
         if (!capabilities.count())
             throw NoData(line, start);

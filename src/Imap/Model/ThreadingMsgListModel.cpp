@@ -893,9 +893,7 @@ void ThreadingMsgListModel::slotSortingIncrementalUpdate(const Responses::ESearc
 void ThreadingMsgListModel::calculateNullSort()
 {
     m_currentSortResult.clear();
-#if QT_VERSION >= 0x040700
     m_currentSortResult.reserve(threadedRootIds.size() + headroomForNewmessages);
-#endif
     Q_FOREACH(const uint internalId, threadedRootIds) {
         QHash<uint,ThreadNodeInfo>::const_iterator it = threading.constFind(internalId);
         if (it == threading.constEnd())
@@ -1405,9 +1403,7 @@ void ThreadingMsgListModel::applySort()
     updatePersistentIndexesPhase1();
     QSet<uint> newlyUnreachable(threading[0].children.toSet());
     threading[0].children.clear();
-#if QT_VERSION >= 0x040700
     threading[0].children.reserve(m_currentSortResult.size() + headroomForNewmessages);
-#endif
 
     QSet<uint> allRootIds(threadedRootIds.toSet());
 
@@ -1462,12 +1458,10 @@ Qt::SortOrder ThreadingMsgListModel::currentSortOrder() const
     return m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder;
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 QModelIndex ThreadingMsgListModel::sibling(int row, int column, const QModelIndex &idx) const
 {
     return index(row, column, idx.parent());
 }
-#endif
 
 }
 }

@@ -23,7 +23,6 @@
 #include <QDebug>
 #include <QTest>
 #include "test_Rfc5322.h"
-#include "Utils/headless_test.h"
 #include "Common/MetaTypes.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Parser/Rfc5322HeaderParser.h"
@@ -168,4 +167,4 @@ void Rfc5322Test::testHeaders_data()
 }
 
 
-TROJITA_HEADLESS_TEST(Rfc5322Test)
+QTEST_GUILESS_MAIN(Rfc5322Test)

@@ -35,9 +35,7 @@
 #include <QSettings>
 #include <QTimer>
 #include <QToolButton>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
-#endif
 
 #include "ui_ComposeWidget.h"
 #include "Composer/MessageComposer.h"
@@ -258,11 +256,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_autoSavePath = QString(Common::writablePath(Common::LOCATION_CACHE) + QLatin1String("Drafts/"));
     QDir().mkpath(m_autoSavePath);
 
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-    m_autoSavePath += QString::number(QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0)).secsTo(QDateTime::currentDateTime())) + QLatin1String(".draft");
-#else
     m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + QLatin1String(".draft");
-#endif
 
     // Add a blank recipient row to start with
     addRecipient(m_recipients.count(), Composer::ADDRESS_TO, QString());
@@ -381,12 +375,7 @@ ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &
     QList<QPair<Composer::RecipientKind,QString> > recipients;
     QList<QByteArray> inReplyTo;
     QList<QByteArray> references;
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    const QUrl &q = url;
-#else
     const QUrlQuery q(url);
-#endif
 
     if (!q.queryItemValue(QLatin1String("X-Trojita-DisplayName")).isEmpty()) {
         // There should be only single email address created by Imap::Message::MailAddress::asUrl()
@@ -558,13 +547,8 @@ void ComposeWidget::askPassword(const QString &user, const QString &host)
     bool ok;
     const QString &password = Gui::PasswordDialog::getPassword(this, tr("Authentication Required"),
                                            tr("<p>Please provide SMTP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                                               Qt::escape(user),
-                                               Qt::escape(host)
-#else
                                                user.toHtmlEscaped(),
                                                host.toHtmlEscaped()
-#endif
                                                ),
                                            QString(), &ok);
     if (ok)
@@ -782,11 +766,7 @@ void ComposeWidget::setResponseData(const QList<QPair<Composer::RecipientKind, Q
         m_replyModeButton->show();
         // Got to use trigger() so that the default action of the QToolButton is updated
         m_actionInReplyTo->setToolTip(tr("This mail will be marked as a response<hr/>%1").arg(
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
                                           m_replyingToMessage.data(Imap::Mailbox::RoleMessageSubject).toString().toHtmlEscaped()
-#else
-                                          Qt::escape(m_replyingToMessage.data(Imap::Mailbox::RoleMessageSubject).toString())
-#endif
                                           ));
         m_actionInReplyTo->trigger();
 
@@ -1456,12 +1436,7 @@ void ComposeWidget::slotAskForFileAttachment()
 void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
 {
     foreach (const QUrl &url, urls) {
-
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         if (url.isLocalFile()) {
-#else
-        if (url.scheme() == QLatin1String("file")) {
-#endif
             m_submission->composer()->addFileAttachment(url.path());
         }
     }
@@ -1632,11 +1607,7 @@ void ComposeWidget::loadDraft(const QString &path)
                 inReplyTo << QLatin1Char('<') + QString::fromUtf8(item.constData()) + QLatin1Char('>');
             }
             m_actionInReplyTo->setToolTip(tr("This mail will be marked as a response<hr/>%1").arg(
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
                                               inReplyTo.join(tr("<br/>")).toHtmlEscaped()
-#else
-                                              Qt::escape(inReplyTo.join(tr("<br/>")))
-#endif
                                               ));
             if (version == 2) {
                 // it is always marked as a reply in v2

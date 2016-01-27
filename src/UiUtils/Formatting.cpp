@@ -138,13 +138,8 @@ QString Formatting::sslChainToHtml(const QList<QSslCertificate> &sslChain)
         certificateStrings << tr("<li><b>CN</b>: %1,<br/>\n<b>Organization</b>: %2,<br/>\n"
                                  "<b>Serial</b>: %3,<br/>\n"
                                  "<b>SHA1</b>: %4,<br/>\n<b>MD5</b>: %5</li>").arg(
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
                                   cert.subjectInfo(QSslCertificate::CommonName).join(tr(", ")).toHtmlEscaped(),
                                   cert.subjectInfo(QSslCertificate::Organization).join(tr(", ")).toHtmlEscaped(),
-#else
-                                  Qt::escape(cert.subjectInfo(QSslCertificate::CommonName)),
-                                  Qt::escape(cert.subjectInfo(QSslCertificate::Organization)),
-#endif
                                   QString::fromUtf8(cert.serialNumber()),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Sha1)),
                                   htmlHexifyByteArray(cert.digest(QCryptographicHash::Md5)));
@@ -158,11 +153,7 @@ QString Formatting::sslErrorsToHtml(const QList<QSslError> &sslErrors)
 {
     QStringList sslErrorStrings;
     Q_FOREACH(const QSslError &e, sslErrors) {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         sslErrorStrings << tr("<li>%1</li>").arg(e.errorString().toHtmlEscaped());
-#else
-        sslErrorStrings << tr("<li>%1</li>").arg(Qt::escape(e.errorString()));
-#endif
     }
     return sslErrors.isEmpty() ?
                 tr("<p>According to your system's policy, this connection is secure.</p>\n") :
@@ -218,18 +209,10 @@ QString Formatting::htmlEscaped(const QString &input)
     if (input.isEmpty())
         return QString();
 
-    QString res;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-    res = input.toHtmlEscaped();
-#else
-    res = Qt::escape(input);
-#endif
-
     // HTML entities are escaped, but not auto-detected as HTML
-    return QLatin1String("<span>") + res + QLatin1String("</span>");
+    return QLatin1String("<span>") + input.toHtmlEscaped() + QLatin1String("</span>");
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 QObject *Formatting::factory(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
     Q_UNUSED(scriptEngine);
@@ -238,6 +221,5 @@ QObject *Formatting::factory(QQmlEngine *engine, QJSEngine *scriptEngine)
     Formatting *f = new Formatting(reinterpret_cast<QObject*>(engine));
     return f;
 }
-#endif
 
 }

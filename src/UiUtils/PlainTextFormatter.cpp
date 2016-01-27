@@ -29,9 +29,6 @@
 #include <QModelIndex>
 #include <QPair>
 #include <QStack>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#include <QTextDocument>
-#endif
 #include "PlainTextFormatter.h"
 #include "Common/Paths.h"
 #include "Imap/Model/ItemRoles.h"
@@ -81,11 +78,7 @@ QString helperHtmlifySingleLine(QString line)
     QRegExp pattern(patternRe);
 
     // Escape the HTML entities
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    line = Qt::escape(line);
-#else
     line = line.toHtmlEscaped();
-#endif
 
     // Now prepare markup *bold*, /italic/ and _underline_ and also turn links into HTML.
     // This is a bit more involved because we want to apply the regular expressions in a certain order and also at the same
@@ -496,16 +489,10 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
                             + helperHtmlifySingleLine(it->text).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
                 } else {
-#if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)
-                    // old WebKit doesn't really support the dynamic updates of the :checked pseudoclass
-                    bool collapsed = false;
-                    Q_UNUSED(forceCollapseAfterLines);
-#else
                     bool collapsed = nothingButQuotesAndSpaceTillSignature
                             || quoteLevel > 1
                             || currentLevelCharCount >= charsPerLineEquivalent * forceCollapseAfterLines
                             || currentLevelLineCount >= forceCollapseAfterLines;
-#endif
 
                     line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
                             .arg(QString::number(interactiveControlsId),

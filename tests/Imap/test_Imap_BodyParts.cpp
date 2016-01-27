@@ -24,7 +24,6 @@
 #include <QtTest>
 #include "data.h"
 #include "test_Imap_BodyParts.h"
-#include "Utils/headless_test.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
@@ -446,4 +445,4 @@ void BodyPartsTest::testFilenameExtraction_data()
     QTest::newRow("name-overwrites-empty-filename") << bsPlaintextEmptyFilename << QString::number(0) << QString::fromUtf8("actual");
 }
 
-TROJITA_HEADLESS_TEST(BodyPartsTest)
+QTEST_GUILESS_MAIN(BodyPartsTest)

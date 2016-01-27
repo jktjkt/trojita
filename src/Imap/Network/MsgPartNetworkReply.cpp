@@ -79,9 +79,7 @@ void MsgPartNetworkReply::slotMyDataChanged()
 {
     if (part.data(Mailbox::RoleIsUnavailable).toBool()) {
         setError(TimeoutError, tr("Offline"));
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         setFinished(true);
-#endif
         emit error(TimeoutError);
         emit finished();
         return;
@@ -101,9 +99,7 @@ void MsgPartNetworkReply::slotMyDataChanged()
     } else {
         setHeader(QNetworkRequest::ContentTypeHeader, mimeType);
     }
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     setFinished(true);
-#endif
     emit readyRead();
     emit finished();
 }

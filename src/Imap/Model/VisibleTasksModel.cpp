@@ -41,22 +41,9 @@ VisibleTasksModel::VisibleTasksModel(QObject *parent, QAbstractItemModel *taskMo
     connect(m_flatteningModel, SIGNAL(rowsRemoved(QModelIndex,int,int)), this, SIGNAL(hasVisibleTasksChanged()));
     connect(m_flatteningModel, SIGNAL(modelReset()), this, SIGNAL(hasVisibleTasksChanged()));
     connect(m_flatteningModel, SIGNAL(layoutChanged()), this, SIGNAL(hasVisibleTasksChanged()));
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    // There's no virtual in Qt4.
-    setRoleNames(trojitaProxyRoleNames());
-#else
-    // In Qt5, the roleNames() is virtual and will work just fine.
-#endif
 }
 
-// The following code is pretty much a huge PITA. The handling of roleNames() has changed between Qt4 and Qt5 in a way which makes
-// it rather convoluted to support both in the same code base. Oh well.
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-QHash<int, QByteArray> VisibleTasksModel::trojitaProxyRoleNames() const
-#else
 QHash<int, QByteArray> VisibleTasksModel::roleNames() const
-#endif
 {
     QHash<int, QByteArray> roleNames;
     roleNames[RoleTaskCompactName] = "compactName";

@@ -86,9 +86,7 @@ class trojita_plugin_AbookAddressbookPlugin : public QObject, public PluginInter
 {
     Q_OBJECT
     Q_INTERFACES(Plugins::PluginInterface)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.addressbook.abookaddressbook")
-#endif
 
 public:
     virtual QString name() const;

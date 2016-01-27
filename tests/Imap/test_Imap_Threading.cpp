@@ -23,7 +23,6 @@
 #include <algorithm>
 #include <QtTest>
 #include "test_Imap_Threading.h"
-#include "Utils/headless_test.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Streams/FakeSocket.h"
@@ -1523,4 +1522,4 @@ void ImapModelThreadingTest::testESearchResults()
     QCOMPARE(threadingModel->rowCount(), 0);
 }
 
-TROJITA_HEADLESS_TEST( ImapModelThreadingTest )
+QTEST_GUILESS_MAIN( ImapModelThreadingTest )

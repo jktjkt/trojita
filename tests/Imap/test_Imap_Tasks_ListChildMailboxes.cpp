@@ -22,7 +22,6 @@
 
 #include <QtTest>
 #include "test_Imap_Tasks_ListChildMailboxes.h"
-#include "Utils/headless_test.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
@@ -230,4 +229,4 @@ void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
 }
 
 
-TROJITA_HEADLESS_TEST( ImapModelListChildMailboxesTest )
+QTEST_GUILESS_MAIN( ImapModelListChildMailboxesTest )

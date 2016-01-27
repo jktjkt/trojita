@@ -46,12 +46,7 @@ class VisibleTasksModel : public QSortFilterProxyModel
 public:
     explicit VisibleTasksModel(QObject *parent, QAbstractItemModel *taskModel);
     bool hasVisibleTasks() const;
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QHash<int, QByteArray> trojitaProxyRoleNames() const;
-#else
     virtual QHash<int, QByteArray> roleNames() const;
-#endif
 
 signals:
     void hasVisibleTasksChanged();

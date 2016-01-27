@@ -21,7 +21,6 @@
 #include <QDebug>
 #include <QTest>
 #include "test_rfccodecs.h"
-#include "Utils/headless_test.h"
 #include "Imap/Parser/3rdparty/rfccodecs.h"
 #include "Imap/Encoders.h"
 
@@ -376,4 +375,4 @@ void RFCCodecsTest::testRfc2231Encoding_data()
     QTest::newRow("question-mark") << QString::fromUtf8("?") << QByteArray("x*=\"utf-8''%3F\"");
 }
 
-TROJITA_HEADLESS_TEST( RFCCodecsTest )
+QTEST_GUILESS_MAIN( RFCCodecsTest )

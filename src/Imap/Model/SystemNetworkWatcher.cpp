@@ -21,10 +21,8 @@
 */
 
 #include "SystemNetworkWatcher.h"
-#ifdef TROJITA_HAS_QNETWORKSESSION
 #include <QNetworkConfigurationManager>
 #include <QNetworkSession>
-#endif
 #include "Model.h"
 
 namespace Imap {
@@ -47,19 +45,16 @@ QString policyToString(const NetworkPolicy policy)
 SystemNetworkWatcher::SystemNetworkWatcher(ImapAccess *parent, Model *model):
     NetworkWatcher(parent, model), m_netConfManager(0), m_session(0)
 {
-#ifdef TROJITA_HAS_QNETWORKSESSION
     m_netConfManager = new QNetworkConfigurationManager(this);
     resetSession();
     connect(m_netConfManager, SIGNAL(onlineStateChanged(bool)), this, SLOT(onGlobalOnlineStateChanged(bool)));
     connect(m_netConfManager, SIGNAL(configurationChanged(QNetworkConfiguration)),
             this, SLOT(networkConfigurationChanged(QNetworkConfiguration)));
-#endif
 }
 
 void SystemNetworkWatcher::onGlobalOnlineStateChanged(const bool online)
 {
     if (online) {
-#ifdef TROJITA_HAS_QNETWORKSESSION
         m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("System is back online"));
         auto currentConfig = sessionsActiveConfiguration();
         if (!currentConfig.isValid() && currentConfig != m_netConfManager->defaultConfiguration()) {
@@ -67,7 +62,6 @@ void SystemNetworkWatcher::onGlobalOnlineStateChanged(const bool online)
                               QLatin1String("A new network configuration is available"));
             networkConfigurationChanged(m_netConfManager->defaultConfiguration());
         }
-#endif
         setDesiredNetworkPolicy(m_desiredPolicy);
     } else {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
@@ -91,7 +85,6 @@ void SystemNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
     if (m_model->networkPolicy() == NETWORK_OFFLINE && policy != NETWORK_OFFLINE) {
         // We are asked to connect, the model is not connected yet
         if (isOnline()) {
-#ifdef TROJITA_HAS_QNETWORKSESSION
             if (m_netConfManager->allConfigurations().isEmpty()) {
                 m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
                                   // Yes, this is quite deliberate call to tr(). We absolutely want users to be able to read this
@@ -99,27 +92,22 @@ void SystemNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
                                   tr("Qt does not recognize any network session. Please be sure that qtbearer package "
                                      "(or similar) is installed. Assuming that network is actually already available."));
             }
-#endif
 
             m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Network is online -> connecting"));
             reconnectModelNetwork();
         } else {
-#ifdef TROJITA_HAS_QNETWORKSESSION
             // Chances are that our previously valid session is not valid anymore
             resetSession();
             // We aren't online yet, but we will become online at some point. When that happens, reconnectModelNetwork() will
             // be called, so there is nothing to do from this place.
             m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Opening network session"));
             m_session->open();
-#endif
         }
     } else if (m_model->networkPolicy() != NETWORK_OFFLINE && policy == NETWORK_OFFLINE) {
         // This is pretty easy -- just disconnect the model
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
-#ifdef TROJITA_HAS_QNETWORKSESSION
         m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"), QLatin1String("Closing network session"));
         m_session->close();
-#endif
     } else {
         // No need to connect/disconnect/reconnect, yay!
         m_model->setNetworkPolicy(m_desiredPolicy);
@@ -128,14 +116,12 @@ void SystemNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 
 void SystemNetworkWatcher::reconnectModelNetwork()
 {
-#ifdef TROJITA_HAS_QNETWORKSESSION
     m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("Network Session"),
                       QString::fromUtf8("Session is %1 (configuration %2), online state: %3").arg(
                           QLatin1String(m_session->isOpen() ? "open" : "not open"),
                           m_session->configuration().name(),
                           QLatin1String(m_netConfManager->isOnline() ? "online" : "offline")
                           ));
-#endif
     if (!isOnline()) {
         m_model->setNetworkPolicy(NETWORK_OFFLINE);
         return;
@@ -146,7 +132,6 @@ void SystemNetworkWatcher::reconnectModelNetwork()
 
 bool SystemNetworkWatcher::isOnline() const
 {
-#ifdef TROJITA_HAS_QNETWORKSESSION
     if (m_netConfManager->allConfigurations().isEmpty()) {
         // This means that Qt has no idea about the network. Let's pretend that we are connected.
         // This happens e.g. when users do not have the qt-bearer package installed.
@@ -154,13 +139,8 @@ bool SystemNetworkWatcher::isOnline() const
     }
 
     return m_netConfManager->isOnline() && m_session->isOpen();
-#else
-    // We actually don't know, so let's pretend that the network is here. The alternative is that we would never connect :).
-    return true;
-#endif
 }
 
-#ifdef TROJITA_HAS_QNETWORKSESSION
 /** @short Some of the configuration profiles have changed
 
 This can be some completely harmelss change, like user editting an inactive profile of some random WiFi network.
@@ -257,16 +237,6 @@ void SystemNetworkWatcher::networkSessionError()
         attemptReconnect();
     }
 }
-#else
-void SystemNetworkWatcher::networkConfigurationChanged(const QNetworkConfiguration &)
-{
-    // We have to implement this, otherwise MOC complains loudly. Yes, even if the actual slot is #ifdef-ed out.
-}
-
-void SystemNetworkWatcher::networkSessionError()
-{
-}
-#endif
 
 }
 }

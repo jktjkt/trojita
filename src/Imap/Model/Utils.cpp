@@ -24,9 +24,7 @@
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QGuiApplication>
-#endif
 #include <QLocale>
 #include <QProcess>
 #include <QSettings>
@@ -153,25 +151,6 @@ QString systemPlatformVersion()
     }
 #endif
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QString ws = QLatin1String(""
-#ifdef Q_WS_X11
-                 "X11"
-#endif
-#ifdef Q_WS_MAC
-                 "Mac"
-#endif
-#ifdef Q_WS_QWS
-                 "QWS"
-#endif
-#ifdef Q_WS_WIN
-                 "Win"
-#endif
-                 );
-#else
-    QString ws = QGuiApplication::platformName();
-#endif
-
     static QString platformVersion;
 #ifdef TROJITA_MOBILITY_SYSTEMINFO
     if (platformVersion.isEmpty()) {
@@ -216,17 +195,13 @@ QString systemPlatformVersion()
         case QSysInfo::WV_WINDOWS7:
             platformVersion = QLatin1String("7");
             break;
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 3) // and 5.0
         case QSysInfo::WV_WINDOWS8:
             platformVersion = QLatin1String("8");
             break;
-#endif
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 6) // and 5.2
         case QSysInfo::WV_WINDOWS8_1:
             platformVersion = QLatin1String("8.1");
             break;
-#endif
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 7) && QT_VERSION < QT_VERSION_CHECK(5, 0, 0)) || QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
         case QSysInfo::WV_WINDOWS10:
             platformVersion = QLatin1String("10");
             break;
@@ -285,27 +260,20 @@ QString systemPlatformVersion()
         case QSysInfo::MV_10_6:
             platformVersion = QLatin1String("X 10.6");
             break;
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0) // 5.0
         case QSysInfo::MV_10_7:
             platformVersion = QLatin1String("X 10.7");
             break;
-#endif
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 3) // 5.0
         case QSysInfo::MV_10_8:
             platformVersion = QLatin1String("X 10.8");
             break;
-#endif
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 6) // 5.1
         case QSysInfo::MV_10_9:
             platformVersion = QLatin1String("X 10.9");
             break;
-#endif
-#if (QT_VERSION >= QT_VERSION_CHECK(4, 8, 7) && QT_VERSION < QT_VERSION_CHECK(5, 0, 0)) || QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
         case QSysInfo::MV_10_10:
             platformVersion = QLatin1String("X 10.10");
             break;
 #endif
-#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)
         case QSysInfo::MV_IOS:
             platformVersion = QLatin1String("iOS");
             break;
@@ -330,7 +298,6 @@ QString systemPlatformVersion()
         case QSysInfo::MV_IOS_7_1:
             platformVersion = QLatin1String("iOS 7.1");
             break;
-#endif
 #if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
         case QSysInfo::MV_IOS_8_0:
             platformVersion = QLatin1String("iOS 8.0");
@@ -355,7 +322,7 @@ QString systemPlatformVersion()
             proc->deleteLater();
         }
     }
-    return QString::fromUtf8("Qt/%1; %2; %3; %4").arg(QString::fromUtf8(qVersion()), ws, os, platformVersion);
+    return QString::fromUtf8("Qt/%1; %2; %3; %4").arg(QString::fromUtf8(qVersion()), QGuiApplication::platformName(), os, platformVersion);
 }
 
 }

@@ -180,9 +180,7 @@ class KDEUI_EXPORT KDescendantsProxyModel : public QAbstractProxyModel
     virtual QModelIndexList match(const QModelIndex& start, int role, const QVariant& value,
         int hits = 1, Qt::MatchFlags flags = Qt::MatchFlags( Qt::MatchStartsWith | Qt::MatchWrap ) ) const;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     virtual QHash<int,QByteArray> roleNames() const;
-#endif
 
     void proxySetRoleNames(const QHash<int,QByteArray> &roleNames);
 

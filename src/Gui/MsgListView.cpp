@@ -256,11 +256,7 @@ void MsgListView::slotFixSize()
     header()->setStretchLastSection(false);
     for (int i = 0; i < Imap::Mailbox::MsgListModel::COLUMN_COUNT; ++i) {
         QHeaderView::ResizeMode resizeMode = resizeModeForColumn(i);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         header()->setSectionResizeMode(i, resizeMode);
-#else
-        header()->setResizeMode(i, resizeMode);
-#endif
         setColumnWidth(i, sizeHintForColumn(i));
     }
 }

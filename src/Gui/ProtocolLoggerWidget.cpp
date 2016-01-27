@@ -210,11 +210,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
             trimmedInfo = tr("<br/><span style='color: #808080; font-style: italic;'>(+ %n more bytes)</span>", "", it->truncatedBytes);
         }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         QString niceLine = it->message.toHtmlEscaped();
-#else
-        QString niceLine = Qt::escape(it->message);
-#endif
         niceLine.replace(QLatin1Char('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */)
         .replace(QLatin1Char('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
 

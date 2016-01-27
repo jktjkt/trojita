@@ -57,17 +57,11 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
     virtual Qt::DropActions supportedDropActions() const;
     virtual QStringList mimeTypes() const;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     virtual bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const;
-#endif
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
                               int row, int column, const QModelIndex &parent);
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    QHash<int, QByteArray> trojitaProxyRoleNames() const;
-#else
     virtual QHash<int, QByteArray> roleNames() const;
-#endif
 
 protected slots:
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

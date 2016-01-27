@@ -574,11 +574,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             qDebug() << "Response with no data besides the response code, yuck" << line;
         }
     } else {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         message = QString::fromUtf8(line.mid(start));
-#else
-        message = QString::fromUtf8(line.mid(start).constData());
-#endif
         Q_ASSERT(message.endsWith(QLatin1String("\r\n")));
         message.chop(2);
     }
@@ -1314,11 +1310,7 @@ QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
             if (e.certificate().isNull()) {
                 s << e.errorString() << " ";
             } else {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
                 s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName).join(QLatin1String(", ")) << ") ";
-#else
-                s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName) << ") ";
-#endif
             }
         }
         s << "]";

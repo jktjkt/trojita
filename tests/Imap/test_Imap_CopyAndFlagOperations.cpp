@@ -21,7 +21,6 @@
 */
 
 #include "test_Imap_CopyAndFlagOperations.h"
-#include "Utils/headless_test.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
@@ -167,4 +166,4 @@ void CopyAndFlagTest::testUpdateAllFlags()
     justKeepTask();
 }
 
-TROJITA_HEADLESS_TEST(CopyAndFlagTest)
+QTEST_GUILESS_MAIN(CopyAndFlagTest)

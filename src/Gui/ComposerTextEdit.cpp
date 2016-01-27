@@ -24,6 +24,7 @@
 #include <QAction>
 #include <QApplication>
 #include <QClipboard>
+#include <QFontDatabase>
 #include <QMenu>
 #include <QMimeData>
 #include <QPainter>
@@ -38,7 +39,7 @@ ComposerTextEdit::ComposerTextEdit(QWidget *parent) : QTextEdit(parent)
 , m_couldBeSendRequest(false)
 , m_wrapIndicatorOffset(-1)
 {
-    setFont(Gui::Util::systemMonospaceFont());
+    setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     setAcceptRichText(false);
     setLineWrapMode(QTextEdit::WidgetWidth);
     setWordWrapMode(QTextOption::WordWrap);
@@ -82,11 +83,7 @@ bool ComposerTextEdit::canInsertFromMimeData( const QMimeData * source ) const
 {
     QList<QUrl> urls = source->urls();
     foreach (const QUrl &url, urls) {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         if (url.isLocalFile())
-#else
-        if (url.scheme() == QLatin1String("file"))
-#endif
             return true;
     }
     return QTextEdit::canInsertFromMimeData(source);
@@ -96,11 +93,7 @@ void ComposerTextEdit::insertFromMimeData(const QMimeData *source)
 {
     QList<QUrl> urls = source->urls();
     foreach (const QUrl &url, urls) {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
         if (url.isLocalFile()) {
-#else
-        if (url.scheme() == QLatin1String("file")) {
-#endif
             emit urlsAdded(urls);
             return;
         }

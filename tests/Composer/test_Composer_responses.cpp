@@ -26,7 +26,6 @@
 #include <QWebFrame>
 #include <QWebView>
 #include "test_Composer_responses.h"
-#include "Utils/headless_test.h"
 #include "Composer/Mailto.h"
 #include "Composer/QuoteText.h"
 #include "Composer/Recipients.h"
@@ -748,4 +747,4 @@ void ComposerResponsesTest::testReplyQuoting_data()
                                  ">");
 }
 
-TROJITA_HEADLESS_TEST(ComposerResponsesTest)
+QTEST_GUILESS_MAIN(ComposerResponsesTest)

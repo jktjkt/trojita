@@ -22,7 +22,6 @@
 
 #include <QtTest>
 #include "test_Composer_Submission.h"
-#include "Utils/headless_test.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 #include "Composer/MessageComposer.h"
 #include "Imap/Model/ItemRoles.h"
@@ -315,11 +314,7 @@ void ComposerSubmissionTest::testMissingImapAttachmentImap()
 void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool imap, bool attachingFile)
 {
 #ifdef Q_OS_OS2
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QSKIP("Looks like QTemporaryFile is broken on OS/2");
-#else
-    QSKIP("Looks like QTemporaryFile is broken on OS/2", SkipSingle);
-#endif
 #endif
     helperSetupProperHeaders();
 
@@ -785,4 +780,4 @@ void ComposerSubmissionTest::testReplyingToRemoved()
     cEmpty();
 }
 
-TROJITA_HEADLESS_TEST(ComposerSubmissionTest)
+QTEST_GUILESS_MAIN(ComposerSubmissionTest)

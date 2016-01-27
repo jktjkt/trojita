@@ -53,22 +53,9 @@ MailboxModel::MailboxModel(QObject *parent, Model *model): QAbstractProxyModel(p
             this, SLOT(handleRowsInserted(const QModelIndex &, int, int)));
     connect(model, SIGNAL(messageCountPossiblyChanged(const QModelIndex &)),
             this, SLOT(handleMessageCountPossiblyChanged(const QModelIndex &)));
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    // There's no virtual in Qt4.
-    setRoleNames(trojitaProxyRoleNames());
-#else
-    // In Qt5, the roleNames() is virtual and will work just fine.
-#endif
 }
 
-// The following code is pretty much a huge PITA. The handling of roleNames() has changed between Qt4 and Qt5 in a way which makes
-// it rather convoluted to support both in the same code base. Oh well.
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-QHash<int, QByteArray> MailboxModel::trojitaProxyRoleNames() const
-#else
 QHash<int, QByteArray> MailboxModel::roleNames() const
-#endif
 {
     static QHash<int, QByteArray> roleNames;
     if (roleNames.isEmpty()) {
@@ -256,7 +243,6 @@ QStringList MailboxModel::mimeTypes() const
     return QStringList() << QLatin1String("application/x-trojita-message-list");
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 bool MailboxModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
 {
     // We cannot delegate this to QAbstractProxyModel::canDropMimeData because that code delegates the decision
@@ -266,7 +252,6 @@ bool MailboxModel::canDropMimeData(const QMimeData *data, Qt::DropAction action,
     // mimeTypes() and supportedDropActions() gets consulted, which is the correct thing to do.
     return QAbstractItemModel::canDropMimeData(data, action, row, column, parent);
 }
-#endif
 
 bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                 int row, int column, const QModelIndex &parent)

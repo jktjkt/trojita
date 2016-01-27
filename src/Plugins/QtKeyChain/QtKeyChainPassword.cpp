@@ -21,13 +21,7 @@
 */
 
 #include <QString>
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    #include <qtkeychain/keychain.h>
-#else
-    #include <qt5keychain/keychain.h>
-#endif
-
+#include <qt5keychain/keychain.h>
 #include "QtKeyChainPassword.h"
 
 namespace Plugins {
@@ -137,9 +131,5 @@ QObject *trojita_plugin_QtKeyChainPasswordPlugin::create(QObject *parent, QSetti
 {
     return new Plugins::QtKeyChainPassword(parent);
 }
-
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Q_EXPORT_PLUGIN2(trojita_plugin_QtKeychainPasswordPlugin, trojita_plugin_QtKeyChainPasswordPlugin)
-#endif
 
 // vim: set et ts=4 sts=4 sw=4

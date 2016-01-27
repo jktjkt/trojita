@@ -24,13 +24,9 @@
 #include <QBuffer>
 #include <QFileInfo>
 #include <QMimeData>
+#include <QMimeDatabase>
 #include <QProcess>
 #include <QUrl>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#  include <QMimeDatabase>
-#else
-#  include "mimetypes-qt4/include/QMimeDatabase"
-#endif
 #include "Composer/MessageComposer.h"
 #include "Imap/Encoders.h"
 #include "Imap/Model/FullMessageCombiner.h"

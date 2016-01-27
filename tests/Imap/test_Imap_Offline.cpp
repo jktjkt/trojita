@@ -21,7 +21,6 @@
 */
 
 #include "test_Imap_Offline.h"
-#include "Utils/headless_test.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
@@ -77,4 +76,4 @@ void OfflineTest::testStatusVsExistsCached()
     helperCheckCache();
 }
 
-TROJITA_HEADLESS_TEST(OfflineTest)
+QTEST_GUILESS_MAIN(OfflineTest)

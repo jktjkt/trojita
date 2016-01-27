@@ -109,10 +109,8 @@ void Spinner::start(uint delay)
             m_startTimer->setSingleShot(true);
             connect(m_startTimer, SIGNAL(timeout()), SLOT(start()));
         }
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         if (m_startTimer->remainingTime() > -1) // preserve oldest request original delay
             delay = m_startTimer->remainingTime();
-#endif
         m_startTimer->start(delay);
         return;
     }

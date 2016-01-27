@@ -22,9 +22,6 @@
 #include "Gui/AddressRowWidget.h"
 #include "Gui/FlowLayout.h"
 #include "Gui/OneEnvelopeAddress.h"
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#  include <QTextDocument>
-#endif
 
 namespace Gui {
 
@@ -37,13 +34,7 @@ AddressRowWidget::AddressRowWidget(QWidget *parent, const QString &headerName,
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    const QString &headerNameEscaped = Qt::escape(headerName);
-#else
-    const QString &headerNameEscaped = headerName.toHtmlEscaped();
-#endif
-
-    QLabel *title = new QLabel(QString::fromUtf8("<b>%1:</b>").arg(headerNameEscaped), this);
+    QLabel *title = new QLabel(QString::fromUtf8("<b>%1:</b>").arg(headerName.toHtmlEscaped()), this);
     title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     title->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
     lay->addWidget(title);

@@ -79,9 +79,7 @@ BE::Contacts::Contacts(AbookAddressbook *abook): m_abook(abook), m_dirty(false)
         m_incognitoPic = QPixmap::fromImage(img.scaled(160,160,Qt::KeepAspectRatio,Qt::SmoothTransformation));
     m_ui = new Ui::Contacts;
     m_ui->setupUi(this);
-#if QT_VERSION >= 0x040700
     m_ui->filter->setPlaceholderText(tr("Filter"));
-#endif
     m_ui2 = new Ui::OneContact;
     m_ui2->setupUi(m_ui->oneContact);
 
@@ -219,13 +217,7 @@ bool BE::Contacts::eventFilter(QObject *o, QEvent *e)
         if (urls.isEmpty())
             return false;
         QUrl url = urls.first();
-        if (
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
-                url.isLocalFile()
-#else
-                (url.scheme() == QLatin1String("file"))
-#endif
-                && QImageReader(url.path()).canRead()) {
+        if (url.isLocalFile() && QImageReader(url.path()).canRead()) {
             if (e->type() == QEvent::Drop)
                 importPhoto(url.path());
             else
@@ -259,11 +251,7 @@ void BE::Contacts::importPhoto(const QString &path)
         return;
     }
     const QString photo = QString::number(
-#if QT_VERSION < QT_VERSION_CHECK(4, 7, 0)
-                QDateTime(QDate(1970, 1, 1), QTime(0, 0, 0)).secsTo(QDateTime::currentDateTime())
-#else
                 QDateTime::currentMSecsSinceEpoch()
-#endif
                 ) + QLatin1Char('.') + QFileInfo(path).suffix();
 
     const QString file = QDir::homePath() + QLatin1String("/.abook/") + photo;

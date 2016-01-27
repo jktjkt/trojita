@@ -25,7 +25,6 @@
 #include <QTest>
 
 #include "test_Imap_LowLevelParser.h"
-#include "Utils/headless_test.h"
 
 #include "Imap/Exceptions.h"
 
@@ -546,7 +545,7 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
     
 }
 
-TROJITA_HEADLESS_TEST( ImapLowLevelParserTest )
+QTEST_GUILESS_MAIN( ImapLowLevelParserTest )
 
 namespace QTest {
 

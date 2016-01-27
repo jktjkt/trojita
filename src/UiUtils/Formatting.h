@@ -29,11 +29,8 @@
 class QSettings;
 class QSslCertificate;
 class QSslError;
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 class QQmlEngine;
 class QJSEngine;
-#endif
 
 namespace UiUtils {
 
@@ -66,9 +63,7 @@ public:
 
     static QString htmlEscaped(const QString &input);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     static QObject *factory(QQmlEngine *engine, QJSEngine *scriptEngine);
-#endif
 
 private:
     Formatting(QObject *parent);

@@ -21,7 +21,6 @@
 */
 
 #include "test_Imap_Tasks_ObtainSynchronizedMailbox.h"
-#include "Utils/headless_test.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
@@ -331,15 +330,7 @@ void ImapModelObtainSynchronizedMailboxTest::helperMissingUidNext(const MessageN
     cClient(t.mk("SELECT a\r\n"));
     // prepopulation from cache should be ignored
     QCOMPARE(rowsInserted.size(), 1);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QCOMPARE(rowsInserted[0], QVariantList() << QModelIndex(msgListA) << 0 << 2);
-#else
-    // Direct initialization from QPersistentModelIndex fails on Qt4, and the comparison is all wonky, too
-    QCOMPARE(rowsInserted[0].size(), 3);
-    QCOMPARE(rowsInserted[0][0].value<QModelIndex>(), QModelIndex(msgListA));
-    QCOMPARE(rowsInserted[0][1], QVariant::fromValue(0));
-    QCOMPARE(rowsInserted[0][2], QVariant::fromValue(2));
-#endif
     rowsInserted.clear();
     QVERIFY(rowsRemoved.isEmpty());
     switch (mode) {
@@ -2862,4 +2853,4 @@ void ImapModelObtainSynchronizedMailboxTest::testUid0()
     }
 }
 
-TROJITA_HEADLESS_TEST( ImapModelObtainSynchronizedMailboxTest )
+QTEST_GUILESS_MAIN( ImapModelObtainSynchronizedMailboxTest )

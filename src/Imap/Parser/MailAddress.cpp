@@ -24,9 +24,7 @@
 
 #include <QTextDocument>
 #include <QUrl>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
-#endif
 #include <QTextCodec>
 #include "MailAddress.h"
 #include "../Model/MailboxTree.h"
@@ -119,13 +117,9 @@ QUrl MailAddress::asUrl() const
     url.setScheme(QLatin1String("mailto"));
     url.setPath(QString::fromUtf8("%1@%2").arg(mailbox, host));
     if (!name.isEmpty()) {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        url.addQueryItem(QLatin1String("X-Trojita-DisplayName"), name);
-#else
         QUrlQuery q(url);
         q.addQueryItem(QLatin1String("X-Trojita-DisplayName"), name);
         url.setQuery(q);
-#endif
     }
     return url;
 }
@@ -154,11 +148,7 @@ QString MailAddress::prettyName(FormattingMode mode) const
                 return address;
             }
         } else {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-            return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(Qt::escape(asUrl().toString()), Qt::escape(niceName));
-#else
             return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(asUrl().toString().toHtmlEscaped(), niceName.toHtmlEscaped());
-#endif
         }
     }
 }
@@ -281,14 +271,10 @@ bool MailAddress::fromUrl(MailAddress &into, const QUrl &url, const QString &exp
     if (list.size() != 2)
         return false;
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Imap::Message::MailAddress addr(url.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
-                                    list[0], list[1]);
-#else
     QUrlQuery q(url);
     Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
                                     list[0], list[1]);
-#endif
+
     if (!addr.hasUsefulDisplayName())
         addr.name.clear();
     into = addr;

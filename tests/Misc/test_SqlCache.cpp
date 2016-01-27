@@ -22,7 +22,6 @@
 
 #include <QTest>
 #include "test_SqlCache.h"
-#include "Utils/headless_test.h"
 #include "Imap/Model/SQLCache.h"
 
 Q_DECLARE_METATYPE(QList<Imap::Mailbox::MailboxMetadata>)
@@ -92,4 +91,4 @@ void TestSqlCache::testMailboxOperation()
     QVERIFY(errorSpy->isEmpty());
 }
 
-TROJITA_HEADLESS_TEST(TestSqlCache)
+QTEST_GUILESS_MAIN(TestSqlCache)

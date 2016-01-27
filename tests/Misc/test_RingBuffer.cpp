@@ -24,7 +24,6 @@
 #include <QMetaType>
 #include <QTest>
 #include "test_RingBuffer.h"
-#include "Utils/headless_test.h"
 #include "Common/RingBuffer.h"
 
 using namespace Common;
@@ -132,4 +131,4 @@ void RingBufferTest::testOne_data()
     QTest::newRow("eleven-wrapped") << 5 << data << expected;
 }
 
-TROJITA_HEADLESS_TEST( RingBufferTest )
+QTEST_GUILESS_MAIN( RingBufferTest )

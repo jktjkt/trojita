@@ -24,13 +24,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QMap>
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QStandardPaths>
-#else
-#include <QDesktopServices>
-#endif
-
 #include "Application.h"
 #include "Paths.h"
 
@@ -51,15 +45,9 @@ QString writablePath(const LocationType location)
         QCoreApplication::setOrganizationDomain(Common::Application::organization);
         QCoreApplication::setOrganizationName(Common::Application::organization);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
         map[LOCATION_CACHE] = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
         map[LOCATION_DATA] = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
         map[LOCATION_DOWNLOAD] = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
-#else
-        map[LOCATION_CACHE] = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
-        map[LOCATION_DATA] = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-        map[LOCATION_DOWNLOAD] = QDesktopServices::storageLocation(QDesktopServices::DocumentsLocation);
-#endif
 
         if (map[LOCATION_CACHE].isEmpty())
             map[LOCATION_CACHE] = QDir::homePath() + QLatin1String("/.cache");

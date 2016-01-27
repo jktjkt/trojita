@@ -20,13 +20,9 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QMimeDatabase>
 #include "UiUtils/PartWalker.h"
 #include "Imap/Model/ItemRoles.h"
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#  include <QMimeDatabase>
-#else
-#  include "mimetypes-qt4/include/QMimeDatabase"
-#endif
 
 namespace UiUtils {
 

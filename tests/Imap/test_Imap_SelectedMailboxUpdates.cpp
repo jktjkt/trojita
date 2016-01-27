@@ -26,7 +26,6 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Parser/Uids.h"
 #include "Streams/FakeSocket.h"
-#include "Utils/headless_test.h"
 
 /** @short Test that we survive a new message arrival and its subsequent removal in rapid sequence
 
@@ -1021,4 +1020,4 @@ void ImapModelSelectedMailboxUpdatesTest::helperDataChangedUidNonZero(const QMod
     }
 }
 
-TROJITA_HEADLESS_TEST( ImapModelSelectedMailboxUpdatesTest )
+QTEST_GUILESS_MAIN( ImapModelSelectedMailboxUpdatesTest )

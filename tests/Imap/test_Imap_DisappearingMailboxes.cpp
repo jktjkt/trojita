@@ -22,7 +22,6 @@
 
 #include <QtTest>
 #include "test_Imap_DisappearingMailboxes.h"
-#include "Utils/headless_test.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/TaskPresentationModel.h"
 #include "Streams/FakeSocket.h"
@@ -451,4 +450,4 @@ void ImapModelDisappearingMailboxTest::testMailboxHoping()
 // FIXME: write test for the UnSelectTask and its interaction with different scenarios about opened/to-be-opened tasks
 // Redmine #486
 
-TROJITA_HEADLESS_TEST( ImapModelDisappearingMailboxTest )
+QTEST_GUILESS_MAIN( ImapModelDisappearingMailboxTest )

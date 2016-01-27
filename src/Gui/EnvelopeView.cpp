@@ -22,12 +22,8 @@
 #include "EnvelopeView.h"
 #include <QHeaderView>
 #include <QFontMetrics>
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-#  include <QTextDocument>
-#else
-#  include <QUrlQuery>
-#endif
 #include <QLabel>
+#include <QUrlQuery>
 #include <QVBoxLayout>
 #include "Gui/AddressRowWidget.h"
 #include "Gui/MessageView.h"
@@ -92,20 +88,9 @@ void EnvelopeView::setMessage(const QModelIndex &index)
             if (scheme == QLatin1String("http") || scheme == QLatin1String("https") || scheme == QLatin1String("mailto")) {
                 QString target = item.toUrl().toString();
                 QString caption = item.toUrl().toString(scheme == QLatin1String("mailto") ? QUrl::RemoveScheme : QUrl::None);
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                target = Qt::escape(target);
-                caption = Qt::escape(caption);
-#else
-                target = target.toHtmlEscaped();
-                caption = caption.toHtmlEscaped();
-#endif
-                buf << tr("<a href=\"%1\">%2</a>").arg(target, caption);
+                buf << tr("<a href=\"%1\">%2</a>").arg(target.toHtmlEscaped(), caption.toHtmlEscaped());
             } else {
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-                buf << Qt::escape(item.toUrl().toString());
-#else
                 buf << item.toUrl().toString().toHtmlEscaped();
-#endif
             }
         }
         auto lbl = new QLabel(tr("<b>Mailing List:</b>&nbsp;%1").arg(buf.join(tr(", "))));
@@ -121,22 +106,12 @@ void EnvelopeView::setMessage(const QModelIndex &index)
     if (!e.bcc.isEmpty()) {
         layout()->addWidget(new AddressRowWidget(this, tr("Bcc"), e.bcc, m_messageView));
     }
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    const QString &escapedSubject = Qt::escape(e.subject);
-#else
-    const QString &escapedSubject = e.subject.toHtmlEscaped();
-#endif
-    auto lbl = new QLabel(tr("<b>Subject:</b>&nbsp;%1").arg(escapedSubject), this);
+    auto lbl = new QLabel(tr("<b>Subject:</b>&nbsp;%1").arg(e.subject.toHtmlEscaped()), this);
     SET_LABEL_OPTIONS(lbl)
     layout()->addWidget(lbl);
     if (e.date.isValid()) {
         const QString &date = e.date.toLocalTime().toString(Qt::SystemLocaleLongDate);
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-        const QString &escapedDate = Qt::escape(date);
-#else
-        const QString &escapedDate = date.toHtmlEscaped();
-#endif
-        auto lbl = new QLabel(tr("<b>Date:</b>&nbsp;%1").arg(escapedDate), this);
+        auto lbl = new QLabel(tr("<b>Date:</b>&nbsp;%1").arg(date.toHtmlEscaped()), this);
         SET_LABEL_OPTIONS(lbl)
         layout()->addWidget(lbl);
     }

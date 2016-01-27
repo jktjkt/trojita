@@ -28,6 +28,7 @@
 #include <QHBoxLayout>
 #include <QMenu>
 #include <QMimeData>
+#include <QMimeDatabase>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPushButton>
@@ -37,11 +38,6 @@
 #include <QTemporaryFile>
 #include <QTimer>
 #include <QToolButton>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#  include <QMimeDatabase>
-#else
-#  include "mimetypes-qt4/include/QMimeDatabase"
-#endif
 
 #include "Common/DeleteAfter.h"
 #include "Common/Paths.h"

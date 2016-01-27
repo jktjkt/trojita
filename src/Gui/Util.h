@@ -41,8 +41,6 @@ namespace Util
 
 QString pkgDataDir();
 
-QFont systemMonospaceFont();
-
 int askForSomethingUnlessTold(const QString &title, const QString &message, const QString &settingsName,
                               QMessageBox::StandardButtons buttons, QWidget *parent, QSettings *settings);
 

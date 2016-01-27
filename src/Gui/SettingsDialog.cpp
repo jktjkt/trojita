@@ -507,7 +507,7 @@ EditIdentity::EditIdentity(QWidget *parent, Composer::SenderIdentitiesModel *ide
     connect(this, SIGNAL(accepted()), m_mapper, SLOT(submit()));
     connect(this, SIGNAL(rejected()), this, SLOT(onReject()));
     setModal(true);
-    signaturePlainTextEdit->setFont(Gui::Util::systemMonospaceFont());
+    signaturePlainTextEdit->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
 }
 
 void EditIdentity::enableButton()

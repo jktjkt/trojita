@@ -312,19 +312,14 @@ ErrorCheckingPage::ErrorCheckingPage(QObject *parent): QWebPage(parent)
 
 bool ErrorCheckingPage::supportsExtension(Extension extension) const
 {
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     if (extension == ErrorPageExtension)
         return true;
     else
-#endif
         return false;
 }
 
 bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *option, ExtensionReturn *output)
 {
-#if QT_VERSION < QT_VERSION_CHECK(4, 8, 0)
-    return false;
-#else
     if (extension != ErrorPageExtension)
         return false;
 
@@ -343,7 +338,6 @@ bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *op
         res->contentType = QLatin1String("text/plain");
     }
     return true;
-#endif
 }
 
 }

@@ -21,6 +21,7 @@
 */
 #include <QApplication>
 #include <QFileDialog>
+#include <QFontDatabase>
 #include <QNetworkReply>
 #include <QWebFrame>
 
@@ -59,7 +60,7 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
         if (partIndex.data(Imap::Mailbox::RolePartOctets).toUInt() < 100 * 1024) {
             connect(this, SIGNAL(loadFinished(bool)), this, SLOT(slotMarkupPlainText()));
         } else {
-            QFont font = Gui::Util::systemMonospaceFont();
+            QFont font(QFontDatabase::systemFont(QFontDatabase::FixedFont));
             setStaticWidth(QFontMetrics(font).maxWidth()*90);
             QWebSettings *s = settings();
             // TODO wtf does this not work?
@@ -113,7 +114,7 @@ void SimplePartWidget::slotMarkupPlainText()
     QPalette palette = QApplication::palette();
 
     // and finally set the marked up page.
-    page()->mainFrame()->setHtml(UiUtils::htmlizedTextPart(m_partIndex, Gui::Util::systemMonospaceFont(),
+    page()->mainFrame()->setHtml(UiUtils::htmlizedTextPart(m_partIndex, QFontDatabase::systemFont(QFontDatabase::FixedFont),
                                                            palette.base().color(), palette.text().color(),
                                                            palette.link().color(), palette.linkVisited().color()));
 }

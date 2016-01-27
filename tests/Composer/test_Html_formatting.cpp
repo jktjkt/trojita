@@ -26,7 +26,6 @@
 #include <QWebFrame>
 #include <QWebView>
 #include "test_Html_formatting.h"
-#include "Utils/headless_test.h"
 #include "Composer/Recipients.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/SenderIdentitiesModel.h"
@@ -304,7 +303,6 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
     if (expandedFlowed.isEmpty())
         expandedFlowed = formattedFlowed;
 
-#if QT_VERSION >= QT_VERSION_CHECK(4, 8, 0)
     {
         WebRenderingTester tester;
         LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED)),
@@ -316,7 +314,6 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
         LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::PLAIN)),
                           visualizeWhitespace(formattedPlain));
     }
-#endif
 
     {
         WebRenderingTester tester;

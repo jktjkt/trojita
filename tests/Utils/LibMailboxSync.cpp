@@ -23,7 +23,6 @@
 #include <QTest>
 #include "LibMailboxSync.h"
 #include "Utils/FakeCapabilitiesInjector.h"
-#include "headless_test.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/Cache.h"

@@ -129,8 +129,4 @@ QObject *trojita_plugin_ClearTextPasswordPlugin::create(QObject *parent, QSettin
     return new ClearTextPassword(parent, settings);
 }
 
-#if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
-    Q_EXPORT_PLUGIN2(trojita_plugin_ClearTextPasswordPlugin, trojita_plugin_ClearTextPasswordPlugin)
-#endif
-
 // vim: set et ts=4 sts=4 sw=4

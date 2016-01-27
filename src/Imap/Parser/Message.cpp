@@ -24,9 +24,6 @@
 
 #include <QTextDocument>
 #include <QUrl>
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
-#include <QUrlQuery>
-#endif
 #include <QTextCodec>
 #include "Message.h"
 #include "MailAddress.h"
