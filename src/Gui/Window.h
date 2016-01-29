@@ -336,6 +336,7 @@ private:
     QAction *m_actionContactEditor;
 
     QToolBar *m_mainToolbar;
+    QToolButton *m_menuFromToolBar;
     QToolButton *m_replyButton;
     QMenu *m_replyMenu;
     QToolButton *m_composeButton;

@@ -504,9 +504,6 @@ void MainWindow::createActions()
     m_mainToolbar->addAction(markAsFlagged);
     m_mainToolbar->addAction(markAsJunk);
     m_mainToolbar->addAction(markAsNotJunk);
-    m_mainToolbar->addSeparator();
-    m_mainToolbar->addAction(showMenuBar);
-    m_mainToolbar->addAction(configSettings);
 
     // Push the status indicators all the way to the other side of the toolbar -- either to the far right, or far bottom.
     QWidget *toolbarSpacer = new QWidget(m_mainToolbar);
@@ -520,6 +517,18 @@ void MainWindow::createActions()
     // This is deliberate; we want to show this button in the same style as the other ones in the toolbar
     networkIndicator->setPopupMode(QToolButton::MenuButtonPopup);
     m_mainToolbar->addWidget(networkIndicator);
+
+    m_menuFromToolBar = new QToolButton(this);
+    m_menuFromToolBar->setIcon(UiUtils::loadIcon(QLatin1String("menu_new")));
+    m_menuFromToolBar->setText(QChar(0x205d)); // Unicode 'TRICOLON'
+    m_menuFromToolBar->setPopupMode(QToolButton::MenuButtonPopup);
+    connect(m_menuFromToolBar, &QAbstractButton::clicked, m_menuFromToolBar, &QToolButton::showMenu);
+    m_mainToolbar->addWidget(m_menuFromToolBar);
+    connect(showMenuBar, &QAction::toggled, [this](const bool menuBarVisible) {
+        // https://bugreports.qt.io/browse/QTBUG-35768 , we have to work on the QAction, not QToolButton
+        m_mainToolbar->actions().last()->setVisible(!menuBarVisible);
+    });
+    m_mainToolbar->actions().last()->setVisible(false); // initial state to complement the default of the QMenuBar's visibility
 
     busyParsersIndicator->setFixedSize(m_mainToolbar->iconSize());
 
@@ -634,6 +643,15 @@ void MainWindow::createMenus()
     ADD_ACTION(helpMenu, donateToTrojita);
     helpMenu->addSeparator();
     ADD_ACTION(helpMenu, aboutTrojita);
+
+    QMenu *mainMenuBehindToolBar = new QMenu(this);
+    m_menuFromToolBar->setMenu(mainMenuBehindToolBar);
+    m_menuFromToolBar->menu()->addMenu(imapMenu);
+    m_menuFromToolBar->menu()->addMenu(viewMenu);
+    m_menuFromToolBar->menu()->addMenu(mailboxMenu);
+    m_menuFromToolBar->menu()->addMenu(helpMenu);
+    m_menuFromToolBar->menu()->addSeparator();
+    m_menuFromToolBar->menu()->addAction(showMenuBar);
 
     networkIndicator->setMenu(netPolicyMenu);
     m_netToolbarDefaultAction = new QAction(this);
