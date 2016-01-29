@@ -45,9 +45,9 @@ void LineEdit::init()
     connect(this, &QLineEdit::textChanged, this, &LineEdit::updateClearButton);
 
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    m_clearButton->setStyleSheet(QString::fromUtf8("QToolButton { border: none; padding-left: 1px; padding-top: %1px; padding-bottom: %1px; padding-right: %1px; }")
+    m_clearButton->setStyleSheet(QStringLiteral("QToolButton { border: none; padding-left: 1px; padding-top: %1px; padding-bottom: %1px; padding-right: %1px; }")
         .arg(frameWidth + 1));
-    setStyleSheet(QString::fromUtf8("QLineEdit { padding-right: %1px; }")
+    setStyleSheet(QStringLiteral("QLineEdit { padding-right: %1px; }")
         .arg(m_clearButton->sizeHint().width()));
 
     QHBoxLayout *layout = new QHBoxLayout(this);

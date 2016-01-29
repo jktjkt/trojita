@@ -56,7 +56,7 @@ QVariant FromAddressProxyModel::data(const QModelIndex &index, int role) const
     QModelIndex emailIndex = sourceIndex.sibling(sourceIndex.row(), Composer::SenderIdentitiesModel::COLUMN_EMAIL);
     Q_ASSERT(nameIndex.isValid());
     Q_ASSERT(emailIndex.isValid());
-    return QString::fromUtf8("%1 <%2>").arg(nameIndex.data().toString(), emailIndex.data().toString());
+    return QStringLiteral("%1 <%2>").arg(nameIndex.data().toString(), emailIndex.data().toString());
 }
 
 }

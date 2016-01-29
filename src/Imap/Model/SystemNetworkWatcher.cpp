@@ -78,7 +78,7 @@ void SystemNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 {
     if (policy != m_desiredPolicy) {
         m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Network Session"),
-                          QString::fromUtf8("User's preference changed: %1").arg(policyToString(policy)));
+                          QStringLiteral("User's preference changed: %1").arg(policyToString(policy)));
         m_desiredPolicy = policy;
     }
     if (m_model->networkPolicy() == NETWORK_OFFLINE && policy != NETWORK_OFFLINE) {
@@ -116,7 +116,7 @@ void SystemNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 void SystemNetworkWatcher::reconnectModelNetwork()
 {
     m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Network Session"),
-                      QString::fromUtf8("Session is %1 (configuration %2), online state: %3").arg(
+                      QStringLiteral("Session is %1 (configuration %2), online state: %3").arg(
                           QLatin1String(m_session->isOpen() ? "open" : "not open"),
                           m_session->configuration().name(),
                           QLatin1String(m_netConfManager->isOnline() ? "online" : "offline")
@@ -161,7 +161,7 @@ void SystemNetworkWatcher::networkConfigurationChanged(const QNetworkConfigurati
         // Let's prevent a ton of useless reconnects here by only handling this if the system now believes that a default session
         // is something else.
         m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Network Session"),
-                          QString::fromUtf8("Change of configuration of the current session (%1); current default session is %2")
+                          QStringLiteral("Change of configuration of the current session (%1); current default session is %2")
                           .arg(conf.name(), m_netConfManager->defaultConfiguration().name()));
         reconnect = true;
     } else if (conf.state().testFlag(QNetworkConfiguration::Active) && conf.type() == QNetworkConfiguration::InternetAccessPoint &&
@@ -178,10 +178,10 @@ void SystemNetworkWatcher::networkConfigurationChanged(const QNetworkConfigurati
 
         m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Network Session"),
                           m_session->configuration().type() == QNetworkConfiguration::InternetAccessPoint ?
-                              QString::fromUtf8("Change of system's default configuration: %1. Currently using %2.")
+                              QStringLiteral("Change of system's default configuration: %1. Currently using %2.")
                               .arg(conf.name(), m_session->configuration().name())
                             :
-                              QString::fromUtf8("Change of system's default configuration: %1. Currently using %2 (active: %3).")
+                              QStringLiteral("Change of system's default configuration: %1. Currently using %2 (active: %3).")
                               .arg(conf.name(), m_session->configuration().name(), sessionsActiveConfiguration().name()));
         reconnect = true;
     }
@@ -228,7 +228,7 @@ QNetworkConfiguration SystemNetworkWatcher::sessionsActiveConfiguration() const
 void SystemNetworkWatcher::networkSessionError()
 {
     m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Network Session"),
-                      QString::fromUtf8("Session error: %1").arg(m_session->errorString()));
+                      QStringLiteral("Session error: %1").arg(m_session->errorString()));
 
     if (!m_reconnectTimer->isActive()) {
         attemptReconnect();

@@ -102,7 +102,7 @@ bool SubscribeUnsubscribeTask::handleStateHelper(const Imap::Responses::State *c
 
 QString SubscribeUnsubscribeTask::debugIdentification() const
 {
-    return QString::fromUtf8("Subscription update for %1").arg(mailboxName);
+    return QStringLiteral("Subscription update for %1").arg(mailboxName);
 }
 
 QVariant SubscribeUnsubscribeTask::taskData(const int role) const

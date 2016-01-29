@@ -131,7 +131,7 @@ QString DiskPartCache::dirForMailbox(const QString &mailbox) const
 
 QString DiskPartCache::fileForPart(const QString &mailbox, const uint uid, const QByteArray &partId) const
 {
-    return QString::fromUtf8("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), QString::fromUtf8(partId));
+    return QStringLiteral("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), QString::fromUtf8(partId));
 }
 
 }

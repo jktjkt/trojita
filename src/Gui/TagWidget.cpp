@@ -35,7 +35,7 @@ TagWidget::TagWidget(const Mode mode, const QString &tagName, const QString &bac
     m_tagName(tagName),
     m_mode(mode)
 {
-    setStyleSheet(QString::fromLatin1("border: 1px solid black; border-radius: 4px; background-color: %1;").arg(backgroundColor));
+    setStyleSheet(QStringLiteral("border: 1px solid black; border-radius: 4px; background-color: %1;").arg(backgroundColor));
 }
 
 TagWidget *TagWidget::addingWidget()

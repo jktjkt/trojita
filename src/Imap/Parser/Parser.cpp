@@ -657,7 +657,7 @@ QSharedPointer<Responses::AbstractResponse> Parser::getResponse()
 
 QByteArray Parser::generateTag()
 {
-    return QString::fromUtf8("y%1").arg(m_lastTagUsed++).toUtf8();
+    return QStringLiteral("y%1").arg(m_lastTagUsed++).toUtf8();
 }
 
 void Parser::handleReadyRead()

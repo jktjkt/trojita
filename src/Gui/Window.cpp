@@ -706,7 +706,7 @@ void MainWindow::createWidgets()
     // Do not try to get onto the homepage when we are on EXPENSIVE connection
     if (m_settings->value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
         m_imapAccess->preferredNetworkPolicy() == Imap::Mailbox::NETWORK_ONLINE) {
-        m_messageWidget->messageView->setHomepageUrl(QUrl(QString::fromUtf8("http://welcome.trojita.flaska.net/%1").arg(Common::Application::version)));
+        m_messageWidget->messageView->setHomepageUrl(QUrl(QStringLiteral("http://welcome.trojita.flaska.net/%1").arg(Common::Application::version)));
     }
 
     allDock = new QDockWidget(tr("Everything"), this);
@@ -885,7 +885,7 @@ void MainWindow::handleTrayIconChange()
             QFontMetrics fm(f);
             if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toUInt() > 666) {
                 // You just have too many messages.
-                text = QString::fromUtf8("🐮");
+                text = QStringLiteral("🐮");
                 fm = QFontMetrics(f);
             } else if (fm.width(text) > pixmap.width()) {
                 f.setPixelSize(f.pixelSize() * pixmap.width() / fm.width(text));

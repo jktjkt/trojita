@@ -322,7 +322,7 @@ QString systemPlatformVersion()
             proc->deleteLater();
         }
     }
-    return QString::fromUtf8("Qt/%1; %2; %3; %4").arg(QString::fromUtf8(qVersion()), QGuiApplication::platformName(), os, platformVersion);
+    return QStringLiteral("Qt/%1; %2; %3; %4").arg(QString::fromUtf8(qVersion()), QGuiApplication::platformName(), os, platformVersion);
 }
 
 }

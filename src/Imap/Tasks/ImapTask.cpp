@@ -236,7 +236,7 @@ void ImapTask::_failed(const QString &errorMessage)
 {
     _finished = true;
     killAllPendingTasks(errorMessage);
-    log(QString::fromUtf8("Failed: %1").arg(errorMessage));
+    log(QStringLiteral("Failed: %1").arg(errorMessage));
     emit failed(errorMessage);
 }
 

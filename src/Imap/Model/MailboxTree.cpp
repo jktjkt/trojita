@@ -352,7 +352,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
 
     int number = response.number - 1;
     if (number < 0 || number >= list->m_children.size())
-        throw UnknownMessageIndex(QString::fromUtf8("Got FETCH that is out of bounds -- got %1 messages").arg(
+        throw UnknownMessageIndex(QStringLiteral("Got FETCH that is out of bounds -- got %1 messages").arg(
                                       QString::number(list->m_children.size())).toUtf8().constData(), response);
 
     TreeItemMessage *message = static_cast<TreeItemMessage *>(list->child(number, model));
@@ -361,7 +361,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
     if (uidRecord != response.data.constEnd()) {
         uint receivedUid = static_cast<const Responses::RespData<uint>&>(*(uidRecord.value())).data;
         if (receivedUid == 0) {
-            throw MailboxException(QString::fromUtf8("Server claims that message #%1 has UID 0")
+            throw MailboxException(QStringLiteral("Server claims that message #%1 has UID 0")
                                    .arg(QString::number(response.number)).toUtf8().constData(), response);
         } else if (message->uid() == receivedUid) {
             // That's what we expect -> do nothing
@@ -394,7 +394,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 list->setFetchStatus(LOADING);
             }
         } else {
-            throw MailboxException(QString::fromUtf8("FETCH response: UID consistency error for message #%1 -- expected UID %2, got UID %3").arg(
+            throw MailboxException(QStringLiteral("FETCH response: UID consistency error for message #%1 -- expected UID %2, got UID %3").arg(
                                        QString::number(response.number), QString::number(message->uid()), QString::number(receivedUid)
                                        ).toUtf8().constData(), response);
         }
@@ -819,7 +819,7 @@ TreeItemPart *TreeItemMailbox::partIdToPtr(Model *const model, TreeItemMessage *
             item = part;
         item = item->child(number - 1, model);
         if (! item) {
-            throw UnknownMessageIndex(QString::fromUtf8(
+            throw UnknownMessageIndex(QStringLiteral(
                                           "Offset of the message part not found: message %1 (UID %2), current number %3, full identification %4")
                                       .arg(QString::number(message->row()), QString::number(message->uid()),
                                            QString::number(number), QString::fromUtf8(msgId)).toUtf8().constData());
@@ -889,7 +889,7 @@ QVariant TreeItemMsgList::data(Model *const model, int role)
         return QLatin1String("[offline]");
 
     if (fetched())
-        return hasChildren(model) ? QString::fromUtf8("[%1 messages]").arg(childrenCount(model)) : QStringLiteral("[no messages]");
+        return hasChildren(model) ? QStringLiteral("[%1 messages]").arg(childrenCount(model)) : QStringLiteral("[no messages]");
 
     return QLatin1String("[messages?]");
 }
@@ -1147,11 +1147,11 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     switch (role) {
     case Qt::DisplayRole:
         if (loading()) {
-            return QString::fromUtf8("[loading UID %1...]").arg(QString::number(uid()));
+            return QStringLiteral("[loading UID %1...]").arg(QString::number(uid()));
         } else if (isUnavailable()) {
-            return QString::fromUtf8("[offline UID %1]").arg(QString::number(uid()));
+            return QStringLiteral("[offline UID %1]").arg(QString::number(uid()));
         } else {
-            return QString::fromUtf8("UID %1: %2").arg(QString::number(uid()), data()->m_envelope.subject);
+            return QStringLiteral("UID %1: %2").arg(QString::number(uid()), data()->m_envelope.subject);
         }
     case Qt::ToolTipRole:
         if (fetched()) {
@@ -1559,9 +1559,9 @@ QVariant TreeItemPart::data(Model *const model, int role)
     case Qt::DisplayRole:
         return isTopLevelMultiPart() ?
                QString::fromUtf8(m_mimeType) :
-               QString::fromUtf8("%1: %2").arg(QString::fromUtf8(partId()), QString::fromUtf8(m_mimeType));
+               QStringLiteral("%1: %2").arg(QString::fromUtf8(partId()), QString::fromUtf8(m_mimeType));
     case Qt::ToolTipRole:
-        return QString::fromUtf8("%1 bytes of data").arg(m_data.size());
+        return QStringLiteral("%1 bytes of data").arg(m_data.size());
     case RolePartData:
         return m_data;
     case RolePartUnicodeText:

@@ -541,7 +541,7 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
         target->write(encodeHeaderField(QLatin1String("Organization: ") + m_organization) + "\r\n");
     }
     if (m_reportTrojitaVersions) {
-        target->write(QString::fromUtf8("User-Agent: Trojita/%1; %2\r\n").arg(
+        target->write(QStringLiteral("User-Agent: Trojita/%1; %2\r\n").arg(
                       Common::Application::version, Imap::Mailbox::systemPlatformVersion()).toUtf8());
     } else {
         target->write("User-Agent: Trojita\r\n");

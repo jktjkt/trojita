@@ -309,7 +309,7 @@ void ObtainSynchronizedMailboxTask::finalizeSelect()
                     }
 
                     if (static_cast<uint>(list->m_children.size()) != mailbox->syncState.exists()) {
-                        log(QString::fromUtf8("Sync error: EXISTS says %1 messages, msgList has %2")
+                        log(QStringLiteral("Sync error: EXISTS says %1 messages, msgList has %2")
                             .arg(QString::number(mailbox->syncState.exists()), QString::number(list->m_children.size())));
                         mailbox->syncState.setHighestModSeq(0);
                         model->cache()->clearAllMessages(mailbox->mailbox());
@@ -539,7 +539,7 @@ void ObtainSynchronizedMailboxTask::syncUids(TreeItemMailbox *mailbox, const uin
     if (lowestUidToQuery == 0) {
         uidSpecification = "ALL";
     } else {
-        uidSpecification = QString::fromUtf8("UID %1:*").arg(QString::number(lowestUidToQuery)).toUtf8();
+        uidSpecification = QStringLiteral("UID %1:*").arg(QString::number(lowestUidToQuery)).toUtf8();
     }
     uidMap.clear();
     if (model->accessParser(parser).capabilities.contains(QStringLiteral("ESEARCH"))) {
@@ -1156,7 +1156,7 @@ QString ObtainSynchronizedMailboxTask::debugIdentification() const
         statusStr = QStringLiteral("STATE_DONE");
         break;
     }
-    return QString::fromUtf8("%1 %2").arg(statusStr, mailbox->mailbox());
+    return QStringLiteral("%1 %2").arg(statusStr, mailbox->mailbox());
 }
 
 void ObtainSynchronizedMailboxTask::notifyInterestingMessages(TreeItemMailbox *mailbox)
@@ -1174,12 +1174,12 @@ void ObtainSynchronizedMailboxTask::notifyInterestingMessages(TreeItemMailbox *m
             firstInterestingMessage.data(RoleMessageIsMarkedRead).toBool()) {
         // Clearly the reported value is utter nonsense. Let's just scroll to the end instead
         int offset = model->rowCount(listIndex) - 1;
-        log(QString::fromUtf8("\"First interesting message\" doesn't look terribly interesting (%1), scrolling to the end at %2 instead")
+        log(QStringLiteral("\"First interesting message\" doesn't look terribly interesting (%1), scrolling to the end at %2 instead")
             .arg(firstInterestingMessage.data(RoleMessageFlags).toStringList().join(QStringLiteral(", ")),
                  QString::number(offset)), Common::LOG_MAILBOX_SYNC);
         firstInterestingMessage = model->index(offset, 0, listIndex);
     } else {
-        log(QString::fromUtf8("First interesting message at %1 (%2)")
+        log(QStringLiteral("First interesting message at %1 (%2)")
             .arg(QString::number(mailbox->syncState.unSeenOffset()),
                  firstInterestingMessage.data(RoleMessageFlags).toStringList().join(QStringLiteral(", "))
                  ), Common::LOG_MAILBOX_SYNC);

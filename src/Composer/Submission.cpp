@@ -66,7 +66,7 @@ QString submissionProgressToString(const Submission::SubmissionProgress progress
     case Submission::STATE_FAILED:
         return QStringLiteral("STATE_FAILED");
     }
-    return QString::fromUtf8("[unknown: %1]").arg(QString::number(static_cast<int>(progress)));
+    return QStringLiteral("[unknown: %1]").arg(QString::number(static_cast<int>(progress)));
 }
 
 Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory) :
@@ -252,7 +252,7 @@ void Submission::slotAskForUrl()
                                                    killDomainPartFromString(m_imapUsername),
                                                    m_sentFolderName,
                                                    m_appendUidValidity, m_appendUid, QString(),
-                                                   QString::fromUtf8("submit+%1").arg(
+                                                   QStringLiteral("submit+%1").arg(
                                                        killDomainPartFromString(m_smtpUsername))
                                                    ));
     connect(genUrlAuthTask, &Imap::Mailbox::GenUrlAuthTask::gotAuth, this, &Submission::slotGenUrlAuthReceived);
@@ -298,7 +298,7 @@ void Submission::cancelPassword()
 void Submission::gotError(const QString &error)
 {
     if (m_model)
-        m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Submission"), QString::fromUtf8("gotError: %1").arg(error));
+        m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Submission"), QStringLiteral("gotError: %1").arg(error));
     changeConnectionState(STATE_FAILED);
     emit failed(error);
 }

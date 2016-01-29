@@ -339,9 +339,9 @@ NameEmailList AbookAddressbook::complete(const QString &string, const QStringLis
     if (string.isEmpty())
         return list;
     // In e-mail addresses, dot, dash, _ and @ shall be treated as delimiters
-    QRegExp mailMatch = QRegExp(QString::fromUtf8("[\\.\\-_@]%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
+    QRegExp mailMatch = QRegExp(QStringLiteral("[\\.\\-_@]%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
     // In human readable names, match on word boundaries
-    QRegExp nameMatch = QRegExp(QString::fromUtf8("\\b%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
+    QRegExp nameMatch = QRegExp(QStringLiteral("\\b%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
     // These REs are still not perfect, they won't match on e.g. ".net" or "-project", but screw these I say
     for (int i = 0; i < m_contacts->rowCount(); ++i) {
         QStandardItem *item = m_contacts->item(i);

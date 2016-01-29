@@ -173,7 +173,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
                 QString buf;
                 QTextStream s(&buf);
                 s << *stateResponse;
-                logTrace(it->parser->parserId(), Common::LOG_OTHER, QStringLiteral("Model"), QString::fromUtf8("BAD response: %1").arg(buf));
+                logTrace(it->parser->parserId(), Common::LOG_OTHER, QStringLiteral("Model"), QStringLiteral("BAD response: %1").arg(buf));
                 qDebug() << buf;
             }
         }
@@ -1143,7 +1143,7 @@ void Model::broadcastParseError(const uint parser, const QString &exceptionClass
 {
     emit logParserFatalError(parser, exceptionClass, errorMessage, line, position);
     QString details = (position == -1) ? QString() : QString(position, QLatin1Char(' ')) + QLatin1String("^ here");
-    logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QString::fromUtf8("%1\n%2\n%3").arg(errorMessage, QString::fromUtf8(line), details));
+    logTrace(parser, Common::LOG_PARSE_ERROR, exceptionClass, QStringLiteral("%1\n%2\n%3").arg(errorMessage, QString::fromUtf8(line), details));
     QString message;
     if (exceptionClass == QLatin1String("NotAnImapServerError")) {
         QString service;
@@ -1189,7 +1189,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     Q_FOREACH(const QString& str, capabilities) {
         QString cap = str.toUpper();
         if (m_capabilitiesBlacklist.contains(cap)) {
-            logTrace(parser->parserId(), Common::LOG_OTHER, QStringLiteral("Model"), QString::fromUtf8("Ignoring capability \"%1\"").arg(cap));
+            logTrace(parser->parserId(), Common::LOG_OTHER, QStringLiteral("Model"), QStringLiteral("Ignoring capability \"%1\"").arg(cap));
             continue;
         }
         uppercaseCaps << cap;

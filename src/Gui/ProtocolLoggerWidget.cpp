@@ -172,7 +172,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
     }
 
     for (RingBuffer<LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
-        QString message = QString::fromUtf8("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
+        QString message = QStringLiteral("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
         QString direction;
         QString textColor;
         QString bgColor;
@@ -216,7 +216,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
 
         w->appendHtml(message.arg(it->timestamp.toString(QStringLiteral("hh:mm:ss.zzz")),
                                   direction, textColor,
-                                  bgColor.isEmpty() ? QString() : QString::fromUtf8("background-color: %1").arg(bgColor),
+                                  bgColor.isEmpty() ? QString() : QStringLiteral("background-color: %1").arg(bgColor),
                                   niceLine, trimmedInfo));
     }
     buf.clear();

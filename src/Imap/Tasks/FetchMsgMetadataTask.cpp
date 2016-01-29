@@ -92,7 +92,7 @@ QString FetchMsgMetadataTask::debugIdentification() const
         return QStringLiteral("[invalid mailbox]");
 
     Q_ASSERT(!uids.isEmpty());
-    return QString::fromUtf8("%1: UIDs %2").arg(mailbox.data(RoleMailboxName).toString(),
+    return QStringLiteral("%1: UIDs %2").arg(mailbox.data(RoleMailboxName).toString(),
                                                 QString::fromUtf8(Sequence::fromVector(uids).toByteArray()));
 }
 

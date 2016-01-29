@@ -34,7 +34,7 @@ IdleLauncher::IdleLauncher(KeepMailboxOpenTask *parent):
     QObject(parent), task(parent), m_idling(false), m_idleCommandRunning(false)
 {
     delayedEnter = new QTimer(this);
-    delayedEnter->setObjectName(QString::fromUtf8("%1-IdleLauncher-delayedEnter").arg(task->objectName()));
+    delayedEnter->setObjectName(QStringLiteral("%1-IdleLauncher-delayedEnter").arg(task->objectName()));
     delayedEnter->setSingleShot(true);
     // It's a question about what timeout to set here -- if it's too long, we enter IDLE too soon, before the
     // user has a chance to click on a message, but if we set it too long, we needlessly wait too long between
@@ -47,7 +47,7 @@ IdleLauncher::IdleLauncher(KeepMailboxOpenTask *parent):
     delayedEnter->setInterval(timeout);
     connect(delayedEnter, &QTimer::timeout, this, &IdleLauncher::slotEnterIdleNow);
     renewal = new QTimer(this);
-    renewal->setObjectName(QString::fromUtf8("%1-IdleLauncher-renewal").arg(task->objectName()));
+    renewal->setObjectName(QStringLiteral("%1-IdleLauncher-renewal").arg(task->objectName()));
     renewal->setSingleShot(true);
     timeout = parent->model->property("trojita-imap-idle-renewal").toUInt(&ok);
     if (! ok)

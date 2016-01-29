@@ -115,7 +115,7 @@ QUrl MailAddress::asUrl() const
 {
     QUrl url;
     url.setScheme(QStringLiteral("mailto"));
-    url.setPath(QString::fromUtf8("%1@%2").arg(mailbox, host));
+    url.setPath(QStringLiteral("%1@%2").arg(mailbox, host));
     if (!name.isEmpty()) {
         QUrlQuery q(url);
         q.addQueryItem(QStringLiteral("X-Trojita-DisplayName"), name);
@@ -148,7 +148,7 @@ QString MailAddress::prettyName(FormattingMode mode) const
                 return address;
             }
         } else {
-            return QString::fromUtf8("<a href=\"%1\">%2</a>").arg(asUrl().toString().toHtmlEscaped(), niceName.toHtmlEscaped());
+            return QStringLiteral("<a href=\"%1\">%2</a>").arg(asUrl().toString().toHtmlEscaped(), niceName.toHtmlEscaped());
         }
     }
 }

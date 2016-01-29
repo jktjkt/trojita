@@ -433,16 +433,16 @@ void BodyPartsTest::testFilenameExtraction_data()
     QTest::addColumn<QString>("filename");
 
 
-    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0") << QString(); // multipart/mixed
-    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0.0") << QString(); // multipart/alternative
-    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0.0.0") << QString(); // text/plain
-    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0.0.1") << QString(); // text/html
-    QTest::newRow("evernote-plaintext") << bsEvernote << QString::fromUtf8("0.1") << QString::fromUtf8("CAN0000009221(1)"); // application/octet-stream
+    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0") << QString(); // multipart/mixed
+    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0.0") << QString(); // multipart/alternative
+    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0.0.0") << QString(); // text/plain
+    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0.0.1") << QString(); // text/html
+    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0.1") << QStringLiteral("CAN0000009221(1)"); // application/octet-stream
 
-    QTest::newRow("plaintext-just-filename") << bsPlaintextWithFilenameAsFilename << QString::number(0) << QString::fromUtf8("pwn.txt");
-    QTest::newRow("plaintext-just-obsolete-name") << bsPlaintextWithFilenameAsName << QString::number(0) << QString::fromUtf8("pwn.txt");
-    QTest::newRow("plaintext-filename-preferred-over-name") << bsPlaintextWithFilenameAsBoth << QString::number(0) << QString::fromUtf8("pwn.txt");
-    QTest::newRow("name-overwrites-empty-filename") << bsPlaintextEmptyFilename << QString::number(0) << QString::fromUtf8("actual");
+    QTest::newRow("plaintext-just-filename") << bsPlaintextWithFilenameAsFilename << QStringLiteral("0") << QStringLiteral("pwn.txt");
+    QTest::newRow("plaintext-just-obsolete-name") << bsPlaintextWithFilenameAsName << QStringLiteral("0") << QStringLiteral("pwn.txt");
+    QTest::newRow("plaintext-filename-preferred-over-name") << bsPlaintextWithFilenameAsBoth << QStringLiteral("0") << QStringLiteral("pwn.txt");
+    QTest::newRow("name-overwrites-empty-filename") << bsPlaintextEmptyFilename << QStringLiteral("0") << QStringLiteral("actual");
 }
 
 QTEST_GUILESS_MAIN(BodyPartsTest)

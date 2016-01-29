@@ -94,7 +94,7 @@ void MsgPartNetworkReply::slotMyDataChanged()
     QString charset = part.data(Mailbox::RolePartCharset).toString();
     if (mimeType.startsWith(QLatin1String("text/"))) {
         setHeader(QNetworkRequest::ContentTypeHeader,
-                  charset.isEmpty() ? mimeType : QString::fromUtf8("%1; charset=%2").arg(mimeType, charset)
+                  charset.isEmpty() ? mimeType : QStringLiteral("%1; charset=%2").arg(mimeType, charset)
                  );
     } else {
         setHeader(QNetworkRequest::ContentTypeHeader, mimeType);

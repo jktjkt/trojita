@@ -33,7 +33,7 @@ UserAgentWebPage::UserAgentWebPage(QWidget *parent): QWebPage(parent)
 QString UserAgentWebPage::userAgentForUrl(const QUrl &url) const
 {
     Q_UNUSED(url);
-    return QString::fromUtf8("Trojita/%1; %2").arg(Common::Application::version, Imap::Mailbox::systemPlatformVersion());
+    return QStringLiteral("Trojita/%1; %2").arg(Common::Application::version, Imap::Mailbox::systemPlatformVersion());
 }
 
 

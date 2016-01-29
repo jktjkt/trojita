@@ -91,7 +91,7 @@ QString NumberOfMessagesTask::debugIdentification() const
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    return QString::fromUtf8("attached to %1").arg(mailbox->mailbox());
+    return QStringLiteral("attached to %1").arg(mailbox->mailbox());
 }
 
 QVariant NumberOfMessagesTask::taskData(const int role) const

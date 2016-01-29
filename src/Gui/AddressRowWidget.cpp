@@ -34,7 +34,7 @@ AddressRowWidget::AddressRowWidget(QWidget *parent, const QString &headerName,
 
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    QLabel *title = new QLabel(QString::fromUtf8("<b>%1:</b>").arg(headerName.toHtmlEscaped()), this);
+    QLabel *title = new QLabel(QStringLiteral("<b>%1:</b>").arg(headerName.toHtmlEscaped()), this);
     title->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     title->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse);
     lay->addWidget(title);

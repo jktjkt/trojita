@@ -100,7 +100,7 @@ QString FetchMsgPartTask::debugIdentification() const
     Q_FOREACH(const QByteArray &item, parts) {
         buf << QString::fromUtf8(item);
     }
-    return QString::fromUtf8("%1: parts %2 for UIDs %3")
+    return QStringLiteral("%1: parts %2 for UIDs %3")
            .arg(mailboxIndex.data(RoleMailboxName).toString(), buf.join(QStringLiteral(", ")),
                 QString::fromUtf8(Sequence::fromVector(uids).toByteArray()));
 }

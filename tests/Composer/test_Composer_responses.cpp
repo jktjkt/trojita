@@ -96,66 +96,66 @@ void ComposerResponsesTest::testReplySubjectMangling_data()
     QTest::addColumn<QString>("original");
     QTest::addColumn<QString>("replied");
 
-    QTest::newRow("no-subject") << QString() << QString::fromUtf8("Re: ");
-    QTest::newRow("simple") << QString::fromUtf8("ahoj") << QString::fromUtf8("Re: ahoj");
-    QTest::newRow("already-replied") << QString::fromUtf8("Re: ahoj") << QString::fromUtf8("Re: ahoj");
-    QTest::newRow("already-replied-no-space") << QString::fromUtf8("re:ahoj") << QString::fromUtf8("Re: ahoj");
-    QTest::newRow("already-replied-case") << QString::fromUtf8("RE: ahoj") << QString::fromUtf8("Re: ahoj");
-    QTest::newRow("multiple-re") << QString::fromUtf8("Re:RE: re: ahoj") << QString::fromUtf8("Re: ahoj");
-    QTest::newRow("trailing-re") << QString::fromUtf8("ahoj re:") << QString::fromUtf8("Re: ahoj re:");
-    QTest::newRow("leading-trailing-re") << QString::fromUtf8("re: ahoj re:") << QString::fromUtf8("Re: ahoj re:");
+    QTest::newRow("no-subject") << QString() << QStringLiteral("Re: ");
+    QTest::newRow("simple") << QStringLiteral("ahoj") << QStringLiteral("Re: ahoj");
+    QTest::newRow("already-replied") << QStringLiteral("Re: ahoj") << QStringLiteral("Re: ahoj");
+    QTest::newRow("already-replied-no-space") << QStringLiteral("re:ahoj") << QStringLiteral("Re: ahoj");
+    QTest::newRow("already-replied-case") << QStringLiteral("RE: ahoj") << QStringLiteral("Re: ahoj");
+    QTest::newRow("multiple-re") << QStringLiteral("Re:RE: re: ahoj") << QStringLiteral("Re: ahoj");
+    QTest::newRow("trailing-re") << QStringLiteral("ahoj re:") << QStringLiteral("Re: ahoj re:");
+    QTest::newRow("leading-trailing-re") << QStringLiteral("re: ahoj re:") << QStringLiteral("Re: ahoj re:");
 
     // mailing list stuff
-    QTest::newRow("ml-empty") << QString::fromUtf8("[foo]") << QString::fromUtf8("Re: [foo]");
-    QTest::newRow("ml-simple") << QString::fromUtf8("[foo] bar") << QString::fromUtf8("Re: [foo] bar");
-    QTest::newRow("ml-simple-no-space") << QString::fromUtf8("[foo]bar") << QString::fromUtf8("Re: [foo] bar");
-    QTest::newRow("ml-broken") << QString::fromUtf8("[foo bar") << QString::fromUtf8("Re: [foo bar");
-    QTest::newRow("ml-two-words") << QString::fromUtf8("[foo bar] x") << QString::fromUtf8("Re: [foo bar] x");
-    QTest::newRow("ml-re-empty") << QString::fromUtf8("[foo] Re:") << QString::fromUtf8("Re: [foo]");
-    QTest::newRow("re-ml-re-empty") << QString::fromUtf8("Re: [foo] Re:") << QString::fromUtf8("Re: [foo]");
-    QTest::newRow("re-ml-re-empty-no-spaces") << QString::fromUtf8("Re:[foo]Re:") << QString::fromUtf8("Re: [foo]");
-    QTest::newRow("ml-ml") << QString::fromUtf8("[foo] [bar] blah") << QString::fromUtf8("Re: [foo] [bar] blah");
-    QTest::newRow("ml-ml-re") << QString::fromUtf8("[foo] [bar] Re: blah") << QString::fromUtf8("Re: [foo] [bar] blah");
-    QTest::newRow("ml-re-ml") << QString::fromUtf8("[foo] Re: [bar] blah") << QString::fromUtf8("Re: [foo] [bar] blah");
-    QTest::newRow("ml-re-ml-re") << QString::fromUtf8("[foo] Re: [bar] Re: blah") << QString::fromUtf8("Re: [foo] [bar] blah");
-    QTest::newRow("re-ml-ml") << QString::fromUtf8("Re: [foo] [bar] blah") << QString::fromUtf8("Re: [foo] [bar] blah");
-    QTest::newRow("re-ml-ml-re") << QString::fromUtf8("Re: [foo] [bar] Re: blah") << QString::fromUtf8("Re: [foo] [bar] blah");
-    QTest::newRow("re-ml-re-ml") << QString::fromUtf8("Re: [foo] Re: [bar] blah") << QString::fromUtf8("Re: [foo] [bar] blah");
-    QTest::newRow("re-ml-re-ml-re") << QString::fromUtf8("Re: [foo] Re: [bar] Re: blah") << QString::fromUtf8("Re: [foo] [bar] blah");
+    QTest::newRow("ml-empty") << QStringLiteral("[foo]") << QStringLiteral("Re: [foo]");
+    QTest::newRow("ml-simple") << QStringLiteral("[foo] bar") << QStringLiteral("Re: [foo] bar");
+    QTest::newRow("ml-simple-no-space") << QStringLiteral("[foo]bar") << QStringLiteral("Re: [foo] bar");
+    QTest::newRow("ml-broken") << QStringLiteral("[foo bar") << QStringLiteral("Re: [foo bar");
+    QTest::newRow("ml-two-words") << QStringLiteral("[foo bar] x") << QStringLiteral("Re: [foo bar] x");
+    QTest::newRow("ml-re-empty") << QStringLiteral("[foo] Re:") << QStringLiteral("Re: [foo]");
+    QTest::newRow("re-ml-re-empty") << QStringLiteral("Re: [foo] Re:") << QStringLiteral("Re: [foo]");
+    QTest::newRow("re-ml-re-empty-no-spaces") << QStringLiteral("Re:[foo]Re:") << QStringLiteral("Re: [foo]");
+    QTest::newRow("ml-ml") << QStringLiteral("[foo] [bar] blah") << QStringLiteral("Re: [foo] [bar] blah");
+    QTest::newRow("ml-ml-re") << QStringLiteral("[foo] [bar] Re: blah") << QStringLiteral("Re: [foo] [bar] blah");
+    QTest::newRow("ml-re-ml") << QStringLiteral("[foo] Re: [bar] blah") << QStringLiteral("Re: [foo] [bar] blah");
+    QTest::newRow("ml-re-ml-re") << QStringLiteral("[foo] Re: [bar] Re: blah") << QStringLiteral("Re: [foo] [bar] blah");
+    QTest::newRow("re-ml-ml") << QStringLiteral("Re: [foo] [bar] blah") << QStringLiteral("Re: [foo] [bar] blah");
+    QTest::newRow("re-ml-ml-re") << QStringLiteral("Re: [foo] [bar] Re: blah") << QStringLiteral("Re: [foo] [bar] blah");
+    QTest::newRow("re-ml-re-ml") << QStringLiteral("Re: [foo] Re: [bar] blah") << QStringLiteral("Re: [foo] [bar] blah");
+    QTest::newRow("re-ml-re-ml-re") << QStringLiteral("Re: [foo] Re: [bar] Re: blah") << QStringLiteral("Re: [foo] [bar] blah");
 
     // test removing duplicate items
-    QTest::newRow("M-M") << QString::fromUtf8("[foo] [foo] blah") << QString::fromUtf8("Re: [foo] blah");
-    QTest::newRow("M-M-re") << QString::fromUtf8("[foo] [foo] Re: blah") << QString::fromUtf8("Re: [foo] blah");
-    QTest::newRow("M-M-re-re") << QString::fromUtf8("[foo] [foo] Re: Re: blah") << QString::fromUtf8("Re: [foo] blah");
-    QTest::newRow("M-re-M") << QString::fromUtf8("[foo] Re: [foo] blah") << QString::fromUtf8("Re: [foo] blah");
-    QTest::newRow("re-M-re-M") << QString::fromUtf8("Re: [foo] Re: [foo] blah") << QString::fromUtf8("Re: [foo] blah");
-    QTest::newRow("re-M-re-M-re") << QString::fromUtf8("Re: [foo] Re: [foo] Re: blah") << QString::fromUtf8("Re: [foo] blah");
+    QTest::newRow("M-M") << QStringLiteral("[foo] [foo] blah") << QStringLiteral("Re: [foo] blah");
+    QTest::newRow("M-M-re") << QStringLiteral("[foo] [foo] Re: blah") << QStringLiteral("Re: [foo] blah");
+    QTest::newRow("M-M-re-re") << QStringLiteral("[foo] [foo] Re: Re: blah") << QStringLiteral("Re: [foo] blah");
+    QTest::newRow("M-re-M") << QStringLiteral("[foo] Re: [foo] blah") << QStringLiteral("Re: [foo] blah");
+    QTest::newRow("re-M-re-M") << QStringLiteral("Re: [foo] Re: [foo] blah") << QStringLiteral("Re: [foo] blah");
+    QTest::newRow("re-M-re-M-re") << QStringLiteral("Re: [foo] Re: [foo] Re: blah") << QStringLiteral("Re: [foo] blah");
 
     // stuff which should not be subject to subject sanitization
-    QTest::newRow("brackets-end") << QString::fromUtf8("blesmrt [test]") << QString::fromUtf8("Re: blesmrt [test]");
-    QTest::newRow("re-brackets-end") << QString::fromUtf8("Re: blesmrt [test]") << QString::fromUtf8("Re: blesmrt [test]");
-    QTest::newRow("re-brackets-re-end") << QString::fromUtf8("Re: blesmrt Re: [test]") << QString::fromUtf8("Re: blesmrt Re: [test]");
-    QTest::newRow("brackets-re-end") << QString::fromUtf8("blesmrt Re: [test]") << QString::fromUtf8("Re: blesmrt Re: [test]");
+    QTest::newRow("brackets-end") << QStringLiteral("blesmrt [test]") << QStringLiteral("Re: blesmrt [test]");
+    QTest::newRow("re-brackets-end") << QStringLiteral("Re: blesmrt [test]") << QStringLiteral("Re: blesmrt [test]");
+    QTest::newRow("re-brackets-re-end") << QStringLiteral("Re: blesmrt Re: [test]") << QStringLiteral("Re: blesmrt Re: [test]");
+    QTest::newRow("brackets-re-end") << QStringLiteral("blesmrt Re: [test]") << QStringLiteral("Re: blesmrt Re: [test]");
 
     // real-world bugs
     QTest::newRow("extra-space-in-0.3.92")
-        << QString::fromUtf8("[imapext]  Re: Proposal for a new IMAP Working Group to revise CONDSTORE & QRESYNC")
-        << QString::fromUtf8("Re: [imapext] Proposal for a new IMAP Working Group to revise CONDSTORE & QRESYNC");
+        << QStringLiteral("[imapext]  Re: Proposal for a new IMAP Working Group to revise CONDSTORE & QRESYNC")
+        << QStringLiteral("Re: [imapext] Proposal for a new IMAP Working Group to revise CONDSTORE & QRESYNC");
 
     // presence of prefixes added with forwarded mails
-    QTest::newRow("single-fwd") << QString::fromUtf8("Fwd: blah") << QString::fromUtf8("Re: Fwd: blah");
-    QTest::newRow("multiple-fwd") << QString::fromUtf8("FW: Fwd: fwd: blah") << QString::fromUtf8("Re: FW: Fwd: fwd: blah");
-    QTest::newRow("interleaved-re-fwd") << QString::fromUtf8("Fwd: Re: FW: RE: blah") << QString::fromUtf8("Re: Fwd: Re: FW: RE: blah");
-    QTest::newRow("multiple-re-nospace-fwd") << QString::fromUtf8("Re:RE:re:Fwd: blah") << QString::fromUtf8("Re: Fwd: blah");
-    QTest::newRow("old-TB-style-fwd") << QString::fromUtf8("[Fwd: blah]") << QString::fromUtf8("Re: [Fwd: blah]");
-    QTest::newRow("old-TB-style-fwd-ml") << QString::fromUtf8("[Fwd: [foo] blah]") << QString::fromUtf8("Re: [Fwd: [foo] blah]");
-    QTest::newRow("old-TB-style-fwd-re-ml") << QString::fromUtf8("[Fwd: Re: [foo] blah]") << QString::fromUtf8("Re: [Fwd: Re: [foo] blah]");
-    QTest::newRow("old-TB-style-fwd-re") << QString::fromUtf8("Re: [Fwd: Re: blah]") << QString::fromUtf8("Re: [Fwd: Re: blah]");
-    QTest::newRow("fwd-ml") << QString::fromUtf8("Fwd: [foo]") << QString::fromUtf8("Re: Fwd: [foo]");
-    QTest::newRow("fwd-ml-re") << QString::fromUtf8("Fwd: [foo] Re: blah") << QString::fromUtf8("Re: Fwd: [foo] Re: blah");
-    QTest::newRow("re-fwd-ml") << QString::fromUtf8("Re: Fwd: [foo] blah") << QString::fromUtf8("Re: Fwd: [foo] blah");
-    QTest::newRow("re-re-re-fwd-ml") << QString::fromUtf8("Re: re: RE: Fwd: [foo] blah") << QString::fromUtf8("Re: Fwd: [foo] blah");
-    QTest::newRow("re-ml-re-fwd-ml") << QString::fromUtf8("Re: [foo] RE: Fwd: [bar] blah") << QString::fromUtf8("Re: [foo] Fwd: [bar] blah");
+    QTest::newRow("single-fwd") << QStringLiteral("Fwd: blah") << QStringLiteral("Re: Fwd: blah");
+    QTest::newRow("multiple-fwd") << QStringLiteral("FW: Fwd: fwd: blah") << QStringLiteral("Re: FW: Fwd: fwd: blah");
+    QTest::newRow("interleaved-re-fwd") << QStringLiteral("Fwd: Re: FW: RE: blah") << QStringLiteral("Re: Fwd: Re: FW: RE: blah");
+    QTest::newRow("multiple-re-nospace-fwd") << QStringLiteral("Re:RE:re:Fwd: blah") << QStringLiteral("Re: Fwd: blah");
+    QTest::newRow("old-TB-style-fwd") << QStringLiteral("[Fwd: blah]") << QStringLiteral("Re: [Fwd: blah]");
+    QTest::newRow("old-TB-style-fwd-ml") << QStringLiteral("[Fwd: [foo] blah]") << QStringLiteral("Re: [Fwd: [foo] blah]");
+    QTest::newRow("old-TB-style-fwd-re-ml") << QStringLiteral("[Fwd: Re: [foo] blah]") << QStringLiteral("Re: [Fwd: Re: [foo] blah]");
+    QTest::newRow("old-TB-style-fwd-re") << QStringLiteral("Re: [Fwd: Re: blah]") << QStringLiteral("Re: [Fwd: Re: blah]");
+    QTest::newRow("fwd-ml") << QStringLiteral("Fwd: [foo]") << QStringLiteral("Re: Fwd: [foo]");
+    QTest::newRow("fwd-ml-re") << QStringLiteral("Fwd: [foo] Re: blah") << QStringLiteral("Re: Fwd: [foo] Re: blah");
+    QTest::newRow("re-fwd-ml") << QStringLiteral("Re: Fwd: [foo] blah") << QStringLiteral("Re: Fwd: [foo] blah");
+    QTest::newRow("re-re-re-fwd-ml") << QStringLiteral("Re: re: RE: Fwd: [foo] blah") << QStringLiteral("Re: Fwd: [foo] blah");
+    QTest::newRow("re-ml-re-fwd-ml") << QStringLiteral("Re: [foo] RE: Fwd: [bar] blah") << QStringLiteral("Re: [foo] Fwd: [bar] blah");
 }
 
 /** @short Test that subjects remain sane in forwarded messages */
@@ -173,14 +173,14 @@ void ComposerResponsesTest::testForwardSubjectMangling_data()
     QTest::addColumn<QString>("original");
     QTest::addColumn<QString>("forwarded");
 
-    QTest::newRow("no-subject") << QString() << QString::fromUtf8("Fwd: ");
-    QTest::newRow("simple") << QString::fromUtf8("ahoj") << QString::fromUtf8("Fwd: ahoj");
-    QTest::newRow("already-forwarded") << QString::fromUtf8("Fwd: ahoj") << QString::fromUtf8("Fwd: Fwd: ahoj");
-    QTest::newRow("multiple-fwd") << QString::fromUtf8("FW: FWD: fw: Fwd: ahoj") << QString::fromUtf8("Fwd: FW: FWD: fw: Fwd: ahoj");
-    QTest::newRow("old-TB-style-fwd") << QString::fromUtf8("[Fwd: ahoj]") << QString::fromUtf8("Fwd: [Fwd: ahoj]");
-    QTest::newRow("trailing-fwd") << QString::fromUtf8("ahoj fwd") << QString::fromUtf8("Fwd: ahoj fwd");
-    QTest::newRow("trailing-fwd-parenthesis") << QString::fromUtf8("ahoj (fwd)") << QString::fromUtf8("Fwd: ahoj (fwd)");
-    QTest::newRow("leading-plus-trailing-fwd") << QString::fromUtf8("Fwd: ahoj (fwd)") << QString::fromUtf8("Fwd: Fwd: ahoj (fwd)");
+    QTest::newRow("no-subject") << QString() << QStringLiteral("Fwd: ");
+    QTest::newRow("simple") << QStringLiteral("ahoj") << QStringLiteral("Fwd: ahoj");
+    QTest::newRow("already-forwarded") << QStringLiteral("Fwd: ahoj") << QStringLiteral("Fwd: Fwd: ahoj");
+    QTest::newRow("multiple-fwd") << QStringLiteral("FW: FWD: fw: Fwd: ahoj") << QStringLiteral("Fwd: FW: FWD: fw: Fwd: ahoj");
+    QTest::newRow("old-TB-style-fwd") << QStringLiteral("[Fwd: ahoj]") << QStringLiteral("Fwd: [Fwd: ahoj]");
+    QTest::newRow("trailing-fwd") << QStringLiteral("ahoj fwd") << QStringLiteral("Fwd: ahoj fwd");
+    QTest::newRow("trailing-fwd-parenthesis") << QStringLiteral("ahoj (fwd)") << QStringLiteral("Fwd: ahoj (fwd)");
+    QTest::newRow("leading-plus-trailing-fwd") << QStringLiteral("Fwd: ahoj (fwd)") << QStringLiteral("Fwd: Fwd: ahoj (fwd)");
 }
 
 /** @short Test different means of responding ("private", "to all", "to list") */
@@ -385,7 +385,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
-        << true << (QStringList() << QString::fromUtf8("jkt@flaska.net")) << QString::fromUtf8("jkt@flaska.net");
+        << true << (QStringList() << QStringLiteral("jkt@flaska.net")) << QStringLiteral("jkt@flaska.net");
 
     QTest::newRow("list-munged-sender")
         << (RecipientList() << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net")
@@ -395,7 +395,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
-        << true << (QStringList() << QString::fromUtf8("jkt@flaska.net")) << QString::fromUtf8("jkt@flaska.net");
+        << true << (QStringList() << QStringLiteral("jkt@flaska.net")) << QStringLiteral("jkt@flaska.net");
 
     QTest::newRow("list-unmunged")
         << (RecipientList() << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net"))
@@ -405,7 +405,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         // The sender identity is matched through the domain
-        << true << (QStringList() << "x@y" << "z@y" << "meh@flaSka.net" << "bar@flaska.net") << QString::fromUtf8("meh@flaSka.net");
+        << true << (QStringList() << "x@y" << "z@y" << "meh@flaSka.net" << "bar@flaska.net") << QStringLiteral("meh@flaSka.net");
 
     QTest::newRow("list-munged-bcc")
         << (RecipientList() << mailBcc("bcc@example.org") << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net")
@@ -425,7 +425,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("someone@else") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org") << mailBcc("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("someone@else") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
-        << true << (QStringList() << QString::fromUtf8("jkt@flaska.net")) << QString::fromUtf8("jkt@flaska.net");
+        << true << (QStringList() << QStringLiteral("jkt@flaska.net")) << QStringLiteral("jkt@flaska.net");
 
     QTest::newRow("list-unmunged-bcc")
         << (RecipientList() << mailBcc("bcc@example.org") << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net"))
@@ -435,7 +435,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         // An exact match for the sender identity
-        << true << (QStringList() << "jkt@gentoo" << "foo@flaska.net" << "jKt@flaSka.net") << QString::fromUtf8("jKt@flaSka.net");
+        << true << (QStringList() << "jkt@gentoo" << "foo@flaska.net" << "jKt@flaSka.net") << QStringLiteral("jKt@flaSka.net");
 
     QTest::newRow("from-list-sender-to-cc")
         << (RecipientList() << mailFrom("andy@x") << mailSender("list-12345@y") << mailTo("someone@z") << mailCc("list@y"))
@@ -457,7 +457,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("gerrit-noreply@qt-project") << mailCc("j.n@digia")
                     << mailCc("qt_sanity_bot@ovi") << mailCc("s.k@kdab"))
         << false << empty
-        << true << (QStringList() << QString::fromUtf8("foo@bar") << QString::fromUtf8("jkt@flaska")) << QString::fromUtf8("jkt@flaska");
+        << true << (QStringList() << QStringLiteral("foo@bar") << QStringLiteral("jkt@flaska")) << QStringLiteral("jkt@flaska");
 
     QTest::newRow("me-to-me")
         << (RecipientList() << mailFrom("j@k") << mailTo("j@k"))
@@ -466,7 +466,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("j@k"))
         << false << empty
         << false << empty
-        << true << (QStringList() << QString::fromUtf8("j@k")) << QString::fromUtf8("j@k");
+        << true << (QStringList() << QStringLiteral("j@k")) << QStringLiteral("j@k");
 
     QTest::newRow("me-to-someone")
         << (RecipientList() << mailFrom("j@k") << mailTo("a@b"))
@@ -475,7 +475,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("j@k") << mailCc("a@b"))
         << true << (RecipientList() << mailTo("a@b"))
         << false << empty
-        << true << (QStringList() << QString::fromUtf8("j@k")) << QString::fromUtf8("j@k");
+        << true << (QStringList() << QStringLiteral("j@k")) << QStringLiteral("j@k");
 
     // We have a @gentoo.org identity, mail was sent by someone else, but to something @lists.gentoo.org
     QTest::newRow("lists-subdomain")
@@ -485,7 +485,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("alien@example.org") << mailCc("x@lists.gentoo.org"))
         << true << (RecipientList() << mailTo("alien@example.org") << mailCc("x@lists.gentoo.org"))
         << true << (RecipientList() << mailTo("x@lists.gentoo.org"))
-        << true << (QStringList() << QString::fromUtf8("j@k") << QString::fromUtf8("test@gentoo.org")) << QString::fromUtf8("test@gentoo.org");
+        << true << (QStringList() << QStringLiteral("j@k") << QStringLiteral("test@gentoo.org")) << QStringLiteral("test@gentoo.org");
 
     // FIXME: more tests!
 }
@@ -619,87 +619,87 @@ void ComposerResponsesTest::testRFC6068Mailto_data()
     // RFC 6068 2. Syntax of a 'mailto' URI
     QTest::newRow("rfc1") << QUrl::fromEncoded("mailto:addr1@an.example,addr2@an.example") << QString() << QString()
             << ( RecipientsType()
-                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr1@an.example"))
-                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr2@an.example")) )
+                 << qMakePair(Composer::ADDRESS_TO, QStringLiteral("addr1@an.example"))
+                 << qMakePair(Composer::ADDRESS_TO, QStringLiteral("addr2@an.example")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc2") << QUrl::fromEncoded("mailto:?to=addr1@an.example,addr2@an.example") << QString() << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr1@an.example"))
-                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr2@an.example")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("addr1@an.example"))
+                 << qMakePair(Composer::ADDRESS_TO, QStringLiteral("addr2@an.example")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc3") << QUrl::fromEncoded("mailto:addr1@an.example?to=addr2@an.example") << QString() << QString()
             << ( RecipientsType()
-                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr1@an.example"))
-                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("addr2@an.example")) )
+                 << qMakePair(Composer::ADDRESS_TO, QStringLiteral("addr1@an.example"))
+                 << qMakePair(Composer::ADDRESS_TO, QStringLiteral("addr2@an.example")) )
             << QList<QByteArray>() << QList<QByteArray>();
 
     // RFC 6068 6.1. Basic Examples
     QTest::newRow("rfc4") << QUrl::fromEncoded("mailto:chris@example.com") << QString() << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("chris@example.com")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("chris@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc5") << QUrl::fromEncoded("mailto:infobot@example.com?subject=current-issue")
             << QString("current-issue") << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("infobot@example.com")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("infobot@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc6") << QUrl::fromEncoded("mailto:infobot@example.com?body=send%20current-issue")
             << QString() << QString("send current-issue")
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("infobot@example.com")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("infobot@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc7") << QUrl::fromEncoded("mailto:infobot@example.com?body=send%20current-issue%0D%0Asend%20index")
             << QString() << QString("send current-issue\r\nsend index")
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("infobot@example.com")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("infobot@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc8") << QUrl::fromEncoded("mailto:list@example.org?In-Reply-To=%3C3469A91.D10AF4C@example.com%3E")
             << QString() << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("list@example.org")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("list@example.org")) )
             << ( QList<QByteArray>() << "<3469A91.D10AF4C@example.com>" ) << QList<QByteArray>();
     QTest::newRow("rfc9") << QUrl::fromEncoded("mailto:majordomo@example.com?body=subscribe%20bamboo-l")
             << QString() << QString("subscribe bamboo-l")
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("majordomo@example.com")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("majordomo@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc10") << QUrl::fromEncoded("mailto:joe@example.com?cc=bob@example.com&body=hello") << QString() << QString("hello")
             << ( RecipientsType()
-                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("joe@example.com"))
-                 << qMakePair(Composer::ADDRESS_CC, QString::fromUtf8("bob@example.com")) )
+                 << qMakePair(Composer::ADDRESS_TO, QStringLiteral("joe@example.com"))
+                 << qMakePair(Composer::ADDRESS_CC, QStringLiteral("bob@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
 
     QTest::newRow("rfc11") << QUrl::fromEncoded("mailto:gorby%25kremvax@example.com") << QString() << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("gorby%kremvax@example.com")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("gorby%kremvax@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc13") << QUrl::fromEncoded("mailto:Mike%26family@example.org") << QString() << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("Mike&family@example.org")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("Mike&family@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
 
     // RFC 6068 6.2. Examples of Complicated Email Addresses
     QTest::newRow("rfc14") << QUrl::fromEncoded("mailto:%22not%40me%22@example.org") << QString() << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("\"not@me\"@example.org")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("\"not@me\"@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc15") << QUrl::fromEncoded("mailto:%22oh%5C%5Cno%22@example.org") << QString() << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("\"oh\\\\no\"@example.org")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("\"oh\\\\no\"@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc16") << QUrl::fromEncoded("mailto:%22%5C%5C%5C%22it's%5C%20ugly%5C%5C%5C%22%22@example.org") << QString() << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("\"\\\\\\\"it's\\ ugly\\\\\\\"\"@example.org")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("\"\\\\\\\"it's\\ ugly\\\\\\\"\"@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
 
     // RFC 6068 6.3. Examples Using UTF-8-Based Percent-Encoding
     QTest::newRow("rfc17") << QUrl::fromEncoded("mailto:user@example.org?subject=caf%C3%A9")
-            << QString::fromUtf8("café") << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org")) )
+            << QStringLiteral("café") << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc18") << QUrl::fromEncoded("mailto:user@example.org?subject=%3D%3Futf-8%3FQ%3Fcaf%3DC3%3DA9%3F%3D")
-            << QString::fromUtf8("café") << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org")) )
+            << QStringLiteral("café") << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc19") << QUrl::fromEncoded("mailto:user@example.org?subject=%3D%3Fiso-8859-1%3FQ%3Fcaf%3DE9%3F%3D")
-            << QString::fromUtf8("café") << QString()
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org")) )
+            << QStringLiteral("café") << QString()
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc20") << QUrl::fromEncoded("mailto:user@example.org?subject=caf%C3%A9&body=caf%C3%A9")
-            << QString::fromUtf8("café") << QString::fromUtf8("café")
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org")) )
+            << QStringLiteral("café") << QStringLiteral("café")
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc21") << QUrl::fromEncoded("mailto:user@%E7%B4%8D%E8%B1%86.example.org?subject=Test&body=NATTO")
             << QString("Test") << QString("NATTO")
-            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@納豆.example.org")) )
+            << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user@納豆.example.org")) )
             << QList<QByteArray>() << QList<QByteArray>(); // NOTE: Decoding 納豆.example.org to xn--99zt52a.example.org is done on other layer
 
     // Another test for comma delimeter
@@ -707,9 +707,9 @@ void ComposerResponsesTest::testRFC6068Mailto_data()
             << QUrl::fromEncoded("mailto:user@example.org,user2@example%2Ctest.org?cc=user%40host.org%2Ctest@example%2Ctest.org")
             << QString() << QString()
             << ( RecipientsType()
-                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user@example.org"))
-                 << qMakePair(Composer::ADDRESS_TO, QString::fromUtf8("user2@example,test.org"))
-                 << qMakePair(Composer::ADDRESS_CC, QString::fromUtf8("user@host.org,test@example,test.org")) )
+                 << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user@example.org"))
+                 << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user2@example,test.org"))
+                 << qMakePair(Composer::ADDRESS_CC, QStringLiteral("user@host.org,test@example,test.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
 }
 
@@ -725,9 +725,9 @@ void ComposerResponsesTest::testReplyQuoting_data()
     QTest::addColumn<QString>("source");
     QTest::addColumn<QString>("quoted");
 
-    QTest::newRow("empty") << QString() << QString::fromUtf8(">");
-    QTest::newRow("simple") << QString::fromUtf8("Hello world") << QString::fromUtf8("> Hello world");
-    QTest::newRow("simple") << QString::fromUtf8("Hello world\n") << QString::fromUtf8("> Hello world\n>");
+    QTest::newRow("empty") << QString() << QStringLiteral(">");
+    QTest::newRow("simple") << QStringLiteral("Hello world") << QStringLiteral("> Hello world");
+    QTest::newRow("simple") << QStringLiteral("Hello world\n") << QStringLiteral("> Hello world\n>");
 
     // This following two test cases is how v0.4.1-212-g0523301 behaves.
     // For this case, the ML stripped the format=flowed, and as such we treat it as different pieces of text, not to be wrapped together.

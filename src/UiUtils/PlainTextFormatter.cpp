@@ -101,9 +101,9 @@ QString helperHtmlifySingleLine(QString line)
         QString replacement;
 
         if (!linkText.isEmpty()) {
-            replacement = QString::fromUtf8("<a href=\"%1\">%1</a>").arg(linkText);
+            replacement = QStringLiteral("<a href=\"%1\">%1</a>").arg(linkText);
         } else if (!mailText.isEmpty()) {
-            replacement = QString::fromUtf8("<a href=\"mailto:%1\">%1</a>").arg(mailText);
+            replacement = QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(mailText);
         } else if (isSpecialFormat) {
             // Careful here; the inner contents of the current match shall be formatted as well which is why we need recursion
             QChar elementName;
@@ -124,7 +124,7 @@ QString helperHtmlifySingleLine(QString line)
                 whichOne = 9;
             }
             Q_ASSERT(whichOne);
-            replacement = QString::fromUtf8("%1<%2><span class=\"markup\">%3</span>%4<span class=\"markup\">%3</span></%2>%5")
+            replacement = QStringLiteral("%1<%2><span class=\"markup\">%3</span>%4<span class=\"markup\">%3</span></%2>%5")
                     .arg(pattern.cap(whichOne + 1), elementName, markupChar,
                          helperHtmlifySingleLine(pattern.cap(whichOne + 2)), pattern.cap(whichOne + 3));
         }
@@ -419,7 +419,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                                 omittedPrefix += QLatin1String("<blockquote>");
                                 omittedSuffix += QLatin1String("</blockquote>");
                             }
-                            omittedStuff += QString::fromUtf8(" </span><label for=\"q%1\">...</label>").arg(interactiveControlsId);
+                            omittedStuff += QStringLiteral(" </span><label for=\"q%1\">...</label>").arg(interactiveControlsId);
 
                             // Now produce the proper quotation for the preview itself
                             for (int i = quoteLevel; i < runner->depth; ++i) {
@@ -487,7 +487,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                         && currentLevelCharCount <= charsPerLineEquivalent * previewLines
                         && currentLevelLineCount <= previewLines) {
                     // special case: the quote is very short, no point in making it collapsible
-                    line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
+                    line += QStringLiteral("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\"/>").arg(interactiveControlsId)
                             + QLatin1String("<span class=\"shortquote\"><blockquote>") + quotemarks
                             + helperHtmlifySingleLine(it->text).replace(QLatin1String("\n"), QLatin1String("\n") + quotemarks);
                 } else {
@@ -496,12 +496,12 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             || currentLevelCharCount >= charsPerLineEquivalent * forceCollapseAfterLines
                             || currentLevelLineCount >= forceCollapseAfterLines;
 
-                    line += QString::fromUtf8("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
+                    line += QStringLiteral("<span class=\"level\"><input type=\"checkbox\" id=\"q%1\" %2/>")
                             .arg(QString::number(interactiveControlsId),
-                                 collapsed ? QString::fromUtf8("checked=\"checked\"") : QString())
+                                 collapsed ? QStringLiteral("checked=\"checked\"") : QString())
                             + QLatin1String("<span class=\"short\"><blockquote>")
                               + preview
-                              + QString::fromUtf8(" <label for=\"q%1\">...</label>").arg(interactiveControlsId)
+                              + QStringLiteral(" <label for=\"q%1\">...</label>").arg(interactiveControlsId)
                               + QLatin1String("</blockquote></span>")
                             + QLatin1String("<span class=\"full\"><blockquote>");
                     if (quoteLevel == it->depth) {
@@ -584,7 +584,7 @@ QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font, co
         fontSpecification += QLatin1String("font-style: italic; ");
     if (font.bold())
         fontSpecification += QLatin1String("font-weight: bold; ");
-    fontSpecification += QString::fromUtf8("font-size: %1px; font-family: \"%2\", monospace }").arg(
+    fontSpecification += QStringLiteral("font-size: %1px; font-family: \"%2\", monospace }").arg(
                 QString::number(font.pixelSize()), font.family());
 
     QString textColors = QString::fromUtf8("body { background-color: %1; color: %2 }"

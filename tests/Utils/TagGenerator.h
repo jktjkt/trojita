@@ -36,11 +36,11 @@ public:
     }
     QByteArray last() const
     {
-        return QString::fromUtf8("y%1").arg(number).toUtf8();
+        return QStringLiteral("y%1").arg(number).toUtf8();
     }
     QByteArray last( const char * const what ) const
     {
-        return QString::fromUtf8("y%1 ").arg(number).toUtf8() + QByteArray(what);
+        return QStringLiteral("y%1 ").arg(number).toUtf8() + QByteArray(what);
     }
     void reset()
     {

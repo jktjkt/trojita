@@ -1254,7 +1254,7 @@ static QString threadDumpHelper(const ThreadingNode &node)
         for (QVector<ThreadingNode>::const_iterator it = node.children.begin(); it != node.children.end(); ++it) {
             res << threadDumpHelper(*it);
         }
-        return QString::fromUtf8("%1: {%2}").arg(node.num).arg(res.join(QStringLiteral(", ")));
+        return QStringLiteral("%1: {%2}").arg(node.num).arg(res.join(QStringLiteral(", ")));
     }
 }
 

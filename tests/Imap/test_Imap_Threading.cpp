@@ -175,7 +175,7 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
         if (whichOne[0] == QLatin1Char('-')) {
             // Removing messages. The number specifies a *sequence number*
             Q_ASSERT(whichOne.size() > 1);
-            SOCK->fakeReading(QString::fromUtf8("* %1 EXPUNGE\r\n").arg(whichOne.mid(1)).toUtf8());
+            SOCK->fakeReading(QStringLiteral("* %1 EXPUNGE\r\n").arg(whichOne.mid(1)).toUtf8());
             QCoreApplication::processEvents();
             QCoreApplication::processEvents();
             QCoreApplication::processEvents();
@@ -196,17 +196,17 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions()
             existsA += newArrivals;
 
             // Send information about the new arrival
-            SOCK->fakeReading(QString::fromUtf8("* %1 EXISTS\r\n").arg(QString::number(existsA)).toUtf8());
+            SOCK->fakeReading(QStringLiteral("* %1 EXISTS\r\n").arg(QString::number(existsA)).toUtf8());
             QCoreApplication::processEvents();
             QCoreApplication::processEvents();
 
             // At this point, the threading code should have asked for new threading and the generic IMAP model code for flags
-            QByteArray expected = t.mk("UID FETCH ") + QString::fromUtf8("%1:* (FLAGS)\r\n").arg(QString::number(uidNextA)).toUtf8();
+            QByteArray expected = t.mk("UID FETCH ") + QStringLiteral("%1:* (FLAGS)\r\n").arg(QString::number(uidNextA)).toUtf8();
             uidNextA += newArrivals;
             QByteArray uidFetchResponse;
             for (int i = 0; i < newArrivals; ++i) {
                 int offset = existsA - newArrivals + i;
-                uidFetchResponse += QString::fromUtf8("* %1 FETCH (UID %2 FLAGS ())\r\n").arg(
+                uidFetchResponse += QStringLiteral("* %1 FETCH (UID %2 FLAGS ())\r\n").arg(
                             // the sequqnce number is one-based, not zero-based
                             QString::number(offset + 1),
                             QString::number(uidMapA[offset])
@@ -428,7 +428,7 @@ void ImapModelThreadingTest::testDynamicThreading()
     // There should be a message with zero UID at the end
     QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(3)(4 (5)(6))(7 (8)(9))()"));
 
-    QByteArray fetchCommand1 = t.mk("UID FETCH ") + QString::fromUtf8("%1:* (FLAGS)\r\n").arg(QString::number(uidNextA - 1)).toUtf8();
+    QByteArray fetchCommand1 = t.mk("UID FETCH ") + QStringLiteral("%1:* (FLAGS)\r\n").arg(QString::number(uidNextA - 1)).toUtf8();
     QByteArray delayedFetchResponse1 = t.last("OK uid fetch\r\n");
     QByteArray threadCommand1 = t.mk("UID THREAD REFS utf-8 ALL\r\n");
     QByteArray delayedThreadResponse1 = t.last("OK threading\r\n");

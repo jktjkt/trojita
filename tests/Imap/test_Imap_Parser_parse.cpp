@@ -273,7 +273,7 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "some\"Name", QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-unicode")
         << QByteArray("* LIST () \"/\" \"~Peter/mail/&U,BTFw-/&ZeVnLIqe-\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", QString::fromUtf8("~Peter/mail/台北/日本語"), QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", QStringLiteral("~Peter/mail/台北/日本語"), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-inbox-atom")
         << QByteArray("* LIST () \"/\" inBox\r\n")
         << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );

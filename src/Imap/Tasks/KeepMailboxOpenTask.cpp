@@ -697,7 +697,7 @@ QString KeepMailboxOpenTask::debugIdentification() const
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    return QString::fromUtf8("attached to %1%2%3").arg(mailbox->mailbox(),
+    return QStringLiteral("attached to %1%2%3").arg(mailbox->mailbox(),
             (synchronizeConn && ! synchronizeConn->isFinished()) ? QStringLiteral(" [syncConn unfinished]") : QString(),
             shouldExit ? QStringLiteral(" [shouldExit]") : QString()
                                                        );

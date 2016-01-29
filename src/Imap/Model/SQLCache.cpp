@@ -79,7 +79,7 @@ void SQLCache::init()
     if (! ok)
         num = 10000;
     delayedCommit->setInterval(num);
-    delayedCommit->setObjectName(QString::fromUtf8("delayedCommit-%1").arg(objectName()));
+    delayedCommit->setObjectName(QStringLiteral("delayedCommit-%1").arg(objectName()));
     connect(delayedCommit, &QTimer::timeout, this, &SQLCache::timeToCommit);
     if (tooMuchTimeWithoutCommit)
         tooMuchTimeWithoutCommit->deleteLater();
@@ -88,7 +88,7 @@ void SQLCache::init()
     if (! ok)
         num = 60000;
     tooMuchTimeWithoutCommit->setInterval(num);
-    tooMuchTimeWithoutCommit->setObjectName(QString::fromUtf8("tooMuchTimeWithoutCommit-%1").arg(objectName()));
+    tooMuchTimeWithoutCommit->setObjectName(QStringLiteral("tooMuchTimeWithoutCommit-%1").arg(objectName()));
     connect(tooMuchTimeWithoutCommit, &QTimer::timeout, this, &SQLCache::timeToCommit);
 }
 
@@ -451,12 +451,12 @@ bool SQLCache::prepareQueries()
 
 void SQLCache::emitError(const QString &message, const QSqlQuery &query) const
 {
-    emitError(QString::fromUtf8("SQLCache: Query Error: %1: %2").arg(message, query.lastError().text()));
+    emitError(QStringLiteral("SQLCache: Query Error: %1: %2").arg(message, query.lastError().text()));
 }
 
 void SQLCache::emitError(const QString &message, const QSqlDatabase &database) const
 {
-    emitError(QString::fromUtf8("SQLCache: DB Error: %1: %2").arg(message, database.lastError().text()));
+    emitError(QStringLiteral("SQLCache: DB Error: %1: %2").arg(message, database.lastError().text()));
 }
 
 void SQLCache::emitError(const QString &message) const

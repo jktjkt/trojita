@@ -2573,8 +2573,8 @@ void ImapModelObtainSynchronizedMailboxTest::testCondstoreQresyncNomodseqHighest
     state.setUidValidity(uidValidityA);
     state.setRecent(0);
     state.setUnSeenCount(2);
-    state.setFlags(QString::fromUtf8("\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded").split(QLatin1Char(' ')));
-    state.setPermanentFlags(QString::fromUtf8("\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded \\*").split(QLatin1Char(' ')));
+    state.setFlags(QStringLiteral("\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded").split(QLatin1Char(' ')));
+    state.setPermanentFlags(QStringLiteral("\\Answered \\Flagged \\Deleted \\Seen \\Draft Junk NonJunk $Forwarded \\*").split(QLatin1Char(' ')));
     state.setHighestModSeq(1);
     uidMapA << 1 << 2 << 3;
 

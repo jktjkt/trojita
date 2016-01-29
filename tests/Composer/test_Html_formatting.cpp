@@ -61,43 +61,43 @@ void HtmlFormattingTest::testPlainTextFormattingFlowed_data()
     QTest::addColumn<QString>("htmlNotFlowed");
 
     QTest::newRow("empty-1") << QString() << QString() << QString();
-    QTest::newRow("empty-2") << QString("") << QString("") << QString("");
-    QTest::newRow("empty-3") << QString("\n") << QString("\n") << QString("\n");
-    QTest::newRow("empty-4") << QString("\n\n") << QString("\n\n") << QString("\n\n");
+    QTest::newRow("empty-2") << QStringLiteral("") << QStringLiteral("") << QStringLiteral("");
+    QTest::newRow("empty-3") << QStringLiteral("\n") << QStringLiteral("\n") << QStringLiteral("\n");
+    QTest::newRow("empty-4") << QStringLiteral("\n\n") << QStringLiteral("\n\n") << QStringLiteral("\n\n");
 
-    QTest::newRow("minimal") << QString("ahoj") << QString("ahoj") << QString("ahoj");
+    QTest::newRow("minimal") << QStringLiteral("ahoj") << QStringLiteral("ahoj") << QStringLiteral("ahoj");
 
-    QTest::newRow("multiline-trivial-LF") << QString("Sample \ntext") << QString("Sample text") << QString("Sample \ntext");
-    QTest::newRow("multiline-trivial-CR") << QString("Sample \rtext") << QString("Sample \rtext") << QString("Sample \rtext");
-    QTest::newRow("multiline-trivial-CRLF") << QString("Sample \r\ntext") << QString("Sample text") << QString("Sample \ntext");
+    QTest::newRow("multiline-trivial-LF") << QStringLiteral("Sample \ntext") << QStringLiteral("Sample text") << QStringLiteral("Sample \ntext");
+    QTest::newRow("multiline-trivial-CR") << QStringLiteral("Sample \rtext") << QStringLiteral("Sample \rtext") << QStringLiteral("Sample \rtext");
+    QTest::newRow("multiline-trivial-CRLF") << QStringLiteral("Sample \r\ntext") << QStringLiteral("Sample text") << QStringLiteral("Sample \ntext");
     QTest::newRow("multiline-with-empty-lines")
-            << QString("Sample \ntext.\n\nYay!")
-            << QString("Sample text.\n\nYay!")
-            << QString("Sample \ntext.\n\nYay!");
+            << QStringLiteral("Sample \ntext.\n\nYay!")
+            << QStringLiteral("Sample text.\n\nYay!")
+            << QStringLiteral("Sample \ntext.\n\nYay!");
 
     QTest::newRow("signature-LF")
-            << QString("Yay.\n-- \nMeh.\n")
-            << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>")
-            << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>");
+            << QStringLiteral("Yay.\n-- \nMeh.\n")
+            << QStringLiteral("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>")
+            << QStringLiteral("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>");
     QTest::newRow("signature-CRLF")
-            << QString("Yay.\r\n-- \r\nMeh.\r\n")
-            << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>")
-            << QString("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>");
+            << QStringLiteral("Yay.\r\n-- \r\nMeh.\r\n")
+            << QStringLiteral("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>")
+            << QStringLiteral("Yay.\n<span class=\"signature\">-- \nMeh.\n</span>");
 
     QTest::newRow("gerrit-extra-leading-space")
-            << QString("Patch Set 2: Code-Review+2\r\n"
+            << QStringLiteral("Patch Set 2: Code-Review+2\r\n"
                        "\r\n"
                        "> There is no limit on the number of flags which could be present for\r\n"
                        " > a message\r\n"
                        "\r\n"
                        "Ok, checked ::normalizedFlags() - indeed *everything* is implicitly shared =)")
-            << QString("Patch Set 2: Code-Review+2\n"
+            << QStringLiteral("Patch Set 2: Code-Review+2\n"
                        "\n"
                        "<span class=\"level\"><input type=\"checkbox\" id=\"q1\"/><span class=\"shortquote\"><blockquote><span class=\"quotemarks\">&gt; </span>There is no limit on the number of flags which could be present for\n"
                        "<label for=\"q1\"></label></blockquote></span></span>&gt; a message\n"
                        "\n"
                        "Ok, checked ::normalizedFlags() - indeed <b><span class=\"markup\">*</span>everything<span class=\"markup\">*</span></b> is implicitly shared =)")
-            << QString("Patch Set 2: Code-Review+2\n"
+            << QStringLiteral("Patch Set 2: Code-Review+2\n"
                        "\n"
                        "<span class=\"level\"><input type=\"checkbox\" id=\"q1\"/><span class=\"shortquote\"><blockquote><span class=\"quotemarks\">&gt; </span>There is no limit on the number of flags which could be present for\n"
                        "<span class=\"quotemarks\">&gt; </span>a message\n"
@@ -121,14 +121,14 @@ void HtmlFormattingTest::testPlainTextFormattingFlowedDelSp_data()
     QTest::addColumn<QString>("plaintext");
     QTest::addColumn<QString>("htmlFlowedDelSp");
 
-    QTest::newRow("delsp-canonical") << QString("abc  \r\ndef") << QString("abc def");
-    QTest::newRow("delsp-just-lf") << QString("abc  \ndef") << QString("abc def");
-    QTest::newRow("delsp-borked-crlf") << QString("abc\r\ndef") << QString("abc\ndef");
-    QTest::newRow("delsp-borked-lf") << QString("abc\ndef") << QString("abc\ndef");
-    QTest::newRow("delsp-single-line-no-crlf") << QString("abc ") << QString("abc");
-    QTest::newRow("delsp-single-line-crlf") << QString("abc \r\n") << QString("abc\n");
-    QTest::newRow("delsp-single-line-lf") << QString("abc \n") << QString("abc\n");
-    QTest::newRow("delsp-single-line-cr") << QString("abc \r") << QString("abc");
+    QTest::newRow("delsp-canonical") << QStringLiteral("abc  \r\ndef") << QStringLiteral("abc def");
+    QTest::newRow("delsp-just-lf") << QStringLiteral("abc  \ndef") << QStringLiteral("abc def");
+    QTest::newRow("delsp-borked-crlf") << QStringLiteral("abc\r\ndef") << QStringLiteral("abc\ndef");
+    QTest::newRow("delsp-borked-lf") << QStringLiteral("abc\ndef") << QStringLiteral("abc\ndef");
+    QTest::newRow("delsp-single-line-no-crlf") << QStringLiteral("abc ") << QStringLiteral("abc");
+    QTest::newRow("delsp-single-line-crlf") << QStringLiteral("abc \r\n") << QStringLiteral("abc\n");
+    QTest::newRow("delsp-single-line-lf") << QStringLiteral("abc \n") << QStringLiteral("abc\n");
+    QTest::newRow("delsp-single-line-cr") << QStringLiteral("abc \r") << QStringLiteral("abc");
 }
 
 void HtmlFormattingTest::testPlainTextFormattingViaHtml()
@@ -145,84 +145,84 @@ void HtmlFormattingTest::testPlainTextFormattingViaHtml_data()
     QTest::addColumn<QString>("html");
 
     QTest::newRow("containing-html")
-            << QString("<p>ahoj &amp; blesmrt</p>")
-            << QString("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
-    QTest::newRow("basic-formatting-1") << QString("foo bar") << QString("foo bar");
+            << QStringLiteral("<p>ahoj &amp; blesmrt</p>")
+            << QStringLiteral("&lt;p&gt;ahoj &amp;amp; blesmrt&lt;/p&gt;");
+    QTest::newRow("basic-formatting-1") << QStringLiteral("foo bar") << QStringLiteral("foo bar");
     QTest::newRow("basic-formatting-2")
-            << QString("ahoj *cau* nazdar")
-            << QString("ahoj <b><span class=\"markup\">*</span>cau<span class=\"markup\">*</span></b> nazdar");
+            << QStringLiteral("ahoj *cau* nazdar")
+            << QStringLiteral("ahoj <b><span class=\"markup\">*</span>cau<span class=\"markup\">*</span></b> nazdar");
     QTest::newRow("basic-formatting-3")
-            << QString("/ahoj/ *cau*")
-            << QString("<i><span class=\"markup\">/</span>ahoj<span class=\"markup\">/</span></i> <b><span class=\"markup\">*</span>cau<span class=\"markup\">*</span></b>");
+            << QStringLiteral("/ahoj/ *cau*")
+            << QStringLiteral("<i><span class=\"markup\">/</span>ahoj<span class=\"markup\">/</span></i> <b><span class=\"markup\">*</span>cau<span class=\"markup\">*</span></b>");
     QTest::newRow("basic-formatting-4")
-            << QString("ahoj *_cau_* nazdar")
-            << QString("ahoj <b><span class=\"markup\">*</span><u><span class=\"markup\">_</span>cau"
+            << QStringLiteral("ahoj *_cau_* nazdar")
+            << QStringLiteral("ahoj <b><span class=\"markup\">*</span><u><span class=\"markup\">_</span>cau"
                        "<span class=\"markup\">_</span></u><span class=\"markup\">*</span></b> nazdar");
     QTest::newRow("basic-formatting-666")
-            << QString("foo *bar* _baz_ /pwn/ yay foo@ @bar @ blesmrt")
-            << QString("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
+            << QStringLiteral("foo *bar* _baz_ /pwn/ yay foo@ @bar @ blesmrt")
+            << QStringLiteral("foo <b><span class=\"markup\">*</span>bar<span class=\"markup\">*</span></b> "
                        "<u><span class=\"markup\">_</span>baz<span class=\"markup\">_</span></u> "
                        "<i><span class=\"markup\">/</span>pwn<span class=\"markup\">/</span></i> yay foo@ @bar @ blesmrt");
     QTest::newRow("formatting-and-newlines")
-            << QString("*blesmrt*\ntrojita")
-            << QString("<b><span class=\"markup\">*</span>blesmrt<span class=\"markup\">*</span></b>\ntrojita");
+            << QStringLiteral("*blesmrt*\ntrojita")
+            << QStringLiteral("<b><span class=\"markup\">*</span>blesmrt<span class=\"markup\">*</span></b>\ntrojita");
     QTest::newRow("links")
-            << QString("ahoj http://pwn:123/foo?bar&baz#nope")
-            << QString("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
+            << QStringLiteral("ahoj http://pwn:123/foo?bar&baz#nope")
+            << QStringLiteral("ahoj <a href=\"http://pwn:123/foo?bar&amp;baz#nope\">http://pwn:123/foo?bar&amp;baz#nope</a>");
     // Test our escaping
     QTest::newRow("escaping-1")
-            << QString::fromUtf8("<>&&gt; § §gt; §para;\n")
-            << QString::fromUtf8("&lt;&gt;&amp;&amp;gt; § §gt; §para;\n");
+            << QStringLiteral("<>&&gt; § §gt; §para;\n")
+            << QStringLiteral("&lt;&gt;&amp;&amp;gt; § §gt; §para;\n");
     // A plaintext actually containing some HTML code -- bug 323390
     QTest::newRow("escaping-html-url-bug-323390")
-            << QString("<a href=\"http://trojita.flaska.net\">Trojita</a>")
-            << QString("&lt;a href=&quot;<a href=\"http://trojita.flaska.net\">http://trojita.flaska.net</a>&quot;&gt;Trojita&lt;/a&gt;");
+            << QStringLiteral("<a href=\"http://trojita.flaska.net\">Trojita</a>")
+            << QStringLiteral("&lt;a href=&quot;<a href=\"http://trojita.flaska.net\">http://trojita.flaska.net</a>&quot;&gt;Trojita&lt;/a&gt;");
     QTest::newRow("escaping-html-mail-bug-323390")
-            << QString("some-mail&ad'dr@foo")
-            << QString("<a href=\"mailto:some-mail&amp;ad'dr@foo\">some-mail&amp;ad'dr@foo</a>");
+            << QStringLiteral("some-mail&ad'dr@foo")
+            << QStringLiteral("<a href=\"mailto:some-mail&amp;ad'dr@foo\">some-mail&amp;ad'dr@foo</a>");
 
     QTest::newRow("mailto-1")
-            << QString("ble.smrt-1_2+3@example.org")
-            << QString("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>");
+            << QStringLiteral("ble.smrt-1_2+3@example.org")
+            << QStringLiteral("<a href=\"mailto:ble.smrt-1_2+3@example.org\">ble.smrt-1_2+3@example.org</a>");
 
     QTest::newRow("multiple-links-on-line")
-            << QString::fromUtf8("Hi,\n"
-                                 "http://meh/ http://pwn/now foo@bar http://wtf\n"
-                                 "nothing x@y.org\n"
-                                 "foo@example.org else\n"
-                                 "test@domain"
-                                 )
-            << QString::fromUtf8("Hi,\n"
-                                 "<a href=\"http://meh/\">http://meh/</a> <a href=\"http://pwn/now\">http://pwn/now</a> "
-                                    "<a href=\"mailto:foo@bar\">foo@bar</a> <a href=\"http://wtf\">http://wtf</a>\n"
-                                 "nothing <a href=\"mailto:x@y.org\">x@y.org</a>\n"
-                                 "<a href=\"mailto:foo@example.org\">foo@example.org</a> else\n"
-                                 "<a href=\"mailto:test@domain\">test@domain</a>");
+            << QStringLiteral("Hi,\n"
+                              "http://meh/ http://pwn/now foo@bar http://wtf\n"
+                              "nothing x@y.org\n"
+                              "foo@example.org else\n"
+                              "test@domain"
+                              )
+            << QStringLiteral("Hi,\n"
+                              "<a href=\"http://meh/\">http://meh/</a> <a href=\"http://pwn/now\">http://pwn/now</a> "
+                                 "<a href=\"mailto:foo@bar\">foo@bar</a> <a href=\"http://wtf\">http://wtf</a>\n"
+                              "nothing <a href=\"mailto:x@y.org\">x@y.org</a>\n"
+                              "<a href=\"mailto:foo@example.org\">foo@example.org</a> else\n"
+                              "<a href=\"mailto:test@domain\">test@domain</a>");
 
     QTest::newRow("http-link-with-nested-mail-and-formatting-chars")
-            << QString::fromUtf8("http://example.org/meh/yay/?foo=test@example.org\n"
-                                 "http://example.org/(*checkout*)/pwn\n"
-                                 "*https://domain.org/yay*")
-            << QString::fromUtf8("<a href=\"http://example.org/meh/yay/?foo=test@example.org\">http://example.org/meh/yay/?foo=test@example.org</a>\n"
-                                 "<a href=\"http://example.org/(*checkout*)/pwn\">http://example.org/(*checkout*)/pwn</a>\n"
-                                 "<b><span class=\"markup\">*</span><a href=\"https://domain.org/yay\">https://domain.org/yay</a><span class=\"markup\">*</span></b>");
+            << QStringLiteral("http://example.org/meh/yay/?foo=test@example.org\n"
+                              "http://example.org/(*checkout*)/pwn\n"
+                              "*https://domain.org/yay*")
+            << QStringLiteral("<a href=\"http://example.org/meh/yay/?foo=test@example.org\">http://example.org/meh/yay/?foo=test@example.org</a>\n"
+                              "<a href=\"http://example.org/(*checkout*)/pwn\">http://example.org/(*checkout*)/pwn</a>\n"
+                              "<b><span class=\"markup\">*</span><a href=\"https://domain.org/yay\">https://domain.org/yay</a><span class=\"markup\">*</span></b>");
 
     QTest::newRow("just-underscores")
-            << QString::fromUtf8("___________")
-            << QString::fromUtf8("___________");
+            << QStringLiteral("___________")
+            << QStringLiteral("___________");
 
     QTest::newRow("duplicated-formatters")
-            << QString::fromUtf8("__meh__ **blah** //boo//")
-            << QString::fromUtf8("__meh__ **blah** //boo//");
+            << QStringLiteral("__meh__ **blah** //boo//")
+            << QStringLiteral("__meh__ **blah** //boo//");
 
     QTest::newRow("two-but-different")
-            << QString::fromUtf8("_/meh/_ *_blah_* /*boo*/")
-            << QString::fromUtf8("<u><span class=\"markup\">_</span><i><span class=\"markup\">/</span>meh"
-                                 "<span class=\"markup\">/</span></i><span class=\"markup\">_</span></u> "
-                                 "<b><span class=\"markup\">*</span><u><span class=\"markup\">_</span>blah"
-                                 "<span class=\"markup\">_</span></u><span class=\"markup\">*</span></b> "
-                                 "<i><span class=\"markup\">/</span><b><span class=\"markup\">*</span>boo"
-                                 "<span class=\"markup\">*</span></b><span class=\"markup\">/</span></i>");
+            << QStringLiteral("_/meh/_ *_blah_* /*boo*/")
+            << QStringLiteral("<u><span class=\"markup\">_</span><i><span class=\"markup\">/</span>meh"
+                              "<span class=\"markup\">/</span></i><span class=\"markup\">_</span></u> "
+                              "<b><span class=\"markup\">*</span><u><span class=\"markup\">_</span>blah"
+                              "<span class=\"markup\">_</span></u><span class=\"markup\">*</span></b> "
+                              "<i><span class=\"markup\">/</span><b><span class=\"markup\">*</span>boo"
+                              "<span class=\"markup\">*</span></b><span class=\"markup\">/</span></i>");
 }
 
 WebRenderingTester::WebRenderingTester()
@@ -241,7 +241,7 @@ QString WebRenderingTester::asPlainText(const QString &input, const UiUtils::Flo
                                         const CollapsingFlags collapsing)
 {
     // FIXME: bad pasted thing!
-    static const QString stylesheet = QString::fromUtf8(
+    static const QString stylesheet = QStringLiteral(
         "pre{word-wrap: break-word; white-space: pre-wrap;}"
         ".quotemarks{color:transparent;font-size:0px;}"
         "blockquote{font-size:90%; margin: 4pt 0 4pt 0; padding: 0 0 0 1em; border-left: 2px solid blue;}"
@@ -257,12 +257,12 @@ QString WebRenderingTester::asPlainText(const QString &input, const UiUtils::Flo
         "span.short > blockquote > label:after {content: \" \u25be\"}"
         "span.shortquote > blockquote > label {display: none}"
     );
-    static const QString htmlHeader("<html><head><style type=\"text/css\"><!--" + stylesheet + "--></style></head><body><pre>");
-    static const QString htmlFooter("\n</pre></body></html>");
+    static const QString htmlHeader(QStringLiteral("<html><head><style type=\"text/css\"><!--") + stylesheet + QLatin1String("--></style></head><body><pre>"));
+    static const QString htmlFooter(QStringLiteral("\n</pre></body></html>"));
 
     sourceData = htmlHeader + UiUtils::plainTextToHtml(input, format) + htmlFooter;
     if (collapsing == RenderExpandEverythingCollapsed)
-        sourceData = sourceData.replace(" checked=\"checked\"", QString());
+        sourceData = sourceData.replace(QStringLiteral(" checked=\"checked\""), QString());
     QTimer::singleShot(0, this, SLOT(doDelayedLoad()));
     m_loop->exec();
     m_web->page()->action(QWebPage::SelectAll)->trigger();
@@ -330,82 +330,82 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
     QTest::addColumn<QString>("expandedFlowed");
 
     QTest::newRow("no-quotes")
-            << QString("Sample mail message.\n")
-            << QString("Sample mail message.\n")
-            << QString() << QString();
+            << QStringLiteral("Sample mail message.\n")
+            << QStringLiteral("Sample mail message.\n")
+            << QStringLiteral() << QStringLiteral();
 
     QTest::newRow("no-quotes-flowed")
-            << QString("This is something which is split \namong a few lines \n  like \n   this. ")
-            << QString("This is something which is split among a few lines  like   this.")
-            << QString("This is something which is split \namong a few lines \n  like \n   this. ")
-            << QString();
+            << QStringLiteral("This is something which is split \namong a few lines \n  like \n   this. ")
+            << QStringLiteral("This is something which is split among a few lines  like   this.")
+            << QStringLiteral("This is something which is split \namong a few lines \n  like \n   this. ")
+            << QStringLiteral();
 
     QTest::newRow("quote-1")
-            << QString("Foo bar.\n> blesmrt\n>>trojita\nomacka")
-            << QString("Foo bar.\n> blesmrt\n>> trojita\nomacka")
-            << QString() << QString();
+            << QStringLiteral("Foo bar.\n> blesmrt\n>>trojita\nomacka")
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> trojita\nomacka")
+            << QStringLiteral() << QStringLiteral();
 
     QTest::newRow("quote-levels")
-            << QString("Zero.\n>One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>>Three\nZeroB")
-            << QString("Zero.\n> One\n>> Two ...\nZeroB")
-            << QString()
-            << QString("Zero.\n> One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>> Three\nZeroB");
+            << QStringLiteral("Zero.\n>One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>>Three\nZeroB")
+            << QStringLiteral("Zero.\n> One\n>> Two ...\nZeroB")
+            << QStringLiteral()
+            << QStringLiteral("Zero.\n> One\n>> Two\n>>>> Four-0\n>>>> Four-1\n>>>> Four-2\n>>>> Four-3\n>>> Three\nZeroB");
 
     QTest::newRow("quoted-no-spacing")
-            << QString("> foo\nbar\n> baz")
-            << QString("> foo\nbar\n> baz")
-            << QString() << QString();
+            << QStringLiteral("> foo\nbar\n> baz")
+            << QStringLiteral("> foo\nbar\n> baz")
+            << QStringLiteral() << QStringLiteral();
 
     QTest::newRow("bottom-quoting")
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333")
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333")
-            << QString()
-            << QString();
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> 333")
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> 333")
+            << QStringLiteral()
+            << QStringLiteral();
 
     QTest::newRow("bottom-quoting-toobig")
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
-            << QString::fromUtf8("Foo bar.\n> blesmrt ...\n")
-            << QString()
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
+            << QStringLiteral("Foo bar.\n> blesmrt ...\n")
+            << QStringLiteral()
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
 
     QTest::newRow("different-quote-levels-not-flowed-together")
-            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333")
-            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333")
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333");
+            << QStringLiteral("Foo bar. \n> blesmrt \n>> 333")
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> 333")
+            << QStringLiteral("Foo bar. \n> blesmrt \n>> 333")
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> 333");
 
     QTest::newRow("different-quote-levels-not-flowed-together-toobig")
-            << QString::fromUtf8("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
+            << QStringLiteral("Foo bar. \n> blesmrt \n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4")
             // The space right in front of "..." is a separator for copy-paste. The original space from the input
             // is interpretted as a line mistakenly marked as flowed, but since the line of a paragraph cannot be
             // flowed, it's a bug which we detect and throw it away.
-            << QString::fromUtf8("Foo bar.\n> blesmrt ...\n")
+            << QStringLiteral("Foo bar.\n> blesmrt ...\n")
             // On the other hand, we *do* expect two spaces here -- one for the non-flowed space,
             // and the other one for our separator.
-            << QString::fromUtf8("Foo bar. \n> blesmrt  ...\n")
-            << QString::fromUtf8("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
+            << QStringLiteral("Foo bar. \n> blesmrt  ...\n")
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> 333\n>> 666\n>> 666-2\n>> 666-3\n>> 666-4\n");
 
     QTest::newRow("nested-quotes-correct-indicator")
-            << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.")
-            << QString::fromUtf8(">>> ...\n>> Two levels down. ...\n> One level down.\nReal mail.")
-            << QString()
-            << QString::fromUtf8(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.");
+            << QStringLiteral(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.")
+            << QStringLiteral(">>> ...\n>> Two levels down. ...\n> One level down.\nReal mail.")
+            << QStringLiteral()
+            << QStringLiteral(">>> Three levels down.\n>> Two levels down.\n> One level down.\nReal mail.");
 
-    QString lipsum = QString::fromUtf8("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut "
-                                       "labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
-                                       "laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in "
-                                       "voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat "
-                                       "cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
+    QString lipsum = QStringLiteral("Lorem ipsum dolor sit amet, consectetur adipisici elit, sed eiusmod tempor incidunt ut "
+                                    "labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco "
+                                    "laboris nisi ut aliquid ex ea commodi consequat. Quis aute iure reprehenderit in "
+                                    "voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint obcaecat "
+                                    "cupiditat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.");
     QString shortLipsum = QString(lipsum + QLatin1Char(' ') + lipsum).left(5*160);
 
     QTest::newRow("collapsed-last-quote")
-            << QString::fromUtf8("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum
-            << QString::fromUtf8("Some real text.\n> ") + shortLipsum + " ...\n"
+            << QStringLiteral("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum
+            << QStringLiteral("Some real text.\n> ") + shortLipsum + " ...\n"
             << QString()
-            << QString::fromUtf8("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum + "\n";
+            << QStringLiteral("Some real text.\n> ") + lipsum + QLatin1Char(' ') + lipsum + "\n";
 
     QTest::newRow("quoted-common")
-            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+            << QStringLiteral("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
                                  "> If you think that running 21 threads on an 8 core system will run make \n"
                                  "> your task go faster, then Thiago is right: you don't understand your \n"
                                  "> problem.\n"
@@ -420,7 +420,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                                  "\n"
                                  "-- \n"
                                  "Thiago's name goes here.\n")
-            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+            << QStringLiteral("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
                                  "> If you think that running 21 threads on an 8 core system will run make "
                                  "your task go faster, then Thiago is right: you don't understand your "
                                  "problem.\n"
@@ -434,7 +434,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                                  "\n"
                                  "-- \n"
                                  "Thiago's name goes here.\n")
-            << QString::fromUtf8("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
+            << QStringLiteral("On quinta-feira, 4 de outubro de 2012 15.46.57, André Somers wrote:\n"
                                  "> If you think that running 21 threads on an 8 core system will run make \n"
                                  "> your task go faster, then Thiago is right: you don't understand your \n"
                                  "> problem.\n"
@@ -451,7 +451,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
             << QString();
 
     QTest::newRow("small-quotes-arent-collapsible")
-            << QString::fromUtf8("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
+            << QStringLiteral("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
                                  "> If you plan to \n"
                                  "> use bugs.kde.org as the tracker, then you don't need to call \n"
                                  "> setBugAddress() at all. The default value just works.\n"
@@ -469,7 +469,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                                  "-- \n"
                                  "Martin Sandsmark\n"
                                  "KDE\n")
-            << QString::fromUtf8("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
+            << QStringLiteral("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
                                  "> If you plan to use bugs.kde.org as the tracker, then you don't need to call setBugAddress() "
                                  "at all. The default value just works.\n"
                                  "\n"
@@ -485,7 +485,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                                  "-- \n"
                                  "Martin Sandsmark\n"
                                  "KDE\n")
-            << QString::fromUtf8("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
+            << QStringLiteral("On Wednesday 09 January 2013 08:56:25 Jekyll Wu wrote:\n"
                                  "> If you plan to \n"
                                  "> use bugs.kde.org as the tracker, then you don't need to call \n"
                                  "> setBugAddress() at all. The default value just works.\n"
@@ -507,25 +507,25 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
 
     // https://bugs.kde.org/show_bug.cgi?id=337919
     QTest::newRow("blank-line-separator")
-            << QString("First para. \n\nSecond para.\n\n\nThird para.")
-            << QString("First para. \n\nSecond para.\n\n\nThird para.")
-            << QString("First para. \n\nSecond para.\n\n\nThird para.")
-            << QString("First para. \n\nSecond para.\n\n\nThird para.");
+            << QStringLiteral("First para. \n\nSecond para.\n\n\nThird para.")
+            << QStringLiteral("First para. \n\nSecond para.\n\n\nThird para.")
+            << QStringLiteral("First para. \n\nSecond para.\n\n\nThird para.")
+            << QStringLiteral("First para. \n\nSecond para.\n\n\nThird para.");
 
     QTest::newRow("blank-line-separator-of-quoted")
-            << QString("> First para. \n>\n> Second para.\n>\n>\n>Third para.")
-            << QString("> First para. \n> \n> Second para.\n> \n> \n> Third para. ...\n")
-            << QString("> First para. \n> \n> Second para.\n> \n> \n> Third para. ...\n")
-            << QString("> First para. \n> \n> Second para.\n> \n> \n> Third para.\n");
+            << QStringLiteral("> First para. \n>\n> Second para.\n>\n>\n>Third para.")
+            << QStringLiteral("> First para. \n> \n> Second para.\n> \n> \n> Third para. ...\n")
+            << QStringLiteral("> First para. \n> \n> Second para.\n> \n> \n> Third para. ...\n")
+            << QStringLiteral("> First para. \n> \n> Second para.\n> \n> \n> Third para.\n");
 
     QTest::newRow("blanks-in-different-levels")
-            << QString("Yesterday: \n>> Test2A. \n>>\n>> Test2B \n>>\nTest0. \n> Test1A. \n> \n>Test 1B. ")
-            << QString("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.")
-            << QString("Yesterday: \n>> Test2A. \n>> \n>> Test2B \n>> \nTest0. \n> Test1A. \n> \n> Test 1B. ")
-            << QString("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.");
+            << QStringLiteral("Yesterday: \n>> Test2A. \n>>\n>> Test2B \n>>\nTest0. \n> Test1A. \n> \n>Test 1B. ")
+            << QStringLiteral("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.")
+            << QStringLiteral("Yesterday: \n>> Test2A. \n>> \n>> Test2B \n>> \nTest0. \n> Test1A. \n> \n> Test 1B. ")
+            << QStringLiteral("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.");
 
     QTest::newRow("kmail-spaces-in-quotes")
-            << QString("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\r\n"
+            << QStringLiteral("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\r\n"
                        "> On 8 November 2014 08:45, John Layt <jlayt@kde.org> wrote:\r\n"
                        "> > Hi,\r\n"
                        "> > \r\n"
@@ -537,7 +537,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                        "\r\n"
                        "CC'd Michael directly in case he missed the emails between all the jenkins \r\n"
                        "spam. I'd like to have this sorted out soon too  :)\r\n")
-            << QString("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
+            << QStringLiteral("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
                        "> On 8 November 2014 08:45, John Layt <jlayt@kde.org> wrote:\n"
                        "> > Hi,\n"
                        // This might be surprising at first, but "> > > " is actually correct here.
@@ -553,7 +553,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                        "> Ping?\n"
                        "\n"
                        "CC'd Michael directly in case he missed the emails between all the jenkins spam. I'd like to have this sorted out soon too  :)\n")
-            << QString("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
+            << QStringLiteral("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
                        "> On 8 November 2014 08:45, John Layt <jlayt@kde.org> wrote:\n"
                        ">> Hi,\n"
                        ">> \n"
@@ -565,7 +565,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
                        "\n"
                        "CC'd Michael directly in case he missed the emails between all the jenkins \n"
                        "spam. I'd like to have this sorted out soon too  :)\n")
-            << QString("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
+            << QStringLiteral("On Wednesday 12 of November 2014 06:54:53 John Layt wrote:\n"
                        "> On 8 November 2014 08:45, John Layt <jlayt@kde.org> wrote:\n"
                        "> > Hi,\n"
                        // See above for that "weird" "> > > ".
@@ -604,36 +604,36 @@ void HtmlFormattingTest::testPlainTextFormattingViaPasteDelSp_data()
     QTest::addColumn<QString>("expandedFlowedDelSp");
 
     QTest::newRow("no-quotes")
-            << QString("Sample mail message.\n")
-            << QString("Sample mail message.\n")
-            << QString("Sample mail message.\n");
+            << QStringLiteral("Sample mail message.\n")
+            << QStringLiteral("Sample mail message.\n")
+            << QStringLiteral("Sample mail message.\n");
 
     QTest::newRow("no-quotes-flowed")
-            << QString("This is something which is split \namong a \n few lines \n  like \n   this. ")
-            << QString("This is something which is split among a few lines  like   this.")
+            << QStringLiteral("This is something which is split \namong a \n few lines \n  like \n   this. ")
+            << QStringLiteral("This is something which is split among a few lines  like   this.")
             // yes, "afew" -- that's because of space stuffing.
-            << QString("This is something which is splitamong afew lines like  this.");
+            << QStringLiteral("This is something which is splitamong afew lines like  this.");
 
     QTest::newRow("quote-1")
-            << QString("Foo bar. \n> blesmrt\n>> trojita \n omacka")
-            << QString("Foo bar.\n> blesmrt\n>> trojita\nomacka")
-            << QString("Foo bar.\n> blesmrt\n>> trojita\nomacka");
+            << QStringLiteral("Foo bar. \n> blesmrt\n>> trojita \n omacka")
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> trojita\nomacka")
+            << QStringLiteral("Foo bar.\n> blesmrt\n>> trojita\nomacka");
 
     // https://bugs.kde.org/show_bug.cgi?id=337919
     QTest::newRow("blank-line-separator")
-            << QString("First para. \n\nSecond para.\n\n\nThird para.")
-            << QString("First para. \n\nSecond para.\n\n\nThird para.")
-            << QString("First para.\n\nSecond para.\n\n\nThird para.");
+            << QStringLiteral("First para. \n\nSecond para.\n\n\nThird para.")
+            << QStringLiteral("First para. \n\nSecond para.\n\n\nThird para.")
+            << QStringLiteral("First para.\n\nSecond para.\n\n\nThird para.");
 
     QTest::newRow("blank-line-separator-of-quoted")
-            << QString("> First para. \n>\n> Second para.\n>\n>\n>Third para.")
-            << QString("> First para. \n> \n> Second para.\n> \n> \n> Third para.\n")
-            << QString("> First para.\n> \n> Second para.\n> \n> \n> Third para.\n");
+            << QStringLiteral("> First para. \n>\n> Second para.\n>\n>\n>Third para.")
+            << QStringLiteral("> First para. \n> \n> Second para.\n> \n> \n> Third para.\n")
+            << QStringLiteral("> First para.\n> \n> Second para.\n> \n> \n> Third para.\n");
 
     QTest::newRow("blanks-in-different-levels")
-            << QString("Yesterday: \n>> Test2A. \n>>\n>> Test2B \n>>\nTest0. \n> Test1A. \n> \n>Test 1B. ")
-            << QString("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.")
-            << QString("Yesterday:\n>> Test2A.\n>> \n>> Test2B\n>> \nTest0.\n> Test1A.\n> \n> Test 1B.");
+            << QStringLiteral("Yesterday: \n>> Test2A. \n>>\n>> Test2B \n>>\nTest0. \n> Test1A. \n> \n>Test 1B. ")
+            << QStringLiteral("Yesterday:\n>> Test2A. \n>> \n>> Test2B \n>> \nTest0.\n> Test1A. \n> \n> Test 1B.")
+            << QStringLiteral("Yesterday:\n>> Test2A.\n>> \n>> Test2B\n>> \nTest0.\n> Test1A.\n> \n> Test 1B.");
 }
 
 /** @short Test that the link recognition in plaintext -> HTML formatting recognizes the interesting links */
@@ -644,7 +644,7 @@ void HtmlFormattingTest::testLinkRecognition()
     QFETCH(QString, suffix);
 
     QString input = prefix + link + suffix;
-    QString expected = prefix + QString::fromUtf8("<a href=\"%1\">%1</a>").arg(link) + suffix;
+    QString expected = prefix + QStringLiteral("<a href=\"%1\">%1</a>").arg(link) + suffix;
 
     QCOMPARE(UiUtils::plainTextToHtml(input, UiUtils::FlowedFormat::PLAIN), expected);
 }
@@ -659,24 +659,24 @@ void HtmlFormattingTest::testLinkRecognition_data()
     QString empty;
     QString space(QStringLiteral(" "));
 
-    QTest::newRow("basic-http") << empty << QString::fromUtf8("http://blesmrt") << empty;
-    QTest::newRow("basic-https") << empty << QString::fromUtf8("https://blesmrt") << empty;
-    QTest::newRow("parentheses") << QString::fromUtf8("(") << QString::fromUtf8("https://blesmrt") << QString::fromUtf8(")");
-    QTest::newRow("url-query") << empty << QString::fromUtf8("https://blesmrt.trojita/?foo=bar") << empty;
-    QTest::newRow("url-fragment") << empty << QString::fromUtf8("https://blesmrt.trojita/#pwn") << empty;
+    QTest::newRow("basic-http") << empty << QStringLiteral("http://blesmrt") << empty;
+    QTest::newRow("basic-https") << empty << QStringLiteral("https://blesmrt") << empty;
+    QTest::newRow("parentheses") << QStringLiteral("(") << QStringLiteral("https://blesmrt") << QStringLiteral(")");
+    QTest::newRow("url-query") << empty << QStringLiteral("https://blesmrt.trojita/?foo=bar") << empty;
+    QTest::newRow("url-fragment") << empty << QStringLiteral("https://blesmrt.trojita/#pwn") << empty;
 
-    QTest::newRow("trailing-dot") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(".");
-    QTest::newRow("trailing-dot-2") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(". Foo");
-    QTest::newRow("trailing-comma") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(",");
-    QTest::newRow("trailing-comma-2") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(", foo");
-    QTest::newRow("trailing-semicolon") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(";");
-    QTest::newRow("trailing-semicolon-2") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8("; foo");
-    QTest::newRow("trailing-colon") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(":");
-    QTest::newRow("trailing-colon-2") << empty << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(": blah");
+    QTest::newRow("trailing-dot") << empty << QStringLiteral("http://blesmrt") << QStringLiteral(".");
+    QTest::newRow("trailing-dot-2") << empty << QStringLiteral("http://blesmrt") << QStringLiteral(". Foo");
+    QTest::newRow("trailing-comma") << empty << QStringLiteral("http://blesmrt") << QStringLiteral(",");
+    QTest::newRow("trailing-comma-2") << empty << QStringLiteral("http://blesmrt") << QStringLiteral(", foo");
+    QTest::newRow("trailing-semicolon") << empty << QStringLiteral("http://blesmrt") << QStringLiteral(";");
+    QTest::newRow("trailing-semicolon-2") << empty << QStringLiteral("http://blesmrt") << QStringLiteral("; foo");
+    QTest::newRow("trailing-colon") << empty << QStringLiteral("http://blesmrt") << QStringLiteral(":");
+    QTest::newRow("trailing-colon-2") << empty << QStringLiteral("http://blesmrt") << QStringLiteral(": blah");
 
-    QTest::newRow("trailing-sentence-1") << QString::fromUtf8("meh ") << QString::fromUtf8("http://blesmrt") << QString::fromUtf8("?");
-    QTest::newRow("trailing-sentence-2") << QString::fromUtf8("meh ") << QString::fromUtf8("http://blesmrt") << QString::fromUtf8("!");
-    QTest::newRow("trailing-sentence-3") << QString::fromUtf8("meh ") << QString::fromUtf8("http://blesmrt") << QString::fromUtf8(".");
+    QTest::newRow("trailing-sentence-1") << QStringLiteral("meh ") << QStringLiteral("http://blesmrt") << QStringLiteral("?");
+    QTest::newRow("trailing-sentence-2") << QStringLiteral("meh ") << QStringLiteral("http://blesmrt") << QStringLiteral("!");
+    QTest::newRow("trailing-sentence-3") << QStringLiteral("meh ") << QStringLiteral("http://blesmrt") << QStringLiteral(".");
 }
 
 /** @short Test data which should not be recognized as links */
@@ -692,13 +692,13 @@ void HtmlFormattingTest::testUnrecognizedLinks_data()
 {
     QTest::addColumn<QString>("input");
 
-    QTest::newRow("basic-ftp") << QString::fromUtf8("ftp://blesmrt");
-    QTest::newRow("at-sign-start") << QString::fromUtf8("@foo");
-    QTest::newRow("at-sign-end") << QString::fromUtf8("foo@");
-    QTest::newRow("at-sign-standalone-1") << QString::fromUtf8("@");
-    QTest::newRow("at-sign-standalone-2") << QString::fromUtf8(" @ ");
-    QTest::newRow("http-standalone") << QString::fromUtf8("http://");
-    QTest::newRow("http-standalone-stuff") << QString::fromUtf8("http:// foo");
+    QTest::newRow("basic-ftp") << QStringLiteral("ftp://blesmrt");
+    QTest::newRow("at-sign-start") << QStringLiteral("@foo");
+    QTest::newRow("at-sign-end") << QStringLiteral("foo@");
+    QTest::newRow("at-sign-standalone-1") << QStringLiteral("@");
+    QTest::newRow("at-sign-standalone-2") << QStringLiteral(" @ ");
+    QTest::newRow("http-standalone") << QStringLiteral("http://");
+    QTest::newRow("http-standalone-stuff") << QStringLiteral("http:// foo");
 }
 
 void HtmlFormattingTest::testSignatures()
@@ -720,20 +720,20 @@ void HtmlFormattingTest::testSignatures_data()
     QTest::addColumn<QString>("result");
 
     QTest::newRow("empty-all") << QString() << QString() << QString();
-    QTest::newRow("empty-signature-1") << QString("foo") << QString() << QString("foo");
-    QTest::newRow("empty-signature-2") << QString("foo\n") << QString() << QString("foo\n");
-    QTest::newRow("empty-signature-3") << QString("foo\n-- ") << QString() << QString("foo");
-    QTest::newRow("empty-signature-4") << QString("foo\n-- \n") << QString() << QString("foo");
-    QTest::newRow("empty-signature-5") << QString("foo\n\n-- \n") << QString() << QString("foo\n");
+    QTest::newRow("empty-signature-1") << QStringLiteral("foo") << QString() << QStringLiteral("foo");
+    QTest::newRow("empty-signature-2") << QStringLiteral("foo\n") << QString() << QStringLiteral("foo\n");
+    QTest::newRow("empty-signature-3") << QStringLiteral("foo\n-- ") << QString() << QStringLiteral("foo");
+    QTest::newRow("empty-signature-4") << QStringLiteral("foo\n-- \n") << QString() << QStringLiteral("foo");
+    QTest::newRow("empty-signature-5") << QStringLiteral("foo\n\n-- \n") << QString() << QStringLiteral("foo\n");
 
-    QTest::newRow("no-signature-1") << QString("foo") << QString("meh") << QString("foo\n-- \nmeh");
-    QTest::newRow("no-signature-2") << QString("foo\n") << QString("meh") << QString("foo\n\n-- \nmeh");
-    QTest::newRow("no-signature-3") << QString("foo\n\n") << QString("meh") << QString("foo\n\n\n-- \nmeh");
-    QTest::newRow("no-signature-4") << QString("foo\nbar\nbaz") << QString("meh") << QString("foo\nbar\nbaz\n-- \nmeh");
-    QTest::newRow("no-signature-5") << QString("foo\n--") << QString("meh") << QString("foo\n--\n-- \nmeh");
+    QTest::newRow("no-signature-1") << QStringLiteral("foo") << QStringLiteral("meh") << QStringLiteral("foo\n-- \nmeh");
+    QTest::newRow("no-signature-2") << QStringLiteral("foo\n") << QStringLiteral("meh") << QStringLiteral("foo\n\n-- \nmeh");
+    QTest::newRow("no-signature-3") << QStringLiteral("foo\n\n") << QStringLiteral("meh") << QStringLiteral("foo\n\n\n-- \nmeh");
+    QTest::newRow("no-signature-4") << QStringLiteral("foo\nbar\nbaz") << QStringLiteral("meh") << QStringLiteral("foo\nbar\nbaz\n-- \nmeh");
+    QTest::newRow("no-signature-5") << QStringLiteral("foo\n--") << QStringLiteral("meh") << QStringLiteral("foo\n--\n-- \nmeh");
 
-    QTest::newRow("replacement") << QString("foo\n-- \njohoho") << QString("sig") << QString("foo\n-- \nsig");
-    QTest::newRow("replacement-of-multiline") << QString("foo\n-- \njohoho\nwtf\nbar") << QString("sig") << QString("foo\n-- \nsig");
+    QTest::newRow("replacement") << QStringLiteral("foo\n-- \njohoho") << QStringLiteral("sig") << QStringLiteral("foo\n-- \nsig");
+    QTest::newRow("replacement-of-multiline") << QStringLiteral("foo\n-- \njohoho\nwtf\nbar") << QStringLiteral("sig") << QStringLiteral("foo\n-- \nsig");
 }
 
 QTEST_MAIN(HtmlFormattingTest)

@@ -77,11 +77,11 @@ QString FindInterestingPart::findMainPart( QModelIndex &part )
 
         }
         part = QModelIndex();
-        return QString::fromUtf8("This is a %1 formatted message whose parts are not suitable for diplaying here").arg(mimeType);
+        return QStringLiteral("This is a %1 formatted message whose parts are not suitable for diplaying here").arg(mimeType);
     }
 
     part = QModelIndex();
-    return QString::fromUtf8("MIME type %1 is not supported").arg(mimeType);
+    return QStringLiteral("MIME type %1 is not supported").arg(mimeType);
 }
 
 FindInterestingPart::MainPartReturnCode FindInterestingPart::findMainPartOfMessage(

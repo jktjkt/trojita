@@ -74,7 +74,7 @@ void ListChildMailboxesTask::perform()
             returnOptions << QStringLiteral("SUBSCRIBED") << QStringLiteral("CHILDREN");
         }
         if (model->accessParser(parser).capabilities.contains(QStringLiteral("LIST-STATUS"))) {
-            returnOptions << QString::fromUtf8("STATUS (%1)").arg(NumberOfMessagesTask::requestedStatusOptions().join(QStringLiteral(" ")));
+            returnOptions << QStringLiteral("STATUS (%1)").arg(NumberOfMessagesTask::requestedStatusOptions().join(QStringLiteral(" ")));
         }
     }
     // empty string, not a null string
@@ -143,7 +143,7 @@ QString ListChildMailboxesTask::debugIdentification() const
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(model->translatePtr(mailboxIndex)));
     Q_ASSERT(mailbox);
-    return QString::fromUtf8("Listing stuff below mailbox %1").arg(mailbox->mailbox());
+    return QStringLiteral("Listing stuff below mailbox %1").arg(mailbox->mailbox());
 }
 
 QVariant ListChildMailboxesTask::taskData(const int role) const
