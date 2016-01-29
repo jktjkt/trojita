@@ -42,7 +42,7 @@ QMimeData *mimeDataForDragAndDrop(const QModelIndex &index)
               index.data(RolePartPathToPart).toByteArray();
 
     QMimeData *mimeData = new QMimeData;
-    mimeData->setData(QLatin1String("application/x-trojita-imap-part"), buf);
+    mimeData->setData(QStringLiteral("application/x-trojita-imap-part"), buf);
     return mimeData;
 }
 

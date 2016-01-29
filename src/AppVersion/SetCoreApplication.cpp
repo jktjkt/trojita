@@ -32,7 +32,7 @@ namespace AppVersion
 void setGitVersion()
 {
 #ifdef TROJITA_GIT_VERSION
-    Common::Application::version = QLatin1String(TROJITA_GIT_VERSION);
+    Common::Application::version = QStringLiteral(TROJITA_GIT_VERSION);
 #endif
 }
 

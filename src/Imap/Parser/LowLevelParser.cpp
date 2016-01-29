@@ -272,7 +272,7 @@ QString getMailbox(const QByteArray &line, int &start)
 {
     QPair<QByteArray,ParsedAs> r = getAString(line, start);
     if (r.first.toUpper() == "INBOX")
-        return QLatin1String("INBOX");
+        return QStringLiteral("INBOX");
     else
         return decodeImapFolderName(r.first);
 
@@ -415,10 +415,10 @@ Imap::Uids getSequence(const QByteArray &line, int &start)
 
 QDateTime parseRFC2822DateTime(const QByteArray &input)
 {
-    QStringList monthNames = QStringList() << QLatin1String("jan") << QLatin1String("feb") << QLatin1String("mar")
-                                           << QLatin1String("apr") << QLatin1String("may") << QLatin1String("jun")
-                                           << QLatin1String("jul") << QLatin1String("aug") << QLatin1String("sep")
-                                           << QLatin1String("oct") << QLatin1String("nov") << QLatin1String("dec");
+    QStringList monthNames = QStringList() << QStringLiteral("jan") << QStringLiteral("feb") << QStringLiteral("mar")
+                                           << QStringLiteral("apr") << QStringLiteral("may") << QStringLiteral("jun")
+                                           << QStringLiteral("jul") << QStringLiteral("aug") << QStringLiteral("sep")
+                                           << QStringLiteral("oct") << QStringLiteral("nov") << QStringLiteral("dec");
 
     QRegExp rx(QString::fromUtf8("^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?"   // date-of-week
                                  "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date

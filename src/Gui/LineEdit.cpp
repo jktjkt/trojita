@@ -36,7 +36,7 @@ LineEdit::LineEdit(QWidget *parent)
 void LineEdit::init()
 {
     m_clearButton = new QToolButton(this);
-    m_clearButton->setIcon(UiUtils::loadIcon(QLatin1String("edit-clear-locationbar")));
+    m_clearButton->setIcon(UiUtils::loadIcon(QStringLiteral("edit-clear-locationbar")));
     m_clearButton->setCursor(Qt::ArrowCursor);
     m_clearButton->setToolTip(tr("Clear input field"));
     m_clearButton->setFocusPolicy(Qt::NoFocus);

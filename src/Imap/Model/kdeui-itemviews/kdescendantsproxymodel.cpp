@@ -38,7 +38,7 @@ class KDescendantsProxyModelPrivate
       m_ignoreNextLayoutChanged(false),
       m_relayouting(false),
       m_displayAncestorData( false ),
-      m_ancestorSeparator( QLatin1String( " / " ) )
+      m_ancestorSeparator( QStringLiteral( " / " ) )
   {
   }
 

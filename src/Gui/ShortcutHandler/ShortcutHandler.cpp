@@ -141,7 +141,7 @@ QAction *ShortcutHandler::shortcutConfigAction()
 {
     Q_ASSERT_X(!m_shortcutConfigWidget, "ShortcutHandler", "a shortcut configuration dialog and a shortcut configuration widget cannot exist at the same time in one application");
     if (!m_shortcutConfigAction) {
-        m_shortcutConfigAction = new QAction(UiUtils::loadIcon(QLatin1String("configure-shortcuts")), tr("Configure S&hortcuts..."), qobject_cast<QWidget*>(parent()));
+        m_shortcutConfigAction = new QAction(UiUtils::loadIcon(QStringLiteral("configure-shortcuts")), tr("Configure S&hortcuts..."), qobject_cast<QWidget*>(parent()));
         connect(m_shortcutConfigAction.data(), &QAction::triggered, this, &ShortcutHandler::openShortcutConfigDialog);
     }
     return m_shortcutConfigAction;
@@ -187,16 +187,16 @@ void ShortcutHandler::reject()
 void ShortcutHandler::readSettings()
 {
     Q_ASSERT_X(m_settings, "ShortcutHandler", "a settings object should be set using setSettingsObject() prior to using readSettings()");
-    Common::SettingsCategoryGuard guard(m_settings, QLatin1String("ShortcutHandler"));
-    const int size = m_settings->beginReadArray(QLatin1String("Shortcuts"));
+    Common::SettingsCategoryGuard guard(m_settings, QStringLiteral("ShortcutHandler"));
+    const int size = m_settings->beginReadArray(QStringLiteral("Shortcuts"));
     for (int i = 0; i < size; ++i) {
         m_settings->setArrayIndex(i);
-        const QString actionName = m_settings->value(QLatin1String("Action")).toString();
-        m_actionDescriptions[actionName].shortcut = m_settings->value(QLatin1String("Shortcut")).toString();
+        const QString actionName = m_settings->value(QStringLiteral("Action")).toString();
+        m_actionDescriptions[actionName].shortcut = m_settings->value(QStringLiteral("Shortcut")).toString();
 
         QAction *action = m_actionDescriptions[actionName].action;
         if (action)
-            action->setShortcut(QKeySequence(m_settings->value(QLatin1String("Shortcut")).toString()));
+            action->setShortcut(QKeySequence(m_settings->value(QStringLiteral("Shortcut")).toString()));
     }
     m_settings->endArray();
 }

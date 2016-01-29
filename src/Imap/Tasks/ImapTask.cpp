@@ -97,7 +97,7 @@ void ImapTask::markAsActiveTask(const TaskActivatingPosition place)
         connect(this, &QObject::destroyed, model->accessParser(parser).maintainingTask.data(), &KeepMailboxOpenTask::slotTaskDeleted);
     }
 
-    log(QLatin1String("Activated"));
+    log(QStringLiteral("Activated"));
     CHECK_TASK_TREE
 }
 
@@ -224,7 +224,7 @@ bool ImapTask::handleParseErrorResponse(const Imap::Responses::ParseErrorRespons
 void ImapTask::_completed()
 {
     _finished = true;
-    log(QLatin1String("Completed"));
+    log(QStringLiteral("Completed"));
     Q_FOREACH(ImapTask* task, dependentTasks) {
         if (!task->isFinished())
             task->perform();

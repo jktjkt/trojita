@@ -30,15 +30,15 @@ QString toImapString(const Imap::Mailbox::FlagsOperation flagOperation)
 {
     switch (flagOperation) {
     case FLAG_ADD:
-        return QLatin1String("+FLAGS");
+        return QStringLiteral("+FLAGS");
     case FLAG_REMOVE:
-        return QLatin1String("-FLAGS");
+        return QStringLiteral("-FLAGS");
     case FLAG_ADD_SILENT:
-        return QLatin1String("+FLAGS.SILENT");
+        return QStringLiteral("+FLAGS.SILENT");
     case FLAG_REMOVE_SILENT:
-        return QLatin1String("-FLAGS.SILENT");
+        return QStringLiteral("-FLAGS.SILENT");
     case FLAG_USE_THESE:
-        return QLatin1String("FLAGS");
+        return QStringLiteral("FLAGS");
     }
     Q_ASSERT(false);
     return QString();

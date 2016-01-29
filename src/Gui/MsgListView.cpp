@@ -126,12 +126,12 @@ int MsgListView::sizeHintForColumn(int column) const
     case Imap::Mailbox::MsgListModel::ATTACHMENT:
         return 16;
     case Imap::Mailbox::MsgListModel::SUBJECT:
-        return metric.size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita Foo Bar Random Text")).width();
+        return metric.size(Qt::TextSingleLine, QStringLiteral("Blesmrt Trojita Foo Bar Random Text")).width();
     case Imap::Mailbox::MsgListModel::FROM:
     case Imap::Mailbox::MsgListModel::TO:
     case Imap::Mailbox::MsgListModel::CC:
     case Imap::Mailbox::MsgListModel::BCC:
-        return metric.size(Qt::TextSingleLine, QLatin1String("Blesmrt Trojita")).width();
+        return metric.size(Qt::TextSingleLine, QStringLiteral("Blesmrt Trojita")).width();
     case Imap::Mailbox::MsgListModel::DATE:
     case Imap::Mailbox::MsgListModel::RECEIVED_DATE:
         return metric.size(Qt::TextSingleLine,

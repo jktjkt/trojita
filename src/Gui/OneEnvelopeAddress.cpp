@@ -41,8 +41,8 @@ OneEnvelopeAddress::OneEnvelopeAddress(QWidget *parent, const Imap::Message::Mai
 
     QFontMetrics fm(font());
     int iconSize = fm.boundingRect(QLatin1Char('M')).height();
-    contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-known.png"), iconSize);
-    contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QLatin1String(":/icons/contact-unknown.png"), iconSize);
+    contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QStringLiteral(":/icons/contact-known.png"), iconSize);
+    contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QStringLiteral(":/icons/contact-unknown.png"), iconSize);
 
     connect(this, &QLabel::linkActivated, [](const QString &link) {
         // Trojita is registered to handle any mailto: URL
@@ -86,8 +86,8 @@ void OneEnvelopeAddress::onLinkHovered(const QString &target)
     QUrl url(target);
 
     Imap::Message::MailAddress addr;
-    if (!Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")) &&
-            !Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("x-trojita-manage-contact"))) {
+    if (!Imap::Message::MailAddress::fromUrl(addr, url, QStringLiteral("mailto")) &&
+            !Imap::Message::MailAddress::fromUrl(addr, url, QStringLiteral("x-trojita-manage-contact"))) {
         setToolTip(QString());
         return;
     }
@@ -122,7 +122,7 @@ void OneEnvelopeAddress::finishOnLinkHovered(const QStringList &matchingDisplayN
         matchingIdentities << (str.isEmpty() ? tr("(empty display name)") : str.toHtmlEscaped());
     }
 
-    QString identities = matchingIdentities.join(QLatin1String("<br/>\n"));
+    QString identities = matchingIdentities.join(QStringLiteral("<br/>\n"));
     setToolTip(m_link + tr("<hr/><b>Address Book:</b><br/>") + identities);
 }
 

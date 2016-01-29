@@ -101,8 +101,8 @@ void FileDownloadManager::downloadPart()
 
     QNetworkRequest request;
     QUrl url;
-    url.setScheme(QLatin1String("trojita-imap"));
-    url.setHost(QLatin1String("msg"));
+    url.setScheme(QStringLiteral("trojita-imap"));
+    url.setHost(QStringLiteral("msg"));
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     request.setUrl(url);
     reply = manager->get(request);

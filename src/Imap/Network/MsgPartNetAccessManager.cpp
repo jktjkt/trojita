@@ -47,7 +47,7 @@ MsgPartNetAccessManager::MsgPartNetAccessManager(QObject *parent):
     // client-provided MIME types. QWebView would (arguably correctly) refuse to display such a blob, but the damned users
     // typically want to see their images (I certainly do), even though they are not standards-compliant. Hence we fix the
     // header here.
-    registerMimeTypeTranslation(QLatin1String("image/pjpeg"), QLatin1String("image/jpeg"));
+    registerMimeTypeTranslation(QStringLiteral("image/pjpeg"), QStringLiteral("image/jpeg"));
 }
 
 void MsgPartNetAccessManager::setModelMessage(const QModelIndex &message_)
@@ -97,7 +97,7 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
             qDebug() << "Content-ID not found" << cid;
             return new Imap::Network::ForbiddenReply(this);
         }
-    } else if (req.url() == QUrl(QLatin1String("about:blank"))) {
+    } else if (req.url() == QUrl(QStringLiteral("about:blank"))) {
         // about:blank is a relatively harmless URL which is used for opening an empty page
         return QNetworkAccessManager::createRequest(op, req, outgoingData);
     } else if (req.url().scheme() == QLatin1String("data")) {

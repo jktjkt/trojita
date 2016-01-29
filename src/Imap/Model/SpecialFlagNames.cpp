@@ -30,17 +30,17 @@ namespace Mailbox
 {
 
 // Make sure to update the first-character check inside Model::normalizeFlags() when adding new flags here
-const QString FlagNames::answered = QLatin1String("\\Answered");
-const QString FlagNames::seen = QLatin1String("\\Seen");
-const QString FlagNames::deleted = QLatin1String("\\Deleted");
-const QString FlagNames::forwarded = QLatin1String("$Forwarded");
-const QString FlagNames::recent = QLatin1String("\\Recent");
-const QString FlagNames::flagged = QLatin1String("\\Flagged");
-const QString FlagNames::junk = QLatin1String("$Junk");
-const QString FlagNames::notjunk = QLatin1String("$NotJunk");
-const QString FlagNames::mdnsent = QLatin1String("$MDNSent");
-const QString FlagNames::submitted = QLatin1String("$Submitted");
-const QString FlagNames::submitpending = QLatin1String("$SubmitPending");
+const QString FlagNames::answered = QStringLiteral("\\Answered");
+const QString FlagNames::seen = QStringLiteral("\\Seen");
+const QString FlagNames::deleted = QStringLiteral("\\Deleted");
+const QString FlagNames::forwarded = QStringLiteral("$Forwarded");
+const QString FlagNames::recent = QStringLiteral("\\Recent");
+const QString FlagNames::flagged = QStringLiteral("\\Flagged");
+const QString FlagNames::junk = QStringLiteral("$Junk");
+const QString FlagNames::notjunk = QStringLiteral("$NotJunk");
+const QString FlagNames::mdnsent = QStringLiteral("$MDNSent");
+const QString FlagNames::submitted = QStringLiteral("$Submitted");
+const QString FlagNames::submitpending = QStringLiteral("$SubmitPending");
 
 QHash<QString,QString> toCanonicalInit()
 {

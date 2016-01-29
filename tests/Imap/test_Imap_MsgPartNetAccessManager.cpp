@@ -209,7 +209,7 @@ void ImapMsgPartNetAccessManagerTest::testFetchResultOfflineSingle()
 
     netAccessManager->setModelMessage(msg1);
     QNetworkRequest req;
-    req.setUrl(QUrl(QLatin1String("trojita-imap://msg/0")));
+    req.setUrl(QUrl(QStringLiteral("trojita-imap://msg/0")));
     QNetworkReply *res = netAccessManager->get(req);
     QVERIFY(qobject_cast<Imap::Network::MsgPartNetworkReply*>(res));
     cClient(t.mk("UID FETCH 1 (BODY.PEEK[1])\r\n"));

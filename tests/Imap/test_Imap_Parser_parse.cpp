@@ -285,15 +285,15 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );
     QTest::newRow("untagged-list-numeric-mailbox")
         << QByteArray("* LIST () \"/\" 666\r\n")
-        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList(), QLatin1String("/"), QLatin1String("666"), QMap<QByteArray,QVariant>()));
+        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList(), QStringLiteral("/"), QStringLiteral("666"), QMap<QByteArray,QVariant>()));
     QTest::newRow("untagged-list-numeric-mixed-mailbox")
         << QByteArray("* LIST () \"/\" 666x333\r\n")
-        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList(), QLatin1String("/"), QLatin1String("666x333"), QMap<QByteArray,QVariant>()));
+        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList(), QStringLiteral("/"), QStringLiteral("666x333"), QMap<QByteArray,QVariant>()));
     // https://bugs.kde.org/show_bug.cgi?id=334456
     QTest::newRow("untagged-list-groupwise-bug-334456")
         << QByteArray("* LIST (\\Unmarked) \"/\" \"Calendar/GroupWise.5-Mehrfachbenutzer \\(Standard\\).MultiUser Control\"\r\n")
-        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList() << QLatin1String("\\Unmarked"), QLatin1String("/"),
-                                                     QLatin1String("Calendar/GroupWise.5-Mehrfachbenutzer (Standard).MultiUser Control"),
+        << QSharedPointer<AbstractResponse>(new List(LIST, QStringList() << QStringLiteral("\\Unmarked"), QStringLiteral("/"),
+                                                     QStringLiteral("Calendar/GroupWise.5-Mehrfachbenutzer (Standard).MultiUser Control"),
                                                      QMap<QByteArray,QVariant>()));
 
     QMap<QByteArray,QVariant> listExtData;
@@ -313,7 +313,7 @@ void ImapParserParseTest::testParseUntagged_data()
                     "\\Deleted" << "\\Seen" << "\\Draft" ) );
     QTest::newRow("untagged-flags-numeric")
         << QByteArray("* FLAGS (333 666x333)\r\n")
-        << QSharedPointer<AbstractResponse>(new Flags(QStringList() << QLatin1String("333") << QStringList("666x333")));
+        << QSharedPointer<AbstractResponse>(new Flags(QStringList() << QStringLiteral("333") << QStringList("666x333")));
     QTest::newRow("search-empty")
         << QByteArray("* SEARCH\r\n")
         << QSharedPointer<AbstractResponse>(new Search(Imap::Uids()));
@@ -795,14 +795,14 @@ void ImapParserParseTest::testParseUntagged_data()
 
     // GMail and its flawed representation of a nested message/rfc822
     fetchData.clear();
-    from.clear(); from << MailAddress(QLatin1String("somebody"), QString(), QLatin1String("info"), QLatin1String("example.com"));
+    from.clear(); from << MailAddress(QStringLiteral("somebody"), QString(), QStringLiteral("info"), QStringLiteral("example.com"));
     sender = replyTo = from;
-    to.clear(); to << MailAddress(QLatin1String("destination"), QString(), QLatin1String("foobar"), QLatin1String("gmail.com"));
+    to.clear(); to << MailAddress(QStringLiteral("destination"), QString(), QStringLiteral("foobar"), QStringLiteral("gmail.com"));
     cc.clear();
     bcc.clear();
     fetchData["ENVELOPE"] = QSharedPointer<AbstractData>(
             new RespData<Envelope>(
-                    Envelope( QDateTime(QDate(2011, 1, 11), QTime(9, 21, 42), Qt::UTC), QLatin1String("blablabla"), from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), QByteArray() )
+                    Envelope( QDateTime(QDate(2011, 1, 11), QTime(9, 21, 42), Qt::UTC), QStringLiteral("blablabla"), from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), QByteArray() )
                     ));
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(8803));
     fetchData["RFC822.SIZE"] = QSharedPointer<AbstractData>(new RespData<uint>(56144));
@@ -858,7 +858,7 @@ void ImapParserParseTest::testParseUntagged_data()
 
     fetchData.clear();
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(42463));
-    fetchData["FLAGS"] = QSharedPointer<AbstractData>(new RespData<QStringList>(QStringList() << QLatin1String("\\Seen")));
+    fetchData["FLAGS"] = QSharedPointer<AbstractData>(new RespData<QStringList>(QStringList() << QStringLiteral("\\Seen")));
     fetchData["MODSEQ"] = QSharedPointer<AbstractData>(new RespData<quint64>(quint64(45278)));
     QTest::newRow("fetch-flags-modseq")
             << QByteArray("* 11235 FETCH (UID 42463 MODSEQ (45278) FLAGS (\\Seen))\r\n")
@@ -866,7 +866,7 @@ void ImapParserParseTest::testParseUntagged_data()
 
     fetchData.clear();
     fetchData["FLAGS"] = QSharedPointer<AbstractData>(
-                new RespData<QStringList>(QStringList() << QLatin1String("\\Seen") << QLatin1String("\\Answered")));
+                new RespData<QStringList>(QStringList() << QStringLiteral("\\Seen") << QStringLiteral("\\Answered")));
     QTest::newRow("fetch-two-flags")
             << QByteArray("* 2 FETCH (FLAGS (\\Seen \\Answered))\r\n")
             << QSharedPointer<AbstractResponse>(new Fetch(2, fetchData));
@@ -938,16 +938,16 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("genurlauth-1")
             << QByteArray("* GENURLAUTH \"imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038\"\r\n")
-            << QSharedPointer<AbstractResponse>(new GenUrlAuth(QLatin1String("imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038")));
+            << QSharedPointer<AbstractResponse>(new GenUrlAuth(QStringLiteral("imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038")));
 
     QTest::newRow("genurlauth-2")
             << QByteArray("* GENURLAUTH meh\r\n")
-            << QSharedPointer<AbstractResponse>(new GenUrlAuth(QLatin1String("meh")));
+            << QSharedPointer<AbstractResponse>(new GenUrlAuth(QStringLiteral("meh")));
 
     QSharedPointer<AbstractData> modSeqData(new RespData<quint64>(5875136264581852368ULL));
     QTest::newRow("highestmodseq-64bit")
             << QByteArray("* OK [HIGHESTMODSEQ 5875136264581852368] x\r\n")
-            << QSharedPointer<AbstractResponse>(new State("", OK, QLatin1String("x"), HIGHESTMODSEQ, modSeqData));
+            << QSharedPointer<AbstractResponse>(new State("", OK, QStringLiteral("x"), HIGHESTMODSEQ, modSeqData));
 
     fetchData.clear();
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(123));

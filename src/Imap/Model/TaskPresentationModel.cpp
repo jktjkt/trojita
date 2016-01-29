@@ -195,7 +195,7 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
         } else {
             ImapTask *task = static_cast<ImapTask *>(index.internalPointer());
             QString className = QLatin1String(task->metaObject()->className());
-            className.remove(QLatin1String("Imap::Mailbox::"));
+            className.remove(QStringLiteral("Imap::Mailbox::"));
             return tr("%1: %2").arg(className, task->debugIdentification());
         }
     case RoleTaskCompactName: {

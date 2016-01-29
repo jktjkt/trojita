@@ -59,7 +59,7 @@ void Fake_ListChildMailboxesTask::perform()
             continue;
         for (QStringList::const_iterator childIt = it->begin(); childIt != it->end(); ++childIt) {
             QString childMailbox = mailbox->mailbox().isEmpty() ? *childIt : QString::fromUtf8("%1^%2").arg(mailbox->mailbox(), *childIt);
-            listResponses.append(Responses::List(Responses::LIST, QStringList(), QLatin1String("^"), childMailbox, QMap<QByteArray, QVariant>()));
+            listResponses.append(Responses::List(Responses::LIST, QStringList(), QStringLiteral("^"), childMailbox, QMap<QByteArray, QVariant>()));
         }
     }
     model->finalizeList(parser, mailbox);

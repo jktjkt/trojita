@@ -50,7 +50,7 @@ void NumberOfMessagesTask::perform()
 
     if (! mailboxIndex.isValid()) {
         // FIXME: add proper fix
-        log(QLatin1String("Mailbox vanished before we could ask for number of messages inside"));
+        log(QStringLiteral("Mailbox vanished before we could ask for number of messages inside"));
         _completed();
         return;
     }
@@ -63,7 +63,7 @@ void NumberOfMessagesTask::perform()
 /** @short What kind of information are we interested in? */
 QStringList NumberOfMessagesTask::requestedStatusOptions()
 {
-    return QStringList() << QLatin1String("MESSAGES") << QLatin1String("UNSEEN") << QLatin1String("RECENT");
+    return QStringList() << QStringLiteral("MESSAGES") << QStringLiteral("UNSEEN") << QStringLiteral("RECENT");
 }
 
 bool NumberOfMessagesTask::handleStateHelper(const Imap::Responses::State *const resp)
@@ -87,7 +87,7 @@ bool NumberOfMessagesTask::handleStateHelper(const Imap::Responses::State *const
 QString NumberOfMessagesTask::debugIdentification() const
 {
     if (! mailboxIndex.isValid())
-        return QLatin1String("[invalid mailboxIndex]");
+        return QStringLiteral("[invalid mailboxIndex]");
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);

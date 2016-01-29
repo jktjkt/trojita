@@ -30,11 +30,11 @@
 
 namespace IPC {
 
-static QString path = QLatin1String("/Trojita");
+static QString path = QStringLiteral("/Trojita");
 
 QString service()
 {
-    QString str = QLatin1String("net.flaska.trojita");
+    QString str = QStringLiteral("net.flaska.trojita");
     QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
     return profileName.isEmpty() ? str : str + QLatin1Char('-') + profileName;
 }
@@ -43,7 +43,7 @@ namespace Instance {
 
 static QDBusInterface &interface()
 {
-    static QDBusInterface iface(service(), path, QLatin1String("net.flaska.trojita"));
+    static QDBusInterface iface(service(), path, QStringLiteral("net.flaska.trojita"));
     return iface;
 }
 
@@ -55,17 +55,17 @@ bool isRunning()
 
 void showMainWindow()
 {
-    interface().call(QDBus::NoBlock, QLatin1String("showMainWindow"));
+    interface().call(QDBus::NoBlock, QStringLiteral("showMainWindow"));
 }
 
 void showAddressbookWindow()
 {
-    interface().call(QDBus::NoBlock, QLatin1String("showAddressbookWindow"));
+    interface().call(QDBus::NoBlock, QStringLiteral("showAddressbookWindow"));
 }
 
 void composeMail(const QString &url)
 {
-    interface().call(QDBus::NoBlock, QLatin1String("composeMail"), url);
+    interface().call(QDBus::NoBlock, QStringLiteral("composeMail"), url);
 }
 
 } //namespace Instance

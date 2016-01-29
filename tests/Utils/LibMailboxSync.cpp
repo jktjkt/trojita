@@ -79,15 +79,15 @@ void LibMailboxSync::init()
         taskFactoryUnsafe->fakeListChildMailboxesMap = fakeListChildMailboxesMap;
     } else {
         taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() <<
-            QLatin1String("a") << QLatin1String("b") << QLatin1String("c") <<
-            QLatin1String("d") << QLatin1String("e") << QLatin1String("f") <<
-            QLatin1String("g") << QLatin1String("h") << QLatin1String("i") <<
-            QLatin1String("j") << QLatin1String("k") << QLatin1String("l") <<
-            QLatin1String("m") << QLatin1String("n") << QLatin1String("o") <<
-            QLatin1String("p") << QLatin1String("q") << QLatin1String("r") <<
-            QLatin1String("s") << QLatin1String("q") << QLatin1String("u") <<
-            QLatin1String("v") << QLatin1String("w") << QLatin1String("x") <<
-            QLatin1String("y") << QLatin1String("z");
+            QStringLiteral("a") << QStringLiteral("b") << QStringLiteral("c") <<
+            QStringLiteral("d") << QStringLiteral("e") << QStringLiteral("f") <<
+            QStringLiteral("g") << QStringLiteral("h") << QStringLiteral("i") <<
+            QStringLiteral("j") << QStringLiteral("k") << QStringLiteral("l") <<
+            QStringLiteral("m") << QStringLiteral("n") << QStringLiteral("o") <<
+            QStringLiteral("p") << QStringLiteral("q") << QStringLiteral("r") <<
+            QStringLiteral("s") << QStringLiteral("q") << QStringLiteral("u") <<
+            QStringLiteral("v") << QStringLiteral("w") << QStringLiteral("x") <<
+            QStringLiteral("y") << QStringLiteral("z");
     }
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
     setupLogging();
@@ -277,7 +277,7 @@ void LibMailboxSync::helperSyncBNoMessages()
     cServer(QByteArray("* OK [CLOSED] Closed.\r\n* 0 exists\r\n") + t.last("ok completed\r\n"));
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("b") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QStringLiteral("b") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.isUsableForSyncing(), false );
     QCOMPARE( syncState.uidNext(), 0u );
@@ -312,7 +312,7 @@ void LibMailboxSync::helperSyncANoMessagesCompleteState()
                                   + t.last("ok completed\r\n"));
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QStringLiteral("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.isUsableForSyncing(), true );
     QCOMPARE( syncState.uidNext(), uidNextA );
@@ -421,7 +421,7 @@ void LibMailboxSync::helperOneFlagUpdate( const QModelIndex &message )
 {
     cServer(QString::fromUtf8("* %1 FETCH (FLAGS (\\SeEn fOo bar))\r\n").arg( message.row() + 1 ).toUtf8());
     QStringList expectedFlags;
-    expectedFlags << QLatin1String("\\Seen") << QLatin1String("fOo") << QLatin1String("bar");
+    expectedFlags << QStringLiteral("\\Seen") << QStringLiteral("fOo") << QStringLiteral("bar");
     expectedFlags.sort();
     QCOMPARE(message.data(Imap::Mailbox::RoleMessageFlags).toStringList(), expectedFlags);
     QVERIFY(errorSpy->isEmpty());
@@ -485,7 +485,7 @@ void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
     using namespace Imap::Mailbox;
 
     // Check the cache
-    SyncState syncState = model->cache()->mailboxSyncState(QLatin1String("a"));
+    SyncState syncState = model->cache()->mailboxSyncState(QStringLiteral("a"));
     QCOMPARE(syncState.exists(), existsA);
     QCOMPARE(syncState.isUsableForSyncing(), true);
     if (!ignoreUidNext) {
@@ -495,7 +495,7 @@ void LibMailboxSync::helperCheckCache(bool ignoreUidNext)
     QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), uidMapA);
     QCOMPARE(static_cast<uint>(uidMapA.size()), existsA);
 
-    SyncState ssFromTree = model->findMailboxByName(QLatin1String("a"))->syncState;
+    SyncState ssFromTree = model->findMailboxByName(QStringLiteral("a"))->syncState;
     SyncState ssFromCache = syncState;
     if (ignoreUidNext) {
         ssFromTree.setUidNext(0);

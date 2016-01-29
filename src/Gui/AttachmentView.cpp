@@ -81,20 +81,20 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     layout->setSpacing(0);
 
     m_menu = new QMenu(this);
-    m_downloadAttachment = m_menu->addAction(UiUtils::loadIcon(QLatin1String("document-save-as")), tr("Download"));
+    m_downloadAttachment = m_menu->addAction(UiUtils::loadIcon(QStringLiteral("document-save-as")), tr("Download"));
     m_openAttachment = m_menu->addAction(tr("Open Directly"));
     connect(m_downloadAttachment, &QAction::triggered, this, &AttachmentView::slotDownloadAttachment);
     connect(m_openAttachment, &QAction::triggered, this, &AttachmentView::slotOpenAttachment);
     connect(m_menu, &QMenu::aboutToShow, this, &AttachmentView::updateShowHideAttachmentState);
     if (m_contentWidget) {
-        m_showHideAttachment = m_menu->addAction(UiUtils::loadIcon(QLatin1String("view-preview")), tr("Show Preview"));
+        m_showHideAttachment = m_menu->addAction(UiUtils::loadIcon(QStringLiteral("view-preview")), tr("Show Preview"));
         m_showHideAttachment->setCheckable(true);
         m_showHideAttachment->setChecked(!m_contentWidget->isHidden());
         connect(m_showHideAttachment, &QAction::triggered, m_contentWidget, &QWidget::setVisible);
         connect(m_showHideAttachment, &QAction::triggered, this, &AttachmentView::updateShowHideAttachmentState);
     }
     if (partIndex.data(Imap::Mailbox::RolePartMimeType).toByteArray() == "message/rfc822") {
-        m_showSource = m_menu->addAction(UiUtils::loadIcon(QLatin1String("text-x-hex")), tr("Show Message Source"));
+        m_showSource = m_menu->addAction(UiUtils::loadIcon(QStringLiteral("text-x-hex")), tr("Show Message Source"));
         connect(m_showSource, &QAction::triggered, this, &AttachmentView::showMessageSource);
     }
 
@@ -122,15 +122,15 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
             // with a pixmap which shows something like a sheet of paper as the background. I find it rather dumb
             // to do this in the context of a MUA where attached messages are pretty common, which is why this special
             // case is in place. Comments welcome.
-            icon = UiUtils::loadIcon(QLatin1String("trojita"));
+            icon = UiUtils::loadIcon(QStringLiteral("trojita"));
         } else {
             icon = QIcon::fromTheme(mimeType.iconName(),
-                                    QIcon::fromTheme(mimeType.genericIconName(), UiUtils::loadIcon(QLatin1String("mail-attachment")))
+                                    QIcon::fromTheme(mimeType.genericIconName(), UiUtils::loadIcon(QStringLiteral("mail-attachment")))
                                     );
         }
         m_icon->setIcon(icon);
     } else {
-        m_icon->setIcon(UiUtils::loadIcon(QLatin1String("mail-attachment")));
+        m_icon->setIcon(UiUtils::loadIcon(QStringLiteral("mail-attachment")));
     }
 
     layout->addWidget(m_icon);

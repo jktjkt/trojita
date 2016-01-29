@@ -29,7 +29,7 @@
 
 void ImapModelDeleteMailboxTest::init()
 {
-    fakeListChildMailboxesMap[QLatin1String("")] = QStringList() << QLatin1String("a");
+    fakeListChildMailboxesMap[QLatin1String("")] = QStringList() << QStringLiteral("a");
     LibMailboxSync::init();
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     deletedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionSucceded(QString)));
@@ -71,7 +71,7 @@ void ImapModelDeleteMailboxTest::initWithOne()
 void ImapModelDeleteMailboxTest::initWithTwo()
 {
     // oops, we need at least two mailboxes here
-    fakeListChildMailboxesMap[QLatin1String("")] = QStringList() << QLatin1String("a") << QLatin1String("b");
+    fakeListChildMailboxesMap[QLatin1String("")] = QStringList() << QStringLiteral("a") << QStringLiteral("b");
     LibMailboxSync::init();
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     deletedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionSucceded(QString)));

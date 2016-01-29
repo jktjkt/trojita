@@ -83,14 +83,14 @@ BE::Contacts::Contacts(AbookAddressbook *abook): m_abook(abook), m_dirty(false)
     m_ui2 = new Ui::OneContact;
     m_ui2->setupUi(m_ui->oneContact);
 
-    fields <<   Field(AbookAddressbook::Name, m_ui2->name, QLatin1String("name")) << Field(AbookAddressbook::Mail, m_ui2->mail, QLatin1String("email")) <<
-                Field(AbookAddressbook::Address, m_ui2->address, QLatin1String("address")) << Field(AbookAddressbook::City, m_ui2->city, QLatin1String("city")) <<
-                Field(AbookAddressbook::State, m_ui2->state, QLatin1String("state")) << Field(AbookAddressbook::ZIP, m_ui2->zip, QLatin1String("zip")) <<
-                Field(AbookAddressbook::Country, m_ui2->country, QLatin1String("country")) << Field(AbookAddressbook::Phone, m_ui2->phone, QLatin1String("phone")) <<
-                Field(AbookAddressbook::Workphone, m_ui2->workphone, QLatin1String("workphone")) << Field(AbookAddressbook::Fax, m_ui2->fax, QLatin1String("fax")) <<
-                Field(AbookAddressbook::Mobile, m_ui2->mobile, QLatin1String("mobile")) << Field(AbookAddressbook::Nick, m_ui2->nick, QLatin1String("nick")) <<
-                Field(AbookAddressbook::URL, m_ui2->url, QLatin1String("url")) << Field(AbookAddressbook::Notes, m_ui2->notes, QLatin1String("notes")) <<
-                Field(AbookAddressbook::Anniversary, m_ui2->anniversary, QLatin1String("anniversary")) << Field(AbookAddressbook::Photo, m_ui2->photo, QLatin1String("photo"));
+    fields <<   Field(AbookAddressbook::Name, m_ui2->name, QStringLiteral("name")) << Field(AbookAddressbook::Mail, m_ui2->mail, QStringLiteral("email")) <<
+                Field(AbookAddressbook::Address, m_ui2->address, QStringLiteral("address")) << Field(AbookAddressbook::City, m_ui2->city, QStringLiteral("city")) <<
+                Field(AbookAddressbook::State, m_ui2->state, QStringLiteral("state")) << Field(AbookAddressbook::ZIP, m_ui2->zip, QStringLiteral("zip")) <<
+                Field(AbookAddressbook::Country, m_ui2->country, QStringLiteral("country")) << Field(AbookAddressbook::Phone, m_ui2->phone, QStringLiteral("phone")) <<
+                Field(AbookAddressbook::Workphone, m_ui2->workphone, QStringLiteral("workphone")) << Field(AbookAddressbook::Fax, m_ui2->fax, QStringLiteral("fax")) <<
+                Field(AbookAddressbook::Mobile, m_ui2->mobile, QStringLiteral("mobile")) << Field(AbookAddressbook::Nick, m_ui2->nick, QStringLiteral("nick")) <<
+                Field(AbookAddressbook::URL, m_ui2->url, QStringLiteral("url")) << Field(AbookAddressbook::Notes, m_ui2->notes, QStringLiteral("notes")) <<
+                Field(AbookAddressbook::Anniversary, m_ui2->anniversary, QStringLiteral("anniversary")) << Field(AbookAddressbook::Photo, m_ui2->photo, QStringLiteral("photo"));
 
     m_sortFilterProxy = new QSortFilterProxyModel(this);
     m_sortFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);

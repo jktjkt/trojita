@@ -719,7 +719,7 @@ QString wrapFormatFlowed(const QString &input)
             previousBreak += size;
         }
     }
-    return res.join(QLatin1String("\r\n"));
+    return res.join(QStringLiteral("\r\n"));
 }
 
 void decodeContentTransferEncoding(const QByteArray &rawData, const QByteArray &encoding, QByteArray *outputData)

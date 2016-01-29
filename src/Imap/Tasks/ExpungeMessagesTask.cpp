@@ -76,7 +76,7 @@ void ExpungeMessagesTask::perform()
         return;
     }
 
-    if (!model->accessParser(parser).capabilities.contains(QLatin1String("UIDPLUS"))) {
+    if (!model->accessParser(parser).capabilities.contains(QStringLiteral("UIDPLUS"))) {
         _failed(tr("The IMAP server doesn't support the UIDPLUS extension"));
     }
 

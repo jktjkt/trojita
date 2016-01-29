@@ -115,7 +115,7 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     if (withUnselect) {
         // We'll need the UNSELECT later on
         FakeCapabilitiesInjector injector(model);
-        injector.injectCapability(QLatin1String("UNSELECT"));
+        injector.injectCapability(QStringLiteral("UNSELECT"));
     }
 
     // But before we "receive" the LIST responses, GUI could easily request syncing of mailbox B again,
@@ -218,7 +218,7 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     model->reloadMailboxList();
     // And for simplicity, let's enable UNSELECT
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("UNSELECT"));
+    injector.injectCapability(QStringLiteral("UNSELECT"));
 
     // The trick here is that the reconnect resulted in querying a mailbox listing again
     cClient(t.mk("LIST \"\" \"%\"\r\n"));

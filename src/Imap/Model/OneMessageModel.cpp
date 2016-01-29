@@ -60,7 +60,7 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
 
 void OneMessageModel::setMessage(const QString &mailbox, const uint uid)
 {
-    m_mainPartUrl = QUrl(QLatin1String("about:blank"));
+    m_mainPartUrl = QUrl(QStringLiteral("about:blank"));
     emit mainPartUrlChanged();
     QAbstractItemModel *abstractModel = qobject_cast<QAbstractItemModel*>(QObject::parent());
     Q_ASSERT(abstractModel);

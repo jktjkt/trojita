@@ -62,8 +62,8 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_searchOptions = new QToolButton(this);
     m_searchOptions->setAutoRaise(true);
     m_searchOptions->setPopupMode(QToolButton::InstantPopup);
-    m_searchOptions->setText(QLatin1String("*"));
-    m_searchOptions->setIcon(UiUtils::loadIcon(QLatin1String("imap-search-details")));
+    m_searchOptions->setText(QStringLiteral("*"));
+    m_searchOptions->setIcon(UiUtils::loadIcon(QStringLiteral("imap-search-details")));
     QMenu *optionsMenu = new QMenu(m_searchOptions);
     m_searchFuzzy = optionsMenu->addAction(tr("Fuzzy Search"));
     m_searchFuzzy->setCheckable(true);
@@ -145,7 +145,7 @@ void MessageListWidget::focusRawSearch()
     if (!m_quickSearchText->isEnabled() || m_quickSearchText->hasFocus() || !m_rawSearch->isChecked())
         return;
     m_quickSearchText->setFocus(Qt::ShortcutFocusReason);
-    m_quickSearchText->setText(QLatin1String(":="));
+    m_quickSearchText->setText(QStringLiteral(":="));
     m_quickSearchText->deselect();
     m_quickSearchText->setCursorPosition(m_quickSearchText->text().length());
 }
@@ -253,7 +253,7 @@ QStringList MessageListWidget::searchConditions() const
     if (!m_quickSearchText->isEnabled() || m_quickSearchText->text().isEmpty())
         return QStringList();
 
-    static QString rawPrefix = QLatin1String(":=");
+    static QString rawPrefix = QStringLiteral(":=");
 
     if (m_rawSearch->isChecked() && m_quickSearchText->text().startsWith(rawPrefix)) {
         // It's a "raw" IMAP search, let's simply pass it through
@@ -262,13 +262,13 @@ QStringList MessageListWidget::searchConditions() const
 
     QStringList keys;
     if (m_searchInSubject->isChecked())
-        keys << QLatin1String("SUBJECT");
+        keys << QStringLiteral("SUBJECT");
     if (m_searchInBody->isChecked())
-        keys << QLatin1String("BODY");
+        keys << QStringLiteral("BODY");
     if (m_searchInRecipients->isChecked())
-        keys << QLatin1String("TO") << QLatin1String("CC") << QLatin1String("BCC");
+        keys << QStringLiteral("TO") << QStringLiteral("CC") << QStringLiteral("BCC");
     if (m_searchInSenders->isChecked())
-        keys << QLatin1String("FROM");
+        keys << QStringLiteral("FROM");
 
     if (keys.isEmpty())
         return keys;
@@ -276,14 +276,14 @@ QStringList MessageListWidget::searchConditions() const
     QStringList res;
     Q_FOREACH(const QString &key, keys) {
         if (m_supportsFuzzySearch)
-            res << QLatin1String("FUZZY");
+            res << QStringLiteral("FUZZY");
         res << key << m_quickSearchText->text();
     }
     if (keys.size() > 1) {
         // Got to make this a conjunction. The OR operator's reverse-polish-notation accepts just two operands, though.
         int num = keys.size() - 1;
         for (int i = 0; i < num; ++i) {
-            res.prepend(QLatin1String("OR"));
+            res.prepend(QStringLiteral("OR"));
         }
     }
 

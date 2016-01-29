@@ -192,7 +192,7 @@ void ProcessSocket::handleStateChanged()
         emit stateChanged(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS, tr("The process has started"));
         break;
     case QProcess::Starting:
-        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Starting process `%1 %2`").arg(executable, args.join(QLatin1String(" "))));
+        emit stateChanged(Imap::CONN_STATE_CONNECTING, tr("Starting process `%1 %2`").arg(executable, args.join(QStringLiteral(" "))));
         break;
     case QProcess::NotRunning: {
         if (delayedDisconnect->isActive())
@@ -379,7 +379,7 @@ void SslTlsSocket::delayedStart()
             sock->setProxy(QNetworkProxy::NoProxy);
         } else if (!capableSettingFound) {
             emit disconnected(tr("The underlying socket is having troubles when processing connection to %1:%2: %3")
-                              .arg(host, QString::number(port), QLatin1String("Cannot find proxy setting capable of tunneling")));
+                              .arg(host, QString::number(port), QStringLiteral("Cannot find proxy setting capable of tunneling")));
         }
         break;
     }

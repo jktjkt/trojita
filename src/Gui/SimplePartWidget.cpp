@@ -54,8 +54,8 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     }
 
     QUrl url;
-    url.setScheme(QLatin1String("trojita-imap"));
-    url.setHost(QLatin1String("msg"));
+    url.setScheme(QStringLiteral("trojita-imap"));
+    url.setHost(QStringLiteral("msg"));
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == QLatin1String("text/plain")) {
         if (partIndex.data(Imap::Mailbox::RolePartOctets).toUInt() < 100 * 1024) {

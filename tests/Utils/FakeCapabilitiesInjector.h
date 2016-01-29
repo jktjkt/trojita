@@ -38,8 +38,8 @@ public:
         Q_ASSERT(!model->m_parsers.isEmpty());
         for (auto it = model->m_parsers.begin(); it != model->m_parsers.end(); ++it) {
             auto existingCaps = it->capabilities;
-            if (!existingCaps.contains(QLatin1String("IMAP4REV1"))) {
-                existingCaps << QLatin1String("IMAP4rev1");
+            if (!existingCaps.contains(QStringLiteral("IMAP4REV1"))) {
+                existingCaps << QStringLiteral("IMAP4rev1");
             }
             if (!existingCaps.contains(cap.toUpper())) {
                 existingCaps << cap;

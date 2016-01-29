@@ -106,25 +106,25 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
     {
         QModelIndex translated = mapToSource(index);
         if (translated.data(RoleMailboxItemsAreLoading).toBool())
-            return UiUtils::loadIcon(QLatin1String("folder-grey"));
+            return UiUtils::loadIcon(QStringLiteral("folder-grey"));
 #ifdef XTUPLE_CONNECT
         else if (QSettings().value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
                      translated.data(RoleMailboxName).toString()))
             return UiUtils::loadIcon(QLatin1String("folder-xt-sync.png"));
 #endif
         else if (translated.data(RoleMailboxIsINBOX).toBool())
-            return UiUtils::loadIcon(QLatin1String("mail-folder-inbox"));
+            return UiUtils::loadIcon(QStringLiteral("mail-folder-inbox"));
         else if (translated.data(RoleRecentMessageCount).toInt() > 0)
-            return UiUtils::loadIcon(QLatin1String("folder-bookmark"));
+            return UiUtils::loadIcon(QStringLiteral("folder-bookmark"));
         else if (translated.data(RoleMailboxIsSelectable).toBool())
-            return UiUtils::loadIcon(QLatin1String("folder"));
+            return UiUtils::loadIcon(QStringLiteral("folder"));
         else
-            return UiUtils::loadIcon(QLatin1String("folder-open"));
+            return UiUtils::loadIcon(QStringLiteral("folder-open"));
     }
     case Qt::ToolTipRole:
     {
         QModelIndex translated = mapToSource(index);
-        return QString(QLatin1String("<p>%1</p>\n<p>%2<br/>%3<br/>%4</p>")).arg(
+        return QStringLiteral("<p>%1</p>\n<p>%2<br/>%3<br/>%4</p>").arg(
                     UiUtils::Formatting::htmlEscaped(translated.data(RoleShortMailboxName).toString()),
                     tr("%n messages", 0, translated.data(RoleTotalMessageCount).toInt()),
                     tr("%n unread", 0, translated.data(RoleUnreadMessageCount).toInt()),

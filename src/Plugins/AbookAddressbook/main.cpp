@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         for (int i = 2; i < argc; ++i) {
             QString arg = QString::fromLocal8Bit(argv[i]);
             QString mail, name;
-            QStringList contact = arg.split(QLatin1String(" "), QString::SkipEmptyParts);
+            QStringList contact = arg.split(QStringLiteral(" "), QString::SkipEmptyParts);
             foreach (const QString &token, contact) {
                 if (token.contains(QLatin1Char('@')))
                     mail = token;
@@ -83,15 +83,15 @@ int main(int argc, char **argv) {
             int id = contact.toInt();
             if (id > lastContact)
                 lastContact = id;
-            const QString name = abook.value(QLatin1String("name"), QString()).toString();
+            const QString name = abook.value(QStringLiteral("name"), QString()).toString();
             QMap<QString,QString>::iterator it = imports.begin(), end = imports.end();
             while (it != end) {
                 if (it.key() == name) {
-                    QStringList mails = abook.value(QLatin1String("email"), QString()).toStringList();
+                    QStringList mails = abook.value(QStringLiteral("email"), QString()).toStringList();
                     if (!mails.contains(it.value())) {
                         ++updates;
                         mails << it.value();
-                        abook.setValue(QLatin1String("email"), mails);
+                        abook.setValue(QStringLiteral("email"), mails);
                     }
                     it = imports.erase(it);
                     continue;
@@ -104,17 +104,17 @@ int main(int argc, char **argv) {
         while (it != end) {
             ++adds;
             Common::SettingsCategoryGuard guard(&abook, QString::number(++lastContact));
-            abook.setValue(QLatin1String("name"), it.key());
-            abook.setValue(QLatin1String("email"), it.value());
+            abook.setValue(QStringLiteral("name"), it.key());
+            abook.setValue(QStringLiteral("email"), it.value());
             ++it;
         }
         qWarning("updated %d and added %d contacts", updates, adds);
         return 0;
     }
     QApplication a(argc, argv);
-    QSettings s(QLatin1String("flaska.net"), QLatin1String("be.contacts"));
-    s.setValue(QLatin1String("plugin"), QLatin1String("abookaddressbook"));
-    Plugins::PluginManager m(nullptr, &s, QLatin1String("plugin"), QLatin1String("plugin"));
+    QSettings s(QStringLiteral("flaska.net"), QStringLiteral("be.contacts"));
+    s.setValue(QStringLiteral("plugin"), QLatin1String("abookaddressbook"));
+    Plugins::PluginManager m(nullptr, &s, QStringLiteral("plugin"), QStringLiteral("plugin"));
     Plugins::AddressbookPlugin *addressbook = m.addressbook();
     if (addressbook) {
         addressbook->openAddressbookWindow();

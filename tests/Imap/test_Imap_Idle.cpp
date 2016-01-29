@@ -50,7 +50,7 @@ void ImapModelIdleTest::testIdleNo()
 {
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("IDLE"));
+    injector.injectCapability(QStringLiteral("IDLE"));
     existsA = 3;
     uidValidityA = 6;
     uidMapA << 1 << 7 << 9;
@@ -70,7 +70,7 @@ void ImapModelIdleTest::testIdleImmediateReturn()
 {
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("IDLE"));
+    injector.injectCapability(QStringLiteral("IDLE"));
     existsA = 3;
     uidValidityA = 6;
     uidMapA << 1 << 7 << 9;
@@ -88,7 +88,7 @@ void ImapModelIdleTest::testIdleRenewal()
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
     model->setProperty("trojita-imap-idle-renewal", QVariant(10));
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("IDLE"));
+    injector.injectCapability(QStringLiteral("IDLE"));
     existsA = 3;
     uidValidityA = 6;
     uidMapA << 1 << 7 << 9;
@@ -109,7 +109,7 @@ void ImapModelIdleTest::testIdleBreakTask()
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
     // Intentionally leave trojita-imap-idle-renewal at its rather high default value
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("IDLE"));
+    injector.injectCapability(QStringLiteral("IDLE"));
     existsA = 3;
     uidValidityA = 6;
     uidMapA << 1 << 7 << 9;
@@ -135,7 +135,7 @@ void ImapModelIdleTest::testIdleSlowResponses()
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(30));
     model->setProperty("trojita-imap-idle-renewal", QVariant(10));
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("IDLE"));
+    injector.injectCapability(QStringLiteral("IDLE"));
     existsA = 3;
     uidValidityA = 6;
     uidMapA << 1 << 7 << 9;
@@ -174,7 +174,7 @@ void ImapModelIdleTest::testIdleNoPerpetuateRenewal()
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(1000 * 1000 ));
     model->setProperty("trojita-imap-idle-renewal", QVariant(10));
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("IDLE"));
+    injector.injectCapability(QStringLiteral("IDLE"));
     existsA = 3;
     uidValidityA = 6;
     uidMapA << 1 << 7 << 9;
@@ -228,7 +228,7 @@ void ImapModelIdleTest::testIdleMailboxChange()
     // we shouldn't enter IDLE automatically
     model->setProperty("trojita-imap-idle-delayedEnter", QVariant(1000 * 1000 ));
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("IDLE"));
+    injector.injectCapability(QStringLiteral("IDLE"));
     existsA = 3;
     uidValidityA = 6;
     uidMapA << 1 << 7 << 9;

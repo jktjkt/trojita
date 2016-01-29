@@ -94,7 +94,7 @@ QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parserId)
         // otherwise the QPlainTextEdit would default its background
         // to the very first value we throw at it, which might be a
         // grey one.
-        res->appendHtml(QLatin1String("<p>&nbsp;</p>"));
+        res->appendHtml(QStringLiteral("<p>&nbsp;</p>"));
         tabs->addTab(res, tr("Connection %1").arg(parserId));
         logs[parserId].widget = res;
     }
@@ -181,20 +181,20 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
         switch (it->kind) {
         case LOG_IO_WRITTEN:
             if (it->message.startsWith(QLatin1String("***"))) {
-                textColor = QLatin1String("#800080");
-                bgColor = QLatin1String("#d0d0d0");
+                textColor = QStringLiteral("#800080");
+                bgColor = QStringLiteral("#d0d0d0");
             } else {
-                textColor = QLatin1String("#800000");
-                direction = QLatin1String("<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>");
+                textColor = QStringLiteral("#800000");
+                direction = QStringLiteral("<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>");
             }
             break;
         case LOG_IO_READ:
             if (it->message.startsWith(QLatin1String("***"))) {
-                textColor = QLatin1String("#808000");
-                bgColor = QLatin1String("#d0d0d0");
+                textColor = QStringLiteral("#808000");
+                bgColor = QStringLiteral("#d0d0d0");
             } else {
-                textColor = QLatin1String("#008000");
-                direction = QLatin1String("<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>");
+                textColor = QStringLiteral("#008000");
+                direction = QStringLiteral("<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>");
             }
             break;
         case LOG_MAILBOX_SYNC:
@@ -214,7 +214,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
         niceLine.replace(QLatin1Char('\r'), 0x240d /* SYMBOL FOR CARRIAGE RETURN */)
         .replace(QLatin1Char('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
 
-        w->appendHtml(message.arg(it->timestamp.toString(QLatin1String("hh:mm:ss.zzz")),
+        w->appendHtml(message.arg(it->timestamp.toString(QStringLiteral("hh:mm:ss.zzz")),
                                   direction, textColor,
                                   bgColor.isEmpty() ? QString() : QString::fromUtf8("background-color: %1").arg(bgColor),
                                   niceLine, trimmedInfo));

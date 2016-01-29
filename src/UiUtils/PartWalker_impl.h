@@ -57,8 +57,8 @@ Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recurs
 
     // Check whether we can render this MIME type at all
     QStringList allowedMimeTypes;
-    allowedMimeTypes << QLatin1String("text/html") << QLatin1String("text/plain") << QLatin1String("image/jpeg") <<
-                     QLatin1String("image/jpg") << QLatin1String("image/pjpeg") << QLatin1String("image/png") << QLatin1String("image/gif");
+    allowedMimeTypes << QStringLiteral("text/html") << QStringLiteral("text/plain") << QStringLiteral("image/jpeg") <<
+                     QStringLiteral("image/jpg") << QStringLiteral("image/pjpeg") << QStringLiteral("image/png") << QStringLiteral("image/gif");
     bool recognizedMimeType = isCompoundMimeType || allowedMimeTypes.contains(mimeType);
     bool isDerivedMimeType = false;
     if (!recognizedMimeType) {

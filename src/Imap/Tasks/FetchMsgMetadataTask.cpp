@@ -89,7 +89,7 @@ bool FetchMsgMetadataTask::handleStateHelper(const Imap::Responses::State *const
 QString FetchMsgMetadataTask::debugIdentification() const
 {
     if (!mailbox.isValid())
-        return QLatin1String("[invalid mailbox]");
+        return QStringLiteral("[invalid mailbox]");
 
     Q_ASSERT(!uids.isEmpty());
     return QString::fromUtf8("%1: UIDs %2").arg(mailbox.data(RoleMailboxName).toString(),

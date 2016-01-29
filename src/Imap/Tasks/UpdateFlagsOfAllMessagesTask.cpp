@@ -65,7 +65,7 @@ bool UpdateFlagsOfAllMessagesTask::handleStateHelper(const Imap::Responses::Stat
             if (!mailbox) {
                 // There isn't much to be done here -- let's assume that the index has disappeared.
                 // The flags will be resynced the next time we open that mailbox.
-                _failed(QLatin1String("Mailbox is gone"));
+                _failed(QStringLiteral("Mailbox is gone"));
                 return true;
             }
             Q_ASSERT(mailbox);

@@ -70,7 +70,8 @@ void PluginManager::loadPlugins()
 
     Q_FOREACH(const QString &dirName, pluginDirs) {
         QDir dir(dirName);
-        Q_FOREACH(const QString &fileName, dir.entryList(QStringList() << QLatin1String("trojita_plugin_*"), QDir::Files)) {
+        auto filter(QStringLiteral("trojita_plugin_*"));
+        Q_FOREACH(const QString &fileName, dir.entryList(QStringList() << filter, QDir::Files)) {
             const QString &absoluteFilePath = QFileInfo(dir.absoluteFilePath(fileName)).canonicalFilePath();
             if (absoluteFilePaths.contains(absoluteFilePath)) {
                 continue;

@@ -35,9 +35,9 @@
 #include "UiUtils/IconLoader.h"
 
 namespace {
-    static QString xTrojitaAttachmentList = QLatin1String("application/x-trojita-attachments-list");
-    static QString xTrojitaMessageList = QLatin1String("application/x-trojita-message-list");
-    static QString xTrojitaImapPart = QLatin1String("application/x-trojita-imap-part");
+    static QString xTrojitaAttachmentList = QStringLiteral("application/x-trojita-attachments-list");
+    static QString xTrojitaMessageList = QStringLiteral("application/x-trojita-message-list");
+    static QString xTrojitaImapPart = QStringLiteral("application/x-trojita-imap-part");
 }
 
 namespace Composer {
@@ -73,9 +73,9 @@ QVariant MessageComposer::data(const QModelIndex &index, int role) const
         // is not trivial due to the way how the static libraries are currently built.
         QMimeType mimeType = QMimeDatabase().mimeTypeForName(QString::fromUtf8(m_attachments[index.row()]->mimeType()));
         if (mimeType.isValid() && !mimeType.isDefault()) {
-            return QIcon::fromTheme(mimeType.iconName(), UiUtils::loadIcon(QLatin1String("mail-attachment")));
+            return QIcon::fromTheme(mimeType.iconName(), UiUtils::loadIcon(QStringLiteral("mail-attachment")));
         } else {
-            return UiUtils::loadIcon(QLatin1String("mail-attachment"));
+            return UiUtils::loadIcon(QStringLiteral("mail-attachment"));
         }
     }
     case Imap::Mailbox::RoleAttachmentContentDispositionMode:
@@ -396,7 +396,7 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
 
 QStringList MessageComposer::mimeTypes() const
 {
-    return QStringList() << xTrojitaMessageList << xTrojitaImapPart << xTrojitaAttachmentList << QLatin1String("text/uri-list");
+    return QStringList() << xTrojitaMessageList << xTrojitaImapPart << xTrojitaAttachmentList << QStringLiteral("text/uri-list");
 }
 
 void MessageComposer::setFrom(const Imap::Message::MailAddress &from)

@@ -44,7 +44,7 @@ void OfflineTest::init()
 /** @short Check that the STATUS processing does not break offline "sync" */
 void OfflineTest::testStatusVsExistsCached()
 {
-    QString mailbox = QLatin1String("a");
+    QString mailbox = QStringLiteral("a");
 
     // Push the data to the cache
     existsA = 10;

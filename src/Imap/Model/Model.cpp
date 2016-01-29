@@ -112,8 +112,8 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
 
     m_mailboxes = new TreeItemMailbox(0);
 
-    onlineMessageFetch << QLatin1String("ENVELOPE") << QLatin1String("BODYSTRUCTURE") << QLatin1String("RFC822.SIZE") <<
-                          QLatin1String("UID") << QLatin1String("FLAGS");
+    onlineMessageFetch << QStringLiteral("ENVELOPE") << QStringLiteral("BODYSTRUCTURE") << QStringLiteral("RFC822.SIZE") <<
+                          QStringLiteral("UID") << QStringLiteral("FLAGS");
 
     EMIT_LATER_NOARG(this, networkPolicyOffline);
     EMIT_LATER_NOARG(this, networkPolicyChanged);
@@ -173,7 +173,7 @@ void Model::responseReceived(const QMap<Parser *,ParserState>::iterator it)
                 QString buf;
                 QTextStream s(&buf);
                 s << *stateResponse;
-                logTrace(it->parser->parserId(), Common::LOG_OTHER, QLatin1String("Model"), QString::fromUtf8("BAD response: %1").arg(buf));
+                logTrace(it->parser->parserId(), Common::LOG_OTHER, QStringLiteral("Model"), QString::fromUtf8("BAD response: %1").arg(buf));
                 qDebug() << buf;
             }
         }
@@ -307,11 +307,11 @@ void Model::handleState(Imap::Parser *ptr, const Imap::Responses::State *const r
                 // This one probably should not be logged at all; dovecot sends these reponses to keep NATted connections alive
                 break;
             } else {
-                logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), QLatin1String("Warning: unhandled untagged OK with a response code"));
+                logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), QStringLiteral("Warning: unhandled untagged OK with a response code"));
                 break;
             }
         case NO:
-            logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), QLatin1String("Warning: unhandled untagged NO..."));
+            logTrace(ptr->parserId(), Common::LOG_OTHER, QString(), QStringLiteral("Warning: unhandled untagged NO..."));
             break;
         default:
             throw UnexpectedResponseReceived("Unhandled untagged response, sorry", *resp);
@@ -665,7 +665,7 @@ void Model::handleGenUrlAuth(Parser *ptr, const Responses::GenUrlAuth *const res
 void Model::handleSocketEncryptedResponse(Parser *ptr, const Responses::SocketEncryptedResponse *const resp)
 {
     Q_UNUSED(resp);
-    logTrace(ptr->parserId(), Common::LOG_IO_READ, QLatin1String("Model"), QLatin1String("Information about the SSL state not handled by the upper layers -- disconnect?"));
+    logTrace(ptr->parserId(), Common::LOG_IO_READ, QStringLiteral("Model"), QStringLiteral("Information about the SSL state not handled by the upper layers -- disconnect?"));
     killParser(ptr, PARSER_KILL_EXPECTED);
 }
 
@@ -859,7 +859,7 @@ void Model::askForMessagesInMailbox(TreeItemMsgList *item)
                 message->m_uid = uidMapping[seq];
                 item->m_children << message;
                 QStringList flags = cache()->msgFlags(mailbox, message->m_uid);
-                flags.removeOne(QLatin1String("\\Recent"));
+                flags.removeOne(QStringLiteral("\\Recent"));
                 message->m_flags = normalizeFlags(flags);
             }
             endInsertRows();
@@ -1042,7 +1042,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
         KeepMailboxOpenTask *keepTask = findTaskResponsibleFor(mailboxPtr);
         TreeItemPart::PartFetchingMode fetchingMode = TreeItemPart::FETCH_PART_IMAP;
         if (!isSpecialRawPart && keepTask->parser && accessParser(keepTask->parser).capabilitiesFresh &&
-                accessParser(keepTask->parser).capabilities.contains(QLatin1String("BINARY"))) {
+                accessParser(keepTask->parser).capabilities.contains(QStringLiteral("BINARY"))) {
             if (!item->hasChildren(0)) {
                 // The BINARY only actually makes sense on leaf MIME nodes
                 fetchingMode = TreeItemPart::FETCH_PART_BINARY;
@@ -1189,14 +1189,14 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     Q_FOREACH(const QString& str, capabilities) {
         QString cap = str.toUpper();
         if (m_capabilitiesBlacklist.contains(cap)) {
-            logTrace(parser->parserId(), Common::LOG_OTHER, QLatin1String("Model"), QString::fromUtf8("Ignoring capability \"%1\"").arg(cap));
+            logTrace(parser->parserId(), Common::LOG_OTHER, QStringLiteral("Model"), QString::fromUtf8("Ignoring capability \"%1\"").arg(cap));
             continue;
         }
         uppercaseCaps << cap;
     }
     accessParser(parser).capabilities = uppercaseCaps;
     accessParser(parser).capabilitiesFresh = true;
-    parser->enableLiteralPlus(uppercaseCaps.contains(QLatin1String("LITERAL+")));
+    parser->enableLiteralPlus(uppercaseCaps.contains(QStringLiteral("LITERAL+")));
 
     for (QMap<Parser *,ParserState>::const_iterator it = m_parsers.constBegin(); it != m_parsers.constEnd(); ++it) {
         if (it->connState == CONN_STATE_LOGOUT) {
@@ -1208,7 +1208,7 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
         }
     }
 
-    if (!uppercaseCaps.contains(QLatin1String("IMAP4REV1"))) {
+    if (!uppercaseCaps.contains(QStringLiteral("IMAP4REV1"))) {
         changeConnectionState(parser, CONN_STATE_LOGOUT);
         accessParser(parser).logoutCmd = parser->logout();
         EMIT_LATER(this, imapError, Q_ARG(QString, tr("We aren't talking to an IMAP4 server")));
@@ -1225,7 +1225,7 @@ ImapTask *Model::setMessageFlags(const QModelIndexList &messages, const QString 
 
 void Model::markMessagesDeleted(const QModelIndexList &messages, const FlagsOperation marked)
 {
-    this->setMessageFlags(messages, QLatin1String("\\Deleted"), marked);
+    this->setMessageFlags(messages, QStringLiteral("\\Deleted"), marked);
 }
 
 void Model::markMailboxAsRead(const QModelIndex &mailbox)
@@ -1238,12 +1238,12 @@ void Model::markMailboxAsRead(const QModelIndex &mailbox)
     Q_ASSERT(index.isValid());
     Q_ASSERT(index.model() == this);
     Q_ASSERT(dynamic_cast<TreeItemMailbox*>(static_cast<TreeItem*>(index.internalPointer())));
-    m_taskFactory->createUpdateFlagsOfAllMessagesTask(this, index, Imap::Mailbox::FLAG_ADD_SILENT, QLatin1String("\\Seen"));
+    m_taskFactory->createUpdateFlagsOfAllMessagesTask(this, index, Imap::Mailbox::FLAG_ADD_SILENT, QStringLiteral("\\Seen"));
 }
 
 void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked)
 {
-    this->setMessageFlags(messages, QLatin1String("\\Seen"), marked);
+    this->setMessageFlags(messages, QStringLiteral("\\Seen"), marked);
 }
 
 void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMailboxName, Imap::Uids uids, const CopyMoveOperation op)
@@ -1437,7 +1437,7 @@ TreeItem *Model::realTreeItem(QModelIndex index, const Model **whichModel, QMode
 void Model::changeConnectionState(Parser *parser, ConnectionState state)
 {
     accessParser(parser).connState = state;
-    logTrace(parser->parserId(), Common::LOG_TASKS, QLatin1String("conn"), connectionStateToString(state));
+    logTrace(parser->parserId(), Common::LOG_TASKS, QStringLiteral("conn"), connectionStateToString(state));
     emit connectionStateChanged(parser->parserId(), state);
 }
 
@@ -1470,10 +1470,10 @@ void Model::killParser(Parser *parser, ParserKillingMethod method)
     accessParser(parser).parser = 0;
     switch (method) {
     case PARSER_KILL_EXPECTED:
-        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QLatin1String("*** Connection closed."));
+        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QStringLiteral("*** Connection closed."));
         return;
     case PARSER_KILL_HARD:
-        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QLatin1String("*** Connection killed."));
+        logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QStringLiteral("*** Connection killed."));
         return;
     case PARSER_JUST_DELETE_LATER:
         // already handled
@@ -2033,18 +2033,18 @@ void Model::setCapabilitiesBlacklist(const QStringList &blacklist)
 
 bool Model::isCatenateSupported() const
 {
-    return capabilities().contains(QLatin1String("CATENATE"));
+    return capabilities().contains(QStringLiteral("CATENATE"));
 }
 
 bool Model::isGenUrlAuthSupported() const
 {
-    return capabilities().contains(QLatin1String("URLAUTH"));
+    return capabilities().contains(QStringLiteral("URLAUTH"));
 }
 
 bool Model::isImapSubmissionSupported() const
 {
     QStringList caps = capabilities();
-    return caps.contains(QLatin1String("UIDPLUS")) && caps.contains(QLatin1String("X-DRAFT-I01-SENDMAIL"));
+    return caps.contains(QStringLiteral("UIDPLUS")) && caps.contains(QStringLiteral("X-DRAFT-I01-SENDMAIL"));
 }
 
 void Model::setNumberRefreshInterval(const int interval)

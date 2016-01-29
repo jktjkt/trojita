@@ -63,7 +63,7 @@ QString OpenConnectionTask::debugIdentification() const
     if (parser)
         return QString::fromUtf8("OpenConnectionTask: %1").arg(Imap::connectionStateToString(model->accessParser(parser).connState));
     else
-        return QLatin1String("OpenConnectionTask: no parser");
+        return QStringLiteral("OpenConnectionTask: no parser");
 }
 
 void OpenConnectionTask::perform()
@@ -168,7 +168,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
             // Cool, we're already authenticated. Now, let's see if we have to issue CAPABILITY or if we already know that
             if (model->accessParser(parser).capabilitiesFresh) {
                 // We're alsmost done here, apart from compression
-                if (TROJITA_COMPRESS_DEFLATE && model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
+                if (TROJITA_COMPRESS_DEFLATE && model->accessParser(parser).capabilities.contains(QStringLiteral("COMPRESS=DEFLATE"))) {
                     compressCmd = parser->compressDeflate();
                     model->changeConnectionState(parser, CONN_STATE_COMPRESS_DEFLATE);
                 } else {
@@ -261,7 +261,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
     {
         bool wasCaps = checkCapabilitiesResult(resp);
         if (wasCaps && !_finished) {
-            if (model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
+            if (model->accessParser(parser).capabilities.contains(QStringLiteral("LOGINDISABLED"))) {
                 abortConnection(tr("Server error: Capabilities contain LOGINDISABLED even after STARTTLS"));
             } else {
                 model->changeConnectionState(parser, CONN_STATE_LOGIN);
@@ -281,7 +281,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 model->setImapAuthError(QString());
                 if (resp->respCode == CAPABILITIES || model->accessParser(parser).capabilitiesFresh) {
                     // Capabilities are already known
-                    if (TROJITA_COMPRESS_DEFLATE && model->accessParser(parser).capabilities.contains(QLatin1String("COMPRESS=DEFLATE"))) {
+                    if (TROJITA_COMPRESS_DEFLATE && model->accessParser(parser).capabilities.contains(QStringLiteral("COMPRESS=DEFLATE"))) {
                         compressCmd = parser->compressDeflate();
                         model->changeConnectionState(parser, CONN_STATE_COMPRESS_DEFLATE);
                     } else {
@@ -336,7 +336,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 model->m_hasImapPassword = false;
                 if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
                     // The server has closed the conenction
-                    _failed(QLatin1String("Connection closed after a failed login"));
+                    _failed(QStringLiteral("Connection closed after a failed login"));
                     return true;
                 }
                 askForAuth();
@@ -376,10 +376,10 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
 /** @short Either call STARTTLS or go ahead and try to LOGIN */
 void OpenConnectionTask::startTlsOrLoginNow()
 {
-    if (model->m_startTls || model->accessParser(parser).capabilities.contains(QLatin1String("LOGINDISABLED"))) {
+    if (model->m_startTls || model->accessParser(parser).capabilities.contains(QStringLiteral("LOGINDISABLED"))) {
         // Should run STARTTLS later and already have the capabilities
         Q_ASSERT(model->accessParser(parser).capabilitiesFresh);
-        if (!model->accessParser(parser).capabilities.contains(QLatin1String("STARTTLS"))) {
+        if (!model->accessParser(parser).capabilities.contains(QStringLiteral("STARTTLS"))) {
             abortConnection(tr("Server error: LOGINDISABLED but no STARTTLS capability. The login is effectively disabled entirely."));
         } else {
             startTlsCmd = parser->startTls();
@@ -415,15 +415,15 @@ bool OpenConnectionTask::checkCapabilitiesResult(const Responses::State *const r
 void OpenConnectionTask::onComplete()
 {
     // Optionally issue the ID command
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("ID"))) {
+    if (model->accessParser(parser).capabilities.contains(QStringLiteral("ID"))) {
         Imap::Mailbox::ImapTask *task = model->m_taskFactory->createIdTask(model, this);
         task->perform();
     }
     // Optionally enable extensions which need enabling
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("ENABLE"))) {
+    if (model->accessParser(parser).capabilities.contains(QStringLiteral("ENABLE"))) {
         QList<QByteArray> extensions;
 
-        if (model->accessParser(parser).capabilities.contains(QLatin1String("QRESYNC"))) {
+        if (model->accessParser(parser).capabilities.contains(QStringLiteral("QRESYNC"))) {
             extensions << "QRESYNC";
         }
 

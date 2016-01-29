@@ -36,16 +36,16 @@ void QtKeyChainPasswordJob::doStart()
 {
     switch (m_type) {
     case Request:
-        m_job = new QKeychain::ReadPasswordJob(QLatin1String("Trojita"), this);
+        m_job = new QKeychain::ReadPasswordJob(QStringLiteral("Trojita"), this);
         static_cast<QKeychain::ReadPasswordJob *>(m_job)->setKey(m_accountId + QLatin1Char('-') + m_accountType);
         break;
     case Store:
-        m_job = new QKeychain::WritePasswordJob(QLatin1String("Trojita"), this);
+        m_job = new QKeychain::WritePasswordJob(QStringLiteral("Trojita"), this);
         static_cast<QKeychain::WritePasswordJob *>(m_job)->setKey(m_accountId + QLatin1Char('-') + m_accountType);
         static_cast<QKeychain::WritePasswordJob *>(m_job)->setTextData(m_password);
         break;
     case Delete:
-        m_job = new QKeychain::DeletePasswordJob(QLatin1String("Trojita"), this);
+        m_job = new QKeychain::DeletePasswordJob(QStringLiteral("Trojita"), this);
         static_cast<QKeychain::DeletePasswordJob *>(m_job)->setKey(m_accountId + QLatin1Char('-') + m_accountType);
         break;
     }
@@ -119,7 +119,7 @@ PasswordJob *QtKeyChainPassword::deletePassword(const QString &accountId, const 
 
 QString trojita_plugin_QtKeyChainPasswordPlugin::name() const
 {
-    return QLatin1String("qtkeychainpassword");
+    return QStringLiteral("qtkeychainpassword");
 }
 
 QString trojita_plugin_QtKeyChainPasswordPlugin::description() const

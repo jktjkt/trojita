@@ -39,8 +39,8 @@ MsgPartNetworkReply::MsgPartNetworkReply(MsgPartNetAccessManager *parent, const 
     QNetworkReply(parent), part(part)
 {
     QUrl url;
-    url.setScheme(QLatin1String("trojita-imap"));
-    url.setHost(QLatin1String("msg"));
+    url.setScheme(QStringLiteral("trojita-imap"));
+    url.setHost(QStringLiteral("msg"));
     url.setPath(part.data(Imap::Mailbox::RolePartPathToPart).toString());
     setUrl(url);
 

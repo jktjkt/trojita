@@ -290,17 +290,17 @@ void ShortcutConfigWidget::writeSettings()
 {
     QSettings *settings = ShortcutHandler::instance()->settingsObject();
     Q_ASSERT_X(settings, "ShortcutHandler", "no QSettings object found: a settings object should first be set using setSettingsObject() and then readSettings() should be called when initializing your program; note that this QSettings object should exist during the entire lifetime of the ShortcutHandler object and therefore not be deleted first");
-    Common::SettingsCategoryGuard guard(settings, QLatin1String("ShortcutHandler"));
+    Common::SettingsCategoryGuard guard(settings, QStringLiteral("ShortcutHandler"));
     settings->remove(QString());
-    settings->beginWriteArray(QLatin1String("Shortcuts"));
+    settings->beginWriteArray(QStringLiteral("Shortcuts"));
     int index = 0;
     for (QHash<QString, ActionDescription>::const_iterator it = m_actionDescriptions.constBegin(); it != m_actionDescriptions.constEnd(); ++it) {
         ActionDescription actionDescription = it.value();
         const QString shortcut = actionDescription.shortcut;
         if (shortcut != actionDescription.defaultShortcut) {
             settings->setArrayIndex(index);
-            settings->setValue(QLatin1String("Action"), it.key());
-            settings->setValue(QLatin1String("Shortcut"), actionDescription.shortcut);
+            settings->setValue(QStringLiteral("Action"), it.key());
+            settings->setValue(QStringLiteral("Shortcut"), actionDescription.shortcut);
             ++index;
         }
     }

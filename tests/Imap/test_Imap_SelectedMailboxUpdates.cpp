@@ -51,7 +51,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
     cEmpty();
 
     auto oldState = model->cache()->mailboxSyncState(("a"));
-    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    auto oldUidMap = model->cache()->uidMapping(QStringLiteral("a"));
     QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     QSignalSpy numbersWatcher(model, SIGNAL(messageCountPossiblyChanged(QModelIndex)));
     cServer(QString::fromUtf8("* %1 EXISTS\r\n* %1 EXPUNGE\r\n").arg(QString::number(existsA + 1)).toUtf8());
@@ -90,7 +90,7 @@ void ImapModelSelectedMailboxUpdatesTest::testUnsolicitedFetch()
     cEmpty();
 
     auto oldState = model->cache()->mailboxSyncState(("a"));
-    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    auto oldUidMap = model->cache()->uidMapping(QStringLiteral("a"));
     QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     cServer(QString::fromUtf8("* %1 EXISTS\r\n* %1 FETCH (FLAGS (\\Seen \\Recent $NotJunk NotJunk))\r\n").arg(QString::number(existsA + 1)).toUtf8());
     cClient(QString(t.mk("UID FETCH %1:* (FLAGS)\r\n")).arg(
@@ -158,13 +158,13 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTraffic(bool askForEnvelo
     helperGenericTrafficArrive2(askForEnvelopes);
 
     // Remove B
-    helperDeleteOneMessage(1, QStringList() << QLatin1String("A") << QLatin1String("C") << QLatin1String("D"));
+    helperDeleteOneMessage(1, QStringList() << QStringLiteral("A") << QStringLiteral("C") << QStringLiteral("D"));
 
     // Remove D
-    helperDeleteOneMessage(2, QStringList() << QLatin1String("A") << QLatin1String("C"));
+    helperDeleteOneMessage(2, QStringList() << QStringLiteral("A") << QStringLiteral("C"));
 
     // Remove A
-    helperDeleteOneMessage(0, QStringList() << QLatin1String("C"));
+    helperDeleteOneMessage(0, QStringList() << QStringLiteral("C"));
 
     // Remove C
     helperDeleteOneMessage(0, QStringList());
@@ -173,17 +173,17 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTraffic(bool askForEnvelo
     helperGenericTrafficArrive3(askForEnvelopes);
 
     // remove C and B
-    helperDeleteOneMessage(2, QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("D"));
-    helperDeleteOneMessage(1, QStringList() << QLatin1String("A") << QLatin1String("D"));
+    helperDeleteOneMessage(2, QStringList() << QStringLiteral("A") << QStringLiteral("B") << QStringLiteral("D"));
+    helperDeleteOneMessage(1, QStringList() << QStringLiteral("A") << QStringLiteral("D"));
 
     // Add E, F and G
     helperGenericTrafficArrive4(askForEnvelopes);
 
     // Delete D and F
-    helperDeleteTwoMessages(3, 1, QStringList() << QLatin1String("A") << QLatin1String("E") << QLatin1String("G"));
+    helperDeleteTwoMessages(3, 1, QStringList() << QStringLiteral("A") << QStringLiteral("E") << QStringLiteral("G"));
 
     // Delete G and A
-    helperDeleteTwoMessages(2, 0, QStringList() << QLatin1String("E"));
+    helperDeleteTwoMessages(2, 0, QStringList() << QStringLiteral("E"));
 }
 
 /** @short Test an arrival of three brand new messages to an already synced mailbox
@@ -194,7 +194,7 @@ of three brand new messages, A, B and C. This arrival will get noticed and proce
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool askForEnvelopes)
 {
     auto oldState = model->cache()->mailboxSyncState(("a"));
-    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    auto oldUidMap = model->cache()->uidMapping(QStringLiteral("a"));
     QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     // Fake delivery of A, B and C
     cServer(QByteArray("* 3 EXISTS\r\n* 3 RECENT\r\n"));
@@ -301,7 +301,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
         QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPost).toList(), QVariantList());
         QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageHeaderListPostNo).toBool(), true);
     }
-    helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C"));
+    helperCheckSubjects(QStringList() << QStringLiteral("A") << QStringLiteral("B") << QStringLiteral("C"));
     cEmpty();
     justKeepTask();
     QVERIFY( errorSpy->isEmpty() );
@@ -311,7 +311,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
 void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askForEnvelopes)
 {
     auto oldState = model->cache()->mailboxSyncState(("a"));
-    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    auto oldUidMap = model->cache()->uidMapping(QStringLiteral("a"));
     QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     // Fake delivery of D
     cServer(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
@@ -372,7 +372,7 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
         cClient(t.mk("UID FETCH 46 (" FETCH_METADATA_ITEMS ")\r\n"));
     }
     cServer(helperCreateTrivialEnvelope(4, 46, QLatin1String("D")) + t.last("OK fetched\r\n"));
-    helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C") << QLatin1String("D"));
+    helperCheckSubjects(QStringList() << QStringLiteral("A") << QStringLiteral("B") << QStringLiteral("C") << QStringLiteral("D"));
     cEmpty();
     QVERIFY( errorSpy->isEmpty() );
 }
@@ -429,7 +429,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDeleteTwoMessages(const uint seq
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askForEnvelopes)
 {
     auto oldState = model->cache()->mailboxSyncState(("a"));
-    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    auto oldUidMap = model->cache()->uidMapping(QStringLiteral("a"));
     QCOMPARE(static_cast<uint>(oldUidMap.size()), oldState.exists());
     // Fake the announcement of the delivery
     cServer(QByteArray("* 4 EXISTS\r\n* 4 RECENT\r\n"));
@@ -498,7 +498,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
                        helperCreateTrivialEnvelope(3, 49, QLatin1String("C")) +
                        helperCreateTrivialEnvelope(4, 50, QLatin1String("D")) +
                        t.last("OK fetched\r\n"));
-    helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("B") << QLatin1String("C") << QLatin1String("D"));
+    helperCheckSubjects(QStringList() << QStringLiteral("A") << QStringLiteral("B") << QStringLiteral("C") << QStringLiteral("D"));
 
     // Verify UIDd and cache stuff once again to make sure reading data doesn't mess anything up
     helperCheckCache();
@@ -511,7 +511,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
 void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askForEnvelopes)
 {
     auto oldState = model->cache()->mailboxSyncState(("a"));
-    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    auto oldUidMap = model->cache()->uidMapping(QStringLiteral("a"));
     // Fake the announcement of the delivery
     cServer(QByteArray("* 5 EXISTS\r\n* 5 RECENT\r\n"));
     // This should trigger a request for flags
@@ -571,7 +571,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
                        helperCreateTrivialEnvelope(4, 53, QLatin1String("F")) +
                        helperCreateTrivialEnvelope(5, 63, QLatin1String("G")) +
                        t.last("OK fetched\r\n"));
-    helperCheckSubjects(QStringList() << QLatin1String("A") << QLatin1String("D") << QLatin1String("E") << QLatin1String("F") << QLatin1String("G"));
+    helperCheckSubjects(QStringList() << QStringLiteral("A") << QStringLiteral("D") << QStringLiteral("E") << QStringLiteral("F") << QStringLiteral("G"));
 
     // Verify UIDd and cache stuff once again to make sure reading data doesn't mess anything up
     helperCheckCache();
@@ -706,7 +706,7 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivals()
 {
     initialMessages(1);
     auto oldState = model->cache()->mailboxSyncState(("a"));
-    auto oldUidMap = model->cache()->uidMapping(QLatin1String("a"));
+    auto oldUidMap = model->cache()->uidMapping(QStringLiteral("a"));
     QPersistentModelIndex keepIndex = model->taskModel()->index(0, 0).child(0, 0);
     QVERIFY(keepIndex.isValid());
     QCOMPARE(keepIndex.data(Imap::Mailbox::RoleTaskIsVisible), QVariant(false));

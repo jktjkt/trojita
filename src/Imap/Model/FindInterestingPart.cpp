@@ -38,7 +38,7 @@ namespace Mailbox {
 QString FindInterestingPart::findMainPart( QModelIndex &part )
 {
     if ( ! part.isValid() )
-        return QLatin1String("Invalid index");
+        return QStringLiteral("Invalid index");
 
     QString mimeType = part.data( Imap::Mailbox::RolePartMimeType ).toString().toLower();
 
@@ -50,13 +50,13 @@ QString FindInterestingPart::findMainPart( QModelIndex &part )
     if ( mimeType == QLatin1String("text/html") ) {
         // HTML without a text/plain counterpart is not supported
         part = QModelIndex();
-        return QLatin1String("A HTML message without a plaintext counterpart");
+        return QStringLiteral("A HTML message without a plaintext counterpart");
     }
 
     if ( mimeType == QLatin1String("message/rfc822") ) {
         if ( part.model()->rowCount( part ) != 1 ) {
             part = QModelIndex();
-            return QLatin1String("Unsupported message/rfc822 formatting");
+            return QStringLiteral("Unsupported message/rfc822 formatting");
         }
         part = part.child( 0, 0 );
         return findMainPart( part );

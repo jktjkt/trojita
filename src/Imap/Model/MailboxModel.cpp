@@ -234,7 +234,7 @@ Qt::DropActions MailboxModel::supportedDropActions() const
 
 QStringList MailboxModel::mimeTypes() const
 {
-    return QStringList() << QLatin1String("application/x-trojita-message-list");
+    return QStringList() << QStringLiteral("application/x-trojita-message-list");
 }
 
 bool MailboxModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
@@ -266,7 +266,7 @@ bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (! target->isSelectable())
         return false;
 
-    QByteArray encodedData = data->data(QLatin1String("application/x-trojita-message-list"));
+    QByteArray encodedData = data->data(QStringLiteral("application/x-trojita-message-list"));
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
 
     Q_ASSERT(! stream.atEnd());

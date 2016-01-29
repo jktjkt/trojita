@@ -106,8 +106,8 @@ void ImapModelListChildMailboxesTest::testFailingList()
 void ImapModelListChildMailboxesTest::testFakeListing()
 {
     taskFactoryUnsafe->fakeListChildMailboxes = true;
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QLatin1String("a") << QLatin1String("b");
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("a") ] = QStringList() << QLatin1String("aa") << QLatin1String("ab");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QStringLiteral("a") << QStringLiteral("b");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QStringLiteral("a") ] = QStringList() << QStringLiteral("aa") << QStringLiteral("ab");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -152,8 +152,8 @@ void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
 
     // Remember two mailboxes
     model->cache()->setChildMailboxes(QString(), QList<MailboxMetadata>()
-                                      << MailboxMetadata(QLatin1String("a"), QLatin1String("."), QStringList())
-                                      << MailboxMetadata(QLatin1String("b"), QLatin1String("."), QStringList())
+                                      << MailboxMetadata(QStringLiteral("a"), QStringLiteral("."), QStringList())
+                                      << MailboxMetadata(QStringLiteral("b"), QStringLiteral("."), QStringList())
                                       );
     // ... and the numbers for the first of them
     SyncState s;
@@ -161,7 +161,7 @@ void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
     s.setRecent(1);
     s.setUnSeenCount(2);
     QVERIFY(s.isUsableForNumbers());
-    model->cache()->setMailboxSyncState(QLatin1String("b"), s);
+    model->cache()->setMailboxSyncState(QStringLiteral("b"), s);
 
     // touch the network
     QCOMPARE(model->rowCount(QModelIndex()), 1);

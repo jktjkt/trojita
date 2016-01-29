@@ -29,8 +29,8 @@ struct Settings
 {
 static QString imapPassKey, smtpPassKey;
 };
-QString Settings::imapPassKey = QLatin1String("imap.auth.pass");
-QString Settings::smtpPassKey = QLatin1String("msa.smtp.auth.pass");
+QString Settings::imapPassKey = QStringLiteral("imap.auth.pass");
+QString Settings::smtpPassKey = QStringLiteral("msa.smtp.auth.pass");
 
 ClearTextPasswordJob::ClearTextPasswordJob(const QString &accountId, const QString &accountType, const QString &password,
     enum Type type, QObject *parent, QSettings *settings) :
@@ -115,7 +115,7 @@ PasswordJob *ClearTextPassword::deletePassword(const QString &accountId, const Q
 
 QString trojita_plugin_ClearTextPasswordPlugin::name() const
 {
-    return QLatin1String("cleartextpassword");
+    return QStringLiteral("cleartextpassword");
 }
 
 QString trojita_plugin_ClearTextPasswordPlugin::description() const

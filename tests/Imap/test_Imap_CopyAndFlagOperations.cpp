@@ -70,8 +70,8 @@ void CopyAndFlagTest::helperMove(const MoveFeatures serverFeatures)
     helperSyncAWithMessagesEmptyState();
     helperCheckCache();
     helperVerifyUidMapA();
-    QString mailbox = QLatin1String("a");
-    QString del = QLatin1String("\\Deleted");
+    QString mailbox = QStringLiteral("a");
+    QString del = QStringLiteral("\\Deleted");
     Q_FOREACH(const auto uid, uidMapA) {
         // No message shall be marked as deleted
         QVERIFY(!model->cache()->msgFlags(mailbox, uid).contains(del));
@@ -80,7 +80,7 @@ void CopyAndFlagTest::helperMove(const MoveFeatures serverFeatures)
     // FIXME: this API sucks rather hard; it will have to change to use indexes at some point, if only for sanity
     auto aMailboxPtr = dynamic_cast<TreeItemMailbox *>(Model::realTreeItem(idxA));
     Q_ASSERT(aMailboxPtr);
-    model->copyMoveMessages(aMailboxPtr, QLatin1String("b"), Imap::Uids() << 2, MOVE);
+    model->copyMoveMessages(aMailboxPtr, QStringLiteral("b"), Imap::Uids() << 2, MOVE);
 
     if (serverFeatures == HAS_MOVE) {
         cClient(t.mk("UID MOVE 2 b\r\n"));
@@ -142,8 +142,8 @@ void CopyAndFlagTest::testUpdateAllFlags()
             + t.last("OK fetched\r\n"));
     helperCheckCache();
     helperVerifyUidMapA();
-    QString mailbox = QLatin1String("a");
-    QString seen = QLatin1String("\\Seen");
+    QString mailbox = QStringLiteral("a");
+    QString seen = QStringLiteral("\\Seen");
     QVERIFY(!msgListA.child(0, 0).data(RoleMessageIsMarkedRead).toBool());
     QVERIFY(!model->cache()->msgFlags(mailbox, 1).contains(seen));
     QVERIFY(msgListA.child(1, 0).data(RoleMessageIsMarkedRead).toBool());

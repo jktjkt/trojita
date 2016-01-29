@@ -64,17 +64,17 @@ void ListChildMailboxesTask::perform()
 
     QString mailboxName = mailbox->mailbox();
     if (mailboxName.isNull())
-        mailboxName = QLatin1String("%");
+        mailboxName = QStringLiteral("%");
     else
         mailboxName += mailbox->separator() + QLatin1Char('%');
 
     QStringList returnOptions;
     if (model->accessParser(parser).capabilitiesFresh) {
-        if (model->accessParser(parser).capabilities.contains(QLatin1String("LIST-EXTENDED"))) {
-            returnOptions << QLatin1String("SUBSCRIBED") << QLatin1String("CHILDREN");
+        if (model->accessParser(parser).capabilities.contains(QStringLiteral("LIST-EXTENDED"))) {
+            returnOptions << QStringLiteral("SUBSCRIBED") << QStringLiteral("CHILDREN");
         }
-        if (model->accessParser(parser).capabilities.contains(QLatin1String("LIST-STATUS"))) {
-            returnOptions << QString::fromUtf8("STATUS (%1)").arg(NumberOfMessagesTask::requestedStatusOptions().join(QLatin1String(" ")));
+        if (model->accessParser(parser).capabilities.contains(QStringLiteral("LIST-STATUS"))) {
+            returnOptions << QString::fromUtf8("STATUS (%1)").arg(NumberOfMessagesTask::requestedStatusOptions().join(QStringLiteral(" ")));
         }
     }
     // empty string, not a null string
@@ -139,7 +139,7 @@ void ListChildMailboxesTask::applyCachedStatus()
 QString ListChildMailboxesTask::debugIdentification() const
 {
     if (!mailboxIndex.isValid() && !mailboxIsRootMailbox)
-        return QLatin1String("[invalid mailboxIndex]");
+        return QStringLiteral("[invalid mailboxIndex]");
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(model->translatePtr(mailboxIndex)));
     Q_ASSERT(mailbox);

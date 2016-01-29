@@ -75,7 +75,7 @@ enum { OFFSET_OF_FIRST_ADDRESSEE = 1, MIN_MAX_VISIBLE_RECIPIENTS = 4 };
 namespace Gui
 {
 
-static const QString trojita_opacityAnimation = QLatin1String("trojita_opacityAnimation");
+static const QString trojita_opacityAnimation = QStringLiteral("trojita_opacityAnimation");
 
 /** @short Ignore dirtying events while we're preparing the widget's contents
 
@@ -117,8 +117,8 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     QIcon winIcon;
-    winIcon.addFile(QLatin1String(":/icons/trojita-edit-big.png"), QSize(128, 128));
-    winIcon.addFile(QLatin1String(":/icons/trojita-edit-small.png"), QSize(22, 22));
+    winIcon.addFile(QStringLiteral(":/icons/trojita-edit-big.png"), QSize(128, 128));
+    winIcon.addFile(QStringLiteral(":/icons/trojita-edit-small.png"), QSize(22, 22));
     setWindowIcon(winIcon);
 
     Q_ASSERT(m_mainWindow);
@@ -131,10 +131,10 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     ui->setupUi(this);
     ui->attachmentsView->setComposer(m_submission->composer());
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
-    sendButton->setIcon(UiUtils::loadIcon(QLatin1String("mail-send")));
+    sendButton->setIcon(UiUtils::loadIcon(QStringLiteral("mail-send")));
     connect(sendButton, &QAbstractButton::clicked, this, &ComposeWidget::send);
     cancelButton = ui->buttonBox->addButton(QDialogButtonBox::Cancel);
-    cancelButton->setIcon(UiUtils::loadIcon(QLatin1String("dialog-cancel")));
+    cancelButton->setIcon(UiUtils::loadIcon(QStringLiteral("dialog-cancel")));
     connect(cancelButton, &QAbstractButton::clicked, this, &QWidget::close);
     connect(ui->attachButton, &QAbstractButton::clicked, this, &ComposeWidget::slotAskForFileAttachment);
 
@@ -167,11 +167,11 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_markAsReply->setExclusive(true);
     auto *asReplyMenu = new QMenu(m_markButton);
     m_markButton->setMenu(asReplyMenu);
-    m_actionStandalone = asReplyMenu->addAction(UiUtils::loadIcon(QLatin1String("mail-view-flat")), tr("New Thread"));
+    m_actionStandalone = asReplyMenu->addAction(UiUtils::loadIcon(QStringLiteral("mail-view-flat")), tr("New Thread"));
     m_actionStandalone->setActionGroup(m_markAsReply);
     m_actionStandalone->setCheckable(true);
     m_actionStandalone->setToolTip(tr("This mail will be sent as a standalone message.<hr/>Change to preserve the reply hierarchy."));
-    m_actionInReplyTo = asReplyMenu->addAction(UiUtils::loadIcon(QLatin1String("mail-view-threaded")), tr("Threaded"));
+    m_actionInReplyTo = asReplyMenu->addAction(UiUtils::loadIcon(QStringLiteral("mail-view-threaded")), tr("Threaded"));
     m_actionInReplyTo->setActionGroup(m_markAsReply);
     m_actionInReplyTo->setCheckable(true);
 
@@ -195,29 +195,29 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_replyModeActions = new QActionGroup(m_replyModeButton);
     m_replyModeActions->setExclusive(true);
 
-    m_actionHandPickedRecipients = new QAction(UiUtils::loadIcon(QLatin1String("document-edit")) ,QLatin1String("Hand Picked Recipients"), this);
+    m_actionHandPickedRecipients = new QAction(UiUtils::loadIcon(QStringLiteral("document-edit")) ,QStringLiteral("Hand Picked Recipients"), this);
     replyModeMenu->addAction(m_actionHandPickedRecipients);
     m_actionHandPickedRecipients->setActionGroup(m_replyModeActions);
     m_actionHandPickedRecipients->setCheckable(true);
 
     replyModeMenu->addSeparator();
 
-    QAction *placeHolderAction = ShortcutHandler::instance()->action(QLatin1String("action_reply_private"));
+    QAction *placeHolderAction = ShortcutHandler::instance()->action(QStringLiteral("action_reply_private"));
     m_actionReplyModePrivate = replyModeMenu->addAction(placeHolderAction->icon(), placeHolderAction->text());
     m_actionReplyModePrivate->setActionGroup(m_replyModeActions);
     m_actionReplyModePrivate->setCheckable(true);
 
-    placeHolderAction = ShortcutHandler::instance()->action(QLatin1String("action_reply_all_but_me"));
+    placeHolderAction = ShortcutHandler::instance()->action(QStringLiteral("action_reply_all_but_me"));
     m_actionReplyModeAllButMe = replyModeMenu->addAction(placeHolderAction->icon(), placeHolderAction->text());
     m_actionReplyModeAllButMe->setActionGroup(m_replyModeActions);
     m_actionReplyModeAllButMe->setCheckable(true);
 
-    placeHolderAction = ShortcutHandler::instance()->action(QLatin1String("action_reply_all"));
+    placeHolderAction = ShortcutHandler::instance()->action(QStringLiteral("action_reply_all"));
     m_actionReplyModeAll = replyModeMenu->addAction(placeHolderAction->icon(), placeHolderAction->text());
     m_actionReplyModeAll->setActionGroup(m_replyModeActions);
     m_actionReplyModeAll->setCheckable(true);
 
-    placeHolderAction = ShortcutHandler::instance()->action(QLatin1String("action_reply_list"));
+    placeHolderAction = ShortcutHandler::instance()->action(QStringLiteral("action_reply_list"));
     m_actionReplyModeList = replyModeMenu->addAction(placeHolderAction->icon(), placeHolderAction->text());
     m_actionReplyModeList->setActionGroup(m_replyModeActions);
     m_actionReplyModeList->setCheckable(true);
@@ -377,10 +377,10 @@ ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &
     QList<QByteArray> references;
     const QUrlQuery q(url);
 
-    if (!q.queryItemValue(QLatin1String("X-Trojita-DisplayName")).isEmpty()) {
+    if (!q.queryItemValue(QStringLiteral("X-Trojita-DisplayName")).isEmpty()) {
         // There should be only single email address created by Imap::Message::MailAddress::asUrl()
         Imap::Message::MailAddress addr;
-        if (Imap::Message::MailAddress::fromUrl(addr, url, QLatin1String("mailto")))
+        if (Imap::Message::MailAddress::fromUrl(addr, url, QStringLiteral("mailto")))
             recipients << qMakePair(Composer::ADDRESS_TO, addr.asPrettyString());
     } else {
         // This should be real RFC 6068 mailto:
@@ -519,7 +519,7 @@ void ComposeWidget::passwordRequested(const QString &user, const QString &host)
         return;
     }
 
-    Plugins::PasswordJob *job = password->requestPassword(QLatin1String("account-0"), QLatin1String("smtp"));
+    Plugins::PasswordJob *job = password->requestPassword(QStringLiteral("account-0"), QStringLiteral("smtp"));
     if (!job) {
         askPassword(user, host);
         return;
@@ -605,7 +605,7 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
                 // Some characters are best avoided in file names. This is probably not a definitive list, but the hope is that
                 // it's going to be more readable than an unformatted hash or similar stuff.  The list of characters was taken
                 // from http://en.wikipedia.org/wiki/Filename#Reserved_characters_and_words .
-                filename.replace(QRegExp(QLatin1String("[/\\\\:\"|<>*?]")), QLatin1String("_"));
+                filename.replace(QRegExp(QLatin1String("[/\\\\:\"|<>*?]")), QStringLiteral("_"));
                 path = QFileDialog::getSaveFileName(this, tr("Save as"), path + QLatin1Char('/') + filename + QLatin1String(".draft"),
                                                     tr("Drafts") + QLatin1String(" (*.draft)"));
                 if (path.isEmpty()) { // cancelled save

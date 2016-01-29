@@ -570,7 +570,7 @@ void ImapModelThreadingTest::init()
 
     // Got to pretend that we support threads. Well, we really do :).
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("THREAD=REFS"));
+    injector.injectCapability(QStringLiteral("THREAD=REFS"));
 
     // Setup the threading model
     threadingModel->setUserWantsThreading(true);
@@ -621,7 +621,7 @@ QByteArray ImapModelThreadingTest::numListToString(const Imap::Uids &seq)
     QStringList res;
     Q_FOREACH(const uint num, seq)
         res << QString::number(num);
-    return res.join(QLatin1String(" ")).toUtf8();
+    return res.join(QStringLiteral(" ")).toUtf8();
 }
 
 /** @short Test how sorting reacts to dynamic mailbox updates and the initial sync */
@@ -804,7 +804,7 @@ void ImapModelThreadingTest::testDynamicSorting()
 
     // A new message arrives and the user requests a completely different sort order
     // Make it a bit more interesting, suddenly support ESORT as well
-    injector.injectCapability(QLatin1String("ESORT"));
+    injector.injectCapability(QStringLiteral("ESORT"));
     threadingModel->setUserSearchingSortingPreference(QStringList(), Imap::Mailbox::ThreadingMsgListModel::SORT_FROM, Qt::AscendingOrder);
     cServer("* 4 EXISTS\r\n");
     QByteArray sortReq = t.mk("UID SORT RETURN (ALL) (DISPLAYFROM) utf-8 ALL\r\n");
@@ -1074,7 +1074,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     QCOMPARE(msgUid9.row(), 1);
     QCOMPARE(msgUid10.row(), 2);
 
-    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("foo"),
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("foo"),
                                                       threadingModel->currentSortCriterium(), threadingModel->currentSortOrder());
 
     Imap::Uids expectedUidOrder;
@@ -1095,7 +1095,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     injector.injectCapability("ESEARCH");
 
     // Try a "different" search
-    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("blah"),
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("blah"),
                                                       threadingModel->currentSortCriterium(), threadingModel->currentSortOrder());
     expectedUidOrder.clear();
     expectedUidOrder << 9;
@@ -1106,7 +1106,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     checkUidMapFromThreading(expectedUidOrder);
 
     // Try yet another search, this time something which yields an empty result
-    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("foobar"),
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("foobar"),
                                                       threadingModel->currentSortCriterium(), threadingModel->currentSortOrder());
     expectedUidOrder.clear();
     cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT foobar\r\n"));
@@ -1131,11 +1131,11 @@ void ImapModelThreadingTest::testDynamicSearch()
 
 QByteArray ImapModelThreadingTest::prepareHugeUntaggedThread(const uint num)
 {
-    QString sampleThread = QLatin1String("(%1 (%2 %3 (%4)(%5 %6 %7))(%8 %9 %10))");
-    QString linearThread = QLatin1String("(%1 %2 %3 %4 %5 %6 %7 %8 %9 %10)");
-    QString flatThread = QLatin1String("(%1 (%2)(%3)(%4)(%5)(%6)(%7)(%8)(%9)(%10))");
+    QString sampleThread = QStringLiteral("(%1 (%2 %3 (%4)(%5 %6 %7))(%8 %9 %10))");
+    QString linearThread = QStringLiteral("(%1 %2 %3 %4 %5 %6 %7 %8 %9 %10)");
+    QString flatThread = QStringLiteral("(%1 (%2)(%3)(%4)(%5)(%6)(%7)(%8)(%9)(%10))");
     Q_ASSERT(num % 10 == 0);
-    QString response = QLatin1String("* THREAD ");
+    QString response = QStringLiteral("* THREAD ");
     for (uint i = 1; i < num; i += 10) {
         QString *format = 0;
         switch (i % 100) {
@@ -1254,10 +1254,10 @@ void ImapModelThreadingTest::testSearchingPerformance()
     QStringList buf;
     Q_FOREACH(const int uid, result)
         buf << QString::number(uid);
-    QByteArray sortResult = buf.join(QLatin1String(" ")).toUtf8();
+    QByteArray sortResult = buf.join(QStringLiteral(" ")).toUtf8();
 
     QBENCHMARK {
-        threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("x"),
+        threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("x"),
                                                           ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
         cClient(t.mk("UID SEARCH CHARSET utf-8 SUBJECT x\r\n"));
         cServer("* SEARCH " + sortResult + "\r\n");
@@ -1492,7 +1492,7 @@ void ImapModelThreadingTest::testESearchResults()
     injector.injectCapability("ESEARCH");
 
     // An empty result, Dovecot style
-    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("x"),
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("x"),
                                                       ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
     cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT x\r\n"));
     // Dovecot sends the UID response, as expected
@@ -1502,7 +1502,7 @@ void ImapModelThreadingTest::testESearchResults()
 
     // Some extra data in the ESEARCH response -- just to make sure that the code doesn't expect a fixed position
     // of the ALL data set
-    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("y"),
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("y"),
                                                       ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
     cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT y\r\n"));
     // Check if random crap in these resplies doesn't break stuff
@@ -1511,7 +1511,7 @@ void ImapModelThreadingTest::testESearchResults()
     QCOMPARE(threadingModel->rowCount(), 1);
 
     // Empty result, Cyrus 2.9.17-style
-    threadingModel->setUserSearchingSortingPreference(QStringList() << QLatin1String("SUBJECT") << QLatin1String("z"),
+    threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("z"),
                                                       ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
     cClient(t.mk("UID SEARCH RETURN (ALL) CHARSET utf-8 SUBJECT z\r\n"));
     // Cyrus, however, omits the UID part of the response

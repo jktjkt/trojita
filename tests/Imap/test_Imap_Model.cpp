@@ -105,7 +105,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE( model->data(mbox_SomeParent, Qt::DisplayRole), QVariant("SomeParent"));
 
     // Try to create mailbox
-    model->createMailbox(QLatin1String("zzz_newly-Created"));
+    model->createMailbox(QStringLiteral("zzz_newly-Created"));
     cClient(t.mk("CREATE zzz_newly-Created\r\n"));
 
     // Sane invariants
@@ -130,7 +130,7 @@ void ImapModelTest::testCreationDeletionHandling()
     QCOMPARE(deletionSucceded.count(), 0);
 
     // Now test its successful completion
-    model->createMailbox(QLatin1String("zzz_newly-Created2"));
+    model->createMailbox(QStringLiteral("zzz_newly-Created2"));
     cClient(t.mk("CREATE zzz_newly-Created2\r\n"));
     cServer(t.last("OK mailbox created\r\n"));
     cClient(t.mk("LIST \"\" zzz_newly-Created2\r\n"));
@@ -148,7 +148,7 @@ void ImapModelTest::testCreationDeletionHandling()
     cEmpty();
 
     // Verify automated subscription
-    model->createMailbox(QLatin1String("zzz_newly-Created3"), Imap::Mailbox::AutoSubscription::SUBSCRIBE);
+    model->createMailbox(QStringLiteral("zzz_newly-Created3"), Imap::Mailbox::AutoSubscription::SUBSCRIBE);
     cClient(t.mk("CREATE zzz_newly-Created3\r\n"));
     cServer(t.last("OK created\r\n"));
     cClient(t.mk("LIST \"\" zzz_newly-Created3\r\n"));

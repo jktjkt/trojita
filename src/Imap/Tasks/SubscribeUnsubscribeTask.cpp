@@ -73,7 +73,7 @@ bool SubscribeUnsubscribeTask::handleStateHelper(const Imap::Responses::State *c
     if (resp->tag == tag) {
         if (resp->kind == Responses::OK) {
             TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(model->findMailboxByName(mailboxName));
-            QString subscribed = QLatin1String("\\SUBSCRIBED");
+            QString subscribed = QStringLiteral("\\SUBSCRIBED");
             switch (operation) {
             case SUBSCRIBE:
                 if (mailbox && !mailbox->m_metadata.flags.contains(subscribed)) {

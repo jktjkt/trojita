@@ -54,7 +54,7 @@ void UnSelectTask::perform()
     if (model->accessParser(parser).maintainingTask) {
         model->accessParser(parser).maintainingTask->breakOrCancelPossibleIdle();
     }
-    if (model->accessParser(parser).capabilities.contains(QLatin1String("UNSELECT"))) {
+    if (model->accessParser(parser).capabilities.contains(QStringLiteral("UNSELECT"))) {
         unSelectTag = parser->unSelect();
     } else {
         doFakeSelect();
@@ -106,7 +106,7 @@ bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
         } else if (resp->tag == selectMissingTag) {
             if (resp->kind == Responses::OK) {
                 QTimer::singleShot(0, this, SLOT(doFakeSelect()));
-                log(QLatin1String("The emergency EXAMINE command has unexpectedly succeeded, trying to get out of here..."), Common::LOG_MAILBOX_SYNC);
+                log(QStringLiteral("The emergency EXAMINE command has unexpectedly succeeded, trying to get out of here..."), Common::LOG_MAILBOX_SYNC);
             } else {
                 // This is very good :)
                 _completed();
@@ -120,28 +120,28 @@ bool UnSelectTask::handleStateHelper(const Imap::Responses::State *const resp)
 bool UnSelectTask::handleNumberResponse(const Imap::Responses::NumberResponse *const resp)
 {
     Q_UNUSED(resp);
-    log(QLatin1String("UnSelectTask: ignoring numeric response"), Common::LOG_MAILBOX_SYNC);
+    log(QStringLiteral("UnSelectTask: ignoring numeric response"), Common::LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleFlags(const Imap::Responses::Flags *const resp)
 {
     Q_UNUSED(resp);
-    log(QLatin1String("UnSelectTask: ignoring FLAGS response"), Common::LOG_MAILBOX_SYNC);
+    log(QStringLiteral("UnSelectTask: ignoring FLAGS response"), Common::LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleSearch(const Imap::Responses::Search *const resp)
 {
     Q_UNUSED(resp);
-    log(QLatin1String("UnSelectTask: ignoring SEARCH response"), Common::LOG_MAILBOX_SYNC);
+    log(QStringLiteral("UnSelectTask: ignoring SEARCH response"), Common::LOG_MAILBOX_SYNC);
     return true;
 }
 
 bool UnSelectTask::handleFetch(const Imap::Responses::Fetch *const resp)
 {
     Q_UNUSED(resp);
-    log(QLatin1String("UnSelectTask: ignoring FETCH response"), Common::LOG_MAILBOX_SYNC);
+    log(QStringLiteral("UnSelectTask: ignoring FETCH response"), Common::LOG_MAILBOX_SYNC);
     return true;
 }
 

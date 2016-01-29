@@ -477,21 +477,21 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
             break;
         case Responses::ATOM: // no sanity check here, just make a string
         case Responses::NONE: // this won't happen, but if we omit it, gcc warns us about that
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QLatin1String(" "))));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QStringLiteral(" "))));
             break;
         case Responses::NEWNAME:
         case Responses::REFERRAL:
         case Responses::BADURL:
             // FIXME: check if indeed won't eat the spaces
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QLatin1String(" "))));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QStringLiteral(" "))));
             break;
         case Responses::NOUPDATE:
             // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as a quoted string
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QLatin1String(" "))));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QStringLiteral(" "))));
             break;
         case Responses::UNDEFINED_FILTER:
             // FIXME: check if indeed won't eat the spaces, and optionally verify that it came as an atom
-            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QLatin1String(" "))));
+            respCodeData = QSharedPointer<AbstractData>(new RespData<QString>(list.join(QStringLiteral(" "))));
             break;
         case Responses::APPENDUID:
         {
@@ -838,7 +838,7 @@ QDateTime Fetch::dateify(QByteArray str, const QByteArray &line, const int start
     if (str.size() != 26)
         throw ParseError(line, start);
 
-    QDateTime date = QLocale(QLocale::C).toDateTime(QString::fromUtf8(str.left(20)), QLatin1String("d-MMM-yyyy HH:mm:ss"));
+    QDateTime date = QLocale(QLocale::C).toDateTime(QString::fromUtf8(str.left(20)), QStringLiteral("d-MMM-yyyy HH:mm:ss"));
     const char sign = str[21];
     bool ok;
     int hours = str.mid(22, 2).toInt(&ok);
@@ -1122,7 +1122,7 @@ QTextStream &State::dump(QTextStream &stream) const
 
 QTextStream &Capability::dump(QTextStream &stream) const
 {
-    return stream << "* CAPABILITY " << capabilities.join(QLatin1String(", "));
+    return stream << "* CAPABILITY " << capabilities.join(QStringLiteral(", "));
 }
 
 QTextStream &NumberResponse::dump(QTextStream &stream) const
@@ -1132,7 +1132,7 @@ QTextStream &NumberResponse::dump(QTextStream &stream) const
 
 QTextStream &List::dump(QTextStream &stream) const
 {
-    stream << kind << " '" << mailbox << "' (" << flags.join(QLatin1String(", ")) << "), sep '" << separator << "'";
+    stream << kind << " '" << mailbox << "' (" << flags.join(QStringLiteral(", ")) << "), sep '" << separator << "'";
     if (!extendedData.isEmpty()) {
         stream << " (";
         for (QMap<QByteArray,QVariant>::const_iterator it = extendedData.constBegin(); it != extendedData.constEnd(); ++it) {
@@ -1145,7 +1145,7 @@ QTextStream &List::dump(QTextStream &stream) const
 
 QTextStream &Flags::dump(QTextStream &stream) const
 {
-    return stream << "FLAGS " << flags.join(QLatin1String(", "));
+    return stream << "FLAGS " << flags.join(QStringLiteral(", "));
 }
 
 QTextStream &Search::dump(QTextStream &stream) const
@@ -1254,7 +1254,7 @@ static QString threadDumpHelper(const ThreadingNode &node)
         for (QVector<ThreadingNode>::const_iterator it = node.children.begin(); it != node.children.end(); ++it) {
             res << threadDumpHelper(*it);
         }
-        return QString::fromUtf8("%1: {%2}").arg(node.num).arg(res.join(QLatin1String(", ")));
+        return QString::fromUtf8("%1: {%2}").arg(node.num).arg(res.join(QStringLiteral(", ")));
     }
 }
 
@@ -1310,7 +1310,7 @@ QTextStream &SocketEncryptedResponse::dump(QTextStream &s) const
             if (e.certificate().isNull()) {
                 s << e.errorString() << " ";
             } else {
-                s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName).join(QLatin1String(", ")) << ") ";
+                s << e.errorString() << " (CN: " << e.certificate().subjectInfo(QSslCertificate::CommonName).join(QStringLiteral(", ")) << ") ";
             }
         }
         s << "]";
@@ -1336,7 +1336,7 @@ template<class T> QTextStream &RespData<T>::dump(QTextStream &stream) const
 
 template<> QTextStream &RespData<QStringList>::dump(QTextStream &stream) const
 {
-    return stream << data.join(QLatin1String(" "));
+    return stream << data.join(QStringLiteral(" "));
 }
 
 template<> QTextStream &RespData<QDateTime>::dump(QTextStream &stream) const

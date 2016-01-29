@@ -99,7 +99,7 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     // Redmine#3, the QWebView uses black text color when rendering stuff on dark background
     QPalette palette = QApplication::palette();
     if (palette.background().color().lightness() < 50) {
-        QStyle *style = QStyleFactory::create(QLatin1String("windows"));
+        QStyle *style = QStyleFactory::create(QStringLiteral("windows"));
         Q_ASSERT(style);
         palette = style->standardPalette();
         setPalette(palette);
@@ -330,12 +330,12 @@ bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *op
             if (input->domain == QtNetwork && input->error == QNetworkReply::TimeoutError) {
                 res->content = tr("<img src='%2'/><span style='font-family: sans-serif; color: gray'>"
                                   "Uncached data not available when offline</span>")
-                        .arg(Util::resizedImageAsDataUrl(QLatin1String(":/icons/network-offline.png"), 32)).toUtf8();
+                        .arg(Util::resizedImageAsDataUrl(QStringLiteral(":/icons/network-offline.png"), 32)).toUtf8();
                 return true;
             }
         }
         res->content = input->errorString.toUtf8();
-        res->contentType = QLatin1String("text/plain");
+        res->contentType = QStringLiteral("text/plain");
     }
     return true;
 }

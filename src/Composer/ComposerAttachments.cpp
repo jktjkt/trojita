@@ -89,7 +89,7 @@ QByteArray AttachmentItem::contentDispositionHeader() const
 
     QString shortFileName = contentDispositionFilename();
     if (shortFileName.isEmpty())
-        shortFileName = QLatin1String("attachment");
+        shortFileName = QStringLiteral("attachment");
     return "Content-Disposition: " + contentDispositionToByteArray(m_contentDisposition) + ";\r\n\t" +
             Imap::encodeRfc2231Parameter("filename", shortFileName) + "\r\n";
 }
@@ -174,7 +174,7 @@ QString FileAttachmentItem::contentDispositionFilename() const
         return preferredName;
     QString shortFileName = QFileInfo(fileName).fileName();
     if (shortFileName.isEmpty())
-        shortFileName = QLatin1String("attachment");
+        shortFileName = QStringLiteral("attachment");
     return shortFileName;
 }
 
@@ -256,7 +256,7 @@ QString ImapMessageAttachmentItem::contentDispositionFilename() const
     if (!preferredName.isEmpty())
         return preferredName;
     if (!index.isValid())
-        return QLatin1String("attachment.eml");
+        return QStringLiteral("attachment.eml");
     return index.data(RoleMessageSubject).toString() + QLatin1String(".eml");
 }
 
@@ -387,7 +387,7 @@ QString ImapPartAttachmentItem::contentDispositionFilename() const
     if (!preferredName.isEmpty())
         return preferredName;
     QString res = index.data(RolePartFileName).toString();
-    return res.isEmpty() ? QLatin1String("attachment") : res;
+    return res.isEmpty() ? QStringLiteral("attachment") : res;
 }
 
 bool ImapPartAttachmentItem::setPreferredFileName(const QString &name)

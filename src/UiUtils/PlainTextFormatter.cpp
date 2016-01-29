@@ -157,7 +157,7 @@ QString firstNLines(const QString &input, int numLines, const int charsPerLine)
 /** @short Helper for closing blockquotes and adding the interactive control elements at the right places */
 void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack, int &quoteLevel, const int finalQuoteLevel)
 {
-    static QString closingLabel(QLatin1String("<label for=\"q%1\"></label>"));
+    static QString closingLabel(QStringLiteral("<label for=\"q%1\"></label>"));
     static QLatin1String closeSingleQuote("</blockquote>");
     static QLatin1String closeQuoteBlock("</span></span>");
 
@@ -295,7 +295,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         auto prev = it - 1;
         if (prev->depth == it->depth) {
 
-            QString separator = QLatin1String("\n");
+            QString separator = QStringLiteral("\n");
             switch (flowed) {
             case FlowedFormat::PLAIN:
                 // nothing fancy to do here, we cannot really join lines
@@ -339,7 +339,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             signatureSeparatorSeen = true;
             closeQuotesUpTo(markup, controlStack, quoteLevel, 0);
             markup << QLatin1String("<span class=\"signature\">") + helperHtmlifySingleLine(it->text);
-            markup << QLatin1String("\n");
+            markup << QStringLiteral("\n");
             continue;
         }
 
@@ -347,7 +347,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             // Just copy the data
             markup << helperHtmlifySingleLine(it->text);
             if (it+1 != lineBuffer.end())
-                markup << QLatin1String("\n");
+                markup << QStringLiteral("\n");
             continue;
         }
 
@@ -411,7 +411,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             }
 
                             // The [...] marks shall be prefixed by the closestDepth quote markers
-                            omittedStuff = QLatin1String("<span class=\"quotemarks\">");
+                            omittedStuff = QStringLiteral("<span class=\"quotemarks\">");
                             for (int i = 0; i < closestDepth; ++i) {
                                 omittedStuff += QLatin1String("&gt;");
                             }
@@ -428,7 +428,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
                             }
                         }
 
-                        previewQuotemarks = QLatin1String("<span class=\"quotemarks\">");
+                        previewQuotemarks = QStringLiteral("<span class=\"quotemarks\">");
                         for (int i = 0; i < runner->depth; ++i) {
                             previewQuotemarks += QLatin1String("&gt;");
                         }
@@ -522,17 +522,17 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         if (next != lineBuffer.end()) {
             if (next->depth >= 0 && next->depth < it->depth) {
                 // Decreasing the quotation level -> no starting <blockquote>
-                markup << QLatin1String("\n");
+                markup << QStringLiteral("\n");
             } else if (it->depth == 0) {
                 // Non-quoted block which is not enclosed in a <blockquote>
-                markup << QLatin1String("\n");
+                markup << QStringLiteral("\n");
             }
         }
     }
 
     if (signatureSeparatorSeen) {
         // Terminate the signature
-        markup << QLatin1String("</span>");
+        markup << QStringLiteral("</span>");
     }
 
     if (quoteLevel) {
@@ -579,7 +579,7 @@ QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font, co
         "span.shortquote > blockquote > label {display: none}"
     );
 
-    QString fontSpecification(QLatin1String("pre{"));
+    QString fontSpecification(QStringLiteral("pre{"));
     if (font.italic())
         fontSpecification += QLatin1String("font-style: italic; ");
     if (font.bold())
@@ -615,7 +615,7 @@ QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font, co
     // https://bugs.webkit.org/show_bug.cgi?id=71194 (fixed in Blink already).
     QString htmlHeader(QLatin1String("<html><head><style type=\"text/css\"><!--") + textColors + fontSpecification + stylesheet +
                        QLatin1String("--></style></head><body><pre dir=\"auto\">"));
-    static QString htmlFooter(QLatin1String("\n</pre></body></html>"));
+    static QString htmlFooter(QStringLiteral("\n</pre></body></html>"));
 
 
     // We cannot rely on the QWebFrame's toPlainText because of https://bugs.kde.org/show_bug.cgi?id=321160

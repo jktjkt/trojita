@@ -631,28 +631,28 @@ void ThreadingMsgListModel::askForThreading(const uint firstUnknownUid)
     Imap::Mailbox::Model::realTreeItem(someMessage, &realModel, &realIndex);
     QModelIndex mailboxIndex = realIndex.parent().parent();
 
-    if (realModel->capabilities().contains(QLatin1String("THREAD=REFS"))) {
+    if (realModel->capabilities().contains(QStringLiteral("THREAD=REFS"))) {
         requestedAlgorithm = "REFS";
-    } else if (realModel->capabilities().contains(QLatin1String("THREAD=REFERENCES"))) {
+    } else if (realModel->capabilities().contains(QStringLiteral("THREAD=REFERENCES"))) {
         requestedAlgorithm = "REFERENCES";
-    } else if (realModel->capabilities().contains(QLatin1String("THREAD=ORDEREDSUBJECT"))) {
+    } else if (realModel->capabilities().contains(QStringLiteral("THREAD=ORDEREDSUBJECT"))) {
         requestedAlgorithm = "ORDEREDSUBJECT";
     }
 
     if (! requestedAlgorithm.isEmpty()) {
         threadingInFlight = true;
         ThreadTask *threadTask;
-        if (firstUnknownUid && realModel->capabilities().contains(QLatin1String("INCTHREAD"))) {
+        if (firstUnknownUid && realModel->capabilities().contains(QStringLiteral("INCTHREAD"))) {
             threadTask = realModel->m_taskFactory->
                     createIncrementalThreadTask(const_cast<Model *>(realModel), mailboxIndex, requestedAlgorithm,
-                                                                    QStringList() << QLatin1String("INTHREAD") << QString::fromUtf8(requestedAlgorithm) << QLatin1String("UID") <<
+                                                                    QStringList() << QStringLiteral("INTHREAD") << QString::fromUtf8(requestedAlgorithm) << QStringLiteral("UID") <<
                                                                         QString::fromUtf8(Sequence::startingAt(firstUnknownUid).toByteArray()));
             connect(threadTask, &ThreadTask::incrementalThreadingAvailable,
                     this, &ThreadingMsgListModel::slotIncrementalThreadingAvailable);
             connect(threadTask, &ImapTask::failed, this, &ThreadingMsgListModel::slotIncrementalThreadingFailed);
         } else {
             threadTask = realModel->m_taskFactory->createThreadTask(const_cast<Model *>(realModel), mailboxIndex,
-                                                                    requestedAlgorithm, QStringList() << QLatin1String("ALL"));
+                                                                    requestedAlgorithm, QStringList() << QStringLiteral("ALL"));
             connect(realModel, &Model::threadingAvailable, this, &ThreadingMsgListModel::slotThreadingAvailable);
             connect(realModel, &Model::threadingFailed, this, &ThreadingMsgListModel::slotThreadingFailed);
         }
@@ -756,7 +756,7 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
         QString buf;
         QTextStream ss(&buf);
         logTrace(QString::fromUtf8("Weird, requesting messages matching ALL, but got this instead: %1")
-                 .arg(searchCriteria.join(QLatin1String(", "))));
+                 .arg(searchCriteria.join(QStringLiteral(", "))));
         return true;
     }
 
@@ -1182,7 +1182,7 @@ void ThreadingMsgListModel::pruneTree()
 
 QStringList ThreadingMsgListModel::supportedCapabilities()
 {
-    return QStringList() << QLatin1String("THREAD=REFS") << QLatin1String("THREAD=REFERENCES") << QLatin1String("THREAD=ORDEREDSUBJECT");
+    return QStringList() << QStringLiteral("THREAD=REFS") << QStringLiteral("THREAD=REFERENCES") << QStringLiteral("THREAD=ORDEREDSUBJECT");
 }
 
 QStringList ThreadingMsgListModel::mimeTypes() const
@@ -1283,10 +1283,10 @@ bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList
 
     bool hasDisplaySort = false;
     bool hasSort = false;
-    if (realModel->capabilities().contains(QLatin1String("SORT=DISPLAY"))) {
+    if (realModel->capabilities().contains(QStringLiteral("SORT=DISPLAY"))) {
         hasDisplaySort = true;
         hasSort = true;
-    } else if (realModel->capabilities().contains(QLatin1String("SORT"))) {
+    } else if (realModel->capabilities().contains(QStringLiteral("SORT"))) {
         // just the regular sort
         hasSort = true;
     }
@@ -1294,25 +1294,25 @@ bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList
     QStringList sortOptions;
     switch (criterium) {
     case SORT_ARRIVAL:
-        sortOptions << QLatin1String("ARRIVAL");
+        sortOptions << QStringLiteral("ARRIVAL");
         break;
     case SORT_CC:
-        sortOptions << QLatin1String("CC");
+        sortOptions << QStringLiteral("CC");
         break;
     case SORT_DATE:
-        sortOptions << QLatin1String("DATE");
+        sortOptions << QStringLiteral("DATE");
         break;
     case SORT_FROM:
-        sortOptions << (hasDisplaySort ? QLatin1String("DISPLAYFROM") : QLatin1String("FROM"));
+        sortOptions << (hasDisplaySort ? QStringLiteral("DISPLAYFROM") : QStringLiteral("FROM"));
         break;
     case SORT_SIZE:
-        sortOptions << QLatin1String("SIZE");
+        sortOptions << QStringLiteral("SIZE");
         break;
     case SORT_SUBJECT:
-        sortOptions << QLatin1String("SUBJECT");
+        sortOptions << QStringLiteral("SUBJECT");
         break;
     case SORT_TO:
-        sortOptions << (hasDisplaySort ? QLatin1String("DISPLAYTO") : QLatin1String("TO"));
+        sortOptions << (hasDisplaySort ? QStringLiteral("DISPLAYTO") : QStringLiteral("TO"));
         break;
     case SORT_NONE:
         if (m_sortTask && m_sortTask->isPersistent() &&

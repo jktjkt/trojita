@@ -41,7 +41,7 @@ SortTask::SortTask(Model *model, const QModelIndex &mailbox, const QStringList &
     conn = model->findTaskResponsibleFor(mailbox);
     conn->addDependentTask(this);
     if (searchConditions.isEmpty())
-        this->searchConditions << QLatin1String("ALL");
+        this->searchConditions << QStringLiteral("ALL");
 }
 
 void SortTask::perform()
@@ -63,38 +63,38 @@ void SortTask::perform()
 
     if (sortCriteria.isEmpty()) {
         if (model->accessParser(parser).capabilitiesFresh &&
-                model->accessParser(parser).capabilities.contains(QLatin1String("ESEARCH"))) {
+                model->accessParser(parser).capabilities.contains(QStringLiteral("ESEARCH"))) {
             // We always prefer ESEARCH over SEARCH, if only for its embedded reference to the command tag
-            if (model->accessParser(parser).capabilities.contains(QLatin1String("CONTEXT=SEARCH"))) {
+            if (model->accessParser(parser).capabilities.contains(QStringLiteral("CONTEXT=SEARCH"))) {
                 // Hurray, this IMAP server supports incremental ESEARCH updates
                 m_persistentSearch = true;
                 sortTag = parser->uidESearch("utf-8", searchConditions,
-                                             QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
+                                             QStringList() << QStringLiteral("ALL") << QStringLiteral("UPDATE"));
             } else {
                 // ESORT without CONTEXT is still worth the effort, if only for the tag reference
-                sortTag = parser->uidESearch("utf-8", searchConditions, QStringList() << QLatin1String("ALL"));
+                sortTag = parser->uidESearch("utf-8", searchConditions, QStringList() << QStringLiteral("ALL"));
             }
         } else {
             // Plain "old" SORT
             sortTag = parser->uidSearch(searchConditions,
                                         // It looks that Exchange 2003 does not support the UTF-8 charset in searches.
                                         // That is, of course, insane, and only illustrates how useless its support of IMAP really is.
-                                        model->m_capabilitiesBlacklist.contains(QLatin1String("X-NO-UTF8-SEARCH")) ? QByteArray() : "utf-8"
+                                        model->m_capabilitiesBlacklist.contains(QStringLiteral("X-NO-UTF8-SEARCH")) ? QByteArray() : "utf-8"
                                         );
         }
     } else {
         // SEARCH and SORT combined
         if (model->accessParser(parser).capabilitiesFresh &&
-                model->accessParser(parser).capabilities.contains(QLatin1String("ESORT"))) {
+                model->accessParser(parser).capabilities.contains(QStringLiteral("ESORT"))) {
             // ESORT's better than regular SORT, if only for its embedded reference to the command tag
-            if (model->accessParser(parser).capabilities.contains(QLatin1String("CONTEXT=SORT"))) {
+            if (model->accessParser(parser).capabilities.contains(QStringLiteral("CONTEXT=SORT"))) {
                 // Hurray, this IMAP server supports incremental SORT updates
                 m_persistentSearch = true;
                 sortTag = parser->uidESort(sortCriteria, "utf-8", searchConditions,
-                                       QStringList() << QLatin1String("ALL") << QLatin1String("UPDATE"));
+                                       QStringList() << QStringLiteral("ALL") << QStringLiteral("UPDATE"));
             } else {
                 // ESORT without CONTEXT is still worth the effort, if only for the tag reference
-                sortTag = parser->uidESort(sortCriteria, "utf-8", searchConditions, QStringList() << QLatin1String("ALL"));
+                sortTag = parser->uidESort(sortCriteria, "utf-8", searchConditions, QStringList() << QStringLiteral("ALL"));
             }
         } else {
             // Plain "old" SORT
@@ -168,7 +168,7 @@ bool SortTask::handleSort(const Imap::Responses::Sort *const resp)
 
 bool SortTask::handleSearch(const Imap::Responses::Search *const resp)
 {
-    if (searchConditions == QStringList() << QLatin1String("ALL")) {
+    if (searchConditions == QStringList() << QStringLiteral("ALL")) {
         // We're really a SORT task, so we shouldn't process this stuff
         return false;
     }

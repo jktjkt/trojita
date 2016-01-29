@@ -44,7 +44,7 @@ QIcon loadIcon(const QString &name)
     if (it != iconDict.constEnd())
         return *it;
 
-    auto overrideIcon = QString(QLatin1String(":/icons/%1/%2.svg")).arg(QIcon::themeName(), name);
+    auto overrideIcon = QStringLiteral(":/icons/%1/%2.svg").arg(QIcon::themeName(), name);
     if (QFileInfo(overrideIcon).exists()) {
         QIcon icon(overrideIcon);
         iconDict.insert(name, icon);
@@ -54,15 +54,15 @@ QIcon loadIcon(const QString &name)
     QString iconInTheme = name;
     if (QIcon::themeName().toLower() == QLatin1String("breeze")) {
         if (name == QLatin1String("mail-flagged")) {
-            iconInTheme = QLatin1String("flag-yellow");
+            iconInTheme = QStringLiteral("flag-yellow");
         } else if (name == QLatin1String("folder-bookmark")) {
-            iconInTheme = QLatin1String("folder-blue");
+            iconInTheme = QStringLiteral("folder-blue");
         } else if (name == QLatin1String("folder-open")) {
-            iconInTheme = QLatin1String("folder");
+            iconInTheme = QStringLiteral("folder");
         } else if (name == QLatin1String("mail-read")) {
-            iconInTheme = QLatin1String("mail-mark-read");
+            iconInTheme = QStringLiteral("mail-mark-read");
         } else if (name == QLatin1String("mail-unread")) {
-            iconInTheme = QLatin1String("mail-mark-unread");
+            iconInTheme = QStringLiteral("mail-mark-unread");
         }
     }
 

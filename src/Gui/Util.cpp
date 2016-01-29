@@ -49,7 +49,7 @@ value might contain data for a completely different version of Trojita.
 QString pkgDataDir()
 {
 #ifdef PKGDATADIR
-    return QLatin1String(PKGDATADIR);
+    return QStringLiteral(PKGDATADIR);
 #else
     return QString();
 #endif

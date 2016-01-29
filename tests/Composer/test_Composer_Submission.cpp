@@ -116,10 +116,10 @@ void ComposerSubmissionTest::testEmptySubmission()
 void ComposerSubmissionTest::testSimpleSubmission()
 {
     m_submission->composer()->setFrom(
-                Imap::Message::MailAddress(QLatin1String("Foo Bar"), QString(),
-                                           QLatin1String("foo.bar"), QLatin1String("example.org")));
-    m_submission->composer()->setSubject(QLatin1String("testing"));
-    m_submission->composer()->setText(QLatin1String("Sample message"));
+                Imap::Message::MailAddress(QStringLiteral("Foo Bar"), QString(),
+                                           QStringLiteral("foo.bar"), QStringLiteral("example.org")));
+    m_submission->composer()->setSubject(QStringLiteral("testing"));
+    m_submission->composer()->setText(QStringLiteral("Sample message"));
 
     m_submission->send();
     QCOMPARE(requestedSendingSpy->size(), 1);
@@ -168,11 +168,11 @@ void ComposerSubmissionTest::testSimpleSubmissionReplyingToFailedFlags()
 void ComposerSubmissionTest::helperSetupProperHeaders()
 {
     m_submission->composer()->setFrom(
-                Imap::Message::MailAddress(QLatin1String("Foo Bar"), QString(),
-                                           QLatin1String("foo.bar"), QLatin1String("example.org")));
-    m_submission->composer()->setSubject(QLatin1String("testing"));
-    m_submission->composer()->setText(QLatin1String("Sample message"));
-    m_submission->setImapOptions(true, QLatin1String("outgoing"), QLatin1String("somehost"), QLatin1String("userfred"), false);
+                Imap::Message::MailAddress(QStringLiteral("Foo Bar"), QString(),
+                                           QStringLiteral("foo.bar"), QStringLiteral("example.org")));
+    m_submission->composer()->setSubject(QStringLiteral("testing"));
+    m_submission->composer()->setText(QStringLiteral("Sample message"));
+    m_submission->setImapOptions(true, QStringLiteral("outgoing"), QStringLiteral("somehost"), QStringLiteral("userfred"), false);
 }
 
 void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUid,
@@ -180,7 +180,7 @@ void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUi
 {
     // Don't bother with literal processing
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("LITERAL+"));
+    injector.injectCapability(QStringLiteral("LITERAL+"));
 
     helperSetupProperHeaders();
 
@@ -326,8 +326,8 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
     QVERIFY(msgA10.isValid());
     QCOMPARE(msgA10.data(Imap::Mailbox::RoleMessageUid).toUInt(), uidMapA[0]);
 
-    m_submission->setImapOptions(save, QLatin1String("meh"), QLatin1String("pwn"), QLatin1String("bob"), imap);
-    m_submission->setSmtpOptions(burl, QLatin1String("pwn"));
+    m_submission->setImapOptions(save, QStringLiteral("meh"), QStringLiteral("pwn"), QStringLiteral("bob"), imap);
+    m_submission->setSmtpOptions(burl, QStringLiteral("pwn"));
     m_submission->composer()->setReplyingToMessage(msgA10);
     m_msaFactory->setBurlSupport(burl);
     m_msaFactory->setImapSupport(imap);
@@ -372,7 +372,7 @@ void ComposerSubmissionTest::helperAttachImapPart(const uint uid)
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_4_6);
     stream << QString::fromUtf8("a") << uidValidityA << uid << QByteArray("/0"); // previous version used just "0"; that was wrong.
-    mimeData->setData(QLatin1String("application/x-trojita-imap-part"), encodedData);
+    mimeData->setData(QStringLiteral("application/x-trojita-imap-part"), encodedData);
     QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }
 
@@ -383,7 +383,7 @@ void ComposerSubmissionTest::helperAttachImapMessage(const uint uid)
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_4_6);
     stream << QString::fromUtf8("a") << uidValidityA << (QList<uint>() << uid);
-    mimeData->setData(QLatin1String("application/x-trojita-message-list"), encodedData);
+    mimeData->setData(QStringLiteral("application/x-trojita-message-list"), encodedData);
     QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }
 
@@ -412,11 +412,11 @@ void ComposerSubmissionTest::helperAttachImapMessage(const uint uid)
 void ComposerSubmissionTest::testBurlSubmission()
 {
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("CATENATE"));
-    injector.injectCapability(QLatin1String("URLAUTH"));
+    injector.injectCapability(QStringLiteral("CATENATE"));
+    injector.injectCapability(QStringLiteral("URLAUTH"));
     helperSetupProperHeaders();
-    m_submission->setImapOptions(true, QLatin1String("meh"), QLatin1String("host"), QLatin1String("usr"), false);
-    m_submission->setSmtpOptions(true, QLatin1String("smtpUser"));
+    m_submission->setImapOptions(true, QStringLiteral("meh"), QStringLiteral("host"), QStringLiteral("usr"), false);
+    m_submission->setSmtpOptions(true, QStringLiteral("smtpUser"));
     m_msaFactory->setBurlSupport(true);
 
     helperAttachImapPart(uidMapA[0]);
@@ -430,7 +430,7 @@ void ComposerSubmissionTest::testBurlSubmission()
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
     EAT_OCTETS(octets, sentSoFar);
-    expected = QLatin1String(" URL \"/a;UIDVALIDITY=333666/;UID=10/;SECTION=1\" TEXT {");
+    expected = QStringLiteral(" URL \"/a;UIDVALIDITY=333666/;UID=10/;SECTION=1\" TEXT {");
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
     EAT_OCTETS(octets, sentSoFar);
@@ -462,11 +462,11 @@ void ComposerSubmissionTest::testBurlSubmission()
 void ComposerSubmissionTest::testBurlSubmissionAttachedWholeMessage()
 {
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("CATENATE"));
-    injector.injectCapability(QLatin1String("URLAUTH"));
+    injector.injectCapability(QStringLiteral("CATENATE"));
+    injector.injectCapability(QStringLiteral("URLAUTH"));
     helperSetupProperHeaders();
-    m_submission->setImapOptions(true, QLatin1String("meh"), QLatin1String("host"), QLatin1String("usr"), false);
-    m_submission->setSmtpOptions(true, QLatin1String("smtpUser"));
+    m_submission->setImapOptions(true, QStringLiteral("meh"), QStringLiteral("host"), QStringLiteral("usr"), false);
+    m_submission->setSmtpOptions(true, QStringLiteral("smtpUser"));
     m_msaFactory->setBurlSupport(true);
 
     helperAttachImapMessage(uidMapA[1]);
@@ -480,7 +480,7 @@ void ComposerSubmissionTest::testBurlSubmissionAttachedWholeMessage()
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
     EAT_OCTETS(octets, sentSoFar);
-    expected = QLatin1String(" URL \"/a;UIDVALIDITY=333666/;UID=11\" TEXT {");
+    expected = QStringLiteral(" URL \"/a;UIDVALIDITY=333666/;UID=11\" TEXT {");
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
     EAT_OCTETS(octets, sentSoFar);
@@ -514,11 +514,11 @@ void ComposerSubmissionTest::testBurlSubmissionAttachedWholeMessage()
 void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
 {
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("CATENATE"));
+    injector.injectCapability(QStringLiteral("CATENATE"));
     // The URLAUTH is, however, not advertised by the IMAP server
     helperSetupProperHeaders();
-    m_submission->setImapOptions(true, QLatin1String("meh"), QLatin1String("host"), QLatin1String("usr"), false);
-    m_submission->setSmtpOptions(true, QLatin1String("smtpUser"));
+    m_submission->setImapOptions(true, QStringLiteral("meh"), QStringLiteral("host"), QStringLiteral("usr"), false);
+    m_submission->setSmtpOptions(true, QStringLiteral("smtpUser"));
     m_msaFactory->setBurlSupport(true);
 
     helperAttachImapPart(uidMapA[0]);
@@ -536,7 +536,7 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
     EAT_OCTETS(octets, sentSoFar);
-    expected = QLatin1String(" URL \"/a;UIDVALIDITY=333666/;UID=10/;SECTION=1\" TEXT {");
+    expected = QStringLiteral(" URL \"/a;UIDVALIDITY=333666/;UID=10/;SECTION=1\" TEXT {");
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
     EAT_OCTETS(octets, sentSoFar);
@@ -568,7 +568,7 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
 void ComposerSubmissionTest::testFailedMsa()
 {
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability(QLatin1String("LITERAL+"));
+    injector.injectCapability(QStringLiteral("LITERAL+"));
 
     helperSetupProperHeaders();
 
@@ -596,7 +596,7 @@ void ComposerSubmissionTest::testFailedMsa()
     QCOMPARE(requestedSendingSpy->size(), 1);
     m_msaFactory->doEmitSending();
     QCOMPARE(sendingSpy->size(), 1);
-    m_msaFactory->doEmitError(QLatin1String("error"));
+    m_msaFactory->doEmitError(QStringLiteral("error"));
     QCOMPARE(sentSpy->size(), 0);
 
     QCOMPARE(submissionFailedSpy->size(), 1);

@@ -62,7 +62,7 @@
 namespace Gui
 {
 
-QString SettingsDialog::warningStyleSheet = QLatin1String("border: 2px solid red; background-color: #E7C575; color: black; "
+QString SettingsDialog::warningStyleSheet = QStringLiteral("border: 2px solid red; background-color: #E7C575; color: black; "
         "font-weight: bold; padding: 5px; margin: 5px; "
         "text-align: center;");
 
@@ -213,7 +213,7 @@ void SettingsDialog::slotAccept()
     if (!passwordFailures.isEmpty()) {
         QMessageBox::warning(this, tr("Saving passwords failed"),
                              tr("<p>Couldn't save passwords. These were the error messages:</p>\n<p>%1</p>")
-                                .arg(passwordFailures.join(QLatin1String("<br/>"))));
+                                .arg(passwordFailures.join(QStringLiteral("<br/>"))));
     }
 
     buttons->setEnabled(true);
@@ -246,8 +246,8 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     Q_ASSERT(m_identitiesModel);
     editButton->setEnabled(false);
     deleteButton->setEnabled(false);
-    moveUpButton->setIcon(UiUtils::loadIcon(QLatin1String("go-up")));
-    moveDownButton->setIcon(UiUtils::loadIcon(QLatin1String("go-down")));
+    moveUpButton->setIcon(UiUtils::loadIcon(QStringLiteral("go-up")));
+    moveDownButton->setIcon(UiUtils::loadIcon(QStringLiteral("go-down")));
     moveUpButton->setEnabled(false);
     moveDownButton->setEnabled(false);
     identityTabelView->setModel(m_identitiesModel);
@@ -563,7 +563,7 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     imapUser->setText(s.value(SettingsNames::imapUserKey).toString());
     processPath->setText(s.value(SettingsNames::imapProcessKey).toString());
 
-    imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QLatin1String(" ")));
+    imapCapabilitiesBlacklist->setText(s.value(SettingsNames::imapBlacklistedCapabilities).toStringList().join(QStringLiteral(" ")));
     imapUseSystemProxy->setChecked(s.value(SettingsNames::imapUseSystemProxy, true).toBool());
     imapNeedsNetwork->setChecked(s.value(SettingsNames::imapNeedsNetwork, true).toBool());
     imapIdleRenewal->setValue(s.value(SettingsNames::imapIdleRenewal, QVariant(29)).toInt());
@@ -695,7 +695,7 @@ void ImapPage::save(QSettings &s)
         s.setValue(SettingsNames::imapProcessKey, processPath->text());
     }
     s.setValue(SettingsNames::imapUserKey, imapUser->text());
-    s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QLatin1String(" ")));
+    s.setValue(SettingsNames::imapBlacklistedCapabilities, imapCapabilitiesBlacklist->text().split(QStringLiteral(" ")));
     s.setValue(SettingsNames::imapNeedsNetwork, imapNeedsNetwork->isChecked());
     s.setValue(SettingsNames::imapIdleRenewal, imapIdleRenewal->value());
     m_parent->imapAccess()->setNumberRefreshInterval(imapNumberRefreshInterval->value());
@@ -854,7 +854,7 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     connect(saveFolderName, &LineEdit::textEditingFinished, m_smtpAccountSettings, &MSA::Account::setSentMailboxName);
     connect(smtpBurl, &QAbstractButton::toggled, m_smtpAccountSettings, &MSA::Account::setUseBurl);
 
-    m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QLatin1String("account-0"), QLatin1String("smtp"));
+    m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QStringLiteral("account-0"), QStringLiteral("smtp"));
     connect(m_pwWatcher, &UiUtils::PasswordWatcher::stateChanged, this, &OutgoingPage::updateWidgets);
     connect(m_pwWatcher, &UiUtils::PasswordWatcher::savingFailed, this, &OutgoingPage::saved);
     connect(m_pwWatcher, &UiUtils::PasswordWatcher::savingDone, this, &OutgoingPage::saved);

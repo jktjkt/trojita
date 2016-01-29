@@ -78,7 +78,7 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
     if (resp->tag == tag) {
         markPendingItemsUnavailable();
         if (resp->kind == Responses::OK) {
-            log(QLatin1String("Fetched parts"), Common::LOG_MESSAGES);
+            log(QStringLiteral("Fetched parts"), Common::LOG_MESSAGES);
             model->changeConnectionState(parser, CONN_STATE_SELECTED);
             _completed();
         } else {
@@ -93,7 +93,7 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
 QString FetchMsgPartTask::debugIdentification() const
 {
     if (!mailboxIndex.isValid())
-        return QLatin1String("[invalid mailbox]");
+        return QStringLiteral("[invalid mailbox]");
 
     Q_ASSERT(!uids.isEmpty());
     QStringList buf;
@@ -101,7 +101,7 @@ QString FetchMsgPartTask::debugIdentification() const
         buf << QString::fromUtf8(item);
     }
     return QString::fromUtf8("%1: parts %2 for UIDs %3")
-           .arg(mailboxIndex.data(RoleMailboxName).toString(), buf.join(QLatin1String(", ")),
+           .arg(mailboxIndex.data(RoleMailboxName).toString(), buf.join(QStringLiteral(", ")),
                 QString::fromUtf8(Sequence::fromVector(uids).toByteArray()));
 }
 

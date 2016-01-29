@@ -176,7 +176,7 @@ void KeepMailboxOpenTask::slotPerformConnection()
     Q_ASSERT(!synchronizeConn->isFinished());
     if (_dead) {
         _failed(tr("Asked to die"));
-        synchronizeConn->die(QLatin1String("KeepMailboxOpenTask died before the sync started"));
+        synchronizeConn->die(QStringLiteral("KeepMailboxOpenTask died before the sync started"));
         return;
     }
 
@@ -378,7 +378,7 @@ void KeepMailboxOpenTask::perform()
 
     activateTasks();
 
-    if (model->accessParser(parser).capabilitiesFresh && model->accessParser(parser).capabilities.contains(QLatin1String("IDLE"))) {
+    if (model->accessParser(parser).capabilitiesFresh && model->accessParser(parser).capabilities.contains(QStringLiteral("IDLE"))) {
         shouldRunIdle = true;
     } else {
         shouldRunNoop = true;
@@ -569,7 +569,7 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
             }
         } else {
             // The IDLE command has failed. Let's assume it's a permanent error and don't request it in future.
-            log(QLatin1String("The IDLE command has failed"));
+            log(QStringLiteral("The IDLE command has failed"));
             shouldRunIdle = false;
             idleLauncher->idleCommandFailed();
             idleLauncher->deleteLater();
@@ -693,13 +693,13 @@ void KeepMailboxOpenTask::killAllPendingTasks(const QString &message)
 QString KeepMailboxOpenTask::debugIdentification() const
 {
     if (! mailboxIndex.isValid())
-        return QLatin1String("[invalid mailboxIndex]");
+        return QStringLiteral("[invalid mailboxIndex]");
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
     return QString::fromUtf8("attached to %1%2%3").arg(mailbox->mailbox(),
-            (synchronizeConn && ! synchronizeConn->isFinished()) ? QLatin1String(" [syncConn unfinished]") : QString(),
-            shouldExit ? QLatin1String(" [shouldExit]") : QString()
+            (synchronizeConn && ! synchronizeConn->isFinished()) ? QStringLiteral(" [syncConn unfinished]") : QString(),
+            shouldExit ? QStringLiteral(" [shouldExit]") : QString()
                                                        );
 }
 

@@ -657,7 +657,7 @@ void HtmlFormattingTest::testLinkRecognition_data()
     QTest::addColumn<QString>("suffix");
 
     QString empty;
-    QString space(QLatin1String(" "));
+    QString space(QStringLiteral(" "));
 
     QTest::newRow("basic-http") << empty << QString::fromUtf8("http://blesmrt") << empty;
     QTest::newRow("basic-https") << empty << QString::fromUtf8("https://blesmrt") << empty;

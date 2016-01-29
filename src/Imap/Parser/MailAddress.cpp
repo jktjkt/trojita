@@ -114,11 +114,11 @@ MailAddress::MailAddress(const QVariantList &input, const QByteArray &line, cons
 QUrl MailAddress::asUrl() const
 {
     QUrl url;
-    url.setScheme(QLatin1String("mailto"));
+    url.setScheme(QStringLiteral("mailto"));
     url.setPath(QString::fromUtf8("%1@%2").arg(mailbox, host));
     if (!name.isEmpty()) {
         QUrlQuery q(url);
-        q.addQueryItem(QLatin1String("X-Trojita-DisplayName"), name);
+        q.addQueryItem(QStringLiteral("X-Trojita-DisplayName"), name);
         url.setQuery(q);
     }
     return url;
@@ -158,7 +158,7 @@ QString MailAddress::prettyList(const QList<MailAddress> &list, FormattingMode m
     QStringList buf;
     for (QList<MailAddress>::const_iterator it = list.begin(); it != list.end(); ++it)
         buf << it->prettyName(mode);
-    return buf.join(QLatin1String(", "));
+    return buf.join(QStringLiteral(", "));
 }
 
 QString MailAddress::prettyList(const QVariantList &list, FormattingMode mode)
@@ -171,7 +171,7 @@ QString MailAddress::prettyList(const QVariantList &list, FormattingMode mode)
         MailAddress a(item[0], item[1], item[2], item[3]);
         buf << a.prettyName(mode);
     }
-    return buf.join(QLatin1String(", "));
+    return buf.join(QStringLiteral(", "));
 }
 
 static QRegExp dotAtomRx(QLatin1String("[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+(?:\\.[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+)*"));
@@ -272,7 +272,7 @@ bool MailAddress::fromUrl(MailAddress &into, const QUrl &url, const QString &exp
         return false;
 
     QUrlQuery q(url);
-    Imap::Message::MailAddress addr(q.queryItemValue(QLatin1String("X-Trojita-DisplayName")), QString(),
+    Imap::Message::MailAddress addr(q.queryItemValue(QStringLiteral("X-Trojita-DisplayName")), QString(),
                                     list[0], list[1]);
 
     if (!addr.hasUsefulDisplayName())

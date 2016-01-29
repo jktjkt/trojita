@@ -138,17 +138,17 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             bool isReplied = translated.data(RoleMessageIsMarkedReplied).toBool();
 
             if (isForwarded && isReplied)
-                return UiUtils::loadIcon(QLatin1String("mail-replied-forw"));
+                return UiUtils::loadIcon(QStringLiteral("mail-replied-forw"));
             else if (isReplied)
-                return UiUtils::loadIcon(QLatin1String("mail-replied"));
+                return UiUtils::loadIcon(QStringLiteral("mail-replied"));
             else if (isForwarded)
-                return UiUtils::loadIcon(QLatin1String("mail-forwarded"));
+                return UiUtils::loadIcon(QStringLiteral("mail-forwarded"));
             else if (translated.data(RoleMessageIsMarkedRecent).toBool())
-                return UiUtils::loadIcon(QLatin1String("mail-recent"));
+                return UiUtils::loadIcon(QStringLiteral("mail-recent"));
             else if (!translated.data(RoleMessageIsMarkedRead).toBool())
-                return UiUtils::loadIcon(QLatin1String("mail-unread"));
+                return UiUtils::loadIcon(QStringLiteral("mail-unread"));
             else
-                return UiUtils::loadIcon(QLatin1String("mail-read"));
+                return UiUtils::loadIcon(QStringLiteral("mail-read"));
         }
         case MsgListModel::SEEN:
             if (! translated.data(RoleIsFetched).toBool())
@@ -158,12 +158,12 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             if (! translated.data(RoleIsFetched).toBool())
                 return QVariant();
             if (translated.data(RoleMessageIsMarkedFlagged).toBool())
-                return UiUtils::loadIcon(QLatin1String("mail-flagged"));
+                return UiUtils::loadIcon(QStringLiteral("mail-flagged"));
             else
-                return UiUtils::loadIcon(QLatin1String("mail-unflagged"));
+                return UiUtils::loadIcon(QStringLiteral("mail-unflagged"));
         case MsgListModel::ATTACHMENT:
             if (translated.data(RoleMessageHasAttachments).toBool())
-                return UiUtils::loadIcon(QLatin1String("mail-attachment"));
+                return UiUtils::loadIcon(QStringLiteral("mail-attachment"));
             else
                 return QVariant();
         default:

@@ -225,7 +225,7 @@ void ComposerTextEdit::slotPasteAsQuotation()
             *it = QLatin1String("> ") + *it;
         }
     }
-    text = lines.join(QLatin1String("\n"));
+    text = lines.join(QStringLiteral("\n"));
     if (!text.endsWith(QLatin1Char('\n'))) {
         text += QLatin1Char('\n');
     }

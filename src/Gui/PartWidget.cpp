@@ -52,7 +52,7 @@ QString quoteMeHelper(const QObjectList &children)
         if (w)
             res += w->quoteMe();
     }
-    return res.join(QLatin1String("\n"));
+    return res.join(QStringLiteral("\n"));
 }
 
 MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
@@ -134,7 +134,7 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         if (!isPlainText && !isHtml) {
             // Unfortunately we cannot change the tab background with current Qt (Q1 2014),
             // see https://bugreports.qt-project.org/browse/QTBUG-840 for details
-            setTabIcon(i, QIcon::fromTheme(QLatin1String("emblem-important")));
+            setTabIcon(i, QIcon::fromTheme(QStringLiteral("emblem-important")));
         }
     }
 

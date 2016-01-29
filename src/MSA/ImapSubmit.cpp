@@ -34,7 +34,7 @@ ImapSubmit::ImapSubmit(QObject *parent, Imap::Mailbox::Model *model):
 
 void ImapSubmit::cancel()
 {
-    emit error(QLatin1String("MSA::ImapSubmit::cancel() is not implemented; this is a bug in Trojita."));
+    emit error(QStringLiteral("MSA::ImapSubmit::cancel() is not implemented; this is a bug in Trojita."));
     Q_ASSERT(false);
 }
 

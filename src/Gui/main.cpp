@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 
     QLatin1String localeSuffix("/locale");
     QString localeName(QLatin1String("trojita_common_") +
-                       (qgetenv("KDE_LANG") == "x-test" ? QLatin1String("x_test") : QLocale::system().name()));
+                       (qgetenv("KDE_LANG") == "x-test" ? QStringLiteral("x_test") : QLocale::system().name()));
 
     // The "installed to system" localization
     QTranslator appSystemTranslator;
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
 
-    app.setWindowIcon(QIcon(QLatin1String(":/icons/trojita.png")));
+    app.setWindowIcon(QIcon(QStringLiteral(":/icons/trojita.png")));
 
     QTextStream qOut(stdout, QIODevice::WriteOnly);
     QTextStream qErr(stderr, QIODevice::WriteOnly);

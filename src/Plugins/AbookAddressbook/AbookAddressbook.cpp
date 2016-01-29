@@ -171,35 +171,35 @@ void AbookAddressbook::remonitorAdressbook()
 
 void AbookAddressbook::ensureAbookPath()
 {
-    if (!QDir::home().exists(QLatin1String(".abook"))) {
-        QDir::home().mkdir(QLatin1String(".abook"));
+    if (!QDir::home().exists(QStringLiteral(".abook"))) {
+        QDir::home().mkdir(QStringLiteral(".abook"));
     }
     QDir abook(QDir::homePath() + QLatin1String("/.abook/"));
     QStringList abookrc;
     QFile file(QDir::homePath() + QLatin1String("/.abook/abookrc"));
     if (file.exists() && file.open(QIODevice::ReadWrite|QIODevice::Text)) {
-        abookrc = QString::fromLocal8Bit(file.readAll()).split(QLatin1String("\n"));
+        abookrc = QString::fromLocal8Bit(file.readAll()).split(QStringLiteral("\n"));
         bool havePhoto = false;
         for (QStringList::iterator it = abookrc.begin(), end = abookrc.end(); it != end; ++it) {
             if (it->contains(QLatin1String("preserve_fields")))
-                *it = QLatin1String("set preserve_fields=all");
+                *it = QStringLiteral("set preserve_fields=all");
             else if (it->contains(QLatin1String("photo")) && it->contains(QLatin1String("field")))
                 havePhoto = true;
         }
         if (!havePhoto)
-            abookrc << QLatin1String("field photo = Photo");
+            abookrc << QStringLiteral("field photo = Photo");
     } else {
-        abookrc << QLatin1String("field photo = Photo") << QLatin1String("set preserve_fields=all");
+        abookrc << QStringLiteral("field photo = Photo") << QStringLiteral("set preserve_fields=all");
         file.open(QIODevice::WriteOnly|QIODevice::Text);
     }
     if (file.isOpen()) {
         if (file.isWritable()) {
             file.seek(0);
-            file.write(abookrc.join(QLatin1String("\n")).toLocal8Bit());
+            file.write(abookrc.join(QStringLiteral("\n")).toLocal8Bit());
         }
         file.close();
     }
-    QFile abookFile(abook.filePath(QLatin1String("addressbook")));
+    QFile abookFile(abook.filePath(QStringLiteral("addressbook")));
     if (!abookFile.exists()) {
         abookFile.open(QIODevice::WriteOnly);
     }
@@ -235,12 +235,12 @@ void AbookAddressbook::readAbook(bool update)
         QStandardItem *item = 0;
         QStringList mails;
         if (update) {
-            QList<QStandardItem*> list = m_contacts->findItems(abook.value(QLatin1String("name")).toString());
+            QList<QStandardItem*> list = m_contacts->findItems(abook.value(QStringLiteral("name")).toString());
             if (list.count() == 1)
                 item = list.at(0);
             else if (list.count() > 1) {
-                mails = abook.value(QLatin1String("email"), QString()).toStringList();
-                const QString mailString = mails.join(QLatin1String("\n"));
+                mails = abook.value(QStringLiteral("email"), QString()).toStringList();
+                const QString mailString = mails.join(QStringLiteral("\n"));
                 foreach (QStandardItem *it, list) {
                     if (it->data(Mail).toString() == mailString) {
                         item = it;
@@ -270,7 +270,7 @@ void AbookAddressbook::readAbook(bool update)
             else if (field->first == Mail) {
                 if (mails.isEmpty())
                     mails = abook.value(field->second, QString()).toStringList(); // to fix the name field
-                item->setData( mails.join(QLatin1String("\n")), Mail );
+                item->setData( mails.join(QStringLiteral("\n")), Mail );
             }
             else
                 item->setData( abook.value(field->second, QString()), field->first );
@@ -307,7 +307,7 @@ void AbookAddressbook::saveContacts()
         for (QList<QPair<Type,QString> >::const_iterator   it = m_fields.constBegin(),
                                             end = m_fields.constEnd(); it != end; ++it) {
             if (it->first == Mail)
-                abook.setValue(QLatin1String("email"), item->data(Mail).toString().split(QLatin1String("\n")));
+                abook.setValue(QStringLiteral("email"), item->data(Mail).toString().split(QStringLiteral("\n")));
             else {
                 const QVariant v = item->data(it->first);
                 if (!v.toString().isEmpty())
@@ -387,7 +387,7 @@ QStringList AbookAddressbook::prettyNamesForAddress(const QString &mail) const
 
 QString trojita_plugin_AbookAddressbookPlugin::name() const
 {
-    return QLatin1String("abookaddressbook");
+    return QStringLiteral("abookaddressbook");
 }
 
 QString trojita_plugin_AbookAddressbookPlugin::description() const

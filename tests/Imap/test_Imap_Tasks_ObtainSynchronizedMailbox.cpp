@@ -82,7 +82,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimal()
     cEmpty();
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QStringLiteral("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
     // No messages, and hence we know that none of them could possibly be recent or unseen or whatever
@@ -146,7 +146,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyMinimalNonEmpty()
     cEmpty();
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState(QLatin1String("a"));
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState(QStringLiteral("a"));
     QCOMPARE(syncState.exists(), 1u);
     QCOMPARE(syncState.flags(), QStringList());
     // The flags are already synced, though
@@ -191,7 +191,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     cEmpty();
 
     // Check the cache
-    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
+    Imap::Mailbox::SyncState syncState = model->cache()->mailboxSyncState( QStringLiteral("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() << QLatin1String("\\Answered") <<
               QLatin1String("\\Flagged") << QLatin1String("\\Deleted") <<
@@ -221,7 +221,7 @@ void ImapModelObtainSynchronizedMailboxTest::testSyncEmptyNormal()
     cEmpty();
 
     // Check the cache; now it should be almost empty
-    syncState = model->cache()->mailboxSyncState( QLatin1String("a") );
+    syncState = model->cache()->mailboxSyncState( QStringLiteral("a") );
     QCOMPARE( syncState.exists(), 0u );
     QCOMPARE( syncState.flags(), QStringList() );
     QCOMPARE( syncState.isUsableForNumbers(), true );
@@ -320,8 +320,8 @@ void ImapModelObtainSynchronizedMailboxTest::helperMissingUidNext(const MessageN
     oldState.setUidNext(10); // because Trojita's code computes this during points in time the view is fully synced
     oldState.setUnSeenCount(0);
     oldState.setRecent(0);
-    model->cache()->setMailboxSyncState(QLatin1String("a"), oldState);
-    model->cache()->setUidMapping(QLatin1String("a"), Imap::Uids() << 4 << 6 << 7);
+    model->cache()->setMailboxSyncState(QStringLiteral("a"), oldState);
+    model->cache()->setUidMapping(QStringLiteral("a"), Imap::Uids() << 4 << 6 << 7);
 
     QSignalSpy rowsInserted(model, SIGNAL(rowsInserted(QModelIndex,int,int)));
     QSignalSpy rowsRemoved(model, SIGNAL(rowsRemoved(QModelIndex,int,int)));
@@ -634,7 +634,7 @@ void ImapModelObtainSynchronizedMailboxTest::testCacheUidValidity()
     model->cache()->setMsgFlags("a", 6, QStringList() << "f6");
     // And even message metadata
     Imap::Mailbox::AbstractCache::MessageDataBundle bundle;
-    bundle.envelope = Imap::Message::Envelope(QDateTime::currentDateTime(), QLatin1String("subj"),
+    bundle.envelope = Imap::Message::Envelope(QDateTime::currentDateTime(), QStringLiteral("subj"),
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
                                               QList<Imap::Message::MailAddress>(), QList<Imap::Message::MailAddress>(),
@@ -1736,8 +1736,8 @@ void ImapModelObtainSynchronizedMailboxTest::helperCacheDiscrepancyExistsUids(bo
     sync.setHighestModSeq(111);
     Imap::Uids uidMap;
     uidMap << 5 << 6 << 7 << 8;
-    model->cache()->setMailboxSyncState(QLatin1String("a"), sync);
-    model->cache()->setUidMapping(QLatin1String("a"), uidMap);
+    model->cache()->setMailboxSyncState(QStringLiteral("a"), sync);
+    model->cache()->setUidMapping(QStringLiteral("a"), uidMap);
     model->resyncMailbox(idxA);
     cClient(t.mk("SELECT a (QRESYNC (666 111 (3 7)))\r\n"));
     cServer("* OK [CLOSED] Previous mailbox closed\r\n"
@@ -2436,8 +2436,8 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncEnabling()
     QVERIFY(idxA.isValid());
     QCOMPARE(model->rowCount(msgListA), 0);
     cEmpty();
-    model->setImapUser(QLatin1String("user"));
-    model->setImapPassword(QLatin1String("pw"));
+    model->setImapUser(QStringLiteral("user"));
+    model->setImapPassword(QStringLiteral("pw"));
     cClient(t.mk("LOGIN user pw\r\n"));
     cServer(t.last("OK [CAPABILITY IMAP4rev1 ENABLE QRESYNC UNSELECT] logged in\r\n"));
 

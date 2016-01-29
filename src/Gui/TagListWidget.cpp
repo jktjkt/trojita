@@ -97,7 +97,7 @@ void TagListWidget::newTagsRequested()
     }
 
     // Check whether reserved keywords have been entered
-    QStringList tagList = tags.split(QLatin1String(" "), QString::SkipEmptyParts);
+    QStringList tagList = tags.split(QStringLiteral(" "), QString::SkipEmptyParts);
     tagList.removeDuplicates();
     QStringList reservedTagsList = QStringList();
     for (QStringList::const_iterator it = tagList.constBegin(); it != tagList.constEnd(); ++it) {
@@ -107,7 +107,7 @@ void TagListWidget::newTagsRequested()
     }
     if (!reservedTagsList.isEmpty()) {
         QMessageBox::warning(this, tr("Disallowed tag value"),
-                             tr("No tags were set because the following given tag(s) are reserved and have been disallowed from being set in this way: %1.").arg(reservedTagsList.join(QLatin1String(", "))));
+                             tr("No tags were set because the following given tag(s) are reserved and have been disallowed from being set in this way: %1.").arg(reservedTagsList.join(QStringLiteral(", "))));
         return;
     }
 

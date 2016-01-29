@@ -71,10 +71,10 @@ void TestSqlCache::testMailboxOperation()
     CHECK_CACHE_ERRORS;
 
     QList<MailboxMetadata> toplevel;
-    toplevel << MailboxMetadata(QLatin1String("INBOX"), QString("."), QStringList());
-    toplevel << MailboxMetadata(QLatin1String("a"), QString(), QStringList());
-    toplevel << MailboxMetadata(QLatin1String("b"), QString(), QStringList() << QLatin1String("\\HASNOCHILDREN"));
-    toplevel << MailboxMetadata(QLatin1String("c"), QString(), QStringList() << QLatin1String("\\HASCHILDREN"));
+    toplevel << MailboxMetadata(QStringLiteral("INBOX"), QString("."), QStringList());
+    toplevel << MailboxMetadata(QStringLiteral("a"), QString(), QStringList());
+    toplevel << MailboxMetadata(QStringLiteral("b"), QString(), QStringList() << QStringLiteral("\\HASNOCHILDREN"));
+    toplevel << MailboxMetadata(QStringLiteral("c"), QString(), QStringList() << QStringLiteral("\\HASCHILDREN"));
 
     cache->setChildMailboxes(QString(), toplevel);
     CHECK_CACHE_ERRORS;

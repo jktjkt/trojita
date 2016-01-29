@@ -57,7 +57,7 @@ QString persistentLogFileName()
 
 QString systemPlatformVersion()
 {
-    QString os = QLatin1String(""
+    QString os = QStringLiteral(""
 #ifdef Q_OS_AIX
                                     "AIX"
 #endif
@@ -147,7 +147,7 @@ QString systemPlatformVersion()
                                    );
 #ifdef Q_OS_UNIX
     if (os.isEmpty()) {
-        os = QLatin1String("Unix");
+        os = QStringLiteral("Unix");
     }
 #endif
 
@@ -316,7 +316,7 @@ QString systemPlatformVersion()
         if (platformVersion.isEmpty()) {
             // try to call the lsb_release
             QProcess *proc = new QProcess(0);
-            proc->start(QLatin1String("lsb_release"), QStringList() << QLatin1String("-s") << QLatin1String("-d"));
+            proc->start(QStringLiteral("lsb_release"), QStringList() << QStringLiteral("-s") << QStringLiteral("-d"));
             proc->waitForFinished();
             platformVersion = QString::fromLocal8Bit(proc->readAll()).trimmed().replace(QLatin1Char('"'), QString()).replace(QLatin1Char(';'), QLatin1Char(','));
             proc->deleteLater();
@@ -348,7 +348,7 @@ QString formatDateTimeWithTimeZoneAtEnd(const QDateTime &now, const QString &for
     int tzOffsetMinutes = qAbs(minutesDifference) % 60;
     // The rest is just a piece of cake now
 
-    return QLocale(QLatin1String("C")).toString(now, format) +
+    return QLocale(QStringLiteral("C")).toString(now, format) +
             QLatin1String(minutesDifference >= 0 ? "+" : "-") +
             QString::number(tzOffsetHours).rightJustified(2, QLatin1Char('0')) +
             QString::number(tzOffsetMinutes).rightJustified(2, QLatin1Char('0'));
@@ -357,13 +357,13 @@ QString formatDateTimeWithTimeZoneAtEnd(const QDateTime &now, const QString &for
 /** @short Return current date in the RFC2822 format */
 QString dateTimeToRfc2822(const QDateTime &now)
 {
-    return formatDateTimeWithTimeZoneAtEnd(now, QLatin1String("ddd, dd MMM yyyy hh:mm:ss "));
+    return formatDateTimeWithTimeZoneAtEnd(now, QStringLiteral("ddd, dd MMM yyyy hh:mm:ss "));
 }
 
 /** @short Return current date in the RFC3501's INTERNALDATE format */
 QString dateTimeToInternalDate(const QDateTime &now)
 {
-    return formatDateTimeWithTimeZoneAtEnd(now, QLatin1String("dd-MMM-yyyy hh:mm:ss "));
+    return formatDateTimeWithTimeZoneAtEnd(now, QStringLiteral("dd-MMM-yyyy hh:mm:ss "));
 }
 
 /** @short Migrate old application settings to the new format */
@@ -377,9 +377,9 @@ void migrateSettings(QSettings *settings)
         settings->remove(SettingsNames::cacheMetadataKey);
 
         // Also remove the older values used for cache lifetime management which were not used, but set to zero by default
-        settings->remove(QLatin1String("offline.sync"));
-        settings->remove(QLatin1String("offline.sync.days"));
-        settings->remove(QLatin1String("offline.sync.messages"));
+        settings->remove(QStringLiteral("offline.sync"));
+        settings->remove(QStringLiteral("offline.sync.days"));
+        settings->remove(QStringLiteral("offline.sync.messages"));
     }
 
     // Migrate the "last known certificate" from the full PEM format to just the pubkey
@@ -415,7 +415,7 @@ void migrateSettings(QSettings *settings)
         settings->remove(SettingsNames::obsImapStartOffline);
     }
 
-    const QString obsImapEnableId = QLatin1String("imap.enableId");
+    const QString obsImapEnableId = QStringLiteral("imap.enableId");
     auto enableId = settings->value(obsImapEnableId);
     if (enableId.isValid() && enableId.toBool() == false && !settings->contains(Common::SettingsNames::interopRevealVersions)) {
         settings->setValue(Common::SettingsNames::interopRevealVersions, QVariant(false));

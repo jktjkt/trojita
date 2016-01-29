@@ -32,7 +32,7 @@ namespace Gui
 MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &messageIndex):
     QWebView(parent), m_combiner(0), m_loadingSpinner(0)
 {
-    setWindowIcon(UiUtils::loadIcon(QLatin1String("text-x-hex")));
+    setWindowIcon(UiUtils::loadIcon(QStringLiteral("text-x-hex")));
     Q_ASSERT(messageIndex.isValid());
     page()->setNetworkAccessManager(0);
 
@@ -50,13 +50,13 @@ MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &mes
 void MessageSourceWidget::slotCompleted()
 {
     m_loadingSpinner->stop();
-    setContent(m_combiner->data(), QLatin1String("text/plain"));
+    setContent(m_combiner->data(), QStringLiteral("text/plain"));
 }
 
 void MessageSourceWidget::slotError(const QString &message)
 {
     m_loadingSpinner->stop();
-    setContent(message.toUtf8(), QLatin1String("text/plain; charset=utf-8"));
+    setContent(message.toUtf8(), QStringLiteral("text/plain; charset=utf-8"));
 }
 
 }

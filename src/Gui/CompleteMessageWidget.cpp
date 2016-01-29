@@ -35,7 +35,7 @@ namespace Gui {
 
 CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager): QWidget(parent)
 {
-    setWindowIcon(UiUtils::loadIcon(QLatin1String("mail-mark-read")));
+    setWindowIcon(UiUtils::loadIcon(QStringLiteral("mail-mark-read")));
     messageView = new MessageView(this, settings, pluginManager);
     area = new QScrollArea();
     area->setWidget(messageView);

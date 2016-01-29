@@ -73,8 +73,8 @@ void MailboxFinder::checkArrivals()
 
                 if ( possibleName.isEmpty() && separator.isEmpty() ) {
                     // This shoudln't really happen
-                    m_model->logTrace(0, Common::LOG_OTHER, QLatin1String("MailboxFinder"),
-                                      QLatin1String("Weird, there's a mailbox with no name and no separator. Avoiding!"));
+                    m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("MailboxFinder"),
+                                      QStringLiteral("Weird, there's a mailbox with no name and no separator. Avoiding!"));
                     continue;
                 }
 

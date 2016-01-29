@@ -271,7 +271,7 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
 QVariant MsgListModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DecorationRole && section == ATTACHMENT)
-        return UiUtils::loadIcon(QLatin1String("mail-attachment"));
+        return UiUtils::loadIcon(QStringLiteral("mail-attachment"));
 
     if (orientation != Qt::Horizontal || role != Qt::DisplayRole)
         return QAbstractItemModel::headerData(section, orientation, role);
@@ -332,7 +332,7 @@ Qt::DropActions MsgListModel::supportedDropActions() const
 
 QStringList MsgListModel::mimeTypes() const
 {
-    return QStringList() << QLatin1String("application/x-trojita-message-list");
+    return QStringList() << QStringLiteral("application/x-trojita-message-list");
 }
 
 QMimeData *MsgListModel::mimeData(const QModelIndexList &indexes) const
@@ -360,7 +360,7 @@ QMimeData *MsgListModel::mimeData(const QModelIndexList &indexes) const
     }
     uids = uids.toSet().toList();
     stream << uids;
-    res->setData(QLatin1String("application/x-trojita-message-list"), encodedData);
+    res->setData(QStringLiteral("application/x-trojita-message-list"), encodedData);
     return res;
 }
 

@@ -76,9 +76,9 @@ void MailBoxTreeView::dropEvent(QDropEvent *event)
         event->setDropAction(Qt::MoveAction);
     } else {
         QMenu menu;
-        QAction *moveAction = menu.addAction(UiUtils::loadIcon(QLatin1String("go-jump")), tr("Move here\tShift"));
-        menu.addAction(UiUtils::loadIcon(QLatin1String("edit-copy")), tr("Copy here\tCtrl"));
-        QAction *cancelAction = menu.addAction(UiUtils::loadIcon(QLatin1String("process-stop")), tr("Cancel"));
+        QAction *moveAction = menu.addAction(UiUtils::loadIcon(QStringLiteral("go-jump")), tr("Move here\tShift"));
+        menu.addAction(UiUtils::loadIcon(QStringLiteral("edit-copy")), tr("Copy here\tCtrl"));
+        QAction *cancelAction = menu.addAction(UiUtils::loadIcon(QStringLiteral("process-stop")), tr("Cancel"));
 
         QAction *selectedAction = menu.exec(QCursor::pos());
 

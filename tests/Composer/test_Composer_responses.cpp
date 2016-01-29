@@ -45,17 +45,17 @@ QString recipientKindtoString(const Composer::RecipientKind kind)
 {
     switch (kind) {
     case Composer::ADDRESS_BCC:
-        return QLatin1String("Bcc:");
+        return QStringLiteral("Bcc:");
     case Composer::ADDRESS_CC:
-        return QLatin1String("Cc:");
+        return QStringLiteral("Cc:");
     case Composer::ADDRESS_FROM:
-        return QLatin1String("From:");
+        return QStringLiteral("From:");
     case Composer::ADDRESS_REPLY_TO:
-        return QLatin1String("Reply-To:");
+        return QStringLiteral("Reply-To:");
     case Composer::ADDRESS_SENDER:
-        return QLatin1String("Sender:");
+        return QStringLiteral("Sender:");
     case Composer::ADDRESS_TO:
-        return QLatin1String("To:");
+        return QStringLiteral("To:");
     }
     Q_ASSERT(false);
     return QString();
@@ -210,7 +210,7 @@ void ComposerResponsesTest::testResponseAddresses()
 
     Composer::RecipientList canary;
     canary << qMakePair(Composer::ADDRESS_REPLY_TO,
-                        Imap::Message::MailAddress(QString(), QString(), QString(), QLatin1String("fail")));
+                        Imap::Message::MailAddress(QString(), QString(), QString(), QStringLiteral("fail")));
     Composer::RecipientList res;
 
     res = canary;
@@ -380,7 +380,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
     QTest::newRow("list-munged")
         << (RecipientList() << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net")
             << mailReplyTo("trojita@lists.flaska.net"))
-        << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
+        << (QList<QUrl>() << QUrl(QStringLiteral("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
@@ -390,7 +390,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
     QTest::newRow("list-munged-sender")
         << (RecipientList() << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net")
             << mailReplyTo("trojita@lists.flaska.net") << mailSender("trojita+bounces@lists"))
-        << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
+        << (QList<QUrl>() << QUrl(QStringLiteral("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
@@ -399,7 +399,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
 
     QTest::newRow("list-unmunged")
         << (RecipientList() << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net"))
-        << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
+        << (QList<QUrl>() << QUrl(QStringLiteral("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
@@ -410,7 +410,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
     QTest::newRow("list-munged-bcc")
         << (RecipientList() << mailBcc("bcc@example.org") << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net")
             << mailReplyTo("trojita@lists.flaska.net"))
-        << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
+        << (QList<QUrl>() << QUrl(QStringLiteral("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
@@ -420,7 +420,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
     QTest::newRow("list-me-at-the-end")
         << (RecipientList() << mailBcc("bcc@example.org") << mailFrom("someone@else") << mailTo("trojita@lists.flaska.net")
             << mailReplyTo("trojita@lists.flaska.net") << mailBcc("jkt@flaska.net"))
-        << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
+        << (QList<QUrl>() << QUrl(QStringLiteral("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("someone@else"))
         << true << (RecipientList() << mailTo("someone@else") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org") << mailBcc("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("someone@else") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
@@ -429,7 +429,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
 
     QTest::newRow("list-unmunged-bcc")
         << (RecipientList() << mailBcc("bcc@example.org") << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net"))
-        << (QList<QUrl>() << QUrl(QLatin1String("mailto:trojita@lists.flaska.net"))) << false
+        << (QList<QUrl>() << QUrl(QStringLiteral("mailto:trojita@lists.flaska.net"))) << false
         << true << (RecipientList() << mailTo("jkt@flaska.net"))
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
@@ -439,7 +439,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
 
     QTest::newRow("from-list-sender-to-cc")
         << (RecipientList() << mailFrom("andy@x") << mailSender("list-12345@y") << mailTo("someone@z") << mailCc("list@y"))
-        << (QList<QUrl>() << QUrl(QLatin1String("mailtO:list@Y"))) << false
+        << (QList<QUrl>() << QUrl(QStringLiteral("mailtO:list@Y"))) << false
         << true << (RecipientList() << mailTo("andy@x"))
         << true << (RecipientList() << mailTo("andy@x") << mailCc("someone@z") << mailCc("list@y"))
         << true << (RecipientList() << mailTo("andy@x") << mailCc("someone@z") << mailCc("list@y"))
@@ -480,7 +480,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
     // We have a @gentoo.org identity, mail was sent by someone else, but to something @lists.gentoo.org
     QTest::newRow("lists-subdomain")
         << (RecipientList() << mailFrom("alien@example.org") << mailTo("x@lists.gentoo.org"))
-        << (QList<QUrl>() << QUrl(QLatin1String("mailto:x@lists.gentoo.org"))) << false
+        << (QList<QUrl>() << QUrl(QStringLiteral("mailto:x@lists.gentoo.org"))) << false
         << true << (RecipientList() << mailTo("alien@example.org"))
         << true << (RecipientList() << mailTo("alien@example.org") << mailCc("x@lists.gentoo.org"))
         << true << (RecipientList() << mailTo("alien@example.org") << mailCc("x@lists.gentoo.org"))

@@ -61,8 +61,8 @@ ImapAccess::ImapAccess(QObject *parent, QSettings *settings, Plugins::PluginMana
     m_cacheDir = Common::writablePath(Common::LOCATION_CACHE) + m_accountName + QLatin1Char('/');;
     m_passwordWatcher = new UiUtils::PasswordWatcher(this, m_pluginManager,
                                                      // FIXME: this can be removed when support for multiple accounts is implemented
-                                                     accountName.isEmpty() ? QLatin1String("account-0") : accountName,
-                                                     QLatin1String("imap"));
+                                                     accountName.isEmpty() ? QStringLiteral("account-0") : accountName,
+                                                     QStringLiteral("imap"));
 }
 
 void ImapAccess::reloadConfiguration()
@@ -167,11 +167,11 @@ QString ImapAccess::sslMode() const
 {
     switch (m_connectionMethod) {
     case Common::ConnectionMethod::NetCleartext:
-        return QLatin1String("No");
+        return QStringLiteral("No");
     case Common::ConnectionMethod::NetStartTls:
-        return QLatin1String("StartTLS");
+        return QStringLiteral("StartTLS");
     case Common::ConnectionMethod::NetDedicatedTls:
-        return QLatin1String("SSL");
+        return QStringLiteral("SSL");
     case Common::ConnectionMethod::Invalid:
     case Common::ConnectionMethod::Process:
         return QString();
@@ -282,11 +282,11 @@ void ImapAccess::doConnect()
     case Common::ConnectionMethod::NetStartTls:
         factory.reset(new Streams::TlsAbleSocketFactory(server(), port()));
         factory->setStartTlsRequired(m_connectionMethod == Common::ConnectionMethod::NetStartTls);
-        factory->setProxySettings(proxySettings, QLatin1String("imap"));
+        factory->setProxySettings(proxySettings, QStringLiteral("imap"));
         break;
     case Common::ConnectionMethod::NetDedicatedTls:
         factory.reset(new Streams::SslSocketFactory(server(), port()));
-        factory->setProxySettings(proxySettings, QLatin1String("imap"));
+        factory->setProxySettings(proxySettings, QStringLiteral("imap"));
         break;
     case Common::ConnectionMethod::Process:
         QStringList args = m_settings->value(Common::SettingsNames::imapProcessKey).toString().split(QLatin1Char(' '));
@@ -324,7 +324,7 @@ void ImapAccess::doConnect()
     if (!shouldUsePersistentCache) {
         cache = new Imap::Mailbox::MemoryCache(this);
     } else {
-        cache = new Imap::Mailbox::CombinedCache(this, QLatin1String("trojita-imap-cache"), m_cacheDir);
+        cache = new Imap::Mailbox::CombinedCache(this, QStringLiteral("trojita-imap-cache"), m_cacheDir);
         connect(cache, &Mailbox::AbstractCache::error, this, &ImapAccess::onCacheError);
         if (! static_cast<Imap::Mailbox::CombinedCache *>(cache)->open()) {
             // Error message was already shown by the cacheError() slot

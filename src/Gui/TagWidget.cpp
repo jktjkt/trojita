@@ -40,21 +40,21 @@ TagWidget::TagWidget(const Mode mode, const QString &tagName, const QString &bac
 
 TagWidget *TagWidget::addingWidget()
 {
-    auto res = new TagWidget(Mode::AddingWidget, QString(), QLatin1String("lightgreen"));
-    res->setText(QLatin1String("+"));
+    auto res = new TagWidget(Mode::AddingWidget, QString(), QStringLiteral("lightgreen"));
+    res->setText(QStringLiteral("+"));
     return res;
 }
 
 TagWidget *TagWidget::userKeyword(const QString &tagName)
 {
-    auto res = new TagWidget(Mode::UserKeyword, tagName, QLatin1String("lightyellow"));
+    auto res = new TagWidget(Mode::UserKeyword, tagName, QStringLiteral("lightyellow"));
     res->setText(tagName + QLatin1String(" | x"));
     return res;
 }
 
 TagWidget *TagWidget::systemFlag(const QString &flagName)
 {
-    auto res = new TagWidget(Mode::SystemFlag, flagName, QLatin1String("lightgrey"));
+    auto res = new TagWidget(Mode::SystemFlag, flagName, QStringLiteral("lightgrey"));
     res->setText(flagName);
     return res;
 }

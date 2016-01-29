@@ -71,7 +71,7 @@ void ImapModelCreateMailboxTest::initTestCase()
 void ImapModelCreateMailboxTest::_initWithOne()
 {
     // Init with one example mailbox
-    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QLatin1String("a");
+    taskFactoryUnsafe->fakeListChildMailboxesMap[ QLatin1String("") ] = QStringList() << QStringLiteral("a");
     model->rowCount( QModelIndex() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
