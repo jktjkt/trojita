@@ -52,7 +52,7 @@ public:
         /** @short The IMAP's INTERNALDATE */
         QDateTime internalDate;
         /** @short RFC822.SIZE */
-        uint size;
+        quint64 size;
         /** @short Serialized form of BODYSTRUCTURE
 
         Due to the complex nature of BODYSTRUCTURE and the way we use, simly

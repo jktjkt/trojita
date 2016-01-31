@@ -47,7 +47,7 @@ public:
         Question = 4
     };
 
-    Q_INVOKABLE static QString prettySize(uint bytes);
+    Q_INVOKABLE static QString prettySize(quint64 bytes);
     Q_INVOKABLE static QString prettyDate(const QDateTime &dateTime);
     Q_INVOKABLE static QString htmlizedTextPart(const QModelIndex &partIndex, const QFont &font,
                                                 const QColor &backgroundColor, const QColor &textColor,

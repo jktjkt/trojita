@@ -120,6 +120,7 @@ public:
         bodyFldLang(bodyFldLang), bodyFldLoc(bodyFldLoc), bodyExtension(bodyExtension) {}
 protected:
     static uint extractUInt(const QVariant &var, const QByteArray &line, const int start);
+    static quint64 extractUInt64(const QVariant &var, const QByteArray &line, const int start);
     virtual void storeInterestingFields(Mailbox::TreeItemPart *p) const;
 };
 
@@ -129,13 +130,13 @@ public:
     QByteArray bodyFldId;
     QByteArray bodyFldDesc;
     QByteArray bodyFldEnc;
-    uint bodyFldOctets;
+    quint64 bodyFldOctets;
     // optional fields specific to non-multipart:
     QByteArray bodyFldMd5;
     OneMessage(const QByteArray &mediaType, const QByteArray &mediaSubType,
                const bodyFldParam_t &bodyFldParam, const QByteArray &bodyFldId,
                const QByteArray &bodyFldDesc, const QByteArray &bodyFldEnc,
-               const uint bodyFldOctets, const QByteArray &bodyFldMd5,
+               const quint64 bodyFldOctets, const QByteArray &bodyFldMd5,
                const bodyFldDsp_t &bodyFldDsp,
                const QList<QByteArray> &bodyFldLang, const QByteArray &bodyFldLoc,
                const QVariant &bodyExtension):
@@ -156,7 +157,7 @@ public:
     BasicMessage(const QByteArray &mediaType, const QByteArray &mediaSubType,
                  const bodyFldParam_t &bodyFldParam, const QByteArray &bodyFldId,
                  const QByteArray &bodyFldDesc, const QByteArray &bodyFldEnc,
-                 const uint bodyFldOctets, const QByteArray &bodyFldMd5,
+                 const quint64 bodyFldOctets, const QByteArray &bodyFldMd5,
                  const bodyFldDsp_t &bodyFldDsp,
                  const QList<QByteArray> &bodyFldLang, const QByteArray &bodyFldLoc,
                  const QVariant &bodyExtension):
@@ -179,7 +180,7 @@ public:
     MsgMessage(const QByteArray &mediaType, const QByteArray &mediaSubType,
                const bodyFldParam_t &bodyFldParam, const QByteArray &bodyFldId,
                const QByteArray &bodyFldDesc, const QByteArray &bodyFldEnc,
-               const uint bodyFldOctets, const QByteArray &bodyFldMd5,
+               const quint64 bodyFldOctets, const QByteArray &bodyFldMd5,
                const bodyFldDsp_t &bodyFldDsp,
                const QList<QByteArray> &bodyFldLang, const QByteArray &bodyFldLoc,
                const QVariant &bodyExtension,
@@ -202,7 +203,7 @@ public:
     TextMessage(const QByteArray &mediaType, const QByteArray &mediaSubType,
                 const bodyFldParam_t &bodyFldParam, const QByteArray &bodyFldId,
                 const QByteArray &bodyFldDesc, const QByteArray &bodyFldEnc,
-                const uint bodyFldOctets, const QByteArray &bodyFldMd5,
+                const quint64 bodyFldOctets, const QByteArray &bodyFldMd5,
                 const bodyFldDsp_t &bodyFldDsp,
                 const QList<QByteArray> &bodyFldLang, const QByteArray &bodyFldLoc,
                 const QVariant &bodyExtension,

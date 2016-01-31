@@ -402,6 +402,30 @@ uint AbstractMessage::extractUInt(const QVariant &var, const QByteArray &line, c
     throw UnexpectedHere("extractUInt: weird data type", line, start);
 }
 
+quint64 AbstractMessage::extractUInt64(const QVariant &var, const QByteArray &line, const int start)
+{
+    if (var.type() == QVariant::ULongLong)
+        return var.toULongLong();
+    if (var.type() == QVariant::ByteArray) {
+        bool ok = false;
+        qint64 number = var.toLongLong(&ok);
+        if (ok) {
+            if (number >= 0) {
+                return number;
+            } else {
+                qDebug() << "Parser warning:" << number << "is not an unsigned 64 bit int";
+                return 0;
+            }
+        } else if (var.toByteArray().isEmpty()) {
+            qDebug() << "Parser warning: expected unsigned 64 bit int, but got NIL or an empty string instead, yuck";
+            return 0;
+        } else {
+            throw UnexpectedHere("extractUInt64: not a number", line, start);
+        }
+    }
+    throw UnexpectedHere("extractUInt64: weird data type", line, start);
+}
+
 
 QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &items, const QByteArray &line, const int start)
 {
@@ -451,9 +475,9 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
             ++i;
         }
 
-        uint bodyFldOctets = 0;
+        quint64 bodyFldOctets = 0;
         if (i < items.size()) {
-            bodyFldOctets = extractUInt(items[i], line, start);
+            bodyFldOctets = extractUInt64(items[i], line, start);
             ++i;
         }
 

@@ -189,25 +189,26 @@ bool SQLCache::open(const QString &name, const QString &fileName)
         }
     }
 
-    if (version == 4 || version == 5) {
+    if (version == 4 || version == 5 || version == 6) {
         // No difference in table structure between v4 and v5, but the data stored in msg_metadata is different; the UID
         // got removed and INTERNALDATE was added.
         // V6 has added the References and List-Post headers (i.e. a change in the structure of the blobs stored in the DB,
         // but transparent on the SQL level), and also changed the DB structure by adding a date specifying how recently
         // a given message was accessed (which was needed for cache lifetime management).
+        // V7 changed the sizes to quint64 (from uint), so the message metadata again changed
         if (!q.exec(QStringLiteral("DROP TABLE msg_metadata;"))) {
             emitError(tr("Failed to drop old table msg_metadata"));
             return false;
         }
         TROJITA_SQL_CACHE_CREATE_MSG_METADATA;
-        version = 6;
-        if (! q.exec(QStringLiteral("UPDATE trojita SET version = 6;"))) {
-            emitError(tr("Failed to update cache DB scheme from v4/v5 to v6"), q);
+        version = 7;
+        if (! q.exec(QStringLiteral("UPDATE trojita SET version = 7;"))) {
+            emitError(tr("Failed to update cache DB scheme from v4/v5/v6 to v7"), q);
             return false;
         }
     }
 
-    if (version != 6) {
+    if (version != 7) {
         emitError(tr("Unknown version"));
         return false;
     }

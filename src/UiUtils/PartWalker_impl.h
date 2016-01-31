@@ -102,7 +102,7 @@ Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recurs
 
                 // This makes sure that clickthrough only affects big parts during "expensive network" mode
                 if ( (m_netWatcher && m_netWatcher->desiredNetworkPolicy() != Imap::Mailbox::NETWORK_EXPENSIVE)
-                        || partIndex.data(Imap::Mailbox::RolePartOctets).toInt() <= ExpensiveFetchThreshold) {
+                        || partIndex.data(Imap::Mailbox::RolePartOctets).toULongLong() <= ExpensiveFetchThreshold) {
                     options |= PART_IGNORE_CLICKTHROUGH;
                 }
             } else {
@@ -188,7 +188,7 @@ Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recurs
         if ((loadingMode & PART_IGNORE_CLICKTHROUGH) || (loadingMode & PART_IGNORE_LOAD_ON_SHOW) ||
                 partIndex.data(Imap::Mailbox::RoleIsFetched).toBool() ||
                 (m_netWatcher && m_netWatcher->desiredNetworkPolicy() != Imap::Mailbox::NETWORK_EXPENSIVE ) ||
-                partIndex.data(Imap::Mailbox::RolePartOctets).toInt() < ExpensiveFetchThreshold) {
+                partIndex.data(Imap::Mailbox::RolePartOctets).toULongLong() < ExpensiveFetchThreshold) {
             // Show it directly without any fancy wrapping
             return m_visitor->visitSimplePartView(0, m_manager, partIndex, m_context);
         } else {

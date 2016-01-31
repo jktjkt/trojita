@@ -374,7 +374,7 @@ QString ImapPartAttachmentItem::tooltip() const
     if (!index.isValid())
         return QString();
     return MessageComposer::tr("%1, %2").arg(index.data(RolePartMimeType).toString(),
-                                             UiUtils::Formatting::prettySize(index.data(RolePartOctets).toUInt()));
+                                             UiUtils::Formatting::prettySize(index.data(RolePartOctets).toULongLong()));
 }
 
 QByteArray ImapPartAttachmentItem::mimeType() const
