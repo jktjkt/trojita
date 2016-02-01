@@ -139,38 +139,38 @@ void BodyPartsTest::testPartIds_data()
         << bsPlaintext
         << (QList<Data>()
             // Part 1, a text/plain thing
-            << Data("0", "1", "blesmrt")
+            << Data(QStringLiteral("0"), QStringLiteral("1"), "blesmrt")
             // The MIME header of the whole message
-            << Data(QString("0" + COLUMN_HEADER), "HEADER", "raw headers")
+            << Data(QString("0" + COLUMN_HEADER), QStringLiteral("HEADER"), "raw headers")
             // No other items
-            << Data("0.1")
-            << Data("1")
+            << Data(QStringLiteral("0.1"))
+            << Data(QStringLiteral("1"))
             );
 
     QTest::newRow("multipart-signed")
             << bsMultipartSignedTextPlain
             << (QList<Data>()
                 //<< Data("0", "1", "blesmrt")
-                << Data("0.0", "1", "blesmrt")
-                << Data("0.1", "2", "signature")
+                << Data(QStringLiteral("0.0"), QStringLiteral("1"), "blesmrt")
+                << Data(QStringLiteral("0.1"), QStringLiteral("2"), "signature")
                 // No other parts shall be defined
-                << Data("0.2")
-                << Data("0.0.0")
-                << Data("0.1.0")
-                << Data("1")
-                << Data("2")
+                << Data(QStringLiteral("0.2"))
+                << Data(QStringLiteral("0.0.0"))
+                << Data(QStringLiteral("0.1.0"))
+                << Data(QStringLiteral("1"))
+                << Data(QStringLiteral("2"))
                 );
 
     QTest::newRow("torture-test")
             << bsTortureTest
             << (QList<Data>()
                 // Just a top-level child, the multipart/mixed one
-                << Data("1")
+                << Data(QStringLiteral("1"))
                 // The root is a multipart/mixed item. It's not directly fetchable because it has no "part ID" in IMAP because
                 // it's a "top-level multipart", i.e. a multipart which is a child of a message/rfc822.
-                << Data("0", Data::NO_FETCHING, "multipart/mixed")
-                << Data(QString("0" + COLUMN_TEXT), "TEXT", "meh")
-                << Data(QString("0" + COLUMN_HEADER), "HEADER", "meh")
+                << Data(QStringLiteral("0"), Data::NO_FETCHING, QStringLiteral("multipart/mixed"))
+                << Data(QString("0" + COLUMN_TEXT), QStringLiteral("TEXT"), "meh")
+                << Data(QString("0" + COLUMN_HEADER), QStringLiteral("HEADER"), "meh")
                 // There are no MIME or RAW modifier for the root message/rfc822
                 << Data(QString("0" + COLUMN_MIME))
                 << Data(QString("0" + COLUMN_RAW_CONTENTS))
@@ -179,26 +179,26 @@ void BodyPartsTest::testPartIds_data()
                 << Data(QString("0.0" + COLUMN_HEADER))
                 << Data(QString("0.0" + COLUMN_MIME))
                 << Data(QString("0.0" + COLUMN_RAW_CONTENTS))
-                << Data("0.0", "1", "plaintext", "text/plain")
-                << Data(QString("0.0.0" + COLUMN_MIME), "1.MIME", "Content-Type: blabla", "text/plain")
+                << Data(QStringLiteral("0.0"), QStringLiteral("1"), "plaintext", QStringLiteral("text/plain"))
+                << Data(QString("0.0.0" + COLUMN_MIME), QStringLiteral("1.MIME"), "Content-Type: blabla", QStringLiteral("text/plain"))
                 // A text/plain part does not, however, support the TEXT and HEADER modifiers
                 << Data(QString("0.0.0" + COLUMN_TEXT))
                 << Data(QString("0.0.0" + COLUMN_HEADER))
-                << Data("0.1.0.0", "2.1", "plaintext another", "text/plain")
-                << Data("0.1.0.1", "2.2", "multipart mixed", "multipart/mixed")
-                << Data("0.1.0.1.0", "2.2.1", "text richtext", "text/richtext")
-                << Data("0.1.0.2", "2.3", "andrew thingy", "application/andrew-inset")
+                << Data(QStringLiteral("0.1.0.0"), QStringLiteral("2.1"), "plaintext another", QStringLiteral("text/plain"))
+                << Data(QStringLiteral("0.1.0.1"), QStringLiteral("2.2"), "multipart mixed", QStringLiteral("multipart/mixed"))
+                << Data(QStringLiteral("0.1.0.1.0"), QStringLiteral("2.2.1"), "text richtext", QStringLiteral("text/richtext"))
+                << Data(QStringLiteral("0.1.0.2"), QStringLiteral("2.3"), "andrew thingy", QStringLiteral("application/andrew-inset"))
                 );
 
     QTest::newRow("message-directly-within-message")
             << bsSignedInsideMessageInsideMessage
             << (QList<Data>()
-                << Data("1")
-                << Data("0", "1", "aaa", "message/rfc822")
-                << Data("0.0", Data::NO_FETCHING, "multipart/signed")
-                << Data(QString("0.0" + COLUMN_TEXT), "1.TEXT", "meh")
-                << Data("0.0.0", "1.1", "bbb", "text/plain")
-                << Data("0.0.1", "1.2", "ccc", "application/pgp-signature")
+                << Data(QStringLiteral("1"))
+                << Data(QStringLiteral("0"), QStringLiteral("1"), "aaa", QStringLiteral("message/rfc822"))
+                << Data(QStringLiteral("0.0"), Data::NO_FETCHING, QStringLiteral("multipart/signed"))
+                << Data(QString("0.0" + COLUMN_TEXT), QStringLiteral("1.TEXT"), "meh")
+                << Data(QStringLiteral("0.0.0"), QStringLiteral("1.1"), "bbb", QStringLiteral("text/plain"))
+                << Data(QStringLiteral("0.0.1"), QStringLiteral("1.2"), "ccc", QStringLiteral("application/pgp-signature"))
                 );
 }
 
@@ -254,7 +254,7 @@ void BodyPartsTest::testInvalidPartFetch_data()
 void BodyPartsTest::testFetchingRawParts()
 {
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("BINARY");
+    injector.injectCapability(QStringLiteral("BINARY"));
     model->setProperty("trojita-imap-delayed-fetch-part", 0);
     helperSyncBNoMessages();
     cServer("* 1 EXISTS\r\n");
@@ -363,7 +363,7 @@ void BodyPartsTest::testFetchingRawParts()
     QCOMPARE(part.data(RolePartId).toString(), QString("4"));
     rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
     QVERIFY(rawPart.isValid());
-    model->cache()->setMsgPart("b", 333, "4.X-RAW", fakePartData.toBase64());
+    model->cache()->setMsgPart(QStringLiteral("b"), 333, "4.X-RAW", fakePartData.toBase64());
     QVERIFY(!part.data(RoleIsFetched).toBool());
     QVERIFY(!rawPart.data(RoleIsFetched).toBool());
     QCOMPARE(part.data(RolePartData).toByteArray(), fakePartData);

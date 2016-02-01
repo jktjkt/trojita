@@ -446,85 +446,85 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
         << QDateTime( QDate( 2009, 4, 3 ), QTime( 0, 21, 52), Qt::UTC );*/
 
     QTest::newRow("date-manual")
-        << QString("Wed, 09 Apr 2008 20:16:12 +0200")
+        << QStringLiteral("Wed, 09 Apr 2008 20:16:12 +0200")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-wo-weekday")
-        << QString("09 Apr 2008 20:16:12 +0200")
+        << QStringLiteral("09 Apr 2008 20:16:12 +0200")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-no-weekday-no-zone")
-        << QString("08 Apr 2009 03:00:19")
+        << QStringLiteral("08 Apr 2009 03:00:19")
         << QDateTime( QDate( 2009, 4, 8 ), QTime( 3, 0, 19 ), Qt::UTC );
 
     QTest::newRow("date-no-zone")
-        << QString("Wed, 08 Apr 2009 03:00:19")
+        << QStringLiteral("Wed, 08 Apr 2009 03:00:19")
         << QDateTime( QDate( 2009, 4, 8 ), QTime( 3, 0, 19 ), Qt::UTC );
 
     QTest::newRow("date-ut")
-        << QString("Wed, 09 Apr 2008 20:16:12 UT")
+        << QStringLiteral("Wed, 09 Apr 2008 20:16:12 UT")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 20, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-gmt")
-        << QString("Wed, 09 Apr 2008 20:16:12 gMt")
+        << QStringLiteral("Wed, 09 Apr 2008 20:16:12 gMt")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 20, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-est")
-        << QString("Wed, 09 Apr 2008 13:16:12 est")
+        << QStringLiteral("Wed, 09 Apr 2008 13:16:12 est")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 18, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-edt")
-        << QString("Wed, 09 Apr 2008 13:16:12 edt")
+        << QStringLiteral("Wed, 09 Apr 2008 13:16:12 edt")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 17, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-cst")
-        << QString("Wed, 09 Apr 2008 10:17:12 CST")
+        << QStringLiteral("Wed, 09 Apr 2008 10:17:12 CST")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 16, 17, 12 ), Qt::UTC );
 
     QTest::newRow("date-cdt")
-        << QString("Wed, 09 Apr 2008 20:16:12 CDT")
+        << QStringLiteral("Wed, 09 Apr 2008 20:16:12 CDT")
         << QDateTime( QDate( 2008, 4, 10 ), QTime( 1, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-mst")
-        << QString("wEd, 09 APr 2001 20:16:12 mst")
+        << QStringLiteral("wEd, 09 APr 2001 20:16:12 mst")
         << QDateTime( QDate( 2001, 4, 10 ), QTime( 3, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-mdt")
-        << QString("Wed, 09 Apr 2008 20:16:12 mdT")
+        << QStringLiteral("Wed, 09 Apr 2008 20:16:12 mdT")
         << QDateTime( QDate( 2008, 4, 10 ), QTime( 2, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-pst")
-        << QString("Wed, 09 Apr 2008 20:16:12 pst")
+        << QStringLiteral("Wed, 09 Apr 2008 20:16:12 pst")
         << QDateTime( QDate( 2008, 4, 10 ), QTime( 4, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-pdt")
-        << QString("Wed, 09 Apr 2008 20:16:12 pdt")
+        << QStringLiteral("Wed, 09 Apr 2008 20:16:12 pdt")
         << QDateTime( QDate( 2008, 4, 10 ), QTime( 3, 16, 12 ), Qt::UTC );
 
     QTest::newRow("date-a")
-        << QString("Wed, 09 Apr 2008 20:16:12 a")
+        << QStringLiteral("Wed, 09 Apr 2008 20:16:12 a")
         << QDateTime( QDate( 2008, 4, 9 ), QTime( 20, 16, 12 ), Qt::UTC );
 
     QTest::newRow("no-seconds")
-        << QString("Sat, 25 Aug 2012 20:12 +0200")
+        << QStringLiteral("Sat, 25 Aug 2012 20:12 +0200")
         << QDateTime(QDate(2012, 8, 25), QTime(18, 12, 0), Qt::UTC);
 
     QTest::newRow("single-digit-h-m-s")
-        << QString("Sat, 25 Aug 2012 5:2:1 +0200")
+        << QStringLiteral("Sat, 25 Aug 2012 5:2:1 +0200")
         << QDateTime(QDate(2012, 8, 25), QTime(3, 2, 1), Qt::UTC);
 
     int month = 1;
     int day = 1;
     QTime time( 0, 0, 0 );
-    QStringList months = QStringList() << "Jan" << "FEb" << "mar" << "Apr" <<
-        "May" << "Jun" << "Jul" << "AUG" << "Sep" << "Oct" << "nOV" << "Dec";
-    QStringList wDays = QStringList() << "Mon" << "tue" << "WED" << "ThU" <<
-        "Fri" << "Sat" << "Sun";
+    QStringList months = QStringList() << QStringLiteral("Jan") << QStringLiteral("FEb") << QStringLiteral("mar") << QStringLiteral("Apr") <<
+        QStringLiteral("May") << QStringLiteral("Jun") << QStringLiteral("Jul") << QStringLiteral("AUG") << QStringLiteral("Sep") << QStringLiteral("Oct") << QStringLiteral("nOV") << QStringLiteral("Dec");
+    QStringList wDays = QStringList() << QStringLiteral("Mon") << QStringLiteral("tue") << QStringLiteral("WED") << QStringLiteral("ThU") <<
+        QStringLiteral("Fri") << QStringLiteral("Sat") << QStringLiteral("Sun");
     int tz = 11*60;
     bool plusOrSpace = false;
     for ( int year = 1970; year < 2035; year += 1, plusOrSpace = !plusOrSpace ) {
         QDateTime date( QDate( year, month, day), time, Qt::UTC );
-        QString str = date.toString( "%1, dd %2 yyyy hh:mm:ss %3%4%5" ).arg(
+        QString str = date.toString( QStringLiteral("%1, dd %2 yyyy hh:mm:ss %3%4%5") ).arg(
                         wDays[ date.date().dayOfWeek() - 1 ],
                         months[ month - 1 ],
                         ( tz >= 12* 60 ) ? ( plusOrSpace ? "" : "+" ) : "-"
@@ -551,7 +551,7 @@ template<> char * toString( const QPair<QStringList,QByteArray>& res )
 {
     QByteArray buf;
     QTextStream stream( &buf );
-    stream << "first: " << res.first.join(", ") << ", second: " << res.second;
+    stream << "first: " << res.first.join(QStringLiteral(", ")) << ", second: " << res.second;
     stream.flush();
     return qstrdup( buf.data() );
 }

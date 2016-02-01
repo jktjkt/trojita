@@ -405,7 +405,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("jkt@flaska.net") << mailCc("trojita@lists.flaska.net"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         // The sender identity is matched through the domain
-        << true << (QStringList() << "x@y" << "z@y" << "meh@flaSka.net" << "bar@flaska.net") << QStringLiteral("meh@flaSka.net");
+        << true << (QStringList() << QStringLiteral("x@y") << QStringLiteral("z@y") << QStringLiteral("meh@flaSka.net") << QStringLiteral("bar@flaska.net")) << QStringLiteral("meh@flaSka.net");
 
     QTest::newRow("list-munged-bcc")
         << (RecipientList() << mailBcc("bcc@example.org") << mailFrom("jkt@flaska.net") << mailTo("trojita@lists.flaska.net")
@@ -435,7 +435,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net") << mailBcc("bcc@example.org"))
         << true << (RecipientList() << mailTo("trojita@lists.flaska.net"))
         // An exact match for the sender identity
-        << true << (QStringList() << "jkt@gentoo" << "foo@flaska.net" << "jKt@flaSka.net") << QStringLiteral("jKt@flaSka.net");
+        << true << (QStringList() << QStringLiteral("jkt@gentoo") << QStringLiteral("foo@flaska.net") << QStringLiteral("jKt@flaSka.net")) << QStringLiteral("jKt@flaSka.net");
 
     QTest::newRow("from-list-sender-to-cc")
         << (RecipientList() << mailFrom("andy@x") << mailSender("list-12345@y") << mailTo("someone@z") << mailCc("list@y"))
@@ -444,7 +444,7 @@ void ComposerResponsesTest::testResponseAddresses_data()
         << true << (RecipientList() << mailTo("andy@x") << mailCc("someone@z") << mailCc("list@y"))
         << true << (RecipientList() << mailTo("andy@x") << mailCc("someone@z") << mailCc("list@y"))
         << true << (RecipientList() << mailTo("list@Y"))
-        << false << (QStringList() << "foo@bar" << "baz@bah") << QString();
+        << false << (QStringList() << QStringLiteral("foo@bar") << QStringLiteral("baz@bah")) << QString();
 
     QTest::newRow("from-replyto-to-cc-cc-gerrit")
         << (RecipientList() << mailFrom("gerrit-noreply@qt-project") << mailReplyTo("j.n@digia")
@@ -504,12 +504,12 @@ void ComposerResponsesTest::testFormatFlowedComposition_data()
     QTest::addColumn<QString>("split");
 
     QTest::newRow("empty") << QString() << QString();
-    QTest::newRow("one-line") << QString("ahoj") << QString("ahoj");
-    QTest::newRow("one-line-LF") << QString("ahoj\n") << QString("ahoj\r\n");
-    QTest::newRow("one-line-CR") << QString("ahoj\r") << QString("ahoj");
-    QTest::newRow("one-line-CRLF") << QString("ahoj\r\n") << QString("ahoj\r\n");
-    QTest::newRow("two-lines") << QString("ahoj\ncau") << QString("ahoj\r\ncau");
-    QTest::newRow("two-lines-LF") << QString("ahoj\ncau\n") << QString("ahoj\r\ncau\r\n");
+    QTest::newRow("one-line") << QStringLiteral("ahoj") << QStringLiteral("ahoj");
+    QTest::newRow("one-line-LF") << QStringLiteral("ahoj\n") << QStringLiteral("ahoj\r\n");
+    QTest::newRow("one-line-CR") << QStringLiteral("ahoj\r") << QStringLiteral("ahoj");
+    QTest::newRow("one-line-CRLF") << QStringLiteral("ahoj\r\n") << QStringLiteral("ahoj\r\n");
+    QTest::newRow("two-lines") << QStringLiteral("ahoj\ncau") << QStringLiteral("ahoj\r\ncau");
+    QTest::newRow("two-lines-LF") << QStringLiteral("ahoj\ncau\n") << QStringLiteral("ahoj\r\ncau\r\n");
 
     QTest::newRow("wrapping-real")
             << QString("I'm typing some random stuff right here; I'm courious to see how the word wrapping ends up. "
@@ -524,20 +524,20 @@ void ComposerResponsesTest::testFormatFlowedComposition_data()
                        "-- \r\nTrojita, a fast e-mail client -- http://trojita.flaska.net/\r\n");
 
     QTest::newRow("wrapping-longword-1")
-            << QString("HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.")
-            << QString("HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. \r\nGood.");
+            << QStringLiteral("HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.")
+            << QStringLiteral("HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. \r\nGood.");
 
     QTest::newRow("wrapping-longword-2")
-            << QString("Now this is nicer, suppose that here is AnOverlyLongWordWhichStartsInTheMiddleOfALine. Good.")
-            << QString("Now this is nicer, suppose that here is \r\nAnOverlyLongWordWhichStartsInTheMiddleOfALine. Good.");
+            << QStringLiteral("Now this is nicer, suppose that here is AnOverlyLongWordWhichStartsInTheMiddleOfALine. Good.")
+            << QStringLiteral("Now this is nicer, suppose that here is \r\nAnOverlyLongWordWhichStartsInTheMiddleOfALine. Good.");
 
     QTest::newRow("wrapping-longword-3")
-            << QString("Now this is nicer, suppose that here is AnOverlyLongWordWhichStartsInTheMiddleOfALineAndContinuesWellOverTheLineSize. Good.")
-            << QString("Now this is nicer, suppose that here is \r\nAnOverlyLongWordWhichStartsInTheMiddleOfALineAndContinuesWellOverTheLineSize. \r\nGood.");
+            << QStringLiteral("Now this is nicer, suppose that here is AnOverlyLongWordWhichStartsInTheMiddleOfALineAndContinuesWellOverTheLineSize. Good.")
+            << QStringLiteral("Now this is nicer, suppose that here is \r\nAnOverlyLongWordWhichStartsInTheMiddleOfALineAndContinuesWellOverTheLineSize. \r\nGood.");
 
     QTest::newRow("wrapping-longword-4")
-            << QString("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.")
-            << QString("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.");
+            << QStringLiteral("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.")
+            << QStringLiteral("> HeresAnOverlyLongWordWhichStartsOnTheStartOfALineAndContinuesWellOverTheLineSize;Let'sSeeHowThisEndsUp. Good.");
 
     QTest::newRow("wrapping-longword-5")
             << QString("> NowDoTheSameWithSomeWordThatIsTooLongToFitInThisParagraphThisWillBeEnoughIHopeBecauseItIsAnnoyingToType, \n"
@@ -545,11 +545,11 @@ void ComposerResponsesTest::testFormatFlowedComposition_data()
             << QString("> NowDoTheSameWithSomeWordThatIsTooLongToFitInThisParagraphThisWillBeEnoughIHopeBecauseItIsAnnoyingToType, \r\n"
                        "> isn't it?\r\n");
 
-    QString longline("velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat6 XYZ");
+    QString longline(QStringLiteral("velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat6 XYZ"));
     Q_ASSERT(longline.length() == 76 + QString("XYZ").length());
     QTest::newRow("wrapping-longline")
             << QString(longline)
-            << QString("velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat6 \r\nXYZ");
+            << QStringLiteral("velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat6 \r\nXYZ");
 
     QString longQuotePrefix = QString(76, QLatin1Char('>')) + QLatin1Char(' ');
     QTest::newRow("long-quote-prefix")
@@ -570,17 +570,17 @@ void ComposerResponsesTest::testFormatFlowedComposition_data()
                                  ">");
 
     QTest::newRow("some-lines-with-spaces-1")
-            << QString("foo\n \nbar")
-            << QString("foo\r\n \r\nbar");
+            << QStringLiteral("foo\n \nbar")
+            << QStringLiteral("foo\r\n \r\nbar");
     QTest::newRow("some-lines-with-spaces-2")
-            << QString("foo\n \nbar\n")
-            << QString("foo\r\n \r\nbar\r\n");
+            << QStringLiteral("foo\n \nbar\n")
+            << QStringLiteral("foo\r\n \r\nbar\r\n");
     QTest::newRow("some-lines-with-spaces-3")
-            << QString("foo\n \nbar\n\n")
-            << QString("foo\r\n \r\nbar\r\n\r\n");
+            << QStringLiteral("foo\n \nbar\n\n")
+            << QStringLiteral("foo\r\n \r\nbar\r\n\r\n");
     QTest::newRow("some-lines-with-spaces-4")
-            << QString("foo\n \nbar\n\n ")
-            << QString("foo\r\n \r\nbar\r\n\r\n ");
+            << QStringLiteral("foo\n \nbar\n\n ")
+            << QStringLiteral("foo\r\n \r\nbar\r\n\r\n ");
 }
 
 void ComposerResponsesTest::testRFC6068Mailto()
@@ -637,15 +637,15 @@ void ComposerResponsesTest::testRFC6068Mailto_data()
             << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("chris@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc5") << QUrl::fromEncoded("mailto:infobot@example.com?subject=current-issue")
-            << QString("current-issue") << QString()
+            << QStringLiteral("current-issue") << QString()
             << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("infobot@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc6") << QUrl::fromEncoded("mailto:infobot@example.com?body=send%20current-issue")
-            << QString() << QString("send current-issue")
+            << QString() << QStringLiteral("send current-issue")
             << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("infobot@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc7") << QUrl::fromEncoded("mailto:infobot@example.com?body=send%20current-issue%0D%0Asend%20index")
-            << QString() << QString("send current-issue\r\nsend index")
+            << QString() << QStringLiteral("send current-issue\r\nsend index")
             << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("infobot@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc8") << QUrl::fromEncoded("mailto:list@example.org?In-Reply-To=%3C3469A91.D10AF4C@example.com%3E")
@@ -653,10 +653,10 @@ void ComposerResponsesTest::testRFC6068Mailto_data()
             << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("list@example.org")) )
             << ( QList<QByteArray>() << "<3469A91.D10AF4C@example.com>" ) << QList<QByteArray>();
     QTest::newRow("rfc9") << QUrl::fromEncoded("mailto:majordomo@example.com?body=subscribe%20bamboo-l")
-            << QString() << QString("subscribe bamboo-l")
+            << QString() << QStringLiteral("subscribe bamboo-l")
             << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("majordomo@example.com")) )
             << QList<QByteArray>() << QList<QByteArray>();
-    QTest::newRow("rfc10") << QUrl::fromEncoded("mailto:joe@example.com?cc=bob@example.com&body=hello") << QString() << QString("hello")
+    QTest::newRow("rfc10") << QUrl::fromEncoded("mailto:joe@example.com?cc=bob@example.com&body=hello") << QString() << QStringLiteral("hello")
             << ( RecipientsType()
                  << qMakePair(Composer::ADDRESS_TO, QStringLiteral("joe@example.com"))
                  << qMakePair(Composer::ADDRESS_CC, QStringLiteral("bob@example.com")) )
@@ -698,7 +698,7 @@ void ComposerResponsesTest::testRFC6068Mailto_data()
             << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user@example.org")) )
             << QList<QByteArray>() << QList<QByteArray>();
     QTest::newRow("rfc21") << QUrl::fromEncoded("mailto:user@%E7%B4%8D%E8%B1%86.example.org?subject=Test&body=NATTO")
-            << QString("Test") << QString("NATTO")
+            << QStringLiteral("Test") << QStringLiteral("NATTO")
             << ( RecipientsType() << qMakePair(Composer::ADDRESS_TO, QStringLiteral("user@納豆.example.org")) )
             << QList<QByteArray>() << QList<QByteArray>(); // NOTE: Decoding 納豆.example.org to xn--99zt52a.example.org is done on other layer
 

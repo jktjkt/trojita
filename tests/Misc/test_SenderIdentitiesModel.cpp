@@ -40,9 +40,9 @@
 using namespace Composer;
 
 SenderIdentitiesModelTest::SenderIdentitiesModelTest() :
-    identity1("test name #1", "test1@mail.org", "testing", "tester 1"),
-    identity2("test name #2", "test2@mail.org", "testing", "tester 2"),
-    identity3("test name #3", "test3@mail.org", "testing", "tester 3")
+    identity1(QStringLiteral("test name #1"), QStringLiteral("test1@mail.org"), QStringLiteral("testing"), QStringLiteral("tester 1")),
+    identity2(QStringLiteral("test name #2"), QStringLiteral("test2@mail.org"), QStringLiteral("testing"), QStringLiteral("tester 2")),
+    identity3(QStringLiteral("test name #3"), QStringLiteral("test3@mail.org"), QStringLiteral("testing"), QStringLiteral("tester 3"))
 {
 }
 

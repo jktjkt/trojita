@@ -69,83 +69,83 @@ void ImapParserParseTest::testParseTagged_data()
 
     QTest::newRow("tagged-ok-simple")
         << QByteArray("y01 OK Everything works, man!\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Everything works, man!", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Everything works, man!"), NONE, voidData ) );
 
     QTest::newRow("tagged-no-simple")
         << QByteArray("12345 NO Nope, something is broken\r\n")
-        << QSharedPointer<AbstractResponse>( new State("12345", NO, "Nope, something is broken", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State("12345", NO, QStringLiteral("Nope, something is broken"), NONE, voidData ) );
 
     QTest::newRow("tagged-bad-simple")
         << QByteArray("ahoj BaD WTF?\r\n")
-        << QSharedPointer<AbstractResponse>( new State("ahoj", BAD, "WTF?", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State("ahoj", BAD, QStringLiteral("WTF?"), NONE, voidData ) );
 
     QTest::newRow("tagged-ok-alert")
         << QByteArray("y01 oK [ALERT] Server on fire\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Server on fire", ALERT, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Server on fire"), ALERT, voidData ) );
     QTest::newRow("tagged-no-alert")
         << QByteArray("1337 no [ALeRT] Server on fire\r\n")
-        << QSharedPointer<AbstractResponse>( new State("1337", NO, "Server on fire", ALERT, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State("1337", NO, QStringLiteral("Server on fire"), ALERT, voidData ) );
 
     QTest::newRow("tagged-ok-capability")
         << QByteArray("y01 OK [CAPaBILITY blurdybloop IMAP4rev1 WTF] Capabilities updated\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Capabilities updated", CAPABILITIES,
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Capabilities updated"), CAPABILITIES,
                         QSharedPointer<AbstractData>(
-                            new RespData<QStringList>( QStringList() << "blurdybloop" << "IMAP4rev1" << "WTF") ) ) );
+                            new RespData<QStringList>( QStringList() << QStringLiteral("blurdybloop") << QStringLiteral("IMAP4rev1") << QStringLiteral("WTF")) ) ) );
 
     QTest::newRow("tagged-ok-parse")
         << QByteArray("y01 OK [PArSE] Parse error. What do you feed me with?\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Parse error. What do you feed me with?",
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Parse error. What do you feed me with?"),
                     PARSE, voidData) );
     QTest::newRow("tagged-ok-permanentflags-empty")
         << QByteArray("y01 OK [PERMANENTfLAGS] Behold, the flags!\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS, emptyList) );
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Behold, the flags!"), PERMANENTFLAGS, emptyList) );
     QTest::newRow("tagged-ok-permanentflags-flags")
         << QByteArray("y01 OK [PErMANENTFLAGS (\\Foo \\Bar SmrT)] Behold, the flags!\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS,
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Behold, the flags!"), PERMANENTFLAGS,
                     QSharedPointer<AbstractData>( new RespData<QStringList>(
-                            QStringList() << "\\Foo" << "\\Bar" << "SmrT" ))) );
+                            QStringList() << QStringLiteral("\\Foo") << QStringLiteral("\\Bar") << QStringLiteral("SmrT") ))) );
     QTest::newRow("tagged-ok-permanentflags-flags-not-enclosed")
         << QByteArray("y01 OK [PErMANENTFLAGS \\Foo \\Bar SmrT] Behold, the flags!\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the flags!", PERMANENTFLAGS,
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Behold, the flags!"), PERMANENTFLAGS,
                     QSharedPointer<AbstractData>( new RespData<QStringList>(
-                            QStringList() << "\\Foo" << "\\Bar" << "SmrT" ))) );
+                            QStringList() << QStringLiteral("\\Foo") << QStringLiteral("\\Bar") << QStringLiteral("SmrT") ))) );
     QTest::newRow("tagged-ok-badcharset-empty")
         << QByteArray("y01 OK [BadCharset] foo\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "foo", BADCHARSET, emptyList) );
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("foo"), BADCHARSET, emptyList) );
     QTest::newRow("tagged-ok-badcharset-something")
         << QByteArray("y01 OK [BADCHARSET (utf8)] wrong charset\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "wrong charset", BADCHARSET,
-                    QSharedPointer<AbstractData>( new RespData<QStringList>( QStringList() << "utf8" ))) );
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("wrong charset"), BADCHARSET,
+                    QSharedPointer<AbstractData>( new RespData<QStringList>( QStringList() << QStringLiteral("utf8") ))) );
     QTest::newRow("tagged-ok-badcharset-not-enclosed")
         << QByteArray("y01 OK [badcharset a ba cc] Behold, the charset!\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Behold, the charset!", BADCHARSET,
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Behold, the charset!"), BADCHARSET,
                     QSharedPointer<AbstractData>( new RespData<QStringList>(
-                            QStringList() << "a" << "ba" << "cc" ))) );
+                            QStringList() << QStringLiteral("a") << QStringLiteral("ba") << QStringLiteral("cc") ))) );
     QTest::newRow("tagged-ok-readonly")
         << QByteArray("333 OK [ReAD-ONLY] No writing for you\r\n")
-        << QSharedPointer<AbstractResponse>( new State("333", OK, "No writing for you", READ_ONLY, voidData));
+        << QSharedPointer<AbstractResponse>( new State("333", OK, QStringLiteral("No writing for you"), READ_ONLY, voidData));
     QTest::newRow("tagged-ok-readwrite")
         << QByteArray("y01 OK [REaD-WRITE] Write!!!\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Write!!!", READ_WRITE, voidData));
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Write!!!"), READ_WRITE, voidData));
     QTest::newRow("tagged-ok-trycreate")
         << QByteArray("y01 OK [TryCreate] ...would be better :)\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "...would be better :)", TRYCREATE, voidData));
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("...would be better :)"), TRYCREATE, voidData));
     QTest::newRow("tagged-ok-uidnext")
         << QByteArray("y01 OK [uidNext 5] Next UID\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "Next UID", UIDNEXT,
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("Next UID"), UIDNEXT,
                     QSharedPointer<AbstractData>( new RespData<uint>( 5 ) )));
     QTest::newRow("tagged-ok-uidvalidity")
         << QByteArray("y01 OK [UIDVALIDITY 17] UIDs valid\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "UIDs valid", UIDVALIDITY,
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("UIDs valid"), UIDVALIDITY,
                     QSharedPointer<AbstractData>( new RespData<uint>( 17 ) )));
     QTest::newRow("tagged-ok-unseen")
         << QByteArray("y01 OK [unSeen 666] I need my glasses\r\n")
-        << QSharedPointer<AbstractResponse>( new State("y01", OK, "I need my glasses", UNSEEN,
+        << QSharedPointer<AbstractResponse>( new State("y01", OK, QStringLiteral("I need my glasses"), UNSEEN,
                     QSharedPointer<AbstractData>( new RespData<uint>( 666 ) )));
 
     QTest::newRow("appenduid-simple")
             << QByteArray("A003 OK [APPENDUID 38505 3955] APPEND completed\r\n")
-            << QSharedPointer<AbstractResponse>(new State("A003", OK, "APPEND completed", APPENDUID,
+            << QSharedPointer<AbstractResponse>(new State("A003", OK, QStringLiteral("APPEND completed"), APPENDUID,
                                                           QSharedPointer<AbstractData>(
                                                               new RespData<QPair<uint,Imap::Sequence> >(
                                                                   qMakePair(38505u, Imap::Sequence(3955)))
@@ -217,18 +217,18 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("untagged-ok-simple")
         << QByteArray("* OK Everything works, man!\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QByteArray(), OK, "Everything works, man!", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), OK, QStringLiteral("Everything works, man!"), NONE, voidData ) );
 
     QTest::newRow("untagged-no-simple")
         << QByteArray("* NO Nope, something is broken\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QByteArray(), NO, "Nope, something is broken", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), NO, QStringLiteral("Nope, something is broken"), NONE, voidData ) );
     QTest::newRow("untagged-ok-uidvalidity")
         << QByteArray("* OK [UIDVALIDITY 17] UIDs valid\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QByteArray(), OK, "UIDs valid", UIDVALIDITY,
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), OK, QStringLiteral("UIDs valid"), UIDVALIDITY,
                     QSharedPointer<AbstractData>( new RespData<uint>( 17 ) )));
     QTest::newRow("untagged-bye")
         << QByteArray("* BYE go away\r\n")
-        << QSharedPointer<AbstractResponse>( new State(QByteArray(), BYE, "go away", NONE, voidData ) );
+        << QSharedPointer<AbstractResponse>( new State(QByteArray(), BYE, QStringLiteral("go away"), NONE, voidData ) );
     QTest::newRow("untagged-bye-empty")
         << QByteArray("* BYE\r\n")
         << QSharedPointer<AbstractResponse>( new State(QByteArray(), BYE, QString(), NONE, voidData ) );
@@ -248,41 +248,41 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("untagged-capability")
         << QByteArray("* CAPABILITY fooBar IMAP4rev1 blah\r\n")
-        << QSharedPointer<AbstractResponse>( new Capability( QStringList() << "fooBar" << "IMAP4rev1" << "blah" ) );
+        << QSharedPointer<AbstractResponse>( new Capability( QStringList() << QStringLiteral("fooBar") << QStringLiteral("IMAP4rev1") << QStringLiteral("blah") ) );
 
     QTest::newRow("untagged-list")
         << QByteArray("* LIST (\\Noselect) \".\" \"\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect", ".", "", QMap<QByteArray,QVariant>()) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList() << QStringLiteral("\\Noselect"), QStringLiteral("."), QLatin1String(""), QMap<QByteArray,QVariant>()) );
     QTest::newRow("untagged-lsub")
         << QByteArray("* LSUB (\\Noselect) \".\" \"\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LSUB, QStringList() << "\\Noselect", ".", "", QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LSUB, QStringList() << QStringLiteral("\\Noselect"), QStringLiteral("."), QLatin1String(""), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-moreflags")
         << QByteArray("* LIST (\\Noselect Blesmrt) \".\" \"\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList() << "\\Noselect" << "Blesmrt", ".", "", QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList() << QStringLiteral("\\Noselect") << QStringLiteral("Blesmrt"), QStringLiteral("."), QLatin1String(""), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-mailbox")
         << QByteArray("* LIST () \".\" \"someName\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "someName", QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("someName"), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-mailbox-atom")
         << QByteArray("* LIST () \".\" someName\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "someName", QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("someName"), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-separator-nil")
         << QByteArray("* LIST () NiL someName\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QByteArray(), "someName", QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QByteArray(), QStringLiteral("someName"), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-mailbox-quote")
         << QByteArray("* LIST () \".\" \"some\\\"Name\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), ".", "some\"Name", QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("some\"Name"), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-unicode")
         << QByteArray("* LIST () \"/\" \"~Peter/mail/&U,BTFw-/&ZeVnLIqe-\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", QStringLiteral("~Peter/mail/台北/日本語"), QMap<QByteArray,QVariant>() ) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QStringLiteral("/"), QStringLiteral("~Peter/mail/台北/日本語"), QMap<QByteArray,QVariant>() ) );
     QTest::newRow("untagged-list-inbox-atom")
         << QByteArray("* LIST () \"/\" inBox\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QStringLiteral("/"), QStringLiteral("INBOX"), QMap<QByteArray,QVariant>()) );
     QTest::newRow("untagged-list-inbox-quoted")
         << QByteArray("* LIST () \"/\" \"inBox\"\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QStringLiteral("/"), QStringLiteral("INBOX"), QMap<QByteArray,QVariant>()) );
     QTest::newRow("untagged-list-inbox-literal")
             << QByteArray("* LIST () \"/\" {5}\r\ninBox\r\n")
-        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), "/", "INBOX", QMap<QByteArray,QVariant>()) );
+        << QSharedPointer<AbstractResponse>( new List( LIST, QStringList(), QStringLiteral("/"), QStringLiteral("INBOX"), QMap<QByteArray,QVariant>()) );
     QTest::newRow("untagged-list-numeric-mailbox")
         << QByteArray("* LIST () \"/\" 666\r\n")
         << QSharedPointer<AbstractResponse>(new List(LIST, QStringList(), QStringLiteral("/"), QStringLiteral("666"), QMap<QByteArray,QVariant>()));
@@ -297,23 +297,23 @@ void ImapParserParseTest::testParseUntagged_data()
                                                      QMap<QByteArray,QVariant>()));
 
     QMap<QByteArray,QVariant> listExtData;
-    listExtData["CHILDINFO"] = QStringList() << "SUBSCRIBED";
+    listExtData["CHILDINFO"] = QStringList() << QStringLiteral("SUBSCRIBED");
     QTest::newRow("untagged-list-ext-childinfo")
         << QByteArray("* LIST () \"/\" \"Foo\" (\"CHILDINFO\" (\"SUBSCRIBED\"))\r\n")
-        << QSharedPointer<AbstractResponse>(new List( LIST, QStringList(), "/", "Foo", listExtData));
-    listExtData["OLDNAME"] = QStringList() << "blesmrt";
+        << QSharedPointer<AbstractResponse>(new List( LIST, QStringList(), QStringLiteral("/"), QStringLiteral("Foo"), listExtData));
+    listExtData["OLDNAME"] = QStringList() << QStringLiteral("blesmrt");
     QTest::newRow("untagged-list-ext-childinfo-2")
         << QByteArray("* LIST () \"/\" \"Foo\" (\"CHILDINFO\" (\"SUBSCRIBED\") \"OLDNAME\" (\"blesmrt\"))\r\n")
-        << QSharedPointer<AbstractResponse>(new List( LIST, QStringList(), "/", "Foo", listExtData));
+        << QSharedPointer<AbstractResponse>(new List( LIST, QStringList(), QStringLiteral("/"), QStringLiteral("Foo"), listExtData));
 
     QTest::newRow("untagged-flags")
         << QByteArray("* FLAGS (\\Answered \\Flagged \\Deleted \\Seen \\Draft)\r\n")
         << QSharedPointer<AbstractResponse>(
-                new Flags( QStringList() << "\\Answered" << "\\Flagged" <<
-                    "\\Deleted" << "\\Seen" << "\\Draft" ) );
+                new Flags( QStringList() << QStringLiteral("\\Answered") << QStringLiteral("\\Flagged") <<
+                    QStringLiteral("\\Deleted") << QStringLiteral("\\Seen") << QStringLiteral("\\Draft") ) );
     QTest::newRow("untagged-flags-numeric")
         << QByteArray("* FLAGS (333 666x333)\r\n")
-        << QSharedPointer<AbstractResponse>(new Flags(QStringList() << QStringLiteral("333") << QStringList("666x333")));
+        << QSharedPointer<AbstractResponse>(new Flags(QStringList() << QStringLiteral("333") << QStringList(QStringLiteral("666x333"))));
     QTest::newRow("search-empty")
         << QByteArray("* SEARCH\r\n")
         << QSharedPointer<AbstractResponse>(new Search(Imap::Uids()));
@@ -453,29 +453,29 @@ void ImapParserParseTest::testParseUntagged_data()
     states[Status::UIDNEXT] = 44292;
     QTest::newRow("status-1")
         << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292)\r\n")
-        << QSharedPointer<AbstractResponse>( new Status( "blurdybloop", states ) );
+        << QSharedPointer<AbstractResponse>( new Status( QStringLiteral("blurdybloop"), states ) );
     QTest::newRow("status-numeric-only")
         << QByteArray("* STATUS 333 (MESSAGES 231 UIDNEXT 44292)\r\n")
-        << QSharedPointer<AbstractResponse>(new Status("333", states));
+        << QSharedPointer<AbstractResponse>(new Status(QStringLiteral("333"), states));
     QTest::newRow("status-numeric-mixed")
         << QByteArray("* STATUS 333x666 (MESSAGES 231 UIDNEXT 44292)\r\n")
-        << QSharedPointer<AbstractResponse>(new Status("333x666", states));
+        << QSharedPointer<AbstractResponse>(new Status(QStringLiteral("333x666"), states));
     states[Status::UIDVALIDITY] = 1337;
     states[Status::RECENT] = 3234567890u;
     QTest::newRow("status-2")
         << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292 UIDVALIDITY 1337 RECENT 3234567890)\r\n")
-        << QSharedPointer<AbstractResponse>( new Status( "blurdybloop", states ) );
+        << QSharedPointer<AbstractResponse>( new Status( QStringLiteral("blurdybloop"), states ) );
 
     // notice the trailing whitespace
     QTest::newRow("status-exchange-botched-1")
         << QByteArray("* STATUS blurdybloop (MESSAGES 231 UIDNEXT 44292 UIDVALIDITY 1337 RECENT 3234567890) \r\n")
-        << QSharedPointer<AbstractResponse>( new Status( "blurdybloop", states ) );
+        << QSharedPointer<AbstractResponse>( new Status( QStringLiteral("blurdybloop"), states ) );
 
     states.clear();
     states[Status::MESSAGES] = 113;
     QTest::newRow("status-extra-whitespace-around-atoms")
             << QByteArray("* STATUS blurdybloop ( MESSAGES 113 )\r\n")
-            << QSharedPointer<AbstractResponse>( new Status( "blurdybloop", states ) );
+            << QSharedPointer<AbstractResponse>( new Status( QStringLiteral("blurdybloop"), states ) );
 
 
     QTest::newRow("namespace-1")
@@ -490,25 +490,25 @@ void ImapParserParseTest::testParseUntagged_data()
 
     QTest::newRow("namespace-3")
         << QByteArray("* Namespace ((\"\" \"/\")) NIL nil\r\n")
-        << QSharedPointer<AbstractResponse>( new Namespace( QList<NamespaceData>() << NamespaceData( "", "/" ),
+        << QSharedPointer<AbstractResponse>( new Namespace( QList<NamespaceData>() << NamespaceData( QLatin1String(""), QStringLiteral("/") ),
                     QList<NamespaceData>(), QList<NamespaceData>() ) );
 
     QTest::newRow("namespace-4")
         << QByteArray("* Namespace ((\"prefix\" \".\")(\"\" \"/\")) ((\"blesmrt\" \"trojita\")) ((\"foo\" \"bar\"))\r\n")
         << QSharedPointer<AbstractResponse>( new Namespace(
-                    QList<NamespaceData>() << NamespaceData( "prefix", "." ) << NamespaceData( "", "/" ),
-                    QList<NamespaceData>() << NamespaceData( "blesmrt", "trojita" ),
-                    QList<NamespaceData>() << NamespaceData( "foo", "bar" ) ) );
+                    QList<NamespaceData>() << NamespaceData( QStringLiteral("prefix"), QStringLiteral(".") ) << NamespaceData( QLatin1String(""), QStringLiteral("/") ),
+                    QList<NamespaceData>() << NamespaceData( QStringLiteral("blesmrt"), QStringLiteral("trojita") ),
+                    QList<NamespaceData>() << NamespaceData( QStringLiteral("foo"), QStringLiteral("bar") ) ) );
 
     QTest::newRow("namespace-5")
         << QByteArray("* NAMESPACE ((\"\" \"/\")(\"#mhinbox\" NIL)(\"#mh/\" \"/\")) ((\"~\" \"/\")) "
                 "((\"#shared/\" \"/\")(\"#ftp/\" \"/\")(\"#news.\" \".\")(\"#public/\" \"/\"))\r\n")
         << QSharedPointer<AbstractResponse>( new Namespace(
-                    QList<NamespaceData>() << NamespaceData( "", "/" ) << NamespaceData( "#mhinbox", QByteArray() )
-                        << NamespaceData( "#mh/", "/" ),
-                    QList<NamespaceData>() << NamespaceData( "~", "/" ),
-                    QList<NamespaceData>() << NamespaceData( "#shared/", "/" ) << NamespaceData( "#ftp/", "/" )
-                        << NamespaceData( "#news.", "." ) << NamespaceData( "#public/", "/" )
+                    QList<NamespaceData>() << NamespaceData( QLatin1String(""), QStringLiteral("/") ) << NamespaceData( QStringLiteral("#mhinbox"), QByteArray() )
+                        << NamespaceData( QStringLiteral("#mh/"), QStringLiteral("/") ),
+                    QList<NamespaceData>() << NamespaceData( QStringLiteral("~"), QStringLiteral("/") ),
+                    QList<NamespaceData>() << NamespaceData( QStringLiteral("#shared/"), QStringLiteral("/") ) << NamespaceData( QStringLiteral("#ftp/"), QStringLiteral("/") )
+                        << NamespaceData( QStringLiteral("#news."), QStringLiteral(".") ) << NamespaceData( QStringLiteral("#public/"), QStringLiteral("/") )
                     ) );
 
     QTest::newRow("sort-1")
@@ -647,13 +647,13 @@ void ImapParserParseTest::testParseUntagged_data()
 
     fetchData.clear();
     QDateTime date( QDate( 1996, 7, 17 ), QTime( 9, 23, 25 ), Qt::UTC );
-    QString subject( "IMAP4rev1 WG mtg summary and minutes");
+    QString subject( QStringLiteral("IMAP4rev1 WG mtg summary and minutes"));
     QList<MailAddress> from, sender, replyTo, to, cc, bcc;
-    from.append( MailAddress( "Terry Gray", QByteArray(), "gray", "cac.washington.edu") );
+    from.append( MailAddress( QStringLiteral("Terry Gray"), QByteArray(), QStringLiteral("gray"), QStringLiteral("cac.washington.edu")) );
     sender = replyTo = from;
-    to.append( MailAddress( QByteArray(), QByteArray(), "imap", "cac.washington.edu") );
-    cc.append( MailAddress( QByteArray(), QByteArray(), "minutes", "CNRI.Reston.VA.US") );
-    cc.append( MailAddress( "John Klensin", QByteArray(), "KLENSIN", "MIT.EDU") );
+    to.append( MailAddress( QByteArray(), QByteArray(), QStringLiteral("imap"), QStringLiteral("cac.washington.edu")) );
+    cc.append( MailAddress( QByteArray(), QByteArray(), QStringLiteral("minutes"), QStringLiteral("CNRI.Reston.VA.US")) );
+    cc.append( MailAddress( QStringLiteral("John Klensin"), QByteArray(), QStringLiteral("KLENSIN"), QStringLiteral("MIT.EDU")) );
     QByteArray messageId( "B27397-0100000@cac.washington.edu" );
     fetchData[ "ENVELOPE" ] = QSharedPointer<AbstractData>(
             new RespData<Envelope>(
@@ -1187,19 +1187,19 @@ void ImapParserParseTest::testThrow_data()
 
     QTest::newRow("garbage")
             << QByteArray("blah")
-            << QString("UnrecognizedResponseKind")
-            << QString("AH"); // uppercase of "blah" after cutting the two leading characters
+            << QStringLiteral("UnrecognizedResponseKind")
+            << QStringLiteral("AH"); // uppercase of "blah" after cutting the two leading characters
 
     QTest::newRow("garbage-well-formed")
             << QByteArray("* blah\r\n")
-            << QString("UnrecognizedResponseKind")
-            << QString("BLAH");
+            << QStringLiteral("UnrecognizedResponseKind")
+            << QStringLiteral("BLAH");
 
     QTest::newRow("expunge-number-at-the-end")
-            << QByteArray("* expunge 666\r\n") << QString("UnexpectedHere") << QString("Malformed response: the number should go first");
+            << QByteArray("* expunge 666\r\n") << QStringLiteral("UnexpectedHere") << QStringLiteral("Malformed response: the number should go first");
 
     QTest::newRow("thread-non-numbers")
-            << QByteArray("* THREAD (ahoj)\r\n") << QString("UnexpectedHere") << QString("THREAD response: cannot parse \"ahoj\" as an unsigned integer");
+            << QByteArray("* THREAD (ahoj)\r\n") << QStringLiteral("UnexpectedHere") << QStringLiteral("THREAD response: cannot parse \"ahoj\" as an unsigned integer");
 }
 
 QTEST_GUILESS_MAIN( ImapParserParseTest )

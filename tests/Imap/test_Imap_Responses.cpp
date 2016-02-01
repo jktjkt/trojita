@@ -53,35 +53,35 @@ void ImapResponsesTest::testCompareEq_data()
     QTest::addColumn<respPtr>("second");
 
     QSharedPointer<AbstractData> voidData( new RespData<void>() );
-    QSharedPointer<AbstractData> dumbList( new RespData<QStringList>( QStringList() << "foo" << "bar" ) );
+    QSharedPointer<AbstractData> dumbList( new RespData<QStringList>( QStringList() << QStringLiteral("foo") << QStringLiteral("bar") ) );
 
     QTest::newRow( "tagged-OK-nothing" ) <<
-        respPtr( new State( "123", OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( "123", OK, "foobar 333", NONE, voidData ) );
+        respPtr( new State( "123", OK, QStringLiteral("foobar 333"), NONE, voidData ) ) <<
+        respPtr( new State( "123", OK, QStringLiteral("foobar 333"), NONE, voidData ) );
 
     QTest::newRow( "tagged-OK-ALERT-void" ) <<
-        respPtr( new State( "123", OK, "foobar 666", ALERT, voidData ) ) <<
-        respPtr( new State( "123", OK, "foobar 666", ALERT, voidData ) );
+        respPtr( new State( "123", OK, QStringLiteral("foobar 666"), ALERT, voidData ) ) <<
+        respPtr( new State( "123", OK, QStringLiteral("foobar 666"), ALERT, voidData ) );
 
     QTest::newRow( "untagged-NO-CAPABILITY-void" ) <<
-        respPtr( new State( QByteArray(), NO, "foobar 1337", CAPABILITIES, dumbList ) ) <<
-        respPtr( new State( QByteArray(), NO, "foobar 1337", CAPABILITIES, dumbList ) );
+        respPtr( new State( QByteArray(), NO, QStringLiteral("foobar 1337"), CAPABILITIES, dumbList ) ) <<
+        respPtr( new State( QByteArray(), NO, QStringLiteral("foobar 1337"), CAPABILITIES, dumbList ) );
 
     QTest::newRow( "capability-caps" ) <<
-        respPtr( new Capability( QStringList() << "1337" << "trojita" ) ) <<
-        respPtr( new Capability( QStringList() << "1337" << "trojita" ) );
+        respPtr( new Capability( QStringList() << QStringLiteral("1337") << QStringLiteral("trojita") ) ) <<
+        respPtr( new Capability( QStringList() << QStringLiteral("1337") << QStringLiteral("trojita") ) );
 
     QTest::newRow( "number" ) <<
         respPtr( new NumberResponse( EXISTS, 10 ) ) <<
         respPtr( new NumberResponse( EXISTS, 10 ) );
 
     QTest::newRow( "list" ) <<
-        respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar", QMap<QByteArray,QVariant>() ) ) <<
-        respPtr( new List( LIST, QStringList( "\\Noselect" ), ".", "foOBar", QMap<QByteArray,QVariant>() ) );
+        respPtr( new List( LIST, QStringList( QStringLiteral("\\Noselect") ), QStringLiteral("."), QStringLiteral("foOBar"), QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList( QStringLiteral("\\Noselect") ), QStringLiteral("."), QStringLiteral("foOBar"), QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "flags" ) <<
-        respPtr( new Flags( QStringList( "\\Seen" ) ) ) <<
-        respPtr( new Flags( QStringList( "\\Seen" ) ) );
+        respPtr( new Flags( QStringList( QStringLiteral("\\Seen") ) ) ) <<
+        respPtr( new Flags( QStringList( QStringLiteral("\\Seen") ) ) );
 
     QTest::newRow( "search" ) <<
         respPtr( new Search(Imap::Uids() << 333)) <<
@@ -94,23 +94,23 @@ void ImapResponsesTest::testCompareEq_data()
 
     Status::stateDataType stateMap;
     QTest::newRow( "status-1" ) <<
-        respPtr( new Status( "ahoj", stateMap ) ) <<
-        respPtr( new Status( "ahoj", stateMap ) );
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap ) ) <<
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap ) );
 
     stateMap[Status::MESSAGES] = 12;
     QTest::newRow( "status-2" ) <<
-        respPtr( new Status( "ahoj", stateMap ) ) <<
-        respPtr( new Status( "ahoj", stateMap ) );
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap ) ) <<
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap ) );
 
     stateMap[Status::RECENT] = 0;
     QTest::newRow( "status-3" ) <<
-        respPtr( new Status( "ahoj", stateMap ) ) <<
-        respPtr( new Status( "ahoj", stateMap ) );
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap ) ) <<
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap ) );
 
     QTest::newRow( "namespace-1" ) <<
-        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
+        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( QStringLiteral("foo"), QStringLiteral("bar")), QList<NamespaceData>(), 
                     QList<NamespaceData>() ) ) <<
-        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
+        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( QStringLiteral("foo"), QStringLiteral("bar")), QList<NamespaceData>(), 
                     QList<NamespaceData>() ) );
 
     QTest::newRow( "sort-empty" ) << respPtr(new Sort(Imap::Uids())) << respPtr(new Sort(Imap::Uids()));
@@ -144,44 +144,44 @@ void ImapResponsesTest::testCompareNe_data()
     QTest::addColumn<respPtr>("second");
 
     QSharedPointer<AbstractData> voidData( new RespData<void>() );
-    QSharedPointer<AbstractData> dumbList( new RespData<QStringList>( QStringList() << "foo" << "bar" ) );
-    QSharedPointer<AbstractData> anotherList( new RespData<QStringList>( QStringList() << "bar" << "baz" ) );
+    QSharedPointer<AbstractData> dumbList( new RespData<QStringList>( QStringList() << QStringLiteral("foo") << QStringLiteral("bar") ) );
+    QSharedPointer<AbstractData> anotherList( new RespData<QStringList>( QStringList() << QStringLiteral("bar") << QStringLiteral("baz") ) );
 
     QTest::newRow( "status-tag" ) <<
-        respPtr( new State( "123", OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( "321", OK, "foobar 333", NONE, voidData ) );
+        respPtr( new State( "123", OK, QStringLiteral("foobar 333"), NONE, voidData ) ) <<
+        respPtr( new State( "321", OK, QStringLiteral("foobar 333"), NONE, voidData ) );
 
     QTest::newRow( "status-tagged-untagged" ) <<
-        respPtr( new State( "123", OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) );
+        respPtr( new State( "123", OK, QStringLiteral("foobar 333"), NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), NONE, voidData ) );
 
     QTest::newRow( "status-kind" ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( QByteArray(), NO, "foobar 333", NONE, voidData ) );
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), NO, QStringLiteral("foobar 333"), NONE, voidData ) );
 
     QTest::newRow( "status-response-code" ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", ALERT, voidData ) );
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), ALERT, voidData ) );
 
     QTest::newRow( "status-response-data-type" ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", CAPABILITIES, dumbList ) ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", CAPABILITIES, voidData ) );
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), CAPABILITIES, dumbList ) ) <<
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), CAPABILITIES, voidData ) );
 
     QTest::newRow( "status-response-data-data" ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", CAPABILITIES, dumbList ) ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", CAPABILITIES, anotherList ) );
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), CAPABILITIES, dumbList ) ) <<
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), CAPABILITIES, anotherList ) );
 
     QTest::newRow( "status-message" ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 666", NONE, voidData ) );
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 666"), NONE, voidData ) );
 
     QTest::newRow( "kind-status-capability" ) <<
-        respPtr( new State( QByteArray(), OK, "foobar 333", NONE, voidData ) ) <<
+        respPtr( new State( QByteArray(), OK, QStringLiteral("foobar 333"), NONE, voidData ) ) <<
         respPtr( new Capability( QStringList() ) );
 
     QTest::newRow( "capability-caps" ) <<
-        respPtr( new Capability( QStringList("333") ) ) <<
-        respPtr( new Capability( QStringList("666") ) );
+        respPtr( new Capability( QStringList(QStringLiteral("333")) ) ) <<
+        respPtr( new Capability( QStringList(QStringLiteral("666")) ) );
 
     QTest::newRow( "number-kind" ) <<
         respPtr( new NumberResponse( EXISTS, 10 ) ) <<
@@ -192,34 +192,34 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr( new NumberResponse( RECENT, 11 ) );
 
     QTest::newRow( "list-kind" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
-        respPtr( new List( LSUB, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) );
+        respPtr( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("blesmrt"), QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LSUB, QStringList(), QStringLiteral("."), QStringLiteral("blesmrt"), QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "list-flags" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
-        respPtr( new List( LIST, QStringList("333"), ".", "blesmrt", QMap<QByteArray,QVariant>() ) );
+        respPtr( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("blesmrt"), QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList(QStringLiteral("333")), QStringLiteral("."), QStringLiteral("blesmrt"), QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "list-separator" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
-        respPtr( new List( LIST, QStringList(), "/", "blesmrt", QMap<QByteArray,QVariant>() ) );
+        respPtr( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("blesmrt"), QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList(), QStringLiteral("/"), QStringLiteral("blesmrt"), QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "list-mailbox" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
-        respPtr( new List( LIST, QStringList(), ".", "trojita", QMap<QByteArray,QVariant>() ) );
+        respPtr( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("blesmrt"), QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("trojita"), QMap<QByteArray,QVariant>() ) );
 
     QTest::newRow( "list-mailbox-case" ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blesmrt", QMap<QByteArray,QVariant>() ) ) <<
-        respPtr( new List( LIST, QStringList(), ".", "blEsmrt", QMap<QByteArray,QVariant>() ) );
+        respPtr( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("blesmrt"), QMap<QByteArray,QVariant>() ) ) <<
+        respPtr( new List( LIST, QStringList(), QStringLiteral("."), QStringLiteral("blEsmrt"), QMap<QByteArray,QVariant>() ) );
 
     QMap<QByteArray,QVariant> listExtendedData;
     listExtendedData["blah"] = 10;
     QTest::newRow("list-extended-data") <<
-        respPtr(new List(LIST, QStringList(), ".", "ble", QMap<QByteArray,QVariant>())) <<
-        respPtr(new List(LIST, QStringList(), ".", "ble", listExtendedData));
+        respPtr(new List(LIST, QStringList(), QStringLiteral("."), QStringLiteral("ble"), QMap<QByteArray,QVariant>())) <<
+        respPtr(new List(LIST, QStringList(), QStringLiteral("."), QStringLiteral("ble"), listExtendedData));
 
     QTest::newRow( "flags" ) <<
-        respPtr( new Flags( QStringList("333") ) ) <<
-        respPtr( new Flags( QStringList("666") ) );
+        respPtr( new Flags( QStringList(QStringLiteral("333")) ) ) <<
+        respPtr( new Flags( QStringList(QStringLiteral("666")) ) );
 
     QTest::newRow( "search" ) <<
         respPtr( new Search(Imap::Uids() << 333)) <<
@@ -242,8 +242,8 @@ void ImapResponsesTest::testCompareNe_data()
         respPtr(new ESearch("t1", ESearch::UIDS, emptyEsearchResp));
 
     QTest::newRow( "status-mailbox" ) <<
-        respPtr( new Status( "ahoj", Status::stateDataType() ) ) <<
-        respPtr( new Status( "ahOj", Status::stateDataType() ) );
+        respPtr( new Status( QStringLiteral("ahoj"), Status::stateDataType() ) ) <<
+        respPtr( new Status( QStringLiteral("ahOj"), Status::stateDataType() ) );
 
     Status::stateDataType stateMap1, stateMap2, stateMap3;
     stateMap1[Status::MESSAGES] = 12;
@@ -256,21 +256,21 @@ void ImapResponsesTest::testCompareNe_data()
     stateMap1[Status::RECENT] = 1;
 
     QTest::newRow( "status-mailbox-nonempty" ) <<
-        respPtr( new Status( "ahoj", stateMap1 ) ) <<
-        respPtr( new Status( "ahOj", stateMap1 ) );
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap1 ) ) <<
+        respPtr( new Status( QStringLiteral("ahOj"), stateMap1 ) );
 
     QTest::newRow( "status-1" ) <<
-        respPtr( new Status( "ahoj", stateMap1 ) ) <<
-        respPtr( new Status( "ahoj", stateMap2 ) );
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap1 ) ) <<
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap2 ) );
 
     QTest::newRow( "status-2" ) <<
-        respPtr( new Status( "ahoj", stateMap1 ) ) <<
-        respPtr( new Status( "ahoj", stateMap3 ) );
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap1 ) ) <<
+        respPtr( new Status( QStringLiteral("ahoj"), stateMap3 ) );
 
     QTest::newRow( "namespace-1" ) <<
-        respPtr( new Namespace( QList<NamespaceData>(), QList<NamespaceData>() << NamespaceData( "foo", "bar" ), 
+        respPtr( new Namespace( QList<NamespaceData>(), QList<NamespaceData>() << NamespaceData( QStringLiteral("foo"), QStringLiteral("bar") ), 
                     QList<NamespaceData>() ) ) <<
-        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( "foo", "bar"), QList<NamespaceData>(), 
+        respPtr( new Namespace( QList<NamespaceData>() << NamespaceData( QStringLiteral("foo"), QStringLiteral("bar")), QList<NamespaceData>(), 
                     QList<NamespaceData>() ) );
 
     QTest::newRow( "sort-empty-1" ) << respPtr(new Sort(Imap::Uids())) << respPtr(new Sort(Imap::Uids() << 3));

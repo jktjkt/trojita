@@ -438,7 +438,7 @@ void ComposerSubmissionTest::testBurlSubmission()
     cServer(t.last("OK [APPENDUID 666333666 123] append done\r\n"));
     cClient(t.mk("GENURLAUTH \"imap://usr@host/meh;UIDVALIDITY=666333666/;UID=123;urlauth=submit+smtpUser\" INTERNAL\r\n"));
     // This is an actual example from RFC 4467
-    QString genAuthUrl = "imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038";
+    QString genAuthUrl = QStringLiteral("imap://joe@example.com/INBOX/;uid=20/;section=1.2;urlauth=submit+fred:internal:91354a473744909de610943775f92038");
     cServer("* GENURLAUTH \"" + genAuthUrl.toUtf8() + "\"\r\n");
     cServer(t.last("OK genurlauth\r\n"));
     cEmpty();
@@ -488,7 +488,7 @@ void ComposerSubmissionTest::testBurlSubmissionAttachedWholeMessage()
     cServer(t.last("OK [APPENDUID 666333666 123] append done\r\n"));
     cClient(t.mk("GENURLAUTH \"imap://usr@host/meh;UIDVALIDITY=666333666/;UID=123;urlauth=submit+smtpUser\" INTERNAL\r\n"));
     // This is an actual example from RFC 4467
-    QString genAuthUrl = "imap://joe@example.com/INBOX/;uid=20;urlauth=submit+fred:internal:91354a473744909de610943775f92038";
+    QString genAuthUrl = QStringLiteral("imap://joe@example.com/INBOX/;uid=20;urlauth=submit+fred:internal:91354a473744909de610943775f92038");
     cServer("* GENURLAUTH \"" + genAuthUrl.toUtf8() + "\"\r\n");
     cServer(t.last("OK genurlauth\r\n"));
     cEmpty();

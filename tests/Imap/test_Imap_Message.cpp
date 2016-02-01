@@ -101,19 +101,19 @@ void ImapMessageTest::testMailAddresNe_data()
     QTest::addColumn<QVariantList>("data");
 
     QTest::newRow( "difference-name" ) <<
-        MailAddress( "name", "adl", "mailbox", "host" ) <<
+        MailAddress( QStringLiteral("name"), QStringLiteral("adl"), QStringLiteral("mailbox"), QStringLiteral("host") ) <<
         ( QVariantList() << QByteArray("nAme") << QByteArray("adl") << QByteArray("mailbox") << QByteArray("host") );
 
     QTest::newRow( "difference-adl" ) <<
-        MailAddress( "name", "adl", "mailbox", "host" ) <<
+        MailAddress( QStringLiteral("name"), QStringLiteral("adl"), QStringLiteral("mailbox"), QStringLiteral("host") ) <<
         ( QVariantList() << QByteArray("name") << QByteArray("aDl") << QByteArray("mailbox") << QByteArray("host") );
 
     QTest::newRow( "difference-mailbox" ) <<
-        MailAddress( "name", "adl", "mailbox", "host" ) <<
+        MailAddress( QStringLiteral("name"), QStringLiteral("adl"), QStringLiteral("mailbox"), QStringLiteral("host") ) <<
         ( QVariantList() << QByteArray("name") << QByteArray("adl") << QByteArray("maIlbox") << QByteArray("host") );
 
     QTest::newRow( "difference-host" ) <<
-        MailAddress( "name", "adl", "mailbox", "host" ) <<
+        MailAddress( QStringLiteral("name"), QStringLiteral("adl"), QStringLiteral("mailbox"), QStringLiteral("host") ) <<
         ( QVariantList() << QByteArray("name") << QByteArray("adl") << QByteArray("mailbox") << QByteArray("h0st") );
 
 }
@@ -154,17 +154,17 @@ void ImapMessageTest::testMailAddressFormat_data()
     QTest::addColumn<bool>("should2047");
 
     QTest::newRow("simple") <<
-        MailAddress( "name", "adl", "mailbox", "host" ) <<
-        QString("name <mailbox@host>") <<
+        MailAddress( QStringLiteral("name"), QStringLiteral("adl"), QStringLiteral("mailbox"), QStringLiteral("host") ) <<
+        QStringLiteral("name <mailbox@host>") <<
         QByteArray("mailbox@host") << false;
 
     QTest::newRow("domain-literal") <<
-        MailAddress( "words name", "adl", "us.er", "[127.0.0.1]" ) <<
-        QString("words name <us.er@[127.0.0.1]>") <<
+        MailAddress( QStringLiteral("words name"), QStringLiteral("adl"), QStringLiteral("us.er"), QStringLiteral("[127.0.0.1]") ) <<
+        QStringLiteral("words name <us.er@[127.0.0.1]>") <<
         QByteArray("us.er@[127.0.0.1]") << false;
 
     QTest::newRow("idn") <<
-        MailAddress( "words j. name", "adl", "us.er",
+        MailAddress( QStringLiteral("words j. name"), QStringLiteral("adl"), QStringLiteral("us.er"),
                      QString::fromUtf8("trojit\xC3\xA1.example.com") ) <<
         QString::fromUtf8("words j. name <us.er@trojit\xC3\xA1.example.com>") <<
         QByteArray("us.er@xn--trojit-uta.example.com") << false;
@@ -174,24 +174,24 @@ void ImapMessageTest::testMailAddressFormat_data()
        IDN. We don't actually care whether it's normalized for
        PRETTYNAME, but we have to give a value for the test. */
     QTest::newRow("idn+normalize") <<
-        MailAddress( "words j. name", "adl", "us.er",
+        MailAddress( QStringLiteral("words j. name"), QStringLiteral("adl"), QStringLiteral("us.er"),
                      QString::fromUtf8("trojita\xCC\x81.example.com") ) <<
         QString::fromUtf8("words j. name <us.er@trojita\xCC\x81.example.com>") <<
         QByteArray("us.er@xn--trojit-uta.example.com") << false;
 
     QTest::newRow("odd-mailbox") <<
-        MailAddress( "words (q) name", "adl", "us er", "example.com" ) <<
-        QString("words (q) name <us er@example.com>") <<
+        MailAddress( QStringLiteral("words (q) name"), QStringLiteral("adl"), QStringLiteral("us er"), QStringLiteral("example.com") ) <<
+        QStringLiteral("words (q) name <us er@example.com>") <<
         QByteArray("\"us er\"@example.com") << false;
 
     QTest::newRow("intl-realname") <<
         MailAddress( QStringLiteral("words \xE2\x98\xBA name"),
-                     "adl", "*", "example.com" ) <<
+                     QStringLiteral("adl"), QStringLiteral("*"), QStringLiteral("example.com") ) <<
         QStringLiteral("words \xE2\x98\xBA name <*@example.com>") <<
         QByteArray("*@example.com") << true;
 
     QTest::newRow("intl-with-composed-mailbox") <<
-        MailAddress(QStringLiteral("Jan Kundrát"), "", "jan.kundrat", "demo.isode.com") <<
+        MailAddress(QStringLiteral("Jan Kundrát"), QLatin1String(""), QStringLiteral("jan.kundrat"), QStringLiteral("demo.isode.com")) <<
         QStringLiteral("Jan Kundrát <jan.kundrat@demo.isode.com>") <<
         QByteArray("jan.kundrat@demo.isode.com") << true;
 }
@@ -219,11 +219,11 @@ void ImapMessageTest::testMailAddressParsing_data()
 
     QTest::newRow("trojita-ml") <<
         QStringLiteral("trojita@lists.flaska.net") <<
-        MailAddress(QString(), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QString(), QString(), QStringLiteral("trojita"), QStringLiteral("lists.flaska.net"));
 
     QTest::newRow("trojita-ml-with-short-ascii-name") <<
         QStringLiteral("Trojita <trojita@lists.flaska.net>") <<
-        MailAddress(QStringLiteral("Trojita"), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QStringLiteral("Trojita"), QString(), QStringLiteral("trojita"), QStringLiteral("lists.flaska.net"));
 
     /*QTest::newRow("trojita-ml-with-short-ascii-name-quoted") <<
         QString::fromUtf8("\"Trojita\" <trojita@lists.flaska.net>") <<
@@ -231,7 +231,7 @@ void ImapMessageTest::testMailAddressParsing_data()
 
     QTest::newRow("trojita-ml-with-ascii-name") <<
         QStringLiteral("Trojita ML <trojita@lists.flaska.net>") <<
-        MailAddress(QStringLiteral("Trojita ML"), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QStringLiteral("Trojita ML"), QString(), QStringLiteral("trojita"), QStringLiteral("lists.flaska.net"));
 
     /*QTest::newRow("trojita-ml-with-ascii-name-quoted") <<
         QString::fromUtf8("\"Trojita ML\" <trojita@lists.flaska.net>") <<
@@ -239,7 +239,7 @@ void ImapMessageTest::testMailAddressParsing_data()
 
     QTest::newRow("trojita-ml-with-short-unicode-name") <<
         QStringLiteral("Trojitá <trojita@lists.flaska.net>") <<
-        MailAddress(QStringLiteral("Trojitá"), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QStringLiteral("Trojitá"), QString(), QStringLiteral("trojita"), QStringLiteral("lists.flaska.net"));
 
     /*QTest::newRow("trojita-ml-with-short-unicode-name-quoted") <<
         QString::fromUtf8("\"Trojitá\" <trojita@lists.flaska.net>") <<
@@ -247,7 +247,7 @@ void ImapMessageTest::testMailAddressParsing_data()
 
     QTest::newRow("trojita-ml-with-unicode-name") <<
         QStringLiteral("Trojitá ML <trojita@lists.flaska.net>") <<
-        MailAddress(QStringLiteral("Trojitá ML"), QString(), "trojita", "lists.flaska.net");
+        MailAddress(QStringLiteral("Trojitá ML"), QString(), QStringLiteral("trojita"), QStringLiteral("lists.flaska.net"));
 
     /*QTest::newRow("trojita-ml-with-unicode-name-quoted") <<
         QString::fromUtf8("\"Trojitá ML\" <trojita@lists.flaska.net>") <<
@@ -255,7 +255,7 @@ void ImapMessageTest::testMailAddressParsing_data()
 
     QTest::newRow("jkt-isode-ascii") <<
         QStringLiteral("Jan Kundrat <jan.kundrat@demo.isode.com>") <<
-        MailAddress(QStringLiteral("Jan Kundrat"), QString(), "jan.kundrat", "demo.isode.com");
+        MailAddress(QStringLiteral("Jan Kundrat"), QString(), QStringLiteral("jan.kundrat"), QStringLiteral("demo.isode.com"));
 
     /*QTest::newRow("jkt-isode-ascii-quoted") <<
         QString::fromUtf8("\"Jan Kundrat\" <jan.kundrat@demo.isode.com>") <<
@@ -263,7 +263,7 @@ void ImapMessageTest::testMailAddressParsing_data()
 
     QTest::newRow("jkt-isode-unicode") <<
         QStringLiteral("Jan Kundrát <jan.kundrat@demo.isode.com>") <<
-        MailAddress(QStringLiteral("Jan Kundrát"), QString(), "jan.kundrat", "demo.isode.com");
+        MailAddress(QStringLiteral("Jan Kundrát"), QString(), QStringLiteral("jan.kundrat"), QStringLiteral("demo.isode.com"));
 
     /*QTest::newRow("jkt-isode-unicode-quoted") <<
         QString::fromUtf8("\"Jan Kundrát\" <jan.kundrat@demo.isode.com>") <<
@@ -271,11 +271,11 @@ void ImapMessageTest::testMailAddressParsing_data()
 
     QTest::newRow("long-address-with-fancy-symbols") <<
         QStringLiteral("Some Fünny Äddre¶ <this-is_a.test+some-thin_g.yay@foo-blah.d_o-t.example.org>") <<
-        MailAddress(QStringLiteral("Some Fünny Äddre¶"), QString(), "this-is_a.test+some-thin_g.yay", "foo-blah.d_o-t.example.org");
+        MailAddress(QStringLiteral("Some Fünny Äddre¶"), QString(), QStringLiteral("this-is_a.test+some-thin_g.yay"), QStringLiteral("foo-blah.d_o-t.example.org"));
 
     QTest::newRow("long-address-with-fancy-symbols-no-human-name") <<
         QStringLiteral("this-is_a.test+some-thin_g.yay@foo-blah.d_o-t.example.org") <<
-        MailAddress(QString(), QString(), "this-is_a.test+some-thin_g.yay", "foo-blah.d_o-t.example.org");
+        MailAddress(QString(), QString(), QStringLiteral("this-is_a.test+some-thin_g.yay"), QStringLiteral("foo-blah.d_o-t.example.org"));
 }
 
 void ImapMessageTest::testMessage()

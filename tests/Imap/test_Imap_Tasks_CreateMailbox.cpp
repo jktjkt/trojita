@@ -102,7 +102,7 @@ void ImapModelCreateMailboxTest::testCreateOneMore()
     _initWithOne();
 
     // Now test the actual creating process
-    model->createMailbox( "ahoj" );
+    model->createMailbox( QStringLiteral("ahoj") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CREATE ahoj\r\n") );
@@ -128,7 +128,7 @@ void ImapModelCreateMailboxTest::testCreateEmpty()
     _initWithEmpty();
 
     // Now test the actual creating process
-    model->createMailbox( "ahoj" );
+    model->createMailbox( QStringLiteral("ahoj") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CREATE ahoj\r\n") );
@@ -154,7 +154,7 @@ void ImapModelCreateMailboxTest::testCreateFail()
     _initWithEmpty();
 
     // Test failure of the CREATE command
-    model->createMailbox( "ahoj" );
+    model->createMailbox( QStringLiteral("ahoj") );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CREATE ahoj\r\n") );

@@ -38,13 +38,13 @@ void RFCCodecsTest::testIMAPEncoding()
   decoded = decodeImapFolderName( "Test.Frode R&APg-nning" );
   QVERIFY( decoded == QString::fromUtf8("Test.Frode Rønning") );
 
-  encoded = encodeImapFolderName( "Test.tom & jerry" );
+  encoded = encodeImapFolderName( QStringLiteral("Test.tom & jerry") );
   QVERIFY( encoded == "Test.tom &- jerry" );
   decoded = decodeImapFolderName( "Test.tom &- jerry" );
   QVERIFY( decoded == "Test.tom & jerry" );
 
   // Try to feed already encoded
-  encoded = encodeImapFolderName( "Test.Cl&AOE-udio" );
+  encoded = encodeImapFolderName( QStringLiteral("Test.Cl&AOE-udio") );
   QVERIFY( encoded == "Test.Cl&-AOE-udio" );
   decoded = decodeImapFolderName( "Test.Cl&-AOE-udio" );
   QVERIFY( decoded == "Test.Cl&AOE-udio" );

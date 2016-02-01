@@ -58,10 +58,10 @@ void ImapModelThreadingTest::testStaticThreading_data()
     Mapping m;
 
     // A linear subset of messages
-    m["0"] = 1; // index 0: UID
-    m["0.0"] = 0; // index 0.0: invalid
-    m["0.1"] = 0; // index 0.1: invalid
-    m["1"] = 2;
+    m[QStringLiteral("0")] = 1; // index 0: UID
+    m[QStringLiteral("0.0")] = 0; // index 0.0: invalid
+    m[QStringLiteral("0.1")] = 0; // index 0.1: invalid
+    m[QStringLiteral("1")] = 2;
 
     QTest::newRow("no-threads")
             << (uint)2
@@ -69,15 +69,15 @@ void ImapModelThreadingTest::testStaticThreading_data()
             << m;
 
     // No threading at all; just an unthreaded list of all messages
-    m["2"] = 3;
-    m["3"] = 4;
-    m["4"] = 5;
-    m["5"] = 6;
-    m["6"] = 7;
-    m["7"] = 8;
-    m["8"] = 9;
-    m["9"] = 10; // index 9: UID 10
-    m["10"] = 0; // index 10: invalid
+    m[QStringLiteral("2")] = 3;
+    m[QStringLiteral("3")] = 4;
+    m[QStringLiteral("4")] = 5;
+    m[QStringLiteral("5")] = 6;
+    m[QStringLiteral("6")] = 7;
+    m[QStringLiteral("7")] = 8;
+    m[QStringLiteral("8")] = 9;
+    m[QStringLiteral("9")] = 10; // index 9: UID 10
+    m[QStringLiteral("10")] = 0; // index 10: invalid
 
     QTest::newRow("no-threads-ten")
             << (uint)10
@@ -93,28 +93,28 @@ void ImapModelThreadingTest::testStaticThreading_data()
 
     // A liner nested list (ie. a message is a child of the previous one)
     m.clear();
-    m["0"] = 1;
-    m["1"] = 0;
-    m["0.0"] = 2;
-    m["0.1"] = 0;
-    m["0.0.0"] = 0;
-    m["0.0.1"] = 0;
+    m[QStringLiteral("0")] = 1;
+    m[QStringLiteral("1")] = 0;
+    m[QStringLiteral("0.0")] = 2;
+    m[QStringLiteral("0.1")] = 0;
+    m[QStringLiteral("0.0.0")] = 0;
+    m[QStringLiteral("0.0.1")] = 0;
     QTest::newRow("linear-threading-just-two")
             << (uint)2
             << QByteArray("(1 2)")
             << m;
 
     // The same, but with three messages
-    m["0.0.0"] = 3;
-    m["0.0.0.0"] = 0;
+    m[QStringLiteral("0.0.0")] = 3;
+    m[QStringLiteral("0.0.0.0")] = 0;
     QTest::newRow("linear-threading-just-three")
             << (uint)3
             << QByteArray("(1 2 3)")
             << m;
 
     // The same, but with some added parentheses
-    m["0.0.0"] = 3;
-    m["0.0.0.0"] = 0;
+    m[QStringLiteral("0.0.0")] = 3;
+    m[QStringLiteral("0.0.0.0")] = 0;
     QTest::newRow("linear-threading-just-three-extra-parentheses-outside")
             << (uint)3
             << QByteArray("((((1 2 3))))")
@@ -129,13 +129,13 @@ void ImapModelThreadingTest::testStaticThreading_data()
     // This is actually a server's bug, as the fake node should've been eliminated
     // by the IMAP server.
     m.clear();
-    m["0"] = 1;
-    m["1"] = 0;
-    m["0.0"] = 2;
-    m["0.0.0"] = 0;
-    m["0.1"] = 3;
-    m["0.1.0"] = 0;
-    m["0.2"] = 0;
+    m[QStringLiteral("0")] = 1;
+    m[QStringLiteral("1")] = 0;
+    m[QStringLiteral("0.0")] = 2;
+    m[QStringLiteral("0.0.0")] = 0;
+    m[QStringLiteral("0.1")] = 3;
+    m[QStringLiteral("0.1.0")] = 0;
+    m[QStringLiteral("0.2")] = 0;
     QTest::newRow("linear-threading-just-extra-parentheses-middle")
             << (uint)3
             << QByteArray("(1 (2) 3)")
@@ -249,15 +249,15 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
     // Just test that dumping works; no deletions yet
     QTest::newRow("basic-flat-list") << (uint)2 << QByteArray("(1)(2)") << QStringList();
     // Simple tests for flat lists
-    QTest::newRow("flat-list-two-delete-first") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "-1" << "(2)");
-    QTest::newRow("flat-list-two-delete-last") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "-2" << "(1)");
-    QTest::newRow("flat-list-three-delete-first") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "-1" << "(2)(3)");
-    QTest::newRow("flat-list-three-delete-middle") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "-2" << "(1)(3)");
-    QTest::newRow("flat-list-three-delete-last") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << "-3" << "(1)(2)");
+    QTest::newRow("flat-list-two-delete-first") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << QStringLiteral("-1") << QStringLiteral("(2)"));
+    QTest::newRow("flat-list-two-delete-last") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << QStringLiteral("-2") << QStringLiteral("(1)"));
+    QTest::newRow("flat-list-three-delete-first") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << QStringLiteral("-1") << QStringLiteral("(2)(3)"));
+    QTest::newRow("flat-list-three-delete-middle") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << QStringLiteral("-2") << QStringLiteral("(1)(3)"));
+    QTest::newRow("flat-list-three-delete-last") << (uint)3 << QByteArray("(1)(2)(3)") << (QStringList() << QStringLiteral("-3") << QStringLiteral("(1)(2)"));
     // Try to test a single thread
-    QTest::newRow("simple-three-delete-first") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "-1" << "(2 3)");
-    QTest::newRow("simple-three-delete-middle") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "-2" << "(1 3)");
-    QTest::newRow("simple-three-delete-last") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << "-3" << "(1 2)");
+    QTest::newRow("simple-three-delete-first") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << QStringLiteral("-1") << QStringLiteral("(2 3)"));
+    QTest::newRow("simple-three-delete-middle") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << QStringLiteral("-2") << QStringLiteral("(1 3)"));
+    QTest::newRow("simple-three-delete-last") << (uint)3 << QByteArray("(1 2 3)") << (QStringList() << QStringLiteral("-3") << QStringLiteral("(1 2)"));
     // A thread with a fork:
     // 1
     // +- 2
@@ -265,17 +265,17 @@ void ImapModelThreadingTest::testThreadDeletionsAdditions_data()
     // +- 4
     //    +- 5
     QTest::newRow("fork") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << QStringList();
-    QTest::newRow("fork-delete-first") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "-1" << "(2 (3)(4 5))");
-    QTest::newRow("fork-delete-second") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "-2" << "(1 (3)(4 5))");
-    QTest::newRow("fork-delete-third") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << "-3" << "(1 (2)(4 5))");
+    QTest::newRow("fork-delete-first") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << QStringLiteral("-1") << QStringLiteral("(2 (3)(4 5))"));
+    QTest::newRow("fork-delete-second") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << QStringLiteral("-2") << QStringLiteral("(1 (3)(4 5))"));
+    QTest::newRow("fork-delete-third") << (uint)5 << QByteArray("(1 (2 3)(4 5))") << (QStringList() << QStringLiteral("-3") << QStringLiteral("(1 (2)(4 5))"));
     // Remember, we're using EXPUNGE which use sequence numbers, not UIDs
     QTest::newRow("fork-delete-two-three") << (uint)5 << QByteArray("(1 (2 3)(4 5))") <<
-                                              (QStringList() << "-2" << "(1 (3)(4 5))" << "-2" << "(1 4 5)");
+                                              (QStringList() << QStringLiteral("-2") << QStringLiteral("(1 (3)(4 5))") << QStringLiteral("-2") << QStringLiteral("(1 4 5)"));
     QTest::newRow("fork-delete-two-four") << (uint)5 << QByteArray("(1 (2 3)(4 5))") <<
-                                              (QStringList() << "-2" << "(1 (3)(4 5))" << "-3" << "(1 (3)(5))");
+                                              (QStringList() << QStringLiteral("-2") << QStringLiteral("(1 (3)(4 5))") << QStringLiteral("-3") << QStringLiteral("(1 (3)(5))"));
 
     // Test new arrivals
-    QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << "+1" << "(1)(2)(3)");
+    QTest::newRow("flat-list-new") << (uint)2 << QByteArray("(1)(2)") << (QStringList() << QStringLiteral("+1") << QStringLiteral("(1)(2)(3)"));
 
 }
 
@@ -349,11 +349,11 @@ void ImapModelThreadingTest::testDynamicThreading()
     QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2 3)(4 (5)(6))(7 (8)(9 10))"));
 
     // this one will be deleted
-    QPersistentModelIndex delete10 = findItem("3.1.0");
+    QPersistentModelIndex delete10 = findItem(QStringLiteral("3.1.0"));
     QVERIFY(delete10.isValid());
 
     // its parent
-    QPersistentModelIndex msg9 = findItem("3.1");
+    QPersistentModelIndex msg9 = findItem(QStringLiteral("3.1"));
     QCOMPARE(QPersistentModelIndex(delete10.parent()), msg9);
     QCOMPARE(threadingModel->rowCount(msg9), 1);
 
@@ -379,16 +379,16 @@ void ImapModelThreadingTest::testDynamicThreading()
     QCOMPARE(msgListModel->rowCount(QModelIndex()), static_cast<int>(existsA));
     QCOMPARE(threadingModel->rowCount(msg9), 0);
     QVERIFY(!delete10.isValid());
-    mapping.remove("3.1.0.0");
-    mapping["3.1.0"] = 0;
-    indexMap.remove("3.1.0.0");
+    mapping.remove(QStringLiteral("3.1.0.0"));
+    mapping[QStringLiteral("3.1.0")] = 0;
+    indexMap.remove(QStringLiteral("3.1.0.0"));
     verifyMapping(mapping);
     verifyIndexMap(indexMap, mapping);
     QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2 3)(4 (5)(6))(7 (8)(9))"));
 
-    QPersistentModelIndex msg2 = findItem("1");
+    QPersistentModelIndex msg2 = findItem(QStringLiteral("1"));
     QVERIFY(msg2.isValid());
-    QPersistentModelIndex msg3 = findItem("1.0");
+    QPersistentModelIndex msg3 = findItem(QStringLiteral("1.0"));
     QVERIFY(msg3.isValid());
 
     // Delete the root of the second thread
@@ -400,18 +400,18 @@ void ImapModelThreadingTest::testDynamicThreading()
     --existsA;
     QCOMPARE(msgListModel->rowCount(QModelIndex()), static_cast<int>(existsA));
     QCOMPARE(threadingModel->rowCount(QModelIndex()), 4);
-    QPersistentModelIndex newMsg3 = findItem("1");
+    QPersistentModelIndex newMsg3 = findItem(QStringLiteral("1"));
     QVERIFY(!msg2.isValid());
     QVERIFY(msg3.isValid());
     QCOMPARE(msg3, newMsg3);
-    mapping.remove("1.0.0");
-    mapping["1.0"] = 0;
-    mapping["1"] = 3;
+    mapping.remove(QStringLiteral("1.0.0"));
+    mapping[QStringLiteral("1.0")] = 0;
+    mapping[QStringLiteral("1")] = 3;
     verifyMapping(mapping);
     // Check the changed persistent indexes
-    indexMap.remove("1.0.0");
-    indexMap["1"] = indexMap["1.0"];
-    indexMap.remove("1.0");
+    indexMap.remove(QStringLiteral("1.0.0"));
+    indexMap[QStringLiteral("1")] = indexMap[QStringLiteral("1.0")];
+    indexMap.remove(QStringLiteral("1.0"));
     verifyIndexMap(indexMap, mapping);
     QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(3)(4 (5)(6))(7 (8)(9))"));
 
@@ -450,19 +450,19 @@ void ImapModelThreadingTest::testDynamicThreading()
         cClient(threadCommand1);
         // In the meanwhile, the message is temporarily visible as a standalone thread
         QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(1)(3)(4 (5)(6))(7 (8)(9))(66)"));
-        mapping["4"] = 66;
-        indexMap["4"] = findItem("4");
+        mapping[QStringLiteral("4")] = 66;
+        indexMap[QStringLiteral("4")] = findItem(QStringLiteral("4"));
         verifyMapping(mapping);
         verifyIndexMap(indexMap, mapping);
 
         // Move the message into its proper place now
         cServer(threadUntagged1 + delayedThreadResponse1);
-        indexMap["3.2"] = indexMap["4"];
-        indexMap.remove("4");
-        mapping["3.2"] = mapping["4"];
-        mapping["3.2.0"] = 0;
-        mapping["3.3"] = 0;
-        mapping["4"] = 0;
+        indexMap[QStringLiteral("3.2")] = indexMap[QStringLiteral("4")];
+        indexMap.remove(QStringLiteral("4"));
+        mapping[QStringLiteral("3.2")] = mapping[QStringLiteral("4")];
+        mapping[QStringLiteral("3.2.0")] = 0;
+        mapping[QStringLiteral("3.3")] = 0;
+        mapping[QStringLiteral("4")] = 0;
         QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(1)(3)(4 (5)(6))(7 (8)(9)(66))"));
         verifyMapping(mapping);
         verifyIndexMap(indexMap, mapping);
@@ -476,24 +476,24 @@ void ImapModelThreadingTest::testDynamicThreading()
 void ImapModelThreadingTest::complexMapping(Mapping &m, QByteArray &response)
 {
     m.clear();
-    m["0"] = 1;
-    m["0.0"] = 0;
-    m["1"] = 2;
-    m["1.0"] = 3;
-    m["1.0.0"] = 0;
-    m["2"] = 4;
-    m["2.0"] = 5;
-    m["2.0.0"] = 0;
-    m["2.1"] = 6;
-    m["2.1.0"] = 0;
-    m["3"] = 7;
-    m["3.0"] = 8;
-    m["3.0.0"] = 0;
-    m["3.1"] = 9;
-    m["3.1.0"] = 10;
-    m["3.1.0.0"] = 0;
-    m["3.2"] = 0;
-    m["4"] = 0;
+    m[QStringLiteral("0")] = 1;
+    m[QStringLiteral("0.0")] = 0;
+    m[QStringLiteral("1")] = 2;
+    m[QStringLiteral("1.0")] = 3;
+    m[QStringLiteral("1.0.0")] = 0;
+    m[QStringLiteral("2")] = 4;
+    m[QStringLiteral("2.0")] = 5;
+    m[QStringLiteral("2.0.0")] = 0;
+    m[QStringLiteral("2.1")] = 6;
+    m[QStringLiteral("2.1.0")] = 0;
+    m[QStringLiteral("3")] = 7;
+    m[QStringLiteral("3.0")] = 8;
+    m[QStringLiteral("3.0.0")] = 0;
+    m[QStringLiteral("3.1")] = 9;
+    m[QStringLiteral("3.1.0")] = 10;
+    m[QStringLiteral("3.1.0.0")] = 0;
+    m[QStringLiteral("3.2")] = 0;
+    m[QStringLiteral("4")] = 0;
     response = QByteArray("(1)(2 3)(4 (5)(6))((7)(8)(9 10))");
 }
 
@@ -630,9 +630,9 @@ void ImapModelThreadingTest::testDynamicSorting()
     // keep preloading active
 
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("QRESYNC");
-    injector.injectCapability("SORT=DISPLAY");
-    injector.injectCapability("SORT");
+    injector.injectCapability(QStringLiteral("QRESYNC"));
+    injector.injectCapability(QStringLiteral("SORT=DISPLAY"));
+    injector.injectCapability(QStringLiteral("SORT"));
 
     threadingModel->setUserWantsThreading(false);
 
@@ -645,12 +645,12 @@ void ImapModelThreadingTest::testDynamicSorting()
     sync.setRecent(0);
     Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
-    model->cache()->setMailboxSyncState("a", sync);
-    model->cache()->setUidMapping("a", uidMap);
-    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
-    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
-    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
-    msgListModel->setMailbox("a");
+    model->cache()->setMailboxSyncState(QStringLiteral("a"), sync);
+    model->cache()->setUidMapping(QStringLiteral("a"), uidMap);
+    model->cache()->setMsgFlags(QStringLiteral("a"), 6, QStringList() << QStringLiteral("x"));
+    model->cache()->setMsgFlags(QStringLiteral("a"), 9, QStringList() << QStringLiteral("y"));
+    model->cache()->setMsgFlags(QStringLiteral("a"), 10, QStringList() << QStringLiteral("z"));
+    msgListModel->setMailbox(QStringLiteral("a"));
     cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
@@ -855,10 +855,10 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     // keep preloading active
 
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("QRESYNC");
-    injector.injectCapability("SORT");
-    injector.injectCapability("ESORT");
-    injector.injectCapability("CONTEXT=SORT");
+    injector.injectCapability(QStringLiteral("QRESYNC"));
+    injector.injectCapability(QStringLiteral("SORT"));
+    injector.injectCapability(QStringLiteral("ESORT"));
+    injector.injectCapability(QStringLiteral("CONTEXT=SORT"));
 
     threadingModel->setUserWantsThreading(false);
 
@@ -871,12 +871,12 @@ void ImapModelThreadingTest::testDynamicSortingContext()
     sync.setRecent(0);
     Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
-    model->cache()->setMailboxSyncState("a", sync);
-    model->cache()->setUidMapping("a", uidMap);
-    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
-    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
-    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
-    msgListModel->setMailbox("a");
+    model->cache()->setMailboxSyncState(QStringLiteral("a"), sync);
+    model->cache()->setUidMapping(QStringLiteral("a"), uidMap);
+    model->cache()->setMsgFlags(QStringLiteral("a"), 6, QStringList() << QStringLiteral("x"));
+    model->cache()->setMsgFlags(QStringLiteral("a"), 9, QStringList() << QStringLiteral("y"));
+    model->cache()->setMsgFlags(QStringLiteral("a"), 10, QStringList() << QStringLiteral("z"));
+    msgListModel->setMailbox(QStringLiteral("a"));
     cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
@@ -1024,7 +1024,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     // keep preloading active
 
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("QRESYNC");
+    injector.injectCapability(QStringLiteral("QRESYNC"));
 
     threadingModel->setUserWantsThreading(false);
 
@@ -1037,12 +1037,12 @@ void ImapModelThreadingTest::testDynamicSearch()
     sync.setRecent(0);
     Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
-    model->cache()->setMailboxSyncState("a", sync);
-    model->cache()->setUidMapping("a", uidMap);
-    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
-    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
-    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
-    msgListModel->setMailbox("a");
+    model->cache()->setMailboxSyncState(QStringLiteral("a"), sync);
+    model->cache()->setUidMapping(QStringLiteral("a"), uidMap);
+    model->cache()->setMsgFlags(QStringLiteral("a"), 6, QStringList() << QStringLiteral("x"));
+    model->cache()->setMsgFlags(QStringLiteral("a"), 9, QStringList() << QStringLiteral("y"));
+    model->cache()->setMsgFlags(QStringLiteral("a"), 10, QStringList() << QStringLiteral("z"));
+    msgListModel->setMailbox(QStringLiteral("a"));
     cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"
             "* OK [UIDVALIDITY 666] .\r\n"
@@ -1092,7 +1092,7 @@ void ImapModelThreadingTest::testDynamicSearch()
     QCOMPARE(msgUid10.row(), 2);
 
     // Enable ESEARCH
-    injector.injectCapability("ESEARCH");
+    injector.injectCapability(QStringLiteral("ESEARCH"));
 
     // Try a "different" search
     threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("blah"),
@@ -1177,7 +1177,7 @@ void ImapModelThreadingTest::testThreadingPerformance()
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
-        model->cache()->setMessageThreading("a", QVector<Imap::Responses::ThreadingNode>());
+        model->cache()->setMessageThreading(QStringLiteral("a"), QVector<Imap::Responses::ThreadingNode>());
         threadingModel->wantThreading();
         QCoreApplication::processEvents();
         QCoreApplication::processEvents();
@@ -1194,9 +1194,9 @@ void ImapModelThreadingTest::testSortingPerformance()
     initialMessages(num);
 
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("QRESYNC");
-    injector.injectCapability("SORT=DISPLAY");
-    injector.injectCapability("SORT");
+    injector.injectCapability(QStringLiteral("QRESYNC"));
+    injector.injectCapability(QStringLiteral("SORT=DISPLAY"));
+    injector.injectCapability(QStringLiteral("SORT"));
 
     QStringList sortOrder;
     int i = 0;
@@ -1209,7 +1209,7 @@ void ImapModelThreadingTest::testSortingPerformance()
         ++i;
     }
     QCOMPARE(sortOrder.size(), num);
-    QByteArray resp = ("* SORT " + sortOrder.join(" ") + "\r\n").toUtf8();
+    QByteArray resp = ("* SORT " + sortOrder.join(QStringLiteral(" ")) + "\r\n").toUtf8();
 
     QBENCHMARK {
         threadingModel->setUserSearchingSortingPreference(QStringList(), ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
@@ -1242,7 +1242,7 @@ void ImapModelThreadingTest::testSearchingPerformance()
     initialMessages(num);
 
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("QRESYNC");
+    injector.injectCapability(QStringLiteral("QRESYNC"));
 
     threadingModel->setUserSearchingSortingPreference(QStringList(), ThreadingMsgListModel::SORT_NONE, Qt::DescendingOrder);
     /*cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
@@ -1292,8 +1292,8 @@ void ImapModelThreadingTest::testIncrementalThreading()
 
     // Activate support for the INCTHREAD extension
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("ETHREAD");
-    injector.injectCapability("INCTHREAD");
+    injector.injectCapability(QStringLiteral("ETHREAD"));
+    injector.injectCapability(QStringLiteral("INCTHREAD"));
 
     // Fake delivery of one new message
     cServer("* 11 EXISTS\r\n");
@@ -1318,11 +1318,11 @@ void ImapModelThreadingTest::testRemovingRootWithThreadingInFlight()
     initialMessages(2);
     Mapping mapping;
     mapping.clear();
-    mapping["0"] = 1;
-    mapping["0.0"] = 0;
-    mapping["1"] = 2;
-    mapping["1.0"] = 0;
-    mapping["2"] = 0;
+    mapping[QStringLiteral("0")] = 1;
+    mapping[QStringLiteral("0.0")] = 0;
+    mapping[QStringLiteral("1")] = 2;
+    mapping[QStringLiteral("1.0")] = 0;
+    mapping[QStringLiteral("2")] = 0;
     cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
     cServer(QByteArray("* THREAD (1)(2)\r\n") + t.last("OK thread\r\n"));
     verifyMapping(mapping);
@@ -1347,11 +1347,11 @@ void ImapModelThreadingTest::testRemovingRootWithThreadingInFlight()
     cServer(threadTagged);
     QCOMPARE(QString::fromUtf8(treeToThreading(QModelIndex())), QString::fromUtf8("(1)(3)"));
     mapping.clear();
-    mapping["0"] = 1;
-    mapping["0.0"] = 0;
-    mapping["1"] = 3;
-    mapping["1.0"] = 0;
-    mapping["2"] = 0;
+    mapping[QStringLiteral("0")] = 1;
+    mapping[QStringLiteral("0.0")] = 0;
+    mapping[QStringLiteral("1")] = 3;
+    mapping[QStringLiteral("1.0")] = 0;
+    mapping[QStringLiteral("2")] = 0;
     verifyMapping(mapping);
     QCOMPARE(threadingModel->rowCount(QModelIndex()), 2);
     verifyIndexMap(buildIndexMap(mapping), mapping);
@@ -1363,15 +1363,15 @@ void ImapModelThreadingTest::testMultipleExpunges()
 {
     initialMessages(4);
     Mapping mapping;
-    mapping["0"] = 1;
-    mapping["0.0"] = 0;
-    mapping["1"] = 2;
-    mapping["1.0"] = 0;
-    mapping["2"] = 3;
-    mapping["2.0"] = 0;
-    mapping["3"] = 4;
-    mapping["3.0"] = 0;
-    mapping["4"] = 0;
+    mapping[QStringLiteral("0")] = 1;
+    mapping[QStringLiteral("0.0")] = 0;
+    mapping[QStringLiteral("1")] = 2;
+    mapping[QStringLiteral("1.0")] = 0;
+    mapping[QStringLiteral("2")] = 3;
+    mapping[QStringLiteral("2.0")] = 0;
+    mapping[QStringLiteral("3")] = 4;
+    mapping[QStringLiteral("3.0")] = 0;
+    mapping[QStringLiteral("4")] = 0;
     cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
     cServer(QByteArray("* THREAD (1)(2)(3)(4)\r\n") + t.last("OK thread\r\n"));
     verifyMapping(mapping);
@@ -1379,9 +1379,9 @@ void ImapModelThreadingTest::testMultipleExpunges()
     verifyIndexMap(buildIndexMap(mapping), mapping);
     QCOMPARE(treeToThreading(QModelIndex()), QByteArray("(1)(2)(3)(4)"));
 
-    QPersistentModelIndex m1 = findItem("0");
-    QPersistentModelIndex m2 = findItem("1");
-    QPersistentModelIndex m4 = findItem("3");
+    QPersistentModelIndex m1 = findItem(QStringLiteral("0"));
+    QPersistentModelIndex m2 = findItem(QStringLiteral("1"));
+    QPersistentModelIndex m4 = findItem(QStringLiteral("3"));
     helper_multipleExpunges_hit = 0;
 
     QVERIFY(m1.isValid());
@@ -1415,7 +1415,7 @@ void ImapModelThreadingTest::helper_multipleExpunges()
         // hack: don't let the QTestLib "run" this method in a standalone manner
         return;
     }
-    helper_indexMultipleExpunges_1 = findItem("2");
+    helper_indexMultipleExpunges_1 = findItem(QStringLiteral("2"));
     QVERIFY(helper_indexMultipleExpunges_1.isValid());
     ++helper_multipleExpunges_hit;
 }
@@ -1488,8 +1488,8 @@ void ImapModelThreadingTest::testESearchResults()
     threadingModel->setUserWantsThreading(false);
     initialMessages(1);
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("QRESYNC");
-    injector.injectCapability("ESEARCH");
+    injector.injectCapability(QStringLiteral("QRESYNC"));
+    injector.injectCapability(QStringLiteral("ESEARCH"));
 
     // An empty result, Dovecot style
     threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("x"),

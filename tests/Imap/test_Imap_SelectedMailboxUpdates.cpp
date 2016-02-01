@@ -67,7 +67,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperTestExpungeImmediatelyAfterArriv
     uint addedUid = 33;
     uidNextA = addedUid + 1;
 
-    QByteArray uidUpdateResponse = sendUidNext ? QString("* OK [UIDNEXT %1] courtesy of the server\r\n").arg(
+    QByteArray uidUpdateResponse = sendUidNext ? QStringLiteral("* OK [UIDNEXT %1] courtesy of the server\r\n").arg(
             QString::number(uidNextA)).toUtf8() : QByteArray();
 
     // ...but because it got deleted, here we go

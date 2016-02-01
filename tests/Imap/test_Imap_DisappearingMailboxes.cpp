@@ -202,7 +202,7 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     Q_ASSERT(messageIdx.isValid());
     QCOMPARE(messageIdx.data(Imap::Mailbox::RoleMessageSubject), QVariant());
     cClient(t.mk("UID FETCH 666 (" FETCH_METADATA_ITEMS ")\r\n"));
-    QByteArray fetchResponse = helperCreateTrivialEnvelope(1, 666, QString("blah")) + t.last("OK fetched\r\n");
+    QByteArray fetchResponse = helperCreateTrivialEnvelope(1, 666, QStringLiteral("blah")) + t.last("OK fetched\r\n");
 
     // Request going to another mailbox, eventually
     QCOMPARE(model->rowCount(msgListB), 0);

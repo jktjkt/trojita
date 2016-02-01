@@ -624,7 +624,7 @@ void LibMailboxSync::setModelNetworkPolicy(Imap::Mailbox::Model *model, const Im
 void LibMailboxSync::helperQresyncAInitial(Imap::Mailbox::SyncState &syncState)
 {
     FakeCapabilitiesInjector injector(model);
-    injector.injectCapability("QRESYNC");
+    injector.injectCapability(QStringLiteral("QRESYNC"));
     syncState.setExists(3);
     syncState.setUidValidity(666);
     syncState.setUidNext(15);
@@ -633,11 +633,11 @@ void LibMailboxSync::helperQresyncAInitial(Imap::Mailbox::SyncState &syncState)
     syncState.setRecent(0);
     Imap::Uids uidMap;
     uidMap << 6 << 9 << 10;
-    model->cache()->setMailboxSyncState("a", syncState);
-    model->cache()->setUidMapping("a", uidMap);
-    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
-    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
-    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+    model->cache()->setMailboxSyncState(QStringLiteral("a"), syncState);
+    model->cache()->setUidMapping(QStringLiteral("a"), uidMap);
+    model->cache()->setMsgFlags(QStringLiteral("a"), 6, QStringList() << QStringLiteral("x"));
+    model->cache()->setMsgFlags(QStringLiteral("a"), 9, QStringList() << QStringLiteral("y"));
+    model->cache()->setMsgFlags(QStringLiteral("a"), 10, QStringList() << QStringLiteral("z"));
     model->resyncMailbox(idxA);
     cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
     cServer("* 3 EXISTS\r\n"

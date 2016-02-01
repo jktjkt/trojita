@@ -54,10 +54,10 @@ void CopyAndFlagTest::helperMove(const MoveFeatures serverFeatures)
         // nothing is needed
         break;
     case HAS_UIDPLUS:
-        injector.injectCapability("UIDPLUS");
+        injector.injectCapability(QStringLiteral("UIDPLUS"));
         break;
     case HAS_MOVE:
-        injector.injectCapability("MOVE");
+        injector.injectCapability(QStringLiteral("MOVE"));
         break;
     }
 
