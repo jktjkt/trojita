@@ -101,7 +101,7 @@ public:
         FeaturePrettyNames = 1 << 5 /**< Plugin has support for display names via requestPrettyNamesForAddress */
     };
 
-    Q_DECLARE_FLAGS(Features, Feature);
+    Q_DECLARE_FLAGS(Features, Feature)
 
     /** @short Return implementation features */
     virtual Features features() const = 0;

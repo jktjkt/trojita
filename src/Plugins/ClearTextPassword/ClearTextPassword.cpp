@@ -123,7 +123,7 @@ QString trojita_plugin_ClearTextPasswordPlugin::description() const
     return trUtf8("Trojitá's settings");
 }
 
-QObject *trojita_plugin_ClearTextPasswordPlugin::create(QObject *parent, QSettings *settings)
+Plugins::PasswordPlugin *trojita_plugin_ClearTextPasswordPlugin::create(QObject *parent, QSettings *settings)
 {
     Q_ASSERT(settings);
     return new ClearTextPassword(parent, settings);

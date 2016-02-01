@@ -70,7 +70,7 @@ public:
         FeatureEncryptedStorage = 1 << 0 /**< Plugin using encrypted storage */
     };
 
-    Q_DECLARE_FLAGS(Features, Feature);
+    Q_DECLARE_FLAGS(Features, Feature)
 
     /** @short Return implementation features */
     virtual Features features() const = 0;

@@ -226,7 +226,6 @@ void SettingsDialog::reject()
     if (!m_originalPasswordPlugin.isEmpty() && pluginManager()->passwordPlugin() != m_originalPasswordPlugin) {
         // Password plugin was changed, revert back to original one
         pluginManager()->setPasswordPlugin(m_originalPasswordPlugin);
-        pluginManager()->reloadPlugins();
     }
     m_senderIdentities->loadFromSettings(*m_settings);
     QDialog::reject();
@@ -356,7 +355,6 @@ void GeneralPage::passwordPluginChanged()
 
     if (selectedPasswordPlugin != passwordPlugin) {
         m_parent->pluginManager()->setPasswordPlugin(selectedPasswordPlugin);
-        m_parent->pluginManager()->reloadPlugins();
         emit reloadPasswords();
     }
 }
@@ -439,14 +437,11 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::guiStartMinimized, guiStartMinimizedCheckbox->isChecked());
     s.setValue(Common::SettingsNames::interopRevealVersions, revealTrojitaVersions->isChecked());
 
-    bool reload = false;
-
     const QString &addressbookPlugin = m_parent->pluginManager()->addressbookPlugin();
     const QString &selectedAddressbookPlugin = addressbookBox->itemData(addressbookBox->currentIndex()).toString();
 
     if (selectedAddressbookPlugin != addressbookPlugin) {
         m_parent->pluginManager()->setAddressbookPlugin(selectedAddressbookPlugin);
-        reload = true;
     }
 
     const QString &passwordPlugin = m_parent->pluginManager()->passwordPlugin();
@@ -454,11 +449,6 @@ void GeneralPage::save(QSettings &s)
 
     if (selectedPasswordPlugin != passwordPlugin) {
         m_parent->pluginManager()->setPasswordPlugin(selectedPasswordPlugin);
-        reload = true;
-    }
-
-    if (reload) {
-        m_parent->pluginManager()->reloadPlugins();
     }
 
     emit saved();

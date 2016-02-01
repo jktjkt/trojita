@@ -82,16 +82,16 @@ private:
     QList<QPair<Type,QString> > m_fields;
 };
 
-class trojita_plugin_AbookAddressbookPlugin : public QObject, public PluginInterface
+class trojita_plugin_AbookAddressbookPlugin : public QObject, public AddressbookPluginInterface
 {
     Q_OBJECT
-    Q_INTERFACES(Plugins::PluginInterface)
+    Q_INTERFACES(Plugins::AddressbookPluginInterface)
     Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.addressbook.abookaddressbook")
 
 public:
-    virtual QString name() const;
-    virtual QString description() const;
-    virtual QObject *create(QObject *parent, QSettings *settings);
+    virtual QString name() const override;
+    virtual QString description() const override;
+    virtual AddressbookPlugin *create(QObject *parent, QSettings *settings) override;
 };
 
 #endif // ABOOK_ADDRESSBOOK

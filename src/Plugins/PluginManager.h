@@ -37,6 +37,9 @@ class QSettings;
 
 namespace Plugins {
 
+class AddressbookPluginInterface;
+class PasswordPluginInterface;
+
 class PLUGINS_EXPORT PluginManager : public QObject
 {
     Q_OBJECT
@@ -47,52 +50,47 @@ public:
     virtual ~PluginManager();
 
     /** @short Return list of addressbook plugin pairs (name, description) */
-    QMap<QString, QString> availableAddressbookPlugins();
+    QMap<QString, QString> availableAddressbookPlugins() const;
 
     /** @short Return list of password plugin pairs (name, description) */
-    QMap<QString, QString> availablePasswordPlugins();
+    QMap<QString, QString> availablePasswordPlugins() const;
 
     /** @short Return name of addressbook plugin */
-    QString addressbookPlugin();
+    QString addressbookPlugin() const;
 
     /** @short Return name of password plugin */
-    QString passwordPlugin();
+    QString passwordPlugin() const;
 
-    /** @short Change name of addressbook plugin, to load it use @see reloadPlugins */
-    void setAddressbookPlugin(const QString &plugin);
+    /** @short Change the addressbook plugin and start using it */
+    void setAddressbookPlugin(const QString &name);
 
-    /** @short Change name of password plugin, to load it use @see reloadPlugins */
-    void setPasswordPlugin(const QString &plugin);
+    /** @short Change the password plugin and start using it */
+    void setPasswordPlugin(const QString &name);
 
-    /** @short Return interface of addressbook plugin or NULL when plugin was not found or not loaded */
-    Plugins::AddressbookPlugin *addressbook();
+    /** @short Return interface of addressbook plugin or nullptr when plugin was not found */
+    Plugins::AddressbookPlugin *addressbook() const;
 
-    /** @short Return interface of password plugin or NULL when plugin was not found or not loaded */
-    Plugins::PasswordPlugin *password();
-
-public slots:
-    /** @short Unload all plugins and load new again */
-    void reloadPlugins();
+    /** @short Return interface of password plugin or nullptr when plugin was not found */
+    Plugins::PasswordPlugin *password() const;
 
 signals:
     void pluginsChanged();
 
+private slots:
+    void loadPlugins();
+
 private:
     void loadPlugin(QObject *pluginInstance, QPluginLoader *loader);
-    void unloadPlugin(QPluginLoader *loader);
 
     QSettings *m_settings;
     QString m_addressbookKey;
     QString m_passwordKey;
 
-    QMap<QString, QString> m_availableAddressbookPlugins;
-    QMap<QString, QString> m_availablePasswordPlugins;
+    QMap<QString, AddressbookPluginInterface *> m_availableAddressbookPlugins;
+    QMap<QString, PasswordPluginInterface *> m_availablePasswordPlugins;
 
-    QString m_addressbookPlugin;
-    QString m_passwordPlugin;
-
-    QPointer<QPluginLoader> m_addressbookLoader;
-    QPointer<QPluginLoader> m_passwordLoader;
+    QString m_addressbookName;
+    QString m_passwordName;
 
     QPointer<Plugins::AddressbookPlugin> m_addressbook;
     QPointer<Plugins::PasswordPlugin> m_password;

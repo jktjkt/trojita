@@ -395,7 +395,7 @@ QString trojita_plugin_AbookAddressbookPlugin::description() const
     return tr("Addressbook in ~/.abook/");
 }
 
-QObject *trojita_plugin_AbookAddressbookPlugin::create(QObject *parent, QSettings *)
+AddressbookPlugin *trojita_plugin_AbookAddressbookPlugin::create(QObject *parent, QSettings *)
 {
     return new AbookAddressbook(parent);
 }

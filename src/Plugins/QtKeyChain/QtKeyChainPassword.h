@@ -78,16 +78,16 @@ public slots:
 
 }
 
-class trojita_plugin_QtKeyChainPasswordPlugin : public QObject, public Plugins::PluginInterface
+class trojita_plugin_QtKeyChainPasswordPlugin : public QObject, public Plugins::PasswordPluginInterface
 {
     Q_OBJECT
-    Q_INTERFACES(Plugins::PluginInterface)
+    Q_INTERFACES(Plugins::PasswordPluginInterface)
     Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.password.qtkeychain")
 
 public:
-    virtual QString name() const;
-    virtual QString description() const;
-    virtual QObject *create(QObject *parent, QSettings *);
+    virtual QString name() const override;
+    virtual QString description() const override;
+    virtual Plugins::PasswordPlugin *create(QObject *parent, QSettings *) override;
 };
 
 #endif //QTKEYCHAINPASSWORD_H

@@ -31,148 +31,30 @@
 #include <QString>
 #include <QStringList>
 
+#include "PluginManager.h"
 #include "configure.cmake.h"
-
+#include "Common/InvokeMethod.h"
 #include "Plugins/AddressbookPlugin.h"
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginInterface.h"
 
-#include "PluginManager.h"
 
 namespace Plugins {
 
 PluginManager::PluginManager(QObject *parent, QSettings *settings, const QString &addressbookKey, const QString &passwordKey) : QObject(parent),
     m_settings(settings), m_addressbookKey(addressbookKey), m_passwordKey(passwordKey)
 {
-    m_addressbookPlugin = m_settings->value(m_addressbookKey, QLatin1String("abookaddressbook")).toString();
-    m_passwordPlugin = m_settings->value(m_passwordKey, QLatin1String("cleartextpassword")).toString();
-
-    reloadPlugins();
+    m_addressbookName = m_settings->value(m_addressbookKey, QLatin1String("abookaddressbook")).toString();
+    m_passwordName = m_settings->value(m_passwordKey, QLatin1String("cleartextpassword")).toString();
+    CALL_LATER_NOARG(this, loadPlugins)
 }
 
-PluginManager::~PluginManager()
+void PluginManager::loadPlugins()
 {
-}
-
-void PluginManager::unloadPlugin(QPluginLoader *loader)
-{
-    if (loader) {
-        loader->unload();
-        delete loader;
-    }
-}
-
-void PluginManager::loadPlugin(QObject *pluginInstance, QPluginLoader *loader)
-{
-    if (!pluginInstance) {
-#ifdef PLUGIN_DEBUG
-        qDebug() << "It is not qt library";
-        if (loader)
-            qDebug() << loader->errorString();
-#endif
-        // close library and cleanup resources
-        unloadPlugin(loader);
-        return;
-    }
-
-    PluginInterface *trojitaPlugin = qobject_cast<PluginInterface *>(pluginInstance);
-    if (!trojitaPlugin) {
-#ifdef PLUGIN_DEBUG
-        qDebug() << "It is not trojita library";
-        if (loader)
-            qDebug() << loader->errorString();
-#endif
-        // close library and cleanup resources
-        unloadPlugin(loader);
-        return;
-    }
-
-    QObject *plugin = trojitaPlugin->create(this, m_settings);
-    if (!plugin) {
-#ifdef PLUGIN_DEBUG
-        qDebug() << "Failed to create QObject";
-        if (loader)
-            qDebug() << loader->errorString();
-#endif
-        // close library and cleanup resources
-        unloadPlugin(loader);
-        return;
-    }
-
-    const QString &name = trojitaPlugin->name();
-    const QString &description = trojitaPlugin->description();
-
-    if (name.isEmpty()) {
-#ifdef PLUGIN_DEBUG
-        qDebug() << "Plugin name is empty string";
-#endif
-        // close library and cleanup resources
-        unloadPlugin(loader);
-        return;
-    }
-
-    Plugins::AddressbookPlugin *newAddressbook = qobject_cast<Plugins::AddressbookPlugin *>(plugin);
-    Plugins::PasswordPlugin *newPassword = qobject_cast<Plugins::PasswordPlugin *>(plugin);
-
-#ifdef PLUGIN_DEBUG
-    qDebug() << "Found Trojita plugin" << (loader ? loader->fileName() : QLatin1String("(static)")) <<
-        ":" << name << ":" << description;
-#endif
-
-    bool unload = true;
-
-    if (newAddressbook) {
-        if (!m_availableAddressbookPlugins.contains(name))
-            m_availableAddressbookPlugins.insert(name, description);
-        if (!m_addressbook && name == m_addressbookPlugin) {
-            m_addressbook = newAddressbook;
-            m_addressbookLoader = loader;
-            unload = false;
-#ifdef PLUGIN_DEBUG
-            qDebug() << "Using addressbook plugin" << name << ":" << description;
-#endif
-        }
-    }
-
-    if (newPassword) {
-        if (!m_availablePasswordPlugins.contains(name))
-            m_availablePasswordPlugins.insert(name, description);
-        if (!m_password && name == m_passwordPlugin) {
-            m_password = newPassword;
-            m_passwordLoader = loader;
-            unload = false;
-#ifdef PLUGIN_DEBUG
-            qDebug() << "Using password plugin" << name << ":" << description;
-#endif
-        }
-    }
-
-    if (unload) {
-        // plugin is not used, so close library and cleanup resources
-        delete plugin;
-        unloadPlugin(loader);
-    }
-}
-
-void PluginManager::reloadPlugins()
-{
-    delete m_addressbook;
-    delete m_password;
-
-    unloadPlugin(m_addressbookLoader);
-    unloadPlugin(m_passwordLoader);
-
-    m_availableAddressbookPlugins.clear();
-    m_availablePasswordPlugins.clear();
-
-    QString pluginDir;
     QStringList pluginDirs;
+    pluginDirs << qApp->applicationDirPath();
 
-    pluginDir = qApp->applicationDirPath();
-    if (!pluginDirs.contains(pluginDir))
-        pluginDirs << pluginDir;
-
-    pluginDir = QLatin1String(PLUGIN_DIR);
+    auto pluginDir = QStringLiteral(PLUGIN_DIR);
     if (!pluginDirs.contains(pluginDir))
         pluginDirs << pluginDir;
 
@@ -190,9 +72,13 @@ void PluginManager::reloadPlugins()
         QDir dir(dirName);
         Q_FOREACH(const QString &fileName, dir.entryList(QStringList() << QLatin1String("trojita_plugin_*"), QDir::Files)) {
             const QString &absoluteFilePath = QFileInfo(dir.absoluteFilePath(fileName)).canonicalFilePath();
-            if (absoluteFilePaths.contains(absoluteFilePath))
+            if (absoluteFilePaths.contains(absoluteFilePath)) {
                 continue;
+            }
             absoluteFilePaths << absoluteFilePath;
+            if (!QLibrary::isLibrary(absoluteFilePath)) {
+                continue;
+            }
 #ifdef PLUGIN_DEBUG
             qDebug() << "Opening file" << absoluteFilePath;
 #endif
@@ -201,50 +87,128 @@ void PluginManager::reloadPlugins()
         }
     }
 
-    Q_FOREACH(QObject *pluginInstance, QPluginLoader::staticInstances())
-        loadPlugin(pluginInstance, NULL);
+    Q_FOREACH(QObject *pluginInstance, QPluginLoader::staticInstances()) {
+        loadPlugin(pluginInstance, nullptr);
+    }
 
     emit pluginsChanged();
 }
 
-QMap<QString, QString> PluginManager::availableAddressbookPlugins()
+PluginManager::~PluginManager()
 {
-    return m_availableAddressbookPlugins;
 }
 
-QMap<QString, QString> PluginManager::availablePasswordPlugins()
+void PluginManager::loadPlugin(QObject *pluginInstance, QPluginLoader *loader)
 {
-    return m_availablePasswordPlugins;
+    Q_ASSERT(pluginInstance);
+
+    if (auto abookPlugin = qobject_cast<AddressbookPluginInterface *>(pluginInstance)) {
+        const QString &name = abookPlugin->name();
+        Q_ASSERT(!name.isEmpty());
+        Q_ASSERT(!m_availableAddressbookPlugins.contains(name));
+        m_availableAddressbookPlugins[name] = abookPlugin;
+#ifdef PLUGIN_DEBUG
+        qDebug() << "Found addressbook plugin" << name << ":" << abookPlugin->description();
+#endif
+        if (name == m_addressbookName) {
+#ifdef PLUGIN_DEBUG
+            qDebug() << "Will activate new default plugin" << name;
+#endif
+            setAddressbookPlugin(name);
+        }
+    }
+
+    if (auto passwordPlugin = qobject_cast<PasswordPluginInterface *>(pluginInstance)) {
+        const QString &name = passwordPlugin->name();
+        Q_ASSERT(!name.isEmpty());
+        Q_ASSERT(!m_availablePasswordPlugins.contains(name));
+        m_availablePasswordPlugins[name] = passwordPlugin;
+#ifdef PLUGIN_DEBUG
+        qDebug() << "Found password plugin" << name << ":" << passwordPlugin->description();
+#endif
+        if (name == m_passwordName) {
+#ifdef PLUGIN_DEBUG
+            qDebug() << "Will activate new default plugin" << name;
+#endif
+            setPasswordPlugin(name);
+        }
+    }
 }
 
-QString PluginManager::addressbookPlugin()
+QMap<QString, QString> PluginManager::availableAddressbookPlugins() const
 {
-    return m_addressbookPlugin;
+    QMap<QString, QString> res;
+    for (auto plugin: m_availableAddressbookPlugins) {
+        res[plugin->name()] = plugin->description();
+    }
+    return res;
 }
 
-QString PluginManager::passwordPlugin()
+QMap<QString, QString> PluginManager::availablePasswordPlugins() const
 {
-    return m_passwordPlugin;
+    QMap<QString, QString> res;
+    for (auto plugin: m_availablePasswordPlugins) {
+        res[plugin->name()] = plugin->description();
+    }
+    return res;
 }
 
-void PluginManager::setAddressbookPlugin(const QString &plugin)
+QString PluginManager::addressbookPlugin() const
 {
-    m_addressbookPlugin = plugin;
-    m_settings->setValue(m_addressbookKey, plugin);
+    return m_addressbookName;
 }
 
-void PluginManager::setPasswordPlugin(const QString &plugin)
+QString PluginManager::passwordPlugin() const
 {
-    m_passwordPlugin = plugin;
-    m_settings->setValue(m_passwordKey, plugin);
+    return m_passwordName;
 }
 
-Plugins::AddressbookPlugin *PluginManager::addressbook()
+void PluginManager::setAddressbookPlugin(const QString &name)
+{
+    m_addressbookName = name;
+    m_settings->setValue(m_addressbookKey, name);
+
+    if (m_addressbook) {
+        delete m_addressbook;
+    }
+
+    auto plugin = m_availableAddressbookPlugins.find(name);
+    if (plugin != m_availableAddressbookPlugins.end()) {
+#ifdef PLUGIN_DEBUG
+        qDebug() << "Setting new address book plugin:" << (*plugin)->name();
+#endif
+        m_addressbook = (*plugin)->create(this, m_settings);
+    }
+
+    emit pluginsChanged();
+}
+
+void PluginManager::setPasswordPlugin(const QString &name)
+{
+    m_passwordName = name;
+    m_settings->setValue(m_passwordKey, name);
+
+    if (m_password) {
+        delete m_password;
+    }
+
+    auto plugin = m_availablePasswordPlugins.find(name);
+    if (plugin != m_availablePasswordPlugins.end()) {
+#ifdef PLUGIN_DEBUG
+        qDebug() << "Setting new password plugin:" << (*plugin)->name();
+#endif
+        m_password = (*plugin)->create(this, m_settings);
+    }
+
+    emit pluginsChanged();
+}
+
+Plugins::AddressbookPlugin *PluginManager::addressbook() const
 {
     return m_addressbook;
 }
 
-Plugins::PasswordPlugin *PluginManager::password()
+Plugins::PasswordPlugin *PluginManager::password() const
 {
     return m_password;
 }

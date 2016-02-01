@@ -32,7 +32,9 @@ class QSettings;
 namespace Plugins
 {
 
-class PluginInterface
+class AddressbookPlugin;
+
+class AddressbookPluginInterface
 {
 public:
     /** @short Return name (internal identifier) of plugin. This string must not be translated! */
@@ -42,12 +44,29 @@ public:
     virtual QString description() const = 0;
 
     /** @short Return new plugin instance implemented by plugin */
-    virtual QObject *create(QObject *parent, QSettings *settings) = 0;
+    virtual AddressbookPlugin *create(QObject *parent, QSettings *settings) = 0;
+};
+
+
+class PasswordPlugin;
+
+class PasswordPluginInterface
+{
+public:
+    /** @short Return name (internal identifier) of plugin. This string must not be translated! */
+    virtual QString name() const = 0;
+
+    /** @short Return short description (visible for user) of plugin. This string can be translated. */
+    virtual QString description() const = 0;
+
+    /** @short Return new plugin instance implemented by plugin */
+    virtual PasswordPlugin *create(QObject *parent, QSettings *settings) = 0;
 };
 
 }
 
-Q_DECLARE_INTERFACE(Plugins::PluginInterface, "PluginInterface");
+Q_DECLARE_INTERFACE(Plugins::AddressbookPluginInterface, "AddressbookPluginInterface")
+Q_DECLARE_INTERFACE(Plugins::PasswordPluginInterface, "PasswordPluginInterface")
 
 #endif //TROJITAPLUGIN_INTERFACE
 
