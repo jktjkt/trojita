@@ -21,6 +21,7 @@
 */
 
 #include "IconLoader.h"
+#include <QCoreApplication>
 #include <QFileInfo>
 #include <QHash>
 
@@ -39,8 +40,15 @@ namespace UiUtils {
  * */
 QIcon loadIcon(const QString &name)
 {
-    static QHash<QString, QIcon> iconDict;
-    QHash<QString, QIcon>::const_iterator it = iconDict.constFind(name);
+    using Cache = QHash<QString, QIcon>;
+    static Cache iconDict;
+
+    // static to ensure that this connection is only set up once during the app's lifetime
+    static auto conn = QObject::connect(qApp, &QCoreApplication::aboutToQuit, [](){
+        iconDict.clear();
+    });
+
+    auto it = iconDict.constFind(name);
     if (it != iconDict.constEnd())
         return *it;
 
