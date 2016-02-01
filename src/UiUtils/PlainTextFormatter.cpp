@@ -215,22 +215,24 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
     }
     const int SIGNATURE_SEPARATOR = -2;
 
-    QList<TextInfo> lineBuffer;
+    auto lines = plaintext.split(QLatin1Char('\n'));
+    std::vector<TextInfo> lineBuffer;
+    lineBuffer.reserve(lines.size());
 
     // First pass: determine the quote level for each source line.
     // The quote level is ignored for the signature.
     bool signatureSeparatorSeen = false;
-    Q_FOREACH(const QString &line, plaintext.split(QLatin1Char('\n'))) {
+    Q_FOREACH(const QString &line, lines) {
 
         // Fast path for empty lines
         if (line.isEmpty()) {
-            lineBuffer << TextInfo(0, line);
+            lineBuffer.emplace_back(0, line);
             continue;
         }
 
         // Special marker for the signature separator
         if (signatureSeparator().exactMatch(line)) {
-            lineBuffer << TextInfo(SIGNATURE_SEPARATOR, lineWithoutTrailingCr(line));
+            lineBuffer.emplace_back(SIGNATURE_SEPARATOR, lineWithoutTrailingCr(line));
             signatureSeparatorSeen = true;
             continue;
         }
@@ -241,7 +243,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
             quoteLevel = quotemarks.cap(0).count(QLatin1Char('>'));
         }
 
-        lineBuffer << TextInfo(quoteLevel, lineWithoutTrailingCr(line));
+        lineBuffer.emplace_back(quoteLevel, lineWithoutTrailingCr(line));
     }
 
     // Second pass:
