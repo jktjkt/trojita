@@ -1274,7 +1274,7 @@ QList<TreeItemMessage *> Model::findMessagesByUids(const TreeItemMailbox *const 
     QList<TreeItemMessage *> res;
     auto it = list->m_children.constBegin();
     uint lastUid = 0;
-    Q_FOREACH(const uint& uid, uids) {
+    Q_FOREACH(const uint uid, uids) {
         if (lastUid == uid) {
             // we have to filter out duplicates
             continue;
