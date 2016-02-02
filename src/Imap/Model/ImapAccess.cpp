@@ -245,6 +245,7 @@ void ImapAccess::doConnect()
 
     if (m_imapModel) {
         // Disconnect from network, nuke the models
+        Q_ASSERT(m_netWatcher);
         m_netWatcher->setNetworkOffline();
         delete m_threadingMsgListModel;
         m_threadingMsgListModel = 0;
