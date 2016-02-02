@@ -84,8 +84,8 @@ void KCodecs::quotedPrintableEncode(const QByteArray& in, QByteArray& out, bool 
 
   char *cursor;
   const char *data;
-  unsigned int lineLength;
-  unsigned int pos;
+  unsigned int lineLength = 0;
+  unsigned int pos = 0;
 
   const unsigned int length = in.size();
   const unsigned int end = length - 1;
@@ -98,8 +98,6 @@ void KCodecs::quotedPrintableEncode(const QByteArray& in, QByteArray& out, bool 
   out.resize ((length*12)/10);
   cursor = out.data();
   data = in.data();
-  lineLength = 0;
-  pos = 0;
 
   for (unsigned int i = 0; i < length; i++)
   {
