@@ -1236,11 +1236,9 @@ bool ComposeWidget::parseRecipients(QList<QPair<Composer::RecipientKind, Imap::M
 void ComposeWidget::completeRecipients(const QString &text)
 {
     if (text.isEmpty()) {
-        if (m_completionPopup) {
-            // if there's a popup close it and set back the receiver
-            m_completionPopup->close();
-            m_completionReceiver = 0;
-        }
+        // if there's a popup close it and set back the receiver
+        m_completionPopup->close();
+        m_completionReceiver = 0;
         return; // we do not suggest "nothing"
     }
     Q_ASSERT(sender());
@@ -1339,9 +1337,9 @@ void ComposeWidget::onCompletionAvailable(const Plugins::NameEmailList &completi
         contacts << Imap::Message::MailAddress::fromNameAndMail(item.name, item.email).asPrettyString();
     }
 
-    if (contacts.isEmpty() && m_completionPopup) {
-        m_completionPopup->close();
+    if (contacts.isEmpty()) {
         m_completionReceiver = 0;
+        m_completionPopup->close();
     } else {
         m_completionReceiver = toEdit;
         m_completionPopup->setUpdatesEnabled(false);
@@ -1359,10 +1357,8 @@ void ComposeWidget::completeRecipient(QAction *act)
     if (act->text().isEmpty())
         return;
     m_completionReceiver->setText(act->text());
-    if (m_completionPopup) {
-        m_completionPopup->close();
-        m_completionReceiver = 0;
-    }
+    m_completionReceiver = 0;
+    m_completionPopup->close();
 }
 
 bool ComposeWidget::eventFilter(QObject *o, QEvent *e)

@@ -204,7 +204,7 @@ void ImapLowLevelParserTest::testGetUInt()
     ++pos;
 
     try {
-        res = getUInt( line, pos );
+        getUInt( line, pos );
         QFAIL("exception not raised");
     } catch (Imap::ParseError& e) {
         QCOMPARE( pos, 11 );
