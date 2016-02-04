@@ -37,6 +37,18 @@ namespace Imap
 namespace Mailbox
 {
 
+/** @short Wrapper around the braindead API of QSqlDatabase for auto-removing connections
+
+Because the QSqlDatabase really wants to operate over a global namespace of DB connections, it's important to remove them
+when they are no longer needed. However, this removal (QSqlDatabase::removeDatabase) should run after all queries are gone,
+otherwise there's an ugly warning on stderr about queries which are going to cease to work.
+*/
+struct DbConnectionCleanup
+{
+    ~DbConnectionCleanup();
+    QString name;
+};
+
 /** @short A cache implementation using an sqlite database for the underlying storage
 
   This class should not be used on its own, as it simply puts everything into a database.
@@ -123,6 +135,9 @@ private slots:
     void timeToCommit();
 
 private:
+    // this needs to go before all QSqlDatabase/QSqlQuery instances for proper destruction order
+    DbConnectionCleanup m_cleanup;
+
     QSqlDatabase db;
 
     mutable QSqlQuery queryChildMailboxes;

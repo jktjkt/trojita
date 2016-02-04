@@ -96,7 +96,6 @@ SQLCache::~SQLCache()
 {
     timeToCommit();
     db.close();
-    QSqlDatabase::removeDatabase(db.connectionName());
 }
 
 #define TROJITA_SQL_CACHE_CREATE_THREADING \
@@ -135,6 +134,7 @@ bool SQLCache::open(const QString &name, const QString &fileName)
     qDebug() << "SQLCache::open()";
 #endif
     db = QSqlDatabase::addDatabase(QStringLiteral("QSQLITE"), name);
+    m_cleanup.name = name;
     db.setDatabaseName(fileName);
 
     bool ok = db.open();
@@ -866,6 +866,11 @@ A null QString is represented as NIL, which makes our cache unhappy.
 QString SQLCache::mailboxName(const QString &mailbox)
 {
     return mailbox.isEmpty() ? QLatin1String("") : mailbox;
+}
+
+DbConnectionCleanup::~DbConnectionCleanup()
+{
+    QSqlDatabase::removeDatabase(name);
 }
 
 }
