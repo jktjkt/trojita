@@ -455,7 +455,7 @@ if(WIN32)
     )
 endif()
 
-if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
+if(Qt5LinguistForTrojita_FOUND)
     file(GLOB_RECURSE lang_PO "${CMAKE_CURRENT_SOURCE_DIR}/po/trojita_common_*.po")
     qt5_wrap_po(trojita_QM ${lang_PO})
     set(language_summary "")
