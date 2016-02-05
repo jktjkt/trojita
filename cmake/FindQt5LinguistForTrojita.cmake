@@ -138,7 +138,7 @@ MACRO (QT5_WRAP_PO outfiles)
                          COMMAND ${QT_LUPDATE_EXECUTABLE}
                          ARGS ${CMAKE_CURRENT_SOURCE_DIR} -silent -noobsolete -ts ${tsfile}
                          COMMAND ${QT_LRELEASE_EXECUTABLE}
-                         ARGS -compress -removeidentical -silent ${tsfile} -qm ${qmfile}
+                         ARGS -compress -removeidentical -nounfinished -silent ${tsfile} -qm ${qmfile}
                          DEPENDS ${it}
                          )
 
