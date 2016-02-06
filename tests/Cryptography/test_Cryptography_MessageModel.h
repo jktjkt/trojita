@@ -41,6 +41,8 @@ private Q_SLOTS:
 
     /* test mixed messages with custom messages added to an existing IMAP message */
     void testMixedMessageParts();
+
+    void testLocalMimeParsing();
 };
 
 Q_DECLARE_METATYPE(CryptographyMessageModelTest::pathList)

@@ -470,6 +470,28 @@ QVariant LocalMessagePart::data(int role) const
         return QVariant(); // Nothing to do here
     case Imap::Mailbox::RolePartBufferPtr:
         return QVariant::fromValue(const_cast<QByteArray*>(&m_data));
+    case Imap::Mailbox::RoleMessageDate:
+        return m_envelope ? m_envelope->date : QDateTime();
+    case Imap::Mailbox::RoleMessageSubject:
+        return m_envelope ? m_envelope->subject : QString();
+    case Imap::Mailbox::RoleMessageFrom:
+        return m_envelope ? Imap::Mailbox::TreeItemMessage::addresListToQVariant(m_envelope->from) : QVariant();
+    case Imap::Mailbox::RoleMessageSender:
+        return m_envelope ? Imap::Mailbox::TreeItemMessage::addresListToQVariant(m_envelope->sender) : QVariant();
+    case Imap::Mailbox::RoleMessageReplyTo:
+        return m_envelope ? Imap::Mailbox::TreeItemMessage::addresListToQVariant(m_envelope->replyTo) : QVariant();
+    case Imap::Mailbox::RoleMessageTo:
+        return m_envelope ? Imap::Mailbox::TreeItemMessage::addresListToQVariant(m_envelope->to) : QVariant();
+    case Imap::Mailbox::RoleMessageCc:
+        return m_envelope ? Imap::Mailbox::TreeItemMessage::addresListToQVariant(m_envelope->cc) : QVariant();
+    case Imap::Mailbox::RoleMessageBcc:
+        return m_envelope ? Imap::Mailbox::TreeItemMessage::addresListToQVariant(m_envelope->bcc) : QVariant();
+    case Imap::Mailbox::RoleMessageMessageId:
+        return m_envelope ? m_envelope->messageId : QByteArray();
+    case Imap::Mailbox::RoleMessageInReplyTo:
+        return m_envelope ? QVariant::fromValue(m_envelope->inReplyTo) : QVariant();
+    case Imap::Mailbox::RoleMessageFlags:
+        return QVariant();
     default:
         break;
     }

@@ -284,6 +284,7 @@ set(libCryptography_SOURCES
 if(WITH_MIMETIC)
     set(libCryptography_SOURCES
         ${libCryptography_SOURCES}
+        ${path_Cryptography}/LocalMimeParser.cpp
         ${path_Cryptography}/MimeticUtils.cpp
     )
 endif()

@@ -26,8 +26,12 @@
 #include <QStandardItemModel>
 
 #include "test_Cryptography_MessageModel.h"
+#include "configure.cmake.h"
 #include "Cryptography/MessageModel.h"
 #include "Cryptography/MessagePart.h"
+#ifdef TROJITA_HAVE_MIMETIC
+#include "Cryptography/LocalMimeParser.h"
+#endif
 #include "Imap/data.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Streams/FakeSocket.h"
@@ -216,6 +220,102 @@ void CryptographyMessageModelTest::testMixedMessageParts()
     QModelIndex localHtmlIndex = localRootIndex.child(1, 0);
     QVERIFY(localHtmlIndex.isValid());
     QCOMPARE(localHtmlIndex.data(Imap::Mailbox::RolePartMimeType), localHtml->data(Imap::Mailbox::RolePartMimeType));
+}
+
+/** @short Verify that we can handle data from Mimetic and use them locally */
+void CryptographyMessageModelTest::testLocalMimeParsing()
+{
+#ifdef TROJITA_HAVE_MIMETIC
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+
+    Cryptography::MessageModel msgModel(0, msg);
+    msgModel.registerPartHandler(std::make_shared<Cryptography::LocalMimeMessageParser>(&msgModel));
+
+    const QByteArray bsTopLevelRfc822Message = QByteArrayLiteral(
+                "\"messaGe\" \"rFc822\" NIL NIL NIL \"7bit\" 1511 (\"Thu, 8 Aug 2013 09:02:50 +0200\" "
+                "\"Re: Your GSoC status\" ((\"Pali\" NIL \"pali.rohar\" \"gmail.com\")) "
+                "((\"Pali\" NIL \"pali.rohar\" \"gmail.com\")) "
+                "((\"Pali\" NIL \"pali.rohar\" \"gmail.com\")) ((\"Jan\" NIL \"jkt\" \"flaska.net\")) "
+                "NIL NIL NIL \"<201308080902.51071@pali>\") "
+                "((\"Text\" \"Plain\" (\"ChaRset\" \"uTf-8\") NIL NIL \"qUoted-printable\" 632 20 NIL NIL NIL NIL)"
+                "(\"applicatioN\" \"pGp-signature\" (\"Name\" \"signature.asc\") NIL "
+                "\"This is a digitally signed message part.\" \"7bit\" 205 NIL NIL NIL NIL) \"signed\" "
+                "(\"boundary\" \"nextPart2106994.VznBGuL01i\" \"protocol\" \"application/pgp-signature\" \"micalg\" \"pgp-sha1\") "
+                "NIL NIL NIL) 51 NIL NIL NIL NIL");
+
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bsTopLevelRfc822Message + "))\r\n" + t.last("OK fetched\r\n"));
+    cEmpty();
+    QVERIFY(model->rowCount(msg) > 0);
+    auto mappedMsg = msgModel.index(0,0);
+    QVERIFY(mappedMsg.isValid());
+    QVERIFY(msgModel.rowCount(mappedMsg) > 0);
+
+    QPersistentModelIndex msgRoot = mappedMsg.child(0, 0);
+    QModelIndex formerMsgRoot = msgRoot;
+    QVERIFY(msgRoot.isValid());
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartPathToPart).toByteArray(),
+             QByteArrayLiteral("[fake proxy below the message root]/0"));
+
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("message/rfc822"));
+    QCOMPARE(msgRoot.internalPointer(), formerMsgRoot.internalPointer());
+    QCOMPARE(msgModel.rowCount(msgRoot), 0);
+    cClientRegExp(t.mk("UID FETCH 333 \\(BODY\\.PEEK\\[1\\.(TEXT|HEADER)\\] BODY\\.PEEK\\[1\\.(TEXT|HEADER)\\]\\)"));
+    QByteArray myHeader = QByteArrayLiteral("Content-Type: pWned/NOw\r\nSubject: =?ISO-8859-2?B?7Lno+L794e3p?=\r\n"
+                                            "From: =?utf-8?B?xJs=?= <1@example.org>\r\n"
+                                            "Sender: =?utf-8?B?xJq=?= <0@example.org>\r\n"
+                                            "To: =?utf-8?B?xJs=?= <2@example.org>, =?iso-8859-1?Q?=E1?= <3@example.org>\r\n"
+                                            "Cc: =?utf-8?B?xJz=?= <4@example.org>\r\n"
+                                            "reply-to: =?utf-8?B?xJm=?= <r@example.org>\r\n"
+                                            "BCC: =?utf-8?B?xJr=?= <5@example.org>\r\n\r\n");
+    QByteArray myBody = QByteArrayLiteral("This is the actual message body.\r\n");
+    cServer("* 1 FETCH (UID 333 BODY[1.TEXT] {" + QByteArray::number(myBody.size()) + "}\r\n" + myBody + " BODY[1.HEADER] {" +
+            QByteArray::number(myHeader.size()) + "}\r\n" + myHeader + ")\r\n" + t.last("OK fetched\r\n"));
+
+    // the part got replaced, so our QModelIndex should be invalid now
+    QVERIFY(msgRoot.internalPointer() != formerMsgRoot.internalPointer());
+
+    QCOMPARE(msgModel.rowCount(msgRoot), 1);
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("message/rfc822"));
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RoleMessageSubject).toString(), QStringLiteral("ěščřžýáíé"));
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RoleMessageSender),
+             QVariant(QVariantList() <<
+                      (QStringList() << QStringLiteral("Ě") << QString() << QStringLiteral("0") << QStringLiteral("example.org"))));
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RoleMessageFrom),
+             QVariant(QVariantList() <<
+                      (QStringList() << QStringLiteral("ě") << QString() << QStringLiteral("1") << QStringLiteral("example.org"))));
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RoleMessageTo),
+             QVariant(QVariantList() <<
+                      (QStringList() << QStringLiteral("ě") << QString() << QStringLiteral("2") << QStringLiteral("example.org")) <<
+                      (QStringList() << QStringLiteral("á") << QString() << QStringLiteral("3") << QStringLiteral("example.org"))));
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RoleMessageCc),
+             QVariant(QVariantList() <<
+                      (QStringList() << QStringLiteral("Ĝ") << QString() << QStringLiteral("4") << QStringLiteral("example.org"))));
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RoleMessageBcc),
+             QVariant(QVariantList() <<
+                      (QStringList() << QStringLiteral("Ě") << QString() << QStringLiteral("5") << QStringLiteral("example.org"))));
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RoleMessageReplyTo),
+             QVariant(QVariantList() <<
+                      (QStringList() << QStringLiteral("ę") << QString() << QStringLiteral("r") << QStringLiteral("example.org"))));
+    auto c1 = msgRoot.child(0, 0);
+    QVERIFY(c1.isValid());
+    QCOMPARE(msgModel.rowCount(c1), 0);
+    QCOMPARE(c1.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("pwned/now"));
+    QCOMPARE(c1.data(Imap::Mailbox::RolePartData).toByteArray(), myBody);
+
+    cEmpty();
+    QVERIFY(errorSpy->isEmpty());
+#else
+    QSKIP("Mimetic not available, cannot test LocalMimeMessageParser");
+#endif
 }
 
 QTEST_GUILESS_MAIN(CryptographyMessageModelTest)
