@@ -125,7 +125,7 @@ file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "!macro TROJITA_INS
 foreach(FILE_PATH ${TROJITA_INSTALL_FILES})
     file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "File \"${FILE_PATH}\"\n")
 endforeach()
-if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
+if(Qt5LinguistForTrojita_FOUND)
     if(num_languages)
         file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "File /r /x *.ts /x x_test locale\n")
     endif()
@@ -142,7 +142,7 @@ file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "!macroend\n")
 
 # Generate list of uninstall files
 file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "!macro TROJITA_UNINSTALL_FILES\n")
-if(LinguistForTrojita_FOUND OR Qt5LinguistForTrojita_FOUND)
+if(Qt5LinguistForTrojita_FOUND)
     if(num_languages)
         file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/trojita-files.nsi.in "RMDir /r \"\$INSTDIR\\locale\"\n")
     endif()
