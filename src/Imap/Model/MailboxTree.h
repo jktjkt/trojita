@@ -296,6 +296,8 @@ public:
     uint uid() const;
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     bool hasAttachments(Model *const model);
+
+    static QVariantList addresListToQVariant(const QList<Imap::Message::MailAddress> &addressList);
 };
 
 class TreeItemPart: public TreeItem

@@ -35,21 +35,6 @@
 #include "SpecialFlagNames.h"
 #include <QtDebug>
 
-namespace
-{
-
-QVariantList addresListToQVariant(const QList<Imap::Message::MailAddress> &addressList)
-{
-    QVariantList res;
-    foreach(const Imap::Message::MailAddress& address, addressList) {
-        res.append(QVariant(QStringList() << address.name << address.adl << address.mailbox << address.host));
-    }
-    return res;
-}
-
-}
-
-
 
 namespace Imap
 {
@@ -1206,6 +1191,16 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return QVariant();
     }
 }
+
+QVariantList TreeItemMessage::addresListToQVariant(const QList<Imap::Message::MailAddress> &addressList)
+{
+    QVariantList res;
+    foreach(const Imap::Message::MailAddress& address, addressList) {
+        res.append(QVariant(QStringList() << address.name << address.adl << address.mailbox << address.host));
+    }
+    return res;
+}
+
 
 namespace {
 
