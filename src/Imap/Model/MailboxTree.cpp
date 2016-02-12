@@ -1527,6 +1527,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
         return QVariant();
     case RolePartBufferPtr:
         return QVariant::fromValue(dataPtr());
+    case RolePartBodyFldParam:
+        return QVariant::fromValue(m_bodyFldParam);
     }
 
 

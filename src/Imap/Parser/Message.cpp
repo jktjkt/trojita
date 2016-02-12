@@ -754,6 +754,8 @@ Examples are stuff like the charset, or the suggested filename.
 */
 void AbstractMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
 {
+    p->setBodyFldParam(bodyFldParam);
+
     // Charset
     bodyFldParam_t::const_iterator it = bodyFldParam.find("CHARSET");
     if (it != bodyFldParam.end()) {

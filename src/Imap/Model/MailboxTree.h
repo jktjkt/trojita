@@ -316,6 +316,7 @@ class TreeItemPart: public TreeItem
     QString m_fileName;
     quint64 m_octets;
     QByteArray m_multipartRelatedStartPart;
+    Imap::Message::AbstractMessage::bodyFldParam_t m_bodyFldParam;
     mutable TreeItemPart *m_partMime;
     mutable TreeItemPart *m_partRaw;
 public:
@@ -373,6 +374,8 @@ public:
     quint64 octets() const { return m_octets; }
     QByteArray multipartRelatedStartPart() const { return m_multipartRelatedStartPart; }
     void setMultipartRelatedStartPart(const QByteArray &start) { m_multipartRelatedStartPart = start; }
+    void setBodyFldParam(const Imap::Message::AbstractMessage::bodyFldParam_t &bodyFldParam) { m_bodyFldParam = bodyFldParam; }
+    Imap::Message::AbstractMessage::bodyFldParam_t bodyFldParam() const { return m_bodyFldParam; }
     virtual TreeItem *specialColumnPtr(int row, int column) const;
     virtual bool isTopLevelMultiPart() const;
 
