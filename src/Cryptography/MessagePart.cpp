@@ -355,6 +355,11 @@ void LocalMessagePart::setHdrListPostNo(const bool listPostNo)
     m_hdrListPostNo = listPostNo;
 }
 
+void LocalMessagePart::setBodyFldParam(const QMap<QByteArray, QByteArray> &bodyFldParam)
+{
+    m_bodyFldParam = bodyFldParam;
+}
+
 bool LocalMessagePart::isTopLevelMultipart() const
 {
     return m_mimetype.startsWith("multipart/") && (!parent()->parent() || parent()->data(Imap::Mailbox::RolePartMimeType).toByteArray().startsWith("message/"));
@@ -492,6 +497,8 @@ QVariant LocalMessagePart::data(int role) const
         return m_envelope ? QVariant::fromValue(m_envelope->inReplyTo) : QVariant();
     case Imap::Mailbox::RoleMessageFlags:
         return QVariant();
+    case Imap::Mailbox::RolePartBodyFldParam:
+        return QVariant::fromValue<decltype(m_bodyFldParam)>(m_bodyFldParam);
     default:
         break;
     }

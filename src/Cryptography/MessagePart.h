@@ -159,6 +159,7 @@ public:
     void setHdrReferences(const QList<QByteArray> &references);
     void setHdrListPost(const QList<QUrl> &listPost);
     void setHdrListPostNo(const bool listPostNo);
+    void setBodyFldParam(const QMap<QByteArray, QByteArray> &bodyFldParam);
 
     void setChild(int row, Ptr part);
 
@@ -185,6 +186,7 @@ protected:
     QByteArray m_bodyFldId;
     QByteArray m_bodyDisposition;
     QByteArray m_multipartRelatedStartPart;
+    QMap<QByteArray, QByteArray> m_bodyFldParam;
     QString m_filename;
     uint m_octets;
 

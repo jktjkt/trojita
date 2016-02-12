@@ -39,6 +39,11 @@ void MimeticUtils::storeInterestingFields(const mimetic::MimeEntity &me, LocalMe
         part->setContentFormat(format.toLower());
         part->setDelSp(me.header().contentType().param("delsp").c_str());
     }
+    Imap::Message::AbstractMessage::bodyFldParam_t bodyFldParam;
+    for (const auto &item: me.header().contentType().paramList()) {
+        bodyFldParam[QByteArray(item.name().c_str()).toUpper()] = QByteArray(item.value().c_str());
+    }
+    part->setBodyFldParam(bodyFldParam);
     const mimetic::ContentDisposition &cd = me.header().contentDisposition();
     QByteArray bodyDisposition = cd.type().c_str();
     QString filename;
