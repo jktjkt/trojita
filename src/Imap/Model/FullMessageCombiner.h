@@ -1,5 +1,5 @@
 /* Copyright (C) 2013  Ahmed Ibrahim Khalil <ahmedibrahimkhali@gmail.com>
-   Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -34,10 +34,6 @@ namespace Imap
 namespace Mailbox
 {
 
-class Model;
-class TreeItemMessage;
-class TreeItemPart;
-
 /** @short Combines both the header and the body parts of a message into one part.
 
 Use FullMessageCombiner::load() to start loading the message, and when finished a SIGNAL(completed()) will be emitted
@@ -59,18 +55,16 @@ signals:
     void failed(const QString &message);
 
 private:
-    TreeItemPart *headerPartPtr() const;
-    TreeItemPart *bodyPartPtr() const;
     bool indexesValid() const;
 
 private slots:
     void slotDataChanged(const QModelIndex &left, const QModelIndex &right);
 
 private:
-    const Imap::Mailbox::Model *m_model;
     QPersistentModelIndex m_bodyPartIndex;
     QPersistentModelIndex m_headerPartIndex;
     QPersistentModelIndex m_messageIndex;
+    QMetaObject::Connection m_dataChanged;
 };
 
 

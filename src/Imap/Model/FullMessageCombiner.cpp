@@ -1,5 +1,5 @@
 /* Copyright (C) 2013  Ahmed Ibrahim Khalil <ahmedibrahimkhali@gmail.com>
-   Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -22,7 +22,7 @@
 */
 
 #include "FullMessageCombiner.h"
-#include "Imap/Model/Model.h"
+#include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 
 namespace Imap
@@ -32,29 +32,21 @@ namespace Mailbox
 
 
 FullMessageCombiner::FullMessageCombiner(const QModelIndex &messageIndex, QObject *parent) :
-    QObject(parent), m_model(0), m_messageIndex(messageIndex)
+    QObject(parent), m_messageIndex(messageIndex)
 {
-    Imap::Mailbox::Model::realTreeItem(messageIndex, &m_model);
-    Q_ASSERT(m_model);
-    Imap::Mailbox::TreeItemPart *headerPart = headerPartPtr();
-    Imap::Mailbox::TreeItemPart *bodyPart = bodyPartPtr();
-
-    Q_ASSERT(headerPart);
-    Q_ASSERT(bodyPart);
-
-    m_headerPartIndex = headerPart->toIndex(const_cast<Mailbox::Model *>(m_model));
+    Q_ASSERT(m_messageIndex.isValid());
+    m_headerPartIndex = m_messageIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
     Q_ASSERT(m_headerPartIndex.isValid());
-
-    m_bodyPartIndex = bodyPart->toIndex(const_cast<Mailbox::Model *>(m_model));
+    m_bodyPartIndex = m_messageIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
     Q_ASSERT(m_bodyPartIndex.isValid());
-
-    connect(m_model, &QAbstractItemModel::dataChanged, this, &FullMessageCombiner::slotDataChanged);
+    m_dataChanged = connect(m_messageIndex.model(), &QAbstractItemModel::dataChanged, this, &FullMessageCombiner::slotDataChanged);
 }
 
 QByteArray FullMessageCombiner::data() const
 {
     if (loaded())
-        return *(headerPartPtr()->dataPtr()) + *(bodyPartPtr()->dataPtr());
+        return m_headerPartIndex.data(Imap::Mailbox::RolePartData).toByteArray() +
+                m_bodyPartIndex.data(Imap::Mailbox::RolePartData).toByteArray();
 
     return QByteArray();
 }
@@ -64,7 +56,7 @@ bool FullMessageCombiner::loaded() const
     if (!indexesValid())
         return false;
 
-    return headerPartPtr()->fetched() && bodyPartPtr()->fetched();
+    return m_headerPartIndex.data(Imap::Mailbox::RoleIsFetched).toBool() && m_bodyPartIndex.data(Imap::Mailbox::RoleIsFetched).toBool();
 }
 
 void FullMessageCombiner::load()
@@ -72,23 +64,10 @@ void FullMessageCombiner::load()
     if (!indexesValid())
         return;
 
-    Imap::Mailbox::TreeItemPart *headerPart = headerPartPtr();
-    headerPart->fetch(const_cast<Mailbox::Model *>(m_model));
-    Imap::Mailbox::TreeItemPart *bodyPart = bodyPartPtr();
-    bodyPart->fetch(const_cast<Mailbox::Model *>(m_model));
+    m_headerPartIndex.data(Imap::Mailbox::RolePartData);
+    m_bodyPartIndex.data(Imap::Mailbox::RolePartData);
+
     slotDataChanged(QModelIndex(), QModelIndex());
-}
-
-TreeItemPart *FullMessageCombiner::headerPartPtr() const
-{
-    Imap::Mailbox::TreeItem *target = m_model->realTreeItem(m_messageIndex);
-    return dynamic_cast<Imap::Mailbox::TreeItemPart *>(target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_HEADER));
-}
-
-TreeItemPart *FullMessageCombiner::bodyPartPtr() const
-{
-    Imap::Mailbox::TreeItem *target = m_model->realTreeItem(m_messageIndex);
-    return dynamic_cast<Imap::Mailbox::TreeItemPart *>(target->specialColumnPtr(0, Imap::Mailbox::TreeItem::OFFSET_TEXT));
 }
 
 void FullMessageCombiner::slotDataChanged(const QModelIndex &left, const QModelIndex &right)
@@ -101,15 +80,13 @@ void FullMessageCombiner::slotDataChanged(const QModelIndex &left, const QModelI
         return;
     }
 
-    if (headerPartPtr()->fetched() && bodyPartPtr()->fetched()) {
-       emit completed();
-       // Disconnect this slot from its connected signal to prevent emitting completed() many times
-       // when dataChanged() is emitted and the parts are already fetched.
-       disconnect(m_model, &QAbstractItemModel::dataChanged, this, &FullMessageCombiner::slotDataChanged);
+    if (m_headerPartIndex.data(Imap::Mailbox::RoleIsFetched).toBool() && m_bodyPartIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
+        emit completed();
+        disconnect(m_dataChanged);
     }
 
-    bool headerOffline = headerPartPtr()->isUnavailable();
-    bool bodyOffline = bodyPartPtr()->isUnavailable();
+    bool headerOffline = m_headerPartIndex.data(Imap::Mailbox::RoleIsUnavailable).toBool();
+    bool bodyOffline = m_bodyPartIndex.data(Imap::Mailbox::RoleIsUnavailable).toBool();
     if (headerOffline && bodyOffline) {
         emit failed(tr("Offline mode: uncached message data not available"));
     } else if (headerOffline) {
