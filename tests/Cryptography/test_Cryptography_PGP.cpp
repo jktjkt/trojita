@@ -175,4 +175,116 @@ void CryptographyPGPTest::testDecryption_data()
             << false;
 }
 
+void CryptographyPGPTest::testVerification()
+{
+    QFETCH(QByteArray, signature);
+    QFETCH(QByteArray, plaintext);
+    QFETCH(bool, successful);
+    QFETCH(QString, tldr);
+    QFETCH(QString, longDesc);
+    QFETCH(bool, validDisregardingTrust);
+    QFETCH(bool, validCompletely);
+
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE ("
+            "(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 423 14 NIL NIL NIL NIL)"
+            "(\"application\" \"pgp-signature\" NIL NIL NIL \"7bit\" 851 NIL NIL NIL NIL)"
+            " \"signed\" (\"boundary\" \"=-=-=\" \"micalg\" \"pgp-sha256\" \"protocol\" \"application/pgp-signature\")"
+            " NIL NIL NIL))\r\n"
+            + t.last("OK fetched\r\n"));
+    cEmpty();
+    QVERIFY(model->rowCount(msg) > 0);
+    Cryptography::MessageModel msgModel(0, msg);
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+    msgModel.registerPartHandler(std::make_shared<Cryptography::OpenPGPReplacer>());
+#endif
+    QModelIndex mappedMsg = msgModel.index(0,0);
+    QVERIFY(mappedMsg.isValid());
+    QVERIFY(msgModel.rowCount(mappedMsg) > 0);
+
+    QModelIndex data = mappedMsg.child(0, 0);
+    QVERIFY(data.isValid());
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+    QCOMPARE(msgModel.rowCount(data), 0);
+    QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+
+    cClientRegExp(t.mk("UID FETCH 333 \\((BODY\\.PEEK\\[(2|1|1\\.MIME)\\] ?){3}\\)"));
+    cServer("* 1 FETCH (UID 333 BODY[2] {" + QByteArray::number(signature.size())
+            + "}\r\n" + signature + " BODY[1] {" + QByteArray::number(plaintext.size()) + "}\r\n" + plaintext
+            + " BODY[1.MIME] {28}\r\nContent-Type: text/plain\r\n\r\n"
+            + ")\r\n"
+            + t.last("OK fetched"));
+
+    QSignalSpy qcaErrorSpy(&msgModel, SIGNAL(error(const QModelIndex &,QString,QString)));
+
+    int i = 0;
+    while (data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool() && qcaErrorSpy.empty() && i++ < 50) {
+        QTest::qWait(250);
+    }
+
+    if (!qcaErrorSpy.isEmpty() && successful) {
+        qDebug() << "Unexpected failure in crypto";
+        for (int i = 0; i < qcaErrorSpy.size(); ++i) {
+            qDebug() << qcaErrorSpy[i][1].toString();
+            qDebug() << qcaErrorSpy[i][2].toString();
+        }
+    }
+
+    QCOMPARE(qcaErrorSpy.empty(), successful);
+    QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoTLDR).toString(), tldr);
+    auto actualLongDesc = data.data(Imap::Mailbox::RolePartCryptoDetailedMessage).toString();
+    if (!actualLongDesc.startsWith(longDesc)) {
+        QCOMPARE(actualLongDesc, longDesc); // let's reuse this for debug output, and don't be scared about the misleading implications
+    }
+    QCOMPARE(data.data(Imap::Mailbox::RolePartSignatureVerifySupported).toBool(), successful);
+    QCOMPARE(data.data(Imap::Mailbox::RolePartSignatureValidDisregardingTrust).toBool(), validDisregardingTrust);
+    QCOMPARE(data.data(Imap::Mailbox::RolePartSignatureValidTrusted).toBool(), validCompletely);
+
+    QVERIFY(data.data(Imap::Mailbox::RoleIsFetched).toBool() == successful);
+
+    cEmpty();
+    QVERIFY(errorSpy->empty());
+#else
+    QCOMPARE(msgModel.rowCount(data), 2);
+    QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+
+    QCOMPARE(data.child(0, 0).data(Imap::Mailbox::RolePartMimeType).toString(), QLatin1String("application/pgp-encrypted"));
+    QCOMPARE(data.child(1, 0).data(Imap::Mailbox::RolePartMimeType).toString(), QLatin1String("application/octet-stream"));
+    cEmpty();
+
+    QSKIP("Some tests were skipped because this build doesn't have QCA support");
+#endif
+}
+
+void CryptographyPGPTest::testVerification_data()
+{
+    QTest::addColumn<QByteArray>("signature");
+    QTest::addColumn<QByteArray>("plaintext");
+    QTest::addColumn<bool>("successful");
+    QTest::addColumn<QString>("tldr");
+    QTest::addColumn<QString>("longDesc");
+    QTest::addColumn<bool>("validDisregardingTrust");
+    QTest::addColumn<bool>("validCompletely");
+
+    // everything is correct
+    QTest::newRow("valid-me")
+            << sigFromMe
+            << QByteArray("plaintext\r\n")
+            << true
+            << QStringLiteral("Some signature") // FIXME: make sure the keyring is laoded
+            << QStringLiteral("Signed by untrusted key ") // FIXME
+            << true
+            << false; // FIXME
+
+}
+
 QTEST_GUILESS_MAIN(CryptographyPGPTest)

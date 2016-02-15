@@ -22,7 +22,7 @@
 #ifndef GUI_PARTWIDGET_H
 #define GUI_PARTWIDGET_H
 
-#include <QGroupBox>
+#include <QFrame>
 #include <QTabWidget>
 
 #include "Gui/AbstractPartWidget.h"
@@ -70,7 +70,7 @@ private:
 };
 
 /** @short Base class for handling parts where the structure of the chilren is not known yet */
-class AsynchronousPartWidget: public QGroupBox, public AbstractPartWidget
+class AsynchronousPartWidget: public QFrame, public AbstractPartWidget
 {
     Q_OBJECT
 public:
@@ -81,11 +81,13 @@ protected slots:
     void handleRowsInserted(const QModelIndex &parent, int row, int column);
     void handleLayoutChanged(const QList<QPersistentModelIndex> &parents);
     void handleError(const QModelIndex &parent, const QString &status, const QString &details);
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    virtual void updateStatusIndicator() = 0;
+
+private:
+    void buildWidgets();
 
 protected:
-    virtual void buildWidgets() = 0;
-
-    Spinner *m_loadingSpinner;
     PartStatusWidget *m_statusWidget;
     PartWidgetFactory *m_factory;
     QPersistentModelIndex m_partIndex;
@@ -93,34 +95,18 @@ protected:
     const UiUtils::PartLoadingOptions m_options;
 };
 
-/** @short Message quoting support for multipart/signed MIME type */
-class MultipartSignedWidget: public AsynchronousPartWidget
+/** @short Widget for multipart/signed or multipart/encrypted MIME types */
+class MultipartSignedEncryptedWidget: public AsynchronousPartWidget
 {
     Q_OBJECT
 public:
-    MultipartSignedWidget(QWidget *parent, PartWidgetFactory *factory,
-                          const QModelIndex &partIndex, const int recursionDepth,
-                          const UiUtils::PartLoadingOptions loadingOptions);
-    virtual QString quoteMe() const;
-    virtual void reloadContents();
-    virtual bool event(QEvent *e);
-
-protected:
-    virtual void buildWidgets();
-};
-
-/** @short Handling of the fact that the message structure of encrypted message parts is not available yet */
-class MultipartEncryptedWidget: public AsynchronousPartWidget
-{
-    Q_OBJECT
-public:
-    MultipartEncryptedWidget(QWidget *parent, PartWidgetFactory *factory, const QModelIndex &partIndex, const int recursionDepth,
-                             const UiUtils::PartLoadingOptions loadingOptions);
-    virtual QString quoteMe() const;
-    virtual void reloadContents();
-
-protected:
-    virtual void buildWidgets();
+    MultipartSignedEncryptedWidget(QWidget *parent, PartWidgetFactory *factory,
+                                   const QModelIndex &partIndex, const int recursionDepth,
+                                   const UiUtils::PartLoadingOptions loadingOptions);
+    virtual QString quoteMe() const override;
+    virtual void reloadContents() override;
+protected slots:
+    virtual void updateStatusIndicator() override;
 };
 
 /** @short Message quoting support for generic multipart/ * */

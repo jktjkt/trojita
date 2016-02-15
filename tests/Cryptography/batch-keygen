@@ -54,4 +54,14 @@ Name-Email: unknown@test.trojita.flaska.net
 Expire-Date: 0
 
 %commit
+%echo Generating a key which will be used for signature verification, where the private key will be removed
+Key-Type: default
+Subkey-Type: default
+Key-Length: 1024
+Subkey-Length: 1024
+Name-Real: Some Signer
+Name-Email: some.signer@example.org
+Expire-Date: 0
+
+%commit
 %echo Keys generated

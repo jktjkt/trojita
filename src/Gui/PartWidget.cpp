@@ -26,8 +26,9 @@
 #include <QMessageBox>
 #include <QModelIndex>
 #include <QPushButton>
-#include <QVBoxLayout>
+#include <QStyle>
 #include <QTabBar>
+#include <QVBoxLayout>
 
 #include "EnvelopeView.h"
 #include "LoadablePartWidget.h"
@@ -206,11 +207,12 @@ PartStatusWidget::PartStatusWidget(QWidget *parent)
     m_text->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
     m_details->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
     m_details->setWordWrap(true);
+    m_details->setTextInteractionFlags(Qt::TextSelectableByMouse);
 }
 
 void PartStatusWidget::showStatus(const QString &icon, const QString &status, const QString &details)
 {
-    m_icon->setPixmap(UiUtils::loadIcon(icon).pixmap(height()));
+    m_icon->setPixmap(UiUtils::loadIcon(icon).pixmap(style()->pixelMetric(QStyle::PM_SmallIconSize)));
     m_text->setText(status);
     m_details->setText(details);
     if (!details.isEmpty() && !m_detailButton->isVisible()) {
@@ -237,7 +239,7 @@ void PartStatusWidget::showDetails()
 AsynchronousPartWidget::AsynchronousPartWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
         const int recursionDepth, const UiUtils::PartLoadingOptions options)
-    : QGroupBox(parent)
+    : QFrame(parent)
     , m_factory(factory)
     , m_partIndex(partIndex)
     , m_recursionDepth(recursionDepth)
@@ -249,6 +251,7 @@ AsynchronousPartWidget::AsynchronousPartWidget(QWidget *parent,
     connect(model, &QAbstractItemModel::rowsInserted, this, &AsynchronousPartWidget::handleRowsInserted);
     connect(model, &QAbstractItemModel::layoutChanged, this, &AsynchronousPartWidget::handleLayoutChanged);
     connect(model, &Cryptography::MessageModel::error, this, &AsynchronousPartWidget::handleError);
+    connect(model, &QAbstractItemModel::dataChanged, this, &AsynchronousPartWidget::handleDataChanged);
 
     setContentsMargins(0, 0, 0, 0);
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -256,17 +259,14 @@ AsynchronousPartWidget::AsynchronousPartWidget(QWidget *parent,
     m_statusWidget = new PartStatusWidget(this);
     layout->addWidget(m_statusWidget);
 
-    m_loadingSpinner = new Spinner(this);
-    m_loadingSpinner->setText(tr("Loading\nMessage"));
-    m_loadingSpinner->setType(Spinner::Sun);
-    // TODO: Replace hard coded size such that the text is readable
-    m_loadingSpinner->setMinimumSize(300, 300);
-    layout->addWidget(m_loadingSpinner);
-
-    // We have to call buildWidgets from the derived classes here,
+    // We have to call updateStatusIndicator from the derived classes here,
     // but dynamic binding does not work inside ctors.
     // The easiest way to make this work is a roundtrip through the event loop by using CALL_LATER
-    CALL_LATER(this, handleRowsInserted, Q_ARG(QModelIndex, partIndex), Q_ARG(int, 0), Q_ARG(int, 0));
+    CALL_LATER_NOARG(this, updateStatusIndicator);
+    if (partIndex.model()->rowCount(partIndex)) {
+        CALL_LATER(this, handleRowsInserted,
+                   Q_ARG(QModelIndex, partIndex), Q_ARG(int, 0), Q_ARG(int, partIndex.model()->rowCount(partIndex)));
+    }
 }
 
 void AsynchronousPartWidget::handleRowsInserted(const QModelIndex &parent, int row, int column)
@@ -283,7 +283,7 @@ void AsynchronousPartWidget::handleRowsInserted(const QModelIndex &parent, int r
 
 void AsynchronousPartWidget::handleLayoutChanged(const QList<QPersistentModelIndex> &parents)
 {
-    if (parents.isEmpty() || parents.contains(m_partIndex.parent())) {
+    if ((parents.isEmpty() || parents.contains(m_partIndex.parent())) && m_partIndex.model()->rowCount(m_partIndex) > 0) {
         buildWidgets();
         adjustSize();
     }
@@ -294,96 +294,59 @@ void AsynchronousPartWidget::handleError(const QModelIndex &parent, const QStrin
     if (parent == m_partIndex) {
         disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &AsynchronousPartWidget::handleRowsInserted);
         disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &AsynchronousPartWidget::handleLayoutChanged);
-        m_loadingSpinner->hide();
-        m_loadingSpinner->stop();
         m_statusWidget->showStatus(QStringLiteral("dialog-error"), status, details);
     }
 }
 
-MultipartSignedWidget::MultipartSignedWidget(QWidget *parent,
+void AsynchronousPartWidget::buildWidgets()
+{
+    Q_ASSERT(m_partIndex.isValid());
+    Q_ASSERT(m_partIndex.model()->rowCount(m_partIndex) > 0);
+    disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &MultipartSignedEncryptedWidget::handleRowsInserted);
+    disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &MultipartSignedEncryptedWidget::handleLayoutChanged);
+    for (int i = 0; i < m_partIndex.model()->rowCount(m_partIndex); ++i) {
+        QModelIndex anotherPart = m_partIndex.child(i, 0);
+        Q_ASSERT(anotherPart.isValid());
+        QWidget *res = m_factory->walk(anotherPart, m_recursionDepth + 1, filteredForEmbedding(m_options));
+        layout()->addWidget(res);
+    }
+}
+
+void AsynchronousPartWidget::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    Q_ASSERT(topLeft == bottomRight);
+    Q_UNUSED(bottomRight);
+    if (topLeft == m_partIndex || !m_partIndex.isValid())
+        updateStatusIndicator();
+}
+
+
+MultipartSignedEncryptedWidget::MultipartSignedEncryptedWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
         const int recursionDepth, const UiUtils::PartLoadingOptions loadingOptions)
     : AsynchronousPartWidget(parent, factory, partIndex, recursionDepth, loadingOptions)
 {
-    setTitle(tr("Signed Message"));
-    m_loadingSpinner->setText(tr("Checking\nSignature"));
+    setFrameStyle(QFrame::Box);
 }
 
-void MultipartSignedWidget::buildWidgets()
+void MultipartSignedEncryptedWidget::updateStatusIndicator()
 {
-    Q_ASSERT(m_partIndex.isValid());
-    disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &MultipartSignedWidget::handleRowsInserted);
-    disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &MultipartSignedWidget::handleLayoutChanged);
-    setFlat(true);
-    uint childrenCount = m_partIndex.model()->rowCount(m_partIndex);
-    if (childrenCount == 1) {
-        setTitle(tr("Malformed multipart/signed message: only one nested part"));
-        QModelIndex anotherPart = m_partIndex.child(0, 0);
-        Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        layout()->addWidget(m_factory->walk(anotherPart, m_recursionDepth + 1, filteredForEmbedding(m_options)));
-    } else if (childrenCount != 2) {
-        QLabel *lbl = new QLabel(tr("Malformed multipart/signed message: %1 nested parts").arg(QString::number(childrenCount)), this);
-        layout()->addWidget(lbl);
-        return;
+    using namespace Imap::Mailbox;
+    auto tldr = m_partIndex.data(RolePartCryptoTLDR);
+    if (tldr.isValid()) {
+        m_statusWidget->showStatus(
+                    m_partIndex.data(RolePartCryptoStatusIconName).toString(),
+                    tldr.toString(),
+                    m_partIndex.data(RolePartCryptoDetailedMessage).toString()
+                    );
     } else {
-        Q_ASSERT(childrenCount == 2); // from the if logic; FIXME: refactor
-        QModelIndex anotherPart = m_partIndex.child(0, 0);
-        Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        layout()->addWidget(m_factory->walk(anotherPart, m_recursionDepth + 1, filteredForEmbedding(m_options)));
+        setFrameStyle(QFrame::NoFrame);
     }
 }
 
-QString MultipartSignedWidget::quoteMe() const
+QString MultipartSignedEncryptedWidget::quoteMe() const
 {
     return quoteMeHelper(children());
-}
-
-bool MultipartSignedWidget::event(QEvent *e)
-{
-    if (e->type() == QEvent::KeyPress || e->type() == QEvent::KeyRelease) {
-        // Space is used by Qt for manipulating the checked/unchecked state, apparently.
-        // We don't use that, but we need the Space key for scrolling.
-        // In fact, this container should not accept any keyboard input anyway; it's just
-        // a visual indicator saying "hey, this is a signed piece of data".
-        return false;
-    }
-    return QGroupBox::event(e);
-}
-
-MultipartEncryptedWidget::MultipartEncryptedWidget(QWidget *parent, PartWidgetFactory *factory,
-                                                   const QModelIndex &partIndex, const int recursionDepth,
-                                                   const UiUtils::PartLoadingOptions loadingOptions)
-    : AsynchronousPartWidget(parent, factory, partIndex, recursionDepth, loadingOptions)
-{
-    setTitle(tr("Encrypted Message"));
-    m_loadingSpinner->setText(tr("Decrypting\nMessage"));
-}
-
-QString MultipartEncryptedWidget::quoteMe() const
-{
-    return quoteMeHelper(children());
-}
-
-void MultipartEncryptedWidget::buildWidgets()
-{
-    Q_ASSERT(m_partIndex.isValid());
-    if (m_partIndex.model()->rowCount(m_partIndex) == 0 && !m_statusWidget->isVisibleTo(m_statusWidget->parentWidget())) {
-        // We have to wait for the message structure to become available
-        m_loadingSpinner->start(250);
-        return;
-    }
-
-    m_loadingSpinner->hide();
-    m_loadingSpinner->stop();
-
-    disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &MultipartEncryptedWidget::handleRowsInserted);
-    disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &MultipartEncryptedWidget::handleLayoutChanged);
-    for (int i = 0; i < m_partIndex.model()->rowCount(m_partIndex); ++i) {
-        QModelIndex anotherPart = m_partIndex.child(i, 0);
-        Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
-        QWidget *res = m_factory->walk(anotherPart, m_recursionDepth + 1, filteredForEmbedding(m_options));
-        layout()->addWidget(res);
-    }
 }
 
 GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
@@ -446,10 +409,9 @@ QString Message822Widget::quoteMe() const
     }\
 }
 
-IMPL_RELOAD(MultipartSignedWidget);
-IMPL_RELOAD(MultipartEncryptedWidget);
-IMPL_RELOAD(GenericMultipartWidget);
-IMPL_RELOAD(Message822Widget);
+IMPL_RELOAD(MultipartSignedEncryptedWidget)
+IMPL_RELOAD(GenericMultipartWidget)
+IMPL_RELOAD(Message822Widget)
 
 #undef IMPL_RELOAD
 

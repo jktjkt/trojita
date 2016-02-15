@@ -35,6 +35,8 @@ private Q_SLOTS:
     void initTestCase();
     void testDecryption();
     void testDecryption_data();
+    void testVerification();
+    void testVerification_data();
 };
 
 Q_DECLARE_METATYPE(CryptographyPGPTest::pathList)

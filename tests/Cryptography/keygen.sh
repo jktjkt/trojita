@@ -31,13 +31,26 @@ if [[ ! -f ${SRCDIR}/CMakeLists.txt ]] ; then
 fi
 
 KEYDIR="./keys"
+SED_QUOTE='s/^\(.*\)$/\t"\1\\r\\n"/g'
 
 # params: receiver, plaintext
 # output: quoted encrypted messages
 _encrypt() {
-	ENC=$(echo "$2" | gpg -e --armor -r $1)
+	ENC=$(echo -en "$2" | gpg -e --armor -r $1)
 	# quote each line and add newlines
-	echo "${ENC}" | sed -e 's/^\(.*\)$/\t"\1\\r\\n"/g'
+	echo "${ENC}" | sed -e ${SED_QUOTE}
+}
+
+# params: signer, plaintext
+gpg_sign() {
+	CYP=$(echo -en "${2}" | gpg --sign --detach-sig --armor --local-user $1)
+	echo "${CYP}" | sed -e ${SED_QUOTE}
+}
+
+# params: signer, recipient, plaintext
+gpg_sign_encrypt() {
+	ENC=$(echo -en "${3}" | gpg --sign --encrypt --detach-sig --armor --local-user $1 --recipient $2)
+	echo "${ENC}" | sed -e ${SED_QUOTE}
 }
 
 [ -d "$KEYDIR" ] && rm -r "$KEYDIR"
@@ -68,6 +81,10 @@ EXPIRED=$(_encrypt expired@test.trojita.flaska.net plaintext)
 # for a message with missing key we use a key that will be deleted from the keyring after message generation
 UNKNOWN=$(_encrypt unknown@test.trojita.flaska.net plaintext)
 
+# valid signature
+PLAINTEXT_FOR_SIGNING="Content-Type: text/plain\r\n\r\nplaintext\r\n"
+SIGNATURE_ME=$(gpg_sign valid@test.trojita.flaska.net "${PLAINTEXT_FOR_SIGNING}")
+
 echo "$HEAD
 
 const QByteArray encValid(
@@ -84,6 +101,10 @@ $EXPIRED
 
 const QByteArray encUnknown(
 $UNKNOWN
+);
+
+const QByteArray sigFromMe(
+$SIGNATURE_ME
 );
 
 $TAIL" > crypto_test_data.h

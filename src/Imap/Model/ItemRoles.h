@@ -172,6 +172,57 @@ enum {
     /** @short QModelIndex of the message a part is associated to */
     RolePartMessageIndex,
 
+
+    /** @short Is the format of this particular multipart/signed supported for signature verification?
+
+    A multipart/signed could use some unrecognized or unsupported algorithm, in which case we won't even try
+    to verify the signature. If this is role returns true, it means that there will be just one child item
+    and that that child's validity will be checked by the crypto operation. This role does not imply anything
+    about the validity of the actual signature, though.
+    */
+    RolePartSignatureVerifySupported,
+    /** @short Is the format of this particular multipart/encrypted supported and recognized?
+
+    See RolePartSignatureVerifySupported, this is an equivalent.
+    */
+    RolePartDecryptionSupported,
+    /** @short Is there any point in waiting longer?
+
+    If true, this means that the crypto code is either waiting for data from the network, or that there is
+    a crypto operation in progress.
+    */
+    RolePartCryptoNotFinishedYet,
+    /** @short Was there a failure in some cryptography operation which affected the ability to show the message?
+
+    "Failure" means that something went wrong. Maybe some system component failed, or the message arrived too damaged to
+    be decrypted. This state has nothing to do with, say, a message whose signature failed to verify.
+    */
+    RolePartCryptoDecryptionFailed,
+    /** @short Short message about the status/result of a crypto operation
+
+    This is suitable for an immediate presentation to the user. The text should be short enough to not distract
+    the user too much, but also descriptive enough to make sense on its own, without having to consult the longer,
+    more detailed status message.
+    */
+    RolePartCryptoTLDR,
+    /** @short Longer information about the status/result of a crypto operation
+
+    This can be shown to the user when they ask for more details. It could possibly be a very long text, including some cryptic
+    output from gpg's stderr, for example.
+    */
+    RolePartCryptoDetailedMessage,
+    /** @short Icon name for showing the result of a crypto operation */
+    RolePartCryptoStatusIconName,
+    /** @short Is this a valid signature subject to all checks, whatever they are? */
+    RolePartSignatureValidTrusted,
+    /** @short Is this a technically valid signature without taking the trust level and other policies into account? */
+    RolePartSignatureValidDisregardingTrust,
+    /** @short Who made the signature */
+    RolePartSignatureSignerName,
+    /** @short When was the signature made */
+    RolePartSignatureSignDate,
+
+
     /** @short True if the item in the tasks list is actually a ParserState
 
     This role is *not* used or implemented by the IMAP models, but only by the TaskPresentationModel.
