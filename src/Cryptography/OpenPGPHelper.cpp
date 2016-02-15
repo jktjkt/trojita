@@ -36,7 +36,7 @@ using namespace Imap::Mailbox;
 
 namespace Cryptography {
 
-OpenPGPEncryptedReplacer::OpenPGPEncryptedReplacer(MessageModel *model)
+OpenPGPReplacer::OpenPGPReplacer(MessageModel *model)
     : PartReplacer(model)
     , m_qcaInit(new QCA::Initializer())
     , m_pgp(new QCA::OpenPGP(nullptr))
@@ -45,45 +45,66 @@ OpenPGPEncryptedReplacer::OpenPGPEncryptedReplacer(MessageModel *model)
     // hit some segfaults in Qt 5.2.1 and 5.4.0, see the comments at Gerrit
 }
 
-OpenPGPEncryptedReplacer::~OpenPGPEncryptedReplacer()
+OpenPGPReplacer::~OpenPGPReplacer()
 {
 }
 
-MessagePart::Ptr OpenPGPEncryptedReplacer::createPart(MessagePart *parentPart, MessagePart::Ptr original,
-                                                      const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
+MessagePart::Ptr OpenPGPReplacer::createPart(MessagePart *parentPart, MessagePart::Ptr original,
+                                             const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
 {
-    if (sourceItemIndex.data(RolePartMimeType).toByteArray() != "multipart/encrypted") {
-        return original;
-    }
-
     // Just - say - wow, because this is for sure much easier then typing QMap<QByteArray, QByteArray>, isn't it.
     // Yep, I just got a new toy.
     using bodyFldParam_t = std::result_of<decltype(&TreeItemPart::bodyFldParam)(TreeItemPart)>::type;
-    const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
-    if (bodyFldParam[QByteArrayLiteral("PROTOCOL")].toLower() != QByteArrayLiteral("application/pgp-encrypted")) {
-        return original;
+
+    auto mimeType = sourceItemIndex.data(RolePartMimeType).toByteArray();
+    if (mimeType == "multipart/encrypted") {
+        const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
+        if (bodyFldParam[QByteArrayLiteral("PROTOCOL")].toLower() == QByteArrayLiteral("application/pgp-encrypted")) {
+            return MessagePart::Ptr(new OpenPGPEncryptedPart(m_pgp.get(), m_model, parentPart, std::move(original),
+                                                             sourceItemIndex, proxyParentIndex));
+        }
     }
 
-    return MessagePart::Ptr(new OpenPGPEncryptedPart(m_pgp.get(), m_model, parentPart, std::move(original), sourceItemIndex, proxyParentIndex));
+    return original;
 }
 
-OpenPGPEncryptedPart::OpenPGPEncryptedPart(QCA::OpenPGP *pgp, MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
-                                           const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
+OpenPGPPart::OpenPGPPart(QCA::OpenPGP *pgp, MessageModel *model, MessagePart *parentPart,
+                         const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
     : QObject(model)
-    , LocalMessagePart(parentPart, original->row(), sourceItemIndex.data(RolePartMimeType).toByteArray())
-    , m_versionPart(sourceItemIndex.child(0, 0))
-    , m_encPart(sourceItemIndex.child(1, 0))
-    , m_proxyParentIndex(proxyParentIndex)
-    , m_row(sourceItemIndex.row())
+    , LocalMessagePart(parentPart, sourceItemIndex.row(), sourceItemIndex.data(RolePartMimeType).toByteArray())
     , m_model(model)
     , m_pgp(pgp)
     , m_msg(nullptr)
+    , m_proxyParentIndex(proxyParentIndex)
 {
     Q_ASSERT(sourceItemIndex.isValid());
+    m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &OpenPGPPart::handleDataChanged);
+}
+
+OpenPGPPart::~OpenPGPPart()
+{
+}
+
+void OpenPGPPart::forwardFailure(const QString &error, const QString &details)
+{
+    disconnect(m_dataChanged);
+
+    // This forward is needed because we are emitting this indirectly, from the item's constructor.
+    // At the time the ctor runs, the multipart/encrypted has not been inserted into the proxy model yet,
+    // so we cannot obtain its index.
+    emit m_model->error(m_proxyParentIndex.child(m_row, 0), error, details);
+}
+
+
+OpenPGPEncryptedPart::OpenPGPEncryptedPart(QCA::OpenPGP *pgp, MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
+                                           const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
+    : OpenPGPPart(pgp, model, parentPart, sourceItemIndex, proxyParentIndex)
+    , m_versionPart(sourceItemIndex.child(0, 0))
+    , m_encPart(sourceItemIndex.child(1, 0))
+{
     if (QCA::isSupported("openpgp")) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
         if (rowCount == 2) {
-            m_dataChanged = connect(m_encPart.model(), &QAbstractItemModel::dataChanged, this, &OpenPGPEncryptedPart::handleDataChanged);
             // Trigger lazy loading of the required message parts
             m_versionPart.data(RolePartData);
             m_encPart.data(RolePartData);
@@ -109,19 +130,10 @@ OpenPGPEncryptedPart::~OpenPGPEncryptedPart()
 {
 }
 
-void OpenPGPEncryptedPart::forwardFailure(const QString &error, const QString &details)
-{
-    // This forward is needed because we are emitting this indirectly, from the item's constructor.
-    // At the time the ctor runs, the multipart/encrypted has not been inserted into the proxy model yet,
-    // so we cannot obtain its index.
-    emit m_model->error(m_proxyParentIndex.child(m_row, 0), error, details);
-}
-
 void OpenPGPEncryptedPart::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_ASSERT(topLeft == bottomRight);
     if (!m_encPart.isValid()) {
-        disconnect(m_dataChanged);
         forwardFailure(tr("Message is gone"), QString());
         return;
     }
@@ -130,24 +142,26 @@ void OpenPGPEncryptedPart::handleDataChanged(const QModelIndex &topLeft, const Q
     }
     Q_ASSERT(m_versionPart.isValid());
     Q_ASSERT(m_encPart.isValid());
-    if (m_versionPart.data(RoleIsFetched).toBool() && m_encPart.data(RoleIsFetched).toBool()) {
-        disconnect(m_dataChanged);
-
-        // Check compliance with RFC3156
-        QString versionString = m_versionPart.data(RolePartData).toString();
-        if (!versionString.contains(QLatin1String("Version: 1"))) {
-            forwardFailure(tr("Malformed Message"),
-                           tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%2\".").arg(versionString));
-            return;
-        }
-        Q_ASSERT(!m_msg);
-        m_msg = new QCA::SecureMessage(m_pgp);
-        connect(m_msg, &QCA::SecureMessage::finished, this, &OpenPGPEncryptedPart::handleDecryptionFinished);
-        m_msg->setFormat(QCA::SecureMessage::Ascii);
-        m_msg->startDecrypt();
-        m_msg->update(m_encPart.data(RolePartData).toByteArray().data());
-        m_msg->end();
+    if (!m_versionPart.data(RoleIsFetched).toBool() || !m_encPart.data(RoleIsFetched).toBool()) {
+        return;
     }
+
+    disconnect(m_dataChanged);
+
+    // Check compliance with RFC3156
+    QString versionString = m_versionPart.data(RolePartData).toString();
+    if (!versionString.contains(QLatin1String("Version: 1"))) {
+        forwardFailure(tr("Malformed Message"),
+                       tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%2\".").arg(versionString));
+        return;
+    }
+    Q_ASSERT(!m_msg);
+    m_msg = new QCA::SecureMessage(m_pgp);
+    connect(m_msg, &QCA::SecureMessage::finished, this, &OpenPGPEncryptedPart::handleDecryptionFinished);
+    m_msg->setFormat(QCA::SecureMessage::Ascii);
+    m_msg->startDecrypt();
+    m_msg->update(m_encPart.data(RolePartData).toByteArray().data());
+    m_msg->end();
 }
 
 void OpenPGPEncryptedPart::handleDecryptionFinished()

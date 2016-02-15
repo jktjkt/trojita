@@ -80,7 +80,7 @@ void CryptographyPGPTest::testDecryption()
     QVERIFY(model->rowCount(msg) > 0);
     Cryptography::MessageModel msgModel(0, msg);
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-    msgModel.registerPartHandler(std::make_shared<Cryptography::OpenPGPEncryptedReplacer>(&msgModel));
+    msgModel.registerPartHandler(std::make_shared<Cryptography::OpenPGPReplacer>(&msgModel));
 #endif
     QModelIndex mappedMsg = msgModel.index(0,0);
     QVERIFY(mappedMsg.isValid());

@@ -209,7 +209,7 @@ void MessageView::setMessage(const QModelIndex &index)
         delete messageModel;
         messageModel = new Cryptography::MessageModel(this, messageIndex);
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-        messageModel->registerPartHandler(std::make_shared<Cryptography::OpenPGPEncryptedReplacer>(messageModel));
+        messageModel->registerPartHandler(std::make_shared<Cryptography::OpenPGPReplacer>(messageModel));
 #endif
         connect(messageModel, &QAbstractItemModel::rowsInserted, this, &MessageView::handleMessageAvailable);
         connect(messageModel, &QAbstractItemModel::layoutChanged, this, &MessageView::handleMessageAvailable);

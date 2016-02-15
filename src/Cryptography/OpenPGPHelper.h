@@ -37,10 +37,10 @@ class SecureMessage;
 
 namespace Cryptography {
 
-class OpenPGPEncryptedReplacer: public PartReplacer {
+class OpenPGPReplacer: public PartReplacer {
 public:
-    OpenPGPEncryptedReplacer(MessageModel *model);
-    virtual ~OpenPGPEncryptedReplacer() override;
+    OpenPGPReplacer(MessageModel *model);
+    virtual ~OpenPGPReplacer() override;
 
     MessagePart::Ptr createPart(MessagePart *parentPart, MessagePart::Ptr original,
                                 const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex) override;
@@ -50,7 +50,27 @@ private:
 };
 
 /** @short Wrapper for asynchronous PGP related operations using QCA */
-class OpenPGPEncryptedPart : public QObject, public LocalMessagePart {
+class OpenPGPPart : public QObject, public LocalMessagePart {
+    Q_OBJECT
+public:
+    OpenPGPPart(QCA::OpenPGP *pgp, MessageModel *model, MessagePart *parentPart,
+                const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
+    ~OpenPGPPart();
+
+protected slots:
+    void forwardFailure(const QString &error, const QString &details);
+    virtual void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) = 0;
+
+protected:
+    MessageModel *m_model;
+    QCA::OpenPGP *m_pgp;
+    QCA::SecureMessage *m_msg;
+    QMetaObject::Connection m_dataChanged;
+    QPersistentModelIndex m_proxyParentIndex;
+};
+
+/** @short MessageModel wrapper for OpenPGP encrypted message */
+class OpenPGPEncryptedPart : public OpenPGPPart {
     Q_OBJECT
 
 public:
@@ -59,18 +79,13 @@ public:
     ~OpenPGPEncryptedPart();
 
 private slots:
-    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    virtual void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) override;
     void handleDecryptionFinished();
-    void forwardFailure(const QString &error, const QString &details);
 
 private:
-    QPersistentModelIndex m_versionPart, m_encPart, m_proxyParentIndex;
-    int m_row;
-    MessageModel *m_model;
-    QCA::OpenPGP *m_pgp;
-    QCA::SecureMessage *m_msg;
-    QMetaObject::Connection m_dataChanged;
+    QPersistentModelIndex m_versionPart, m_encPart;
 };
+
 }
 
 #endif /* CRYPTOGRAPHY_OPENPGPHELPER_H_ */
