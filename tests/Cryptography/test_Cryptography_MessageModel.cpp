@@ -34,6 +34,7 @@
 #endif
 #include "Imap/data.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxTree.h"
 #include "Streams/FakeSocket.h"
 
 /** @short Verify passthrough of existing MIME parts without modifications */
@@ -269,14 +270,23 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     QCOMPARE(msgRoot.internalPointer(), formerMsgRoot.internalPointer());
     QCOMPARE(msgModel.rowCount(msgRoot), 0);
     cClientRegExp(t.mk("UID FETCH 333 \\(BODY\\.PEEK\\[1\\.(TEXT|HEADER)\\] BODY\\.PEEK\\[1\\.(TEXT|HEADER)\\]\\)"));
-    QByteArray myHeader = QByteArrayLiteral("Content-Type: pWned/NOw\r\nSubject: =?ISO-8859-2?B?7Lno+L794e3p?=\r\n"
+    QByteArray myHeader = QByteArrayLiteral("Content-Type: mULTIpart/miXed; boundary=sep\r\n"
+                                            "MIME-Version: 1.0\r\n"
+                                            "Subject: =?ISO-8859-2?B?7Lno+L794e3p?=\r\n"
                                             "From: =?utf-8?B?xJs=?= <1@example.org>\r\n"
                                             "Sender: =?utf-8?B?xJq=?= <0@example.org>\r\n"
                                             "To: =?utf-8?B?xJs=?= <2@example.org>, =?iso-8859-1?Q?=E1?= <3@example.org>\r\n"
                                             "Cc: =?utf-8?B?xJz=?= <4@example.org>\r\n"
                                             "reply-to: =?utf-8?B?xJm=?= <r@example.org>\r\n"
                                             "BCC: =?utf-8?B?xJr=?= <5@example.org>\r\n\r\n");
-    QByteArray myBody = QByteArrayLiteral("This is the actual message body.\r\n");
+    QByteArray myBinaryBody = QByteArrayLiteral("This is the actual message body.\r\n");
+    QString myUnicode = QStringLiteral("Λέσβος");
+    QByteArray myBody = QByteArrayLiteral("preamble of a MIME message\r\n--sep\r\n"
+                                          "Content-Type: text/plain; charset=\"utf-8\"\r\nContent-Transfer-Encoding: base64\r\n\r\n")
+            + myUnicode.toUtf8().toBase64()
+            + QByteArrayLiteral("\r\n--sep\r\nContent-Type: pWned/NOw\r\n\r\n")
+            + myBinaryBody
+            + QByteArrayLiteral("\r\n--sep--\r\n");
     cServer("* 1 FETCH (UID 333 BODY[1.TEXT] {" + QByteArray::number(myBody.size()) + "}\r\n" + myBody + " BODY[1.HEADER] {" +
             QByteArray::number(myHeader.size()) + "}\r\n" + myHeader + ")\r\n" + t.last("OK fetched\r\n"));
 
@@ -305,11 +315,65 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     QCOMPARE(msgRoot.data(Imap::Mailbox::RoleMessageReplyTo),
              QVariant(QVariantList() <<
                       (QStringList() << QStringLiteral("ę") << QString() << QStringLiteral("r") << QStringLiteral("example.org"))));
-    auto c1 = msgRoot.child(0, 0);
+
+    // NOTE: the OFFSET_MIME parts are not implemented; that's more or less on purpose because they aren't being used through
+    // the rest of the code so far.
+
+    auto mHeader = msgRoot.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
+    QVERIFY(mHeader.isValid());
+    auto mText = msgRoot.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
+    QVERIFY(mText.isValid());
+    auto mMime = msgRoot.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
+    QVERIFY(!mMime.isValid());
+    auto mRaw = msgRoot.child(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS);
+    QVERIFY(mRaw.isValid());
+    // We cannot compare them for an exact byte-equality because Mimetic apparently mangles the data a bit,
+    // for example there's an extra space after the comma in the To field in this case :(
+    QCOMPARE(mHeader.data(Imap::Mailbox::RolePartData).toByteArray().left(30), myHeader.left(30));
+    QCOMPARE(mHeader.data(Imap::Mailbox::RolePartData).toByteArray().right(4), QByteArrayLiteral("\r\n\r\n"));
+    QCOMPARE(mText.data(Imap::Mailbox::RolePartData).toByteArray(), myBody);
+
+    // still that new C++11 toy, oh yeah :)
+    using bodyFldParam_t = std::result_of<decltype(&Imap::Mailbox::TreeItemPart::bodyFldParam)(Imap::Mailbox::TreeItemPart)>::type;
+    bodyFldParam_t expectedBodyFldParam;
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartBodyFldParam).value<bodyFldParam_t>(), expectedBodyFldParam);
+
+    auto multipartIdx = msgRoot.child(0, 0);
+    QVERIFY(multipartIdx.isValid());
+    QCOMPARE(multipartIdx.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("multipart/mixed"));
+    QCOMPARE(msgModel.rowCount(multipartIdx), 2);
+    expectedBodyFldParam.clear();
+    expectedBodyFldParam["BOUNDARY"] = "sep";
+    QCOMPARE(multipartIdx.data(Imap::Mailbox::RolePartBodyFldParam).value<bodyFldParam_t>(), expectedBodyFldParam);
+
+    auto c1 = multipartIdx.child(0, 0);
     QVERIFY(c1.isValid());
     QCOMPARE(msgModel.rowCount(c1), 0);
-    QCOMPARE(c1.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("pwned/now"));
-    QCOMPARE(c1.data(Imap::Mailbox::RolePartData).toByteArray(), myBody);
+    QCOMPARE(c1.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("text/plain"));
+    QCOMPARE(c1.data(Imap::Mailbox::RolePartData).toString(), myUnicode);
+    expectedBodyFldParam.clear();
+    expectedBodyFldParam["CHARSET"] = "utf-8";
+    QCOMPARE(c1.data(Imap::Mailbox::RolePartBodyFldParam).value<bodyFldParam_t>(), expectedBodyFldParam);
+
+    auto c1raw = c1.child(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS);
+    QVERIFY(c1raw.isValid());
+    QCOMPARE(c1raw.data(Imap::Mailbox::RolePartData).toByteArray(), myUnicode.toUtf8().toBase64());
+    QVERIFY(!c1.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER).isValid());
+    QVERIFY(!c1.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT).isValid());
+    QVERIFY(!c1.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME).isValid());
+
+    auto c2 = multipartIdx.child(1, 0);
+    QVERIFY(c2.isValid());
+    QCOMPARE(msgModel.rowCount(c2), 0);
+    QCOMPARE(c2.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("pwned/now"));
+    QCOMPARE(c2.data(Imap::Mailbox::RolePartData).toByteArray(), myBinaryBody);
+
+    auto c2raw = c2.child(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS);
+    QVERIFY(c2raw.isValid());
+    QCOMPARE(c2raw.data(Imap::Mailbox::RolePartData).toByteArray(), myBinaryBody);
+    QVERIFY(!c2.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER).isValid());
+    QVERIFY(!c2.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT).isValid());
+    QVERIFY(!c2.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME).isValid());
 
     cEmpty();
     QVERIFY(errorSpy->isEmpty());

@@ -134,9 +134,13 @@ MessagePart::Ptr MimeticUtils::mimeEntityToPart(const mimetic::MimeEntity &me, M
 {
     QByteArray type = QByteArray(me.header().contentType().type().c_str()).toLower();
     QByteArray subtype = QByteArray(me.header().contentType().subtype().c_str()).toLower();
-    std::unique_ptr<LocalMessagePart> part(new LocalMessagePart(parent, row, QByteArray(type + "/" + subtype)));
+    std::unique_ptr<LocalMessagePart> part(new LocalMessagePart(parent, row, type + "/" + subtype));
+    storeInterestingFields(me, part.get());
+    std::unique_ptr<LocalMessagePart> headerPart, textPart, mimePart, rawPart;
+    bool isMessageRfc822 = false;
     if (me.body().parts().size() > 0) {
         if (type == QByteArray("message") && subtype == QByteArray("rfc822")) {
+            isMessageRfc822 = true;
             const mimetic::Header h = (*(me.body().parts().begin()))->header();
             QDateTime date = QDateTime::fromString(QString::fromStdString(h.field("date").value()));
             QString subject = Imap::decodeRFC2047String(h.subject().data());
@@ -181,15 +185,38 @@ MessagePart::Ptr MimeticUtils::mimeEntityToPart(const mimetic::MimeEntity &me, M
         // Remember full part data for part download
         std::stringstream ss;
         ss << me;
-        part->setData(ss.str().c_str());
+        QByteArray rawPartData = ss.str().c_str();
+        rawPart.reset(new LocalMessagePart(part.get(), 0, QByteArray()));
+        rawPart->setData(rawPartData);
+
+        // It seems that Mimetic doesn't really offer us access to the raw content of the MIME tree (the unaltered input).
+        // Instead, the operator<< simply re-creates some MIME structure based on the parsing results.
+        // This has a side effect that some body-fld-param are enriched a bit with stuff like quoting, etc.
+        if (isMessageRfc822) {
+            const QByteArray headerBoundary = QByteArrayLiteral("\r\n\r\n");
+            // OK, the first index denotes the position of the end of our artificial header (that message/rfc822 thingy)
+            auto headerStart = rawPartData.indexOf(headerBoundary);
+            // ...so let's find a real boundary between the message's header and text fields
+            if (headerStart != -1) {
+                auto bodyStart = rawPartData.indexOf(headerBoundary, headerStart + 1);
+                if (bodyStart != -1) {
+                    headerPart.reset(new LocalMessagePart(part.get(), 0, QByteArray()));
+                    headerPart->setData(rawPartData.mid(headerStart + headerBoundary.size(), bodyStart - headerStart));
+                    textPart.reset(new LocalMessagePart(part.get(), 0, QByteArray()));
+                    textPart->setData(rawPartData.mid(bodyStart + headerBoundary.size()));
+                }
+            }
+        }
     } else {
-        storeInterestingFields(me, part.get());
+        auto rawPartData = QByteArray(me.body().data(), me.body().size());
+        rawPart.reset(new LocalMessagePart(part.get(), 0, QByteArray()));
+        rawPart->setData(rawPartData);
         QByteArray data;
-        Imap::decodeContentTransferEncoding(QByteArray(me.body().data(), me.body().size()), part->data(Imap::Mailbox::RolePartEncoding).toByteArray().toLower(), &data);
+        Imap::decodeContentTransferEncoding(rawPartData, part->data(Imap::Mailbox::RolePartEncoding).toByteArray().toLower(), &data);
         part->setData(data);
     }
     part->setOctets(me.size());
-    // FIXME: setSpecialParts()
+    part->setSpecialParts(std::move(headerPart), std::move(textPart), std::move(mimePart), std::move(rawPart));
     return MessagePart::Ptr(std::move(part));
 }
 
