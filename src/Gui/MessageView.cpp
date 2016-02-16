@@ -36,7 +36,6 @@
 #include <QWebHitTestResult>
 #include <QWebPage>
 
-#include "configure.cmake.h"
 #include "MessageView.h"
 #include "AbstractPartWidget.h"
 #include "ComposeWidget.h"
@@ -56,19 +55,21 @@
 #include "Composer/QuoteText.h"
 #include "Composer/SubjectMangling.h"
 #include "Cryptography/MessageModel.h"
-#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-#include "Cryptography/OpenPGPHelper.h"
-#endif
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/NetworkWatcher.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
+#include "Plugins/PluginManager.h"
 
 namespace Gui
 {
 
-MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager): QWidget(parent), messageModel(0), m_settings(settings), m_pluginManager(pluginManager)
+MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager)
+    : QWidget(parent)
+    , messageModel(0)
+    , m_settings(settings)
+    , m_pluginManager(pluginManager)
 {
     QPalette pal = palette();
     pal.setColor(backgroundRole(), palette().color(QPalette::Active, QPalette::Base));
@@ -208,9 +209,9 @@ void MessageView::setMessage(const QModelIndex &index)
     if (!messageModel || messageModel->message() != messageIndex) {
         delete messageModel;
         messageModel = new Cryptography::MessageModel(this, messageIndex);
-#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-        messageModel->registerPartHandler(std::make_shared<Cryptography::OpenPGPReplacer>());
-#endif
+        for (const auto &module: m_pluginManager->mimePartReplacers()) {
+            messageModel->registerPartHandler(module);
+        }
         connect(messageModel, &QAbstractItemModel::rowsInserted, this, &MessageView::handleMessageAvailable);
         connect(messageModel, &QAbstractItemModel::layoutChanged, this, &MessageView::handleMessageAvailable);
         emit messageModelChanged(messageModel);

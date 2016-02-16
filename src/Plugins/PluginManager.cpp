@@ -31,12 +31,12 @@
 #include <QString>
 #include <QStringList>
 
-#include "PluginManager.h"
 #include "configure.cmake.h"
 #include "Common/InvokeMethod.h"
 #include "Plugins/AddressbookPlugin.h"
 #include "Plugins/PasswordPlugin.h"
 #include "Plugins/PluginInterface.h"
+#include "Plugins/PluginManager.h"
 
 
 namespace Plugins {
@@ -212,6 +212,17 @@ Plugins::AddressbookPlugin *PluginManager::addressbook() const
 Plugins::PasswordPlugin *PluginManager::password() const
 {
     return m_password;
+}
+
+const PluginManager::MimePartReplacers &PluginManager::mimePartReplacers() const
+{
+    return m_mimePartReplacers;
+}
+
+// FIXME: this API sucks, but there's a can of worms when it comes to libtrojita_plugins.so...
+void PluginManager::setMimePartReplacers(const MimePartReplacers &replacers)
+{
+    m_mimePartReplacers = replacers;
 }
 
 } //namespace Common

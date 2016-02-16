@@ -23,6 +23,7 @@
 #ifndef PLUGIN_MANAGER
 #define PLUGIN_MANAGER
 
+#include <memory>
 #include <QObject>
 #include <QString>
 #include <QStringList>
@@ -35,6 +36,10 @@
 
 class QSettings;
 
+namespace Cryptography {
+class PartReplacer;
+}
+
 namespace Plugins {
 
 class AddressbookPluginInterface;
@@ -44,6 +49,7 @@ class PLUGINMANAGER_EXPORT PluginManager : public QObject
 {
     Q_OBJECT
 public:
+    using MimePartReplacers = std::vector<std::shared_ptr<Cryptography::PartReplacer>>;
     /** @short Create plugin manager instance and load plugins */
     PluginManager(QObject *parent, QSettings *settings, const QString &addressbookKey, const QString &passwordKey);
 
@@ -73,6 +79,9 @@ public:
     /** @short Return interface of password plugin or nullptr when plugin was not found */
     Plugins::PasswordPlugin *password() const;
 
+    const MimePartReplacers &mimePartReplacers() const;
+    void setMimePartReplacers(const MimePartReplacers &replacers);
+
 signals:
     void pluginsChanged();
 
@@ -94,6 +103,8 @@ private:
 
     QPointer<Plugins::AddressbookPlugin> m_addressbook;
     QPointer<Plugins::PasswordPlugin> m_password;
+
+    MimePartReplacers m_mimePartReplacers;
 };
 
 } //namespace Common

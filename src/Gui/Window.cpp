@@ -46,12 +46,16 @@
 #include <QUrl>
 #include <QWheelEvent>
 
+#include "configure.cmake.h"
 #include "Common/Application.h"
 #include "Common/Paths.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
 #include "Composer/Mailto.h"
 #include "Composer/SenderIdentitiesModel.h"
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+#include "Cryptography/OpenPGPHelper.h"
+#endif
 #include "Imap/Model/ImapAccess.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
@@ -107,6 +111,11 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     m_pluginManager = new Plugins::PluginManager(this, m_settings,
                                                  Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
     connect(m_pluginManager, &Plugins::PluginManager::pluginsChanged, this, &MainWindow::slotPluginsChanged);
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+    Plugins::PluginManager::MimePartReplacers replacers;
+    replacers.emplace_back(std::make_shared<Cryptography::OpenPGPReplacer>());
+    m_pluginManager->setMimePartReplacers(replacers);
+#endif
 
     // ImapAccess contains a wrapper for retrieving passwords through some plugin.
     // That PasswordWatcher is used by the SettingsDialog's widgets *and* by this class,
