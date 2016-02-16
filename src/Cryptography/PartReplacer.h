@@ -27,12 +27,10 @@
 
 namespace Cryptography {
 
-class MessagePart;
-
 /** @short Interface for replacing specific part by a custom tree */
 class PartReplacer {
 public:
-    PartReplacer(MessageModel *model);
+    PartReplacer();
     virtual ~PartReplacer();
 
     /** @short Mangle the MIME part if desirable
@@ -57,11 +55,8 @@ public:
     is not in a consistent shape, and therefore accessing its MVC methods for siblings of "this" item (i.e.,
     children of @arg proxyParentIndex) is not safe.
     */
-    virtual MessagePart::Ptr createPart(MessagePart *parentPart, MessagePart::Ptr original,
+    virtual MessagePart::Ptr createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
                                         const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex) = 0;
-
-protected:
-    MessageModel *m_model;
 };
 
 }

@@ -32,8 +32,8 @@
 
 namespace Cryptography {
 
-LocalMimeMessageParser::LocalMimeMessageParser(MessageModel *model)
-    : PartReplacer(model)
+LocalMimeMessageParser::LocalMimeMessageParser()
+    : PartReplacer()
 {
 }
 
@@ -41,12 +41,12 @@ LocalMimeMessageParser::~LocalMimeMessageParser()
 {
 }
 
-MessagePart::Ptr LocalMimeMessageParser::createPart(MessagePart *parentPart, MessagePart::Ptr original,
+MessagePart::Ptr LocalMimeMessageParser::createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
                                                     const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
 {
     auto mimeType = sourceItemIndex.data(Imap::Mailbox::RolePartMimeType).toByteArray();
     if (mimeType == "message/rfc822") {
-        return MessagePart::Ptr(new LocallyParsedMimePart(m_model, parentPart, std::move(original),
+        return MessagePart::Ptr(new LocallyParsedMimePart(model, parentPart, std::move(original),
                                                           sourceItemIndex, proxyParentIndex));
     }
     return original;

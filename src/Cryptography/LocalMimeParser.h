@@ -31,10 +31,10 @@ namespace Cryptography {
 /** @short Local parsing of MIME messages */
 class LocalMimeMessageParser: public PartReplacer {
 public:
-    LocalMimeMessageParser(MessageModel *model);
+    LocalMimeMessageParser();
     virtual ~LocalMimeMessageParser() override;
 
-    MessagePart::Ptr createPart(MessagePart *parentPart, MessagePart::Ptr original,
+    MessagePart::Ptr createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
                                 const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex) override;
 
 };

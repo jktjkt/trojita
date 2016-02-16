@@ -36,8 +36,8 @@ using namespace Imap::Mailbox;
 
 namespace Cryptography {
 
-OpenPGPReplacer::OpenPGPReplacer(MessageModel *model)
-    : PartReplacer(model)
+OpenPGPReplacer::OpenPGPReplacer()
+    : PartReplacer()
     , m_qcaInit(new QCA::Initializer())
     , m_pgp(new QCA::OpenPGP(nullptr))
 {
@@ -49,7 +49,7 @@ OpenPGPReplacer::~OpenPGPReplacer()
 {
 }
 
-MessagePart::Ptr OpenPGPReplacer::createPart(MessagePart *parentPart, MessagePart::Ptr original,
+MessagePart::Ptr OpenPGPReplacer::createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
                                              const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
 {
     // Just - say - wow, because this is for sure much easier then typing QMap<QByteArray, QByteArray>, isn't it.
@@ -60,7 +60,7 @@ MessagePart::Ptr OpenPGPReplacer::createPart(MessagePart *parentPart, MessagePar
     if (mimeType == "multipart/encrypted") {
         const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
         if (bodyFldParam[QByteArrayLiteral("PROTOCOL")].toLower() == QByteArrayLiteral("application/pgp-encrypted")) {
-            return MessagePart::Ptr(new OpenPGPEncryptedPart(m_pgp.get(), m_model, parentPart, std::move(original),
+            return MessagePart::Ptr(new OpenPGPEncryptedPart(m_pgp.get(), model, parentPart, std::move(original),
                                                              sourceItemIndex, proxyParentIndex));
         }
     }

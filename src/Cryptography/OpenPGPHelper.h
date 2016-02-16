@@ -39,10 +39,10 @@ namespace Cryptography {
 
 class OpenPGPReplacer: public PartReplacer {
 public:
-    OpenPGPReplacer(MessageModel *model);
+    OpenPGPReplacer();
     virtual ~OpenPGPReplacer() override;
 
-    MessagePart::Ptr createPart(MessagePart *parentPart, MessagePart::Ptr original,
+    MessagePart::Ptr createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
                                 const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex) override;
 private:
     std::unique_ptr<QCA::Initializer> m_qcaInit;

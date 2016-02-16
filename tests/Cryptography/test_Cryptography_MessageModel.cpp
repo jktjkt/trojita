@@ -239,7 +239,7 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
 
     Cryptography::MessageModel msgModel(0, msg);
-    msgModel.registerPartHandler(std::make_shared<Cryptography::LocalMimeMessageParser>(&msgModel));
+    msgModel.registerPartHandler(std::make_shared<Cryptography::LocalMimeMessageParser>());
 
     const QByteArray bsTopLevelRfc822Message = QByteArrayLiteral(
                 "\"messaGe\" \"rFc822\" NIL NIL NIL \"7bit\" 1511 (\"Thu, 8 Aug 2013 09:02:50 +0200\" "

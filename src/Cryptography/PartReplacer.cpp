@@ -24,8 +24,7 @@
 
 namespace Cryptography {
 
-PartReplacer::PartReplacer(MessageModel *model)
-    : m_model(model)
+PartReplacer::PartReplacer()
 {
 }
 

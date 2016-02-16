@@ -241,7 +241,7 @@ void ProxyMessagePart::fetchChildren(MessageModel *model)
 
         // Find out if something wants to override our choice
         for (const auto &module: model->m_partHandlers) {
-            part = module->createPart(this, std::move(part), childIndex, model->createIndex(this->row(), 0, this));
+            part = module->createPart(model, this, std::move(part), childIndex, model->createIndex(this->row(), 0, this));
         }
 
         m_children[row] = std::move(part);
