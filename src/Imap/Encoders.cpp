@@ -620,7 +620,9 @@ QByteArray encodeRfc2231Parameter(const QByteArray &key, const QString &value)
     if (safeAscii)
         return key + '=' + value.toUtf8();
 
-    QByteArray res = key + "*=\"utf-8''";
+    // FIXME: split the string into smaller chunks, use continuations
+
+    QByteArray res = key + "*=utf-8''";
     QByteArray encoded = value.toUtf8();
     for (int i = 0; i < encoded.size(); ++i) {
         char unicode = encoded[i];
@@ -629,7 +631,7 @@ QByteArray encodeRfc2231Parameter(const QByteArray &key, const QString &value)
         else
             res += unicode;
     }
-    return res + '"';
+    return res;
 }
 
 /** @short Insert extra spaces to match the SHOULD from RFC3676

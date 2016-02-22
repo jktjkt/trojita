@@ -371,8 +371,8 @@ void RFCCodecsTest::testRfc2231Encoding_data()
     QTest::newRow("empty") << QString() << QByteArray("x=\"\"");
     QTest::newRow("ascii") << QStringLiteral("ahoj") << QByteArray("x=ahoj");
     QTest::newRow("filename") << QStringLiteral("AhojZ-jak-se_masz-039.txt") << QByteArray("x=AhojZ-jak-se_masz-039.txt");
-    QTest::newRow("utf-8") << QStringLiteral("ěšč") << QByteArray("x*=\"utf-8''%C4%9B%C5%A1%C4%8D\"");
-    QTest::newRow("question-mark") << QStringLiteral("?") << QByteArray("x*=\"utf-8''%3F\"");
+    QTest::newRow("utf-8") << QStringLiteral("ěšč") << QByteArray("x*=utf-8''%C4%9B%C5%A1%C4%8D");
+    QTest::newRow("question-mark") << QStringLiteral("?") << QByteArray("x*=utf-8''%3F");
 }
 
 QTEST_GUILESS_MAIN( RFCCodecsTest )
