@@ -24,21 +24,23 @@
 #define TROJITA_PLUGIN_JOB
 
 #include <QObject>
+#include "configure-plugins.cmake.h"
 
-#ifdef QT_STATICPLUGIN
-#define PLUGINS_EXPORT
+#if defined(WITH_SHARED_PLUGINS)
+#  if defined(BUILDING_LIBTROJITA_PLUGINS)
+#    define PLUGINMANAGER_EXPORT Q_DECL_EXPORT
+#  else
+#    define PLUGINMANAGER_EXPORT Q_DECL_IMPORT
+#  endif
 #else
-#ifdef BUILD_PLUGIN
-#define PLUGINS_EXPORT Q_DECL_IMPORT
-#else
-#define PLUGINS_EXPORT Q_DECL_EXPORT
+#  define PLUGINMANAGER_EXPORT
 #endif
-#endif
+
 
 namespace Plugins
 {
 
-class PLUGINS_EXPORT PluginJob : public QObject
+class PLUGINMANAGER_EXPORT PluginJob : public QObject
 {
     Q_OBJECT
 

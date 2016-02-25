@@ -31,7 +31,7 @@
 namespace Plugins
 {
 
-class PLUGINS_EXPORT PasswordJob : public PluginJob
+class PLUGINMANAGER_EXPORT PasswordJob : public PluginJob
 {
     Q_OBJECT
 
@@ -60,7 +60,7 @@ protected:
     PasswordJob(QObject *parent);
 };
 
-class PLUGINS_EXPORT PasswordPlugin : public QObject
+class PLUGINMANAGER_EXPORT PasswordPlugin : public QObject
 {
     Q_OBJECT
 

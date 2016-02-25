@@ -190,6 +190,8 @@ endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/configure.cmake.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure-plugins.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/configure-plugins.cmake.h)
 
 feature_summary(FATAL_ON_MISSING_REQUIRED_PACKAGES INCLUDE_QUIET_PACKAGES DESCRIPTION "\n" WHAT ALL)
 
@@ -503,6 +505,7 @@ qt5_use_modules(AppVersion Core)
 
 if(WITH_SHARED_PLUGINS)
     add_library(Plugins SHARED ${libPlugins_SOURCES})
+    set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS BUILDING_LIBTROJITA_PLUGINS)
 else()
     add_library(Plugins STATIC ${libPlugins_SOURCES})
     set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS QT_STATICPLUGIN)
