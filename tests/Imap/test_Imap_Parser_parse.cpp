@@ -604,13 +604,13 @@ void ImapParserParseTest::testParseUntagged_data()
         << QSharedPointer<AbstractResponse>( new Fetch( 66, fetchData ) );
 
     fetchData.clear();
-    fetchData[ "RFC822.SIZE" ] = QSharedPointer<AbstractData>( new RespData<uint>( 1337 ) );
+    fetchData[ "RFC822.SIZE" ] = QSharedPointer<AbstractData>( new RespData<quint64>( 1337 ) );
     QTest::newRow("fetch-rfc822-size")
         << QByteArray("* 123 FETCH (rfc822.size 1337)\r\n")
         << QSharedPointer<AbstractResponse>( new Fetch( 123, fetchData ) );
 
     fetchData.clear();
-    fetchData[ "RFC822.SIZE" ] = QSharedPointer<AbstractData>( new RespData<uint>( 1337 ) );
+    fetchData[ "RFC822.SIZE" ] = QSharedPointer<AbstractData>( new RespData<quint64>( 1337 ) );
     fetchData[ "UID" ] = QSharedPointer<AbstractData>( new RespData<uint>( 666 ) );
     QTest::newRow("fetch-rfc822-size-uid")
         << QByteArray("* 123 FETCH (uID 666 rfc822.size 1337)\r\n")
@@ -805,7 +805,7 @@ void ImapParserParseTest::testParseUntagged_data()
                     Envelope( QDateTime(QDate(2011, 1, 11), QTime(9, 21, 42), Qt::UTC), QStringLiteral("blablabla"), from, sender, replyTo, to, cc, bcc, QList<QByteArray>(), QByteArray() )
                     ));
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(8803));
-    fetchData["RFC822.SIZE"] = QSharedPointer<AbstractData>(new RespData<uint>(56144));
+    fetchData["RFC822.SIZE"] = QSharedPointer<AbstractData>(new RespData<quint64>(56144));
 
     msgList.clear();
     bodyFldParam.clear();

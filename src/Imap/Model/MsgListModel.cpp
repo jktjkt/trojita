@@ -229,7 +229,7 @@ QVariant MsgListModel::data(const QModelIndex &proxyIndex, int role) const
         case RECEIVED_DATE:
             return message->internalDate(static_cast<Model *>(sourceModel()));
         case SIZE:
-            return message->size(static_cast<Model *>(sourceModel()));
+            return QVariant::fromValue(message->size(static_cast<Model *>(sourceModel())));
         default:
             return QVariant();
         }

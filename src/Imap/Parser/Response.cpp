@@ -912,8 +912,10 @@ Fetch::Fetch(const uint number, const QByteArray &line, int &start): number(numb
                 throw NoData(line, start);
             if (line[start++] != ')')
                 throw UnexpectedHere("FETCH FLAGS must be a list");
-        } else if (identifier == "UID" || identifier == "RFC822.SIZE") {
+        } else if (identifier == "UID") {
             data[identifier] = QSharedPointer<AbstractData>(new RespData<uint>(LowLevelParser::getUInt(line, start)));
+        } else if (identifier == "RFC822.SIZE") {
+            data[identifier] = QSharedPointer<AbstractData>(new RespData<quint64>(LowLevelParser::getUInt64(line, start)));
         } else if (identifier.startsWith("BODY[") || identifier.startsWith("BINARY[") || identifier.startsWith("RFC822")) {
             data[identifier] = QSharedPointer<AbstractData>(new RespData<QByteArray>(LowLevelParser::getNString(line, start).first));
         } else if (identifier == "ENVELOPE") {

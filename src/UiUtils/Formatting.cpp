@@ -34,7 +34,7 @@ Formatting::Formatting(QObject *parent): QObject(parent)
 {
 }
 
-QString Formatting::prettySize(uint bytes)
+QString Formatting::prettySize(quint64 bytes)
 {
     static const QStringList suffixes = QStringList() << tr("B")
                                                       << tr("kB")

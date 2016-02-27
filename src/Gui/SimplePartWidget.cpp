@@ -58,7 +58,7 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     url.setHost(QStringLiteral("msg"));
     url.setPath(partIndex.data(Imap::Mailbox::RolePartPathToPart).toString());
     if (partIndex.data(Imap::Mailbox::RolePartMimeType).toString() == QLatin1String("text/plain")) {
-        if (partIndex.data(Imap::Mailbox::RolePartOctets).toUInt() < 100 * 1024) {
+        if (partIndex.data(Imap::Mailbox::RolePartOctets).toULongLong() < 100 * 1024) {
             connect(this, &QWebView::loadFinished, this, &SimplePartWidget::slotMarkupPlainText);
         } else {
             QFont font(QFontDatabase::systemFont(QFontDatabase::FixedFont));

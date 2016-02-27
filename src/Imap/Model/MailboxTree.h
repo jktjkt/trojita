@@ -236,7 +236,7 @@ public:
 
     Message::Envelope m_envelope;
     QDateTime m_internalDate;
-    uint m_size;
+    quint64 m_size;
     QList<QByteArray> m_hdrReferences;
     QList<QUrl> m_hdrListPost;
     bool m_hdrListPostNo;
@@ -283,7 +283,7 @@ public:
     virtual bool hasChildren(Model *const model) { Q_UNUSED(model); return true; }
     Message::Envelope envelope(Model *const model);
     QDateTime internalDate(Model *const model);
-    uint size(Model *const model);
+    quint64 size(Model *const model);
     bool isMarkedAsDeleted() const;
     bool isMarkedAsRead() const;
     bool isMarkedAsReplied() const;
@@ -312,7 +312,7 @@ class TreeItemPart: public TreeItem
     QByteArray m_bodyFldId;
     QByteArray m_bodyDisposition;
     QString m_fileName;
-    uint m_octets;
+    quint64 m_octets;
     QByteArray m_multipartRelatedStartPart;
     mutable TreeItemPart *m_partMime;
     mutable TreeItemPart *m_partRaw;
@@ -366,9 +366,9 @@ public:
     QByteArray bodyDisposition() const { return m_bodyDisposition; }
     void setFileName(const QString &name) { m_fileName = name; }
     QString fileName() const { return m_fileName; }
-    void setOctets(const uint size) { m_octets = size; }
+    void setOctets(const quint64 size) { m_octets = size; }
     /** @short Return the downloadable size of the message part */
-    uint octets() const { return m_octets; }
+    quint64 octets() const { return m_octets; }
     QByteArray multipartRelatedStartPart() const { return m_multipartRelatedStartPart; }
     void setMultipartRelatedStartPart(const QByteArray &start) { m_multipartRelatedStartPart = start; }
     virtual TreeItem *specialColumnPtr(int row, int column) const;

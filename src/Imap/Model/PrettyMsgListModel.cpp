@@ -100,7 +100,7 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             if (!size.isValid()) {
                 return QVariant();
             }
-            return UiUtils::Formatting::prettySize(size.toUInt());
+            return UiUtils::Formatting::prettySize(size.toULongLong());
         }
         case MsgListModel::SUBJECT:
         {

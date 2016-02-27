@@ -463,7 +463,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         } else if (it.key() == "x-trojita-bodystructure") {
             // do nothing
         } else if (it.key() == "RFC822.SIZE") {
-            message->data()->m_size = static_cast<const Responses::RespData<uint>&>(*(it.value())).data;
+            message->data()->m_size = static_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
             gotSize = true;
         } else if (it.key().startsWith("BODY[HEADER.FIELDS (")) {
             // Process any headers found in any such response bit
@@ -1186,7 +1186,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case RoleMessageSubject:
         return envelope(model).subject;
     case RoleMessageSize:
-        return data()->m_size;
+        return QVariant::fromValue(data()->m_size);
     case RoleMessageHeaderReferences:
         return QVariant::fromValue(data()->m_hdrReferences);
     case RoleMessageHeaderListPost:
@@ -1296,7 +1296,7 @@ QDateTime TreeItemMessage::internalDate(Model *const model)
     return data()->m_internalDate;
 }
 
-uint TreeItemMessage::size(Model *const model)
+quint64 TreeItemMessage::size(Model *const model)
 {
     fetch(model);
     return data()->m_size;
@@ -1508,7 +1508,7 @@ QVariant TreeItemPart::data(Model *const model, int role)
     case RolePartFileName:
         return m_fileName;
     case RolePartOctets:
-        return m_octets;
+        return QVariant::fromValue(m_octets);
     case RolePartId:
         return partId();
     case RolePartPathToPart:
