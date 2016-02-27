@@ -98,6 +98,8 @@
 namespace Gui
 {
 
+    static const char * const netErrorUnseen = "net_error_unseen";
+
 MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_mainHSplitter(0), m_mainVSplitter(0),
     m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true), m_delayedStateSaving(0), m_actionSortNone(0),
     m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_networkErrorMessageBox(0), m_trayIcon(0)
@@ -156,6 +158,14 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     } else {
         m_actionLayoutCompact->trigger();
     }
+
+    connect(qApp, &QGuiApplication::applicationStateChanged, this,
+            [&](Qt::ApplicationState state) {
+                if (state == Qt::ApplicationActive && m_networkErrorMessageBox && m_networkErrorMessageBox->property(netErrorUnseen).toBool()) {
+                    m_networkErrorMessageBox->setProperty(netErrorUnseen, false);
+                    m_networkErrorMessageBox->show();
+                }
+            });
 
     // Don't listen to QDesktopWidget::resized; that is emitted too early (when it gets fired, the screen size has changed, but
     // the workspace area is still the old one). Instead, listen to workAreaResized which gets emitted at an appropriate time.
@@ -1141,7 +1151,12 @@ void MainWindow::networkError(const QString &message)
     // User must be informed about a new (but not recurring) error
     if (message != m_networkErrorMessageBox->text()) {
         m_networkErrorMessageBox->setText(message);
-        m_networkErrorMessageBox->show();
+        if (qApp->applicationState() == Qt::ApplicationActive) {
+            m_networkErrorMessageBox->setProperty(netErrorUnseen, false);
+            m_networkErrorMessageBox->show();
+        } else {
+            m_networkErrorMessageBox->setProperty(netErrorUnseen, true);
+        }
     }
 }
 
