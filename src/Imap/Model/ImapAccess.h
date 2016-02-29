@@ -106,6 +106,8 @@ public:
     int numberRefreshInterval() const;
     void setNumberRefreshInterval(const int interval);
 
+    QString accountName() const;
+
     Common::ConnectionMethod connectionMethod() const;
     void setConnectionMethod(const Common::ConnectionMethod mode);
 

@@ -122,7 +122,9 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     setWindowIcon(winIcon);
 
     Q_ASSERT(m_mainWindow);
-    m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory);
+    QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+    QString accountId = profileName.isEmpty() ? QStringLiteral("account-0") : profileName;
+    m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory, accountId);
     connect(m_submission, &Composer::Submission::succeeded, this, &ComposeWidget::sent);
     connect(m_submission, &Composer::Submission::failed, this, &ComposeWidget::gotError);
     connect(m_submission, &Composer::Submission::passwordRequested, this, &ComposeWidget::passwordRequested, Qt::QueuedConnection);
@@ -519,7 +521,11 @@ void ComposeWidget::passwordRequested(const QString &user, const QString &host)
         return;
     }
 
-    Plugins::PasswordJob *job = password->requestPassword(QStringLiteral("account-0"), QStringLiteral("smtp"));
+    // FIXME: use another account-id at some point in future
+    //        we are now using the profile to avoid overwriting passwords of
+    //        other profiles in secure storage
+    //        'account-0' is the hardcoded value when not using a profile
+    Plugins::PasswordJob *job = password->requestPassword(m_submission->accountId(), QStringLiteral("smtp"));
     if (!job) {
         askPassword(user, host);
         return;

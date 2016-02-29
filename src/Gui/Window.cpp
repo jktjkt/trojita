@@ -115,7 +115,10 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     // which means that ImapAccess has to be constructed before we go and open the settings dialog.
 
     // FIXME: use another account-id at some point in future
-    m_imapAccess = new Imap::ImapAccess(this, m_settings, m_pluginManager, QString());
+    //        we are now using the profile to avoid overwriting passwords of
+    //        other profiles in secure storage
+    QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+    m_imapAccess = new Imap::ImapAccess(this, m_settings, m_pluginManager, profileName);
     connect(m_imapAccess, &Imap::ImapAccess::cacheError, this, &MainWindow::cacheError);
     connect(m_imapAccess, &Imap::ImapAccess::checkSslPolicy, this, &MainWindow::checkSslPolicy, Qt::QueuedConnection);
 
@@ -1253,7 +1256,14 @@ void MainWindow::authenticationRequested()
 {
     Plugins::PasswordPlugin *password = pluginManager()->password();
     if (password) {
-        Plugins::PasswordJob *job = password->requestPassword(QStringLiteral("account-0"), QStringLiteral("imap"));
+    // FIXME: use another account-id at some point in future
+    //        Currently the accountName will be empty unless Trojita has been
+    //        called with a profile, and then the profile will be used as the
+    //        accountName.
+    QString accountName = m_imapAccess->accountName();
+    if (accountName.isEmpty())
+        accountName = QStringLiteral("account-0");
+    Plugins::PasswordJob *job = password->requestPassword(accountName, QStringLiteral("imap"));
         if (job) {
             connect(job, &Plugins::PasswordJob::passwordAvailable, this, &MainWindow::authenticationContinue);
             connect(job, &Plugins::PasswordJob::error, this, &MainWindow::authenticationContinueNoPassword);

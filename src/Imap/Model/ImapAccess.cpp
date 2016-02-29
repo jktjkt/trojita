@@ -583,6 +583,11 @@ void ImapAccess::setNumberRefreshInterval(const int interval)
         m_imapModel->setNumberRefreshInterval(interval);
 }
 
+QString ImapAccess::accountName() const
+{
+    return m_accountName;
+}
+
 bool ImapAccess::isConfigured() const
 {
     return m_settings->contains(Common::SettingsNames::imapMethodKey);

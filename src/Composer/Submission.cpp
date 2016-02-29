@@ -69,12 +69,14 @@ QString submissionProgressToString(const Submission::SubmissionProgress progress
     return QStringLiteral("[unknown: %1]").arg(QString::number(static_cast<int>(progress)));
 }
 
-Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory) :
+Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId) :
     QObject(parent),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_saveToSentFolder(false), m_useBurl(false), m_useImapSubmit(false), m_state(STATE_INIT),
     m_msaMaximalProgress(0),
-    m_composer(0), m_model(model), m_msaFactory(msaFactory), m_updateReplyingToMessageFlagsTask(0),
+    m_composer(0), m_model(model), m_msaFactory(msaFactory),
+    m_accountId(accountId),
+    m_updateReplyingToMessageFlagsTask(0),
     m_updateForwardingMessageFlagsTask(0)
 {
     m_composer = new Composer::MessageComposer(model, this);
@@ -88,6 +90,11 @@ MessageComposer *Submission::composer()
 
 Submission::~Submission()
 {
+}
+
+QString Submission::accountId() const
+{
+    return m_accountId;
 }
 
 void Submission::changeConnectionState(const SubmissionProgress state)
