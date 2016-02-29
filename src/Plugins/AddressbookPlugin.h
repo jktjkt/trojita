@@ -34,7 +34,7 @@
 namespace Plugins
 {
 
-struct PLUGINS_EXPORT NameEmail
+struct PLUGINMANAGER_EXPORT NameEmail
 {
     NameEmail(const QString &n, const QString &e) : name(n), email(e) {}
     QString name;
@@ -43,7 +43,7 @@ struct PLUGINS_EXPORT NameEmail
 
 typedef QList<NameEmail> NameEmailList;
 
-class PLUGINS_EXPORT AddressbookJob : public PluginJob
+class PLUGINMANAGER_EXPORT AddressbookJob : public PluginJob
 {
     Q_OBJECT
 
@@ -62,7 +62,7 @@ protected:
     AddressbookJob(QObject *parent);
 };
 
-class PLUGINS_EXPORT AddressbookCompletionJob : public AddressbookJob
+class PLUGINMANAGER_EXPORT AddressbookCompletionJob : public AddressbookJob
 {
     Q_OBJECT
 
@@ -74,7 +74,7 @@ protected:
     AddressbookCompletionJob(QObject *parent);
 };
 
-class PLUGINS_EXPORT AddressbookNamesJob : public AddressbookJob
+class PLUGINMANAGER_EXPORT AddressbookNamesJob : public AddressbookJob
 {
     Q_OBJECT
 
@@ -86,7 +86,7 @@ protected:
     AddressbookNamesJob(QObject *parent);
 };
 
-class PLUGINS_EXPORT AddressbookPlugin : public QObject
+class PLUGINMANAGER_EXPORT AddressbookPlugin : public QObject
 {
     Q_OBJECT
 

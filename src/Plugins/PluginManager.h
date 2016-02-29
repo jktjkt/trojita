@@ -40,7 +40,7 @@ namespace Plugins {
 class AddressbookPluginInterface;
 class PasswordPluginInterface;
 
-class PLUGINS_EXPORT PluginManager : public QObject
+class PLUGINMANAGER_EXPORT PluginManager : public QObject
 {
     Q_OBJECT
 public:
