@@ -891,7 +891,13 @@ void MainWindow::handleTrayIconChange()
             == Imap::Mailbox::NETWORK_OFFLINE;
     auto pixmap = UiUtils::loadIcon(QStringLiteral("trojita"))
                 .pixmap(QSize(32, 32), isOffline ? QIcon::Disabled : QIcon::Normal);
-    auto tooltip = trUtf8("Trojitá");
+    QString tooltip;
+    auto profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+    if (profileName.isEmpty()) {
+        tooltip = QStringLiteral("Trojitá");
+    } else {
+        tooltip = QStringLiteral("Trojitá [%1]").arg(profileName);
+    }
 
     if (mailbox.isValid() && mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX")) {
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
@@ -925,8 +931,12 @@ void MainWindow::handleTrayIconChange()
             painter.setBrush(isOffline ? Qt::red : Qt::black);
             painter.drawPath(path);
 
-            tooltip = trUtf8("Trojitá - %n unread message(s)", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt());
+            //: This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
+            tooltip += trUtf8(" - %n unread message(s)", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt());
         }
+    } else if (isOffline) {
+        //: A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
+        tooltip += tr(" - offline");
     }
     m_trayIcon->setToolTip(tooltip);
     m_trayIcon->setIcon(QIcon(pixmap));
