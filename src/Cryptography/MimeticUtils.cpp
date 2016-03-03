@@ -189,6 +189,9 @@ MessagePart::Ptr MimeticUtils::mimeEntityToPart(const mimetic::MimeEntity &me, M
         rawPart.reset(new LocalMessagePart(part.get(), 0, QByteArray()));
         rawPart->setData(rawPartData);
 
+        // yeah, the raw data of these MIME containers have to be made available, too
+        part->setData(rawPartData);
+
         // It seems that Mimetic doesn't really offer us access to the raw content of the MIME tree (the unaltered input).
         // Instead, the operator<< simply re-creates some MIME structure based on the parsing results.
         // This has a side effect that some body-fld-param are enriched a bit with stuff like quoting, etc.
