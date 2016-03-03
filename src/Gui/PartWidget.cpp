@@ -252,7 +252,7 @@ AsynchronousPartWidget::AsynchronousPartWidget(QWidget *parent,
 
     setContentsMargins(0, 0, 0, 0);
     QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
     m_statusWidget = new PartStatusWidget(this);
     layout->addWidget(m_statusWidget);
 
