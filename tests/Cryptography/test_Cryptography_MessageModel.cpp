@@ -264,7 +264,7 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     QModelIndex formerMsgRoot = msgRoot;
     QVERIFY(msgRoot.isValid());
     QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartPathToPart).toByteArray(),
-             QByteArrayLiteral("[fake proxy below the message root]/0"));
+             QByteArrayLiteral("/0"));
 
     QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("message/rfc822"));
     QCOMPARE(msgRoot.internalPointer(), formerMsgRoot.internalPointer());

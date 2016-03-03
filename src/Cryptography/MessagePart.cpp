@@ -152,10 +152,6 @@ TopLevelMessage::~TopLevelMessage()
 
 QVariant TopLevelMessage::data(int role) const
 {
-    switch (role) {
-    case Imap::Mailbox::RolePartPathToPart:
-        return QByteArrayLiteral("[real message root]");
-    }
     return m_root.data(role);
 }
 
@@ -195,8 +191,6 @@ QVariant ProxyMessagePart::data(int role) const
         case Qt::DisplayRole:
             return QStringLiteral("[fake message root: UID %1]").arg(
                         msg->data(Imap::Mailbox::RoleMessageUid).toString());
-        case Imap::Mailbox::RolePartPathToPart:
-            return QByteArrayLiteral("[fake proxy below the message root]");
         }
     }
     return m_sourceIndex.data(role);
