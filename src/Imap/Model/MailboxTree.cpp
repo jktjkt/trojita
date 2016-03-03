@@ -1116,6 +1116,8 @@ QVariant TreeItemMessage::data(Model *const model, int role)
     case RoleMailboxName:
     case RoleMailboxUidValidity:
         return parent()->parent()->data(model, role);
+    case RolePartMimeType:
+        return QByteArrayLiteral("message/rfc822");
     }
 
     // Any other roles will result in fetching the data
