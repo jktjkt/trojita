@@ -86,7 +86,7 @@ Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recurs
     // Check whether it shall be wrapped inside an AttachmentView
     // From section 2.8 of RFC 2183: "Unrecognized disposition types should be treated as `attachment'."
     const QByteArray contentDisposition = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower();
-    const bool isInline = contentDisposition.isEmpty() || contentDisposition == "inline";
+    const bool isInline = (contentDisposition.isEmpty() || contentDisposition == "inline") && !(loadingMode & PART_IGNORE_INLINE);
     const bool looksLikeAttachment = !partIndex.data(Imap::Mailbox::RolePartFileName).toString().isEmpty();
     const bool wrapInAttachmentView = !(loadingMode & PART_IGNORE_DISPOSITION_ATTACHMENT)
             && (looksLikeAttachment || !isInline || !recognizedMimeType || isDerivedMimeType || isMessageRfc822);

@@ -307,9 +307,14 @@ void AsynchronousPartWidget::buildWidgets()
     for (int i = 0; i < m_partIndex.model()->rowCount(m_partIndex); ++i) {
         QModelIndex anotherPart = m_partIndex.child(i, 0);
         Q_ASSERT(anotherPart.isValid());
-        QWidget *res = m_factory->walk(anotherPart, m_recursionDepth + 1, filteredForEmbedding(m_options));
+        QWidget *res = addingOneWidget(anotherPart, filteredForEmbedding(m_options));
         layout()->addWidget(res);
     }
+}
+
+QWidget *AsynchronousPartWidget::addingOneWidget(const QModelIndex &index, UiUtils::PartLoadingOptions options)
+{
+    return m_factory->walk(index, m_recursionDepth + 1, options);
 }
 
 void AsynchronousPartWidget::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
@@ -347,6 +352,21 @@ void MultipartSignedEncryptedWidget::updateStatusIndicator()
 QString MultipartSignedEncryptedWidget::quoteMe() const
 {
     return quoteMeHelper(children());
+}
+
+QWidget *MultipartSignedEncryptedWidget::addingOneWidget(const QModelIndex &index, UiUtils::PartLoadingOptions options)
+{
+    auto parent = index.parent();
+    if (parent.isValid() && parent.model()->rowCount(parent) == 2) {
+        if (parent.data(Imap::Mailbox::RolePartMimeType).toByteArray() == "multipart/signed" && index.row() == 1) {
+            // do not expand the signature
+            options |= UiUtils::PART_IGNORE_INLINE;
+        } else if (parent.data(Imap::Mailbox::RolePartMimeType).toByteArray() == "multipart/encrypted") {
+            // click-to-show for everything within an encrypted message
+            options |= UiUtils::PART_IGNORE_INLINE;
+        }
+    }
+    return AsynchronousPartWidget::addingOneWidget(index, options);
 }
 
 GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,

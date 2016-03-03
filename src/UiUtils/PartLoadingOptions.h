@@ -33,7 +33,8 @@ typedef enum {
     PART_IGNORE_CLICKTHROUGH = 1 << 1, /**< @short Ignore any heuristics which lead to wrapping in an LoadablePartView with a clickthrough */
     PART_IGNORE_LOAD_ON_SHOW = 1 << 2, /**< @short Ignore wrapping in a LoadablePartView set up to load on first show event */
     PART_IS_HIDDEN = 1 << 3, /**< @short Request wrapping this part in a LoadablePartView */
-    PART_PREFER_PLAINTEXT_OVER_HTML = 1 << 4 /**< @short The user's preferences indicate that a text/plain part shall be shown instead of a text/html if available */
+    PART_PREFER_PLAINTEXT_OVER_HTML = 1 << 4, /**< @short The user's preferences indicate that a text/plain part shall be shown instead of a text/html if available */
+    PART_IGNORE_INLINE = 1 << 5, /**< @short Do not auto-expand this attachment */
 } PartLoadingFlag;
 /** @short Which of these options shall be propagated to child Views when embedding them, and which shall be filtered? */
 enum {

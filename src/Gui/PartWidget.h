@@ -88,6 +88,8 @@ private:
     void buildWidgets();
 
 protected:
+    virtual QWidget *addingOneWidget(const QModelIndex &index, UiUtils::PartLoadingOptions options);
+
     PartStatusWidget *m_statusWidget;
     PartWidgetFactory *m_factory;
     QPersistentModelIndex m_partIndex;
@@ -107,6 +109,8 @@ public:
     virtual void reloadContents() override;
 protected slots:
     virtual void updateStatusIndicator() override;
+protected:
+    virtual QWidget *addingOneWidget(const QModelIndex &index, UiUtils::PartLoadingOptions options) override;
 };
 
 /** @short Message quoting support for generic multipart/ * */
