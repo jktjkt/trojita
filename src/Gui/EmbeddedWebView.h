@@ -58,6 +58,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void showEvent(QShowEvent *se);
+    void addCustomStylesheet(const QString &css);
 private:
     void findScrollParent();
 private slots:

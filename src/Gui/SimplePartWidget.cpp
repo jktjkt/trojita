@@ -63,11 +63,8 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
         } else {
             QFont font(QFontDatabase::systemFont(QFontDatabase::FixedFont));
             setStaticWidth(QFontMetrics(font).maxWidth()*90);
+            addCustomStylesheet(QStringLiteral("pre{word-wrap:normal !important;white-space:pre !important;}"));
             QWebSettings *s = settings();
-            // TODO wtf does this not work?
-            const QString css(QLatin1String("data:text/css;charset=utf-8;base64,") +
-                              QLatin1String(QByteArray("pre{word-wrap:normal !important;white-space:pre !important;}").toBase64()));
-            s->setUserStyleSheetUrl(css);
             s->setFontFamily(QWebSettings::StandardFont, font.family());
         }
     }

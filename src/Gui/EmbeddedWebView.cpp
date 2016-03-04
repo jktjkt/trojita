@@ -107,6 +107,8 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
 
     setContextMenuPolicy(Qt::NoContextMenu);
     findScrollParent();
+
+    addCustomStylesheet(QString());
 }
 
 void EmbeddedWebView::constrainSize()
@@ -329,6 +331,31 @@ bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *op
         res->contentType = QStringLiteral("text/plain");
     }
     return true;
+}
+
+void EmbeddedWebView::addCustomStylesheet(const QString &css)
+{
+    QWebSettings *s = settings();
+    QColor bg = palette().color(QPalette::Active, QPalette::Base),
+           fg = palette().color(QPalette::Active, QPalette::Text);
+
+
+    // This is HTML, and the authors of that markup are free to specify only the background colors, or only the foreground colors.
+    // No matter what we pass from outside, there will always be some color which will result in unreadable text, and we can do
+    // nothing except adding !important everywhere to fix this.
+    // This code attempts to create a color which will try to produce exactly ugly results for both dark-on-bright and
+    // bright-on-dark segments of text. However, it's pure alchemy and only a limited heuristics. If you do not like this, please
+    // submit patches (or talk to the HTML producers, hehehe).
+    const int v = bg.value();
+    if (v < 96 && fg.value() > 128 + v/2) {
+        int h,s,vv,a;
+        fg.getHsv(&h, &s, &vv, &a) ;
+        fg.setHsv(h, s, 128+v/2, a);
+    }
+
+    const QString urlPrefix(QStringLiteral("data:text/css;charset=utf-8;base64,"));
+    const QString myColors(QStringLiteral("body { background-color: %1; color: %2; }\n").arg(bg.name(), fg.name()));
+    s->setUserStyleSheetUrl(QString::fromUtf8(urlPrefix.toUtf8() + (myColors + css).toUtf8().toBase64()));
 }
 
 }
