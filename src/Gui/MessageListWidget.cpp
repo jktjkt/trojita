@@ -59,12 +59,10 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     connect(m_quickSearchText, &QLineEdit::textChanged, this, &MessageListWidget::slotConditionalSearchReset);
     connect(m_quickSearchText, &QLineEdit::cursorPositionChanged, this, &MessageListWidget::slotUpdateSearchCursor);
 
-    m_searchOptions = new QToolButton(this);
-    m_searchOptions->setAutoRaise(true);
-    m_searchOptions->setPopupMode(QToolButton::InstantPopup);
-    m_searchOptions->setText(QStringLiteral("*"));
-    m_searchOptions->setIcon(UiUtils::loadIcon(QStringLiteral("imap-search-details")));
-    QMenu *optionsMenu = new QMenu(m_searchOptions);
+    m_searchOptions = new QAction(UiUtils::loadIcon(QStringLiteral("imap-search-details")), QStringLiteral("*"), this);
+    m_searchOptions->setToolTip(tr("Options for the IMAP search..."));
+    QMenu *optionsMenu = new QMenu(this);
+    m_searchOptions->setMenu(optionsMenu);
     m_searchFuzzy = optionsMenu->addAction(tr("Fuzzy Search"));
     m_searchFuzzy->setCheckable(true);
     optionsMenu->addSeparator();
@@ -107,18 +105,10 @@ MessageListWidget::MessageListWidget(QWidget *parent) :
     m_searchOptions->setMenu(optionsMenu);
     connect(optionsMenu, &QMenu::aboutToShow, this, &MessageListWidget::slotDeActivateSimpleSearch);
 
-    delete m_quickSearchText->layout();
-    QHBoxLayout *hlayout = new QHBoxLayout(m_quickSearchText);
-    hlayout->setContentsMargins(0, 0, 0, 0);
-    hlayout->addWidget(m_searchOptions);
-    hlayout->addStretch();
-    hlayout->addWidget(m_quickSearchText->clearButton());
-    hlayout->activate(); // this processes the layout and ensures the toolbutton has it's final dimensions
-    if (QGuiApplication::isLeftToRight())
-        m_quickSearchText->setTextMargins(m_searchOptions->width(), 0, 0, 0);
-    else // ppl. in N Africa and the middle east write the wrong direction...
-        m_quickSearchText->setTextMargins(0, 0, m_searchOptions->width(), 0);
-    m_searchOptions->setCursor(Qt::ArrowCursor); // inherits I-Beam from lineedit otherwise
+    m_quickSearchText->addAction(m_searchOptions, QLineEdit::LeadingPosition);
+    connect(m_searchOptions, &QAction::triggered, optionsMenu, [this, optionsMenu](){
+        optionsMenu->popup(m_quickSearchText->mapToGlobal(QPoint(0, m_quickSearchText->height())), nullptr);
+    });
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);

@@ -22,10 +22,8 @@ class LineEdit : public QLineEdit
 public:
     explicit LineEdit(const QString &text, QWidget *parent = 0);
     explicit LineEdit(QWidget *parent = 0);
-    QToolButton *clearButton();
     bool isHistoryEnabled();
     void setHistoryEnabled(bool enabled = true);
-    virtual QSize sizeHint() const;
 
 signals:
     void textEditingFinished(const QString &text);
@@ -35,17 +33,13 @@ protected:
     void keyReleaseEvent(QKeyEvent *ke);
 
 private Q_SLOTS:
-    void updateClearButton(const QString &text);
     void learnEntry();
     void restoreInlineCompletion();
-    void doEmitTextEditingFinished();
 
 private:
-    void init();
     bool m_historyEnabled;
     int m_historyPosition;
     QString m_currentText;
-    QToolButton *m_clearButton;
 };
 
 #endif // LINEEDIT_H

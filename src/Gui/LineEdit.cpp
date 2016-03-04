@@ -1,66 +1,46 @@
-/****************************************************************************
-**
-** Copyright (c) 2007 Trolltech ASA <info@trolltech.com>
-** Modified (c) 2009, 2011, 2013 by Glad Deschrijver <glad.deschrijver@gmail.com>
-**
-** Use, modification and distribution is allowed without limitation,
-** warranty, liability or support of any kind.
-**
-****************************************************************************/
+/* Copyright (C) 2009, 2011, 2013 by Glad Deschrijver <glad.deschrijver@gmail.com>
+   Copyright (C) 2013 Thomas Lübking <thomas.luebking@gmail.com>
+   Copyright (C) 2006 - 2015 Jan Kundrát <jkt@kde.org>
 
-#include "LineEdit.h"
+   This file is part of the Trojita Qt IMAP e-mail client,
+   http://trojita.flaska.net/
 
-#include <QAbstractItemModel>
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License as
+   published by the Free Software Foundation; either version 2 of
+   the License or (at your option) version 3 or any later version
+   accepted by the membership of KDE e.V. (or its successor approved
+   by the membership of KDE e.V.), which shall act as a proxy
+   defined in Section 14 of version 3 of the license.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <QAbstractItemView>
 #include <QCompleter>
-#include <QHBoxLayout>
 #include <QKeyEvent>
-#include <QToolButton>
-#include <QStyle>
 #include "Common/InvokeMethod.h"
+#include "Gui/LineEdit.h"
 #include "UiUtils/IconLoader.h"
 
 LineEdit::LineEdit(const QString &text, QWidget *parent)
-    : QLineEdit(parent), m_historyEnabled(false), m_historyPosition(0)
+    : QLineEdit(text, parent), m_historyEnabled(false), m_historyPosition(0)
 {
-    init();
-    setText(text);
+    setClearButtonEnabled(true);
+    connect(this, &QLineEdit::editingFinished, this, [this](){
+        emit textEditingFinished(this->text());
+    });
 }
 
 LineEdit::LineEdit(QWidget *parent)
-    : QLineEdit(parent), m_historyEnabled(false), m_historyPosition(0)
+    : LineEdit(QString(), parent)
 {
-    init();
-}
-
-void LineEdit::init()
-{
-    m_clearButton = new QToolButton(this);
-    m_clearButton->setIcon(UiUtils::loadIcon(QStringLiteral("edit-clear-locationbar")));
-    m_clearButton->setCursor(Qt::ArrowCursor);
-    m_clearButton->setToolTip(tr("Clear input field"));
-    m_clearButton->setFocusPolicy(Qt::NoFocus);
-    m_clearButton->hide();
-    connect(m_clearButton, &QAbstractButton::clicked, this, &QLineEdit::clear);
-    connect(this, &QLineEdit::textChanged, this, &LineEdit::updateClearButton);
-
-    const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    m_clearButton->setStyleSheet(QStringLiteral("QToolButton { border: none; padding-left: 1px; padding-top: %1px; padding-bottom: %1px; padding-right: %1px; }")
-        .arg(frameWidth + 1));
-    setStyleSheet(QStringLiteral("QLineEdit { padding-right: %1px; }")
-        .arg(m_clearButton->sizeHint().width()));
-
-    QHBoxLayout *layout = new QHBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addStretch();
-    layout->addWidget(m_clearButton);
-
-    connect(this, &QLineEdit::editingFinished, this, &LineEdit::doEmitTextEditingFinished);
-}
-
-QToolButton *LineEdit::clearButton()
-{
-    return m_clearButton;
 }
 
 bool LineEdit::isHistoryEnabled()
@@ -83,15 +63,8 @@ void LineEdit::setHistoryEnabled(bool enabled)
     } else {
         disconnect(this, &QLineEdit::returnPressed, this, &LineEdit::learnEntry);
         delete completer();
-        setCompleter(NULL);
+        setCompleter(nullptr);
     }
-}
-
-QSize LineEdit::sizeHint() const
-{
-    const QSize defaultSize = QLineEdit::sizeHint();
-    const int minimumWidth = m_clearButton->sizeHint().width() + 2;
-    return QSize(qMax(defaultSize.width(), minimumWidth), defaultSize.height());
 }
 
 bool LineEdit::eventFilter(QObject *o, QEvent *e)
@@ -157,11 +130,6 @@ void LineEdit::keyReleaseEvent(QKeyEvent *ke)
     QLineEdit::keyReleaseEvent(ke);
 }
 
-void LineEdit::updateClearButton(const QString &text)
-{
-    m_clearButton->setVisible(!text.isEmpty());
-}
-
 void LineEdit::learnEntry()
 {
     QAbstractItemModel *m = completer()->model();
@@ -183,9 +151,4 @@ void LineEdit::restoreInlineCompletion()
     m_currentText = text(); // this was probably just updated by seleting from combobox
     completer()->setCompletionMode(QCompleter::InlineCompletion);
     CALL_LATER_NOARG(this, setFocus); // can't get in the second event cycle either
-}
-
-void LineEdit::doEmitTextEditingFinished()
-{
-    emit textEditingFinished(text());
 }
