@@ -304,11 +304,13 @@ if(WITH_MIMETIC)
     )
 endif()
 if(WITH_CRYPTO_MESSAGES)
+  if(WITH_QCA)
     set(libCryptography_SOURCES
         ${libCryptography_SOURCES}
         ${path_Cryptography}/QCAHelper.cpp
         ${path_Cryptography}/OpenPGPHelper.cpp
     )
+  endif()
 endif()
 
 if(WITH_ZLIB)
@@ -604,8 +606,10 @@ if(WITH_MIMETIC)
     target_link_libraries(Cryptography ${MIMETIC_LIBRARIES})
     set_property(TARGET Cryptography APPEND PROPERTY INCLUDE_DIRECTORIES ${MIMETIC_INCLUDE_DIRS})
 endif()
-if (WITH_CRYPTO_MESSAGES)
+if(WITH_CRYPTO_MESSAGES)
+  if(WITH_QCA)
     target_link_libraries(Cryptography qca-qt5)
+  endif()
 endif()
 
 ## ClearText password plugin

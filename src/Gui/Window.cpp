@@ -54,7 +54,9 @@
 #include "Composer/Mailto.h"
 #include "Composer/SenderIdentitiesModel.h"
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-#include "Cryptography/OpenPGPHelper.h"
+#  ifdef TROJITA_HAVE_QCA
+#    include "Cryptography/OpenPGPHelper.h"
+#  endif
 #endif
 #include "Imap/Model/ImapAccess.h"
 #include "Imap/Model/MailboxTree.h"
@@ -113,7 +115,9 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     connect(m_pluginManager, &Plugins::PluginManager::pluginsChanged, this, &MainWindow::slotPluginsChanged);
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
     Plugins::PluginManager::MimePartReplacers replacers;
+#ifdef TROJITA_HAVE_QCA
     replacers.emplace_back(std::make_shared<Cryptography::OpenPGPReplacer>());
+#endif
     m_pluginManager->setMimePartReplacers(replacers);
 #endif
 

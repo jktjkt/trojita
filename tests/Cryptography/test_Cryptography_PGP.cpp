@@ -31,8 +31,10 @@
 #include "Streams/FakeSocket.h"
 
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-#include "Cryptography/OpenPGPHelper.h"
-#include <QtCrypto>
+#  ifdef TROJITA_HAVE_QCA
+#    include "Cryptography/OpenPGPHelper.h"
+#    include <QtCrypto>
+#  endif
 #endif
 
 /* TODO: test cases:
@@ -80,7 +82,9 @@ void CryptographyPGPTest::testDecryption()
     QVERIFY(model->rowCount(msg) > 0);
     Cryptography::MessageModel msgModel(0, msg);
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+#  ifdef TROJITA_HAVE_QCA
     msgModel.registerPartHandler(std::make_shared<Cryptography::OpenPGPReplacer>());
+#  endif
 #endif
     QModelIndex mappedMsg = msgModel.index(0,0);
     QVERIFY(mappedMsg.isValid());
@@ -205,7 +209,9 @@ void CryptographyPGPTest::testVerification()
     QVERIFY(model->rowCount(msg) > 0);
     Cryptography::MessageModel msgModel(0, msg);
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+#  ifdef TROJITA_HAVE_QCA
     msgModel.registerPartHandler(std::make_shared<Cryptography::OpenPGPReplacer>());
+#  endif
 #endif
     QModelIndex mappedMsg = msgModel.index(0,0);
     QVERIFY(mappedMsg.isValid());
