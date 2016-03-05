@@ -56,8 +56,10 @@ private:
 
     QString m_tagName;
     const Mode m_mode;
+    QColor m_tint;
+    int m_splitPos;
 
-    TagWidget(const Mode mode, const QString &tagName, const QString &backgroundColor);
+    TagWidget(const Mode mode, const QString &tagName, const QColor &backgroundColor);
 };
 
 } // namespace Gui

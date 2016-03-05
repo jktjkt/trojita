@@ -22,7 +22,7 @@
 #ifndef GUI_ADDRESSROWWIDGET_H
 #define GUI_ADDRESSROWWIDGET_H
 
-#include <QWidget>
+#include <QLabel>
 
 namespace Imap {
 namespace Message {
@@ -34,16 +34,39 @@ namespace Gui {
 
 class MessageView;
 
+/** @short A label with expansion indicating text and "clicked" signal */
+class Expander : public QLabel
+{
+    Q_OBJECT
+public:
+    explicit Expander(QWidget *parent, int count = 0);
+    int expanding() const;
+    void setExpanding(const int expanding);
+    QSize sizeHint() const;
+signals:
+    void clicked();
+protected:
+    void mouseReleaseEvent(QMouseEvent *me);
+    void paintEvent(QPaintEvent *pe);
+private:
+    int m_expanding;
+};
+
 /** @short Widget displaying the message envelope */
 class AddressRowWidget : public QWidget
 {
     Q_OBJECT
 public:
-    AddressRowWidget(QWidget *parent, const QString &headerName, const QList<Imap::Message::MailAddress> &addresses, MessageView *messageView);
+    AddressRowWidget(QWidget *parent, const QString &description, const QList<Imap::Message::MailAddress> &addresses, MessageView *messageView);
+    void addAddresses(const QString &description, const QList<Imap::Message::MailAddress> &addresses, MessageView *messageView);
 
+private slots:
+    void toggle();
 private:
     AddressRowWidget(const AddressRowWidget &) = delete;
     AddressRowWidget &operator=(const AddressRowWidget &) = delete;
+    Expander *m_expander;
+    uint m_expandedLength;
 };
 
 }
