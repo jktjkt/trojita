@@ -96,15 +96,6 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     copyAction->setShortcut(tr("Ctrl+C"));
     addAction(copyAction);
 
-    // Redmine#3, the QWebView uses black text color when rendering stuff on dark background
-    QPalette palette = QApplication::palette();
-    if (palette.background().color().lightness() < 50) {
-        QStyle *style = QStyleFactory::create(QStringLiteral("windows"));
-        Q_ASSERT(style);
-        palette = style->standardPalette();
-        setPalette(palette);
-    }
-
     m_autoScrollTimer = new QTimer(this);
     m_autoScrollTimer->setInterval(50);
     connect(m_autoScrollTimer, &QTimer::timeout, this, &EmbeddedWebView::autoScroll);

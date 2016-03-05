@@ -63,12 +63,12 @@ namespace Gui
 
 MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager): QWidget(parent), m_settings(settings), m_pluginManager(pluginManager)
 {
-    QPalette pal = palette();
-    pal.setColor(backgroundRole(), palette().color(QPalette::Active, QPalette::Base));
-    pal.setColor(foregroundRole(), palette().color(QPalette::Active, QPalette::Text));
-    setPalette(pal);
+    setBackgroundRole(QPalette::Base);
+    setForegroundRole(QPalette::Text);
     setAutoFillBackground(true);
+
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
+
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, &Imap::Network::MsgPartNetAccessManager::requestingExternal, this, &MessageView::externalsRequested);
     factory = new PartWidgetFactory(netAccess, this,
