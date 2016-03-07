@@ -54,14 +54,17 @@ public:
 
     MessagePart::Ptr createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
                                 const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex) override;
+
+    void registerOrhpanedCryptoTask(std::future<void> task);
 private:
+    std::vector<std::future<void>> m_orphans;
 };
 
 /** @short Wrapper for asynchronous PGP related operations using GpgME++ */
 class GpgMePart : public QObject, public LocalMessagePart {
     Q_OBJECT
 public:
-    GpgMePart(MessageModel *model, MessagePart *parentPart, const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
+    GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
     ~GpgMePart();
     virtual QVariant data(int role) const override;
 
@@ -73,6 +76,7 @@ protected slots:
 protected:
     void emitDataChanged();
 
+    GpgMeReplacer *m_replacer;
     MessageModel *m_model;
     QMetaObject::Connection m_dataChanged;
     QPersistentModelIndex m_proxyParentIndex;
@@ -87,7 +91,7 @@ protected:
     QDateTime m_signDate;
 
     std::shared_ptr<GpgME::Context> m_ctx;
-    std::future<void> m_crypto; // must be destroyed before all other members
+    std::future<void> m_crypto;
 };
 
 class GpgMeSigned : public GpgMePart {

@@ -74,6 +74,20 @@ GpgMeReplacer::GpgMeReplacer()
 
 GpgMeReplacer::~GpgMeReplacer()
 {
+    if (!m_orphans.empty()) {
+        QElapsedTimer t;
+        t.start();
+        qDebug() << "Cleaning" << m_orphans.size() << "orphaned crypto task: ";
+        std::for_each(m_orphans.begin(), m_orphans.end(), [](std::future<void> &task){
+            if (task.wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
+                qDebug() << " [waiting]";
+                task.get();
+            } else {
+                qDebug() << " [already completed]";
+            }
+        });
+        qDebug() << " ...finished after" << t.elapsed() << "ms.";
+    }
 }
 
 MessagePart::Ptr GpgMeReplacer::createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
@@ -99,10 +113,28 @@ MessagePart::Ptr GpgMeReplacer::createPart(MessageModel *model, MessagePart *par
     return original;
 }
 
-GpgMePart::GpgMePart(MessageModel *model, MessagePart *parentPart,
+void GpgMeReplacer::registerOrhpanedCryptoTask(std::future<void> task)
+{
+    auto it = m_orphans.begin();
+    while (it != m_orphans.end()) {
+        if (it->valid() && it->wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
+            ++it;
+        } else {
+            qDebug() << "[cleaning an already-finished crypto orphan]";
+            it = m_orphans.erase(it);
+        }
+    }
+    if (task.valid() && task.wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
+        m_orphans.emplace_back(std::move(task));
+    }
+    qDebug() << "We have" << m_orphans.size() << "orphaned crypto tasks";
+}
+
+GpgMePart::GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
                      const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
     : QObject(model)
     , LocalMessagePart(parentPart, sourceItemIndex.row(), sourceItemIndex.data(RolePartMimeType).toByteArray())
+    , m_replacer(replacer)
     , m_model(model)
     , m_proxyParentIndex(proxyParentIndex)
     , m_waitingForData(false)
@@ -117,21 +149,26 @@ GpgMePart::GpgMePart(MessageModel *model, MessagePart *parentPart,
     Q_ASSERT(sourceItemIndex.isValid());
     m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMePart::handleDataChanged);
     Q_ASSERT(m_dataChanged);
+
+    // do the peirodic cleanup
+    m_replacer->registerOrhpanedCryptoTask(std::future<void>());
 }
 
 GpgMePart::~GpgMePart()
 {
-    // Because std::future's destructor calls blocks/joins, we have a problem if the operation that is running in the std::async
-    // gets stuck for some reason. If we make no additional precautions, the GUI would freeze at the destruction time, which means
-    // that everything will run "smoothly" (with the GUI remaining responsive) until the time we move to another message.
-    // This should be enough, hopefully.
-    if (m_ctx && m_crypto.valid() && m_crypto.wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
-        qDebug() << "Waiting for a stuck cryptography operation...";
-        QElapsedTimer t;
-        t.start();
+    if (m_ctx && m_crypto.valid()) {
+        // this is documented to be thread safe at all times
         m_ctx->cancelPendingOperation();
-        m_crypto.get();
-        qDebug() << "...finished after" << t.elapsed() << "ms.";
+
+        // Because std::future's destructor calls blocks/joins, we have a problem if the operation that is running
+        // in the std::async gets stuck for some reason. If we make no additional precautions, the GUI would freeze
+        // at the destruction time, which means that everything will run "smoothly" (with the GUI remaining responsive)
+        // until the time we move to another message -- and that's quite nasty surprise.
+        //
+        // To solve this thing, we send this background operation to a central registry in this destructor. Every now
+        // and then, that registry is checked and those which have already finished are reaped. This happens whenever
+        // a new crypto operation is started.
+        m_replacer->registerOrhpanedCryptoTask(std::move(m_crypto));
     }
 }
 
@@ -203,7 +240,7 @@ QVariant GpgMePart::data(int role) const
 
 GpgMeSigned::GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                          const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
-    : GpgMePart(model, parentPart, sourceItemIndex, proxyParentIndex)
+    : GpgMePart(replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
     , m_plaintextPart(sourceItemIndex.child(0, 0).child(0, TreeItem::OFFSET_RAW_CONTENTS))
     , m_plaintextMimePart(sourceItemIndex.child(0, 0).child(0, TreeItem::OFFSET_MIME))
     , m_signaturePart(sourceItemIndex.child(1, 0))
@@ -306,8 +343,6 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 
         GpgME::Data sigData(signatureData.data(), signatureData.size(), false);
         GpgME::Data msgData(rawData.data(), rawData.size(), false);
-
-        //usleep(100000); // FIXME: remove me; this is just for an effect
 
         auto verificationResult = ctx->verifyDetachedSignature(sigData, msgData);
         bool wasSigned = false;
