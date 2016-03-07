@@ -237,6 +237,231 @@ QVariant GpgMePart::data(int role) const
     }
 }
 
+void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, const GpgME::Signature &sig,
+                                       const std::vector<std::string> messageUids, const bool wasSigned, const bool wasEncrypted,
+                                       bool &sigOkDisregardingTrust, bool &sigValidVerified,
+                                       bool &uidMatched, QString &tldr, QString &longStatus, QString &icon, QString &signer, QDateTime &signDate)
+{
+    Q_UNUSED(wasSigned);
+
+    qDebug() << "signature summary" << sig.summary() << "status err code" << sig.status() << sig.status().asString()
+             << "validity" << sig.validity() << "fingerprint" << sig.fingerprint();
+
+    if (sig.summary() & GpgME::Signature::KeyMissing) {
+        // that's right, there won't be any Green or Red labeling from GpgME; is we don't have the key, we cannot
+        // do anything, period.
+        tldr = wasEncrypted ? tr("Encrypted; some signature: missing key") : tr("Some signature: missing key");
+        longStatus = tr("Key %1 is not available in the keyring.\n"
+                        "Cannot verify signature validity or do anything else. "
+                        "The message might or might not have been tampered with.")
+                .arg(QString::fromUtf8(sig.fingerprint()));
+        icon = QStringLiteral("emblem-information");
+        return;
+    }
+
+    GpgME::Error keyError;
+    auto key = ctx->key(sig.fingerprint(), keyError, false);
+    if (keyError) {
+        tldr = tr("Internal error");
+        longStatus = tr("Error when verifying signature: cannot retrieve key %1: %2")
+                .arg(QString::fromUtf8(sig.fingerprint()), QString::fromUtf8(keyError.asString()));
+        icon = QStringLiteral("script-error");
+        return;
+    }
+
+    const auto &uids = key.userIDs();
+    auto needle = std::find_if(uids.begin(), uids.end(), [&messageUids](const GpgME::UserID &uid) {
+        return std::find(messageUids.begin(), messageUids.end(), uid.email()) != messageUids.end();
+    });
+
+    if (needle != uids.end()) {
+        uidMatched = true;
+        signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(needle->id()), QString::fromUtf8(sig.fingerprint()));
+    } else if (!uids.empty()){
+        signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(key.userID(0).id()), QString::fromUtf8(sig.fingerprint()));
+    } else {
+        signer = QString::fromUtf8(sig.fingerprint());
+    }
+    signDate = QDateTime::fromTime_t(sig.creationTime());
+
+    if (sig.summary() & GpgME::Signature::Green) {
+        // FIXME: change the above to GpgME::Signature::Valid and react to expired keys/signatures by checking the timestamp
+        sigOkDisregardingTrust = true;
+        if (uidMatched) {
+            tldr = wasEncrypted ? tr("Encrypted, verified signature") : tr("Verified signature");
+            longStatus = tr("Verified signature from %1 on %2")
+                    .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+            icon = QStringLiteral("emblem-success");
+            sigValidVerified = true;
+        } else {
+            tldr = wasEncrypted ? tr("Encrypted, signed by stranger") : tr("Signed by stranger");
+            longStatus = tr("Verified signature, but the signer is someone else:\n%1\nSignature was made on %2.")
+                    .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+            icon = QStringLiteral("emblem-warning");
+        }
+    } else if (sig.summary() & GpgME::Signature::Red) {
+        if (uidMatched) {
+            if (sig.status().code() == GPG_ERR_BAD_SIGNATURE) {
+                tldr = wasEncrypted ? tr("Encrypted, bad signature") : tr("Bad signature");
+            } else {
+                tldr = wasEncrypted ?
+                            tr("Encrypted, bad signature: %1").arg(QString::fromUtf8(sig.status().asString()))
+                          : tr("Bad signature: %1").arg(QString::fromUtf8(sig.status().asString()));
+            }
+            longStatus = tr("Bad signature by %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+        } else {
+            if (sig.status().code() == GPG_ERR_BAD_SIGNATURE) {
+                tldr = wasEncrypted ? tr("Encrypted, bad signature by stranger") : tr("Bad signature by stranger");
+            } else {
+                tldr = wasEncrypted ?
+                            tr("Encrypted, bad signature by stranger: %1").arg(QString::fromUtf8(sig.status().asString()))
+                          : tr("Bad signature by stranger: %1").arg(QString::fromUtf8(sig.status().asString()));
+            }
+            longStatus = tr("Bad signature by someone else: %1 on %2.")
+                    .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+        }
+        icon = QStringLiteral("emblem-error");
+    } else {
+        switch (sig.validity()) {
+        case GpgME::Signature::Full:
+        case GpgME::Signature::Ultimate:
+        case GpgME::Signature::Never:
+            Q_ASSERT(false);
+            // these are handled by GpgME by setting the appropriate Red/Green flags
+            break;
+        case GpgME::Signature::Unknown:
+        case GpgME::Signature::Undefined:
+            sigOkDisregardingTrust = true;
+            if (uidMatched) {
+                tldr = wasEncrypted ? tr("Encrypted, some signature") : tr("Some signature");
+                longStatus = tr("Unknown signature from %1 on %2")
+                        .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                icon = wasEncrypted ? QStringLiteral("emblem-encrypted-unlocked") : QStringLiteral("emblem-information");
+            } else {
+                tldr = wasEncrypted ? tr("Encrypted, some signature by stranger") : tr("Some signature by stranger");
+                longStatus = tr("Unknown signature by somebody else: %1 on %2")
+                        .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                icon = QStringLiteral("emblem-warning");
+            }
+            break;
+        case GpgME::Signature::Marginal:
+            sigOkDisregardingTrust = true;
+            if (uidMatched) {
+                tldr = wasEncrypted ? tr("Encrypted, semi-trusted signature") : tr("Semi-trusted signature");
+                longStatus = tr("Semi-trusted signature from %1 on %2")
+                        .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                icon = wasEncrypted ? QStringLiteral("emblem-encrypted-unlocked") : QStringLiteral("emblem-information");
+            } else {
+                tldr = wasEncrypted ?
+                            tr("Encrypted, semi-trusted signature by stranger")
+                          : tr("Semi-trusted signature by stranger");
+                longStatus = tr("Semi-trusted signature by somebody else: %1 on %2")
+                        .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                icon = QStringLiteral("emblem-warning");
+            }
+            break;
+        }
+    }
+
+    const auto LF = QLatin1Char('\n');
+
+    // extract the individual error bits
+    if (sig.summary() & GpgME::Signature::KeyRevoked) {
+        longStatus += LF + tr("The key or at least one certificate has been revoked.");
+    }
+    if (sig.summary() & GpgME::Signature::KeyExpired) {
+        // FIXME: how to get the expiration date?
+        longStatus += LF + tr("The key or one of the certificates has expired.");
+    }
+    if (sig.summary() & GpgME::Signature::SigExpired) {
+        longStatus += LF + tr("Signature expired on %1.")
+                .arg(QDateTime::fromTime_t(sig.expirationTime()).toString(Qt::DefaultLocaleShortDate));
+    }
+    if (sig.summary() & GpgME::Signature::KeyMissing) {
+        longStatus += LF + tr("Can't verify due to a missing key or certificate.");
+    }
+    if (sig.summary() & GpgME::Signature::CrlMissing) {
+        longStatus += LF + tr("The CRL (or an equivalent mechanism) is not available.");
+    }
+    if (sig.summary() & GpgME::Signature::CrlTooOld) {
+        longStatus += LF + tr("Available CRL is too old.");
+    }
+    if (sig.summary() & GpgME::Signature::BadPolicy) {
+        longStatus += LF + tr("A policy requirement was not met.");
+    }
+    if (sig.summary() & GpgME::Signature::SysError) {
+        longStatus += LF + tr("A system error occured. %1")
+                .arg(QString::fromUtf8(sig.status().asString()));
+    }
+
+    if (sig.summary() & GpgME::Signature::Valid) {
+        // Extract signature validity
+        switch (sig.validity()) {
+        case GpgME::Signature::Undefined:
+            longStatus += LF + tr("Signature validity is undefined.");
+            break;
+        case GpgME::Signature::Never:
+            longStatus += LF + tr("Signature validity is never to be trusted.");
+            break;
+        case GpgME::Signature::Marginal:
+            longStatus += LF + tr("Signature validity is marginal.");
+            break;
+        case GpgME::Signature::Full:
+            longStatus += LF + tr("Signature validity is full.");
+            break;
+        case GpgME::Signature::Ultimate:
+            longStatus += LF + tr("Signature validity is ultimate.");
+            break;
+        case GpgME::Signature::Unknown:
+            longStatus += LF + tr("Signature validity is unknown.");
+            break;
+        }
+    }
+#if 0
+    // this always shows "Success" in my limited testing, so...
+    longStatus += LF + tr("Signature invalidity reason: %1")
+            .arg(QString::fromUtf8(sig.nonValidityReason().asString()));
+#endif
+}
+
+void GpgMePart::submitVerifyResult(QPointer<QObject> p, const SignatureDataBundle &data)
+{
+    if (p) {
+        bool ok = QMetaObject::invokeMethod(p, "internalUpdateState", Qt::QueuedConnection,
+                                            // must use full namespace qualification
+                                            Q_ARG(Cryptography::SignatureDataBundle, data));
+        Q_ASSERT(ok);
+    } else {
+        qDebug() << "[async crypto: GpgMePart is gone, not doing anything]";
+    }
+}
+
+std::vector<std::string> GpgMePart::extractMessageUids()
+{
+    // Extract the list of candidate e-mail addresses based on Sender and From headers.
+    // This will be used to check if the signer and the author of the message are the same later on.
+    // We're checking against the nearest parent message, so we support forwarding just fine.
+    QModelIndex index = m_proxyParentIndex;
+    std::vector<std::string> messageUids;
+    while (index.isValid()) {
+        if (index.data(RolePartMimeType).toByteArray() == "message/rfc822") {
+            auto envelopeVariant = index.data(RoleMessageEnvelope);
+            Q_ASSERT(envelopeVariant.isValid());
+            const auto envelope = envelopeVariant.value<Imap::Message::Envelope>();
+            messageUids.reserve(envelope.from.size() + envelope.sender.size());
+            auto storeSenderUid = [&messageUids](const Imap::Message::MailAddress &identity) {
+                messageUids.emplace_back(identity.asSMTPMailbox().data());
+            };
+            std::for_each(envelope.from.begin(), envelope.from.end(), storeSenderUid);
+            std::for_each(envelope.sender.begin(), envelope.sender.end(), storeSenderUid);
+            break;
+        }
+        index = index.parent();
+    }
+    return messageUids;
+}
+
+
 
 GpgMeSigned::GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                          const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
@@ -312,29 +537,9 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 
     m_statusTLDR = tr("Verifying signature...");
 
-    // Extract the list of candidate e-mail addresses based on Sender and From headers.
-    // This will be used to check if the signer and the author of the message are the same later on.
-    // We're checking against the nearest parent message, so we support forwarding just fine.
-    QModelIndex index = m_proxyParentIndex;
-    std::vector<std::string> messageUids;
-    while (index.isValid()) {
-        if (index.data(RolePartMimeType).toByteArray() == "message/rfc822") {
-            auto envelopeVariant = index.data(RoleMessageEnvelope);
-            Q_ASSERT(envelopeVariant.isValid());
-            const auto envelope = envelopeVariant.value<Imap::Message::Envelope>();
-            messageUids.reserve(envelope.from.size() + envelope.sender.size());
-            auto storeSenderUid = [&messageUids](const Imap::Message::MailAddress &identity) {
-                messageUids.emplace_back(identity.asSMTPMailbox().data());
-            };
-            std::for_each(envelope.from.begin(), envelope.from.end(), storeSenderUid);
-            std::for_each(envelope.sender.begin(), envelope.sender.end(), storeSenderUid);
-            break;
-        }
-        index = index.parent();
-    }
     auto signatureData = m_signaturePart.data(RolePartData).toByteArray();
     bool wasEncrypted = m_isAllegedlyEncrypted;
-
+    auto messageUids = extractMessageUids();
     auto ctx = m_ctx;
 
     m_crypto = std::async(std::launch::async, [this, ctx, rawData, signatureData, messageUids, wasEncrypted](){
@@ -363,201 +568,16 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 
         for (const auto &sig: verificationResult.signatures()) {
             wasSigned = true;
-            qDebug() << "signature summary" << sig.summary() << "status err code" << sig.status() << sig.status().asString()
-                     << "validity" << sig.validity() << "fingerprint" << sig.fingerprint();
+            extractSignatureStatus(ctx, sig, messageUids, wasSigned, wasEncrypted,
+                                   sigOkDisregardingTrust, sigValidVerified, uidMatched, tldr, longStatus, icon, signer, signDate);
 
-            if (sig.summary() & GpgME::Signature::KeyMissing) {
-                // that's right, there won't be any Green or Red labeling from GpgME; is we don't have the key, we cannot
-                // do anything, period.
-                tldr = wasEncrypted ? tr("Encrypted; some signature: missing key") : tr("Some signature: missing key");
-                longStatus = tr("Key %1 is not available in the keyring.\n"
-                                "Cannot verify signature validity or do anything else. "
-                                "The message might or might not have been tampered with.")
-                        .arg(QString::fromUtf8(sig.fingerprint()));
-                icon = QStringLiteral("emblem-information");
-                break;
-            }
-
-            GpgME::Error keyError;
-            auto key = ctx->key(sig.fingerprint(), keyError, false);
-            if (keyError) {
-                tldr = tr("Internal error");
-                longStatus = tr("Error when verifying signature: cannot retrieve key %1: %2")
-                        .arg(QString::fromUtf8(sig.fingerprint()), QString::fromUtf8(keyError.asString()));
-                icon = QStringLiteral("script-error");
-                break;
-            }
-
-            const auto &uids = key.userIDs();
-            auto needle = std::find_if(uids.begin(), uids.end(), [&messageUids](const GpgME::UserID &uid) {
-                return std::find(messageUids.begin(), messageUids.end(), uid.email()) != messageUids.end();
-            });
-
-            if (needle != uids.end()) {
-                uidMatched = true;
-                signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(needle->id()), QString::fromUtf8(sig.fingerprint()));
-            } else if (!uids.empty()){
-                signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(key.userID(0).id()), QString::fromUtf8(sig.fingerprint()));
-            } else {
-                signer = QString::fromUtf8(sig.fingerprint());
-            }
-            signDate = QDateTime::fromTime_t(sig.creationTime());
-
-            if (sig.summary() & GpgME::Signature::Green) {
-                // FIXME: change the above to GpgME::Signature::Valid and react to expired keys/signatures by checking the timestamp
-                sigOkDisregardingTrust = true;
-                if (uidMatched) {
-                    tldr = wasEncrypted ? tr("Encrypted, verified signature") : tr("Verified signature");
-                    longStatus = tr("Verified signature from %1 on %2")
-                            .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                    icon = QStringLiteral("emblem-success");
-                    sigValidVerified = true;
-                } else {
-                    tldr = wasEncrypted ? tr("Encrypted, signed by stranger") : tr("Signed by stranger");
-                    longStatus = tr("Verified signature, but the signer is someone else:\n%1\nSignature was made on %2.")
-                            .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                    icon = QStringLiteral("emblem-warning");
-                }
-            } else if (sig.summary() & GpgME::Signature::Red) {
-                if (uidMatched) {
-                    if (sig.status().code() == GPG_ERR_BAD_SIGNATURE) {
-                        tldr = wasEncrypted ? tr("Encrypted, bad signature") : tr("Bad signature");
-                    } else {
-                        tldr = wasEncrypted ?
-                                    tr("Encrypted, bad signature: %1").arg(QString::fromUtf8(sig.status().asString()))
-                                  : tr("Bad signature: %1").arg(QString::fromUtf8(sig.status().asString()));
-                    }
-                    longStatus = tr("Bad signature by %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                } else {
-                    if (sig.status().code() == GPG_ERR_BAD_SIGNATURE) {
-                        tldr = wasEncrypted ? tr("Encrypted, bad signature by stranger") : tr("Bad signature by stranger");
-                    } else {
-                        tldr = wasEncrypted ?
-                                    tr("Encrypted, bad signature by stranger: %1").arg(QString::fromUtf8(sig.status().asString()))
-                                  : tr("Bad signature by stranger: %1").arg(QString::fromUtf8(sig.status().asString()));
-                    }
-                    longStatus = tr("Bad signature by someone else: %1 on %2.")
-                            .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                }
-                icon = QStringLiteral("emblem-error");
-            } else {
-                switch (sig.validity()) {
-                case GpgME::Signature::Full:
-                case GpgME::Signature::Ultimate:
-                case GpgME::Signature::Never:
-                    Q_ASSERT(false);
-                    // these are handled by GpgME by setting the appropriate Red/Green flags
-                    break;
-                case GpgME::Signature::Unknown:
-                case GpgME::Signature::Undefined:
-                    sigOkDisregardingTrust = true;
-                    if (uidMatched) {
-                        tldr = wasEncrypted ? tr("Encrypted, some signature") : tr("Some signature");
-                        longStatus = tr("Unknown signature from %1 on %2")
-                                .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                        icon = wasEncrypted ? QStringLiteral("emblem-encrypted-unlocked") : QStringLiteral("emblem-information");
-                    } else {
-                        tldr = wasEncrypted ? tr("Encrypted, some signature by stranger") : tr("Some signature by stranger");
-                        longStatus = tr("Unknown signature by somebody else: %1 on %2")
-                                .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                        icon = QStringLiteral("emblem-warning");
-                    }
-                    break;
-                case GpgME::Signature::Marginal:
-                    sigOkDisregardingTrust = true;
-                    if (uidMatched) {
-                        tldr = wasEncrypted ? tr("Encrypted, semi-trusted signature") : tr("Semi-trusted signature");
-                        longStatus = tr("Semi-trusted signature from %1 on %2")
-                                .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                        icon = wasEncrypted ? QStringLiteral("emblem-encrypted-unlocked") : QStringLiteral("emblem-information");
-                    } else {
-                        tldr = wasEncrypted ?
-                                    tr("Encrypted, semi-trusted signature by stranger")
-                                  : tr("Semi-trusted signature by stranger");
-                        longStatus = tr("Semi-trusted signature by somebody else: %1 on %2")
-                                .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                        icon = QStringLiteral("emblem-warning");
-                    }
-                    break;
-                }
-            }
-
-            const auto LF = QLatin1Char('\n');
-
-            // extract the individual error bits
-            if (sig.summary() & GpgME::Signature::KeyRevoked) {
-                longStatus += LF + tr("The key or at least one certificate has been revoked.");
-            }
-            if (sig.summary() & GpgME::Signature::KeyExpired) {
-                // FIXME: how to get the expiration date?
-                longStatus += LF + tr("The key or one of the certificates has expired.");
-            }
-            if (sig.summary() & GpgME::Signature::SigExpired) {
-                longStatus += LF + tr("Signature expired on %1.")
-                        .arg(QDateTime::fromTime_t(sig.expirationTime()).toString(Qt::DefaultLocaleShortDate));
-            }
-            if (sig.summary() & GpgME::Signature::KeyMissing) {
-                longStatus += LF + tr("Can't verify due to a missing key or certificate.");
-            }
-            if (sig.summary() & GpgME::Signature::CrlMissing) {
-                longStatus += LF + tr("The CRL (or an equivalent mechanism) is not available.");
-            }
-            if (sig.summary() & GpgME::Signature::CrlTooOld) {
-                longStatus += LF + tr("Available CRL is too old.");
-            }
-            if (sig.summary() & GpgME::Signature::BadPolicy) {
-                longStatus += LF + tr("A policy requirement was not met.");
-            }
-            if (sig.summary() & GpgME::Signature::SysError) {
-                longStatus += LF + tr("A system error occured. %1")
-                        .arg(QString::fromUtf8(sig.status().asString()));
-            }
-
-            if (sig.summary() & GpgME::Signature::Valid) {
-                // Extract signature validity
-                switch (sig.validity()) {
-                case GpgME::Signature::Undefined:
-                    longStatus += LF + tr("Signature validity is undefined.");
-                    break;
-                case GpgME::Signature::Never:
-                    longStatus += LF + tr("Signature validity is never to be trusted.");
-                    break;
-                case GpgME::Signature::Marginal:
-                    longStatus += LF + tr("Signature validity is marginal.");
-                    break;
-                case GpgME::Signature::Full:
-                    longStatus += LF + tr("Signature validity is full.");
-                    break;
-                case GpgME::Signature::Ultimate:
-                    longStatus += LF + tr("Signature validity is ultimate.");
-                    break;
-                case GpgME::Signature::Unknown:
-                    longStatus += LF + tr("Signature validity is unknown.");
-                    break;
-                }
-            }
-#if 0
-            // this always shows "Success" in my limited testing, so...
-            longStatus += LF + tr("Signature invalidity reason: %1")
-                    .arg(QString::fromUtf8(sig.nonValidityReason().asString()));
-#endif
             // FIXME: add support for multiple signatures at once. How do we want to handle them in the UI?
             break;
-
         }
-
-        if (p) {
-            // cannot be initialized like this in the Q_ARG macro
-            SignatureDataBundle data{wasSigned, sigOkDisregardingTrust, sigValidVerified, tldr, longStatus, icon, signer, signDate};
-            bool ok = QMetaObject::invokeMethod(p, "internalUpdateState", Qt::QueuedConnection,
-                                                // must use full namespace qualification
-                                                Q_ARG(Cryptography::SignatureDataBundle, data));
-            Q_ASSERT(ok);
-        } else {
-            qDebug() << "[async crypto: GpgMePart is gone, not doing anything]";
-        }
+        submitVerifyResult(p, {wasSigned, sigOkDisregardingTrust, sigValidVerified, tldr, longStatus, icon, signer, signDate});
     });
     emitDataChanged();
 }
+
 
 }

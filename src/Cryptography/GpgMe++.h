@@ -32,6 +32,7 @@
 
 namespace GpgME {
 class Context;
+class Signature;
 }
 
 namespace Cryptography {
@@ -75,6 +76,11 @@ protected slots:
 
 protected:
     void emitDataChanged();
+    static void extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, const GpgME::Signature &sig,
+                                       const std::vector<std::string> messageUids, const bool wasSigned, const bool wasEncrypted,
+                                       bool &sigOkDisregardingTrust, bool &sigValidVerified, bool &uidMatched, QString &tldr, QString &longStatus, QString &icon, QString &signer, QDateTime &signDate);
+    static void submitVerifyResult(QPointer<QObject> p, const SignatureDataBundle &data);
+    std::vector<std::string> extractMessageUids();
 
     GpgMeReplacer *m_replacer;
     MessageModel *m_model;
