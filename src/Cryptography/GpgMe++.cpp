@@ -333,10 +333,11 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
         index = index.parent();
     }
     auto signatureData = m_signaturePart.data(RolePartData).toByteArray();
+    bool wasEncrypted = m_isAllegedlyEncrypted;
 
     auto ctx = m_ctx;
 
-    m_crypto = std::async(std::launch::async, [this, ctx, rawData, signatureData, messageUids](){
+    m_crypto = std::async(std::launch::async, [this, ctx, rawData, signatureData, messageUids, wasEncrypted](){
         QPointer<QObject> p(this);
         DebugProgress progress;
         ctx->setProgressProvider(&progress);
@@ -368,7 +369,7 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
             if (sig.summary() & GpgME::Signature::KeyMissing) {
                 // that's right, there won't be any Green or Red labeling from GpgME; is we don't have the key, we cannot
                 // do anything, period.
-                tldr = tr("Some signature: missing key");
+                tldr = wasEncrypted ? tr("Encrypted; some signature: missing key") : tr("Some signature: missing key");
                 longStatus = tr("Key %1 is not available in the keyring.\n"
                                 "Cannot verify signature validity or do anything else. "
                                 "The message might or might not have been tampered with.")
@@ -406,30 +407,37 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
                 // FIXME: change the above to GpgME::Signature::Valid and react to expired keys/signatures by checking the timestamp
                 sigOkDisregardingTrust = true;
                 if (uidMatched) {
-                    tldr = tr("Verified signature");
-                    longStatus = tr("Verified signature from %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                    tldr = wasEncrypted ? tr("Encrypted, verified signature") : tr("Verified signature");
+                    longStatus = tr("Verified signature from %1 on %2")
+                            .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
                     icon = QStringLiteral("emblem-success");
                     sigValidVerified = true;
                 } else {
-                    tldr = tr("Signed by stranger");
-                    longStatus = tr("Verified signature, but the signer is someone else:\n%1\nSignature was made on %2.").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                    tldr = wasEncrypted ? tr("Encrypted, signed by stranger") : tr("Signed by stranger");
+                    longStatus = tr("Verified signature, but the signer is someone else:\n%1\nSignature was made on %2.")
+                            .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
                     icon = QStringLiteral("emblem-warning");
                 }
             } else if (sig.summary() & GpgME::Signature::Red) {
                 if (uidMatched) {
                     if (sig.status().code() == GPG_ERR_BAD_SIGNATURE) {
-                        tldr = tr("Bad signature");
+                        tldr = wasEncrypted ? tr("Encrypted, bad signature") : tr("Bad signature");
                     } else {
-                        tldr = tr("Bad signature: %1").arg(QString::fromUtf8(sig.status().asString()));
+                        tldr = wasEncrypted ?
+                                    tr("Encrypted, bad signature: %1").arg(QString::fromUtf8(sig.status().asString()))
+                                  : tr("Bad signature: %1").arg(QString::fromUtf8(sig.status().asString()));
                     }
                     longStatus = tr("Bad signature by %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
                 } else {
                     if (sig.status().code() == GPG_ERR_BAD_SIGNATURE) {
-                        tldr = tr("Bad signature by stranger");
+                        tldr = wasEncrypted ? tr("Encrypted, bad signature by stranger") : tr("Bad signature by stranger");
                     } else {
-                        tldr = tr("Bad signature by stranger: %1").arg(QString::fromUtf8(sig.status().asString()));
+                        tldr = wasEncrypted ?
+                                    tr("Encrypted, bad signature by stranger: %1").arg(QString::fromUtf8(sig.status().asString()))
+                                  : tr("Bad signature by stranger: %1").arg(QString::fromUtf8(sig.status().asString()));
                     }
-                    longStatus = tr("Bad signature by someone else: %1 on %2.").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                    longStatus = tr("Bad signature by someone else: %1 on %2.")
+                            .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
                 }
                 icon = QStringLiteral("emblem-error");
             } else {
@@ -444,24 +452,30 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
                 case GpgME::Signature::Undefined:
                     sigOkDisregardingTrust = true;
                     if (uidMatched) {
-                        tldr = tr("Some signature");
-                        longStatus = tr("Unknown signature from %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                        icon = QStringLiteral("emblem-information");
+                        tldr = wasEncrypted ? tr("Encrypted, some signature") : tr("Some signature");
+                        longStatus = tr("Unknown signature from %1 on %2")
+                                .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                        icon = wasEncrypted ? QStringLiteral("emblem-encrypted-unlocked") : QStringLiteral("emblem-information");
                     } else {
-                        tldr = tr("Some signature by stranger");
-                        longStatus = tr("Unknown signature by somebody else: %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                        tldr = wasEncrypted ? tr("Encrypted, some signature by stranger") : tr("Some signature by stranger");
+                        longStatus = tr("Unknown signature by somebody else: %1 on %2")
+                                .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
                         icon = QStringLiteral("emblem-warning");
                     }
                     break;
                 case GpgME::Signature::Marginal:
                     sigOkDisregardingTrust = true;
                     if (uidMatched) {
-                        tldr = tr("Semi-trusted signature");
-                        longStatus = tr("Semi-trusted signature from %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
-                        icon = QStringLiteral("emblem-information");
+                        tldr = wasEncrypted ? tr("Encrypted, semi-trusted signature") : tr("Semi-trusted signature");
+                        longStatus = tr("Semi-trusted signature from %1 on %2")
+                                .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                        icon = wasEncrypted ? QStringLiteral("emblem-encrypted-unlocked") : QStringLiteral("emblem-information");
                     } else {
-                        tldr = tr("Semi-trusted signature by stranger");
-                        longStatus = tr("Semi-trusted signature by somebody else: %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                        tldr = wasEncrypted ?
+                                    tr("Encrypted, semi-trusted signature by stranger")
+                                  : tr("Semi-trusted signature by stranger");
+                        longStatus = tr("Semi-trusted signature by somebody else: %1 on %2")
+                                .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
                         icon = QStringLiteral("emblem-warning");
                     }
                     break;
