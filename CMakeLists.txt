@@ -61,7 +61,6 @@ trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
 trojita_option(WITH_TESTS "Build tests" ON)
 trojita_option(WITH_MIMETIC "Build with client-side MIME parsing" AUTO)
-trojita_option(WITH_QCA "Build with the QCA library for cryptography" AUTO)
 trojita_option(WITH_GPGMEPP "Build with the GpgME++ library for cryptography" AUTO)
 
 if(WIN32)
@@ -94,7 +93,6 @@ trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" 
 trojita_find_package(Git "" "" "" "")
 
 trojita_find_package(Mimetic "" "http://www.codesink.org/mimetic_mime_library.html" "C++ MIME Library" "Required for client-side MIME parsing" WITH_MIMETIC)
-trojita_find_package(Qca-qt5 "2.1.0" "http://delta.affinix.com/qca/" "Qt Cryptographic Architecture" "Needed for encrypted/signed messages" WITH_QCA)
 trojita_find_package(KF5Gpgmepp "" "https://projects.kde.org/projects/kde/pim/gpgmepp" "C++ bindings for gpgme" "Needed for encrypted/signed e-mails" WITH_GPGMEPP)
 trojita_option(WITH_CRYPTO_MESSAGES "Enable support for encrypted messages" AUTO "WITH_MIMETIC;WITH_GPGMEPP")
 
@@ -190,12 +188,6 @@ if(WITH_MIMETIC)
   set(TROJITA_HAVE_MIMETIC True)
 else()
   set(TROJITA_HAVE_MIMETIC False)
-endif()
-
-if(WITH_QCA)
-  set(TROJITA_HAVE_QCA True)
-else()
-  set(TROJITA_HAVE_QCA False)
 endif()
 
 if(WITH_GPGMEPP)
@@ -316,13 +308,6 @@ if(WITH_CRYPTO_MESSAGES)
     set(libCryptography_SOURCES
         ${libCryptography_SOURCES}
         ${path_Cryptography}/GpgMe++.cpp
-    )
-  endif()
-  if(WITH_QCA)
-    set(libCryptography_SOURCES
-        ${libCryptography_SOURCES}
-        ${path_Cryptography}/QCAHelper.cpp
-        ${path_Cryptography}/OpenPGPHelper.cpp
     )
   endif()
 endif()
@@ -621,9 +606,6 @@ if(WITH_MIMETIC)
     set_property(TARGET Cryptography APPEND PROPERTY INCLUDE_DIRECTORIES ${MIMETIC_INCLUDE_DIRS})
 endif()
 if(WITH_CRYPTO_MESSAGES)
-  if(WITH_QCA)
-    target_link_libraries(Cryptography qca-qt5)
-  endif()
   if(WITH_GPGMEPP)
     target_link_libraries(Cryptography KF5::Gpgmepp KF5::QGpgme)
   endif()
