@@ -31,9 +31,8 @@
 #include "Streams/FakeSocket.h"
 
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-#  ifdef TROJITA_HAVE_QCA
-#    include "Cryptography/OpenPGPHelper.h"
-#    include <QtCrypto>
+#  ifdef TROJITA_HAVE_GPGMEPP
+#    include "Cryptography/GpgMe++.h"
 #  endif
 #endif
 
@@ -82,8 +81,8 @@ void CryptographyPGPTest::testDecryption()
     QVERIFY(model->rowCount(msg) > 0);
     Cryptography::MessageModel msgModel(0, msg);
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-#  ifdef TROJITA_HAVE_QCA
-    msgModel.registerPartHandler(std::make_shared<Cryptography::OpenPGPReplacer>());
+#  ifdef TROJITA_HAVE_GPGMEPP
+    msgModel.registerPartHandler(std::make_shared<Cryptography::GpgMeReplacer>());
 #  endif
 #endif
     QModelIndex mappedMsg = msgModel.index(0,0);
@@ -105,9 +104,11 @@ void CryptographyPGPTest::testDecryption()
     QSignalSpy qcaErrorSpy(&msgModel, SIGNAL(error(const QModelIndex &,QString,QString)));
 
     int i = 0;
-    while (qcaSuccessSpy.empty() && qcaErrorSpy.empty() && i++ < 50) {
-        QTest::qWait(250);
+    while (data.isValid() && data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool() && i++ < 1000) {
+        QTest::qWait(10);
     }
+    // allow for event processing, so that the model can retrieve the results
+    QCoreApplication::processEvents();
 
     if (!qcaErrorSpy.isEmpty() && successful) {
         qDebug() << "Unexpected failure in crypto";
@@ -117,10 +118,12 @@ void CryptographyPGPTest::testDecryption()
         }
     }
 
-    QCOMPARE(qcaErrorSpy.empty(), successful);
-    QCOMPARE(qcaSuccessSpy.empty(), !successful);
+    if (successful) {
+        QCOMPARE(qcaErrorSpy.empty(), successful);
+        QCOMPARE(qcaSuccessSpy.empty(), !successful);
+    }
 
-    QVERIFY(data.data(Imap::Mailbox::RoleIsFetched).toBool() == successful);
+    QVERIFY(data.data(Imap::Mailbox::RoleIsFetched).toBool());
 
     cEmpty();
     QVERIFY(errorSpy->empty());
@@ -132,7 +135,7 @@ void CryptographyPGPTest::testDecryption()
     QCOMPARE(data.child(1, 0).data(Imap::Mailbox::RolePartMimeType).toString(), QLatin1String("application/octet-stream"));
     cEmpty();
 
-    QSKIP("Some tests were skipped because this build doesn't have QCA support");
+    QSKIP("Some tests were skipped because this build doesn't have GpgME++ support");
 #endif
 }
 
@@ -184,6 +187,7 @@ void CryptographyPGPTest::testVerification()
     QFETCH(QByteArray, signature);
     QFETCH(QByteArray, plaintext);
     QFETCH(bool, successful);
+    QFETCH(QString, from);
     QFETCH(QString, tldr);
     QFETCH(QString, longDesc);
     QFETCH(bool, validDisregardingTrust);
@@ -199,18 +203,18 @@ void CryptographyPGPTest::testVerification()
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
-    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE ("
+    cServer(helperCreateTrivialEnvelope(1, 333, QStringLiteral("subj"), from, QStringLiteral("("
             "(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 423 14 NIL NIL NIL NIL)"
             "(\"application\" \"pgp-signature\" NIL NIL NIL \"7bit\" 851 NIL NIL NIL NIL)"
             " \"signed\" (\"boundary\" \"=-=-=\" \"micalg\" \"pgp-sha256\" \"protocol\" \"application/pgp-signature\")"
-            " NIL NIL NIL))\r\n"
+            " NIL NIL NIL)"))
             + t.last("OK fetched\r\n"));
     cEmpty();
     QVERIFY(model->rowCount(msg) > 0);
     Cryptography::MessageModel msgModel(0, msg);
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-#  ifdef TROJITA_HAVE_QCA
-    msgModel.registerPartHandler(std::make_shared<Cryptography::OpenPGPReplacer>());
+#  ifdef TROJITA_HAVE_GPGMEPP
+    msgModel.registerPartHandler(std::make_shared<Cryptography::GpgMeReplacer>());
 #  endif
 #endif
     QModelIndex mappedMsg = msgModel.index(0,0);
@@ -233,9 +237,11 @@ void CryptographyPGPTest::testVerification()
     QSignalSpy qcaErrorSpy(&msgModel, SIGNAL(error(const QModelIndex &,QString,QString)));
 
     int i = 0;
-    while (data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool() && qcaErrorSpy.empty() && i++ < 50) {
-        QTest::qWait(250);
+    while (data.isValid() && data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool() && qcaErrorSpy.empty() && i++ < 1000) {
+        QTest::qWait(10);
     }
+    // allow for event processing, so that the model can retrieve the results
+    QCoreApplication::processEvents();
 
     if (!qcaErrorSpy.isEmpty() && successful) {
         qDebug() << "Unexpected failure in crypto";
@@ -267,7 +273,7 @@ void CryptographyPGPTest::testVerification()
     QCOMPARE(data.child(1, 0).data(Imap::Mailbox::RolePartMimeType).toString(), QLatin1String("application/octet-stream"));
     cEmpty();
 
-    QSKIP("Some tests were skipped because this build doesn't have QCA support");
+    QSKIP("Some tests were skipped because this build doesn't have GpgME++ support");
 #endif
 }
 
@@ -276,6 +282,7 @@ void CryptographyPGPTest::testVerification_data()
     QTest::addColumn<QByteArray>("signature");
     QTest::addColumn<QByteArray>("plaintext");
     QTest::addColumn<bool>("successful");
+    QTest::addColumn<QString>("from");
     QTest::addColumn<QString>("tldr");
     QTest::addColumn<QString>("longDesc");
     QTest::addColumn<bool>("validDisregardingTrust");
@@ -286,11 +293,33 @@ void CryptographyPGPTest::testVerification_data()
             << sigFromMe
             << QByteArray("plaintext\r\n")
             << true
-            << QStringLiteral("Some signature") // FIXME: make sure the keyring is laoded
-            << QStringLiteral("Signed by untrusted key ") // FIXME
+            << QStringLiteral("valid@test.trojita.flaska.net")
+            << QStringLiteral("Verified signature")
+            << QStringLiteral("Verified signature from Valid <valid@test.trojita.flaska.net> (")
             << true
-            << false; // FIXME
+            << true;
 
+    // my signature, but a different identity
+    QTest::newRow("valid-me")
+            << sigFromMe
+            << QByteArray("plaintext\r\n")
+            << true
+            << QStringLiteral("evil@example.org")
+            << QStringLiteral("Signed by stranger")
+            << QStringLiteral("Verified signature, but the signer is someone else:\nValid <valid@test.trojita.flaska.net> (")
+            << true
+            << false;
+
+    // my signature, different data
+    QTest::newRow("valid-me")
+            << sigFromMe
+            << QByteArray("I will pay you right now\r\n")
+            << true
+            << QStringLiteral("valid@test.trojita.flaska.net")
+            << QStringLiteral("Bad signature")
+            << QStringLiteral("Bad signature by Valid <valid@test.trojita.flaska.net> (")
+            << false
+            << false;
 }
 
 QTEST_GUILESS_MAIN(CryptographyPGPTest)

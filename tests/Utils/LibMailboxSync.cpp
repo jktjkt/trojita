@@ -547,6 +547,15 @@ QByteArray LibMailboxSync::helperCreateTrivialEnvelope(const uint seq, const uin
                                       QString::number(seq), QString::number(uid), subject ).toUtf8();
 }
 
+QByteArray LibMailboxSync::helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject,
+                                                       const QString &from, const QString &bodyStructure)
+{
+    auto addr = Imap::Message::MailAddress::fromNameAndMail(QString(), from);
+    return QString::fromUtf8("* %1 FETCH (UID %2 ENVELOPE (NIL \"%3\" ((NIL NIL \"%4\" \"%5\")) NIL NIL NIL NIL NIL NIL NIL) "
+                              "BODYSTRUCTURE %6)\r\n").arg(
+                                      QString::number(seq), QString::number(uid), subject, addr.mailbox, addr.host, bodyStructure).toUtf8();
+}
+
 /** @short Make sure that the only existing task is the KeepMailboxOpenTask and nothing else */
 void LibMailboxSync::justKeepTask()
 {

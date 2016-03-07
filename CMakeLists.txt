@@ -96,7 +96,7 @@ trojita_find_package(Git "" "" "" "")
 trojita_find_package(Mimetic "" "http://www.codesink.org/mimetic_mime_library.html" "C++ MIME Library" "Required for client-side MIME parsing" WITH_MIMETIC)
 trojita_find_package(Qca-qt5 "2.1.0" "http://delta.affinix.com/qca/" "Qt Cryptographic Architecture" "Needed for encrypted/signed messages" WITH_QCA)
 trojita_find_package(KF5Gpgmepp "" "https://projects.kde.org/projects/kde/pim/gpgmepp" "C++ bindings for gpgme" "Needed for encrypted/signed e-mails" WITH_GPGMEPP)
-trojita_option(WITH_CRYPTO_MESSAGES "Enable support for encrypted messages" AUTO "WITH_MIMETIC;WITH_QCA")
+trojita_option(WITH_CRYPTO_MESSAGES "Enable support for encrypted messages" AUTO "WITH_MIMETIC;WITH_GPGMEPP")
 
 if(WIN32)
     trojita_find_package(MakeNSIS "" "http://nsis.sourceforge.net" "Nullsoft Scriptable Install System" "Needed for building Windows installer" WITH_NSIS)

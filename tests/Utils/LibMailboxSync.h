@@ -93,6 +93,7 @@ protected:
 
     virtual void helperOneFlagUpdate( const QModelIndex &message );
     QByteArray helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject);
+    QByteArray helperCreateTrivialEnvelope(const uint seq, const uint uid, const QString &subject, const QString &from, const QString &bodyStructure);
 
     void helperInitialListing();
     void initialMessages(const uint exists);

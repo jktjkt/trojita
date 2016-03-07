@@ -57,9 +57,6 @@
 #  ifdef TROJITA_HAVE_GPGMEPP
 #    include "Cryptography/GpgMe++.h"
 #  endif
-#  ifdef TROJITA_HAVE_QCA
-#    include "Cryptography/OpenPGPHelper.h"
-#  endif
 #endif
 #include "Imap/Model/ImapAccess.h"
 #include "Imap/Model/MailboxTree.h"
@@ -120,8 +117,6 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     Plugins::PluginManager::MimePartReplacers replacers;
 #ifdef TROJITA_HAVE_GPGMEPP
     replacers.emplace_back(std::make_shared<Cryptography::GpgMeReplacer>());
-#elif defined(TROJITA_HAVE_QCA)
-    replacers.emplace_back(std::make_shared<Cryptography::OpenPGPReplacer>());
 #endif
     m_pluginManager->setMimePartReplacers(replacers);
 #endif
