@@ -154,6 +154,20 @@ void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const
     if (!page()->mainFrame()->hitTestContent(point).imageUrl().isEmpty()) {
         menu.addAction(pageAction(QWebPage::DownloadImageToDisk));
     }
+    menu.addSeparator();
+    QMenu *colorSchemeMenu = menu.addMenu(tr("Color scheme"));
+    QActionGroup *ag = new QActionGroup(colorSchemeMenu);
+    for (auto item: supportedColorSchemes()) {
+        QAction *a = colorSchemeMenu->addAction(item.second);
+        connect(a, &QAction::triggered, this, [this, item](){
+           const_cast<SimplePartWidget*>(this)->setColorScheme(item.first);
+        });
+        a->setCheckable(true);
+        if (item.first == m_colorScheme) {
+            a->setChecked(true);
+        }
+        a->setActionGroup(ag);
+    }
 }
 
 void SimplePartWidget::slotDownloadPart()

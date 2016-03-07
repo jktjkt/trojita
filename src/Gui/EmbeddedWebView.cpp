@@ -62,8 +62,12 @@ public:
 namespace Gui
 {
 
-EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager):
-    QWebView(parent), m_scrollParent(0L), m_resizeInProgress(0), m_staticWidth(0)
+EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager)
+    : QWebView(parent)
+    , m_scrollParent(nullptr)
+    , m_resizeInProgress(0)
+    , m_staticWidth(0)
+    , m_colorScheme(ColorScheme::System)
 {
     // set to expanding, ie. "freely" - this is important so the widget will attempt to shrink below the sizehint!
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -333,29 +337,63 @@ bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *op
     return true;
 }
 
+std::map<EmbeddedWebView::ColorScheme, QString> EmbeddedWebView::supportedColorSchemes() const
+{
+    std::map<EmbeddedWebView::ColorScheme, QString> map;
+    map[ColorScheme::System] = tr("System colors");
+    map[ColorScheme::AdjustedSystem] = tr("System theme adjusted for better contrast");
+    map[ColorScheme::BlackOnWhite] = tr("Black on white, forced");
+    return map;
+}
+
+void EmbeddedWebView::setColorScheme(const ColorScheme colorScheme)
+{
+    m_colorScheme = colorScheme;
+    addCustomStylesheet(m_customCss);
+}
+
 void EmbeddedWebView::addCustomStylesheet(const QString &css)
 {
+    m_customCss = css;
+
     QWebSettings *s = settings();
+    QString bgName, fgName;
     QColor bg = palette().color(QPalette::Active, QPalette::Base),
            fg = palette().color(QPalette::Active, QPalette::Text);
 
-
-    // This is HTML, and the authors of that markup are free to specify only the background colors, or only the foreground colors.
-    // No matter what we pass from outside, there will always be some color which will result in unreadable text, and we can do
-    // nothing except adding !important everywhere to fix this.
-    // This code attempts to create a color which will try to produce exactly ugly results for both dark-on-bright and
-    // bright-on-dark segments of text. However, it's pure alchemy and only a limited heuristics. If you do not like this, please
-    // submit patches (or talk to the HTML producers, hehehe).
-    const int v = bg.value();
-    if (v < 96 && fg.value() > 128 + v/2) {
-        int h,s,vv,a;
-        fg.getHsv(&h, &s, &vv, &a) ;
-        fg.setHsv(h, s, 128+v/2, a);
+    switch (m_colorScheme) {
+    case ColorScheme::BlackOnWhite:
+        bgName = QStringLiteral("white !important");
+        fgName = QStringLiteral("black !important");
+        break;
+    case ColorScheme::AdjustedSystem:
+    {
+        // This is HTML, and the authors of that markup are free to specify only the background colors, or only the foreground colors.
+        // No matter what we pass from outside, there will always be some color which will result in unreadable text, and we can do
+        // nothing except adding !important everywhere to fix this.
+        // This code attempts to create a color which will try to produce exactly ugly results for both dark-on-bright and
+        // bright-on-dark segments of text. However, it's pure alchemy and only a limited heuristics. If you do not like this, please
+        // submit patches (or talk to the HTML producers, hehehe).
+        const int v = bg.value();
+        if (v < 96 && fg.value() > 128 + v/2) {
+            int h,s,vv,a;
+            fg.getHsv(&h, &s, &vv, &a) ;
+            fg.setHsv(h, s, 128+v/2, a);
+        }
+        bgName = bg.name();
+        fgName = fg.name();
+        break;
+    }
+    case ColorScheme::System:
+        bgName = bg.name();
+        fgName = fg.name();
+        break;
     }
 
+
     const QString urlPrefix(QStringLiteral("data:text/css;charset=utf-8;base64,"));
-    const QString myColors(QStringLiteral("body { background-color: %1; color: %2; }\n").arg(bg.name(), fg.name()));
-    s->setUserStyleSheetUrl(QString::fromUtf8(urlPrefix.toUtf8() + (myColors + css).toUtf8().toBase64()));
+    const QString myColors(QStringLiteral("body { background-color: %1; color: %2; }\n").arg(bgName, fgName));
+    s->setUserStyleSheetUrl(QString::fromUtf8(urlPrefix.toUtf8() + (myColors + m_customCss).toUtf8().toBase64()));
 }
 
 }
