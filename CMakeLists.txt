@@ -625,7 +625,7 @@ if(WITH_CRYPTO_MESSAGES)
     target_link_libraries(Cryptography qca-qt5)
   endif()
   if(WITH_GPGMEPP)
-    target_link_libraries(Cryptography KF5::Gpgmepp)
+    target_link_libraries(Cryptography KF5::Gpgmepp KF5::QGpgme)
   endif()
 endif()
 

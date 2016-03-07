@@ -24,8 +24,10 @@
 #include <mimetic/mimetic.h>
 #include <gpgme++/context.h>
 #include <gpgme++/data.h>
+#include <gpgme++/decryptionresult.h>
 #include <gpgme++/key.h>
 #include <gpgme++/interfaces/progressprovider.h>
+#include <qgpgme/dataprovider.h>
 #include <QElapsedTimer>
 #include "Common/InvokeMethod.h"
 #include "Cryptography/GpgMe++.h"
@@ -101,7 +103,7 @@ MessagePart::Ptr GpgMeReplacer::createPart(MessageModel *model, MessagePart *par
     if (mimeType == "multipart/encrypted") {
         const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
         if (bodyFldParam[QByteArrayLiteral("PROTOCOL")].toLower() == QByteArrayLiteral("application/pgp-encrypted")) {
-            // FIXME
+            return MessagePart::Ptr(new GpgMeEncrypted(this, model, parentPart, std::move(original), sourceItemIndex, proxyParentIndex));
         }
     } else if (mimeType == "multipart/signed") {
         const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
@@ -577,6 +579,194 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
         submitVerifyResult(p, {wasSigned, sigOkDisregardingTrust, sigValidVerified, tldr, longStatus, icon, signer, signDate});
     });
     emitDataChanged();
+}
+
+
+GpgMeEncrypted::GpgMeEncrypted(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
+                               const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
+    : GpgMePart(replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
+    , m_versionPart(sourceItemIndex.child(0, 0))
+    , m_encPart(sourceItemIndex.child(1, 0))
+    , m_decryptionSupported(false)
+    , m_decryptionFailed(false)
+{
+    m_isAllegedlyEncrypted = true;
+    if (m_ctx) {
+        const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
+        if (rowCount == 2) {
+            // Trigger lazy loading of the required message parts
+            m_versionPart.data(RolePartData);
+            m_encPart.data(RolePartData);
+            CALL_LATER(this, handleDataChanged, Q_ARG(QModelIndex, m_encPart), Q_ARG(QModelIndex, m_encPart));
+        } else {
+            CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Malformed Encrypted Message")),
+                       Q_ARG(QString, tr("Expected 2 parts, but found %1.").arg(rowCount)),
+                       Q_ARG(QString, QStringLiteral("emblem-error")));
+        }
+    } else {
+        CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Cannot descrypt")),
+                   Q_ARG(QString, tr("Failed to initialize GpgME")),
+                   Q_ARG(QString, QStringLiteral("script-error")));
+    }
+
+    auto oldState = m_localState;
+    // the raw data are available on the part itself
+    setData(original->data(Imap::Mailbox::RolePartData).toByteArray());
+    m_localState = oldState;
+    // we might change this in future; maybe having access to the OFFSET_RAW_CONTENTS makes some sense
+    setSpecialParts(nullptr, nullptr, nullptr, nullptr);
+}
+
+GpgMeEncrypted::~GpgMeEncrypted()
+{
+}
+
+void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    Q_ASSERT(topLeft == bottomRight);
+    if (!m_encPart.isValid()) {
+        m_statusTLDR = tr("Encrypted message is gone");
+        m_statusLong = QString();
+        m_statusIcon = QStringLiteral("state-offline");
+        emitDataChanged();
+        return;
+    }
+    if (topLeft != m_versionPart && topLeft != m_encPart) {
+        return;
+    }
+    Q_ASSERT(m_versionPart.isValid());
+    Q_ASSERT(m_encPart.isValid());
+    if (!m_versionPart.data(RoleIsFetched).toBool() || !m_encPart.data(RoleIsFetched).toBool()) {
+        return;
+    }
+
+    disconnect(m_dataChanged);
+    m_waitingForData = false;
+
+    // Check compliance with RFC3156
+    QString versionString = m_versionPart.data(RolePartData).toString();
+    if (!versionString.contains(QLatin1String("Version: 1"))) {
+        forwardFailure(tr("Malformed Encrypted Message"),
+                       tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%2\".").arg(versionString),
+                       QStringLiteral("emblem-error"));
+        return;
+    }
+
+    m_statusTLDR = tr("Decrypting...");
+
+    auto cipherData = m_encPart.data(RolePartData).toByteArray();
+    auto messageUids = extractMessageUids();
+    auto ctx = m_ctx;
+
+    m_crypto = std::async(std::launch::async, [this, ctx, cipherData, messageUids ](){
+        QPointer<QObject> p(this);
+        DebugProgress progress;
+        ctx->setProgressProvider(&progress);
+
+        GpgME::Data encData(cipherData.data(), cipherData.size(), false);
+        QGpgME::QByteArrayDataProvider dp;
+        GpgME::Data plaintextData(&dp);
+
+        auto combinedResult = ctx->decryptAndVerify(encData, plaintextData);
+
+        bool wasSigned = false;
+        bool wasEncrypted = true;
+        bool sigOkDisregardingTrust = false;
+        bool sigValidVerified = false;
+        bool uidMatched = false;
+        QString tldr;
+        QString longStatus;
+        QString icon;
+        QString signer;
+        QDateTime signDate;
+
+        if (combinedResult.second.numSignatures() != 0) {
+            for (const auto &sig: combinedResult.second.signatures()) {
+                wasSigned = true;
+                extractSignatureStatus(ctx, sig, messageUids, wasSigned, wasEncrypted,
+                                       sigOkDisregardingTrust, sigValidVerified, uidMatched, tldr, longStatus, icon, signer, signDate);
+
+                // FIXME: add support for multiple signatures at once. How do we want to handle them in the UI?
+                break;
+            }
+        }
+
+        constexpr QChar LF = QLatin1Char('\n');
+
+        bool decryptedOk = !combinedResult.first.error();
+
+        if (combinedResult.first.error()) {
+            if (tldr.isEmpty()) {
+                tldr = tr("Broken encrypted message");
+            }
+            longStatus += LF + tr("Decryption error: %1").arg(QString::fromUtf8(combinedResult.first.error().asString()));
+            icon = QStringLiteral("emblem-error");
+        } else if (tldr.isEmpty()) {
+            tldr = tr("Encrypted message");
+            icon = QStringLiteral("emblem-encrypted-unlocked");
+        }
+
+        if (combinedResult.first.isWrongKeyUsage()) {
+            longStatus += LF + tr("Wrong key usage, not for encryption");
+        }
+        if (auto msg = combinedResult.first.unsupportedAlgorithm()) {
+            longStatus += LF + tr("Unsupported algorithm: %1").arg(QString::fromUtf8(msg));
+        }
+
+        for (const auto &recipient: combinedResult.first.recipients()) {
+            GpgME::Error keyError;
+            auto key = ctx->key(recipient.keyID(), keyError, false);
+            if (keyError) {
+                longStatus += LF + tr("Cannot extract recipient %1: %2")
+                        .arg(QString::fromUtf8(recipient.keyID()), QString::fromUtf8(keyError.asString()));
+            } else {
+                if (key.numUserIDs()) {
+                    longStatus += LF + tr("Encrypted to %1 (%2)")
+                            .arg(QString::fromUtf8(key.userID(0).id()), QString::fromUtf8(recipient.keyID()));
+                } else {
+                    longStatus += LF + tr("Encrypted to %1").arg(QString::fromUtf8(recipient.keyID()));
+                }
+            }
+        }
+        if (auto fname = combinedResult.first.fileName()) {
+            longStatus += LF + tr("Original filename: %1").arg(QString::fromUtf8(fname));
+        }
+
+        if (p) {
+            bool ok = QMetaObject::invokeMethod(p, "processDecryptedData", Qt::QueuedConnection,
+                                                Q_ARG(bool, decryptedOk),
+                                                Q_ARG(QByteArray, dp.data()));
+            Q_ASSERT(ok);
+        } else {
+            qDebug() << "[async crypto: GpgMeEncrypted is gone, not sending cleartext data]";
+        }
+        submitVerifyResult(p, {wasSigned, sigOkDisregardingTrust, sigValidVerified, tldr, longStatus, icon, signer, signDate});
+    });
+
+    emitDataChanged();
+}
+
+void GpgMeEncrypted::processDecryptedData(const bool ok, const QByteArray &data)
+{
+    if (!m_versionPart.isValid() || !m_encPart.isValid() || !m_proxyParentIndex.isValid()) {
+        forwardFailure(tr("Encrypted message is gone"), QString(), QStringLiteral("state-offline"));
+    } else {
+        auto idx = m_proxyParentIndex.child(m_row, 0);
+        Q_ASSERT(idx.isValid());
+        if (ok) {
+            mimetic::MimeEntity me(data.begin(), data.end());
+            m_model->insertSubtree(idx, MimeticUtils::mimeEntityToPart(me, nullptr, 0));
+        } else {
+            // offer access to the original part
+            std::unique_ptr<LocalMessagePart> part(new LocalMessagePart(nullptr, 0, m_encPart.data(RolePartMimeType).toByteArray()));
+            part->setBodyDisposition("attachment");
+            part->setFilename(m_encPart.data(RolePartFileName).toString());
+            part->setOctets(m_encPart.data(RolePartOctets).toULongLong());
+            part->setData(m_encPart.data(RolePartData).toByteArray());
+            m_model->insertSubtree(idx, std::move(part));
+        }
+        emitDataChanged();
+    }
 }
 
 

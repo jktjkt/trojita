@@ -118,11 +118,10 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     connect(m_pluginManager, &Plugins::PluginManager::pluginsChanged, this, &MainWindow::slotPluginsChanged);
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
     Plugins::PluginManager::MimePartReplacers replacers;
-#ifdef TROJITA_HAVE_QCA
-    replacers.emplace_back(std::make_shared<Cryptography::OpenPGPReplacer>());
-#endif
 #ifdef TROJITA_HAVE_GPGMEPP
     replacers.emplace_back(std::make_shared<Cryptography::GpgMeReplacer>());
+#elif defined(TROJITA_HAVE_QCA)
+    replacers.emplace_back(std::make_shared<Cryptography::OpenPGPReplacer>());
 #endif
     m_pluginManager->setMimePartReplacers(replacers);
 #endif

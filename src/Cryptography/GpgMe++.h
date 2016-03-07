@@ -114,6 +114,22 @@ private:
     QPersistentModelIndex m_plaintextPart, m_plaintextMimePart, m_signaturePart;
 };
 
+class GpgMeEncrypted : public GpgMePart {
+    Q_OBJECT
+public:
+    GpgMeEncrypted(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
+                   const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
+    ~GpgMeEncrypted();
+
+private slots:
+    virtual void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) override;
+    void processDecryptedData(const bool ok, const QByteArray &data);
+
+private:
+    QPersistentModelIndex m_versionPart, m_encPart;
+    bool m_decryptionSupported;
+    bool m_decryptionFailed;
+};
 }
 
 Q_DECLARE_METATYPE(Cryptography::SignatureDataBundle)
