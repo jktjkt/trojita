@@ -62,6 +62,7 @@ trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
 trojita_option(WITH_TESTS "Build tests" ON)
 trojita_option(WITH_MIMETIC "Build with client-side MIME parsing" AUTO)
 trojita_option(WITH_QCA "Build with the QCA library for cryptography" AUTO)
+trojita_option(WITH_GPGMEPP "Build with the GpgME++ library for cryptography" AUTO)
 
 if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
@@ -94,6 +95,7 @@ trojita_find_package(Git "" "" "" "")
 
 trojita_find_package(Mimetic "" "http://www.codesink.org/mimetic_mime_library.html" "C++ MIME Library" "Required for client-side MIME parsing" WITH_MIMETIC)
 trojita_find_package(Qca-qt5 "2.1.0" "http://delta.affinix.com/qca/" "Qt Cryptographic Architecture" "Needed for encrypted/signed messages" WITH_QCA)
+trojita_find_package(KF5Gpgmepp "" "https://projects.kde.org/projects/kde/pim/gpgmepp" "C++ bindings for gpgme" "Needed for encrypted/signed e-mails" WITH_GPGMEPP)
 trojita_option(WITH_CRYPTO_MESSAGES "Enable support for encrypted messages" AUTO "WITH_MIMETIC;WITH_QCA")
 
 if(WIN32)
@@ -194,6 +196,12 @@ if(WITH_QCA)
   set(TROJITA_HAVE_QCA True)
 else()
   set(TROJITA_HAVE_QCA False)
+endif()
+
+if(WITH_GPGMEPP)
+  set(TROJITA_HAVE_GPGMEPP True)
+else()
+  set(TROJITA_HAVE_GPGMEPP False)
 endif()
 
 if(WITH_CRYPTO_MESSAGES)
@@ -304,6 +312,12 @@ if(WITH_MIMETIC)
     )
 endif()
 if(WITH_CRYPTO_MESSAGES)
+  if(WITH_GPGMEPP)
+    set(libCryptography_SOURCES
+        ${libCryptography_SOURCES}
+        ${path_Cryptography}/GpgMe++.cpp
+    )
+  endif()
   if(WITH_QCA)
     set(libCryptography_SOURCES
         ${libCryptography_SOURCES}
@@ -609,6 +623,9 @@ endif()
 if(WITH_CRYPTO_MESSAGES)
   if(WITH_QCA)
     target_link_libraries(Cryptography qca-qt5)
+  endif()
+  if(WITH_GPGMEPP)
+    target_link_libraries(Cryptography KF5::Gpgmepp)
   endif()
 endif()
 

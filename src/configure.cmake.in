@@ -3,4 +3,5 @@
 #cmakedefine TROJITA_HAVE_ZLIB
 #cmakedefine TROJITA_HAVE_MIMETIC
 #cmakedefine TROJITA_HAVE_QCA
+#cmakedefine TROJITA_HAVE_GPGMEPP
 #cmakedefine TROJITA_HAVE_CRYPTO_MESSAGES
