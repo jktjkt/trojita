@@ -48,7 +48,8 @@ TagWidget::TagWidget(const Mode mode, const QString &tagName, const QColor &back
     int l,t,r,b;
     getContentsMargins(&l, &t, &r, &b);
     setContentsMargins(l + 4, t, r + 4, b);
-    setCursor(Qt::PointingHandCursor);
+    if (m_mode == Mode::AddingWidget)
+        setCursor(Qt::PointingHandCursor);
 }
 
 TagWidget *TagWidget::addingWidget()
