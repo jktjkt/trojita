@@ -175,7 +175,7 @@ void ProcessSocket::handleProcessError(QProcess::ProcessError err)
     QProcess *proc = qobject_cast<QProcess *>(d);
     Q_ASSERT(proc);
     delayedDisconnect->stop();
-    emit disconnected(tr("The QProcess is having troubles: %1").arg(proc->errorString()));
+    emit disconnected(tr("Disconnected: %1").arg(proc->errorString()));
 }
 
 void ProcessSocket::handleStateChanged()
@@ -199,10 +199,10 @@ void ProcessSocket::handleStateChanged()
             break;
         QString stdErr = QString::fromLocal8Bit(proc->readAllStandardError());
         if (stdErr.isEmpty())
-            disconnectedMessage = tr("The QProcess has exited with return code %1.").arg(
+            disconnectedMessage = tr("The process has exited with return code %1.").arg(
                                       proc->exitCode());
         else
-            disconnectedMessage = tr("The QProcess has exited with return code %1:\n\n%2").arg(
+            disconnectedMessage = tr("The process has exited with return code %1:\n\n%2").arg(
                                       proc->exitCode()).arg(stdErr);
         delayedDisconnect->start();
     }
