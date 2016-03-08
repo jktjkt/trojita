@@ -550,6 +550,9 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
             model->changeConnectionState(parser, CONN_STATE_SELECTING);
             finalizeTermination();
             break;
+        case CONN_STATE_LOGOUT:
+            finalizeTermination();
+            break;
         default:
             throw UnexpectedResponseReceived("No other mailbox is being selected, but got a [CLOSED] response", *resp);
         }
