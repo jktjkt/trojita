@@ -69,6 +69,8 @@ private:
     Formatting(QObject *parent);
 };
 
+bool elideAddress(QString &address);
+
 }
 
 #endif

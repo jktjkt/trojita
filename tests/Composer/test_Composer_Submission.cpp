@@ -55,7 +55,8 @@ void ComposerSubmissionTest::init()
             t.last("OK fetched\r\n"));
 
     m_msaFactory = new MSA::FakeFactory();
-    m_submission = new Composer::Submission(this, model, m_msaFactory);
+    QString accountId = QStringLiteral("fake_account");
+    m_submission = new Composer::Submission(this, model, m_msaFactory, accountId);
 
     sendingSpy = new QSignalSpy(m_msaFactory, SIGNAL(sending()));
     sentSpy = new QSignalSpy(m_msaFactory, SIGNAL(sent()));

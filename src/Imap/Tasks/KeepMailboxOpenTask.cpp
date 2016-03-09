@@ -154,8 +154,6 @@ KeepMailboxOpenTask::KeepMailboxOpenTask(Model *model, const QModelIndex &mailbo
     CHECK_TASK_TREE
     emit model->mailboxSyncingProgress(mailboxIndex, STATE_WAIT_FOR_CONN);
 
-    connect(this, &ImapTask::failed, this, &KeepMailboxOpenTask::signalSyncFailure);
-
     /** @short How often to reset the time window (in ms) for determining mass-change mode */
     const int throttlingWindowLength = 1000;
 
@@ -548,6 +546,9 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         case CONN_STATE_SELECTING:
         case CONN_STATE_SELECTING_WAIT_FOR_CLOSE:
             model->changeConnectionState(parser, CONN_STATE_SELECTING);
+            finalizeTermination();
+            break;
+        case CONN_STATE_LOGOUT:
             finalizeTermination();
             break;
         default:
@@ -1107,24 +1108,6 @@ void KeepMailboxOpenTask::saveSyncStateIfPossible(TreeItemMailbox *mailbox)
 void KeepMailboxOpenTask::closeMailboxDestructively()
 {
     tagClose = parser->close();
-}
-
-/** @short Let the model know that a mailbox synchronization has failed */
-void KeepMailboxOpenTask::signalSyncFailure(const QString &message)
-{
-    if (!mailboxIndex.isValid()) {
-        // Well, that mailbox is no longer there; perhaps this is because the list of mailboxes got replaced.
-        // Seems that there's nothing to report here.
-        return;
-    }
-
-    if (synchronizeConn) {
-        // Well, we aren't synced yet. We're going to rely on the ObtainSynchronizedMailboxTask's own
-        // emitting of mailboxSyncFailed() to prevent duplicate signals.
-        return;
-    }
-
-    EMIT_LATER(model, mailboxSyncFailed, Q_ARG(QString, mailboxIndex.data(RoleMailboxName).toString()), Q_ARG(QString, message));
 }
 
 /** @short Is this task on its own keeping the connection busy?

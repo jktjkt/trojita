@@ -825,7 +825,11 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
 {
     using Common::SettingsNames;
     Ui_OutgoingPage::setupUi(this);
-    m_smtpAccountSettings = new MSA::Account(this, &s, QString());
+    // FIXME: use another account-id at some point in future
+    //        we are now using the profile to avoid overwriting passwords of
+    //        other profiles in secure storage
+    QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+    m_smtpAccountSettings = new MSA::Account(this, &s, profileName);
 
     method->insertItem(NETWORK, tr("Network"));
     method->insertItem(SENDMAIL, tr("Local sendmail-compatible"));

@@ -51,10 +51,12 @@ class Submission : public QObject
 {
     Q_OBJECT
 public:
-    explicit Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory);
+    explicit Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId);
     virtual ~Submission();
 
     MessageComposer *composer();
+
+    QString accountId() const;
 
     void setImapOptions(const bool saveToSentFolder, const QString &sentFolderName,
                         const QString &hostname, const QString &username, const bool useImapSubmit);
@@ -136,6 +138,7 @@ private:
     MessageComposer *m_composer;
     QPointer<Imap::Mailbox::Model> m_model;
     MSA::MSAFactory *m_msaFactory;
+    QString m_accountId;
 
     Imap::Mailbox::ImapTask *m_updateReplyingToMessageFlagsTask;
     Imap::Mailbox::ImapTask *m_updateForwardingMessageFlagsTask;

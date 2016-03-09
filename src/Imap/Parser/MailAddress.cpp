@@ -30,6 +30,7 @@
 #include "../Model/MailboxTree.h"
 #include "../Encoders.h"
 #include "../Parser/Rfc5322HeaderParser.h"
+#include "UiUtils/Formatting.h"
 
 namespace Imap
 {
@@ -148,6 +149,8 @@ QString MailAddress::prettyName(FormattingMode mode) const
                 return address;
             }
         } else {
+            if (mode == FORMAT_SHORT_CLICKABLE)
+                UiUtils::elideAddress(niceName);
             return QStringLiteral("<a href=\"%1\">%2</a>").arg(asUrl().toString().toHtmlEscaped(), niceName.toHtmlEscaped());
         }
     }

@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <QtTest>
 #include "test_Imap_SelectedMailboxUpdates.h"
+#include "Imap/Model/DummyNetworkWatcher.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Parser/Uids.h"
 #include "Streams/FakeSocket.h"
@@ -1018,6 +1019,25 @@ void ImapModelSelectedMailboxUpdatesTest::helperDataChangedUidNonZero(const QMod
         QVERIFY(a.data(Imap::Mailbox::RoleMessageUid).toUInt() != 0);
         QVERIFY(b.data(Imap::Mailbox::RoleMessageUid).toUInt() != 0);
     }
+}
+
+void ImapModelSelectedMailboxUpdatesTest::testLogoutClosed()
+{
+    auto nm = new Imap::Mailbox::DummyNetworkWatcher(nullptr, model);
+    model->switchToMailbox(idxA);
+    cClient(t.mk("SELECT a\r\n"));
+    cServer("* 0 EXISTS\r\n"
+            + t.last("OK selected\r\n"));
+    model->switchToMailbox(idxB);
+    cClient(t.mk("SELECT b\r\n"));
+    auto okSelectedB = t.last("OK selected\r\n");
+    nm->setNetworkOffline();
+    cClient(t.mk("LOGOUT\r\n"));
+    cServer("* OK [CLOSED] Previous mailbox closed.\r\n");
+    cServer("* 1 EXISTS\r\n"
+            + okSelectedB);
+    cEmpty();
+    cServer("* BYE closing now\r\n");
 }
 
 QTEST_GUILESS_MAIN( ImapModelSelectedMailboxUpdatesTest )

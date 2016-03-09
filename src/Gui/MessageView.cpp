@@ -22,7 +22,6 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QDebug>
-#include <QHeaderView>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
@@ -71,12 +70,12 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
     , m_settings(settings)
     , m_pluginManager(pluginManager)
 {
-    QPalette pal = palette();
-    pal.setColor(backgroundRole(), palette().color(QPalette::Active, QPalette::Base));
-    pal.setColor(foregroundRole(), palette().color(QPalette::Active, QPalette::Text));
-    setPalette(pal);
+    setBackgroundRole(QPalette::Base);
+    setForegroundRole(QPalette::Text);
     setAutoFillBackground(true);
+
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
+
     netAccess = new Imap::Network::MsgPartNetAccessManager(this);
     connect(netAccess, &Imap::Network::MsgPartNetAccessManager::requestingExternal, this, &MessageView::externalsRequested);
     factory = new PartWidgetFactory(netAccess, this,
@@ -95,23 +94,11 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
 
     headerSection = new QWidget(this);
 
-    // we create a dummy header, pass it through the style and the use it's color roles so we
-    // know what headers in general look like in the system
-    QHeaderView helpingHeader(Qt::Horizontal);
-    helpingHeader.ensurePolished();
-    pal = headerSection->palette();
-    pal.setColor(headerSection->backgroundRole(), palette().color(QPalette::Active, helpingHeader.backgroundRole()));
-    pal.setColor(headerSection->foregroundRole(), palette().color(QPalette::Active, helpingHeader.foregroundRole()));
-    headerSection->setPalette(pal);
-    headerSection->setAutoFillBackground(true);
-
     // the actual mail header
     m_envelope = new EnvelopeView(headerSection, this);
 
     // the tag bar
     tags = new TagListWidget(headerSection);
-    tags->setBackgroundRole(helpingHeader.backgroundRole());
-    tags->setForegroundRole(helpingHeader.foregroundRole());
     tags->hide();
     connect(tags, &TagListWidget::tagAdded, this, &MessageView::newLabelAction);
     connect(tags, &TagListWidget::tagRemoved, this, &MessageView::deleteLabelAction);
@@ -123,7 +110,6 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
 
     // layout the header
     layout = new QVBoxLayout(headerSection);
-    layout->setSpacing(0);
     layout->addWidget(m_envelope, 1);
     layout->addWidget(tags, 3);
     layout->addWidget(externalElements, 1);

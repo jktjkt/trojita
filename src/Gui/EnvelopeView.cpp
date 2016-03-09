@@ -20,10 +20,11 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "EnvelopeView.h"
-#include <QHeaderView>
 #include <QFontMetrics>
 #include <QLabel>
 #include <QUrlQuery>
+#include <QGridLayout>
+#include <QLayoutItem>
 #include <QVBoxLayout>
 #include "Gui/AddressRowWidget.h"
 #include "Gui/MessageView.h"
@@ -31,21 +32,13 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/Model.h"
+#include "UiUtils/Formatting.h"
 
 namespace Gui {
 
 EnvelopeView::EnvelopeView(QWidget *parent, MessageView *messageView): QWidget(parent), m_messageView(messageView)
 {
-    // we create a dummy header, pass it through the style and the use it's color roles so we
-    // know what headers in general look like in the system
-    QHeaderView helpingHeader(Qt::Horizontal);
-    helpingHeader.ensurePolished();
-
-    setBackgroundRole(helpingHeader.backgroundRole());
-    setForegroundRole(helpingHeader.foregroundRole());
-
     QVBoxLayout *lay = new QVBoxLayout(this);
-    lay->setSpacing(0);
     lay->setContentsMargins(0, 0, 0, 0);
     setLayout(lay);
 
@@ -58,9 +51,26 @@ EnvelopeView::EnvelopeView(QWidget *parent, MessageView *messageView): QWidget(p
     LBL->setTextInteractionFlags(Qt::TextSelectableByMouse | Qt::LinksAccessibleByMouse); \
 }
 
+#define ADD_ROW(LBL, WDG) \
+{ \
+    QLabel *l = new QLabel(LBL, this); \
+    l->setAlignment(Qt::AlignRight); \
+    form->addWidget(l, form->rowCount(), 0, Qt::AlignTop); \
+    form->addWidget(WDG, form->rowCount()-1, 1, Qt::AlignTop); \
+}
+
 /** @short */
 void EnvelopeView::setMessage(const QModelIndex &index)
 {
+    while (QLayoutItem *item = layout()->takeAt(0)) {
+        if (item->widget()) {
+            item->widget()->deleteLater();
+        } else if (item->layout()) {
+            item->layout()->deleteLater();
+        } else {
+            delete item;
+        }
+    }
     Q_FOREACH(QWidget *w, findChildren<QWidget*>()) {
         w->deleteLater();
     }
@@ -71,50 +81,105 @@ void EnvelopeView::setMessage(const QModelIndex &index)
 
     const Imap::Message::Envelope e = index.data(Imap::Mailbox::RoleMessageEnvelope).value<Imap::Message::Envelope>();
 
+    // Subject & date
+    QString subDate;
+    // Date
+    if (e.date.isValid()) {
+        subDate = QStringLiteral("<table style=\"margin:0px; margin-left:4em; float:right;\"><tr style=\"margin:0px;\"><td style=\"margin:0px;\">%1</td></tr></table>").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate));
+    }
+    subDate += QStringLiteral("<span style=\"font:bold large;\">%1</span>").arg(e.subject.toHtmlEscaped());
+    auto lbl = new QLabel(subDate, this);
+    SET_LABEL_OPTIONS(lbl)
+    layout()->addWidget(lbl);
+
+    QGridLayout *form = new QGridLayout();
+    form->setSpacing(0);
+    form->setContentsMargins(0, 0, 0, 0);
+    static_cast<QBoxLayout*>(layout())->addLayout(form);
+
+    // Sender
+    AddressRowWidget *senderWidget = 0;
+    QString senderLabel;
     if (!e.from.isEmpty()) {
-        layout()->addWidget(new AddressRowWidget(this, tr("From"), e.from, m_messageView));
+        senderLabel = tr("From");
+        senderWidget = new AddressRowWidget(this, QString(), e.from, m_messageView);
     }
     if (!e.sender.isEmpty() && e.sender != e.from) {
-        layout()->addWidget(new AddressRowWidget(this, tr("Sender"), e.sender, m_messageView));
+        if (senderWidget) {
+            senderWidget->addAddresses(QStringLiteral(" %1").arg(tr("sent via")), e.sender, m_messageView);
+        } else {
+            senderLabel = tr("Sender");
+            senderWidget = new AddressRowWidget(this, QString(), e.sender, m_messageView);
+        }
     }
     if (!e.replyTo.isEmpty() && e.replyTo != e.from) {
-        layout()->addWidget(new AddressRowWidget(this, tr("Reply-To"), e.replyTo, m_messageView));
+        if (senderWidget) {
+            senderWidget->addAddresses(QStringLiteral(", %1").arg(tr("replies to")), e.replyTo, m_messageView);
+        } else {
+            senderLabel = tr("Reply-To");
+            senderWidget = new AddressRowWidget(this, QString(), e.replyTo, m_messageView);
+        }
     }
+    if (senderWidget)
+        ADD_ROW(senderLabel, senderWidget)
+
+    // Receiver
+    AddressRowWidget *receiverWidget = 0;
+    QString receiverLabel;
+    if (!e.to.isEmpty()) {
+        receiverLabel = tr("To");
+        receiverWidget = new AddressRowWidget(this, QString(), e.to, m_messageView);
+    }
+    if (!e.cc.isEmpty()) {
+        if (receiverWidget) {
+            receiverWidget->addAddresses(QStringLiteral(" %1").arg(tr("CC'd to")), e.cc, m_messageView);
+        } else {
+            receiverLabel = tr("Cc");
+            receiverWidget = new AddressRowWidget(this, QString(), e.cc, m_messageView);
+        }
+    }
+    if (!e.bcc.isEmpty()) {
+        if (receiverWidget) {
+            receiverWidget->addAddresses(QStringLiteral(" %1").arg(tr("Bcc'd to")), e.bcc, m_messageView);
+        } else {
+            receiverLabel = tr("Bcc");
+            receiverWidget = new AddressRowWidget(this, QString(), e.bcc, m_messageView);
+        }
+    }
+    if (receiverWidget)
+        ADD_ROW(receiverLabel, receiverWidget)
+
+    // Mailing list
     QVariantList headerListPost = index.data(Imap::Mailbox::RoleMessageHeaderListPost).toList();
     if (!headerListPost.isEmpty()) {
         QStringList buf;
+        bool elided = false;
         Q_FOREACH(const QVariant &item, headerListPost) {
             const QString scheme = item.toUrl().scheme().toLower();
-            if (scheme == QLatin1String("http") || scheme == QLatin1String("https") || scheme == QLatin1String("mailto")) {
+            const bool isMailTo = scheme == QLatin1String("mailto");
+            if (isMailTo || scheme == QLatin1String("http") || scheme == QLatin1String("https")) {
                 QString target = item.toUrl().toString();
-                QString caption = item.toUrl().toString(scheme == QLatin1String("mailto") ? QUrl::RemoveScheme : QUrl::None);
-                buf << tr("<a href=\"%1\">%2</a>").arg(target.toHtmlEscaped(), caption.toHtmlEscaped());
+                // eg. github uses reply+<some hash>@reply.github.com
+                QString caption = isMailTo ? item.toUrl().toString(QUrl::RemoveScheme) : target;
+                elided = elided || UiUtils::elideAddress(caption);
+                target = target.toHtmlEscaped();
+                buf << tr("<a href=\"%1\">%2</a>").arg(target, caption.toHtmlEscaped());
             } else {
                 buf << item.toUrl().toString().toHtmlEscaped();
             }
         }
-        auto lbl = new QLabel(tr("<b>Mailing List:</b>&nbsp;%1").arg(buf.join(tr(", "))));
+        auto lbl = new QLabel(QString(QLatin1String("<html>&nbsp;%1</html>")).arg(buf.join(tr(", "))));
         SET_LABEL_OPTIONS(lbl)
-        layout()->addWidget(lbl);
+        if (elided)
+            connect(lbl, &QLabel::linkHovered, lbl, &QLabel::setToolTip);
+        ADD_ROW(tr("Mailing List"), lbl)
     }
-    if (!e.to.isEmpty()) {
-        layout()->addWidget(new AddressRowWidget(this, tr("To"), e.to, m_messageView));
-    }
-    if (!e.cc.isEmpty()) {
-        layout()->addWidget(new AddressRowWidget(this, tr("Cc"), e.cc, m_messageView));
-    }
-    if (!e.bcc.isEmpty()) {
-        layout()->addWidget(new AddressRowWidget(this, tr("Bcc"), e.bcc, m_messageView));
-    }
-    auto lbl = new QLabel(tr("<b>Subject:</b>&nbsp;%1").arg(e.subject.toHtmlEscaped()), this);
-    SET_LABEL_OPTIONS(lbl)
-    layout()->addWidget(lbl);
-    if (e.date.isValid()) {
-        const QString &date = e.date.toLocalTime().toString(Qt::SystemLocaleLongDate);
-        auto lbl = new QLabel(tr("<b>Date:</b>&nbsp;%1").arg(date.toHtmlEscaped()), this);
-        SET_LABEL_OPTIONS(lbl)
-        layout()->addWidget(lbl);
-    }
+
+    // separating the message
+    QFrame *line = new QFrame(this);
+    line->setFrameStyle(QFrame::HLine|QFrame::Plain);
+    layout()->addWidget(line);
 }
+
 
 }

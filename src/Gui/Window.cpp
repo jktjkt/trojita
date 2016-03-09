@@ -104,6 +104,8 @@
 namespace Gui
 {
 
+    static const char * const netErrorUnseen = "net_error_unseen";
+
 MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_mainHSplitter(0), m_mainVSplitter(0),
     m_mainStack(0), m_layoutMode(LAYOUT_COMPACT), m_skipSavingOfUI(true), m_delayedStateSaving(0), m_actionSortNone(0),
     m_ignoreStoredPassword(false), m_settings(settings), m_pluginManager(0), m_networkErrorMessageBox(0), m_trayIcon(0)
@@ -126,7 +128,10 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     // which means that ImapAccess has to be constructed before we go and open the settings dialog.
 
     // FIXME: use another account-id at some point in future
-    m_imapAccess = new Imap::ImapAccess(this, m_settings, m_pluginManager, QString());
+    //        we are now using the profile to avoid overwriting passwords of
+    //        other profiles in secure storage
+    QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+    m_imapAccess = new Imap::ImapAccess(this, m_settings, m_pluginManager, profileName);
     connect(m_imapAccess, &Imap::ImapAccess::cacheError, this, &MainWindow::cacheError);
     connect(m_imapAccess, &Imap::ImapAccess::checkSslPolicy, this, &MainWindow::checkSslPolicy, Qt::QueuedConnection);
 
@@ -169,6 +174,14 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     } else {
         m_actionLayoutCompact->trigger();
     }
+
+    connect(qApp, &QGuiApplication::applicationStateChanged, this,
+            [&](Qt::ApplicationState state) {
+                if (state == Qt::ApplicationActive && m_networkErrorMessageBox && m_networkErrorMessageBox->property(netErrorUnseen).toBool()) {
+                    m_networkErrorMessageBox->setProperty(netErrorUnseen, false);
+                    m_networkErrorMessageBox->show();
+                }
+            });
 
     // Don't listen to QDesktopWidget::resized; that is emitted too early (when it gets fired, the screen size has changed, but
     // the workspace area is still the old one). Instead, listen to workAreaResized which gets emitted at an appropriate time.
@@ -823,8 +836,13 @@ void MainWindow::setupModels()
     connect(imapModel(), &Imap::Mailbox::Model::logged, imapLogger, &ProtocolLoggerWidget::slotImapLogged);
     connect(imapModel(), &Imap::Mailbox::Model::connectionStateChanged, imapLogger, &ProtocolLoggerWidget::onConnectionClosed);
 
-    connect(m_imapAccess->networkWatcher(), SIGNAL(reconnectAttemptScheduled(const int)), this, SLOT(slotReconnectAttemptScheduled(const int)));
-    connect(m_imapAccess->networkWatcher(), SIGNAL(resetReconnectState()), this, SLOT(slotResetReconnectState()));
+    auto nw = qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher());
+    Q_ASSERT(nw);
+    connect(nw, &Imap::Mailbox::NetworkWatcher::reconnectAttemptScheduled,
+            this, [this](const int timeout) {
+            showStatusMessage(tr("Attempting to reconnect in %n seconds..", 0, timeout/1000));
+            });
+    connect(nw, &Imap::Mailbox::NetworkWatcher::resetReconnectState, this, &MainWindow::slotResetReconnectState);
 
     connect(imapModel(), &Imap::Mailbox::Model::mailboxFirstUnseenMessage, this, &MainWindow::slotScrollToUnseenMessage);
 
@@ -901,14 +919,27 @@ void MainWindow::slotToggleSysTray()
 
 void MainWindow::handleTrayIconChange()
 {
+    if (!m_trayIcon)
+        return;
+
     QModelIndex mailbox = imapModel()->index(1, 0, QModelIndex());
 
+    const bool isOffline = qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher())->effectiveNetworkPolicy()
+            == Imap::Mailbox::NETWORK_OFFLINE;
+    auto pixmap = UiUtils::loadIcon(QStringLiteral("trojita"))
+                .pixmap(QSize(32, 32), isOffline ? QIcon::Disabled : QIcon::Normal);
+    QString tooltip;
+    auto profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
+    if (profileName.isEmpty()) {
+        tooltip = QStringLiteral("Trojitá");
+    } else {
+        tooltip = QStringLiteral("Trojitá [%1]").arg(profileName);
+    }
+
     if (mailbox.isValid() && mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX")) {
-        QPixmap pixmap = UiUtils::loadIcon(QStringLiteral("trojita")).pixmap(32, 32);
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
-            QPainter painter(&pixmap);
             QFont f;
-            f.setPixelSize(pixmap.height() * 0.59 );
+            f.setPixelSize(pixmap.height() * 0.59);
             f.setWeight(QFont::Bold);
 
             QString text = mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString();
@@ -921,29 +952,31 @@ void MainWindow::handleTrayIconChange()
                 f.setPixelSize(f.pixelSize() * pixmap.width() / fm.width(text));
                 fm = QFontMetrics(f);
             }
-            painter.setFont(f);
 
             QRect boundingRect = fm.tightBoundingRect(text);
             boundingRect.setWidth(boundingRect.width() + 2);
             boundingRect.setHeight(boundingRect.height() + 2);
             boundingRect.moveCenter(QPoint(pixmap.width() / 2, pixmap.height() / 2));
             boundingRect = boundingRect.intersected(pixmap.rect());
-            painter.setBrush(Qt::white);
-            painter.setPen(Qt::white);
-            painter.setOpacity(0.7);
-            painter.drawRoundedRect(boundingRect, 2.0, 2.0);
 
-            painter.setOpacity(1.0);
-            painter.setBrush(Qt::NoBrush);
-            painter.setPen(Qt::darkBlue);
-            painter.drawText(boundingRect, Qt::AlignCenter, text);
-            m_trayIcon->setToolTip(trUtf8("Trojitá - %n unread message(s)", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()));
-            m_trayIcon->setIcon(QIcon(pixmap));
-            return;
+            QPainterPath path;
+            path.addText(boundingRect.bottomLeft(), f, text);
+
+            QPainter painter(&pixmap);
+            painter.setRenderHint(QPainter::Antialiasing);
+            painter.setPen(QColor(255,255,255, 180));
+            painter.setBrush(isOffline ? Qt::red : Qt::black);
+            painter.drawPath(path);
+
+            //: This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
+            tooltip += trUtf8(" - %n unread message(s)", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt());
         }
+    } else if (isOffline) {
+        //: A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
+        tooltip += tr(" - offline");
     }
-    m_trayIcon->setToolTip(trUtf8("Trojitá"));
-    m_trayIcon->setIcon(UiUtils::loadIcon(QStringLiteral("trojita")));
+    m_trayIcon->setToolTip(tooltip);
+    m_trayIcon->setIcon(QIcon(pixmap));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -1163,14 +1196,22 @@ void MainWindow::imapError(const QString &message)
 
 void MainWindow::networkError(const QString &message)
 {
+    const QString title = tr("Network Error");
     if (!m_networkErrorMessageBox) {
-        m_networkErrorMessageBox = new QMessageBox(QMessageBox::Critical, tr("Network Error"),
+        m_networkErrorMessageBox = new QMessageBox(QMessageBox::Critical, title,
                                                    QString(), QMessageBox::Ok, this);
     }
     // User must be informed about a new (but not recurring) error
     if (message != m_networkErrorMessageBox->text()) {
         m_networkErrorMessageBox->setText(message);
-        m_networkErrorMessageBox->show();
+        if (qApp->applicationState() == Qt::ApplicationActive) {
+            m_networkErrorMessageBox->setProperty(netErrorUnseen, false);
+            m_networkErrorMessageBox->show();
+        } else {
+            m_networkErrorMessageBox->setProperty(netErrorUnseen, true);
+            if (m_trayIcon && m_trayIcon->isVisible())
+                m_trayIcon->showMessage(title, message, QSystemTrayIcon::Warning, 3333);
+        }
     }
 }
 
@@ -1189,6 +1230,7 @@ void MainWindow::networkPolicyOffline()
     netOffline->setChecked(true);
     updateActionsOnlineOffline(false);
     showStatusMessage(tr("Offline"));
+    handleTrayIconChange();
 }
 
 void MainWindow::networkPolicyExpensive()
@@ -1197,6 +1239,7 @@ void MainWindow::networkPolicyExpensive()
     netOnline->setChecked(false);
     netExpensive->setChecked(true);
     updateActionsOnlineOffline(true);
+    handleTrayIconChange();
 }
 
 void MainWindow::networkPolicyOnline()
@@ -1205,11 +1248,7 @@ void MainWindow::networkPolicyOnline()
     netExpensive->setChecked(false);
     netOnline->setChecked(true);
     updateActionsOnlineOffline(true);
-}
-
-/** @short Updates GUI about reconnection attempts */
-void MainWindow::slotReconnectAttemptScheduled(const int timeout)
-{
+    handleTrayIconChange();
 }
 
 /** @short Deletes a network error message box instance upon resetting of reconnect state */
@@ -1246,7 +1285,14 @@ void MainWindow::authenticationRequested()
 {
     Plugins::PasswordPlugin *password = pluginManager()->password();
     if (password) {
-        Plugins::PasswordJob *job = password->requestPassword(QStringLiteral("account-0"), QStringLiteral("imap"));
+    // FIXME: use another account-id at some point in future
+    //        Currently the accountName will be empty unless Trojita has been
+    //        called with a profile, and then the profile will be used as the
+    //        accountName.
+    QString accountName = m_imapAccess->accountName();
+    if (accountName.isEmpty())
+        accountName = QStringLiteral("account-0");
+    Plugins::PasswordJob *job = password->requestPassword(accountName, QStringLiteral("imap"));
         if (job) {
             connect(job, &Plugins::PasswordJob::passwordAvailable, this, &MainWindow::authenticationContinue);
             connect(job, &Plugins::PasswordJob::error, this, &MainWindow::authenticationContinueNoPassword);

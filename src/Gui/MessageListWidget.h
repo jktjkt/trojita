@@ -70,7 +70,7 @@ private slots:
 
 private:
     LineEdit *m_quickSearchText;
-    QToolButton *m_searchOptions;
+    QAction *m_searchOptions;
     QAction *m_searchInSubject;
     QAction *m_searchInBody;
     QAction *m_searchInSenders;

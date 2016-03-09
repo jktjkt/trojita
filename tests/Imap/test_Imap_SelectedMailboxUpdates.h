@@ -49,6 +49,7 @@ private slots:
     void testFlagsRecalcOnExpunge();
     void testUid0();
     void testMarkAllConcurrentArrival();
+    void testLogoutClosed();
 
     void helperDataChangedUidNonZero(const QModelIndex &a, const QModelIndex &b);
 private:

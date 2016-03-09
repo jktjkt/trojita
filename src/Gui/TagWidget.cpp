@@ -23,56 +23,94 @@
 */
 
 #include <QEvent>
+#include <QMouseEvent>
+#include <QPainter>
 #include <QPair>
+
+#include "UiUtils/Color.h"
 
 #include "TagWidget.h"
 
 namespace Gui
 {
 
-TagWidget::TagWidget(const Mode mode, const QString &tagName, const QString &backgroundColor):
+static const QLatin1String closeIndicator(" | x");
+
+TagWidget::TagWidget(const Mode mode, const QString &tagName, const QColor &backgroundColor):
     QLabel(),
     m_tagName(tagName),
-    m_mode(mode)
+    m_mode(mode),
+    m_tint(backgroundColor),
+    m_splitPos(0)
 {
-    setStyleSheet(QStringLiteral("border: 1px solid black; border-radius: 4px; background-color: %1;").arg(backgroundColor));
+    m_tint.setAlpha(m_tint.alpha()/3);
+    setAlignment(Qt::AlignCenter);
+    int l,t,r,b;
+    getContentsMargins(&l, &t, &r, &b);
+    setContentsMargins(l + 4, t, r + 4, b);
+    if (m_mode == Mode::AddingWidget)
+        setCursor(Qt::PointingHandCursor);
 }
 
 TagWidget *TagWidget::addingWidget()
 {
-    auto res = new TagWidget(Mode::AddingWidget, QString(), QStringLiteral("lightgreen"));
-    res->setText(QStringLiteral("+"));
+    auto res = new TagWidget(Mode::AddingWidget, QString(), Qt::green);
+    res->setText(tr("Tag", "This is a verb!"));
     return res;
 }
 
 TagWidget *TagWidget::userKeyword(const QString &tagName)
 {
-    auto res = new TagWidget(Mode::UserKeyword, tagName, QStringLiteral("lightyellow"));
-    res->setText(tagName + QLatin1String(" | x"));
+    auto res = new TagWidget(Mode::UserKeyword, tagName, Qt::yellow);
+    res->setText(tagName + closeIndicator);
+    res->setMouseTracking(true);
     return res;
 }
 
 TagWidget *TagWidget::systemFlag(const QString &flagName)
 {
-    auto res = new TagWidget(Mode::SystemFlag, flagName, QStringLiteral("lightgrey"));
+    auto res = new TagWidget(Mode::SystemFlag, flagName, Qt::gray);
     res->setText(flagName);
     return res;
 }
 
 bool TagWidget::event(QEvent *e)
 {
-    if (e->type() == QEvent::MouseButtonPress) {
+    if (e->type() == QEvent::MouseMove) {
+        if (m_mode == Mode::UserKeyword)
+            setCursor(static_cast<QMouseEvent*>(e)->pos().x() > m_splitPos ? Qt::PointingHandCursor : Qt::ArrowCursor);
+    } else if (e->type() == QEvent::Resize) {
+        if (m_mode == Mode::UserKeyword)
+            m_splitPos = contentsRect().right() - fontMetrics().width(closeIndicator);
+    } else if (e->type() == QEvent::MouseButtonPress) {
         switch (m_mode) {
         case Mode::AddingWidget:
             emit addingClicked();
             return true;
-        case Mode::UserKeyword:
+        case Mode::UserKeyword: {
             Q_ASSERT(!m_tagName.isEmpty());
-            emit removeClicked(m_tagName);
+            if (static_cast<QMouseEvent*>(e)->pos().x() > m_splitPos) {
+                setDisabled(true);
+                setText(m_tagName);
+                setCursor(Qt::ArrowCursor);
+                setMouseTracking(false);
+                emit removeClicked(m_tagName);
+            }
             return true;
+        }
         case Mode::SystemFlag:
             // do nothing -- this is just an indicator
             break;
+        }
+    } else if (e->type() == QEvent::Paint) {
+        if (isEnabled()) {
+            QPainter p(this);
+            p.setRenderHint(QPainter::Antialiasing);
+            p.setBrush(UiUtils::tintColor(palette().color(QPalette::Active, backgroundRole()), m_tint));
+            p.setPen(Qt::NoPen);
+            const int rnd = qMin(width()/2, height()/4);
+            p.drawRoundedRect(rect(), rnd, rnd);
+            p.end();
         }
     }
 

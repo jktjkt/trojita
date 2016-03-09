@@ -63,11 +63,8 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
         } else {
             QFont font(QFontDatabase::systemFont(QFontDatabase::FixedFont));
             setStaticWidth(QFontMetrics(font).maxWidth()*90);
+            addCustomStylesheet(QStringLiteral("pre{word-wrap:normal !important;white-space:pre !important;}"));
             QWebSettings *s = settings();
-            // TODO wtf does this not work?
-            const QString css(QLatin1String("data:text/css;charset=utf-8;base64,") +
-                              QLatin1String(QByteArray("pre{word-wrap:normal !important;white-space:pre !important;}").toBase64()));
-            s->setUserStyleSheetUrl(css);
             s->setFontFamily(QWebSettings::StandardFont, font.family());
         }
     }
@@ -156,6 +153,20 @@ void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const
     menu.addAction(m_saveMessage);
     if (!page()->mainFrame()->hitTestContent(point).imageUrl().isEmpty()) {
         menu.addAction(pageAction(QWebPage::DownloadImageToDisk));
+    }
+    menu.addSeparator();
+    QMenu *colorSchemeMenu = menu.addMenu(tr("Color scheme"));
+    QActionGroup *ag = new QActionGroup(colorSchemeMenu);
+    for (auto item: supportedColorSchemes()) {
+        QAction *a = colorSchemeMenu->addAction(item.second);
+        connect(a, &QAction::triggered, this, [this, item](){
+           const_cast<SimplePartWidget*>(this)->setColorScheme(item.first);
+        });
+        a->setCheckable(true);
+        if (item.first == m_colorScheme) {
+            a->setChecked(true);
+        }
+        a->setActionGroup(ag);
     }
 }
 

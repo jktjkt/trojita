@@ -48,7 +48,8 @@ public:
     typedef enum {
         FORMAT_JUST_NAME, /**< @short Just the human-readable name */
         FORMAT_READABLE, /**< @short Real Name <foo@example.org> */
-        FORMAT_CLICKABLE /**< @short HTML clickable form of FORMAT_READABLE */
+        FORMAT_CLICKABLE, /**< @short HTML clickable form of FORMAT_READABLE */
+        FORMAT_SHORT_CLICKABLE /**< @short HTML clickable form of FORMAT_READABLE with conditionally elided text */
     } FormattingMode;
 
     /** @short Phrase from RFC2822 mailbox */

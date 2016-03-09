@@ -47,9 +47,6 @@ TagListWidget::TagListWidget(QWidget *parent) :
     addButton = TagWidget::addingWidget();
     connect(addButton, &TagWidget::addingClicked, this, &TagListWidget::newTagsRequested);
 
-    parentLayout->addWidget(new QLabel(tr("<b>Tags:</b>")));
-    parentLayout->addWidget(addButton);
-
     unsupportedReservedKeywords.insert(Imap::Mailbox::FlagNames::mdnsent.toLower());
     unsupportedReservedKeywords.insert(Imap::Mailbox::FlagNames::submitted.toLower());
     unsupportedReservedKeywords.insert(Imap::Mailbox::FlagNames::submitpending.toLower());
