@@ -807,8 +807,13 @@ void MainWindow::setupModels()
     connect(imapModel(), &Imap::Mailbox::Model::logged, imapLogger, &ProtocolLoggerWidget::slotImapLogged);
     connect(imapModel(), &Imap::Mailbox::Model::connectionStateChanged, imapLogger, &ProtocolLoggerWidget::onConnectionClosed);
 
-    connect(m_imapAccess->networkWatcher(), SIGNAL(reconnectAttemptScheduled(const int)), this, SLOT(slotReconnectAttemptScheduled(const int)));
-    connect(m_imapAccess->networkWatcher(), SIGNAL(resetReconnectState()), this, SLOT(slotResetReconnectState()));
+    auto nw = qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher());
+    Q_ASSERT(nw);
+    connect(nw, &Imap::Mailbox::NetworkWatcher::reconnectAttemptScheduled,
+            this, [this](const int timeout) {
+            showStatusMessage(tr("Attempting to reconnect in %n seconds..", 0, timeout/1000));
+            });
+    connect(nw, &Imap::Mailbox::NetworkWatcher::resetReconnectState, this, &MainWindow::slotResetReconnectState);
 
     connect(imapModel(), &Imap::Mailbox::Model::mailboxFirstUnseenMessage, this, &MainWindow::slotScrollToUnseenMessage);
 
@@ -1215,11 +1220,6 @@ void MainWindow::networkPolicyOnline()
     netOnline->setChecked(true);
     updateActionsOnlineOffline(true);
     handleTrayIconChange();
-}
-
-/** @short Updates GUI about reconnection attempts */
-void MainWindow::slotReconnectAttemptScheduled(const int timeout)
-{
 }
 
 /** @short Deletes a network error message box instance upon resetting of reconnect state */

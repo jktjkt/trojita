@@ -207,7 +207,6 @@ private slots:
     void slotIconActivated(const QSystemTrayIcon::ActivationReason reason);
     void slotToggleSysTray();
 
-    void slotReconnectAttemptScheduled(const int timeout);
     void slotResetReconnectState();
 
     void slotPluginsChanged();
