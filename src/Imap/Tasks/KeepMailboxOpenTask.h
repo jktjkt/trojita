@@ -195,8 +195,6 @@ private slots:
 
     void finalizeTermination();
 
-    void signalSyncFailure(const QString &message);
-
     void syncingTimeout();
 
 private:
