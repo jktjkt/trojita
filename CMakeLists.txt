@@ -764,9 +764,9 @@ if(WITH_TESTS)
     trojita_test(Cryptography Cryptography_MessageModel)
 
     if(WITH_CRYPTO_MESSAGES)
-      find_program(GPG_BINARY gpg)
-      if(GPG_BINARY_NOTFOUND)
-        message(SEND_ERROR "The `gpg` binary not found, this is needed for crypto tests.")
+      find_program(GPGCONF_BINARY NAMES gpgconf)
+      if(GPGCONF_BINARY_NOTFOUND)
+        message(SEND_ERROR "The `gpgconf` binary from GnuPG not found, this is needed for crypto tests.")
       endif()
 
       if(NOT UNIX)
