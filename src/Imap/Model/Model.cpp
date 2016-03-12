@@ -910,11 +910,11 @@ void Model::askForMsgMetadata(TreeItemMessage *item, const PreloadingMode preloa
     if (item->uid()) {
         AbstractCache::MessageDataBundle data = cache()->messageMetadata(mailboxPtr->mailbox(), item->uid());
         if (data.uid == item->uid()) {
-            item->data()->m_envelope = data.envelope;
-            item->data()->m_size = data.size;
-            item->data()->m_hdrReferences = data.hdrReferences;
-            item->data()->m_hdrListPost = data.hdrListPost;
-            item->data()->m_hdrListPostNo = data.hdrListPostNo;
+            item->data()->setEnvelope(data.envelope);
+            item->data()->setSize(data.size);
+            item->data()->setHdrReferences(data.hdrReferences);
+            item->data()->setHdrListPost(data.hdrListPost);
+            item->data()->setHdrListPostNo(data.hdrListPostNo);
             QDataStream stream(&data.serializedBodyStructure, QIODevice::ReadOnly);
             stream.setVersion(QDataStream::Qt_4_6);
             QVariantList unserialized;
@@ -1691,15 +1691,13 @@ void Model::releaseMessageData(const QModelIndex &message)
 #ifndef XTUPLE_CONNECT
     beginRemoveRows(realMessage, 0, msg->m_children.size() - 1);
 #endif
-    if (msg->data()->m_partHeader) {
-        msg->data()->m_partHeader->silentlyReleaseMemoryRecursive();
-        delete msg->data()->m_partHeader;
-        msg->data()->m_partHeader = 0;
+    if (msg->data()->partHeader()) {
+        msg->data()->partHeader()->silentlyReleaseMemoryRecursive();
+        msg->data()->setPartHeader(nullptr);
     }
-    if (msg->data()->m_partText) {
-        msg->data()->m_partText->silentlyReleaseMemoryRecursive();
-        delete msg->data()->m_partText;
-        msg->data()->m_partText = 0;
+    if (msg->data()->partText()) {
+        msg->data()->partText()->silentlyReleaseMemoryRecursive();
+        msg->data()->setPartText(nullptr);
     }
     delete msg->m_data;
     msg->m_data = 0;

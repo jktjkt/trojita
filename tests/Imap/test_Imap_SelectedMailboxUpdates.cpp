@@ -27,6 +27,7 @@
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Parser/Uids.h"
 #include "Streams/FakeSocket.h"
+#include "Imap/data.h"
 
 /** @short Test that we survive a new message arrival and its subsequent removal in rapid sequence
 
@@ -1038,6 +1039,38 @@ void ImapModelSelectedMailboxUpdatesTest::testLogoutClosed()
             + okSelectedB);
     cEmpty();
     cServer("* BYE closing now\r\n");
+}
+
+/** @short Make sure that incremental upload of message metadata bits works, too */
+void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
+{
+    initialMessages(1);
+    cServer("* 1 FETCH (FLAGS ())\r\n");
+    justKeepTask();
+    cEmpty();
+
+    auto msg1 = msgListA.child(0, 0);
+    QVERIFY(msg1.isValid());
+
+    QSignalSpy insertionSpy(model, SIGNAL(rowsInserted(QModelIndex,int,int)));
+
+    QCOMPARE(model->rowCount(msg1), 0);
+    cClient(t.mk("UID FETCH 1 (" FETCH_METADATA_ITEMS ")\r\n"));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    cServer("* 1 FETCH (INTERNALDATE \"15-Jan-2013 12:17:06 +0000\")\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    cServer("* 1 FETCH (ENVELOPE (NIL \"pwn\" NIL NIL NIL NIL NIL NIL NIL NIL))\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true); // this is a bug.
+    QCOMPARE(insertionSpy.size(), 0);
+    cServer("* 1 FETCH (RFC822.SIZE 666)\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+    cServer(t.last("OK fetched\r\n"));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+    cEmpty();
+    QCOMPARE(insertionSpy.size(), 0);
+    justKeepTask();
 }
 
 QTEST_GUILESS_MAIN( ImapModelSelectedMailboxUpdatesTest )

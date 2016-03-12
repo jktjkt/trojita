@@ -23,6 +23,7 @@
 #ifndef IMAP_MAILBOXTREE_H
 #define IMAP_MAILBOXTREE_H
 
+#include <memory>
 #include <QList>
 #include <QModelIndex>
 #include <QPointer>
@@ -232,17 +233,46 @@ class MessageDataPayload
 {
 public:
     MessageDataPayload();
-    ~MessageDataPayload();
 
+    const Message::Envelope &envelope() const;
+    void setEnvelope(const Message::Envelope &envelope);
+    const QDateTime &internalDate() const;
+    void setInternalDate(const QDateTime &internalDate);
+    quint64 size() const;
+    void setSize(const quint64 size);
+    const QList<QByteArray> &hdrReferences() const;
+    void setHdrReferences(const QList<QByteArray> &hdrReferences);
+    const QList<QUrl> &hdrListPost() const;
+    void setHdrListPost(const QList<QUrl> &hdrListPost);
+    bool hdrListPostNo() const;
+    void setHdrListPostNo(const bool hdrListPostNo);
+    const QByteArray &rememberedBodyStructure() const;
+    void setRememberedBodyStructure(const QByteArray &blob);
+
+    TreeItemPart *partHeader() const;
+    void setPartHeader(std::unique_ptr<TreeItemPart> part);
+    TreeItemPart *partText() const;
+    void setPartText(std::unique_ptr<TreeItemPart> part);
+
+    bool isComplete() const;
+
+private:
     Message::Envelope m_envelope;
     QDateTime m_internalDate;
     quint64 m_size;
     QList<QByteArray> m_hdrReferences;
     QList<QUrl> m_hdrListPost;
+    QByteArray m_rememberedBodyStructure;
     bool m_hdrListPostNo;
-    // These are lazily-populated from a const method, so they got to be mutable
-    mutable TreeItemPart *m_partHeader;
-    mutable TreeItemPart *m_partText;
+    std::unique_ptr<TreeItemPart> m_partHeader;
+    std::unique_ptr<TreeItemPart> m_partText;
+
+    bool m_gotEnvelope : 1;
+    bool m_gotInternalDate : 1;
+    bool m_gotSize : 1;
+    bool m_gotBodystructure : 1;
+    bool m_gotHdrReferences : 1;
+    bool m_gotHdrListPost : 1;
 };
 
 class TreeItemMessage: public TreeItem
