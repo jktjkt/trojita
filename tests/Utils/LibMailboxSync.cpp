@@ -90,12 +90,15 @@ void LibMailboxSync::init()
             QStringLiteral("y") << QStringLiteral("z");
     }
     model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr(factory), std::move(taskFactory));
+    model->setObjectName(QStringLiteral("imapModel"));
     setupLogging();
 
     msgListModel = new Imap::Mailbox::MsgListModel(this, model);
+    msgListModel->setObjectName(QStringLiteral("msgListModel"));
 
     threadingModel = new Imap::Mailbox::ThreadingMsgListModel(this);
     threadingModel->setSourceModel(msgListModel);
+    threadingModel->setObjectName(QStringLiteral("threadingModel"));
 
     QCoreApplication::processEvents();
 
