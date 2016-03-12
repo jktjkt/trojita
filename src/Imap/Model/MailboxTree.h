@@ -256,6 +256,12 @@ public:
 
     bool isComplete() const;
 
+    bool gotEnvelope() const;
+    bool gotInternalDate() const;
+    bool gotSize() const;
+    bool gotHdrReferences() const;
+    bool gotHdrListPost() const;
+
 private:
     Message::Envelope m_envelope;
     QDateTime m_internalDate;

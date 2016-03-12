@@ -972,6 +972,31 @@ bool MessageDataPayload::isComplete() const
     return m_gotEnvelope && m_gotInternalDate && m_gotSize && m_gotBodystructure;
 }
 
+bool MessageDataPayload::gotEnvelope() const
+{
+    return m_gotEnvelope;
+}
+
+bool MessageDataPayload::gotInternalDate() const
+{
+    return m_gotInternalDate;
+}
+
+bool MessageDataPayload::gotSize() const
+{
+    return m_gotSize;
+}
+
+bool MessageDataPayload::gotHdrReferences() const
+{
+    return m_gotHdrReferences;
+}
+
+bool MessageDataPayload::gotHdrListPost() const
+{
+    return m_gotHdrListPost;
+}
+
 const Message::Envelope &MessageDataPayload::envelope() const
 {
     return m_envelope;
@@ -1222,7 +1247,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return QByteArrayLiteral("message/rfc822");
     }
 
-    // Any other roles will result in fetching the data
+    // Any other roles will result in fetching the data; however, we won't exit if the data isn't available yet
     fetch(model);
 
     switch (role) {
@@ -1243,57 +1268,63 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         } else {
             return QVariant();
         }
-    default:
-        // fall through
-        ;
-    }
-
-    if (! fetched())
-        return QVariant();
-
-    switch (role) {
-    case RoleMessageDate:
-        return envelope(model).date;
-    case RoleMessageInternalDate:
-        return data()->internalDate();
-    case RoleMessageFrom:
-        return addresListToQVariant(envelope(model).from);
-    case RoleMessageTo:
-        return addresListToQVariant(envelope(model).to);
-    case RoleMessageCc:
-        return addresListToQVariant(envelope(model).cc);
-    case RoleMessageBcc:
-        return addresListToQVariant(envelope(model).bcc);
-    case RoleMessageSender:
-        return addresListToQVariant(envelope(model).sender);
-    case RoleMessageReplyTo:
-        return addresListToQVariant(envelope(model).replyTo);
-    case RoleMessageInReplyTo:
-        return QVariant::fromValue(envelope(model).inReplyTo);
-    case RoleMessageMessageId:
-        return envelope(model).messageId;
-    case RoleMessageSubject:
-        return envelope(model).subject;
     case RoleMessageSize:
-        return QVariant::fromValue(data()->size());
+        return data()->gotSize() ? QVariant::fromValue(data()->size()) : QVariant();
+    case RoleMessageInternalDate:
+        return data()->gotInternalDate() ? data()->internalDate() : QVariant();
     case RoleMessageHeaderReferences:
-        return QVariant::fromValue(data()->hdrReferences());
+        return data()->gotHdrReferences() ? QVariant::fromValue(data()->hdrReferences()) : QVariant();
     case RoleMessageHeaderListPost:
-    {
-        QVariantList res;
-        Q_FOREACH(const QUrl &url, data()->hdrListPost())
-            res << url;
-        return res;
-    }
+        if (data()->gotHdrListPost()) {
+            QVariantList res;
+            Q_FOREACH(const QUrl &url, data()->hdrListPost())
+                res << url;
+            return res;
+        } else {
+            return QVariant();
+        }
     case RoleMessageHeaderListPostNo:
-        return data()->hdrListPostNo();
-    case RoleMessageEnvelope:
-        return QVariant::fromValue<Message::Envelope>(envelope(model));
-    case RoleMessageHasAttachments:
-        return hasAttachments(model);
-    default:
-        return QVariant();
+        return data()->gotHdrListPost() ? QVariant(data()->hdrListPostNo()) : QVariant();
     }
+
+    if (data()->gotEnvelope()) {
+        // If the envelope is already available, we might be able to deliver some bits even prior to full fetch being done.
+        //
+        // Only those values which need ENVELOPE go here!
+        switch (role) {
+        case RoleMessageSubject:
+            return data()->gotEnvelope() ? QVariant(data()->envelope().subject) : QVariant();
+        case RoleMessageDate:
+            return data()->gotEnvelope() ? envelope(model).date : QVariant();
+        case RoleMessageFrom:
+            return addresListToQVariant(envelope(model).from);
+        case RoleMessageTo:
+            return addresListToQVariant(envelope(model).to);
+        case RoleMessageCc:
+            return addresListToQVariant(envelope(model).cc);
+        case RoleMessageBcc:
+            return addresListToQVariant(envelope(model).bcc);
+        case RoleMessageSender:
+            return addresListToQVariant(envelope(model).sender);
+        case RoleMessageReplyTo:
+            return addresListToQVariant(envelope(model).replyTo);
+        case RoleMessageInReplyTo:
+            return QVariant::fromValue(envelope(model).inReplyTo);
+        case RoleMessageMessageId:
+            return envelope(model).messageId;
+        case RoleMessageEnvelope:
+            return QVariant::fromValue<Message::Envelope>(envelope(model));
+        case RoleMessageHasAttachments:
+            return hasAttachments(model);
+        }
+    }
+
+    if (fetched() && role == RoleMessageEnvelope) {
+        // Hi, src/Cryptography/GpgME++.cpp
+        return QVariant::fromValue<Message::Envelope>(envelope(model));
+    }
+
+    return QVariant();
 }
 
 QVariantList TreeItemMessage::addresListToQVariant(const QList<Imap::Message::MailAddress> &addressList)
