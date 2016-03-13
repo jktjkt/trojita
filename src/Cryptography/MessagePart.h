@@ -85,6 +85,7 @@ protected:
     int m_row;
 
     friend class MessageModel;
+    friend class TopLevelMessage; // due to that lambda in TopLevelMessage::fetchChildren
 #ifdef MIME_TREE_DEBUG
     friend QDebug operator<<(QDebug dbg, const MessagePart &part);
 private:

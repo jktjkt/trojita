@@ -43,6 +43,8 @@ private Q_SLOTS:
     void testMixedMessageParts();
 
     void testLocalMimeParsing();
+
+    void testDelayedLoading();
 };
 
 Q_DECLARE_METATYPE(CryptographyMessageModelTest::pathList)

@@ -157,11 +157,34 @@ QVariant TopLevelMessage::data(int role) const
 
 void TopLevelMessage::fetchChildren(MessageModel *model)
 {
-    if (m_childrenState != FetchingState::DONE) {
-        // This is where the magic happens -- this class is just a dumb, fake node, so we're inserting something real below.
-        // The stuff below still points to the message root, *not* to an actual message part, and everybody is happy that way.
-        m_children[0] = Ptr(new ProxyMessagePart(this, 0, m_root, model));
-        m_childrenState = FetchingState::DONE;
+    // This is where the magic happens -- this class is just a dumb, fake node, so we're inserting something real below.
+    // The stuff below still points to the message root, *not* to an actual message part, and everybody is happy that way.
+
+    if (m_childrenState == FetchingState::NONE) {
+        // trigger a fetch within the original model
+        m_root.model()->rowCount(m_root);
+
+        if (m_root.child(0, 0).isValid()) {
+            // OK, we can do it synchronously.
+            // Note that we are *not* guarding this based on a RoleIsFetched because that thing might not be true
+            // when the rowsInserted() is called.
+            m_children[0] = Ptr(new ProxyMessagePart(this, 0, m_root, model));
+            m_childrenState = FetchingState::DONE;
+        } else {
+            // The upstream model is loading its stuff, okay, let's do it asynchronously.
+            m_childrenState = FetchingState::LOADING;
+            model->m_insertRows = model->connect(model->m_message.model(), &QAbstractItemModel::rowsInserted,
+                                                 model, [this, model](const QModelIndex &idx) {
+                if (idx == model->m_message) {
+                    model->disconnect(model->m_insertRows);
+                    Q_ASSERT(m_root.isValid());
+                    m_childrenState = MessagePart::FetchingState::NONE;
+                    model->beginInsertRows(QModelIndex(), 0, 0);
+                    fetchChildren(model);
+                    model->endInsertRows();
+                }
+            });
+        }
     }
 }
 
