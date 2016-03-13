@@ -318,6 +318,7 @@ public:
     virtual unsigned int columnCount();
     virtual QVariant data(Model *const model, int role);
     virtual bool hasChildren(Model *const model) { Q_UNUSED(model); return true; }
+    virtual TreeItemChildrenList setChildren(const TreeItemChildrenList &items);
     Message::Envelope envelope(Model *const model);
     QDateTime internalDate(Model *const model);
     quint64 size(Model *const model);

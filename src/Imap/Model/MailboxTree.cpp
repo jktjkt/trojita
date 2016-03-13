@@ -426,23 +426,25 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 // The message structure is already known, so we are free to ignore it
             } else {
                 // We had no idea about the structure of the message
+
+                // At first, save the bodystructure. This is needed so that our overridden rowCount() works properly.
+                // (The rowCount() gets called through QAIM::beginInsertRows(), for example.)
+                auto xtbIt = response.data.constFind("x-trojita-bodystructure");
+                Q_ASSERT(xtbIt != response.data.constEnd());
+                message->data()->setRememberedBodyStructure(
+                        static_cast<const Responses::RespData<QByteArray>&>(*(xtbIt.value())).data);
+
+                // Now insert the children. We're of course assuming that the TreeItemMessage is now empty.
                 auto newChildren = static_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
                 Q_ASSERT(!newChildren.isEmpty());
                 Q_ASSERT(message->m_children.isEmpty());
                 QModelIndex messageIdx = message->toIndex(model);
-                // beginInsertRows() calls rowCount() which triggers a fetch(), so let's pretend that we're already fetched.
-                // Yes, this is ugly, and it sucks that we leak this bit of state to any slot connected to rowsAboutToBeInserted :(
-                auto origFetchStatus = message->accessFetchStatus();
-                message->setFetchStatus(DONE);
                 model->beginInsertRows(messageIdx, 0, newChildren.size() - 1);
                 message->setChildren(newChildren);
                 model->endInsertRows();
-                message->setFetchStatus(origFetchStatus);
             }
         } else if (it.key() == "x-trojita-bodystructure") {
-            // do nothing "real", just remember these bits
-            message->data()->setRememberedBodyStructure(
-                        static_cast<const Responses::RespData<QByteArray>&>(*(response.data[ "x-trojita-bodystructure" ])).data);
+            // do nothing here, it's been already taken care of from the BODYSTRUCTURE handler
         } else if (it.key() == "RFC822.SIZE") {
             message->data()->setSize(static_cast<const Responses::RespData<quint64>&>(*(it.value())).data);
         } else if (it.key().startsWith("BODY[HEADER.FIELDS (")) {
@@ -1139,8 +1141,18 @@ void TreeItemMessage::fetch(Model *const model)
 
 unsigned int TreeItemMessage::rowCount(Model *const model)
 {
-    fetch(model);
+    if (!data()->gotRemeberedBodyStructure()) {
+        fetch(model);
+    }
     return m_children.size();
+}
+
+TreeItemChildrenList TreeItemMessage::setChildren(const TreeItemChildrenList &items)
+{
+    auto origStatus = accessFetchStatus();
+    auto res = TreeItem::setChildren(items);
+    setFetchStatus(origStatus);
+    return res;
 }
 
 unsigned int TreeItemMessage::columnCount()
