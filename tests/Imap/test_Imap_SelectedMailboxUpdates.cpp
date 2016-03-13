@@ -1076,13 +1076,14 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
     cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
-    QCOMPARE(insertionSpy.size(), 0);
+    QCOMPARE(insertionSpy.size(), 1);
     cServer("* 1 FETCH (RFC822.SIZE 666)\r\n");
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
     cServer(t.last("OK fetched\r\n"));
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
     cEmpty();
-    QCOMPARE(insertionSpy.size(), 0);
+    QCOMPARE(insertionSpy.size(), 1);
     justKeepTask();
 }
 

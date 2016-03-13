@@ -429,8 +429,14 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 auto newChildren = static_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
                 Q_ASSERT(!newChildren.isEmpty());
                 Q_ASSERT(message->m_children.isEmpty());
+                QModelIndex messageIdx = message->toIndex(model);
+                // beginInsertRows() calls rowCount() which triggers a fetch(), so let's pretend that we're already fetched.
+                // Yes, this is ugly, and it sucks that we leak this bit of state to any slot connected to rowsAboutToBeInserted :(
                 auto origFetchStatus = message->accessFetchStatus();
+                message->setFetchStatus(DONE);
+                model->beginInsertRows(messageIdx, 0, newChildren.size() - 1);
                 message->setChildren(newChildren);
+                model->endInsertRows();
                 message->setFetchStatus(origFetchStatus);
             }
         } else if (it.key() == "x-trojita-bodystructure") {
