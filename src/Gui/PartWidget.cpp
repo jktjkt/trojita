@@ -309,6 +309,7 @@ void AsynchronousPartWidget::buildWidgets()
         Q_ASSERT(anotherPart.isValid());
         QWidget *res = addingOneWidget(anotherPart, filteredForEmbedding(m_options));
         layout()->addWidget(res);
+        res->show();
     }
 }
 
