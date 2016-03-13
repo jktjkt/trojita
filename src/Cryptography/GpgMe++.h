@@ -86,6 +86,7 @@ protected:
     MessageModel *m_model;
     QMetaObject::Connection m_dataChanged;
     QPersistentModelIndex m_proxyParentIndex;
+    QPersistentModelIndex m_enclosingMessage;
     bool m_waitingForData;
     bool m_wasSigned;
     /** @short Does this message look like an encrypted one? */

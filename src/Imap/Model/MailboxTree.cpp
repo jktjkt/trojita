@@ -434,7 +434,9 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                     model->endRemoveRows();
                     qDeleteAll(oldChildren);
                 } else {
+                    auto origFetchStatus = message->accessFetchStatus();
                     auto oldChildren = message->setChildren(newChildren);
+                    message->setFetchStatus(origFetchStatus);
                     Q_ASSERT(oldChildren.size() == 0);
                 }
             }
@@ -1317,11 +1319,6 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         case RoleMessageHasAttachments:
             return hasAttachments(model);
         }
-    }
-
-    if (fetched() && role == RoleMessageEnvelope) {
-        // Hi, src/Cryptography/GpgME++.cpp
-        return QVariant::fromValue<Message::Envelope>(envelope(model));
     }
 
     return QVariant();

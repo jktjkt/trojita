@@ -573,7 +573,18 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
                        helperCreateTrivialEnvelope(4, 53, QLatin1String("F")) +
                        helperCreateTrivialEnvelope(5, 63, QLatin1String("G")) +
                        t.last("OK fetched\r\n"));
+    cEmpty();
     helperCheckSubjects(QStringList() << QStringLiteral("A") << QStringLiteral("D") << QStringLiteral("E") << QStringLiteral("F") << QStringLiteral("G"));
+    if (askForEnvelopes) {
+        // Well, this subject checking led to a fetch() being issued on all of these messages (through the ::data()).
+        // The subjects and a lot of other metadata items were already known for all of them, but the INTERNALDATE in particular
+        // was still missing. This means that this message was not considered "fetched".
+        cClient(t.mk("UID FETCH 53,63 (" FETCH_METADATA_ITEMS ")\r\n"));
+        // and yeah, we're cheating because I'm lazy; the data ain't here
+        cServer(t.last("OK fetched\r\n"));
+    } else {
+        cEmpty();
+    }
 
     // Verify UIDd and cache stuff once again to make sure reading data doesn't mess anything up
     helperCheckCache();
@@ -862,7 +873,8 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchAndConcurrentArrival()
 
     // Now check what happens when that number is incremented *once again* while our request for part data is in flight
     QVERIFY(msg1.parent().data(RoleIsFetched).toBool());
-    QVERIFY(msg1.data(RoleIsFetched).toBool());
+    QVERIFY(msg1.data(RoleMessageSubject).isValid());
+    QVERIFY(!msg1.data(RoleIsFetched).toBool()); // not fully fetched yet, though
     QModelIndex msg1p1 = msg1.child(0, 0);
     QVERIFY(msg1p1.isValid());
     QCOMPARE(msg1p1.data(RolePartData).toByteArray(), QByteArray());
@@ -1062,7 +1074,7 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
     cServer("* 1 FETCH (ENVELOPE (NIL \"pwn\" NIL NIL NIL NIL NIL NIL NIL NIL))\r\n");
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
     cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
-    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true); // this is a bug.
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
     QCOMPARE(insertionSpy.size(), 0);
     cServer("* 1 FETCH (RFC822.SIZE 666)\r\n");
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);

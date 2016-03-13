@@ -152,6 +152,18 @@ GpgMePart::GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *
     m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMePart::handleDataChanged);
     Q_ASSERT(m_dataChanged);
 
+    // Find "an email" which encloses the current part.
+    // This will be used later for figuring our whether "the sender" and the key which signed this part correspond to each other.
+    QModelIndex index = m_proxyParentIndex;
+    while (index.isValid()) {
+        if (index.data(RolePartMimeType).toByteArray() == "message/rfc822") {
+            m_enclosingMessage = index;
+            break;
+        } else {
+            index = index.parent();
+        }
+    }
+
     // do the peirodic cleanup
     m_replacer->registerOrhpanedCryptoTask(std::future<void>());
 }
@@ -443,23 +455,18 @@ std::vector<std::string> GpgMePart::extractMessageUids()
     // Extract the list of candidate e-mail addresses based on Sender and From headers.
     // This will be used to check if the signer and the author of the message are the same later on.
     // We're checking against the nearest parent message, so we support forwarding just fine.
-    QModelIndex index = m_proxyParentIndex;
+
+    Q_ASSERT(m_enclosingMessage.isValid());
     std::vector<std::string> messageUids;
-    while (index.isValid()) {
-        if (index.data(RolePartMimeType).toByteArray() == "message/rfc822") {
-            auto envelopeVariant = index.data(RoleMessageEnvelope);
-            Q_ASSERT(envelopeVariant.isValid());
-            const auto envelope = envelopeVariant.value<Imap::Message::Envelope>();
-            messageUids.reserve(envelope.from.size() + envelope.sender.size());
-            auto storeSenderUid = [&messageUids](const Imap::Message::MailAddress &identity) {
-                messageUids.emplace_back(identity.asSMTPMailbox().data());
-            };
-            std::for_each(envelope.from.begin(), envelope.from.end(), storeSenderUid);
-            std::for_each(envelope.sender.begin(), envelope.sender.end(), storeSenderUid);
-            break;
-        }
-        index = index.parent();
-    }
+    auto envelopeVariant = m_enclosingMessage.data(RoleMessageEnvelope);
+    Q_ASSERT(envelopeVariant.isValid());
+    const auto envelope = envelopeVariant.value<Imap::Message::Envelope>();
+    messageUids.reserve(envelope.from.size() + envelope.sender.size());
+    auto storeSenderUid = [&messageUids](const Imap::Message::MailAddress &identity) {
+        messageUids.emplace_back(identity.asSMTPMailbox().data());
+    };
+    std::for_each(envelope.from.begin(), envelope.from.end(), storeSenderUid);
+    std::for_each(envelope.sender.begin(), envelope.sender.end(), storeSenderUid);
     return messageUids;
 }
 
@@ -515,14 +522,15 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
         forwardFailure(tr("Signed message is gone"), QString(), QStringLiteral("state-offline"));
         return;
     }
-    if (topLeft != m_plaintextPart && topLeft != m_plaintextMimePart && topLeft != m_signaturePart) {
+    if (topLeft != m_plaintextPart && topLeft != m_plaintextMimePart && topLeft != m_signaturePart &&
+            topLeft != m_enclosingMessage) {
         return;
     }
     Q_ASSERT(m_plaintextPart.isValid());
     Q_ASSERT(m_plaintextMimePart.isValid());
     Q_ASSERT(m_signaturePart.isValid());
     if (!m_plaintextPart.data(RoleIsFetched).toBool() || !m_plaintextMimePart.data(RoleIsFetched).toBool() ||
-            !m_signaturePart.data(RoleIsFetched).toBool()) {
+            !m_signaturePart.data(RoleIsFetched).toBool() || !m_enclosingMessage.data(RoleMessageEnvelope).isValid()) {
         return;
     }
 
@@ -631,12 +639,13 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
         emitDataChanged();
         return;
     }
-    if (topLeft != m_versionPart && topLeft != m_encPart) {
+    if (topLeft != m_versionPart && topLeft != m_encPart && topLeft != m_enclosingMessage) {
         return;
     }
     Q_ASSERT(m_versionPart.isValid());
     Q_ASSERT(m_encPart.isValid());
-    if (!m_versionPart.data(RoleIsFetched).toBool() || !m_encPart.data(RoleIsFetched).toBool()) {
+    if (!m_versionPart.data(RoleIsFetched).toBool() || !m_encPart.data(RoleIsFetched).toBool()
+            || !m_enclosingMessage.data(RoleMessageEnvelope).isValid()) {
         return;
     }
 

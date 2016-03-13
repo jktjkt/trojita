@@ -60,6 +60,7 @@ void CryptographyPGPTest::testDecryption()
     QFETCH(QByteArray, bodystructure);
     QFETCH(QByteArray, cyphertext);
     QFETCH(QByteArray, plaintext);
+    QFETCH(QString, from);
     QFETCH(bool, successful);
 
     // By default, there's a 50ms delay between the time we request a part download and the time it actually happens.
@@ -76,7 +77,8 @@ void CryptographyPGPTest::testDecryption()
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
-    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bodystructure + "))\r\n" + t.last("OK fetched\r\n"));
+    cServer(helperCreateTrivialEnvelope(1, 333, QStringLiteral("subj"), from, bodystructure)
+            + t.last("OK fetched\r\n"));
     cEmpty();
     QVERIFY(model->rowCount(msg) > 0);
     Cryptography::MessageModel msgModel(0, msg);
@@ -144,19 +146,15 @@ void CryptographyPGPTest::testDecryption_data()
     QTest::addColumn<QByteArray>("bodystructure");
     QTest::addColumn<QByteArray>("cyphertext");
     QTest::addColumn<QByteArray>("plaintext");
+    QTest::addColumn<QString>("from");
     QTest::addColumn<bool>("successful");
-
-    QByteArray bsEncrypted = QByteArrayLiteral(
-                "(\"application\" \"pgp-encrypted\" NIL NIL NIL \"7bit\" 12 NIL NIL NIL NIL)"
-                "(\"application\" \"octet-stream\" (\"name\" \"encrypted.asc\") NIL \"OpenPGP encrypted message\" \"7bit\" "
-                "4127 NIL (\"inline\" (\"filename\" \"encrypted.asc\")) NIL NIL) \"encrypted\" "
-                "(\"protocol\" \"application/pgp-encrypted\" \"boundary\" \"trojita=_7cf0b2b6-64c6-41ad-b381-853caf492c54\") NIL NIL NIL");
 
     // everything is correct
     QTest::newRow("valid")
             << bsEncrypted
             << encValid
             << QByteArray("plaintext")
+            << QStringLiteral("valid@test.trojita.flaska.net")
             << true;
 
     // corrupted daya
@@ -164,6 +162,7 @@ void CryptographyPGPTest::testDecryption_data()
             << bsEncrypted
             << encInvalid
             << QByteArray("plaintext")
+            << QStringLiteral("valid@test.trojita.flaska.net")
             << false;
 
     // the key used for encryption is expired
@@ -172,6 +171,7 @@ void CryptographyPGPTest::testDecryption_data()
             << encExpired
             << QByteArray("plaintext")
                // NOTE (jkt): This is how my QCA/2.1.0.3, GnuPG/2.0.28 behaves.
+            << QStringLiteral("valid@test.trojita.flaska.net")
             << true;
 
     // we don't have any key which is needed for encryption
@@ -179,7 +179,67 @@ void CryptographyPGPTest::testDecryption_data()
             << bsEncrypted
             << encUnknown
             << QByteArray("plaintext")
+            << QStringLiteral("valid@test.trojita.flaska.net")
             << false;
+}
+
+/** @short What happens when ENVELOPE doesn't arrive at the time that parts are already there? */
+void CryptographyPGPTest::testDecryptWithoutEnvelope()
+{
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    Cryptography::MessageModel msgModel(0, msg);
+    msgModel.registerPartHandler(std::make_shared<Cryptography::GpgMeReplacer>());
+
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE " + bsEncrypted + ")\r\n" + t.last("OK fetched\r\n"));
+    // notice that the ENVELOPE never arrived
+    cEmpty();
+    QVERIFY(model->rowCount(msg) > 0);
+    QModelIndex mappedMsg = msgModel.index(0,0);
+    QVERIFY(mappedMsg.isValid());
+    QVERIFY(msgModel.rowCount(mappedMsg) > 0);
+
+    QModelIndex data = mappedMsg.child(0, 0);
+    QVERIFY(data.isValid());
+    QCOMPARE(msgModel.rowCount(data), 0);
+    QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+
+    cClientRegExp(t.mk("UID FETCH 333 \\((BODY\\.PEEK\\[2\\] BODY\\.PEEK\\[1\\]|BODY.PEEK\\[1\\] BODY\\.PEEK\\[2\\])\\)"));
+    cServer("* 1 FETCH (UID 333 BODY[2] {" + QByteArray::number(encValid.size())
+            + "}\r\n" + encValid + " BODY[1] {12}\r\nVersion: 1\r\n)\r\n"
+            + t.last("OK fetched"));
+
+    QSignalSpy qcaSuccessSpy(&msgModel, SIGNAL(rowsInserted(const QModelIndex &,int,int)));
+    QSignalSpy qcaErrorSpy(&msgModel, SIGNAL(error(const QModelIndex &,QString,QString)));
+
+    int i = 0;
+    while (data.isValid() && data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool() && i++ < 1000) {
+        QTest::qWait(10);
+    }
+    // allow for event processing, so that the model can retrieve the results
+    QCoreApplication::processEvents();
+
+    QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool(), false);
+    QVERIFY(qcaSuccessSpy.isEmpty());
+    QVERIFY(qcaErrorSpy.isEmpty());
+
+    QVERIFY(!data.data(Imap::Mailbox::RoleIsFetched).toBool()); // because the ENVELOPE hasn't arrived yet
+
+    cEmpty();
+    QVERIFY(errorSpy->empty());
+#else
+    QSKIP("Cannot test without GpgME++ support");
+#endif
 }
 
 void CryptographyPGPTest::testVerification()
