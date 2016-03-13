@@ -1085,4 +1085,33 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
     justKeepTask();
 }
 
+/** @short Do we survive duplicate unsolicited BODYSTRUCTURE responses? */
+void ImapModelSelectedMailboxUpdatesTest::testFetchMsgDuplicateBodystructure()
+{
+    initialMessages(1);
+    cServer("* 1 FETCH (FLAGS ())\r\n");
+    justKeepTask();
+    cEmpty();
+
+    auto msg1 = msgListA.child(0, 0);
+    QVERIFY(msg1.isValid());
+
+    QCOMPARE(model->rowCount(msg1), 0);
+    cClient(t.mk("UID FETCH 1 (" FETCH_METADATA_ITEMS ")\r\n"));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->rowCount(msg1), 1);
+    // Now send the duplicate data. We shouldn't assert.
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->rowCount(msg1), 1);
+    cServer(t.last("OK fetched\r\n"));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->rowCount(msg1), 1);
+    cEmpty();
+    justKeepTask();
+
+}
+
 QTEST_GUILESS_MAIN( ImapModelSelectedMailboxUpdatesTest )

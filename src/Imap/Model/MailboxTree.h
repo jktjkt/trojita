@@ -261,6 +261,7 @@ public:
     bool gotSize() const;
     bool gotHdrReferences() const;
     bool gotHdrListPost() const;
+    bool gotRemeberedBodyStructure() const;
 
 private:
     Message::Envelope m_envelope;

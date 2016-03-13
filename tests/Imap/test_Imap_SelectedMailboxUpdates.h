@@ -51,6 +51,7 @@ private slots:
     void testMarkAllConcurrentArrival();
     void testLogoutClosed();
     void testFetchMsgMetadataPerPartes();
+    void testFetchMsgDuplicateBodystructure();
 
     void helperDataChangedUidNonZero(const QModelIndex &a, const QModelIndex &b);
 private:

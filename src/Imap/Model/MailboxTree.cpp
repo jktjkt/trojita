@@ -422,23 +422,16 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             message->data()->setEnvelope(static_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data);
             changedMessage = message;
         } else if (it.key() == "BODYSTRUCTURE") {
-            if (message->fetched()) {
+            if (message->data()->gotRemeberedBodyStructure() || message->fetched()) {
                 // The message structure is already known, so we are free to ignore it
             } else {
                 // We had no idea about the structure of the message
                 auto newChildren = static_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
-                if (!message->m_children.isEmpty()) {
-                    QModelIndex messageIdx = message->toIndex(model);
-                    model->beginRemoveRows(messageIdx, 0, message->m_children.size() - 1);
-                    auto oldChildren = message->setChildren(newChildren);
-                    model->endRemoveRows();
-                    qDeleteAll(oldChildren);
-                } else {
-                    auto origFetchStatus = message->accessFetchStatus();
-                    auto oldChildren = message->setChildren(newChildren);
-                    message->setFetchStatus(origFetchStatus);
-                    Q_ASSERT(oldChildren.size() == 0);
-                }
+                Q_ASSERT(!newChildren.isEmpty());
+                Q_ASSERT(message->m_children.isEmpty());
+                auto origFetchStatus = message->accessFetchStatus();
+                message->setChildren(newChildren);
+                message->setFetchStatus(origFetchStatus);
             }
         } else if (it.key() == "x-trojita-bodystructure") {
             // do nothing "real", just remember these bits
@@ -1074,6 +1067,11 @@ void MessageDataPayload::setRememberedBodyStructure(const QByteArray &blob)
 {
     m_rememberedBodyStructure = blob;
     m_gotBodystructure = true;
+}
+
+bool MessageDataPayload::gotRemeberedBodyStructure() const
+{
+    return m_gotBodystructure;
 }
 
 TreeItemPart *MessageDataPayload::partHeader() const
