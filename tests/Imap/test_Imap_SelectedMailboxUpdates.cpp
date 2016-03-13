@@ -25,6 +25,7 @@
 #include "test_Imap_SelectedMailboxUpdates.h"
 #include "Imap/Model/DummyNetworkWatcher.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MemoryCache.h"
 #include "Imap/Parser/Uids.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/data.h"
@@ -1085,9 +1086,25 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
     justKeepTask();
 }
 
+class MonitoringCache : public Imap::Mailbox::MemoryCache {
+public:
+    MonitoringCache(QObject *parent)
+        : MemoryCache(parent)
+    {}
+
+    virtual void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata) override
+    {
+        msgMetadataLog.emplace_back(uid);
+        MemoryCache::setMessageMetadata(mailbox, uid, metadata);
+    }
+    std::vector<uint> msgMetadataLog;
+};
+
 /** @short Do we survive duplicate unsolicited BODYSTRUCTURE responses? */
 void ImapModelSelectedMailboxUpdatesTest::testFetchMsgDuplicateBodystructure()
 {
+    auto cacheLog = new MonitoringCache(model);
+    model->setCache(cacheLog);
     initialMessages(1);
     cServer("* 1 FETCH (FLAGS ())\r\n");
     justKeepTask();
@@ -1099,16 +1116,25 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgDuplicateBodystructure()
     QCOMPARE(model->rowCount(msg1), 0);
     cClient(t.mk("UID FETCH 1 (" FETCH_METADATA_ITEMS ")\r\n"));
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(0));
     cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
     QCOMPARE(model->rowCount(msg1), 1);
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(0));
     // Now send the duplicate data. We shouldn't assert.
     cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
     QCOMPARE(model->rowCount(msg1), 1);
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(0));
     cServer(t.last("OK fetched\r\n"));
     QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
     QCOMPARE(model->rowCount(msg1), 1);
+    cServer("* 1 FETCH (RFC822.SIZE 1234 INTERNALDATE \"15-Jan-2013 12:17:06 +0000\" "
+            "ENVELOPE (NIL \"pwn\" NIL NIL NIL NIL NIL NIL NIL NIL))\r\n");
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(1));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(1));
     cEmpty();
     justKeepTask();
 

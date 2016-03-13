@@ -497,7 +497,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         }
     }
     if (message->uid()) {
-        if (message->data()->isComplete()) {
+        if (message->data()->isComplete() && model->cache()->messageMetadata(mailbox(), message->uid()).uid == 0) {
              model->cache()->setMessageMetadata(
                          mailbox(), message->uid(),
                          Imap::Mailbox::AbstractCache::MessageDataBundle(
