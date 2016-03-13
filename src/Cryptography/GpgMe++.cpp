@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstring>
 #include <future>
 #include <mimetic/mimetic.h>
 #include <gpgme++/context.h>
@@ -67,6 +68,17 @@ public:
     }
 };
 
+QString protocolToString(const Protocol protocol)
+{
+    switch (protocol) {
+    case Protocol::OpenPGP:
+        return QStringLiteral("OpenPGP");
+    case Protocol::SMime:
+        return QStringLiteral("S/MIME");
+    }
+    Q_UNREACHABLE();
+}
+
 GpgMeReplacer::GpgMeReplacer()
     : PartReplacer()
 {
@@ -103,12 +115,19 @@ MessagePart::Ptr GpgMeReplacer::createPart(MessageModel *model, MessagePart *par
     if (mimeType == "multipart/encrypted") {
         const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
         if (bodyFldParam[QByteArrayLiteral("PROTOCOL")].toLower() == QByteArrayLiteral("application/pgp-encrypted")) {
-            return MessagePart::Ptr(new GpgMeEncrypted(this, model, parentPart, std::move(original), sourceItemIndex, proxyParentIndex));
+            return MessagePart::Ptr(new GpgMeEncrypted(Protocol::OpenPGP, this, model, parentPart, std::move(original),
+                                                       sourceItemIndex, proxyParentIndex));
         }
     } else if (mimeType == "multipart/signed") {
         const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
-        if (bodyFldParam[QByteArray("PROTOCOL")].toLower() == QByteArrayLiteral("application/pgp-signature")) {
-            return MessagePart::Ptr(new GpgMeSigned(this, model, parentPart, std::move(original), sourceItemIndex, proxyParentIndex));
+        auto protocol = bodyFldParam[QByteArray("PROTOCOL")].toLower();
+        if (protocol == QByteArrayLiteral("application/pgp-signature")) {
+            return MessagePart::Ptr(new GpgMeSigned(Protocol::OpenPGP, this, model, parentPart, std::move(original),
+                                                    sourceItemIndex, proxyParentIndex));
+        } else if (protocol == QByteArrayLiteral("application/pkcs7-signature")
+                   || protocol == QByteArrayLiteral("application/x-pkcs7-signature")) {
+            return MessagePart::Ptr(new GpgMeSigned(Protocol::SMime, this, model, parentPart, std::move(original),
+                                                    sourceItemIndex, proxyParentIndex));
         }
     }
 
@@ -132,7 +151,7 @@ void GpgMeReplacer::registerOrhpanedCryptoTask(std::future<void> task)
     qDebug() << "We have" << m_orphans.size() << "orphaned crypto tasks";
 }
 
-GpgMePart::GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
+GpgMePart::GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
                      const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
     : QObject(model)
     , LocalMessagePart(parentPart, sourceItemIndex.row(), sourceItemIndex.data(RolePartMimeType).toByteArray())
@@ -146,7 +165,17 @@ GpgMePart::GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *
     , m_signatureValidVerifiedTrusted(false)
     , m_statusTLDR(tr("Waiting for data..."))
     , m_statusIcon(QStringLiteral("clock"))
-    , m_ctx(std::shared_ptr<GpgME::Context>(GpgME::checkEngine(GpgME::OpenPGP) ? nullptr : GpgME::Context::createForProtocol(GpgME::OpenPGP)))
+    , m_ctx(
+          protocol == Protocol::OpenPGP ?
+              (std::shared_ptr<GpgME::Context>(GpgME::checkEngine(GpgME::OpenPGP) ?
+                                                   nullptr
+                                                 : GpgME::Context::createForProtocol(GpgME::OpenPGP)))
+            : (protocol == Protocol::SMime ?
+                   (std::shared_ptr<GpgME::Context>(GpgME::checkEngine(GpgME::CMS) ?
+                                                        nullptr
+                                                      : GpgME::Context::createForProtocol(GpgME::CMS)))
+                 : nullptr)
+          )
 {
     Q_ASSERT(sourceItemIndex.isValid());
 
@@ -283,14 +312,39 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
 
     const auto &uids = key.userIDs();
     auto needle = std::find_if(uids.begin(), uids.end(), [&messageUids](const GpgME::UserID &uid) {
-        return std::find(messageUids.begin(), messageUids.end(), uid.email()) != messageUids.end();
+        std::string email = uid.email();
+        if (email.empty())
+            return false;
+        if (email[0] == '<' && email[email.size() - 1] == '>') {
+            // this happens in the CMS, so let's kill the wrapping
+            email = email.substr(1, email.size() - 2);
+        }
+        return std::find(messageUids.begin(), messageUids.end(), email) != messageUids.end();
     });
 
     if (needle != uids.end()) {
         uidMatched = true;
-        signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(needle->id()), QString::fromUtf8(sig.fingerprint()));
-    } else if (!uids.empty()){
-        signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(key.userID(0).id()), QString::fromUtf8(sig.fingerprint()));
+        switch (ctx->protocol()) {
+        case GpgME::Protocol::CMS:
+            signer = QString::fromUtf8(key.userID(0).id());
+            break;
+        case GpgME::Protocol::OpenPGP:
+            signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(needle->id()), QString::fromUtf8(sig.fingerprint()));
+            break;
+        case GpgME::Protocol::UnknownProtocol:
+            Q_ASSERT(0);
+        }
+    } else if (!uids.empty()) {
+        switch (ctx->protocol()) {
+        case GpgME::Protocol::CMS:
+            signer = QString::fromUtf8(key.userID(0).id());
+            break;
+        case GpgME::Protocol::OpenPGP:
+            signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(key.userID(0).id()), QString::fromUtf8(sig.fingerprint()));
+            break;
+        case GpgME::Protocol::UnknownProtocol:
+            Q_ASSERT(0);
+        }
     } else {
         signer = QString::fromUtf8(sig.fingerprint());
     }
@@ -429,6 +483,39 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
             break;
         }
     }
+
+    // Show the certificate chain -- which only applies to S/MIME cryptography
+    if (ctx->protocol() == GpgME::Protocol::CMS) {
+        auto parentCert = key;
+        int depth = 1;
+
+        longStatus += LF + LF + tr("Trust chain:");
+        while (!parentCert.isNull()) {
+            QString indent(depth, QLatin1Char(' '));
+            const char *chainId = parentCert.chainID();
+            const char *primaryFp = parentCert.primaryFingerprint();
+            if (!chainId || !primaryFp) {
+                longStatus += LF + tr("%1(Unavailable)").arg(indent);
+                break;
+            } else if (std::strcmp(chainId, primaryFp) == 0) {
+                // a self-signed cert -> break
+                longStatus += LF + tr("%1(self-signed)").arg(indent);
+                break;
+            }
+            longStatus += LF + QStringLiteral("%1%2 (%3)").arg(indent,
+                                                               QString::fromUtf8(parentCert.issuerName()),
+                                                               QString::fromUtf8(parentCert.primaryFingerprint()));
+            ++depth;
+            parentCert = ctx->key(parentCert.chainID(), keyError, false);
+            if (keyError) {
+                longStatus += LF + tr("Error when retrieving key for the trust chain: %1")
+                        .arg(QString::fromUtf8(keyError.asString()));
+                break;
+            }
+        }
+
+    }
+
 #if 0
     // this always shows "Success" in my limited testing, so...
     longStatus += LF + tr("Signature invalidity reason: %1")
@@ -470,9 +557,9 @@ std::vector<std::string> GpgMePart::extractMessageUids()
 
 
 
-GpgMeSigned::GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
+GpgMeSigned::GpgMeSigned(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                          const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
-    : GpgMePart(replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
+    : GpgMePart(protocol, replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
     , m_plaintextPart(sourceItemIndex.child(0, 0).child(0, TreeItem::OFFSET_RAW_CONTENTS))
     , m_plaintextMimePart(sourceItemIndex.child(0, 0).child(0, TreeItem::OFFSET_MIME))
     , m_signaturePart(sourceItemIndex.child(1, 0))
@@ -499,7 +586,7 @@ GpgMeSigned::GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePa
         }
     } else {
         CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Cannot verify signature")),
-                   Q_ARG(QString, tr("Failed to initialize GpgME")),
+                   Q_ARG(QString, tr("Failed to initialize GpgME (%1)").arg(protocolToString(protocol))),
                    Q_ARG(QString, QStringLiteral("script-error")));
     }
 
@@ -590,9 +677,9 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 }
 
 
-GpgMeEncrypted::GpgMeEncrypted(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
+GpgMeEncrypted::GpgMeEncrypted(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                                const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
-    : GpgMePart(replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
+    : GpgMePart(protocol, replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
     , m_versionPart(sourceItemIndex.child(0, 0))
     , m_encPart(sourceItemIndex.child(1, 0))
     , m_decryptionSupported(false)
@@ -615,7 +702,7 @@ GpgMeEncrypted::GpgMeEncrypted(GpgMeReplacer *replacer, MessageModel *model, Mes
         }
     } else {
         CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Cannot descrypt")),
-                   Q_ARG(QString, tr("Failed to initialize GpgME")),
+                   Q_ARG(QString, tr("Failed to initialize GpgME (%1)").arg(protocolToString(protocol))),
                    Q_ARG(QString, QStringLiteral("script-error")));
     }
 
