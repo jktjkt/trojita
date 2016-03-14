@@ -149,8 +149,6 @@ GpgMePart::GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *
     , m_ctx(std::shared_ptr<GpgME::Context>(GpgME::checkEngine(GpgME::OpenPGP) ? nullptr : GpgME::Context::createForProtocol(GpgME::OpenPGP)))
 {
     Q_ASSERT(sourceItemIndex.isValid());
-    m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMePart::handleDataChanged);
-    Q_ASSERT(m_dataChanged);
 
     // Find "an email" which encloses the current part.
     // This will be used later for figuring our whether "the sender" and the key which signed this part correspond to each other.
@@ -487,6 +485,8 @@ GpgMeSigned::GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePa
     if (m_ctx) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
         if (rowCount == 2) {
+            m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeSigned::handleDataChanged);
+            Q_ASSERT(m_dataChanged);
             // Trigger lazy loading of the required message parts
             m_plaintextPart.data(RolePartData);
             m_plaintextMimePart.data(RolePartData);
@@ -602,6 +602,8 @@ GpgMeEncrypted::GpgMeEncrypted(GpgMeReplacer *replacer, MessageModel *model, Mes
     if (m_ctx) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
         if (rowCount == 2) {
+            m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeEncrypted::handleDataChanged);
+            Q_ASSERT(m_dataChanged);
             // Trigger lazy loading of the required message parts
             m_versionPart.data(RolePartData);
             m_encPart.data(RolePartData);
