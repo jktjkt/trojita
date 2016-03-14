@@ -141,13 +141,21 @@ QByteArray MessagePart::dumpLocalInfo() const
 TopLevelMessage::TopLevelMessage(const QModelIndex &messageRoot, MessageModel *model)
     : MessagePart(nullptr, 0)
     , m_root(messageRoot)
+    , m_model(model)
 {
     Q_ASSERT(m_root.isValid());
-    model->m_map[m_root] = this;
+    m_model->m_map[m_root] = this;
 }
 
 TopLevelMessage::~TopLevelMessage()
 {
+    for (auto it = m_model->m_map.begin(); it != m_model->m_map.end(); /* nothing */) {
+        if (*it == this) {
+            it = m_model->m_map.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 QVariant TopLevelMessage::data(int role) const
@@ -199,12 +207,20 @@ QByteArray TopLevelMessage::dumpLocalInfo() const
 ProxyMessagePart::ProxyMessagePart(MessagePart *parent, const int row, const QModelIndex &sourceIndex, MessageModel *model)
     : MessagePart(parent, row)
     , m_sourceIndex(sourceIndex)
+    , m_model(model)
 {
-    model->m_map[sourceIndex] = this;
+    m_model->m_map[sourceIndex] = this;
 }
 
 ProxyMessagePart::~ProxyMessagePart()
 {
+    for (auto it = m_model->m_map.begin(); it != m_model->m_map.end(); /* nothing */) {
+        if (*it == this) {
+            it = m_model->m_map.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 QVariant ProxyMessagePart::data(int role) const

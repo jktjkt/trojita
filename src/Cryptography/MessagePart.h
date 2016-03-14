@@ -115,12 +115,13 @@ private:
 #endif
 
     QPersistentModelIndex m_root;
+    MessageModel *m_model;
 };
 
 class ProxyMessagePart : public MessagePart
 {
 public:
-    ProxyMessagePart(MessagePart *parent, const int row, const QModelIndex &sourceIndex, Cryptography::MessageModel *model);
+    ProxyMessagePart(MessagePart *parent, const int row, const QModelIndex &sourceIndex, MessageModel *model);
     ~ProxyMessagePart();
 
     void fetchChildren(MessageModel *model) override;
@@ -133,6 +134,7 @@ private:
 #endif
 
     QPersistentModelIndex m_sourceIndex;
+    MessageModel *m_model;
 };
 
 class LocalMessagePart : public MessagePart
