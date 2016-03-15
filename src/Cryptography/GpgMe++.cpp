@@ -129,6 +129,9 @@ MessagePart::Ptr GpgMeReplacer::createPart(MessageModel *model, MessagePart *par
             return MessagePart::Ptr(new GpgMeSigned(Protocol::SMime, this, model, parentPart, std::move(original),
                                                     sourceItemIndex, proxyParentIndex));
         }
+    } else if (mimeType == "application/pkcs7-mime" || mimeType == "application/x-pkcs7-mime") {
+        return MessagePart::Ptr(new GpgMeEncrypted(Protocol::SMime, this, model, parentPart, std::move(original),
+                                                   sourceItemIndex, proxyParentIndex));
     }
 
     return original;
@@ -680,25 +683,49 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 GpgMeEncrypted::GpgMeEncrypted(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                                const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
     : GpgMePart(protocol, replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
-    , m_versionPart(sourceItemIndex.child(0, 0))
-    , m_encPart(sourceItemIndex.child(1, 0))
     , m_decryptionSupported(false)
     , m_decryptionFailed(false)
 {
     m_isAllegedlyEncrypted = true;
     if (m_ctx) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
-        if (rowCount == 2) {
+
+        switch (m_ctx->protocol()) {
+        case GpgME::Protocol::OpenPGP:
+            m_versionPart = sourceItemIndex.child(0, 0);
+            m_encPart = sourceItemIndex.child(1, 0);
+            if (rowCount == 2) {
+                m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeEncrypted::handleDataChanged);
+                Q_ASSERT(m_dataChanged);
+                // Trigger lazy loading of the required message parts
+                m_versionPart.data(RolePartData);
+                m_encPart.data(RolePartData);
+                CALL_LATER(this, handleDataChanged, Q_ARG(QModelIndex, m_encPart), Q_ARG(QModelIndex, m_encPart));
+            } else {
+                CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Malformed Encrypted Message")),
+                           Q_ARG(QString, tr("Expected 2 parts for an encrypted OpenPGP message, but found %1.").arg(rowCount)),
+                           Q_ARG(QString, QStringLiteral("emblem-error")));
+            }
+            break;
+
+        case GpgME::Protocol::CMS:
+            // We need to override the MIME type handling because the GUI only really expects encrypted messages using this type.
+            // The application/pkcs7-mime is an opaque leaf node in a MIME tree, there are no other relevant parts.
+            // This is very different from, say, an OpenPGP message.
+            m_mimetype = QByteArrayLiteral("multipart/encrypted");
+            m_versionPart = m_encPart = sourceItemIndex;
             m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeEncrypted::handleDataChanged);
             Q_ASSERT(m_dataChanged);
             // Trigger lazy loading of the required message parts
             m_versionPart.data(RolePartData);
             m_encPart.data(RolePartData);
             CALL_LATER(this, handleDataChanged, Q_ARG(QModelIndex, m_encPart), Q_ARG(QModelIndex, m_encPart));
-        } else {
-            CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Malformed Encrypted Message")),
-                       Q_ARG(QString, tr("Expected 2 parts, but found %1.").arg(rowCount)),
-                       Q_ARG(QString, QStringLiteral("emblem-error")));
+            break;
+
+        case GpgME::Protocol::UnknownProtocol:
+            Q_ASSERT(false);
+            break;
+
         }
     } else {
         CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Cannot descrypt")),
@@ -741,13 +768,15 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
     disconnect(m_dataChanged);
     m_waitingForData = false;
 
-    // Check compliance with RFC3156
-    QString versionString = m_versionPart.data(RolePartData).toString();
-    if (!versionString.contains(QLatin1String("Version: 1"))) {
-        forwardFailure(tr("Malformed Encrypted Message"),
-                       tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%2\".").arg(versionString),
-                       QStringLiteral("emblem-error"));
-        return;
+    if (m_ctx->protocol() == GpgME::Protocol::OpenPGP) {
+        // Check compliance with RFC3156
+        QString versionString = m_versionPart.data(RolePartData).toString();
+        if (!versionString.contains(QLatin1String("Version: 1"))) {
+            forwardFailure(tr("Malformed Encrypted Message"),
+                           tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%2\".").arg(versionString),
+                           QStringLiteral("emblem-error"));
+            return;
+        }
     }
 
     m_statusTLDR = tr("Decrypting...");
