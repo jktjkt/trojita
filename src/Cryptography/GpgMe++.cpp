@@ -392,7 +392,7 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
         longStatus += LF + tr("A policy requirement was not met.");
     }
     if (sig.summary() & GpgME::Signature::SysError) {
-        longStatus += LF + tr("A system error occured. %1")
+        longStatus += LF + tr("A system error occurred. %1")
                 .arg(QString::fromUtf8(sig.status().asString()));
     }
 
