@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstring>
 #include <future>
 #include <mimetic/mimetic.h>
 #include <gpgme++/context.h>
@@ -67,6 +68,17 @@ public:
     }
 };
 
+QString protocolToString(const Protocol protocol)
+{
+    switch (protocol) {
+    case Protocol::OpenPGP:
+        return QStringLiteral("OpenPGP");
+    case Protocol::SMime:
+        return QStringLiteral("S/MIME");
+    }
+    Q_UNREACHABLE();
+}
+
 GpgMeReplacer::GpgMeReplacer()
     : PartReplacer()
 {
@@ -103,13 +115,23 @@ MessagePart::Ptr GpgMeReplacer::createPart(MessageModel *model, MessagePart *par
     if (mimeType == "multipart/encrypted") {
         const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
         if (bodyFldParam[QByteArrayLiteral("PROTOCOL")].toLower() == QByteArrayLiteral("application/pgp-encrypted")) {
-            return MessagePart::Ptr(new GpgMeEncrypted(this, model, parentPart, std::move(original), sourceItemIndex, proxyParentIndex));
+            return MessagePart::Ptr(new GpgMeEncrypted(Protocol::OpenPGP, this, model, parentPart, std::move(original),
+                                                       sourceItemIndex, proxyParentIndex));
         }
     } else if (mimeType == "multipart/signed") {
         const auto bodyFldParam = sourceItemIndex.data(RolePartBodyFldParam).value<bodyFldParam_t>();
-        if (bodyFldParam[QByteArray("PROTOCOL")].toLower() == QByteArrayLiteral("application/pgp-signature")) {
-            return MessagePart::Ptr(new GpgMeSigned(this, model, parentPart, std::move(original), sourceItemIndex, proxyParentIndex));
+        auto protocol = bodyFldParam[QByteArray("PROTOCOL")].toLower();
+        if (protocol == QByteArrayLiteral("application/pgp-signature")) {
+            return MessagePart::Ptr(new GpgMeSigned(Protocol::OpenPGP, this, model, parentPart, std::move(original),
+                                                    sourceItemIndex, proxyParentIndex));
+        } else if (protocol == QByteArrayLiteral("application/pkcs7-signature")
+                   || protocol == QByteArrayLiteral("application/x-pkcs7-signature")) {
+            return MessagePart::Ptr(new GpgMeSigned(Protocol::SMime, this, model, parentPart, std::move(original),
+                                                    sourceItemIndex, proxyParentIndex));
         }
+    } else if (mimeType == "application/pkcs7-mime" || mimeType == "application/x-pkcs7-mime") {
+        return MessagePart::Ptr(new GpgMeEncrypted(Protocol::SMime, this, model, parentPart, std::move(original),
+                                                   sourceItemIndex, proxyParentIndex));
     }
 
     return original;
@@ -132,7 +154,7 @@ void GpgMeReplacer::registerOrhpanedCryptoTask(std::future<void> task)
     qDebug() << "We have" << m_orphans.size() << "orphaned crypto tasks";
 }
 
-GpgMePart::GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
+GpgMePart::GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
                      const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
     : QObject(model)
     , LocalMessagePart(parentPart, sourceItemIndex.row(), sourceItemIndex.data(RolePartMimeType).toByteArray())
@@ -146,11 +168,31 @@ GpgMePart::GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *
     , m_signatureValidVerifiedTrusted(false)
     , m_statusTLDR(tr("Waiting for data..."))
     , m_statusIcon(QStringLiteral("clock"))
-    , m_ctx(std::shared_ptr<GpgME::Context>(GpgME::checkEngine(GpgME::OpenPGP) ? nullptr : GpgME::Context::createForProtocol(GpgME::OpenPGP)))
+    , m_ctx(
+          protocol == Protocol::OpenPGP ?
+              (std::shared_ptr<GpgME::Context>(GpgME::checkEngine(GpgME::OpenPGP) ?
+                                                   nullptr
+                                                 : GpgME::Context::createForProtocol(GpgME::OpenPGP)))
+            : (protocol == Protocol::SMime ?
+                   (std::shared_ptr<GpgME::Context>(GpgME::checkEngine(GpgME::CMS) ?
+                                                        nullptr
+                                                      : GpgME::Context::createForProtocol(GpgME::CMS)))
+                 : nullptr)
+          )
 {
     Q_ASSERT(sourceItemIndex.isValid());
-    m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMePart::handleDataChanged);
-    Q_ASSERT(m_dataChanged);
+
+    // Find "an email" which encloses the current part.
+    // This will be used later for figuring our whether "the sender" and the key which signed this part correspond to each other.
+    QModelIndex index = m_proxyParentIndex;
+    while (index.isValid()) {
+        if (index.data(RolePartMimeType).toByteArray() == "message/rfc822") {
+            m_enclosingMessage = index;
+            break;
+        } else {
+            index = index.parent();
+        }
+    }
 
     // do the peirodic cleanup
     m_replacer->registerOrhpanedCryptoTask(std::future<void>());
@@ -273,14 +315,39 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
 
     const auto &uids = key.userIDs();
     auto needle = std::find_if(uids.begin(), uids.end(), [&messageUids](const GpgME::UserID &uid) {
-        return std::find(messageUids.begin(), messageUids.end(), uid.email()) != messageUids.end();
+        std::string email = uid.email();
+        if (email.empty())
+            return false;
+        if (email[0] == '<' && email[email.size() - 1] == '>') {
+            // this happens in the CMS, so let's kill the wrapping
+            email = email.substr(1, email.size() - 2);
+        }
+        return std::find(messageUids.begin(), messageUids.end(), email) != messageUids.end();
     });
 
     if (needle != uids.end()) {
         uidMatched = true;
-        signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(needle->id()), QString::fromUtf8(sig.fingerprint()));
-    } else if (!uids.empty()){
-        signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(key.userID(0).id()), QString::fromUtf8(sig.fingerprint()));
+        switch (ctx->protocol()) {
+        case GpgME::Protocol::CMS:
+            signer = QString::fromUtf8(key.userID(0).id());
+            break;
+        case GpgME::Protocol::OpenPGP:
+            signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(needle->id()), QString::fromUtf8(sig.fingerprint()));
+            break;
+        case GpgME::Protocol::UnknownProtocol:
+            Q_ASSERT(0);
+        }
+    } else if (!uids.empty()) {
+        switch (ctx->protocol()) {
+        case GpgME::Protocol::CMS:
+            signer = QString::fromUtf8(key.userID(0).id());
+            break;
+        case GpgME::Protocol::OpenPGP:
+            signer = QStringLiteral("%1 (%2)").arg(QString::fromUtf8(key.userID(0).id()), QString::fromUtf8(sig.fingerprint()));
+            break;
+        case GpgME::Protocol::UnknownProtocol:
+            Q_ASSERT(0);
+        }
     } else {
         signer = QString::fromUtf8(sig.fingerprint());
     }
@@ -419,6 +486,39 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
             break;
         }
     }
+
+    // Show the certificate chain -- which only applies to S/MIME cryptography
+    if (ctx->protocol() == GpgME::Protocol::CMS) {
+        auto parentCert = key;
+        int depth = 1;
+
+        longStatus += LF + LF + tr("Trust chain:");
+        while (!parentCert.isNull()) {
+            QString indent(depth, QLatin1Char(' '));
+            const char *chainId = parentCert.chainID();
+            const char *primaryFp = parentCert.primaryFingerprint();
+            if (!chainId || !primaryFp) {
+                longStatus += LF + tr("%1(Unavailable)").arg(indent);
+                break;
+            } else if (std::strcmp(chainId, primaryFp) == 0) {
+                // a self-signed cert -> break
+                longStatus += LF + tr("%1(self-signed)").arg(indent);
+                break;
+            }
+            longStatus += LF + QStringLiteral("%1%2 (%3)").arg(indent,
+                                                               QString::fromUtf8(parentCert.issuerName()),
+                                                               QString::fromUtf8(parentCert.primaryFingerprint()));
+            ++depth;
+            parentCert = ctx->key(parentCert.chainID(), keyError, false);
+            if (keyError) {
+                longStatus += LF + tr("Error when retrieving key for the trust chain: %1")
+                        .arg(QString::fromUtf8(keyError.asString()));
+                break;
+            }
+        }
+
+    }
+
 #if 0
     // this always shows "Success" in my limited testing, so...
     longStatus += LF + tr("Signature invalidity reason: %1")
@@ -443,31 +543,26 @@ std::vector<std::string> GpgMePart::extractMessageUids()
     // Extract the list of candidate e-mail addresses based on Sender and From headers.
     // This will be used to check if the signer and the author of the message are the same later on.
     // We're checking against the nearest parent message, so we support forwarding just fine.
-    QModelIndex index = m_proxyParentIndex;
+
+    Q_ASSERT(m_enclosingMessage.isValid());
     std::vector<std::string> messageUids;
-    while (index.isValid()) {
-        if (index.data(RolePartMimeType).toByteArray() == "message/rfc822") {
-            auto envelopeVariant = index.data(RoleMessageEnvelope);
-            Q_ASSERT(envelopeVariant.isValid());
-            const auto envelope = envelopeVariant.value<Imap::Message::Envelope>();
-            messageUids.reserve(envelope.from.size() + envelope.sender.size());
-            auto storeSenderUid = [&messageUids](const Imap::Message::MailAddress &identity) {
-                messageUids.emplace_back(identity.asSMTPMailbox().data());
-            };
-            std::for_each(envelope.from.begin(), envelope.from.end(), storeSenderUid);
-            std::for_each(envelope.sender.begin(), envelope.sender.end(), storeSenderUid);
-            break;
-        }
-        index = index.parent();
-    }
+    auto envelopeVariant = m_enclosingMessage.data(RoleMessageEnvelope);
+    Q_ASSERT(envelopeVariant.isValid());
+    const auto envelope = envelopeVariant.value<Imap::Message::Envelope>();
+    messageUids.reserve(envelope.from.size() + envelope.sender.size());
+    auto storeSenderUid = [&messageUids](const Imap::Message::MailAddress &identity) {
+        messageUids.emplace_back(identity.asSMTPMailbox().data());
+    };
+    std::for_each(envelope.from.begin(), envelope.from.end(), storeSenderUid);
+    std::for_each(envelope.sender.begin(), envelope.sender.end(), storeSenderUid);
     return messageUids;
 }
 
 
 
-GpgMeSigned::GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
+GpgMeSigned::GpgMeSigned(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                          const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
-    : GpgMePart(replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
+    : GpgMePart(protocol, replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
     , m_plaintextPart(sourceItemIndex.child(0, 0).child(0, TreeItem::OFFSET_RAW_CONTENTS))
     , m_plaintextMimePart(sourceItemIndex.child(0, 0).child(0, TreeItem::OFFSET_MIME))
     , m_signaturePart(sourceItemIndex.child(1, 0))
@@ -480,6 +575,8 @@ GpgMeSigned::GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePa
     if (m_ctx) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
         if (rowCount == 2) {
+            m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeSigned::handleDataChanged);
+            Q_ASSERT(m_dataChanged);
             // Trigger lazy loading of the required message parts
             m_plaintextPart.data(RolePartData);
             m_plaintextMimePart.data(RolePartData);
@@ -492,7 +589,7 @@ GpgMeSigned::GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePa
         }
     } else {
         CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Cannot verify signature")),
-                   Q_ARG(QString, tr("Failed to initialize GpgME")),
+                   Q_ARG(QString, tr("Failed to initialize GpgME (%1)").arg(protocolToString(protocol))),
                    Q_ARG(QString, QStringLiteral("script-error")));
     }
 
@@ -515,14 +612,15 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
         forwardFailure(tr("Signed message is gone"), QString(), QStringLiteral("state-offline"));
         return;
     }
-    if (topLeft != m_plaintextPart && topLeft != m_plaintextMimePart && topLeft != m_signaturePart) {
+    if (topLeft != m_plaintextPart && topLeft != m_plaintextMimePart && topLeft != m_signaturePart &&
+            topLeft != m_enclosingMessage) {
         return;
     }
     Q_ASSERT(m_plaintextPart.isValid());
     Q_ASSERT(m_plaintextMimePart.isValid());
     Q_ASSERT(m_signaturePart.isValid());
     if (!m_plaintextPart.data(RoleIsFetched).toBool() || !m_plaintextMimePart.data(RoleIsFetched).toBool() ||
-            !m_signaturePart.data(RoleIsFetched).toBool()) {
+            !m_signaturePart.data(RoleIsFetched).toBool() || !m_enclosingMessage.data(RoleMessageEnvelope).isValid()) {
         return;
     }
 
@@ -582,30 +680,56 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 }
 
 
-GpgMeEncrypted::GpgMeEncrypted(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
+GpgMeEncrypted::GpgMeEncrypted(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                                const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
-    : GpgMePart(replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
-    , m_versionPart(sourceItemIndex.child(0, 0))
-    , m_encPart(sourceItemIndex.child(1, 0))
+    : GpgMePart(protocol, replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
     , m_decryptionSupported(false)
     , m_decryptionFailed(false)
 {
     m_isAllegedlyEncrypted = true;
     if (m_ctx) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
-        if (rowCount == 2) {
+
+        switch (m_ctx->protocol()) {
+        case GpgME::Protocol::OpenPGP:
+            m_versionPart = sourceItemIndex.child(0, 0);
+            m_encPart = sourceItemIndex.child(1, 0);
+            if (rowCount == 2) {
+                m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeEncrypted::handleDataChanged);
+                Q_ASSERT(m_dataChanged);
+                // Trigger lazy loading of the required message parts
+                m_versionPart.data(RolePartData);
+                m_encPart.data(RolePartData);
+                CALL_LATER(this, handleDataChanged, Q_ARG(QModelIndex, m_encPart), Q_ARG(QModelIndex, m_encPart));
+            } else {
+                CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Malformed Encrypted Message")),
+                           Q_ARG(QString, tr("Expected 2 parts for an encrypted OpenPGP message, but found %1.").arg(rowCount)),
+                           Q_ARG(QString, QStringLiteral("emblem-error")));
+            }
+            break;
+
+        case GpgME::Protocol::CMS:
+            // We need to override the MIME type handling because the GUI only really expects encrypted messages using this type.
+            // The application/pkcs7-mime is an opaque leaf node in a MIME tree, there are no other relevant parts.
+            // This is very different from, say, an OpenPGP message.
+            m_mimetype = QByteArrayLiteral("multipart/encrypted");
+            m_versionPart = m_encPart = sourceItemIndex;
+            m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeEncrypted::handleDataChanged);
+            Q_ASSERT(m_dataChanged);
             // Trigger lazy loading of the required message parts
             m_versionPart.data(RolePartData);
             m_encPart.data(RolePartData);
             CALL_LATER(this, handleDataChanged, Q_ARG(QModelIndex, m_encPart), Q_ARG(QModelIndex, m_encPart));
-        } else {
-            CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Malformed Encrypted Message")),
-                       Q_ARG(QString, tr("Expected 2 parts, but found %1.").arg(rowCount)),
-                       Q_ARG(QString, QStringLiteral("emblem-error")));
+            break;
+
+        case GpgME::Protocol::UnknownProtocol:
+            Q_ASSERT(false);
+            break;
+
         }
     } else {
         CALL_LATER(this, forwardFailure, Q_ARG(QString, tr("Cannot descrypt")),
-                   Q_ARG(QString, tr("Failed to initialize GpgME")),
+                   Q_ARG(QString, tr("Failed to initialize GpgME (%1)").arg(protocolToString(protocol))),
                    Q_ARG(QString, QStringLiteral("script-error")));
     }
 
@@ -631,25 +755,28 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
         emitDataChanged();
         return;
     }
-    if (topLeft != m_versionPart && topLeft != m_encPart) {
+    if (topLeft != m_versionPart && topLeft != m_encPart && topLeft != m_enclosingMessage) {
         return;
     }
     Q_ASSERT(m_versionPart.isValid());
     Q_ASSERT(m_encPart.isValid());
-    if (!m_versionPart.data(RoleIsFetched).toBool() || !m_encPart.data(RoleIsFetched).toBool()) {
+    if (!m_versionPart.data(RoleIsFetched).toBool() || !m_encPart.data(RoleIsFetched).toBool()
+            || !m_enclosingMessage.data(RoleMessageEnvelope).isValid()) {
         return;
     }
 
     disconnect(m_dataChanged);
     m_waitingForData = false;
 
-    // Check compliance with RFC3156
-    QString versionString = m_versionPart.data(RolePartData).toString();
-    if (!versionString.contains(QLatin1String("Version: 1"))) {
-        forwardFailure(tr("Malformed Encrypted Message"),
-                       tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%2\".").arg(versionString),
-                       QStringLiteral("emblem-error"));
-        return;
+    if (m_ctx->protocol() == GpgME::Protocol::OpenPGP) {
+        // Check compliance with RFC3156
+        QString versionString = m_versionPart.data(RolePartData).toString();
+        if (!versionString.contains(QLatin1String("Version: 1"))) {
+            forwardFailure(tr("Malformed Encrypted Message"),
+                           tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%2\".").arg(versionString),
+                           QStringLiteral("emblem-error"));
+            return;
+        }
     }
 
     m_statusTLDR = tr("Decrypting...");

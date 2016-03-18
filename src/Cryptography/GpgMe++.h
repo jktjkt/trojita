@@ -48,6 +48,12 @@ struct SignatureDataBundle {
     QDateTime signatureDate;
 };
 
+/** @short What sort of crypto messages is this? */
+enum class Protocol {
+    OpenPGP,
+    SMime,
+};
+
 class GpgMeReplacer: public PartReplacer {
 public:
     GpgMeReplacer();
@@ -65,7 +71,8 @@ private:
 class GpgMePart : public QObject, public LocalMessagePart {
     Q_OBJECT
 public:
-    GpgMePart(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
+    GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
+              const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
     ~GpgMePart();
     virtual QVariant data(int role) const override;
 
@@ -86,6 +93,7 @@ protected:
     MessageModel *m_model;
     QMetaObject::Connection m_dataChanged;
     QPersistentModelIndex m_proxyParentIndex;
+    QPersistentModelIndex m_enclosingMessage;
     bool m_waitingForData;
     bool m_wasSigned;
     /** @short Does this message look like an encrypted one? */
@@ -103,7 +111,7 @@ protected:
 class GpgMeSigned : public GpgMePart {
     Q_OBJECT
 public:
-    GpgMeSigned(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
+    GpgMeSigned(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                 const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
     ~GpgMeSigned();
 
@@ -117,7 +125,7 @@ private:
 class GpgMeEncrypted : public GpgMePart {
     Q_OBJECT
 public:
-    GpgMeEncrypted(GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
+    GpgMeEncrypted(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                    const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
     ~GpgMeEncrypted();
 

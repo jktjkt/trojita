@@ -23,10 +23,12 @@
 */
 #include <QDebug>
 #include <QKeyEvent>
+#include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QSettings>
+#include <QStackedLayout>
 #include <QTimer>
 #include <QUrl>
 #include <QVBoxLayout>
@@ -66,80 +68,60 @@ namespace Gui
 
 MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager)
     : QWidget(parent)
+    , m_stack(new QStackedLayout(this))
     , messageModel(0)
+    , netAccess(new Imap::Network::MsgPartNetAccessManager(this))
+    , factory(new PartWidgetFactory(netAccess, this,
+                                    std::unique_ptr<PartWidgetFactoryVisitor>(new PartWidgetFactoryVisitor())))
     , m_settings(settings)
     , m_pluginManager(pluginManager)
 {
+    connect(netAccess, &Imap::Network::MsgPartNetAccessManager::requestingExternal, this, &MessageView::externalsRequested);
+
+
     setBackgroundRole(QPalette::Base);
     setForegroundRole(QPalette::Text);
     setAutoFillBackground(true);
-
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
 
-    netAccess = new Imap::Network::MsgPartNetAccessManager(this);
-    connect(netAccess, &Imap::Network::MsgPartNetAccessManager::requestingExternal, this, &MessageView::externalsRequested);
-    factory = new PartWidgetFactory(netAccess, this,
-                                    std::unique_ptr<PartWidgetFactoryVisitor>(new PartWidgetFactoryVisitor()));
 
-    emptyView = new EmbeddedWebView(this, new QNetworkAccessManager(this));
-    emptyView->setFixedSize(450,300);
-    CALL_LATER_NOARG(emptyView, handlePageLoadFinished);
-    emptyView->setPage(new UserAgentWebPage(emptyView));
-    emptyView->installEventFilter(this);
-    emptyView->setAutoFillBackground(false);
+    // The homepage widget -- our poor man's splashscreen
+    m_homePage = new EmbeddedWebView(this, new QNetworkAccessManager(this));
+    m_homePage->setFixedSize(450,300);
+    CALL_LATER_NOARG(m_homePage, handlePageLoadFinished);
+    m_homePage->setPage(new UserAgentWebPage(m_homePage));
+    m_homePage->installEventFilter(this);
+    m_homePage->setAutoFillBackground(false);
+    m_stack->addWidget(m_homePage);
 
-    viewer = emptyView;
 
-    //BEGIN create header section
+    // The actual widget for the actual message
+    m_messageWidget = new QWidget(this);
+    auto fullMsgLayout = new QVBoxLayout(m_messageWidget);
+    m_stack->addWidget(m_messageWidget);
 
-    headerSection = new QWidget(this);
+    m_envelope = new EnvelopeView(m_messageWidget, this);
+    fullMsgLayout->addWidget(m_envelope, 1);
 
-    // the actual mail header
-    m_envelope = new EnvelopeView(headerSection, this);
-
-    // the tag bar
-    tags = new TagListWidget(headerSection);
-    tags->hide();
+    tags = new TagListWidget(m_messageWidget);
     connect(tags, &TagListWidget::tagAdded, this, &MessageView::newLabelAction);
     connect(tags, &TagListWidget::tagRemoved, this, &MessageView::deleteLabelAction);
+    fullMsgLayout->addWidget(tags, 3);
 
-    // whether we allow to load external elements
     externalElements = new ExternalElementsWidget(this);
     externalElements->hide();
-    connect(externalElements, &ExternalElementsWidget::loadingEnabled, this, &MessageView::externalsEnabled);
-
-    // layout the header
-    layout = new QVBoxLayout(headerSection);
-    layout->addWidget(m_envelope, 1);
-    layout->addWidget(tags, 3);
-    layout->addWidget(externalElements, 1);
-
-    //END create header section
-
-    //BEGIN layout the message
-
-    layout = new QVBoxLayout(this);
-    layout->setSpacing(0);
-    layout->setContentsMargins(0,0,0,0);
-
-    layout->addWidget(headerSection, 1);
-
-    headerSection->hide();
+    connect(externalElements, &ExternalElementsWidget::loadingEnabled, this, &MessageView::enableExternalData);
+    fullMsgLayout->addWidget(externalElements, 1);
 
     // put the actual messages into an extra horizontal view
     // this allows us easy usage of the trailing stretch and also to indent the message a bit
-    QHBoxLayout *hLayout = new QHBoxLayout;
-    hLayout->setContentsMargins(6,6,6,0);
-    hLayout->addWidget(viewer);
-    static_cast<QVBoxLayout*>(layout)->addLayout(hLayout, 1);
+    m_msgLayout = new QHBoxLayout;
+    m_msgLayout->setContentsMargins(6,6,6,0);
+    fullMsgLayout->addLayout(m_msgLayout, 1);
     // add a strong stretch to squeeze header and message to the top
     // possibly passing a large stretch factor to the message could be enough...
-    layout->addStretch(1000);
+    fullMsgLayout->addStretch(1000);
 
-    //END layout the message
-
-    // make the layout used to add messages our new horizontal layout
-    layout = hLayout;
 
     markAsReadTimer = new QTimer(this);
     markAsReadTimer->setSingleShot(true);
@@ -156,33 +138,38 @@ MessageView::~MessageView()
     // QNetworkReply instances created by that manager. When the destruction goes to the WebKit objects, they try to disconnect
     // from the network replies which are however gone already. We can mitigate that by simply making sure that the destruction
     // starts with the QWebView subclasses and only after that proceeds to the QNAM. Qt's default order leads to segfaults here.
-    if (viewer != emptyView) {
-        delete viewer;
-    }
-    delete emptyView;
+    unsetPreviousMessage();
+}
 
-    delete factory;
+void MessageView::unsetPreviousMessage()
+{
+    clearWaitingConns();
+    m_loadingItems.clear();
+    message = QModelIndex();
+    markAsReadTimer->stop();
+    if (auto w = bodyWidget()) {
+        m_stack->removeWidget(dynamic_cast<QWidget *>(w));
+        delete w;
+    }
+    m_envelope->setMessage(QModelIndex());
+    delete messageModel;
+    messageModel = nullptr;
 }
 
 void MessageView::setEmpty()
 {
-    markAsReadTimer->stop();
-    m_envelope->setMessage(QModelIndex());
-    headerSection->hide();
-    message = QModelIndex();
-    disconnect(messageModel, &Cryptography::MessageModel::rowsInserted, this, &MessageView::handleMessageAvailable);
-    disconnect(messageModel, &Cryptography::MessageModel::layoutChanged, this, &MessageView::handleMessageAvailable);
-    disconnect(messageModel, &Cryptography::MessageModel::dataChanged, this, &MessageView::handleMessageAvailable);
-    tags->hide();
-    if (viewer != emptyView) {
-        layout->removeWidget(viewer);
-        viewer->deleteLater();
-        viewer = emptyView;
-        viewer->show();
-        layout->addWidget(viewer);
-        emit messageChanged();
-        m_loadingItems.clear();
-        m_loadingSpinner->stop();
+    unsetPreviousMessage();
+    m_loadingSpinner->stop();
+    m_stack->setCurrentWidget(m_homePage);
+    emit messageChanged();
+}
+
+AbstractPartWidget *MessageView::bodyWidget() const
+{
+    if (m_msgLayout->itemAt(0) && m_msgLayout->itemAt(0)->widget()) {
+        return dynamic_cast<AbstractPartWidget *>(m_msgLayout->itemAt(0)->widget());
+    } else {
+        return nullptr;
     }
 }
 
@@ -192,38 +179,84 @@ void MessageView::setMessage(const QModelIndex &index)
     QModelIndex messageIndex = Imap::deproxifiedIndex(index);
     Q_ASSERT(messageIndex.isValid());
 
-    if (!messageModel || messageModel->message() != messageIndex) {
-        delete messageModel;
-        messageModel = new Cryptography::MessageModel(this, messageIndex);
-        for (const auto &module: m_pluginManager->mimePartReplacers()) {
-            messageModel->registerPartHandler(module);
-        }
-        connect(messageModel, &QAbstractItemModel::rowsInserted, this, &MessageView::handleMessageAvailable);
-        connect(messageModel, &QAbstractItemModel::layoutChanged, this, &MessageView::handleMessageAvailable);
-        emit messageModelChanged(messageModel);
-    }
-
-    // The data might be available from the local cache, so let's try to save a possible roundtrip here
-    // by explicitly requesting the data
-    messageIndex.data(Imap::Mailbox::RolePartData);
-
-    if (!messageIndex.data(Imap::Mailbox::RoleIsFetched).toBool()) {
-        // This happens when the message placeholder is already available in the GUI, but the actual message data haven't been
-        // loaded yet. This is especially common with the threading model.
-        // Note that the data might be already available in the cache, it's just that it isn't in the mailbox tree yet.
-        setEmpty();
-        connect(messageIndex.model(), &QAbstractItemModel::dataChanged, this, &MessageView::handleMessageAvailable);
-        message = messageIndex;
+    if (message == messageIndex) {
+        // This is a duplicate call, let's do nothing.
+        // It might not be our fat-fingered user, but also just a side-effect of our duplicate invocation through
+        // QAbstractItemView::clicked() and activated().
         return;
     }
 
-    if (message != messageIndex) {
-        setEmpty();
-        message = messageIndex;
-        // make sure handleMessageAvailable is called at least once
-        handleMessageAvailable();
+    unsetPreviousMessage();
+
+    message = messageIndex;
+    messageModel = new Cryptography::MessageModel(this, message);
+    messageModel->setObjectName(QStringLiteral("cryptoMessageModel-%1-%2")
+                                .arg(message.data(Imap::Mailbox::RoleMailboxName).toString(),
+                                     message.data(Imap::Mailbox::RoleMessageUid).toString()));
+    for (const auto &module: m_pluginManager->mimePartReplacers()) {
+        messageModel->registerPartHandler(module);
     }
-    headerSection->show();
+    emit messageModelChanged(messageModel);
+
+    // The data might be available from the local cache, so let's try to save a possible roundtrip here
+    // by explicitly requesting the data
+    message.data(Imap::Mailbox::RolePartData);
+
+    if (!message.data(Imap::Mailbox::RoleIsFetched).toBool()) {
+        // This happens when the message placeholder is already available in the GUI, but the actual message data haven't been
+        // loaded yet. This is especially common with the threading model, but also with bigger unsynced mailboxes.
+        // Note that the data might be already available in the cache, it's just that it isn't in the mailbox tree yet.
+        m_waitingMessageConns.emplace_back(
+                    connect(messageModel, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex &topLeft){
+            if (topLeft.data(Imap::Mailbox::RoleIsFetched).toBool()) {
+                // OK, message is fully fetched now
+                showMessageNow();
+            }
+        }));
+        m_loadingSpinner->setText(tr("Waiting\nfor\nMessage..."));
+        m_loadingSpinner->start();
+    } else {
+        showMessageNow();
+    }
+}
+
+/** @short Implementation of the "hey, let's really display the message, its BODYSTRUCTURE is available now" */
+void MessageView::showMessageNow()
+{
+    Q_ASSERT(message.data(Imap::Mailbox::RoleIsFetched).toBool());
+
+    clearWaitingConns();
+
+    QModelIndex rootPartIndex = messageModel->index(0,0);
+    Q_ASSERT(rootPartIndex.child(0,0).isValid());
+
+    netAccess->setExternalsEnabled(false);
+    externalElements->hide();
+
+    netAccess->setModelMessage(rootPartIndex);
+
+    m_loadingItems.clear();
+    m_loadingSpinner->stop();
+
+    m_envelope->setMessage(message);
+
+    auto updateTagList = [this]() {
+        tags->setTagList(message.data(Imap::Mailbox::RoleMessageFlags).toStringList());
+    };
+    connect(messageModel, &QAbstractItemModel::dataChanged, this, updateTagList);
+    updateTagList();
+
+    UiUtils::PartLoadingOptions loadingMode;
+    if (m_settings->value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool())
+        loadingMode |= UiUtils::PART_PREFER_PLAINTEXT_OVER_HTML;
+    auto viewer = factory->walk(rootPartIndex.child(0,0), 0, loadingMode);
+    viewer->setParent(this);
+    m_msgLayout->addWidget(viewer);
+    m_msgLayout->setAlignment(viewer, Qt::AlignTop|Qt::AlignLeft);
+    viewer->show();
+    // We want to propagate the QWheelEvent to upper layers
+    viewer->installEventFilter(this);
+    m_stack->setCurrentWidget(m_messageWidget);
 
     if (m_netWatcher && m_netWatcher->effectiveNetworkPolicy() != Imap::Mailbox::NETWORK_OFFLINE
             && m_settings->value(Common::SettingsNames::autoMarkReadEnabled, QVariant(true)).toBool()) {
@@ -231,6 +264,17 @@ void MessageView::setMessage(const QModelIndex &index)
         // which was AFAIK the original intention
         markAsReadTimer->start(m_settings->value(Common::SettingsNames::autoMarkReadSeconds, QVariant(0)).toUInt() * 1000);
     }
+
+    emit messageChanged();
+}
+
+/** @short There's no point in waiting for the message to appear */
+void MessageView::clearWaitingConns()
+{
+    for (auto &conn: m_waitingMessageConns) {
+        disconnect(conn);
+    }
+    m_waitingMessageConns.clear();
 }
 
 void MessageView::markAsRead()
@@ -290,7 +334,7 @@ bool MessageView::eventFilter(QObject *object, QEvent *event)
 
 QString MessageView::quoteText() const
 {
-    if (const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(viewer)) {
+    if (auto w = bodyWidget()) {
         QStringList quote = Composer::quoteText(w->quoteMe().split(QLatin1Char('\n')));
         const Imap::Message::Envelope &e = message.data(Imap::Mailbox::RoleMessageEnvelope).value<Imap::Message::Envelope>();
         QString sender;
@@ -357,13 +401,13 @@ void MessageView::externalsRequested(const QUrl &url)
     externalElements->show();
 }
 
-void MessageView::externalsEnabled()
+void MessageView::enableExternalData()
 {
     netAccess->setExternalsEnabled(true);
     externalElements->hide();
-    AbstractPartWidget *w = dynamic_cast<AbstractPartWidget *>(viewer);
-    if (w)
+    if (auto w = bodyWidget()) {
         w->reloadContents();
+    }
 }
 
 void MessageView::newLabelAction(const QString &tag)
@@ -384,51 +428,9 @@ void MessageView::deleteLabelAction(const QString &tag)
     model->setMessageFlags(QModelIndexList() << message, tag, Imap::Mailbox::FLAG_REMOVE);
 }
 
-void MessageView::handleMessageAvailable()
-{
-    Q_ASSERT(messageModel);
-    QModelIndex rootPartIndex = messageModel->index(0,0);
-    if (viewer == emptyView && rootPartIndex.child(0,0).isValid()) {
-        disconnect(messageModel, &QAbstractItemModel::rowsInserted, this, &MessageView::handleMessageAvailable);
-        disconnect(messageModel, &QAbstractItemModel::layoutChanged, this, &MessageView::handleMessageAvailable);
-        disconnect(messageModel, &QAbstractItemModel::dataChanged, this, &MessageView::handleMessageAvailable);
-        emptyView->hide();
-        layout->removeWidget(viewer);
-        if (viewer != emptyView) {
-            viewer->setParent(nullptr);
-            viewer->deleteLater();
-        }
-        netAccess->setExternalsEnabled(false);
-        externalElements->hide();
-
-        netAccess->setModelMessage(rootPartIndex);
-
-        m_loadingItems.clear();
-        m_loadingSpinner->stop();
-
-        UiUtils::PartLoadingOptions loadingMode;
-        if (m_settings->value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool())
-            loadingMode |= UiUtils::PART_PREFER_PLAINTEXT_OVER_HTML;
-        viewer = factory->walk(rootPartIndex.child(0,0), 0, loadingMode);
-        viewer->setParent(this);
-        layout->addWidget(viewer);
-        layout->setAlignment(viewer, Qt::AlignTop|Qt::AlignLeft);
-        viewer->show();
-        m_envelope->setMessage(message);
-
-        tags->show();
-
-        emit messageChanged();
-
-        // We want to propagate the QWheelEvent to upper layers
-        viewer->installEventFilter(this);
-    }
-    tags->setTagList(message.data(Imap::Mailbox::RoleMessageFlags).toStringList());
-}
-
 void MessageView::setHomepageUrl(const QUrl &homepage)
 {
-    emptyView->load(homepage);
+    m_homePage->load(homepage);
 }
 
 void MessageView::showEvent(QShowEvent *se)

@@ -382,4 +382,34 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
 #endif
 }
 
+void CryptographyMessageModelTest::testDelayedLoading()
+{
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+
+    Cryptography::MessageModel msgModel(0, msg);
+    msgModel.setObjectName("msgModel");
+
+    cEmpty();
+    QCOMPARE(msgModel.rowCount(QModelIndex()), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bsPlaintext + "))\r\n" + t.last("OK fetched\r\n"));
+    cEmpty();
+    QCOMPARE(model->rowCount(msg), 1);
+    QCOMPARE(msgModel.rowCount(QModelIndex()), 1);
+    auto mappedMsg = msgModel.index(0,0);
+    QVERIFY(mappedMsg.isValid());
+
+    QPersistentModelIndex msgRoot = mappedMsg.child(0, 0);
+    QVERIFY(msgRoot.isValid());
+    QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartPathToPart).toByteArray(),
+             QByteArrayLiteral("/0"));
+}
+
 QTEST_GUILESS_MAIN(CryptographyMessageModelTest)

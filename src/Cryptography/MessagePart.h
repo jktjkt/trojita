@@ -85,6 +85,7 @@ protected:
     int m_row;
 
     friend class MessageModel;
+    friend class TopLevelMessage; // due to that lambda in TopLevelMessage::fetchChildren
 #ifdef MIME_TREE_DEBUG
     friend QDebug operator<<(QDebug dbg, const MessagePart &part);
 private:
@@ -114,12 +115,13 @@ private:
 #endif
 
     QPersistentModelIndex m_root;
+    MessageModel *m_model;
 };
 
 class ProxyMessagePart : public MessagePart
 {
 public:
-    ProxyMessagePart(MessagePart *parent, const int row, const QModelIndex &sourceIndex, Cryptography::MessageModel *model);
+    ProxyMessagePart(MessagePart *parent, const int row, const QModelIndex &sourceIndex, MessageModel *model);
     ~ProxyMessagePart();
 
     void fetchChildren(MessageModel *model) override;
@@ -132,6 +134,7 @@ private:
 #endif
 
     QPersistentModelIndex m_sourceIndex;
+    MessageModel *m_model;
 };
 
 class LocalMessagePart : public MessagePart

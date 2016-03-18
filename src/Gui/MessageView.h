@@ -34,6 +34,7 @@ class QBoxLayout;
 class QLabel;
 class QLayout;
 class QSettings;
+class QStackedLayout;
 class QTimer;
 class QUrl;
 class QWebView;
@@ -60,6 +61,7 @@ class PluginManager;
 
 namespace Gui {
 
+class AbstractPartWidget;
 class EmbeddedWebView;
 class EnvelopeView;
 class MainWindow;
@@ -95,7 +97,7 @@ protected:
 private slots:
     void markAsRead();
     void externalsRequested(const QUrl &url);
-    void externalsEnabled();
+    void enableExternalData();
     void newLabelAction(const QString &tag);
     void deleteLabelAction(const QString &tag);
     void partContextMenuRequested(const QPoint &point);
@@ -103,7 +105,6 @@ private slots:
     void triggerSearchDialog();
     void onWebViewLoadStarted();
     void onWebViewLoadFinished();
-    void handleMessageAvailable();
 signals:
     void messageChanged();
     void messageModelChanged(QAbstractItemModel *model);
@@ -114,24 +115,33 @@ private:
     bool eventFilter(QObject *object, QEvent *event);
     Imap::Message::Envelope envelope() const;
     QString quoteText() const;
+    void showMessageNow();
+    AbstractPartWidget *bodyWidget() const;
+    void unsetPreviousMessage();
+    void clearWaitingConns();
 
-    QWidget *viewer;
-    QWidget *headerSection;
+    QStackedLayout *m_stack;
+    QWebView *m_homePage;
+
+    QWidget *m_messageWidget;
+    QBoxLayout *m_msgLayout;
     EnvelopeView *m_envelope;
     ExternalElementsWidget *externalElements;
-    QBoxLayout *layout;
     TagListWidget *tags;
     QPersistentModelIndex message;
     Cryptography::MessageModel *messageModel;
     Imap::Network::MsgPartNetAccessManager *netAccess;
     QPointer<Imap::Mailbox::NetworkWatcher> m_netWatcher;
     QTimer *markAsReadTimer;
-    QWebView *emptyView;
-    PartWidgetFactory *factory;
+    QWidget *m_bodyWidget;
+
+    std::unique_ptr<PartWidgetFactory> factory;
     Spinner *m_loadingSpinner;
     QSettings *m_settings;
     Plugins::PluginManager *m_pluginManager;
     QSet<QWebView*> m_loadingItems;
+
+    std::vector<QMetaObject::Connection> m_waitingMessageConns;
 
     MessageView(const MessageView &); // don't implement
     MessageView &operator=(const MessageView &); // don't implement

@@ -35,6 +35,7 @@ private Q_SLOTS:
     void initTestCase();
     void testDecryption();
     void testDecryption_data();
+    void testDecryptWithoutEnvelope();
     void testVerification();
     void testVerification_data();
 };

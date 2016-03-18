@@ -91,6 +91,7 @@ private:
     QHash<QPersistentModelIndex, MessagePart*> m_map;
     MessagePart::Ptr m_rootPart;
     std::vector<std::shared_ptr<PartReplacer>> m_partHandlers;
+    QMetaObject::Connection m_insertRows;
 
     friend class TopLevelMessage;
     friend class ProxyMessagePart;

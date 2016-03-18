@@ -384,10 +384,6 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
         qDebug() << "UIDs in the mailbox now: " << uidsInMailbox;
     }
 
-    bool savedBodyStructure = false;
-    bool gotEnvelope = false;
-    bool gotSize = false;
-    bool gotInternalDate = false;
     bool updatedFlags = false;
 
     for (Responses::Fetch::dataType::const_iterator it = response.data.begin(); it != response.data.end(); ++ it) {
@@ -423,33 +419,34 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
             qDebug() << "Ignoring FETCH response to a mailbox that isn't synced yet:" << buf;
             continue;
         } else if (it.key() == "ENVELOPE") {
-            message->data()->m_envelope = static_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data;
-            message->setFetchStatus(DONE);
-            gotEnvelope = true;
+            message->data()->setEnvelope(static_cast<const Responses::RespData<Message::Envelope>&>(*(it.value())).data);
             changedMessage = message;
         } else if (it.key() == "BODYSTRUCTURE") {
-            if (message->fetched()) {
+            if (message->data()->gotRemeberedBodyStructure() || message->fetched()) {
                 // The message structure is already known, so we are free to ignore it
             } else {
                 // We had no idea about the structure of the message
+
+                // At first, save the bodystructure. This is needed so that our overridden rowCount() works properly.
+                // (The rowCount() gets called through QAIM::beginInsertRows(), for example.)
+                auto xtbIt = response.data.constFind("x-trojita-bodystructure");
+                Q_ASSERT(xtbIt != response.data.constEnd());
+                message->data()->setRememberedBodyStructure(
+                        static_cast<const Responses::RespData<QByteArray>&>(*(xtbIt.value())).data);
+
+                // Now insert the children. We're of course assuming that the TreeItemMessage is now empty.
                 auto newChildren = static_cast<const Message::AbstractMessage &>(*(it.value())).createTreeItems(message);
-                if (!message->m_children.isEmpty()) {
-                    QModelIndex messageIdx = message->toIndex(model);
-                    model->beginRemoveRows(messageIdx, 0, message->m_children.size() - 1);
-                    auto oldChildren = message->setChildren(newChildren);
-                    model->endRemoveRows();
-                    qDeleteAll(oldChildren);
-                } else {
-                    auto oldChildren = message->setChildren(newChildren);
-                    Q_ASSERT(oldChildren.size() == 0);
-                }
-                savedBodyStructure = true;
+                Q_ASSERT(!newChildren.isEmpty());
+                Q_ASSERT(message->m_children.isEmpty());
+                QModelIndex messageIdx = message->toIndex(model);
+                model->beginInsertRows(messageIdx, 0, newChildren.size() - 1);
+                message->setChildren(newChildren);
+                model->endInsertRows();
             }
         } else if (it.key() == "x-trojita-bodystructure") {
-            // do nothing
+            // do nothing here, it's been already taken care of from the BODYSTRUCTURE handler
         } else if (it.key() == "RFC822.SIZE") {
-            message->data()->m_size = static_cast<const Responses::RespData<quint64>&>(*(it.value())).data;
-            gotSize = true;
+            message->data()->setSize(static_cast<const Responses::RespData<quint64>&>(*(it.value())).data);
         } else if (it.key().startsWith("BODY[HEADER.FIELDS (")) {
             // Process any headers found in any such response bit
             const QByteArray &rawHeaders = static_cast<const Responses::RespData<QByteArray>&>(*(it.value())).data;
@@ -502,24 +499,26 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 }
             }
         } else if (it.key() == "INTERNALDATE") {
-            message->data()->m_internalDate = static_cast<const Responses::RespData<QDateTime>&>(*(it.value())).data;
-            gotInternalDate = true;
+            message->data()->setInternalDate(static_cast<const Responses::RespData<QDateTime>&>(*(it.value())).data);
         } else {
             qDebug() << "TreeItemMailbox::handleFetchResponse: unknown FETCH identifier" << it.key();
         }
     }
     if (message->uid()) {
-        if (gotEnvelope && gotSize && savedBodyStructure && gotInternalDate) {
-            Imap::Mailbox::AbstractCache::MessageDataBundle dataForCache;
-            dataForCache.envelope = message->data()->m_envelope;
-            dataForCache.serializedBodyStructure = static_cast<const Responses::RespData<QByteArray>&>(*(response.data[ "x-trojita-bodystructure" ])).data;
-            dataForCache.size = message->data()->m_size;
-            dataForCache.uid = message->uid();
-            dataForCache.internalDate = message->data()->m_internalDate;
-            dataForCache.hdrReferences = message->data()->m_hdrReferences;
-            dataForCache.hdrListPost = message->data()->m_hdrListPost;
-            dataForCache.hdrListPostNo = message->data()->m_hdrListPostNo;
-            model->cache()->setMessageMetadata(mailbox(), message->uid(), dataForCache);
+        if (message->data()->isComplete() && model->cache()->messageMetadata(mailbox(), message->uid()).uid == 0) {
+             model->cache()->setMessageMetadata(
+                         mailbox(), message->uid(),
+                         Imap::Mailbox::AbstractCache::MessageDataBundle(
+                             message->uid(),
+                             message->data()->envelope(),
+                             message->data()->internalDate(),
+                             message->data()->size(),
+                             message->data()->rememberedBodyStructure(),
+                             message->data()->hdrReferences(),
+                             message->data()->hdrListPost(),
+                             message->data()->hdrListPostNo()
+                         ));
+             message->setFetchStatus(DONE);
         }
         if (updatedFlags) {
             model->cache()->setMsgFlags(mailbox(), message->uid(), message->m_flags);
@@ -957,16 +956,152 @@ bool TreeItemMsgList::numbersFetched() const
 
 
 
-MessageDataPayload::MessageDataPayload():
-    m_size(0), m_hdrListPostNo(false), m_partHeader(0), m_partText(0)
+MessageDataPayload::MessageDataPayload()
+    : m_size(0)
+    , m_hdrListPostNo(false)
+    , m_partHeader(nullptr)
+    , m_partText(nullptr)
+    , m_gotEnvelope(false)
+    , m_gotInternalDate(false)
+    , m_gotSize(false)
+    , m_gotBodystructure(false)
+    , m_gotHdrReferences(false)
+    , m_gotHdrListPost(false)
 {
 }
 
-MessageDataPayload::~MessageDataPayload()
+bool MessageDataPayload::isComplete() const
 {
-    delete m_partHeader;
-    delete m_partText;
+    return m_gotEnvelope && m_gotInternalDate && m_gotSize && m_gotBodystructure;
 }
+
+bool MessageDataPayload::gotEnvelope() const
+{
+    return m_gotEnvelope;
+}
+
+bool MessageDataPayload::gotInternalDate() const
+{
+    return m_gotInternalDate;
+}
+
+bool MessageDataPayload::gotSize() const
+{
+    return m_gotSize;
+}
+
+bool MessageDataPayload::gotHdrReferences() const
+{
+    return m_gotHdrReferences;
+}
+
+bool MessageDataPayload::gotHdrListPost() const
+{
+    return m_gotHdrListPost;
+}
+
+const Message::Envelope &MessageDataPayload::envelope() const
+{
+    return m_envelope;
+}
+
+void MessageDataPayload::setEnvelope(const Message::Envelope &envelope)
+{
+    m_envelope = envelope;
+    m_gotEnvelope = true;
+}
+
+const QDateTime &MessageDataPayload::internalDate() const
+{
+    return m_internalDate;
+}
+
+void MessageDataPayload::setInternalDate(const QDateTime &internalDate)
+{
+    m_internalDate = internalDate;
+    m_gotInternalDate = true;
+}
+
+quint64 MessageDataPayload::size() const
+{
+    return m_size;
+}
+
+void MessageDataPayload::setSize(quint64 size)
+{
+    m_size = size;
+    m_gotSize = true;
+}
+
+const QList<QByteArray> &MessageDataPayload::hdrReferences() const
+{
+    return m_hdrReferences;
+}
+
+void MessageDataPayload::setHdrReferences(const QList<QByteArray> &hdrReferences)
+{
+    m_hdrReferences = hdrReferences;
+    m_gotHdrReferences = true;
+}
+
+const QList<QUrl> &MessageDataPayload::hdrListPost() const
+{
+    return m_hdrListPost;
+}
+
+bool MessageDataPayload::hdrListPostNo() const
+{
+    return m_hdrListPostNo;
+}
+
+void MessageDataPayload::setHdrListPost(const QList<QUrl> &hdrListPost)
+{
+    m_hdrListPost = hdrListPost;
+    m_gotHdrListPost = true;
+}
+
+void MessageDataPayload::setHdrListPostNo(const bool hdrListPostNo)
+{
+    m_hdrListPostNo = hdrListPostNo;
+    m_gotHdrListPost = true;
+}
+
+const QByteArray &MessageDataPayload::rememberedBodyStructure() const
+{
+    return m_rememberedBodyStructure;
+}
+
+void MessageDataPayload::setRememberedBodyStructure(const QByteArray &blob)
+{
+    m_rememberedBodyStructure = blob;
+    m_gotBodystructure = true;
+}
+
+bool MessageDataPayload::gotRemeberedBodyStructure() const
+{
+    return m_gotBodystructure;
+}
+
+TreeItemPart *MessageDataPayload::partHeader() const
+{
+    return m_partHeader.get();
+}
+
+void MessageDataPayload::setPartHeader(std::unique_ptr<TreeItemPart> part)
+{
+    m_partHeader = std::move(part);
+}
+
+TreeItemPart *MessageDataPayload::partText() const
+{
+    return m_partText.get();
+}
+
+void MessageDataPayload::setPartText(std::unique_ptr<TreeItemPart> part)
+{
+    m_partText = std::move(part);
+}
+
 
 TreeItemMessage::TreeItemMessage(TreeItem *parent):
     TreeItem(parent), m_offset(-1), m_uid(0), m_data(0), m_flagsHandled(false), m_wasUnread(false)
@@ -1006,8 +1141,18 @@ void TreeItemMessage::fetch(Model *const model)
 
 unsigned int TreeItemMessage::rowCount(Model *const model)
 {
-    fetch(model);
+    if (!data()->gotRemeberedBodyStructure()) {
+        fetch(model);
+    }
     return m_children.size();
+}
+
+TreeItemChildrenList TreeItemMessage::setChildren(const TreeItemChildrenList &items)
+{
+    auto origStatus = accessFetchStatus();
+    auto res = TreeItem::setChildren(items);
+    setFetchStatus(origStatus);
+    return res;
 }
 
 unsigned int TreeItemMessage::columnCount()
@@ -1028,15 +1173,15 @@ TreeItem *TreeItemMessage::specialColumnPtr(int row, int column) const
 
     switch (column) {
     case OFFSET_TEXT:
-        if (!data()->m_partText) {
-            data()->m_partText = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_TEXT);
+        if (!data()->partText()) {
+            data()->setPartText(std::unique_ptr<TreeItemPart>(new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_TEXT)));
         }
-        return data()->m_partText;
+        return data()->partText();
     case OFFSET_HEADER:
-        if (!data()->m_partHeader) {
-            data()->m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_HEADER);
+        if (!data()->partHeader()) {
+            data()->setPartHeader(std::unique_ptr<TreeItemPart>(new TreeItemModifiedPart(const_cast<TreeItemMessage *>(this), OFFSET_HEADER)));
         }
-        return data()->m_partHeader;
+        return data()->partHeader();
     default:
         return 0;
     }
@@ -1120,7 +1265,7 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return QByteArrayLiteral("message/rfc822");
     }
 
-    // Any other roles will result in fetching the data
+    // Any other roles will result in fetching the data; however, we won't exit if the data isn't available yet
     fetch(model);
 
     switch (role) {
@@ -1130,68 +1275,69 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         } else if (isUnavailable()) {
             return QStringLiteral("[offline UID %1]").arg(QString::number(uid()));
         } else {
-            return QStringLiteral("UID %1: %2").arg(QString::number(uid()), data()->m_envelope.subject);
+            return QStringLiteral("UID %1: %2").arg(QString::number(uid()), data()->envelope().subject);
         }
     case Qt::ToolTipRole:
         if (fetched()) {
             QString buf;
             QTextStream stream(&buf);
-            stream << data()->m_envelope;
+            stream << data()->envelope();
             return UiUtils::Formatting::htmlEscaped(buf);
         } else {
             return QVariant();
         }
-    default:
-        // fall through
-        ;
-    }
-
-    if (! fetched())
-        return QVariant();
-
-    switch (role) {
-    case RoleMessageDate:
-        return envelope(model).date;
-    case RoleMessageInternalDate:
-        return data()->m_internalDate;
-    case RoleMessageFrom:
-        return addresListToQVariant(envelope(model).from);
-    case RoleMessageTo:
-        return addresListToQVariant(envelope(model).to);
-    case RoleMessageCc:
-        return addresListToQVariant(envelope(model).cc);
-    case RoleMessageBcc:
-        return addresListToQVariant(envelope(model).bcc);
-    case RoleMessageSender:
-        return addresListToQVariant(envelope(model).sender);
-    case RoleMessageReplyTo:
-        return addresListToQVariant(envelope(model).replyTo);
-    case RoleMessageInReplyTo:
-        return QVariant::fromValue(envelope(model).inReplyTo);
-    case RoleMessageMessageId:
-        return envelope(model).messageId;
-    case RoleMessageSubject:
-        return envelope(model).subject;
     case RoleMessageSize:
-        return QVariant::fromValue(data()->m_size);
+        return data()->gotSize() ? QVariant::fromValue(data()->size()) : QVariant();
+    case RoleMessageInternalDate:
+        return data()->gotInternalDate() ? data()->internalDate() : QVariant();
     case RoleMessageHeaderReferences:
-        return QVariant::fromValue(data()->m_hdrReferences);
+        return data()->gotHdrReferences() ? QVariant::fromValue(data()->hdrReferences()) : QVariant();
     case RoleMessageHeaderListPost:
-    {
-        QVariantList res;
-        Q_FOREACH(const QUrl &url, data()->m_hdrListPost)
-            res << url;
-        return res;
-    }
+        if (data()->gotHdrListPost()) {
+            QVariantList res;
+            Q_FOREACH(const QUrl &url, data()->hdrListPost())
+                res << url;
+            return res;
+        } else {
+            return QVariant();
+        }
     case RoleMessageHeaderListPostNo:
-        return data()->m_hdrListPostNo;
-    case RoleMessageEnvelope:
-        return QVariant::fromValue<Message::Envelope>(envelope(model));
-    case RoleMessageHasAttachments:
-        return hasAttachments(model);
-    default:
-        return QVariant();
+        return data()->gotHdrListPost() ? QVariant(data()->hdrListPostNo()) : QVariant();
     }
+
+    if (data()->gotEnvelope()) {
+        // If the envelope is already available, we might be able to deliver some bits even prior to full fetch being done.
+        //
+        // Only those values which need ENVELOPE go here!
+        switch (role) {
+        case RoleMessageSubject:
+            return data()->gotEnvelope() ? QVariant(data()->envelope().subject) : QVariant();
+        case RoleMessageDate:
+            return data()->gotEnvelope() ? envelope(model).date : QVariant();
+        case RoleMessageFrom:
+            return addresListToQVariant(envelope(model).from);
+        case RoleMessageTo:
+            return addresListToQVariant(envelope(model).to);
+        case RoleMessageCc:
+            return addresListToQVariant(envelope(model).cc);
+        case RoleMessageBcc:
+            return addresListToQVariant(envelope(model).bcc);
+        case RoleMessageSender:
+            return addresListToQVariant(envelope(model).sender);
+        case RoleMessageReplyTo:
+            return addresListToQVariant(envelope(model).replyTo);
+        case RoleMessageInReplyTo:
+            return QVariant::fromValue(envelope(model).inReplyTo);
+        case RoleMessageMessageId:
+            return envelope(model).messageId;
+        case RoleMessageEnvelope:
+            return QVariant::fromValue<Message::Envelope>(envelope(model));
+        case RoleMessageHasAttachments:
+            return hasAttachments(model);
+        }
+    }
+
+    return QVariant();
 }
 
 QVariantList TreeItemMessage::addresListToQVariant(const QList<Imap::Message::MailAddress> &addressList)
@@ -1284,19 +1430,19 @@ uint TreeItemMessage::uid() const
 Message::Envelope TreeItemMessage::envelope(Model *const model)
 {
     fetch(model);
-    return data()->m_envelope;
+    return data()->envelope();
 }
 
 QDateTime TreeItemMessage::internalDate(Model *const model)
 {
     fetch(model);
-    return data()->m_internalDate;
+    return data()->internalDate();
 }
 
 quint64 TreeItemMessage::size(Model *const model)
 {
     fetch(model);
-    return data()->m_size;
+    return data()->size();
 }
 
 void TreeItemMessage::setFlags(TreeItemMsgList *list, const QStringList &flags)
@@ -1342,16 +1488,17 @@ void TreeItemMessage::processAdditionalHeaders(Model *model, const QByteArray &r
                         QStringLiteral("Unspecified error during RFC5322 header parsing"));
     }
 
-    data()->m_hdrReferences = parser.references;
+    data()->setHdrReferences(parser.references);
+    QList<QUrl> hdrListPost;
     if (!parser.listPost.isEmpty()) {
-        data()->m_hdrListPost.clear();
         Q_FOREACH(const QByteArray &item, parser.listPost)
-            data()->m_hdrListPost << QUrl(QString::fromUtf8(item));
+            hdrListPost << QUrl(QString::fromUtf8(item));
+        data()->setHdrListPost(hdrListPost);
     }
     // That's right, this can only be set, not ever reset from this context.
     // This is because we absolutely want to support incremental header arrival.
     if (parser.listPostNo)
-        data()->m_hdrListPostNo = true;
+        data()->setHdrListPostNo(true);
 }
 
 bool TreeItemMessage::hasAttachments(Model *const model)

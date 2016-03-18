@@ -25,8 +25,10 @@
 #include "test_Imap_SelectedMailboxUpdates.h"
 #include "Imap/Model/DummyNetworkWatcher.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MemoryCache.h"
 #include "Imap/Parser/Uids.h"
 #include "Streams/FakeSocket.h"
+#include "Imap/data.h"
 
 /** @short Test that we survive a new message arrival and its subsequent removal in rapid sequence
 
@@ -572,7 +574,18 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
                        helperCreateTrivialEnvelope(4, 53, QLatin1String("F")) +
                        helperCreateTrivialEnvelope(5, 63, QLatin1String("G")) +
                        t.last("OK fetched\r\n"));
+    cEmpty();
     helperCheckSubjects(QStringList() << QStringLiteral("A") << QStringLiteral("D") << QStringLiteral("E") << QStringLiteral("F") << QStringLiteral("G"));
+    if (askForEnvelopes) {
+        // Well, this subject checking led to a fetch() being issued on all of these messages (through the ::data()).
+        // The subjects and a lot of other metadata items were already known for all of them, but the INTERNALDATE in particular
+        // was still missing. This means that this message was not considered "fetched".
+        cClient(t.mk("UID FETCH 53,63 (" FETCH_METADATA_ITEMS ")\r\n"));
+        // and yeah, we're cheating because I'm lazy; the data ain't here
+        cServer(t.last("OK fetched\r\n"));
+    } else {
+        cEmpty();
+    }
 
     // Verify UIDd and cache stuff once again to make sure reading data doesn't mess anything up
     helperCheckCache();
@@ -861,7 +874,8 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchAndConcurrentArrival()
 
     // Now check what happens when that number is incremented *once again* while our request for part data is in flight
     QVERIFY(msg1.parent().data(RoleIsFetched).toBool());
-    QVERIFY(msg1.data(RoleIsFetched).toBool());
+    QVERIFY(msg1.data(RoleMessageSubject).isValid());
+    QVERIFY(!msg1.data(RoleIsFetched).toBool()); // not fully fetched yet, though
     QModelIndex msg1p1 = msg1.child(0, 0);
     QVERIFY(msg1p1.isValid());
     QCOMPARE(msg1p1.data(RolePartData).toByteArray(), QByteArray());
@@ -1038,6 +1052,93 @@ void ImapModelSelectedMailboxUpdatesTest::testLogoutClosed()
             + okSelectedB);
     cEmpty();
     cServer("* BYE closing now\r\n");
+}
+
+/** @short Make sure that incremental upload of message metadata bits works, too */
+void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
+{
+    initialMessages(1);
+    cServer("* 1 FETCH (FLAGS ())\r\n");
+    justKeepTask();
+    cEmpty();
+
+    auto msg1 = msgListA.child(0, 0);
+    QVERIFY(msg1.isValid());
+
+    QSignalSpy insertionSpy(model, SIGNAL(rowsInserted(QModelIndex,int,int)));
+
+    QCOMPARE(model->rowCount(msg1), 0);
+    cClient(t.mk("UID FETCH 1 (" FETCH_METADATA_ITEMS ")\r\n"));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    cServer("* 1 FETCH (INTERNALDATE \"15-Jan-2013 12:17:06 +0000\")\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    cServer("* 1 FETCH (ENVELOPE (NIL \"pwn\" NIL NIL NIL NIL NIL NIL NIL NIL))\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(insertionSpy.size(), 1);
+    cServer("* 1 FETCH (RFC822.SIZE 666)\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+    cServer(t.last("OK fetched\r\n"));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    cEmpty();
+    QCOMPARE(insertionSpy.size(), 1);
+    justKeepTask();
+}
+
+class MonitoringCache : public Imap::Mailbox::MemoryCache {
+public:
+    MonitoringCache(QObject *parent)
+        : MemoryCache(parent)
+    {}
+
+    virtual void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata) override
+    {
+        msgMetadataLog.emplace_back(uid);
+        MemoryCache::setMessageMetadata(mailbox, uid, metadata);
+    }
+    std::vector<uint> msgMetadataLog;
+};
+
+/** @short Do we survive duplicate unsolicited BODYSTRUCTURE responses? */
+void ImapModelSelectedMailboxUpdatesTest::testFetchMsgDuplicateBodystructure()
+{
+    auto cacheLog = new MonitoringCache(model);
+    model->setCache(cacheLog);
+    initialMessages(1);
+    cServer("* 1 FETCH (FLAGS ())\r\n");
+    justKeepTask();
+    cEmpty();
+
+    auto msg1 = msgListA.child(0, 0);
+    QVERIFY(msg1.isValid());
+
+    QCOMPARE(model->rowCount(msg1), 0);
+    cClient(t.mk("UID FETCH 1 (" FETCH_METADATA_ITEMS ")\r\n"));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(0));
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->rowCount(msg1), 1);
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(0));
+    // Now send the duplicate data. We shouldn't assert.
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->rowCount(msg1), 1);
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(0));
+    cServer(t.last("OK fetched\r\n"));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(model->rowCount(msg1), 1);
+    cServer("* 1 FETCH (RFC822.SIZE 1234 INTERNALDATE \"15-Jan-2013 12:17:06 +0000\" "
+            "ENVELOPE (NIL \"pwn\" NIL NIL NIL NIL NIL NIL NIL NIL))\r\n");
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(1));
+    QCOMPARE(msg1.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+    cServer("* 1 FETCH (BODYSTRUCTURE (" + bsPlaintext + "))\r\n");
+    QCOMPARE(cacheLog->msgMetadataLog.size(), size_t(1));
+    cEmpty();
+    justKeepTask();
+
 }
 
 QTEST_GUILESS_MAIN( ImapModelSelectedMailboxUpdatesTest )

@@ -33,5 +33,27 @@ AbstractCache::~AbstractCache()
 {
 }
 
+AbstractCache::MessageDataBundle::MessageDataBundle(
+        const uint uid, const Message::Envelope &envelope, const QDateTime &internalDate, const quint64 size,
+        const QByteArray &serializedBodyStructure, const QList<QByteArray> &hdrReferences,
+        const QList<QUrl> &hdrListPost, const bool hdrListPostNo)
+    : uid(uid)
+    , envelope(envelope)
+    , internalDate(internalDate)
+    , size(size)
+    , serializedBodyStructure(serializedBodyStructure)
+    , hdrReferences(hdrReferences)
+    , hdrListPost(hdrListPost)
+    , hdrListPostNo(hdrListPostNo)
+{
+}
+
+AbstractCache::MessageDataBundle::MessageDataBundle()
+    : uid(0)
+    , size(0)
+    , hdrListPostNo(false)
+{
+}
+
 }
 }

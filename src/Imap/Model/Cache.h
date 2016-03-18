@@ -70,7 +70,10 @@ public:
         /** @short Is the List-Post set to "NO"? */
         bool hdrListPostNo;
 
-        MessageDataBundle(): uid(0), size(0), hdrListPostNo(false) {}
+        MessageDataBundle();
+        MessageDataBundle(const uint uid, const Imap::Message::Envelope &envelope, const QDateTime &internalDate,
+                          const quint64 size, const QByteArray &serializedBodyStructure, const QList<QByteArray> &hdrReferences,
+                          const QList<QUrl> &hdrListPost, const bool hdrListPostNo);
 
         bool operator==(const MessageDataBundle &other) const
         {
