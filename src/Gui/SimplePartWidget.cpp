@@ -38,6 +38,7 @@
 #include "Imap/Network/FileDownloadManager.h"
 #include "Imap/Model/Utils.h"
 #include "UiUtils/Color.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui
 {
@@ -70,15 +71,15 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     }
     load(url);
 
-    m_savePart = new QAction(tr("Save this message part..."), this);
+    m_savePart = new QAction(UiUtils::loadIcon(QStringLiteral("document-save")), tr("Save this message part..."), this);
     connect(m_savePart, &QAction::triggered, this, &SimplePartWidget::slotDownloadPart);
     this->addAction(m_savePart);
 
-    m_saveMessage = new QAction(tr("Save whole message..."), this);
+    m_saveMessage = new QAction(UiUtils::loadIcon(QStringLiteral("document-save-all")), tr("Save whole message..."), this);
     connect(m_saveMessage, &QAction::triggered, this, &SimplePartWidget::slotDownloadMessage);
     this->addAction(m_saveMessage);
 
-    m_findAction = new QAction(tr("Search..."), this);
+    m_findAction = new QAction(UiUtils::loadIcon(QStringLiteral("edit-find")), tr("Search..."), this);
     m_findAction->setShortcut(tr("Ctrl+F"));
     connect(m_findAction, &QAction::triggered, this, &SimplePartWidget::searchDialogRequested);
     addAction(m_findAction);
@@ -142,20 +143,28 @@ void SimplePartWidget::reloadContents()
 void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const
 {
     menu.addAction(m_findAction);
-    menu.addAction(pageAction(QWebPage::Copy));
-    menu.addAction(pageAction(QWebPage::SelectAll));
+    auto a = pageAction(QWebPage::Copy);
+    a->setIcon(UiUtils::loadIcon(QStringLiteral("edit-copy")));
+    menu.addAction(a);
+    a = pageAction(QWebPage::SelectAll);
+    a->setIcon(UiUtils::loadIcon(QStringLiteral("edit-select-all")));
+    menu.addAction(a);
     if (!page()->mainFrame()->hitTestContent(point).linkUrl().isEmpty()) {
         menu.addSeparator();
-        menu.addAction(pageAction(QWebPage::CopyLinkToClipboard));
+        a = pageAction(QWebPage::CopyLinkToClipboard);
+        a->setIcon(UiUtils::loadIcon(QStringLiteral("edit-copy")));
+        menu.addAction(a);
     }
     menu.addSeparator();
     menu.addAction(m_savePart);
     menu.addAction(m_saveMessage);
     if (!page()->mainFrame()->hitTestContent(point).imageUrl().isEmpty()) {
-        menu.addAction(pageAction(QWebPage::DownloadImageToDisk));
+        a = pageAction(QWebPage::DownloadImageToDisk);
+        a->setIcon(UiUtils::loadIcon(QStringLiteral("download")));
+        menu.addAction(a);
     }
     menu.addSeparator();
-    QMenu *colorSchemeMenu = menu.addMenu(tr("Color scheme"));
+    QMenu *colorSchemeMenu = menu.addMenu(UiUtils::loadIcon(QStringLiteral("colorneg")), tr("Color scheme"));
     QActionGroup *ag = new QActionGroup(colorSchemeMenu);
     for (auto item: supportedColorSchemes()) {
         QAction *a = colorSchemeMenu->addAction(item.second);
