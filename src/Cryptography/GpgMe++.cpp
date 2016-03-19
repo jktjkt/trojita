@@ -143,7 +143,9 @@ void GpgMeReplacer::registerOrhpanedCryptoTask(std::future<void> task)
     if (task.valid() && task.wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
         m_orphans.emplace_back(std::move(task));
     }
-    qDebug() << "We have" << m_orphans.size() << "orphaned crypto tasks";
+    if (!m_orphans.empty()) {
+        qDebug() << "We have" << m_orphans.size() << "orphaned crypto tasks";
+    }
 }
 
 GpgMePart::GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
@@ -280,8 +282,10 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
 {
     Q_UNUSED(wasSigned);
 
+#if 0
     qDebug() << "signature summary" << sig.summary() << "status err code" << sig.status() << sig.status().asString()
              << "validity" << sig.validity() << "fingerprint" << sig.fingerprint();
+#endif
 
     if (sig.summary() & GpgME::Signature::KeyMissing) {
         // that's right, there won't be any Green or Red labeling from GpgME; is we don't have the key, we cannot
