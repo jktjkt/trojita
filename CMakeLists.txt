@@ -93,7 +93,7 @@ trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" 
 trojita_find_package(Git "" "" "" "")
 
 trojita_find_package(Mimetic "" "http://www.codesink.org/mimetic_mime_library.html" "C++ MIME Library" "Required for client-side MIME parsing" WITH_MIMETIC)
-trojita_find_package(KF5Gpgmepp "" "https://projects.kde.org/projects/kde/pim/gpgmepp" "C++ bindings for gpgme" "Needed for encrypted/signed e-mails" WITH_GPGMEPP)
+trojita_find_package(KF5Gpgmepp "" "https://quickgit.kde.org/?p=gpgmepp.git" "C++ bindings for gpgme" "Needed for encrypted/signed e-mails" WITH_GPGMEPP)
 trojita_option(WITH_CRYPTO_MESSAGES "Enable support for encrypted messages" AUTO "WITH_MIMETIC;WITH_GPGMEPP")
 
 if(WIN32)
