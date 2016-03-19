@@ -175,6 +175,22 @@ add_definitions(-DQT_USE_QSTRINGBUILDER)
 add_definitions(-DQT_USE_FAST_OPERATOR_PLUS)
 add_definitions(-DQT_USE_FAST_CONCATENATION)
 
+if(NOT MSVC)
+  # We're using C++11's threading features (std::async in particular), and that requires "some threading". With GCC and
+  # Clang, this is implemented through the -pthread build flag. Without using these bits, linking fails on Fedora 23,
+  # and this is apparently a slightly different failure than the Kf5::Gpgmepp-pthread one in commit
+  # 12e41101070f7073caec653185c0504763672ee7.
+  #
+  # Apparently, there's been various methods on how to enable this in the most-cmakeish-way throughout the years, with
+  # cmake-3.1+ supporting some magic linking via the Threads::Threads option on a per-library basis. However, I am not
+  # really looking into that wonderful fun of mixing -pthread and non-pthread translation units, so let's use a big
+  # hammer and set it unconditionally on platforms which use it anyway.
+  #
+  # And because we also support MinGW and its `windres` compiler, we have to avoid passing -pthread to *that* thing, so,
+  # well, let's cheat and put it into the CXXFLAGS.
+  set(CMAKE_CXX_FLAGS "-pthread ${CMAKE_CXX_FLAGS}")
+endif()
+
 # Make sure that plugins not export all symbols, only that which are explicitly marked
 include(GenerateExportHeader)
 add_compiler_export_flags()
