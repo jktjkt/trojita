@@ -60,14 +60,6 @@ QByteArray getAuditLog(GpgME::Context *ctx)
 
 namespace Cryptography {
 
-class DebugProgress : public GpgME::ProgressProvider {
-public:
-    virtual void showProgress(const char *what, int type, int current, int total) override
-    {
-        qDebug() << "GpgME progress" << what << type << current << total;
-    }
-};
-
 QString protocolToString(const Protocol protocol)
 {
     switch (protocol) {
@@ -644,8 +636,6 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 
     m_crypto = std::async(std::launch::async, [this, ctx, rawData, signatureData, messageUids, wasEncrypted](){
         QPointer<QObject> p(this);
-        DebugProgress progress;
-        ctx->setProgressProvider(&progress);
 
         GpgME::Data sigData(signatureData.data(), signatureData.size(), false);
         GpgME::Data msgData(rawData.data(), rawData.size(), false);
@@ -787,8 +777,6 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
 
     m_crypto = std::async(std::launch::async, [this, ctx, cipherData, messageUids ](){
         QPointer<QObject> p(this);
-        DebugProgress progress;
-        ctx->setProgressProvider(&progress);
 
         GpgME::Data encData(cipherData.data(), cipherData.size(), false);
         QGpgME::QByteArrayDataProvider dp;
