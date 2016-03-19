@@ -11,9 +11,14 @@
 *.snm
 *.toc
 *.vrb
+*.bbl
+*.blg
 
 # stuff related to the thesis
 mff-logo.eps
 
 # the imported "subfiles" package
 subfiles.*
+
+# generated output
+*.pdf
