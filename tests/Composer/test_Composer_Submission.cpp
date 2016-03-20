@@ -408,6 +408,15 @@ void ComposerSubmissionTest::helperAttachImapMessage(const uint uid)
     OUT = buf.mid(NUM); \
 }
 
+#define EXTRACT_OCTETS(NUM, PRIOR, REST) \
+{ \
+    for (int i=0; i<5; ++i) \
+        QCoreApplication::processEvents(); \
+    QString buf = QString::fromUtf8(SOCK->writtenStuff()); \
+    QVERIFY(buf.size() > NUM); \
+    PRIOR = buf.left(NUM); \
+    REST = buf.mid(NUM); \
+}
 
 
 void ComposerSubmissionTest::testBurlSubmission()
@@ -536,7 +545,8 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     int octets;
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
-    EAT_OCTETS(octets, sentSoFar);
+    QString preambleViaImap;
+    EXTRACT_OCTETS(octets, preambleViaImap, sentSoFar);
     expected = QStringLiteral(" URL \"/a;UIDVALIDITY=333666/;UID=10/;SECTION=1\" TEXT {");
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
@@ -561,6 +571,8 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     QVERIFY(outgoingMessage.contains("Subject: testing\r\n"));
     QVERIFY(outgoingMessage.contains("Sample message\r\n"));
     QVERIFY(outgoingMessage.contains(QByteArray("contents fetched over IMAP").toBase64()));
+    auto preambleViaSmtp = QString::fromUtf8(outgoingMessage).left(preambleViaImap.size());
+    QCOMPARE(preambleViaSmtp, preambleViaImap);
     cEmpty();
     justKeepTask();
 }

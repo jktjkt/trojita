@@ -90,12 +90,11 @@ public:
     void setReportTrojitaVersions(const bool reportVersion);
 
 private:
-    static QByteArray generateMessageId(const Imap::Message::MailAddress &sender);
     static QByteArray encodeHeaderField(const QString &text);
-    static QByteArray generateMimeBoundary();
 
-    void writeCommonMessageBeginning(QIODevice *target, const QByteArray boundary) const;
-    bool writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const;
+    void ensureRandomStrings() const;
+    void writeCommonMessageBeginning(QIODevice *target) const;
+    bool writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const;
     bool writeAttachmentBody(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const;
 
     void writeHeaderWithMsgIds(QIODevice *target, const QByteArray &headerName, const QList<QByteArray> &messageIds) const;
@@ -116,6 +115,8 @@ private:
     QString m_text;
     QPersistentModelIndex m_replyingTo;
     QPersistentModelIndex m_forwarding;
+    mutable QByteArray m_messageId;
+    mutable QByteArray m_mimeBoundary;
 
     QList<AttachmentItem *> m_attachments;
     QPointer<Imap::Mailbox::Model> m_model;

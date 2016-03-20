@@ -457,20 +457,24 @@ bool MessageComposer::isReadyForSerialization() const
     return true;
 }
 
-QByteArray MessageComposer::generateMessageId(const Imap::Message::MailAddress &sender)
+void MessageComposer::ensureRandomStrings() const
 {
-    if (sender.host.isEmpty()) {
-        // There's no usable domain, let's just bail out of here
-        return QByteArray();
+    if (m_messageId.isNull()) {
+        auto domain = m_from.host.toUtf8();
+        if (domain.isEmpty()) {
+            domain = QByteArrayLiteral("localhost");
+        }
+        m_messageId = QUuid::createUuid().toByteArray().replace("{", "").replace("}", "") + "@" + domain;
     }
-    return QUuid::createUuid().toByteArray().replace("{", "").replace("}", "") + "@" + sender.host.toUtf8();
-}
 
-/** @short Generate a random enough MIME boundary */
-QByteArray MessageComposer::generateMimeBoundary()
-{
-    // Usage of "=_" is recommended by RFC2045 as it's guaranteed to never occur in a quoted-printable source
-    return QByteArray("trojita=_") + QUuid::createUuid().toByteArray().replace("{", "").replace("}", "");
+    if (m_mimeBoundary.isNull()) {
+        // Usage of "=_" is recommended by RFC2045 as it's guaranteed to never occur in a quoted-printable source.
+
+        // We don't bother with checking that our boundary is not present in the individual parts. That's arguably wrong,
+        // but we don't have much choice if we ever plan to use CATENATE.  It also looks like this is exactly how other MUAs
+        // operate as well, so let's just join the universal dontcareism here.
+        m_mimeBoundary = QByteArray("trojita=_") + QUuid::createUuid().toByteArray().replace("{", "").replace("}", "");
+    }
 }
 
 QByteArray MessageComposer::encodeHeaderField(const QString &text)
@@ -495,7 +499,7 @@ static void processListOfRecipientsIntoHeader(const QByteArray &prefix, const QL
 
 }
 
-void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByteArray boundary) const
+void MessageComposer::writeCommonMessageBeginning(QIODevice *target) const
 {
     // The From header
     target->write(QByteArray("From: ").append(m_from.asMailHeader()).append("\r\n"));
@@ -531,10 +535,7 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
     target->write(encodeHeaderField(QLatin1String("Subject: ") + m_subject) + "\r\n" +
                   "Date: " + Imap::dateTimeToRfc2822(m_timestamp).toUtf8() + "\r\n" +
                   "MIME-Version: 1.0\r\n");
-    QByteArray messageId = generateMessageId(m_from);
-    if (!messageId.isEmpty()) {
-        target->write("Message-ID: <" + messageId + ">\r\n");
-    }
+    target->write("Message-ID: <" + m_messageId + ">\r\n");
     writeHeaderWithMsgIds(target, "In-Reply-To", m_inReplyTo);
     writeHeaderWithMsgIds(target, "References", m_references);
     if (!m_organization.isEmpty()) {
@@ -549,9 +550,9 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target, const QByte
 
     // Headers depending on actual message body data
     if (!m_attachments.isEmpty()) {
-        target->write("Content-Type: multipart/mixed;\r\n\tboundary=\"" + boundary + "\"\r\n"
+        target->write("Content-Type: multipart/mixed;\r\n\tboundary=\"" + m_mimeBoundary + "\"\r\n"
                       "\r\nThis is a multipart/mixed message in MIME format.\r\n\r\n"
-                      "--" + boundary + "\r\n");
+                      "--" + m_mimeBoundary + "\r\n");
     }
 
     target->write("Content-Type: text/plain; charset=utf-8; format=flowed\r\n"
@@ -588,13 +589,13 @@ void MessageComposer::writeHeaderWithMsgIds(QIODevice *target, const QByteArray 
     target->write("\r\n");
 }
 
-bool MessageComposer::writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment, const QByteArray &boundary) const
+bool MessageComposer::writeAttachmentHeader(QIODevice *target, QString *errorMessage, const AttachmentItem *attachment) const
 {
     if (!attachment->isAvailableLocally() && attachment->imapUrl().isEmpty()) {
         *errorMessage = tr("Attachment %1 is not available").arg(attachment->caption());
         return false;
     }
-    target->write("\r\n--" + boundary + "\r\n"
+    target->write("\r\n--" + m_mimeBoundary + "\r\n"
                   "Content-Type: " + attachment->mimeType() + "\r\n");
     target->write(attachment->contentDispositionHeader());
 
@@ -644,37 +645,35 @@ bool MessageComposer::writeAttachmentBody(QIODevice *target, QString *errorMessa
 
 bool MessageComposer::asRawMessage(QIODevice *target, QString *errorMessage) const
 {
-    // We don't bother with checking that our boundary is not present in the individual parts. That's arguably wrong,
-    // but we don't have much choice if we ever plan to use CATENATE.  It also looks like this is exactly how other MUAs
-    // oeprate as well, so let's just join the universal dontcareism here.
-    QByteArray boundary(generateMimeBoundary());
+    ensureRandomStrings();
 
-    writeCommonMessageBeginning(target, boundary);
+    writeCommonMessageBeginning(target);
 
     if (!m_attachments.isEmpty()) {
         Q_FOREACH(const AttachmentItem *attachment, m_attachments) {
-            if (!writeAttachmentHeader(target, errorMessage, attachment, boundary))
+            if (!writeAttachmentHeader(target, errorMessage, attachment))
                 return false;
             if (!writeAttachmentBody(target, errorMessage, attachment))
                 return false;
         }
-        target->write("\r\n--" + boundary + "--\r\n");
+        target->write("\r\n--" + m_mimeBoundary + "--\r\n");
     }
     return true;
 }
 
 bool MessageComposer::asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const
 {
+    ensureRandomStrings();
+
     using namespace Imap::Mailbox;
     target.clear();
-    QByteArray boundary(generateMimeBoundary());
     target.append(qMakePair(CATENATE_TEXT, QByteArray()));
 
     // write the initial data
     {
         QBuffer io(&target.back().second);
         io.open(QIODevice::ReadWrite);
-        writeCommonMessageBeginning(&io, boundary);
+        writeCommonMessageBeginning(&io);
     }
 
     if (!m_attachments.isEmpty()) {
@@ -685,7 +684,7 @@ bool MessageComposer::asCatenateData(QList<Imap::Mailbox::CatenatePair> &target,
             QBuffer io(&target.back().second);
             io.open(QIODevice::Append);
 
-            if (!writeAttachmentHeader(&io, errorMessage, attachment, boundary))
+            if (!writeAttachmentHeader(&io, errorMessage, attachment))
                 return false;
 
             QByteArray url = attachment->imapUrl();
@@ -702,7 +701,7 @@ bool MessageComposer::asCatenateData(QList<Imap::Mailbox::CatenatePair> &target,
         }
         QBuffer io(&target.back().second);
         io.open(QIODevice::Append);
-        io.write("\r\n--" + boundary + "--\r\n");
+        io.write("\r\n--" + m_mimeBoundary + "--\r\n");
     }
     return true;
 }
