@@ -60,14 +60,6 @@ QByteArray getAuditLog(GpgME::Context *ctx)
 
 namespace Cryptography {
 
-class DebugProgress : public GpgME::ProgressProvider {
-public:
-    virtual void showProgress(const char *what, int type, int current, int total) override
-    {
-        qDebug() << "GpgME progress" << what << type << current << total;
-    }
-};
-
 QString protocolToString(const Protocol protocol)
 {
     switch (protocol) {
@@ -151,7 +143,9 @@ void GpgMeReplacer::registerOrhpanedCryptoTask(std::future<void> task)
     if (task.valid() && task.wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
         m_orphans.emplace_back(std::move(task));
     }
-    qDebug() << "We have" << m_orphans.size() << "orphaned crypto tasks";
+    if (!m_orphans.empty()) {
+        qDebug() << "We have" << m_orphans.size() << "orphaned crypto tasks";
+    }
 }
 
 GpgMePart::GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
@@ -288,8 +282,10 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
 {
     Q_UNUSED(wasSigned);
 
+#if 0
     qDebug() << "signature summary" << sig.summary() << "status err code" << sig.status() << sig.status().asString()
              << "validity" << sig.validity() << "fingerprint" << sig.fingerprint();
+#endif
 
     if (sig.summary() & GpgME::Signature::KeyMissing) {
         // that's right, there won't be any Green or Red labeling from GpgME; is we don't have the key, we cannot
@@ -644,8 +640,6 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
 
     m_crypto = std::async(std::launch::async, [this, ctx, rawData, signatureData, messageUids, wasEncrypted](){
         QPointer<QObject> p(this);
-        DebugProgress progress;
-        ctx->setProgressProvider(&progress);
 
         GpgME::Data sigData(signatureData.data(), signatureData.size(), false);
         GpgME::Data msgData(rawData.data(), rawData.size(), false);
@@ -787,8 +781,6 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
 
     m_crypto = std::async(std::launch::async, [this, ctx, cipherData, messageUids ](){
         QPointer<QObject> p(this);
-        DebugProgress progress;
-        ctx->setProgressProvider(&progress);
 
         GpgME::Data encData(cipherData.data(), cipherData.size(), false);
         QGpgME::QByteArrayDataProvider dp;
