@@ -40,9 +40,9 @@
 
 using namespace Imap::Mailbox;
 
-#if 0
 namespace {
 
+#if 0
 QByteArray getAuditLog(GpgME::Context *ctx)
 {
     QByteArray buf;
@@ -54,9 +54,14 @@ QByteArray getAuditLog(GpgME::Context *ctx)
     }
     return buf;
 }
+#endif
+
+bool is_running(const std::future<void> &future)
+{
+    return future.wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout;
+}
 
 }
-#endif
 
 namespace Cryptography {
 
@@ -85,7 +90,7 @@ GpgMeReplacer::~GpgMeReplacer()
         t.start();
         qDebug() << "Cleaning" << m_orphans.size() << "orphaned crypto task: ";
         std::for_each(m_orphans.begin(), m_orphans.end(), [](std::future<void> &task){
-            if (task.wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
+            if (is_running(task)) {
                 qDebug() << " [waiting]";
                 task.get();
             } else {
@@ -133,14 +138,14 @@ void GpgMeReplacer::registerOrhpanedCryptoTask(std::future<void> task)
 {
     auto it = m_orphans.begin();
     while (it != m_orphans.end()) {
-        if (it->valid() && it->wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
+        if (it->valid() && is_running(*it)) {
             ++it;
         } else {
             qDebug() << "[cleaning an already-finished crypto orphan]";
             it = m_orphans.erase(it);
         }
     }
-    if (task.valid() && task.wait_for(std::chrono::duration_values<std::chrono::seconds>::zero()) == std::future_status::timeout) {
+    if (task.valid() && is_running(task)) {
         m_orphans.emplace_back(std::move(task));
     }
     if (!m_orphans.empty()) {
