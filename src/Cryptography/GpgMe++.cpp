@@ -89,14 +89,14 @@ GpgMeReplacer::~GpgMeReplacer()
         QElapsedTimer t;
         t.start();
         qDebug() << "Cleaning" << m_orphans.size() << "orphaned crypto task: ";
-        std::for_each(m_orphans.begin(), m_orphans.end(), [](std::future<void> &task){
+        for (auto &task: m_orphans) {
             if (is_running(task)) {
                 qDebug() << " [waiting]";
                 task.get();
             } else {
                 qDebug() << " [already completed]";
             }
-        });
+        }
         qDebug() << " ...finished after" << t.elapsed() << "ms.";
     }
 }
