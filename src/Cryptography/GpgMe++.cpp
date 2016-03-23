@@ -533,7 +533,7 @@ void GpgMePart::submitVerifyResult(QPointer<QObject> p, const SignatureDataBundl
         bool ok = QMetaObject::invokeMethod(p, "internalUpdateState", Qt::QueuedConnection,
                                             // must use full namespace qualification
                                             Q_ARG(Cryptography::SignatureDataBundle, data));
-        Q_ASSERT(ok);
+        Q_ASSERT(ok); Q_UNUSED(ok);
     } else {
         qDebug() << "[async crypto: GpgMePart is gone, not doing anything]";
     }
@@ -860,7 +860,7 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
             bool ok = QMetaObject::invokeMethod(p, "processDecryptedData", Qt::QueuedConnection,
                                                 Q_ARG(bool, decryptedOk),
                                                 Q_ARG(QByteArray, dp.data()));
-            Q_ASSERT(ok);
+            Q_ASSERT(ok); Q_UNUSED(ok);
         } else {
             qDebug() << "[async crypto: GpgMeEncrypted is gone, not sending cleartext data]";
         }
