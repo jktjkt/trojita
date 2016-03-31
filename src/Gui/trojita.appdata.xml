@@ -284,32 +284,15 @@
   <url type="bugtracker">https://bugs.kde.org/enter_bug.cgi?product=trojita&amp;format=guided</url>
   <screenshots>
     <screenshot type="default">
-      <image>http://trojita.flaska.net/trojita-2013-01-09--overview.png</image>
+      <image>http://trojita.flaska.net/img/2016-03-22-trojita-home.png</image>
     </screenshot>
     <screenshot>
-      <caption>The standard interface to compose new mails.</caption>
-      <caption xml:lang="ar">الواجهة المعياريّة لتأليف بُرد جديدة.</caption>
-      <caption xml:lang="bs">Standardni interfejs za sastavljanje novih mail-ova.</caption>
-      <caption xml:lang="ca">La interfície estàndard per editar correus nous.</caption>
-      <caption xml:lang="ca-valencia">La interfície estàndard per editar correus nous.</caption>
-      <caption xml:lang="da">Standardgrænseflade til at skrive nye mails.</caption>
-      <caption xml:lang="de">Die Standard-Bedienungsoberfläche zum Schreiben von neuen E-Mails.</caption>
-      <caption xml:lang="el">Το τυπικό περιβάλλον χρήσης για σύνθεση νέων μηνυμάτων.</caption>
-      <caption xml:lang="en-GB">The standard interface to compose new mails.</caption>
-      <caption xml:lang="es">Interfaz estándar para componer nuevos mensajes.</caption>
-      <caption xml:lang="fi">Tuttu uusien viestien kirjoittamisen käyttöliittymä</caption>
-      <caption xml:lang="gl">Usa unha interface estándar para escribir mensaxes.</caption>
-      <caption xml:lang="it">Interfaccia standard per comporre nuovi messaggi.</caption>
-      <caption xml:lang="ko">새 메일 작성 표준 인터페이스.</caption>
-      <caption xml:lang="nl">Het standaard interface voor opstellen van nieuwe e-mailberichten.</caption>
-      <caption xml:lang="pl">Standardowy układ sterowania do tworzenia nowych wiadomości.</caption>
-      <caption xml:lang="pt">A interface-padrão para compor mensagens novas.</caption>
-      <caption xml:lang="pt-BR">A interface padrão para redigir novas mensagens.</caption>
-      <caption xml:lang="sk">Štandardné rozhranie na písanie nových mailov.</caption>
-      <caption xml:lang="sv">Standardgränssnittet för att skriva nya brev.</caption>
-      <caption xml:lang="uk">Стандартний інтерфейс для створення повідомлень.</caption>
-      <caption xml:lang="x-test">xxThe standard interface to compose new mails.xx</caption>
-      <image>http://trojita.flaska.net/trojita-2013-01-09--composer.png</image>
+      <caption>Excessively quoted text is automatically collapsed</caption>
+      <image>http://trojita.flaska.net/img/2016-03-22-quote-collapsing.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Encrypted and signed e-mail is supported, with status given in plain English</caption>
+      <image>http://trojita.flaska.net/img/2016-03-22-trojita-signature-missing-key.png</image>
     </screenshot>
   </screenshots>
   <project_group>KDE</project_group>
