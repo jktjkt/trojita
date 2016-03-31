@@ -245,6 +245,7 @@ void CryptographyPGPTest::testDecryptWithoutEnvelope()
 void CryptographyPGPTest::testVerification()
 {
     QFETCH(QByteArray, signature);
+    QFETCH(QByteArray, ptMimeHdr);
     QFETCH(QByteArray, plaintext);
     QFETCH(bool, successful);
     QFETCH(QString, from);
@@ -290,7 +291,7 @@ void CryptographyPGPTest::testVerification()
     cClientRegExp(t.mk("UID FETCH 333 \\((BODY\\.PEEK\\[(2|1|1\\.MIME)\\] ?){3}\\)"));
     cServer("* 1 FETCH (UID 333 BODY[2] {" + QByteArray::number(signature.size())
             + "}\r\n" + signature + " BODY[1] {" + QByteArray::number(plaintext.size()) + "}\r\n" + plaintext
-            + " BODY[1.MIME] {28}\r\nContent-Type: text/plain\r\n\r\n"
+            + " BODY[1.MIME] {" + QByteArray::number(ptMimeHdr.size()) + "}\r\n" + ptMimeHdr
             + ")\r\n"
             + t.last("OK fetched"));
 
@@ -317,11 +318,16 @@ void CryptographyPGPTest::testVerification()
     if (!actualLongDesc.startsWith(longDesc)) {
         QCOMPARE(actualLongDesc, longDesc); // let's reuse this for debug output, and don't be scared about the misleading implications
     }
+
     QCOMPARE(data.data(Imap::Mailbox::RolePartSignatureVerifySupported).toBool(), successful);
     QCOMPARE(data.data(Imap::Mailbox::RolePartSignatureValidDisregardingTrust).toBool(), validDisregardingTrust);
     QCOMPARE(data.data(Imap::Mailbox::RolePartSignatureValidTrusted).toBool(), validCompletely);
-
+    QCOMPARE(data.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArray("multipart/signed"));
     QVERIFY(data.data(Imap::Mailbox::RoleIsFetched).toBool() == successful);
+
+    auto partIdx = data.child(0, 0);
+    QCOMPARE(partIdx.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArray("text/plain"));
+    QCOMPARE(partIdx.data(Imap::Mailbox::RolePartUnicodeText).toString(), QString::fromUtf8(plaintext));
 
     cEmpty();
     QVERIFY(errorSpy->empty());
@@ -340,6 +346,7 @@ void CryptographyPGPTest::testVerification()
 void CryptographyPGPTest::testVerification_data()
 {
     QTest::addColumn<QByteArray>("signature");
+    QTest::addColumn<QByteArray>("ptMimeHdr");
     QTest::addColumn<QByteArray>("plaintext");
     QTest::addColumn<bool>("successful");
     QTest::addColumn<QString>("from");
@@ -348,9 +355,12 @@ void CryptographyPGPTest::testVerification_data()
     QTest::addColumn<bool>("validDisregardingTrust");
     QTest::addColumn<bool>("validCompletely");
 
+    QByteArray ptMimeHdr = QByteArrayLiteral("Content-Type: text/plain\r\n\r\n");
+
     // everything is correct
     QTest::newRow("valid-me")
             << sigFromMe
+            << ptMimeHdr
             << QByteArray("plaintext\r\n")
             << true
             << QStringLiteral("valid@test.trojita.flaska.net")
@@ -362,6 +372,7 @@ void CryptographyPGPTest::testVerification_data()
     // my signature, but a different identity
     QTest::newRow("valid-me")
             << sigFromMe
+            << ptMimeHdr
             << QByteArray("plaintext\r\n")
             << true
             << QStringLiteral("evil@example.org")
@@ -373,7 +384,20 @@ void CryptographyPGPTest::testVerification_data()
     // my signature, different data
     QTest::newRow("valid-me")
             << sigFromMe
+            << ptMimeHdr
             << QByteArray("I will pay you right now\r\n")
+            << true
+            << QStringLiteral("valid@test.trojita.flaska.net")
+            << QStringLiteral("Bad signature")
+            << QStringLiteral("Bad signature by Valid <valid@test.trojita.flaska.net> (")
+            << false
+            << false;
+
+    // A missing Content-Type header (and also an invalid signature)
+    QTest::newRow("invalid-implicit-content-type")
+            << sigFromMe
+            << QByteArrayLiteral("Content-Transfer-Encoding: 8bit\r\n\r\n")
+            << QByteArray("plaintext\r\n")
             << true
             << QStringLiteral("valid@test.trojita.flaska.net")
             << QStringLiteral("Bad signature")

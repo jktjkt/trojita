@@ -132,8 +132,21 @@ QByteArray dumpMimeHeader(const mimetic::Header &h)
 
 MessagePart::Ptr MimeticUtils::mimeEntityToPart(const mimetic::MimeEntity &me, MessagePart *parent, const int row)
 {
-    QByteArray type = QByteArray(me.header().contentType().type().c_str()).toLower();
-    QByteArray subtype = QByteArray(me.header().contentType().subtype().c_str()).toLower();
+    QByteArray type, subtype;
+    if (std::find_if(me.header().cbegin(), me.header().cend(), [](const mimetic::Field &f) {
+                     return QByteArray(f.name().c_str()).toLower() == QByteArrayLiteral("content-type");
+                    }) != me.header().cend()) {
+        // When I checked Mimetic's  me.header().hasField(), it looked like it is case-sensitive...
+        type = QByteArray(me.header().contentType().type().c_str()).toLower();
+        subtype = QByteArray(me.header().contentType().subtype().c_str()).toLower();
+    } else {
+        // Section 5.2 of RFC 2045 says that there's an implicit text/plain; charset=us-ascii in case this header is missing,
+        // see https://tools.ietf.org/html/rfc2045#section-5.2 .
+        // We don't implement the us-ascii encoding because our encoders are quite happy to guess anyway, and utf-8
+        // is a subset of us-ascii anyway.
+        type = QByteArrayLiteral("text");
+        subtype = QByteArrayLiteral("plain");
+    }
     std::unique_ptr<LocalMessagePart> part(new LocalMessagePart(parent, row, type + "/" + subtype));
     storeInterestingFields(me, part.get());
     std::unique_ptr<LocalMessagePart> headerPart, textPart, mimePart, rawPart;
