@@ -107,8 +107,8 @@ void BodyPartsTest::testPartIds()
 
         if (it->itemType == Data::REGULAR) {
             cClient(t.mk("UID FETCH 333 (BODY.PEEK[") + partId.toUtf8() + "])\r\n");
-            cServer("* 1 FETCH (UID 333 BODY[" + partId.toUtf8() + "] {" + QByteArray::number(it->text.size()) + "}\r\n" +
-                    it->text + ")\r\n" + t.last("OK fetched\r\n"));
+            cServer("* 1 FETCH (UID 333 BODY[" + partId.toUtf8() + "] " + asLiteral(it->text) + ")\r\n"
+                    + t.last("OK fetched\r\n"));
             QCOMPARE(idx.data(Imap::Mailbox::RolePartData).toByteArray(), it->text);
         } else if (it->itemType == Data::NO_FETCHING) {
             cEmpty();

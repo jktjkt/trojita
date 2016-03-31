@@ -64,6 +64,8 @@ public:
 
     static void setModelNetworkPolicy(Imap::Mailbox::Model *model, const Imap::Mailbox::NetworkPolicy policy);
 
+    static QByteArray asLiteral(const QByteArray &data);
+
 protected:
     void setupLogging();
 

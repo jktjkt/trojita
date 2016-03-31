@@ -89,8 +89,7 @@ void ImapMsgPartNetAccessManagerTest::testMessageParts()
     if (validity) {
         QVERIFY(qobject_cast<Imap::Network::MsgPartNetworkReply*>(res));
         cClient(t.mk("UID FETCH 1 (BODY.PEEK[") + partId + "])\r\n");
-        cServer("* 1 FETCH (UID 1 BODY[" + partId + "] {" + QByteArray::number(text.size()) + "}\r\n" +
-                                                                               text + ")\r\n" + t.last("OK fetched\r\n"));
+        cServer("* 1 FETCH (UID 1 BODY[" + partId + "] " + asLiteral(text) + ")\r\n" + t.last("OK fetched\r\n"));
         cEmpty();
         QCOMPARE(text, res->readAll());
     } else {

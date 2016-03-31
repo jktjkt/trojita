@@ -98,8 +98,7 @@ void CryptographyPGPTest::testDecryption()
     QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
 
     cClientRegExp(t.mk("UID FETCH 333 \\((BODY\\.PEEK\\[2\\] BODY\\.PEEK\\[1\\]|BODY.PEEK\\[1\\] BODY\\.PEEK\\[2\\])\\)"));
-    cServer("* 1 FETCH (UID 333 BODY[2] {" + QByteArray::number(cyphertext.size())
-            + "}\r\n" + cyphertext + " BODY[1] {12}\r\nVersion: 1\r\n)\r\n"
+    cServer("* 1 FETCH (UID 333 BODY[2] " + asLiteral(cyphertext) + " BODY[1] " + asLiteral("Version: 1\r\n") + ")\r\n"
             + t.last("OK fetched"));
 
     QSignalSpy qcaSuccessSpy(&msgModel, SIGNAL(rowsInserted(const QModelIndex &,int,int)));
@@ -215,8 +214,7 @@ void CryptographyPGPTest::testDecryptWithoutEnvelope()
     QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
 
     cClientRegExp(t.mk("UID FETCH 333 \\((BODY\\.PEEK\\[2\\] BODY\\.PEEK\\[1\\]|BODY.PEEK\\[1\\] BODY\\.PEEK\\[2\\])\\)"));
-    cServer("* 1 FETCH (UID 333 BODY[2] {" + QByteArray::number(encValid.size())
-            + "}\r\n" + encValid + " BODY[1] {12}\r\nVersion: 1\r\n)\r\n"
+    cServer("* 1 FETCH (UID 333 BODY[2] " + asLiteral(encValid) + " BODY[1] " + asLiteral("Version: 1\r\n") + ")\r\n"
             + t.last("OK fetched"));
 
     QSignalSpy qcaSuccessSpy(&msgModel, SIGNAL(rowsInserted(const QModelIndex &,int,int)));
@@ -289,10 +287,8 @@ void CryptographyPGPTest::testVerification()
     QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
 
     cClientRegExp(t.mk("UID FETCH 333 \\((BODY\\.PEEK\\[(2|1|1\\.MIME)\\] ?){3}\\)"));
-    cServer("* 1 FETCH (UID 333 BODY[2] {" + QByteArray::number(signature.size())
-            + "}\r\n" + signature + " BODY[1] {" + QByteArray::number(plaintext.size()) + "}\r\n" + plaintext
-            + " BODY[1.MIME] {" + QByteArray::number(ptMimeHdr.size()) + "}\r\n" + ptMimeHdr
-            + ")\r\n"
+    cServer("* 1 FETCH (UID 333 BODY[2] " + asLiteral(signature) + " BODY[1] " + asLiteral(plaintext)
+            + " BODY[1.MIME] " + asLiteral(ptMimeHdr) + ")\r\n"
             + t.last("OK fetched"));
 
     QSignalSpy qcaErrorSpy(&msgModel, SIGNAL(error(const QModelIndex &,QString,QString)));

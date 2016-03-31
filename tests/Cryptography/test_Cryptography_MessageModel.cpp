@@ -75,8 +75,7 @@ void CryptographyMessageModelTest::testImapMessageParts()
     }
     QCOMPARE(mappedPart.data(Imap::Mailbox::RolePartData).toString(), QString());
     cClient(t.mk(QByteArray("UID FETCH 333 (BODY.PEEK[" + partId + "])\r\n")));
-    cServer("* 1 FETCH (UID 333 BODY[" + partId + "] {" + QByteArray::number(data.size()) + "}\r\n" +
-            data + ")\r\n" + t.last("OK fetched\r\n"));
+    cServer("* 1 FETCH (UID 333 BODY[" + partId + "] " + asLiteral(data) + ")\r\n" + t.last("OK fetched\r\n"));
 
     QCOMPARE(mappedPart.data(Imap::Mailbox::RolePartData).toByteArray(), data);
     QCOMPARE(mappedPart.data(Imap::Mailbox::RolePartPathToPart).toByteArray(), pathToPart);
@@ -287,8 +286,8 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
             + QByteArrayLiteral("\r\n--sep\r\nContent-Type: pWned/NOw\r\n\r\n")
             + myBinaryBody
             + QByteArrayLiteral("\r\n--sep--\r\n");
-    cServer("* 1 FETCH (UID 333 BODY[1.TEXT] {" + QByteArray::number(myBody.size()) + "}\r\n" + myBody + " BODY[1.HEADER] {" +
-            QByteArray::number(myHeader.size()) + "}\r\n" + myHeader + ")\r\n" + t.last("OK fetched\r\n"));
+    cServer("* 1 FETCH (UID 333 BODY[1.TEXT] " + asLiteral(myBody) + " BODY[1.HEADER] " + asLiteral(myHeader) + ")\r\n"
+            + t.last("OK fetched\r\n"));
 
     // the part got replaced, so our QModelIndex should be invalid now
     QVERIFY(msgRoot.internalPointer() != formerMsgRoot.internalPointer());

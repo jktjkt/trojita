@@ -270,8 +270,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
                               "<CAKmKYaDZtfZ9wzKML8WgJ=evVhteyOG0RVfsASpBGViwncsaiQ@mail.gmail.com>\r\n"
                               " <50911AE6.8060402@gmail.com>\r\n"
                               "\r\n");
-        cServer("* 1 FETCH (BODY[HEADER.FIELDS (List-Post References fail)]{" + QByteArray::number(headerData.size()) + "}\r\n"
-                + headerData + ")\r\n");
+        cServer("* 1 FETCH (BODY[HEADER.FIELDS (List-Post References fail)]" + asLiteral(headerData) + ")\r\n");
 
         cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +
@@ -293,8 +292,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
 
         // test header parsing as well
         QByteArray headerData("List-Post: NO (disabled)\r\n\r\n");
-        cServer("* 1 FETCH (BODY[HEADER.FIELDS (References List-Post)]{" + QByteArray::number(headerData.size()) + "}\r\n"
-                + headerData + ")\r\n");
+        cServer("* 1 FETCH (BODY[HEADER.FIELDS (References List-Post)]" + asLiteral(headerData) + ")\r\n");
 
         cServer(helperCreateTrivialEnvelope(1, 43, QLatin1String("A")) +
                            helperCreateTrivialEnvelope(2, 44, QLatin1String("B")) +

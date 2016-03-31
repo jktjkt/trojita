@@ -770,3 +770,9 @@ bool operator==(const NetDataRegexp &a, const NetDataRegexp &b)
 
     return QRegExp(QString::fromUtf8(b.pattern)).exactMatch(QString::fromUtf8(rawData));
 }
+
+/** @short A string literal formatted according to RFC 3501 */
+QByteArray LibMailboxSync::asLiteral(const QByteArray &data)
+{
+    return '{' + QByteArray::number(data.size()) + "}\r\n" + data;
+}
