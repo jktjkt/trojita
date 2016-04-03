@@ -201,15 +201,15 @@ QByteArray MailAddress::asSMTPMailbox() const
            it's the best we can do. */
         result = Imap::quotedString(mailbox.toUtf8());
     }
-    
+
     result.append("@");
-    
+
     QByteArray domainpart;
 
     if (!(host.startsWith(QLatin1Char('[')) || host.endsWith(QLatin1Char(']')))) {
         /* IDN-encode the hostname part of the address */
         domainpart = QUrl::toAce(host);
-        
+
         /* TODO: QUrl::toAce() is documented to return an empty result if
            the string isn't a valid hostname --- for example, if it's a
            domain literal containing an IP address. In that case, we'll
@@ -219,7 +219,7 @@ QByteArray MailAddress::asSMTPMailbox() const
 
     if (domainpart.isEmpty()) {
         /* Either the domainpart looks like a domain-literal, or toAce() failed. */
-        
+
         domainpart = host.toUtf8();
         if (domainpart.startsWith('[')) {
             domainpart.remove(0, 1);
@@ -227,7 +227,7 @@ QByteArray MailAddress::asSMTPMailbox() const
         if (domainpart.endsWith(']')) {
             domainpart.remove(domainpart.size()-1, 1);
         }
-        
+
         result.append(Imap::quotedString(domainpart, Imap::SquareBrackets));
     } else {
         result.append(domainpart);
@@ -242,7 +242,7 @@ QByteArray MailAddress::asMailHeader() const
 
     if (!result.isEmpty())
         result.append(" ");
-    
+
     result.append("<");
     result.append(asSMTPMailbox());
     result.append(">");

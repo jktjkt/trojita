@@ -167,12 +167,12 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
     QPlainTextEdit *w = getLogger(parserId);
 
     if (buf.skippedCount()) {
-        w->appendHtml(tr("<p style='color: #bb0000'><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
+        w->appendHtml(tr("<p style=\"color: #bb0000\"><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
                          "", buf.skippedCount()));
     }
 
     for (RingBuffer<LogMessage>::const_iterator it = buf.begin(); it != buf.end(); ++it) {
-        QString message = QStringLiteral("<pre><span style='color: #808080'>%1</span> %2<span style='color: %3;%4'>%5</span>%6</pre>");
+        QString message = QStringLiteral("<pre><span style=\"color: #808080\">%1</span> %2<span style=\"color: %3;%4\">%5</span>%6</pre>");
         QString direction;
         QString textColor;
         QString bgColor;
@@ -185,7 +185,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
                 bgColor = QStringLiteral("#d0d0d0");
             } else {
                 textColor = QStringLiteral("#800000");
-                direction = QStringLiteral("<span style='color: #c0c0c0;'>&gt;&gt;&gt;&nbsp;</span>");
+                direction = QStringLiteral("<span style=\"color: #c0c0c0;\">&gt;&gt;&gt;&nbsp;</span>");
             }
             break;
         case LOG_IO_READ:
@@ -194,7 +194,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
                 bgColor = QStringLiteral("#d0d0d0");
             } else {
                 textColor = QStringLiteral("#008000");
-                direction = QStringLiteral("<span style='color: #c0c0c0;'>&lt;&lt;&lt;&nbsp;</span>");
+                direction = QStringLiteral("<span style=\"color: #c0c0c0;\">&lt;&lt;&lt;&nbsp;</span>");
             }
             break;
         case LOG_MAILBOX_SYNC:
@@ -202,12 +202,12 @@ void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer
         case LOG_OTHER:
         case LOG_PARSE_ERROR:
         case LOG_TASKS:
-            direction = QLatin1String("<span style='color: #c0c0c0;'>") + it->source + QLatin1String("</span> ");
+            direction = QLatin1String("<span style=\"color: #c0c0c0;\">") + it->source + QLatin1String("</span> ");
             break;
         }
 
         if (it->truncatedBytes) {
-            trimmedInfo = tr("<br/><span style='color: #808080; font-style: italic;'>(+ %n more bytes)</span>", "", it->truncatedBytes);
+            trimmedInfo = tr("<br/><span style=\"color: #808080; font-style: italic;\">(+ %n more bytes)</span>", "", it->truncatedBytes);
         }
 
         QString niceLine = it->message.toHtmlEscaped();
