@@ -288,10 +288,22 @@
     </screenshot>
     <screenshot>
       <caption>Excessively quoted text is automatically collapsed</caption>
+      <caption xml:lang="nl">Een grote hoeveelheid aangehaalde tekst wordt automatisch ingeklapt</caption>
+      <caption xml:lang="pt">O texto citado em excesso é fechado automaticamente</caption>
+      <caption xml:lang="pt-BR">O texto citado em excesso é fechado automaticamente</caption>
+      <caption xml:lang="sv">Överdrivet citerad text dras automatiskt ihop</caption>
+      <caption xml:lang="uk">Автоматичне згортання значних фрагментів цитованих повідомлень.</caption>
+      <caption xml:lang="x-test">xxExcessively quoted text is automatically collapsedxx</caption>
       <image>http://trojita.flaska.net/img/2016-03-22-quote-collapsing.png</image>
     </screenshot>
     <screenshot>
       <caption>Encrypted and signed e-mail is supported, with status given in plain English</caption>
+      <caption xml:lang="nl">Versleutelde en ondertekende e-mail wordt ondersteund, met status gegeven in gewoon Engels</caption>
+      <caption xml:lang="pt">O e-mail encriptado e assinado é suportado, sendo o seu estado indicado em Inglês simples</caption>
+      <caption xml:lang="pt-BR">Há suporte para e-mail criptografado e assinado, com status indicado em inglês simples</caption>
+      <caption xml:lang="sv">Krypterade och signerade brev stöds, med status angiven på vanlig svenska</caption>
+      <caption xml:lang="uk">Підтримка шифрування та підписування повідомлень із визначенням стану англійською.</caption>
+      <caption xml:lang="x-test">xxEncrypted and signed e-mail is supported, with status given in plain Englishxx</caption>
       <image>http://trojita.flaska.net/img/2016-03-22-trojita-signature-missing-key.png</image>
     </screenshot>
   </screenshots>
