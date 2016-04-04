@@ -84,7 +84,11 @@ void PluginManager::loadPlugins()
             qDebug() << "Opening file" << absoluteFilePath;
 #endif
             QPluginLoader *loader = new QPluginLoader(absoluteFilePath, this);
-            loadPlugin(loader->instance(), loader);
+            if (loader->load()) {
+                loadPlugin(loader->instance(), loader);
+            } else {
+                emit pluginError(loader->errorString());
+            }
         }
     }
 

@@ -84,6 +84,7 @@ public:
 
 signals:
     void pluginsChanged();
+    void pluginError(const QString &errorMessage);
 
 private slots:
     void loadPlugins();
