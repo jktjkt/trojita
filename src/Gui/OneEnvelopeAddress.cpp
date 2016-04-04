@@ -74,8 +74,8 @@ void OneEnvelopeAddress::processAddress()
 void OneEnvelopeAddress::finishProcessAddress(const QStringList &matchingDisplayNames)
 {
     QUrl url = m_address.asUrl();
-    QString icon = QString::fromUtf8("<span style='width: 4px;'>&nbsp;</span><a href='x-trojita-manage-contact:%1'>"
-                                     "<img src='%2' align='center'/></a>").arg(
+    QString icon = QString::fromUtf8("<span style=\"width: 4px;\">&nbsp;</span><a href=\"x-trojita-manage-contact:%1\">"
+                                     "<img src=\"%2\" align=\"center\"/></a>").arg(
                 url.toString(QUrl::RemoveScheme),
                 matchingDisplayNames.isEmpty() ? contactUnknownUrl : contactKnownUrl);
     QString address = m_address.prettyName(Imap::Message::MailAddress::FORMAT_SHORT_CLICKABLE);
