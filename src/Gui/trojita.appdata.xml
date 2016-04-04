@@ -288,6 +288,8 @@
     </screenshot>
     <screenshot>
       <caption>Excessively quoted text is automatically collapsed</caption>
+      <caption xml:lang="ca">El text citat excessivament es col·lapsa</caption>
+      <caption xml:lang="ca-valencia">El text citat excessivament es col·lapsa</caption>
       <caption xml:lang="nl">Een grote hoeveelheid aangehaalde tekst wordt automatisch ingeklapt</caption>
       <caption xml:lang="pt">O texto citado em excesso é fechado automaticamente</caption>
       <caption xml:lang="pt-BR">O texto citado em excesso é fechado automaticamente</caption>
@@ -298,6 +300,8 @@
     </screenshot>
     <screenshot>
       <caption>Encrypted and signed e-mail is supported, with status given in plain English</caption>
+      <caption xml:lang="ca">Funciona amb correu electrònic xifrat i signat, amb l'estat indicat en anglès</caption>
+      <caption xml:lang="ca-valencia">Funciona amb correu electrònic xifrat i signat, amb l'estat indicat en anglés</caption>
       <caption xml:lang="nl">Versleutelde en ondertekende e-mail wordt ondersteund, met status gegeven in gewoon Engels</caption>
       <caption xml:lang="pt">O e-mail encriptado e assinado é suportado, sendo o seu estado indicado em Inglês simples</caption>
       <caption xml:lang="pt-BR">Há suporte para e-mail criptografado e assinado, com status indicado em inglês simples</caption>
