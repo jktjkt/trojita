@@ -24,19 +24,20 @@
 
 #include <QWidget>
 
+class QWebView;
+
 namespace Gui {
 
-class EmbeddedWebView;
 class FindBar;
 
-/** @short Common infrastructure for adding a FindBar to some widget which uses one/many EmbeddedWebView instances */
+/** @short Common infrastructure for adding a FindBar to some widget which uses one/many QWebView instances */
 class FindBarMixin
 {
 public:
     FindBarMixin(QWidget *parent);
 
 protected:
-    void searchRequestedBy(EmbeddedWebView *webView);
+    void searchRequestedBy(QWebView *webView);
 
     FindBar *m_findBar;
 };

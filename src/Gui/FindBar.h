@@ -34,10 +34,9 @@
 class QCheckBox;
 class QLineEdit;
 class QString;
+class QWebView;
 
 namespace Gui {
-
-class EmbeddedWebView;
 
 class FindBar : public QWidget
 {
@@ -52,7 +51,7 @@ public:
     bool highlightAllState() const;
 
     void setVisible(bool visible);
-    void setAssociatedWebView(EmbeddedWebView *webView);
+    void setAssociatedWebView(QWebView *webView);
 
 protected:
     void keyPressEvent(QKeyEvent *event);
@@ -77,7 +76,7 @@ private:
     QCheckBox *m_highlightAll;
 
     QString _lastStringSearched;
-    QPointer<EmbeddedWebView> m_associatedWebView;
+    QPointer<QWebView> m_associatedWebView;
 };
 
 }

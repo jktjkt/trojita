@@ -47,7 +47,7 @@ FindBar::FindBar(QWidget *parent)
     , m_lineEdit(new LineEdit(this))
     , m_matchCase(new QCheckBox(tr("&Match case"), this))
     , m_highlightAll(new QCheckBox(tr("&Highlight all"), this)),
-      m_associatedWebView(0)
+      m_associatedWebView(nullptr)
 {
     QHBoxLayout *layout = new QHBoxLayout;
 
@@ -221,9 +221,11 @@ void FindBar::find(FindBar::FindDirection dir)
     // and finally scroll the messageview to the gathered scrollPosition, mapped to the message (ie.
     // usually offset by the mail header)
 
-    QAbstractScrollArea *container = static_cast<QAbstractScrollArea*>(m_associatedWebView->scrollParent());
+    auto emb = qobject_cast<EmbeddedWebView *>(m_associatedWebView);
+
+    QAbstractScrollArea *container = emb ? static_cast<QAbstractScrollArea*>(emb->scrollParent()) : nullptr;
     const QSize oldVpS = m_associatedWebView->page()->viewportSize();
-    const bool useResizeTrick = container->verticalScrollBar();
+    const bool useResizeTrick = container ? !!container->verticalScrollBar() : false;
     // first shrink the page viewport
     if (useResizeTrick) {
         m_associatedWebView->setUpdatesEnabled(false); // don't let the user see the flicker we might produce
@@ -301,7 +303,7 @@ void FindBar::updateHighlight()
     }
 }
 
-void FindBar::setAssociatedWebView(EmbeddedWebView *webView)
+void FindBar::setAssociatedWebView(QWebView *webView)
 {
     if (m_associatedWebView)
         disconnect(m_associatedWebView, nullptr, this, nullptr);
@@ -310,7 +312,9 @@ void FindBar::setAssociatedWebView(EmbeddedWebView *webView)
 
     if (m_associatedWebView) {
         // highlighting is fancy, but terribly expensive - disable by default for fat messages
-        m_highlightAll->setChecked(!m_associatedWebView->staticWidth());
+        if (auto emb = qobject_cast<EmbeddedWebView*>(m_associatedWebView)) {
+            m_highlightAll->setChecked(!emb->staticWidth());
+        }
         // Automatically hide this FindBar widget when the underlying webview goes away
         connect(m_associatedWebView.data(), &QObject::destroyed,
                 this, &FindBar::resetAssociatedWebView);
