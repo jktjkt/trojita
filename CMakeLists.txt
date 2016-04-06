@@ -351,6 +351,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/LineEdit.cpp
     ${path_DesktopGui}/LoadablePartWidget.cpp
     ${path_DesktopGui}/MailBoxTreeView.cpp
+    ${path_DesktopGui}/MessageHeadersWidget.cpp
     ${path_DesktopGui}/MessageListWidget.cpp
     ${path_DesktopGui}/MessageSourceWidget.cpp
     ${path_DesktopGui}/MessageView.cpp

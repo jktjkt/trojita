@@ -82,6 +82,7 @@
 #include "MessageListWidget.h"
 #include "MessageView.h"
 #include "MessageSourceWidget.h"
+#include "Gui/MessageHeadersWidget.h"
 #include "MsgListView.h"
 #include "OnePanelAtTimeWidget.h"
 #include "PasswordDialog.h"
@@ -1960,25 +1961,13 @@ void MainWindow::slotViewMsgHeaders()
             continue;
         QModelIndex messageIndex = Imap::deproxifiedIndex(item);
 
-        Imap::Network::MsgPartNetAccessManager *netAccess = new Imap::Network::MsgPartNetAccessManager(this);
-        netAccess->setModelMessage(messageIndex);
-
-        SimplePartWidget *headers = new SimplePartWidget(0, netAccess,
-                                        messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, messageIndex),
-                                                         0);
-        headers->setAttribute(Qt::WA_DeleteOnClose);
-        connect(headers, &QObject::destroyed, netAccess, &QObject::deleteLater);
-        QAction *close = new QAction(UiUtils::loadIcon(QStringLiteral("window-close")), tr("Close"), headers);
-        headers->addAction(close);
+        auto widget = new MessageHeadersWidget(nullptr, messageIndex);
+        widget->setAttribute(Qt::WA_DeleteOnClose);
+        QAction *close = new QAction(UiUtils::loadIcon(QStringLiteral("window-close")), tr("Close"), widget);
+        widget->addAction(close);
         close->setShortcut(tr("Ctrl+W"));
-        connect(close, &QAction::triggered, headers, &QWidget::close);
-        //: Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
-        headers->setWindowTitle(tr("Message headers of UID %1 in %2").arg(
-                                    QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
-                                    messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
-                                    ));
-        headers->setWindowIcon(UiUtils::loadIcon(QStringLiteral("text-x-hex")));
-        headers->show();
+        connect(close, &QAction::triggered, widget, &QWidget::close);
+        widget->show();
     }
 }
 
