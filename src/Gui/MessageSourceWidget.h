@@ -1,4 +1,5 @@
 /* Copyright (C) 2013  Ahmed Ibrahim Khalil <ahmedibrahimkhali@gmail.com>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -23,9 +24,11 @@
 #ifndef MESSAGESOURCEWIDGET_H
 #define MESSAGESOURCEWIDGET_H
 
-#include <QWebView>
+#include <QWidget>
+#include "Gui/FindBarMixin.h"
 
 class QModelIndex;
+class QWebView;
 
 namespace Imap
 {
@@ -40,7 +43,7 @@ namespace Gui
 
 class Spinner;
 
-class MessageSourceWidget : public QWebView
+class MessageSourceWidget : public QWidget, private FindBarMixin
 {
     Q_OBJECT
 public:
@@ -53,6 +56,7 @@ private slots:
 private:
     Imap::Mailbox::FullMessageCombiner *m_combiner;
     Spinner *m_loadingSpinner;
+    QWebView *m_widget;
 };
 
 }

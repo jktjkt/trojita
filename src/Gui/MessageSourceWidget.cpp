@@ -1,4 +1,5 @@
 /* Copyright (C) 2013  Ahmed Ibrahim Khalil <ahmedibrahimkhali@gmail.com>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -21,7 +22,11 @@
 */
 
 #include "MessageSourceWidget.h"
+#include <QAction>
 #include <QModelIndex>
+#include <QVBoxLayout>
+#include <QWebView>
+#include "Gui/FindBar.h"
 #include "Gui/Spinner.h"
 #include "Imap/Model/FullMessageCombiner.h"
 #include "UiUtils/IconLoader.h"
@@ -29,12 +34,16 @@
 namespace Gui
 {
 
-MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &messageIndex):
-    QWebView(parent), m_combiner(0), m_loadingSpinner(0)
+MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &messageIndex)
+    : QWidget(parent)
+    , FindBarMixin(this)
+    , m_combiner(nullptr)
+    , m_loadingSpinner(nullptr)
+    , m_widget(new QWebView(this))
 {
     setWindowIcon(UiUtils::loadIcon(QStringLiteral("text-x-hex")));
     Q_ASSERT(messageIndex.isValid());
-    page()->setNetworkAccessManager(0);
+    m_widget->page()->setNetworkAccessManager(0);
 
     m_loadingSpinner = new Spinner(this);
     m_loadingSpinner->setText(tr("Fetching\nMessage"));
@@ -45,18 +54,31 @@ MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &mes
     connect(m_combiner, &Imap::Mailbox::FullMessageCombiner::completed, this, &MessageSourceWidget::slotCompleted);
     connect(m_combiner, &Imap::Mailbox::FullMessageCombiner::failed, this, &MessageSourceWidget::slotError);
     m_combiner->load();
+
+    auto find = new QAction(UiUtils::loadIcon(QStringLiteral("edit-find")), tr("Search..."), this);
+    find->setShortcut(tr("Ctrl+F"));
+    connect(find, &QAction::triggered, this, [this]() {
+        searchRequestedBy(m_widget);
+    });
+    addAction(find);
+
+    auto layout = new QVBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(m_widget);
+    layout->addWidget(m_findBar);
+    setLayout(layout);
 }
 
 void MessageSourceWidget::slotCompleted()
 {
     m_loadingSpinner->stop();
-    setContent(m_combiner->data(), QStringLiteral("text/plain"));
+    m_widget->setContent(m_combiner->data(), QStringLiteral("text/plain"));
 }
 
 void MessageSourceWidget::slotError(const QString &message)
 {
     m_loadingSpinner->stop();
-    setContent(message.toUtf8(), QStringLiteral("text/plain; charset=utf-8"));
+    m_widget->setContent(message.toUtf8(), QStringLiteral("text/plain; charset=utf-8"));
 }
 
 }
