@@ -345,6 +345,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/EnvelopeView.cpp
     ${path_DesktopGui}/ExternalElementsWidget.cpp
     ${path_DesktopGui}/FindBar.cpp
+    ${path_DesktopGui}/FindBarMixin.cpp
     ${path_DesktopGui}/FlowLayout.cpp
     ${path_DesktopGui}/FromAddressProxyModel.cpp
     ${path_DesktopGui}/LineEdit.cpp

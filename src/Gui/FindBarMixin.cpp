@@ -19,45 +19,28 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef GUI_COMPLETEMESSAGEWIDGET_H
-#define GUI_COMPLETEMESSAGEWIDGET_H
 
-#include <QWidget>
+#include "Gui/FindBar.h"
 #include "Gui/FindBarMixin.h"
 
-class QScrollArea;
-class QSettings;
-class QPropertyAnimation;
+namespace Gui {
 
-namespace Plugins {
-class PluginManager;
+FindBarMixin::FindBarMixin(QWidget *parent)
+    : m_findBar(new FindBar(parent))
+{
 }
 
-namespace Gui
+void FindBarMixin::searchRequestedBy(EmbeddedWebView *webView)
 {
-
-class EmbeddedWebView;
-class FindBar;
-class MessageView;
-
-class CompleteMessageWidget: public QWidget, private FindBarMixin
-{
-    Q_OBJECT
-public:
-    CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager);
-
-    MessageView *messageView;
-    QScrollArea *area;
-protected:
-    void keyPressEvent(QKeyEvent *ke);
-
-private:
-    CompleteMessageWidget(const CompleteMessageWidget &); // don't implement
-    CompleteMessageWidget &operator=(const CompleteMessageWidget &); // don't implement
-
-    QPropertyAnimation *animator;
-};
-
+    if (m_findBar->isVisible() || !webView) {
+        // NOTICE: hide must go before resetting the AssociatedWebView
+        // since it clears search results in the AssociatedWebView (otherise hightlights would stay)
+        m_findBar->hide();
+        m_findBar->setAssociatedWebView(nullptr);
+    } else {
+        m_findBar->setAssociatedWebView(webView);
+        m_findBar->show();
+    }
 }
 
-#endif // GUI_COMPLETEMESSAGEWIDGET_H
+}
