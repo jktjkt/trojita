@@ -115,6 +115,13 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     m_pluginManager = new Plugins::PluginManager(this, m_settings,
                                                  Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
     connect(m_pluginManager, &Plugins::PluginManager::pluginsChanged, this, &MainWindow::slotPluginsChanged);
+    connect(m_pluginManager, &Plugins::PluginManager::pluginError, this, [this](const QString &errorMessage) {
+        QMessageBox::warning(this, tr("Plugin Error"),
+                             //: The %1 placeholder is a full error message as provided by Qt, ready for human consumption.
+                             trUtf8("A plugin failed to load, therefore some functionality might be lost. "
+                                    "You might want to update your system or report a bug to your vendor."
+                                    "\n\n%1").arg(errorMessage));
+    });
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
     Plugins::PluginManager::MimePartReplacers replacers;
 #ifdef TROJITA_HAVE_GPGMEPP
