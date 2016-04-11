@@ -19,45 +19,30 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef GUI_COMPLETEMESSAGEWIDGET_H
-#define GUI_COMPLETEMESSAGEWIDGET_H
+
+#ifndef GUI_MESSAGEHEADERSWIDGET_H
+#define GUI_MESSAGEHEADERSWIDGET_H
 
 #include <QWidget>
 #include "Gui/FindBarMixin.h"
 
-class QScrollArea;
-class QSettings;
-class QPropertyAnimation;
+class QModelIndex;
+class QWebView;
 
-namespace Plugins {
-class PluginManager;
-}
+namespace Gui {
 
-namespace Gui
-{
+class SimplePartWidget;
 
-class EmbeddedWebView;
-class FindBar;
-class MessageView;
-
-class CompleteMessageWidget: public QWidget, private FindBarMixin
+class MessageHeadersWidget : public QWidget, private FindBarMixin
 {
     Q_OBJECT
 public:
-    CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager);
-
-    MessageView *messageView;
-    QScrollArea *area;
-protected:
-    void keyPressEvent(QKeyEvent *ke);
+    MessageHeadersWidget(QWidget *parent, const QModelIndex& messageIndex);
 
 private:
-    CompleteMessageWidget(const CompleteMessageWidget &); // don't implement
-    CompleteMessageWidget &operator=(const CompleteMessageWidget &); // don't implement
-
-    QPropertyAnimation *animator;
+    QWebView *m_widget;
 };
 
 }
 
-#endif // GUI_COMPLETEMESSAGEWIDGET_H
+#endif

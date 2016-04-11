@@ -1,5 +1,4 @@
-/* Copyright (C) 2013  Ahmed Ibrahim Khalil <ahmedibrahimkhali@gmail.com>
-   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
+/* Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -21,39 +20,37 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MessageSourceWidget.h"
+#include "Gui/MessageHeadersWidget.h"
 #include <QAction>
 #include <QModelIndex>
 #include <QVBoxLayout>
 #include <QWebView>
 #include "Gui/FindBar.h"
-#include "Gui/Spinner.h"
-#include "Imap/Model/FullMessageCombiner.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Network/MsgPartNetAccessManager.h"
 #include "UiUtils/IconLoader.h"
 
-namespace Gui
-{
+namespace Gui {
 
-MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &messageIndex)
+MessageHeadersWidget::MessageHeadersWidget(QWidget *parent, const QModelIndex &messageIndex)
     : QWidget(parent)
     , FindBarMixin(this)
-    , m_combiner(nullptr)
-    , m_loadingSpinner(nullptr)
     , m_widget(new QWebView(this))
+
 {
     setWindowIcon(UiUtils::loadIcon(QStringLiteral("text-x-hex")));
+    //: Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
+    setWindowTitle(tr("Message headers of UID %1 in %2").arg(
+                       QString::number(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt()),
+                       messageIndex.parent().parent().data(Imap::Mailbox::RoleMailboxName).toString()
+                       ));
     Q_ASSERT(messageIndex.isValid());
-    m_widget->page()->setNetworkAccessManager(0);
 
-    m_loadingSpinner = new Spinner(this);
-    m_loadingSpinner->setText(tr("Fetching\nMessage"));
-    m_loadingSpinner->setType(Spinner::Sun);
-    m_loadingSpinner->start(250);
-
-    m_combiner = new Imap::Mailbox::FullMessageCombiner(messageIndex, this);
-    connect(m_combiner, &Imap::Mailbox::FullMessageCombiner::completed, this, &MessageSourceWidget::slotCompleted);
-    connect(m_combiner, &Imap::Mailbox::FullMessageCombiner::failed, this, &MessageSourceWidget::slotError);
-    m_combiner->load();
+    auto netAccess = new Imap::Network::MsgPartNetAccessManager(this);
+    netAccess->setModelMessage(messageIndex);
+    m_widget->page()->setNetworkAccessManager(netAccess);
+    m_widget->setUrl(QUrl(QStringLiteral("trojita-imap://msg/HEADER")));
 
     auto find = new QAction(UiUtils::loadIcon(QStringLiteral("edit-find")), tr("Search..."), this);
     find->setShortcut(tr("Ctrl+F"));
@@ -67,18 +64,6 @@ MessageSourceWidget::MessageSourceWidget(QWidget *parent, const QModelIndex &mes
     layout->addWidget(m_widget);
     layout->addWidget(m_findBar);
     setLayout(layout);
-}
-
-void MessageSourceWidget::slotCompleted()
-{
-    m_loadingSpinner->stop();
-    m_widget->setContent(m_combiner->data(), QStringLiteral("text/plain"));
-}
-
-void MessageSourceWidget::slotError(const QString &message)
-{
-    m_loadingSpinner->stop();
-    m_widget->setContent(message.toUtf8(), QStringLiteral("text/plain; charset=utf-8"));
 }
 
 }

@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -33,7 +33,9 @@
 
 namespace Gui {
 
-CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager): QWidget(parent)
+CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager)
+    : QWidget(parent)
+    , FindBarMixin(this)
 {
     setWindowIcon(UiUtils::loadIcon(QStringLiteral("mail-mark-read")));
     messageView = new MessageView(this, settings, pluginManager);
@@ -47,23 +49,13 @@ CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *setting
     animator->setDuration(250); // the default, maybe play with values
     animator->setEasingCurve(QEasingCurve::InOutCubic); // InOutQuad?
 
-    m_findBar = new FindBar(this);
     layout->addWidget(m_findBar);
-
-    connect(messageView, &MessageView::searchRequestedBy, this, &CompleteMessageWidget::searchRequestedBy);
-}
-
-void CompleteMessageWidget::searchRequestedBy(EmbeddedWebView *webView)
-{
-    if (m_findBar->isVisible() || !webView) {
-        // NOTICE: hide must go before resetting the AssociatedWebView
-        // since it clears search results in the AssociatedWebView (otherise hightlights would stay)
-        m_findBar->hide();
-        m_findBar->setAssociatedWebView(0);
-    } else {
-        m_findBar->setAssociatedWebView(webView);
-        m_findBar->show();
-    }
+    connect(messageView, &MessageView::searchRequestedBy,
+            this, [this](EmbeddedWebView *w) {
+        searchRequestedBy(w);
+    });
+    // because the FindBarMixin is not a QObject, we have to use lambda above, otherwise a cast
+    // from FindBarMixin * to QObject * fails
 }
 
 void CompleteMessageWidget::keyPressEvent(QKeyEvent *ke)

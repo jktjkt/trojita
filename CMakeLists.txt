@@ -345,11 +345,13 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/EnvelopeView.cpp
     ${path_DesktopGui}/ExternalElementsWidget.cpp
     ${path_DesktopGui}/FindBar.cpp
+    ${path_DesktopGui}/FindBarMixin.cpp
     ${path_DesktopGui}/FlowLayout.cpp
     ${path_DesktopGui}/FromAddressProxyModel.cpp
     ${path_DesktopGui}/LineEdit.cpp
     ${path_DesktopGui}/LoadablePartWidget.cpp
     ${path_DesktopGui}/MailBoxTreeView.cpp
+    ${path_DesktopGui}/MessageHeadersWidget.cpp
     ${path_DesktopGui}/MessageListWidget.cpp
     ${path_DesktopGui}/MessageSourceWidget.cpp
     ${path_DesktopGui}/MessageView.cpp
