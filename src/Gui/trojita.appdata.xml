@@ -12,7 +12,7 @@
   <name xml:lang="cs">Trojitá</name>
   <name xml:lang="da">Trojitá</name>
   <name xml:lang="de">Trojitá</name>
-  <name xml:lang="el">Trojita</name>
+  <name xml:lang="el">Trojitá</name>
   <name xml:lang="en-GB">Trojitá</name>
   <name xml:lang="es">Trojitá</name>
   <name xml:lang="fi">Trojitá</name>
@@ -64,7 +64,7 @@
     <p xml:lang="ca">Trojitá és un programa de correu electrònic («client») que s'especialitza a donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtenir-los des de l'ordinador local.</p>
     <p xml:lang="ca-valencia">Trojitá és un programa de correu electrònic («client») que s'especialitza a donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtindre-los des de l'ordinador local.</p>
     <p xml:lang="da">Trojitá er et e-mail-program ("klient") der er specialiseret i at give hurtig og effektiv adgang til postkasser over IMAP-protokollen. En IMAP-mailserver lagrer breve og lader klienter hente breve til den lokale computer når der er behov for det.</p>
-    <p xml:lang="el">Η Trojita είναι ένα πρόγραμμα ηλεκτρονικού ταχυδρομείου («εφαρμογή-πελάτης») με ειδικότητα τη γρήγορη και αποτελεσματική πρόσβαση σε γραμματοκιβώτια με το πρωτόκολλο IMAP. Ένας διακομιστής IMAP ηλεκτρονικής αλληλογραφίας αποθηκεύει τα μηνύματα και επιτρέπει στις εφαρμογές να τα μεταφέρουν στον τοπικό υπολογιστή όταν τους ζητηθεί.</p>
+    <p xml:lang="el">Η Trojitá είναι ένα πρόγραμμα ηλεκτρονικού ταχυδρομείου («εφαρμογή-πελάτης») με ειδικότητα τη γρήγορη και αποτελεσματική πρόσβαση σε γραμματοκιβώτια με το πρωτόκολλο IMAP. Ένας διακομιστής IMAP ηλεκτρονικής αλληλογραφίας αποθηκεύει τα μηνύματα και επιτρέπει στις εφαρμογές να τα μεταφέρουν στον τοπικό υπολογιστή όταν τους ζητηθεί.</p>
     <p xml:lang="en-GB">Trojitá is an email program ("client") specialised in giving fast and efficient access to mailboxes over the IMAP protocol. An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.</p>
     <p xml:lang="es">Trojitá es un programa de correo electrónico («cliente») especializado en dar un acceso rápido y eficiente a los buzones de correo sobre el protocolo IMAP. Un servidor de correo IMAP almacena los mensajes y permite a los clientes extraerlos en un sistema local cuando se le pida.</p>
     <p xml:lang="fi">Trojitá on sähköpostiohjelma (”-asiakas”), joka on erikoistunut nopeaan ja tehokkaaseen IMAP-yhteyskäytännön yli tapahtuvaan käyttöön. IMAP-postipalvelin tallentaa viestit ja antaa asiakkaiden noutaa viestejä paikalliselle tietokoneelle pyydettäessä.</p>
@@ -89,7 +89,7 @@
     <p xml:lang="ca">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="ca-valencia">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="da">Den prioriterer effektivitet, hastighed og åbne standarder over andre mål. Trojitá prøver også at virke på flere platforme, og fungere godt på alt fra store desktop-computere til små mobiltelefoner. Trojitá er et selvstændigt program, det er ikke del af suite til håndtering af personlig information.</p>
-    <p xml:lang="el">Δίνει προτεραιότητα σε αποτελεσματικότητα, ταχύτητα και στα ανοιχτά πρότυπα πάνω απ' όλα. Η Trojitá επίσης στοχεύει να έχει υλοποίηση για πολλές πλατφόρμες και να λειτουργεί καλά σε ο,τιδήποτε από μεγάλους υπολογιστές γραφείου μέχρι μικρά κινητά τηλέφωνα. Η Trojitá είναι ένα ανεξάρτητο πρόγραμμα, όχι τμήμα κάποιας σουίτας «διαχείρισης προσωπικών πληροφοριών».</p>
+    <p xml:lang="el">Δίνει προτεραιότητα σε αποτελεσματικότητα, ταχύτητα και στα ανοιχτά πρότυπα πάνω απ' όλα. Η Trojitá επίσης στοχεύει να έχει υλοποίηση για πολλές πλατφόρμες και να λειτουργεί καλά σε οτιδήποτε από μεγάλους υπολογιστές γραφείου μέχρι μικρά κινητά τηλέφωνα. Η Trojitá είναι ένα ανεξάρτητο πρόγραμμα, όχι τμήμα κάποιας σουίτας «διαχείρισης προσωπικών πληροφοριών».</p>
     <p xml:lang="en-GB">It prioritises efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.</p>
     <p xml:lang="es">Prioriza la eficiencia, la velocidad y los estándares abiertos por encima de otros objetivos. Trojitá también pretende ser multiplataforma y funciona bien en cualquier equipo, desde los de escritorio hasta los teléfonos móviles más pequeños. Trojitá es un programa independiente que no forma parte de ningún sistema de «gestión de información personal».</p>
     <p xml:lang="fi">Ohjelmassa kaikkien muiden päämäärien edellä ovat tehokkuus, nopeus ja avoimet standardit. Trojitá pyrkii myös monialustaisuuteen, ja se toimii kaikkialla perinteisistä pöytäkoneista matkapuhelimiin. Trojitá on itsenäinen ohjelma eikä osa mitään ”henkilökohtaisen tiedon hallinnan” ohjelmistoa.</p>
@@ -110,7 +110,7 @@
     <p xml:lang="ca">Què us podria fer el Trojitá interessant:</p>
     <p xml:lang="ca-valencia">Què vos podria fer el Trojitá interessant:</p>
     <p xml:lang="da">Hvad der kunne gøre Trojitá interessant for dig:</p>
-    <p xml:lang="el">Τι θα μπορούσε να κάνει την Trojita ενδιαφέρουσα για εσάς:</p>
+    <p xml:lang="el">Τι θα μπορούσε να κάνει την Trojitá ενδιαφέρουσα για εσάς:</p>
     <p xml:lang="en-GB">What could make Trojitá interesting for you:</p>
     <p xml:lang="es">Qué puede hacer a Trojitá interesante para usted:</p>
     <p xml:lang="fi">Miksi Trojitá voisi kiinnostaa sinua:</p>
@@ -290,6 +290,7 @@
       <caption>Excessively quoted text is automatically collapsed</caption>
       <caption xml:lang="ca">El text citat excessivament es col·lapsa</caption>
       <caption xml:lang="ca-valencia">El text citat excessivament es col·lapsa</caption>
+      <caption xml:lang="el">Το υπέρμετρο κείμενο σε παράθεση συμπτύσσεται αυτόματα</caption>
       <caption xml:lang="nl">Een grote hoeveelheid aangehaalde tekst wordt automatisch ingeklapt</caption>
       <caption xml:lang="pt">O texto citado em excesso é fechado automaticamente</caption>
       <caption xml:lang="pt-BR">O texto citado em excesso é fechado automaticamente</caption>
@@ -302,6 +303,7 @@
       <caption>Encrypted and signed e-mail is supported, with status given in plain English</caption>
       <caption xml:lang="ca">Funciona amb correu electrònic xifrat i signat, amb l'estat indicat en anglès</caption>
       <caption xml:lang="ca-valencia">Funciona amb correu electrònic xifrat i signat, amb l'estat indicat en anglés</caption>
+      <caption xml:lang="el">Υποστήριξη υπογεγραμμένων μηνυμάτων· η κατάσταση εμφανίζεται σε ανεπεξέργαστο κείμενο στην Αγγλική γλώσσα.</caption>
       <caption xml:lang="nl">Versleutelde en ondertekende e-mail wordt ondersteund, met status gegeven in gewoon Engels</caption>
       <caption xml:lang="pt">O e-mail encriptado e assinado é suportado, sendo o seu estado indicado em Inglês simples</caption>
       <caption xml:lang="pt-BR">Há suporte para e-mail criptografado e assinado, com status indicado em inglês simples</caption>
