@@ -190,6 +190,7 @@ void CryptographyMessageModelTest::testMixedMessageParts()
     QModelIndex mappedMsg = msgModel.index(0,0);
     QVERIFY(mappedMsg.isValid());
     QVERIFY(msgModel.rowCount(mappedMsg) > 0);
+    QCOMPARE(msgModel.parent(mappedMsg), QModelIndex());
 
     QModelIndex mappedPart = mappedMsg.child(0, 0);
     QVERIFY(mappedPart.isValid());

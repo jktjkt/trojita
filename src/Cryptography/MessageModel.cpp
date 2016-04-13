@@ -83,7 +83,7 @@ QModelIndex MessageModel::parent(const QModelIndex &child) const
     auto childPart = translatePtr(child);
     Q_ASSERT(childPart);
     auto parentPart = childPart->parent();
-    return parentPart ? createIndex(parentPart->row(), 0, parentPart) : QModelIndex();
+    return (parentPart && parentPart != m_rootPart.get()) ? createIndex(parentPart->row(), 0, parentPart) : QModelIndex();
 }
 
 QVariant MessageModel::data(const QModelIndex &index, int role) const
