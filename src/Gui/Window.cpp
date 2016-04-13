@@ -235,6 +235,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_network_expensive"), QStringLiteral("network-wireless"), tr("&Expensive Connection"));
     shortcutHandler->defineAction(QStringLiteral("action_network_online"), QStringLiteral("network-connect"), tr("&Free Access"));
     shortcutHandler->defineAction(QStringLiteral("action_messagewindow_close"), QStringLiteral("window-close"), tr("Close Standalone Message Window"));
+    shortcutHandler->defineAction(QStringLiteral("action_oneattime_go_back"), QStringLiteral("go-previous"), tr("Navigate Back"), QKeySequence(QKeySequence::Back).toString());
 }
 
 void MainWindow::createActions()
@@ -351,8 +352,7 @@ void MainWindow::createActions()
     triggerSearch->setShortcut(QKeySequence(QStringLiteral("/")));
     connect(triggerSearch, &QAction::triggered, msgListWidget, &MessageListWidget::focusSearch);
 
-    m_oneAtTimeGoBack = new QAction(UiUtils::loadIcon(QStringLiteral("go-previous")), tr("Navigate Back"), this);
-    m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
+    m_oneAtTimeGoBack = ShortcutHandler::instance()->createAction(QStringLiteral("action_oneattime_go_back"), this);
     m_oneAtTimeGoBack->setEnabled(false);
 
     composeMail = ShortcutHandler::instance()->createAction(QStringLiteral("action_compose_mail"), this, SLOT(slotComposeMail()), this);
