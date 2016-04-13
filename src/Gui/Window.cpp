@@ -1083,7 +1083,7 @@ void MainWindow::msgListClicked(const QModelIndex &index)
                                                Imap::Mailbox::FLAG_REMOVE : Imap::Mailbox::FLAG_ADD;
         imapModel()->setMessageFlags(QModelIndexList() << translated, Imap::Mailbox::FlagNames::flagged, flagOp);
     } else {
-        if (m_messageWidget->isVisible() && !m_messageWidget->size().isEmpty()) {
+        if ((m_messageWidget->isVisible() && !m_messageWidget->size().isEmpty()) || m_layoutMode == LAYOUT_ONE_AT_TIME) {
             // isVisible() won't work, the splitter manipulates width, not the visibility state
             m_messageWidget->messageView->setMessage(index);
         }
