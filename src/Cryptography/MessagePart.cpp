@@ -54,7 +54,7 @@ MessagePart *MessagePart::parent() const
     return m_parent;
 }
 
-const int MessagePart::row() const
+int MessagePart::row() const
 {
     return m_row;
 }

@@ -64,7 +64,7 @@ public:
     virtual void fetchChildren(MessageModel *model) = 0;
 
     MessagePart* parent() const;
-    const int row() const;
+    int row() const;
     MessagePart *child(MessageModel *model, int row, int column) const;
     virtual int rowCount(MessageModel *model) const;
     virtual int columnCount(MessageModel *model) const;
