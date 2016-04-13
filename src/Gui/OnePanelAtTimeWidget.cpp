@@ -51,7 +51,7 @@ OnePanelAtTimeWidget::OnePanelAtTimeWidget(QMainWindow *mainWindow, MailBoxTreeV
     // to an index through keyboard. Of course, this doesn't play terribly well with this layout.
     m_msgListWidget->tree->setAutoActivateAfterKeyNavigation(false);
 
-    m_toolbar->addAction(m_actionGoBack);
+    m_toolbar->insertAction(m_toolbar->actions().isEmpty() ? nullptr : m_toolbar->actions()[0], m_actionGoBack);
 }
 
 OnePanelAtTimeWidget::~OnePanelAtTimeWidget()
