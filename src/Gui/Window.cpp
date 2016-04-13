@@ -1293,14 +1293,14 @@ void MainWindow::authenticationRequested()
 {
     Plugins::PasswordPlugin *password = pluginManager()->password();
     if (password) {
-    // FIXME: use another account-id at some point in future
-    //        Currently the accountName will be empty unless Trojita has been
-    //        called with a profile, and then the profile will be used as the
-    //        accountName.
-    QString accountName = m_imapAccess->accountName();
-    if (accountName.isEmpty())
-        accountName = QStringLiteral("account-0");
-    Plugins::PasswordJob *job = password->requestPassword(accountName, QStringLiteral("imap"));
+        // FIXME: use another account-id at some point in future
+        //        Currently the accountName will be empty unless Trojita has been
+        //        called with a profile, and then the profile will be used as the
+        //        accountName.
+        QString accountName = m_imapAccess->accountName();
+        if (accountName.isEmpty())
+            accountName = QStringLiteral("account-0");
+        Plugins::PasswordJob *job = password->requestPassword(accountName, QStringLiteral("imap"));
         if (job) {
             connect(job, &Plugins::PasswordJob::passwordAvailable, this, &MainWindow::authenticationContinue);
             connect(job, &Plugins::PasswordJob::error, this, &MainWindow::authenticationContinueNoPassword);
