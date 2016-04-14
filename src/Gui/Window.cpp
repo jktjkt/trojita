@@ -2406,7 +2406,7 @@ QString MainWindow::settingsKeyForLayout(const LayoutMode layout)
     case LAYOUT_WIDE:
         return Common::SettingsNames::guiSizesInMainWinWhenWide;
     case LAYOUT_ONE_AT_TIME:
-        // nothing is saved here
+        return Common::SettingsNames::guiSizesInaMainWinWhenOneAtATime;
         break;
     }
     return QString();
