@@ -334,7 +334,6 @@ void MainWindow::createActions()
 
     showToolBar = new QAction(tr("Show &Toolbar"), this);
     showToolBar->setCheckable(true);
-    showToolBar->setChecked(true);
     connect(showToolBar, &QAction::triggered, m_mainToolbar, &QWidget::setVisible);
     connect(m_mainToolbar, &QToolBar::visibilityChanged, showToolBar, &QAction::setChecked);
     connect(m_mainToolbar, &QToolBar::visibilityChanged, m_delayedStateSaving, static_cast<void (QTimer::*)()>(&QTimer::start));
