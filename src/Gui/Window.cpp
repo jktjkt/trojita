@@ -2395,7 +2395,7 @@ Imap::Mailbox::Model *MainWindow::imapModel() const
 
 void MainWindow::desktopGeometryChanged()
 {
-    saveSizesAndState();
+    m_delayedStateSaving->start();
 }
 
 QString MainWindow::settingsKeyForLayout(const LayoutMode layout)
