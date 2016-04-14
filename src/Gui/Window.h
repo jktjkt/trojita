@@ -134,8 +134,7 @@ private slots:
     void networkError(const QString &message);
     void cacheError(const QString &message);
     void authenticationRequested();
-    void authenticationContinue(const QString &pass);
-    void authenticationContinueNoPassword();
+    void authenticationContinue(const QString &pass, const QString &errorMessage = QString());
     void checkSslPolicy();
     void slotManageContact(const QUrl &url);
     void slotEditDraft();

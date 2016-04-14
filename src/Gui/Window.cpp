@@ -1293,17 +1293,25 @@ void MainWindow::authenticationRequested()
 {
     Plugins::PasswordPlugin *password = pluginManager()->password();
     if (password) {
-    // FIXME: use another account-id at some point in future
-    //        Currently the accountName will be empty unless Trojita has been
-    //        called with a profile, and then the profile will be used as the
-    //        accountName.
-    QString accountName = m_imapAccess->accountName();
-    if (accountName.isEmpty())
-        accountName = QStringLiteral("account-0");
-    Plugins::PasswordJob *job = password->requestPassword(accountName, QStringLiteral("imap"));
+        // FIXME: use another account-id at some point in future
+        //        Currently the accountName will be empty unless Trojita has been
+        //        called with a profile, and then the profile will be used as the
+        //        accountName.
+        QString accountName = m_imapAccess->accountName();
+        if (accountName.isEmpty())
+            accountName = QStringLiteral("account-0");
+        Plugins::PasswordJob *job = password->requestPassword(accountName, QStringLiteral("imap"));
         if (job) {
-            connect(job, &Plugins::PasswordJob::passwordAvailable, this, &MainWindow::authenticationContinue);
-            connect(job, &Plugins::PasswordJob::error, this, &MainWindow::authenticationContinueNoPassword);
+            connect(job, &Plugins::PasswordJob::passwordAvailable, this, [this](const QString &password) {
+                authenticationContinue(password);
+            });
+            connect(job, &Plugins::PasswordJob::error, this, [this](const Plugins::PasswordJob::Error error, const QString &message) {
+                if (error == Plugins::PasswordJob::Error::NoSuchPassword) {
+                    authenticationContinue(QString());
+                } else {
+                    authenticationContinue(QString(), tr("Failed to retrieve password from the store: %1").arg(message));
+                }
+            });
             job->setAutoDelete(true);
             job->start();
             return;
@@ -1314,12 +1322,7 @@ void MainWindow::authenticationRequested()
 
 }
 
-void MainWindow::authenticationContinueNoPassword()
-{
-    authenticationContinue(QString());
-}
-
-void MainWindow::authenticationContinue(const QString &password)
+void MainWindow::authenticationContinue(const QString &password, const QString &errorMessage)
 {
     const QString &user = m_settings->value(Common::SettingsNames::imapUserKey).toString();
     QString pass = password;
@@ -1331,7 +1334,8 @@ void MainWindow::authenticationContinue(const QString &password)
                                                m_settings->value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
                                            ),
                                            QString(), &ok,
-                                           imapModel()->imapAuthError());
+                                           errorMessage + (errorMessage.isEmpty() ? QString() : QStringLiteral("\n\n"))
+                                           + imapModel()->imapAuthError());
         if (ok) {
             imapModel()->setImapPassword(pass);
         } else {
