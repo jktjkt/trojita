@@ -45,7 +45,7 @@ OnePanelAtTimeWidget::OnePanelAtTimeWidget(QMainWindow *mainWindow, MailBoxTreeV
     connect(m_msgListWidget->tree, &QAbstractItemView::activated, this, &OnePanelAtTimeWidget::slotOneAtTimeGoDeeper);
     connect(m_mboxTree, &QAbstractItemView::clicked, this, &OnePanelAtTimeWidget::slotOneAtTimeGoDeeper);
     connect(m_mboxTree, &QAbstractItemView::activated, this, &OnePanelAtTimeWidget::slotOneAtTimeGoDeeper);
-    connect(m_actionGoBack, &QAction::triggered, this, &OnePanelAtTimeWidget::slotOneAtTimeGoBack);
+    connect(m_actionGoBack.data(), &QAction::triggered, this, &OnePanelAtTimeWidget::slotOneAtTimeGoBack);
 
     // The list view is configured to auto-emit activated(QModelIndex) after a short while when the user has navigated
     // to an index through keyboard. Of course, this doesn't play terribly well with this layout.
@@ -64,7 +64,9 @@ OnePanelAtTimeWidget::~OnePanelAtTimeWidget()
     }
     m_msgListWidget->tree->setAutoActivateAfterKeyNavigation(false);
 
-    m_toolbar->removeAction(m_actionGoBack);
+    if (m_toolbar) {
+        m_toolbar->removeAction(m_actionGoBack);
+    }
 
     // The size of the widgets is still wrong. Let's fix this.
     if (m_mainWindow->isMaximized()) {

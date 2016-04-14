@@ -22,6 +22,7 @@
 #ifndef GUI_ONEPANELATTIME_H
 #define GUI_ONEPANELATTIME_H
 
+#include <QPointer>
 #include <QStackedWidget>
 
 class QAction;
@@ -54,8 +55,8 @@ private:
     MessageListWidget *m_msgListWidget;
     CompleteMessageWidget *m_messageWidget;
 
-    QToolBar *m_toolbar;
-    QAction *m_actionGoBack;
+    QPointer<QToolBar> m_toolbar;
+    QPointer<QAction> m_actionGoBack;
 };
 
 }
