@@ -52,6 +52,7 @@ OnePanelAtTimeWidget::OnePanelAtTimeWidget(QMainWindow *mainWindow, MailBoxTreeV
     m_msgListWidget->tree->setAutoActivateAfterKeyNavigation(false);
 
     m_toolbar->insertAction(m_toolbar->actions().isEmpty() ? nullptr : m_toolbar->actions()[0], m_actionGoBack);
+    addAction(m_actionGoBack);
 }
 
 OnePanelAtTimeWidget::~OnePanelAtTimeWidget()
