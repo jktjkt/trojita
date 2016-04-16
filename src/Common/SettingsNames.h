@@ -47,7 +47,7 @@ struct SettingsNames {
     static const QString guiMailboxListShowOnlySubscribed;
     static const QString guiPreferPlaintextRendering;
     static const QString guiMainWindowLayout, guiMainWindowLayoutCompact, guiMainWindowLayoutWide, guiMainWindowLayoutOneAtTime;
-    static const QString guiSizesInMainWinWhenCompact, guiSizesInMainWinWhenWide;
+    static const QString guiSizesInMainWinWhenCompact, guiSizesInMainWinWhenWide, guiSizesInaMainWinWhenOneAtATime;
     static const QString guiAllowRawSearch;
     static const QString appLoadHomepage;
     static const QString guiShowSystray, guiOnSystrayClose, guiStartMinimized;

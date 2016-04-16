@@ -235,6 +235,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_network_expensive"), QStringLiteral("network-wireless"), tr("&Expensive Connection"));
     shortcutHandler->defineAction(QStringLiteral("action_network_online"), QStringLiteral("network-connect"), tr("&Free Access"));
     shortcutHandler->defineAction(QStringLiteral("action_messagewindow_close"), QStringLiteral("window-close"), tr("Close Standalone Message Window"));
+    shortcutHandler->defineAction(QStringLiteral("action_oneattime_go_back"), QStringLiteral("go-previous"), tr("Navigate Back"), QKeySequence(QKeySequence::Back).toString());
 }
 
 void MainWindow::createActions()
@@ -333,7 +334,6 @@ void MainWindow::createActions()
 
     showToolBar = new QAction(tr("Show &Toolbar"), this);
     showToolBar->setCheckable(true);
-    showToolBar->setChecked(true);
     connect(showToolBar, &QAction::triggered, m_mainToolbar, &QWidget::setVisible);
     connect(m_mainToolbar, &QToolBar::visibilityChanged, showToolBar, &QAction::setChecked);
     connect(m_mainToolbar, &QToolBar::visibilityChanged, m_delayedStateSaving, static_cast<void (QTimer::*)()>(&QTimer::start));
@@ -351,8 +351,7 @@ void MainWindow::createActions()
     triggerSearch->setShortcut(QKeySequence(QStringLiteral("/")));
     connect(triggerSearch, &QAction::triggered, msgListWidget, &MessageListWidget::focusSearch);
 
-    m_oneAtTimeGoBack = new QAction(UiUtils::loadIcon(QStringLiteral("go-previous")), tr("Navigate Back"), this);
-    m_oneAtTimeGoBack->setShortcut(QKeySequence::Back);
+    m_oneAtTimeGoBack = ShortcutHandler::instance()->createAction(QStringLiteral("action_oneattime_go_back"), this);
     m_oneAtTimeGoBack->setEnabled(false);
 
     composeMail = ShortcutHandler::instance()->createAction(QStringLiteral("action_compose_mail"), this, SLOT(slotComposeMail()), this);
@@ -1083,7 +1082,7 @@ void MainWindow::msgListClicked(const QModelIndex &index)
                                                Imap::Mailbox::FLAG_REMOVE : Imap::Mailbox::FLAG_ADD;
         imapModel()->setMessageFlags(QModelIndexList() << translated, Imap::Mailbox::FlagNames::flagged, flagOp);
     } else {
-        if (m_messageWidget->isVisible() && !m_messageWidget->size().isEmpty()) {
+        if ((m_messageWidget->isVisible() && !m_messageWidget->size().isEmpty()) || m_layoutMode == LAYOUT_ONE_AT_TIME) {
             // isVisible() won't work, the splitter manipulates width, not the visibility state
             m_messageWidget->messageView->setMessage(index);
         }
@@ -2399,7 +2398,7 @@ Imap::Mailbox::Model *MainWindow::imapModel() const
 
 void MainWindow::desktopGeometryChanged()
 {
-    saveSizesAndState();
+    m_delayedStateSaving->start();
 }
 
 QString MainWindow::settingsKeyForLayout(const LayoutMode layout)
@@ -2410,7 +2409,7 @@ QString MainWindow::settingsKeyForLayout(const LayoutMode layout)
     case LAYOUT_WIDE:
         return Common::SettingsNames::guiSizesInMainWinWhenWide;
     case LAYOUT_ONE_AT_TIME:
-        // nothing is saved here
+        return Common::SettingsNames::guiSizesInaMainWinWhenOneAtATime;
         break;
     }
     return QString();

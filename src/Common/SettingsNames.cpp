@@ -96,6 +96,7 @@ const QString SettingsNames::guiOnSystrayClose = QStringLiteral("gui/onSystrayCl
 const QString SettingsNames::guiStartMinimized = QStringLiteral("gui/startMinimized");
 const QString SettingsNames::guiSizesInMainWinWhenCompact = QStringLiteral("gui/sizeInMainWinWhenCompact-%1");
 const QString SettingsNames::guiSizesInMainWinWhenWide = QStringLiteral("gui/sizeInMainWinWhenWide-%1");
+const QString SettingsNames::guiSizesInaMainWinWhenOneAtATime = QStringLiteral("gui/sizeInMainWinWhenOneAtATime-%1");
 const QString SettingsNames::guiAllowRawSearch = QStringLiteral("gui/allowRawSearch");
 const QString SettingsNames::appLoadHomepage = QStringLiteral("app.updates.checkEnabled");
 const QString SettingsNames::knownEmailsKey = QStringLiteral("addressBook/knownEmails");
