@@ -1890,7 +1890,7 @@ void MainWindow::slotShowAboutTrojita()
 
 void MainWindow::slotDonateToTrojita()
 {
-    QDesktopServices::openUrl(QStringLiteral("http://sourceforge.net/donate/index.php?group_id=339456"));
+    QDesktopServices::openUrl(QStringLiteral("https://sourceforge.net/p/trojita/donate/"));
 }
 
 void MainWindow::slotSaveCurrentMessageBody()
