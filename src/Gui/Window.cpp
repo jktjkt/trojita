@@ -740,7 +740,7 @@ void MainWindow::createWidgets()
         if (url.isEmpty()) {
             QToolTip::hideText();
         } else {
-            QToolTip::showText(QCursor::pos(), tr("Link target: %1").arg(UiUtils::Formatting::htmlEscaped(url)));
+            QToolTip::showText(QCursor::pos(), QObject::tr("Link target: %1").arg(UiUtils::Formatting::htmlEscaped(url)));
         }
     });
     connect(m_messageWidget->messageView, &MessageView::transferError, this, &MainWindow::slotDownloadTransferError);
