@@ -292,6 +292,7 @@
       <caption xml:lang="ca-valencia">El text citat excessivament es col·lapsa</caption>
       <caption xml:lang="el">Το υπέρμετρο κείμενο σε παράθεση συμπτύσσεται αυτόματα</caption>
       <caption xml:lang="en-GB">Excessively quoted text is automatically collapsed</caption>
+      <caption xml:lang="es">El texto citado en exceso se contrae automáticamente</caption>
       <caption xml:lang="gl">Os textos con demasiadas comiñas recóllese automaticamente.</caption>
       <caption xml:lang="nl">Een grote hoeveelheid aangehaalde tekst wordt automatisch ingeklapt</caption>
       <caption xml:lang="pt">O texto citado em excesso é fechado automaticamente</caption>
@@ -307,6 +308,7 @@
       <caption xml:lang="ca-valencia">Funciona amb correu electrònic xifrat i signat, amb l'estat indicat en anglés</caption>
       <caption xml:lang="el">Υποστήριξη υπογεγραμμένων μηνυμάτων· η κατάσταση εμφανίζεται σε ανεπεξέργαστο κείμενο στην Αγγλική γλώσσα.</caption>
       <caption xml:lang="en-GB">Encrypted and signed e-mail is supported, with status given in plain English</caption>
+      <caption xml:lang="es">Permite el uso de correo electrónico cifrado y firmado, con el estado dado en inglés sin formato</caption>
       <caption xml:lang="gl">Compatíbel con mensaxes cifradas e asinadas, co estado indicado con texto.</caption>
       <caption xml:lang="nl">Versleutelde en ondertekende e-mail wordt ondersteund, met status gegeven in gewoon Engels</caption>
       <caption xml:lang="pt">O e-mail encriptado e assinado é suportado, sendo o seu estado indicado em Inglês simples</caption>
