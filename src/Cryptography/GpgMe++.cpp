@@ -570,12 +570,12 @@ GpgMeSigned::GpgMeSigned(const Protocol protocol, GpgMeReplacer *replacer, Messa
 {
     m_wasSigned = true;
     Q_ASSERT(sourceItemIndex.child(0, 0).isValid());
-    Q_ASSERT(m_plaintextPart.isValid());
-    Q_ASSERT(m_signaturePart.isValid());
 
     if (m_ctx) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
         if (rowCount == 2) {
+            Q_ASSERT(m_plaintextPart.isValid());
+            Q_ASSERT(m_signaturePart.isValid());
             m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeSigned::handleDataChanged);
             Q_ASSERT(m_dataChanged);
             // Trigger lazy loading of the required message parts
