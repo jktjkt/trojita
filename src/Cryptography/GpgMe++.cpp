@@ -193,7 +193,7 @@ GpgMePart::GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageMo
         }
     }
 
-    // do the peirodic cleanup
+    // do the periodic cleanup
     m_replacer->registerOrhpanedCryptoTask(std::future<void>());
 }
 
@@ -203,7 +203,7 @@ GpgMePart::~GpgMePart()
         // this is documented to be thread safe at all times
         m_ctx->cancelPendingOperation();
 
-        // Because std::future's destructor calls blocks/joins, we have a problem if the operation that is running
+        // Because std::future's destructor blocks/joins, we have a problem if the operation that is running
         // in the std::async gets stuck for some reason. If we make no additional precautions, the GUI would freeze
         // at the destruction time, which means that everything will run "smoothly" (with the GUI remaining responsive)
         // until the time we move to another message -- and that's quite nasty surprise.
