@@ -200,7 +200,7 @@ void CryptographyPGPTest::testDecryptWithoutEnvelope()
 
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
-    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE " + bsEncrypted + ")\r\n" + t.last("OK fetched\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bsEncrypted + "))\r\n" + t.last("OK fetched\r\n"));
     // notice that the ENVELOPE never arrived
     cEmpty();
     QVERIFY(model->rowCount(msg) > 0);
@@ -262,11 +262,11 @@ void CryptographyPGPTest::testVerification()
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
-    cServer(helperCreateTrivialEnvelope(1, 333, QStringLiteral("subj"), from, QStringLiteral("("
+    cServer(helperCreateTrivialEnvelope(1, 333, QStringLiteral("subj"), from, QStringLiteral(
             "(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 423 14 NIL NIL NIL NIL)"
             "(\"application\" \"pgp-signature\" NIL NIL NIL \"7bit\" 851 NIL NIL NIL NIL)"
             " \"signed\" (\"boundary\" \"=-=-=\" \"micalg\" \"pgp-sha256\" \"protocol\" \"application/pgp-signature\")"
-            " NIL NIL NIL)"))
+            " NIL NIL NIL"))
             + t.last("OK fetched\r\n"));
     cEmpty();
     QVERIFY(model->rowCount(msg) > 0);
