@@ -366,7 +366,7 @@ void CryptographyPGPTest::testVerification_data()
             << true;
 
     // my signature, but a different identity
-    QTest::newRow("valid-me")
+    QTest::newRow("my-signature-different-identity")
             << sigFromMe
             << ptMimeHdr
             << QByteArray("plaintext\r\n")
@@ -378,7 +378,7 @@ void CryptographyPGPTest::testVerification_data()
             << false;
 
     // my signature, different data
-    QTest::newRow("valid-me")
+    QTest::newRow("my-signature-different-data")
             << sigFromMe
             << ptMimeHdr
             << QByteArray("I will pay you right now\r\n")
