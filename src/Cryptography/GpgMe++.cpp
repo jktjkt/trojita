@@ -240,19 +240,20 @@ void GpgMePart::forwardFailure(const QString &statusTLDR, const QString &statusL
     m_statusLong = statusLong;
     m_statusIcon = statusIcon;
 
-    // This forward is needed because we migth be emitting this indirectly, from the item's constructor.
-    // At the time the ctor runs, the multipart/encrypted has not been inserted into the proxy model yet,
-    // so we cannot obtain its index.
-    emit m_model->error(m_proxyParentIndex.child(m_row, 0), m_statusTLDR, m_statusLong);
-    emitDataChanged();
-
     if (m_sourceIndex.isValid()) {
         std::vector<MessagePart::Ptr> children;
         for (int i = 0; i < m_sourceIndex.model()->rowCount(m_sourceIndex); ++i) {
             children.emplace_back(MessagePart::Ptr(new ProxyMessagePart(nullptr, 0, m_sourceIndex.child(i, 0), m_model)));
         }
+        // This has to happen prior to emitting error()
         m_model->insertSubtree(m_proxyParentIndex.child(m_row, 0), std::move(children));
     }
+
+    // This forward is needed because we migth be emitting this indirectly, from the item's constructor.
+    // At the time the ctor runs, the multipart/encrypted has not been inserted into the proxy model yet,
+    // so we cannot obtain its index.
+    emit m_model->error(m_proxyParentIndex.child(m_row, 0), m_statusTLDR, m_statusLong);
+    emitDataChanged();
 }
 
 void GpgMePart::emitDataChanged()
