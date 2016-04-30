@@ -748,10 +748,7 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
 {
     Q_ASSERT(topLeft == bottomRight);
     if (!m_encPart.isValid()) {
-        m_statusTLDR = tr("Encrypted message is gone");
-        m_statusLong = QString();
-        m_statusIcon = QStringLiteral("state-offline");
-        emitDataChanged();
+        forwardFailure(tr("Encrypted message is gone"), QString(), QStringLiteral("state-offline"));
         return;
     }
     if (topLeft != m_versionPart && topLeft != m_encPart && topLeft != m_enclosingMessage) {
