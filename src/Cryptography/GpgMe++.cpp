@@ -159,6 +159,7 @@ GpgMePart::GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageMo
     , LocalMessagePart(parentPart, sourceItemIndex.row(), sourceItemIndex.data(RolePartMimeType).toByteArray())
     , m_replacer(replacer)
     , m_model(model)
+    , m_sourceIndex(sourceItemIndex)
     , m_proxyParentIndex(proxyParentIndex)
     , m_waitingForData(false)
     , m_wasSigned(false)
@@ -244,6 +245,14 @@ void GpgMePart::forwardFailure(const QString &statusTLDR, const QString &statusL
     // so we cannot obtain its index.
     emit m_model->error(m_proxyParentIndex.child(m_row, 0), m_statusTLDR, m_statusLong);
     emitDataChanged();
+
+    if (m_sourceIndex.isValid()) {
+        std::vector<MessagePart::Ptr> children;
+        for (int i = 0; i < m_sourceIndex.model()->rowCount(m_sourceIndex); ++i) {
+            children.emplace_back(MessagePart::Ptr(new ProxyMessagePart(nullptr, 0, m_sourceIndex.child(i, 0), m_model)));
+        }
+        m_model->insertSubtree(m_proxyParentIndex.child(m_row, 0), std::move(children));
+    }
 }
 
 void GpgMePart::emitDataChanged()

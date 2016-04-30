@@ -436,8 +436,8 @@ void CryptographyPGPTest::testMalformed()
     QModelIndex data = mappedMsg.child(0, 0);
     QVERIFY(data.isValid());
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
-    QCOMPARE(msgModel.rowCount(data), rowCount);
     QCoreApplication::processEvents();
+    QCOMPARE(msgModel.rowCount(data), rowCount);
     QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoTLDR).toString(), tldr);
     QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoDetailedMessage).toString(), detail);
 
@@ -472,7 +472,7 @@ void CryptographyPGPTest::testMalformed_data()
             << QByteArray("(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 423 14 NIL NIL NIL NIL)"
                           " \"signed\" (\"boundary\" \"=-=-=\" \"micalg\" \"pgp-sha256\" \"protocol\" \"application/pgp-signature\")"
                           " NIL NIL NIL")
-            << 0 // FIXME: this is a bug; these unrecognized parts should be made available
+            << 1
             << QStringLiteral("Malformed Signed Message")
             << QStringLiteral("Expected 2 parts, but found 1.");
 

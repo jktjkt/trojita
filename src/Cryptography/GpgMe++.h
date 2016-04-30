@@ -92,6 +92,7 @@ protected:
     GpgMeReplacer *m_replacer;
     MessageModel *m_model;
     QMetaObject::Connection m_dataChanged;
+    QPersistentModelIndex m_sourceIndex;
     QPersistentModelIndex m_proxyParentIndex;
     QPersistentModelIndex m_enclosingMessage;
     bool m_waitingForData;
