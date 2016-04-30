@@ -304,7 +304,7 @@
     </screenshot>
     <screenshot>
       <caption>Encrypted and signed e-mail is supported, with status given in plain English</caption>
-      <caption xml:lang="ca">Funciona amb correu electrònic xifrat i signat, amb l'estat indicat en anglès</caption>
+      <caption xml:lang="ca">Funciona amb correu electrònic encriptat i signat, amb l'estat indicat en anglès</caption>
       <caption xml:lang="ca-valencia">Funciona amb correu electrònic xifrat i signat, amb l'estat indicat en anglés</caption>
       <caption xml:lang="el">Υποστήριξη υπογεγραμμένων μηνυμάτων· η κατάσταση εμφανίζεται σε ανεπεξέργαστο κείμενο στην Αγγλική γλώσσα.</caption>
       <caption xml:lang="en-GB">Encrypted and signed e-mail is supported, with status given in plain English</caption>
