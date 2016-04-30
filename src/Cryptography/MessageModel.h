@@ -69,6 +69,9 @@ public:
     */
     void insertSubtree(const QModelIndex &parent, Cryptography::MessagePart::Ptr tree);
 
+    /** @short Overload, for taking several items and making them new children at the same level */
+    void insertSubtree(const QModelIndex &parent, std::vector<MessagePart::Ptr> &&parts);
+
     void replaceMeWithSubtree(const QModelIndex &parent, MessagePart *partToReplace, MessagePart::Ptr tree);
 
     /** @short Activate a custom MIME part handler/replacer */
