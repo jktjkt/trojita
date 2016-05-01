@@ -294,6 +294,7 @@
       <caption xml:lang="en-GB">Excessively quoted text is automatically collapsed</caption>
       <caption xml:lang="es">El texto citado en exceso se contrae automáticamente</caption>
       <caption xml:lang="gl">Os textos con demasiadas comiñas recóllese automaticamente.</caption>
+      <caption xml:lang="it">Il testo eccessivamente citato viene automaticamente compresso</caption>
       <caption xml:lang="nl">Een grote hoeveelheid aangehaalde tekst wordt automatisch ingeklapt</caption>
       <caption xml:lang="pt">O texto citado em excesso é fechado automaticamente</caption>
       <caption xml:lang="pt-BR">O texto citado em excesso é fechado automaticamente</caption>
@@ -310,6 +311,7 @@
       <caption xml:lang="en-GB">Encrypted and signed e-mail is supported, with status given in plain English</caption>
       <caption xml:lang="es">Permite el uso de correo electrónico cifrado y firmado, con el estado dado en inglés sin formato</caption>
       <caption xml:lang="gl">Compatíbel con mensaxes cifradas e asinadas, co estado indicado con texto.</caption>
+      <caption xml:lang="it">È supportata la posta elettronica cifrata e firmata, con lo stato indicato in inglese</caption>
       <caption xml:lang="nl">Versleutelde en ondertekende e-mail wordt ondersteund, met status gegeven in gewoon Engels</caption>
       <caption xml:lang="pt">O e-mail encriptado e assinado é suportado, sendo o seu estado indicado em Inglês simples</caption>
       <caption xml:lang="pt-BR">Há suporte para e-mail criptografado e assinado, com status indicado em inglês simples</caption>
