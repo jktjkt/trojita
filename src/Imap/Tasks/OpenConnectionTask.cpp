@@ -333,7 +333,7 @@ bool OpenConnectionTask::handleStateHelper(const Imap::Responses::State *const r
                 EMIT_LATER(model, authAttemptFailed, Q_ARG(QString, message));
 
                 model->m_imapPassword.clear();
-                model->m_hasImapPassword = false;
+                model->m_hasImapPassword = Model::PasswordAvailability::NOT_REQUESTED;
                 if (model->accessParser(parser).connState == CONN_STATE_LOGOUT) {
                     // The server has closed the conenction
                     _failed(QStringLiteral("Connection closed after a failed login"));
@@ -445,23 +445,36 @@ void OpenConnectionTask::abortConnection(const QString &message)
 
 void OpenConnectionTask::askForAuth()
 {
-    if (model->m_hasImapPassword) {
+    switch(model->m_hasImapPassword) {
+    case Model::PasswordAvailability::NOT_REQUESTED:
+        model->m_hasImapPassword = Model::PasswordAvailability::ASKED_WAITING;
+        EMIT_LATER_NOARG(model, authRequested);
+        break;
+    case Model::PasswordAvailability::ASKED_WAITING:
+        // do nothing, it has been already requested by the GUI
+        model->logTrace(parser->parserId(), Common::LOG_OTHER, QLatin1String("imap.password"),
+                        QLatin1String("Password already requested, will wait"));
+        break;
+    case Model::PasswordAvailability::AVAILABLE:
         Q_ASSERT(loginCmd.isEmpty());
         loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
         model->accessParser(parser).capabilitiesFresh = false;
-    } else {
-        EMIT_LATER_NOARG(model, authRequested);
+        break;
     }
 }
 
 void OpenConnectionTask::authCredentialsNowAvailable()
 {
     if (model->accessParser(parser).connState == CONN_STATE_LOGIN && loginCmd.isEmpty()) {
-        if (model->m_hasImapPassword) {
+        switch (model->m_hasImapPassword) {
+        case Model::PasswordAvailability::NOT_REQUESTED:
+        case Model::PasswordAvailability::ASKED_WAITING:
+            abortConnection(tr("Cannot login, you have not provided any credentials yet."));
+            break;
+        case Model::PasswordAvailability::AVAILABLE:
             loginCmd = parser->login(model->m_imapUser, model->m_imapPassword);
             model->accessParser(parser).capabilitiesFresh = false;
-        } else {
-            abortConnection(tr("Cannot login, you have not provided any credentials yet."));
+            break;
         }
     }
 }

@@ -567,7 +567,12 @@ private:
     /** @short Cached copy of the IMAP password */
     QString m_imapPassword;
     /** @short Is the IMAP password cached in the Model already? */
-    bool m_hasImapPassword;
+    enum class PasswordAvailability {
+        NOT_REQUESTED,
+        ASKED_WAITING,
+        AVAILABLE,
+    };
+    PasswordAvailability m_hasImapPassword;
     /** @short Contains IMAP error output while password prompt process*/
     QString m_imapAuthError;
 

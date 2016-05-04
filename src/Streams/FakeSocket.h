@@ -68,6 +68,8 @@ public slots:
     */
     void fakeReading(const QByteArray &what);
 
+    void fakeDisconnect(const QString &message);
+
 private:
     QIODevice *readChannel;
     QIODevice *writeChannel;

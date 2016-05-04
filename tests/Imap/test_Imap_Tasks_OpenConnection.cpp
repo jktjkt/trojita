@@ -571,6 +571,38 @@ void ImapModelOpenConnectionTest::testAuthFailureNoRespCode()
     QVERIFY(model->imapAuthError().contains("Derp"));
 }
 
+/** @short Ensure that network reconnects do not lead to a huge number of password prompts
+
+https://bugs.kde.org/show_bug.cgi?id=362477
+*/
+void ImapModelOpenConnectionTest::testExcessivePasswordPrompts()
+{
+    cEmpty();
+    m_enableAutoLogin = false;
+    cServer("* OK [capability imap4rev1] Service Ready\r\n");
+    cEmpty();
+    QCOMPARE(authSpy->size(), 1);
+    SOCK->fakeDisconnect(QStringLiteral("Fake network going down"));
+    for (int i = 0; i < 10; ++i) {
+        QCoreApplication::processEvents();
+    }
+    // SOCK is now unusable
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
+    model->rowCount(QModelIndex());
+    QCoreApplication::processEvents();
+    // SOCK is now back to a usable state
+    cServer("* OK [capability imap4rev1] Service Ready\r\n");
+    QCOMPARE(authSpy->size(), 1);
+    model->setImapUser(QStringLiteral("a"));
+    model->setImapPassword(QStringLiteral("b"));
+    cClient(t.mk("LOGIN a b\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("OK [CAPABILITY imap4rev1] logged in\r\n"));
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer(t.last("OK listed\r\n"));
+    cEmpty();
+}
+
 // FIXME: verify how LOGINDISABLED even after STARTLS ends up
 
 void ImapModelOpenConnectionTest::provideAuthDetails()

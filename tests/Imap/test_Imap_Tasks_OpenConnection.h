@@ -68,6 +68,8 @@ private slots:
     void testAuthFailure();
     void testAuthFailureNoRespCode();
 
+    void testExcessivePasswordPrompts();
+
     void provideAuthDetails();
     void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
 
