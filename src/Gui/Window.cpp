@@ -1769,7 +1769,9 @@ MSA::MSAFactory *MainWindow::msaFactory()
                                           (method == SettingsNames::methodSMTP)
                                           && m_settings->value(SettingsNames::smtpStartTlsKey).toBool(),
                                           m_settings->value(SettingsNames::smtpAuthKey).toBool(),
-                                          m_settings->value(SettingsNames::smtpUserKey).toString());
+                                          m_settings->value(SettingsNames::smtpAuthReuseImapCredsKey, false).toBool() ?
+                                              m_settings->value(SettingsNames::imapUserKey).toString() :
+                                              m_settings->value(SettingsNames::smtpUserKey).toString());
     } else if (method == SettingsNames::methodSENDMAIL) {
         QStringList args = m_settings->value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {
