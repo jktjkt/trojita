@@ -118,6 +118,9 @@ protected:
     bool m_verbose;
     bool m_expectsError;
     bool m_fakeListCommand;
+    bool m_fakeOpenTask;
+    bool m_startTlsRequired;
+    Imap::ConnectionState m_initialConnectionState;
 
     friend class ExpectSingleErrorHere;
 };
