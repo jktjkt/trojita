@@ -71,10 +71,10 @@ void TestCommonAlgorithms::testLowerBoundWithUnknown_data()
 
     QList<int> list;
     list << 1 << 2 << 3 << 4 << 5 << 6 << 7 << 8 << 9 << 10 << 11 << 0 << 13;
-    QTest::newRow("many-items-just-one-fake") << list << 2 << 1;
-    QTest::newRow("many-items-just-one-fake") << list << 11 << 10;
-    QTest::newRow("many-items-just-one-fake") << list << 12 << 12;
-    QTest::newRow("many-items-just-one-fake") << list << 13 << 12;
+    QTest::newRow("many-items-just-one-fake-2") << list << 2 << 1;
+    QTest::newRow("many-items-just-one-fake-11") << list << 11 << 10;
+    QTest::newRow("many-items-just-one-fake-12") << list << 12 << 12;
+    QTest::newRow("many-items-just-one-fake-13") << list << 13 << 12;
 }
 
 QTEST_GUILESS_MAIN(TestCommonAlgorithms)
