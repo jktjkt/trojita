@@ -159,6 +159,7 @@ GpgMePart::GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageMo
     , LocalMessagePart(parentPart, sourceItemIndex.row(), sourceItemIndex.data(RolePartMimeType).toByteArray())
     , m_replacer(replacer)
     , m_model(model)
+    , m_sourceIndex(sourceItemIndex)
     , m_proxyParentIndex(proxyParentIndex)
     , m_waitingForData(false)
     , m_wasSigned(false)
@@ -193,7 +194,7 @@ GpgMePart::GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageMo
         }
     }
 
-    // do the peirodic cleanup
+    // do the periodic cleanup
     m_replacer->registerOrhpanedCryptoTask(std::future<void>());
 }
 
@@ -203,7 +204,7 @@ GpgMePart::~GpgMePart()
         // this is documented to be thread safe at all times
         m_ctx->cancelPendingOperation();
 
-        // Because std::future's destructor calls blocks/joins, we have a problem if the operation that is running
+        // Because std::future's destructor blocks/joins, we have a problem if the operation that is running
         // in the std::async gets stuck for some reason. If we make no additional precautions, the GUI would freeze
         // at the destruction time, which means that everything will run "smoothly" (with the GUI remaining responsive)
         // until the time we move to another message -- and that's quite nasty surprise.
@@ -238,6 +239,15 @@ void GpgMePart::forwardFailure(const QString &statusTLDR, const QString &statusL
     m_statusTLDR = statusTLDR;
     m_statusLong = statusLong;
     m_statusIcon = statusIcon;
+
+    if (m_sourceIndex.isValid()) {
+        std::vector<MessagePart::Ptr> children;
+        for (int i = 0; i < m_sourceIndex.model()->rowCount(m_sourceIndex); ++i) {
+            children.emplace_back(MessagePart::Ptr(new ProxyMessagePart(nullptr, 0, m_sourceIndex.child(i, 0), m_model)));
+        }
+        // This has to happen prior to emitting error()
+        m_model->insertSubtree(m_proxyParentIndex.child(m_row, 0), std::move(children));
+    }
 
     // This forward is needed because we migth be emitting this indirectly, from the item's constructor.
     // At the time the ctor runs, the multipart/encrypted has not been inserted into the proxy model yet,
@@ -570,12 +580,12 @@ GpgMeSigned::GpgMeSigned(const Protocol protocol, GpgMeReplacer *replacer, Messa
 {
     m_wasSigned = true;
     Q_ASSERT(sourceItemIndex.child(0, 0).isValid());
-    Q_ASSERT(m_plaintextPart.isValid());
-    Q_ASSERT(m_signaturePart.isValid());
 
     if (m_ctx) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
         if (rowCount == 2) {
+            Q_ASSERT(m_plaintextPart.isValid());
+            Q_ASSERT(m_signaturePart.isValid());
             m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeSigned::handleDataChanged);
             Q_ASSERT(m_dataChanged);
             // Trigger lazy loading of the required message parts
@@ -748,10 +758,7 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
 {
     Q_ASSERT(topLeft == bottomRight);
     if (!m_encPart.isValid()) {
-        m_statusTLDR = tr("Encrypted message is gone");
-        m_statusLong = QString();
-        m_statusIcon = QStringLiteral("state-offline");
-        emitDataChanged();
+        forwardFailure(tr("Encrypted message is gone"), QString(), QStringLiteral("state-offline"));
         return;
     }
     if (topLeft != m_versionPart && topLeft != m_encPart && topLeft != m_enclosingMessage) {

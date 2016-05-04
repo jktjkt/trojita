@@ -555,7 +555,7 @@ QByteArray LibMailboxSync::helperCreateTrivialEnvelope(const uint seq, const uin
 {
     auto addr = Imap::Message::MailAddress::fromNameAndMail(QString(), from);
     return QString::fromUtf8("* %1 FETCH (UID %2 ENVELOPE (NIL \"%3\" ((NIL NIL \"%4\" \"%5\")) NIL NIL NIL NIL NIL NIL NIL) "
-                              "BODYSTRUCTURE %6)\r\n").arg(
+                              "BODYSTRUCTURE (%6))\r\n").arg(
                                       QString::number(seq), QString::number(uid), subject, addr.mailbox, addr.host, bodyStructure).toUtf8();
 }
 

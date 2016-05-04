@@ -127,9 +127,9 @@ const QByteArray bsPlaintextWithFilenameAsBoth("\"text\" \"plain\" (\"name\" \"c
 const QByteArray bsPlaintextEmptyFilename("\"text\" \"plain\" (\"name\" \"actual\") NIL NIL NIL 19 2 NIL (\"attachment\" (\"filename\" \"\")) NIL NIL NIL");
 
 const QByteArray bsEncrypted = QByteArrayLiteral(
-                "((\"application\" \"pgp-encrypted\" NIL NIL NIL \"7bit\" 12 NIL NIL NIL NIL)"
+                "(\"application\" \"pgp-encrypted\" NIL NIL NIL \"7bit\" 12 NIL NIL NIL NIL)"
                 "(\"application\" \"octet-stream\" (\"name\" \"encrypted.asc\") NIL \"OpenPGP encrypted message\" \"7bit\" "
                 "4127 NIL (\"inline\" (\"filename\" \"encrypted.asc\")) NIL NIL) \"encrypted\" "
-                "(\"protocol\" \"application/pgp-encrypted\" \"boundary\" \"trojita=_7cf0b2b6-64c6-41ad-b381-853caf492c54\") NIL NIL NIL)");
+                "(\"protocol\" \"application/pgp-encrypted\" \"boundary\" \"trojita=_7cf0b2b6-64c6-41ad-b381-853caf492c54\") NIL NIL NIL");
 
 #endif /*TEST_IMAP_DATA*/

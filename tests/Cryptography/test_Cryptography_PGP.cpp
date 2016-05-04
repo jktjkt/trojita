@@ -200,7 +200,7 @@ void CryptographyPGPTest::testDecryptWithoutEnvelope()
 
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
-    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE " + bsEncrypted + ")\r\n" + t.last("OK fetched\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bsEncrypted + "))\r\n" + t.last("OK fetched\r\n"));
     // notice that the ENVELOPE never arrived
     cEmpty();
     QVERIFY(model->rowCount(msg) > 0);
@@ -262,11 +262,11 @@ void CryptographyPGPTest::testVerification()
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
-    cServer(helperCreateTrivialEnvelope(1, 333, QStringLiteral("subj"), from, QStringLiteral("("
+    cServer(helperCreateTrivialEnvelope(1, 333, QStringLiteral("subj"), from, QStringLiteral(
             "(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 423 14 NIL NIL NIL NIL)"
             "(\"application\" \"pgp-signature\" NIL NIL NIL \"7bit\" 851 NIL NIL NIL NIL)"
             " \"signed\" (\"boundary\" \"=-=-=\" \"micalg\" \"pgp-sha256\" \"protocol\" \"application/pgp-signature\")"
-            " NIL NIL NIL)"))
+            " NIL NIL NIL"))
             + t.last("OK fetched\r\n"));
     cEmpty();
     QVERIFY(model->rowCount(msg) > 0);
@@ -366,7 +366,7 @@ void CryptographyPGPTest::testVerification_data()
             << true;
 
     // my signature, but a different identity
-    QTest::newRow("valid-me")
+    QTest::newRow("my-signature-different-identity")
             << sigFromMe
             << ptMimeHdr
             << QByteArray("plaintext\r\n")
@@ -378,7 +378,7 @@ void CryptographyPGPTest::testVerification_data()
             << false;
 
     // my signature, different data
-    QTest::newRow("valid-me")
+    QTest::newRow("my-signature-different-data")
             << sigFromMe
             << ptMimeHdr
             << QByteArray("I will pay you right now\r\n")
@@ -400,6 +400,82 @@ void CryptographyPGPTest::testVerification_data()
             << QStringLiteral("Bad signature by Valid <valid@test.trojita.flaska.net> (")
             << false
             << false;
+}
+
+void CryptographyPGPTest::testMalformed()
+{
+    QFETCH(QByteArray, bodystructure);
+    QFETCH(int, rowCount);
+    QFETCH(QString, tldr);
+    QFETCH(QString, detail);
+
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer(helperCreateTrivialEnvelope(1, 333, QStringLiteral("subj"), QStringLiteral("foo@example.org"), QString::fromUtf8(bodystructure))
+            + t.last("OK fetched\r\n"));
+    cEmpty();
+    QVERIFY(model->rowCount(msg) > 0);
+    Cryptography::MessageModel msgModel(0, msg);
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+#  ifdef TROJITA_HAVE_GPGMEPP
+    msgModel.registerPartHandler(std::make_shared<Cryptography::GpgMeReplacer>());
+#  endif
+#endif
+    QModelIndex mappedMsg = msgModel.index(0,0);
+    QVERIFY(mappedMsg.isValid());
+    QVERIFY(msgModel.rowCount(mappedMsg) > 0);
+
+    QModelIndex data = mappedMsg.child(0, 0);
+    QVERIFY(data.isValid());
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+    QCoreApplication::processEvents();
+    QCOMPARE(msgModel.rowCount(data), rowCount);
+    QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoTLDR).toString(), tldr);
+    QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoDetailedMessage).toString(), detail);
+
+    cEmpty();
+    QVERIFY(errorSpy->empty());
+#else
+    QCOMPARE(msgModel.rowCount(data), rowCount);
+    QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+
+    cEmpty();
+
+    QSKIP("Some tests were skipped because this build doesn't have GpgME++ support");
+#endif
+}
+
+void CryptographyPGPTest::testMalformed_data()
+{
+    QTest::addColumn<QByteArray>("bodystructure");
+    QTest::addColumn<int>("rowCount");
+    QTest::addColumn<QString>("tldr");
+    QTest::addColumn<QString>("detail");
+
+    // Due to the missing "protocol", the part replacer won't even react
+    QTest::newRow("signed-missing-protocol-micalg")
+            << bsMultipartSignedTextPlain
+            << 2
+            << QString()
+            << QString();
+
+    // A mailing list has stripped the signature
+    QTest::newRow("signed-ml-stripped-gpg-signature")
+            << QByteArray("(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 423 14 NIL NIL NIL NIL)"
+                          " \"signed\" (\"boundary\" \"=-=-=\" \"micalg\" \"pgp-sha256\" \"protocol\" \"application/pgp-signature\")"
+                          " NIL NIL NIL")
+            << 1
+            << QStringLiteral("Malformed Signed Message")
+            << QStringLiteral("Expected 2 parts, but found 1.");
+
 }
 
 QTEST_GUILESS_MAIN(CryptographyPGPTest)

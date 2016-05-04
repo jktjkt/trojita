@@ -104,6 +104,13 @@ QModelIndex MessageModel::message() const
 
 void MessageModel::insertSubtree(const QModelIndex &parent, MessagePart::Ptr tree)
 {
+    std::vector<MessagePart::Ptr> parts;
+    parts.emplace_back(std::move(tree));
+    insertSubtree(parent, std::move(parts));
+}
+
+void MessageModel::insertSubtree(const QModelIndex &parent, std::vector<Cryptography::MessagePart::Ptr> &&parts)
+{
     Q_ASSERT(!parent.isValid() || parent.model() == this);
     auto *part = translatePtr(parent);
     Q_ASSERT(part);
@@ -114,11 +121,14 @@ void MessageModel::insertSubtree(const QModelIndex &parent, MessagePart::Ptr tre
     qDebug() << "New items:\n" << *(tree.get());
 #endif
 
-    beginInsertRows(parent, 0, 1);
+    beginInsertRows(parent, 0, parts.size());
 
     Q_ASSERT(part->m_children.empty());
-    tree->m_parent = part;
-    part->m_children[0] = std::move(tree);
+    for (size_t i = 0; i < parts.size(); ++i) {
+        parts[i]->m_parent = part;
+        part->m_children[i] = std::move(parts[i]);
+    }
+
     bool needsDataChanged = false;
     if (LocalMessagePart *localPart = dynamic_cast<LocalMessagePart*>(part)) {
         localPart->m_localState = MessagePart::FetchingState::DONE;
