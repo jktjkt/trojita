@@ -296,6 +296,7 @@
       <caption xml:lang="gl">Os textos con demasiadas comiñas recóllese automaticamente.</caption>
       <caption xml:lang="it">Il testo eccessivamente citato viene automaticamente compresso</caption>
       <caption xml:lang="nl">Een grote hoeveelheid aangehaalde tekst wordt automatisch ingeklapt</caption>
+      <caption xml:lang="pl">Długi tekst cytowany jest samoczynnie zwijany</caption>
       <caption xml:lang="pt">O texto citado em excesso é fechado automaticamente</caption>
       <caption xml:lang="pt-BR">O texto citado em excesso é fechado automaticamente</caption>
       <caption xml:lang="sv">Överdrivet citerad text dras automatiskt ihop</caption>
@@ -313,6 +314,7 @@
       <caption xml:lang="gl">Compatíbel con mensaxes cifradas e asinadas, co estado indicado con texto.</caption>
       <caption xml:lang="it">È supportata la posta elettronica cifrata e firmata, con lo stato indicato in inglese</caption>
       <caption xml:lang="nl">Versleutelde en ondertekende e-mail wordt ondersteund, met status gegeven in gewoon Engels</caption>
+      <caption xml:lang="pl">Obsługa szyfrowanej i podpisanej poczty wraz ze stanem podawanym w prostym angielskim</caption>
       <caption xml:lang="pt">O e-mail encriptado e assinado é suportado, sendo o seu estado indicado em Inglês simples</caption>
       <caption xml:lang="pt-BR">Há suporte para e-mail criptografado e assinado, com status indicado em inglês simples</caption>
       <caption xml:lang="sv">Krypterade och signerade brev stöds, med status angiven på vanlig svenska</caption>
