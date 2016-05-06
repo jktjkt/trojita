@@ -1326,20 +1326,15 @@ void MainWindow::authenticationContinue(const QString &password, const QString &
     const QString &user = m_settings->value(Common::SettingsNames::imapUserKey).toString();
     QString pass = password;
     if (m_ignoreStoredPassword || pass.isEmpty()) {
-        bool ok;
-        pass = PasswordDialog::getPassword(this, tr("Authentication Required"),
-                                           tr("<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
-                                               user.toHtmlEscaped(),
-                                               m_settings->value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
-                                           ),
-                                           QString(), &ok,
-                                           errorMessage + (errorMessage.isEmpty() ? QString() : QStringLiteral("\n\n"))
-                                           + imapModel()->imapAuthError());
-        if (ok) {
-            imapModel()->setImapPassword(pass);
-        } else {
-            imapModel()->unsetImapPassword();
-        }
+        auto dialog = PasswordDialog::getPassword(this, tr("Authentication Required"),
+                                                  tr("<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
+                                                      user.toHtmlEscaped(),
+                                                      m_settings->value(Common::SettingsNames::imapHostKey).toString().toHtmlEscaped()
+                                                      ),
+                                                  errorMessage + (errorMessage.isEmpty() ? QString() : QStringLiteral("\n\n"))
+                                                  + imapModel()->imapAuthError());
+        connect(dialog, &PasswordDialog::gotPassword, imapModel(), &Imap::Mailbox::Model::setImapPassword);
+        connect(dialog, &PasswordDialog::rejected, imapModel(), &Imap::Mailbox::Model::unsetImapPassword);
     } else {
         imapModel()->setImapPassword(pass);
     }
@@ -1774,7 +1769,9 @@ MSA::MSAFactory *MainWindow::msaFactory()
                                           (method == SettingsNames::methodSMTP)
                                           && m_settings->value(SettingsNames::smtpStartTlsKey).toBool(),
                                           m_settings->value(SettingsNames::smtpAuthKey).toBool(),
-                                          m_settings->value(SettingsNames::smtpUserKey).toString());
+                                          m_settings->value(SettingsNames::smtpAuthReuseImapCredsKey, false).toBool() ?
+                                              m_settings->value(SettingsNames::imapUserKey).toString() :
+                                              m_settings->value(SettingsNames::smtpUserKey).toString());
     } else if (method == SettingsNames::methodSENDMAIL) {
         QStringList args = m_settings->value(SettingsNames::sendmailKey, SettingsNames::sendmailDefaultCmd).toString().split(QLatin1Char(' '));
         if (args.isEmpty()) {

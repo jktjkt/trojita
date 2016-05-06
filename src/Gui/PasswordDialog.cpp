@@ -1,5 +1,6 @@
 /*
    Copyright (C) 2013 by Glad Deschrijver <glad.deschrijver@gmail.com>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -43,66 +44,57 @@ void PasswordDialog::showEvent(QShowEvent *event)
     QDialog::showEvent(event);
 }
 
-/***************************************************************************/
-
-QString PasswordDialog::password() const
+PasswordDialog *PasswordDialog::getPassword(QWidget *parent, const QString &windowTitle, const QString &description,
+                                            const QString &errorMessage)
 {
-    return ui.passwordLineEdit->text();
-}
-
-QString PasswordDialog::getPassword(QWidget *parent, const QString &windowTitle, const QString &description,
-                                    const QString &password, bool *ok, const QString &error)
-{
-    PasswordDialog dialog(parent);
-    dialog.setWindowTitle(windowTitle);
-    dialog.ui.descriptionLabel->setText(description);
-    dialog.ui.passwordLineEdit->setEchoMode(QLineEdit::Password);
-    dialog.ui.passwordLineEdit->setText(password);
+    auto d = new PasswordDialog(parent);
+    d->setWindowTitle(windowTitle);
+    d->ui.descriptionLabel->setText(description);
+    d->ui.passwordLineEdit->setEchoMode(QLineEdit::Password);
 
     // fight the word wrapping beast, also see below
     int l,r,t,b; // we're gonna need the horizontal margins
-    dialog.ui.verticalLayout->getContentsMargins(&l,&t,&r,&b);
+    d->ui.verticalLayout->getContentsMargins(&l,&t,&r,&b);
     QList<QLabel*> fixedLabels; // and the labels we adjusted
 
     // 1. fix the dialog width, assuming to be wanted.
-    dialog.setMinimumWidth(dialog.width());
+    d->setMinimumWidth(d->width());
     // 2. fix the label width
-    fixedLabels << dialog.ui.descriptionLabel;
-    // NOTICE: dialog.ui.descriptionLabel is inside a grid layout, which however has 0 margins
-    dialog.ui.descriptionLabel->setMinimumWidth(dialog.width() - (l+r));
+    fixedLabels << d->ui.descriptionLabel;
+    // NOTICE: d->ui.descriptionLabel is inside a grid layout, which however has 0 margins
+    d->ui.descriptionLabel->setMinimumWidth(d->width() - (l+r));
     // 3. have QLabel figure the size for that width and the content
-    dialog.ui.descriptionLabel->adjustSize();
+    d->ui.descriptionLabel->adjustSize();
     // 4. make the label a fixed size element
-    dialog.ui.descriptionLabel->setFixedSize(dialog.ui.descriptionLabel->size());
-    dialog.adjustSize();
+    d->ui.descriptionLabel->setFixedSize(d->ui.descriptionLabel->size());
+    d->adjustSize();
 
-    if (!error.isEmpty()) {
-        QLabel *errorLabel = new QLabel(&dialog);
-        dialog.ui.verticalLayout->insertWidget(0, errorLabel);
+    if (!errorMessage.isEmpty()) {
+        QLabel *errorLabel = new QLabel(d);
+        d->ui.verticalLayout->insertWidget(0, errorLabel);
         errorLabel->setWordWrap(true);
-        errorLabel->setText(error + QLatin1String("\n<hr>"));
+        errorLabel->setText(errorMessage + QLatin1String("\n<hr>"));
         errorLabel->setTextFormat(Qt::RichText);
 
         // wordwrapping labels are a problem of its own
         fixedLabels << errorLabel;
-        errorLabel->setMinimumWidth(dialog.width() - (l+r));
+        errorLabel->setMinimumWidth(d->width() - (l+r));
         errorLabel->adjustSize();
         errorLabel->setFixedSize(errorLabel->size());
     }
 
-    dialog.adjustSize();
-    dialog.setMinimumWidth(0);
+    d->adjustSize();
+    d->setMinimumWidth(0);
     foreach(QLabel *label, fixedLabels) {
         label->setMinimumSize(0, 0);
         label->setMaximumSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
     }
 
-    int ret = dialog.exec();
-    if (ok)
-        *ok = !!ret;
-    if (ret)
-        return dialog.ui.passwordLineEdit->text();
-    return QString();
+    connect(d, &PasswordDialog::accepted, d, [d]() { emit d->gotPassword(d->ui.passwordLineEdit->text()); });
+
+    d->show();
+
+    return d;
 }
 
 } // namespace Gui

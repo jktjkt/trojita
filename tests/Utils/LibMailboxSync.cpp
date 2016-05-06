@@ -48,8 +48,20 @@ ExpectSingleErrorHere::~ExpectSingleErrorHere()
     m_syncer->errorSpy->removeFirst();
 }
 
-LibMailboxSync::LibMailboxSync(): model(0), msgListModel(0), threadingModel(0), factory(0), taskFactoryUnsafe(0),
-    errorSpy(0), netErrorSpy(0), m_verbose(false), m_expectsError(false), m_fakeListCommand(true)
+LibMailboxSync::LibMailboxSync()
+    : model(0)
+    , msgListModel(0)
+    , threadingModel(0)
+    , factory(0)
+    , taskFactoryUnsafe(0)
+    , errorSpy(0)
+    , netErrorSpy(0)
+    , m_verbose(false)
+    , m_expectsError(false)
+    , m_fakeListCommand(true)
+    , m_fakeOpenTask(true)
+    , m_startTlsRequired(false)
+    , m_initialConnectionState(Imap::CONN_STATE_AUTHENTICATED)
 {
     m_verbose = qgetenv("TROJITA_IMAP_DEBUG") == QByteArray("1");
 }
@@ -70,10 +82,11 @@ void LibMailboxSync::init()
 {
     m_expectsError = false;
     Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
-    factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
+    factory = new Streams::FakeSocketFactory(m_initialConnectionState);
+    factory->setStartTlsRequired(m_startTlsRequired);
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());
-    taskFactoryUnsafe->fakeOpenConnectionTask = true;
+    taskFactoryUnsafe->fakeOpenConnectionTask = m_fakeOpenTask;
     taskFactoryUnsafe->fakeListChildMailboxes = m_fakeListCommand;
     if (!fakeListChildMailboxesMap.isEmpty()) {
         taskFactoryUnsafe->fakeListChildMailboxesMap = fakeListChildMailboxesMap;

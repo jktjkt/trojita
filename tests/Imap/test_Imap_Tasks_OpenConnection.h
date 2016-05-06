@@ -25,16 +25,15 @@
 
 #include "Imap/Tasks/OpenConnectionTask.h"
 #include "Streams/SocketFactory.h"
+#include "Utils/LibMailboxSync.h"
 
 class QSignalSpy;
 
-class ImapModelOpenConnectionTest : public QObject
+class ImapModelOpenConnectionTest : public LibMailboxSync
 {
     Q_OBJECT
 private slots:
     void init();
-    void init( bool startTlsRequired );
-    void cleanup();
     void initTestCase();
 
     void testPreauth();
@@ -69,12 +68,16 @@ private slots:
     void testAuthFailure();
     void testAuthFailureNoRespCode();
 
+    void testExcessivePasswordPrompts();
+
     void provideAuthDetails();
     void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
 
+protected:
+    enum class TlsRequired { No, Yes };
+    void reinit(const TlsRequired tlsRequired = TlsRequired::No);
+
 private:
-    Imap::Mailbox::Model* model;
-    Streams::FakeSocketFactory* factory;
     Imap::Mailbox::OpenConnectionTask* task;
     QSignalSpy* completedSpy;
     QSignalSpy* failedSpy;

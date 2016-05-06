@@ -82,6 +82,12 @@ void FakeSocket::fakeReading(const QByteArray &what)
     readChannel->seek(pos);
 }
 
+void FakeSocket::fakeDisconnect(const QString &message)
+{
+    readChannel->write(QString::fromUtf8("[*** disconnected: %1 ***]").arg(message).toUtf8());
+    emit disconnected(message);
+}
+
 bool FakeSocket::canReadLine()
 {
     return readChannel->canReadLine();

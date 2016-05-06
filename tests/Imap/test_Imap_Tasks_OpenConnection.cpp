@@ -23,7 +23,6 @@
 #include <QtTest>
 #include <QAuthenticator>
 #include "test_Imap_Tasks_OpenConnection.h"
-#include "Utils/LibMailboxSync.h"
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Streams/TrojitaZlibStatus.h"
@@ -34,25 +33,24 @@
 
 void ImapModelOpenConnectionTest::initTestCase()
 {
-    model = 0;
+    LibMailboxSync::initTestCase();
+    qRegisterMetaType<Imap::Mailbox::ImapTask*>();
     completedSpy = 0;
     m_enableAutoLogin = true;
 }
 
 void ImapModelOpenConnectionTest::init()
 {
-    Common::registerMetaTypes();
-    qRegisterMetaType<Imap::Mailbox::ImapTask*>();
-    init( false );
+    reinit(TlsRequired::No);
 }
 
-void ImapModelOpenConnectionTest::init( bool startTlsRequired )
+void ImapModelOpenConnectionTest::reinit(const TlsRequired tlsRequired)
 {
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
-    factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS);
-    factory->setStartTlsRequired( startTlsRequired );
-    Imap::Mailbox::TaskFactoryPtr taskFactory( new Imap::Mailbox::TaskFactory() ); // yes, the real one
-    model = new Imap::Mailbox::Model(this, cache, Imap::Mailbox::SocketFactoryPtr( factory ), std::move(taskFactory));
+    m_fakeListCommand = false;
+    m_fakeOpenTask = false;
+    m_startTlsRequired = tlsRequired == TlsRequired::Yes;
+    m_initialConnectionState = Imap::CONN_STATE_CONNECTED_PRETLS_PRECAPS;
+    LibMailboxSync::init();
     model->setProperty("trojita-imap-id-no-versions", QVariant(true));
     connect(model, &Imap::Mailbox::Model::authRequested, this, &ImapModelOpenConnectionTest::provideAuthDetails, Qt::QueuedConnection);
     connect(model, &Imap::Mailbox::Model::needsSslDecision, this, &ImapModelOpenConnectionTest::acceptSsl, Qt::QueuedConnection);
@@ -65,6 +63,7 @@ void ImapModelOpenConnectionTest::init( bool startTlsRequired )
     connErrorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
     startTlsUpgradeSpy = new QSignalSpy(model, SIGNAL(requireStartTlsInFuture()));
     authErrorSpy = new QSignalSpy(model, SIGNAL(imapAuthErrorChanged(const QString&)));
+    t.reset();
 }
 
 void ImapModelOpenConnectionTest::acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors)
@@ -72,67 +71,39 @@ void ImapModelOpenConnectionTest::acceptSsl(const QList<QSslCertificate> &certif
     model->setSslPolicy(certificateChain, sslErrors, true);
 }
 
-void ImapModelOpenConnectionTest::cleanup()
-{
-    delete model;
-    model = 0;
-    task = 0;
-    delete completedSpy;
-    completedSpy = 0;
-    delete failedSpy;
-    failedSpy = 0;
-    delete authSpy;
-    authSpy = 0;
-    delete startTlsUpgradeSpy;
-    startTlsUpgradeSpy = 0;
-    QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
-}
-
-#define SOCK static_cast<Streams::FakeSocket*>( factory->lastSocket() )
-
 /** @short Test for explicitly obtaining capability when greeted by PREAUTH */
 void ImapModelOpenConnectionTest::testPreauth()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* PREAUTH foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
-    QVERIFY( completedSpy->isEmpty() );
-    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny0 OK capability completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* PREAUTH foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    cClient(t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n"
+            + t.last("OK capability completed\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QVERIFY( authSpy->isEmpty() );
+    QVERIFY(authSpy->isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test that we can obtain capability when embedded in PREAUTH */
 void ImapModelOpenConnectionTest::testPreauthWithCapability()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* PREAUTH [CAPABILITY IMAP4rev1] foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray() );
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* PREAUTH [CAPABILITY IMAP4rev1] foo\r\n");
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QVERIFY( authSpy->isEmpty() );
+    QVERIFY(authSpy->isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short What happens when the server responds with PREAUTH and we want STARTTLS? */
 void ImapModelOpenConnectionTest::testPreauthWithStartTlsWanted()
 {
-    cleanup(); init(true); // yuck, but I can't come up with anything better...
+    reinit(TlsRequired::Yes);
 
     cEmpty();
     cServer("* PREAUTH hi there\r\n");
@@ -140,35 +111,27 @@ void ImapModelOpenConnectionTest::testPreauthWithStartTlsWanted()
     QVERIFY(completedSpy->isEmpty());
     QVERIFY(authSpy->isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
+    cClient(t.mk("LOGOUT\r\n"));
+    cEmpty();
 }
 
 /** @short Test for obtaining capability and logging in without any STARTTLS */
 void ImapModelOpenConnectionTest::testOk()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
-    QVERIFY( completedSpy->isEmpty() );
-    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny0 OK capability completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( authSpy->size(), 1 );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 LOGIN luzr sikrit\r\n") );
-    SOCK->fakeReading( "y1 OK [CAPABILITY IMAP4rev1] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* OK foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    cClient(t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n"
+            + t.last("OK capability completed\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    cServer(t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE(authSpy->size(), 1);
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -177,24 +140,16 @@ void ImapModelOpenConnectionTest::testOk()
 /** @short Test with capability inside the OK greetings, no STARTTLS */
 void ImapModelOpenConnectionTest::testOkWithCapability()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK [CAPABILITY IMAP4rev1] foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( authSpy->size(), 1 );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n") );
-    SOCK->fakeReading( "y0 OK [CAPABILITY IMAP4rev1] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* OK [CAPABILITY IMAP4rev1] foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    QCOMPARE(authSpy->size(), 1);
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    cServer(t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE(authSpy->size(), 1);
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -203,55 +158,39 @@ void ImapModelOpenConnectionTest::testOkWithCapability()
 /** @short See what happens when the capability response doesn't contain IMAP4rev1 capability */
 void ImapModelOpenConnectionTest::testOkMissingImap4rev1()
 {
-    SOCK->fakeReading( "* OK [CAPABILITY pwn] foo\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGOUT\r\n"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    {
+        ExpectSingleErrorHere blocker(this);
+        cServer("* OK [CAPABILITY pwn] foo\r\n");
+    }
+    cClient(t.mk("LOGOUT\r\n"));
+    cEmpty();
     QVERIFY(authSpy->isEmpty());
-    QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
 
 /** @short Test to honor embedded LOGINDISABLED */
 void ImapModelOpenConnectionTest::testOkLogindisabled()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK [CAPABILITY IMAP4rev1 starttls LoginDisabled] foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 STARTTLS\r\n") );
-    SOCK->fakeReading( "y0 OK will establish secure layer immediately\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y1 CAPABILITY\r\n") );
-    QVERIFY( completedSpy->isEmpty() );
-    QVERIFY( authSpy->isEmpty() );
-    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny1 OK capability completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 LOGIN luzr sikrit\r\n") );
-    QCOMPARE( authSpy->size(), 1 );
-    SOCK->fakeReading( "y2 OK [CAPABILITY IMAP4rev1] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* OK [CAPABILITY IMAP4rev1 starttls LoginDisabled] foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cClient(t.mk("STARTTLS\r\n"));
+    cServer(t.last("OK will establish secure layer immediately\r\n"));
+    cClient("[*** STARTTLS ***]"
+            + t.mk("CAPABILITY\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n"
+            + t.last("OK capability completed\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE(authSpy->size(), 1);
     QCOMPARE(startTlsUpgradeSpy->size(), 1);
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -260,15 +199,12 @@ void ImapModelOpenConnectionTest::testOkLogindisabled()
 /** @short Test how LOGINDISABLED without a corresponding STARTTLS in the capabilities end up */
 void ImapModelOpenConnectionTest::testOkLogindisabledWithoutStarttls()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK [CAPABILITY IMAP4rev1 LoginDisabled] foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
+    cEmpty();
+    cServer("* OK [CAPABILITY IMAP4rev1 LoginDisabled] foo\r\n");
     // The capabilities do not contain STARTTLS but LOGINDISABLED is in there
+    cClient(t.mk("LOGOUT\r\n"))
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
     QCOMPARE(failedSpy->size(), 1);
     QVERIFY(startTlsUpgradeSpy->isEmpty());
 }
@@ -276,46 +212,29 @@ void ImapModelOpenConnectionTest::testOkLogindisabledWithoutStarttls()
 /** @short Test for an explicit CAPABILITY retrieval and automatic STARTTLS when LOGINDISABLED */
 void ImapModelOpenConnectionTest::testOkLogindisabledLater()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n") );
-    QVERIFY( completedSpy->isEmpty() );
-    SOCK->fakeReading( "* CAPABILITY IMAP4rev1 starttls LoGINDISABLED\r\ny0 OK capability completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 STARTTLS\r\n") );
-    SOCK->fakeReading( "y1 OK will establish secure layer immediately\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y2 CAPABILITY\r\n") );
-    QVERIFY( completedSpy->isEmpty() );
-    QVERIFY( authSpy->isEmpty() );
-    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny2 OK capability completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 LOGIN luzr sikrit\r\n") );
-    QCOMPARE( authSpy->size(), 1 );
-    SOCK->fakeReading( "y3 OK [CAPABILITY IMAP4rev1] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* OK foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    cClient(t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty() );
+    cServer("* CAPABILITY IMAP4rev1 starttls LoGINDISABLED\r\n"
+            + t.last("OK capability completed\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient(t.mk("STARTTLS\r\n"));
+    cServer(t.last("OK will establish secure layer immediately\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient(QByteArray("[*** STARTTLS ***]")
+            + t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n" + t.last("OK capability completed\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE(authSpy->size(), 1);
     QCOMPARE(startTlsUpgradeSpy->size(), 1);
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -324,47 +243,31 @@ void ImapModelOpenConnectionTest::testOkLogindisabledLater()
 /** @short Test conf-requested STARTTLS when not faced with embedded capabilities in OK greetings */
 void ImapModelOpenConnectionTest::testOkStartTls()
 {
-    cleanup(); init(true); // yuck, but I can't come up with anything better...
+    reinit(TlsRequired::Yes);
 
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n"));
-    SOCK->fakeReading("* CAPABILITY imap4rev1 starttls\r\ny0 ok cap\r\n");
-    QVERIFY( authSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 STARTTLS\r\n") );
-    SOCK->fakeReading( "y1 OK will establish secure layer immediately\r\n");
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y2 CAPABILITY\r\n") );
-    QVERIFY( completedSpy->isEmpty() );
-    QVERIFY( authSpy->isEmpty() );
-    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny2 OK capability completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 LOGIN luzr sikrit\r\n") );
-    QCOMPARE( authSpy->size(), 1 );
-    SOCK->fakeReading( "y3 OK [CAPABILITY IMAP4rev1] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* OK foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    cClient(t.mk("CAPABILITY\r\n"));
+    cServer("* CAPABILITY imap4rev1 starttls\r\n"
+            + t.last("ok cap\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient(t.mk("STARTTLS\r\n"));
+    cServer(t.last("OK will establish secure layer immediately\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient("[*** STARTTLS ***]"
+            + t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n"
+            + t.last("OK capability completed\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE(authSpy->size(), 1);
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -373,48 +276,31 @@ void ImapModelOpenConnectionTest::testOkStartTls()
 /** @short Test that an untagged CAPABILITY after LOGIN prevents an extra CAPABILITY command */
 void ImapModelOpenConnectionTest::testCapabilityAfterLogin()
 {
-    cleanup(); init(true); // yuck, but I can't come up with anything better...
+    reinit(TlsRequired::Yes);
 
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n"));
-    SOCK->fakeReading("* CAPABILITY imap4rev1 starttls\r\ny0 ok cap\r\n");
-    QVERIFY( authSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y1 STARTTLS\r\n") );
-    SOCK->fakeReading( "y1 OK will establish secure layer immediately\r\n");
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y2 CAPABILITY\r\n") );
-    QVERIFY( completedSpy->isEmpty() );
-    QVERIFY( authSpy->isEmpty() );
-    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny2 OK capability completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y3 LOGIN luzr sikrit\r\n") );
-    QCOMPARE( authSpy->size(), 1 );
-    SOCK->fakeReading("* CAPABILITY imap4rev1\r\n" "y3 OK logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* OK foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    cClient(t.mk("CAPABILITY\r\n"));
+    cServer("* CAPABILITY imap4rev1 starttls\r\n"
+            + t.last("ok cap\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient(t.mk("STARTTLS\r\n"));
+    cServer(t.last("OK will establish secure layer immediately\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient("[*** STARTTLS ***]"
+            + t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n"
+            + t.last("OK capability completed\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer("* CAPABILITY imap4rev1\r\n" + t.last("OK logged in\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QCOMPARE( authSpy->size(), 1 );
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    QCOMPARE(authSpy->size(), 1);
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -423,21 +309,16 @@ void ImapModelOpenConnectionTest::testCapabilityAfterLogin()
 /** @short Test conf-requested STARTTLS when the server doesn't support STARTTLS at all */
 void ImapModelOpenConnectionTest::testOkStartTlsForbidden()
 {
-    cleanup(); init(true); // yuck, but I can't come up with anything better...
+    reinit(TlsRequired::Yes);
 
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK foo\r\n" );
+    cEmpty();
+    cServer("* OK foo\r\n");
     QVERIFY(completedSpy->isEmpty());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 CAPABILITY\r\n"));
-    SOCK->fakeReading("* CAPABILITY imap4rev1\r\ny0 ok cap\r\n");
+    cClient(t.mk("CAPABILITY\r\n"));
+    cServer("* CAPABILITY imap4rev1\r\n"
+            + t.last("ok cap\r\n"));
+    cClient(t.mk("LOGOUT\r\n"));
     QVERIFY(authSpy->isEmpty());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     QCOMPARE(failedSpy->size(), 1);
     QVERIFY(authSpy->isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
@@ -446,42 +327,26 @@ void ImapModelOpenConnectionTest::testOkStartTlsForbidden()
 /** @short Test to re-request formerly embedded capabilities when launching STARTTLS */
 void ImapModelOpenConnectionTest::testOkStartTlsDiscardCaps()
 {
-    cleanup(); init(true); // yuck, but I can't come up with anything better...
+    reinit(TlsRequired::Yes);
 
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading( "* OK [Capability imap4rev1 starttls] foo\r\n" );
-    QVERIFY( completedSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y0 STARTTLS\r\n") );
-    SOCK->fakeReading( "y0 OK will establish secure layer immediately\r\n");
-    QCoreApplication::processEvents();
-    QVERIFY( authSpy->isEmpty() );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("[*** STARTTLS ***]y1 CAPABILITY\r\n") );
-    QVERIFY( completedSpy->isEmpty() );
-    QVERIFY( authSpy->isEmpty() );
-    SOCK->fakeReading( "* CAPABILITY IMAP4rev1\r\ny1 OK capability completed\r\n" );
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( SOCK->writtenStuff(), QByteArray("y2 LOGIN luzr sikrit\r\n") );
-    QCOMPARE( authSpy->size(), 1 );
-    SOCK->fakeReading( "y2 OK [CAPABILITY IMAP4rev1] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE( completedSpy->size(), 1 );
+    cEmpty();
+    cServer("* OK [Capability imap4rev1 starttls] foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cClient(t.mk("STARTTLS\r\n"));
+    cServer(t.last("OK will establish secure layer immediately\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient("[*** STARTTLS ***]" + t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n" + t.last("OK capability completed\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
-    QCOMPARE( authSpy->size(), 1 );
+    QCOMPARE(authSpy->size(), 1);
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -490,41 +355,25 @@ void ImapModelOpenConnectionTest::testOkStartTlsDiscardCaps()
 /** @short Test how COMPRESS=DEFLATE gets activated and its interaction with further tasks */
 void ImapModelOpenConnectionTest::testCompressDeflateOk()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading("* OK [capability imap4rev1] hi there\r\n");
+    cEmpty();
+    cServer("* OK [capability imap4rev1] hi there\r\n");
     QVERIFY(completedSpy->isEmpty());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
     QCOMPARE(authSpy->size(), 1);
-    SOCK->fakeReading("y0 OK [CAPABILITY IMAP4rev1 compress=deflate id] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(t.last("OK [CAPABILITY IMAP4rev1 compress=deflate id] logged in\r\n"));
 #if TROJITA_COMPRESS_DEFLATE
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 COMPRESS DEFLATE\r\n"));
-    SOCK->fakeReading("y1 OK compressing\r\n");
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("[*** DEFLATE ***]"));
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID (\"name\" \"Trojita\")\r\n"));
-    SOCK->fakeReading("* ID nil\r\ny2 OK you courious peer\r\n");
+    cClient(t.mk("COMPRESS DEFLATE\r\n"));
+    cServer(t.last("OK compressing\r\n"));
+    cClient("[*** DEFLATE ***]" + t.mk("ID (\"name\" \"Trojita\")\r\n"));
+    cServer("* ID nil\r\n" + t.last("OK you courious peer\r\n"));
 #else
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID (\"name\" \"Trojita\")\r\n"));
-    SOCK->fakeReading("* ID nil\r\ny1 OK you courious peer\r\n");
+    cClient(t.mk("ID (\"name\" \"Trojita\")\r\n"));
+    cServer("* ID nil\r\n" + t.last("OK you courious peer\r\n"));
 #endif
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cEmpty();
     QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
-    QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -533,40 +382,27 @@ void ImapModelOpenConnectionTest::testCompressDeflateOk()
 /** @short Test that denied COMPRESS=DEFLATE doesn't result in compression being active */
 void ImapModelOpenConnectionTest::testCompressDeflateNo()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading("* OK [capability imap4rev1] hi there\r\n");
+    cEmpty();
+    cServer("* OK [capability imap4rev1] hi there\r\n");
     QVERIFY(completedSpy->isEmpty());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
     QCOMPARE(authSpy->size(), 1);
-    SOCK->fakeReading("y0 OK [CAPABILITY IMAP4rev1 compress=deflate id] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(t.last("OK [CAPABILITY IMAP4rev1 compress=deflate id] logged in\r\n"));
 #if TROJITA_COMPRESS_DEFLATE
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 COMPRESS DEFLATE\r\n"));
-    SOCK->fakeReading("y1 NO I just don't want to\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID (\"name\" \"Trojita\")\r\n"));
-    SOCK->fakeReading("* ID nil\r\ny2 OK you courious peer\r\n");
+    cClient(t.mk("COMPRESS DEFLATE\r\n"));
+    cServer(t.last("NO I just don't want to\r\n"));
+    cClient(t.mk("ID (\"name\" \"Trojita\")\r\n"));
+    cServer("* ID nil\r\n"
+            + t.last("OK you courious peer\r\n"));
 #else
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID (\"name\" \"Trojita\")\r\n"));
-    SOCK->fakeReading("* ID nil\r\ny1 OK you courious peer\r\n");
+    cClient(t.mk("ID (\"name\" \"Trojita\")\r\n"));
+    cServer("* ID nil\r\n"
+            + t.last("OK you courious peer\r\n"));
 #endif
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cEmpty();
     QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
-    QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -576,40 +412,29 @@ void ImapModelOpenConnectionTest::testCompressDeflateNo()
 void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
 {
     model->rowCount(QModelIndex());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading("* OK [capability imap4rev1] hi there\r\n");
+    cEmpty();
+    cServer("* OK [capability imap4rev1] hi there\r\n");
     QVERIFY(completedSpy->isEmpty());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
     QCOMPARE(authSpy->size(), 1);
-    SOCK->fakeReading("y0 OK [CAPABILITY IMAP4rev1 compress=deflate id] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cServer(t.last("OK [CAPABILITY IMAP4rev1 compress=deflate id] logged in\r\n"));
 #if TROJITA_COMPRESS_DEFLATE
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 COMPRESS DEFLATE\r\n"));
-    SOCK->fakeReading("y1 NO I just don't want to\r\n");
+    cClient(t.mk("COMPRESS DEFLATE\r\n"));
+    cServer(t.last("NO I just don't want to\r\n"));
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y2 ID (\"name\" \"Trojita\")\r\ny3 LIST \"\" \"%\"\r\n"));
-    SOCK->fakeReading("* ID nil\r\ny3 OK listed, nothing like that in there\r\ny2 OK you courious peer\r\n");
-#else
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 ID (\"name\" \"Trojita\")\r\ny2 LIST \"\" \"%\"\r\n"));
-    SOCK->fakeReading("* ID nil\r\ny2 OK listed, nothing like that in there\r\ny1 OK you courious peer\r\n");
 #endif
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    auto c1 = t.mk("ID (\"name\" \"Trojita\")\r\n");
+    auto r1 = t.last("OK you courious peer\r\n");
+    auto c2 = t.mk("LIST \"\" \"%\"\r\n");
+    auto r2 = t.last("OK listed, nothing like that in there\r\n");
+    cClient(c1 + c2);
+    cServer("* ID nil\r\n" + r2 + r1);
+    cEmpty();
     QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
-    QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -631,17 +456,11 @@ void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
     QCoreApplication::processEvents();
     // The cache should have been consulted by now
     QCOMPARE(model->rowCount(QModelIndex()), 3);
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading("* OK [capability imap4rev1] hi there\r\n");
+    cEmpty();
+    cServer("* OK [capability imap4rev1] hi there\r\n");
     QVERIFY(completedSpy->isEmpty());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     // The login must not be sent (as per m_enableAutoLogin being false)
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
     QModelIndex mailboxA = model->index(1, 0, QModelIndex());
     QVERIFY(mailboxA.isValid());
     QCOMPARE(mailboxA.data(RoleMailboxName).toString(), QString::fromUtf8("a"));
@@ -656,30 +475,24 @@ void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
     // Request syncing the mailboxes
     QCOMPARE(model->rowCount(msgListA), 0);
     QCOMPARE(model->rowCount(msgListB), 0);
-    for (int i = 0; i < 10; ++i)
-        QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
+    cEmpty();
 
     // Unblock the login
     m_enableAutoLogin = true;
     provideAuthDetails();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n"));
-    SOCK->fakeReading("y0 OK [CAPABILITY IMAP4rev1] logged in\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    cServer(t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
     // FIXME: selecting the "b" shall definitely wait until "a" is completed
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y1 LIST \"\" \"%\"\r\ny2 SELECT a\r\ny3 SELECT b\r\n"));
-    SOCK->fakeReading("y1 OK listed, nothing like that in there\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    auto c1 = t.mk("LIST \"\" \"%\"\r\n");
+    auto r1 = t.last("OK listed, nothing like that in there\r\n");
+    auto c2 = t.mk("SELECT a\r\n");
+    auto c3 = t.mk("SELECT b\r\n");
+    cClient(c1 + c2 + c3);
+    cServer(r1);
+    cEmpty();
     QCOMPARE(completedSpy->size(), 1);
     QVERIFY(failedSpy->isEmpty());
     QCOMPARE(authSpy->size(), 1);
-    QVERIFY(SOCK->writtenStuff().isEmpty());
     QVERIFY(startTlsUpgradeSpy->isEmpty());
     QCOMPARE(authErrorSpy->size(), 0);
     QCOMPARE(model->imapAuthError(), QString());
@@ -689,12 +502,10 @@ void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
 void ImapModelOpenConnectionTest::testInitialBye()
 {
     model->rowCount(QModelIndex());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading("* BYE Sorry, we're offline\r\n");
-    for (int i = 0; i < 10; ++i)
-        QCoreApplication::processEvents();
+    cEmpty();
+    cServer("* BYE Sorry, we're offline\r\n");
+    cClient(t.mk("LOGOUT\r\n"));
+    cEmpty();
     QCOMPARE(failedSpy->size(), 1);
     QVERIFY(completedSpy->isEmpty());
     QVERIFY(connErrorSpy->isEmpty());
@@ -707,12 +518,11 @@ void ImapModelOpenConnectionTest::testInitialGarbage()
     QFETCH(QByteArray, greetings);
 
     model->rowCount(QModelIndex());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading(greetings);
-    for (int i = 0; i < 10; ++i)
-        QCoreApplication::processEvents();
+    cEmpty();
+    {
+        ExpectSingleErrorHere blocker(this);
+        cServer(greetings);
+    }
     //qDebug() << QList<QVariantList>(*connErrorSpy);
     QCOMPARE(connErrorSpy->size(), 1);
     QCOMPARE(failedSpy->size(), 1);
@@ -733,46 +543,64 @@ void ImapModelOpenConnectionTest::testInitialGarbage_data()
 
 void ImapModelOpenConnectionTest::testAuthFailure()
 {
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading("* OK [capability imap4rev1] Serivce Ready\r\n");
+    cEmpty();
+    cServer("* OK [capability imap4rev1] Serivce Ready\r\n");
     QVERIFY(completedSpy->isEmpty());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     QCOMPARE(authSpy->size(), 1);
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n"));
-    SOCK->fakeReading("y0 NO [AUTHENTICATIONFAILED] foobar\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("NO [AUTHENTICATIONFAILED] foobar\r\n"));
     QCOMPARE(completedSpy->size(), 0);
-    QCOMPARE(authSpy->size(), 1);
+    QCOMPARE(authSpy->size(), 2);
     QCOMPARE(authErrorSpy->size(), 1);
     QVERIFY(model->imapAuthError().contains("foobar"));
 }
 
 void ImapModelOpenConnectionTest::testAuthFailureNoRespCode()
 {
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QVERIFY(SOCK->writtenStuff().isEmpty());
-    SOCK->fakeReading("* OK [capability imap4rev1] Service Ready\r\n");
+    cEmpty();
+    cServer("* OK [capability imap4rev1] Service Ready\r\n");
     QVERIFY(completedSpy->isEmpty());
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
     QCOMPARE(authSpy->size(), 1);
-    QCOMPARE(SOCK->writtenStuff(), QByteArray("y0 LOGIN luzr sikrit\r\n"));
-    SOCK->fakeReading("y0 NO Derp\r\n");
-    QCoreApplication::processEvents();
-    QCoreApplication::processEvents();
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("NO Derp\r\n"));
     QCOMPARE(completedSpy->size(), 0);
-    QCOMPARE(authSpy->size(), 1);
+    QCOMPARE(authSpy->size(), 2);
     QCOMPARE(authErrorSpy->size(), 1);
     QVERIFY(model->imapAuthError().contains("Derp"));
+}
+
+/** @short Ensure that network reconnects do not lead to a huge number of password prompts
+
+https://bugs.kde.org/show_bug.cgi?id=362477
+*/
+void ImapModelOpenConnectionTest::testExcessivePasswordPrompts()
+{
+    cEmpty();
+    m_enableAutoLogin = false;
+    cServer("* OK [capability imap4rev1] Service Ready\r\n");
+    cEmpty();
+    QCOMPARE(authSpy->size(), 1);
+    SOCK->fakeDisconnect(QStringLiteral("Fake network going down"));
+    for (int i = 0; i < 10; ++i) {
+        QCoreApplication::processEvents();
+    }
+    // SOCK is now unusable
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
+    model->rowCount(QModelIndex());
+    QCoreApplication::processEvents();
+    // SOCK is now back to a usable state
+    cServer("* OK [capability imap4rev1] Service Ready\r\n");
+    QCOMPARE(authSpy->size(), 1);
+    model->setImapUser(QStringLiteral("a"));
+    model->setImapPassword(QStringLiteral("b"));
+    cClient(t.mk("LOGIN a b\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("OK [CAPABILITY imap4rev1] logged in\r\n"));
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer(t.last("OK listed\r\n"));
+    cEmpty();
 }
 
 // FIXME: verify how LOGINDISABLED even after STARTLS ends up

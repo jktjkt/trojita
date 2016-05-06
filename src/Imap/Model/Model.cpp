@@ -105,7 +105,7 @@ Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFacto
     QAbstractItemModel(parent),
     // our tools
     m_cache(cache), m_socketFactory(std::move(socketFactory)), m_taskFactory(std::move(taskFactory)), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(NETWORK_OFFLINE),  m_taskModel(0), m_hasImapPassword(false)
+    m_netPolicy(NETWORK_OFFLINE),  m_taskModel(0), m_hasImapPassword(PasswordAvailability::NOT_REQUESTED)
 {
     m_cache->setParent(this);
     m_startTls = m_socketFactory->startTlsRequired();
@@ -1826,7 +1826,7 @@ QString Model::imapUser() const
 void Model::setImapPassword(const QString &password)
 {
     m_imapPassword = password;
-    m_hasImapPassword = true;
+    m_hasImapPassword = PasswordAvailability::AVAILABLE;
     informTasksAboutNewPassword();
 }
 
@@ -1840,7 +1840,7 @@ QString Model::imapPassword() const
 void Model::unsetImapPassword()
 {
     m_imapPassword.clear();
-    m_hasImapPassword = false;
+    m_hasImapPassword = PasswordAvailability::NOT_REQUESTED;
     informTasksAboutNewPassword();
 }
 

@@ -550,17 +550,12 @@ void ComposeWidget::passwordError()
 
 void ComposeWidget::askPassword(const QString &user, const QString &host)
 {
-    bool ok;
-    const QString &password = Gui::PasswordDialog::getPassword(this, tr("Authentication Required"),
-                                           tr("<p>Please provide SMTP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
-                                               user.toHtmlEscaped(),
-                                               host.toHtmlEscaped()
-                                               ),
-                                           QString(), &ok);
-    if (ok)
-        m_submission->setPassword(password);
-    else
-        m_submission->cancelPassword();
+    auto w = Gui::PasswordDialog::getPassword(this, tr("Authentication Required"),
+                                              tr("<p>Please provide SMTP password for user <b>%1</b> on <b>%2</b>:</p>").arg(
+                                                  user.toHtmlEscaped(),
+                                                  host.toHtmlEscaped()));
+    connect(w, &Gui::PasswordDialog::gotPassword, m_submission, &Composer::Submission::setPassword);
+    connect(w, &Gui::PasswordDialog::rejected, m_submission, &Composer::Submission::cancelPassword);
 }
 
 void ComposeWidget::changeEvent(QEvent *e)

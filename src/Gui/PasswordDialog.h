@@ -1,5 +1,6 @@
 /*
    Copyright (C) 2013 by Glad Deschrijver <glad.deschrijver@gmail.com>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This program is free software; you can redistribute it and/or
    modify it under the terms of the GNU General Public License as
@@ -35,15 +36,17 @@ class PasswordDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit PasswordDialog(QWidget *parent = 0);
-    ~PasswordDialog();
+    virtual ~PasswordDialog() override;
 
-    QString password() const;
-    static QString getPassword(QWidget *parent, const QString &windowTitle, const QString &description,
-                               const QString &password = QString(), bool *ok = 0, const QString &error = QString());
+    static PasswordDialog *getPassword(QWidget *parent, const QString &windowTitle, const QString &description,
+                                       const QString &errorMessage = QString());
+
+signals:
+    void gotPassword(const QString &password);
 
 protected:
-    void showEvent(QShowEvent *event);
+    explicit PasswordDialog(QWidget *parent = 0);
+    virtual void showEvent(QShowEvent *event) override;
 
     Ui::PasswordDialog ui;
 };
