@@ -433,11 +433,11 @@ void BodyPartsTest::testFilenameExtraction_data()
     QTest::addColumn<QString>("filename");
 
 
-    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0") << QString(); // multipart/mixed
-    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0.0") << QString(); // multipart/alternative
-    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0.0.0") << QString(); // text/plain
-    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0.0.1") << QString(); // text/html
-    QTest::newRow("evernote-plaintext") << bsEvernote << QStringLiteral("0.1") << QStringLiteral("CAN0000009221(1)"); // application/octet-stream
+    QTest::newRow("evernote-plaintext-0") << bsEvernote << QStringLiteral("0") << QString(); // multipart/mixed
+    QTest::newRow("evernote-plaintext-0.0") << bsEvernote << QStringLiteral("0.0") << QString(); // multipart/alternative
+    QTest::newRow("evernote-plaintext-0.0.0") << bsEvernote << QStringLiteral("0.0.0") << QString(); // text/plain
+    QTest::newRow("evernote-plaintext-0.0.1") << bsEvernote << QStringLiteral("0.0.1") << QString(); // text/html
+    QTest::newRow("evernote-plaintext-0.1") << bsEvernote << QStringLiteral("0.1") << QStringLiteral("CAN0000009221(1)"); // application/octet-stream
 
     QTest::newRow("plaintext-just-filename") << bsPlaintextWithFilenameAsFilename << QStringLiteral("0") << QStringLiteral("pwn.txt");
     QTest::newRow("plaintext-just-obsolete-name") << bsPlaintextWithFilenameAsName << QStringLiteral("0") << QStringLiteral("pwn.txt");

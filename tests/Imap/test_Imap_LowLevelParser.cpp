@@ -533,7 +533,7 @@ void ImapLowLevelParserTest::testGetRFC2822DateTime_data()
                     ).arg (
                         qAbs( ( tz - 12 * 60 ) % 60 ), 2, 10, QChar('0') );
         date = date.addSecs( - 60 * tz + 12*3600 );
-        QTest::newRow("date-generated") << str << date;
+        QTest::newRow(static_cast<QByteArray>("date-generated-" + str.toUtf8()).data()) << str << date;
 
         month = qMax( ( month + 1 ) % 12, 1 );
         day = qMax( ( day + 3 ) % 31, 1 );

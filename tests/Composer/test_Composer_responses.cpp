@@ -727,7 +727,7 @@ void ComposerResponsesTest::testReplyQuoting_data()
 
     QTest::newRow("empty") << QString() << QStringLiteral(">");
     QTest::newRow("simple") << QStringLiteral("Hello world") << QStringLiteral("> Hello world");
-    QTest::newRow("simple") << QStringLiteral("Hello world\n") << QStringLiteral("> Hello world\n>");
+    QTest::newRow("simple-newline") << QStringLiteral("Hello world\n") << QStringLiteral("> Hello world\n>");
 
     // This following two test cases is how v0.4.1-212-g0523301 behaves.
     // For this case, the ML stripped the format=flowed, and as such we treat it as different pieces of text, not to be wrapped together.
