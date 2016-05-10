@@ -627,7 +627,6 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         } else {
             throw CantHappen("State response has invalid UNSEEN respCodeData", *resp);
         }
-        break;
     }
     case Responses::PERMANENTFLAGS:
     {
@@ -638,7 +637,6 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         } else {
             throw CantHappen("State response has invalid PERMANENTFLAGS respCodeData", *resp);
         }
-        break;
     }
     case Responses::UIDNEXT:
     {
@@ -649,7 +647,6 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         } else {
             throw CantHappen("State response has invalid UIDNEXT respCodeData", *resp);
         }
-        break;
     }
     case Responses::UIDVALIDITY:
     {
@@ -660,7 +657,6 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         } else {
             throw CantHappen("State response has invalid UIDVALIDITY respCodeData", *resp);
         }
-        break;
     }
     case Responses::NOMODSEQ:
         // NOMODSEQ means that this mailbox doesn't support CONDSTORE or QRESYNC. We have to avoid sending any fancy commands like
@@ -668,7 +664,6 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         mailbox->syncState.setHighestModSeq(0);
         m_usingQresync = false;
         return resp->tag.isEmpty();
-        break;
 
     case Responses::HIGHESTMODSEQ:
     {
@@ -676,12 +671,10 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         Q_ASSERT(num);
         mailbox->syncState.setHighestModSeq(num->data);
         return resp->tag.isEmpty();
-        break;
     }
     case Responses::CLOSED:
         // FIXME: handle when supporting the qresync
         return resp->tag.isEmpty();
-        break;
     default:
         break;
     }
