@@ -672,9 +672,6 @@ bool ObtainSynchronizedMailboxTask::handleResponseCodeInsideState(const Imap::Re
         mailbox->syncState.setHighestModSeq(num->data);
         return resp->tag.isEmpty();
     }
-    case Responses::CLOSED:
-        // FIXME: handle when supporting the qresync
-        return resp->tag.isEmpty();
     default:
         break;
     }
