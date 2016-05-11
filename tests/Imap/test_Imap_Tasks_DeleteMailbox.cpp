@@ -308,4 +308,55 @@ void ImapModelDeleteMailboxTest::testDeleteSelectedPendingAnotherMailboxDelayed(
     QVERIFY(failedSpy->isEmpty());
 }
 
+/** @short There should be no [CLOSED] when deleting a current mailbox
+
+https://bugs.kde.org/show_bug.cgi?id=362854
+*/
+void ImapModelDeleteMailboxTest::testDeleteCurrentQresync()
+{
+    helperDeleteCurrentQresync(DeleteStatus::OK);
+}
+
+/** @short There should be no [CLOSED] when deleting a current mailbox
+
+...check what happens when the DELETE itself fails, for the sake of completeness.
+
+https://bugs.kde.org/show_bug.cgi?id=362854
+*/
+void ImapModelDeleteMailboxTest::testDeleteCurrentQresyncDeleteNo()
+{
+    helperDeleteCurrentQresync(DeleteStatus::NO);
+}
+
+/** @short Mailbox deletion and the absence of the [CLOSED] response code
+
+https://bugs.kde.org/show_bug.cgi?id=362854
+*/
+void ImapModelDeleteMailboxTest::helperDeleteCurrentQresync(const DeleteStatus deleteSucceeded)
+{
+    initWithTwo();
+    Imap::Mailbox::SyncState syncState;
+    helperQresyncAInitial(syncState);
+    cEmpty();
+    model->deleteMailbox(QStringLiteral("a"));
+    cClient(t.mk("CLOSE\r\n"));
+    cServer(t.last("OK closed\r\n"));
+    cClient(t.mk("DELETE a\r\n"));
+    switch (deleteSucceeded) {
+    case DeleteStatus::OK:
+        cServer(t.last("OK deleted\r\n"));
+        break;
+    case DeleteStatus::NO:
+        cServer(t.last("NO delete failed\r\n"));
+        break;
+    }
+    cEmpty();
+    model->switchToMailbox(idxB);
+    cClient(t.mk("SELECT b\r\n"));
+    cServer("* 0 EXISTS\r\n"
+            + t.last("OK selected\r\n"));
+    cEmpty();
+    justKeepTask();
+}
+
 QTEST_GUILESS_MAIN(ImapModelDeleteMailboxTest)
