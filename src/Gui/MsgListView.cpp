@@ -124,7 +124,7 @@ int MsgListView::sizeHintForColumn(int column) const
         return 0;
     case Imap::Mailbox::MsgListModel::FLAGGED:
     case Imap::Mailbox::MsgListModel::ATTACHMENT:
-        return 16;
+        return style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, nullptr);
     case Imap::Mailbox::MsgListModel::SUBJECT:
         return metric.size(Qt::TextSingleLine, QStringLiteral("Blesmrt Trojita Foo Bar Random Text")).width();
     case Imap::Mailbox::MsgListModel::FROM:
