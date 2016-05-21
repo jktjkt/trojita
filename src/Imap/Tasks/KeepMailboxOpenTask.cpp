@@ -604,6 +604,7 @@ bool KeepMailboxOpenTask::handleStateHelper(const Imap::Responses::State *const 
         return true;
     } else if (resp->tag == tagClose) {
         tagClose.clear();
+        model->changeConnectionState(parser, CONN_STATE_AUTHENTICATED);
         if (m_deleteCurrentMailboxTask) {
             m_deleteCurrentMailboxTask->perform();
         }

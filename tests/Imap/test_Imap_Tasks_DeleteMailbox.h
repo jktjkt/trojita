@@ -43,6 +43,8 @@ private slots:
     void testDeleteSelectedPendingMetadata();
     void testDeleteSelectedPendingAnotherMailbox();
     void testDeleteSelectedPendingAnotherMailboxDelayed();
+    void testDeleteCurrentQresync();
+    void testDeleteCurrentQresyncDeleteNo();
 
 private:
     QSignalSpy* deletedSpy;
@@ -50,6 +52,9 @@ private:
 
     void initWithOne();
     void initWithTwo();
+
+    enum class DeleteStatus { OK, NO };
+    void helperDeleteCurrentQresync(const DeleteStatus deleteSucceeded);
 };
 
 #endif
