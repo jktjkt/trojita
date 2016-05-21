@@ -92,8 +92,11 @@ public slots:
     void setEmpty();
     void setHomepageUrl(const QUrl &homepage);
     void stopAutoMarkAsRead();
+    void zoomIn();
+    void zoomOut();
+    void zoomOriginal();
 protected:
-    void showEvent(QShowEvent *se);
+    void showEvent(QShowEvent *se) override;
 private slots:
     void markAsRead();
     void externalsRequested(const QUrl &url);
@@ -112,7 +115,7 @@ signals:
     void searchRequestedBy(EmbeddedWebView *webView);
     void transferError(const QString &errorString);
 private:
-    bool eventFilter(QObject *object, QEvent *event);
+    bool eventFilter(QObject *object, QEvent *event) override;
     Imap::Message::Envelope envelope() const;
     QString quoteText() const;
     void showMessageNow();
@@ -134,6 +137,7 @@ private:
     QPointer<Imap::Mailbox::NetworkWatcher> m_netWatcher;
     QTimer *markAsReadTimer;
     QWidget *m_bodyWidget;
+    QAction *m_zoomIn, *m_zoomOut, *m_zoomOriginal;
 
     std::unique_ptr<PartWidgetFactory> factory;
     Spinner *m_loadingSpinner;

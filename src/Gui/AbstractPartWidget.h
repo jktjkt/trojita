@@ -34,6 +34,9 @@ public:
     virtual QString quoteMe() const = 0;
     virtual ~AbstractPartWidget() {}
     virtual void reloadContents() = 0;
+    virtual void zoomIn() = 0;
+    virtual void zoomOut() = 0;
+    virtual void zoomOriginal() = 0;
 };
 
 }

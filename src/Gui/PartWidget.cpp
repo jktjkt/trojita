@@ -157,18 +157,6 @@ QString MultipartAlternativeWidget::quoteMe() const
     return w ? w->quoteMe() : QString();
 }
 
-void MultipartAlternativeWidget::reloadContents()
-{
-    if (count()) {
-        for (int i = 0; i < count(); ++i) {
-            AbstractPartWidget *w = dynamic_cast<AbstractPartWidget *>(widget(i));
-            if (w) {
-                w->reloadContents();
-            }
-        }
-    }
-}
-
 bool MultipartAlternativeWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::Wheel && qobject_cast<QTabBar*>(o)) { // don't alter part while wheeling
@@ -417,25 +405,48 @@ QString Message822Widget::quoteMe() const
     return quoteMeHelper(children());
 }
 
-#define IMPL_RELOAD(CLASS) void CLASS::reloadContents() \
+#define IMPL_PART_FORWARD_ONE_METHOD(CLASS, METHOD) \
+void CLASS::METHOD() \
 {\
     /*qDebug() << metaObject()->className() << children().size();*/\
     Q_FOREACH( QObject* const obj, children() ) {\
         /*qDebug() << obj->metaObject()->className();*/\
         AbstractPartWidget* w = dynamic_cast<AbstractPartWidget*>( obj );\
         if ( w ) {\
-            /*qDebug() << "reloadContents:" << w;*/\
-            w->reloadContents();\
+            /*qDebug() << METHOD ":" << w;*/\
+            w->METHOD();\
         }\
     }\
 }
 
-IMPL_RELOAD(MultipartSignedEncryptedWidget)
-IMPL_RELOAD(GenericMultipartWidget)
-IMPL_RELOAD(Message822Widget)
+#define IMPL_PART_FORWARDED_METHODS(CLASS) \
+    IMPL_PART_FORWARD_ONE_METHOD(CLASS, reloadContents) \
+    IMPL_PART_FORWARD_ONE_METHOD(CLASS, zoomIn) \
+    IMPL_PART_FORWARD_ONE_METHOD(CLASS, zoomOut) \
+    IMPL_PART_FORWARD_ONE_METHOD(CLASS, zoomOriginal)
 
-#undef IMPL_RELOAD
+IMPL_PART_FORWARDED_METHODS(MultipartSignedEncryptedWidget)
+IMPL_PART_FORWARDED_METHODS(GenericMultipartWidget)
+IMPL_PART_FORWARDED_METHODS(Message822Widget)
 
+#undef IMPL_PART_FORWARD_ONE_METHOD
+#define IMPL_PART_FORWARD_ONE_METHOD(CLASS, METHOD) \
+void CLASS::METHOD() \
+{\
+    if (count()) { \
+        for (int i = 0; i < count(); ++i) { \
+            AbstractPartWidget *w = dynamic_cast<AbstractPartWidget *>(widget(i)); \
+            if (w) { \
+                w->METHOD(); \
+            } \
+        } \
+    } \
+}
+
+IMPL_PART_FORWARDED_METHODS(MultipartAlternativeWidget)
+
+#undef IMPL_PART_FORWARD_ONE_METHOD
+#undef IMPL_PART_FORWARDED_METHODS
 
 }
 

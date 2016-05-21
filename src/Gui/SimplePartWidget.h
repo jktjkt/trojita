@@ -57,8 +57,11 @@ class SimplePartWidget : public EmbeddedWebView, public AbstractPartWidget
 public:
     SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex,
                      MessageView *messageView);
-    virtual QString quoteMe() const;
-    virtual void reloadContents();
+    virtual QString quoteMe() const override;
+    virtual void reloadContents() override;
+    virtual void zoomIn() override;
+    virtual void zoomOut() override;
+    virtual void zoomOriginal() override;
     void buildContextMenu(const QPoint &point, QMenu &menu) const;
 private slots:
     void slotFileNameRequested(QString *fileName);
@@ -66,6 +69,7 @@ private slots:
     void slotDownloadPart();
     void slotDownloadMessage();
     void slotDownloadImage(const QNetworkRequest &req);
+protected:
 signals:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
     void searchDialogRequested();
@@ -74,7 +78,6 @@ private:
     QAction *m_savePart;
     QAction *m_saveMessage;
     QAction *m_findAction;
-    QAction *m_zoomIn, *m_zoomOut, *m_zoomReset;
     MessageView *m_messageView;
     Imap::Network::MsgPartNetAccessManager *m_netAccessManager;
 

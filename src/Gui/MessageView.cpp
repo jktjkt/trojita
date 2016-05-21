@@ -62,6 +62,7 @@
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Plugins/PluginManager.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui
 {
@@ -83,6 +84,21 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
     setForegroundRole(QPalette::Text);
     setAutoFillBackground(true);
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
+
+
+    m_zoomIn = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-in")), tr("Zoom In"), this);
+    m_zoomIn->setShortcut(QKeySequence::ZoomIn);
+    addAction(m_zoomIn);
+    connect(m_zoomIn, &QAction::triggered, this, &MessageView::zoomIn);
+
+    m_zoomOut = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-out")), tr("Zoom Out"), this);
+    m_zoomOut->setShortcut(QKeySequence::ZoomOut);
+    addAction(m_zoomOut);
+    connect(m_zoomOut, &QAction::triggered, this, &MessageView::zoomOut);
+
+    m_zoomOriginal = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-original")), tr("Original Size"), this);
+    addAction(m_zoomOriginal);
+    connect(m_zoomOriginal, &QAction::triggered, this, &MessageView::zoomOriginal);
 
 
     // The homepage widget -- our poor man's splashscreen
@@ -302,13 +318,21 @@ void MessageView::stopAutoMarkAsRead()
 
 bool MessageView::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::Wheel && static_cast<QWheelEvent*>(event)->modifiers() == Qt::NoModifier) {
-        // while the containing scrollview has Qt::StrongFocus, the event forwarding breaks that
-        // -> completely disable focus for the following wheel event ...
-        parentWidget()->setFocusPolicy(Qt::NoFocus);
-        MessageView::event(event);
-        // ... set reset it
-        parentWidget()->setFocusPolicy(Qt::StrongFocus);
+    if (event->type() == QEvent::Wheel) {
+        if (static_cast<QWheelEvent *>(event)->modifiers() == Qt::ControlModifier) {
+            if (static_cast<QWheelEvent *>(event)->delta() > 0) {
+                zoomIn();
+            } else {
+                zoomOut();
+            }
+        } else {
+            // while the containing scrollview has Qt::StrongFocus, the event forwarding breaks that
+            // -> completely disable focus for the following wheel event ...
+            parentWidget()->setFocusPolicy(Qt::NoFocus);
+            MessageView::event(event);
+            // ... set reset it
+            parentWidget()->setFocusPolicy(Qt::StrongFocus);
+        }
         return true;
     } else if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
@@ -350,6 +374,17 @@ QString MessageView::quoteText() const
     }
     return QString();
 }
+
+#define FORWARD_METHOD(METHOD) \
+void MessageView::METHOD() \
+{ \
+    if (auto w = bodyWidget()) { \
+        w->METHOD(); \
+    } \
+}
+FORWARD_METHOD(zoomIn)
+FORWARD_METHOD(zoomOut)
+FORWARD_METHOD(zoomOriginal)
 
 void MessageView::setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher)
 {

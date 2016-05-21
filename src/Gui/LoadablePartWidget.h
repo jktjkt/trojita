@@ -49,10 +49,13 @@ public:
     LoadablePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &part,
                        PartWidgetFactory *factory, int recursionDepth,
                        const UiUtils::PartLoadingOptions loadingMode);
-    QString quoteMe() const;
-    virtual void reloadContents();
+    QString quoteMe() const override;
+    virtual void reloadContents() override;
+    virtual void zoomIn() override;
+    virtual void zoomOut() override;
+    virtual void zoomOriginal() override;
 protected:
-    virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 private slots:
     void loadClicked();
 private:

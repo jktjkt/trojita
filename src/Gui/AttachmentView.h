@@ -61,6 +61,9 @@ public:
                    MessageView *messageView, QWidget *contentWidget);
     virtual QString quoteMe() const;
     virtual void reloadContents();
+    virtual void zoomIn();
+    virtual void zoomOut();
+    virtual void zoomOriginal();
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);

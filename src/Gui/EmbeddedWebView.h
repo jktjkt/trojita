@@ -69,19 +69,15 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
-    void wheelEvent(QWheelEvent *e);
     void showEvent(QShowEvent *se);
     void addCustomStylesheet(const QString &css);
-protected slots:
-    void zoomIn();
-    void zoomOut();
+    void constrainSize();
 private:
     void findScrollParent();
 private slots:
     void autoScroll();
     void slotLinkClicked(const QUrl &url);
     void handlePageLoadFinished();
-    void constrainSize();
 private:
     QWidget *m_scrollParent;
     int m_scrollParentPadding;

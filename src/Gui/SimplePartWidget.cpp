@@ -25,6 +25,7 @@
 #include <QMenu>
 #include <QNetworkReply>
 #include <QWebFrame>
+#include <QWheelEvent>
 
 #include "SimplePartWidget.h"
 #include "Common/MetaTypes.h"
@@ -84,20 +85,6 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     connect(m_findAction, &QAction::triggered, this, &SimplePartWidget::searchDialogRequested);
     addAction(m_findAction);
 
-    m_zoomIn = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-in")), tr("Zoom In"), this);
-    m_zoomIn->setShortcut(QKeySequence::ZoomIn);
-    addAction(m_zoomIn);
-    connect(m_zoomIn, &QAction::triggered, this, &SimplePartWidget::zoomIn);
-
-    m_zoomOut = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-out")), tr("Zoom Out"), this);
-    m_zoomOut->setShortcut(QKeySequence::ZoomOut);
-    addAction(m_zoomOut);
-    connect(m_zoomOut, &QAction::triggered, this, &SimplePartWidget::zoomOut);
-
-    m_zoomReset = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-original")), tr("Original Size"), this);
-    addAction(m_zoomReset);
-    connect(m_zoomReset, &QAction::triggered, this, [this]() { setZoomFactor(1); });
-
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     // It is actually OK to construct this widget without any connection to a messageView -- this is often used when
@@ -154,6 +141,26 @@ void SimplePartWidget::reloadContents()
     EmbeddedWebView::reload();
 }
 
+const auto zoomConstant = 1.1;
+
+void SimplePartWidget::zoomIn()
+{
+    setZoomFactor(zoomFactor() * zoomConstant);
+    constrainSize();
+}
+
+void SimplePartWidget::zoomOut()
+{
+    setZoomFactor(zoomFactor() / zoomConstant);
+    constrainSize();
+}
+
+void SimplePartWidget::zoomOriginal()
+{
+    setZoomFactor(1);
+    constrainSize();
+}
+
 void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const
 {
     menu.addAction(m_findAction);
@@ -193,9 +200,22 @@ void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const
     }
 
     auto zoomMenu = menu.addMenu(UiUtils::loadIcon(QStringLiteral("zoom")), tr("Zoom"));
-    zoomMenu->addAction(m_zoomIn);
-    zoomMenu->addAction(m_zoomOut);
-    zoomMenu->addAction(m_zoomReset);
+    if (m_messageView) {
+        zoomMenu->addAction(m_messageView->m_zoomIn);
+        zoomMenu->addAction(m_messageView->m_zoomOut);
+        zoomMenu->addAction(m_messageView->m_zoomOriginal);
+    } else {
+        auto zoomIn = zoomMenu->addAction(UiUtils::loadIcon(QStringLiteral("zoom-in")), tr("Zoom In"));
+        zoomIn->setShortcut(QKeySequence::ZoomIn);
+        connect(zoomIn, &QAction::triggered, this, &SimplePartWidget::zoomIn);
+
+        auto zoomOut = zoomMenu->addAction(UiUtils::loadIcon(QStringLiteral("zoom-out")), tr("Zoom Out"));
+        zoomOut->setShortcut(QKeySequence::ZoomOut);
+        connect(zoomOut, &QAction::triggered, this, &SimplePartWidget::zoomOut);
+
+        auto zoomOriginal = zoomMenu->addAction(UiUtils::loadIcon(QStringLiteral("zoom-original")), tr("Original Size"));
+        connect(zoomOriginal, &QAction::triggered, this, &SimplePartWidget::zoomOriginal);
+    }
 }
 
 void SimplePartWidget::slotDownloadPart()

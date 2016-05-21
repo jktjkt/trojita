@@ -45,10 +45,13 @@ public:
     MultipartAlternativeWidget(QWidget *parent, PartWidgetFactory *factory,
                                const QModelIndex &partIndex,
                                const int recursionDepth, const UiUtils::PartLoadingOptions options);
-    virtual QString quoteMe() const;
-    virtual void reloadContents();
+    virtual QString quoteMe() const override;
+    virtual void reloadContents() override;
+    virtual void zoomIn() override;
+    virtual void zoomOut() override;
+    virtual void zoomOriginal() override;
 protected:
-    bool eventFilter(QObject *o, QEvent *e);
+    bool eventFilter(QObject *o, QEvent *e) override;
 };
 
 /** @short Widget to display status information when processing message parts */
@@ -107,6 +110,9 @@ public:
                                    const UiUtils::PartLoadingOptions loadingOptions);
     virtual QString quoteMe() const override;
     virtual void reloadContents() override;
+    virtual void zoomIn() override;
+    virtual void zoomOut() override;
+    virtual void zoomOriginal() override;
 protected slots:
     virtual void updateStatusIndicator() override;
 protected:
@@ -121,8 +127,11 @@ public:
     GenericMultipartWidget(QWidget *parent, PartWidgetFactory *factory,
                            const QModelIndex &partIndex, const int recursionDepth,
                            const UiUtils::PartLoadingOptions loadingOptions);
-    virtual QString quoteMe() const;
-    virtual void reloadContents();
+    virtual QString quoteMe() const override;
+    virtual void reloadContents() override;
+    virtual void zoomIn() override;
+    virtual void zoomOut() override;
+    virtual void zoomOriginal() override;
 };
 
 /** @short Message quoting support for generic multipart/ * */
@@ -133,8 +142,11 @@ public:
     Message822Widget(QWidget *parent, PartWidgetFactory *factory,
                      const QModelIndex &partIndex, const int recursionDepth,
                      const UiUtils::PartLoadingOptions loadingOptions);
-    virtual QString quoteMe() const;
-    virtual void reloadContents();
+    virtual QString quoteMe() const override;
+    virtual void reloadContents() override;
+    virtual void zoomIn() override;
+    virtual void zoomOut() override;
+    virtual void zoomOriginal() override;
 };
 
 

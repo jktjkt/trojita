@@ -89,10 +89,16 @@ void LoadablePartWidget::showEvent(QShowEvent *event)
     }
 }
 
-void LoadablePartWidget::reloadContents()
-{
-    if (AbstractPartWidget *w = dynamic_cast<AbstractPartWidget*>(realPart))
-        w->reloadContents();
+#define IMPL_PART_FORWARD_ONE_METHOD(METHOD) \
+void LoadablePartWidget::METHOD() \
+{\
+    if (AbstractPartWidget *w = dynamic_cast<AbstractPartWidget*>(realPart)) \
+        w->METHOD(); \
 }
+
+IMPL_PART_FORWARD_ONE_METHOD(reloadContents)
+IMPL_PART_FORWARD_ONE_METHOD(zoomIn)
+IMPL_PART_FORWARD_ONE_METHOD(zoomOut)
+IMPL_PART_FORWARD_ONE_METHOD(zoomOriginal)
 
 }
