@@ -302,7 +302,7 @@ void MessageView::stopAutoMarkAsRead()
 
 bool MessageView::eventFilter(QObject *object, QEvent *event)
 {
-    if (event->type() == QEvent::Wheel) {
+    if (event->type() == QEvent::Wheel && static_cast<QWheelEvent*>(event)->modifiers() == Qt::NoModifier) {
         // while the containing scrollview has Qt::StrongFocus, the event forwarding breaks that
         // -> completely disable focus for the following wheel event ...
         parentWidget()->setFocusPolicy(Qt::NoFocus);

@@ -234,6 +234,20 @@ void EmbeddedWebView::mouseReleaseEvent(QMouseEvent *e)
     QWebView::mouseReleaseEvent(e);
 }
 
+void EmbeddedWebView::wheelEvent(QWheelEvent *e)
+{
+    if (e->modifiers() == Qt::ControlModifier) {
+        if (e->delta() > 0) {
+            zoomIn();
+        } else {
+            zoomOut();
+        }
+        e->accept();
+    } else {
+        e->ignore();
+    }
+}
+
 const auto zoomConstant = 1.1;
 
 void EmbeddedWebView::zoomIn()
