@@ -74,6 +74,7 @@ private:
     QAction *m_savePart;
     QAction *m_saveMessage;
     QAction *m_findAction;
+    QAction *m_zoomIn, *m_zoomOut, *m_zoomReset;
     MessageView *m_messageView;
     Imap::Network::MsgPartNetAccessManager *m_netAccessManager;
 

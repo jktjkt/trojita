@@ -234,6 +234,20 @@ void EmbeddedWebView::mouseReleaseEvent(QMouseEvent *e)
     QWebView::mouseReleaseEvent(e);
 }
 
+const auto zoomConstant = 1.1;
+
+void EmbeddedWebView::zoomIn()
+{
+    setZoomFactor(zoomFactor() * zoomConstant);
+    constrainSize();
+}
+
+void EmbeddedWebView::zoomOut()
+{
+    setZoomFactor(zoomFactor() / zoomConstant);
+    constrainSize();
+}
+
 void EmbeddedWebView::findScrollParent()
 {
     if (m_scrollParent)

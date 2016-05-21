@@ -71,6 +71,9 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
     void showEvent(QShowEvent *se);
     void addCustomStylesheet(const QString &css);
+protected slots:
+    void zoomIn();
+    void zoomOut();
 private:
     void findScrollParent();
 private slots:
