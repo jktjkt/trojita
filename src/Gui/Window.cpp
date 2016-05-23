@@ -143,12 +143,12 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     connect(m_imapAccess, &Imap::ImapAccess::cacheError, this, &MainWindow::cacheError);
     connect(m_imapAccess, &Imap::ImapAccess::checkSslPolicy, this, &MainWindow::checkSslPolicy, Qt::QueuedConnection);
 
-    createWidgets();
-
     ShortcutHandler *shortcutHandler = new ShortcutHandler(this);
     shortcutHandler->setSettingsObject(m_settings);
     defineActions();
     shortcutHandler->readSettings(); // must happen after defineActions()
+
+    createWidgets();
 
     Imap::migrateSettings(m_settings);
 
@@ -236,6 +236,9 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_network_online"), QStringLiteral("network-connect"), tr("&Free Access"));
     shortcutHandler->defineAction(QStringLiteral("action_messagewindow_close"), QStringLiteral("window-close"), tr("Close Standalone Message Window"));
     shortcutHandler->defineAction(QStringLiteral("action_oneattime_go_back"), QStringLiteral("go-previous"), tr("Navigate Back"), QKeySequence(QKeySequence::Back).toString());
+    shortcutHandler->defineAction(QStringLiteral("action_zoom_in"), QStringLiteral("zoom-in"), tr("Zoom In"), QKeySequence::ZoomIn);
+    shortcutHandler->defineAction(QStringLiteral("action_zoom_out"), QStringLiteral("zoom-out"), tr("Zoom Out"), QKeySequence::ZoomOut);
+    shortcutHandler->defineAction(QStringLiteral("action_zoom_original"), QStringLiteral("zoom-original"), tr("Original Size"));
 }
 
 void MainWindow::createActions()

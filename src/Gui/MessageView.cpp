@@ -62,6 +62,7 @@
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Plugins/PluginManager.h"
+#include "ShortcutHandler/ShortcutHandler.h"
 #include "UiUtils/IconLoader.h"
 
 namespace Gui
@@ -86,17 +87,15 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
     setFocusPolicy(Qt::StrongFocus); // not by the wheel
 
 
-    m_zoomIn = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-in")), tr("Zoom In"), this);
-    m_zoomIn->setShortcut(QKeySequence::ZoomIn);
+    m_zoomIn = ShortcutHandler::instance()->createAction(QStringLiteral("action_zoom_in"), this);
     addAction(m_zoomIn);
     connect(m_zoomIn, &QAction::triggered, this, &MessageView::zoomIn);
 
-    m_zoomOut = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-out")), tr("Zoom Out"), this);
-    m_zoomOut->setShortcut(QKeySequence::ZoomOut);
+    m_zoomOut = ShortcutHandler::instance()->createAction(QStringLiteral("action_zoom_out"), this);
     addAction(m_zoomOut);
     connect(m_zoomOut, &QAction::triggered, this, &MessageView::zoomOut);
 
-    m_zoomOriginal = new QAction(UiUtils::loadIcon(QStringLiteral("zoom-original")), tr("Original Size"), this);
+    m_zoomOriginal = ShortcutHandler::instance()->createAction(QStringLiteral("action_zoom_original"), this);
     addAction(m_zoomOriginal);
     connect(m_zoomOriginal, &QAction::triggered, this, &MessageView::zoomOriginal);
 
