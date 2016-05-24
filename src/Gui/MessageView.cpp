@@ -21,48 +21,35 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QDebug>
+
 #include <QKeyEvent>
-#include <QLabel>
 #include <QMenu>
-#include <QMessageBox>
-#include <QProgressBar>
 #include <QSettings>
 #include <QStackedLayout>
-#include <QTimer>
-#include <QUrl>
-#include <QVBoxLayout>
-#include <QWebFrame>
-#include <QWebHistory>
-#include <QWebHitTestResult>
-#include <QWebPage>
 
-#include "MessageView.h"
-#include "AbstractPartWidget.h"
-#include "ComposeWidget.h"
-#include "EmbeddedWebView.h"
-#include "EnvelopeView.h"
-#include "ExternalElementsWidget.h"
-#include "OverlayWidget.h"
-#include "PartWidgetFactoryVisitor.h"
-#include "SimplePartWidget.h"
-#include "Spinner.h"
-#include "TagListWidget.h"
-#include "UserAgentWebPage.h"
-#include "Window.h"
 #include "Common/InvokeMethod.h"
-#include "Common/MetaTypes.h"
 #include "Common/SettingsNames.h"
 #include "Composer/QuoteText.h"
 #include "Composer/SubjectMangling.h"
 #include "Cryptography/MessageModel.h"
+#include "Gui/MessageView.h"
+#include "Gui/ComposeWidget.h"
+#include "Gui/EnvelopeView.h"
+#include "Gui/ExternalElementsWidget.h"
+#include "Gui/OverlayWidget.h"
+#include "Gui/PartWidgetFactoryVisitor.h"
+#include "Gui/ShortcutHandler/ShortcutHandler.h"
+#include "Gui/SimplePartWidget.h"
+#include "Gui/Spinner.h"
+#include "Gui/TagListWidget.h"
+#include "Gui/UserAgentWebPage.h"
+#include "Gui/Window.h"
 #include "Imap/Model/MailboxTree.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/NetworkWatcher.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Plugins/PluginManager.h"
-#include "ShortcutHandler/ShortcutHandler.h"
 #include "UiUtils/IconLoader.h"
 
 namespace Gui
