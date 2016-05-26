@@ -61,7 +61,7 @@ MessageHeadersWidget::MessageHeadersWidget(QWidget *parent, const QModelIndex &m
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_widget);
+    layout->addWidget(m_widget, 1);
     layout->addWidget(m_findBar);
     setLayout(layout);
 }
