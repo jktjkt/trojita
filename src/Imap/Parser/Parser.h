@@ -75,8 +75,15 @@ public:
     /** @short De-queue and return parsed response */
     QSharedPointer<Responses::AbstractResponse> getResponse();
 
+    /** @short Support of the LITERAL+ and LITERAL- extensions, RFC 7888 and RFC 2088 */
+    enum class LiteralPlus {
+        Unsupported, /**< @short No joy, use synchronizing literals */
+        Plus, /**< @short Unlimited LITERAL+ regardless of the size */
+        Minus, /**< @short Can use non-synchronizing literals if the size is <= 4kB */
+    };
+
     /** @short Enable/Disable sending literals using the LITERAL+ extension */
-    void enableLiteralPlus(const bool enabled=true);
+    void enableLiteralPlus(const LiteralPlus mode);
 
     uint parserId() const;
 
@@ -376,7 +383,7 @@ private:
     bool idling;
     bool waitForInitialIdle;
 
-    bool literalPlus;
+    LiteralPlus m_literalPlus;
     bool waitingForContinuation;
     bool startTlsInProgress;
     bool compressDeflateInProgress;

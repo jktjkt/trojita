@@ -1196,7 +1196,13 @@ void Model::updateCapabilities(Parser *parser, const QStringList capabilities)
     }
     accessParser(parser).capabilities = uppercaseCaps;
     accessParser(parser).capabilitiesFresh = true;
-    parser->enableLiteralPlus(uppercaseCaps.contains(QStringLiteral("LITERAL+")));
+    if (uppercaseCaps.contains(QStringLiteral("LITERAL-"))) {
+        parser->enableLiteralPlus(Parser::LiteralPlus::Minus);
+    } else if (uppercaseCaps.contains(QStringLiteral("LITERAL+"))) {
+        parser->enableLiteralPlus(Parser::LiteralPlus::Plus);
+    } else {
+        parser->enableLiteralPlus(Parser::LiteralPlus::Unsupported);
+    }
 
     for (QMap<Parser *,ParserState>::const_iterator it = m_parsers.constBegin(); it != m_parsers.constEnd(); ++it) {
         if (it->connState == CONN_STATE_LOGOUT) {

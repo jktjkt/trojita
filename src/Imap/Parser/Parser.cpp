@@ -88,7 +88,7 @@ namespace Imap
 
 Parser::Parser(QObject *parent, Streams::Socket *socket, const uint myId):
     QObject(parent), socket(socket), m_lastTagUsed(0), idling(false), waitForInitialIdle(false),
-    literalPlus(false), waitingForContinuation(false), startTlsInProgress(false), compressDeflateInProgress(false),
+    m_literalPlus(LiteralPlus::Unsupported), waitingForContinuation(false), startTlsInProgress(false), compressDeflateInProgress(false),
     waitingForConnection(true), waitingForEncryption(socket->isConnectingEncryptedSinceStart()), waitingForSslPolicy(false),
     m_expectsInitialGreeting(true), readingMode(ReadingLine), oldLiteralPosition(0), m_parserId(myId)
 {
@@ -835,7 +835,7 @@ void Parser::executeACommand()
         }
         break;
         case Commands::LITERAL:
-            if (literalPlus) {
+            if (m_literalPlus == LiteralPlus::Plus || (m_literalPlus == LiteralPlus::Minus && part.text.size() <= 4096)) {
                 buf.append('{');
                 buf.append(QByteArray::number(part.text.size()));
                 buf.append("+}\r\n");
@@ -1126,9 +1126,9 @@ QSharedPointer<Responses::AbstractResponse> Parser::parseTagged(const QByteArray
                new Responses::State(tag, kind, line, pos));
 }
 
-void Parser::enableLiteralPlus(const bool enabled)
+void Parser::enableLiteralPlus(const LiteralPlus mode)
 {
-    literalPlus = enabled;
+    m_literalPlus = mode;
 }
 
 void Parser::handleDisconnected(const QString &reason)
