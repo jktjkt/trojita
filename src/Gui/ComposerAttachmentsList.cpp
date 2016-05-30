@@ -20,14 +20,15 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ComposerAttachmentsList.h"
 #include <QAction>
 #include <QDragEnterEvent>
 #include <QDebug>
 #include <QInputDialog>
 #include <QMenu>
 #include "Composer/MessageComposer.h"
+#include "Gui/ComposerAttachmentsList.h"
 #include "Imap/Model/ItemRoles.h"
+#include "UiUtils/IconLoader.h"
 
 ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
     QListView(parent), m_dragging(false), m_dragInside(false), m_composer(0)
@@ -41,16 +42,16 @@ ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this, &QWidget::customContextMenuRequested, this, &ComposerAttachmentsList::showContextMenu);
 
-    m_actionSendInline = new QAction(tr("Send Inline"), this);
+    m_actionSendInline = new QAction(UiUtils::loadIcon(QStringLiteral("insert-image")), tr("Send Inline"), this);
     m_actionSendInline->setCheckable(true);
     connect(m_actionSendInline, &QAction::triggered, this, &ComposerAttachmentsList::slotToggledContentDispositionInline);
     addAction(m_actionSendInline);
 
-    m_actionRename = new QAction(tr("Rename..."), this);
+    m_actionRename = new QAction(UiUtils::loadIcon(QStringLiteral("edit-rename")), tr("Rename..."), this);
     connect(m_actionRename, &QAction::triggered, this, &ComposerAttachmentsList::slotRenameAttachment);
     addAction(m_actionRename);
 
-    m_actionRemoveAttachment = new QAction(tr("Remove"), this);
+    m_actionRemoveAttachment = new QAction(UiUtils::loadIcon(QStringLiteral("list-remove")), tr("Remove"), this);
     connect(m_actionRemoveAttachment, &QAction::triggered, this, &ComposerAttachmentsList::slotRemoveAttachment);
     addAction(m_actionRemoveAttachment);
 
