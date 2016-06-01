@@ -56,27 +56,12 @@ QIcon loadIcon(const QString &name)
         return icon;
     }
 
-    QString iconInTheme = name;
-    if (QIcon::themeName().toLower() == QLatin1String("breeze")) {
-        if (name == QLatin1String("mail-flagged")) {
-            iconInTheme = QStringLiteral("flag-yellow");
-        } else if (name == QLatin1String("folder-bookmark")) {
-            iconInTheme = QStringLiteral("folder-blue");
-        } else if (name == QLatin1String("folder-open")) {
-            iconInTheme = QStringLiteral("folder");
-        } else if (name == QLatin1String("mail-read")) {
-            iconInTheme = QStringLiteral("mail-mark-read");
-        } else if (name == QLatin1String("mail-unread")) {
-            iconInTheme = QStringLiteral("mail-mark-unread");
-        }
-    }
-
     // A QIcon(QString) constructor creates non-null QIcons, even though the resulting icon will
     // not ever return a valid and usable pixmap. This means that we have to actually look at the
     // icon's pixmap to find out what to return.
     // If we do not do that, the GUI shows empty pixmaps instead of a text fallback, which is
     // clearly suboptimal.
-    QIcon res = QIcon::fromTheme(iconInTheme, QIcon(QStringLiteral(":/icons/%1").arg(name)));
+    QIcon res = QIcon::fromTheme(name, QIcon(QStringLiteral(":/icons/%1").arg(name)));
     if (res.pixmap(QSize(16, 16)).isNull()) {
         res = QIcon();
     }

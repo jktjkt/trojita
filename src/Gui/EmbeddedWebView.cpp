@@ -327,7 +327,7 @@ bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *op
             if (input->domain == QtNetwork && input->error == QNetworkReply::TimeoutError) {
                 res->content = tr("<img src=\"%2\"/><span style=\"font-family: sans-serif; color: gray\">"
                                   "Uncached data not available when offline</span>")
-                        .arg(Util::resizedImageAsDataUrl(QStringLiteral(":/icons/network-offline.png"), 32)).toUtf8();
+                        .arg(Util::resizedImageAsDataUrl(QStringLiteral(":/icons/network-offline.svg"), 32)).toUtf8();
                 return true;
             }
         }
