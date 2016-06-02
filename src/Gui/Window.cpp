@@ -739,13 +739,18 @@ void MainWindow::createWidgets()
     m_messageWidget = new CompleteMessageWidget(this, m_settings, m_pluginManager);
     connect(m_messageWidget->messageView, &MessageView::messageChanged, this, &MainWindow::scrollMessageUp);
     connect(m_messageWidget->messageView, &MessageView::messageChanged, this, &MainWindow::slotUpdateMessageActions);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
     connect(m_messageWidget->messageView, &MessageView::linkHovered, [](const QString &url) {
         if (url.isEmpty()) {
             QToolTip::hideText();
         } else {
-            QToolTip::showText(QCursor::pos(), QObject::tr("Link target: %1").arg(UiUtils::Formatting::htmlEscaped(url)));
+            // indirection due to https://bugs.kde.org/show_bug.cgi?id=363783
+            QTimer::singleShot(250, [url]() {
+                QToolTip::showText(QCursor::pos(), QObject::tr("Link target: %1").arg(UiUtils::Formatting::htmlEscaped(url)));
+            });
         }
     });
+#endif
     connect(m_messageWidget->messageView, &MessageView::transferError, this, &MainWindow::slotDownloadTransferError);
     // Do not try to get onto the homepage when we are on EXPENSIVE connection
     if (m_settings->value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool() &&
