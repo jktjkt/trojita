@@ -142,7 +142,7 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         if (!isPlainText && !isHtml) {
             // Unfortunately we cannot change the tab background with current Qt (Q1 2014),
             // see https://bugreports.qt-project.org/browse/QTBUG-840 for details
-            setTabIcon(i, QIcon::fromTheme(QStringLiteral("emblem-important")));
+            setTabIcon(i, UiUtils::loadIcon(QStringLiteral("emblem-important")));
         }
     }
 

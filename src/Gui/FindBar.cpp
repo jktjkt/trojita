@@ -39,6 +39,7 @@
 #include "LineEdit.h"
 #include "Gui/EmbeddedWebView.h"
 #include "UiUtils/Color.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui {
 
@@ -57,7 +58,7 @@ FindBar::FindBar(QWidget *parent)
     // hide button
     QToolButton *hideButton = new QToolButton(this);
     hideButton->setAutoRaise(true);
-    hideButton->setIcon(QIcon::fromTheme(QStringLiteral("dialog-close")));
+    hideButton->setIcon(UiUtils::loadIcon(QStringLiteral("dialog-close")));
     hideButton->setShortcut(tr("Esc"));
     connect(hideButton, &QAbstractButton::clicked, this, &QWidget::hide);
     layout->addWidget(hideButton);
@@ -77,9 +78,9 @@ FindBar::FindBar(QWidget *parent)
     layout->addWidget(m_lineEdit);
 
     // buttons
-    QPushButton *findNext = new QPushButton(QIcon::fromTheme(QStringLiteral("go-down")), tr("&Next"), this);
+    QPushButton *findNext = new QPushButton(UiUtils::loadIcon(QStringLiteral("go-down")), tr("&Next"), this);
     findNext->setShortcut(tr("F3"));
-    QPushButton *findPrev = new QPushButton(QIcon::fromTheme(QStringLiteral("go-up")), tr("&Previous"), this);
+    QPushButton *findPrev = new QPushButton(UiUtils::loadIcon(QStringLiteral("go-up")), tr("&Previous"), this);
     //: Translators: You can change this shortcut, but button names like Shift should not be localized here.
     //: That will break setting the shortcut. Button names will still appear localized in the UI.
     findPrev->setShortcut(tr("Shift+F3"));

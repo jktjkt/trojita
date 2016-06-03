@@ -34,9 +34,6 @@ namespace UiUtils {
  * In Trojitá, we do not really want to hardcode anything, because the
  * preference is to use whatever is available from the current theme, but *also*
  * provide an icon as a fallback. And that is exactly why this function is here.
- *
- * It is implemented inline in order to prevent a dependency from the Imap lib
- * into the Gui lib.
  * */
 QIcon loadIcon(const QString &name)
 {

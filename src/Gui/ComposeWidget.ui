@@ -120,6 +120,9 @@
           <property name="text">
            <string>Attach...</string>
           </property>
+          <property name="icon">
+           <iconset theme="mail-attachment"/>
+          </property>
          </widget>
         </item>
         <item>

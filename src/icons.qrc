@@ -10,7 +10,6 @@
         <file>icons/mail-unread.png</file>
         <file>icons/mail-attachment.png</file>
         <file>icons/folder.png</file>
-        <file>icons/transparent.png</file>
         <file>icons/trojita.png</file>
         <file>icons/folder-open.png</file>
         <file>icons/network-disconnect.png</file>
@@ -28,12 +27,9 @@
         <file>icons/view-list-text.png</file>
         <file>icons/view-refresh.png</file>
         <file>icons/imap-search-details.png</file>
-        <file>icons/arrow-down.png</file>
-        <file>icons/arrow-up.png</file>
         <file>icons/arrow-left.png</file>
         <file>icons/arrow-right.png</file>
         <file>icons/configure-shortcuts.png</file>
-        <file>icons/edit-clear-locationbar-rtl.png</file>
         <file>icons/mail-reply-all.png</file>
         <file>icons/mail-reply-list.png</file>
         <file>icons/mail-reply-sender.png</file>
@@ -52,6 +48,5 @@
         <file>icons/breeze/mail-reply-list.svg</file>
         <file>icons/breeze/mail-reply-all.svg</file>
         <file>icons/breeze/mail-forward.svg</file>
-        <file>icons/breeze/network-disconnect.svg</file>
     </qresource>
 </RCC>
