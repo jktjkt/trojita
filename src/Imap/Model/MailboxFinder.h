@@ -1,4 +1,4 @@
-/*
+/*  Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
     Certain enhancements (www.xtuple.com/trojita-enhancements)
     are copyright © 2010 by OpenMFG LLC, dba xTuple.  All rights reserved.
 
@@ -27,14 +27,16 @@
 
 */
 
-#ifndef MAILBOXFINDER_H
-#define MAILBOXFINDER_H
+#ifndef TROJITA_IMAP_MAILBOXFINDER_H
+#define TROJITA_IMAP_MAILBOXFINDER_H
 
 #include <QModelIndex>
 #include <QStringList>
 
 namespace Imap {
+
 namespace Mailbox {
+
 class Model;
 
 /** @short Find model indexes for mailboxes
@@ -56,23 +58,21 @@ class MailboxFinder : public QObject
 {
     Q_OBJECT
 public:
-    explicit MailboxFinder( QObject *parent, Imap::Mailbox::Model *model );
+    MailboxFinder(QObject *parent, Imap::Mailbox::Model *model);
 
     /** @short Specify an interest in obtaining an index for this mailbox */
-    void addMailbox( const QString &mailbox );
+    void addMailbox(const QString &mailbox);
 
 signals:
     /** @short Fires when the mapping has been found
 
-If the mailbox isn't found, no signal is emitted.
-*/
-    void mailboxFound( const QString &mailbox, const QModelIndex &index );
+    If the mailbox isn't found, no signal is emitted.
+    */
+    void mailboxFound(const QString &mailbox, const QModelIndex &index);
 
 private slots:
     /** @short Walk the internal list of names that we're interested in, ask the model for data if needed */
     void checkArrivals();
-    /** @short Handler for the rowsInserted() signal */
-    void slotRowsInserted( const QModelIndex &parent, int start, int end );
 
 private:
     Imap::Mailbox::Model *m_model;
@@ -82,4 +82,4 @@ private:
 }
 }
 
-#endif // MAILBOXFINDER_H
+#endif

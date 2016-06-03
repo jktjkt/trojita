@@ -33,10 +33,10 @@ class MailBoxTreeView : public QTreeView
 {
     Q_OBJECT
 public:
-    MailBoxTreeView();
+    explicit MailBoxTreeView(QWidget *parent = nullptr);
 protected:
-    void dragMoveEvent(QDragMoveEvent *event);
-    void dropEvent(QDropEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 };
 }
 

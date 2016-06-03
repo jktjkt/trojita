@@ -29,7 +29,8 @@
 
 namespace Gui {
 
-MailBoxTreeView::MailBoxTreeView()
+MailBoxTreeView::MailBoxTreeView(QWidget *parent)
+    : QTreeView(parent)
 {
     setUniformRowHeights(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
