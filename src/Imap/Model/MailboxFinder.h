@@ -31,7 +31,7 @@
 #define TROJITA_IMAP_MAILBOXFINDER_H
 
 #include <QModelIndex>
-#include <QStringList>
+#include <QSet>
 
 namespace Imap {
 
@@ -74,7 +74,7 @@ private slots:
 
 private:
     QAbstractItemModel *m_model;
-    QStringList m_watchedNames;
+    QSet<QString> m_pending;
 };
 
 }

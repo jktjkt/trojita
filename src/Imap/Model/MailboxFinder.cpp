@@ -49,13 +49,13 @@ MailboxFinder::MailboxFinder(QObject *parent, QAbstractItemModel *model)
 
 void MailboxFinder::addMailbox(const QString &mailbox)
 {
-    m_watchedNames.append(mailbox);
+    m_pending.insert(mailbox);
     EMIT_LATER_NOARG(this, checkArrivals);
 }
 
 void MailboxFinder::checkArrivals()
 {
-    Q_FOREACH(const QString &mailbox, m_watchedNames) {
+    Q_FOREACH(const QString &mailbox, m_pending) {
         QModelIndex root;
         bool cont = false;
 
@@ -77,7 +77,7 @@ void MailboxFinder::checkArrivals()
 
                 if (possibleName == mailbox) {
                     // found it
-                    m_watchedNames.removeAll(mailbox);
+                    m_pending.remove(mailbox);
                     emit mailboxFound(mailbox, index);
                     break;
                 } else if (mailbox.startsWith(possibleName + separator)) {

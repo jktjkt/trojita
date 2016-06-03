@@ -1,4 +1,5 @@
 /* Copyright (C) 2012 Thomas Gahr <thomas.gahr@physik.uni-muenchen.de>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -20,17 +21,19 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MailBoxTreeView.h"
-
 #include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QMenu>
+#include "Gui/MailBoxTreeView.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxFinder.h"
 #include "UiUtils/IconLoader.h"
 
 namespace Gui {
 
 MailBoxTreeView::MailBoxTreeView(QWidget *parent)
     : QTreeView(parent)
+    , m_mailboxFinder(nullptr)
 {
     setUniformRowHeights(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -41,6 +44,40 @@ MailBoxTreeView::MailBoxTreeView(QWidget *parent)
     setHeaderHidden(true);
     // I wonder what's the best value to use here. Unfortunately, the default is to disable auto expanding.
     setAutoExpandDelay(800);
+
+    // Track expansion/collapsing so that we remember this state despite the asynchronous nature of mailbox loading
+    connect(this, &QTreeView::expanded, this, [this](const QModelIndex &what) {
+        auto name = what.data(Imap::Mailbox::RoleMailboxName).toString();
+        if (!m_desiredExpansionState.contains(name)) {
+            m_desiredExpansionState.insert(name);
+            emit mailboxExpansionChanged(m_desiredExpansionState.toList());
+        }
+    });
+    connect(this, &QTreeView::collapsed, this, [this](const QModelIndex &what) {
+        auto name = what.data(Imap::Mailbox::RoleMailboxName).toString();
+        if (m_desiredExpansionState.remove(name)) {
+            emit mailboxExpansionChanged(m_desiredExpansionState.toList());
+        }
+    });
+}
+
+/** \reimp
+
+The MailboxFinder has to be kept up-to-speed about these changes.
+*/
+void MailBoxTreeView::setModel(QAbstractItemModel *model)
+{
+    delete m_mailboxFinder;
+    m_mailboxFinder = new Imap::Mailbox::MailboxFinder(this, model);
+    connect(m_mailboxFinder, &Imap::Mailbox::MailboxFinder::mailboxFound,
+            this, [this](const QString &, const QModelIndex &index) {
+        expand(index);
+    });
+    connect(model, &QAbstractItemModel::layoutChanged, this, &MailBoxTreeView::resetWatchedMailboxes);
+    connect(model, &QAbstractItemModel::rowsRemoved, this, &MailBoxTreeView::resetWatchedMailboxes);
+    connect(model, &QAbstractItemModel::modelReset, this, &MailBoxTreeView::resetWatchedMailboxes);
+    QTreeView::setModel(model);
+    resetWatchedMailboxes();
 }
 
 /** @short Reimplemented for more consistent handling of modifiers
@@ -93,6 +130,27 @@ void MailBoxTreeView::dropEvent(QDropEvent *event)
     }
 
     QTreeView::dropEvent(event);
+}
+
+/** @short Specify which mailboxes should be expanded
+
+The mailboxes might appear and disappear at any time, so let's make sure that
+they are properly expanded/collapsed once they pop in.
+*/
+void MailBoxTreeView::setDesiredExpansion(const QStringList &mailboxNames)
+{
+    m_desiredExpansionState = mailboxNames.toSet();
+    resetWatchedMailboxes();
+}
+
+/** @short Ensure that we watch stuff that we need to watch */
+void MailBoxTreeView::resetWatchedMailboxes()
+{
+    if (m_mailboxFinder) {
+        for (const auto &mailbox: m_desiredExpansionState) {
+            m_mailboxFinder->addMailbox(mailbox);
+        }
+    }
 }
 
 }
