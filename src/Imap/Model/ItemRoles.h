@@ -23,6 +23,8 @@
 #ifndef IMAP_MODEL_ITEMROLES_H
 #define IMAP_MODEL_ITEMROLES_H
 
+#include <Qt>
+
 namespace Imap {
 namespace Mailbox {
 
