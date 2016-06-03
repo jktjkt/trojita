@@ -37,8 +37,6 @@ namespace Imap {
 
 namespace Mailbox {
 
-class Model;
-
 /** @short Find model indexes for mailboxes
 
 The API of the Model doesn't currently have a way of asking for a QModelIndex for a named mailbox.
@@ -58,7 +56,7 @@ class MailboxFinder : public QObject
 {
     Q_OBJECT
 public:
-    MailboxFinder(QObject *parent, Imap::Mailbox::Model *model);
+    MailboxFinder(QObject *parent, QAbstractItemModel *model);
 
     /** @short Specify an interest in obtaining an index for this mailbox */
     void addMailbox(const QString &mailbox);
@@ -75,7 +73,7 @@ private slots:
     void checkArrivals();
 
 private:
-    Imap::Mailbox::Model *m_model;
+    QAbstractItemModel *m_model;
     QStringList m_watchedNames;
 };
 

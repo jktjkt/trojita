@@ -36,13 +36,15 @@ namespace Imap {
 
 namespace Mailbox {
 
-MailboxFinder::MailboxFinder(QObject *parent, Imap::Mailbox::Model *model)
+MailboxFinder::MailboxFinder(QObject *parent, QAbstractItemModel *model)
     : QObject(parent)
     , m_model(model)
 {
     Q_ASSERT(m_model);
+    Q_ASSERT_X(!qobject_cast<Imap::Mailbox::Model *>(model),
+               "MailboxFinder", "This requires a proxy model which exports a filtered view, not the original Model");
     connect(m_model, &QAbstractItemModel::layoutChanged, this, &MailboxFinder::checkArrivals);
-    connect(m_model, &Model::rowsInserted, this, &MailboxFinder::checkArrivals);
+    connect(m_model, &QAbstractItemModel::rowsInserted, this, &MailboxFinder::checkArrivals);
 }
 
 void MailboxFinder::addMailbox(const QString &mailbox)
@@ -61,20 +63,15 @@ void MailboxFinder::checkArrivals()
         do {
             cont = false;
             int rowCount = m_model->rowCount(root);
-            if (rowCount < 2) {
-                // remember, the first one is list of messages!
-                break;
-            }
-            // ...so the iteration really starts at 1. We go over all mailboxes which are children of current root.
-            for (int i = 1; i < rowCount; ++i) {
+
+            for (int i = 0; i < rowCount; ++i) {
                 const QModelIndex index = m_model->index(i, 0, root);
                 const QString possibleName = m_model->data(index, Imap::Mailbox::RoleMailboxName).toString();
                 const QString separator = m_model->data(index, Imap::Mailbox::RoleMailboxSeparator).toString();
 
                 if (possibleName.isEmpty() && separator.isEmpty()) {
                     // This shouldn't really happen
-                    m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("MailboxFinder"),
-                                      QStringLiteral("Weird, there's a mailbox with no name and no separator. Avoiding!"));
+                    qDebug() << "Skipping a mailbox with no name and no separator";
                     continue;
                 }
 
