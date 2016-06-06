@@ -138,17 +138,17 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
             bool isReplied = translated.data(RoleMessageIsMarkedReplied).toBool();
 
             if (isForwarded && isReplied)
-                return UiUtils::loadIcon(QStringLiteral("mail-replied-forw"));
+                return UiUtils::loadIcon(QStringLiteral("mail-forwarded-replied"));
             else if (isReplied)
                 return UiUtils::loadIcon(QStringLiteral("mail-replied"));
             else if (isForwarded)
                 return UiUtils::loadIcon(QStringLiteral("mail-forwarded"));
             else if (translated.data(RoleMessageIsMarkedRecent).toBool())
-                return UiUtils::loadIcon(QStringLiteral("mail-recent"));
+                return UiUtils::loadIcon(QStringLiteral("mail-mark-unread-new"));
             else if (!translated.data(RoleMessageIsMarkedRead).toBool())
-                return UiUtils::loadIcon(QStringLiteral("mail-unread"));
+                return UiUtils::loadIcon(QStringLiteral("mail-mark-unread"));
             else
-                return UiUtils::loadIcon(QStringLiteral("mail-read"));
+                return UiUtils::loadIcon(QStringLiteral("mail-mark-read"));
         }
         case MsgListModel::SEEN:
             if (! translated.data(RoleIsFetched).toBool())

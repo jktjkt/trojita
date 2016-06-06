@@ -117,8 +117,8 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     QIcon winIcon;
-    winIcon.addFile(QStringLiteral(":/icons/trojita-edit-big.png"), QSize(128, 128));
-    winIcon.addFile(QStringLiteral(":/icons/trojita-edit-small.png"), QSize(22, 22));
+    winIcon.addFile(QStringLiteral(":/icons/trojita-edit-big.svg"), QSize(128, 128));
+    winIcon.addFile(QStringLiteral(":/icons/trojita-edit-small.svg"), QSize(22, 22));
     setWindowIcon(winIcon);
 
     Q_ASSERT(m_mainWindow);
@@ -169,11 +169,11 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_markAsReply->setExclusive(true);
     auto *asReplyMenu = new QMenu(m_markButton);
     m_markButton->setMenu(asReplyMenu);
-    m_actionStandalone = asReplyMenu->addAction(UiUtils::loadIcon(QStringLiteral("mail-view-flat")), tr("New Thread"));
+    m_actionStandalone = asReplyMenu->addAction(UiUtils::loadIcon(QStringLiteral("format-justify-fill")), tr("New Thread"));
     m_actionStandalone->setActionGroup(m_markAsReply);
     m_actionStandalone->setCheckable(true);
     m_actionStandalone->setToolTip(tr("This mail will be sent as a standalone message.<hr/>Change to preserve the reply hierarchy."));
-    m_actionInReplyTo = asReplyMenu->addAction(UiUtils::loadIcon(QStringLiteral("mail-view-threaded")), tr("Threaded"));
+    m_actionInReplyTo = asReplyMenu->addAction(UiUtils::loadIcon(QStringLiteral("format-justify-right")), tr("Threaded"));
     m_actionInReplyTo->setActionGroup(m_markAsReply);
     m_actionInReplyTo->setCheckable(true);
 

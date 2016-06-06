@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 24 24"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="imap-search-details.svg">
+  <metadata
+     id="metadata10">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="640"
+     inkscape:window-height="480"
+     id="namedview8"
+     showgrid="false"
+     inkscape:zoom="9.8333333"
+     inkscape:cx="12"
+     inkscape:cy="12"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg2" />
+  <defs
+     id="defs3051">
+    <style
+       type="text/css"
+       id="current-color-scheme">
+      .ColorScheme-Text {
+        color:#4d4d4d;
+      }
+      </style>
+  </defs>
+  <path
+     style="color:#4d4d4d;fill:currentColor;fill-opacity:1;stroke:none"
+     d="M 20,10 C 20,6.6759952 17.324005,4 14,4 10.675995,4 8,6.6759952 8,10 c 0,1.481205 0.534682,2.830584 1.417969,3.875 L 4,19.292969 4.707031,20 10.125,14.582031 C 11.169416,15.465318 12.518795,16 14,16 c 3.324005,0 6,-2.675995 6,-6 z m -1,0 c 0,2.770005 -2.229995,5 -5,5 -2.770005,0 -5,-2.229995 -5,-5 0,-2.7700048 2.229995,-5 5,-5 2.770005,0 5,2.2299952 5,5 z"
+     class="ColorScheme-Text"
+     id="path6"
+     inkscape:connector-curvature="0" />
+  <rect
+     style="color:#4d4d4d;fill:currentColor;fill-opacity:1;stroke:none"
+     id="dot3"
+     width="1"
+     height="1"
+     x="18"
+     y="20" />
+  <rect
+     style="color:#4d4d4d;fill:currentColor;fill-opacity:1;stroke:none"
+     id="dot2"
+     width="1"
+     height="1"
+     x="16"
+     y="20" />
+  <rect
+     style="color:#4d4d4d;fill:currentColor;fill-opacity:1;stroke:none"
+     id="dot1"
+     width="1"
+     height="1"
+     x="14"
+     y="20" />
+</svg>

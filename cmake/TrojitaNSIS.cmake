@@ -23,7 +23,7 @@ set(TROJITA_LIBRARIES_PATHS "")
 
 # Prepare a list of all Qt plugins which are needed.
 # We need a hardcoded list of plugin types because I'm too lazy to find out how to work with associative arrays/hashmaps in cmake.
-set(TROJITA_QT_PLUGIN_TYPES bearer generic imageformats sqldrivers platforms)
+set(TROJITA_QT_PLUGIN_TYPES bearer generic iconengines imageformats sqldrivers platforms)
 
 foreach(plugintype ${TROJITA_QT_PLUGIN_TYPES})
     set(TROJITA_QT_${plugintype}_PLUGINS "")

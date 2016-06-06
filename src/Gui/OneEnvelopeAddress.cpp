@@ -41,8 +41,8 @@ OneEnvelopeAddress::OneEnvelopeAddress(QWidget *parent, const Imap::Message::Mai
 
     QFontMetrics fm(font());
     int iconSize = fm.boundingRect(QLatin1Char('M')).height();
-    contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QStringLiteral(":/icons/contact-known.png"), iconSize);
-    contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QStringLiteral(":/icons/contact-unknown.png"), iconSize);
+    contactKnownUrl = Gui::Util::resizedImageAsDataUrl(QStringLiteral(":/icons/contact-known.svg"), iconSize);
+    contactUnknownUrl = Gui::Util::resizedImageAsDataUrl(QStringLiteral(":/icons/contact-unknown.svg"), iconSize);
 
     connect(this, &QLabel::linkActivated, [](const QString &link) {
         // Trojita is registered to handle any mailto: URL

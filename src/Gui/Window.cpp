@@ -438,7 +438,7 @@ void MainWindow::createActions()
     m_replyGuess = ShortcutHandler::instance()->createAction(QStringLiteral("action_reply_guess"), this, SLOT(slotReplyGuess()), this);
     m_replyGuess->setEnabled(true);
 
-    actionThreadMsgList = new QAction(UiUtils::loadIcon(QStringLiteral("mail-view-threaded")), tr("Show Messages in &Threads"), this);
+    actionThreadMsgList = new QAction(UiUtils::loadIcon(QStringLiteral("format-justify-right")), tr("Show Messages in &Threads"), this);
     actionThreadMsgList->setCheckable(true);
     // This action is enabled/disabled by model's capabilities
     actionThreadMsgList->setEnabled(false);
