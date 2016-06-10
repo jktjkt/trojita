@@ -1,4 +1,5 @@
 /* Copyright (C) 2012 Thomas Gahr <thomas.gahr@physik.uni-muenchen.de>
+   Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -25,18 +26,36 @@
 
 #include <QTreeView>
 
-namespace Gui{
+namespace Imap {
+namespace Mailbox {
+class MailboxFinder;
+}
+}
 
-/** @short Subclassed for more consistent and intuitive handling of Drag&Drop
-*/
+namespace Gui {
+
+/** @short Show mailboxes in a tree view */
 class MailBoxTreeView : public QTreeView
 {
     Q_OBJECT
 public:
-    MailBoxTreeView();
+    explicit MailBoxTreeView(QWidget *parent = nullptr);
+    void setDesiredExpansion(const QStringList &mailboxNames);
+    void setModel(QAbstractItemModel *model) override;
+signals:
+    /** @short User has changed their mind about the expanded/collapsed state of the mailbox tree
+
+    Stuff which gets reported here might refer to mailboxes which do not even exist. At the same time,
+    the code will not forget about those mailboxes which "aren't there yet".
+    */
+    void mailboxExpansionChanged(const QStringList &mailboxNames);
 protected:
-    void dragMoveEvent(QDragMoveEvent *event);
-    void dropEvent(QDropEvent *event);
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
+    void resetWatchedMailboxes();
+private:
+    Imap::Mailbox::MailboxFinder *m_mailboxFinder;
+    QSet<QString> m_desiredExpansionState;
 };
 }
 

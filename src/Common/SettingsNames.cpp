@@ -98,6 +98,7 @@ const QString SettingsNames::guiSizesInMainWinWhenCompact = QStringLiteral("gui/
 const QString SettingsNames::guiSizesInMainWinWhenWide = QStringLiteral("gui/sizeInMainWinWhenWide-%1");
 const QString SettingsNames::guiSizesInaMainWinWhenOneAtATime = QStringLiteral("gui/sizeInMainWinWhenOneAtATime-%1");
 const QString SettingsNames::guiAllowRawSearch = QStringLiteral("gui/allowRawSearch");
+const QString SettingsNames::guiExpandedMailboxes = QStringLiteral("gui/expandedMailboxes");
 const QString SettingsNames::appLoadHomepage = QStringLiteral("app.updates.checkEnabled");
 const QString SettingsNames::knownEmailsKey = QStringLiteral("addressBook/knownEmails");
 const QString SettingsNames::addressbookPlugin = QStringLiteral("plugin/addressbook");

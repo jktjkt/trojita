@@ -1,4 +1,4 @@
-/*
+/*  Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
     Certain enhancements (www.xtuple.com/trojita-enhancements)
     are copyright © 2010 by OpenMFG LLC, dba xTuple.  All rights reserved.
 
@@ -27,80 +27,68 @@
 
 */
 
-#include "MailboxFinder.h"
-#include "Model.h"
-#include "ItemRoles.h"
+#include "Common/InvokeMethod.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxFinder.h"
+#include "Imap/Model/Model.h"
 
-namespace Imap
-{
+namespace Imap {
 
-namespace Mailbox
-{
+namespace Mailbox {
 
-MailboxFinder::MailboxFinder( QObject *parent, Imap::Mailbox::Model *model ) :
-    QObject(parent), m_model(model)
+MailboxFinder::MailboxFinder(QObject *parent, QAbstractItemModel *model)
+    : QObject(parent)
+    , m_model(model)
 {
     Q_ASSERT(m_model);
+    Q_ASSERT_X(!qobject_cast<Imap::Mailbox::Model *>(model),
+               "MailboxFinder", "This requires a proxy model which exports a filtered view, not the original Model");
     connect(m_model, &QAbstractItemModel::layoutChanged, this, &MailboxFinder::checkArrivals);
-    connect(m_model, &Model::rowsInserted, this, &MailboxFinder::slotRowsInserted);
+    connect(m_model, &QAbstractItemModel::rowsInserted, this, &MailboxFinder::checkArrivals);
 }
 
-void MailboxFinder::addMailbox( const QString &mailbox )
+void MailboxFinder::addMailbox(const QString &mailbox)
 {
-    m_watchedNames.append(mailbox);
-    QTimer::singleShot(0, this, SLOT(checkArrivals()));
+    m_pending.insert(mailbox);
+    EMIT_LATER_NOARG(this, checkArrivals);
 }
 
 void MailboxFinder::checkArrivals()
 {
-    Q_FOREACH( const QString &mailbox, m_watchedNames ) {
+    Q_FOREACH(const QString &mailbox, m_pending) {
         QModelIndex root;
         bool cont = false;
 
         // Simply use the MVC API to find an interesting object
         do {
             cont = false;
-            int rowCount = m_model->rowCount( root );
-            if ( rowCount < 2 ) {
-                // remember, the first one is list of messages!
-                break;
-            }
-            // ...so the iteration really starts at 1. We go over all mailboxes which are children of current root.
-            for ( int i = 1; i < rowCount; ++i ) {
-                const QModelIndex index = m_model->index( i, 0, root );
-                const QString possibleName = m_model->data( index, Imap::Mailbox::RoleMailboxName ).toString();
-                const QString separator = m_model->data( index, Imap::Mailbox::RoleMailboxSeparator ).toString();
+            int rowCount = m_model->rowCount(root);
 
-                if ( possibleName.isEmpty() && separator.isEmpty() ) {
-                    // This shoudln't really happen
-                    m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("MailboxFinder"),
-                                      QStringLiteral("Weird, there's a mailbox with no name and no separator. Avoiding!"));
+            for (int i = 0; i < rowCount; ++i) {
+                const QModelIndex index = m_model->index(i, 0, root);
+                const QString possibleName = m_model->data(index, Imap::Mailbox::RoleMailboxName).toString();
+                const QString separator = m_model->data(index, Imap::Mailbox::RoleMailboxSeparator).toString();
+
+                if (possibleName.isEmpty() && separator.isEmpty()) {
+                    // This shouldn't really happen
+                    qDebug() << "Skipping a mailbox with no name and no separator";
                     continue;
                 }
 
-                if ( possibleName == mailbox ) {
+                if (possibleName == mailbox) {
                     // found it
-                    m_watchedNames.removeAll( mailbox );
-                    emit mailboxFound( mailbox, index );
+                    m_pending.remove(mailbox);
+                    emit mailboxFound(mailbox, index);
                     break;
-                } else if ( mailbox.startsWith( possibleName + separator ) ) {
+                } else if (mailbox.startsWith(possibleName + separator)) {
                     // we know where to go
                     root = index;
                     cont = true;
                     break;
                 }
             }
-        } while ( cont );
+        } while (cont);
     }
-}
-
-void MailboxFinder::slotRowsInserted( const QModelIndex &parent, int start, int end )
-{
-    // "something got inserted". It's enough to simply trigger the finder in checkArrivals().
-    Q_UNUSED(parent);
-    Q_UNUSED(start);
-    Q_UNUSED(end);
-    checkArrivals();
 }
 
 }
