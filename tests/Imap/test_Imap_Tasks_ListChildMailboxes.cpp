@@ -25,6 +25,8 @@
 #include "Common/MetaTypes.h"
 #include "Streams/FakeSocket.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxFinder.h"
+#include "Imap/Model/MailboxModel.h"
 #include "Imap/Model/MemoryCache.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Tasks/Fake_ListChildMailboxesTask.h"
@@ -225,6 +227,70 @@ void ImapModelListChildMailboxesTest::testNoStatusForCachedItems()
     QCOMPARE(model->cache()->mailboxSyncState(QLatin1String("b")).exists(), 10u);
     QVERIFY(model->cache()->mailboxSyncState(QLatin1String("b")).isUsableForNumbers());
     cServer(r2 + r1);
+    cEmpty();
+}
+
+/** @short Concurrent listing at several levels of the nesting
+
+https://bugs.kde.org/show_bug.cgi?id=364314
+*/
+void ImapModelListChildMailboxesTest::testAutoExpanding()
+{
+    Imap::Mailbox::MailboxModel mm(nullptr, model);
+    Imap::Mailbox::MailboxFinder finder(nullptr, &mm);
+
+    auto resetWatchedMailboxes = [&finder]() {
+        finder.addMailbox(QStringLiteral("a"));
+        finder.addMailbox(QStringLiteral("a.A"));
+        finder.addMailbox(QStringLiteral("a.A.1"));
+    };
+
+    resetWatchedMailboxes();
+    connect(&mm, &QAbstractItemModel::layoutChanged, this, resetWatchedMailboxes);
+    connect(&mm, &QAbstractItemModel::rowsRemoved, this, resetWatchedMailboxes);
+    connect(&mm, &QAbstractItemModel::modelReset, this, resetWatchedMailboxes);
+
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer("* LIST (\\HasChildren) \".\" a\r\n"
+            + t.last("OK listed\r\n"));
+    cClient(t.mk("LIST \"\" \"a.%\"\r\n"));
+    cServer("* LIST (\\HasChildren) \".\" a.A\r\n"
+            + t.last("OK listed\r\n"));
+    cClient(t.mk("LIST \"\" \"a.A.%\"\r\n"));
+    cServer("* LIST (\\HasNoChildren) \".\" a.A.1\r\n"
+            + t.last("OK listed\r\n"));
+
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
+    t.reset();
+
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cServer("* LIST (\\HasChildren) \".\" a\r\n"
+            + t.last("OK listed\r\n"));
+    auto q1 = t.mk("LIST \"\" \"a.%\"\r\n");
+    auto r1 = t.last("OK listed\r\n");
+    auto q2 = t.mk("LIST \"\" \"a.A.%\"\r\n");
+    auto r2 = t.last("OK listed\r\n");
+    cClient(q1 + q2);
+    cServer("* LIST (\\HasChildren) \".\" a.A\r\n"
+            "* LIST (\\HasNoChildren) \".\" a.A.1\r\n"
+            + r1 + r2);
+
+    auto idx_a = mm.index(0, 0, QModelIndex());
+    QVERIFY(idx_a.isValid());
+    QCOMPARE(idx_a.data(Imap::Mailbox::RoleMailboxName).toString(), QString::fromUtf8("a"));
+    QCOMPARE(mm.rowCount(idx_a), 1); // KDE bug 364314, "a.A.1" must not show up beneath "a"
+    auto idx_a_A = mm.index(0, 0, idx_a);
+    QVERIFY(idx_a_A.isValid());
+    QCOMPARE(idx_a_A.data(Imap::Mailbox::RoleMailboxName).toString(), QString::fromUtf8("a.A"));
+    QCOMPARE(mm.rowCount(idx_a_A), 1);
+
+    // ...and because the q1's response invalidated q2's root, it gets re-requested
+    cClient(t.mk("LIST \"\" \"a.A.%\"\r\n"));
+    cServer("* LIST (\\HasNoChildren) \".\" a.A.1\r\n"
+            + t.last("OK listed\r\n"));
+    QCOMPARE(mm.rowCount(idx_a), 1);
+    QCOMPARE(mm.rowCount(idx_a_A), 1);
     cEmpty();
 }
 

@@ -330,8 +330,15 @@ void Model::finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
             // rubbish, ignore
             it = listResponses.erase(it);
         } else if (it->mailbox.startsWith(prefix)) {
-            mailboxes << new TreeItemMailbox(mailboxPtr, *it);
-            it = listResponses.erase(it);
+            if (!mailboxPtr->separator().isEmpty() && it->mailbox.midRef(prefix.length()).contains(mailboxPtr->separator())) {
+                // This is about a mailbox which is nested deeper beneath the current thing (e.g., we're listing A.B.%,
+                // and the current response is A.B.C.1), so let's assume that it's some else's LIST response.
+                // The separator/delimiter checking is (hopefully) correct -- see https://tools.ietf.org/html/rfc3501#page-70 .
+                ++it;
+            } else {
+                mailboxes << new TreeItemMailbox(mailboxPtr, *it);
+                it = listResponses.erase(it);
+            }
         } else {
             // it clearly is someone else's LIST response
             ++it;

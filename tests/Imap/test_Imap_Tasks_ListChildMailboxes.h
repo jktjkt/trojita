@@ -44,6 +44,8 @@ private slots:
     void testNoStatusForCachedItems();
 
     void testFailingList();
+
+    void testAutoExpanding();
 };
 
 #endif
