@@ -29,7 +29,7 @@ foreach(plugintype ${TROJITA_QT_PLUGIN_TYPES})
     set(TROJITA_QT_${plugintype}_PLUGINS "")
 endforeach()
 
-foreach(plugin ${Qt5Gui_PLUGINS} ${Qt5Network_PLUGINS} Qt5::QSQLiteDriverPlugin)
+foreach(plugin ${Qt5Gui_PLUGINS} ${Qt5Network_PLUGINS} Qt5::QSQLiteDriverPlugin Qt5::QSvgIconPlugin)
   get_target_property(_loc ${plugin} LOCATION)
 
   set(plugin_recognized FALSE)
