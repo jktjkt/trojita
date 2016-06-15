@@ -1877,6 +1877,39 @@ void MainWindow::slotShowAboutTrojita()
     widget->setAttribute(Qt::WA_DeleteOnClose);
     ui.setupUi(widget);
     ui.versionLabel->setText(Common::Application::version);
+
+    std::vector<std::pair<QString, bool>> features;
+    features.emplace_back(tr("Plugins"),
+#ifdef WITH_SHARED_PLUGINS
+            true
+#else
+            false
+#endif
+                       );
+    features.emplace_back(tr("Encrypted and signed messages"),
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+            true
+#else
+            false
+#endif
+                       );
+    features.emplace_back(tr("IMAP compression"),
+#ifdef TROJITA_HAVE_ZLIB
+            true
+#else
+            false
+#endif
+                       );
+
+    QString featuresText = QStringLiteral("<ul>");
+    for (const auto x: features) {
+        featuresText += x.second ?
+                    tr("<li>%1: supported</li>").arg(x.first)
+                  : tr("<li>%1: <strong>disabled</strong></li>").arg(x.first);
+    }
+    featuresText += QStringLiteral("</ul>");
+    ui.descriptionLabel->setText(ui.descriptionLabel->text() + featuresText);
+
     QStringList copyright;
     {
         // Find the names of the authors and remove date codes from there
