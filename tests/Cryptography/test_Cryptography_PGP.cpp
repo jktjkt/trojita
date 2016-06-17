@@ -50,7 +50,7 @@
 void CryptographyPGPTest::initTestCase()
 {
     LibMailboxSync::initTestCase();
-    if (!qputenv("GNUPGHOME", "keys")) {
+    if (!qputenv("GNUPGHOME", QByteArray(QCoreApplication::applicationDirPath().toUtf8() + "/keys").constData())) {
         QFAIL("Unable to set GNUPGHOME environment variable");
     }
 }
