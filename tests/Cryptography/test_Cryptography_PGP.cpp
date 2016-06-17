@@ -478,4 +478,98 @@ void CryptographyPGPTest::testMalformed_data()
 
 }
 
+/** @short Check operation when some data are not available */
+void CryptographyPGPTest::testOffline()
+{
+    QFETCH(QByteArray, bodystructure);
+    QFETCH(QByteArray, fetchRegex);
+
+    model->setProperty("trojita-imap-delayed-fetch-part", 0);
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer(helperCreateTrivialEnvelope(1, 333, QStringLiteral("subj"), QStringLiteral("foo@example.org"), bodystructure)
+            + t.last("OK fetched\r\n"));
+    cEmpty();
+    QVERIFY(model->rowCount(msg) > 0);
+    Cryptography::MessageModel msgModel(0, msg);
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+#  ifdef TROJITA_HAVE_GPGMEPP
+    msgModel.registerPartHandler(std::make_shared<Cryptography::GpgMeReplacer>());
+#  endif
+#endif
+    QModelIndex mappedMsg = msgModel.index(0,0);
+    QVERIFY(mappedMsg.isValid());
+    QVERIFY(msgModel.rowCount(mappedMsg) > 0);
+
+    QModelIndex data = mappedMsg.child(0, 0);
+    QVERIFY(data.isValid());
+#ifdef TROJITA_HAVE_CRYPTO_MESSAGES
+    QCOMPARE(msgModel.rowCount(mappedMsg), 1);
+    QCOMPARE(msgModel.rowCount(data), 0);
+    QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+
+    cClientRegExp(t.mk(fetchRegex));
+    auto fetchResp = t.last("NO offline\r\n");
+    LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_OFFLINE);
+    cClient(t.mk("LOGOUT\r\n"));
+    cServer(fetchResp + t.last("OK logout\r\n"));
+
+    QSignalSpy qcaErrorSpy(&msgModel, SIGNAL(error(const QModelIndex &,QString,QString)));
+
+    int i = 0;
+    while (data.isValid() && data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool() && qcaErrorSpy.empty() && i++ < 1000) {
+        QTest::qWait(10);
+    }
+    // allow for event processing, so that the model can retrieve the results
+    QCoreApplication::processEvents();
+
+    QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet), QVariant(false));
+    QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoTLDR), QVariant(QStringLiteral("Data Unavailable")));
+    QCOMPARE(msgModel.rowCount(data), 2);
+
+    if (!qcaErrorSpy.isEmpty()) {
+        qDebug() << "Unexpected failure in crypto";
+        for (int i = 0; i < qcaErrorSpy.size(); ++i) {
+            qDebug() << qcaErrorSpy[i][1].toString();
+            qDebug() << qcaErrorSpy[i][2].toString();
+        }
+    }
+
+    // We're offline, we cannot call cEmpty(), that would assert-crash due to no active parsers
+    //cEmpty();
+
+    QVERIFY(errorSpy->empty());
+#else
+    QCOMPARE(msgModel.rowCount(data), 2);
+    QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), true);
+    cEmpty();
+
+    QSKIP("Some tests were skipped because this build doesn't have GpgME++ support");
+#endif
+}
+
+void CryptographyPGPTest::testOffline_data()
+{
+    QTest::addColumn<QByteArray>("bodystructure");
+    QTest::addColumn<QByteArray>("fetchRegex");
+
+    QTest::newRow("signed")
+            << QByteArray("(\"text\" \"plain\" (\"charset\" \"us-ascii\") NIL NIL \"7bit\" 423 14 NIL NIL NIL NIL)"
+            "(\"application\" \"pgp-signature\" NIL NIL NIL \"7bit\" 851 NIL NIL NIL NIL)"
+            " \"signed\" (\"boundary\" \"=-=-=\" \"micalg\" \"pgp-sha256\" \"protocol\" \"application/pgp-signature\")"
+            " NIL NIL NIL")
+            << QByteArray("UID FETCH 333 \\((BODY\\.PEEK\\[(2|1|1\\.MIME)\\] ?){3}\\)");
+
+    QTest::newRow("encrypted")
+            << bsEncrypted
+            << QByteArray("UID FETCH 333 \\((BODY\\.PEEK\\[(1|2)\\] ?){2}\\)");
+}
+
 QTEST_GUILESS_MAIN(CryptographyPGPTest)
