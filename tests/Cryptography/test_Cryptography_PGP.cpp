@@ -43,7 +43,7 @@
  *   * verify signature of modified text
  *   * verify signature with expired key
  *   * verify signature with not yet valid key
- *   * verify signature with unkown key
+ *   * verify signature with unknown key
  *   * nested scenarios
  */
 

@@ -70,7 +70,7 @@ TokenType howToTransmit(const QByteArray &str);
  * send them ahead.
  *
  * This class therefore encapsulates the "part of command" along with enough information on how it should
- * be transfered.
+ * be transferred.
  *
  */
 class PartOfCommand

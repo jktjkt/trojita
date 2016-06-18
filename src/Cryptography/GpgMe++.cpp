@@ -779,7 +779,7 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
         QString versionString = m_versionPart.data(RolePartData).toString();
         if (!versionString.contains(QLatin1String("Version: 1"))) {
             forwardFailure(tr("Malformed Encrypted Message"),
-                           tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%2\".").arg(versionString),
+                           tr("Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%1\".").arg(versionString),
                            QStringLiteral("emblem-error"));
             return;
         }
