@@ -2,12 +2,17 @@ This is Trojitá, Qt IMAP e-mail client
 
 Copyright (C) 2006 - 2016 Jan Kundrát <jkt@kde.org>
 Copyright (C) 2012 - 2016 Thomas Lübking <thomas.luebking@gmail.com>
-Copyright (C) 2013 - 2015 Pavol Rohár <pali.rohar@gmail.com>
-Copyright (C) 2013 - 2015 Caspar Schutijser <caspar@schutijser.com>
-Copyright (C) 2013 - 2015 Stephan Platz <trojita@paalsteek.de>
-Copyright (C) 2014 - 2015 Lasse Liehu <lasse.liehu@gmail.com>
+Copyright (C) 2013 - 2016 Pavol Rohár <pali.rohar@gmail.com>
+Copyright (C) 2013 - 2016 Caspar Schutijser <caspar@schutijser.com>
+Copyright (C) 2013 - 2016 Stephan Platz <trojita@paalsteek.de>
 Copyright (C) 2015 - 2016 Erik Quaeghebeur <trojita@equaeghe.nospammail.net>
-Copyright (C) 2015 Heiko Becker <heirecka@exherbo.org>
+Copyright (C) 2012 - 2016 Yuri Chornoivan <yurchor@ukr.net>
+Copyright (C) 2015 - 2016 Heiko Becker <heirecka@exherbo.org>
+Copyright (C) 2012 - 2016 Albert Astals Cid <aacid@kde.org>
+Copyright (C) 2016 Michael Palimaka <kensington@gentoo.org>
+Copyright (C) 2016 Eloy Cuadra <ecuadra@eloihr.net>
+Copyright (C) 2014 - 2015 Lasse Liehu <lasse.liehu@gmail.com>
+Copyright (C) 2014 - 2015 Karan Luthra <karanluthra06@gmail.com>
 Copyright (C) 2015 Safa Alfulaij <safa1996alfulaij@gmail.com>
 Copyright (C) 2015 Andreas Sturmlechner <andreas.sturmlechner@gmail.com>
 Copyright (C) 2014 - 2015 Marko Käning <mk-lists@email.de>
@@ -18,7 +23,6 @@ Copyright (C) 2014 Dimitrios Glentadakis <dglent@free.fr>
 Copyright (C) 2014 Michael Hall <mhall119@ubuntu.com>
 Copyright (C) 2014 Dan Chapman <dpniel@ubuntu.com>
 Copyright (C) 2014 Boren Zhang <bobo1993324@gmail.com>
-Copyright (C) 2014 Karan Luthra <karanluthra06@gmail.com>
 Copyright (C) 2014 Bruno Meneguele <bmeneguele@gmail.com>
 Copyright (C) 2013 - 2014 Jai Luthra <me@jailuthra.in>
 Copyright (C) 2014 Niklas Wenzel <nikwen.developer@gmail.com>
@@ -28,7 +32,6 @@ Copyright (C) 2013 Glad Deschrijver <glad.deschrijver@gmail.com>
 Copyright (C) 2014 Yazeed Zoabi <yazeedz.zoabi@gmail.com>
 Copyright (C) 2014 Danny Rimmer <utf8snowman@gmail.com>
 Copyright (C) 2014 Luke Dashjr <luke+trojita@dashjr.org>
-Copyright (C) 2012 - 2014 Yuri Chornoivan <yurchor@ukr.net>
 Copyright (C) 2013 Benjamin Kaiser <benjaminjkaiser@gmail.com>
 Copyright (C) 2012 - 2013 Peter Amidon <peter@picnicpark.org>
 Copyright (C) 2011 - 2012 Thomas Gahr <thomas.gahr@physik.uni-muenchen.de>
@@ -39,7 +42,6 @@ Copyright (C) 2013 Stefan Kögl <stefan.koegl@tu-dortmund.de>
 Copyright (C) 2013 James Turner <james@calminferno.net>
 Copyright (C) 2013 Mayank Jha <mjnovice@gmail.com>
 Copyright (C) 2013 André Marcelo Alvarenga <alvarenga@kde.org>
-Copyright (C) 2012 - 2013 Albert Astals Cid <aacid@kde.org>
 Copyright (C) 2012 - 2013 Ahmed Ibrahim Khalil <ahmedibrahimkhali@gmail.com>
 Copyright (C) 2010 - 2013 OpenMFG LLC, dba xTuple
 Copyright (C) 2013 Adrián Arroyo Calle <adrian.arroyocalle@gmail.com>
