@@ -630,6 +630,13 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
     Q_ASSERT(m_plaintextPart.isValid());
     Q_ASSERT(m_plaintextMimePart.isValid());
     Q_ASSERT(m_signaturePart.isValid());
+    if (m_plaintextPart.data(RoleIsUnavailable).toBool() || m_plaintextMimePart.data(RoleIsUnavailable).toBool()
+            || m_signaturePart.data(RoleIsUnavailable).toBool() || m_enclosingMessage.data(RoleIsUnavailable).toBool()) {
+        forwardFailure(tr("Data Unavailable"),
+                       tr("Some data are not available, perhaps due to an offline network connection"),
+                       QStringLiteral("state-offline"));
+        return;
+    }
     if (!m_plaintextPart.data(RoleIsFetched).toBool() || !m_plaintextMimePart.data(RoleIsFetched).toBool() ||
             !m_signaturePart.data(RoleIsFetched).toBool() || !m_enclosingMessage.data(RoleMessageEnvelope).isValid()) {
         return;
@@ -766,6 +773,13 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
     }
     Q_ASSERT(m_versionPart.isValid());
     Q_ASSERT(m_encPart.isValid());
+    if (m_versionPart.data(RoleIsUnavailable).toBool() || m_encPart.data(RoleIsUnavailable).toBool()
+            || m_enclosingMessage.data(RoleIsUnavailable).toBool()) {
+        forwardFailure(tr("Data Unavailable"),
+                       tr("Cannot decrypt. Some data are not available, perhaps due to an offline network connection."),
+                       QStringLiteral("state-offline"));
+        return;
+    }
     if (!m_versionPart.data(RoleIsFetched).toBool() || !m_encPart.data(RoleIsFetched).toBool()
             || !m_enclosingMessage.data(RoleMessageEnvelope).isValid()) {
         return;

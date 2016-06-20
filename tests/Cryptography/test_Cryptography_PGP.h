@@ -40,6 +40,8 @@ private Q_SLOTS:
     void testVerification_data();
     void testMalformed();
     void testMalformed_data();
+    void testOffline();
+    void testOffline_data();
 };
 
 Q_DECLARE_METATYPE(CryptographyPGPTest::pathList)
