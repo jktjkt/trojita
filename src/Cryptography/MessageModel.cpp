@@ -118,13 +118,15 @@ void MessageModel::insertSubtree(const QModelIndex &parent, std::vector<Cryptogr
 #ifdef MIME_TREE_DEBUG
     qDebug() << "Whole tree:\n" << *m_rootPart;
     qDebug() << "Inserting at:\n" << (void*)(part);
-    qDebug() << "New items:\n" << *(tree.get());
 #endif
 
     beginInsertRows(parent, 0, parts.size());
 
     Q_ASSERT(part->m_children.empty());
     for (size_t i = 0; i < parts.size(); ++i) {
+#ifdef MIME_TREE_DEBUG
+        qDebug() << "New item[" << i << "]:\n" << *(parts[i].get());
+#endif
         parts[i]->m_parent = part;
         part->m_children[i] = std::move(parts[i]);
     }
