@@ -1877,6 +1877,8 @@ void MainWindow::slotShowAboutTrojita()
     widget->setAttribute(Qt::WA_DeleteOnClose);
     ui.setupUi(widget);
     ui.versionLabel->setText(Common::Application::version);
+    ui.qtVersion->setText(QStringLiteral("<a href=\"about-qt\">Qt " QT_VERSION_STR "</a>"));
+    connect(ui.qtVersion, &QLabel::linkActivated, qApp, &QApplication::aboutQt);
 
     std::vector<std::pair<QString, bool>> features;
     features.emplace_back(tr("Plugins"),

@@ -82,5 +82,6 @@
         <file>icons/breeze/mail-reply-list.svg</file>
         <file>icons/breeze/mail-reply-all.svg</file>
         <file>icons/breeze/mail-forward.svg</file>
+        <file>icons/Built_with_Qt_logo_RGB.svg</file>
     </qresource>
 </RCC>
