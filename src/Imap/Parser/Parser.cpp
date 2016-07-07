@@ -960,6 +960,7 @@ void Parser::processLine(QByteArray line)
 QSharedPointer<Responses::AbstractResponse> Parser::parseUntagged(const QByteArray &line)
 {
     int pos = 2;
+    LowLevelParser::eatSpaces(line, pos);
     uint number;
     try {
         number = LowLevelParser::getUInt(line, pos);

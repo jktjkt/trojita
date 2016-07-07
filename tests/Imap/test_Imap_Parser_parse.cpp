@@ -477,6 +477,13 @@ void ImapParserParseTest::testParseUntagged_data()
             << QByteArray("* STATUS blurdybloop ( MESSAGES 113 )\r\n")
             << QSharedPointer<AbstractResponse>( new Status( QStringLiteral("blurdybloop"), states ) );
 
+    // https://bugs.kde.org/show_bug.cgi?id=365149
+    states.clear();
+    states[Status::MESSAGES] = 702;
+    QTest::newRow("untagged-extra-space-before-status")
+            << QByteArray("*  STATUS \"INBOX\" (MESSAGES 702)\r\n")
+            << QSharedPointer<AbstractResponse>(new Status(QStringLiteral("INBOX"), states));
+
 
     QTest::newRow("namespace-1")
         << QByteArray("* Namespace nil NIL nil\r\n")
