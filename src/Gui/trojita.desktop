@@ -106,3 +106,8 @@ Keywords[uk]=mail;e-mail;IMAP;SMTP;eml;MUA;пошта;електронна;ем�
 Keywords[x-test]=xxmailxx;xxe-mailxx;xxIMAPxx;xxSMTPxx;xxemlxx;xxMUAxx;
 StartupNotify=true
 MimeType=x-scheme-handler/mailto;
+Actions=Composer;
+
+[Desktop Action Composer]
+Name=New Message
+Exec=trojita -c
