@@ -110,4 +110,9 @@ Actions=Composer;
 
 [Desktop Action Composer]
 Name=New Message
+Name[ca]=Missatge nou
+Name[pt]=Nova Mensagem
+Name[sv]=Nytt brev
+Name[uk]=Нове повідомлення
+Name[x-test]=xxNew Messagexx
 Exec=trojita -c
