@@ -83,6 +83,7 @@ Keywords[ar]=mail;e-mail;IMAP;SMTP;eml;MUA;بريد;إلكتروني;
 Keywords[bs]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[ca]=mail;e-mail;IMAP;SMTP;eml;MUA;correu electrònic;
 Keywords[ca@valencia]=mail;e-mail;IMAP;SMTP;eml;MUA;correu electrònic;
+Keywords[cs]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[da]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[de]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[el]=mail;e-mail;IMAP;SMTP;eml;MUA;αλληλογραφία;
@@ -111,6 +112,7 @@ Actions=Composer;
 [Desktop Action Composer]
 Name=New Message
 Name[ca]=Missatge nou
+Name[cs]=Nová zpráva
 Name[nl]=Nieuw bericht
 Name[pt]=Nova Mensagem
 Name[sv]=Nytt brev
