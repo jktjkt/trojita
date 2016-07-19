@@ -112,6 +112,7 @@ Actions=Composer;
 [Desktop Action Composer]
 Name=New Message
 Name[ca]=Missatge nou
+Name[ca@valencia]=Missatge nou
 Name[cs]=Nová zpráva
 Name[nl]=Nieuw bericht
 Name[pt]=Nova Mensagem
