@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2015 Jan Kundrát <jkt@kde.org>
+   Copyright (C) 2016 Luís Pereira <luis.artur.pereira@gmail.com>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -27,6 +28,25 @@
 
 namespace UiUtils {
 
+static void cleanup_icon_cache();
+namespace {
+    struct Cache : public QHash<QString, QIcon>
+    {
+        Cache()
+        {
+            qAddPostRoutine(cleanup_icon_cache);
+        }
+    };
+}
+
+Q_GLOBAL_STATIC(Cache, iconDict)
+
+static void cleanup_icon_cache()
+{
+    iconDict()->clear();
+}
+
+
 /** @short Wrapper around the QIcon::fromTheme with sane fallback
  *
  * The issue with the QIcon::fromTheme is that it does not really work on non-X11
@@ -37,22 +57,14 @@ namespace UiUtils {
  * */
 QIcon loadIcon(const QString &name)
 {
-    using Cache = QHash<QString, QIcon>;
-    static Cache iconDict;
-
-    // static to ensure that this connection is only set up once during the app's lifetime
-    static auto conn = QObject::connect(qApp, &QCoreApplication::aboutToQuit, [](){
-        iconDict.clear();
-    });
-
-    auto it = iconDict.constFind(name);
-    if (it != iconDict.constEnd())
+    auto it = iconDict()->constFind(name);
+    if (it != iconDict()->constEnd())
         return *it;
 
     auto overrideIcon = QStringLiteral(":/icons/%1/%2.svg").arg(QIcon::themeName(), name);
     if (QFileInfo(overrideIcon).exists()) {
         QIcon icon(overrideIcon);
-        iconDict.insert(name, icon);
+        iconDict()->insert(name, icon);
         return icon;
     }
 
@@ -65,7 +77,7 @@ QIcon loadIcon(const QString &name)
     if (res.pixmap(QSize(16, 16)).isNull()) {
         res = QIcon();
     }
-    iconDict.insert(name, res);
+    iconDict()->insert(name, res);
     return res;
 }
 
