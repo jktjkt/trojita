@@ -68,14 +68,18 @@ The MailboxFinder has to be kept up-to-speed about these changes.
 void MailBoxTreeView::setModel(QAbstractItemModel *model)
 {
     delete m_mailboxFinder;
-    m_mailboxFinder = new Imap::Mailbox::MailboxFinder(this, model);
-    connect(m_mailboxFinder, &Imap::Mailbox::MailboxFinder::mailboxFound,
-            this, [this](const QString &, const QModelIndex &index) {
-        expand(index);
-    });
-    connect(model, &QAbstractItemModel::layoutChanged, this, &MailBoxTreeView::resetWatchedMailboxes);
-    connect(model, &QAbstractItemModel::rowsRemoved, this, &MailBoxTreeView::resetWatchedMailboxes);
-    connect(model, &QAbstractItemModel::modelReset, this, &MailBoxTreeView::resetWatchedMailboxes);
+    m_mailboxFinder = nullptr;
+
+    if (model) {
+        m_mailboxFinder = new Imap::Mailbox::MailboxFinder(this, model);
+        connect(m_mailboxFinder, &Imap::Mailbox::MailboxFinder::mailboxFound,
+                this, [this](const QString &, const QModelIndex &index) {
+            expand(index);
+        });
+        connect(model, &QAbstractItemModel::layoutChanged, this, &MailBoxTreeView::resetWatchedMailboxes);
+        connect(model, &QAbstractItemModel::rowsRemoved, this, &MailBoxTreeView::resetWatchedMailboxes);
+        connect(model, &QAbstractItemModel::modelReset, this, &MailBoxTreeView::resetWatchedMailboxes);
+    }
     QTreeView::setModel(model);
     resetWatchedMailboxes();
 }
