@@ -4,11 +4,8 @@
  * */
 #define _GNU_SOURCE
 #include <dlfcn.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#define _FCNTL_H
-#include <bits/fcntl.h>
 #include <string.h>
+#include <sys/types.h>
 
 extern int errorno;
 
