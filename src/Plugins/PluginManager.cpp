@@ -68,16 +68,26 @@ void PluginManager::loadPlugins()
 
     QStringList absoluteFilePaths;
 
+    QSet<QString> loadedFiles;
+
     Q_FOREACH(const QString &dirName, pluginDirs) {
         QDir dir(dirName);
         auto filter(QStringLiteral("trojita_plugin_*"));
         Q_FOREACH(const QString &fileName, dir.entryList(QStringList() << filter, QDir::Files)) {
-            const QString &absoluteFilePath = QFileInfo(dir.absoluteFilePath(fileName)).canonicalFilePath();
+            const auto fi = QFileInfo(dir.absoluteFilePath(fileName));
+            const auto &absoluteFilePath = fi.canonicalFilePath();
+            const auto &shortFileName = fi.fileName();
             if (absoluteFilePaths.contains(absoluteFilePath)) {
                 continue;
             }
             absoluteFilePaths << absoluteFilePath;
             if (!QLibrary::isLibrary(absoluteFilePath)) {
+                continue;
+            }
+            if (loadedFiles.contains(shortFileName)) {
+#ifdef PLUGIN_DEBUG
+            qDebug() << "Skiping file" << absoluteFilePath << "because the same-named plugin has been already seen";
+#endif
                 continue;
             }
 #ifdef PLUGIN_DEBUG
@@ -86,6 +96,7 @@ void PluginManager::loadPlugins()
             QPluginLoader *loader = new QPluginLoader(absoluteFilePath, this);
             if (loader->load()) {
                 loadPlugin(loader->instance());
+                loadedFiles.insert(shortFileName);
             } else {
                 emit pluginError(loader->errorString());
             }
