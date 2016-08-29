@@ -85,7 +85,7 @@ void PluginManager::loadPlugins()
 #endif
             QPluginLoader *loader = new QPluginLoader(absoluteFilePath, this);
             if (loader->load()) {
-                loadPlugin(loader->instance(), loader);
+                loadPlugin(loader->instance());
             } else {
                 emit pluginError(loader->errorString());
             }
@@ -93,7 +93,7 @@ void PluginManager::loadPlugins()
     }
 
     Q_FOREACH(QObject *pluginInstance, QPluginLoader::staticInstances()) {
-        loadPlugin(pluginInstance, nullptr);
+        loadPlugin(pluginInstance);
     }
 
     emit pluginsChanged();
@@ -103,7 +103,7 @@ PluginManager::~PluginManager()
 {
 }
 
-void PluginManager::loadPlugin(QObject *pluginInstance, QPluginLoader *loader)
+void PluginManager::loadPlugin(QObject *pluginInstance)
 {
     Q_ASSERT(pluginInstance);
 

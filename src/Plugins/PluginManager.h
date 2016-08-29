@@ -90,7 +90,7 @@ private slots:
     void loadPlugins();
 
 private:
-    void loadPlugin(QObject *pluginInstance, QPluginLoader *loader);
+    void loadPlugin(QObject *pluginInstance);
 
     QSettings *m_settings;
     QString m_addressbookKey;
