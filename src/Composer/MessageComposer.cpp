@@ -34,6 +34,16 @@
 #include "Imap/Model/Utils.h"
 #include "UiUtils/IconLoader.h"
 
+#define CHECK_STREAM_OK_AT_END(STREAM) \
+    if (!STREAM.atEnd()) { \
+        qDebug() << "drag-and-drop: cannot decode data: too much data"; \
+        return false; \
+    } \
+    if (STREAM.status() != QDataStream::Ok) { \
+        qDebug() << "drag-and-drop: cannot decode data: stream error" << STREAM.status(); \
+        return false; \
+    }
+
 namespace {
     static QString xTrojitaAttachmentList = QStringLiteral("application/x-trojita-attachments-list");
     static QString xTrojitaMessageList = QStringLiteral("application/x-trojita-message-list");
@@ -260,6 +270,8 @@ bool MessageComposer::dropAttachmentList(QDataStream &stream)
         }
     }
 
+    CHECK_STREAM_OK_AT_END(stream)
+
     beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + items.d.size() - 1);
     Q_FOREACH(AttachmentItem *attachment, items.d) {
         if (m_shouldPreload)
@@ -312,10 +324,8 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
     stream >> mailbox >> uidValidity >> uids;
     if (!validateDropImapMessage(stream, mailbox, uidValidity, uids))
         return false;
-    if (!stream.atEnd()) {
-        qDebug() << "drag-and-drop: cannot decode data: too much data";
-        return false;
-    }
+
+    CHECK_STREAM_OK_AT_END(stream)
 
     WillDeleteAll<QList<AttachmentItem*>> items;
     Q_FOREACH(const uint uid, uids) {
@@ -373,10 +383,8 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
     QByteArray trojitaPath;
     if (!validateDropImapPart(stream, mailbox, uidValidity, uid, trojitaPath))
         return false;
-    if (!stream.atEnd()) {
-        qDebug() << "drag-and-drop: cannot decode data: too much data";
-        return false;
-    }
+
+    CHECK_STREAM_OK_AT_END(stream)
 
     AttachmentItem *item;
     try {
