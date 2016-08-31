@@ -56,7 +56,7 @@ QByteArray contentDispositionToByteArray(const ContentDisposition cdn)
 /** @short Return a CTE suitable for transmission of the specified MIME container */
 AttachmentItem::ContentTransferEncoding CTEForContainers(const QModelIndex &index)
 {
-    QByteArray cte = index.data(RolePartEncoding).toByteArray();
+    QByteArray cte = index.data(RolePartTransferEncoding).toByteArray();
     if (cte == "7bit") {
         return AttachmentItem::CTE_7BIT;
     } else if (cte == "8bit") {

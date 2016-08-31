@@ -479,7 +479,7 @@ void TreeItemMailbox::handleFetchResponse(Model *const model,
                 // we were in fact asked to only fetch the raw data and the user is not itnerested in the processed data at all.
                 if (part->loading()) {
                     // got to decode the part data by hand
-                    Imap::decodeContentTransferEncoding(data, part->encoding(), part->dataPtr());
+                    Imap::decodeContentTransferEncoding(data, part->transferEncoding(), part->dataPtr());
                     part->setFetchStatus(DONE);
                     changedParts.append(part);
                     if (message->uid()
@@ -1643,8 +1643,8 @@ QVariant TreeItemPart::data(Model *const model, int role)
         return m_contentFormat;
     case RolePartContentDelSp:
         return m_delSp;
-    case RolePartEncoding:
-        return m_encoding;
+    case RolePartTransferEncoding:
+        return m_transferEncoding;
     case RolePartBodyFldId:
         return m_bodyFldId;
     case RolePartBodyDisposition:

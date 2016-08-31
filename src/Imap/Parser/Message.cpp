@@ -788,7 +788,7 @@ void AbstractMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
 void OneMessage::storeInterestingFields(Mailbox::TreeItemPart *p) const
 {
     AbstractMessage::storeInterestingFields(p);
-    p->setEncoding(bodyFldEnc.toLower());
+    p->setTransferEncoding(bodyFldEnc.toLower());
     p->setOctets(bodyFldOctets);
     p->setBodyFldId(bodyFldId);
 }

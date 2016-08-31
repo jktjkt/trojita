@@ -48,7 +48,7 @@ OneMessageModel::OneMessageModel(Model *model): QObject(model), m_subtree(0)
     roleNames[RolePartMimeType] = "mimeType";
     roleNames[RolePartCharset] = "charset";
     roleNames[RolePartContentFormat] = "contentFormat";
-    roleNames[RolePartEncoding] = "encoding";
+    roleNames[RolePartTransferEncoding] = "transferEncoding";
     roleNames[RolePartBodyFldId] = "bodyFldId";
     roleNames[RolePartBodyDisposition] = "bodyDisposition";
     roleNames[RolePartFileName] = "fileName";

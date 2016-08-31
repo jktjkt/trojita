@@ -347,7 +347,7 @@ class TreeItemPart: public TreeItem
     QByteArray m_charset;
     QByteArray m_contentFormat;
     QByteArray m_delSp;
-    QByteArray m_encoding;
+    QByteArray m_transferEncoding;
     QByteArray m_data;
     QByteArray m_bodyFldId;
     QByteArray m_bodyDisposition;
@@ -399,8 +399,8 @@ public:
     void setCharset(const QByteArray &ch) { m_charset = ch; }
     void setContentFormat(const QByteArray &format) { m_contentFormat = format; }
     void setContentDelSp(const QByteArray &delSp) { m_delSp = delSp; }
-    void setEncoding(const QByteArray &encoding) { m_encoding = encoding; }
-    QByteArray encoding() const { return m_encoding; }
+    void setTransferEncoding(const QByteArray &transferEncoding) { m_transferEncoding = transferEncoding; }
+    QByteArray transferEncoding() const { return m_transferEncoding; }
     void setBodyFldId(const QByteArray &id) { m_bodyFldId = id; }
     QByteArray bodyFldId() const { return m_bodyFldId; }
     void setBodyDisposition(const QByteArray &disposition) { m_bodyDisposition = disposition; }

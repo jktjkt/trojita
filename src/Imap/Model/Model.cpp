@@ -1030,7 +1030,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
                                                       itemForFetchOperation->partId() + ".X-RAW");
 
         if (!data.isNull()) {
-            Imap::decodeContentTransferEncoding(data, item->encoding(), item->dataPtr());
+            Imap::decodeContentTransferEncoding(data, item->transferEncoding(), item->dataPtr());
             item->setFetchStatus(TreeItem::DONE);
             return;
         }
