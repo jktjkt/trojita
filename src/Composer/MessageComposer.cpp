@@ -612,6 +612,8 @@ bool MessageComposer::writeAttachmentHeader(QIODevice *target, QString *errorMes
     case AttachmentItem::ContentTransferEncoding::Binary:
         target->write("Content-Transfer-Encoding: binary\r\n");
         break;
+    case AttachmentItem::ContentTransferEncoding::QuotedPrintable:
+        target->write("Content-Transfer-Encoding: quoted-printable\r\n");
     }
 
     target->write("\r\n");
@@ -636,8 +638,14 @@ bool MessageComposer::writeAttachmentBody(QIODevice *target, QString *errorMessa
             // (not counting the CRLF pair).
             target->write(io->read(76*6/8).toBase64() + "\r\n");
             break;
-        default:
+        case AttachmentItem::ContentTransferEncoding::QuotedPrintable:
+            target->write(Imap::quotedPrintableEncode(io->readAll()));
+            break;
+        case AttachmentItem::ContentTransferEncoding::SevenBit:
+        case AttachmentItem::ContentTransferEncoding::EightBit:
+        case AttachmentItem::ContentTransferEncoding::Binary:
             target->write(io->readAll());
+            break;
         }
     }
     return true;
