@@ -77,12 +77,12 @@ public:
     /** @short Return true if the data are already available from a local cache */
     virtual bool isAvailableLocally() const = 0;
 
-    typedef enum {
-        CTE_7BIT,
-        CTE_8BIT,
-        CTE_BINARY,
-        CTE_BASE64
-    } ContentTransferEncoding;
+    enum class ContentTransferEncoding {
+        SevenBit,
+        EightBit,
+        Binary,
+        Base64,
+    };
     virtual ContentTransferEncoding suggestedCTE() const = 0;
 
     /** @short Returns a valid IMAP URL or an empty QByteArray if the data are not available from an IMAP server */

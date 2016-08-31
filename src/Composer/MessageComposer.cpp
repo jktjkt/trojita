@@ -600,16 +600,16 @@ bool MessageComposer::writeAttachmentHeader(QIODevice *target, QString *errorMes
     target->write(attachment->contentDispositionHeader());
 
     switch (attachment->suggestedCTE()) {
-    case AttachmentItem::CTE_BASE64:
+    case AttachmentItem::ContentTransferEncoding::Base64:
         target->write("Content-Transfer-Encoding: base64\r\n");
         break;
-    case AttachmentItem::CTE_7BIT:
+    case AttachmentItem::ContentTransferEncoding::SevenBit:
         target->write("Content-Transfer-Encoding: 7bit\r\n");
         break;
-    case AttachmentItem::CTE_8BIT:
+    case AttachmentItem::ContentTransferEncoding::EightBit:
         target->write("Content-Transfer-Encoding: 8bit\r\n");
         break;
-    case AttachmentItem::CTE_BINARY:
+    case AttachmentItem::ContentTransferEncoding::Binary:
         target->write("Content-Transfer-Encoding: binary\r\n");
         break;
     }
@@ -631,7 +631,7 @@ bool MessageComposer::writeAttachmentBody(QIODevice *target, QString *errorMessa
     }
     while (!io->atEnd()) {
         switch (attachment->suggestedCTE()) {
-        case AttachmentItem::CTE_BASE64:
+        case AttachmentItem::ContentTransferEncoding::Base64:
             // Base64 maps 6bit chunks into a single byte. Output shall have no more than 76 characters per line
             // (not counting the CRLF pair).
             target->write(io->read(76*6/8).toBase64() + "\r\n");
