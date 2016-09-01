@@ -31,6 +31,13 @@ namespace Mailbox {
 QMimeData *mimeDataForDragAndDrop(const QModelIndex &index);
 
 }
+
+struct MimeTypes {
+    static const QString xTrojitaAttachmentList;
+    static const QString xTrojitaMessageList;
+    static const QString xTrojitaImapPart;
+};
+
 }
 
 #endif

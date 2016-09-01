@@ -20,12 +20,12 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MailboxModel.h"
-#include "MailboxTree.h"
-#include "ItemRoles.h"
-
 #include <QDebug>
 #include <QMimeData>
+#include "Imap/Model/DragAndDrop.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxModel.h"
+#include "Imap/Model/MailboxTree.h"
 
 namespace Imap
 {
@@ -234,7 +234,7 @@ Qt::DropActions MailboxModel::supportedDropActions() const
 
 QStringList MailboxModel::mimeTypes() const
 {
-    return QStringList() << QStringLiteral("application/x-trojita-message-list");
+    return QStringList() << MimeTypes::xTrojitaMessageList;
 }
 
 bool MailboxModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
@@ -266,7 +266,7 @@ bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (! target->isSelectable())
         return false;
 
-    QByteArray encodedData = data->data(QStringLiteral("application/x-trojita-message-list"));
+    QByteArray encodedData = data->data(MimeTypes::xTrojitaMessageList);
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
 
     Q_ASSERT(! stream.atEnd());

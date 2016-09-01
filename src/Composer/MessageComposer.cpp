@@ -29,6 +29,7 @@
 #include "Common/Application.h"
 #include "Composer/ComposerAttachments.h"
 #include "Imap/Encoders.h"
+#include "Imap/Model/DragAndDrop.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
@@ -43,12 +44,6 @@
         qDebug() << "drag-and-drop: cannot decode data: stream error" << STREAM.status(); \
         return false; \
     }
-
-namespace {
-    static QString xTrojitaAttachmentList = QStringLiteral("application/x-trojita-attachments-list");
-    static QString xTrojitaMessageList = QStringLiteral("application/x-trojita-message-list");
-    static QString xTrojitaImapPart = QStringLiteral("application/x-trojita-imap-part");
-}
 
 namespace Composer {
 
@@ -133,7 +128,7 @@ QMimeData *MessageComposer::mimeData(const QModelIndexList &indexes) const
         attachment->asDroppableMimeData(stream);
     }
     QMimeData *res = new QMimeData();
-    res->setData(xTrojitaAttachmentList, encodedData);
+    res->setData(Imap::MimeTypes::xTrojitaAttachmentList, encodedData);
     return res;
 }
 
@@ -153,16 +148,16 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
     // FIXME: would be cool to support attachment reshuffling and to respect the desired drop position
 
 
-    if (data->hasFormat(xTrojitaAttachmentList)) {
-        QByteArray encodedData = data->data(xTrojitaAttachmentList);
+    if (data->hasFormat(Imap::MimeTypes::xTrojitaAttachmentList)) {
+        QByteArray encodedData = data->data(Imap::MimeTypes::xTrojitaAttachmentList);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
         return dropAttachmentList(stream);
-    } else if (data->hasFormat(xTrojitaMessageList)) {
-        QByteArray encodedData = data->data(xTrojitaMessageList);
+    } else if (data->hasFormat(Imap::MimeTypes::xTrojitaMessageList)) {
+        QByteArray encodedData = data->data(Imap::MimeTypes::xTrojitaMessageList);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
         return dropImapMessage(stream);
-    } else if (data->hasFormat(xTrojitaImapPart)) {
-        QByteArray encodedData = data->data(xTrojitaImapPart);
+    } else if (data->hasFormat(Imap::MimeTypes::xTrojitaImapPart)) {
+        QByteArray encodedData = data->data(Imap::MimeTypes::xTrojitaImapPart);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
         return dropImapPart(stream);
     } else if (data->hasUrls()) {
@@ -404,7 +399,7 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
 
 QStringList MessageComposer::mimeTypes() const
 {
-    return QStringList() << xTrojitaMessageList << xTrojitaImapPart << xTrojitaAttachmentList << QStringLiteral("text/uri-list");
+    return QStringList() << Imap::MimeTypes::xTrojitaMessageList << Imap::MimeTypes::xTrojitaImapPart << Imap::MimeTypes::xTrojitaAttachmentList << QStringLiteral("text/uri-list");
 }
 
 void MessageComposer::setFrom(const Imap::Message::MailAddress &from)

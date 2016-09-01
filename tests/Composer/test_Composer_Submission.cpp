@@ -24,6 +24,7 @@
 #include "test_Composer_Submission.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 #include "Composer/MessageComposer.h"
+#include "Imap/Model/DragAndDrop.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Streams/FakeSocket.h"
 
@@ -373,7 +374,7 @@ void ComposerSubmissionTest::helperAttachImapPart(const uint uid)
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_4_6);
     stream << QStringLiteral("a") << uidValidityA << uid << QByteArray("/0"); // previous version used just "0"; that was wrong.
-    mimeData->setData(QStringLiteral("application/x-trojita-imap-part"), encodedData);
+    mimeData->setData(Imap::MimeTypes::xTrojitaImapPart, encodedData);
     QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }
 
@@ -384,7 +385,7 @@ void ComposerSubmissionTest::helperAttachImapMessage(const uint uid)
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_4_6);
     stream << QStringLiteral("a") << uidValidityA << (QList<uint>() << uid);
-    mimeData->setData(QStringLiteral("application/x-trojita-message-list"), encodedData);
+    mimeData->setData(Imap::MimeTypes::xTrojitaMessageList, encodedData);
     QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }
 
