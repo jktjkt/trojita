@@ -266,10 +266,18 @@ bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (! target->isSelectable())
         return false;
 
-    QByteArray encodedData = data->data(MimeTypes::xTrojitaMessageList);
-    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+    if (data->hasFormat(MimeTypes::xTrojitaMessageList)) {
+        return dropTrojitaMessageList(target->mailbox(), action, data->data(MimeTypes::xTrojitaMessageList));
+    } else {
+        return false;
+    }
+}
 
-    Q_ASSERT(! stream.atEnd());
+bool MailboxModel::dropTrojitaMessageList(const QString &mailboxName, const Qt::DropAction action, const QByteArray &encodedData)
+{
+    QDataStream stream(&const_cast<QByteArray &>(encodedData), QIODevice::ReadOnly);
+
+    Q_ASSERT(!stream.atEnd());
     QString origMboxName;
     stream >> origMboxName;
     TreeItemMailbox *origMbox = static_cast<Model *>(sourceModel())->findMailboxByName(origMboxName);
@@ -288,7 +296,7 @@ bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     Imap::Uids uids;
     stream >> uids;
 
-    static_cast<Model *>(sourceModel())->copyMoveMessages(origMbox, target->mailbox(), uids,
+    static_cast<Model *>(sourceModel())->copyMoveMessages(origMbox, mailboxName, uids,
             (action == Qt::MoveAction) ? MOVE : COPY);
     return true;
 }

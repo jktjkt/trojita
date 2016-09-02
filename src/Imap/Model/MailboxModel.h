@@ -76,6 +76,8 @@ private slots:
     void handleRowsInserted(const QModelIndex &parent, int first, int last);
 
 private:
+    bool dropTrojitaMessageList(const QString &mailboxName, const Qt::DropAction action, const QByteArray &encodedData);
+
     MailboxModel &operator=(const MailboxModel &);  // don't implement
     MailboxModel(const MailboxModel &);  // don't implement
     friend class SubtreeClassSpecificItem<MailboxModel>;
