@@ -299,6 +299,7 @@
       <caption xml:lang="pl">Długi tekst cytowany jest samoczynnie zwijany</caption>
       <caption xml:lang="pt">O texto citado em excesso é fechado automaticamente</caption>
       <caption xml:lang="pt-BR">O texto citado em excesso é fechado automaticamente</caption>
+      <caption xml:lang="sk">Nadmerne zvýraznený text sa automaticky zbalí</caption>
       <caption xml:lang="sv">Överdrivet citerad text dras automatiskt ihop</caption>
       <caption xml:lang="uk">Автоматичне згортання значних фрагментів цитованих повідомлень.</caption>
       <caption xml:lang="x-test">xxExcessively quoted text is automatically collapsedxx</caption>
@@ -317,6 +318,7 @@
       <caption xml:lang="pl">Obsługa szyfrowanej i podpisanej poczty wraz ze stanem podawanym w prostym angielskim</caption>
       <caption xml:lang="pt">O e-mail encriptado e assinado é suportado, sendo o seu estado indicado em Inglês simples</caption>
       <caption xml:lang="pt-BR">Há suporte para e-mail criptografado e assinado, com status indicado em inglês simples</caption>
+      <caption xml:lang="sk">Podporuje šifrované a podpísaní e-maily so stavom v čistej angličtine</caption>
       <caption xml:lang="sv">Krypterade och signerade brev stöds, med status angiven på vanlig svenska</caption>
       <caption xml:lang="uk">Підтримка шифрування та підписування повідомлень із визначенням стану англійською.</caption>
       <caption xml:lang="x-test">xxEncrypted and signed e-mail is supported, with status given in plain Englishxx</caption>
