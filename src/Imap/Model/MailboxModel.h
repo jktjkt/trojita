@@ -77,6 +77,7 @@ private slots:
 
 private:
     bool dropTrojitaMessageList(const QString &mailboxName, const Qt::DropAction action, const QByteArray &encodedData);
+    bool dropFileUrlList(const QString &mailboxName, QList<QUrl> files);
 
     MailboxModel &operator=(const MailboxModel &);  // don't implement
     MailboxModel(const MailboxModel &);  // don't implement
