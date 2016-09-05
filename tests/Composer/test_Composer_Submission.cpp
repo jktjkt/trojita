@@ -585,6 +585,10 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     QByteArray outgoingMessage = requestedSendingSpy->at(0)[2].toByteArray();
     QVERIFY(outgoingMessage.contains("Subject: testing\r\n"));
     QVERIFY(outgoingMessage.contains("Sample message\r\n"));
+    if (!outgoingMessage.contains(rawDataSMTP)) {
+        qDebug() << outgoingMessage;
+        qDebug() << rawDataSMTP;
+    }
     QVERIFY(outgoingMessage.contains(rawDataSMTP));
     auto preambleViaSmtp = QString::fromUtf8(outgoingMessage).left(preambleViaImap.size());
     QCOMPARE(preambleViaSmtp, preambleViaImap);
@@ -607,12 +611,44 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth_data()
             << QByteArray("/0")
             << QByteArray("8bit")
             << QByteArray("contents fetched over IMAP")
-            << QByteArray("Content-Type: text/plain\r\n"
+            << QByteArray("\r\n"
+                          "Content-Type: text/plain\r\n"
+                          "Content-Disposition: attachment;\r\n"
+                          "\tfilename=attachment\r\n"
+                          "Content-Transfer-Encoding: 7bit\r\n"
+                          "\r\n"
+                          "contents fetched over IMAP");
+
+    QTest::newRow("plaintext-quoted-printable")
+            << bsMultipartSignedTextPlain
+            << QByteArray("1")
+            << QByteArray("/0/0")
+            << QByteArray("quoted-printable")
+            << QByteArray("pwn=20zor are usually found on very, very long lines indeed, which are looooong anyway.")
+            << QByteArray("\r\n"
+                          "Content-Type: text/plain\r\n"
+                          "Content-Disposition: attachment;\r\n"
+                          "\tfilename=attachment\r\n"
+                          "Content-Transfer-Encoding: quoted-printable\r\n"
+                          "\r\n"
+                          "pwn zor are usually found on very, very long lines indeed, which are looooong=\r\n"
+                          " anyway.\r\n"
+                          "--trojita=");
+
+    QTest::newRow("base64-part")
+            << bsManyPlaintexts
+            << QByteArray("2")
+            << QByteArray("/0/1")
+            << QByteArray("base64")
+            << QByteArray("meh wtf").toBase64()
+            << QByteArray("\r\n"
+                          "Content-Type: plain/plain\r\n"
                           "Content-Disposition: attachment;\r\n"
                           "\tfilename=attachment\r\n"
                           "Content-Transfer-Encoding: base64\r\n"
-                          "\r\n")
-               + QByteArray("contents fetched over IMAP").toBase64();
+                          "\r\n"
+                          "bWVoIHd0Zg==\r\n\r\n"
+                          "--trojita=");
 }
 
 /** @short Make sure that failed mail delivery prevents marking the original as answered, etc */

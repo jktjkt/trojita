@@ -82,6 +82,7 @@ public:
         EightBit,
         Binary,
         Base64,
+        QuotedPrintable,
     };
     virtual ContentTransferEncoding suggestedCTE() const = 0;
 
