@@ -20,17 +20,28 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MailboxModel.h"
-#include "MailboxTree.h"
-#include "ItemRoles.h"
-
 #include <QDebug>
+#include <QFile>
+#include <QFileInfo>
 #include <QMimeData>
+#include <QMimeDatabase>
+#include "Imap/Model/DragAndDrop.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxModel.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/SpecialFlagNames.h"
 
 namespace Imap
 {
 namespace Mailbox
 {
+
+/** @short Does this URL point to an Internet e-mail message, according to the MIME type? */
+static bool isFileWithMimeMessage(const QUrl &url)
+{
+    QMimeDatabase mimeDb; // the docs say this is cheap to construct
+    return url.isLocalFile() && mimeDb.mimeTypeForFile(url.path()).inherits(QStringLiteral("message/rfc822"));
+}
 
 MailboxModel::MailboxModel(QObject *parent, Model *model): QAbstractProxyModel(parent)
 {
@@ -234,11 +245,18 @@ Qt::DropActions MailboxModel::supportedDropActions() const
 
 QStringList MailboxModel::mimeTypes() const
 {
-    return QStringList() << QStringLiteral("application/x-trojita-message-list");
+    return QStringList() << MimeTypes::xTrojitaMessageList;
 }
 
 bool MailboxModel::canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const
 {
+    // At first, check for dropping of URLs. We have to handle this with a priority because otherwise mimeTypes() gets called,
+    // and we deliberately do not list our messages as URLs because our URLs are proprietary.
+    const auto urls = data->urls();
+    if (std::any_of(urls.begin(), urls.end(), isFileWithMimeMessage)) {
+        return true;
+    }
+
     // We cannot delegate this to QAbstractProxyModel::canDropMimeData because that code delegates the decision
     // to the *source* model. That's bad, because our source model doesn't know anything about drag-and-drops
     // or MIME types.
@@ -266,10 +284,20 @@ bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     if (! target->isSelectable())
         return false;
 
-    QByteArray encodedData = data->data(QStringLiteral("application/x-trojita-message-list"));
-    QDataStream stream(&encodedData, QIODevice::ReadOnly);
+    if (data->hasFormat(MimeTypes::xTrojitaMessageList)) {
+        return dropTrojitaMessageList(target->mailbox(), action, data->data(MimeTypes::xTrojitaMessageList));
+    } else if (data->hasUrls()) {
+        return dropFileUrlList(target->mailbox(), data->urls());
+    } else {
+        return false;
+    }
+}
 
-    Q_ASSERT(! stream.atEnd());
+bool MailboxModel::dropTrojitaMessageList(const QString &mailboxName, const Qt::DropAction action, const QByteArray &encodedData)
+{
+    QDataStream stream(&const_cast<QByteArray &>(encodedData), QIODevice::ReadOnly);
+
+    Q_ASSERT(!stream.atEnd());
     QString origMboxName;
     stream >> origMboxName;
     TreeItemMailbox *origMbox = static_cast<Model *>(sourceModel())->findMailboxByName(origMboxName);
@@ -288,9 +316,28 @@ bool MailboxModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     Imap::Uids uids;
     stream >> uids;
 
-    static_cast<Model *>(sourceModel())->copyMoveMessages(origMbox, target->mailbox(), uids,
+    static_cast<Model *>(sourceModel())->copyMoveMessages(origMbox, mailboxName, uids,
             (action == Qt::MoveAction) ? MOVE : COPY);
     return true;
+}
+
+bool MailboxModel::dropFileUrlList(const QString &mailboxName, QList<QUrl> files)
+{
+    bool ok = false;
+
+    files.erase(std::remove_if(files.begin(), files.end(), std::not1(std::ptr_fun(isFileWithMimeMessage))), files.end());
+    std::for_each(files.begin(), files.end(), [this, mailboxName, &ok](const QUrl &url){
+        QFile f(url.path());
+        if (!f.open(QIODevice::ReadOnly))
+            return;
+
+        static_cast<Imap::Mailbox::Model *>(sourceModel())->appendIntoMailbox(
+                    mailboxName, f.readAll(), QStringList() << Imap::Mailbox::FlagNames::seen,
+                    QFileInfo(url.path()).lastModified());
+        ok = true;
+    });
+
+    return ok;
 }
 
 void MailboxModel::handleRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last)

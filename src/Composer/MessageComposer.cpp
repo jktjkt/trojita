@@ -29,16 +29,21 @@
 #include "Common/Application.h"
 #include "Composer/ComposerAttachments.h"
 #include "Imap/Encoders.h"
+#include "Imap/Model/DragAndDrop.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
 #include "Imap/Model/Utils.h"
 #include "UiUtils/IconLoader.h"
 
-namespace {
-    static QString xTrojitaAttachmentList = QStringLiteral("application/x-trojita-attachments-list");
-    static QString xTrojitaMessageList = QStringLiteral("application/x-trojita-message-list");
-    static QString xTrojitaImapPart = QStringLiteral("application/x-trojita-imap-part");
-}
+#define CHECK_STREAM_OK_AT_END(STREAM) \
+    if (!STREAM.atEnd()) { \
+        qDebug() << "drag-and-drop: cannot decode data: too much data"; \
+        return false; \
+    } \
+    if (STREAM.status() != QDataStream::Ok) { \
+        qDebug() << "drag-and-drop: cannot decode data: stream error" << STREAM.status(); \
+        return false; \
+    }
 
 namespace Composer {
 
@@ -123,7 +128,7 @@ QMimeData *MessageComposer::mimeData(const QModelIndexList &indexes) const
         attachment->asDroppableMimeData(stream);
     }
     QMimeData *res = new QMimeData();
-    res->setData(xTrojitaAttachmentList, encodedData);
+    res->setData(Imap::MimeTypes::xTrojitaAttachmentList, encodedData);
     return res;
 }
 
@@ -143,16 +148,16 @@ bool MessageComposer::dropMimeData(const QMimeData *data, Qt::DropAction action,
     // FIXME: would be cool to support attachment reshuffling and to respect the desired drop position
 
 
-    if (data->hasFormat(xTrojitaAttachmentList)) {
-        QByteArray encodedData = data->data(xTrojitaAttachmentList);
+    if (data->hasFormat(Imap::MimeTypes::xTrojitaAttachmentList)) {
+        QByteArray encodedData = data->data(Imap::MimeTypes::xTrojitaAttachmentList);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
         return dropAttachmentList(stream);
-    } else if (data->hasFormat(xTrojitaMessageList)) {
-        QByteArray encodedData = data->data(xTrojitaMessageList);
+    } else if (data->hasFormat(Imap::MimeTypes::xTrojitaMessageList)) {
+        QByteArray encodedData = data->data(Imap::MimeTypes::xTrojitaMessageList);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
         return dropImapMessage(stream);
-    } else if (data->hasFormat(xTrojitaImapPart)) {
-        QByteArray encodedData = data->data(xTrojitaImapPart);
+    } else if (data->hasFormat(Imap::MimeTypes::xTrojitaImapPart)) {
+        QByteArray encodedData = data->data(Imap::MimeTypes::xTrojitaImapPart);
         QDataStream stream(&encodedData, QIODevice::ReadOnly);
         return dropImapPart(stream);
     } else if (data->hasUrls()) {
@@ -260,6 +265,8 @@ bool MessageComposer::dropAttachmentList(QDataStream &stream)
         }
     }
 
+    CHECK_STREAM_OK_AT_END(stream)
+
     beginInsertRows(QModelIndex(), m_attachments.size(), m_attachments.size() + items.d.size() - 1);
     Q_FOREACH(AttachmentItem *attachment, items.d) {
         if (m_shouldPreload)
@@ -312,10 +319,8 @@ bool MessageComposer::dropImapMessage(QDataStream &stream)
     stream >> mailbox >> uidValidity >> uids;
     if (!validateDropImapMessage(stream, mailbox, uidValidity, uids))
         return false;
-    if (!stream.atEnd()) {
-        qDebug() << "drag-and-drop: cannot decode data: too much data";
-        return false;
-    }
+
+    CHECK_STREAM_OK_AT_END(stream)
 
     WillDeleteAll<QList<AttachmentItem*>> items;
     Q_FOREACH(const uint uid, uids) {
@@ -373,10 +378,8 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
     QByteArray trojitaPath;
     if (!validateDropImapPart(stream, mailbox, uidValidity, uid, trojitaPath))
         return false;
-    if (!stream.atEnd()) {
-        qDebug() << "drag-and-drop: cannot decode data: too much data";
-        return false;
-    }
+
+    CHECK_STREAM_OK_AT_END(stream)
 
     AttachmentItem *item;
     try {
@@ -396,7 +399,7 @@ bool MessageComposer::dropImapPart(QDataStream &stream)
 
 QStringList MessageComposer::mimeTypes() const
 {
-    return QStringList() << xTrojitaMessageList << xTrojitaImapPart << xTrojitaAttachmentList << QStringLiteral("text/uri-list");
+    return QStringList() << Imap::MimeTypes::xTrojitaMessageList << Imap::MimeTypes::xTrojitaImapPart << Imap::MimeTypes::xTrojitaAttachmentList << QStringLiteral("text/uri-list");
 }
 
 void MessageComposer::setFrom(const Imap::Message::MailAddress &from)

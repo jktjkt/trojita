@@ -42,9 +42,14 @@ QMimeData *mimeDataForDragAndDrop(const QModelIndex &index)
               index.data(RolePartPathToPart).toByteArray();
 
     QMimeData *mimeData = new QMimeData;
-    mimeData->setData(QStringLiteral("application/x-trojita-imap-part"), buf);
+    mimeData->setData(MimeTypes::xTrojitaImapPart, buf);
     return mimeData;
 }
 
 }
+
+const QString MimeTypes::xTrojitaAttachmentList = QStringLiteral("application/x-trojita-attachments-list");
+const QString MimeTypes::xTrojitaMessageList = QStringLiteral("application/x-trojita-message-list");
+const QString MimeTypes::xTrojitaImapPart = QStringLiteral("application/x-trojita-imap-part");
+
 }

@@ -20,15 +20,16 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MsgListModel.h"
-#include "MailboxTree.h"
-#include "MailboxModel.h"
-
 #include <QDebug>
 #include <QFontMetrics>
 #include <QIcon>
 #include <QMimeData>
+#include "Imap/Model/DragAndDrop.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/MailboxModel.h"
+#include "Imap/Model/MsgListModel.h"
 #include "UiUtils/IconLoader.h"
+
 
 namespace Imap
 {
@@ -332,7 +333,7 @@ Qt::DropActions MsgListModel::supportedDropActions() const
 
 QStringList MsgListModel::mimeTypes() const
 {
-    return QStringList() << QStringLiteral("application/x-trojita-message-list");
+    return QStringList() << MimeTypes::xTrojitaMessageList;
 }
 
 QMimeData *MsgListModel::mimeData(const QModelIndexList &indexes) const
@@ -360,7 +361,7 @@ QMimeData *MsgListModel::mimeData(const QModelIndexList &indexes) const
     }
     uids = uids.toSet().toList();
     stream << uids;
-    res->setData(QStringLiteral("application/x-trojita-message-list"), encodedData);
+    res->setData(MimeTypes::xTrojitaMessageList, encodedData);
     return res;
 }
 

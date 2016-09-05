@@ -25,6 +25,7 @@
 #include "Utils/FakeCapabilitiesInjector.h"
 #include "Composer/MessageComposer.h"
 #include "Imap/data.h"
+#include "Imap/Model/DragAndDrop.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/FakeSocket.h"
@@ -375,7 +376,7 @@ void ComposerSubmissionTest::helperAttachImapPart(const int row, const QByteArra
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_4_6);
     stream << QStringLiteral("a") << uidValidityA << uidMapA[row] << mimePart;
-    mimeData->setData(QStringLiteral("application/x-trojita-imap-part"), encodedData);
+    mimeData->setData(Imap::MimeTypes::xTrojitaImapPart, encodedData);
     auto partIndex = Imap::Network::MsgPartNetAccessManager::pathToPart(msgListA.child(row, 0), mimePart);
     QVERIFY(partIndex.isValid());
     QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction,
@@ -390,7 +391,7 @@ void ComposerSubmissionTest::helperAttachImapMessage(const uint uid)
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_4_6);
     stream << QStringLiteral("a") << uidValidityA << (QList<uint>() << uid);
-    mimeData->setData(QStringLiteral("application/x-trojita-message-list"), encodedData);
+    mimeData->setData(Imap::MimeTypes::xTrojitaMessageList, encodedData);
     QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }
 
