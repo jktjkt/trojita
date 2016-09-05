@@ -30,7 +30,7 @@
 
 void ImapModelCreateMailboxTest::init()
 {
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
+    auto cache = std::make_shared<Imap::Mailbox::MemoryCache>();
     factory = new Streams::FakeSocketFactory(Imap::CONN_STATE_AUTHENTICATED);
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
     taskFactoryUnsafe = static_cast<Imap::Mailbox::TestingTaskFactory*>(taskFactory.get());

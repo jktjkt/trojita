@@ -320,17 +320,16 @@ void ImapAccess::doConnect()
         }
     }
 
-    Imap::Mailbox::AbstractCache *cache = 0;
+    std::shared_ptr<Imap::Mailbox::AbstractCache> cache;
 
     if (!shouldUsePersistentCache) {
-        cache = new Imap::Mailbox::MemoryCache(this);
+        cache.reset(new Imap::Mailbox::MemoryCache());
     } else {
-        cache = new Imap::Mailbox::CombinedCache(this, QStringLiteral("trojita-imap-cache"), m_cacheDir);
-        connect(cache, &Mailbox::AbstractCache::error, this, &ImapAccess::onCacheError);
-        if (! static_cast<Imap::Mailbox::CombinedCache *>(cache)->open()) {
+        cache.reset(new Imap::Mailbox::CombinedCache(QStringLiteral("trojita-imap-cache"), m_cacheDir));
+        cache->setErrorHandler([this](const QString &e) { this->onCacheError(e); });
+        if (! static_cast<Imap::Mailbox::CombinedCache *>(cache.get())->open()) {
             // Error message was already shown by the cacheError() slot
-            cache->deleteLater();
-            cache = new Imap::Mailbox::MemoryCache(this);
+            cache.reset(new Imap::Mailbox::MemoryCache());
         } else {
             if (m_settings->value(Common::SettingsNames::cacheOfflineKey).toString() == Common::SettingsNames::cacheOfflineAll) {
                 cache->setRenewalThreshold(0);
@@ -405,7 +404,7 @@ void ImapAccess::doConnect()
 void ImapAccess::onCacheError(const QString &message)
 {
     if (m_imapModel) {
-        m_imapModel->setCache(new Imap::Mailbox::MemoryCache(m_imapModel));
+        m_imapModel->setCache(std::make_shared<Imap::Mailbox::MemoryCache>());
     }
     emit cacheError(message);
 }

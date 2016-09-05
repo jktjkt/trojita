@@ -1087,10 +1087,6 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
 
 class MonitoringCache : public Imap::Mailbox::MemoryCache {
 public:
-    MonitoringCache(QObject *parent)
-        : MemoryCache(parent)
-    {}
-
     virtual void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata) override
     {
         msgMetadataLog.emplace_back(uid);
@@ -1102,7 +1098,7 @@ public:
 /** @short Do we survive duplicate unsolicited BODYSTRUCTURE responses? */
 void ImapModelSelectedMailboxUpdatesTest::testFetchMsgDuplicateBodystructure()
 {
-    auto cacheLog = new MonitoringCache(model);
+    auto cacheLog = std::make_shared<MonitoringCache>();
     model->setCache(cacheLog);
     initialMessages(1);
     cServer("* 1 FETCH (FLAGS ())\r\n");

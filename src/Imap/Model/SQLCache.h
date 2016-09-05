@@ -23,9 +23,10 @@
 #ifndef IMAP_MODEL_SQLCACHE_H
 #define IMAP_MODEL_SQLCACHE_H
 
-#include "Cache.h"
+#include <memory>
 #include <QSqlDatabase>
 #include <QSqlQuery>
+#include "Cache.h"
 
 class QTimer;
 
@@ -72,9 +73,8 @@ Some ideas for improvements:
  */
 class SQLCache : public AbstractCache
 {
-    Q_OBJECT
 public:
-    explicit SQLCache(QObject *parent);
+    SQLCache();
     virtual ~SQLCache();
 
     virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
@@ -167,8 +167,8 @@ private:
     mutable QSqlQuery queryMessageThreading;
     mutable QSqlQuery querySetMessageThreading;
 
-    QTimer *delayedCommit;
-    QTimer *tooMuchTimeWithoutCommit;
+    std::unique_ptr<QTimer> delayedCommit;
+    std::unique_ptr<QTimer> tooMuchTimeWithoutCommit;
     bool inTransaction;
 
     /** @short A point in time against which the "last accessed on" data is computed */

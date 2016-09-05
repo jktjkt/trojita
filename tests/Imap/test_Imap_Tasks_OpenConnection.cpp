@@ -444,9 +444,7 @@ void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
 void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
 {
     using namespace Imap::Mailbox;
-    MemoryCache *cache = dynamic_cast<MemoryCache *>(model->cache());
-    Q_ASSERT(cache);
-    cache->setChildMailboxes(QString(),
+    model->cache()->setChildMailboxes(QString(),
                              QList<MailboxMetadata>() << MailboxMetadata(QLatin1String("a"), QString(), QStringList())
                              << MailboxMetadata(QLatin1String("b"), QString(), QStringList())
                              );

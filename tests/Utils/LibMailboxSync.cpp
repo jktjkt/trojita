@@ -83,7 +83,7 @@ void LibMailboxSync::setupLogging()
 void LibMailboxSync::init()
 {
     m_expectsError = false;
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
+    auto cache = std::make_shared<Imap::Mailbox::MemoryCache>();
     factory = new Streams::FakeSocketFactory(m_initialConnectionState);
     factory->setStartTlsRequired(m_startTlsRequired);
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());

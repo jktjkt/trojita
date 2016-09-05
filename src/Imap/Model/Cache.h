@@ -23,6 +23,7 @@
 #ifndef IMAP_MODEL_CACHE_H
 #define IMAP_MODEL_CACHE_H
 
+#include <functional>
 #include <QUrl>
 #include "MailboxMetadata.h"
 #include "Imap/Parser/Message.h"
@@ -38,9 +39,8 @@ namespace Mailbox
 {
 
 /** @short An abstract parent for all IMAP cache implementations */
-class AbstractCache: public QObject
+class AbstractCache
 {
-    Q_OBJECT
 public:
 
     /** @short Helper for retrieving all data about a particular message from the cache */
@@ -84,7 +84,6 @@ public:
         }
     };
 
-    explicit AbstractCache(QObject *parent);
     virtual ~AbstractCache();
 
     /** @short Return a list of all known child mailboxes */
@@ -135,9 +134,11 @@ public:
     /** @short How many days is it OK not to mark entries as accessed? */
     virtual void setRenewalThreshold(const int days) = 0;
 
-signals:
-    /** @short Some cache error has occurred */
-    void error(const QString &error) const;
+    /** @short Inform about runtime failures */
+    void setErrorHandler(const std::function<void(const QString &)> &handler);
+
+protected:
+    std::function<void(const QString&)> m_errorHandler;
 };
 
 }

@@ -100,14 +100,17 @@ namespace Imap
 namespace Mailbox
 {
 
-Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory):
-    // parent
-    QAbstractItemModel(parent),
-    // our tools
-    m_cache(cache), m_socketFactory(std::move(socketFactory)), m_taskFactory(std::move(taskFactory)), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(NETWORK_OFFLINE),  m_taskModel(0), m_hasImapPassword(PasswordAvailability::NOT_REQUESTED)
+Model::Model(QObject *parent, std::shared_ptr<AbstractCache> cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory)
+    : QAbstractItemModel(parent)
+    , m_cache(cache)
+    , m_socketFactory(std::move(socketFactory))
+    , m_taskFactory(std::move(taskFactory))
+    , m_maxParsers(4)
+    , m_mailboxes(nullptr)
+    , m_netPolicy(NETWORK_OFFLINE)
+    , m_taskModel(nullptr)
+    , m_hasImapPassword(PasswordAvailability::NOT_REQUESTED)
 {
-    m_cache->setParent(this);
     m_startTls = m_socketFactory->startTlsRequired();
 
     m_mailboxes = new TreeItemMailbox(0);
@@ -1505,12 +1508,9 @@ void Model::slotParserLineSent(Parser *parser, const QByteArray &line)
     logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QString::fromUtf8(line));
 }
 
-void Model::setCache(AbstractCache *cache)
+void Model::setCache(std::shared_ptr<AbstractCache> cache)
 {
-    if (m_cache)
-        m_cache->deleteLater();
     m_cache = cache;
-    m_cache->setParent(this);
 }
 
 void Model::runReadyTasks()

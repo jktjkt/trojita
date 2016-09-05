@@ -20,17 +20,19 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <functional>
 #include "Cache.h"
 
 namespace Imap {
 namespace Mailbox {
 
-AbstractCache::AbstractCache(QObject *parent): QObject(parent)
+AbstractCache::~AbstractCache()
 {
 }
 
-AbstractCache::~AbstractCache()
+void AbstractCache::setErrorHandler(const std::function<void(const QString &)> &handler)
 {
+    m_errorHandler = handler;
 }
 
 AbstractCache::MessageDataBundle::MessageDataBundle(
