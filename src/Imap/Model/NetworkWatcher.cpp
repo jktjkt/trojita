@@ -64,9 +64,16 @@ void NetworkWatcher::resetReconnectTimer()
 void NetworkWatcher::handleConnectionStateChanged(uint parserId, Imap::ConnectionState state)
 {
     Q_UNUSED(parserId);
-    // These states signify that the socket is in QAbstractSocket::ConnectedState and (maybe) mark success after
-    // a series of reconnect attempts. Timers for reconnection should be reset at this point.
-    if (state == CONN_STATE_CONNECTED_PRETLS_PRECAPS || state == CONN_STATE_SSL_HANDSHAKE) {
+    // Only treat a real, 100%-successful connection as a succeeding one. This is because
+    // some of our socket backends (QProcess, for example) do not really have any possibility of signaling
+    // "hey, network is available" to the other side.
+    //
+    // How come? Because "a process has started" could very well mean "yeha, SSH has launched, but we
+    // don't know anything about the net yet". We *could* hack the QProcess backend to wait for a first byte
+    // and signal "ok, connected" only afterwards, but that sounds a bit ugly because it uses "magic" knowledge
+    // that in case IMAP, a server always greets us with something, which would be a bit layer-violating.
+    // Not that the current enum values of the ConnectionState are free of IMAP idioms, but...
+    if (state >= CONN_STATE_AUTHENTICATED && state < CONN_STATE_LOGOUT) {
         resetReconnectTimer();
     }
 }
