@@ -72,7 +72,9 @@ LibMailboxSync::~LibMailboxSync()
 
 void LibMailboxSync::setupLogging()
 {
+    delete errorSpy;
     errorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
+    delete netErrorSpy;
     netErrorSpy = new QSignalSpy(model, SIGNAL(networkError(QString)));
     connect(model, &Imap::Mailbox::Model::imapError, this, &LibMailboxSync::modelSignalsError);
     connect(model, &Imap::Mailbox::Model::logged, this, &LibMailboxSync::modelLogged);

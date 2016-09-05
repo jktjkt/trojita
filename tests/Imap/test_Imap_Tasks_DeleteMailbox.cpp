@@ -74,7 +74,9 @@ void ImapModelDeleteMailboxTest::initWithTwo()
     fakeListChildMailboxesMap[QLatin1String("")] = QStringList() << QStringLiteral("a") << QStringLiteral("b");
     LibMailboxSync::init();
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
+    delete deletedSpy;
     deletedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionSucceded(QString)));
+    delete failedSpy;
     failedSpy = new QSignalSpy(model, SIGNAL(mailboxDeletionFailed(QString,QString)));
     t.reset();
 
