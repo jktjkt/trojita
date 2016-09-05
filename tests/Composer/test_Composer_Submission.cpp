@@ -24,7 +24,9 @@
 #include "test_Composer_Submission.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 #include "Composer/MessageComposer.h"
+#include "Imap/data.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Network/MsgPartNetAccessManager.h"
 #include "Streams/FakeSocket.h"
 
 ComposerSubmissionTest::ComposerSubmissionTest():
@@ -348,7 +350,7 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
         QPersistentModelIndex partData = model->index(0, 0, msgA10);
         QVERIFY(partData.isValid());
 
-        helperAttachImapPart(uidMapA[0]);
+        helperAttachImapPart(0, "/0");
         cClient(t.mk("UID FETCH ") + QByteArray::number(uidMapA[0]) + " (BODY.PEEK[1])\r\n");
     }
 
@@ -366,15 +368,19 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
     justKeepTask();
 }
 
-void ComposerSubmissionTest::helperAttachImapPart(const uint uid)
+void ComposerSubmissionTest::helperAttachImapPart(const int row, const QByteArray mimePart)
 {
     QScopedPointer<QMimeData> mimeData(new QMimeData());
     QByteArray encodedData;
     QDataStream stream(&encodedData, QIODevice::WriteOnly);
     stream.setVersion(QDataStream::Qt_4_6);
-    stream << QStringLiteral("a") << uidValidityA << uid << QByteArray("/0"); // previous version used just "0"; that was wrong.
+    stream << QStringLiteral("a") << uidValidityA << uidMapA[row] << mimePart;
     mimeData->setData(QStringLiteral("application/x-trojita-imap-part"), encodedData);
-    QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
+    auto partIndex = Imap::Network::MsgPartNetAccessManager::pathToPart(msgListA.child(row, 0), mimePart);
+    QVERIFY(partIndex.isValid());
+    QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction,
+                                                    partIndex.row(), partIndex.column(), partIndex),
+             true);
 }
 
 void ComposerSubmissionTest::helperAttachImapMessage(const uint uid)
@@ -429,7 +435,7 @@ void ComposerSubmissionTest::testBurlSubmission()
     m_submission->setSmtpOptions(true, QStringLiteral("smtpUser"));
     m_msaFactory->setBurlSupport(true);
 
-    helperAttachImapPart(uidMapA[0]);
+    helperAttachImapPart(0, "/0");
     m_submission->send();
 
     for (int i=0; i<5; ++i)
@@ -531,9 +537,18 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     m_submission->setSmtpOptions(true, QStringLiteral("smtpUser"));
     m_msaFactory->setBurlSupport(true);
 
-    helperAttachImapPart(uidMapA[0]);
-    cClient(t.mk("UID FETCH ") + QByteArray::number(uidMapA[0]) + " (BODY.PEEK[1])\r\n");
-    cServer("* 1 FETCH (BODY[1] \"contents fetched over IMAP\")\r\n");
+    QFETCH(QByteArray, bodystructure);
+    QFETCH(QByteArray, mimePart);
+    QFETCH(QByteArray, mimePartIndex);
+    QFETCH(QByteArray, cte);
+    QFETCH(QByteArray, rawDataFetch);
+    QFETCH(QByteArray, rawDataSMTP);
+
+    cServer("* 2 FETCH (UID " + QByteArray::number(uidMapA[1]) + " BODYSTRUCTURE (" + bodystructure + "))\r\n");
+
+    helperAttachImapPart(1, mimePartIndex);
+    cClient(t.mk("UID FETCH ") + QByteArray::number(uidMapA[1]) + " (BODY.PEEK[" + mimePart + "])\r\n");
+    cServer("* 2 FETCH (BODY[" + mimePart + "] {" + QByteArray::number(rawDataFetch.size()) + "}\r\n" + rawDataFetch + ")\r\n");
     cServer(t.last("OK fetched\r\n"));
 
     m_submission->send();
@@ -547,7 +562,7 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     cServer("+ carry on\r\n");
     QString preambleViaImap;
     EXTRACT_OCTETS(octets, preambleViaImap, sentSoFar);
-    expected = QStringLiteral(" URL \"/a;UIDVALIDITY=333666/;UID=10/;SECTION=1\" TEXT {");
+    expected = QStringLiteral(" URL \"/a;UIDVALIDITY=333666/;UID=") + QByteArray::number(uidMapA[1]) + "/;SECTION=" + QString::fromUtf8(mimePart) + "\" TEXT {";
     EXTRACT_TARILING_NUMBER(octets);
     cServer("+ carry on\r\n");
     EAT_OCTETS(octets, sentSoFar);
@@ -570,11 +585,34 @@ void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth()
     QByteArray outgoingMessage = requestedSendingSpy->at(0)[2].toByteArray();
     QVERIFY(outgoingMessage.contains("Subject: testing\r\n"));
     QVERIFY(outgoingMessage.contains("Sample message\r\n"));
-    QVERIFY(outgoingMessage.contains(QByteArray("contents fetched over IMAP").toBase64()));
+    QVERIFY(outgoingMessage.contains(rawDataSMTP));
     auto preambleViaSmtp = QString::fromUtf8(outgoingMessage).left(preambleViaImap.size());
     QCOMPARE(preambleViaSmtp, preambleViaImap);
     cEmpty();
     justKeepTask();
+}
+
+void ComposerSubmissionTest::testCatenateBurlWithoutUrlauth_data()
+{
+    QTest::addColumn<QByteArray>("bodystructure");
+    QTest::addColumn<QByteArray>("mimePart");
+    QTest::addColumn<QByteArray>("mimePartIndex");
+    QTest::addColumn<QByteArray>("cte");
+    QTest::addColumn<QByteArray>("rawDataFetch");
+    QTest::addColumn<QByteArray>("rawDataSMTP");
+
+    QTest::newRow("plaintext-8bit")
+            << bsPlaintext
+            << QByteArray("1")
+            << QByteArray("/0")
+            << QByteArray("8bit")
+            << QByteArray("contents fetched over IMAP")
+            << QByteArray("Content-Type: text/plain\r\n"
+                          "Content-Disposition: attachment;\r\n"
+                          "\tfilename=attachment\r\n"
+                          "Content-Transfer-Encoding: base64\r\n"
+                          "\r\n")
+               + QByteArray("contents fetched over IMAP").toBase64();
 }
 
 /** @short Make sure that failed mail delivery prevents marking the original as answered, etc */

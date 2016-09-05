@@ -343,9 +343,9 @@ void LocalMessagePart::setFilename(const QString &filename)
     m_filename = filename;
 }
 
-void LocalMessagePart::setEncoding(const QByteArray &encoding)
+void LocalMessagePart::setTransferEncoding(const QByteArray &transferEncoding)
 {
-    m_encoding = encoding;
+    m_transferEncoding = transferEncoding;
 }
 
 void LocalMessagePart::setBodyFldId(const QByteArray &bodyFldId)
@@ -482,8 +482,8 @@ QVariant LocalMessagePart::data(int role) const
         return m_contentFormat;
     case Imap::Mailbox::RolePartContentDelSp:
         return m_delSp;
-    case Imap::Mailbox::RolePartEncoding:
-        return m_encoding;
+    case Imap::Mailbox::RolePartTransferEncoding:
+        return m_transferEncoding;
     case Imap::Mailbox::RolePartBodyFldId:
         return m_bodyFldId;
     case Imap::Mailbox::RolePartBodyDisposition:

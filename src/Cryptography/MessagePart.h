@@ -153,7 +153,7 @@ public:
     void setContentFormat(const QByteArray &format);
     void setDelSp(const QByteArray &delSp);
     void setFilename(const QString &filename);
-    void setEncoding(const QByteArray &encoding);
+    void setTransferEncoding(const QByteArray &transferEncoding);
     void setBodyFldId(const QByteArray &bodyFldId);
     void setBodyDisposition(const QByteArray &bodyDisposition);
     void setMultipartRelatedStartPart(const QByteArray &startPart);
@@ -185,7 +185,7 @@ protected:
     QByteArray m_delSp;
     QByteArray m_data;
     QByteArray m_mimetype;
-    QByteArray m_encoding;
+    QByteArray m_transferEncoding;
     QByteArray m_bodyFldId;
     QByteArray m_bodyDisposition;
     QByteArray m_multipartRelatedStartPart;

@@ -73,7 +73,7 @@ void MimeticUtils::storeInterestingFields(const mimetic::MimeEntity &me, LocalMe
 
     // The following header fields do not make sense for multiparts
     if (!me.header().contentType().isMultipart()) {
-        part->setEncoding(me.header().contentTransferEncoding().str().c_str());
+        part->setTransferEncoding(me.header().contentTransferEncoding().str().c_str());
         part->setBodyFldId(me.header().contentId().str().c_str());
     }
 
@@ -228,7 +228,7 @@ MessagePart::Ptr MimeticUtils::mimeEntityToPart(const mimetic::MimeEntity &me, M
         rawPart.reset(new LocalMessagePart(part.get(), 0, QByteArray()));
         rawPart->setData(rawPartData);
         QByteArray data;
-        Imap::decodeContentTransferEncoding(rawPartData, part->data(Imap::Mailbox::RolePartEncoding).toByteArray().toLower(), &data);
+        Imap::decodeContentTransferEncoding(rawPartData, part->data(Imap::Mailbox::RolePartTransferEncoding).toByteArray().toLower(), &data);
         part->setData(data);
     }
     part->setOctets(me.size());

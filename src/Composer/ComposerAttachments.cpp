@@ -56,20 +56,20 @@ QByteArray contentDispositionToByteArray(const ContentDisposition cdn)
 /** @short Return a CTE suitable for transmission of the specified MIME container */
 AttachmentItem::ContentTransferEncoding CTEForContainers(const QModelIndex &index)
 {
-    QByteArray cte = index.data(RolePartEncoding).toByteArray();
+    QByteArray cte = index.data(RolePartTransferEncoding).toByteArray();
     if (cte == "7bit") {
-        return AttachmentItem::CTE_7BIT;
+        return AttachmentItem::ContentTransferEncoding::SevenBit;
     } else if (cte == "8bit") {
-        return AttachmentItem::CTE_8BIT;
+        return AttachmentItem::ContentTransferEncoding::EightBit;
     } else if (cte == "binary") {
-        return AttachmentItem::CTE_BINARY;
+        return AttachmentItem::ContentTransferEncoding::Binary;
     } else {
         // Well, we're pretty screwed here :(, the original message is either gone now (which is the better outcome),
         // or it does not specify a valid an allowed content encoding.
         // The composite types, and message/rfc822 is one of them, are not allowed to be encoded in anything but
         // 7bit, 8bit and binary (http://tools.ietf.org/html/rfc2045#page-17).
         // Let's assume "7bit", which is the default in RFC 2045.
-        return AttachmentItem::CTE_7BIT;
+        return AttachmentItem::ContentTransferEncoding::SevenBit;
     }
 }
 
@@ -186,7 +186,7 @@ bool FileAttachmentItem::setPreferredFileName(const QString &name)
 
 AttachmentItem::ContentTransferEncoding FileAttachmentItem::suggestedCTE() const
 {
-    return CTE_BASE64;
+    return AttachmentItem::ContentTransferEncoding::Base64;
 }
 
 QByteArray FileAttachmentItem::imapUrl() const
@@ -301,7 +301,7 @@ AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE(
         // Let's try to "play it safe" and assume that the children *might* contain 8bit data. We are still hoping for
         // the best (i.e. if the message was actually using the "binary" CTE, we would be screwed), but I guess this is
         // better than potentially lying by claiming that this is just a 7bit message. Suggestions welcome.
-        return CTE_8BIT;
+        return AttachmentItem::ContentTransferEncoding::EightBit;
     } else {
         return CTEForContainers(rootPart);
     }
@@ -402,7 +402,7 @@ AttachmentItem::ContentTransferEncoding ImapPartAttachmentItem::suggestedCTE() c
         return CTEForContainers(index);
     } else {
         // FIXME: it would be cool to improve this so that we could e.g. use a quoted-printable for text files, etc
-        return CTE_BASE64;
+        return ContentTransferEncoding::Base64;
     }
 }
 
