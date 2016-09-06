@@ -216,9 +216,8 @@ QVariant TaskPresentationModel::data(const QModelIndex &index, int role) const
 The ImapTask might be in various stages of destruction at this point, so it is not advisable to access its contents from
 this function.
 */
-void TaskPresentationModel::slotTaskDestroyed(const ImapTask *const task)
+void TaskPresentationModel::slotSomeTaskDestroyed()
 {
-    Q_UNUSED(task);
     CHECK_TASK_TREE
     beginResetModel();
     endResetModel();
