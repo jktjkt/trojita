@@ -100,14 +100,17 @@ namespace Imap
 namespace Mailbox
 {
 
-Model::Model(QObject *parent, AbstractCache *cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory):
-    // parent
-    QAbstractItemModel(parent),
-    // our tools
-    m_cache(cache), m_socketFactory(std::move(socketFactory)), m_taskFactory(std::move(taskFactory)), m_maxParsers(4), m_mailboxes(0),
-    m_netPolicy(NETWORK_OFFLINE),  m_taskModel(0), m_hasImapPassword(PasswordAvailability::NOT_REQUESTED)
+Model::Model(QObject *parent, std::shared_ptr<AbstractCache> cache, SocketFactoryPtr socketFactory, TaskFactoryPtr taskFactory)
+    : QAbstractItemModel(parent)
+    , m_cache(cache)
+    , m_socketFactory(std::move(socketFactory))
+    , m_taskFactory(std::move(taskFactory))
+    , m_maxParsers(4)
+    , m_mailboxes(nullptr)
+    , m_netPolicy(NETWORK_OFFLINE)
+    , m_taskModel(nullptr)
+    , m_hasImapPassword(PasswordAvailability::NOT_REQUESTED)
 {
-    m_cache->setParent(this);
     m_startTls = m_socketFactory->startTlsRequired();
 
     m_mailboxes = new TreeItemMailbox(0);
@@ -1505,12 +1508,9 @@ void Model::slotParserLineSent(Parser *parser, const QByteArray &line)
     logTrace(parser->parserId(), Common::LOG_IO_WRITTEN, QString(), QString::fromUtf8(line));
 }
 
-void Model::setCache(AbstractCache *cache)
+void Model::setCache(std::shared_ptr<AbstractCache> cache)
 {
-    if (m_cache)
-        m_cache->deleteLater();
     m_cache = cache;
-    m_cache->setParent(this);
 }
 
 void Model::runReadyTasks()
@@ -1550,7 +1550,7 @@ void Model::removeDeletedTasks(const QList<ImapTask *> &deletedTasks, QList<Imap
         (*deletedIt)->deleteLater();
         activeTasks.removeOne(*deletedIt);
         // It isn't destroyed yet, but should be removed from the model nonetheless
-        m_taskModel->slotTaskDestroyed(*deletedIt);
+        m_taskModel->slotSomeTaskDestroyed();
     }
 }
 
@@ -1662,11 +1662,10 @@ void Model::slotTasksChanged()
 
 void Model::slotTaskDying(QObject *obj)
 {
-    ImapTask *task = static_cast<ImapTask *>(obj);
-    for (QMap<Parser *,ParserState>::iterator it = m_parsers.begin(); it != m_parsers.end(); ++it) {
-        it->activeTasks.removeOne(task);
-    }
-    m_taskModel->slotTaskDestroyed(task);
+    std::for_each(m_parsers.begin(), m_parsers.end(), [obj](ParserState &state) {
+        state.activeTasks.removeOne(reinterpret_cast<ImapTask*>(obj));
+    });
+    m_taskModel->slotSomeTaskDestroyed();
 }
 
 TreeItemMailbox *Model::mailboxForSomeItem(QModelIndex index)

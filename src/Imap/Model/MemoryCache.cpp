@@ -31,10 +31,6 @@ namespace Imap
 namespace Mailbox
 {
 
-MemoryCache::MemoryCache(QObject *parent): AbstractCache(parent)
-{
-}
-
 QList<MailboxMetadata> MemoryCache::childMailboxes(const QString &mailbox) const
 {
     return mailboxes[ mailbox ];

@@ -29,13 +29,14 @@ namespace Imap
 namespace Mailbox
 {
 
-CombinedCache::CombinedCache(QObject *parent, const QString &name, const QString &cacheDir):
-    AbstractCache(parent), name(name), cacheDir(cacheDir)
+CombinedCache::CombinedCache(const QString &name, const QString &cacheDir)
+    : name(name)
+    , cacheDir(cacheDir)
+    , sqlCache(new SQLCache())
+    , diskPartCache(new DiskPartCache(cacheDir))
 {
-    sqlCache = new SQLCache(this);
-    connect(sqlCache, &AbstractCache::error, this, &AbstractCache::error);
-    diskPartCache = new DiskPartCache(this, cacheDir);
-    connect(diskPartCache, &DiskPartCache::error, this, &AbstractCache::error);
+    sqlCache->setErrorHandler([this](const QString &e) { this->m_errorHandler(e); });
+    diskPartCache->setErrorHandler([this](const QString &e) { this->m_errorHandler(e); });
 }
 
 CombinedCache::~CombinedCache()

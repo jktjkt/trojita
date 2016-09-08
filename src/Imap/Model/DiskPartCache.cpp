@@ -70,7 +70,8 @@ namespace Imap
 namespace Mailbox
 {
 
-DiskPartCache::DiskPartCache(QObject *parent, const QString &cacheDir_): QObject(parent), cacheDir(cacheDir_)
+DiskPartCache::DiskPartCache(const QString &cacheDir_)
+    : cacheDir(cacheDir_)
 {
     if (!cacheDir.endsWith(QLatin1Char('/')))
         cacheDir.append(QLatin1Char('/'));
@@ -81,7 +82,7 @@ void DiskPartCache::clearAllMessages(const QString &mailbox)
     QDir dir(dirForMailbox(mailbox));
     Q_FOREACH(const QString& fname, dir.entryList(QStringList() << QLatin1String("*.cache"))) {
         if (! dir.remove(fname)) {
-            emit error(tr("Couldn't remove file %1 for mailbox %2").arg(fname, mailbox));
+            m_errorHandler(QObject::tr("Couldn't remove file %1 for mailbox %2").arg(fname, mailbox));
         }
     }
 }
@@ -91,7 +92,7 @@ void DiskPartCache::clearMessage(const QString mailbox, const uint uid)
     QDir dir(dirForMailbox(mailbox));
     Q_FOREACH(const QString& fname, dir.entryList(QStringList() << QString::fromUtf8("%1_*.cache").arg(QString::number(uid)))) {
         if (! dir.remove(fname)) {
-            emit error(tr("Couldn't remove file %1 for message %2, mailbox %3").arg(fname, QString::number(uid), mailbox));
+            m_errorHandler(QObject::tr("Couldn't remove file %1 for message %2, mailbox %3").arg(fname, QString::number(uid), mailbox));
         }
     }
 }
@@ -113,8 +114,9 @@ void DiskPartCache::setMsgPart(const QString &mailbox, const uint uid, const QBy
     QString fileName(fileForPart(mailbox, uid, partId));
     QFile buf(fileName);
     if (! buf.open(QIODevice::WriteOnly)) {
-        emit error(tr("Couldn't save the part %1 of message %2 (mailbox %3) into file %4: %5 (%6)").arg(
-                       QString::fromUtf8(partId), QString::number(uid), mailbox, fileName, buf.errorString(), fileErrorToString(buf.error())));
+        m_errorHandler(QObject::tr("Couldn't save the part %1 of message %2 (mailbox %3) into file %4: %5 (%6)").arg(
+                           QString::fromUtf8(partId), QString::number(uid), mailbox, fileName, buf.errorString(),
+                           fileErrorToString(buf.error())));
     }
     buf.write(qCompress(data));
 }
@@ -132,6 +134,11 @@ QString DiskPartCache::dirForMailbox(const QString &mailbox) const
 QString DiskPartCache::fileForPart(const QString &mailbox, const uint uid, const QByteArray &partId) const
 {
     return QStringLiteral("%1/%2_%3.cache").arg(dirForMailbox(mailbox), QString::number(uid), QString::fromUtf8(partId));
+}
+
+void DiskPartCache::setErrorHandler(const std::function<void(const QString &)> &handler)
+{
+    m_errorHandler = handler;
 }
 
 }

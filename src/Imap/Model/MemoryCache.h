@@ -41,10 +41,7 @@ namespace Mailbox
  */
 class MemoryCache : public AbstractCache
 {
-    Q_OBJECT
 public:
-    explicit MemoryCache(QObject *parent);
-
     virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
     virtual bool childMailboxesFresh(const QString &mailbox) const;
     virtual void setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data);

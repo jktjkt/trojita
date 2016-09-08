@@ -78,13 +78,13 @@ protected:
     void reinit(const TlsRequired tlsRequired = TlsRequired::No);
 
 private:
-    Imap::Mailbox::OpenConnectionTask* task;
-    QSignalSpy* completedSpy;
-    QSignalSpy* failedSpy;
-    QSignalSpy* authSpy;
-    QSignalSpy *connErrorSpy;
-    QSignalSpy *startTlsUpgradeSpy;
-    QSignalSpy *authErrorSpy;
+    QPointer<Imap::Mailbox::OpenConnectionTask> task;
+    std::unique_ptr<QSignalSpy> completedSpy;
+    std::unique_ptr<QSignalSpy> failedSpy;
+    std::unique_ptr<QSignalSpy> authSpy;
+    std::unique_ptr<QSignalSpy> connErrorSpy;
+    std::unique_ptr<QSignalSpy> startTlsUpgradeSpy;
+    std::unique_ptr<QSignalSpy> authErrorSpy;
 
     bool m_enableAutoLogin;
 };

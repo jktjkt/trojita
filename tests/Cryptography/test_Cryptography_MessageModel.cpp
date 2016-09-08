@@ -119,17 +119,17 @@ void CryptographyMessageModelTest::testImapMessageParts_data()
 void CryptographyMessageModelTest::testCustomMessageParts()
 {
     // Initialize model with a root item
-    QStandardItemModel *minimal = new QStandardItemModel();
+    QStandardItemModel minimal;
     QStandardItem *dummy_root = new QStandardItem();
     QStandardItem *root_mime = new QStandardItem(QStringLiteral("multipart/mixed"));
     dummy_root->appendRow(root_mime);
-    minimal->invisibleRootItem()->appendRow(dummy_root);
+    minimal.invisibleRootItem()->appendRow(dummy_root);
 
     // Make sure we didn't mess up until here
-    QVERIFY(minimal->index(0,0).child(0,0).isValid());
-    QCOMPARE(minimal->index(0,0).child(0,0).data(), root_mime->data(Qt::DisplayRole));
+    QVERIFY(minimal.index(0,0).child(0,0).isValid());
+    QCOMPARE(minimal.index(0,0).child(0,0).data(), root_mime->data(Qt::DisplayRole));
 
-    Cryptography::MessageModel msgModel(0, minimal->index(0,0));
+    Cryptography::MessageModel msgModel(0, minimal.index(0,0));
 
     QModelIndex rootPartIndex = msgModel.index(0,0).child(0,0);
 

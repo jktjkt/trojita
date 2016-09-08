@@ -271,13 +271,13 @@ void KeepMailboxOpenTask::slotTaskDeleted(QObject *object)
     // we can't use the passed pointer directly, and therefore we have to perform the cast here. It is safe
     // to do that here, as we're only interested in raw pointer value.
     if (object) {
-        dependentTasks.removeOne(static_cast<ImapTask *>(object));
-        dependingTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
-        dependingTasksNoMailbox.removeOne(static_cast<ImapTask *>(object));
-        runningTasksForThisMailbox.removeOne(static_cast<ImapTask *>(object));
-        fetchPartTasks.removeOne(static_cast<FetchMsgPartTask *>(object));
-        fetchMetadataTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
-        abortableTasks.removeOne(static_cast<FetchMsgMetadataTask *>(object));
+        dependentTasks.removeOne(reinterpret_cast<ImapTask *>(object));
+        dependingTasksForThisMailbox.removeOne(reinterpret_cast<ImapTask *>(object));
+        dependingTasksNoMailbox.removeOne(reinterpret_cast<ImapTask *>(object));
+        runningTasksForThisMailbox.removeOne(reinterpret_cast<ImapTask *>(object));
+        fetchPartTasks.removeOne(reinterpret_cast<FetchMsgPartTask *>(object));
+        fetchMetadataTasks.removeOne(reinterpret_cast<FetchMsgMetadataTask *>(object));
+        abortableTasks.removeOne(reinterpret_cast<FetchMsgMetadataTask *>(object));
     }
 
     if (isReadyToTerminate()) {

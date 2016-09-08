@@ -72,7 +72,9 @@ LibMailboxSync::~LibMailboxSync()
 
 void LibMailboxSync::setupLogging()
 {
+    delete errorSpy;
     errorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
+    delete netErrorSpy;
     netErrorSpy = new QSignalSpy(model, SIGNAL(networkError(QString)));
     connect(model, &Imap::Mailbox::Model::imapError, this, &LibMailboxSync::modelSignalsError);
     connect(model, &Imap::Mailbox::Model::logged, this, &LibMailboxSync::modelLogged);
@@ -81,7 +83,7 @@ void LibMailboxSync::setupLogging()
 void LibMailboxSync::init()
 {
     m_expectsError = false;
-    Imap::Mailbox::AbstractCache* cache = new Imap::Mailbox::MemoryCache(this);
+    auto cache = std::make_shared<Imap::Mailbox::MemoryCache>();
     factory = new Streams::FakeSocketFactory(m_initialConnectionState);
     factory->setStartTlsRequired(m_startTlsRequired);
     Imap::Mailbox::TaskFactoryPtr taskFactory(new Imap::Mailbox::TestingTaskFactory());
@@ -191,6 +193,12 @@ void LibMailboxSync::cleanupTestCase()
 
 void LibMailboxSync::initTestCase()
 {
+    // Some of the tests (hi, QNetworkAccessManager) might want to talk to actual network bearer plugins.
+    // We do not want that in a unit test, so let's sanitize our env a little bit.
+    qunsetenv("DBUS_SESSION_BUS_ADDRESS");
+    qputenv("DBUS_SYSTEM_BUS_ADDRESS", "non-existing-pwned");
+    qputenv("QT_EXCLUDE_GENERIC_BEARER", "1");
+
     Common::registerMetaTypes();
     model = 0;
     msgListModel = 0;

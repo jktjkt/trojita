@@ -22,8 +22,8 @@
 #ifndef TEST_TROJITA_SQLCACHE_H
 #define TEST_TROJITA_SQLCACHE_H
 
+#include <memory>
 #include <QObject>
-#include <QSignalSpy>
 
 namespace Imap {
 namespace Mailbox {
@@ -41,8 +41,8 @@ private Q_SLOTS:
     void testMailboxOperation();
 
 private:
-    Imap::Mailbox::SQLCache *cache;
-    QSignalSpy *errorSpy;
+    std::shared_ptr<Imap::Mailbox::SQLCache> cache;
+    std::vector<QString> errorLog;
 };
 
 #endif

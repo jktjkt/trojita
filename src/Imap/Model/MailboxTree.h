@@ -449,8 +449,8 @@ private:
 class TreeItemPartMultipartMessage: public TreeItemPart
 {
     Message::Envelope m_envelope;
-    mutable TreeItemPart *m_partHeader;
-    mutable TreeItemPart *m_partText;
+    mutable std::unique_ptr<TreeItemPart> m_partHeader;
+    mutable std::unique_ptr<TreeItemPart> m_partText;
 public:
     TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope);
     virtual ~TreeItemPartMultipartMessage();

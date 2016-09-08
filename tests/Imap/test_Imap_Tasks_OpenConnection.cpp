@@ -35,12 +35,11 @@ void ImapModelOpenConnectionTest::initTestCase()
 {
     LibMailboxSync::initTestCase();
     qRegisterMetaType<Imap::Mailbox::ImapTask*>();
-    completedSpy = 0;
-    m_enableAutoLogin = true;
 }
 
 void ImapModelOpenConnectionTest::init()
 {
+    m_enableAutoLogin = true;
     reinit(TlsRequired::No);
 }
 
@@ -56,13 +55,14 @@ void ImapModelOpenConnectionTest::reinit(const TlsRequired tlsRequired)
     connect(model, &Imap::Mailbox::Model::needsSslDecision, this, &ImapModelOpenConnectionTest::acceptSsl, Qt::QueuedConnection);
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_ONLINE);
     QCoreApplication::processEvents();
+    delete task;
     task = new Imap::Mailbox::OpenConnectionTask(model);
-    completedSpy = new QSignalSpy(task, SIGNAL(completed(Imap::Mailbox::ImapTask*)));
-    failedSpy = new QSignalSpy(task, SIGNAL(failed(QString)));
-    authSpy = new QSignalSpy(model, SIGNAL(authRequested()));
-    connErrorSpy = new QSignalSpy(model, SIGNAL(imapError(QString)));
-    startTlsUpgradeSpy = new QSignalSpy(model, SIGNAL(requireStartTlsInFuture()));
-    authErrorSpy = new QSignalSpy(model, SIGNAL(imapAuthErrorChanged(const QString&)));
+    completedSpy.reset(new QSignalSpy(task, SIGNAL(completed(Imap::Mailbox::ImapTask*))));
+    failedSpy.reset(new QSignalSpy(task, SIGNAL(failed(QString))));
+    authSpy.reset(new QSignalSpy(model, SIGNAL(authRequested())));
+    connErrorSpy.reset(new QSignalSpy(model, SIGNAL(imapError(QString))));
+    startTlsUpgradeSpy.reset(new QSignalSpy(model, SIGNAL(requireStartTlsInFuture())));
+    authErrorSpy.reset(new QSignalSpy(model, SIGNAL(imapAuthErrorChanged(const QString&))));
     t.reset();
 }
 
@@ -444,9 +444,7 @@ void ImapModelOpenConnectionTest::testOpenConnectionShallBlock()
 void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
 {
     using namespace Imap::Mailbox;
-    MemoryCache *cache = dynamic_cast<MemoryCache *>(model->cache());
-    Q_ASSERT(cache);
-    cache->setChildMailboxes(QString(),
+    model->cache()->setChildMailboxes(QString(),
                              QList<MailboxMetadata>() << MailboxMetadata(QLatin1String("a"), QString(), QStringList())
                              << MailboxMetadata(QLatin1String("b"), QString(), QStringList())
                              );

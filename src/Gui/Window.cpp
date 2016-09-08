@@ -804,9 +804,6 @@ void MainWindow::setupModels()
 
     m_messageWidget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(m_imapAccess->networkWatcher()));
 
-    //setProperty( "trojita-sqlcache-commit-period", QVariant(5000) );
-    //setProperty( "trojita-sqlcache-commit-delay", QVariant(1000) );
-
     auto realThreadingModel = qobject_cast<Imap::Mailbox::ThreadingMsgListModel*>(m_imapAccess->threadingMsgListModel());
     Q_ASSERT(realThreadingModel);
     auto realMsgListModel = qobject_cast<Imap::Mailbox::MsgListModel*>(m_imapAccess->msgListModel());

@@ -43,22 +43,19 @@ char *toString(const QList<Imap::Mailbox::MailboxMetadata> &items)
 
 void TestSqlCache::initTestCase()
 {
-    cache = new Imap::Mailbox::SQLCache(this);
-    errorSpy = new QSignalSpy(cache, SIGNAL(error(QString)));
+    errorLog.clear();
+    cache = std::make_shared<Imap::Mailbox::SQLCache>();
+    cache->setErrorHandler([this](const QString &e) { this->errorLog.push_back(e); });
     QCOMPARE(cache->open(QLatin1String("meh"), QLatin1String(":memory:")), true);
 }
 
 void TestSqlCache::cleanupTestCase()
 {
-    delete cache;
-    cache = 0;
-    delete errorSpy;
-    errorSpy = 0;
 }
 
 #define CHECK_CACHE_ERRORS \
-    if (!errorSpy->isEmpty()) { \
-        QCOMPARE(errorSpy->first()[0].toString(), QString()); \
+    if (!errorLog.empty()) { \
+        QCOMPARE(errorLog[0], QString()); \
     }
 
 void TestSqlCache::testMailboxOperation()
@@ -88,7 +85,7 @@ void TestSqlCache::testMailboxOperation()
     QCOMPARE(cache->childMailboxes(QString()), toplevel);
     CHECK_CACHE_ERRORS;
 
-    QVERIFY(errorSpy->isEmpty());
+    QVERIFY(errorLog.empty());
 }
 
 QTEST_GUILESS_MAIN(TestSqlCache)

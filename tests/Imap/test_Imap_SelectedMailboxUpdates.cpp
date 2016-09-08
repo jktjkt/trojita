@@ -1035,7 +1035,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperDataChangedUidNonZero(const QMod
 
 void ImapModelSelectedMailboxUpdatesTest::testLogoutClosed()
 {
-    auto nm = new Imap::Mailbox::DummyNetworkWatcher(nullptr, model);
+    Imap::Mailbox::DummyNetworkWatcher nm(nullptr, model);
     model->switchToMailbox(idxA);
     cClient(t.mk("SELECT a\r\n"));
     cServer("* 0 EXISTS\r\n"
@@ -1043,7 +1043,7 @@ void ImapModelSelectedMailboxUpdatesTest::testLogoutClosed()
     model->switchToMailbox(idxB);
     cClient(t.mk("SELECT b\r\n"));
     auto okSelectedB = t.last("OK selected\r\n");
-    nm->setNetworkOffline();
+    nm.setNetworkOffline();
     cClient(t.mk("LOGOUT\r\n"));
     cServer("* OK [CLOSED] Previous mailbox closed.\r\n");
     cServer("* 1 EXISTS\r\n"
@@ -1087,10 +1087,6 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
 
 class MonitoringCache : public Imap::Mailbox::MemoryCache {
 public:
-    MonitoringCache(QObject *parent)
-        : MemoryCache(parent)
-    {}
-
     virtual void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata) override
     {
         msgMetadataLog.emplace_back(uid);
@@ -1102,7 +1098,7 @@ public:
 /** @short Do we survive duplicate unsolicited BODYSTRUCTURE responses? */
 void ImapModelSelectedMailboxUpdatesTest::testFetchMsgDuplicateBodystructure()
 {
-    auto cacheLog = new MonitoringCache(model);
+    auto cacheLog = std::make_shared<MonitoringCache>();
     model->setCache(cacheLog);
     initialMessages(1);
     cServer("* 1 FETCH (FLAGS ())\r\n");

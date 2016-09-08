@@ -23,6 +23,7 @@
 #ifndef IMAP_MODEL_COMBINEDCACHE_H
 #define IMAP_MODEL_COMBINEDCACHE_H
 
+#include <memory>
 #include "Cache.h"
 
 namespace Imap
@@ -48,7 +49,6 @@ storing the actual data in the various TreeItem* instances.
 */
 class CombinedCache : public AbstractCache
 {
-    Q_OBJECT
 public:
     /** @short Constructor
 
@@ -56,7 +56,7 @@ public:
       Store all data into the @arg cacheDir directory. Actual opening of the DB connection
       is deferred till a call to the load() method.
     */
-    CombinedCache(QObject *parent, const QString &name, const QString &cacheDir);
+    CombinedCache(const QString &name, const QString &cacheDir);
 
     virtual ~CombinedCache();
 
@@ -93,14 +93,14 @@ public:
     bool open();
 
 private:
-    /** @short The SQL-based cache */
-    SQLCache *sqlCache;
-    /** @short Cache for bigger message parts */
-    DiskPartCache *diskPartCache;
     /** @short Name of the DB connection */
     QString name;
     /** @short Directory to serve as a cache root */
     QString cacheDir;
+    /** @short The SQL-based cache */
+    std::unique_ptr<SQLCache> sqlCache;
+    /** @short Cache for bigger message parts */
+    std::unique_ptr<DiskPartCache> diskPartCache;
 };
 
 }

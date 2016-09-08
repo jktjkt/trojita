@@ -23,7 +23,8 @@
 #ifndef IMAP_MODEL_DISKPARTCACHE_H
 #define IMAP_MODEL_DISKPARTCACHE_H
 
-#include <QObject>
+#include <functional>
+#include <QString>
 
 namespace Imap
 {
@@ -37,27 +38,25 @@ The API is designed to be "similar" to the AbstractCache, but because certain
 operations do not really make much sense (like working with a list of mailboxes),
 we do not inherit from that abstract base class.
 */
-class DiskPartCache : public QObject
+class DiskPartCache
 {
-    Q_OBJECT
 public:
     /** @short Create the cache occupying the @arg cacheDir directory */
-    DiskPartCache(QObject *parent, const QString &cacheDir);
+    explicit DiskPartCache(const QString &cacheDir);
 
     /** @short Delete all data of message parts which belongs to that particular mailbox */
-    virtual void clearAllMessages(const QString &mailbox);
+    void clearAllMessages(const QString &mailbox);
     /** @short Delete all data for a particular message in the given mailbox */
-    virtual void clearMessage(const QString mailbox, const uint uid);
+    void clearMessage(const QString mailbox, const uint uid);
 
     /** @short Return data for some message part, or a null QByteArray if not found */
-    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const;
+    QByteArray messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const;
     /** @short Store the data for a specified message part */
-    virtual void setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data);
-    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId);
+    void setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data);
+    void forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId);
 
-signals:
-    /** @short An error has occurred while performing cache operations */
-    void error(const QString &message);
+    /** @short Inform about runtime failures */
+    void setErrorHandler(const std::function<void(const QString &)> &handler);
 
 private:
     /** @short Return the directory which should be used as a storage dir for a particular mailbox */
@@ -67,6 +66,9 @@ private:
 
     /** @short The root directory for all caching */
     QString cacheDir;
+
+protected:
+    std::function<void(const QString&)> m_errorHandler;
 };
 
 }

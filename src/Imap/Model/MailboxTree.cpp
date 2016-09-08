@@ -1944,7 +1944,7 @@ QByteArray TreeItemModifiedPart::partIdForFetch(const PartFetchingMode mode) con
 }
 
 TreeItemPartMultipartMessage::TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope):
-    TreeItemPart(parent, "message/rfc822"), m_envelope(envelope), m_partHeader(0), m_partText(0)
+    TreeItemPart(parent, "message/rfc822"), m_envelope(envelope)
 {
 }
 
@@ -1975,14 +1975,14 @@ TreeItem *TreeItemPartMultipartMessage::specialColumnPtr(int row, int column) co
     switch (column) {
     case OFFSET_HEADER:
         if (!m_partHeader) {
-            m_partHeader = new TreeItemModifiedPart(const_cast<TreeItemPartMultipartMessage*>(this), OFFSET_HEADER);
+            m_partHeader.reset(new TreeItemModifiedPart(const_cast<TreeItemPartMultipartMessage*>(this), OFFSET_HEADER));
         }
-        return m_partHeader;
+        return m_partHeader.get();
     case OFFSET_TEXT:
         if (!m_partText) {
-            m_partText = new TreeItemModifiedPart(const_cast<TreeItemPartMultipartMessage*>(this), OFFSET_TEXT);
+            m_partText.reset(new TreeItemModifiedPart(const_cast<TreeItemPartMultipartMessage*>(this), OFFSET_TEXT));
         }
-        return m_partText;
+        return m_partText.get();
     default:
         return TreeItemPart::specialColumnPtr(row, column);
     }
@@ -1993,13 +1993,11 @@ void TreeItemPartMultipartMessage::silentlyReleaseMemoryRecursive()
     TreeItemPart::silentlyReleaseMemoryRecursive();
     if (m_partHeader) {
         m_partHeader->silentlyReleaseMemoryRecursive();
-        delete m_partHeader;
-        m_partHeader = 0;
+        m_partHeader = nullptr;
     }
     if (m_partText) {
         m_partText->silentlyReleaseMemoryRecursive();
-        delete m_partText;
-        m_partText = 0;
+        m_partText = nullptr;
     }
 }
 
