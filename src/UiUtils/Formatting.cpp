@@ -90,8 +90,11 @@ QString Formatting::prettyDate(const QDateTime &dateTime)
         return dateTime.toString(tr("ddd hh:mm", "Please do not translate the format specifiers. "
             "You can change their order or the separator to follow the local conventions. "
             "For valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"));
-    } else if (dateTime > now.addYears(-1)) {
-        // Messages newer than one year don't have to show year
+    } else if (dateTime.date().year() == now.date().year() || dateTime > now.addMonths(-6)) {
+        // Originally, this used to handle messages fresher than an year old. However, this might get a wee bit confusing
+        // when it's September and we're showing a message from November last year.
+        // I think that it's OK-ish to assume that unchanged years are OK, but let's be more careful when crossing the year
+        // boundary. This is just a number that I pulled out of my sleeve, but a six-month cutoff might do the trick here.
         return dateTime.toString(tr("d MMM hh:mm", "Please do not translate the format specifiers. "
             "You can change their order or the separator to follow the local conventions. "
             "For valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"));
