@@ -857,6 +857,7 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     connect(saveToImap, &QAbstractButton::toggled, m_smtpAccountSettings, &MSA::Account::setSaveToImap);
     connect(saveFolderName, &LineEdit::textEditingFinished, m_smtpAccountSettings, &MSA::Account::setSentMailboxName);
     connect(smtpBurl, &QAbstractButton::toggled, m_smtpAccountSettings, &MSA::Account::setUseBurl);
+    connect(sendmail, &LineEdit::textEditingFinished, m_smtpAccountSettings, &MSA::Account::setPathToSendmail);
 
     m_pwWatcher = new UiUtils::PasswordWatcher(this, m_parent->pluginManager(), QStringLiteral("account-0"), QStringLiteral("smtp"));
     connect(m_pwWatcher, &UiUtils::PasswordWatcher::stateChanged, this, &OutgoingPage::updateWidgets);
