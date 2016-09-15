@@ -258,6 +258,10 @@ set(libUiUtils_SOURCES
     ${path_UiUtils}/Color.cpp
     ${path_UiUtils}/Formatting.cpp
     ${path_UiUtils}/IconLoader.cpp
+    ${path_UiUtils}/PartLoadingOptions.h
+    ${path_UiUtils}/PartVisitor.h
+    ${path_UiUtils}/PartWalker.h
+    ${path_UiUtils}/PartWalker_impl.h
     ${path_UiUtils}/PasswordWatcher.cpp
     ${path_UiUtils}/PlainTextFormatter.cpp
 )
