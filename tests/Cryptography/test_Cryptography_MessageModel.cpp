@@ -118,6 +118,16 @@ void CryptographyMessageModelTest::testImapMessageParts_data()
 /** @short Verify building and retrieving of a custom MIME tree structure */
 void CryptographyMessageModelTest::testCustomMessageParts()
 {
+#if defined(__has_feature)
+#  if  __has_feature(address_sanitizer)
+    // better would be checking for UBSAN, but I don't think that there's an appropriate feature for this
+#    define SKIP_QSTANDARDITEMMODEL
+#  endif
+#endif
+
+#ifdef SKIP_QSTANDARDITEMMODEL
+    QSKIP("ASAN build, https://bugreports.qt.io/browse/QTBUG-56027");
+#else
     // Initialize model with a root item
     QStandardItemModel minimal;
     QStandardItem *dummy_root = new QStandardItem();
@@ -156,6 +166,7 @@ void CryptographyMessageModelTest::testCustomMessageParts()
     QModelIndex localHtmlIndex = localRootIndex.child(1, 0);
     QVERIFY(localHtmlIndex.isValid());
     QCOMPARE(localHtmlIndex.data(Imap::Mailbox::RolePartMimeType), localHtml->data(Imap::Mailbox::RolePartMimeType));
+#endif
 }
 
 /** @short Check adding a custom MIME tree structure to an existing message
