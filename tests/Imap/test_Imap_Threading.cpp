@@ -28,6 +28,12 @@
 #include "Streams/FakeSocket.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 
+#if defined(__has_feature)
+#  if  __has_feature(address_sanitizer)
+#    define ASAN_BUILD
+#  endif
+#endif
+
 Q_DECLARE_METATYPE(Mapping);
 
 /** @short Test that the ThreadingMsgListModel can process a static THREAD response */
@@ -1167,7 +1173,12 @@ QByteArray ImapModelThreadingTest::prepareHugeUntaggedThread(const uint num)
 
 void ImapModelThreadingTest::testThreadingPerformance()
 {
+#ifdef ASAN_BUILD
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    const uint num = 6660;
+#else
     const uint num = 100000;
+#endif
     initialMessages(num);
     QByteArray untaggedThread = prepareHugeUntaggedThread(num);
     QBENCHMARK_ONCE {
@@ -1190,7 +1201,12 @@ void ImapModelThreadingTest::testSortingPerformance()
 
     using namespace Imap::Mailbox;
 
+#ifdef ASAN_BUILD
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    const int num = 6660;
+#else
     const int num = 100000;
+#endif
     initialMessages(num);
 
     FakeCapabilitiesInjector injector(model);
@@ -1238,7 +1254,12 @@ void ImapModelThreadingTest::testSearchingPerformance()
 
     using namespace Imap::Mailbox;
 
+#ifdef ASAN_BUILD
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    const int num = 6660;
+#else
     const int num = 100000;
+#endif
     initialMessages(num);
 
     FakeCapabilitiesInjector injector(model);
@@ -1427,7 +1448,12 @@ void ImapModelThreadingTest::testFlatThreadDeletionPerformance()
     // only send NOOPs after a day; the default timeout of two minutes is way too short for valgrind's callgrind
     model->setProperty("trojita-imap-noop-period", 24 * 60 * 60 * 1000);
 
+#ifdef ASAN_BUILD
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    const int num = 6660;
+#else
     const int num = 30000; // 30k messages translate into roughly 3-5s, which is acceptable
+#endif
     initialMessages(num);
     auto numDeletes = num / 2;
 
