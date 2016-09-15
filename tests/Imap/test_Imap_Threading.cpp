@@ -1170,7 +1170,7 @@ void ImapModelThreadingTest::testThreadingPerformance()
     const uint num = 100000;
     initialMessages(num);
     QByteArray untaggedThread = prepareHugeUntaggedThread(num);
-    QBENCHMARK {
+    QBENCHMARK_ONCE {
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
         SOCK->fakeReading(untaggedThread + t.last("OK thread\r\n"));
         QCoreApplication::processEvents();
@@ -1211,13 +1211,13 @@ void ImapModelThreadingTest::testSortingPerformance()
     QCOMPARE(sortOrder.size(), num);
     QByteArray resp = ("* SORT " + sortOrder.join(QStringLiteral(" ")) + "\r\n").toUtf8();
 
-    QBENCHMARK {
+    QBENCHMARK_ONCE {
         threadingModel->setUserSearchingSortingPreference(QStringList(), ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
         threadingModel->setUserSearchingSortingPreference(QStringList(), ThreadingMsgListModel::SORT_NONE, Qt::DescendingOrder);
     }
 
     bool flag = false;
-    QBENCHMARK {
+    QBENCHMARK_ONCE {
         ThreadingMsgListModel::SortCriterium criterium = flag ? ThreadingMsgListModel::SORT_SUBJECT : ThreadingMsgListModel::SORT_CC;
         Qt::SortOrder order = flag ? Qt::AscendingOrder : Qt::DescendingOrder;
         threadingModel->setUserSearchingSortingPreference(QStringList(), criterium, order);
@@ -1256,7 +1256,7 @@ void ImapModelThreadingTest::testSearchingPerformance()
         buf << QString::number(uid);
     QByteArray sortResult = buf.join(QStringLiteral(" ")).toUtf8();
 
-    QBENCHMARK {
+    QBENCHMARK_ONCE {
         threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("x"),
                                                           ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
         cClient(t.mk("UID SEARCH CHARSET utf-8 SUBJECT x\r\n"));
