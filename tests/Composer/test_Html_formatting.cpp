@@ -31,6 +31,13 @@
 #include "Composer/SenderIdentitiesModel.h"
 #include "Composer/SubjectMangling.h"
 
+#if defined(__has_feature)
+#  if  __has_feature(address_sanitizer)
+#    define SKIP_WEBKIT_TESTS
+#  endif
+#endif
+
+
 Q_DECLARE_METATYPE(QList<QUrl>)
 
 static QString visualizeWhitespace(QString s)
@@ -303,6 +310,9 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
     if (expandedFlowed.isEmpty())
         expandedFlowed = formattedFlowed;
 
+#ifdef SKIP_WEBKIT_TESTS
+    QSKIP("ASAN build -- QtWebKit is known to be broken, skipping");
+#else
     {
         WebRenderingTester tester;
         LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED)),
@@ -320,6 +330,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPaste()
         LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed)),
                  visualizeWhitespace(expandedFlowed));
     }
+#endif
 }
 
 void HtmlFormattingTest::testPlainTextFormattingViaPaste_data()
@@ -584,6 +595,9 @@ void HtmlFormattingTest::testPlainTextFormattingViaPasteDelSp()
     QFETCH(QString, expandedFlowed);
     QFETCH(QString, expandedFlowedDelSp);
 
+#ifdef SKIP_WEBKIT_TESTS
+    QSKIP("ASAN build -- QtWebKit is known to be broken, skipping");
+#else
     {
         WebRenderingTester tester;
         LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED, WebRenderingTester::RenderExpandEverythingCollapsed)),
@@ -594,6 +608,7 @@ void HtmlFormattingTest::testPlainTextFormattingViaPasteDelSp()
         LONG_STR_QCOMPARE(visualizeWhitespace(tester.asPlainText(source, UiUtils::FlowedFormat::FLOWED_DELSP, WebRenderingTester::RenderExpandEverythingCollapsed)),
                  visualizeWhitespace(expandedFlowedDelSp));
     }
+#endif
 }
 
 
