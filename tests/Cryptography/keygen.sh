@@ -115,7 +115,7 @@ $TAIL" > crypto_test_data.h
 echo -n "key *\nexpire\nseconds=1\nsave\n" | ${GPG} --no-tty --quiet --command-fd 0 --edit-key "expired@test.trojita.flaska.net"
 
 # extract fingerprint of key to be deleted
-FINGERPRINT="$(${GPG} --quiet --no-tty --list-keys --with-colons --fingerprint unknown@test.trojita.flaska.net | grep fpr | cut -d : -f 10)"
+FINGERPRINT="$(${GPG} --quiet --no-tty --list-keys --with-colons --fingerprint unknown@test.trojita.flaska.net | grep fpr | head -n 1 | cut -d : -f 10)"
 
 # delete key
 yes | DISPLAY="" ${GPG} --quiet --batch --no-tty --delete-secret-and-public-key --yes --command-fd 0 --passphrase-fd 0 "${FINGERPRINT}"
