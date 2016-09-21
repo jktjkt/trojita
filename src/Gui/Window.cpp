@@ -117,11 +117,11 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
                                                  Common::SettingsNames::addressbookPlugin, Common::SettingsNames::passwordPlugin);
     connect(m_pluginManager, &Plugins::PluginManager::pluginsChanged, this, &MainWindow::slotPluginsChanged);
     connect(m_pluginManager, &Plugins::PluginManager::pluginError, this, [this](const QString &errorMessage) {
-        QMessageBox::warning(this, tr("Plugin Error"),
-                             //: The %1 placeholder is a full error message as provided by Qt, ready for human consumption.
-                             trUtf8("A plugin failed to load, therefore some functionality might be lost. "
-                                    "You might want to update your system or report a bug to your vendor."
-                                    "\n\n%1").arg(errorMessage));
+        Gui::Util::messageBoxWarning(this, tr("Plugin Error"),
+                                     //: The %1 placeholder is a full error message as provided by Qt, ready for human consumption.
+                                     trUtf8("A plugin failed to load, therefore some functionality might be lost. "
+                                            "You might want to update your system or report a bug to your vendor."
+                                            "\n\n%1").arg(errorMessage));
     });
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
     Plugins::PluginManager::MimePartReplacers replacers;
@@ -1199,12 +1199,12 @@ void MainWindow::slotResyncMbox()
 void MainWindow::alertReceived(const QString &message)
 {
     //: "ALERT" is a special warning which we're required to show to the user
-    QMessageBox::warning(this, tr("IMAP Alert"), message);
+    Gui::Util::messageBoxWarning(this, tr("IMAP Alert"), message);
 }
 
 void MainWindow::imapError(const QString &message)
 {
-    QMessageBox::critical(this, tr("IMAP Protocol Error"), message);
+    Gui::Util::messageBoxCritical(this, tr("IMAP Protocol Error"), message);
     // Show the IMAP logger -- maybe some user will take that as a hint that they shall include it in the bug report.
     // </joke>
     showImapLogger->setChecked(true);
@@ -1233,10 +1233,10 @@ void MainWindow::networkError(const QString &message)
 
 void MainWindow::cacheError(const QString &message)
 {
-    QMessageBox::critical(this, tr("IMAP Cache Error"),
-                          tr("The caching subsystem managing a cache of the data already "
-                             "downloaded from the IMAP server is having troubles. "
-                             "All caching will be disabled.\n\n%1").arg(message));
+    Gui::Util::messageBoxCritical(this, tr("IMAP Cache Error"),
+                                  tr("The caching subsystem managing a cache of the data already "
+                                     "downloaded from the IMAP server is having troubles. "
+                                     "All caching will be disabled.\n\n%1").arg(message));
 }
 
 void MainWindow::networkPolicyOffline()
@@ -1291,8 +1291,8 @@ void MainWindow::slotShowSettings()
     QString method = m_settings->value(Common::SettingsNames::imapMethodKey).toString();
     if (method != Common::SettingsNames::methodTCP && method != Common::SettingsNames::methodSSL &&
             method != Common::SettingsNames::methodProcess ) {
-        QMessageBox::critical(this, tr("No Configuration"),
-                              trUtf8("No IMAP account is configured. Trojitá cannot do much without one."));
+        Gui::Util::messageBoxCritical(this, tr("No Configuration"),
+                                      trUtf8("No IMAP account is configured. Trojitá cannot do much without one."));
     }
     applySizesAndState();
 }
@@ -1808,20 +1808,20 @@ MSA::MSAFactory *MainWindow::msaFactory()
 
 void MainWindow::slotMailboxDeleteFailed(const QString &mailbox, const QString &msg)
 {
-    QMessageBox::warning(this, tr("Can't delete mailbox"),
-                         tr("Deleting mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
+    Gui::Util::messageBoxWarning(this, tr("Can't delete mailbox"),
+                                 tr("Deleting mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
 }
 
 void MainWindow::slotMailboxCreateFailed(const QString &mailbox, const QString &msg)
 {
-    QMessageBox::warning(this, tr("Can't create mailbox"),
-                         tr("Creating mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
+    Gui::Util::messageBoxWarning(this, tr("Can't create mailbox"),
+                                 tr("Creating mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
 }
 
 void MainWindow::slotMailboxSyncFailed(const QString &mailbox, const QString &msg)
 {
-    QMessageBox::warning(this, tr("Can't open mailbox"),
-                         tr("Opening mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
+    Gui::Util::messageBoxWarning(this, tr("Can't open mailbox"),
+                                 tr("Opening mailbox \"%1\" failed with the following message:\n%2").arg(mailbox, msg));
 }
 
 void MainWindow::slotMailboxChanged(const QModelIndex &mailbox)
@@ -1969,8 +1969,8 @@ void MainWindow::slotSaveCurrentMessageBody()
 
 void MainWindow::slotDownloadTransferError(const QString &errorString)
 {
-    QMessageBox::critical(this, tr("Can't save into file"),
-                          tr("Unable to save into file. Error:\n%1").arg(errorString));
+    Gui::Util::messageBoxCritical(this, tr("Can't save into file"),
+                                  tr("Unable to save into file. Error:\n%1").arg(errorString));
 }
 
 void MainWindow::slotDownloadMessageFileNameRequested(QString *fileName)

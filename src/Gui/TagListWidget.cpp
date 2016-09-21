@@ -32,6 +32,7 @@
 #include "TagListWidget.h"
 #include "FlowLayout.h"
 #include "TagWidget.h"
+#include "Gui/Util.h"
 #include "Imap/Model/SpecialFlagNames.h"
 
 namespace Gui
@@ -103,8 +104,10 @@ void TagListWidget::newTagsRequested()
         }
     }
     if (!reservedTagsList.isEmpty()) {
-        QMessageBox::warning(this, tr("Disallowed tag value"),
-                             tr("No tags were set because the following given tag(s) are reserved and have been disallowed from being set in this way: %1.").arg(reservedTagsList.join(QStringLiteral(", "))));
+        Gui::Util::messageBoxWarning(this, tr("Disallowed tag value"),
+                                     tr("No tags were set because the following given tag(s) are reserved "
+                                        "and have been disallowed from being set in this way: %1.")
+                                     .arg(reservedTagsList.join(QStringLiteral(", "))));
         return;
     }
 

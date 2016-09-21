@@ -46,6 +46,9 @@ int askForSomethingUnlessTold(const QString &title, const QString &message, cons
 
 QString resizedImageAsDataUrl(const QString &fileName, const int extent);
 
+void messageBoxCritical(QWidget *parent, const QString &title, const QString &message);
+void messageBoxWarning(QWidget *parent, const QString &title, const QString &message);
+
 } // namespace Util
 
 } // namespace Gui

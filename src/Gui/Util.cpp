@@ -36,6 +36,17 @@
 #include "Util.h"
 #include "Window.h"
 
+namespace {
+
+void messageBoxImpl(QWidget *parent, const QString &title, const QString &message, const QMessageBox::Icon icon)
+{
+    Q_ASSERT(parent);
+    auto box = new QMessageBox(icon, title, message, QMessageBox::Ok, parent);
+    box->open();
+}
+
+}
+
 namespace Gui {
 
 namespace Util {
@@ -92,6 +103,18 @@ QString resizedImageAsDataUrl(const QString &fileName, const int extent)
     buf.open(QIODevice::WriteOnly);
     QIcon(fileName).pixmap(extent).toImage().save(&buf, "png");
     return QLatin1String("data:image/png;base64,") + QString::fromUtf8(bdata.toBase64());
+}
+
+/** @short QMessageBox::critical, but without reentering the event loop */
+void messageBoxCritical(QWidget *parent, const QString &title, const QString &message)
+{
+    messageBoxImpl(parent, title, message, QMessageBox::Critical);
+}
+
+/** @short QMessageBox::warning, but without reentering the event loop */
+void messageBoxWarning(QWidget *parent, const QString &title, const QString &message)
+{
+    messageBoxImpl(parent, title, message, QMessageBox::Warning);
 }
 
 } // namespace Util

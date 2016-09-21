@@ -439,8 +439,9 @@ ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer
                          "You might want to use the \"Reply All\" function and trim the list of addresses manually.");
             break;
         }
-        if (!err.isEmpty())
-            QMessageBox::warning(w, tr("Cannot Determine Recipients"), err);
+        if (!err.isEmpty()) {
+            Gui::Util::messageBoxWarning(w, tr("Cannot Determine Recipients"), err);
+        }
     }
     w->placeOnMainWindow();
     w->show();

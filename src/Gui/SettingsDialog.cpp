@@ -211,9 +211,9 @@ void SettingsDialog::slotAccept()
         }
     }
     if (!passwordFailures.isEmpty()) {
-        QMessageBox::warning(this, tr("Saving passwords failed"),
-                             tr("<p>Couldn't save passwords. These were the error messages:</p>\n<p>%1</p>")
-                                .arg(passwordFailures.join(QStringLiteral("<br/>"))));
+        Gui::Util::messageBoxWarning(this, tr("Saving passwords failed"),
+                                     tr("<p>Couldn't save passwords. These were the error messages:</p>\n<p>%1</p>")
+                                     .arg(passwordFailures.join(QStringLiteral("<br/>"))));
     }
 
     buttons->setEnabled(true);
