@@ -535,6 +535,12 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncUidValidity()
 void ImapModelObtainSynchronizedMailboxTest::testFlagReSyncBenchmark()
 {
     existsA = 100000;
+#if defined(__has_feature)
+#  if  __has_feature(address_sanitizer)
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    existsA = 1333;
+#  endif
+#endif
     uidValidityA = 333;
     for (uint i = 1; i <= existsA; ++i) {
         uidMapA << i;

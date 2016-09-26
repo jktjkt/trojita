@@ -1,0 +1,7 @@
+function:QtPrivate::QSlotObjectBase::call
+function:QtPrivate::QSlotObjectBase::destroyIfLastRef
+function:qt_message_print
+vptr:QDBusConnection::~QDBusConnection
+vptr:boost::detail::shared_count::~shared_count
+vptr:boost::detail::sp_counted_base::release
+vptr:boost::detail::sp_counted_base::weak_release

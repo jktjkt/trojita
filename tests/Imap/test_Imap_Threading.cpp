@@ -28,6 +28,12 @@
 #include "Streams/FakeSocket.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 
+#if defined(__has_feature)
+#  if  __has_feature(address_sanitizer)
+#    define ASAN_BUILD
+#  endif
+#endif
+
 Q_DECLARE_METATYPE(Mapping);
 
 /** @short Test that the ThreadingMsgListModel can process a static THREAD response */
@@ -1167,10 +1173,15 @@ QByteArray ImapModelThreadingTest::prepareHugeUntaggedThread(const uint num)
 
 void ImapModelThreadingTest::testThreadingPerformance()
 {
+#ifdef ASAN_BUILD
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    const uint num = 6660;
+#else
     const uint num = 100000;
+#endif
     initialMessages(num);
     QByteArray untaggedThread = prepareHugeUntaggedThread(num);
-    QBENCHMARK {
+    QBENCHMARK_ONCE {
         QCOMPARE(SOCK->writtenStuff(), t.mk("UID THREAD REFS utf-8 ALL\r\n"));
         SOCK->fakeReading(untaggedThread + t.last("OK thread\r\n"));
         QCoreApplication::processEvents();
@@ -1190,7 +1201,12 @@ void ImapModelThreadingTest::testSortingPerformance()
 
     using namespace Imap::Mailbox;
 
+#ifdef ASAN_BUILD
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    const int num = 6660;
+#else
     const int num = 100000;
+#endif
     initialMessages(num);
 
     FakeCapabilitiesInjector injector(model);
@@ -1211,13 +1227,13 @@ void ImapModelThreadingTest::testSortingPerformance()
     QCOMPARE(sortOrder.size(), num);
     QByteArray resp = ("* SORT " + sortOrder.join(QStringLiteral(" ")) + "\r\n").toUtf8();
 
-    QBENCHMARK {
+    QBENCHMARK_ONCE {
         threadingModel->setUserSearchingSortingPreference(QStringList(), ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
         threadingModel->setUserSearchingSortingPreference(QStringList(), ThreadingMsgListModel::SORT_NONE, Qt::DescendingOrder);
     }
 
     bool flag = false;
-    QBENCHMARK {
+    QBENCHMARK_ONCE {
         ThreadingMsgListModel::SortCriterium criterium = flag ? ThreadingMsgListModel::SORT_SUBJECT : ThreadingMsgListModel::SORT_CC;
         Qt::SortOrder order = flag ? Qt::AscendingOrder : Qt::DescendingOrder;
         threadingModel->setUserSearchingSortingPreference(QStringList(), criterium, order);
@@ -1238,7 +1254,12 @@ void ImapModelThreadingTest::testSearchingPerformance()
 
     using namespace Imap::Mailbox;
 
+#ifdef ASAN_BUILD
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    const int num = 6660;
+#else
     const int num = 100000;
+#endif
     initialMessages(num);
 
     FakeCapabilitiesInjector injector(model);
@@ -1256,7 +1277,7 @@ void ImapModelThreadingTest::testSearchingPerformance()
         buf << QString::number(uid);
     QByteArray sortResult = buf.join(QStringLiteral(" ")).toUtf8();
 
-    QBENCHMARK {
+    QBENCHMARK_ONCE {
         threadingModel->setUserSearchingSortingPreference(QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("x"),
                                                           ThreadingMsgListModel::SORT_NONE, Qt::AscendingOrder);
         cClient(t.mk("UID SEARCH CHARSET utf-8 SUBJECT x\r\n"));
@@ -1427,7 +1448,12 @@ void ImapModelThreadingTest::testFlatThreadDeletionPerformance()
     // only send NOOPs after a day; the default timeout of two minutes is way too short for valgrind's callgrind
     model->setProperty("trojita-imap-noop-period", 24 * 60 * 60 * 1000);
 
+#ifdef ASAN_BUILD
+    qDebug() << "ASAN build detected, benchmarking with fewer items";
+    const int num = 6660;
+#else
     const int num = 30000; // 30k messages translate into roughly 3-5s, which is acceptable
+#endif
     initialMessages(num);
     auto numDeletes = num / 2;
 
