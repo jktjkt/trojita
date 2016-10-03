@@ -290,6 +290,8 @@ QVariant GpgMePart::data(int role) const
     }
 }
 
+#define ENSURE_LINE_LF(X) do { if (!X.isEmpty()) { X += LF; } } while (0)
+
 void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, const GpgME::Signature &sig,
                                        const std::vector<std::string> messageUids, const bool wasSigned, const bool wasEncrypted,
                                        bool &sigOkDisregardingTrust, bool &sigValidVerified,
@@ -447,30 +449,38 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
 
     // extract the individual error bits
     if (sig.summary() & GpgME::Signature::KeyRevoked) {
-        longStatus += LF + tr("The key or at least one certificate has been revoked.");
+        ENSURE_LINE_LF(longStatus);
+        longStatus += tr("The key or at least one certificate has been revoked.");
     }
     if (sig.summary() & GpgME::Signature::KeyExpired) {
         // FIXME: how to get the expiration date?
-        longStatus += LF + tr("The key or one of the certificates has expired.");
+        ENSURE_LINE_LF(longStatus);
+        longStatus += tr("The key or one of the certificates has expired.");
     }
     if (sig.summary() & GpgME::Signature::SigExpired) {
-        longStatus += LF + tr("Signature expired on %1.")
+        ENSURE_LINE_LF(longStatus);
+        longStatus += tr("Signature expired on %1.")
                 .arg(QDateTime::fromTime_t(sig.expirationTime()).toString(Qt::DefaultLocaleShortDate));
     }
     if (sig.summary() & GpgME::Signature::KeyMissing) {
-        longStatus += LF + tr("Can't verify due to a missing key or certificate.");
+        ENSURE_LINE_LF(longStatus);
+        longStatus += tr("Can't verify due to a missing key or certificate.");
     }
     if (sig.summary() & GpgME::Signature::CrlMissing) {
-        longStatus += LF + tr("The CRL (or an equivalent mechanism) is not available.");
+        ENSURE_LINE_LF(longStatus);
+        longStatus += tr("The CRL (or an equivalent mechanism) is not available.");
     }
     if (sig.summary() & GpgME::Signature::CrlTooOld) {
-        longStatus += LF + tr("Available CRL is too old.");
+        ENSURE_LINE_LF(longStatus);
+        longStatus += tr("Available CRL is too old.");
     }
     if (sig.summary() & GpgME::Signature::BadPolicy) {
-        longStatus += LF + tr("A policy requirement was not met.");
+        ENSURE_LINE_LF(longStatus);
+        longStatus += tr("A policy requirement was not met.");
     }
     if (sig.summary() & GpgME::Signature::SysError) {
-        longStatus += LF + tr("A system error occurred. %1")
+        ENSURE_LINE_LF(longStatus);
+        longStatus += tr("A system error occurred. %1")
                 .arg(QString::fromUtf8(sig.status().asString()));
     }
 
@@ -478,22 +488,28 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
         // Extract signature validity
         switch (sig.validity()) {
         case GpgME::Signature::Undefined:
-            longStatus += LF + tr("Signature validity is undefined.");
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Signature validity is undefined.");
             break;
         case GpgME::Signature::Never:
-            longStatus += LF + tr("Signature validity is never to be trusted.");
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Signature validity is never to be trusted.");
             break;
         case GpgME::Signature::Marginal:
-            longStatus += LF + tr("Signature validity is marginal.");
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Signature validity is marginal.");
             break;
         case GpgME::Signature::Full:
-            longStatus += LF + tr("Signature validity is full.");
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Signature validity is full.");
             break;
         case GpgME::Signature::Ultimate:
-            longStatus += LF + tr("Signature validity is ultimate.");
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Signature validity is ultimate.");
             break;
         case GpgME::Signature::Unknown:
-            longStatus += LF + tr("Signature validity is unknown.");
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Signature validity is unknown.");
             break;
         }
     }
@@ -844,7 +860,8 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
             if (tldr.isEmpty()) {
                 tldr = tr("Broken encrypted message");
             }
-            longStatus += LF + tr("Decryption error: %1").arg(QString::fromUtf8(combinedResult.first.error().asString()));
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Decryption error: %1").arg(QString::fromUtf8(combinedResult.first.error().asString()));
             icon = QStringLiteral("emblem-error");
         } else if (tldr.isEmpty()) {
             tldr = tr("Encrypted message");
@@ -852,29 +869,35 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
         }
 
         if (combinedResult.first.isWrongKeyUsage()) {
-            longStatus += LF + tr("Wrong key usage, not for encryption");
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Wrong key usage, not for encryption");
         }
         if (auto msg = combinedResult.first.unsupportedAlgorithm()) {
-            longStatus += LF + tr("Unsupported algorithm: %1").arg(QString::fromUtf8(msg));
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Unsupported algorithm: %1").arg(QString::fromUtf8(msg));
         }
 
         for (const auto &recipient: combinedResult.first.recipients()) {
             GpgME::Error keyError;
             auto key = ctx->key(recipient.keyID(), keyError, false);
             if (keyError) {
-                longStatus += LF + tr("Cannot extract recipient %1: %2")
+                ENSURE_LINE_LF(longStatus);
+                longStatus += tr("Cannot extract recipient %1: %2")
                         .arg(QString::fromUtf8(recipient.keyID()), QString::fromUtf8(keyError.asString()));
             } else {
                 if (key.numUserIDs()) {
-                    longStatus += LF + tr("Encrypted to %1 (%2)")
+                    ENSURE_LINE_LF(longStatus);
+                    longStatus += tr("Encrypted to %1 (%2)")
                             .arg(QString::fromUtf8(key.userID(0).id()), QString::fromUtf8(recipient.keyID()));
                 } else {
-                    longStatus += LF + tr("Encrypted to %1").arg(QString::fromUtf8(recipient.keyID()));
+                    ENSURE_LINE_LF(longStatus);
+                    longStatus += tr("Encrypted to %1").arg(QString::fromUtf8(recipient.keyID()));
                 }
             }
         }
         if (auto fname = combinedResult.first.fileName()) {
-            longStatus += LF + tr("Original filename: %1").arg(QString::fromUtf8(fname));
+            ENSURE_LINE_LF(longStatus);
+            longStatus += tr("Original filename: %1").arg(QString::fromUtf8(fname));
         }
 
         if (p) {
