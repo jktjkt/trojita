@@ -26,10 +26,6 @@
 
 namespace UiUtils {
 
-template Gui::PartWidgetFactory::PartWalker(Imap::Network::MsgPartNetAccessManager *manager, Gui::MessageView *context,
-std::unique_ptr<UiUtils::PartVisitor<QWidget *, Gui::MessageView *>> visitor);
-template QWidget *Gui::PartWidgetFactory::walk(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode);
-template Gui::MessageView *Gui::PartWidgetFactory::context() const;
-template void Gui::PartWidgetFactory::setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher);
+template class PartWalker<QWidget *, Gui::MessageView *>;
 
 }

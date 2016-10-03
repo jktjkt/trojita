@@ -34,12 +34,7 @@ typedef UiUtils::PartWalker<QWidget *, MessageView *> PartWidgetFactory;
 
 namespace UiUtils {
 
-extern template
-QWidget *Gui::PartWidgetFactory::walk(const QModelIndex &partIndex, int recursionDepth, const PartLoadingOptions loadingMode);
-extern template
-Gui::MessageView *Gui::PartWidgetFactory::context() const;
-extern template
-void Gui::PartWidgetFactory::setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher);
+extern template class PartWalker<QWidget *, Gui::MessageView *>;
 
 }
 
