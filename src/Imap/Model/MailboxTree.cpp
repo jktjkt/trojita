@@ -44,7 +44,7 @@ namespace Mailbox
 TreeItem::TreeItem(TreeItem *parent): m_parent(parent)
 {
     // These just have to be present in the context of TreeItem, otherwise they couldn't access the protected members
-    static_assert(static_cast<intptr_t>(alignof(TreeItem)) > TreeItem::TagMask,
+    static_assert(static_cast<intptr_t>(alignof(TreeItem&)) > TreeItem::TagMask,
                   "class TreeItem must be aligned at at least four bytes due to the FetchingState optimization");
     static_assert(DONE <= TagMask, "Invalid masking for pointer tag access");
 }
