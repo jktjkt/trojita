@@ -57,7 +57,7 @@ QString persistentLogFileName()
 
 QString systemPlatformVersion()
 {
-    QString os = QStringLiteral(""
+    QString os = QLatin1String("" // clazy:exclude=qstring-allocations
 #ifdef Q_OS_AIX
                                     "AIX"
 #endif
