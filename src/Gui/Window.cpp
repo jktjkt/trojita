@@ -1433,6 +1433,9 @@ void MainWindow::handleMarkAsRead(bool value)
 void MainWindow::slotNextUnread()
 {
     QModelIndex current = msgListWidget->tree->currentIndex();
+    if (!current.isValid()) {
+        current = msgListWidget->tree->indexAt(QPoint(0, 0));
+    }
 
     bool wrapped = false;
     while (current.isValid()) {
@@ -1469,6 +1472,9 @@ void MainWindow::slotNextUnread()
 void MainWindow::slotPreviousUnread()
 {
     QModelIndex current = msgListWidget->tree->currentIndex();
+    if (!current.isValid()) {
+        current = msgListWidget->tree->indexAt(QPoint(0, 0));
+    }
 
     bool wrapped = false;
     while (current.isValid()) {
