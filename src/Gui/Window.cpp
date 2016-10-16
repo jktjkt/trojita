@@ -887,6 +887,16 @@ void MainWindow::setupModels()
     connect(imapModel()->taskModel(), &QAbstractItemModel::rowsMoved, taskTree, &QTreeView::expandAll);
 
     busyParsersIndicator->setImapModel(imapModel());
+
+    auto accountIconName = m_settings->value(Common::SettingsNames::imapAccountIcon).toString();
+    if (accountIconName.isEmpty()) {
+        qApp->setWindowIcon(UiUtils::loadIcon(QStringLiteral("trojita")));
+    } else if (accountIconName.contains(QDir::separator())) {
+        // Absolute paths are OK for users, but unsupported by our icon loader
+        qApp->setWindowIcon(QIcon(accountIconName));
+    } else {
+        qApp->setWindowIcon(UiUtils::loadIcon(accountIconName));
+    }
 }
 
 void MainWindow::createSysTray()

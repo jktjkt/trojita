@@ -235,6 +235,16 @@ Imap::Mailbox::NetworkPolicy ImapAccess::preferredNetworkPolicy() const
     }
 }
 
+QString ImapAccess::accountIconName() const
+{
+    return m_settings->value(Common::SettingsNames::imapAccountIcon).toString();
+}
+
+void ImapAccess::setAccountIconName(const QString &iconName)
+{
+    m_settings->setValue(Common::SettingsNames::imapAccountIcon, iconName);
+}
+
 void ImapAccess::doConnect()
 {
     if (m_netWatcher) {

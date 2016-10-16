@@ -68,6 +68,7 @@ const QString SettingsNames::imapBlacklistedCapabilities = QStringLiteral("imap.
 const QString SettingsNames::imapUseSystemProxy = QStringLiteral("imap.proxy.system");
 const QString SettingsNames::imapNeedsNetwork = QStringLiteral("imap.needsNetwork");
 const QString SettingsNames::imapNumberRefreshInterval = QStringLiteral("imap.numberRefreshInterval");
+const QString SettingsNames::imapAccountIcon = QStringLiteral("imap.accountIcon");
 const QString SettingsNames::composerSaveToImapKey = QStringLiteral("composer/saveToImapEnabled");
 const QString SettingsNames::composerImapSentKey = QStringLiteral("composer/imapSentName");
 const QString SettingsNames::cacheMetadataKey = QStringLiteral("offline.metadataCache");

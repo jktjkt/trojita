@@ -108,6 +108,9 @@ public:
 
     QString accountName() const;
 
+    QString accountIconName() const;
+    void setAccountIconName(const QString &iconName);
+
     Common::ConnectionMethod connectionMethod() const;
     void setConnectionMethod(const Common::ConnectionMethod mode);
 
