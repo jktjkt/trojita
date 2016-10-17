@@ -952,7 +952,7 @@ void MainWindow::handleTrayIconChange()
 
     const bool isOffline = qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher())->effectiveNetworkPolicy()
             == Imap::Mailbox::NETWORK_OFFLINE;
-    auto pixmap = UiUtils::loadIcon(QStringLiteral("trojita"))
+    auto pixmap = qApp->windowIcon()
                 .pixmap(QSize(32, 32), isOffline ? QIcon::Disabled : QIcon::Normal);
     QString tooltip;
     auto profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
