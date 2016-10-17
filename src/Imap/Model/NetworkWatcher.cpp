@@ -43,6 +43,11 @@ NetworkWatcher::NetworkWatcher(ImapAccess *parent, Model *model):
     connect(m_reconnectTimer, &QTimer::timeout, this, &NetworkWatcher::tryReconnect);
 }
 
+NetworkPolicy NetworkWatcher::effectiveNetworkPolicy() const
+{
+    return m_model->networkPolicy();
+}
+
 /** @short Start the reconnect attempt cycle */
 void NetworkWatcher::attemptReconnect()
 {

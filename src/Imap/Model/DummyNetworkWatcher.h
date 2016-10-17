@@ -34,10 +34,8 @@ class DummyNetworkWatcher: public NetworkWatcher
 public:
     DummyNetworkWatcher(ImapAccess *parent, Model *model);
 
-    virtual NetworkPolicy effectiveNetworkPolicy() const;
-
 protected:
-    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy);
+    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) override;
 };
 
 }

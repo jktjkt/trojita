@@ -38,8 +38,6 @@ class SystemNetworkWatcher: public NetworkWatcher
 public:
     SystemNetworkWatcher(ImapAccess *parent, Model *model);
 
-    virtual NetworkPolicy effectiveNetworkPolicy() const;
-
 public slots:
     void reconnectModelNetwork();
     void onGlobalOnlineStateChanged(const bool online);
@@ -47,7 +45,7 @@ public slots:
     void networkSessionError();
 
 protected:
-    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy);
+    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) override;
 
 private:
     QNetworkConfigurationManager *m_netConfManager;

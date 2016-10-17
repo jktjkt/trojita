@@ -69,11 +69,6 @@ void SystemNetworkWatcher::onGlobalOnlineStateChanged(const bool online)
     }
 }
 
-NetworkPolicy SystemNetworkWatcher::effectiveNetworkPolicy() const
-{
-    return m_model->networkPolicy();
-}
-
 void SystemNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 {
     if (policy != m_desiredPolicy) {

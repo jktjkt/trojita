@@ -45,7 +45,7 @@ public:
     NetworkWatcher(ImapAccess *parent, Model *model);
 
     NetworkPolicy desiredNetworkPolicy() const;
-    virtual NetworkPolicy effectiveNetworkPolicy() const = 0;
+    NetworkPolicy effectiveNetworkPolicy() const;
 
 public slots:
     virtual void setNetworkOffline();
