@@ -258,10 +258,10 @@ AsynchronousPartWidget::AsynchronousPartWidget(QWidget *parent,
     }
 }
 
-void AsynchronousPartWidget::handleRowsInserted(const QModelIndex &parent, int row, int column)
+void AsynchronousPartWidget::handleRowsInserted(const QModelIndex &parent, int first, int last)
 {
-    Q_UNUSED(row)
-    Q_UNUSED(column)
+    Q_UNUSED(first)
+    Q_UNUSED(last)
 
     if (parent == m_partIndex) {
         buildWidgets();
