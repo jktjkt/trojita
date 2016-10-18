@@ -68,6 +68,15 @@ void TestQaimDfsIterator::testQaimDfsIterator_data()
     m->appendRow(new QStandardItem("b"));
     m->appendRow(new QStandardItem("c"));
     QTest::newRow("flat-list") << "a b c" << m;
+
+    m.reset(new QStandardItemModel());
+    auto item3 = new QStandardItem("a.A.1");
+    auto item2 = new QStandardItem("a.A");
+    item2->appendRow(item3);
+    auto item1 = new QStandardItem("a");
+    item1->appendRow(item2);
+    m->appendRow(item1);
+    QTest::newRow("linear-hierarchy") << "a a.A a.A.1" << m;
 }
 
 QTEST_GUILESS_MAIN(TestQaimDfsIterator)

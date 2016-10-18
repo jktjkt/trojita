@@ -32,6 +32,12 @@ QaimDfsIterator::QaimDfsIterator(const QModelIndex &index)
 QaimDfsIterator &QaimDfsIterator::operator++()
 {
     // FIXME: tree structure
+    // if there are children, descent into them
+    auto firstChild = m_current.child(0, 0);
+    if (firstChild.isValid()) {
+        m_current = firstChild;
+        return *this;
+    }
     auto nextSibling = m_current.sibling(m_current.row() + 1, 0);
     m_current = nextSibling;
     return *this;
