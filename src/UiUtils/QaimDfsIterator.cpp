@@ -31,15 +31,30 @@ QaimDfsIterator::QaimDfsIterator(const QModelIndex &index)
 
 QaimDfsIterator &QaimDfsIterator::operator++()
 {
-    // FIXME: tree structure
-    // if there are children, descent into them
-    auto firstChild = m_current.child(0, 0);
-    if (firstChild.isValid()) {
-        m_current = firstChild;
-        return *this;
+    bool wentUp = false;
+    while (m_current.isValid()) {
+        // if there are (unvisited) children, descent into them
+        auto firstChild = m_current.child(0, 0);
+        if (!wentUp && firstChild.isValid()) {
+            m_current = firstChild;
+            return *this;
+        }
+
+        // if there are siblings, go there; we surely haven't been there yet
+        auto nextSibling = m_current.sibling(m_current.row() + 1, 0);
+        if (nextSibling.isValid()) {
+            m_current = nextSibling;
+            return *this;
+        }
+
+        // else, check our parent
+        m_current = m_current.parent();
+        wentUp = true;
+        // ...and because this is a while-loop, this iterator doesn't really support
+        // iterating until an arbitrary particular end-iterator, just until the very
+        // end of the model.
     }
-    auto nextSibling = m_current.sibling(m_current.row() + 1, 0);
-    m_current = nextSibling;
+    Q_ASSERT(!m_current.isValid());
     return *this;
 }
 

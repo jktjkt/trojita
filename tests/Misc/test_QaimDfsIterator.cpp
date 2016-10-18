@@ -76,7 +76,23 @@ void TestQaimDfsIterator::testQaimDfsIterator_data()
     auto item1 = new QStandardItem("a");
     item1->appendRow(item2);
     m->appendRow(item1);
+    item1 = item2 = item3 = nullptr;
     QTest::newRow("linear-hierarchy") << "a a.A a.A.1" << m;
+
+    m.reset(new QStandardItemModel());
+    item3 = new QStandardItem("a.A.1");
+    item2 = new QStandardItem("a.A");
+    item2->appendRow(item3);
+    item1 = new QStandardItem("a");
+    item1->appendRow(item2);
+    item3 = new QStandardItem("a.B.1");
+    item2 = new QStandardItem("a.B");
+    item2->appendRow(item3);
+    item1->appendRow(item2);
+    m->appendRow(item1);
+    item1 = new QStandardItem("b");
+    m->appendRow(item1);
+    QTest::newRow("backtracking") << "a a.A a.A.1 a.B a.B.1 b" << m;
 }
 
 QTEST_GUILESS_MAIN(TestQaimDfsIterator)
