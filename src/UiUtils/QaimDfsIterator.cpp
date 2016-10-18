@@ -52,7 +52,8 @@ QaimDfsIterator &QaimDfsIterator::operator++()
         wentUp = true;
         // ...and because this is a while-loop, this iterator doesn't really support
         // iterating until an arbitrary particular end-iterator, just until the very
-        // end of the model.
+        // end of the model, or until an arbitrary top-level item (an index whose
+        // parent is a null, invalid QAIM).
     }
     Q_ASSERT(!m_current.isValid());
     return *this;
@@ -61,6 +62,11 @@ QaimDfsIterator &QaimDfsIterator::operator++()
 const QModelIndex &QaimDfsIterator::operator*() const
 {
     return m_current;
+}
+
+const QModelIndex *QaimDfsIterator::operator->() const
+{
+    return &m_current;
 }
 
 bool QaimDfsIterator::operator!=(const QaimDfsIterator &other)

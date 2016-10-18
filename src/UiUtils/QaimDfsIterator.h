@@ -36,6 +36,7 @@ public:
     QaimDfsIterator(const QaimDfsIterator &) = default;
     QaimDfsIterator & operator++();
     const QModelIndex &operator*() const;
+    const QModelIndex *operator->() const;
     bool operator!=(const QaimDfsIterator &other);
 private:
     QModelIndex m_current;
@@ -54,5 +55,8 @@ template<> struct iterator_traits<UiUtils::QaimDfsIterator>
     // yes, really -- because we're a stashing iterator and our operator* doesn't point to a true reference
 };
 }
+
+Q_DECLARE_METATYPE(UiUtils::QaimDfsIterator);
+
 
 #endif
