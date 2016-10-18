@@ -260,6 +260,7 @@ set(libUiUtils_SOURCES
     ${path_UiUtils}/PartWalker_impl.h
     ${path_UiUtils}/PasswordWatcher.cpp
     ${path_UiUtils}/PlainTextFormatter.cpp
+    ${path_UiUtils}/QaimDfsIterator.cpp
 )
 
 set(path_IPC ${CMAKE_CURRENT_SOURCE_DIR}/src/IPC)
@@ -819,6 +820,7 @@ if(BUILD_TESTING)
     trojita_test(Misc rfccodecs)
     trojita_test(Misc prettySize)
     trojita_test(Misc Formatting)
+    trojita_test(Misc QaimDfsIterator)
 
 endif()
 
