@@ -26,6 +26,21 @@ namespace UiUtils {
 
 QaimDfsIterator::QaimDfsIterator(const QModelIndex &index)
     : m_current(index)
+    , m_model(index.model())
+{
+    Q_ASSERT(m_model);
+}
+
+QaimDfsIterator::QaimDfsIterator(const QModelIndex &index, const QAbstractItemModel *model)
+    : m_current(index)
+    , m_model(model)
+{
+    Q_ASSERT(m_model);
+    Q_ASSERT(!index.isValid() || m_model == index.model());
+}
+
+QaimDfsIterator::QaimDfsIterator()
+    : m_model(nullptr)
 {
 }
 
@@ -50,12 +65,46 @@ QaimDfsIterator &QaimDfsIterator::operator++()
         // else, check our parent
         m_current = m_current.parent();
         wentUp = true;
-        // ...and because this is a while-loop, this iterator doesn't really support
-        // iterating until an arbitrary particular end-iterator, just until the very
-        // end of the model, or until an arbitrary top-level item (an index whose
-        // parent is a null, invalid QAIM).
     }
     Q_ASSERT(!m_current.isValid());
+    return *this;
+}
+
+QaimDfsIterator &QaimDfsIterator::operator--()
+{
+    auto deepestChild = [](const QAbstractItemModel *model, QModelIndex where) -> QModelIndex {
+        while (model->hasChildren(where)) {
+            where = model->index(model->rowCount(where) - 1, 0, where);
+        }
+        return where;
+    };
+
+    // special case: do not wrap around
+    if (!m_model) {
+        return *this;
+    }
+
+    // special case: if we're at the end, find "the last child"
+    if (!m_current.isValid()) {
+        m_current = deepestChild(m_model, QModelIndex());
+        return *this;
+    }
+
+    // check if we can visit our previous sibling
+    auto previousSibling = m_current.sibling(m_current.row() - 1, 0);
+    if (previousSibling.isValid()) {
+        // actually, its children, if there are any
+        m_current = deepestChild(previousSibling.model(), previousSibling);
+        return *this;
+    }
+
+    // OK, we're a first child of something, apparently
+    Q_ASSERT(m_current.row() == 0);
+    if (!m_current.parent().isValid()) {
+        // a special case: prevent circling back to the very end
+        m_model = nullptr;
+    }
+    m_current = m_current.parent();
     return *this;
 }
 
@@ -72,6 +121,8 @@ const QModelIndex *QaimDfsIterator::operator->() const
 bool QaimDfsIterator::operator!=(const QaimDfsIterator &other)
 {
     return m_current != other.m_current;
+    // yes, this ignores m_model, which means that an iterator which got decremented too much
+    // won't be considered different from one which is at the end
 }
 
 }

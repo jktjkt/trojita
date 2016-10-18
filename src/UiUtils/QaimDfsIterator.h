@@ -32,14 +32,17 @@ class QaimDfsIterator
 {
 public:
     explicit QaimDfsIterator(const QModelIndex &index);
-    QaimDfsIterator() = default;
+    explicit QaimDfsIterator(const QModelIndex &index, const QAbstractItemModel *model);
+    QaimDfsIterator();
     QaimDfsIterator(const QaimDfsIterator &) = default;
     QaimDfsIterator & operator++();
+    QaimDfsIterator & operator--();
     const QModelIndex &operator*() const;
     const QModelIndex *operator->() const;
     bool operator!=(const QaimDfsIterator &other);
 private:
     QModelIndex m_current;
+    const QAbstractItemModel *m_model;
 };
 
 }
