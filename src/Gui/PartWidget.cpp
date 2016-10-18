@@ -290,7 +290,8 @@ void AsynchronousPartWidget::handleError(const QModelIndex &parent, const QStrin
 void AsynchronousPartWidget::buildWidgets()
 {
     Q_ASSERT(m_partIndex.isValid());
-    Q_ASSERT(m_partIndex.model()->rowCount(m_partIndex) > 0);
+    // The row count might be empty, maybe because the IMAP server refused to provide us
+    // with valid cryptotext data for the individual encrypted parts
     disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &MultipartSignedEncryptedWidget::handleRowsInserted);
     disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &MultipartSignedEncryptedWidget::handleLayoutChanged);
     for (int i = 0; i < m_partIndex.model()->rowCount(m_partIndex); ++i) {
