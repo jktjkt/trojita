@@ -39,6 +39,7 @@ public:
     QaimDfsIterator & operator--();
     const QModelIndex &operator*() const;
     const QModelIndex *operator->() const;
+    bool operator==(const QaimDfsIterator &other);
     bool operator!=(const QaimDfsIterator &other);
 private:
     QModelIndex m_current;

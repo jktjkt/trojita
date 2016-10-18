@@ -37,9 +37,16 @@ void TestQaimDfsIterator::testQaimDfsIterator()
     std::transform(begin, end, std::back_inserter(buf),
                    [](const QModelIndex &what) -> QString {
         return what.data().toString();
-    }
-                   );
+    });
     QCOMPARE(buf.join(QLatin1Char(' ')), order);
+
+    // Check that operator++ can be reversed (while it points to a valid element or to end)
+    for (auto it = begin; it != end; ++it) {
+        auto another = it;
+        ++it;
+        --it;
+        QVERIFY(it == another);
+    }
 
     if (begin != end) {
         // check iteration in reverse
@@ -63,7 +70,9 @@ void TestQaimDfsIterator::testQaimDfsIterator()
         auto it = end;
         --it;
         ++it;
+        QVERIFY(it == end);
         QVERIFY(!(it != end));
+        QVERIFY(it == begin);
         QVERIFY(!(it != begin));
     }
 

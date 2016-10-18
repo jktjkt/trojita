@@ -118,6 +118,15 @@ const QModelIndex *QaimDfsIterator::operator->() const
     return &m_current;
 }
 
+bool QaimDfsIterator::operator==(const QaimDfsIterator &other)
+{
+    if (m_model) {
+        return m_current == other.m_current;
+    } else {
+        return !other.m_model || !other.m_current.isValid();
+    }
+}
+
 bool QaimDfsIterator::operator!=(const QaimDfsIterator &other)
 {
     return m_current != other.m_current;
