@@ -51,6 +51,7 @@
 #include "Common/Paths.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
+#include "Common/StashingReverseIterator.h"
 #include "Composer/Mailto.h"
 #include "Composer/SenderIdentitiesModel.h"
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
@@ -100,6 +101,7 @@
 
 #include "Imap/Model/ModelTest/modeltest.h"
 #include "UiUtils/IconLoader.h"
+#include "UiUtils/QaimDfsIterator.h"
 
 /** @short All user-facing widgets and related classes */
 namespace Gui
@@ -1440,42 +1442,47 @@ void MainWindow::handleMarkAsRead(bool value)
     }
 }
 
+static bool isMarkedUnread(const QModelIndex &idx)
+{
+    return idx.isValid() && !idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool();
+}
+
 void MainWindow::slotNextUnread()
 {
     QModelIndex current = msgListWidget->tree->currentIndex();
+    bool advancePastCurrent = true;
     if (!current.isValid()) {
         current = msgListWidget->tree->indexAt(QPoint(0, 0));
+        advancePastCurrent = false;
+    }
+    if (!current.isValid()) {
+        // no messages
+        return;
     }
 
-    bool wrapped = false;
-    while (current.isValid()) {
-        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListWidget->tree->currentIndex() != current) {
-            m_messageWidget->messageView->setMessage(current);
-            msgListWidget->tree->setCurrentIndex(current);
-            return;
-        }
+    auto it = UiUtils::QaimDfsIterator(current, msgListWidget->tree->model());
+    if (advancePastCurrent) {
+        // because the "current index" wasn't in fact the selected yet
+        ++it;
+    }
+    auto end = UiUtils::QaimDfsIterator(QModelIndex(), msgListWidget->tree->model());
 
-        QModelIndex child = current.child(0, 0);
-        if (child.isValid()) {
-            current = child;
-            continue;
-        }
+    // seach from the next index until the end
+    if (it->isValid()) {
+        it = std::find_if(it, end, isMarkedUnread);
+    }
 
-        QModelIndex sibling = current.sibling(current.row() + 1, 0);
-        if (sibling.isValid()) {
-            current = sibling;
-            continue;
-        }
+    // OK, wrap around, check from the beginning until (but not including) the current one
+    if (!it->isValid()) {
+        it = UiUtils::QaimDfsIterator(msgListWidget->tree->model()->index(0, 0, QModelIndex()));
+        end = UiUtils::QaimDfsIterator(current, msgListWidget->tree->model());
+        it = std::find_if(it, end, isMarkedUnread);
+    }
 
-        while (current.isValid() && msgListWidget->tree->model()->rowCount(current.parent()) - 1 == current.row()) {
-            current = current.parent();
-        }
-        current = current.sibling(current.row() + 1, 0);
-
-        if (!current.isValid() && !wrapped) {
-            wrapped = true;
-            current = msgListWidget->tree->model()->index(0, 0);
-        }
+    if (it->isValid() && it != end) {
+        Q_ASSERT(!it->data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+        m_messageWidget->messageView->setMessage(*it);
+        msgListWidget->tree->setCurrentIndex(*it);
     }
 }
 
@@ -1485,32 +1492,31 @@ void MainWindow::slotPreviousUnread()
     if (!current.isValid()) {
         current = msgListWidget->tree->indexAt(QPoint(0, 0));
     }
+    if (!current.isValid()) {
+        // no messages
+        return;
+    }
 
-    bool wrapped = false;
-    while (current.isValid()) {
-        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListWidget->tree->currentIndex() != current) {
-            m_messageWidget->messageView->setMessage(current);
-            msgListWidget->tree->setCurrentIndex(current);
-            return;
-        }
+    auto it = Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator>(UiUtils::QaimDfsIterator(current, msgListWidget->tree->model()));
+    auto end = Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator>(
+                UiUtils::QaimDfsIterator(msgListWidget->tree->model()->index(0, 0, QModelIndex()), msgListWidget->tree->model()));
 
-        QModelIndex candidate = current.sibling(current.row() - 1, 0);
-        while (candidate.isValid() && current.model()->hasChildren(candidate)) {
-            candidate = candidate.child(current.model()->rowCount(candidate) - 1, 0);
-            Q_ASSERT(candidate.isValid());
-        }
+    // search from the previous one up until the begining
+    if (it->isValid()) {
+        it = std::find_if(it, end, isMarkedUnread);
+    }
 
-        if (candidate.isValid()) {
-            current = candidate;
-        } else {
-            current = current.parent();
-        }
-        if (!current.isValid() && !wrapped) {
-            wrapped = true;
-            while (msgListWidget->tree->model()->hasChildren(current)) {
-                current = msgListWidget->tree->model()->index(msgListWidget->tree->model()->rowCount(current) - 1, 0, current);
-            }
-        }
+    // search from the end up to the next one from the current one
+    if (!it->isValid()) {
+        it = Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator>(UiUtils::QaimDfsIterator(QModelIndex(), msgListWidget->tree->model()));
+        end = Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator>(UiUtils::QaimDfsIterator(current, msgListWidget->tree->model()));
+        it = std::find_if(it, end, isMarkedUnread);
+    }
+
+    if (it->isValid() && it != end) {
+        Q_ASSERT(!it->data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+        m_messageWidget->messageView->setMessage(*it);
+        msgListWidget->tree->setCurrentIndex(*it);
     }
 }
 
