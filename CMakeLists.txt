@@ -552,13 +552,13 @@ set_source_files_properties(${version_files}
 add_library(Common STATIC ${libCommon_SOURCES})
 set_property(TARGET Common APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 add_dependencies(Common version)
-qt5_use_modules(Common Core Network)
+target_link_libraries(Common Qt5::Network)
 
 add_library(AppVersion STATIC ${libAppVersion_SOURCES})
 set_property(TARGET AppVersion APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 add_dependencies(AppVersion version)
 target_link_libraries(AppVersion Common)
-qt5_use_modules(AppVersion Core)
+target_link_libraries(AppVersion Qt5::Core)
 
 if(WITH_SHARED_PLUGINS)
     add_library(Plugins SHARED ${libPlugins_SOURCES})
@@ -569,12 +569,11 @@ else()
 endif()
 set_target_properties(Plugins PROPERTIES OUTPUT_NAME trojita_plugins)
 set_property(TARGET Plugins APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-qt5_use_modules(Plugins Core)
+target_link_libraries(Plugins Qt5::Core)
 
 add_library(UiUtils STATIC ${libUiUtils_SOURCES})
 set_property(TARGET UiUtils APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-target_link_libraries(UiUtils Plugins Common)
-qt5_use_modules(UiUtils Core Gui Network)
+target_link_libraries(UiUtils Plugins Common Qt5::Gui)
 
 add_library(Streams STATIC ${libStreams_SOURCES})
 set_property(TARGET Streams APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
@@ -582,36 +581,32 @@ if(WITH_ZLIB)
     set_property(TARGET Streams APPEND PROPERTY INCLUDE_DIRECTORIES ${ZLIB_INCLUDE_DIR})
     target_link_libraries(Streams ${ZLIB_LIBRARIES})
 endif()
-qt5_use_modules(Streams Network)
+target_link_libraries(Streams Qt5::Network)
 
 add_library(IPC STATIC ${libIPC_SOURCES})
 set_property(TARGET IPC APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 if(WITH_DBUS)
-    qt5_use_modules(IPC DBus Widgets)
+    target_link_libraries(IPC Qt5::DBus Qt5::Widgets)
 else()
-    qt5_use_modules(IPC Core)
+    target_link_libraries(IPC Qt5::Core)
 endif()
 
 add_library(qwwsmtpclient STATIC ${libqwwsmtpclient_SOURCES})
-qt5_use_modules(qwwsmtpclient Network)
+target_link_libraries(qwwsmtpclient Qt5::Network)
 
 add_library(MSA STATIC ${libMSA_SOURCES})
 set_property(TARGET MSA APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(MSA Imap Streams qwwsmtpclient)
-qt5_use_modules(MSA Network)
 
 add_library(Composer STATIC ${libComposer_SOURCES})
 set_property(TARGET Composer APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Composer Common MSA Streams UiUtils qwwsmtpclient)
-qt5_use_modules(Composer Gui Network)
 
 add_library(Imap STATIC ${libImap_SOURCES})
 set_property(TARGET Imap APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
-target_link_libraries(Imap Common Streams UiUtils)
-qt5_use_modules(Imap Gui Network Sql)
+target_link_libraries(Imap Common Streams UiUtils Qt5::Sql)
 
 add_library(Cryptography STATIC ${libCryptography_SOURCES})
-qt5_use_modules(Cryptography Core)
 set_property(TARGET Cryptography APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Cryptography Common Imap)
 if(WITH_MIMETIC)
@@ -636,8 +631,7 @@ endif()
 ## QtKeyChain plugin
 if(WITH_QTKEYCHAIN_PLUGIN)
     trojita_add_plugin(trojita_plugin_QtKeychainPasswordPlugin WITH_QTKEYCHAIN_PLUGIN src/Plugins/QtKeyChain/QtKeyChainPassword.cpp)
-    qt5_use_modules(trojita_plugin_QtKeychainPasswordPlugin Core DBus)
-    target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QTKEYCHAIN_LIBRARIES})
+    target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QTKEYCHAIN_LIBRARIES} Qt5::DBus)
     set_property(TARGET trojita_plugin_QtKeychainPasswordPlugin APPEND PROPERTY INCLUDE_DIRECTORIES ${QTKEYCHAIN_INCLUDE_DIRS})
 endif()
 
@@ -662,7 +656,7 @@ if(WITH_ABOOKADDRESSBOOK_PLUGIN)
     trojita_add_plugin(trojita_plugin_AbookAddressbookPlugin WITH_ABOOKADDRESSBOOK_PLUGIN ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
     set_property(TARGET trojita_plugin_AbookAddressbookPlugin APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 
-    qt5_use_modules(trojita_plugin_AbookAddressbookPlugin Widgets)
+    target_link_libraries(trojita_plugin_AbookAddressbookPlugin Qt5::Widgets)
 
     set(be_contacts_SOURCES
         ${path_AbookAddressbook}/main.cpp
@@ -675,7 +669,7 @@ if(WITH_ABOOKADDRESSBOOK_PLUGIN)
         set_property(TARGET be.contacts APPEND PROPERTY COMPILE_DEFINITIONS QT_STATICPLUGIN)
         target_link_libraries(be.contacts trojita_plugin_AbookAddressbookPlugin)
     endif()
-    qt5_use_modules(be.contacts Widgets)
+    target_link_libraries(be.contacts Qt5::Widgets)
 endif()
 
 # Generate file static_plugins.h.in
@@ -695,15 +689,13 @@ if(WITH_DESKTOP)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
     set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
-    target_link_libraries(DesktopGui Common UiUtils Composer Cryptography Imap IPC MSA Plugins Streams qwwsmtpclient)
+    target_link_libraries(DesktopGui Common UiUtils Composer Cryptography Imap IPC MSA Plugins Streams qwwsmtpclient Qt5::WebKitWidgets)
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
     set_property(TARGET trojita APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS})
-    qt5_use_modules(DesktopGui Network WebKitWidgets)
-    qt5_use_modules(trojita Widgets Network)
 endif()
 
 
@@ -737,17 +729,15 @@ if(WITH_TESTS)
         tests/Utils/LibMailboxSync.cpp
     )
     add_library(test_LibMailboxSync STATIC ${test_LibMailboxSync_SOURCES})
-    qt5_use_modules(test_LibMailboxSync Test Network)
     set_property(TARGET test_LibMailboxSync APPEND PROPERTY INCLUDE_DIRECTORIES
         ${CMAKE_CURRENT_SOURCE_DIR}/tests
         ${CMAKE_CURRENT_SOURCE_DIR}/tests/Utils)
-    target_link_libraries(test_LibMailboxSync Imap MSA Streams Common Composer)
+    target_link_libraries(test_LibMailboxSync Imap MSA Streams Common Composer Qt5::Test)
 
     macro(trojita_test dir fname)
         set(test_${fname}_SOURCES tests/${dir}/test_${fname}.cpp)
         add_executable(test_${fname} ${test_${fname}_SOURCES})
         target_link_libraries(test_${fname} Imap MSA Streams Common Composer Cryptography test_LibMailboxSync)
-        qt5_use_modules(test_${fname} Network Sql Test Widgets)
         set_property(TARGET test_${fname} APPEND PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/tests)
         if(NOT CMAKE_CROSSCOMPILING)
             add_test(test_${fname} test_${fname})
@@ -759,9 +749,9 @@ if(WITH_TESTS)
     enable_testing()
     trojita_test(Composer Composer_Submission)
     trojita_test(Composer Composer_responses)
+    target_link_libraries(test_Composer_responses Qt5::WebKitWidgets)
     trojita_test(Composer Html_formatting)
-    qt5_use_modules(test_Composer_responses WebKitWidgets)
-    qt5_use_modules(test_Html_formatting WebKitWidgets)
+    target_link_libraries(test_Html_formatting Qt5::WebKitWidgets)
     trojita_test(Imap Imap_DisappearingMailboxes)
     trojita_test(Imap Imap_Idle)
     trojita_test(Imap Imap_LowLevelParser)
