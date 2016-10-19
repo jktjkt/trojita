@@ -18,6 +18,14 @@ if(POLICY CMP0043)
     cmake_policy(SET CMP0043 OLD)
 endif()
 
+if(CMAKE_VERSION VERSION_LESS "3.1")
+    # If you aren't using and old Linux with an old GCC and old CMake, please just upgrade.
+    set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
+else()
+    set(CMAKE_CXX_STANDARD 11)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+endif()
+
 # Set a default build type if none was specified. This was shamelessly stolen
 # from VTK's cmake setup because these guys produce both CMake and a project that
 # manipulates this variable, and the web is full of posts where people say that
@@ -33,24 +41,6 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-include(FindCXXFeatures)
-if(NOT CXXFeatures_auto_FOUND)
-    message(SEND_ERROR "Your compiler doesn't support C++11's auto")
-endif()
-if(NOT CXXFeatures_static_assert_FOUND)
-    message(SEND_ERROR "Your compiler doesn't support C++11's static_assert")
-endif()
-if(NOT CXXFeatures_alignof_FOUND)
-    message(SEND_ERROR "Your compiler doesn't support C++11's alignof")
-endif()
-if(NOT CXXFeatures_nullptr_FOUND)
-    message(SEND_ERROR "Your compiler doesn't support C++11's nullptr")
-endif()
-if(NOT CXXFeatures_lambda_FOUND)
-    message(SEND_ERROR "Your compiler doesn't support C++11's lambda functions")
-endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CXX11_COMPILER_FLAGS}")
 
 include(TrojitaOption)
 
