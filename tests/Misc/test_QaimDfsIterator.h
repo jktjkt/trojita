@@ -29,4 +29,7 @@ class TestQaimDfsIterator : public QObject
 private Q_SLOTS:
     void testQaimDfsIterator();
     void testQaimDfsIterator_data();
+
+    void testWrappedFind();
+    void testWrappedFind_data();
 };

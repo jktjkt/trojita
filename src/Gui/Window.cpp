@@ -51,7 +51,6 @@
 #include "Common/Paths.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
-#include "Common/StashingReverseIterator.h"
 #include "Composer/Mailto.h"
 #include "Composer/SenderIdentitiesModel.h"
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
@@ -1442,82 +1441,36 @@ void MainWindow::handleMarkAsRead(bool value)
     }
 }
 
-static bool isMarkedUnread(const QModelIndex &idx)
-{
-    return idx.isValid() && !idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool();
-}
-
 void MainWindow::slotNextUnread()
 {
     QModelIndex current = msgListWidget->tree->currentIndex();
-    bool advancePastCurrent = true;
-    if (!current.isValid()) {
-        current = msgListWidget->tree->indexAt(QPoint(0, 0));
-        advancePastCurrent = false;
-    }
-    if (!current.isValid()) {
-        // no messages
-        return;
-    }
 
-    auto it = UiUtils::QaimDfsIterator(current, msgListWidget->tree->model());
-    if (advancePastCurrent) {
-        // because the "current index" wasn't in fact the selected yet
-        ++it;
-    }
-    auto end = UiUtils::QaimDfsIterator(QModelIndex(), msgListWidget->tree->model());
-
-    // seach from the next index until the end
-    if (it->isValid()) {
-        it = std::find_if(it, end, isMarkedUnread);
-    }
-
-    // OK, wrap around, check from the beginning until (but not including) the current one
-    if (!it->isValid()) {
-        it = UiUtils::QaimDfsIterator(msgListWidget->tree->model()->index(0, 0, QModelIndex()));
-        end = UiUtils::QaimDfsIterator(current, msgListWidget->tree->model());
-        it = std::find_if(it, end, isMarkedUnread);
-    }
-
-    if (it->isValid() && it != end) {
-        Q_ASSERT(!it->data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
-        m_messageWidget->messageView->setMessage(*it);
-        msgListWidget->tree->setCurrentIndex(*it);
-    }
+    UiUtils::gotoNext(msgListWidget->tree->model(), current,
+    [](const QModelIndex &idx) { return !idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool(); },
+    [this](const QModelIndex &idx) {
+        Q_ASSERT(!idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+        m_messageWidget->messageView->setMessage(idx);
+        msgListWidget->tree->setCurrentIndex(idx);
+    },
+    []() {
+        // nothing to do
+    });
 }
 
 void MainWindow::slotPreviousUnread()
 {
     QModelIndex current = msgListWidget->tree->currentIndex();
-    if (!current.isValid()) {
-        current = msgListWidget->tree->indexAt(QPoint(0, 0));
-    }
-    if (!current.isValid()) {
-        // no messages
-        return;
-    }
 
-    auto it = Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator>(UiUtils::QaimDfsIterator(current, msgListWidget->tree->model()));
-    auto end = Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator>(
-                UiUtils::QaimDfsIterator(msgListWidget->tree->model()->index(0, 0, QModelIndex()), msgListWidget->tree->model()));
-
-    // search from the previous one up until the begining
-    if (it->isValid()) {
-        it = std::find_if(it, end, isMarkedUnread);
-    }
-
-    // search from the end up to the next one from the current one
-    if (!it->isValid()) {
-        it = Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator>(UiUtils::QaimDfsIterator(QModelIndex(), msgListWidget->tree->model()));
-        end = Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator>(UiUtils::QaimDfsIterator(current, msgListWidget->tree->model()));
-        it = std::find_if(it, end, isMarkedUnread);
-    }
-
-    if (it->isValid() && it != end) {
-        Q_ASSERT(!it->data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
-        m_messageWidget->messageView->setMessage(*it);
-        msgListWidget->tree->setCurrentIndex(*it);
-    }
+    UiUtils::gotoPrevious(msgListWidget->tree->model(), current,
+    [](const QModelIndex &idx) { return !idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool(); },
+    [this](const QModelIndex &idx) {
+        Q_ASSERT(!idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+        m_messageWidget->messageView->setMessage(idx);
+        msgListWidget->tree->setCurrentIndex(idx);
+    },
+    []() {
+        // nothing to do
+    });
 }
 
 void MainWindow::handleMarkAsDeleted(bool value)

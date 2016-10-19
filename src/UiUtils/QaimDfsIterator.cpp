@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "Common/StashingReverseIterator.h"
 #include "UiUtils/QaimDfsIterator.h"
 
 namespace UiUtils {
@@ -132,6 +133,70 @@ bool QaimDfsIterator::operator!=(const QaimDfsIterator &other)
     return m_current != other.m_current;
     // yes, this ignores m_model, which means that an iterator which got decremented too much
     // won't be considered different from one which is at the end
+}
+
+/** @short Search between start1 and end1, wrap around to start2 and continue to end2 */
+template <typename Iterator>
+static void wrappedFind(Iterator start1, Iterator end1, Iterator start2, Iterator end2,
+                        std::function<bool(typename std::iterator_traits<Iterator>::reference)> itValidityChecker,
+                        std::function<bool(typename std::iterator_traits<Iterator>::reference)> matcher,
+                        std::function<void(typename std::iterator_traits<Iterator>::reference)> onSuccess,
+                        std::function<void()> onFailure)
+{
+    auto it = start1;
+    auto rejectedResult = end1;
+    if (itValidityChecker(*it)) {
+        it = std::find_if(it, end1, matcher);
+    }
+
+    if (!itValidityChecker(*it)) {
+        it = std::find_if(start2, end2, matcher);
+        rejectedResult = end2;
+    }
+
+    if (itValidityChecker(*it) && it != rejectedResult) {
+        onSuccess(*it);
+    } else {
+        onFailure();
+    }
+}
+
+void gotoNext(const QAbstractItemModel *model, const QModelIndex &currentIndex,
+              std::function<bool(const QModelIndex &)> matcher,
+              std::function<void(const QModelIndex &)> onSuccess,
+              std::function<void()> onFailure)
+{
+    auto it = UiUtils::QaimDfsIterator(currentIndex, model);
+    ++it;
+    // explicitly specify the template to help GCC 4.8.5 realize that our lambda is copmatible with that std::function
+    UiUtils::wrappedFind<decltype(it)>(
+                it,
+                QaimDfsIterator(QModelIndex(), model),
+                QaimDfsIterator(model->index(0, 0, QModelIndex())),
+                QaimDfsIterator(currentIndex, model),
+                [](const QModelIndex &idx) { return idx.isValid(); },
+                matcher,
+                onSuccess,
+                onFailure);
+}
+
+void gotoPrevious(const QAbstractItemModel *model, const QModelIndex &currentIndex,
+                  std::function<bool(const QModelIndex &)> matcher,
+                  std::function<void(const QModelIndex &)> onSuccess,
+                  std::function<void()> onFailure)
+{
+    auto it = Common::make_stashing_reverse_iterator(QaimDfsIterator(currentIndex, model));
+    --it;
+
+    UiUtils::wrappedFind<decltype(it)>(
+                Common::make_stashing_reverse_iterator(QaimDfsIterator(currentIndex, model)),
+                Common::make_stashing_reverse_iterator(QaimDfsIterator(model->index(0, 0, QModelIndex()), model)),
+                Common::make_stashing_reverse_iterator(QaimDfsIterator(QModelIndex(), model)),
+                it,
+                [](const QModelIndex &idx) { return idx.isValid(); },
+                matcher,
+                onSuccess,
+                onFailure);
 }
 
 }

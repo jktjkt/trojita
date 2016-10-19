@@ -24,6 +24,7 @@
 #ifndef TROJITA_UIUTILS_QAIM_DFS_H
 #define TROJITA_UIUTILS_QAIM_DFS_H
 
+#include <functional>
 #include <QModelIndex>
 
 namespace UiUtils {
@@ -45,6 +46,15 @@ private:
     QModelIndex m_current;
     const QAbstractItemModel *m_model;
 };
+
+void gotoNext(const QAbstractItemModel *model, const QModelIndex &currentIndex,
+              std::function<bool(const QModelIndex &)> matcher,
+              std::function<void(const QModelIndex &)> onSuccess,
+              std::function<void()> onFailure);
+void gotoPrevious(const QAbstractItemModel *model, const QModelIndex &currentIndex,
+                  std::function<bool(const QModelIndex &)> matcher,
+                  std::function<void(const QModelIndex &)> onSuccess,
+                  std::function<void()> onFailure);
 
 }
 

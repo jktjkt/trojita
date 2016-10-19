@@ -185,4 +185,90 @@ void TestQaimDfsIterator::testQaimDfsIterator_data()
     QTest::newRow("backtracking-until-top-level") << "a.A a.A.1 a.B a.B.1" << m << begin << end;
 }
 
+void TestQaimDfsIterator::testWrappedFind()
+{
+    QFETCH(QString, items);
+    QFETCH(QString, commands);
+
+    QStandardItemModel model;
+    const auto splitItems = items.split(QLatin1Char(' '));
+    for (const auto &i: splitItems) {
+        model.appendRow(new QStandardItem(i));
+    }
+    const auto cmdStream = commands.split(QLatin1Char(' '));
+    QVERIFY(cmdStream.size() % 2 == 0);
+
+    QModelIndex currentItem;
+
+    auto matcher = [](const QModelIndex &idx) { return idx.data().toString().contains(QLatin1Char('_')); };
+
+    QStringList foundValues, expectedValues;
+
+    for (int i = 0; i < cmdStream.size() - 1; ++i) {
+        bool numberOk;
+
+        auto positiveAction = [&currentItem, cmdStream, &i, &foundValues, &expectedValues](const QModelIndex &idx) {
+            currentItem = idx;
+            foundValues.push_back(idx.data().toString());
+            expectedValues.push_back(cmdStream[i] + "_");
+            QCOMPARE(foundValues, expectedValues);
+        };
+
+        auto negativeAction = [&currentItem, cmdStream, &i, &foundValues, &expectedValues]() {
+            if (currentItem.isValid()) {
+                // ensure we haven't moved
+                foundValues.push_back(currentItem.data().toString());
+                expectedValues.push_back(cmdStream[i] + "_");
+            } else {
+                // current index should be invalid
+                foundValues.push_back("-1");
+                expectedValues.push_back(cmdStream[i]);
+            };
+            QCOMPARE(foundValues, expectedValues);
+        };
+
+        if (cmdStream[i] == "C") {
+            ++i;
+            // set current item
+            currentItem = model.index(cmdStream[i].toInt(&numberOk), 0);
+            Q_ASSERT(numberOk);
+            Q_ASSERT(currentItem.isValid());
+            foundValues.push_back("C");
+            expectedValues.push_back("C");
+        } else if (cmdStream[i] == "N") {
+            ++i;
+            UiUtils::gotoNext(&model, currentItem, matcher, positiveAction, negativeAction);
+        } else if (cmdStream[i] == "P") {
+            ++i;
+            UiUtils::gotoPrevious(&model, currentItem, matcher, positiveAction, negativeAction);
+        } else {
+            Q_ASSERT(false);
+        }
+    }
+    QCOMPARE(foundValues.size(), cmdStream.size() / 2);
+}
+
+void TestQaimDfsIterator::testWrappedFind_data()
+{
+    QTest::addColumn<QString>("items");
+    QTest::addColumn<QString>("commands");
+
+    // So this is a "fancy DSL" for controlling iteration through the contents of this random model.
+    // At first, we specify the content. Our model is linear, not a subtree one (we have other tests
+    // for that). Interesting items (those that we're looking for) are marked by an underscore.
+    //
+    // Next come the actual commands -- a character followed by a number.
+    // - C: set the current index to row #something (note that it starts at zero).
+    // - N: go to next interesting index and ensure that its number matches our expectation
+    // - P: previous one, i.e., N in the other direction
+    QTest::newRow("no-marked-items") << "1 2 3 4 5" << "N -1 P -1 N -1 N -1 P -1 P -1 P -1";
+    QTest::newRow("simple-forward") << "1 2_ 3 4 5_ 6_ 7_ 8" << "N 2 N 5 N 6 N 7 N 2 N 5 N 6";
+    QTest::newRow("simple-forward-interesting-at-beginning") << "1_ 2_ 3 4 5_ 6_ 7_ 8" << "N 1 N 2 N 5 N 6 N 7 N 1 N 2 N 5 N 6";
+    QTest::newRow("simple-backward") << "1 2_ 3 4 5_ 6_ 7_ 8" << "P 7 P 6 P 5 P 2 P 7 P 6";
+    QTest::newRow("simple-backward-interesting-at-end") << "1_ 2_ 3 4 5 6_ 7_ 8_" << "P 8 P 7 P 6 P 2 P 1 P 8 P 7 P 6";
+    QTest::newRow("simple-navigation") << "1 2_ 3 4 5_ 6_ 7_ 8" << "N 2 N 5 N 6 P 5 P 2 P 7 P 6 N 7 N 2";
+    QTest::newRow("navigation-with-initial") << "0 1 2_ 3 4 5_ 6_ 7_ 8" << "C 3 N 5 N 6 P 5 P 2 P 7 P 6 N 7 N 2";
+}
+
+
 QTEST_GUILESS_MAIN(TestQaimDfsIterator)
