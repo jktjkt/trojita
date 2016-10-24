@@ -81,7 +81,7 @@ public:
                            const UiUtils::PartLoadingOptions loadingOptions);
 
 protected slots:
-    void handleRowsInserted(const QModelIndex &parent, int row, int column);
+    void handleRowsInserted(const QModelIndex &parent, int first, int last);
     void handleLayoutChanged(const QList<QPersistentModelIndex> &parents);
     void handleError(const QModelIndex &parent, const QString &status, const QString &details);
     void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
