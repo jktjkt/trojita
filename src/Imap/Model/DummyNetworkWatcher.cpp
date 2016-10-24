@@ -31,11 +31,6 @@ DummyNetworkWatcher::DummyNetworkWatcher(ImapAccess *parent, Model *model):
 {
 }
 
-NetworkPolicy DummyNetworkWatcher::effectiveNetworkPolicy() const
-{
-    return m_model->networkPolicy();
-}
-
 void DummyNetworkWatcher::setDesiredNetworkPolicy(const NetworkPolicy policy)
 {
     m_desiredPolicy = policy;

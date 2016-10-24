@@ -43,6 +43,16 @@ NetworkWatcher::NetworkWatcher(ImapAccess *parent, Model *model):
     connect(m_reconnectTimer, &QTimer::timeout, this, &NetworkWatcher::tryReconnect);
 }
 
+NetworkPolicy NetworkWatcher::effectiveNetworkPolicy() const
+{
+    // Do we have any connection which is really alive?
+    auto parser = std::find_if(m_model->m_parsers.cbegin(), m_model->m_parsers.cend(),
+                 [](const Imap::Mailbox::ParserState & state) {
+        return state.connState != CONN_STATE_LOGOUT && state.connState >= CONN_STATE_AUTHENTICATED;
+    });
+    return parser == m_model->m_parsers.cend() ? NETWORK_OFFLINE : m_model->networkPolicy();
+}
+
 /** @short Start the reconnect attempt cycle */
 void NetworkWatcher::attemptReconnect()
 {
