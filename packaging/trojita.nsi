@@ -47,7 +47,7 @@
 !define DESCRIPTION "Qt IMAP e-mail client"
 !define HOMEPAGE "http://trojita.flaska.net/"
 !define LICENSE "GPLv2/GPLv3"
-!define COPYRIGHT "http://quickgit.kde.org/?p=trojita.git&a=blob&f=LICENSE"
+!define COPYRIGHT "https://commits.kde.org/trojita?path=LICENSE"
 
 ;--------------------------------
 
