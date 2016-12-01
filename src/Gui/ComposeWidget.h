@@ -22,6 +22,8 @@
 #ifndef COMPOSEWIDGET_H
 #define COMPOSEWIDGET_H
 
+#include <memory>
+
 #include <QList>
 #include <QMap>
 #include <QPersistentModelIndex>
@@ -31,6 +33,7 @@
 
 #include "Composer/Recipients.h"
 #include "Plugins/AddressbookPlugin.h"
+
 
 namespace Ui
 {
@@ -60,6 +63,8 @@ namespace Gui
 class MainWindow;
 
 class InhibitComposerDirtying;
+
+class ComposerSaveState;
 
 /** @short A "Compose New Mail..." dialog
 
@@ -168,21 +173,14 @@ private:
     int m_maxVisibleRecipients;
 
     bool m_sentMail;
-    /** @short Has it been updated since the last time we auto-saved it? */
-    bool m_messageUpdated;
-    /** @short Was this message ever editted by human?
-
-    We have to track both of these. Simply changing the sender (and hence the signature) without any text being written
-    shall not trigger automatic saving, but on the other hand changing the sender after something was already written
-    is an important change.
-    */
-    bool m_messageEverEdited;
     bool m_explicitDraft;
     QString m_autoSavePath;
 
     QList<QByteArray> m_inReplyTo;
     QList<QByteArray> m_references;
     QPersistentModelIndex m_replyingToMessage;
+
+    std::unique_ptr<ComposerSaveState> m_saveState;
 
     bool m_appendUidReceived;
     uint m_appendUidValidity;
@@ -203,6 +201,7 @@ private:
     QMap<QLineEdit *, Plugins::AddressbookJob *> m_secondCompletionRequests;
 
     friend class InhibitComposerDirtying;
+    friend class ComposerSaveState;
 
     ComposeWidget(const ComposeWidget &); // don't implement
     ComposeWidget &operator=(const ComposeWidget &); // don't implement

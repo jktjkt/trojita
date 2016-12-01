@@ -31,7 +31,6 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QPropertyAnimation>
-#include <QPushButton>
 #include <QSettings>
 #include <QTimer>
 #include <QToolButton>
@@ -77,6 +76,44 @@ namespace Gui
 
 static const QString trojita_opacityAnimation = QStringLiteral("trojita_opacityAnimation");
 
+/** @short Keep track of whether the document has been updated since the last save */
+class ComposerSaveState
+{
+public:
+    explicit ComposerSaveState(ComposeWidget* w): composer(w), messageUpdated(false), messageEverEdited(false)
+    {
+
+    }
+    void setMessageUpdated(bool updated)
+    {
+        messageUpdated = updated;
+        updateText();
+
+    }
+    void setMessageEverEdited(bool everEdited){
+        messageEverEdited = everEdited;
+        updateText();
+    }
+
+    const bool everEdited() {return messageEverEdited;}
+    const bool updated() {return messageUpdated;}
+private:
+    ComposeWidget* composer;
+    /** @short Has it been updated since the last time we auto-saved it? */
+    bool messageUpdated;
+    /** @short Was this message ever editted by human?
+
+    We have to track both of these. Simply changing the sender (and hence the signature) without any text being written
+    shall not trigger automatic saving, but on the other hand changing the sender after something was already written
+    is an important change.
+    */
+    bool messageEverEdited;
+    void updateText()
+    {
+        composer->cancelButton->setText((messageUpdated || messageEverEdited) ? QWidget::tr("Cancel...") : QWidget::tr("Cancel"));
+    }
+};
+
 /** @short Ignore dirtying events while we're preparing the widget's contents
 
 Under the normal course of operation, there's plenty of events (user typing some text, etc) which lead to the composer widget
@@ -88,11 +125,11 @@ This guard object makes sure (via RAII) that these dirtifying events are ignored
 class InhibitComposerDirtying
 {
 public:
-    explicit InhibitComposerDirtying(ComposeWidget *w): w(w), wasEverEdited(w->m_messageEverEdited), wasEverUpdated(w->m_messageUpdated) {}
+    explicit InhibitComposerDirtying(ComposeWidget *w): w(w), wasEverEdited(w->m_saveState->everEdited()), wasEverUpdated(w->m_saveState->updated()) {}
     ~InhibitComposerDirtying()
     {
-        w->m_messageEverEdited = wasEverEdited;
-        w->m_messageUpdated = wasEverUpdated;
+        w->m_saveState->setMessageEverEdited(wasEverEdited);
+        w->m_saveState->setMessageUpdated(wasEverUpdated);
     }
 private:
     ComposeWidget *w;
@@ -104,8 +141,6 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     ui(new Ui::ComposeWidget),
     m_maxVisibleRecipients(MIN_MAX_VISIBLE_RECIPIENTS),
     m_sentMail(false),
-    m_messageUpdated(false),
-    m_messageEverEdited(false),
     m_explicitDraft(false),
     m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
     m_mainWindow(mainWindow),
@@ -139,6 +174,8 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     cancelButton->setIcon(UiUtils::loadIcon(QStringLiteral("dialog-cancel")));
     connect(cancelButton, &QAbstractButton::clicked, this, &QWidget::close);
     connect(ui->attachButton, &QAbstractButton::clicked, this, &ComposeWidget::slotAskForFileAttachment);
+
+    m_saveState = std::unique_ptr<ComposerSaveState>(new ComposerSaveState(this));
 
     m_completionPopup = new QMenu(this);
     m_completionPopup->installEventFilter(this);
@@ -579,8 +616,8 @@ void ComposeWidget::changeEvent(QEvent *e)
 
 void ComposeWidget::closeEvent(QCloseEvent *ce)
 {
-    const bool noSaveRequired = m_sentMail || !m_messageEverEdited ||
-                                (m_explicitDraft && !m_messageUpdated); // autosave to permanent draft and no update
+    const bool noSaveRequired = m_sentMail || !m_saveState->everEdited() ||
+                                (m_explicitDraft && !m_saveState->updated()); // autosave to permanent draft and no update
     if (!noSaveRequired) {  // save is required
         QMessageBox msgBox(this);
         msgBox.setWindowModality(Qt::WindowModal);
@@ -1627,21 +1664,22 @@ void ComposeWidget::loadDraft(const QString &path)
     ui->subject->setText(string);
     stream >> string;
     ui->mailText->setPlainText(string);
-    m_messageUpdated = false; // this is now the most up-to-date one
+    m_saveState->setMessageUpdated(false); // this is now the most up-to-date one
     file.close();
 }
 
 void ComposeWidget::autoSaveDraft()
 {
-    if (m_messageUpdated) {
-        m_messageUpdated = false;
+    if (m_saveState->updated()) {
+        m_saveState->setMessageUpdated(false);
         saveDraft(m_autoSavePath);
     }
 }
 
 void ComposeWidget::setMessageUpdated()
 {
-    m_messageEverEdited = m_messageUpdated = true;
+    m_saveState->setMessageUpdated(true);
+    m_saveState->setMessageEverEdited(true);
 }
 
 void ComposeWidget::updateWindowTitle()
@@ -1665,6 +1703,4 @@ void ComposeWidget::updateReplyMarkingAction()
     m_actionToggleMarking->setIcon(action->icon());
     m_actionToggleMarking->setToolTip(action->toolTip());
 }
-
 }
-
