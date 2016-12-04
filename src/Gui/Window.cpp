@@ -2395,6 +2395,8 @@ void MainWindow::slotLayoutCompact()
     m_mainHSplitter->setStretchFactor(0, 0);
     // ...while the msgListTree shall consume all the remaining space
     m_mainHSplitter->setStretchFactor(1, 1);
+    // The CompleteMessageWidget shall not not collapse
+    m_mainVSplitter->setCollapsible(m_mainVSplitter->indexOf(m_messageWidget), false);
 
     setCentralWidget(m_mainHSplitter);
 
@@ -2422,6 +2424,8 @@ void MainWindow::slotLayoutWide()
     m_mainHSplitter->setStretchFactor(0, 0);
     m_mainHSplitter->setStretchFactor(1, 1);
     m_mainHSplitter->setStretchFactor(2, 1);
+
+    m_mainHSplitter->setCollapsible(m_mainHSplitter->indexOf(m_messageWidget), false);
 
     mboxTree->show();
     msgListWidget->show();
