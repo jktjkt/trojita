@@ -110,6 +110,7 @@ void CryptographyPGPTest::testDecryption()
     }
     // allow for event processing, so that the model can retrieve the results
     QCoreApplication::processEvents();
+    QVERIFY(!data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool());
 
     if (!qcaErrorSpy.isEmpty() && successful) {
         qDebug() << "Unexpected failure in crypto";
@@ -226,8 +227,8 @@ void CryptographyPGPTest::testDecryptWithoutEnvelope()
     }
     // allow for event processing, so that the model can retrieve the results
     QCoreApplication::processEvents();
+    QVERIFY(!data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool());
 
-    QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool(), false);
     QVERIFY(qcaSuccessSpy.isEmpty());
     QVERIFY(qcaErrorSpy.isEmpty());
 
@@ -299,6 +300,7 @@ void CryptographyPGPTest::testVerification()
     }
     // allow for event processing, so that the model can retrieve the results
     QCoreApplication::processEvents();
+    QVERIFY(!data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool());
 
     if (!qcaErrorSpy.isEmpty() && successful) {
         qDebug() << "Unexpected failure in crypto";
@@ -529,8 +531,8 @@ void CryptographyPGPTest::testOffline()
     }
     // allow for event processing, so that the model can retrieve the results
     QCoreApplication::processEvents();
+    QVERIFY(!data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet).toBool());
 
-    QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoNotFinishedYet), QVariant(false));
     QCOMPARE(data.data(Imap::Mailbox::RolePartCryptoTLDR), QVariant(QStringLiteral("Data Unavailable")));
     QCOMPARE(msgModel.rowCount(data), 2);
 
