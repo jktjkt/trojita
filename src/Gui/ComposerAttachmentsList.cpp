@@ -25,9 +25,12 @@
 #include <QDebug>
 #include <QInputDialog>
 #include <QMenu>
+#include <QMimeData>
 #include "Composer/MessageComposer.h"
 #include "Gui/ComposerAttachmentsList.h"
+#include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/DragAndDrop.h"
 #include "UiUtils/IconLoader.h"
 
 ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
@@ -92,6 +95,10 @@ void ComposerAttachmentsList::startDrag(Qt::DropActions da)
 
 void ComposerAttachmentsList::dragEnterEvent(QDragEnterEvent *de)
 {
+    if (Gui::Util::isFromDistinctImapAccount(de)) {
+        de->ignore();
+        return;
+    }
     if (m_dragging)
         m_dragInside = true;
     QListView::dragEnterEvent(de);
@@ -102,6 +109,15 @@ void ComposerAttachmentsList::dragLeaveEvent(QDragLeaveEvent *de)
     if (m_dragging)
         m_dragInside = false;
     QListView::dragLeaveEvent(de);
+}
+
+void ComposerAttachmentsList::dropEvent(QDropEvent* de)
+{
+    if (Gui::Util::isFromDistinctImapAccount(de)) {
+        de->ignore();
+        return;
+    }
+    QListView::dropEvent(de);
 }
 
 void ComposerAttachmentsList::slotRemoveAttachment()
@@ -160,3 +176,4 @@ void ComposerAttachmentsList::showContextMenu(const QPoint &pos)
     onAttachmentNumberChanged();
     QMenu::exec(actions(), mapToGlobal(pos), 0, this);
 }
+

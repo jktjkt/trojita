@@ -24,9 +24,12 @@
 #include <QDragMoveEvent>
 #include <QDropEvent>
 #include <QMenu>
+#include <QMimeData>
 #include "Gui/MailBoxTreeView.h"
+#include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxFinder.h"
+#include "Imap/Model/DragAndDrop.h"
 #include "UiUtils/IconLoader.h"
 
 namespace Gui {
@@ -112,6 +115,10 @@ void MailBoxTreeView::dragMoveEvent(QDragMoveEvent *event)
 */
 void MailBoxTreeView::dropEvent(QDropEvent *event)
 {
+    if (Gui::Util::isFromDistinctImapAccount(event)) {
+        event->ignore();
+        return;
+    }
     if (event->keyboardModifiers() == Qt::ControlModifier) {
         event->setDropAction(Qt::CopyAction);
     } else if (event->keyboardModifiers() == Qt::ShiftModifier) {
@@ -134,6 +141,15 @@ void MailBoxTreeView::dropEvent(QDropEvent *event)
     }
 
     QTreeView::dropEvent(event);
+}
+
+void MailBoxTreeView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (!event->source()) {
+        event->ignore();
+        return;
+    }
+    QTreeView::dragEnterEvent(event);
 }
 
 /** @short Specify which mailboxes should be expanded
