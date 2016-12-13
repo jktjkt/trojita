@@ -89,6 +89,8 @@ public:
 
     void setMessageUpdated(bool updated)
     {
+        if (updated == messageUpdated)
+            return;
         messageUpdated = updated;
         updateText();
 
@@ -96,6 +98,8 @@ public:
 
     void setMessageEverEdited(bool everEdited)
     {
+        if (everEdited == messageEverEdited)
+            return;
         messageEverEdited = everEdited;
         updateText();
     }
