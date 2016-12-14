@@ -2,8 +2,6 @@
 <!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.2-Based Variant V1.1//EN"
 "dtd/kdex.dtd" [
   <!ENTITY trojita "<application>Trojitá</application>">
-  <!ENTITY kappname "&trojita;">
-  <!ENTITY package "extragera-pim">
   <!ENTITY % addindex "IGNORE">
   <!ENTITY % English "INCLUDE">
 ]>
@@ -447,13 +445,6 @@ the list of folders).</action></para></listitem>
 </para>
 </sect2>
 
-<sect2>
-<title>The Help Menu</title>
-
-&help.menu.documentation;
-
-</sect2>
-
 </sect1>
 </chapter>
 
@@ -487,32 +478,6 @@ Documentation Copyright &copy; 2013 Randall Wood
 <para>Under the GPLv2/GPLv3 license and CC-BY-SA</para>
 
 </chapter>
-
-<appendix id="installation">
-<title>Installation</title>
-
-<sect1 id="getting-kapp">
-<title>How to obtain &trojita;</title>
-
-&install.intro.documentation;
-
-</sect1>
-
-<sect1 id="requirements">
-<title>Requirements</title>
-
-<para>
-&trojita; has been designed to have a minimum of dependencies.
-Currently, all you need are the Qt libraries.  You can find the source code and
-instructions for compilation at <ulink
-url="https://projects.flaska.net/projects/trojita">the &trojita; home
-page</ulink>.
-</para>
-
-</sect1>
-
-
-</appendix>
 
 &documentation.index;
 </book>
