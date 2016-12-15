@@ -8,7 +8,7 @@ Run me from Trojita's top-level directory.
 """
 
 
-SVN_PATH = "svn://anonsvn.kde.org/home/kde/trunk/l10n-kde4/"
+SVN_PATH = "svn://anonsvn.kde.org/home/kde/trunk/l10n-kf5/"
 SOURCE_PO_PATH = "/messages/extragear-pim/trojita_common.po"
 OUTPUT_PO_PATH = "./po/"
 OUTPUT_PO_PATTERN = "trojita_common_%s.po"
