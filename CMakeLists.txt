@@ -49,7 +49,7 @@ trojita_option(WITH_DBUS "Build with DBus library" AUTO)
 trojita_option(WITH_RAGEL "Build with Ragel library" AUTO)
 trojita_option(WITH_ZLIB "Build with zlib library" AUTO)
 trojita_option(WITH_SHARED_PLUGINS "Enable shared dynamic plugins" ON)
-trojita_option(WITH_TESTS "Build tests" ON)
+trojita_option(BUILD_TESTING "Build tests" ON)
 trojita_option(WITH_MIMETIC "Build with client-side MIME parsing" AUTO)
 trojita_option(WITH_GPGMEPP "Build with the GpgME++ library for cryptography" AUTO)
 
@@ -72,7 +72,7 @@ find_package(Qt5Widgets REQUIRED)
 find_package(Qt5LinguistTools)
 find_package(Qt5Svg REQUIRED)
 trojita_find_package(Qt5DBus "" "http://qt-project.org" "Qt5 D-Bus support" "Needed for IPC and for some plugins" WITH_DBUS)
-trojita_find_package(Qt5Test "" "http://qt-project.org" "Qt5 QTest library" "Needed for automated tests" WITH_TESTS)
+trojita_find_package(Qt5Test "" "http://qt-project.org" "Qt5 QTest library" "Needed for automated tests" BUILD_TESTING)
 if(Qt5LinguistTools_FOUND)
     find_package(Qt5LinguistForTrojita)
 endif()
@@ -723,7 +723,7 @@ if(WITH_NSIS)
 endif()
 
 
-if(WITH_TESTS)
+if(BUILD_TESTING)
     set(test_LibMailboxSync_SOURCES
         tests/Utils/ModelEvents.cpp
         tests/Utils/LibMailboxSync.cpp
