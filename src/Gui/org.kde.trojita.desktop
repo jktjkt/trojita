@@ -38,6 +38,7 @@ Name[x-test]=xxTrojitáxx
 Name[zh_TW]=Trojitá
 GenericName=IMAP E-mail Client
 GenericName[ar]=عميل بريد IMAP إلكترونيّ
+GenericName[ast]=Veceru de corréu IMAP
 GenericName[bs]=IMAP klijent za elektronsku poštu
 GenericName[ca]=Client de correu electrònic IMAP
 GenericName[ca@valencia]=Client de correu electrònic IMAP
@@ -80,6 +81,7 @@ Icon=trojita
 Categories=Qt;Office;Network;Email;
 Keywords=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[ar]=mail;e-mail;IMAP;SMTP;eml;MUA;بريد;إلكتروني;
+Keywords[ast]=corréu;IMAP;SMTP;eml;MUA;
 Keywords[bs]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[ca]=mail;e-mail;IMAP;SMTP;eml;MUA;correu electrònic;
 Keywords[ca@valencia]=mail;e-mail;IMAP;SMTP;eml;MUA;correu electrònic;
@@ -111,6 +113,7 @@ Actions=Composer;
 
 [Desktop Action Composer]
 Name=New Message
+Name[ast]=Mensaxe nuevu
 Name[ca]=Missatge nou
 Name[ca@valencia]=Missatge nou
 Name[cs]=Nová zpráva
