@@ -31,7 +31,6 @@
   <name xml:lang="x-test">xxTrojitáxx</name>
   <summary>IMAP E-mail Client</summary>
   <summary xml:lang="ar">عميل بريد IMAP إلكترونيّ</summary>
-  <summary xml:lang="ast">Veceru de corréu IMAP</summary>
   <summary xml:lang="bs">IMAP klijent za elektronsku poštu</summary>
   <summary xml:lang="ca">Client de correu electrònic IMAP</summary>
   <summary xml:lang="ca-valencia">Client de correu electrònic IMAP</summary>
@@ -107,7 +106,6 @@
     <p xml:lang="x-test">xxIt prioritizes efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.xx</p>
     <p>What could make Trojitá interesting for you:</p>
     <p xml:lang="ar">ما قد يجعل تروجيتا مشوّقًا لك:</p>
-    <p xml:lang="ast">Qué pue facer Trojita interesante pa ti:</p>
     <p xml:lang="bs">Šta interesantno Trojitá može uraditi za vas:</p>
     <p xml:lang="ca">Què us podria fer el Trojitá interessant:</p>
     <p xml:lang="ca-valencia">Què vos podria fer el Trojitá interessant:</p>
@@ -130,7 +128,6 @@
     <ul>
       <li>Very fast and robust IMAP core</li>
       <li xml:lang="ar">نواة IMAP متينة وسريعة جدًّا</li>
-      <li xml:lang="ast">Nucléu IMAP mui rápidu y robustu</li>
       <li xml:lang="bs">Veoma brza i snažna IMAP jezgra</li>
       <li xml:lang="ca">Un cor IMAP molt ràpid i robust</li>
       <li xml:lang="ca-valencia">Un cor IMAP molt ràpid i robust</li>
