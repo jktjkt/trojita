@@ -110,55 +110,50 @@ QVariant FetchMsgPartTask::taskData(const int role) const
     return role == RoleTaskCompactName ? QVariant(tr("Downloading messages")) : QVariant();
 }
 
-/** @short We're dead, the data which hasn't arrived so far won't arrive in future unless a reset happens */
-void FetchMsgPartTask::markPendingItemsUnavailable()
+void FetchMsgPartTask::doForAllParts(const std::function<void(TreeItemPart *, const QByteArray &, const uint)> &f)
 {
     if (!mailboxIndex.isValid())
         return;
 
+    Q_ASSERT(model);
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
     const auto messages = model->findMessagesByUids(mailbox, uids);
     for(auto message: messages) {
         for (const auto &partId: parts) {
-            if (finalizeFetchPart(mailbox, message->row() + 1, partId)) {
-                log(QLatin1String("Fetched part ") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
-            } else {
-                log(QLatin1String("Received no data for part ") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
-            }
+            auto part = mailbox->partIdToPtr(model, static_cast<TreeItemMessage *>(message), partId);
+            f(part, partId, message->uid());
         }
     }
 }
 
-/** @short Retrieval of a message part has completed */
-bool FetchMsgPartTask::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId)
+/** @short We're dead, the data which hasn't arrived so far won't arrive in future unless a reset happens */
+void FetchMsgPartTask::markPendingItemsUnavailable()
 {
-    Q_ASSERT(model);
-    // At first, verify that the message itself is marked as loaded.
-    // If it isn't, it's probably because of Model::releaseMessageData().
-    TreeItem *item = mailbox->m_children[0]; // TreeItemMsgList
-    item = item->child(sequenceNo - 1, model);   // TreeItemMessage
-    Q_ASSERT(item);   // FIXME: or rather throw an exception?
-    if (item->accessFetchStatus() == TreeItem::NONE) {
-        // ...and it indeed got released, so let's just return and don't try to check anything
-        return false;
-    }
-
-    TreeItemPart *part = mailbox->partIdToPtr(model, static_cast<TreeItemMessage *>(item), partId);
-    if (!part) {
-        log(QStringLiteral("Can't verify part fetching status: part is not here!"), Common::LOG_MESSAGES);
-        return false;
-    }
-    if (part->loading()) {
-        part->setFetchStatus(TreeItem::UNAVAILABLE);
-        QModelIndex idx = part->toIndex(model);
-        emit model->dataChanged(idx, idx);
-        return false;
-    } else {
-        return true;
-    }
+    doForAllParts([this](TreeItemPart *part, const QByteArray &partId, const uint uid) {
+        if (!part) {
+            log(QStringLiteral("FETCH: Cannot find part %1 for UID %2 in the tree")
+                .arg(QString::fromUtf8(partId), QString::number(uid)), Common::LOG_MESSAGES);
+            return;
+        }
+        if (part->loading()) {
+            log(QStringLiteral("Received no data for part %1 UID %2").arg(QString::fromUtf8(partId), QString::number(uid)),
+                Common::LOG_MESSAGES);
+            markPartUnavailable(part);
+        } else {
+            log(QStringLiteral("Fetched part %1 for UID %2").arg(QString::fromUtf8(partId), QString::number(uid)),
+                Common::LOG_MESSAGES);
+        }
+    });
 }
 
+/** @short Give up fetching attempts for this part */
+void FetchMsgPartTask::markPartUnavailable(TreeItemPart *part)
+{
+    part->setFetchStatus(TreeItem::UNAVAILABLE);
+    QModelIndex idx = part->toIndex(model);
+    emit model->dataChanged(idx, idx);
+}
 
 }
 }
