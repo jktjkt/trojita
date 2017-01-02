@@ -455,8 +455,6 @@ set(libImap_SOURCES
     ${path_Imap}/Model/Utils.cpp
     ${path_Imap}/Model/VisibleTasksModel.cpp
 
-    # The ModelTest is only needed when debugging manually
-    #${path_Imap}/Model/ModelTest/modeltest.cpp
     # The ModelWatcher is another debugging aid
     ${path_Imap}/Model/ModelWatcher.cpp
 
@@ -493,6 +491,11 @@ set(libImap_SOURCES
     ${path_Imap}/Tasks/UpdateFlagsTask.cpp
     ${path_Imap}/Tasks/UpdateFlagsOfAllMessagesTask.cpp
 )
+
+# The ModelTest is only needed when debugging manually
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    list(APPEND libImap_SOURCES ${path_Imap}/Model/ModelTest/modeltest.cpp)
+endif()
 
 if(WITH_RAGEL)
     message(STATUS "Using Ragel for the RFC 5322 parser")

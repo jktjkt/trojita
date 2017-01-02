@@ -392,27 +392,27 @@ void ModelTest::data()
     // General Purpose roles that should return a QString
     QVariant variant = model->data(model->index(0, 0), Qt::ToolTipRole);
     if (variant.isValid()) {
-        Q_ASSERT(variant.canConvert<QMetaType::QString>());
+        Q_ASSERT(variant.canConvert(QMetaType::QString));
     }
     variant = model->data(model->index(0, 0), Qt::StatusTipRole);
     if (variant.isValid()) {
-        Q_ASSERT(variant.canConvert<QMetaType::QString>());
+        Q_ASSERT(variant.canConvert(QMetaType::QString));
     }
     variant = model->data(model->index(0, 0), Qt::WhatsThisRole);
     if (variant.isValid()) {
-        Q_ASSERT(variant.canConvert<QMetaType::QString>());
+        Q_ASSERT(variant.canConvert(QMetaType::QString));
     }
 
     // General Purpose roles that should return a QSize
     variant = model->data(model->index(0, 0), Qt::SizeHintRole);
     if (variant.isValid()) {
-        Q_ASSERT(variant.canConvert<QMetaType::QSize>());
+        Q_ASSERT(variant.canConvert(QMetaType::QSize));
     }
 
     // General Purpose roles that should return a QFont
     QVariant fontVariant = model->data(model->index(0, 0), Qt::FontRole);
     if (fontVariant.isValid()) {
-        Q_ASSERT(variant.canConvert<QMetaType::QFont>());
+        Q_ASSERT(variant.canConvert(QMetaType::QFont));
     }
 
     // Check that the alignment is one we know about
@@ -425,12 +425,12 @@ void ModelTest::data()
     // General Purpose roles that should return a QColor
     QVariant colorVariant = model->data(model->index(0, 0), Qt::BackgroundColorRole);
     if (colorVariant.isValid()) {
-        Q_ASSERT(colorVariant.canConvert<QMetaType::QColor>());
+        Q_ASSERT(colorVariant.canConvert(QMetaType::QColor));
     }
 
     colorVariant = model->data(model->index(0, 0), Qt::TextColorRole);
     if (colorVariant.isValid()) {
-        Q_ASSERT(colorVariant.canConvert<QMetaType::QColor>());
+        Q_ASSERT(colorVariant.canConvert(QMetaType::QColor));
     }
 
     // Check that the "check state" is one we know about.
