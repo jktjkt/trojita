@@ -339,7 +339,9 @@ bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *op
                 }
             }
             if (!emblem.isNull()) {
-                res->content = tr("<img src=\"%2\"/><span style=\"font-family: sans-serif; color: gray\">%1</span>")
+                res->content = QStringLiteral(
+                            "<img src=\"%2\" style=\"vertical-align: middle\"/>"
+                            "<span style=\"font-family: sans-serif; color: gray; margin-left: 0.5em\">%1</span>")
                         .arg(input->errorString, Util::resizedImageAsDataUrl(QStringLiteral(":/icons/%1.svg").arg(emblem), 32)).toUtf8();
                 return true;
             }
