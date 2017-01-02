@@ -50,6 +50,7 @@ protected:
     void markPendingItemsUnavailable();
     void doForAllParts(const std::function<void(TreeItemPart *, const QByteArray &, const uint)> &f);
     void markPartUnavailable(TreeItemPart *part);
+    void handleUnknownCTE(TreeItemPart *part, const QByteArray &partId, const uint uid);
 private:
     CommandHandle tag;
     ImapTask *conn;

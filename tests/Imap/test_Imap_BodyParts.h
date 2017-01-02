@@ -41,6 +41,8 @@ private slots:
 
     void testFilenameExtraction();
     void testFilenameExtraction_data();
+
+    void testBinaryFallback();
 };
 
 #endif

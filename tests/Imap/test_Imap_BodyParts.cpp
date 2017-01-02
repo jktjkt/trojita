@@ -445,4 +445,110 @@ void BodyPartsTest::testFilenameExtraction_data()
     QTest::newRow("name-overwrites-empty-filename") << bsPlaintextEmptyFilename << QStringLiteral("0") << QStringLiteral("actual");
 }
 
+/** @short Ensure that an [UNKNOWN-CTE] with BINARY results in a fallback to regular FETCH */
+void BodyPartsTest::testBinaryFallback()
+{
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability(QStringLiteral("BINARY"));
+    model->setProperty("trojita-imap-delayed-fetch-part", 10);
+    helperSyncBNoMessages();
+    cServer("* 1 EXISTS\r\n");
+    cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
+    cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msgListB), 1);
+    QModelIndex msg = msgListB.child(0, 0);
+    QVERIFY(msg.isValid());
+    QCOMPARE(model->rowCount(msg), 0);
+    cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
+    cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bsManyPlaintexts + "))\r\n" + t.last("OK fetched\r\n"));
+    QCOMPARE(model->rowCount(msg), 1);
+    QModelIndex rootMultipart = msg.child(0, 0);
+    QVERIFY(rootMultipart.isValid());
+    QCOMPARE(model->rowCount(rootMultipart), 5);
+
+    QSignalSpy dataChangedSpy(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
+
+    {
+        // One BINARY item fails, the other one is successfully retrieved
+        auto part1 = rootMultipart.child(0, 0);
+        auto part2 = rootMultipart.child(1, 0);
+        QCOMPARE(part1.data(RolePartId).toString(), QString("1"));
+        QCOMPARE(part1.data(RolePartData).toByteArray(), QByteArray());
+        QCOMPARE(part2.data(RolePartId).toString(), QString("2"));
+        QCOMPARE(part2.data(RolePartData).toByteArray(), QByteArray());
+        QTest::qWait(15);
+        cClientRegExp(t.mk("UID FETCH 333 \\((BINARY\\.PEEK\\[(2|1)\\] ?){2}\\)"));
+        cServer("* 1 FETCH (UID 333 BINARY[2] \"ahoj\")\r\n");
+        cServer(t.last("OK [UNKNOWN-CTE] some items failed to fetch\r\n"));
+        QCOMPARE(dataChangedSpy.size(), 1);
+        CHECK_DATACHANGED(0, part2);
+        QVERIFY(!part1.data(RoleIsFetched).toBool());
+        QVERIFY(!part1.data(RoleIsUnavailable).toBool());
+        QVERIFY(part2.data(RoleIsFetched).toBool());
+        QVERIFY(model->cache()->messagePart("b", 333, "1").isNull());
+        QCOMPARE(model->cache()->messagePart("b", 333, "2"), QByteArray("ahoj"));
+        dataChangedSpy.clear();
+        // check that a retry worked
+        QTest::qWait(15);
+        cClient(t.mk("UID FETCH 333 (BODY.PEEK[1])\r\n"));
+        cServer("* 1 FETCH (UID 333 BODY[1] \"" + QByteArray("recovered").toBase64() + "\")\r\n");
+        cServer(t.last("OK fetched this time\r\n"));
+        QCOMPARE(dataChangedSpy.size(), 1);
+        CHECK_DATACHANGED(0, part1);
+        QVERIFY(part1.data(RoleIsFetched).toBool());
+        QCOMPARE(model->cache()->messagePart("b", 333, "1"), QByteArray("recovered"));
+        dataChangedSpy.clear();
+        cEmpty();
+    }
+
+    {
+        // A retry of a failed BINARY fails with a NO [UNKNOWN-CTE], too.
+        // A real server shouldn't do that, but we shouldn't enter an infinite loop, either.
+        auto part3 = rootMultipart.child(2, 0);
+        QCOMPARE(part3.data(RolePartId).toString(), QString("3"));
+        QCOMPARE(part3.data(RolePartData).toByteArray(), QByteArray());
+        QTest::qWait(15);
+        cClient(t.mk("UID FETCH 333 (BINARY.PEEK[3])\r\n"));
+        cServer(t.last("NO [UNKNOWN-CTE] some items failed to fetch\r\n"));
+        QCOMPARE(dataChangedSpy.size(), 0);
+        QVERIFY(!part3.data(RoleIsFetched).toBool());
+        QVERIFY(!part3.data(RoleIsUnavailable).toBool());
+        QTest::qWait(15);
+        cClient(t.mk("UID FETCH 333 (BODY.PEEK[3])\r\n"));
+        cServer(t.last("NO [UNKNOWN-CTE] pwned\r\n"));
+        QCOMPARE(dataChangedSpy.size(), 1);
+        CHECK_DATACHANGED(0, part3);
+        QVERIFY(!part3.data(RoleIsFetched).toBool());
+        QVERIFY(part3.data(RoleIsUnavailable).toBool());
+        QVERIFY(model->cache()->messagePart("b", 333, "3").isNull());
+        dataChangedSpy.clear();
+        QTest::qWait(15);
+        cEmpty();
+    }
+
+    {
+        // A retry of a failed BINARY fails with a regular NO, but without any [UNKNOWN-CTE] this time.
+        auto part4 = rootMultipart.child(3, 0);
+        QCOMPARE(part4.data(RolePartId).toString(), QString("4"));
+        QCOMPARE(part4.data(RolePartData).toByteArray(), QByteArray());
+        QTest::qWait(15);
+        cClient(t.mk("UID FETCH 333 (BINARY.PEEK[4])\r\n"));
+        cServer(t.last("NO [UNKNOWN-CTE] some items failed to fetch\r\n"));
+        QCOMPARE(dataChangedSpy.size(), 0);
+        QVERIFY(!part4.data(RoleIsFetched).toBool());
+        QVERIFY(!part4.data(RoleIsUnavailable).toBool());
+        QTest::qWait(15);
+        cClient(t.mk("UID FETCH 333 (BODY.PEEK[4])\r\n"));
+        cServer(t.last("NO just go away\r\n"));
+        QCOMPARE(dataChangedSpy.size(), 1);
+        CHECK_DATACHANGED(0, part4);
+        QVERIFY(!part4.data(RoleIsFetched).toBool());
+        QVERIFY(part4.data(RoleIsUnavailable).toBool());
+        QVERIFY(model->cache()->messagePart("b", 333, "4").isNull());
+        dataChangedSpy.clear();
+        QTest::qWait(15);
+        cEmpty();
+    }
+}
+
 QTEST_GUILESS_MAIN(BodyPartsTest)

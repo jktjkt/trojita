@@ -1562,6 +1562,7 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QByteArray &mimeType)
     , m_octets(0)
     , m_partMime(nullptr)
     , m_partRaw(nullptr)
+    , m_binaryCTEFailed(false)
 {
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
@@ -1576,6 +1577,7 @@ TreeItemPart::TreeItemPart(TreeItem *parent)
     , m_octets(0)
     , m_partMime(nullptr)
     , m_partRaw(nullptr)
+    , m_binaryCTEFailed(false)
 {
 }
 

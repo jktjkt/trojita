@@ -38,6 +38,7 @@ FetchMsgPartTask::FetchMsgPartTask(Model *model, const QModelIndex &mailbox, con
     Q_ASSERT(!uids.isEmpty());
     conn = model->findTaskResponsibleFor(mailboxIndex);
     conn->addDependentTask(this);
+    connect(this, &ImapTask::completed, this, &FetchMsgPartTask::markPendingItemsUnavailable);
     connect(this, &ImapTask::failed, this, &FetchMsgPartTask::markPendingItemsUnavailable);
 }
 
@@ -76,13 +77,20 @@ bool FetchMsgPartTask::handleStateHelper(const Imap::Responses::State *const res
     }
 
     if (resp->tag == tag) {
-        markPendingItemsUnavailable();
-        if (resp->kind == Responses::OK) {
+        if (resp->respCode == Responses::UNKNOWN_CTE) {
+            doForAllParts([this](TreeItemPart *part, const QByteArray &partId, const uint uid) {
+                handleUnknownCTE(part, partId, uid);
+            });
+            // clean up so that these won't get marked UNAVAILABLE
+            uids.clear();
+            parts.clear();
+            _failed(QStringLiteral("BINARY fetch failed: server reported [UNKNOWN-CTE]"));
+        } else if (resp->kind == Responses::OK) {
             log(QStringLiteral("Fetched parts"), Common::LOG_MESSAGES);
             model->changeConnectionState(parser, CONN_STATE_SELECTED);
             _completed();
         } else {
-            _failed(tr("Part fetch failed"));
+            _failed(QStringLiteral("Part fetch failed"));
         }
         return true;
     } else {
@@ -94,6 +102,9 @@ QString FetchMsgPartTask::debugIdentification() const
 {
     if (!mailboxIndex.isValid())
         return QStringLiteral("[invalid mailbox]");
+
+    if (uids.isEmpty())
+        return QStringLiteral("[no items to fetch]");
 
     Q_ASSERT(!uids.isEmpty());
     QStringList buf;
@@ -153,6 +164,33 @@ void FetchMsgPartTask::markPartUnavailable(TreeItemPart *part)
     part->setFetchStatus(TreeItem::UNAVAILABLE);
     QModelIndex idx = part->toIndex(model);
     emit model->dataChanged(idx, idx);
+}
+
+void FetchMsgPartTask::handleUnknownCTE(TreeItemPart *part, const QByteArray &partId, const uint uid)
+{
+    if (!part) {
+        log(QStringLiteral("FETCH: Cannot find part %1 of UID %2 in the tree")
+            .arg(QString::fromUtf8(partId), QString::number(uid)), Common::LOG_MESSAGES);
+        return;
+    }
+    if (part->fetched()) {
+        log(QStringLiteral("Fetched part %1 of for UID %2").arg(QString::fromUtf8(partId), QString::number(uid)),
+            Common::LOG_MESSAGES);
+        return;
+    }
+    if (part->m_binaryCTEFailed) {
+        // This is nasty -- how come that we issued something which ended up in an [UNKNOWN-CTE] for a second time?
+        // Better prevent infinite loops here.
+        log(QStringLiteral("FETCH BINARY: retry apparently also failed for part %1 UID %2")
+            .arg(QString::fromUtf8(partId), QString::number(uid)));
+        markPartUnavailable(part);
+        return;
+    } else {
+        log(QStringLiteral("FETCH BINARY: got UNKNOWN-CTE for part %1 of UID %2, will fetch using the old-school way")
+            .arg(QString::fromUtf8(partId), QString::number(uid)));
+        part->m_binaryCTEFailed = true;
+        model->askForMsgPart(part);
+    }
 }
 
 }
