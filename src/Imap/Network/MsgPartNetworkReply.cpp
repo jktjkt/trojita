@@ -78,9 +78,17 @@ void MsgPartNetworkReply::slotModelDataChanged(const QModelIndex &topLeft, const
 void MsgPartNetworkReply::slotMyDataChanged()
 {
     if (part.data(Mailbox::RoleIsUnavailable).toBool()) {
-        setError(TimeoutError, tr("Offline"));
+        if (!part.data(Mailbox::RoleIsNetworkOffline).isValid()) {
+            setError(UnknownProxyError, tr("Cannot access data"));
+        } else {
+            if (part.data(Mailbox::RoleIsNetworkOffline).toBool()) {
+                setError(TimeoutError, tr("Uncached data not available when offline"));
+            } else {
+                setError(ContentNotFoundError, tr("Error downloading data"));
+            }
+        }
         setFinished(true);
-        emit error(TimeoutError);
+        emit error(error());
         emit finished();
         return;
     }

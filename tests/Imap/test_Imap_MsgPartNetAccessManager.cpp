@@ -226,7 +226,7 @@ void ImapMsgPartNetAccessManagerTest::testFetchResultOfflineSingle()
     QCOMPARE(msg1p1.data(Imap::Mailbox::RoleIsUnavailable), QVariant(true));
 
     QCOMPARE(res->isFinished(), true);
-    QCOMPARE(res->error(), QNetworkReply::TimeoutError);
+    QCOMPARE(res->error(), QNetworkReply::ContentNotFoundError);
 }
 
 
