@@ -80,17 +80,26 @@ static const QString trojita_opacityAnimation = QStringLiteral("trojita_opacityA
 class ComposerSaveState
 {
 public:
-    explicit ComposerSaveState(ComposeWidget* w): composer(w), messageUpdated(false), messageEverEdited(false)
+    explicit ComposerSaveState(ComposeWidget* w)
+        : composer(w)
+        , messageUpdated(false)
+        , messageEverEdited(false)
     {
-
     }
+
     void setMessageUpdated(bool updated)
     {
+        if (updated == messageUpdated)
+            return;
         messageUpdated = updated;
         updateText();
 
     }
-    void setMessageEverEdited(bool everEdited){
+
+    void setMessageEverEdited(bool everEdited)
+    {
+        if (everEdited == messageEverEdited)
+            return;
         messageEverEdited = everEdited;
         updateText();
     }
