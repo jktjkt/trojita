@@ -20,7 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
+#include <algorithm>
 #include "FetchMsgPartTask.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/Model.h"
@@ -97,9 +97,9 @@ QString FetchMsgPartTask::debugIdentification() const
 
     Q_ASSERT(!uids.isEmpty());
     QStringList buf;
-    Q_FOREACH(const QByteArray &item, parts) {
-        buf << QString::fromUtf8(item);
-    }
+    std::transform(parts.begin(), parts.end(), std::back_inserter(buf),
+                   [](const QByteArray &x) {return QString::fromUtf8(x);}
+                   );
     return QStringLiteral("%1: parts %2 for UIDs %3")
            .arg(mailboxIndex.data(RoleMailboxName).toString(), buf.join(QStringLiteral(", ")),
                 QString::fromUtf8(Sequence::fromVector(uids).toByteArray()));
@@ -118,9 +118,9 @@ void FetchMsgPartTask::markPendingItemsUnavailable()
 
     TreeItemMailbox *mailbox = dynamic_cast<TreeItemMailbox *>(static_cast<TreeItem *>(mailboxIndex.internalPointer()));
     Q_ASSERT(mailbox);
-    QList<TreeItemMessage *> messages = model->findMessagesByUids(mailbox, uids);
-    Q_FOREACH(TreeItemMessage *message, messages) {
-        Q_FOREACH(const QByteArray &partId, parts) {
+    const auto messages = model->findMessagesByUids(mailbox, uids);
+    for(auto message: messages) {
+        for (const auto &partId: parts) {
             if (finalizeFetchPart(mailbox, message->row() + 1, partId)) {
                 log(QLatin1String("Fetched part ") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
             } else {
