@@ -26,10 +26,10 @@
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
 
-namespace Imap
-{
-namespace Mailbox
-{
+namespace Imap {
+namespace Mailbox {
+
+class TreeItemMailbox;
 
 /** @short Fetch a message part */
 class FetchMsgPartTask : public ImapTask
@@ -48,6 +48,8 @@ public:
 protected slots:
     void markPendingItemsUnavailable();
 private:
+    bool finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId);
+
     CommandHandle tag;
     ImapTask *conn;
     Imap::Uids uids;
