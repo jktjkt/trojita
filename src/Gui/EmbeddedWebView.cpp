@@ -328,7 +328,7 @@ bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *op
             if (input->domain == QtNetwork) {
                 switch (input->error) {
                 case QNetworkReply::TimeoutError:
-                    emblem = QStringLiteral("network-offline");
+                    emblem = QStringLiteral("network-disconnect");
                     break;
                 case QNetworkReply::ContentNotFoundError:
                     emblem = QStringLiteral("emblem-error");
