@@ -280,7 +280,7 @@ void BodyPartsTest::testFetchingRawParts()
     QModelIndex part, rawPart;
     QByteArray fakePartData = "Canary 1";
 
-    // First make sure that we cam fetch the raw version of a simple part which has not been fetched before.
+    // First make sure that we can fetch the raw version of a simple part which has not been fetched before.
     part = rootMultipart.child(0, 0);
     QCOMPARE(part.data(RolePartId).toString(), QString("1"));
     rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
@@ -315,8 +315,8 @@ void BodyPartsTest::testFetchingRawParts()
     QCOMPARE(model->cache()->messagePart("b", 333, "2"), QByteArray("ahoj"));
     QCOMPARE(model->cache()->messagePart("b", 333, "2.X-RAW").isNull(), true);
     // Trigger fetching of the raw data.
-    // Make sure that we do *not* overwite the already decoded data needlessly.
-    // If the server is broken and performs the CTE decoding in a wrong way, let's just silenty ignore this.
+    // Make sure that we do *not* overwrite the already decoded data needlessly.
+    // If the server is broken and performs the CTE decoding in a wrong way, let's just silently ignore this.
     fakePartData = "Canary 2";
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
     cClient(t.mk("UID FETCH 333 (BODY.PEEK[2])\r\n"));
@@ -332,7 +332,7 @@ void BodyPartsTest::testFetchingRawParts()
     cEmpty();
     dataChangedSpy.clear();
 
-    // Make sure that requests for part whose raw form was already loaded is accomodated locally
+    // Make sure that requests for part whose raw form was already loaded is accommodated locally
     fakePartData = "Canary 3";
     part = rootMultipart.child(2, 0);
     QCOMPARE(part.data(RolePartId).toString(), QString("3"));
@@ -350,14 +350,14 @@ void BodyPartsTest::testFetchingRawParts()
     QCOMPARE(model->cache()->messagePart("b", 333, "3.X-RAW"), fakePartData.toBase64());
     cEmpty();
     dataChangedSpy.clear();
-    // Now the request for actual part data shall be accomodated from the cache.
+    // Now the request for actual part data shall be accommodated from the cache.
     // As this is a first request ever, there's no need to emit dataChanged. The on-disk cache is not populated.
     QCOMPARE(part.data(RolePartData).toByteArray(), fakePartData);
     QVERIFY(part.data(RoleIsFetched).toBool());
     QCOMPARE(dataChangedSpy.size(), 0);
     QCOMPARE(model->cache()->messagePart("b", 333, "3").isNull(), true);
 
-    // Make sure that requests for already processed part are accomodated from the cache if possible
+    // Make sure that requests for already processed part are accommodated from the cache if possible
     fakePartData = "Canary 4";
     part = rootMultipart.child(3, 0);
     QCOMPARE(part.data(RolePartId).toString(), QString("4"));
