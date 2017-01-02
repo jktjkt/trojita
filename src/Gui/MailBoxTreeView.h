@@ -52,6 +52,7 @@ signals:
 protected:
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dropEvent(QDropEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
     void resetWatchedMailboxes();
 private:
     Imap::Mailbox::MailboxFinder *m_mailboxFinder;

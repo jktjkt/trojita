@@ -34,6 +34,8 @@ class MessageComposer;
     attachement is added to the @see Imap::Mailbox::MessageComposer model.
   */
 
+class QDropEvent;
+
 class ComposerAttachmentsList : public QListView {
     Q_OBJECT
 public:
@@ -45,6 +47,7 @@ protected:
     void startDrag(Qt::DropActions da);
     void dragEnterEvent(QDragEnterEvent *de);
     void dragLeaveEvent(QDragLeaveEvent *de);
+    void dropEvent(QDropEvent* de);
 public slots:
     void slotRemoveAttachment();
     void slotToggledContentDispositionInline(bool checked);

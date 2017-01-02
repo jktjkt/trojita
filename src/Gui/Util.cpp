@@ -26,13 +26,16 @@
 #include <QBuffer>
 #include <QCheckBox>
 #include <QDir>
+#include <QDropEvent>
 #include <QFontDatabase>
 #include <QGridLayout>
 #include <QIcon>
+#include <QMimeData>
 #include <QProcess>
 #include <QSettings>
 
 #include "configure.cmake.h"
+#include <Imap/Model/DragAndDrop.h>
 #include "Util.h"
 #include "Window.h"
 
@@ -115,6 +118,15 @@ void messageBoxCritical(QWidget *parent, const QString &title, const QString &me
 void messageBoxWarning(QWidget *parent, const QString &title, const QString &message)
 {
     messageBoxImpl(parent, title, message, QMessageBox::Warning);
+}
+
+/** @short Checks whether the data of a drop event is from another IMAP account, and is therefore not supported. */
+bool isFromDistinctImapAccount(QDropEvent* de)
+{
+    if ((de->mimeData()->hasFormat(Imap::MimeTypes::xTrojitaImapPart) || de->mimeData()->hasFormat(Imap::MimeTypes::xTrojitaMessageList)) && !de->source()) {
+        return true;
+    }
+    return false;
 }
 
 } // namespace Util
