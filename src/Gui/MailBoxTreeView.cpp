@@ -145,7 +145,7 @@ void MailBoxTreeView::dropEvent(QDropEvent *event)
 
 void MailBoxTreeView::dragEnterEvent(QDragEnterEvent *event)
 {
-    if (!event->source()) {
+    if (Gui::Util::isFromDistinctImapAccount(event)) {
         event->ignore();
         return;
     }
