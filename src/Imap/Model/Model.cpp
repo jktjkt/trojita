@@ -1029,7 +1029,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
         TreeItemPart::PartFetchingMode fetchingMode = TreeItemPart::FETCH_PART_IMAP;
         if (!isSpecialRawPart && keepTask->parser && accessParser(keepTask->parser).capabilitiesFresh &&
                 accessParser(keepTask->parser).capabilities.contains(QStringLiteral("BINARY"))) {
-            if (!item->hasChildren(0)) {
+            if (!item->hasChildren(0) && !item->m_binaryCTEFailed) {
                 // The BINARY only actually makes sense on leaf MIME nodes
                 fetchingMode = TreeItemPart::FETCH_PART_BINARY;
             }

@@ -345,6 +345,7 @@ class TreeItemPart: public TreeItem
     void operator=(const TreeItem &);  // don't implement
     friend class TreeItemMailbox; // needs access to m_data
     friend class Model; // dtto
+    friend class FetchMsgPartTask; // needs m_binaryCTEFailed
     QByteArray m_mimeType;
     QByteArray m_charset;
     QByteArray m_contentFormat;
@@ -359,6 +360,7 @@ class TreeItemPart: public TreeItem
     Imap::Message::AbstractMessage::bodyFldParam_t m_bodyFldParam;
     mutable TreeItemPart *m_partMime;
     mutable TreeItemPart *m_partRaw;
+    bool m_binaryCTEFailed;
 public:
     TreeItemPart(TreeItem *parent, const QByteArray &mimeType);
     ~TreeItemPart();
