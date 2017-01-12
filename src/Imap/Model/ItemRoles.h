@@ -38,6 +38,9 @@ enum {
     /** @short The item is not available -- perhaps we're offline and it isn't cached */
     RoleIsUnavailable,
 
+    /** @short Are we working in an offline mode? This role only works on a top-level item in a model. */
+    RoleIsNetworkOffline,
+
     /** @short Name of the mailbox */
     RoleMailboxName,
     /** @short Short name of the mailbox */

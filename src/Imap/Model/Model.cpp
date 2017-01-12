@@ -26,13 +26,14 @@
 #include <QDebug>
 #include <QtAlgorithms>
 #include "Model.h"
-#include "MailboxTree.h"
-#include "SpecialFlagNames.h"
-#include "TaskPresentationModel.h"
-#include "Utils.h"
 #include "Common/FindWithUnknown.h"
 #include "Common/InvokeMethod.h"
 #include "Imap/Encoders.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/SpecialFlagNames.h"
+#include "Imap/Model/TaskPresentationModel.h"
+#include "Imap/Model/Utils.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/CreateMailboxTask.h"
 #include "Imap/Tasks/GetAnyConnectionTask.h"
@@ -686,6 +687,9 @@ TreeItem *Model::translatePtr(const QModelIndex &index) const
 
 QVariant Model::data(const QModelIndex &index, int role) const
 {
+    if (role == RoleIsNetworkOffline)
+        return !isNetworkAvailable();
+
     return translatePtr(index)->data(const_cast<Model *>(this), role);
 }
 
