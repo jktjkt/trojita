@@ -63,7 +63,7 @@ QTextStream &operator<<(QTextStream &stream, const Code &r)
         CASE(NEWNAME);
         CASE(REFERRAL);
     case UNKNOWN_CTE:
-        stream << "UINKNOWN-CTE"; break;
+        stream << "UNKNOWN-CTE"; break;
         CASE(UIDNOTSTICKY);
         CASE(APPENDUID);
         CASE(COPYUID);

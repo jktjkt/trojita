@@ -121,7 +121,7 @@ void FetchMsgPartTask::markPendingItemsUnavailable()
     QList<TreeItemMessage *> messages = model->findMessagesByUids(mailbox, uids);
     Q_FOREACH(TreeItemMessage *message, messages) {
         Q_FOREACH(const QByteArray &partId, parts) {
-            if (model->finalizeFetchPart(mailbox, message->row() + 1, partId)) {
+            if (finalizeFetchPart(mailbox, message->row() + 1, partId)) {
                 log(QLatin1String("Fetched part ") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
             } else {
                 log(QLatin1String("Received no data for part ") + QString::fromUtf8(partId), Common::LOG_MESSAGES);
@@ -129,6 +129,36 @@ void FetchMsgPartTask::markPendingItemsUnavailable()
         }
     }
 }
+
+/** @short Retrieval of a message part has completed */
+bool FetchMsgPartTask::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId)
+{
+    Q_ASSERT(model);
+    // At first, verify that the message itself is marked as loaded.
+    // If it isn't, it's probably because of Model::releaseMessageData().
+    TreeItem *item = mailbox->m_children[0]; // TreeItemMsgList
+    item = item->child(sequenceNo - 1, model);   // TreeItemMessage
+    Q_ASSERT(item);   // FIXME: or rather throw an exception?
+    if (item->accessFetchStatus() == TreeItem::NONE) {
+        // ...and it indeed got released, so let's just return and don't try to check anything
+        return false;
+    }
+
+    TreeItemPart *part = mailbox->partIdToPtr(model, static_cast<TreeItemMessage *>(item), partId);
+    if (!part) {
+        log(QStringLiteral("Can't verify part fetching status: part is not here!"), Common::LOG_MESSAGES);
+        return false;
+    }
+    if (part->loading()) {
+        part->setFetchStatus(TreeItem::UNAVAILABLE);
+        QModelIndex idx = part->toIndex(model);
+        emit model->dataChanged(idx, idx);
+        return false;
+    } else {
+        return true;
+    }
+}
+
 
 }
 }
