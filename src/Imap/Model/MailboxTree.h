@@ -55,6 +55,7 @@ class TreeItem
     friend class MsgListModel; // for direct access to m_children
     friend class ThreadingMsgListModel; // for direct access to m_children
     friend class UpdateFlagsOfAllMessagesTask; // for direct access to m_children
+    friend class FetchMsgPartTask; // for direct access to m_children
 
 protected:
     /** @short Availability of an item */
@@ -140,6 +141,7 @@ class TreeItemMailbox: public TreeItem
     friend class DeleteMailboxTask; // for direct access to maintainingTask
     friend class KeepMailboxOpenTask; // needs access to maintainingTask
     friend class SubscribeUnsubscribeTask; // needs access to m_metadata.flags
+    friend class FetchMsgPartTask; // needs access to partIdToPtr()
     static QLatin1String flagNoInferiors;
     static QLatin1String flagHasNoChildren;
     static QLatin1String flagHasChildren;
@@ -343,6 +345,7 @@ class TreeItemPart: public TreeItem
     void operator=(const TreeItem &);  // don't implement
     friend class TreeItemMailbox; // needs access to m_data
     friend class Model; // dtto
+    friend class FetchMsgPartTask; // needs m_binaryCTEFailed
     QByteArray m_mimeType;
     QByteArray m_charset;
     QByteArray m_contentFormat;
@@ -357,6 +360,7 @@ class TreeItemPart: public TreeItem
     Imap::Message::AbstractMessage::bodyFldParam_t m_bodyFldParam;
     mutable TreeItemPart *m_partMime;
     mutable TreeItemPart *m_partRaw;
+    bool m_binaryCTEFailed;
 public:
     TreeItemPart(TreeItem *parent, const QByteArray &mimeType);
     ~TreeItemPart();

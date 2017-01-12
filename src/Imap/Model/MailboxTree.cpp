@@ -1556,8 +1556,13 @@ bool TreeItemMessage::hasNestedAttachments(Model *const model, TreeItemPart *par
 }
 
 
-TreeItemPart::TreeItemPart(TreeItem *parent, const QByteArray &mimeType):
-    TreeItem(parent), m_mimeType(mimeType.toLower()), m_octets(0), m_partMime(0), m_partRaw(0)
+TreeItemPart::TreeItemPart(TreeItem *parent, const QByteArray &mimeType)
+    : TreeItem(parent)
+    , m_mimeType(mimeType.toLower())
+    , m_octets(0)
+    , m_partMime(nullptr)
+    , m_partRaw(nullptr)
+    , m_binaryCTEFailed(false)
 {
     if (isTopLevelMultiPart()) {
         // Note that top-level multipart messages are special, their immediate contents
@@ -1566,8 +1571,13 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QByteArray &mimeType):
     }
 }
 
-TreeItemPart::TreeItemPart(TreeItem *parent):
-    TreeItem(parent), m_mimeType("text/plain"), m_octets(0), m_partMime(0), m_partRaw(0)
+TreeItemPart::TreeItemPart(TreeItem *parent)
+    : TreeItem(parent)
+    , m_mimeType("text/plain")
+    , m_octets(0)
+    , m_partMime(nullptr)
+    , m_partRaw(nullptr)
+    , m_binaryCTEFailed(false)
 {
 }
 

@@ -23,13 +23,14 @@
 #ifndef IMAP_FETCHMSGPARTTASK_H
 #define IMAP_FETCHMSGPARTTASK_H
 
+#include <functional>
 #include <QPersistentModelIndex>
 #include "ImapTask.h"
 
-namespace Imap
-{
-namespace Mailbox
-{
+namespace Imap {
+namespace Mailbox {
+
+class TreeItemPart;
 
 /** @short Fetch a message part */
 class FetchMsgPartTask : public ImapTask
@@ -45,8 +46,11 @@ public:
     virtual QString debugIdentification() const;
     virtual QVariant taskData(const int role) const;
     virtual bool needsMailbox() const {return true;}
-protected slots:
+protected:
     void markPendingItemsUnavailable();
+    void doForAllParts(const std::function<void(TreeItemPart *, const QByteArray &, const uint)> &f);
+    void markPartUnavailable(TreeItemPart *part);
+    void handleUnknownCTE(TreeItemPart *part, const QByteArray &partId, const uint uid);
 private:
     CommandHandle tag;
     ImapTask *conn;

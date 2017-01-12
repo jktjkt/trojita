@@ -26,13 +26,14 @@
 #include <QDebug>
 #include <QtAlgorithms>
 #include "Model.h"
-#include "MailboxTree.h"
-#include "SpecialFlagNames.h"
-#include "TaskPresentationModel.h"
-#include "Utils.h"
 #include "Common/FindWithUnknown.h"
 #include "Common/InvokeMethod.h"
 #include "Imap/Encoders.h"
+#include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/MailboxTree.h"
+#include "Imap/Model/SpecialFlagNames.h"
+#include "Imap/Model/TaskPresentationModel.h"
+#include "Imap/Model/Utils.h"
 #include "Imap/Tasks/AppendTask.h"
 #include "Imap/Tasks/CreateMailboxTask.h"
 #include "Imap/Tasks/GetAnyConnectionTask.h"
@@ -500,34 +501,6 @@ void Model::emitMessageCountChanged(TreeItemMailbox *const mailbox)
     emit messageCountPossiblyChanged(mailboxIndex);
 }
 
-/** @short Retrieval of a message part has completed */
-bool Model::finalizeFetchPart(TreeItemMailbox *const mailbox, const uint sequenceNo, const QByteArray &partId)
-{
-    // At first, verify that the message itself is marked as loaded.
-    // If it isn't, it's probably because of Model::releaseMessageData().
-    TreeItem *item = mailbox->m_children[0]; // TreeItemMsgList
-    item = item->child(sequenceNo - 1, this);   // TreeItemMessage
-    Q_ASSERT(item);   // FIXME: or rather throw an exception?
-    if (item->accessFetchStatus() == TreeItem::NONE) {
-        // ...and it indeed got released, so let's just return and don't try to check anything
-        return false;
-    }
-
-    TreeItemPart *part = mailbox->partIdToPtr(this, static_cast<TreeItemMessage *>(item), partId);
-    if (! part) {
-        qDebug() << "Can't verify part fetching status: part is not here!";
-        return false;
-    }
-    if (part->loading()) {
-        part->setFetchStatus(TreeItem::UNAVAILABLE);
-        QModelIndex idx = part->toIndex(this);
-        emit dataChanged(idx, idx);
-        return false;
-    } else {
-        return true;
-    }
-}
-
 void Model::handleCapability(Imap::Parser *ptr, const Imap::Responses::Capability *const resp)
 {
     updateCapabilities(ptr, resp->capabilities);
@@ -686,6 +659,9 @@ TreeItem *Model::translatePtr(const QModelIndex &index) const
 
 QVariant Model::data(const QModelIndex &index, int role) const
 {
+    if (role == RoleIsNetworkOffline)
+        return !isNetworkAvailable();
+
     return translatePtr(index)->data(const_cast<Model *>(this), role);
 }
 
@@ -1053,7 +1029,7 @@ void Model::askForMsgPart(TreeItemPart *item, bool onlyFromCache)
         TreeItemPart::PartFetchingMode fetchingMode = TreeItemPart::FETCH_PART_IMAP;
         if (!isSpecialRawPart && keepTask->parser && accessParser(keepTask->parser).capabilitiesFresh &&
                 accessParser(keepTask->parser).capabilities.contains(QStringLiteral("BINARY"))) {
-            if (!item->hasChildren(0)) {
+            if (!item->hasChildren(0) && !item->m_binaryCTEFailed) {
                 // The BINARY only actually makes sense on leaf MIME nodes
                 fetchingMode = TreeItemPart::FETCH_PART_BINARY;
             }

@@ -88,6 +88,9 @@ QModelIndex MessageModel::parent(const QModelIndex &child) const
 
 QVariant MessageModel::data(const QModelIndex &index, int role) const
 {
+    if (role == Imap::Mailbox::RoleIsNetworkOffline)
+        return m_message.data(Imap::Mailbox::RoleIsNetworkOffline);
+
     if (!index.isValid()) {
         return QVariant();
     }
