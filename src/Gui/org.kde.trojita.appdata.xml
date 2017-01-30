@@ -30,6 +30,7 @@
   <name xml:lang="uk">Trojitá</name>
   <name xml:lang="x-test">xxTrojitáxx</name>
   <name xml:lang="zh-CN">Trojitá</name>
+  <name xml:lang="zh-TW">Trojitá</name>
   <summary>IMAP E-mail Client</summary>
   <summary xml:lang="ar">عميل بريد IMAP إلكترونيّ</summary>
   <summary xml:lang="bs">IMAP klijent za elektronsku poštu</summary>
@@ -55,6 +56,7 @@
   <summary xml:lang="sv">IMAP e-postprogram</summary>
   <summary xml:lang="uk">Клієнтська програма для роботи з електронною поштою IMAP</summary>
   <summary xml:lang="x-test">xxIMAP E-mail Clientxx</summary>
+  <summary xml:lang="zh-TW">IMAP 電子郵件程式</summary>
   <description>
     <p>
       Trojitá is an email program ("client") specialized in giving fast and efficient access to mailboxes over the IMAP protocol.
