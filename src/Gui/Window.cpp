@@ -839,10 +839,18 @@ void MainWindow::setupModels()
     connect(imapModel(), &Imap::Mailbox::Model::imapError, this, &MainWindow::imapError);
     connect(imapModel(), &Imap::Mailbox::Model::networkError, this, &MainWindow::networkError);
     connect(imapModel(), &Imap::Mailbox::Model::authRequested, this, &MainWindow::authenticationRequested, Qt::QueuedConnection);
+    connect(imapModel(), &Imap::Mailbox::Model::authAttemptFailed, this, [this]() {
+        m_ignoreStoredPassword = true;
+    });
 
     connect(imapModel(), &Imap::Mailbox::Model::networkPolicyOffline, this, &MainWindow::networkPolicyOffline);
     connect(imapModel(), &Imap::Mailbox::Model::networkPolicyExpensive, this, &MainWindow::networkPolicyExpensive);
     connect(imapModel(), &Imap::Mailbox::Model::networkPolicyOnline, this, &MainWindow::networkPolicyOnline);
+    connect(imapModel(), &Imap::Mailbox::Model::connectionStateChanged, this, [this](uint, const Imap::ConnectionState state) {
+        if (state == Imap::CONN_STATE_AUTHENTICATED) {
+            m_ignoreStoredPassword = false;
+        }
+    });
     connect(imapModel(), &Imap::Mailbox::Model::connectionStateChanged, this, &MainWindow::showConnectionStatus);
 
     connect(imapModel(), &Imap::Mailbox::Model::mailboxDeletionFailed, this, &MainWindow::slotMailboxDeleteFailed);
