@@ -239,6 +239,7 @@ set(libCommon_SOURCES
     ${path_Common}/MetaTypes.cpp
     ${path_Common}/Paths.cpp
     ${path_Common}/SettingsNames.cpp
+    ${path_Common}/StashingReverseIterator.h
 )
 
 set(path_Plugins ${CMAKE_CURRENT_SOURCE_DIR}/src/Plugins)
