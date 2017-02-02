@@ -5,6 +5,8 @@
 
 #pragma once
 
+#include <iterator>
+
 namespace Common {
 
 template <class Iterator>
@@ -50,7 +52,7 @@ public:
     return *deref_tmp;
   }
 
-  pointer operator->() const {
+  pointer operator->() {
     return std::addressof(operator*());
   }
 
