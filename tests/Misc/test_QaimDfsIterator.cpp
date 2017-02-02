@@ -24,6 +24,7 @@
 #include <QStandardItemModel>
 #include <QTest>
 #include "test_QaimDfsIterator.h"
+#include "Common/StashingReverseIterator.h"
 #include "UiUtils/QaimDfsIterator.h"
 
 void TestQaimDfsIterator::testQaimDfsIterator()
@@ -46,6 +47,10 @@ void TestQaimDfsIterator::testQaimDfsIterator()
         ++it;
         --it;
         QVERIFY(it == another);
+        auto reverse = Common::stashing_reverse_iterator<decltype(it)>(it);
+        --reverse;
+        QVERIFY(reverse->row() == it->row());
+        QVERIFY(reverse->internalPointer() == it->internalPointer());
     }
 
     if (begin != end) {
@@ -66,6 +71,16 @@ void TestQaimDfsIterator::testQaimDfsIterator()
             --it;
             QVERIFY(!it->isValid());
         }
+
+        // now check using an adapted version of STL's reverse_iterator
+        reversed.clear();
+        Common::stashing_reverse_iterator<UiUtils::QaimDfsIterator> rbegin(end), rend(begin);
+        std::transform(rbegin, rend, std::back_inserter(reversed),
+                       [](const QModelIndex &what) -> QString {
+            return what.data().toString();
+        });
+        std::reverse(reversed.begin(), reversed.end());
+        QCOMPARE(reversed.join(QLatin1Char(' ')), order);
     } else {
         auto it = end;
         --it;
