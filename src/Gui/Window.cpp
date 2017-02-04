@@ -100,6 +100,7 @@
 
 #include "Imap/Model/ModelTest/modeltest.h"
 #include "UiUtils/IconLoader.h"
+#include "UiUtils/QaimDfsIterator.h"
 
 /** @short All user-facing widgets and related classes */
 namespace Gui
@@ -1443,75 +1444,33 @@ void MainWindow::handleMarkAsRead(bool value)
 void MainWindow::slotNextUnread()
 {
     QModelIndex current = msgListWidget->tree->currentIndex();
-    if (!current.isValid()) {
-        current = msgListWidget->tree->indexAt(QPoint(0, 0));
-    }
 
-    bool wrapped = false;
-    while (current.isValid()) {
-        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListWidget->tree->currentIndex() != current) {
-            m_messageWidget->messageView->setMessage(current);
-            msgListWidget->tree->setCurrentIndex(current);
-            return;
-        }
-
-        QModelIndex child = current.child(0, 0);
-        if (child.isValid()) {
-            current = child;
-            continue;
-        }
-
-        QModelIndex sibling = current.sibling(current.row() + 1, 0);
-        if (sibling.isValid()) {
-            current = sibling;
-            continue;
-        }
-
-        while (current.isValid() && msgListWidget->tree->model()->rowCount(current.parent()) - 1 == current.row()) {
-            current = current.parent();
-        }
-        current = current.sibling(current.row() + 1, 0);
-
-        if (!current.isValid() && !wrapped) {
-            wrapped = true;
-            current = msgListWidget->tree->model()->index(0, 0);
-        }
-    }
+    UiUtils::gotoNext(msgListWidget->tree->model(), current,
+    [](const QModelIndex &idx) { return !idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool(); },
+    [this](const QModelIndex &idx) {
+        Q_ASSERT(!idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+        m_messageWidget->messageView->setMessage(idx);
+        msgListWidget->tree->setCurrentIndex(idx);
+    },
+    []() {
+        // nothing to do
+    });
 }
 
 void MainWindow::slotPreviousUnread()
 {
     QModelIndex current = msgListWidget->tree->currentIndex();
-    if (!current.isValid()) {
-        current = msgListWidget->tree->indexAt(QPoint(0, 0));
-    }
 
-    bool wrapped = false;
-    while (current.isValid()) {
-        if (!current.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool() && msgListWidget->tree->currentIndex() != current) {
-            m_messageWidget->messageView->setMessage(current);
-            msgListWidget->tree->setCurrentIndex(current);
-            return;
-        }
-
-        QModelIndex candidate = current.sibling(current.row() - 1, 0);
-        while (candidate.isValid() && current.model()->hasChildren(candidate)) {
-            candidate = candidate.child(current.model()->rowCount(candidate) - 1, 0);
-            Q_ASSERT(candidate.isValid());
-        }
-
-        if (candidate.isValid()) {
-            current = candidate;
-        } else {
-            current = current.parent();
-        }
-        if (!current.isValid() && !wrapped) {
-            wrapped = true;
-            while (msgListWidget->tree->model()->hasChildren(current)) {
-                current = msgListWidget->tree->model()->index(msgListWidget->tree->model()->rowCount(current) - 1, 0, current);
-            }
-        }
-    }
+    UiUtils::gotoPrevious(msgListWidget->tree->model(), current,
+    [](const QModelIndex &idx) { return !idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool(); },
+    [this](const QModelIndex &idx) {
+        Q_ASSERT(!idx.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool());
+        m_messageWidget->messageView->setMessage(idx);
+        msgListWidget->tree->setCurrentIndex(idx);
+    },
+    []() {
+        // nothing to do
+    });
 }
 
 void MainWindow::handleMarkAsDeleted(bool value)
