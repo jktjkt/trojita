@@ -20,15 +20,22 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "OneEnvelopeAddress.h"
+
+#include <QClipboard>
+#include <QContextMenuEvent>
 #include <QDesktopServices>
-#include <QHeaderView>
 #include <QFontMetrics>
+#include <QGuiApplication>
+#include <QHeaderView>
+#include <QMenu>
 #include <QUrlQuery>
+#include "Composer/Mailto.h"
 #include "Gui/MessageView.h"
+#include "Gui/OneEnvelopeAddress.h"
 #include "Gui/Util.h"
 #include "Plugins/PluginManager.h"
 #include "Plugins/AddressbookPlugin.h"
+#include "UiUtils/IconLoader.h"
 
 namespace Gui {
 
@@ -125,6 +132,23 @@ void OneEnvelopeAddress::finishOnLinkHovered(const QStringList &matchingDisplayN
 
     QString identities = matchingIdentities.join(QStringLiteral("<br/>\n"));
     setToolTip(m_link + tr("<hr/><b>Address Book:</b><br/>") + identities);
+}
+
+void OneEnvelopeAddress::contextMenuEvent(QContextMenuEvent *e)
+{
+    QScopedPointer<QMenu> menu(new QMenu(this));
+    // NOTE: when QT_VERSION >= QT_VERSION_CHECK(5,6,0), we can get rid of this verbose code and just call menu->addAction(...)
+    auto a = new QAction(UiUtils::loadIcon(QStringLiteral("edit-copy")), tr("Copy e-mail address"), menu.data());
+    connect(a, &QAction::triggered, this, [this](){
+        QGuiApplication::clipboard()->setText(Composer::extractOneMailAddress(m_address.asUrl()));
+    });
+    menu->addAction(a);
+    a = new QAction(tr("Copy text"), this);
+    connect(a, &QAction::triggered, this, [this]() {
+        QGuiApplication::clipboard()->setText(m_address.prettyName(Imap::Message::MailAddress::FORMAT_JUST_NAME));
+    });
+    menu->addAction(a);
+    menu->exec(e->globalPos());
 }
 
 }
