@@ -34,6 +34,8 @@ void parseRFC6068Mailto(const QUrl &url, QString &subject, QString &body,
                         QList<QPair<Composer::RecipientKind, QString>> &recipients,
                         QList<QByteArray> &inReplyTo, QList<QByteArray> &references);
 
+QString extractOneMailAddress(const QUrl &url);
+
 }
 
 #endif //MAILTO_H
