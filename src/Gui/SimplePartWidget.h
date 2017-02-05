@@ -78,6 +78,7 @@ private:
     QAction *m_savePart;
     QAction *m_saveMessage;
     QAction *m_findAction;
+    QAction *m_copyMail;
     MessageView *m_messageView;
     Imap::Network::MsgPartNetAccessManager *m_netAccessManager;
 
