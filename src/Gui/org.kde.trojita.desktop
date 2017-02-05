@@ -114,6 +114,7 @@ Actions=Composer;
 
 [Desktop Action Composer]
 Name=New Message
+Name[ar]=رسالة جديدة
 Name[ca]=Missatge nou
 Name[ca@valencia]=Missatge nou
 Name[cs]=Nová zpráva
