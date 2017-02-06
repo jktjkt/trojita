@@ -27,8 +27,18 @@
 #include "Common/StashingReverseIterator.h"
 #include "UiUtils/QaimDfsIterator.h"
 
+#if defined(__has_feature)
+#  if  __has_feature(address_sanitizer)
+    // better would be checking for UBSAN, but I don't think that there's an appropriate feature for this
+#    define SKIP_QSTANDARDITEMMODEL
+#  endif
+#endif
+
 void TestQaimDfsIterator::testQaimDfsIterator()
 {
+#ifdef SKIP_QSTANDARDITEMMODEL
+    QSKIP("ASAN build, https://bugreports.qt.io/browse/QTBUG-56027");
+#else
     QFETCH(QString, order);
     QFETCH(QSharedPointer<QStandardItemModel>, model);
     QFETCH(UiUtils::QaimDfsIterator, begin);
@@ -96,10 +106,14 @@ void TestQaimDfsIterator::testQaimDfsIterator()
     } else {
         QCOMPARE(std::distance(begin, end), order.count(QLatin1Char(' ')) + 1);
     }
+#endif
 }
 
 void TestQaimDfsIterator::testQaimDfsIterator_data()
 {
+#ifdef SKIP_QSTANDARDITEMMODEL
+    QSKIP("ASAN build, https://bugreports.qt.io/browse/QTBUG-56027");
+#else
     QTest::addColumn<QString>("order");
     QTest::addColumn<QSharedPointer<QStandardItemModel>>("model");
     QTest::addColumn<UiUtils::QaimDfsIterator>("begin");
@@ -183,10 +197,14 @@ void TestQaimDfsIterator::testQaimDfsIterator_data()
     end = UiUtils::QaimDfsIterator(m->index(1, 0, QModelIndex()));
     Q_ASSERT(end->data().toString() == "b");
     QTest::newRow("backtracking-until-top-level") << "a.A a.A.1 a.B a.B.1" << m << begin << end;
+#endif
 }
 
 void TestQaimDfsIterator::testWrappedFind()
 {
+#ifdef SKIP_QSTANDARDITEMMODEL
+    QSKIP("ASAN build, https://bugreports.qt.io/browse/QTBUG-56027");
+#else
     QFETCH(QString, items);
     QFETCH(QString, commands);
 
@@ -246,6 +264,7 @@ void TestQaimDfsIterator::testWrappedFind()
         }
     }
     QCOMPARE(foundValues.size(), cmdStream.size() / 2);
+#endif
 }
 
 void TestQaimDfsIterator::testWrappedFind_data()
