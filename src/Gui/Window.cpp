@@ -949,8 +949,6 @@ void MainWindow::handleTrayIconChange()
     if (!m_trayIcon)
         return;
 
-    QModelIndex mailbox = imapModel()->index(1, 0, QModelIndex());
-
     const bool isOffline = qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher())->effectiveNetworkPolicy()
             == Imap::Mailbox::NETWORK_OFFLINE;
     auto pixmap = qApp->windowIcon()
@@ -963,41 +961,71 @@ void MainWindow::handleTrayIconChange()
         tooltip = QStringLiteral("Trojitá [%1]").arg(profileName);
     }
 
-    if (mailbox.isValid() && mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX")) {
-        if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
-            QFont f;
-            f.setPixelSize(pixmap.height() * 0.59);
-            f.setWeight(QFont::Bold);
+    uint unreadCount = 0;
+    bool numbersValid = false;
 
-            QString text = mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toString();
-            QFontMetrics fm(f);
-            if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toUInt() > 666) {
-                // You just have too many messages.
-                text = QStringLiteral("🐮");
-                fm = QFontMetrics(f);
-            } else if (fm.width(text) > pixmap.width()) {
-                f.setPixelSize(f.pixelSize() * pixmap.width() / fm.width(text));
-                fm = QFontMetrics(f);
+    auto watchingMode = settings()->value(Common::SettingsNames::watchedFoldersKey).toString();
+    if (watchingMode == Common::SettingsNames::watchAll || watchingMode == Common::SettingsNames::watchSubscribed) {
+        bool subscribedOnly = watchingMode == Common::SettingsNames::watchSubscribed;
+        unreadCount = std::accumulate(UiUtils::QaimDfsIterator(m_imapAccess->mailboxModel()->index(0, 0)),
+                                      UiUtils::QaimDfsIterator(), 0, [subscribedOnly](const uint acc, const QModelIndex &idx) {
+
+            if (subscribedOnly && !idx.data(Imap::Mailbox::RoleMailboxIsSubscribed).toBool())
+                return acc;
+
+            auto x = idx.data(Imap::Mailbox::RoleUnreadMessageCount).toInt();
+            if (x > 0) {
+                return acc + x;
+            } else {
+                return acc;
             }
+        });
+        // only show stuff if there are some mailboxes, and if there are such messages
+        numbersValid = m_imapAccess->mailboxModel()->hasChildren() && unreadCount > 0;
 
-            QRect boundingRect = fm.tightBoundingRect(text);
-            boundingRect.setWidth(boundingRect.width() + 2);
-            boundingRect.setHeight(boundingRect.height() + 2);
-            boundingRect.moveCenter(QPoint(pixmap.width() / 2, pixmap.height() / 2));
-            boundingRect = boundingRect.intersected(pixmap.rect());
-
-            QPainterPath path;
-            path.addText(boundingRect.bottomLeft(), f, text);
-
-            QPainter painter(&pixmap);
-            painter.setRenderHint(QPainter::Antialiasing);
-            painter.setPen(QColor(255,255,255, 180));
-            painter.setBrush(isOffline ? Qt::red : Qt::black);
-            painter.drawPath(path);
-
-            //: This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
-            tooltip += trUtf8(" - %n unread message(s)", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt());
+    } else {
+        // just for the INBOX
+        QModelIndex mailbox = imapModel()->index(1, 0, QModelIndex());
+        if (mailbox.isValid() && mailbox.data(Imap::Mailbox::RoleMailboxName).toString() == QLatin1String("INBOX")
+                && mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt() > 0) {
+            unreadCount = mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt();
+            numbersValid = true;
         }
+    }
+
+    if (numbersValid) {
+        QFont f;
+        f.setPixelSize(pixmap.height() * 0.59);
+        f.setWeight(QFont::Bold);
+
+        QString text = QString::number(unreadCount);
+        QFontMetrics fm(f);
+        if (unreadCount > 666) {
+            // You just have too many messages.
+            text = QStringLiteral("🐮");
+            fm = QFontMetrics(f);
+        } else if (fm.width(text) > pixmap.width()) {
+            f.setPixelSize(f.pixelSize() * pixmap.width() / fm.width(text));
+            fm = QFontMetrics(f);
+        }
+
+        QRect boundingRect = fm.tightBoundingRect(text);
+        boundingRect.setWidth(boundingRect.width() + 2);
+        boundingRect.setHeight(boundingRect.height() + 2);
+        boundingRect.moveCenter(QPoint(pixmap.width() / 2, pixmap.height() / 2));
+        boundingRect = boundingRect.intersected(pixmap.rect());
+
+        QPainterPath path;
+        path.addText(boundingRect.bottomLeft(), f, text);
+
+        QPainter painter(&pixmap);
+        painter.setRenderHint(QPainter::Antialiasing);
+        painter.setPen(QColor(255,255,255, 180));
+        painter.setBrush(isOffline ? Qt::red : Qt::black);
+        painter.drawPath(path);
+
+        //: This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
+        tooltip += trUtf8(" - %n unread message(s)", 0, unreadCount);
     } else if (isOffline) {
         //: A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
         tooltip += tr(" - offline");
