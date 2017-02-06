@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <algorithm>
 #include <QAbstractProxyModel>
 #include <QAuthenticator>
 #include <QCoreApplication>
@@ -1405,11 +1406,10 @@ void Model::unsubscribeMailbox(const QString &name)
 
 void Model::saveUidMap(TreeItemMsgList *list)
 {
-    Imap::Uids seqToUid;
-    seqToUid.reserve(list->m_children.size());
-    auto end = list->m_children.constEnd();
-    for (auto it = list->m_children.constBegin(); it != end; ++it)
-        seqToUid << static_cast<TreeItemMessage *>(*it)->uid();
+    Imap::Uids seqToUid(list->m_children.size(), 0);
+    std::transform(list->m_children.constBegin(), list->m_children.cend(), seqToUid.begin(), [](TreeItem *item) {
+        return static_cast<TreeItemMessage *>(item)->uid();
+    });
     cache()->setUidMapping(static_cast<TreeItemMailbox *>(list->parent())->mailbox(), seqToUid);
 }
 
