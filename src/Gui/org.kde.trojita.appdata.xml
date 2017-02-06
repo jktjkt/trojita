@@ -33,6 +33,7 @@
   <name xml:lang="zh-TW">Trojitá</name>
   <summary>IMAP E-mail Client</summary>
   <summary xml:lang="ar">عميل بريد IMAP إلكترونيّ</summary>
+  <summary xml:lang="ast">Veceru de corréu IMAP</summary>
   <summary xml:lang="bs">IMAP klijent za elektronsku poštu</summary>
   <summary xml:lang="ca">Client de correu electrònic IMAP</summary>
   <summary xml:lang="ca-valencia">Client de correu electrònic IMAP</summary>
@@ -88,6 +89,7 @@
       Trojitá is a stand-alone program, not part of a "personal information manager" suite.
     </p>
     <p xml:lang="ar">يعطي تروجيتا الأولويّة إلى الكفاءة، والسّرعة والمعايير الحرّة على الأهداف الأخرى. يهدف أيضًا إلى أن يكون عابرًا للمنصّات وأن يعمل عملًا جيّدًا على أيّ شيء، من حواسيب سطح المكتب الكبيرة إلى الهواتف الصّغيرة. تروجيتا برنامج مستقلّ، وليس جزء من طقم "مدير معلومات شخصيّة".</p>
+    <p xml:lang="ast">Prioriza la eficiencia, velocidá y estándares abiertos sobro otres metes. Trojitá tamién tien l'oxetivu de ser multi-plataforma y furrular en toa triba de preseos. Trojitá ye un programa independiente, non una parte de la suit del «xestor d'información personal».</p>
     <p xml:lang="bs">Daje prednost efikasnosti, brzini i otvorenim standardima ispred drugih ciljeva. Trojitá također teži da bude višestruka platforma i da dobro funkcioniše na svemu, od velikih desktop računara do malih mobilnih uređaja. Trojitá je nezavisan program, nije dio "lično-informacijskog menadžerskog" paketa.</p>
     <p xml:lang="ca">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="ca-valencia">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
@@ -109,6 +111,7 @@
     <p xml:lang="x-test">xxIt prioritizes efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.xx</p>
     <p>What could make Trojitá interesting for you:</p>
     <p xml:lang="ar">ما قد يجعل تروجيتا مشوّقًا لك:</p>
+    <p xml:lang="ast">Qué te podría interesar de Trojitá:</p>
     <p xml:lang="bs">Šta interesantno Trojitá može uraditi za vas:</p>
     <p xml:lang="ca">Què us podria fer el Trojitá interessant:</p>
     <p xml:lang="ca-valencia">Què vos podria fer el Trojitá interessant:</p>
@@ -131,6 +134,7 @@
     <ul>
       <li>Very fast and robust IMAP core</li>
       <li xml:lang="ar">نواة IMAP متينة وسريعة جدًّا</li>
+      <li xml:lang="ast">Nucleu IMAP perrápidu y robustu</li>
       <li xml:lang="bs">Veoma brza i snažna IMAP jezgra</li>
       <li xml:lang="ca">Un cor IMAP molt ràpid i robust</li>
       <li xml:lang="ca-valencia">Un cor IMAP molt ràpid i robust</li>
@@ -196,6 +200,7 @@
       <li xml:lang="x-test">xxOn-demand message list and body part loading ("lazy loading")xx</li>
       <li>Offline IMAP support</li>
       <li xml:lang="ar">دعم IMAP بلا إنترنت</li>
+      <li xml:lang="ast">Sofitu IMAP fuera de llinia </li>
       <li xml:lang="bs">Podrška za izvanmrežni IMAP</li>
       <li xml:lang="ca">Permet IMAP desconnectat</li>
       <li xml:lang="ca-valencia">Permet IMAP desconnectat</li>
