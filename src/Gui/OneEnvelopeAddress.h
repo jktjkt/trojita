@@ -48,6 +48,8 @@ public:
 
     OneEnvelopeAddress(QWidget *parent, const Imap::Message::MailAddress &address, MessageView *messageView, const Position lastOneInRow);
 
+    virtual void contextMenuEvent(QContextMenuEvent *e) override;
+
 private slots:
     void onLinkHovered(const QString &target);
     void finishOnLinkHovered(const QStringList &matchingDisplayNames);

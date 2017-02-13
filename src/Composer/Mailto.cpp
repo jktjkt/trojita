@@ -108,4 +108,21 @@ void parseRFC6068Mailto(const QUrl &url, QString &subject, QString &body,
     }
 }
 
+/** @short Extract just the plain old user.name@example.org from a mailto: URL
+
+It is an error if there is more than one recipients in that URL. All fancy data are also stripped awaya.
+*/
+QString extractOneMailAddress(const QUrl &url)
+{
+    QString subj, body;
+    QList<QPair<Composer::RecipientKind, QString>> recipients;
+    QList<QByteArray> inReplyTo, references;
+    parseRFC6068Mailto(url, subj, body, recipients, inReplyTo, references);
+    if (recipients.size() == 1) {
+        return recipients[0].second;
+    } else {
+        return QString();
+    }
+}
+
 }
