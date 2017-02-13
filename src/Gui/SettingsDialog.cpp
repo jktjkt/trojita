@@ -778,6 +778,15 @@ CachePage::CachePage(QWidget *parent, QSettings &s): QScrollArea(parent), Ui_Cac
 
     offlineNumberOfDays->setValue(s.value(SettingsNames::cacheOfflineNumberDaysKey, QVariant(30)).toInt());
 
+    val = s.value(SettingsNames::watchedFoldersKey).toString();
+    if (val == Common::SettingsNames::watchAll) {
+        watchAll->setChecked(true);
+    } else if (val == Common::SettingsNames::watchSubscribed) {
+        watchSubscribed->setChecked(true);
+    } else {
+        watchInbox->setChecked(true);
+    }
+
     updateWidgets();
 
     connect(offlineNope, &QAbstractButton::clicked, this, &CachePage::updateWidgets);
@@ -803,6 +812,14 @@ void CachePage::save(QSettings &s)
         s.setValue(SettingsNames::cacheOfflineKey, SettingsNames::cacheOfflineNone);
 
     s.setValue(SettingsNames::cacheOfflineNumberDaysKey, offlineNumberOfDays->value());
+
+    if (watchAll->isChecked()) {
+        s.setValue(SettingsNames::watchedFoldersKey, SettingsNames::watchAll);
+    } else if (watchSubscribed->isChecked()) {
+        s.setValue(SettingsNames::watchedFoldersKey, SettingsNames::watchSubscribed);
+    } else {
+        s.setValue(SettingsNames::watchedFoldersKey, SettingsNames::watchOnlyInbox);
+    }
 
     emit saved();
 }

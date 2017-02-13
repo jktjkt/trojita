@@ -41,6 +41,7 @@ struct SettingsNames {
     static const QString composerSaveToImapKey, composerImapSentKey, smtpUseBurlKey;
     static const QString cacheMetadataKey, cacheMetadataMemory,
            cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineAll, cacheOfflineNumberDaysKey;
+    static const QString watchedFoldersKey, watchOnlyInbox, watchSubscribed, watchAll;
     static const QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
            xtDbDbName, xtDbUser;
     static const QString guiMsgListShowThreading;

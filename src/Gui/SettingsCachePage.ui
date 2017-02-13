@@ -95,6 +95,51 @@
      </widget>
     </item>
     <item>
+     <widget class="QGroupBox" name="notificationsBox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Notifications</string>
+      </property>
+      <layout class="QFormLayout" name="formLayout_2">
+       <item row="0" column="0">
+        <widget class="QRadioButton" name="watchInbox">
+         <property name="whatsThis">
+          <string>Only the INBOX folder will be included for new message checking</string>
+         </property>
+         <property name="text">
+          <string>&amp;INBOX Only</string>
+         </property>
+        </widget>
+       </item>
+       <item row="2" column="0">
+        <widget class="QRadioButton" name="watchAll">
+         <property name="whatsThis">
+          <string>This might result in extremely slow operation in certain scenarios with shared mailboxes, rich folder hierarchies, or IMAP proxying, for example.</string>
+         </property>
+         <property name="text">
+          <string>&amp;All Mailboxes (use with care)</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QRadioButton" name="watchSubscribed">
+         <property name="whatsThis">
+          <string>E-mail folders which are marked as subscribed will be included in notifications. To subscribe a mailbox, use the context menu in the mailbox view.</string>
+         </property>
+         <property name="text">
+          <string>&amp;Subscribed Mailboxes</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <spacer name="verticalSpacer">
       <property name="orientation">
        <enum>Qt::Vertical</enum>
