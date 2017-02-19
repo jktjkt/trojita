@@ -150,6 +150,8 @@ private slots:
     void handleMarkAsFlagged(const bool);
     void handleMarkAsJunk(const bool);
     void handleMarkAsNotJunk(const bool);
+    void slotMoveToArchiveFailed(const QString &error);
+    void handleMoveToArchive();
     void slotNextUnread();
     void slotPreviousUnread();
     void msgListClicked(const QModelIndex &);
@@ -308,6 +310,7 @@ private:
     QAction *markAsFlagged;
     QAction *markAsJunk;
     QAction *markAsNotJunk;
+    QAction *moveToArchive;
     QAction *saveWholeMessage;
     QAction *viewMsgSource;
     QAction *viewMsgHeaders;

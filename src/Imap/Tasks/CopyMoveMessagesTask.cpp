@@ -113,14 +113,14 @@ bool CopyMoveMessagesTask::handleStateHelper(const Imap::Responses::State *const
             }
             _completed();
         } else {
-            _failed(tr("The COPY operation has failed"));
+            _failed(tr("The COPY operation has failed: %1").arg(resp->message));
         }
         return true;
     } else if (resp->tag == moveTag) {
         if (resp->kind == Responses::OK) {
             _completed();
         } else {
-            _failed(tr("The UID MOVE operation has failed"));
+            _failed(tr("The UID MOVE operation has failed: %1").arg(resp->message));
         }
         return true;
     } else {

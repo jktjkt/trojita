@@ -179,6 +179,8 @@ public:
     /** @short Run the EXPUNGE command in the specified mailbox */
     void expungeMailbox(const QModelIndex &mailbox);
 
+    /** @short Copy or move indicated messages between two mailboxes */
+    ImapTask *copyMoveMessages(const QString &destMboxName, const QModelIndexList &messages, const CopyMoveOperation op);
     /** @short Copy or move a sequence of messages between two mailboxes */
     void copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMboxName, Imap::Uids uids, const CopyMoveOperation op);
 

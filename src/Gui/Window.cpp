@@ -69,6 +69,7 @@
 #include "Imap/Model/SpecialFlagNames.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
 #include "Imap/Model/Utils.h"
+#include "Imap/Tasks/ImapTask.h"
 #include "Imap/Network/FileDownloadManager.h"
 #include "MSA/ImapSubmit.h"
 #include "MSA/Sendmail.h"
@@ -231,6 +232,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_reply_list"), QStringLiteral("mail-reply-list"), tr("Reply to &Mailing List"), tr("Ctrl+L"));
     shortcutHandler->defineAction(QStringLiteral("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
     shortcutHandler->defineAction(QStringLiteral("action_forward_attachment"), QStringLiteral("mail-forward"), tr("&Forward"), tr("Ctrl+Shift+F"));
+    shortcutHandler->defineAction(QStringLiteral("action_archive"), QStringLiteral("mail-move-to-archive"), tr("&Archive"), QStringLiteral("A"));
     shortcutHandler->defineAction(QStringLiteral("action_contact_editor"), QStringLiteral("contact-unknown"), tr("Address Book..."));
     shortcutHandler->defineAction(QStringLiteral("action_network_offline"), QStringLiteral("network-disconnect"), tr("&Offline"));
     shortcutHandler->defineAction(QStringLiteral("action_network_expensive"), QStringLiteral("network-wireless"), tr("&Expensive Connection"));
@@ -403,6 +405,9 @@ void MainWindow::createActions()
     viewMsgHeaders = ShortcutHandler::instance()->createAction(QStringLiteral("action_view_message_headers"), this, SLOT(slotViewMsgHeaders()), this);
     msgListWidget->tree->addAction(viewMsgHeaders);
 
+    moveToArchive = ShortcutHandler::instance()->createAction(QStringLiteral("action_archive"), this);
+    connect(moveToArchive, &QAction::triggered, this, &MainWindow::handleMoveToArchive);
+
     //: "mailbox" as a "folder of messages", not as a "mail account"
     createChildMailbox = new QAction(tr("Create &Child Mailbox..."), this);
     connect(createChildMailbox, &QAction::triggered, this, &MainWindow::slotCreateMailboxBelowCurrent);
@@ -548,6 +553,7 @@ void MainWindow::createActions()
     m_mainToolbar->addAction(markAsFlagged);
     m_mainToolbar->addAction(markAsJunk);
     m_mainToolbar->addAction(markAsNotJunk);
+    m_mainToolbar->addAction(moveToArchive);
 
     // Push the status indicators all the way to the other side of the toolbar -- either to the far right, or far bottom.
     QWidget *toolbarSpacer = new QWidget(m_mainToolbar);
@@ -1203,6 +1209,7 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         actionList.append(markAsFlagged);
         actionList.append(markAsJunk);
         actionList.append(markAsNotJunk);
+        actionList.append(moveToArchive);
         actionList.append(m_actionMarkMailboxAsRead);
         actionList.append(saveWholeMessage);
         actionList.append(viewMsgSource);
@@ -1555,6 +1562,26 @@ void MainWindow::handleMarkAsNotJunk(const bool value)
     }
 }
 
+void MainWindow::slotMoveToArchiveFailed(const QString &error)
+{
+    // XXX disable busy cursor
+    QMessageBox::critical(this, tr("Failed to archive"), error);
+}
+
+void MainWindow::handleMoveToArchive()
+{
+    const QModelIndexList translatedIndexes = translatedSelection();
+    if (translatedIndexes.isEmpty()) {
+        qDebug() << "Model::handleMoveToArchive: no valid messages";
+    } else {
+        auto archiveFolderName = m_settings->value(Common::SettingsNames::imapArchiveFolderName).toString();
+        auto copyMoveMessagesTask = imapModel()->copyMoveMessages(
+            archiveFolderName.isEmpty() ? Common::SettingsNames::imapDefaultArchiveFolderName : archiveFolderName,
+            translatedIndexes, Imap::Mailbox::CopyMoveOperation::MOVE);
+        connect(copyMoveMessagesTask, &Imap::Mailbox::ImapTask::failed, this, &MainWindow::slotMoveToArchiveFailed);
+    }
+}
+
 
 void MainWindow::slotExpunge()
 {
@@ -1641,6 +1668,7 @@ void MainWindow::updateMessageFlagsOf(const QModelIndex &index)
     markAsFlagged->setEnabled(okToModify);
     markAsJunk->setEnabled(okToModify);
     markAsNotJunk->setEnabled(okToModify);
+    moveToArchive->setEnabled(okToModify);
 
     bool isRead    = isValid,
          isDeleted = isValid,
