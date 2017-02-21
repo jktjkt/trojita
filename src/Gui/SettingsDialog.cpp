@@ -381,6 +381,7 @@ void GeneralPage::moveIdentityUp()
     int to = identityTabelView->currentIndex().row() - 1;
 
     m_identitiesModel->moveIdentity(from, to);
+    updateWidgets();
 }
 
 void GeneralPage::moveIdentityDown()
@@ -389,6 +390,7 @@ void GeneralPage::moveIdentityDown()
     int to = identityTabelView->currentIndex().row() + 1;
 
     m_identitiesModel->moveIdentity(from, to);
+    updateWidgets();
 }
 
 void GeneralPage::addButtonClicked()
