@@ -337,7 +337,7 @@ void Submission::sent()
         // FIXME: check the UIDVALIDITY!!!
         // FIXME: doesn't work at all; the messageIndexByUid() only works on already selected mailboxes
         QModelIndex message = m_mainWindow->imapModel()->
-                messageIndexByUid(QSettings().value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(), m_appendUid);
+                messageIndexByUid(QSettings().value(Common::SettingsNames::composerImapSentKey, QStringLiteral("Sent")).toString(), m_appendUid);
         if (message.isValid()) {
             m_mainWindow->imapModel()->setMessageFlags(QModelIndexList() << message,
                                                        QLatin1String("\\Seen $Submitted"), Imap::Mailbox::FLAG_USE_THESE);
