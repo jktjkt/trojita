@@ -115,6 +115,7 @@
     <p xml:lang="bs">Šta interesantno Trojitá može uraditi za vas:</p>
     <p xml:lang="ca">Què us podria fer el Trojitá interessant:</p>
     <p xml:lang="ca-valencia">Què vos podria fer el Trojitá interessant:</p>
+    <p xml:lang="cs">Čím by se stala Trojitá zajímavou pro vás:</p>
     <p xml:lang="da">Hvad der kunne gøre Trojitá interessant for dig:</p>
     <p xml:lang="el">Τι θα μπορούσε να κάνει την Trojitá ενδιαφέρουσα για εσάς:</p>
     <p xml:lang="en-GB">What could make Trojitá interesting for you:</p>
@@ -138,6 +139,7 @@
       <li xml:lang="bs">Veoma brza i snažna IMAP jezgra</li>
       <li xml:lang="ca">Un cor IMAP molt ràpid i robust</li>
       <li xml:lang="ca-valencia">Un cor IMAP molt ràpid i robust</li>
+      <li xml:lang="cs">Velmi rychlé a robustní jádro IMAP</li>
       <li xml:lang="da">Hurtig og robust IMAP-kerne</li>
       <li xml:lang="de">Sehr schneller und robuster IMAP-Kern</li>
       <li xml:lang="el">Πολύ γρήγορος και σταθερός IMAP πυρήνας</li>
@@ -204,6 +206,7 @@
       <li xml:lang="bs">Podrška za izvanmrežni IMAP</li>
       <li xml:lang="ca">Permet IMAP desconnectat</li>
       <li xml:lang="ca-valencia">Permet IMAP desconnectat</li>
+      <li xml:lang="cs">Offline podpora IMAP</li>
       <li xml:lang="da">Understøttelse af offline-IMAP</li>
       <li xml:lang="de">Unterstützung für Offline-IMAP</li>
       <li xml:lang="el">Εκτός δικτύου υποστήριξη IMAP</li>
