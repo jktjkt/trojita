@@ -744,7 +744,7 @@ void ComposeWidget::send()
 
     const bool reuseImapCreds = m_settings->value(Common::SettingsNames::smtpAuthReuseImapCredsKey, false).toBool();
     m_submission->setImapOptions(m_settings->value(Common::SettingsNames::composerSaveToImapKey, true).toBool(),
-                                 m_settings->value(Common::SettingsNames::composerImapSentKey, tr("Sent")).toString(),
+                                 m_settings->value(Common::SettingsNames::composerImapSentKey, QStringLiteral("Sent")).toString(),
                                  m_settings->value(Common::SettingsNames::imapHostKey).toString(),
                                  m_settings->value(Common::SettingsNames::imapUserKey).toString(),
                                  m_settings->value(Common::SettingsNames::msaMethodKey).toString() == Common::SettingsNames::methodImapSendmail);
