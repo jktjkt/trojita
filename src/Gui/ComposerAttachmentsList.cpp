@@ -172,7 +172,7 @@ void ComposerAttachmentsList::onCurrentChanged()
 
 void ComposerAttachmentsList::showContextMenu(const QPoint &pos)
 {
-    // Sometimes currentChanged() is not enough -- we really want to to have these actions to reflect the current selection, if any
+    // Sometimes currentChanged() is not enough -- we really want to have these actions to reflect the current selection, if any
     onAttachmentNumberChanged();
     QMenu::exec(actions(), mapToGlobal(pos), 0, this);
 }
