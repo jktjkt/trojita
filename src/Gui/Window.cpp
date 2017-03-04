@@ -1668,7 +1668,17 @@ void MainWindow::updateMessageFlagsOf(const QModelIndex &index)
     markAsFlagged->setEnabled(okToModify);
     markAsJunk->setEnabled(okToModify);
     markAsNotJunk->setEnabled(okToModify);
-    moveToArchive->setEnabled(okToModify);
+
+    // There's no point in moving from Archive to, well, Archive
+    auto archiveFolderName = m_settings->value(Common::SettingsNames::imapArchiveFolderName).toString();
+    if (archiveFolderName.isEmpty()) {
+        archiveFolderName = Common::SettingsNames::imapDefaultArchiveFolderName;
+    }
+    moveToArchive->setEnabled(okToModify &&
+                              std::any_of(indexes.cbegin(), indexes.cend(),
+                                          [archiveFolderName](const QModelIndex &i) {
+        return i.data(Imap::Mailbox::RoleMailboxName) != archiveFolderName;
+    }));
 
     bool isRead    = isValid,
          isDeleted = isValid,
