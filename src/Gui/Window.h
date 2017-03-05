@@ -63,6 +63,7 @@ class Model;
 class PrettyMailboxModel;
 class ThreadingMsgListModel;
 class PrettyMsgListModel;
+class FavoriteTagsModel;
 
 }
 }
@@ -100,6 +101,7 @@ public:
     Imap::Mailbox::Model *imapModel() const;
 
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
+    Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel() { return m_favoriteTags; }
     Plugins::PluginManager *pluginManager() { return m_pluginManager; }
     QSettings *settings() const { return m_settings; }
     MSA::MSAFactory *msaFactory();
@@ -246,6 +248,7 @@ private:
     Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
     Composer::SenderIdentitiesModel *m_senderIdentities;
+    Imap::Mailbox::FavoriteTagsModel *m_favoriteTags;
 
     MailBoxTreeView *mboxTree;
     MessageListWidget *msgListWidget;

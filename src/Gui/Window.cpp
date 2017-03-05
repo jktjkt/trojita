@@ -68,6 +68,7 @@
 #include "Imap/Model/PrettyMsgListModel.h"
 #include "Imap/Model/SpecialFlagNames.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
+#include "Imap/Model/FavoriteTagsModel.h"
 #include "Imap/Model/Utils.h"
 #include "Imap/Tasks/ImapTask.h"
 #include "Imap/Network/FileDownloadManager.h"
@@ -156,6 +157,9 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
 
     m_senderIdentities = new Composer::SenderIdentitiesModel(this);
     m_senderIdentities->loadFromSettings(*m_settings);
+
+    m_favoriteTags = new Imap::Mailbox::FavoriteTagsModel(this);
+    m_favoriteTags->loadFromSettings(*m_settings);
 
     if (! m_settings->contains(Common::SettingsNames::imapMethodKey)) {
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
@@ -1342,7 +1346,7 @@ void MainWindow::slotResetReconnectState()
 
 void MainWindow::slotShowSettings()
 {
-    SettingsDialog *dialog = new SettingsDialog(this, m_senderIdentities, m_settings);
+    SettingsDialog *dialog = new SettingsDialog(this, m_senderIdentities, m_favoriteTags, m_settings);
     if (dialog->exec() == QDialog::Accepted) {
         // FIXME: wipe cache in case we're moving between servers
         nukeModels();

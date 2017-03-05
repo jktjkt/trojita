@@ -385,12 +385,14 @@ set(libDesktopGui_UI
     ${path_DesktopGui}/ComposeWidget.ui
     ${path_DesktopGui}/CreateMailboxDialog.ui
     ${path_DesktopGui}/EditIdentity.ui
+    ${path_DesktopGui}/EditFavoriteTag.ui
     ${path_DesktopGui}/PasswordDialog.ui
     ${path_DesktopGui}/ProgressPopUp.ui
     ${path_DesktopGui}/SettingsCachePage.ui
     ${path_DesktopGui}/SettingsGeneralPage.ui
     ${path_DesktopGui}/SettingsImapPage.ui
     ${path_DesktopGui}/SettingsOutgoingPage.ui
+    ${path_DesktopGui}/SettingsFavoriteTagsPage.ui
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
 )
 set(libDesktopGui_RESOURCES

@@ -23,28 +23,28 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QCheckBox>
+#include <QColorDialog>
 #include <QComboBox>
+#include <QDataWidgetMapper>
 #include <QDialogButtonBox>
+#include <QDebug>
 #include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QInputDialog>
 #include <QLineEdit>
 #include <QListWidget>
-#include <QRadioButton>
-#include <QSpinBox>
-#include <QTabWidget>
-#include <QVBoxLayout>
+#include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
-#include <QDebug>
+#include <QRadioButton>
+#include <QSpinBox>
 #include <QStackedWidget>
 #include <QStandardItemModel>
+#include <QTabWidget>
 #include <QToolTip>
-#include <QMessageBox>
-#include <QDataWidgetMapper>
+#include <QVBoxLayout>
 #include "SettingsDialog.h"
-#include "Composer/SenderIdentitiesModel.h"
 #include "Common/InvokeMethod.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
@@ -78,8 +78,10 @@ bool checkProblemWithEmptyTextField(T *field, const QString &message)
     }
 }
 
-SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings):
-    QDialog(parent), mainWindow(parent), m_senderIdentities(identitiesModel), m_settings(settings)
+SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesModel *identitiesModel,
+        Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel, QSettings *settings):
+    QDialog(parent), mainWindow(parent), m_senderIdentities(identitiesModel), m_favoriteTags(favoriteTagsModel),
+        m_settings(settings)
 {
     setWindowTitle(tr("Settings"));
 
@@ -95,6 +97,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
 #ifdef XTUPLE_CONNECT
     addPage(xtConnect = new XtConnectPage(this, *m_settings, imap), tr("&xTuple"));
 #endif
+    addPage(new FavoriteTagsPage(this, *m_settings, m_favoriteTags), tr("Favorite &tags"));
 
     buttons = new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, Qt::Horizontal, this);
     connect(buttons, &QDialogButtonBox::accepted, this, &SettingsDialog::accept);
@@ -228,6 +231,7 @@ void SettingsDialog::reject()
         pluginManager()->setPasswordPlugin(m_originalPasswordPlugin);
     }
     m_senderIdentities->loadFromSettings(*m_settings);
+    m_favoriteTags->loadFromSettings(*m_settings);
     QDialog::reject();
 }
 
@@ -237,6 +241,111 @@ void SettingsDialog::addPage(ConfigurationWidgetInterface *page, const QString &
     connect(page->asWidget(), SIGNAL(widgetsUpdated()), SLOT(adjustSizeToScrollAreas())); // new-signal-slot: we're abusing the type system a bit here, cannot use the new syntax
     QMetaObject::invokeMethod(page->asWidget(), "updateWidgets", Qt::QueuedConnection);
     pages << page;
+}
+
+FavoriteTagsPage::FavoriteTagsPage(SettingsDialog *parent, QSettings &s, Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel):
+    QScrollArea(parent), Ui_FavoriteTagsPage(), m_favoriteTagsModel(favoriteTagsModel), m_parent(parent)
+{
+    Ui_FavoriteTagsPage::setupUi(this);
+    Q_ASSERT(m_favoriteTagsModel);
+    moveUpButton->setIcon(UiUtils::loadIcon(QStringLiteral("go-up")));
+    moveDownButton->setIcon(UiUtils::loadIcon(QStringLiteral("go-down")));
+    tagTableView->setModel(m_favoriteTagsModel);
+    tagTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
+    tagTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    tagTableView->setGridStyle(Qt::NoPen);
+    tagTableView->resizeRowsToContents();
+    tagTableView->horizontalHeader()->setStretchLastSection(true);
+    // show tag name in color instead
+    tagTableView->hideColumn(Imap::Mailbox::FavoriteTagsModel::COLUMN_COLOR);
+
+    connect(tagTableView, &QAbstractItemView::clicked, this, &FavoriteTagsPage::updateWidgets);
+    connect(tagTableView, &QAbstractItemView::doubleClicked, this, &FavoriteTagsPage::editButtonClicked);
+    connect(m_favoriteTagsModel, &QAbstractItemModel::modelReset, this, &FavoriteTagsPage::updateWidgets);
+    connect(m_favoriteTagsModel, &QAbstractItemModel::rowsInserted, this, &FavoriteTagsPage::updateWidgets);
+    connect(m_favoriteTagsModel, &QAbstractItemModel::rowsRemoved, this, &FavoriteTagsPage::updateWidgets);
+    connect(m_favoriteTagsModel, &QAbstractItemModel::dataChanged, this, &FavoriteTagsPage::updateWidgets);
+    connect(moveUpButton, &QAbstractButton::clicked, this, [this](){ FavoriteTagsPage::moveTagBy(-1); });
+    connect(moveDownButton, &QAbstractButton::clicked, this, [this](){ FavoriteTagsPage::moveTagBy(1); });
+    connect(addButton, &QAbstractButton::clicked, this, &FavoriteTagsPage::addButtonClicked);
+    connect(editButton, &QAbstractButton::clicked, this, &FavoriteTagsPage::editButtonClicked);
+    connect(deleteButton, &QAbstractButton::clicked, this, &FavoriteTagsPage::deleteButtonClicked);
+
+    updateWidgets();
+}
+
+void FavoriteTagsPage::updateWidgets()
+{
+    bool enabled = tagTableView->currentIndex().isValid();
+    deleteButton->setEnabled(enabled);
+    editButton->setEnabled(enabled);
+    bool upEnabled = m_favoriteTagsModel->rowCount() > 0 && tagTableView->currentIndex().row() > 0;
+    bool downEnabled = m_favoriteTagsModel->rowCount() > 0 && tagTableView->currentIndex().isValid() &&
+            tagTableView->currentIndex().row() < m_favoriteTagsModel->rowCount() - 1;
+    moveUpButton->setEnabled(upEnabled);
+    moveDownButton->setEnabled(downEnabled);
+
+    tagTableView->resizeColumnToContents(Imap::Mailbox::FavoriteTagsModel::COLUMN_INDEX);
+    tagTableView->resizeColumnToContents(Imap::Mailbox::FavoriteTagsModel::COLUMN_NAME);
+
+    emit widgetsUpdated();
+}
+
+void FavoriteTagsPage::moveTagBy(const int offset)
+{
+    int from = tagTableView->currentIndex().row();
+    int to = tagTableView->currentIndex().row() + offset;
+
+    m_favoriteTagsModel->moveTag(from, to);
+    updateWidgets();
+}
+
+void FavoriteTagsPage::addButtonClicked()
+{
+    m_favoriteTagsModel->appendTag(Imap::Mailbox::ItemFavoriteTagItem());
+    tagTableView->setCurrentIndex(m_favoriteTagsModel->index(m_favoriteTagsModel->rowCount() - 1, 0));
+    EditFavoriteTag *dialog = new EditFavoriteTag(this, m_favoriteTagsModel, tagTableView->currentIndex());
+    dialog->setDeleteOnReject();
+    dialog->setWindowTitle(tr("Add New Tag"));
+    dialog->show();
+    updateWidgets();
+}
+
+void FavoriteTagsPage::editButtonClicked()
+{
+    EditFavoriteTag *dialog = new EditFavoriteTag(this, m_favoriteTagsModel, tagTableView->currentIndex());
+    dialog->setWindowTitle(tr("Edit Tag"));
+    dialog->show();
+}
+
+void FavoriteTagsPage::deleteButtonClicked()
+{
+    Q_ASSERT(tagTableView->currentIndex().isValid());
+    m_favoriteTagsModel->removeTagAt(tagTableView->currentIndex().row());
+    updateWidgets();
+}
+
+void FavoriteTagsPage::save(QSettings &s)
+{
+    m_favoriteTagsModel->saveToSettings(s);
+
+    emit saved();
+}
+
+QWidget *FavoriteTagsPage::asWidget()
+{
+    return this;
+}
+
+bool FavoriteTagsPage::checkValidity() const
+{
+    return true;
+}
+
+bool FavoriteTagsPage::passwordFailures(QString &message) const
+{
+    Q_UNUSED(message);
+    return false;
 }
 
 GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel):
@@ -518,6 +627,82 @@ void EditIdentity::onReject()
 {
     if (m_deleteOnReject)
         m_identitiesModel->removeIdentityAt(m_mapper->currentIndex());
+}
+
+EditFavoriteTag::EditFavoriteTag(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel, const QModelIndex &currentIndex):
+    QDialog(parent), Ui_EditFavoriteTag(), m_favoriteTagsModel(favoriteTagsModel), currentIndex(currentIndex), m_deleteOnReject(false)
+{
+    Ui_EditFavoriteTag::setupUi(this);
+
+    nameLineEdit->setText(name());
+    setColorButtonColor(color());
+    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+    connect(colorButton, &QAbstractButton::clicked, this, &EditFavoriteTag::colorButtonClick);
+    connect(nameLineEdit, &QLineEdit::textChanged, this, &EditFavoriteTag::tryEnableButton);
+
+    connect(buttonBox->button(QDialogButtonBox::Ok), &QAbstractButton::clicked, this, &QDialog::accept);
+    connect(buttonBox->button(QDialogButtonBox::Cancel), &QAbstractButton::clicked, this, &QDialog::reject);
+    connect(this, &QDialog::accepted, this, &EditFavoriteTag::onAccept);
+    connect(this, &QDialog::rejected, this, &EditFavoriteTag::onReject);
+    setModal(true);
+}
+
+QString EditFavoriteTag::name()
+{
+    return m_favoriteTagsModel->data(m_favoriteTagsModel->index(currentIndex.row(), Imap::Mailbox::FavoriteTagsModel::COLUMN_NAME)).toString();
+}
+
+QString EditFavoriteTag::color()
+{
+    return m_favoriteTagsModel->data(m_favoriteTagsModel->index(currentIndex.row(), Imap::Mailbox::FavoriteTagsModel::COLUMN_COLOR)).toString();
+}
+
+void EditFavoriteTag::setColorButtonColor(const QString color)
+{
+    colorButton->setProperty("colorName", color);
+    QPalette pal = colorButton->palette();
+    pal.setColor(QPalette::Button, QColor(color));
+    colorButton->setAutoFillBackground(true);
+    colorButton->setPalette(pal);
+    colorButton->setFlat(true);
+    colorButton->update();
+}
+
+void EditFavoriteTag::colorButtonClick()
+{
+    const QColor color = QColorDialog::getColor(QColor(colorButton->property("colorName").toString()), this, tr("Select tag color"));
+    if (color.isValid()) {
+        setColorButtonColor(color.name());
+        tryEnableButton();
+    }
+}
+
+void EditFavoriteTag::tryEnableButton()
+{
+    buttonBox->button(QDialogButtonBox::Ok)->setEnabled(
+        !nameLineEdit->text().isEmpty() && QColor(colorButton->property("colorName").toString()).isValid()
+    );
+}
+
+/** @short If enabled, make sure that the current row gets deleted when the dialog is rejected */
+void EditFavoriteTag::setDeleteOnReject(const bool reject)
+{
+    m_deleteOnReject = reject;
+}
+
+void EditFavoriteTag::onAccept()
+{
+    m_favoriteTagsModel->setData(m_favoriteTagsModel->index(currentIndex.row(), Imap::Mailbox::FavoriteTagsModel::COLUMN_NAME),
+            nameLineEdit->text());
+    m_favoriteTagsModel->setData(m_favoriteTagsModel->index(currentIndex.row(), Imap::Mailbox::FavoriteTagsModel::COLUMN_COLOR),
+            colorButton->property("colorName"));
+}
+
+void EditFavoriteTag::onReject()
+{
+    if (m_deleteOnReject)
+        m_favoriteTagsModel->removeTagAt(currentIndex.row());
 }
 
 ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), Ui_ImapPage(), m_parent(parent)
