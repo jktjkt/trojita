@@ -863,7 +863,7 @@ void MainWindow::setupModels()
     prettyMboxModel->setObjectName(QStringLiteral("prettyMboxModel"));
     connect(realThreadingModel, &Imap::Mailbox::ThreadingMsgListModel::sortingFailed,
             msgListWidget, &MessageListWidget::slotSortingFailed);
-    prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
+    prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this, m_favoriteTags);
     prettyMsgListModel->setSourceModel(m_imapAccess->threadingMsgListModel());
     prettyMsgListModel->setObjectName(QStringLiteral("prettyMsgListModel"));
 

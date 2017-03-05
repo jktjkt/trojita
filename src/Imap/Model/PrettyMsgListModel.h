@@ -24,6 +24,7 @@
 
 #include <QSortFilterProxyModel>
 #include "Imap/Model/MailboxModel.h"
+#include "Imap/Model/FavoriteTagsModel.h"
 
 namespace Imap
 {
@@ -36,11 +37,13 @@ class PrettyMsgListModel: public QSortFilterProxyModel
 {
     Q_OBJECT
 public:
-    explicit PrettyMsgListModel(QObject *parent=0);
+    explicit PrettyMsgListModel(QObject *parent, FavoriteTagsModel *m_favoriteTagsModel);
     virtual QVariant data(const QModelIndex &index, int role) const;
     void setHideRead(bool value);
     virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
     virtual void sort(int column, Qt::SortOrder order);
+
+    FavoriteTagsModel *m_favoriteTagsModel;
 
 signals:
     void sortingPreferenceChanged(int column, Qt::SortOrder order);
