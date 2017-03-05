@@ -30,6 +30,7 @@ namespace Common
 
 struct SettingsNames {
     static const QString identitiesKey, realNameKey, addressKey, organisationKey, signatureKey, obsRealNameKey, obsAddressKey;
+    static const QString favoriteTagsKey, tagNameKey, tagColorKey;
     static const QString msaMethodKey, methodSMTP, methodSSMTP, methodSENDMAIL, methodImapSendmail, smtpHostKey,
            smtpPortKey, smtpAuthKey, smtpStartTlsKey, smtpUserKey, smtpAuthReuseImapCredsKey,
            sendmailKey, sendmailDefaultCmd;
