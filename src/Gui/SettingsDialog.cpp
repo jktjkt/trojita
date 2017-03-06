@@ -571,6 +571,8 @@ ImapPage::ImapPage(SettingsDialog *parent, QSettings &s): QScrollArea(parent), U
     imapIdleRenewal->setValue(s.value(SettingsNames::imapIdleRenewal, QVariant(29)).toInt());
     imapNumberRefreshInterval->setValue(m_parent->imapAccess()->numberRefreshInterval());
     accountIcon->setText(s.value(SettingsNames::imapAccountIcon).toString());
+    archiveFolderName->setText(s.value(SettingsNames::imapArchiveFolderName).toString().isEmpty() ?
+        SettingsNames::imapDefaultArchiveFolderName : s.value(SettingsNames::imapArchiveFolderName).toString());
 
     m_imapPort = s.value(SettingsNames::imapPortKey, QString::number(defaultImapPort)).value<quint16>();
 
@@ -704,6 +706,7 @@ void ImapPage::save(QSettings &s)
     m_parent->imapAccess()->setNumberRefreshInterval(imapNumberRefreshInterval->value());
 
     s.setValue(SettingsNames::imapAccountIcon, accountIcon->text().isEmpty() ? QVariant() : QVariant(accountIcon->text()));
+    s.setValue(SettingsNames::imapArchiveFolderName, archiveFolderName->text());
 
     if (m_pwWatcher->isPluginAvailable() && !m_pwWatcher->isWaitingForPlugin()) {
         m_pwWatcher->setPassword(imapPass->text());

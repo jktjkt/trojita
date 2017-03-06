@@ -41,6 +41,7 @@
 #include "Imap/Tasks/KeepMailboxOpenTask.h"
 #include "Imap/Tasks/OpenConnectionTask.h"
 #include "Imap/Tasks/UpdateFlagsTask.h"
+#include "Imap/Tasks/CopyMoveMessagesTask.h"
 #include "Streams/SocketFactory.h"
 
 //#define DEBUG_PERIODICALLY_DUMP_TASKS
@@ -1237,6 +1238,11 @@ void Model::markMailboxAsRead(const QModelIndex &mailbox)
 void Model::markMessagesRead(const QModelIndexList &messages, const FlagsOperation marked)
 {
     this->setMessageFlags(messages, QStringLiteral("\\Seen"), marked);
+}
+
+ImapTask *Model::copyMoveMessages(const QString &destMailboxName, const QModelIndexList &messages, const CopyMoveOperation op)
+{
+    return m_taskFactory->createCopyMoveMessagesTask(this, messages, destMailboxName, op);
 }
 
 void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMailboxName, Imap::Uids uids, const CopyMoveOperation op)

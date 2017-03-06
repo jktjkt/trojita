@@ -57,6 +57,7 @@
         <file>icons/mail-reply-list.svg</file>
         <file>icons/mail-reply-sender.svg</file>
         <file>icons/mail-unflagged.svg</file>
+        <file>icons/mail-move-to-archive.svg</file>
         <file>icons/menu_new.svg</file>
         <file>icons/network-connect.svg</file>
         <file>icons/network-disconnect.svg</file>
