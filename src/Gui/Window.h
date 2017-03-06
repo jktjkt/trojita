@@ -147,6 +147,7 @@ private slots:
     void slotReplyGuess();
     void slotForwardAsAttachment();
     void slotUpdateMessageActions();
+    void handleTag(const bool checked, const int index);
     void handleMarkAsRead(bool);
     void handleMarkAsDeleted(bool);
     void handleMarkAsFlagged(const bool);
@@ -216,6 +217,8 @@ private slots:
     void slotPluginsChanged();
 
     void showStatusMessage(const QString &message);
+
+    void slotFavoriteTagsChanged();
 
 protected:
     void resizeEvent(QResizeEvent *);
@@ -308,6 +311,11 @@ private:
     QAction *aboutTrojita;
     QAction *donateToTrojita;
 
+    QAction *tag1;
+    QAction *tag2;
+    QAction *tag3;
+    QAction *tag4;
+    QAction *tag5;
     QAction *markAsRead;
     QAction *markAsDeleted;
     QAction *markAsFlagged;

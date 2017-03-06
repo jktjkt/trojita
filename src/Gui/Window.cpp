@@ -172,6 +172,14 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     slotToggleSysTray();
     slotPluginsChanged();
 
+    slotFavoriteTagsChanged();
+    connect(m_favoriteTags, &QAbstractItemModel::modelReset, this, &MainWindow::slotFavoriteTagsChanged);
+    connect(m_favoriteTags, &QAbstractItemModel::layoutChanged, this, &MainWindow::slotFavoriteTagsChanged);
+    connect(m_favoriteTags, &QAbstractItemModel::rowsMoved, this, &MainWindow::slotFavoriteTagsChanged);
+    connect(m_favoriteTags, &QAbstractItemModel::rowsInserted, this, &MainWindow::slotFavoriteTagsChanged);
+    connect(m_favoriteTags, &QAbstractItemModel::rowsRemoved, this, &MainWindow::slotFavoriteTagsChanged);
+    connect(m_favoriteTags, &QAbstractItemModel::dataChanged, this, &MainWindow::slotFavoriteTagsChanged);
+
     // Please note that Qt 4.6.1 really requires passing the method signature this way, *not* using the SLOT() macro
     QDesktopServices::setUrlHandler(QStringLiteral("mailto"), this, "slotComposeMailUrl");
     QDesktopServices::setUrlHandler(QStringLiteral("x-trojita-manage-contact"), this, "slotManageContact");
@@ -249,6 +257,11 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_zoom_original"), QStringLiteral("zoom-original"), tr("Original Size"));
     shortcutHandler->defineAction(QStringLiteral("action_focus_mailbox_tree"), QString(), tr("Move Focus to Mailbox List"));
     shortcutHandler->defineAction(QStringLiteral("action_focus_msg_list"), QString(), tr("Move Focus to Message List"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_1"), QStringLiteral("mail-tag-1"), tr("Tag with &1st tag"), QStringLiteral("1"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_2"), QStringLiteral("mail-tag-2"), tr("Tag with &2nd tag"), QStringLiteral("2"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_3"), QStringLiteral("mail-tag-3"), tr("Tag with &3rd tag"), QStringLiteral("3"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_4"), QStringLiteral("mail-tag-4"), tr("Tag with &4th tag"), QStringLiteral("4"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_5"), QStringLiteral("mail-tag-5"), tr("Tag with &5th tag"), QStringLiteral("5"));
 }
 
 void MainWindow::createActions()
@@ -422,6 +435,21 @@ void MainWindow::createActions()
 
     moveToArchive = ShortcutHandler::instance()->createAction(QStringLiteral("action_archive"), this);
     connect(moveToArchive, &QAction::triggered, this, &MainWindow::handleMoveToArchive);
+
+    auto addTagAction = [=](int row) {
+        QAction *tag = ShortcutHandler::instance()->createAction(QStringLiteral("action_tag_").append(QString::number(row)), this);
+        tag->setCheckable(true);
+        msgListWidget->tree->addAction(tag);
+        connect(tag, &QAction::triggered, this, [=](const bool checked) {
+            handleTag(checked, row - 1);
+        });
+        return tag;
+    };
+    tag1 = addTagAction(1);
+    tag2 = addTagAction(2);
+    tag3 = addTagAction(3);
+    tag4 = addTagAction(4);
+    tag5 = addTagAction(5);
 
     //: "mailbox" as a "folder of messages", not as a "mail account"
     createChildMailbox = new QAction(tr("Create &Child Mailbox..."), this);
@@ -1228,6 +1256,15 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         actionList.append(saveWholeMessage);
         actionList.append(viewMsgSource);
         actionList.append(viewMsgHeaders);
+        auto appendTagIfExists = [this,&actionList](const int row, QAction *tag) {
+            if (m_favoriteTags->rowCount() > row - 1)
+                actionList.append(tag);
+        };
+        appendTagIfExists(1, tag1);
+        appendTagIfExists(2, tag2);
+        appendTagIfExists(3, tag3);
+        appendTagIfExists(4, tag4);
+        appendTagIfExists(5, tag5);
     }
     if (! actionList.isEmpty())
         QMenu::exec(actionList, msgListWidget->tree->mapToGlobal(position));
@@ -1530,6 +1567,18 @@ void MainWindow::slotPreviousUnread()
     });
 }
 
+void MainWindow::handleTag(const bool checked, const int index)
+{
+    const QModelIndexList &translatedIndexes = translatedSelection();
+    if (translatedIndexes.isEmpty()) {
+        qDebug() << "Model::handleTag: no valid messages";
+    } else {
+        const auto &tagName = m_favoriteTags->tagNameByIndex(index);
+        if (!tagName.isEmpty())
+            imapModel()->setMessageFlags(translatedIndexes, tagName, checked ? Imap::Mailbox::FLAG_ADD : Imap::Mailbox::FLAG_REMOVE);
+    }
+}
+
 void MainWindow::handleMarkAsDeleted(bool value)
 {
     const QModelIndexList translatedIndexes = translatedSelection();
@@ -1694,11 +1743,29 @@ void MainWindow::updateMessageFlagsOf(const QModelIndex &index)
         return i.data(Imap::Mailbox::RoleMailboxName) != archiveFolderName;
     }));
 
+    tag1->setEnabled(okToModify);
+    tag2->setEnabled(okToModify);
+    tag3->setEnabled(okToModify);
+    tag4->setEnabled(okToModify);
+    tag5->setEnabled(okToModify);
+
     bool isRead    = isValid,
          isDeleted = isValid,
          isFlagged = isValid,
          isJunk    = isValid,
-         isNotJunk = isValid;
+         isNotJunk = isValid,
+         hasTag1   = isValid,
+         hasTag2   = isValid,
+         hasTag3   = isValid,
+         hasTag4   = isValid,
+         hasTag5   = isValid;
+    auto updateTag = [=](const QModelIndex &i, bool &hasTag, int index) {
+        if (hasTag && !m_favoriteTags->tagNameByIndex(index).isEmpty() &&
+                !i.data(Imap::Mailbox::RoleMessageFlags).toStringList().contains(m_favoriteTags->tagNameByIndex(index)))
+        {
+            hasTag = false;
+        }
+    };
     Q_FOREACH (const QModelIndex &i, indexes) {
 #define UPDATE_STATE(PROP) \
         if (is##PROP && !i.data(Imap::Mailbox::RoleMessageIsMarked##PROP).toBool()) \
@@ -1709,12 +1776,23 @@ void MainWindow::updateMessageFlagsOf(const QModelIndex &index)
         UPDATE_STATE(Junk)
         UPDATE_STATE(NotJunk)
 #undef UPDATE_STATE
+        updateTag(i, hasTag1, 0);
+        updateTag(i, hasTag2, 1);
+        updateTag(i, hasTag3, 2);
+        updateTag(i, hasTag4, 3);
+        updateTag(i, hasTag5, 4);
     }
     markAsRead->setChecked(isRead);
     markAsDeleted->setChecked(isDeleted);
     markAsFlagged->setChecked(isFlagged);
     markAsJunk->setChecked(isJunk && !isNotJunk);
     markAsNotJunk->setChecked(isNotJunk && !isJunk);
+
+    tag1->setChecked(hasTag1);
+    tag2->setChecked(hasTag2);
+    tag3->setChecked(hasTag3);
+    tag4->setChecked(hasTag4);
+    tag5->setChecked(hasTag5);
 }
 
 void MainWindow::updateActionsOnlineOffline(bool online)
@@ -2735,6 +2813,15 @@ void MainWindow::showStatusMessage(const QString &message)
 void MainWindow::slotMessageModelChanged(QAbstractItemModel *model)
 {
     mailMimeTree->setModel(model);
+}
+
+void MainWindow::slotFavoriteTagsChanged()
+{
+    for (int i = 1; i <= m_favoriteTags->rowCount(); ++i) {
+        QAction *action = ShortcutHandler::instance()->action(QStringLiteral("action_tag_") + QString::number(i));
+        if (action)
+            action->setText(tr("Tag with \"%1\"").arg(m_favoriteTags->tagNameByIndex(i - 1)));
+    }
 }
 
 }
