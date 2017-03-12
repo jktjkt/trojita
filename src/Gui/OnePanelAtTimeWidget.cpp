@@ -62,7 +62,7 @@ OnePanelAtTimeWidget::~OnePanelAtTimeWidget()
         removeWidget(w);
         w->show();
     }
-    m_msgListWidget->tree->setAutoActivateAfterKeyNavigation(false);
+    m_msgListWidget->tree->setAutoActivateAfterKeyNavigation(true);
 
     if (m_toolbar) {
         m_toolbar->removeAction(m_actionGoBack);
