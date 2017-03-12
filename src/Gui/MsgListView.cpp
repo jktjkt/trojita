@@ -68,7 +68,7 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfte
 // NOTICE: reasonably Triggers should be a (non strict) subset of Blockers (user changed his mind)
 
 // the list of key events which pot. lead to loading a new message.
-static QList<int> gs_naviActivationTriggers = QList<int>() << Qt::Key_Up << Qt::Key_Down
+static QList<int> gs_naviActivationTriggers = QList<int>() << Qt::Key_Up << Qt::Key_Down << Qt::Key_Right << Qt::Key_Left
                                                            << Qt::Key_PageUp << Qt::Key_PageDown
                                                            << Qt::Key_Home << Qt::Key_End;
 // the list of key events which cancel naviActivationTrigger induced action.
