@@ -1165,7 +1165,6 @@ void MainWindow::msgListDoubleClicked(const QModelIndex &index)
     widget->setFocusPolicy(Qt::StrongFocus);
     widget->setWindowTitle(index.data(Imap::Mailbox::RoleMessageSubject).toString());
     widget->setAttribute(Qt::WA_DeleteOnClose);
-    widget->resize(800, 600);
     QAction *closeAction = ShortcutHandler::instance()->createAction(QStringLiteral("action_messagewindow_close"), widget, SLOT(close()), widget);
     widget->addAction(closeAction);
     widget->show();
