@@ -182,7 +182,7 @@ enum {
 
     A multipart/signed could use some unrecognized or unsupported algorithm, in which case we won't even try
     to verify the signature. If this is role returns true, it means that there will be just one child item
-    and that child's validity will be checked by the crypto operation. This role does not imply anything
+    and that that child's validity will be checked by the crypto operation. This role does not imply anything
     about the validity of the actual signature, though.
     */
     RolePartSignatureVerifySupported,
