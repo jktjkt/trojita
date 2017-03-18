@@ -65,12 +65,18 @@ private slots:
     void slotUpdateHeaderActions();
     /** @short Show/hide a corresponding column */
     void slotHeaderSectionVisibilityToggled(int section);
+    /** @short Get ThreadingMsgListModel index and call the next handler */
+    void slotMsgListModelRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
+    /** @short Keep the cursor in place for better keyboard usability */
+    void slotThreadingMsgListModelRowAboutToBeRemoved(const QModelIndex &index);
     /** @short Pick up the change of the sort critera */
     void slotHandleSortCriteriaChanged(int column, Qt::SortOrder order);
     /** @short conditionally emits activated(currentIndex()) for keyboard events */
     void slotCurrentActivated();
     void slotHandleNewColumns(int oldCount, int newCount);
 private:
+    /** @short Try to move the cursor to next message */
+    void setCurrentIndexToNextValid(const QModelIndex &current);
     static Imap::Mailbox::PrettyMsgListModel *findPrettyMsgListModel(QAbstractItemModel *model);
 
     QSignalMapper *headerFieldsMapper;

@@ -34,6 +34,7 @@
 #include "ColoredItemDelegate.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
+#include "Imap/Model/ThreadingMsgListModel.h"
 
 namespace Gui
 {
@@ -400,12 +401,77 @@ void MsgListView::setModel(QAbstractItemModel *model)
         if (Imap::Mailbox::PrettyMsgListModel *prettyModel = findPrettyMsgListModel(this->model())) {
             disconnect(prettyModel, &Imap::Mailbox::PrettyMsgListModel::sortingPreferenceChanged,
                        this, &MsgListView::slotHandleSortCriteriaChanged);
+            disconnect(qobject_cast<Imap::Mailbox::ThreadingMsgListModel*>(prettyModel->sourceModel())->sourceModel(),
+                    &QAbstractItemModel::rowsAboutToBeRemoved,
+                    this, &MsgListView::slotMsgListModelRowsAboutToBeRemoved);
         }
     }
     QTreeView::setModel(model);
     if (Imap::Mailbox::PrettyMsgListModel *prettyModel = findPrettyMsgListModel(model)) {
         connect(prettyModel, &Imap::Mailbox::PrettyMsgListModel::sortingPreferenceChanged,
                 this, &MsgListView::slotHandleSortCriteriaChanged);
+        connect(qobject_cast<Imap::Mailbox::ThreadingMsgListModel*>(prettyModel->sourceModel())->sourceModel(),
+                &QAbstractItemModel::rowsAboutToBeRemoved,
+                this, &MsgListView::slotMsgListModelRowsAboutToBeRemoved);
+    }
+}
+
+/** @short Get ThreadingMsgListModel index and call the next handler */
+void MsgListView::slotMsgListModelRowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+{
+    Q_ASSERT(!parent.isValid());
+
+    auto threadingModel = qobject_cast<Imap::Mailbox::ThreadingMsgListModel*>(findPrettyMsgListModel(model())->sourceModel());
+    for (int i = start; i <= end; ++i) {
+        QModelIndex index = threadingModel->sourceModel()->index(i, 0, parent);
+        Q_ASSERT(index.isValid());
+        QModelIndex translated = threadingModel->mapFromSource(index);
+
+        if (translated.isValid())
+            slotThreadingMsgListModelRowAboutToBeRemoved(translated);
+    }
+}
+
+/** @short Keep the cursor in place for better keyboard usability
+
+In the worst case this is an O(log n). Such a worst case is when messages are removed in descending
+order starting from last one of the view. But in practice, there are many cases when it performs
+well better.
+
+A performance-wise approach could be to hook signal layoutAboutToBeChanged, but the underlying model
+has removed the rows by then and it makes everything complicated.
+*/
+void MsgListView::slotThreadingMsgListModelRowAboutToBeRemoved(const QModelIndex &index)
+{
+    Imap::Mailbox::PrettyMsgListModel *prettyModel = findPrettyMsgListModel(model());
+    Q_ASSERT(!index.isValid() || index.model() == qobject_cast<Imap::Mailbox::ThreadingMsgListModel*>(prettyModel->sourceModel()));
+    QModelIndex current = currentIndex();
+    if (current.isValid() && prettyModel->mapFromSource(index) == current) {
+        setCurrentIndexToNextValid(current);
+    }
+}
+
+/** @short Try to move the cursor to next message
+
+Used when the current message disappearing.
+*/
+void MsgListView::setCurrentIndexToNextValid(const QModelIndex &current)
+{
+    Q_ASSERT(current.isValid());
+    Imap::Mailbox::PrettyMsgListModel *prettyModel = findPrettyMsgListModel(model());
+    Q_ASSERT(current.model() == prettyModel);
+    for (bool forward : {true,false}) {
+        QModelIndex walker = forward ? indexBelow(current) : indexAbove(current);
+        while (walker.isValid()) {
+            // Queued for pruning..?
+            if (prettyModel->data(walker, Imap::Mailbox::RoleMessageUid).isValid()) {
+                // Do not activate, just keep the cursor in place.
+                selectionModel()->setCurrentIndex(walker, QItemSelectionModel::NoUpdate);
+                // It has won. For now.
+                return;
+            }
+            walker = forward ? indexBelow(walker) : indexAbove(walker);
+        }
     }
 }
 
