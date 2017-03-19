@@ -26,6 +26,7 @@
 #define GUI_TAGWIDGET_H
 
 #include <QLabel>
+#include "Imap/Model/FavoriteTagsModel.h"
 
 namespace Gui
 {
@@ -36,7 +37,7 @@ class TagWidget : public QLabel
     Q_PROPERTY(QString tagName READ tagName USER true)
 public:
     static TagWidget *addingWidget();
-    static TagWidget *userKeyword(const QString &tagName);
+    static TagWidget *userKeyword(const QString &tagName, Imap::Mailbox::FavoriteTagsModel *m_favoriteTags);
     static TagWidget *systemFlag(const QString &flagName);
 
     QString tagName() const;

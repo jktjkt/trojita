@@ -38,8 +38,9 @@
 namespace Gui
 {
 
-TagListWidget::TagListWidget(QWidget *parent) :
+TagListWidget::TagListWidget(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *m_favoriteTags) :
     QWidget(parent)
+    , m_favoriteTags(m_favoriteTags)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     parentLayout = new FlowLayout(this, 0);
@@ -69,7 +70,7 @@ void TagListWidget::setTagList(QStringList list)
                 continue;
             }
         } else {
-            TagWidget *lbl = TagWidget::userKeyword(tagName);
+            TagWidget *lbl = TagWidget::userKeyword(tagName, m_favoriteTags);
             parentLayout->addWidget(lbl);
             connect(lbl, &TagWidget::removeClicked, this, &TagListWidget::tagRemoved);
             children << lbl;

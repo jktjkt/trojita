@@ -151,15 +151,16 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     defineActions();
     shortcutHandler->readSettings(); // must happen after defineActions()
 
+    // must be created before calling createWidgets
+    m_favoriteTags = new Imap::Mailbox::FavoriteTagsModel(this);
+    m_favoriteTags->loadFromSettings(*m_settings);
+
     createWidgets();
 
     Imap::migrateSettings(m_settings);
 
     m_senderIdentities = new Composer::SenderIdentitiesModel(this);
     m_senderIdentities->loadFromSettings(*m_settings);
-
-    m_favoriteTags = new Imap::Mailbox::FavoriteTagsModel(this);
-    m_favoriteTags->loadFromSettings(*m_settings);
 
     if (! m_settings->contains(Common::SettingsNames::imapMethodKey)) {
         QTimer::singleShot(0, this, SLOT(slotShowSettings()));
@@ -790,7 +791,7 @@ void MainWindow::createWidgets()
 
     msgListWidget->tree->installEventFilter(this);
 
-    m_messageWidget = new CompleteMessageWidget(this, m_settings, m_pluginManager);
+    m_messageWidget = new CompleteMessageWidget(this, m_settings, m_pluginManager, m_favoriteTags);
     connect(m_messageWidget->messageView, &MessageView::messageChanged, this, &MainWindow::scrollMessageUp);
     connect(m_messageWidget->messageView, &MessageView::messageChanged, this, &MainWindow::slotUpdateMessageActions);
 #if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
@@ -1202,7 +1203,7 @@ void MainWindow::openCompleteMessageWidget()
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
 
-    CompleteMessageWidget *widget = new CompleteMessageWidget(0, m_settings, m_pluginManager);
+    CompleteMessageWidget *widget = new CompleteMessageWidget(0, m_settings, m_pluginManager, m_favoriteTags);
     widget->messageView->setMessage(index);
     widget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(m_imapAccess->networkWatcher()));
     widget->setFocusPolicy(Qt::StrongFocus);

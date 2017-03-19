@@ -25,6 +25,7 @@
 #include <QSettings>
 #include <QWidget>
 #include "Gui/FindBarMixin.h"
+#include "Imap/Model/FavoriteTagsModel.h"
 
 class QScrollArea;
 class QPropertyAnimation;
@@ -44,7 +45,8 @@ class CompleteMessageWidget: public QWidget, private FindBarMixin
 {
     Q_OBJECT
 public:
-    CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager);
+    CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager,
+            Imap::Mailbox::FavoriteTagsModel *m_favoriteTags);
 
     MessageView *messageView;
     QScrollArea *area;

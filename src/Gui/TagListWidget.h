@@ -28,6 +28,7 @@
 #include <QList>
 #include <QSet>
 #include <QWidget>
+#include "Imap/Model/FavoriteTagsModel.h"
 
 class QPushButton;
 
@@ -41,7 +42,7 @@ class TagListWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit TagListWidget(QWidget *parent = 0);
+    explicit TagListWidget(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *m_favoriteTags);
     void setTagList(QStringList list);
 
 signals:
@@ -52,6 +53,8 @@ private slots:
     void newTagsRequested();
 
 private:
+    Imap::Mailbox::FavoriteTagsModel *m_favoriteTags;
+
     FlowLayout *parentLayout;
     TagWidget *addButton;
     QList<QObject *> children;
