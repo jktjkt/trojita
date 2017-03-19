@@ -242,6 +242,8 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_zoom_in"), QStringLiteral("zoom-in"), tr("Zoom In"), QKeySequence::ZoomIn);
     shortcutHandler->defineAction(QStringLiteral("action_zoom_out"), QStringLiteral("zoom-out"), tr("Zoom Out"), QKeySequence::ZoomOut);
     shortcutHandler->defineAction(QStringLiteral("action_zoom_original"), QStringLiteral("zoom-original"), tr("Original Size"));
+    shortcutHandler->defineAction(QStringLiteral("action_focus_mailbox_tree"), QString(), tr("Move Focus to Mailbox List"));
+    shortcutHandler->defineAction(QStringLiteral("action_focus_msg_list"), QString(), tr("Move Focus to Message List"));
 }
 
 void MainWindow::createActions()
@@ -356,6 +358,11 @@ void MainWindow::createActions()
     addAction(triggerSearch);
     triggerSearch->setShortcut(QKeySequence(QStringLiteral("/")));
     connect(triggerSearch, &QAction::triggered, msgListWidget, &MessageListWidget::focusSearch);
+
+    addAction(ShortcutHandler::instance()->createAction(QStringLiteral("action_focus_mailbox_tree"), mboxTree,
+            SLOT(setFocus()), this));
+    addAction(ShortcutHandler::instance()->createAction(QStringLiteral("action_focus_msg_list"), msgListWidget->tree,
+            SLOT(setFocus()), this));
 
     m_oneAtTimeGoBack = ShortcutHandler::instance()->createAction(QStringLiteral("action_oneattime_go_back"), this);
     m_oneAtTimeGoBack->setEnabled(false);
