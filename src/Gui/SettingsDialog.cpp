@@ -45,6 +45,7 @@
 #include <QToolTip>
 #include <QVBoxLayout>
 #include "SettingsDialog.h"
+#include "ColoredItemDelegate.h"
 #include "Common/InvokeMethod.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
@@ -251,6 +252,7 @@ FavoriteTagsPage::FavoriteTagsPage(SettingsDialog *parent, QSettings &s, Imap::M
     moveUpButton->setIcon(UiUtils::loadIcon(QStringLiteral("go-up")));
     moveDownButton->setIcon(UiUtils::loadIcon(QStringLiteral("go-down")));
     tagTableView->setModel(m_favoriteTagsModel);
+    tagTableView->setItemDelegate(new ColoredItemDelegate(this));
     tagTableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     tagTableView->setSelectionMode(QAbstractItemView::SingleSelection);
     tagTableView->setGridStyle(Qt::NoPen);

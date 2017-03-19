@@ -338,6 +338,7 @@ set(path_DesktopGui ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui)
 set(libDesktopGui_SOURCES
     ${path_DesktopGui}/AddressRowWidget.cpp
     ${path_DesktopGui}/AttachmentView.cpp
+    ${path_DesktopGui}/ColoredItemDelegate.cpp
     ${path_DesktopGui}/CompleteMessageWidget.cpp
     ${path_DesktopGui}/ComposeWidget.cpp
     ${path_DesktopGui}/ComposerAttachmentsList.cpp
