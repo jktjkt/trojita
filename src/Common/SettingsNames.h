@@ -59,6 +59,7 @@ struct SettingsNames {
     static const QString imapIdleRenewal;
     static const QString autoMarkReadEnabled, autoMarkReadSeconds;
     static const QString interopRevealVersions;
+    static const QString completeMessageWidgetGeometry;
 };
 
 }

@@ -114,5 +114,6 @@ const QString SettingsNames::imapIdleRenewal = QStringLiteral("imapIdleRenewal")
 const QString SettingsNames::autoMarkReadEnabled = QStringLiteral("autoMarkRead/enabled");
 const QString SettingsNames::autoMarkReadSeconds = QStringLiteral("autoMarkRead/seconds");
 const QString SettingsNames::interopRevealVersions = QStringLiteral("interoperability/revealVersions");
+const QString SettingsNames::completeMessageWidgetGeometry = QStringLiteral("gui/completeMessageWidgetGeometry");
 
 }

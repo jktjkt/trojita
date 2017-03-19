@@ -22,11 +22,11 @@
 #ifndef GUI_COMPLETEMESSAGEWIDGET_H
 #define GUI_COMPLETEMESSAGEWIDGET_H
 
+#include <QSettings>
 #include <QWidget>
 #include "Gui/FindBarMixin.h"
 
 class QScrollArea;
-class QSettings;
 class QPropertyAnimation;
 
 namespace Plugins {
@@ -48,14 +48,16 @@ public:
 
     MessageView *messageView;
     QScrollArea *area;
+    void closeEvent(QCloseEvent *event) override;
 protected:
-    void keyPressEvent(QKeyEvent *ke);
+    void keyPressEvent(QKeyEvent *ke) override;
 
 private:
     CompleteMessageWidget(const CompleteMessageWidget &); // don't implement
     CompleteMessageWidget &operator=(const CompleteMessageWidget &); // don't implement
 
     QPropertyAnimation *animator;
+    QSettings *settings;
 };
 
 }
