@@ -371,6 +371,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/SettingsDialog.cpp
     ${path_DesktopGui}/SimplePartWidget.cpp
     ${path_DesktopGui}/Spinner.cpp
+    ${path_DesktopGui}/TagAddDialog.cpp
     ${path_DesktopGui}/TagListWidget.cpp
     ${path_DesktopGui}/TagWidget.cpp
     ${path_DesktopGui}/TaskProgressIndicator.cpp
@@ -394,6 +395,7 @@ set(libDesktopGui_UI
     ${path_DesktopGui}/SettingsImapPage.ui
     ${path_DesktopGui}/SettingsOutgoingPage.ui
     ${path_DesktopGui}/SettingsFavoriteTagsPage.ui
+    ${path_DesktopGui}/TagAddDialog.ui
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
 )
 set(libDesktopGui_RESOURCES

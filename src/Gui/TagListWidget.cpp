@@ -31,6 +31,7 @@
 
 #include "TagListWidget.h"
 #include "FlowLayout.h"
+#include "TagAddDialog.h"
 #include "TagWidget.h"
 #include "Gui/Util.h"
 #include "Imap/Model/SpecialFlagNames.h"
@@ -88,16 +89,14 @@ void TagListWidget::empty()
 
 void TagListWidget::newTagsRequested()
 {
-    QString tags = QInputDialog::getText(this, tr("New Tags"), tr("Tag names (space-separated):"));
+    QStringList tagList = TagAddDialog::getTags(this, m_favoriteTags);
 
     // Check whether any text has been entered
-    if (tags.isEmpty()) {
+    if (tagList.isEmpty()) {
         return;
     }
 
     // Check whether reserved keywords have been entered
-    QStringList tagList = tags.split(QStringLiteral(" "), QString::SkipEmptyParts);
-    tagList.removeDuplicates();
     QStringList reservedTagsList = QStringList();
     for (QStringList::const_iterator it = tagList.constBegin(); it != tagList.constEnd(); ++it) {
         if (Imap::Mailbox::FlagNames::toCanonical.contains(it->toLower())) {
@@ -112,7 +111,7 @@ void TagListWidget::newTagsRequested()
         return;
     }
 
-    emit tagAdded(tags);
+    emit tagAdded(tagList.join(QLatin1Char(' ')));
 }
 
 }
