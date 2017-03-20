@@ -238,6 +238,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_network_expensive"), QStringLiteral("network-wireless"), tr("&Expensive Connection"));
     shortcutHandler->defineAction(QStringLiteral("action_network_online"), QStringLiteral("network-connect"), tr("&Free Access"));
     shortcutHandler->defineAction(QStringLiteral("action_messagewindow_close"), QStringLiteral("window-close"), tr("Close Standalone Message Window"));
+    shortcutHandler->defineAction(QStringLiteral("action_open_messagewindow"), QString(), tr("Open message in New Window..."), QStringLiteral("Ctrl+Return"));
     shortcutHandler->defineAction(QStringLiteral("action_oneattime_go_back"), QStringLiteral("go-previous"), tr("Navigate Back"), QKeySequence(QKeySequence::Back).toString());
     shortcutHandler->defineAction(QStringLiteral("action_zoom_in"), QStringLiteral("zoom-in"), tr("Zoom In"), QKeySequence::ZoomIn);
     shortcutHandler->defineAction(QStringLiteral("action_zoom_out"), QStringLiteral("zoom-out"), tr("Zoom Out"), QKeySequence::ZoomOut);
@@ -411,6 +412,9 @@ void MainWindow::createActions()
 
     viewMsgHeaders = ShortcutHandler::instance()->createAction(QStringLiteral("action_view_message_headers"), this, SLOT(slotViewMsgHeaders()), this);
     msgListWidget->tree->addAction(viewMsgHeaders);
+
+    msgListWidget->tree->addAction(ShortcutHandler::instance()->createAction(QStringLiteral("action_open_messagewindow"), this,
+            SLOT(openCompleteMessageWidget()), this));
 
     moveToArchive = ShortcutHandler::instance()->createAction(QStringLiteral("action_archive"), this);
     connect(moveToArchive, &QAction::triggered, this, &MainWindow::handleMoveToArchive);
@@ -747,7 +751,7 @@ void MainWindow::createWidgets()
     connect(msgListWidget->tree, &QWidget::customContextMenuRequested, this, &MainWindow::showContextMenuMsgListTree);
     connect(msgListWidget->tree, &QAbstractItemView::activated, this, &MainWindow::msgListClicked);
     connect(msgListWidget->tree, &QAbstractItemView::clicked, this, &MainWindow::msgListClicked);
-    connect(msgListWidget->tree, &QAbstractItemView::doubleClicked, this, &MainWindow::msgListDoubleClicked);
+    connect(msgListWidget->tree, &QAbstractItemView::doubleClicked, this, &MainWindow::openCompleteMessageWidget);
     connect(msgListWidget, &MessageListWidget::requestingSearch, this, &MainWindow::slotSearchRequested);
     connect(msgListWidget->tree->header(), &QHeaderView::sectionMoved, m_delayedStateSaving, static_cast<void (QTimer::*)()>(&QTimer::start));
     connect(msgListWidget->tree->header(), &QHeaderView::sectionResized, m_delayedStateSaving, static_cast<void (QTimer::*)()>(&QTimer::start));
@@ -1159,9 +1163,9 @@ void MainWindow::msgListClicked(const QModelIndex &index)
     }
 }
 
-void MainWindow::msgListDoubleClicked(const QModelIndex &index)
+void MainWindow::openCompleteMessageWidget()
 {
-    Q_ASSERT(index.isValid());
+    const QModelIndex index = msgListWidget->tree->currentIndex();
 
     if (! index.data(Imap::Mailbox::RoleMessageUid).isValid())
         return;
