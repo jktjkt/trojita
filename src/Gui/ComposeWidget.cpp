@@ -286,6 +286,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     connect(ui->mailText, &QTextEdit::textChanged, this, &ComposeWidget::setMessageUpdated);
     connect(ui->subject, &QLineEdit::textChanged, this, &ComposeWidget::updateWindowTitle);
     connect(ui->subject, &QLineEdit::textChanged, this, &ComposeWidget::setMessageUpdated);
+    connect(ui->subject, &QLineEdit::returnPressed, this, [=]() { ui->mailText->setFocus(); });
     updateWindowTitle();
 
     FromAddressProxyModel *proxy = new FromAddressProxyModel(this);
@@ -996,6 +997,7 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
     connect(edit, &QLineEdit::editingFinished, this, &ComposeWidget::collapseRecipients);
     connect(edit, &QLineEdit::textChanged, m_recipientListUpdateTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
     connect(edit, &QLineEdit::textChanged, this, &ComposeWidget::markReplyModeHandpicked);
+    connect(edit, &QLineEdit::returnPressed, this, [=]() { gotoNextInputLineFrom(edit); });
     m_recipients.insert(position, Recipient(combo, edit));
     ui->envelopeWidget->setUpdatesEnabled(false);
     ui->envelopeLayout->insertRow(actualRow(ui->envelopeLayout, position + OFFSET_OF_FIRST_ADDRESSEE), combo, edit);
@@ -1099,6 +1101,21 @@ void ComposeWidget::updateRecipientList()
                          recipientKindForNextRow(currentRecipient(m_recipients.last().first)),
                      QString());
     }
+}
+
+void ComposeWidget::gotoNextInputLineFrom(QWidget *w)
+{
+    bool wFound = false;
+    for(Recipient recipient : m_recipients) {
+        if (wFound) {
+            recipient.second->setFocus();
+            return;
+        }
+        if (recipient.second == w)
+            wFound = true;
+    }
+    Q_ASSERT(wFound);
+    ui->subject->setFocus();
 }
 
 void ComposeWidget::handleFocusChange()
