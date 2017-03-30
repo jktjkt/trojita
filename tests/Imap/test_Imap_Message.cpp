@@ -221,6 +221,10 @@ void ImapMessageTest::testMailAddressParsing_data()
         QStringLiteral("trojita@lists.flaska.net") <<
         MailAddress(QString(), QString(), QStringLiteral("trojita"), QStringLiteral("lists.flaska.net"));
 
+    QTest::newRow("trojita-ml-with-folding-white-spaces") <<
+        QStringLiteral("   trojita@lists.flaska.net   ") <<
+        MailAddress(QString(), QString(), QStringLiteral("trojita"), QStringLiteral("lists.flaska.net"));
+
     QTest::newRow("trojita-ml-with-short-ascii-name") <<
         QStringLiteral("Trojita <trojita@lists.flaska.net>") <<
         MailAddress(QStringLiteral("Trojita"), QString(), QStringLiteral("trojita"), QStringLiteral("lists.flaska.net"));
@@ -273,9 +277,36 @@ void ImapMessageTest::testMailAddressParsing_data()
         QStringLiteral("Some Fünny Äddre¶ <this-is_a.test+some-thin_g.yay@foo-blah.d_o-t.example.org>") <<
         MailAddress(QStringLiteral("Some Fünny Äddre¶"), QString(), QStringLiteral("this-is_a.test+some-thin_g.yay"), QStringLiteral("foo-blah.d_o-t.example.org"));
 
+    QTest::newRow("address-with-at-symbol-in-display-name") <<
+        QStringLiteral("john.doe@acme.org via RT <ticketing@example.org>") <<
+        MailAddress(QStringLiteral("john.doe@acme.org via RT"), QString(), QStringLiteral("ticketing"), QStringLiteral("example.org"));
+
+    QTest::newRow("address-with-folding-white-spaces") <<
+        QStringLiteral("John Doe   <johnd@example.org>   ") <<
+        MailAddress(QStringLiteral("John Doe"), QString(), QStringLiteral("johnd"), QStringLiteral("example.org"));
+
     QTest::newRow("long-address-with-fancy-symbols-no-human-name") <<
         QStringLiteral("this-is_a.test+some-thin_g.yay@foo-blah.d_o-t.example.org") <<
         MailAddress(QString(), QString(), QStringLiteral("this-is_a.test+some-thin_g.yay"), QStringLiteral("foo-blah.d_o-t.example.org"));
+}
+
+void ImapMessageTest::testInvalidMailAddressParsing()
+{
+    QFETCH(QString, textInput);
+
+    Imap::Message::MailAddress actual;
+    QVERIFY(!Imap::Message::MailAddress::fromPrettyString(actual, textInput));
+}
+
+void ImapMessageTest::testInvalidMailAddressParsing_data()
+{
+    using namespace Imap::Message;
+
+    QTest::addColumn<QString>("textInput");
+
+    QTest::newRow("mistyped-address-1") << QStringLiteral("john.doe@@example.org");
+    QTest::newRow("mistyped-address-2") << QStringLiteral("john.doe@example@org");
+    QTest::newRow("mistyped-address-3") << QStringLiteral("John Doe <john.doe@example>.org");
 }
 
 void ImapMessageTest::testMessage()
