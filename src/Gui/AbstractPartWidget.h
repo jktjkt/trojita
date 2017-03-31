@@ -32,6 +32,7 @@ class AbstractPartWidget
 {
 public:
     virtual QString quoteMe() const = 0;
+    virtual bool searchDialogRequested() = 0;
     virtual ~AbstractPartWidget() {}
     virtual void reloadContents() = 0;
     virtual void zoomIn() = 0;

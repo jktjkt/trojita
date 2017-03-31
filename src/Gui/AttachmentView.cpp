@@ -373,6 +373,13 @@ QString AttachmentView::quoteMe() const
     return widget && !m_contentWidget->isHidden() ? widget->quoteMe() : QString();
 }
 
+bool AttachmentView::searchDialogRequested()
+{
+    if (AbstractPartWidget *widget = dynamic_cast<AbstractPartWidget*>(m_contentWidget))
+        return widget->searchDialogRequested();
+    return false;
+}
+
 #define IMPL_PART_FORWARD_ONE_METHOD(METHOD) \
 void AttachmentView::METHOD() \
 {\

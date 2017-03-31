@@ -50,6 +50,7 @@ public:
                        PartWidgetFactory *factory, int recursionDepth,
                        const UiUtils::PartLoadingOptions loadingMode);
     QString quoteMe() const override;
+    virtual bool searchDialogRequested() override;
     virtual void reloadContents() override;
     virtual void zoomIn() override;
     virtual void zoomOut() override;

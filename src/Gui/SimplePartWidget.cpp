@@ -83,9 +83,7 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     this->addAction(m_saveMessage);
 
     m_findAction = new QAction(UiUtils::loadIcon(QStringLiteral("edit-find")), tr("Search..."), this);
-    m_findAction->setShortcut(tr("Ctrl+F"));
     connect(m_findAction, &QAction::triggered, this, &SimplePartWidget::searchDialogRequested);
-    addAction(m_findAction);
 
     m_copyMail = new QAction(UiUtils::loadIcon(QStringLiteral("edit-copy")), tr("Copy e-mail address"), this);
     connect(m_copyMail, &QAction::triggered, this, [this](){
@@ -99,7 +97,6 @@ SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAcc
     // displaying message source or message headers. Let's silence the QObject::connect warning.
     if (m_messageView) {
         connect(this, &QWidget::customContextMenuRequested, m_messageView, &MessageView::partContextMenuRequested);
-        connect(this, &SimplePartWidget::searchDialogRequested, m_messageView, &MessageView::triggerSearchDialog);
         // The targets expect the sender() of the signal to be a SimplePartWidget, not a QWebPage,
         // which means we have to do this indirection
         connect(page(), &QWebPage::linkHovered, this, &SimplePartWidget::linkHovered);
@@ -167,6 +164,12 @@ void SimplePartWidget::zoomOriginal()
 {
     setZoomFactor(1);
     constrainSize();
+}
+
+bool SimplePartWidget::searchDialogRequested()
+{
+    m_messageView->triggerSearchDialogBy(this);
+    return true;
 }
 
 void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const

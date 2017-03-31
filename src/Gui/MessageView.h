@@ -99,6 +99,8 @@ public slots:
     void zoomOriginal();
 protected:
     void showEvent(QShowEvent *se) override;
+    /** @short Forwarded method to the bodyWidget() */
+    void searchDialogRequested();
 private slots:
     void markAsRead();
     void externalsRequested(const QUrl &url);
@@ -107,7 +109,7 @@ private slots:
     void deleteLabelAction(const QString &tag);
     void partContextMenuRequested(const QPoint &point);
     void partLinkHovered(const QString &link, const QString &title, const QString &textContent);
-    void triggerSearchDialog();
+    void triggerSearchDialogBy(EmbeddedWebView *w);
     void onWebViewLoadStarted();
     void onWebViewLoadFinished();
 signals:
@@ -140,6 +142,7 @@ private:
     QTimer *markAsReadTimer;
     QWidget *m_bodyWidget;
     QAction *m_zoomIn, *m_zoomOut, *m_zoomOriginal;
+    QAction *m_findAction;
 
     std::unique_ptr<PartWidgetFactory> factory;
     Spinner *m_loadingSpinner;

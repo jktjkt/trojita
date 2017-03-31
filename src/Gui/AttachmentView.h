@@ -60,6 +60,7 @@ public:
     AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex,
                    MessageView *messageView, QWidget *contentWidget);
     virtual QString quoteMe() const;
+    virtual bool searchDialogRequested();
     virtual void reloadContents();
     virtual void zoomIn();
     virtual void zoomOut();

@@ -80,6 +80,13 @@ QString LoadablePartWidget::quoteMe() const
     return part ? part->quoteMe() : QString();
 }
 
+bool LoadablePartWidget::searchDialogRequested()
+{
+    if (AbstractPartWidget *part = dynamic_cast<AbstractPartWidget*>(realPart))
+        return part->searchDialogRequested();
+    return false;
+}
+
 void LoadablePartWidget::showEvent(QShowEvent *event)
 {
     QStackedWidget::showEvent(event);

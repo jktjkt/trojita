@@ -58,6 +58,7 @@ public:
     SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &partIndex,
                      MessageView *messageView);
     virtual QString quoteMe() const override;
+    virtual bool searchDialogRequested() override;
     virtual void reloadContents() override;
     virtual void zoomIn() override;
     virtual void zoomOut() override;
@@ -72,7 +73,6 @@ private slots:
 protected:
 signals:
     void linkHovered(const QString &link, const QString &title, const QString &textContent);
-    void searchDialogRequested();
 private:
     QPersistentModelIndex m_partIndex;
     QAction *m_savePart;

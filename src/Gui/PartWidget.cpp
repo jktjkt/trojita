@@ -63,6 +63,16 @@ QString quoteMeHelper(const QObjectList &children)
     return res.join(QStringLiteral("\n"));
 }
 
+bool searchDialogRequestedHelper(const QObjectList &children)
+{
+    for (QObject *obj : children) {
+        AbstractPartWidget *w = dynamic_cast<AbstractPartWidget *>(obj);
+        if (w && w->searchDialogRequested())
+            return true;
+    }
+    return false;
+}
+
 MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         PartWidgetFactory *factory, const QModelIndex &partIndex,
         const int recursionDepth, const UiUtils::PartLoadingOptions options):
@@ -155,6 +165,12 @@ QString MultipartAlternativeWidget::quoteMe() const
 {
     const AbstractPartWidget *w = dynamic_cast<const AbstractPartWidget *>(currentWidget());
     return w ? w->quoteMe() : QString();
+}
+
+bool MultipartAlternativeWidget::searchDialogRequested()
+{
+    AbstractPartWidget *w = dynamic_cast<AbstractPartWidget *>(currentWidget());
+    return w && w->searchDialogRequested();
 }
 
 bool MultipartAlternativeWidget::eventFilter(QObject *o, QEvent *e)
@@ -345,6 +361,11 @@ QString MultipartSignedEncryptedWidget::quoteMe() const
     return quoteMeHelper(children());
 }
 
+bool MultipartSignedEncryptedWidget::searchDialogRequested()
+{
+    return searchDialogRequestedHelper(children());
+}
+
 QWidget *MultipartSignedEncryptedWidget::addingOneWidget(const QModelIndex &index, UiUtils::PartLoadingOptions options)
 {
     auto parent = index.parent();
@@ -383,6 +404,11 @@ QString GenericMultipartWidget::quoteMe() const
     return quoteMeHelper(children());
 }
 
+bool GenericMultipartWidget::searchDialogRequested()
+{
+    return searchDialogRequestedHelper(children());
+}
+
 Message822Widget::Message822Widget(QWidget *parent,
                                    PartWidgetFactory *factory, const QModelIndex &partIndex,
                                    int recursionDepth, const UiUtils::PartLoadingOptions options):
@@ -405,6 +431,11 @@ Message822Widget::Message822Widget(QWidget *parent,
 QString Message822Widget::quoteMe() const
 {
     return quoteMeHelper(children());
+}
+
+bool Message822Widget::searchDialogRequested()
+{
+    return searchDialogRequestedHelper(children());
 }
 
 #define IMPL_PART_FORWARD_ONE_METHOD(CLASS, METHOD) \
