@@ -573,7 +573,6 @@ QwwSmtpClient::QwwSmtpClient(QObject *parent)
     connect(d->socket, SIGNAL(disconnected()), this, SLOT(onDisconnected()));
     connect(d->socket, SIGNAL(readyRead()), this, SLOT(_q_readFromSocket()));
     connect(d->socket, SIGNAL(sslErrors(const QList<QSslError> &)), this, SIGNAL(sslErrors(const QList<QSslError>&)));
-    connect(d->socket, SIGNAL(encrypted()), this, SLOT(_q_encrypted()));
 }
 
 
@@ -621,6 +620,7 @@ int QwwSmtpClient::disconnectFromHost() {
 }
 
 int QwwSmtpClient::startTls() {
+    connect(d->socket, SIGNAL(encrypted()), this, SLOT(_q_encrypted()), Qt::UniqueConnection);
     SMTPCommand cmd;
     cmd.type = SMTPCommand::StartTLS;
     cmd.id = ++d->lastId;
