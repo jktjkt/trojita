@@ -37,6 +37,7 @@
 #include <QUrlQuery>
 
 #include "ui_ComposeWidget.h"
+#include "Composer/ExistingMessageComposer.h"
 #include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/Mailto.h"
@@ -45,9 +46,11 @@
 #include "Common/InvokeMethod.h"
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
+#include "Gui/CompleteMessageWidget.h"
 #include "Gui/ComposeWidget.h"
 #include "Gui/FromAddressProxyModel.h"
 #include "Gui/LineEdit.h"
+#include "Gui/MessageView.h"
 #include "Gui/OverlayWidget.h"
 #include "Gui/PasswordDialog.h"
 #include "Gui/ProgressPopUp.h"
@@ -533,6 +536,42 @@ ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Compos
     return w;
 }
 
+ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const QModelIndex &messageRoot,
+                                                 const QList<QString> &recipients)
+{
+    MSA::MSAFactory *msaFactory = mainWindow->msaFactory();
+    if (!msaFactory)
+        return 0;
+
+    auto composer = std::make_shared<Composer::ExistingMessageComposer>(messageRoot);
+    ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
+
+    for(const QString &addr: recipients) {
+        w->addRecipient(0, Composer::ADDRESS_TO, addr);
+    }
+    w->updateRecipientList();
+
+    // Disable what needs to be nuked
+    w->ui->fromLabel->setText(tr("Sender"));
+    w->ui->subject->hide();
+    w->ui->subjectLabel->hide();
+    w->ui->attachmentBox->hide();
+    w->ui->mailText->hide();
+    auto subject = messageRoot.data(Imap::Mailbox::RoleMessageSubject).toString();
+    w->setWindowTitle(tr("Bounce Mail: %1").arg(subject.isEmpty() ? tr("(no subject)") : subject));
+
+    // Show the full content of that e-mail as the "main body" within this widget
+    CompleteMessageWidget *messageWidget = new CompleteMessageWidget(w, mainWindow->settings(), mainWindow->pluginManager());
+    messageWidget->messageView->setMessage(messageRoot);
+    messageWidget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(mainWindow->imapAccess()->networkWatcher()));
+    messageWidget->setFocusPolicy(Qt::StrongFocus);
+    w->ui->verticalSplitter->insertWidget(1, messageWidget);
+
+    w->placeOnMainWindow();
+    w->show();
+    return w;
+}
+
 void ComposeWidget::updateReplyMode()
 {
     bool replyModeSet = false;
@@ -642,9 +681,9 @@ void ComposeWidget::changeEvent(QEvent *e)
 
 void ComposeWidget::closeEvent(QCloseEvent *ce)
 {
-    const bool noSaveRequired = (m_sentMail || !m_saveState->everEdited() ||
-                                 (m_explicitDraft && !m_saveState->updated()))
-                                && interactiveComposer(); // autosave to permanent draft and no update
+    const bool noSaveRequired = m_sentMail || !m_saveState->everEdited() ||
+                                (m_explicitDraft && !m_saveState->updated())
+                                || !interactiveComposer(); // autosave to permanent draft and no update
 
     if (!noSaveRequired) {  // save is required
         QMessageBox msgBox(this);
@@ -699,6 +738,7 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
 
 bool ComposeWidget::buildMessageData()
 {
+    // Recipients are checked at all times, including when bouncing/redirecting
     QList<QPair<Composer::RecipientKind,Imap::Message::MailAddress> > recipients;
     QString errorMessage;
     if (!parseRecipients(recipients, errorMessage)) {
@@ -711,6 +751,7 @@ bool ComposeWidget::buildMessageData()
     }
     m_composer->setRecipients(recipients);
 
+    // The same applies to the sender which is needed by some MSAs for origin information
     Imap::Message::MailAddress fromAddress;
     if (!Imap::Message::MailAddress::fromPrettyString(fromAddress, ui->sender->currentText())) {
         gotError(tr("The From: address does not look like a valid one"));
@@ -761,10 +802,12 @@ bool ComposeWidget::buildMessageData()
 
 void ComposeWidget::send()
 {
-    // Well, Trojita is of course rock solid and will never ever crash :), but experience has shown that every now and then,
-    // there is a subtle issue $somewhere. This means that it's probably a good idea to save the draft explicitly -- better
-    // than losing some work. It's cheap anyway.
-    saveDraft(m_autoSavePath);
+    if (interactiveComposer()) {
+        // Well, Trojita is of course rock solid and will never ever crash :), but experience has shown that every now and then,
+        // there is a subtle issue $somewhere. This means that it's probably a good idea to save the draft explicitly -- better
+        // than losing some work. It's cheap anyway.
+        saveDraft(m_autoSavePath);
+    }
 
     if (!buildMessageData()) {
         return;
@@ -1012,9 +1055,13 @@ void ComposeWidget::calculateMaxVisibleRecipients()
 void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, const QString &address)
 {
     QComboBox *combo = new QComboBox(this);
-    combo->addItem(tr("To"), Composer::ADDRESS_TO);
-    combo->addItem(tr("Cc"), Composer::ADDRESS_CC);
-    combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
+    if (interactiveComposer()) {
+        combo->addItem(tr("To"), Composer::ADDRESS_TO);
+        combo->addItem(tr("Cc"), Composer::ADDRESS_CC);
+        combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
+    } else {
+        combo->addItem(tr("Recipient"), Composer::ADDRESS_TO);
+    }
     combo->setCurrentIndex(combo->findData(kind));
     LineEdit *edit = new LineEdit(address, this);
     slotCheckAddress(edit);
@@ -1122,7 +1169,7 @@ void ComposeWidget::updateRecipientList()
     }
     if (!haveEmpty) {
         addRecipient(m_recipients.count(),
-                     m_recipients.isEmpty() ?
+                     m_recipients.isEmpty() || !interactiveComposer() ?
                          Composer::ADDRESS_TO :
                          recipientKindForNextRow(currentRecipient(m_recipients.last().first)),
                      QString());
