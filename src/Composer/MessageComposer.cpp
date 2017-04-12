@@ -463,11 +463,7 @@ bool MessageComposer::isReadyForSerialization() const
 void MessageComposer::ensureRandomStrings() const
 {
     if (m_messageId.isNull()) {
-        auto domain = m_from.host.toUtf8();
-        if (domain.isEmpty()) {
-            domain = QByteArrayLiteral("localhost");
-        }
-        m_messageId = QUuid::createUuid().toByteArray().replace("{", "").replace("}", "") + "@" + domain;
+        m_messageId = AbstractComposer::generateMessageId(m_from);
     }
 
     if (m_mimeBoundary.isNull()) {

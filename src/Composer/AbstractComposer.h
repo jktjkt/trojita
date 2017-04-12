@@ -49,6 +49,8 @@ public:
     virtual void setPreloadEnabled(const bool preload);
     virtual QModelIndex replyingToMessage() const;
     virtual QModelIndex forwardingMessage() const;
+
+    static QByteArray generateMessageId(const Imap::Message::MailAddress &fromAddress);
 };
 
 }

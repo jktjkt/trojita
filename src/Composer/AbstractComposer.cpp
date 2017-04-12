@@ -21,6 +21,7 @@
 */
 
 #include <QModelIndex>
+#include <QUuid>
 #include "Composer/AbstractComposer.h"
 
 namespace Composer {
@@ -39,6 +40,15 @@ QModelIndex AbstractComposer::replyingToMessage() const
 QModelIndex AbstractComposer::forwardingMessage() const
 {
     return QModelIndex();
+}
+
+QByteArray AbstractComposer::generateMessageId(const Imap::Message::MailAddress &fromAddress)
+{
+    auto domain = fromAddress.host.toUtf8();
+    if (domain.isEmpty()) {
+        domain = QByteArrayLiteral("localhost");
+    }
+    return QUuid::createUuid().toByteArray().replace("{", "").replace("}", "") + "@" + domain;
 }
 
 }
