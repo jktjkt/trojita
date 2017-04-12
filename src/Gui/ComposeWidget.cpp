@@ -317,7 +317,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::A
     m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + QLatin1String(".draft");
 
     // Add a blank recipient row to start with
-    addRecipient(m_recipients.count(), Composer::ADDRESS_TO, QString());
+    addRecipient(m_recipients.count(), interactiveComposer() ? Composer::ADDRESS_TO : Composer::ADDRESS_RESENT_TO, QString());
     ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE, QFormLayout::FieldRole)->widget()->setFocus();
 
     slotUpdateSignature();
@@ -537,7 +537,7 @@ ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Compos
 }
 
 ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const QModelIndex &messageRoot,
-                                                 const QList<QString> &recipients)
+                                                 const QList<QPair<Composer::RecipientKind, QString>>& recipients)
 {
     MSA::MSAFactory *msaFactory = mainWindow->msaFactory();
     if (!msaFactory)
@@ -546,8 +546,8 @@ ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const Q
     auto composer = std::make_shared<Composer::ExistingMessageComposer>(messageRoot);
     ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
 
-    for(const QString &addr: recipients) {
-        w->addRecipient(0, Composer::ADDRESS_TO, addr);
+    for (int i = 0; i < recipients.size(); ++i) {
+        w->addRecipient(i, recipients[i].first, recipients[i].second);
     }
     w->updateRecipientList();
 
@@ -929,13 +929,19 @@ Composer::RecipientKind ComposeWidget::recipientKindForNextRow(const Composer::R
         // Heuristic: if the last one is "to", chances are that the next one shall not be "to" as well.
         // Cc is reasonable here.
         return Composer::ADDRESS_CC;
+    case Composer::ADDRESS_RESENT_TO:
+        return Composer::ADDRESS_RESENT_CC;
     case Composer::ADDRESS_CC:
     case Composer::ADDRESS_BCC:
+    case Composer::ADDRESS_RESENT_CC:
+    case Composer::ADDRESS_RESENT_BCC:
         // In any other case, it is probably better to just reuse the type of the last row
         return kind;
     case Composer::ADDRESS_FROM:
     case Composer::ADDRESS_SENDER:
     case Composer::ADDRESS_REPLY_TO:
+    case Composer::ADDRESS_RESENT_FROM:
+    case Composer::ADDRESS_RESENT_SENDER:
         // shall never be used here
         Q_ASSERT(false);
         return kind;
@@ -1060,7 +1066,9 @@ void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, con
         combo->addItem(tr("Cc"), Composer::ADDRESS_CC);
         combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
     } else {
-        combo->addItem(tr("Recipient"), Composer::ADDRESS_TO);
+        combo->addItem(tr("Resent-To"), Composer::ADDRESS_RESENT_TO);
+        combo->addItem(tr("Resent-Cc"), Composer::ADDRESS_RESENT_CC);
+        combo->addItem(tr("Resent-Bcc"), Composer::ADDRESS_RESENT_BCC);
     }
     combo->setCurrentIndex(combo->findData(kind));
     LineEdit *edit = new LineEdit(address, this);
@@ -1169,9 +1177,13 @@ void ComposeWidget::updateRecipientList()
     }
     if (!haveEmpty) {
         addRecipient(m_recipients.count(),
-                     m_recipients.isEmpty() || !interactiveComposer() ?
-                         Composer::ADDRESS_TO :
-                         recipientKindForNextRow(currentRecipient(m_recipients.last().first)),
+                     !interactiveComposer() ?
+                         Composer::ADDRESS_RESENT_TO :
+                         (
+                             m_recipients.isEmpty() ?
+                                 Composer::ADDRESS_TO :
+                                 recipientKindForNextRow(currentRecipient(m_recipients.last().first))
+                         ),
                      QString());
     }
 }
@@ -1307,7 +1319,9 @@ void ComposeWidget::collapseRecipients()
     // an empty recipient line just lost focus -> we "place it at the end", ie. simply remove it
     // and append a clone
     bool needEmpty = false;
-    Composer::RecipientKind carriedKind = recipientKindForNextRow(Composer::ADDRESS_TO);
+    Composer::RecipientKind carriedKind = recipientKindForNextRow(interactiveComposer() ?
+                                                                      Composer::RecipientKind::ADDRESS_TO :
+                                                                      Composer::RecipientKind::ADDRESS_RESENT_TO);
     for (int i = 0; i < m_recipients.count() - 1; ++i) { // sic! on the -1, no action if it trails anyway
         if (m_recipients.at(i).second == edit) {
             carriedKind = currentRecipient(m_recipients.last().first);

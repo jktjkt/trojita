@@ -519,6 +519,11 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target) const
         case Composer::ADDRESS_FROM:
         case Composer::ADDRESS_SENDER:
         case Composer::ADDRESS_REPLY_TO:
+        case Composer::ADDRESS_RESENT_FROM:
+        case Composer::ADDRESS_RESENT_SENDER:
+        case Composer::ADDRESS_RESENT_TO:
+        case Composer::ADDRESS_RESENT_CC:
+        case Composer::ADDRESS_RESENT_BCC:
             // These should never ever be produced by Trojita for now
             Q_ASSERT(false);
             break;

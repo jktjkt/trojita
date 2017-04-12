@@ -53,6 +53,11 @@ RecipientList deduplicatedAndJustToCcBcc(RecipientList input)
         case Composer::ADDRESS_FROM:
         case Composer::ADDRESS_SENDER:
         case Composer::ADDRESS_REPLY_TO:
+        case Composer::ADDRESS_RESENT_TO:
+        case Composer::ADDRESS_RESENT_CC:
+        case Composer::ADDRESS_RESENT_BCC:
+        case Composer::ADDRESS_RESENT_SENDER:
+        case Composer::ADDRESS_RESENT_FROM:
             // that's right, ignore these
             break;
         }

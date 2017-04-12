@@ -22,11 +22,13 @@
 
 #include <algorithm>
 #include <QBuffer>
-#include <QDateTime>
 #include <QUrl>
+#include <QUuid>
 #include "Composer/ExistingMessageComposer.h"
+#include "Imap/Encoders.h"
 #include "Imap/Model/FullMessageCombiner.h"
 #include "Imap/Model/ItemRoles.h"
+#include "Imap/Model/Utils.h"
 
 namespace Composer {
 
@@ -60,7 +62,7 @@ bool ExistingMessageComposer::asRawMessage(QIODevice *target, QString *errorMess
         return false;
     }
 
-    target->write(m_combiner->data());
+    target->write(resentChunk() + m_combiner->data());
     return true;
 }
 
@@ -69,6 +71,7 @@ bool ExistingMessageComposer::asCatenateData(QList<Imap::Mailbox::CatenatePair> 
     target.clear();
     QByteArray url = m_root.data(Imap::Mailbox::RoleIMAPRelativeUrl).toByteArray();
     if (!url.isEmpty()) {
+        target.append(qMakePair(Imap::Mailbox::CATENATE_TEXT, resentChunk()));
         target.append(qMakePair(Imap::Mailbox::CATENATE_URL, url));
         return true;
     } else {
@@ -84,26 +87,81 @@ QDateTime ExistingMessageComposer::timestamp() const
 
 QByteArray ExistingMessageComposer::rawFromAddress() const
 {
-    return m_rawFrom;
+    return m_resentFrom.asSMTPMailbox();
 }
 
 QList<QByteArray> ExistingMessageComposer::rawRecipientAddresses() const
 {
-    return m_rawRecipients;
+    QList<QByteArray> res;
+    std::transform(m_recipients.cbegin(), m_recipients.cend(), std::back_inserter(res),
+                   [](const QPair<Composer::RecipientKind, Imap::Message::MailAddress> &addr) {
+        return addr.second.asSMTPMailbox();
+    });
+    return res;
 }
 
 void ExistingMessageComposer::setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress>> &recipients)
 {
-    m_rawRecipients.clear();
-    std::transform(recipients.cbegin(), recipients.cend(), std::back_inserter(m_rawRecipients),
-                   [](const QPair<Composer::RecipientKind, Imap::Message::MailAddress> &addr) {
-        return addr.second.asSMTPMailbox();
-    });
+    m_recipients = recipients;
 }
 
 void ExistingMessageComposer::setFrom(const Imap::Message::MailAddress &from)
 {
-    m_rawFrom = from.asSMTPMailbox();
+    m_resentFrom = from;
+}
+
+QByteArray ExistingMessageComposer::resentChunk() const
+{
+    if (!m_resentDate.isValid()) {
+        m_resentDate = QDateTime::currentDateTime();
+    }
+
+    if (m_messageId.isNull()) {
+        m_messageId = generateMessageId(m_resentFrom);
+    }
+
+    QByteArray buf = "Resent-Date: " + Imap::dateTimeToRfc2822(m_resentDate).toUtf8() + "\r\n"
+                     + "Resent-Message-ID: " + m_messageId + "\r\n";
+    if (m_resentFrom != Imap::Message::MailAddress()) {
+        buf += "Resent-From: " + m_resentFrom.asMailHeader() + "\r\n";
+    }
+
+    QList<QByteArray> rcptTo, rcptCc;
+    for (auto it = m_recipients.begin(); it != m_recipients.end(); ++it) {
+        switch(it->first) {
+        case Composer::ADDRESS_RESENT_TO:
+            rcptTo << it->second.asMailHeader();
+            break;
+        case Composer::ADDRESS_RESENT_CC:
+            rcptCc << it->second.asMailHeader();
+            break;
+        case Composer::ADDRESS_RESENT_BCC:
+            break;
+        case Composer::ADDRESS_FROM:
+        case Composer::ADDRESS_SENDER:
+        case Composer::ADDRESS_REPLY_TO:
+        case Composer::ADDRESS_RESENT_FROM:
+        case Composer::ADDRESS_RESENT_SENDER:
+        case Composer::ADDRESS_TO:
+        case Composer::ADDRESS_CC:
+        case Composer::ADDRESS_BCC:
+            // These are not expected here
+            Q_ASSERT(false);
+            break;
+        }
+    }
+    auto processRcptHeader = [&buf](const QByteArray &prefix, const QList<QByteArray> &recipients) {
+        if (recipients.empty())
+            return;
+        buf += prefix + ": ";
+        for (int i = 0; i < recipients.size() - 1; ++i)
+            buf += recipients[i] + ",\r\n ";
+        buf += recipients.last() + "\r\n";
+    };
+    processRcptHeader(QByteArrayLiteral("Resent-To"), rcptTo);
+    processRcptHeader(QByteArrayLiteral("Resent-Cc"), rcptCc);
+
+    return buf;
 }
 
 }

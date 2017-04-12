@@ -47,7 +47,12 @@ typedef enum {
     ADDRESS_BCC,
     ADDRESS_FROM,
     ADDRESS_SENDER,
-    ADDRESS_REPLY_TO
+    ADDRESS_REPLY_TO,
+    ADDRESS_RESENT_TO,
+    ADDRESS_RESENT_CC,
+    ADDRESS_RESENT_BCC,
+    ADDRESS_RESENT_FROM,
+    ADDRESS_RESENT_SENDER
 } RecipientKind;
 
 typedef QList<QPair<RecipientKind, Imap::Message::MailAddress> > RecipientList;

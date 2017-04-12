@@ -23,6 +23,7 @@
 #pragma once
 
 #include <memory>
+#include <QDateTime>
 #include <QPersistentModelIndex>
 #include "Composer/AbstractComposer.h"
 
@@ -51,11 +52,14 @@ public:
     virtual void setFrom(const Imap::Message::MailAddress &from) override;
     virtual void setPreloadEnabled(const bool preload) override;
 private:
+    QByteArray resentChunk() const;
     std::unique_ptr<Imap::Mailbox::FullMessageCombiner> m_combiner;
     QPersistentModelIndex m_root;
     QString m_errorMessage;
-    QByteArray m_rawFrom;
-    QList<QByteArray> m_rawRecipients;
+    Imap::Message::MailAddress m_resentFrom;
+    QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress>> m_recipients;
+    mutable QDateTime m_resentDate;
+    mutable QByteArray m_messageId;
 };
 
 }

@@ -85,7 +85,8 @@ void ComposerExistingTest::testSimpleCompose()
     cServer("* 1 FETCH (BODY[HEADER] {" + QByteArray::number(headers.size()) + "}\r\n" + headers + ")\r\n");
     cServer(t.last("OK fetched\r\n"));
     QCOMPARE(composer.asRawMessage(&buf, &errorMessage), true);
-    QCOMPARE(data, QByteArray(headers + body));
+    QVERIFY(data.startsWith("Resent-Date: "));
+    QVERIFY(data.endsWith("\r\n" + headers + body));
     QCOMPARE(errorMessage, QString());
     QVERIFY(composer.isReadyForSerialization());
     cEmpty();
@@ -124,9 +125,12 @@ void ComposerExistingTest::testCatenate()
     QVERIFY(!composer.isReadyForSerialization());
     QList<Imap::Mailbox::CatenatePair> data;
     QVERIFY(composer.asCatenateData(data, &errorMessage));
-    QCOMPARE(data.size(), 1);
-    QCOMPARE(data[0].first, Imap::Mailbox::CATENATE_URL);
-    QCOMPARE(data[0].second, QByteArrayLiteral("/a;UIDVALIDITY=333666/;UID=10"));
+    QCOMPARE(data.size(), 2);
+    QCOMPARE(data[0].first, Imap::Mailbox::CATENATE_TEXT);
+    QVERIFY(data[0].second.startsWith("Resent-Date: "));
+    QVERIFY(data[0].second.endsWith("\r\n"));
+    QCOMPARE(data[1].first, Imap::Mailbox::CATENATE_URL);
+    QCOMPARE(data[1].second, QByteArrayLiteral("/a;UIDVALIDITY=333666/;UID=10"));
     QVERIFY(!composer.isReadyForSerialization()); // FIXME: this is actually a bug, but one which is hard to fix without changing the API
     cEmpty();
 }

@@ -87,7 +87,7 @@ public:
                                       const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
     static ComposeWidget *createForward(MainWindow *mainWindow, const Composer::ForwardMode mode, const QModelIndex &forwardingMessage,
                                         const QString &subject, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
-    static ComposeWidget *createFromReadOnly(MainWindow *mainWindow, const QModelIndex &messageRoot, const QList<QString> &recipients);
+    static ComposeWidget *createFromReadOnly(MainWindow *mainWindow, const QModelIndex &messageRoot, const QList<QPair<Composer::RecipientKind, QString>> &recipients);
     void placeOnMainWindow();
 protected:
     void changeEvent(QEvent *e);

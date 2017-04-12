@@ -1816,14 +1816,29 @@ void MainWindow::slotBounce()
     if (!index.isValid())
         return;
 
-    auto recipients = QList<QString>();
+    auto recipients = QList<QPair<Composer::RecipientKind,QString>>();
     for (const auto &kind: {Imap::Mailbox::RoleMessageTo, Imap::Mailbox::RoleMessageCc, Imap::Mailbox::RoleMessageBcc}) {
         for (const auto &oneAddr : index.data(kind).toList()) {
             Q_ASSERT(oneAddr.type() == QVariant::StringList);
             QStringList item = oneAddr.toStringList();
             Q_ASSERT(item.size() == 4);
             Imap::Message::MailAddress a(item[0], item[1], item[2], item[3]);
-            recipients.push_back(a.asPrettyString());
+            Composer::RecipientKind translatedKind = Composer::RecipientKind::ADDRESS_TO;
+            switch (kind) {
+            case Imap::Mailbox::RoleMessageTo:
+                translatedKind = Composer::RecipientKind::ADDRESS_RESENT_TO;
+                break;
+            case Imap::Mailbox::RoleMessageCc:
+                translatedKind = Composer::RecipientKind::ADDRESS_RESENT_CC;
+                break;
+            case Imap::Mailbox::RoleMessageBcc:
+                translatedKind = Composer::RecipientKind::ADDRESS_RESENT_BCC;
+                break;
+            default:
+                Q_ASSERT(false);
+                break;
+            }
+            recipients.push_back({translatedKind, a.asPrettyString()});
         }
     }
 
