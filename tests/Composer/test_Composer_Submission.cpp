@@ -59,7 +59,8 @@ void ComposerSubmissionTest::init()
 
     m_msaFactory = new MSA::FakeFactory();
     QString accountId = QStringLiteral("fake_account");
-    m_submission = new Composer::Submission(this, model, m_msaFactory, accountId);
+    m_composer = new Composer::MessageComposer(model, this);
+    m_submission = new Composer::Submission(this, m_composer, model, m_msaFactory, accountId);
 
     sendingSpy = new QSignalSpy(m_msaFactory, SIGNAL(sending()));
     sentSpy = new QSignalSpy(m_msaFactory, SIGNAL(sent()));
@@ -76,6 +77,8 @@ void ComposerSubmissionTest::cleanup()
 
     delete m_submission;
     m_submission = 0;
+    delete m_composer;
+    m_composer = 0;
     delete m_msaFactory;
     m_msaFactory = 0;
     delete sendingSpy;
@@ -119,11 +122,11 @@ void ComposerSubmissionTest::testEmptySubmission()
 
 void ComposerSubmissionTest::testSimpleSubmission()
 {
-    m_submission->composer()->setFrom(
+    m_composer->setFrom(
                 Imap::Message::MailAddress(QStringLiteral("Foo Bar"), QString(),
                                            QStringLiteral("foo.bar"), QStringLiteral("example.org")));
-    m_submission->composer()->setSubject(QStringLiteral("testing"));
-    m_submission->composer()->setText(QStringLiteral("Sample message"));
+    m_composer->setSubject(QStringLiteral("testing"));
+    m_composer->setText(QStringLiteral("Sample message"));
 
     m_submission->send();
     QCOMPARE(requestedSendingSpy->size(), 1);
@@ -171,11 +174,11 @@ void ComposerSubmissionTest::testSimpleSubmissionReplyingToFailedFlags()
 
 void ComposerSubmissionTest::helperSetupProperHeaders()
 {
-    m_submission->composer()->setFrom(
+    m_composer->setFrom(
                 Imap::Message::MailAddress(QStringLiteral("Foo Bar"), QString(),
                                            QStringLiteral("foo.bar"), QStringLiteral("example.org")));
-    m_submission->composer()->setSubject(QStringLiteral("testing"));
-    m_submission->composer()->setText(QStringLiteral("Sample message"));
+    m_composer->setSubject(QStringLiteral("testing"));
+    m_composer->setText(QStringLiteral("Sample message"));
     m_submission->setImapOptions(true, QStringLiteral("outgoing"), QStringLiteral("somehost"), QStringLiteral("userfred"), false);
 }
 
@@ -192,7 +195,7 @@ void ComposerSubmissionTest::helperTestSimpleAppend(bool appendOk, bool appendUi
         QModelIndex msgA10 = model->index(0, 0, msgListA);
         QVERIFY(msgA10.isValid());
         QCOMPARE(msgA10.data(Imap::Mailbox::RoleMessageUid).toUInt(), uidMapA[0]);
-        m_submission->composer()->setReplyingToMessage(msgA10);
+        m_composer->setReplyingToMessage(msgA10);
     }
     m_submission->send();
 
@@ -332,7 +335,7 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
 
     m_submission->setImapOptions(save, QStringLiteral("meh"), QStringLiteral("pwn"), QStringLiteral("bob"), imap);
     m_submission->setSmtpOptions(burl, QStringLiteral("pwn"));
-    m_submission->composer()->setReplyingToMessage(msgA10);
+    m_composer->setReplyingToMessage(msgA10);
     m_msaFactory->setBurlSupport(burl);
     m_msaFactory->setImapSupport(imap);
 
@@ -341,7 +344,7 @@ void ComposerSubmissionTest::helperMissingAttachment(bool save, bool burl, bool 
         QTemporaryFile tempFile;
         tempFile.open();
         tempFile.write("Sample attachment for Trojita's ComposerSubmissionTest\r\n");
-        QCOMPARE(m_submission->composer()->addFileAttachment(tempFile.fileName()), true);
+        QCOMPARE(m_composer->addFileAttachment(tempFile.fileName()), true);
         // The file gets deleted as soon as we leave this scope
     } else {
         // Attaching something which lives on the IMAP server
@@ -379,8 +382,7 @@ void ComposerSubmissionTest::helperAttachImapPart(const int row, const QByteArra
     mimeData->setData(Imap::MimeTypes::xTrojitaImapPart, encodedData);
     auto partIndex = Imap::Network::MsgPartNetAccessManager::pathToPart(msgListA.child(row, 0), mimePart);
     QVERIFY(partIndex.isValid());
-    QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction,
-                                                    partIndex.row(), partIndex.column(), partIndex),
+    QCOMPARE(m_composer->dropMimeData(mimeData.data(), Qt::CopyAction, partIndex.row(), partIndex.column(), partIndex),
              true);
 }
 
@@ -392,7 +394,7 @@ void ComposerSubmissionTest::helperAttachImapMessage(const uint uid)
     stream.setVersion(QDataStream::Qt_4_6);
     stream << QStringLiteral("a") << uidValidityA << (QList<uint>() << uid);
     mimeData->setData(Imap::MimeTypes::xTrojitaMessageList, encodedData);
-    QCOMPARE(m_submission->composer()->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
+    QCOMPARE(m_composer->dropMimeData(mimeData.data(), Qt::CopyAction, 0, 0, QModelIndex()), true);
 }
 
 #define EXTRACT_TARILING_NUMBER(NUM) \
@@ -663,7 +665,7 @@ void ComposerSubmissionTest::testFailedMsa()
     QModelIndex msgA10 = model->index(0, 0, msgListA);
     QVERIFY(msgA10.isValid());
     QCOMPARE(msgA10.data(Imap::Mailbox::RoleMessageUid).toUInt(), uidMapA[0]);
-    m_submission->composer()->setReplyingToMessage(msgA10);
+    m_composer->setReplyingToMessage(msgA10);
     m_submission->send();
 
     // We are waiting for APPEND to finish here
@@ -741,7 +743,7 @@ void ComposerSubmissionTest::testReplyingNormal()
     QModelIndex origMessage = msgListA.child(0, 0);
     QVERIFY(origMessage.isValid());
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
-    m_submission->composer()->setReplyingToMessage(origMessage);
+    m_composer->setReplyingToMessage(origMessage);
 
     m_submission->send();
     cEmpty();
@@ -773,7 +775,7 @@ void ComposerSubmissionTest::testForwardingNormal()
     QModelIndex origMessage = msgListA.child(0, 0);
     QVERIFY(origMessage.isValid());
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
-    m_submission->composer()->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
+    m_composer->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
 
     cClientRegExp(t.mk("UID FETCH 10 \\(BODY\\.PEEK\\["
                        "("
@@ -815,7 +817,7 @@ void ComposerSubmissionTest::testForwardingDeletedWhileFetching()
     QModelIndex origMessage = msgListA.child(0, 0);
     QVERIFY(origMessage.isValid());
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
-    m_submission->composer()->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
+    m_composer->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
 
     cClientRegExp(t.mk("UID FETCH 10 \\(BODY\\.PEEK\\["
                        "("
@@ -845,9 +847,9 @@ void ComposerSubmissionTest::testReplyingToRemoved()
     QModelIndex origMessage = msgListA.child(0, 0);
     QVERIFY(origMessage.isValid());
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
-    m_submission->composer()->setReplyingToMessage(origMessage);
+    m_composer->setReplyingToMessage(origMessage);
     cServer("* 1 EXPUNGE\r\n");
-    QVERIFY(!m_submission->composer()->replyingToMessage().isValid());
+    QVERIFY(!m_composer->replyingToMessage().isValid());
 
     m_submission->send();
     cEmpty();

@@ -74,6 +74,7 @@ private:
     void helperAttachImapMessage(const uint uid);
 
     Composer::Submission *m_submission;
+    Composer::MessageComposer *m_composer;
     MSA::FakeFactory *m_msaFactory;
 
     QSignalSpy *sendingSpy;

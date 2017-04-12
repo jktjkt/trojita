@@ -40,7 +40,7 @@ class MSAFactory;
 
 namespace Composer {
 
-class MessageComposer;
+class AbstractComposer;
 
 /** @short Handle submission of an e-mail via multiple ways
 
@@ -51,10 +51,8 @@ class Submission : public QObject
 {
     Q_OBJECT
 public:
-    explicit Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId);
+    explicit Submission(QObject *parent, AbstractComposer *composer, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId);
     virtual ~Submission();
-
-    MessageComposer *composer();
 
     QString accountId() const;
 
@@ -135,7 +133,7 @@ private:
     QByteArray m_rawMessageData;
     int m_msaMaximalProgress;
 
-    MessageComposer *m_composer;
+    AbstractComposer *m_source;
     QPointer<Imap::Mailbox::Model> m_model;
     MSA::MSAFactory *m_msaFactory;
     QString m_accountId;
