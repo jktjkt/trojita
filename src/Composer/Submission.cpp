@@ -69,7 +69,7 @@ QString submissionProgressToString(const Submission::SubmissionProgress progress
     return QStringLiteral("[unknown: %1]").arg(QString::number(static_cast<int>(progress)));
 }
 
-Submission::Submission(QObject *parent, Composer::AbstractComposer *composer,
+Submission::Submission(QObject *parent, std::shared_ptr<Composer::AbstractComposer> composer,
                        Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId)
     : QObject(parent)
     , m_appendUidReceived(false)
@@ -91,9 +91,7 @@ Submission::Submission(QObject *parent, Composer::AbstractComposer *composer,
     m_source->setPreloadEnabled(shouldBuildMessageLocally());
 }
 
-Submission::~Submission()
-{
-}
+Submission::~Submission() = default;
 
 QString Submission::accountId() const
 {

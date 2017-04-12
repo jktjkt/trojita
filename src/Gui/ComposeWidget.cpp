@@ -145,7 +145,7 @@ private:
     bool wasEverEdited, wasEverUpdated;
 };
 
-ComposeWidget::ComposeWidget(MainWindow *mainWindow, Composer::MessageComposer* messageComposer, MSA::MSAFactory *msaFactory)
+ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::MessageComposer> messageComposer, MSA::MSAFactory *msaFactory)
     : QWidget(0, Qt::Window)
     , ui(new Ui::ComposeWidget)
     , m_maxVisibleRecipients(MIN_MAX_VISIBLE_RECIPIENTS)
@@ -393,9 +393,8 @@ ComposeWidget *ComposeWidget::createBlank(MainWindow *mainWindow)
     if (!msaFactory)
         return 0;
 
-    auto composer = new Composer::MessageComposer(mainWindow->imapModel(), 0);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
     ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
-    composer->setParent(w);
     w->placeOnMainWindow();
     w->show();
     return w;
@@ -408,9 +407,8 @@ ComposeWidget *ComposeWidget::createDraft(MainWindow *mainWindow, const QString 
     if (!msaFactory)
         return 0;
 
-    auto composer = new Composer::MessageComposer(mainWindow->imapModel(), 0);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
     ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
-    composer->setParent(w);
     w->loadDraft(path);
     w->placeOnMainWindow();
     w->show();
@@ -424,9 +422,8 @@ ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &
     if (!msaFactory)
         return 0;
 
-    auto composer = new Composer::MessageComposer(mainWindow->imapModel(), 0);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
     ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
-    composer->setParent(w);
     InhibitComposerDirtying inhibitor(w);
     QString subject;
     QString body;
@@ -476,9 +473,8 @@ ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer
     if (!msaFactory)
         return 0;
 
-    auto composer = new Composer::MessageComposer(mainWindow->imapModel(), 0);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
     ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
-    composer->setParent(w);
     InhibitComposerDirtying inhibitor(w);
     w->setResponseData(recipients, subject, body, inReplyTo, references, replyingToMessage);
     bool ok = w->setReplyMode(mode);
@@ -514,9 +510,8 @@ ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Compos
     if (!msaFactory)
         return 0;
 
-    auto composer = new Composer::MessageComposer(mainWindow->imapModel(), 0);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
     ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
-    composer->setParent(w);
     InhibitComposerDirtying inhibitor(w);
     w->setResponseData(QList<QPair<Composer::RecipientKind, QString>>(), subject, QString(), inReplyTo, references, QModelIndex());
     // We don't need to expose any UI here, but we want the in-reply-to and references information to be carried with this message

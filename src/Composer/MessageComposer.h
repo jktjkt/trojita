@@ -47,7 +47,7 @@ class MessageComposer : public QAbstractListModel, public AbstractComposer
     Q_OBJECT
 public:
 
-    explicit MessageComposer(Imap::Mailbox::Model *model, QObject *parent = 0);
+    explicit MessageComposer(Imap::Mailbox::Model *model);
     ~MessageComposer();
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;

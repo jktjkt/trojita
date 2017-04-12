@@ -132,7 +132,7 @@ private slots:
     void markReplyModeHandpicked();
 
 private:
-    ComposeWidget(MainWindow *mainWindow, Composer::MessageComposer *messageComposer, MSA::MSAFactory *msaFactory);
+    ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::MessageComposer> messageComposer, MSA::MSAFactory *msaFactory);
     void setResponseData(const QList<QPair<Composer::RecipientKind, QString> > &recipients, const QString &subject,
                          const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references,
                          const QModelIndex &replyingToMessage);
@@ -192,7 +192,7 @@ private:
     MainWindow *m_mainWindow;
     QSettings *m_settings;
 
-    Composer::MessageComposer *m_messageComposer;
+    std::shared_ptr<Composer::MessageComposer> m_messageComposer;
     Composer::Submission *m_submission;
 
     QMenu *m_completionPopup;

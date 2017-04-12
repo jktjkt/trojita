@@ -47,8 +47,8 @@
 
 namespace Composer {
 
-MessageComposer::MessageComposer(Imap::Mailbox::Model *model, QObject *parent) :
-    QAbstractListModel(parent), m_model(model), m_shouldPreload(false), m_reportTrojitaVersions(true)
+MessageComposer::MessageComposer(Imap::Mailbox::Model *model) :
+    QAbstractListModel(nullptr), m_model(model), m_shouldPreload(false), m_reportTrojitaVersions(true)
 {
 }
 

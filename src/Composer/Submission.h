@@ -22,6 +22,7 @@
 #ifndef COMPOSER_SUBMISSION_H
 #define COMPOSER_SUBMISSION_H
 
+#include <memory>
 #include <QPersistentModelIndex>
 #include <QPointer>
 
@@ -51,7 +52,7 @@ class Submission : public QObject
 {
     Q_OBJECT
 public:
-    explicit Submission(QObject *parent, AbstractComposer *composer, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId);
+    explicit Submission(QObject *parent, std::shared_ptr<AbstractComposer> composer, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId);
     virtual ~Submission();
 
     QString accountId() const;
@@ -133,7 +134,7 @@ private:
     QByteArray m_rawMessageData;
     int m_msaMaximalProgress;
 
-    AbstractComposer *m_source;
+    std::shared_ptr<AbstractComposer> m_source;
     QPointer<Imap::Mailbox::Model> m_model;
     MSA::MSAFactory *m_msaFactory;
     QString m_accountId;

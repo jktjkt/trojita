@@ -59,7 +59,7 @@ void ComposerSubmissionTest::init()
 
     m_msaFactory = new MSA::FakeFactory();
     QString accountId = QStringLiteral("fake_account");
-    m_composer = new Composer::MessageComposer(model, this);
+    m_composer = std::make_shared<Composer::MessageComposer>(model);
     m_submission = new Composer::Submission(this, m_composer, model, m_msaFactory, accountId);
 
     sendingSpy = new QSignalSpy(m_msaFactory, SIGNAL(sending()));
@@ -77,8 +77,7 @@ void ComposerSubmissionTest::cleanup()
 
     delete m_submission;
     m_submission = 0;
-    delete m_composer;
-    m_composer = 0;
+    m_composer.reset();
     delete m_msaFactory;
     m_msaFactory = 0;
     delete sendingSpy;
