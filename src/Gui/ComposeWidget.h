@@ -32,6 +32,7 @@
 #include <QWidget>
 
 #include "Composer/Recipients.h"
+#include "Composer/MessageComposer.h"
 #include "Plugins/AddressbookPlugin.h"
 
 

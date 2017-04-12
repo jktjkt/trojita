@@ -279,6 +279,7 @@ endif()
 
 set(path_Composer ${CMAKE_CURRENT_SOURCE_DIR}/src/Composer)
 set(libComposer_SOURCES
+    ${path_Composer}/AbstractComposer.cpp
     ${path_Composer}/ComposerAttachments.cpp
     ${path_Composer}/Mailto.cpp
     ${path_Composer}/MessageComposer.cpp
