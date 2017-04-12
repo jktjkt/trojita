@@ -751,7 +751,12 @@ bool ComposeWidget::buildMessageData()
         }
     }
 
-    return m_composer->isReadyForSerialization();
+    if (!m_composer->isReadyForSerialization()) {
+        gotError(tr("Cannot prepare this e-mail for sending: some parts are not available"));
+        return false;
+    }
+
+    return true;
 }
 
 void ComposeWidget::send()
@@ -761,8 +766,9 @@ void ComposeWidget::send()
     // than losing some work. It's cheap anyway.
     saveDraft(m_autoSavePath);
 
-    if (!buildMessageData())
+    if (!buildMessageData()) {
         return;
+    }
 
     const bool reuseImapCreds = m_settings->value(Common::SettingsNames::smtpAuthReuseImapCredsKey, false).toBool();
     m_submission->setImapOptions(m_settings->value(Common::SettingsNames::composerSaveToImapKey, true).toBool(),
