@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2017 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -50,13 +50,13 @@ public:
     explicit MessageComposer(Imap::Mailbox::Model *model, QObject *parent = 0);
     ~MessageComposer();
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    virtual Qt::DropActions supportedDropActions() const;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
-    virtual QStringList mimeTypes() const;
-    virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    virtual Qt::DropActions supportedDropActions() const override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    virtual QStringList mimeTypes() const override;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
     void setFrom(const Imap::Message::MailAddress &from);
     void setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &recipients);
