@@ -145,7 +145,7 @@ private:
     bool wasEverEdited, wasEverUpdated;
 };
 
-ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::MessageComposer> messageComposer, MSA::MSAFactory *msaFactory)
+ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::AbstractComposer> messageComposer, MSA::MSAFactory *msaFactory)
     : QWidget(0, Qt::Window)
     , ui(new Ui::ComposeWidget)
     , m_maxVisibleRecipients(MIN_MAX_VISIBLE_RECIPIENTS)
@@ -157,7 +157,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::M
     , m_genUrlAuthReceived(false)
     , m_mainWindow(mainWindow)
     , m_settings(mainWindow->settings())
-    , m_messageComposer(messageComposer)
+    , m_composer(messageComposer)
     , m_submission(nullptr)
     , m_completionPopup(nullptr)
     , m_completionReceiver(nullptr)
@@ -172,14 +172,17 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::M
     Q_ASSERT(m_mainWindow);
     QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
     QString accountId = profileName.isEmpty() ? QStringLiteral("account-0") : profileName;
-    m_submission = new Composer::Submission(this, m_messageComposer, m_mainWindow->imapModel(), msaFactory, accountId);
+    m_submission = new Composer::Submission(this, m_composer, m_mainWindow->imapModel(), msaFactory, accountId);
     connect(m_submission, &Composer::Submission::succeeded, this, &ComposeWidget::sent);
     connect(m_submission, &Composer::Submission::failed, this, &ComposeWidget::gotError);
     connect(m_submission, &Composer::Submission::passwordRequested, this, &ComposeWidget::passwordRequested, Qt::QueuedConnection);
-    m_messageComposer->setReportTrojitaVersions(m_settings->value(Common::SettingsNames::interopRevealVersions, true).toBool());
-
     ui->setupUi(this);
-    ui->attachmentsView->setComposer(m_messageComposer);
+
+    if (interactiveComposer()) {
+        interactiveComposer()->setReportTrojitaVersions(m_settings->value(Common::SettingsNames::interopRevealVersions, true).toBool());
+        ui->attachmentsView->setComposer(interactiveComposer());
+    }
+
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     sendButton->setIcon(UiUtils::loadIcon(QStringLiteral("mail-send")));
     connect(sendButton, &QAbstractButton::clicked, this, &ComposeWidget::send);
@@ -327,6 +330,11 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::M
 ComposeWidget::~ComposeWidget()
 {
     delete ui;
+}
+
+std::shared_ptr<Composer::MessageComposer> ComposeWidget::interactiveComposer()
+{
+    return std::dynamic_pointer_cast<Composer::MessageComposer>(m_composer);
 }
 
 /** @short Throw a warning at an attempt to create a Compose Widget while the MSA is not configured */
@@ -518,7 +526,7 @@ ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Compos
     w->m_actionInReplyTo->setChecked(true);
 
     // Prepare the message to be forwarded and add it to the attachments view
-    w->m_messageComposer->prepareForwarding(forwardingMessage, mode);
+    w->interactiveComposer()->prepareForwarding(forwardingMessage, mode);
 
     w->placeOnMainWindow();
     w->show();
@@ -634,8 +642,10 @@ void ComposeWidget::changeEvent(QEvent *e)
 
 void ComposeWidget::closeEvent(QCloseEvent *ce)
 {
-    const bool noSaveRequired = m_sentMail || !m_saveState->everEdited() ||
-                                (m_explicitDraft && !m_saveState->updated()); // autosave to permanent draft and no update
+    const bool noSaveRequired = (m_sentMail || !m_saveState->everEdited() ||
+                                 (m_explicitDraft && !m_saveState->updated()))
+                                && interactiveComposer(); // autosave to permanent draft and no update
+
     if (!noSaveRequired) {  // save is required
         QMessageBox msgBox(this);
         msgBox.setWindowModality(Qt::WindowModal);
@@ -699,46 +709,49 @@ bool ComposeWidget::buildMessageData()
         gotError(tr("You haven't entered any recipients"));
         return false;
     }
-    m_messageComposer->setRecipients(recipients);
+    m_composer->setRecipients(recipients);
 
     Imap::Message::MailAddress fromAddress;
     if (!Imap::Message::MailAddress::fromPrettyString(fromAddress, ui->sender->currentText())) {
         gotError(tr("The From: address does not look like a valid one"));
         return false;
     }
-    if (ui->subject->text().isEmpty()) {
-        gotError(tr("You haven't entered any subject. Cannot send such a mail, sorry."));
-        ui->subject->setFocus();
-        return false;
+    m_composer->setFrom(fromAddress);
+
+    if (auto composer = interactiveComposer()) {
+        if (ui->subject->text().isEmpty()) {
+            gotError(tr("You haven't entered any subject. Cannot send such a mail, sorry."));
+            ui->subject->setFocus();
+            return false;
+        }
+
+        composer->setTimestamp(QDateTime::currentDateTime());
+        composer->setSubject(ui->subject->text());
+
+        QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
+        Q_ASSERT(proxy);
+
+        if (ui->sender->findText(ui->sender->currentText()) != -1) {
+            QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
+            Q_ASSERT(proxyIndex.isValid());
+            composer->setOrganization(
+                        proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION)
+                        .data().toString());
+        }
+        composer->setText(ui->mailText->toPlainText());
+
+        if (m_actionInReplyTo->isChecked()) {
+            composer->setInReplyTo(m_inReplyTo);
+            composer->setReferences(m_references);
+            composer->setReplyingToMessage(m_replyingToMessage);
+        } else {
+            composer->setInReplyTo(QList<QByteArray>());
+            composer->setReferences(QList<QByteArray>());
+            composer->setReplyingToMessage(QModelIndex());
+        }
     }
-    m_messageComposer->setFrom(fromAddress);
 
-    m_messageComposer->setTimestamp(QDateTime::currentDateTime());
-    m_messageComposer->setSubject(ui->subject->text());
-
-    QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
-    Q_ASSERT(proxy);
-
-    if (ui->sender->findText(ui->sender->currentText()) != -1) {
-        QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
-        Q_ASSERT(proxyIndex.isValid());
-        m_messageComposer->setOrganization(
-                    proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION)
-                    .data().toString());
-    }
-    m_messageComposer->setText(ui->mailText->toPlainText());
-
-    if (m_actionInReplyTo->isChecked()) {
-        m_messageComposer->setInReplyTo(m_inReplyTo);
-        m_messageComposer->setReferences(m_references);
-        m_messageComposer->setReplyingToMessage(m_replyingToMessage);
-    } else {
-        m_messageComposer->setInReplyTo(QList<QByteArray>());
-        m_messageComposer->setReferences(QList<QByteArray>());
-        m_messageComposer->setReplyingToMessage(QModelIndex());
-    }
-
-    return m_messageComposer->isReadyForSerialization();
+    return m_composer->isReadyForSerialization();
 }
 
 void ComposeWidget::send()
@@ -1482,7 +1495,7 @@ void ComposeWidget::slotAskForFileAttachment()
                                                     QFileDialog::DontResolveSymlinks);
     if (!fileName.isEmpty()) {
         directory = QFileInfo(fileName).absoluteDir();
-        m_messageComposer->addFileAttachment(fileName);
+        interactiveComposer()->addFileAttachment(fileName);
     }
 }
 
@@ -1490,7 +1503,7 @@ void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
 {
     foreach (const QUrl &url, urls) {
         if (url.isLocalFile()) {
-            m_messageComposer->addFileAttachment(url.path());
+            interactiveComposer()->addFileAttachment(url.path());
         }
     }
 }
@@ -1588,7 +1601,7 @@ void ComposeWidget::saveDraft(const QString &path)
         stream << m_recipients.at(i).first->itemData(m_recipients.at(i).first->currentIndex()).toInt();
         stream << m_recipients.at(i).second->text();
     }
-    stream << m_messageComposer->timestamp() << m_inReplyTo << m_references;
+    stream << m_composer->timestamp() << m_inReplyTo << m_references;
     stream << m_actionInReplyTo->isChecked();
     stream << ui->subject->text();
     stream << ui->mailText->toPlainText();
@@ -1640,7 +1653,7 @@ void ComposeWidget::loadDraft(const QString &path)
     if (version >= 2) {
         QDateTime timestamp;
         stream >> timestamp >> m_inReplyTo >> m_references;
-        m_messageComposer->setTimestamp(timestamp);
+        interactiveComposer()->setTimestamp(timestamp);
         if (!m_inReplyTo.isEmpty()) {
             m_markButton->show();
             // FIXME: in-reply-to's validitiy isn't the best check for showing or not showing the reply mode.
