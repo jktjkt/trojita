@@ -177,6 +177,9 @@ enum {
     /** @short QModelIndex of the message a part is associated to */
     RolePartMessageIndex,
 
+    /** @short A relative IMAP URL pointing to this message or part, if available */
+    RoleIMAPRelativeUrl,
+
 
     /** @short Is the format of this particular multipart/signed supported for signature verification?
 

@@ -331,9 +331,7 @@ AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE(
 
 QByteArray ImapMessageAttachmentItem::imapUrl() const
 {
-    return "/" + QUrl::toPercentEncoding(index.data(RoleMailboxName).toString())
-            + ";UIDVALIDITY=" + index.data(RoleMailboxUidValidity).toByteArray()
-            + "/;UID=" + index.data(RoleMessageUid).toByteArray();
+    return index.data(RoleIMAPRelativeUrl).toByteArray();
 }
 
 void ImapMessageAttachmentItem::preload() const
@@ -448,10 +446,7 @@ bool ImapPartAttachmentItem::isAvailableLocally() const
 QByteArray ImapPartAttachmentItem::imapUrl() const
 {
     Q_ASSERT(index.isValid());
-    return "/" + QUrl::toPercentEncoding(index.data(RoleMailboxName).toString())
-            + ";UIDVALIDITY=" + index.data(RoleMailboxUidValidity).toByteArray()
-            + "/;UID=" + index.data(RoleMessageUid).toByteArray()
-            + "/;SECTION=" + index.data(RolePartId).toByteArray();
+    return index.data(RoleIMAPRelativeUrl).toByteArray();
 }
 
 void ImapPartAttachmentItem::preload() const
