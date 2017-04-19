@@ -188,7 +188,7 @@ QTextStream &operator<<(QTextStream &stream, const Kind &res)
     return stream;
 }
 
-Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind)
+Kind kindFromString(QByteArray str)
 {
     str = str.toUpper();
 
@@ -580,7 +580,7 @@ State::State(const QByteArray &tag, const Kind kind, const QByteArray &line, int
     }
 }
 
-NumberResponse::NumberResponse(const Kind kind, const uint number) throw(UnexpectedHere):
+NumberResponse::NumberResponse(const Kind kind, const uint number):
     kind(kind), number(number)
 {
     if (kind != EXISTS && kind != EXPUNGE && kind != RECENT)

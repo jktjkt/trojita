@@ -35,11 +35,6 @@
 #include "ThreadingNode.h"
 #include "Uids.h"
 
-#ifdef _MSC_VER
-// Disable warnings about throw/nothrow
-#pragma warning(disable: 4290)
-#endif
-
 class QSslCertificate;
 class QSslError;
 
@@ -314,7 +309,7 @@ public:
     Kind kind;
     /** @short Number that we're storing */
     uint number;
-    NumberResponse(const Kind kind, const uint number) throw(UnexpectedHere);
+    NumberResponse(const Kind kind, const uint number);
     virtual QTextStream &dump(QTextStream &s) const;
     virtual bool eq(const AbstractResponse &other) const;
     virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
@@ -714,7 +709,7 @@ inline bool operator!=(const AbstractResponse &first, const AbstractResponse &ot
 }
 
 /** @short Build Responses::Kind from textual value */
-Kind kindFromString(QByteArray str) throw(UnrecognizedResponseKind);
+Kind kindFromString(QByteArray str);
 
 }
 
