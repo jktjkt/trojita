@@ -566,6 +566,7 @@ ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const Q
     messageWidget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(mainWindow->imapAccess()->networkWatcher()));
     messageWidget->setFocusPolicy(Qt::StrongFocus);
     w->ui->verticalSplitter->insertWidget(1, messageWidget);
+    w->ui->verticalSplitter->setStretchFactor(1, 100);
 
     w->placeOnMainWindow();
     w->show();
