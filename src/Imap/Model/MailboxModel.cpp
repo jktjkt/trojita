@@ -331,8 +331,23 @@ bool MailboxModel::dropFileUrlList(const QString &mailboxName, QList<QUrl> files
         if (!f.open(QIODevice::ReadOnly))
             return;
 
+        auto content = f.readAll();
+        // Random heuristics: strip one leading line which starts with "From ", also known as "the mailbox header".
+        // Yeah, RFC 4155 says that there's a special MIME type application/mbox just for that, but nope, it's actually not being used.
+        // So one gets ".eml" messages which are in fact not message/rfc822 stuff.
+        if (content.startsWith("From ")) {
+            auto pos = content.indexOf("\n");
+            if (pos > 0
+                    // random heuristic: don't chop off "too much"
+                    && pos < 80
+                    // random heiristic: three == one for "\n", two for CR LF which separates the headers from the body...
+                    && pos + 3 < content.size()) {
+                content = content.mid(pos + 1 /* for the LF */);
+            }
+        }
+
         static_cast<Imap::Mailbox::Model *>(sourceModel())->appendIntoMailbox(
-                    mailboxName, f.readAll(), QStringList() << Imap::Mailbox::FlagNames::seen,
+                    mailboxName, content, QStringList() << Imap::Mailbox::FlagNames::seen,
                     QFileInfo(url.path()).lastModified());
         ok = true;
     });

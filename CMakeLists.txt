@@ -279,7 +279,9 @@ endif()
 
 set(path_Composer ${CMAKE_CURRENT_SOURCE_DIR}/src/Composer)
 set(libComposer_SOURCES
+    ${path_Composer}/AbstractComposer.cpp
     ${path_Composer}/ComposerAttachments.cpp
+    ${path_Composer}/ExistingMessageComposer.cpp
     ${path_Composer}/Mailto.cpp
     ${path_Composer}/MessageComposer.cpp
     ${path_Composer}/QuoteText.cpp
@@ -759,6 +761,7 @@ if(BUILD_TESTING)
 
     enable_testing()
     trojita_test(Composer Composer_Submission)
+    trojita_test(Composer Composer_Existing)
     trojita_test(Composer Composer_responses)
     target_link_libraries(test_Composer_responses Qt5::WebKitWidgets)
     trojita_test(Composer Html_formatting)

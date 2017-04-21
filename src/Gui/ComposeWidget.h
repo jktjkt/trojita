@@ -32,6 +32,7 @@
 #include <QWidget>
 
 #include "Composer/Recipients.h"
+#include "Composer/MessageComposer.h"
 #include "Plugins/AddressbookPlugin.h"
 
 
@@ -86,6 +87,7 @@ public:
                                       const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
     static ComposeWidget *createForward(MainWindow *mainWindow, const Composer::ForwardMode mode, const QModelIndex &forwardingMessage,
                                         const QString &subject, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references);
+    static ComposeWidget *createFromReadOnly(MainWindow *mainWindow, const QModelIndex &messageRoot, const QList<QPair<Composer::RecipientKind, QString>> &recipients);
     void placeOnMainWindow();
 protected:
     void changeEvent(QEvent *e);
@@ -131,7 +133,7 @@ private slots:
     void markReplyModeHandpicked();
 
 private:
-    ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory);
+    ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::AbstractComposer> messageComposer, MSA::MSAFactory *msaFactory);
     void setResponseData(const QList<QPair<Composer::RecipientKind, QString> > &recipients, const QString &subject,
                          const QString &body, const QList<QByteArray> &inReplyTo, const QList<QByteArray> &references,
                          const QModelIndex &replyingToMessage);
@@ -150,6 +152,8 @@ private:
 
     void saveDraft(const QString &path);
     void loadDraft(const QString &path);
+
+    std::shared_ptr<Composer::MessageComposer> interactiveComposer();
 
     Ui::ComposeWidget *ui;
     QPushButton *sendButton;
@@ -191,6 +195,7 @@ private:
     MainWindow *m_mainWindow;
     QSettings *m_settings;
 
+    std::shared_ptr<Composer::AbstractComposer> m_composer;
     Composer::Submission *m_submission;
 
     QMenu *m_completionPopup;

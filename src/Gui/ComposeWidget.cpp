@@ -37,6 +37,7 @@
 #include <QUrlQuery>
 
 #include "ui_ComposeWidget.h"
+#include "Composer/ExistingMessageComposer.h"
 #include "Composer/MessageComposer.h"
 #include "Composer/ReplaceSignature.h"
 #include "Composer/Mailto.h"
@@ -45,9 +46,11 @@
 #include "Common/InvokeMethod.h"
 #include "Common/Paths.h"
 #include "Common/SettingsNames.h"
+#include "Gui/CompleteMessageWidget.h"
 #include "Gui/ComposeWidget.h"
 #include "Gui/FromAddressProxyModel.h"
 #include "Gui/LineEdit.h"
+#include "Gui/MessageView.h"
 #include "Gui/OverlayWidget.h"
 #include "Gui/PasswordDialog.h"
 #include "Gui/ProgressPopUp.h"
@@ -145,18 +148,22 @@ private:
     bool wasEverEdited, wasEverUpdated;
 };
 
-ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory) :
-    QWidget(0, Qt::Window),
-    ui(new Ui::ComposeWidget),
-    m_maxVisibleRecipients(MIN_MAX_VISIBLE_RECIPIENTS),
-    m_sentMail(false),
-    m_explicitDraft(false),
-    m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
-    m_mainWindow(mainWindow),
-    m_settings(mainWindow->settings()),
-    m_submission(nullptr),
-    m_completionPopup(nullptr),
-    m_completionReceiver(nullptr)
+ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::AbstractComposer> messageComposer, MSA::MSAFactory *msaFactory)
+    : QWidget(0, Qt::Window)
+    , ui(new Ui::ComposeWidget)
+    , m_maxVisibleRecipients(MIN_MAX_VISIBLE_RECIPIENTS)
+    , m_sentMail(false)
+    , m_explicitDraft(false)
+    , m_appendUidReceived(false)
+    , m_appendUidValidity(0)
+    , m_appendUid(0)
+    , m_genUrlAuthReceived(false)
+    , m_mainWindow(mainWindow)
+    , m_settings(mainWindow->settings())
+    , m_composer(messageComposer)
+    , m_submission(nullptr)
+    , m_completionPopup(nullptr)
+    , m_completionReceiver(nullptr)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
 
@@ -168,14 +175,17 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     Q_ASSERT(m_mainWindow);
     QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
     QString accountId = profileName.isEmpty() ? QStringLiteral("account-0") : profileName;
-    m_submission = new Composer::Submission(this, m_mainWindow->imapModel(), msaFactory, accountId);
+    m_submission = new Composer::Submission(this, m_composer, m_mainWindow->imapModel(), msaFactory, accountId);
     connect(m_submission, &Composer::Submission::succeeded, this, &ComposeWidget::sent);
     connect(m_submission, &Composer::Submission::failed, this, &ComposeWidget::gotError);
     connect(m_submission, &Composer::Submission::passwordRequested, this, &ComposeWidget::passwordRequested, Qt::QueuedConnection);
-    m_submission->composer()->setReportTrojitaVersions(m_settings->value(Common::SettingsNames::interopRevealVersions, true).toBool());
-
     ui->setupUi(this);
-    ui->attachmentsView->setComposer(m_submission->composer());
+
+    if (interactiveComposer()) {
+        interactiveComposer()->setReportTrojitaVersions(m_settings->value(Common::SettingsNames::interopRevealVersions, true).toBool());
+        ui->attachmentsView->setComposer(interactiveComposer());
+    }
+
     sendButton = ui->buttonBox->addButton(tr("Send"), QDialogButtonBox::AcceptRole);
     sendButton->setIcon(UiUtils::loadIcon(QStringLiteral("mail-send")));
     connect(sendButton, &QAbstractButton::clicked, this, &ComposeWidget::send);
@@ -307,7 +317,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
     m_autoSavePath += QString::number(QDateTime::currentMSecsSinceEpoch()) + QLatin1String(".draft");
 
     // Add a blank recipient row to start with
-    addRecipient(m_recipients.count(), Composer::ADDRESS_TO, QString());
+    addRecipient(m_recipients.count(), interactiveComposer() ? Composer::ADDRESS_TO : Composer::ADDRESS_RESENT_TO, QString());
     ui->envelopeLayout->itemAt(OFFSET_OF_FIRST_ADDRESSEE, QFormLayout::FieldRole)->widget()->setFocus();
 
     slotUpdateSignature();
@@ -323,6 +333,11 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, MSA::MSAFactory *msaFactory
 ComposeWidget::~ComposeWidget()
 {
     delete ui;
+}
+
+std::shared_ptr<Composer::MessageComposer> ComposeWidget::interactiveComposer()
+{
+    return std::dynamic_pointer_cast<Composer::MessageComposer>(m_composer);
 }
 
 /** @short Throw a warning at an attempt to create a Compose Widget while the MSA is not configured */
@@ -389,7 +404,8 @@ ComposeWidget *ComposeWidget::createBlank(MainWindow *mainWindow)
     if (!msaFactory)
         return 0;
 
-    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
+    ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
     w->placeOnMainWindow();
     w->show();
     return w;
@@ -402,7 +418,8 @@ ComposeWidget *ComposeWidget::createDraft(MainWindow *mainWindow, const QString 
     if (!msaFactory)
         return 0;
 
-    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
+    ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
     w->loadDraft(path);
     w->placeOnMainWindow();
     w->show();
@@ -416,7 +433,8 @@ ComposeWidget *ComposeWidget::createFromUrl(MainWindow *mainWindow, const QUrl &
     if (!msaFactory)
         return 0;
 
-    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
+    ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
     InhibitComposerDirtying inhibitor(w);
     QString subject;
     QString body;
@@ -466,7 +484,8 @@ ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer
     if (!msaFactory)
         return 0;
 
-    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
+    ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
     InhibitComposerDirtying inhibitor(w);
     w->setResponseData(recipients, subject, body, inReplyTo, references, replyingToMessage);
     bool ok = w->setReplyMode(mode);
@@ -502,14 +521,52 @@ ComposeWidget *ComposeWidget::createForward(MainWindow *mainWindow, const Compos
     if (!msaFactory)
         return 0;
 
-    ComposeWidget *w = new ComposeWidget(mainWindow, msaFactory);
+    auto composer = std::make_shared<Composer::MessageComposer>(mainWindow->imapModel());
+    ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
     InhibitComposerDirtying inhibitor(w);
     w->setResponseData(QList<QPair<Composer::RecipientKind, QString>>(), subject, QString(), inReplyTo, references, QModelIndex());
     // We don't need to expose any UI here, but we want the in-reply-to and references information to be carried with this message
     w->m_actionInReplyTo->setChecked(true);
 
     // Prepare the message to be forwarded and add it to the attachments view
-    w->m_submission->composer()->prepareForwarding(forwardingMessage, mode);
+    w->interactiveComposer()->prepareForwarding(forwardingMessage, mode);
+
+    w->placeOnMainWindow();
+    w->show();
+    return w;
+}
+
+ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const QModelIndex &messageRoot,
+                                                 const QList<QPair<Composer::RecipientKind, QString>>& recipients)
+{
+    MSA::MSAFactory *msaFactory = mainWindow->msaFactory();
+    if (!msaFactory)
+        return 0;
+
+    auto composer = std::make_shared<Composer::ExistingMessageComposer>(messageRoot);
+    ComposeWidget *w = new ComposeWidget(mainWindow, composer, msaFactory);
+
+    for (int i = 0; i < recipients.size(); ++i) {
+        w->addRecipient(i, recipients[i].first, recipients[i].second);
+    }
+    w->updateRecipientList();
+
+    // Disable what needs to be nuked
+    w->ui->fromLabel->setText(tr("Sender"));
+    w->ui->subject->hide();
+    w->ui->subjectLabel->hide();
+    w->ui->attachmentBox->hide();
+    w->ui->mailText->hide();
+    auto subject = messageRoot.data(Imap::Mailbox::RoleMessageSubject).toString();
+    w->setWindowTitle(tr("Bounce Mail: %1").arg(subject.isEmpty() ? tr("(no subject)") : subject));
+
+    // Show the full content of that e-mail as the "main body" within this widget
+    CompleteMessageWidget *messageWidget = new CompleteMessageWidget(w, mainWindow->settings(), mainWindow->pluginManager());
+    messageWidget->messageView->setMessage(messageRoot);
+    messageWidget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(mainWindow->imapAccess()->networkWatcher()));
+    messageWidget->setFocusPolicy(Qt::StrongFocus);
+    w->ui->verticalSplitter->insertWidget(1, messageWidget);
+    w->ui->verticalSplitter->setStretchFactor(1, 100);
 
     w->placeOnMainWindow();
     w->show();
@@ -626,7 +683,9 @@ void ComposeWidget::changeEvent(QEvent *e)
 void ComposeWidget::closeEvent(QCloseEvent *ce)
 {
     const bool noSaveRequired = m_sentMail || !m_saveState->everEdited() ||
-                                (m_explicitDraft && !m_saveState->updated()); // autosave to permanent draft and no update
+                                (m_explicitDraft && !m_saveState->updated())
+                                || !interactiveComposer(); // autosave to permanent draft and no update
+
     if (!noSaveRequired) {  // save is required
         QMessageBox msgBox(this);
         msgBox.setWindowModality(Qt::WindowModal);
@@ -680,6 +739,7 @@ void ComposeWidget::closeEvent(QCloseEvent *ce)
 
 bool ComposeWidget::buildMessageData()
 {
+    // Recipients are checked at all times, including when bouncing/redirecting
     QList<QPair<Composer::RecipientKind,Imap::Message::MailAddress> > recipients;
     QString errorMessage;
     if (!parseRecipients(recipients, errorMessage)) {
@@ -690,57 +750,69 @@ bool ComposeWidget::buildMessageData()
         gotError(tr("You haven't entered any recipients"));
         return false;
     }
-    m_submission->composer()->setRecipients(recipients);
+    m_composer->setRecipients(recipients);
 
+    // The same applies to the sender which is needed by some MSAs for origin information
     Imap::Message::MailAddress fromAddress;
     if (!Imap::Message::MailAddress::fromPrettyString(fromAddress, ui->sender->currentText())) {
         gotError(tr("The From: address does not look like a valid one"));
         return false;
     }
-    if (ui->subject->text().isEmpty()) {
-        gotError(tr("You haven't entered any subject. Cannot send such a mail, sorry."));
-        ui->subject->setFocus();
+    m_composer->setFrom(fromAddress);
+
+    if (auto composer = interactiveComposer()) {
+        if (ui->subject->text().isEmpty()) {
+            gotError(tr("You haven't entered any subject. Cannot send such a mail, sorry."));
+            ui->subject->setFocus();
+            return false;
+        }
+
+        composer->setTimestamp(QDateTime::currentDateTime());
+        composer->setSubject(ui->subject->text());
+
+        QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
+        Q_ASSERT(proxy);
+
+        if (ui->sender->findText(ui->sender->currentText()) != -1) {
+            QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
+            Q_ASSERT(proxyIndex.isValid());
+            composer->setOrganization(
+                        proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION)
+                        .data().toString());
+        }
+        composer->setText(ui->mailText->toPlainText());
+
+        if (m_actionInReplyTo->isChecked()) {
+            composer->setInReplyTo(m_inReplyTo);
+            composer->setReferences(m_references);
+            composer->setReplyingToMessage(m_replyingToMessage);
+        } else {
+            composer->setInReplyTo(QList<QByteArray>());
+            composer->setReferences(QList<QByteArray>());
+            composer->setReplyingToMessage(QModelIndex());
+        }
+    }
+
+    if (!m_composer->isReadyForSerialization()) {
+        gotError(tr("Cannot prepare this e-mail for sending: some parts are not available"));
         return false;
     }
-    m_submission->composer()->setFrom(fromAddress);
 
-    m_submission->composer()->setTimestamp(QDateTime::currentDateTime());
-    m_submission->composer()->setSubject(ui->subject->text());
-
-    QAbstractProxyModel *proxy = qobject_cast<QAbstractProxyModel*>(ui->sender->model());
-    Q_ASSERT(proxy);
-
-    if (ui->sender->findText(ui->sender->currentText()) != -1) {
-        QModelIndex proxyIndex = ui->sender->model()->index(ui->sender->currentIndex(), 0, ui->sender->rootModelIndex());
-        Q_ASSERT(proxyIndex.isValid());
-        m_submission->composer()->setOrganization(
-                    proxy->mapToSource(proxyIndex).sibling(proxyIndex.row(), Composer::SenderIdentitiesModel::COLUMN_ORGANIZATION)
-                    .data().toString());
-    }
-    m_submission->composer()->setText(ui->mailText->toPlainText());
-
-    if (m_actionInReplyTo->isChecked()) {
-        m_submission->composer()->setInReplyTo(m_inReplyTo);
-        m_submission->composer()->setReferences(m_references);
-        m_submission->composer()->setReplyingToMessage(m_replyingToMessage);
-    } else {
-        m_submission->composer()->setInReplyTo(QList<QByteArray>());
-        m_submission->composer()->setReferences(QList<QByteArray>());
-        m_submission->composer()->setReplyingToMessage(QModelIndex());
-    }
-
-    return m_submission->composer()->isReadyForSerialization();
+    return true;
 }
 
 void ComposeWidget::send()
 {
-    // Well, Trojita is of course rock solid and will never ever crash :), but experience has shown that every now and then,
-    // there is a subtle issue $somewhere. This means that it's probably a good idea to save the draft explicitly -- better
-    // than losing some work. It's cheap anyway.
-    saveDraft(m_autoSavePath);
+    if (interactiveComposer()) {
+        // Well, Trojita is of course rock solid and will never ever crash :), but experience has shown that every now and then,
+        // there is a subtle issue $somewhere. This means that it's probably a good idea to save the draft explicitly -- better
+        // than losing some work. It's cheap anyway.
+        saveDraft(m_autoSavePath);
+    }
 
-    if (!buildMessageData())
+    if (!buildMessageData()) {
         return;
+    }
 
     const bool reuseImapCreds = m_settings->value(Common::SettingsNames::smtpAuthReuseImapCredsKey, false).toBool();
     m_submission->setImapOptions(m_settings->value(Common::SettingsNames::composerSaveToImapKey, true).toBool(),
@@ -858,13 +930,19 @@ Composer::RecipientKind ComposeWidget::recipientKindForNextRow(const Composer::R
         // Heuristic: if the last one is "to", chances are that the next one shall not be "to" as well.
         // Cc is reasonable here.
         return Composer::ADDRESS_CC;
+    case Composer::ADDRESS_RESENT_TO:
+        return Composer::ADDRESS_RESENT_CC;
     case Composer::ADDRESS_CC:
     case Composer::ADDRESS_BCC:
+    case Composer::ADDRESS_RESENT_CC:
+    case Composer::ADDRESS_RESENT_BCC:
         // In any other case, it is probably better to just reuse the type of the last row
         return kind;
     case Composer::ADDRESS_FROM:
     case Composer::ADDRESS_SENDER:
     case Composer::ADDRESS_REPLY_TO:
+    case Composer::ADDRESS_RESENT_FROM:
+    case Composer::ADDRESS_RESENT_SENDER:
         // shall never be used here
         Q_ASSERT(false);
         return kind;
@@ -984,9 +1062,15 @@ void ComposeWidget::calculateMaxVisibleRecipients()
 void ComposeWidget::addRecipient(int position, Composer::RecipientKind kind, const QString &address)
 {
     QComboBox *combo = new QComboBox(this);
-    combo->addItem(tr("To"), Composer::ADDRESS_TO);
-    combo->addItem(tr("Cc"), Composer::ADDRESS_CC);
-    combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
+    if (interactiveComposer()) {
+        combo->addItem(tr("To"), Composer::ADDRESS_TO);
+        combo->addItem(tr("Cc"), Composer::ADDRESS_CC);
+        combo->addItem(tr("Bcc"), Composer::ADDRESS_BCC);
+    } else {
+        combo->addItem(tr("Resent-To"), Composer::ADDRESS_RESENT_TO);
+        combo->addItem(tr("Resent-Cc"), Composer::ADDRESS_RESENT_CC);
+        combo->addItem(tr("Resent-Bcc"), Composer::ADDRESS_RESENT_BCC);
+    }
     combo->setCurrentIndex(combo->findData(kind));
     LineEdit *edit = new LineEdit(address, this);
     slotCheckAddress(edit);
@@ -1094,9 +1178,13 @@ void ComposeWidget::updateRecipientList()
     }
     if (!haveEmpty) {
         addRecipient(m_recipients.count(),
-                     m_recipients.isEmpty() ?
-                         Composer::ADDRESS_TO :
-                         recipientKindForNextRow(currentRecipient(m_recipients.last().first)),
+                     !interactiveComposer() ?
+                         Composer::ADDRESS_RESENT_TO :
+                         (
+                             m_recipients.isEmpty() ?
+                                 Composer::ADDRESS_TO :
+                                 recipientKindForNextRow(currentRecipient(m_recipients.last().first))
+                         ),
                      QString());
     }
 }
@@ -1232,7 +1320,9 @@ void ComposeWidget::collapseRecipients()
     // an empty recipient line just lost focus -> we "place it at the end", ie. simply remove it
     // and append a clone
     bool needEmpty = false;
-    Composer::RecipientKind carriedKind = recipientKindForNextRow(Composer::ADDRESS_TO);
+    Composer::RecipientKind carriedKind = recipientKindForNextRow(interactiveComposer() ?
+                                                                      Composer::RecipientKind::ADDRESS_TO :
+                                                                      Composer::RecipientKind::ADDRESS_RESENT_TO);
     for (int i = 0; i < m_recipients.count() - 1; ++i) { // sic! on the -1, no action if it trails anyway
         if (m_recipients.at(i).second == edit) {
             carriedKind = currentRecipient(m_recipients.last().first);
@@ -1473,7 +1563,7 @@ void ComposeWidget::slotAskForFileAttachment()
                                                     QFileDialog::DontResolveSymlinks);
     if (!fileName.isEmpty()) {
         directory = QFileInfo(fileName).absoluteDir();
-        m_submission->composer()->addFileAttachment(fileName);
+        interactiveComposer()->addFileAttachment(fileName);
     }
 }
 
@@ -1481,7 +1571,7 @@ void ComposeWidget::slotAttachFiles(QList<QUrl> urls)
 {
     foreach (const QUrl &url, urls) {
         if (url.isLocalFile()) {
-            m_submission->composer()->addFileAttachment(url.path());
+            interactiveComposer()->addFileAttachment(url.path());
         }
     }
 }
@@ -1579,7 +1669,7 @@ void ComposeWidget::saveDraft(const QString &path)
         stream << m_recipients.at(i).first->itemData(m_recipients.at(i).first->currentIndex()).toInt();
         stream << m_recipients.at(i).second->text();
     }
-    stream << m_submission->composer()->timestamp() << m_inReplyTo << m_references;
+    stream << m_composer->timestamp() << m_inReplyTo << m_references;
     stream << m_actionInReplyTo->isChecked();
     stream << ui->subject->text();
     stream << ui->mailText->toPlainText();
@@ -1631,7 +1721,7 @@ void ComposeWidget::loadDraft(const QString &path)
     if (version >= 2) {
         QDateTime timestamp;
         stream >> timestamp >> m_inReplyTo >> m_references;
-        m_submission->composer()->setTimestamp(timestamp);
+        interactiveComposer()->setTimestamp(timestamp);
         if (!m_inReplyTo.isEmpty()) {
             m_markButton->show();
             // FIXME: in-reply-to's validitiy isn't the best check for showing or not showing the reply mode.

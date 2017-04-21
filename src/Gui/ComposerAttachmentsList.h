@@ -20,6 +20,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <memory>
 #include <QList>
 #include <QListView>
 #include <QUrl>
@@ -40,7 +41,7 @@ class ComposerAttachmentsList : public QListView {
     Q_OBJECT
 public:
     explicit ComposerAttachmentsList(QWidget *parent);
-    void setComposer(Composer::MessageComposer *composer);
+    void setComposer(std::shared_ptr<Composer::MessageComposer> composer);
 signals:
     void itemDroppedOut();
 protected:
@@ -57,7 +58,7 @@ public slots:
     void showContextMenu(const QPoint &pos);
 private:
     bool m_dragging, m_dragInside;
-    Composer::MessageComposer *m_composer;
+    std::shared_ptr<Composer::MessageComposer> m_composer;
     QAction *m_actionRemoveAttachment;
     QAction *m_actionSendInline;
     QAction *m_actionRename;

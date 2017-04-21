@@ -63,13 +63,13 @@ ComposerAttachmentsList::ComposerAttachmentsList(QWidget *parent):
     connect(this, &QAbstractItemView::activated, this, &ComposerAttachmentsList::onCurrentChanged);
 }
 
-void ComposerAttachmentsList::setComposer(Composer::MessageComposer *composer)
+void ComposerAttachmentsList::setComposer(std::shared_ptr<Composer::MessageComposer> composer)
 {
     // prevent double connections etc
     Q_ASSERT(!m_composer);
 
     m_composer = composer;
-    setModel(m_composer);
+    setModel(m_composer.get());
     connect(model(), &QAbstractItemModel::rowsRemoved, this, &ComposerAttachmentsList::onAttachmentNumberChanged);
     connect(model(), &QAbstractItemModel::rowsInserted, this, &ComposerAttachmentsList::onAttachmentNumberChanged);
     connect(model(), &QAbstractItemModel::layoutChanged, this, &ComposerAttachmentsList::onAttachmentNumberChanged);

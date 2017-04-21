@@ -69,28 +69,29 @@ QString submissionProgressToString(const Submission::SubmissionProgress progress
     return QStringLiteral("[unknown: %1]").arg(QString::number(static_cast<int>(progress)));
 }
 
-Submission::Submission(QObject *parent, Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId) :
-    QObject(parent),
-    m_appendUidReceived(false), m_appendUidValidity(0), m_appendUid(0), m_genUrlAuthReceived(false),
-    m_saveToSentFolder(false), m_useBurl(false), m_useImapSubmit(false), m_state(STATE_INIT),
-    m_msaMaximalProgress(0),
-    m_composer(0), m_model(model), m_msaFactory(msaFactory),
-    m_accountId(accountId),
-    m_updateReplyingToMessageFlagsTask(0),
-    m_updateForwardingMessageFlagsTask(0)
+Submission::Submission(QObject *parent, std::shared_ptr<Composer::AbstractComposer> composer,
+                       Imap::Mailbox::Model *model, MSA::MSAFactory *msaFactory, const QString &accountId)
+    : QObject(parent)
+    , m_appendUidReceived(false)
+    , m_appendUidValidity(0)
+    , m_appendUid(0)
+    , m_genUrlAuthReceived(false)
+    , m_saveToSentFolder(false)
+    , m_useBurl(false)
+    , m_useImapSubmit(false)
+    , m_state(STATE_INIT)
+    , m_msaMaximalProgress(0)
+    , m_source(composer)
+    , m_model(model)
+    , m_msaFactory(msaFactory)
+    , m_accountId(accountId)
+    , m_updateReplyingToMessageFlagsTask(0)
+    , m_updateForwardingMessageFlagsTask(0)
 {
-    m_composer = new Composer::MessageComposer(model, this);
-    m_composer->setPreloadEnabled(shouldBuildMessageLocally());
+    m_source->setPreloadEnabled(shouldBuildMessageLocally());
 }
 
-MessageComposer *Submission::composer()
-{
-    return m_composer;
-}
-
-Submission::~Submission()
-{
-}
+Submission::~Submission() = default;
 
 QString Submission::accountId() const
 {
@@ -159,7 +160,7 @@ void Submission::setImapOptions(const bool saveToSentFolder, const QString &sent
     m_imapHostname = hostname;
     m_imapUsername = username;
     m_useImapSubmit = useImapSubmit;
-    m_composer->setPreloadEnabled(shouldBuildMessageLocally());
+    m_source->setPreloadEnabled(shouldBuildMessageLocally());
 }
 
 void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
@@ -170,7 +171,7 @@ void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
         m_useBurl = false;
     }
     m_smtpUsername = smtpUsername;
-    m_composer->setPreloadEnabled(shouldBuildMessageLocally());
+    m_source->setPreloadEnabled(shouldBuildMessageLocally());
 }
 
 void Submission::send()
@@ -188,7 +189,7 @@ void Submission::send()
     changeConnectionState(STATE_INIT);
     changeConnectionState(STATE_BUILDING_MESSAGE);
 
-    if (shouldBuildMessageLocally() && !m_composer->isReadyForSerialization()) {
+    if (shouldBuildMessageLocally() && !m_source->isReadyForSerialization()) {
         // we have to wait until the data arrive
         // FIXME: relax this to wait here
         gotError(tr("Some data are not available yet"));
@@ -206,11 +207,11 @@ void Submission::slotMessageDataAvailable()
     QString errorMessage;
     QList<Imap::Mailbox::CatenatePair> catenateable;
 
-    if (shouldBuildMessageLocally() && !m_composer->asRawMessage(&buf, &errorMessage)) {
+    if (shouldBuildMessageLocally() && !m_source->asRawMessage(&buf, &errorMessage)) {
         gotError(tr("Cannot send right now -- saving failed:\n %1").arg(errorMessage));
         return;
     }
-    if (m_model->isCatenateSupported() && !m_composer->asCatenateData(catenateable, &errorMessage)) {
+    if (m_model->isCatenateSupported() && !m_source->asCatenateData(catenateable, &errorMessage)) {
         gotError(tr("Cannot send right now -- saving (CATENATE) failed:\n %1").arg(errorMessage));
         return;
     }
@@ -230,7 +231,7 @@ void Submission::slotMessageDataAvailable()
                             m_sentFolderName,
                             catenateable,
                             QStringList() << QStringLiteral("\\Seen"),
-                            m_composer->timestamp()));
+                            m_source->timestamp()));
         } else {
             // FIXME: without UIDPLUS, there isn't much point in $SubmitPending...
             appendTask = QPointer<Imap::Mailbox::AppendTask>(
@@ -238,7 +239,7 @@ void Submission::slotMessageDataAvailable()
                             m_sentFolderName,
                             m_rawMessageData,
                             QStringList() << QStringLiteral("\\Seen"),
-                            m_composer->timestamp()));
+                            m_source->timestamp()));
         }
 
         Q_ASSERT(appendTask);
@@ -280,15 +281,15 @@ void Submission::slotInvokeMsaNow()
 
     if (m_useImapSubmit && msa->supportsImapSending() && m_appendUidReceived) {
         Imap::Mailbox::UidSubmitOptionsList options;
-        options.append(qMakePair<QByteArray,QVariant>("FROM", m_composer->rawFromAddress()));
-        Q_FOREACH(const QByteArray &recipient, m_composer->rawRecipientAddresses()) {
+        options.append(qMakePair<QByteArray,QVariant>("FROM", m_source->rawFromAddress()));
+        Q_FOREACH(const QByteArray &recipient, m_source->rawRecipientAddresses()) {
             options.append(qMakePair<QByteArray,QVariant>("RECIPIENT", recipient));
         }
         msa->sendImap(m_sentFolderName, m_appendUidValidity, m_appendUid, options);
     } else if (m_genUrlAuthReceived && m_useBurl) {
-        msa->sendBurl(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_urlauth.toUtf8());
+        msa->sendBurl(m_source->rawFromAddress(), m_source->rawRecipientAddresses(), m_urlauth.toUtf8());
     } else {
-        msa->sendMail(m_composer->rawFromAddress(), m_composer->rawRecipientAddresses(), m_rawMessageData);
+        msa->sendMail(m_source->rawFromAddress(), m_source->rawRecipientAddresses(), m_rawMessageData);
     }
 }
 
@@ -312,16 +313,16 @@ void Submission::gotError(const QString &error)
 
 void Submission::sent()
 {
-    if (m_composer->replyingToMessage().isValid()) {
-        m_updateReplyingToMessageFlagsTask = m_model->setMessageFlags(QModelIndexList() << m_composer->replyingToMessage(),
+    if (m_source->replyingToMessage().isValid()) {
+        m_updateReplyingToMessageFlagsTask = m_model->setMessageFlags(QModelIndexList() << m_source->replyingToMessage(),
                                                                       QStringLiteral("\\Answered"), Imap::Mailbox::FLAG_ADD);
         connect(m_updateReplyingToMessageFlagsTask, &Imap::Mailbox::ImapTask::completed,
                 this, &Submission::onUpdatingFlagsOfReplyingToSucceded);
         connect(m_updateReplyingToMessageFlagsTask, &Imap::Mailbox::ImapTask::failed,
                 this, &Submission::onUpdatingFlagsOfReplyingToFailed);
         changeConnectionState(STATE_UPDATING_FLAGS);
-    } else if (m_composer->forwardingMessage().isValid()) {
-        m_updateForwardingMessageFlagsTask = m_model->setMessageFlags(QModelIndexList() << m_composer->forwardingMessage(),
+    } else if (m_source->forwardingMessage().isValid()) {
+        m_updateForwardingMessageFlagsTask = m_model->setMessageFlags(QModelIndexList() << m_source->forwardingMessage(),
                                                                       QStringLiteral("$Forwarded"), Imap::Mailbox::FLAG_ADD);
         connect(m_updateForwardingMessageFlagsTask, &Imap::Mailbox::ImapTask::completed,
                 this, &Submission::onUpdatingFlagsOfForwardingSucceeded);

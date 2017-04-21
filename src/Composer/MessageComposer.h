@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2017 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -26,8 +26,8 @@
 #include <QAbstractListModel>
 #include <QPointer>
 
+#include "Composer/AbstractComposer.h"
 #include "Composer/ContentDisposition.h"
-#include "Composer/Recipients.h"
 #include "Imap/Model/CatenateData.h"
 #include "Imap/Parser/Message.h"
 
@@ -42,24 +42,22 @@ namespace Composer {
 class AttachmentItem;
 
 /** @short Model storing individual parts of a composed message */
-class MessageComposer : public QAbstractListModel
+class MessageComposer : public QAbstractListModel, public AbstractComposer
 {
     Q_OBJECT
 public:
 
-    explicit MessageComposer(Imap::Mailbox::Model *model, QObject *parent = 0);
+    explicit MessageComposer(Imap::Mailbox::Model *model);
     ~MessageComposer();
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    virtual Qt::DropActions supportedDropActions() const;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent);
-    virtual QStringList mimeTypes() const;
-    virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    virtual Qt::DropActions supportedDropActions() const override;
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    virtual QStringList mimeTypes() const override;
+    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
-    void setFrom(const Imap::Message::MailAddress &from);
-    void setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &recipients);
     void setInReplyTo(const QList<QByteArray> &inReplyTo);
     void setReferences(const QList<QByteArray> &references);
     void setTimestamp(const QDateTime &timestamp);
@@ -69,24 +67,26 @@ public:
     void setReplyingToMessage(const QModelIndex &index);
     void prepareForwarding(const QModelIndex &index, const ForwardMode mode);
 
-    bool isReadyForSerialization() const;
-    bool asRawMessage(QIODevice *target, QString *errorMessage) const;
-    bool asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const;
+    virtual bool isReadyForSerialization() const override;
+    virtual bool asRawMessage(QIODevice *target, QString *errorMessage) const override;
+    virtual bool asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const override;
+    virtual void setPreloadEnabled(const bool preload) override;
+    virtual void setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &recipients) override;
+    virtual void setFrom(const Imap::Message::MailAddress &from) override;
 
-    QDateTime timestamp() const;
+    virtual QDateTime timestamp() const override;
     QList<QByteArray> inReplyTo() const;
     QList<QByteArray> references() const;
-    QByteArray rawFromAddress() const;
-    QList<QByteArray> rawRecipientAddresses() const;
-    QModelIndex replyingToMessage() const;
-    QModelIndex forwardingMessage() const;
+    virtual QByteArray rawFromAddress() const override;
+    virtual QList<QByteArray> rawRecipientAddresses() const override;
+    virtual QModelIndex replyingToMessage() const override;
+    virtual QModelIndex forwardingMessage() const override;
 
     bool addFileAttachment(const QString &path);
     void removeAttachment(const QModelIndex &index);
     void setAttachmentContentDisposition(const QModelIndex &index, const ContentDisposition disposition);
     void setAttachmentName(const QModelIndex &index, const QString &newName);
 
-    void setPreloadEnabled(const bool preload);
     void setReportTrojitaVersions(const bool reportVersion);
 
 private:

@@ -232,6 +232,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_reply_list"), QStringLiteral("mail-reply-list"), tr("Reply to &Mailing List"), tr("Ctrl+L"));
     shortcutHandler->defineAction(QStringLiteral("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
     shortcutHandler->defineAction(QStringLiteral("action_forward_attachment"), QStringLiteral("mail-forward"), tr("&Forward"), tr("Ctrl+Shift+F"));
+    shortcutHandler->defineAction(QStringLiteral("action_bounce"), QStringLiteral("mail-bounce"), tr("Edit as New E-Mail Message..."));
     shortcutHandler->defineAction(QStringLiteral("action_archive"), QStringLiteral("mail-move-to-archive"), tr("&Archive"), QStringLiteral("A"));
     shortcutHandler->defineAction(QStringLiteral("action_contact_editor"), QStringLiteral("contact-unknown"), tr("Address Book..."));
     shortcutHandler->defineAction(QStringLiteral("action_network_offline"), QStringLiteral("network-disconnect"), tr("&Offline"));
@@ -374,6 +375,7 @@ void MainWindow::createActions()
     expunge = ShortcutHandler::instance()->createAction(QStringLiteral("action_expunge"), this, SLOT(slotExpunge()), this);
 
     m_forwardAsAttachment = ShortcutHandler::instance()->createAction(QStringLiteral("action_forward_attachment"), this, SLOT(slotForwardAsAttachment()), this);
+    m_bounce = ShortcutHandler::instance()->createAction(QStringLiteral("action_bounce"), this, SLOT(slotBounce()), this);
     markAsRead = ShortcutHandler::instance()->createAction(QStringLiteral("action_mark_as_read"), this);
     markAsRead->setCheckable(true);
     msgListWidget->tree->addAction(markAsRead);
@@ -647,6 +649,7 @@ void MainWindow::createMenus()
     ADD_ACTION(imapMenu, m_replyList);
     imapMenu->addSeparator();
     ADD_ACTION(imapMenu, m_forwardAsAttachment);
+    ADD_ACTION(imapMenu, m_bounce);
     imapMenu->addSeparator();
     ADD_ACTION(imapMenu, expunge);
     imapMenu->addSeparator()->setText(tr("Network Access"));
@@ -1731,6 +1734,7 @@ void MainWindow::updateActionsOnlineOffline(bool online)
         m_replyAllButMe->setEnabled(false);
         m_replyList->setEnabled(false);
         m_forwardAsAttachment->setEnabled(false);
+        m_bounce->setEnabled(false);
     }
 }
 
@@ -1759,6 +1763,7 @@ void MainWindow::slotUpdateMessageActions()
     }
 
     m_forwardAsAttachment->setEnabled(m_messageWidget->messageView->currentMessage().isValid());
+    m_bounce->setEnabled(m_messageWidget->messageView->currentMessage().isValid());
 }
 
 void MainWindow::scrollMessageUp()
@@ -1802,6 +1807,45 @@ void MainWindow::slotReplyGuess()
 void MainWindow::slotForwardAsAttachment()
 {
     m_messageWidget->messageView->forward(this, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
+}
+
+void MainWindow::slotBounce()
+{
+    QModelIndex index;
+    Imap::Mailbox::Model::realTreeItem(msgListWidget->tree->currentIndex(), nullptr, &index);
+    if (!index.isValid())
+        return;
+
+    auto recipients = QList<QPair<Composer::RecipientKind,QString>>();
+    for (const auto &kind: {Imap::Mailbox::RoleMessageTo, Imap::Mailbox::RoleMessageCc, Imap::Mailbox::RoleMessageBcc}) {
+        for (const auto &oneAddr : index.data(kind).toList()) {
+            Q_ASSERT(oneAddr.type() == QVariant::StringList);
+            QStringList item = oneAddr.toStringList();
+            Q_ASSERT(item.size() == 4);
+            Imap::Message::MailAddress a(item[0], item[1], item[2], item[3]);
+            Composer::RecipientKind translatedKind = Composer::RecipientKind::ADDRESS_TO;
+            switch (kind) {
+            case Imap::Mailbox::RoleMessageTo:
+                translatedKind = Composer::RecipientKind::ADDRESS_RESENT_TO;
+                break;
+            case Imap::Mailbox::RoleMessageCc:
+                translatedKind = Composer::RecipientKind::ADDRESS_RESENT_CC;
+                break;
+            case Imap::Mailbox::RoleMessageBcc:
+                translatedKind = Composer::RecipientKind::ADDRESS_RESENT_BCC;
+                break;
+            default:
+                Q_ASSERT(false);
+                break;
+            }
+            recipients.push_back({translatedKind, a.asPrettyString()});
+        }
+    }
+
+    ComposeWidget::warnIfMsaNotConfigured(
+                ComposeWidget::createFromReadOnly(this, index, recipients),
+                this);
+
 }
 
 void MainWindow::slotComposeMailUrl(const QUrl &url)

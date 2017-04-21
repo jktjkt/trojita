@@ -1263,6 +1263,14 @@ QVariant TreeItemMessage::data(Model *const model, int role)
         return parent()->parent()->data(model, role);
     case RolePartMimeType:
         return QByteArrayLiteral("message/rfc822");
+    case RoleIMAPRelativeUrl:
+        if (m_uid) {
+            return QByteArray("/" + QUrl::toPercentEncoding(data(model, RoleMailboxName).toString())
+                              + ";UIDVALIDITY=" + data(model, RoleMailboxUidValidity).toByteArray()
+                              + "/;UID=" + QByteArray::number(m_uid));
+        } else {
+            return QVariant();
+        }
     }
 
     // Any other roles will result in fetching the data; however, we won't exit if the data isn't available yet
@@ -1688,6 +1696,15 @@ QVariant TreeItemPart::data(Model *const model, int role)
         return QVariant::fromValue(dataPtr());
     case RolePartBodyFldParam:
         return QVariant::fromValue(m_bodyFldParam);
+    case RoleIMAPRelativeUrl:
+        if (message() && message()->uid()) {
+            return QByteArray("/" + QUrl::toPercentEncoding(data(model, RoleMailboxName).toString())
+                              + ";UIDVALIDITY=" + data(model, RoleMailboxUidValidity).toByteArray()
+                              + "/;UID=" + QByteArray::number(message()->uid())
+                              + "/;SECTION=" + partId());
+        } else {
+            return QVariant();
+        }
     }
 
 

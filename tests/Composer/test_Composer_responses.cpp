@@ -56,6 +56,16 @@ QString recipientKindtoString(const Composer::RecipientKind kind)
         return QStringLiteral("Sender:");
     case Composer::ADDRESS_TO:
         return QStringLiteral("To:");
+    case Composer::ADDRESS_RESENT_FROM:
+        return QStringLiteral("Resent-From:");
+    case Composer::ADDRESS_RESENT_SENDER:
+        return QStringLiteral("Resent-Sender:");
+    case Composer::ADDRESS_RESENT_TO:
+        return QStringLiteral("Resent-To:");
+    case Composer::ADDRESS_RESENT_CC:
+        return QStringLiteral("Resent-Cc:");
+    case Composer::ADDRESS_RESENT_BCC:
+        return QStringLiteral("Resent-Bcc:");
     }
     Q_ASSERT(false);
     return QString();

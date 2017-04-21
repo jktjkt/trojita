@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2017 Jan Kundrát <jkt@kde.org>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -47,8 +47,8 @@
 
 namespace Composer {
 
-MessageComposer::MessageComposer(Imap::Mailbox::Model *model, QObject *parent) :
-    QAbstractListModel(parent), m_model(model), m_shouldPreload(false), m_reportTrojitaVersions(true)
+MessageComposer::MessageComposer(Imap::Mailbox::Model *model) :
+    QAbstractListModel(nullptr), m_model(model), m_shouldPreload(false), m_reportTrojitaVersions(true)
 {
 }
 
@@ -463,11 +463,7 @@ bool MessageComposer::isReadyForSerialization() const
 void MessageComposer::ensureRandomStrings() const
 {
     if (m_messageId.isNull()) {
-        auto domain = m_from.host.toUtf8();
-        if (domain.isEmpty()) {
-            domain = QByteArrayLiteral("localhost");
-        }
-        m_messageId = QUuid::createUuid().toByteArray().replace("{", "").replace("}", "") + "@" + domain;
+        m_messageId = AbstractComposer::generateMessageId(m_from);
     }
 
     if (m_mimeBoundary.isNull()) {
@@ -523,6 +519,11 @@ void MessageComposer::writeCommonMessageBeginning(QIODevice *target) const
         case Composer::ADDRESS_FROM:
         case Composer::ADDRESS_SENDER:
         case Composer::ADDRESS_REPLY_TO:
+        case Composer::ADDRESS_RESENT_FROM:
+        case Composer::ADDRESS_RESENT_SENDER:
+        case Composer::ADDRESS_RESENT_TO:
+        case Composer::ADDRESS_RESENT_CC:
+        case Composer::ADDRESS_RESENT_BCC:
             // These should never ever be produced by Trojita for now
             Q_ASSERT(false);
             break;
