@@ -55,7 +55,8 @@
 namespace Gui
 {
 
-MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager)
+MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager,
+        Imap::Mailbox::FavoriteTagsModel *m_favoriteTags)
     : QWidget(parent)
     , m_stack(new QStackedLayout(this))
     , messageModel(0)
@@ -105,7 +106,7 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
     m_envelope = new EnvelopeView(m_messageWidget, this);
     fullMsgLayout->addWidget(m_envelope, 1);
 
-    tags = new TagListWidget(m_messageWidget);
+    tags = new TagListWidget(m_messageWidget, m_favoriteTags);
     connect(tags, &TagListWidget::tagAdded, this, &MessageView::newLabelAction);
     connect(tags, &TagListWidget::tagRemoved, this, &MessageView::deleteLabelAction);
     fullMsgLayout->addWidget(tags, 3);

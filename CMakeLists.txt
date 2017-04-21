@@ -340,6 +340,7 @@ set(path_DesktopGui ${CMAKE_CURRENT_SOURCE_DIR}/src/Gui)
 set(libDesktopGui_SOURCES
     ${path_DesktopGui}/AddressRowWidget.cpp
     ${path_DesktopGui}/AttachmentView.cpp
+    ${path_DesktopGui}/ColoredItemDelegate.cpp
     ${path_DesktopGui}/CompleteMessageWidget.cpp
     ${path_DesktopGui}/ComposeWidget.cpp
     ${path_DesktopGui}/ComposerAttachmentsList.cpp
@@ -372,6 +373,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/SettingsDialog.cpp
     ${path_DesktopGui}/SimplePartWidget.cpp
     ${path_DesktopGui}/Spinner.cpp
+    ${path_DesktopGui}/TagAddDialog.cpp
     ${path_DesktopGui}/TagListWidget.cpp
     ${path_DesktopGui}/TagWidget.cpp
     ${path_DesktopGui}/TaskProgressIndicator.cpp
@@ -387,12 +389,15 @@ set(libDesktopGui_UI
     ${path_DesktopGui}/ComposeWidget.ui
     ${path_DesktopGui}/CreateMailboxDialog.ui
     ${path_DesktopGui}/EditIdentity.ui
+    ${path_DesktopGui}/EditFavoriteTag.ui
     ${path_DesktopGui}/PasswordDialog.ui
     ${path_DesktopGui}/ProgressPopUp.ui
     ${path_DesktopGui}/SettingsCachePage.ui
     ${path_DesktopGui}/SettingsGeneralPage.ui
     ${path_DesktopGui}/SettingsImapPage.ui
     ${path_DesktopGui}/SettingsOutgoingPage.ui
+    ${path_DesktopGui}/SettingsFavoriteTagsPage.ui
+    ${path_DesktopGui}/TagAddDialog.ui
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
 )
 set(libDesktopGui_RESOURCES
@@ -446,6 +451,7 @@ set(libImap_SOURCES
     ${path_Imap}/Model/MsgListModel.cpp
     ${path_Imap}/Model/NetworkWatcher.cpp
     ${path_Imap}/Model/OneMessageModel.cpp
+    ${path_Imap}/Model/FavoriteTagsModel.cpp
     ${path_Imap}/Model/ParserState.cpp
     ${path_Imap}/Model/PrettyMailboxModel.cpp
     ${path_Imap}/Model/PrettyMsgListModel.cpp
@@ -825,6 +831,7 @@ if(BUILD_TESTING)
     trojita_test(Misc prettySize)
     trojita_test(Misc Formatting)
     trojita_test(Misc QaimDfsIterator)
+    trojita_test(Misc FavoriteTagsModel)
 
 endif()
 

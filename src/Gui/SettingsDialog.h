@@ -26,12 +26,16 @@
 #include <QDialog>
 #include <QPointer>
 #include <QSettings>
-#include "Plugins/PasswordPlugin.h"
-#include "ui_SettingsGeneralPage.h"
 #include "ui_EditIdentity.h"
-#include "ui_SettingsImapPage.h"
+#include "ui_EditFavoriteTag.h"
 #include "ui_SettingsCachePage.h"
+#include "ui_SettingsFavoriteTagsPage.h"
+#include "ui_SettingsGeneralPage.h"
+#include "ui_SettingsImapPage.h"
 #include "ui_SettingsOutgoingPage.h"
+#include "Composer/SenderIdentitiesModel.h"
+#include "Imap/Model/FavoriteTagsModel.h"
+#include "Plugins/PasswordPlugin.h"
 
 class QCheckBox;
 class QComboBox;
@@ -77,6 +81,35 @@ public:
     virtual bool passwordFailures(QString &message) const = 0;
 };
 
+
+class FavoriteTagsPage : public QScrollArea, Ui_FavoriteTagsPage, public ConfigurationWidgetInterface
+{
+    Q_OBJECT
+public:
+    FavoriteTagsPage(SettingsDialog *parent, QSettings &s, Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel);
+    virtual void save(QSettings &s);
+    virtual QWidget *asWidget();
+    virtual bool checkValidity() const;
+    virtual bool passwordFailures(QString &message) const;
+
+private slots:
+    void updateWidgets();
+    void moveTagBy(const int offset);
+    void addButtonClicked();
+    void editButtonClicked();
+    void deleteButtonClicked();
+
+private:
+    Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel;
+    SettingsDialog *m_parent;
+
+    FavoriteTagsPage(const FavoriteTagsPage &) = delete;
+    FavoriteTagsPage &operator=(const FavoriteTagsPage &) = delete;
+
+signals:
+    void saved();
+    void widgetsUpdated();
+};
 
 class GeneralPage : public QScrollArea, Ui_GeneralPage, public ConfigurationWidgetInterface
 {
@@ -128,6 +161,35 @@ private:
 
     EditIdentity(const EditIdentity &); // don't implement
     EditIdentity &operator=(const EditIdentity &); // don't implement
+
+signals:
+    void saved();
+    void widgetsUpdated();
+};
+
+class EditFavoriteTag : public QDialog, Ui_EditFavoriteTag
+{
+    Q_OBJECT
+public:
+    EditFavoriteTag(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel, const QModelIndex &currentIndex);
+    void setDeleteOnReject(const bool reject = true);
+
+public slots:
+    void tryEnableButton();
+    void onAccept();
+    void onReject();
+    void colorButtonClick();
+
+private:
+    Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel;
+    const QModelIndex currentIndex; // index of the edited item in model
+    bool m_deleteOnReject;
+    QString name();
+    QString color();
+    void setColorButtonColor(const QString color);
+
+    EditFavoriteTag(const EditFavoriteTag &) = delete;
+    EditFavoriteTag &operator=(const EditFavoriteTag &) = delete;
 
 signals:
     void saved();
@@ -267,7 +329,8 @@ class SettingsDialog : public QDialog
 {
     Q_OBJECT
 public:
-    SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesModel *identitiesModel, QSettings *settings);
+    SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesModel *identitiesModel,
+        Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel, QSettings *settings);
 
     Plugins::PluginManager *pluginManager();
     Imap::ImapAccess* imapAccess();
@@ -294,6 +357,7 @@ private:
     XtConnectPage *xtConnect;
 #endif
     Composer::SenderIdentitiesModel *m_senderIdentities;
+    Imap::Mailbox::FavoriteTagsModel *m_favoriteTags;
     QSettings *m_settings;
     int m_saveSignalCount;
     QString m_originalPasswordPlugin;

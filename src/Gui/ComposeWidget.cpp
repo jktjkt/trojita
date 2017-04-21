@@ -561,7 +561,7 @@ ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const Q
     w->setWindowTitle(tr("Bounce Mail: %1").arg(subject.isEmpty() ? tr("(no subject)") : subject));
 
     // Show the full content of that e-mail as the "main body" within this widget
-    CompleteMessageWidget *messageWidget = new CompleteMessageWidget(w, mainWindow->settings(), mainWindow->pluginManager());
+    CompleteMessageWidget *messageWidget = new CompleteMessageWidget(w, mainWindow->settings(), mainWindow->pluginManager(), mainWindow->favoriteTagsModel());
     messageWidget->messageView->setMessage(messageRoot);
     messageWidget->messageView->setNetworkWatcher(qobject_cast<Imap::Mailbox::NetworkWatcher*>(mainWindow->imapAccess()->networkWatcher()));
     messageWidget->setFocusPolicy(Qt::StrongFocus);

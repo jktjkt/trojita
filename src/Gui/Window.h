@@ -63,6 +63,7 @@ class Model;
 class PrettyMailboxModel;
 class ThreadingMsgListModel;
 class PrettyMsgListModel;
+class FavoriteTagsModel;
 
 }
 }
@@ -100,6 +101,7 @@ public:
     Imap::Mailbox::Model *imapModel() const;
 
     Composer::SenderIdentitiesModel *senderIdentitiesModel() { return m_senderIdentities; }
+    Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel() { return m_favoriteTags; }
     Plugins::PluginManager *pluginManager() { return m_pluginManager; }
     QSettings *settings() const { return m_settings; }
     MSA::MSAFactory *msaFactory();
@@ -146,6 +148,7 @@ private slots:
     void slotForwardAsAttachment();
     void slotBounce();
     void slotUpdateMessageActions();
+    void handleTag(const bool checked, const int index);
     void handleMarkAsRead(bool);
     void handleMarkAsDeleted(bool);
     void handleMarkAsFlagged(const bool);
@@ -216,6 +219,8 @@ private slots:
 
     void showStatusMessage(const QString &message);
 
+    void slotFavoriteTagsChanged();
+
 protected:
     void resizeEvent(QResizeEvent *);
 
@@ -247,6 +252,7 @@ private:
     Imap::Mailbox::PrettyMailboxModel *prettyMboxModel;
     Imap::Mailbox::PrettyMsgListModel *prettyMsgListModel;
     Composer::SenderIdentitiesModel *m_senderIdentities;
+    Imap::Mailbox::FavoriteTagsModel *m_favoriteTags;
 
     MailBoxTreeView *mboxTree;
     MessageListWidget *msgListWidget;
@@ -307,6 +313,11 @@ private:
     QAction *aboutTrojita;
     QAction *donateToTrojita;
 
+    QAction *tag1;
+    QAction *tag2;
+    QAction *tag3;
+    QAction *tag4;
+    QAction *tag5;
     QAction *markAsRead;
     QAction *markAsDeleted;
     QAction *markAsFlagged;

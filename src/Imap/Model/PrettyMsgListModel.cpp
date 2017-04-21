@@ -19,8 +19,9 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "PrettyMsgListModel.h"
+#include <QBrush>
 #include <QFont>
+#include "PrettyMsgListModel.h"
 #include "ItemRoles.h"
 #include "MsgListModel.h"
 #include "ThreadingMsgListModel.h"
@@ -34,7 +35,8 @@ namespace Imap
 namespace Mailbox
 {
 
-PrettyMsgListModel::PrettyMsgListModel(QObject *parent): QSortFilterProxyModel(parent), m_hideRead(false)
+PrettyMsgListModel::PrettyMsgListModel(QObject *parent, FavoriteTagsModel *m_favoriteTagsModel):
+    QSortFilterProxyModel(parent), m_favoriteTagsModel(m_favoriteTagsModel), m_hideRead(false)
 {
     setDynamicSortFilter(true);
 }
@@ -198,6 +200,19 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
 
         return font;
     }
+
+    case Qt::ForegroundRole: {
+        // These items should definitely *not* be rendered in color
+        if (!translated.data(RoleIsFetched).toBool())
+            return QVariant();
+
+        QVariant messageFlags = translated.data(RoleMessageFlags);
+        auto color = m_favoriteTagsModel->findBestColorForTags(messageFlags.toStringList());
+        if (color.isValid())
+            return QBrush(color);
+        return QVariant();
+    }
+
     }
 
     return QSortFilterProxyModel::data(index, role);

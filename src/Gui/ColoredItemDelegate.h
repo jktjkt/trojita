@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) Roland Pallai <dap78@magex.hu>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -19,41 +19,29 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#ifndef PRETTYMSGLISTMODEL_H
-#define PRETTYMSGLISTMODEL_H
 
-#include <QSortFilterProxyModel>
-#include "Imap/Model/MailboxModel.h"
-#include "Imap/Model/FavoriteTagsModel.h"
+#ifndef COLOREDITEMDELEGATE_H
+#define	COLOREDITEMDELEGATE_H
 
-namespace Imap
-{
+#include <QModelIndex>
+#include <QPainter>
+#include <QStyledItemDelegate>
+#include <QStyleOptionViewItem>
 
-namespace Mailbox
-{
+namespace Gui {
 
-/** @short A pretty proxy model which increases sexiness of the (Threaded)MsgListModel */
-class PrettyMsgListModel: public QSortFilterProxyModel
+/** @short A slightly tweaked QStyledItemDelegate for painting colored items (message, favtag, etc)
+ *
+ * The main role is to propagate text color on highlight.
+ */
+class ColoredItemDelegate: public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    explicit PrettyMsgListModel(QObject *parent, FavoriteTagsModel *m_favoriteTagsModel);
-    virtual QVariant data(const QModelIndex &index, int role) const;
-    void setHideRead(bool value);
-    virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const;
-    virtual void sort(int column, Qt::SortOrder order);
-
-    FavoriteTagsModel *m_favoriteTagsModel;
-
-signals:
-    void sortingPreferenceChanged(int column, Qt::SortOrder order);
-
-private:
-    bool m_hideRead;
+    explicit ColoredItemDelegate(QObject* parent);
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 };
 
 }
 
-}
-
-#endif // PRETTYMSGLISTMODEL_H
+#endif	/* COLOREDITEMDELEGATE_H */

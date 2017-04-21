@@ -59,9 +59,12 @@ TagWidget *TagWidget::addingWidget()
     return res;
 }
 
-TagWidget *TagWidget::userKeyword(const QString &tagName)
+TagWidget *TagWidget::userKeyword(const QString &tagName, Imap::Mailbox::FavoriteTagsModel *m_favoriteTags)
 {
-    auto res = new TagWidget(Mode::UserKeyword, tagName, Qt::yellow);
+    QColor color = m_favoriteTags->findBestColorForTags({tagName});
+    if (!color.isValid())
+        color = Qt::yellow;
+    auto res = new TagWidget(Mode::UserKeyword, tagName, color);
     res->setText(tagName + closeIndicator);
     res->setMouseTracking(true);
     return res;

@@ -1,7 +1,4 @@
-/* Copyright (C) 2012 Mildred <mildred-pub@mildred.fr>
-   Copyright (C) 2015 Erik Quaeghebeur <trojita@equaeghe.nospammail.net>
-   Copyright (C) 2006 - 2015 Jan Kundrát <jkt@kde.org>
-
+/*
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
 
@@ -22,47 +19,47 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef GUI_TAGWIDGET_H
-#define GUI_TAGWIDGET_H
+#ifndef TEST_FAVORITETAGSMODEL
+#define TEST_FAVORITETAGSMODEL
 
-#include <QLabel>
+#include <QTest>
 #include "Imap/Model/FavoriteTagsModel.h"
 
-namespace Gui
-{
+using namespace Imap::Mailbox;
 
-class TagWidget : public QLabel
+class FavoriteTagsModelTest : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString tagName READ tagName USER true)
-public:
-    static TagWidget *addingWidget();
-    static TagWidget *userKeyword(const QString &tagName, Imap::Mailbox::FavoriteTagsModel *m_favoriteTags);
-    static TagWidget *systemFlag(const QString &flagName);
 
-    QString tagName() const;
+ public:
+    FavoriteTagsModelTest();
 
-    bool event(QEvent *e);
-
-signals:
-    void removeClicked(QString);
-    void addingClicked();
-
+private slots:
+    void initTestCase();
+    void init();
+    void cleanup();
+    void testPropertyStorage();
+    void testAddTag();
+    void testRemoveFirstTag();
+    void testRemoveLastTag();
+    void testMoveFirstTag();
+    void testMoveLastTag();
+    void testMoveMiddleTag();
+    void testFindBestColorForTags1();
+    void testFindBestColorForTags2();
+    void testTagNameByIndexNegative();
+    void testTagNameByIndexBeyondSize();
+    void testTagNameByIndexLast();
+    void testLoadFromSettingsEmitsModelReset();
+    void testLoadFromSettingsClearsModel();
+    void testSaveLoadSettings();
 private:
-    enum class Mode {
-        SystemFlag,
-        UserKeyword,
-        AddingWidget,
-    };
-
-    QString m_tagName;
-    const Mode m_mode;
-    QColor m_tint;
-    int m_splitPos;
-
-    TagWidget(const Mode mode, const QString &tagName, const QColor &backgroundColor);
+    FavoriteTagsModel* model;
+    ItemFavoriteTagItem favoriteTag1;
+    ItemFavoriteTagItem favoriteTag2;
+    ItemFavoriteTagItem favoriteTag3;
 };
 
-} // namespace Gui
 
-#endif // GUI_TAGWIDGET_H
+
+#endif

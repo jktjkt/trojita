@@ -34,12 +34,13 @@
 
 namespace Gui {
 
-CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager)
+CompleteMessageWidget::CompleteMessageWidget(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager,
+        Imap::Mailbox::FavoriteTagsModel *m_favoriteTags)
     : QWidget(parent)
     , FindBarMixin(this), settings(settings)
 {
     setWindowIcon(UiUtils::loadIcon(QStringLiteral("mail-mark-read")));
-    messageView = new MessageView(this, settings, pluginManager);
+    messageView = new MessageView(this, settings, pluginManager, m_favoriteTags);
     area = new QScrollArea();
     area->setWidget(messageView);
     area->setWidgetResizable(true);
