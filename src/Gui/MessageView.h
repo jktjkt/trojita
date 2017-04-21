@@ -29,6 +29,7 @@
 #include <QWidget>
 #include "Composer/Recipients.h"
 #include "Gui/PartWalker.h"
+#include "Imap/Model/FavoriteTagsModel.h"
 
 class QBoxLayout;
 class QLabel;
@@ -79,7 +80,8 @@ class MessageView : public QWidget
 {
     Q_OBJECT
 public:
-    MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager);
+    MessageView(QWidget *parent, QSettings *settings, Plugins::PluginManager *pluginManager,
+            Imap::Mailbox::FavoriteTagsModel *m_favoriteTags);
     ~MessageView();
 
     void setNetworkWatcher(Imap::Mailbox::NetworkWatcher *netWatcher);

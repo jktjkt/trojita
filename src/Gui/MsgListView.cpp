@@ -31,6 +31,7 @@
 #include <QPainter>
 #include <QSignalMapper>
 #include <QTimer>
+#include "ColoredItemDelegate.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
 
@@ -53,6 +54,8 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfte
     setRootIsDecorated(false);
     // Some subthreads might be huuuuuuuuuuge, so prevent indenting them too heavily
     setIndentation(15);
+
+    setItemDelegate(new ColoredItemDelegate(this));
 
     setSortingEnabled(true);
     // By default, we don't do any sorting
