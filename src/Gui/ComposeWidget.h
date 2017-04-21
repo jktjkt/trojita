@@ -104,6 +104,7 @@ private slots:
     void sent();
     void updateRecipientList();
     void scrollRecipients(int);
+    void gotoNextInputLineFrom(QWidget *w);
     void handleFocusChange();
     void scrollToFocus();
     void slotFadeFinished();
