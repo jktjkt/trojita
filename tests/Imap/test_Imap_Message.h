@@ -37,12 +37,15 @@ private Q_SLOTS:
     void testMailAddresEq();
     void testMailAddresNe();
     void testMailAddresNe_data();
-   
+
     void testMailAddressFormat();
     void testMailAddressFormat_data();
 
     void testMailAddressParsing();
     void testMailAddressParsing_data();
+
+    void testInvalidMailAddressParsing();
+    void testInvalidMailAddressParsing_data();
 
     void testMessage();
     void testMessage_data();

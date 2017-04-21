@@ -50,9 +50,11 @@ bool MailAddress::fromPrettyString(MailAddress &into, const QString &address)
     return true;
 }
 
-/* A simple regexp to match an address typed into the input field. */
-static QRegExp mailishRx(QLatin1String("(?:\\b|\\<)([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@"
-                                       "\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))(?:\\b|\\>)"));
+/* Regexpes to match an address typed into the input field. */
+static QRegExp mailishRx1(QLatin1String("^\\s*([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@"
+                                       "\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))\\s*$"));
+static QRegExp mailishRx2(QLatin1String("\\s*<([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@"
+                                       "\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))>\\s*$"));
 
 /*
    This is of course far from complete, but at least catches "Real
@@ -62,33 +64,19 @@ static QRegExp mailishRx(QLatin1String("(?:\\b|\\<)([\\w!#$%&'*+-/=?^_`{|}~]+)\\
 */
 bool MailAddress::parseOneAddress(Imap::Message::MailAddress &into, const QString &address, int &startOffset)
 {
-    int offset;
-    static QRegExp commaRx(QLatin1String("^\\s*(?:,\\s*)*"));
+    for (QRegExp mailishRx : {mailishRx2, mailishRx1}) {
+        int offset = mailishRx.indexIn(address, startOffset);
+        if (offset >= 0) {
+            QString before = address.mid(startOffset, offset - startOffset);
+            into = MailAddress(before.simplified(), QString(), mailishRx.cap(1), mailishRx.cap(2));
 
-    offset = mailishRx.indexIn(address, startOffset);
-    if (offset < 0) {
-        /* Try stripping a leading comma? */
-        offset = commaRx.indexIn(address, startOffset, QRegExp::CaretAtOffset);
-        if (offset < startOffset)
-            return false;
-        offset += commaRx.matchedLength();
-        startOffset = offset;
-        offset = mailishRx.indexIn(address, offset);
-        if (offset < 0)
-            return false;
+            offset += mailishRx.matchedLength();
+
+            startOffset = offset;
+            return true;
+        }
     }
-
-    QString before = address.mid(startOffset, offset - startOffset);
-    into = MailAddress(before.simplified(), QString(), mailishRx.cap(1), mailishRx.cap(2));
-
-    offset += mailishRx.matchedLength();
-
-    int comma = commaRx.indexIn(address, offset, QRegExp::CaretAtOffset);
-    if (comma >= offset)
-        offset = comma + commaRx.matchedLength();
-
-    startOffset = offset;
-    return true;
+    return false;
 }
 
 MailAddress::MailAddress(const QVariantList &input, const QByteArray &line, const int start)
