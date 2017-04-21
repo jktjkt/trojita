@@ -287,7 +287,8 @@ void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
         for (int j = 0; j < currentIndex.model()->rowCount(currentIndex); ++j)
             queue.append(currentIndex.child(j, 0));
         // ...and expand the current index
-        expand(currentIndex);
+        if (currentIndex.model()->hasChildren(currentIndex))
+            expand(currentIndex);
     }
 }
 
