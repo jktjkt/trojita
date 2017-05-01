@@ -72,6 +72,8 @@ int main(int argc, char **argv)
     AppVersion::setGitVersion();
     AppVersion::setCoreApplicationData();
 
+    app.setAttribute(Qt::AA_UseHighDpiPixmaps);
+
     app.setWindowIcon(UiUtils::loadIcon(QStringLiteral("trojita")));
 
     QTextStream qOut(stdout, QIODevice::WriteOnly);
