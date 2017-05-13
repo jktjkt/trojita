@@ -359,6 +359,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/MessageListWidget.cpp
     ${path_DesktopGui}/MessageSourceWidget.cpp
     ${path_DesktopGui}/MessageView.cpp
+    ${path_DesktopGui}/MsgItemDelegate.cpp
     ${path_DesktopGui}/MsgListView.cpp
     ${path_DesktopGui}/OnePanelAtTimeWidget.cpp
     ${path_DesktopGui}/OneEnvelopeAddress.cpp

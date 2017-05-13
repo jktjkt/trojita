@@ -23,9 +23,11 @@
 #ifndef IMAP_THREADINGMSGLISTMODEL_H
 #define IMAP_THREADINGMSGLISTMODEL_H
 
+#include <functional>
 #include <QAbstractProxyModel>
 #include <QPointer>
 #include <QSet>
+#include "MailboxTree.h"
 #include "Imap/Parser/Response.h"
 
 class QTimer;
@@ -222,8 +224,14 @@ private:
     /** @short Remove fake messages from the threading tree */
     void pruneTree();
 
+    /** @short Execute the provided function once for each message */
+    template<typename T> void threadForeach(const uint &root, std::function<T(const TreeItemMessage &)> callback) const;
+
     /** @short Check current thread for "unread messages" */
     bool threadContainsUnreadMessages(const uint root) const;
+
+    /** @short Return aggregated flags from the thread */
+    QStringList threadAggregatedFlags(const uint root) const;
 
     /** @short Is this someone else's THREAD response? */
     bool shouldIgnoreThisThreadingResponse(const QModelIndex &mailbox, const QByteArray &algorithm,

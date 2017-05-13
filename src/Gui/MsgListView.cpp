@@ -31,7 +31,7 @@
 #include <QPainter>
 #include <QSignalMapper>
 #include <QTimer>
-#include "ColoredItemDelegate.h"
+#include "MsgItemDelegate.h"
 #include "Imap/Model/MsgListModel.h"
 #include "Imap/Model/PrettyMsgListModel.h"
 #include "Imap/Model/ThreadingMsgListModel.h"
@@ -39,7 +39,8 @@
 namespace Gui
 {
 
-MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfterKeyNavigation(true), m_autoResizeSections(true)
+MsgListView::MsgListView(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel):
+    QTreeView(parent), m_autoActivateAfterKeyNavigation(true), m_autoResizeSections(true)
 {
     connect(header(), &QHeaderView::geometriesChanged, this, &MsgListView::slotFixSize);
     connect(this, &QTreeView::expanded, this, &MsgListView::slotExpandWholeSubtree);
@@ -56,7 +57,7 @@ MsgListView::MsgListView(QWidget *parent): QTreeView(parent), m_autoActivateAfte
     // Some subthreads might be huuuuuuuuuuge, so prevent indenting them too heavily
     setIndentation(15);
 
-    setItemDelegate(new ColoredItemDelegate(this));
+    setItemDelegate(new MsgItemDelegate(this, m_favoriteTagsModel));
 
     setSortingEnabled(true);
     // By default, we don't do any sorting

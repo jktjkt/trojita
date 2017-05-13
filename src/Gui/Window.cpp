@@ -778,7 +778,7 @@ void MainWindow::createWidgets()
         m_settings->setValue(Common::SettingsNames::guiExpandedMailboxes, mailboxNames);
     });
 
-    msgListWidget = new MessageListWidget();
+    msgListWidget = new MessageListWidget(nullptr, m_favoriteTags);
     msgListWidget->tree->setContextMenuPolicy(Qt::CustomContextMenu);
     msgListWidget->tree->setAlternatingRowColors(true);
     msgListWidget->setRawSearchEnabled(m_settings->value(Common::SettingsNames::guiAllowRawSearch).toBool());
@@ -867,7 +867,7 @@ void MainWindow::setupModels()
     prettyMboxModel->setObjectName(QStringLiteral("prettyMboxModel"));
     connect(realThreadingModel, &Imap::Mailbox::ThreadingMsgListModel::sortingFailed,
             msgListWidget, &MessageListWidget::slotSortingFailed);
-    prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this, m_favoriteTags);
+    prettyMsgListModel = new Imap::Mailbox::PrettyMsgListModel(this);
     prettyMsgListModel->setSourceModel(m_imapAccess->threadingMsgListModel());
     prettyMsgListModel->setObjectName(QStringLiteral("prettyMsgListModel"));
 

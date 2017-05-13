@@ -20,29 +20,31 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COLOREDITEMDELEGATE_H
-#define	COLOREDITEMDELEGATE_H
+#ifndef MSGITEMDELEGATE_H
+#define MSGITEMDELEGATE_H
 
 #include <QModelIndex>
 #include <QPainter>
-#include <QStyledItemDelegate>
 #include <QStyleOptionViewItem>
+#include "Imap/Model/FavoriteTagsModel.h"
+#include "ColoredItemDelegate.h"
 
 namespace Gui {
 
-/** @short A slightly tweaked QStyledItemDelegate for painting colored items (message, favtag, etc)
- *
- * The main role is to propagate text color on highlight.
- */
-class ColoredItemDelegate: public QStyledItemDelegate
+/** @short Painting colorized messages in MsgListView
+*/
+class MsgItemDelegate : public ColoredItemDelegate
 {
     Q_OBJECT
 public:
-    explicit ColoredItemDelegate(QObject* parent);
+    explicit MsgItemDelegate(QObject* parent, Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel);
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    void paintWithForeground(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index, const QColor &itemForegroundColor) const;
+private:
+    QColor itemColor(const QModelIndex &index) const;
+
+    Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel;
 };
 
 }
 
-#endif	/* COLOREDITEMDELEGATE_H */
+#endif	/* MSGITEMDELEGATE_H */
