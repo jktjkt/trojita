@@ -73,7 +73,9 @@ int main(int argc, char **argv)
     AppVersion::setCoreApplicationData();
 
     app.setAttribute(Qt::AA_UseHighDpiPixmaps);
-
+#if QT_VERSION >= QT_VERSION_CHECK(5, 7, 0)
+    app.setDesktopFileName(QStringLiteral("org.kde.trojita"));
+#endif
     app.setWindowIcon(UiUtils::loadIcon(QStringLiteral("trojita")));
 
     QTextStream qOut(stdout, QIODevice::WriteOnly);
