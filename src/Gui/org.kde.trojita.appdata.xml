@@ -305,7 +305,7 @@
       <caption xml:lang="el">Το υπέρμετρο κείμενο σε παράθεση συμπτύσσεται αυτόματα</caption>
       <caption xml:lang="en-GB">Excessively quoted text is automatically collapsed</caption>
       <caption xml:lang="es">El texto citado en exceso se contrae automáticamente</caption>
-      <caption xml:lang="gl">Os textos con demasiadas comiñas recóllese automaticamente.</caption>
+      <caption xml:lang="gl">Os textos con demasiadas comiñas préganse automaticamente.</caption>
       <caption xml:lang="it">Il testo eccessivamente citato viene automaticamente compresso</caption>
       <caption xml:lang="nl">Een grote hoeveelheid aangehaalde tekst wordt automatisch ingeklapt</caption>
       <caption xml:lang="pl">Długi tekst cytowany jest samoczynnie zwijany</caption>
