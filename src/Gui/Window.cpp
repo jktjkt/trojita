@@ -1241,7 +1241,7 @@ void MainWindow::showContextMenuMboxTree(const QPoint &position)
     }
     actionList.append(reloadAllMailboxes);
     actionList.append(m_actionShowOnlySubscribed);
-    QMenu::exec(actionList, mboxTree->mapToGlobal(position));
+    QMenu::exec(actionList, mboxTree->mapToGlobal(position), nullptr, this);
 }
 
 void MainWindow::showContextMenuMsgListTree(const QPoint &position)
@@ -1271,7 +1271,7 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         appendTagIfExists(5, tag5);
     }
     if (! actionList.isEmpty())
-        QMenu::exec(actionList, msgListWidget->tree->mapToGlobal(position));
+        QMenu::exec(actionList, msgListWidget->tree->mapToGlobal(position), nullptr, this);
 }
 
 /** @short Ask for an updated list of mailboxes situated below the selected one
