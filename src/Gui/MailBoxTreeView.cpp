@@ -124,12 +124,12 @@ void MailBoxTreeView::dropEvent(QDropEvent *event)
     } else if (event->keyboardModifiers() == Qt::ShiftModifier) {
         event->setDropAction(Qt::MoveAction);
     } else {
-        QMenu menu;
+        QMenu menu(this);
         QAction *moveAction = menu.addAction(UiUtils::loadIcon(QStringLiteral("go-jump")), tr("Move here\tShift"));
         menu.addAction(UiUtils::loadIcon(QStringLiteral("edit-copy")), tr("Copy here\tCtrl"));
         QAction *cancelAction = menu.addAction(UiUtils::loadIcon(QStringLiteral("process-stop")), tr("Cancel"));
 
-        QAction *selectedAction = menu.exec(QCursor::pos());
+        QAction *selectedAction = menu.exec(mapToGlobal(event->pos()));
 
         // if user closes the menu or selects cancel, ignore the event
         if (!selectedAction || selectedAction == cancelAction) {
