@@ -27,6 +27,7 @@
   <name xml:lang="pt-BR">Trojitá</name>
   <name xml:lang="sk">Trojitá</name>
   <name xml:lang="sv">Trojitá</name>
+  <name xml:lang="tr">Trojitá</name>
   <name xml:lang="uk">Trojitá</name>
   <name xml:lang="x-test">xxTrojitáxx</name>
   <name xml:lang="zh-CN">Trojitá</name>
@@ -55,6 +56,7 @@
   <summary xml:lang="pt-BR">Cliente de e-mail IMAP</summary>
   <summary xml:lang="sk">IMAP e-mailový klient</summary>
   <summary xml:lang="sv">IMAP e-postprogram</summary>
+  <summary xml:lang="tr">IMAP E-posta İstemcisi</summary>
   <summary xml:lang="uk">Клієнтська програма для роботи з електронною поштою IMAP</summary>
   <summary xml:lang="x-test">xxIMAP E-mail Clientxx</summary>
   <summary xml:lang="zh-TW">IMAP 電子郵件程式</summary>
@@ -81,6 +83,7 @@
     <p xml:lang="pt-BR">O Trojitá é um programa de e-mail ("cliente"), especializado em fornecer acesso rápido e eficiente às caixas do correio através do protocolo IMAP. Um servidor de e-mail IMAP armazena as mensagens e permite que os clientes as transfiram as para o computador local quando solicitado.</p>
     <p xml:lang="sk">Trojitá je e-mailový program ("klient") špecializovaný na rýchly a efektívny prístup k mailboxom cez protokol IMAP. Poštový server IMAP ukladá správy a umožňuje klientom naťahovať správy do miestneho počítača na požiadanie.</p>
     <p xml:lang="sv">Trojitá är ett e-postprogram ("klient") specialiserat på att ge snabb och effektiv åtkomst till brevlådor via IMAP-protokollet. En IMAP e-postserver lagrar brev och låter klienter hämta breven till den lokala datorn när de efterfrågas.</p>
+    <p xml:lang="tr">Trojitá, IMAP protokolü üzerinden posta kutularına hızlı ve verimli erişim sağlayan, uzmanlaşmış bir e-posta programıdır ("istemci"). Bir IMAP posta sunucusu iletileri saklar ve istemcilerin iletileri sorulduğunda yerel bilgisayara getirmesini sağlar.</p>
     <p xml:lang="uk">Trojitá — програма для роботи з електронною поштою («клієнт»), що спеціалізується на наданні швидкого та ефективного доступу до поштових скриньок за допомогою протоколу IMAP. Самі повідомлення електронної пошти зберігаються на поштовому сервері IMAP, клієнтська програма отримує повідомлення на локальному комп’ютері, коли у цьому виникає потреба.</p>
     <p xml:lang="x-test">xxTrojitá is an email program ("client") specialized in giving fast and efficient access to mailboxes over the IMAP protocol. An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.xx</p>
     <p>
@@ -107,6 +110,7 @@
     <p xml:lang="pt-BR">Ele prioriza a eficiência, velocidade e os padrões abertos, acima de todos os outros objetivos. O Trojitá também pretende ser multiplataforma, funcionando bem em tudo, desde grandes computadores até pequenos celulares. O Trojitá é um programa autônomo, que não faz parte de uma suíte de "gerenciamento de informações pessoais".</p>
     <p xml:lang="sk">Prioritizuje efektivitu, rýchlosť a otvorené štandardy nad iné ciele. Trojitá sa tiež zameriava na mnohoplatformovosť a funkcie známe od veľkých desktopových počítačov po malé mobilné telefóny. Trojitá je samostatný program, nie súčasť balíka "správy osobných informácií".</p>
     <p xml:lang="sv">Det prioriterar effektivitet, snabbhet och öppna standarder jämfört med andra mål. Trojitá har också målsättningen att hantera flera plattformar, och fungerar bra på allt från stora skrivbordsdatorer till små mobiltelefoner. Trojitá är ett fristående program, inte del av någon programsvit för "personlig informationshantering".</p>
+    <p xml:lang="tr">Verimliliği, hızı ve açık standartları diğer hedeflerin üzerinde tutar. Trojitá aynı zamanda çoklu platform ve büyük masaüstü bilgisayarlardan küçük cep telefonlarına kadar her alanda iyi çalışmayı hedefliyor. Trojitá, "kişisel bilgi yöneticisi" paketinin parçası değil, bağımsız bir programdır.</p>
     <p xml:lang="uk">Основними пріоритетами під час розробки програми є ефективність, швидкість роботи та використання відкритих стандартів. Крім того, Trojitá може працювати на багатьох платформах: від великих стаціонарних комп’ютерів до малих кишенькових телефонів. Trojitá є окремою програмою, а не частиною якогось комплекту для керування особистими даними.</p>
     <p xml:lang="x-test">xxIt prioritizes efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.xx</p>
     <p>What could make Trojitá interesting for you:</p>
@@ -130,6 +134,7 @@
     <p xml:lang="pt-BR">O que pode tornar o Trojitá interessante para você:</p>
     <p xml:lang="sk">Čo môže byť pre vás zaujímavé na Trojitá:</p>
     <p xml:lang="sv">Vad som skulle kunna göra  Trojitá intressant för dig:</p>
+    <p xml:lang="tr">Trojiti'yi sizin için ilginç kılan şey nedir:</p>
     <p xml:lang="uk">Можливості, які можуть зацікавити вас у Trojitá:</p>
     <p xml:lang="x-test">xxWhat could make Trojitá interesting for you:xx</p>
     <ul>
@@ -156,6 +161,7 @@
       <li xml:lang="pt-BR">Núcleo de IMAP muito rápido e robusto</li>
       <li xml:lang="sk">Veľmi rýchle a robustné jadro IMAP</li>
       <li xml:lang="sv">Mycket snabb och robust IMAP-kärna</li>
+      <li xml:lang="tr">Çok hızlı ve sağlam IMAP çekirdeği</li>
       <li xml:lang="uk">Дуже швидке і надійне ядро для обробки даних IMAP.</li>
       <li xml:lang="x-test">xxVery fast and robust IMAP corexx</li>
       <li>Standards compliance is a design goal</li>
@@ -177,6 +183,7 @@
       <li xml:lang="pt-BR">A conformidade com os padrões é um objetivo do projeto</li>
       <li xml:lang="sk">Podpora štandardov je cieľom dizajnu</li>
       <li xml:lang="sv">Att följa standarder är ett konstruktionsmål</li>
+      <li xml:lang="tr">Standartlara uyumlulu bir tasarım hedefidir</li>
       <li xml:lang="uk">Сумісність зі стандартами, яка є однією з основних цілей розробників.</li>
       <li xml:lang="x-test">xxStandards compliance is a design goalxx</li>
       <li>On-demand message list and body part loading ("lazy loading")</li>
@@ -198,6 +205,7 @@
       <li xml:lang="pt-BR">Carregamento do conteúdo e da lista de mensagens por solicitação ("carregamento posterior")</li>
       <li xml:lang="sk">Zoznam správ na požiadanie a načítavanie časti tela ("lenivé načítavanie")</li>
       <li xml:lang="sv">Inläsning av brevlista och innehåll vid behov ("lat inläsning")</li>
+      <li xml:lang="tr">İsteğe bağlı ileti listesi ve gövde bölümü yükleme ("geç yükleme")</li>
       <li xml:lang="uk">Завантаження списку та тексту повідомлень на вимогу («відкладене завантаження»).</li>
       <li xml:lang="x-test">xxOn-demand message list and body part loading ("lazy loading")xx</li>
       <li>Offline IMAP support</li>
@@ -223,6 +231,7 @@
       <li xml:lang="pt-BR">Suporte para IMAP desconectado</li>
       <li xml:lang="sk">Offline podpora IMAP</li>
       <li xml:lang="sv">Nerkopplat IMAP-stöd</li>
+      <li xml:lang="tr">Çevrim dışı IMAP desteği</li>
       <li xml:lang="uk">Підтримка роботи з IMAP у автономному режимі.</li>
       <li xml:lang="x-test">xxOffline IMAP supportxx</li>
       <li>Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
@@ -244,6 +253,7 @@
       <li xml:lang="pt-BR">Suporte para o modo de economia de largura de banda, destinado a usuário de aparelhos móveis com conexões caras</li>
       <li xml:lang="sk">Podpora pre režim šetrenia pásma zameraná na mobilných používateľov s drahým pripojením</li>
       <li xml:lang="sv">Stöd för bandbreddsbesparande läge avsett för mobila användare med dyra anslutningar</li>
+      <li xml:lang="tr">Pahalı bağlantıya sahip mobil kullanıcıları hedef alan bant genişliği tasarruf kipi desteği</li>
       <li xml:lang="uk">Підтримка режиму економії потужностей каналу обміну даними. Корисна для користувачів мобільного інтернету з дорогим тарифом.</li>
       <li xml:lang="x-test">xxSupport for bandwidth-saving mode aimed at mobile users with expensive connectionxx</li>
       <li>IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
@@ -265,6 +275,7 @@
       <li xml:lang="pt-BR">IMAP sobre SSH -- em vez de seguir por um socket SSL, o servidor pode ser acessado através de SSH</li>
       <li xml:lang="sk">IMAP cez SSH - namiesto prechodu cez SSL soket, na server je možné pristupovať cez SSH</li>
       <li xml:lang="sv">IMAP via SSH: Istället för att gå via ett SSL-uttag, kan servern kommas åt via SSH</li>
+      <li xml:lang="tr">SSH üzerinde IMAP, SSL soketi üzerinden geçmek yerine, sunucuya SSH üzerinden erişim</li>
       <li xml:lang="uk">IMAP через SSH — замість пропускання даних через сокет SSL, програма може отримувати доступ до сервера за допомогою SSH.</li>
       <li xml:lang="x-test">xxIMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSHxx</li>
       <li>Safe and robust dealing with HTML mail</li>
@@ -287,6 +298,7 @@
       <li xml:lang="pt-BR">Tratamento seguro e robusto de e-mail HTML</li>
       <li xml:lang="sk">Bezpečná a robustná práca s HTML mailom</li>
       <li xml:lang="sv">Säker och robust hantering av HTML-brev</li>
+      <li xml:lang="tr">Güvenli ve sağlam HTML posta yaklaşımı</li>
       <li xml:lang="uk">Безпечна і надійна обробка поштових повідомлень у форматі HTML.</li>
       <li xml:lang="x-test">xxSafe and robust dealing with HTML mailxx</li>
     </ul>
@@ -313,6 +325,7 @@
       <caption xml:lang="pt-BR">O texto citado em excesso é fechado automaticamente</caption>
       <caption xml:lang="sk">Nadmerne zvýraznený text sa automaticky zbalí</caption>
       <caption xml:lang="sv">Överdrivet citerad text dras automatiskt ihop</caption>
+      <caption xml:lang="tr">Çok fazla alıntılanan metinleri otomatik olarak kapatır</caption>
       <caption xml:lang="uk">Автоматичне згортання значних фрагментів цитованих повідомлень.</caption>
       <caption xml:lang="x-test">xxExcessively quoted text is automatically collapsedxx</caption>
       <image>http://trojita.flaska.net/img/2016-03-22-quote-collapsing.png</image>
@@ -333,6 +346,7 @@
       <caption xml:lang="pt-BR">Há suporte para e-mail criptografado e assinado, com status indicado em inglês simples</caption>
       <caption xml:lang="sk">Podporuje šifrované a podpísaní e-maily so stavom v čistej angličtine</caption>
       <caption xml:lang="sv">Krypterade och signerade brev stöds, med status angiven på vanlig svenska</caption>
+      <caption xml:lang="tr">Düz bir dille yazılan şifreli ve imzalı e-postalar desteklenmektedir</caption>
       <caption xml:lang="uk">Підтримка шифрування та підписування повідомлень із визначенням стану англійською.</caption>
       <caption xml:lang="x-test">xxEncrypted and signed e-mail is supported, with status given in plain Englishxx</caption>
       <image>http://trojita.flaska.net/img/2016-03-22-trojita-signature-missing-key.png</image>
