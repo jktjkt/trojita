@@ -92,6 +92,9 @@ BE::Contacts::Contacts(AbookAddressbook *abook): m_abook(abook), m_dirty(false)
                 Field(AbookAddressbook::URL, m_ui2->url, QStringLiteral("url")) << Field(AbookAddressbook::Notes, m_ui2->notes, QStringLiteral("notes")) <<
                 Field(AbookAddressbook::Anniversary, m_ui2->anniversary, QStringLiteral("anniversary")) << Field(AbookAddressbook::Photo, m_ui2->photo, QStringLiteral("photo"));
 
+    connect(m_abook->model(), &QStandardItemModel::itemChanged,
+            this, [&](QStandardItem *i) { if (i == m_currentContact) m_ui2->name->setText(i->text()); });
+
     m_sortFilterProxy = new QSortFilterProxyModel(this);
     m_sortFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_sortFilterProxy->setFilterKeyColumn(-1);
