@@ -93,7 +93,12 @@ BE::Contacts::Contacts(AbookAddressbook *abook): m_abook(abook), m_dirty(false)
                 Field(AbookAddressbook::Anniversary, m_ui2->anniversary, QStringLiteral("anniversary")) << Field(AbookAddressbook::Photo, m_ui2->photo, QStringLiteral("photo"));
 
     connect(m_abook->model(), &QStandardItemModel::itemChanged,
-            this, [&](QStandardItem *i) { if (i == m_currentContact) m_ui2->name->setText(i->text()); });
+            this, [&](QStandardItem *i) {
+                if (i == m_currentContact) {
+                    m_ui2->name->setText(i->text());
+                    m_dirty = true;
+                }
+            });
 
     m_sortFilterProxy = new QSortFilterProxyModel(this);
     m_sortFilterProxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
