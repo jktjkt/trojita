@@ -47,15 +47,18 @@
            <property name="text">
             <string>Delete</string>
            </property>
+           <property name="icon">
+            <iconset theme="edit-delete"/>
+           </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="add">
-           <property name="default">
-            <bool>true</bool>
-           </property>
            <property name="text">
             <string>Add</string>
+           </property>
+           <property name="default">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
