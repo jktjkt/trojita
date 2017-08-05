@@ -291,6 +291,8 @@ void AbookAddressbook::readAbook(bool update)
         if (add)
             m_contacts->appendRow( item );
     }
+
+    m_contacts->sort(0);
 //     const qint64 elapsed = profile.elapsed();
 //     qDebug() << "reading too" << elapsed << "ms";
 }
