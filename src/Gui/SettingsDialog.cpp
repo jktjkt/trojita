@@ -63,9 +63,7 @@
 namespace Gui
 {
 
-QString SettingsDialog::warningStyleSheet = QStringLiteral("border: 2px solid red; background-color: #E7C575; color: black; "
-        "font-weight: bold; padding: 5px; margin: 5px; "
-        "text-align: center;");
+QString SettingsDialog::warningStyleSheet = Util::Css::warningBorder + QStringLiteral("font-weight: bold;");
 
 /** @short Check a text field for being non empty. If it's empty, show an error to the user. */
 template<typename T>
