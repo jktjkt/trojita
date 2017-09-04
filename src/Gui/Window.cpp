@@ -264,6 +264,10 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_tag_3"), QStringLiteral("mail-tag-3"), tr("Tag with &3rd tag"), QStringLiteral("3"));
     shortcutHandler->defineAction(QStringLiteral("action_tag_4"), QStringLiteral("mail-tag-4"), tr("Tag with &4th tag"), QStringLiteral("4"));
     shortcutHandler->defineAction(QStringLiteral("action_tag_5"), QStringLiteral("mail-tag-5"), tr("Tag with &5th tag"), QStringLiteral("5"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_6"), QStringLiteral("mail-tag-6"), tr("Tag with &6th tag"), QStringLiteral("6"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_7"), QStringLiteral("mail-tag-7"), tr("Tag with &7th tag"), QStringLiteral("7"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_8"), QStringLiteral("mail-tag-8"), tr("Tag with &8th tag"), QStringLiteral("8"));
+    shortcutHandler->defineAction(QStringLiteral("action_tag_9"), QStringLiteral("mail-tag-9"), tr("Tag with &9th tag"), QStringLiteral("9"));
 }
 
 void MainWindow::createActions()
@@ -453,6 +457,10 @@ void MainWindow::createActions()
     tag3 = addTagAction(3);
     tag4 = addTagAction(4);
     tag5 = addTagAction(5);
+    tag6 = addTagAction(6);
+    tag7 = addTagAction(7);
+    tag8 = addTagAction(8);
+    tag9 = addTagAction(9);
 
     //: "mailbox" as a "folder of messages", not as a "mail account"
     createChildMailbox = new QAction(tr("Create &Child Mailbox..."), this);
@@ -1269,6 +1277,10 @@ void MainWindow::showContextMenuMsgListTree(const QPoint &position)
         appendTagIfExists(3, tag3);
         appendTagIfExists(4, tag4);
         appendTagIfExists(5, tag5);
+        appendTagIfExists(6, tag6);
+        appendTagIfExists(7, tag7);
+        appendTagIfExists(8, tag8);
+        appendTagIfExists(9, tag9);
     }
     if (! actionList.isEmpty())
         QMenu::exec(actionList, msgListWidget->tree->mapToGlobal(position), nullptr, this);
@@ -1752,6 +1764,10 @@ void MainWindow::updateMessageFlagsOf(const QModelIndex &index)
     tag3->setEnabled(okToModify);
     tag4->setEnabled(okToModify);
     tag5->setEnabled(okToModify);
+    tag6->setEnabled(okToModify);
+    tag7->setEnabled(okToModify);
+    tag8->setEnabled(okToModify);
+    tag9->setEnabled(okToModify);
 
     bool isRead    = isValid,
          isDeleted = isValid,
@@ -1762,7 +1778,11 @@ void MainWindow::updateMessageFlagsOf(const QModelIndex &index)
          hasTag2   = isValid,
          hasTag3   = isValid,
          hasTag4   = isValid,
-         hasTag5   = isValid;
+         hasTag5   = isValid,
+         hasTag6   = isValid,
+         hasTag7   = isValid,
+         hasTag8   = isValid,
+         hasTag9   = isValid;
     auto updateTag = [=](const QModelIndex &i, bool &hasTag, int index) {
         if (hasTag && !m_favoriteTags->tagNameByIndex(index).isEmpty() &&
                 !i.data(Imap::Mailbox::RoleMessageFlags).toStringList().contains(m_favoriteTags->tagNameByIndex(index)))
@@ -1785,6 +1805,10 @@ void MainWindow::updateMessageFlagsOf(const QModelIndex &index)
         updateTag(i, hasTag3, 2);
         updateTag(i, hasTag4, 3);
         updateTag(i, hasTag5, 4);
+        updateTag(i, hasTag6, 5);
+        updateTag(i, hasTag7, 6);
+        updateTag(i, hasTag8, 7);
+        updateTag(i, hasTag9, 8);
     }
     markAsRead->setChecked(isRead);
     markAsDeleted->setChecked(isDeleted);
@@ -1797,6 +1821,10 @@ void MainWindow::updateMessageFlagsOf(const QModelIndex &index)
     tag3->setChecked(hasTag3);
     tag4->setChecked(hasTag4);
     tag5->setChecked(hasTag5);
+    tag6->setChecked(hasTag6);
+    tag7->setChecked(hasTag7);
+    tag8->setChecked(hasTag8);
+    tag9->setChecked(hasTag9);
 }
 
 void MainWindow::updateActionsOnlineOffline(bool online)

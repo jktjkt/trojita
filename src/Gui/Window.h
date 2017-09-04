@@ -318,6 +318,10 @@ private:
     QAction *tag3;
     QAction *tag4;
     QAction *tag5;
+    QAction *tag6;
+    QAction *tag7;
+    QAction *tag8;
+    QAction *tag9;
     QAction *markAsRead;
     QAction *markAsDeleted;
     QAction *markAsFlagged;
