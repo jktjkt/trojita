@@ -86,6 +86,7 @@ void ComposerExistingTest::testSimpleCompose()
     cServer(t.last("OK fetched\r\n"));
     QCOMPARE(composer.asRawMessage(&buf, &errorMessage), true);
     QVERIFY(data.startsWith("Resent-Date: "));
+    QVERIFY(data.contains("Resent-Message-ID: <"));
     QVERIFY(data.endsWith("\r\n" + headers + body));
     QCOMPARE(errorMessage, QString());
     QVERIFY(composer.isReadyForSerialization());

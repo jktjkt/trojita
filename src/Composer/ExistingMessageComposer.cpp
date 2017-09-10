@@ -121,7 +121,7 @@ QByteArray ExistingMessageComposer::resentChunk() const
     }
 
     QByteArray buf = "Resent-Date: " + Imap::dateTimeToRfc2822(m_resentDate).toUtf8() + "\r\n"
-                     + "Resent-Message-ID: " + m_messageId + "\r\n";
+                     + "Resent-Message-ID: <" + m_messageId + ">\r\n";
     if (m_resentFrom != Imap::Message::MailAddress()) {
         buf += "Resent-From: " + m_resentFrom.asMailHeader() + "\r\n";
     }

@@ -51,6 +51,10 @@ void messageBoxWarning(QWidget *parent, const QString &title, const QString &mes
 
 bool isFromDistinctImapAccount(QDropEvent* de);
 
+struct Css {
+    static const QString warningBorder;
+};
+
 } // namespace Util
 
 } // namespace Gui

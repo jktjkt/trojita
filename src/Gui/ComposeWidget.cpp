@@ -569,6 +569,30 @@ ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const Q
     w->ui->verticalSplitter->insertWidget(1, messageWidget);
     w->ui->verticalSplitter->setStretchFactor(1, 100);
 
+    QStringList warnings;
+    if (subject.isEmpty()) {
+        warnings << tr("Message has no subject");
+    }
+    if (messageRoot.data(Imap::Mailbox::RoleMessageMessageId).toByteArray().isEmpty()) {
+        warnings << tr("The Message-ID header is missing");
+    }
+    if (!messageRoot.data(Imap::Mailbox::RoleMessageDate).toDateTime().isValid()) {
+        warnings << tr("Message has no date");
+    }
+    if (messageRoot.data(Imap::Mailbox::RoleMessageFrom).toList().isEmpty()) {
+        warnings << tr("Nothing in the From field");
+    }
+    if (messageRoot.data(Imap::Mailbox::RoleMessageTo).toList().isEmpty()) {
+        warnings << tr("No recipients in the To field");
+    }
+    if (!warnings.isEmpty()) {
+        auto lbl = new QLabel(tr("<b>This message appears to be malformed, please be careful before sending it.</b>")
+                              + QStringLiteral("<ul><li>") + warnings.join(QStringLiteral("</li><li>")) + QStringLiteral("</li></ul>"),
+                              w);
+        lbl->setStyleSheet(Gui::Util::Css::warningBorder);
+        w->ui->verticalSplitter->insertWidget(1, lbl);
+    }
+
     w->placeOnMainWindow();
     w->show();
     return w;
