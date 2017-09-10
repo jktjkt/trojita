@@ -39,7 +39,6 @@
 #include <QTimer>
 #include <QToolButton>
 
-#include "Common/DeleteAfter.h"
 #include "Common/Paths.h"
 #include "Gui/MessageView.h" // so that the compiler knows it's a QObject
 #include "Gui/Window.h"
