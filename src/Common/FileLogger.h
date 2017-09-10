@@ -23,6 +23,7 @@
 #ifndef COMMON_FILELOGGER_H
 #define COMMON_FILELOGGER_H
 
+#include <QObject>
 #include "Logging.h"
 
 class QTextStream;
