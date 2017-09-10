@@ -221,6 +221,7 @@ void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
     Q_ASSERT(!m_tmpFile);
     m_tmpFile = new QTemporaryFile(QDir::tempPath() + QLatin1String("/trojita-attachment-XXXXXX-") +
                                    fileName->replace(QLatin1Char('/'), QLatin1Char('_')));
+    m_tmpFile->setAutoRemove(false);
     m_tmpFile->open();
     *fileName = m_tmpFile->fileName();
 }
@@ -254,12 +255,8 @@ void AttachmentView::openDownloadedAttachment()
 
     // Make sure that the file is read-only so that the launched application does not attempt to modify it
     m_tmpFile->setPermissions(QFile::ReadOwner);
-
     QDesktopServices::openUrl(QUrl::fromLocalFile(m_tmpFile->fileName()));
-
-    // This will delete the temporary file in ten seconds. It should give the application plenty of time to start and also prevent
-    // leaving cruft behind.
-    new Common::DeleteAfter(m_tmpFile, 10000);
+    delete m_tmpFile;
     m_tmpFile = nullptr;
     m_openAttachment->setEnabled(true);
 }
