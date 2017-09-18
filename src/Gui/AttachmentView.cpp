@@ -39,7 +39,6 @@
 #include <QTimer>
 #include <QToolButton>
 
-#include "Common/DeleteAfter.h"
 #include "Common/Paths.h"
 #include "Gui/MessageView.h" // so that the compiler knows it's a QObject
 #include "Gui/Window.h"
@@ -54,10 +53,17 @@ namespace Gui
 {
 
 AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
-                               const QModelIndex &partIndex, MessageView *messageView, QWidget *contentWidget):
-    QFrame(parent), m_partIndex(partIndex), m_messageView(messageView), m_downloadAttachment(0),
-    m_openAttachment(0), m_showHideAttachment(0), m_showSource(0), m_netAccess(manager), m_tmpFile(0),
-    m_contentWidget(contentWidget)
+                               const QModelIndex &partIndex, MessageView *messageView, QWidget *contentWidget)
+    : QFrame(parent)
+    , m_partIndex(partIndex)
+    , m_messageView(messageView)
+    , m_downloadAttachment(nullptr)
+    , m_openAttachment(nullptr)
+    , m_showHideAttachment(nullptr)
+    , m_showSource(nullptr)
+    , m_netAccess(manager)
+    , m_tmpFile(nullptr)
+    , m_contentWidget(contentWidget)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
     setFrameStyle(QFrame::NoFrame);
@@ -214,6 +220,7 @@ void AttachmentView::slotFileNameRequestedOnOpen(QString *fileName)
     Q_ASSERT(!m_tmpFile);
     m_tmpFile = new QTemporaryFile(QDir::tempPath() + QLatin1String("/trojita-attachment-XXXXXX-") +
                                    fileName->replace(QLatin1Char('/'), QLatin1Char('_')));
+    m_tmpFile->setAutoRemove(false);
     m_tmpFile->open();
     *fileName = m_tmpFile->fileName();
 }
@@ -224,7 +231,7 @@ void AttachmentView::slotFileNameRequested(QString *fileName)
     if (!lastDir.exists())
         lastDir = QDir(Common::writablePath(Common::LOCATION_DOWNLOAD));
     QString fileLocation = lastDir.filePath(*fileName);
-    *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), fileLocation, QString(), 0, QFileDialog::HideNameFilterDetails);
+    *fileName = QFileDialog::getSaveFileName(this, tr("Save Attachment"), fileLocation, QString(), nullptr, QFileDialog::HideNameFilterDetails);
     if (!fileName->isEmpty())
         lastDir = QFileInfo(*fileName).absoluteDir();
 }
@@ -237,7 +244,7 @@ void AttachmentView::enableDownloadAgain()
 void AttachmentView::onOpenFailed()
 {
     delete m_tmpFile;
-    m_tmpFile = 0;
+    m_tmpFile = nullptr;
     m_openAttachment->setEnabled(true);
 }
 
@@ -247,13 +254,9 @@ void AttachmentView::openDownloadedAttachment()
 
     // Make sure that the file is read-only so that the launched application does not attempt to modify it
     m_tmpFile->setPermissions(QFile::ReadOwner);
-
     QDesktopServices::openUrl(QUrl::fromLocalFile(m_tmpFile->fileName()));
-
-    // This will delete the temporary file in ten seconds. It should give the application plenty of time to start and also prevent
-    // leaving cruft behind.
-    new Common::DeleteAfter(m_tmpFile, 10000);
-    m_tmpFile = 0;
+    delete m_tmpFile;
+    m_tmpFile = nullptr;
     m_openAttachment->setEnabled(true);
 }
 

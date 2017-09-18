@@ -234,7 +234,6 @@ set(path_Common ${CMAKE_CURRENT_SOURCE_DIR}/src/Common)
 set(libCommon_SOURCES
     ${path_Common}/Application.cpp
     ${path_Common}/ConnectionId.cpp
-    ${path_Common}/DeleteAfter.cpp
     ${path_Common}/FileLogger.cpp
     ${path_Common}/MetaTypes.cpp
     ${path_Common}/Paths.cpp
