@@ -170,6 +170,7 @@ void EnvelopeView::setMessage(const QModelIndex &index)
         }
         auto lbl = new QLabel(QString(QLatin1String("<html>&nbsp;%1</html>")).arg(buf.join(tr(", "))));
         SET_LABEL_OPTIONS(lbl)
+        lbl->setOpenExternalLinks(true);
         if (elided)
             connect(lbl, &QLabel::linkHovered, lbl, &QLabel::setToolTip);
         ADD_ROW(tr("Mailing List"), lbl)
