@@ -293,7 +293,8 @@ QVariant ThreadingMsgListModel::data(const QModelIndex &proxyIndex, int role) co
 
     if (it->ptr) {
         // It's a real item which exists in the underlying model
-        if (role == RoleThreadRootWithUnreadMessages) {
+        switch (role) {
+        case RoleThreadRootWithUnreadMessages:
             if (proxyIndex.parent().isValid()) {
                 // We don't support this kind of questions for other messages than the roots of the threads.
                 // Other components, like the QML bindings, are however happy to request that, so let's just return
@@ -302,7 +303,9 @@ QVariant ThreadingMsgListModel::data(const QModelIndex &proxyIndex, int role) co
             } else {
                 return threadContainsUnreadMessages(it->internalId);
             }
-        } else {
+        case RoleThreadAggregatedFlags:
+            return threadAggregatedFlags(it->internalId);
+        default:
             return QAbstractProxyModel::data(proxyIndex, role);
         }
     }
@@ -1201,9 +1204,25 @@ QMimeData *ThreadingMsgListModel::mimeData(const QModelIndexList &indexes) const
     return sourceModel()->mimeData(translated);
 }
 
-bool ThreadingMsgListModel::threadContainsUnreadMessages(const uint root) const
+template<typename T>
+bool threadForeachCallback(std::function<T(const TreeItemMessage &)> callback, const TreeItemMessage &message)
 {
-    // FIXME: cache the value somewhere...
+    callback(message);
+    return false;
+}
+template<>
+bool threadForeachCallback<const bool>(std::function<const bool(const TreeItemMessage &)> callback, const TreeItemMessage &message)
+{
+    return callback(message);
+}
+
+/** @short Execute the provided function once for each message
+
+Returns immediately if the provided function returns `true`.
+*/
+template<typename T>
+void ThreadingMsgListModel::threadForeach(const uint &root, std::function<T(const TreeItemMessage &)> callback) const
+{
     QList<uint> queue;
     queue.append(root);
     while (! queue.isEmpty()) {
@@ -1214,12 +1233,32 @@ bool ThreadingMsgListModel::threadContainsUnreadMessages(const uint root) const
             // Because of the delayed delete via pruneTree, we can hit a null pointer here
             TreeItemMessage *message = dynamic_cast<TreeItemMessage *>(it->ptr);
             Q_ASSERT(message);
-            if (! message->isMarkedAsRead())
-                return true;
+            if (threadForeachCallback(callback, *message))
+                return;
         }
         queue.append(it->children);
     }
-    return false;
+}
+
+bool ThreadingMsgListModel::threadContainsUnreadMessages(const uint root) const
+{
+    // FIXME: cache the value somewhere...
+    bool containsUnreadMessages = false;
+    threadForeach<const bool>(root, [&containsUnreadMessages](const TreeItemMessage &message) -> const bool {
+        return containsUnreadMessages = ! message.isMarkedAsRead();
+    });
+    return containsUnreadMessages;
+}
+
+QStringList ThreadingMsgListModel::threadAggregatedFlags(const uint root) const
+{
+    // FIXME: cache the value somewhere...
+    QStringList aggregatedFlags;
+    threadForeach<void>(root, [&aggregatedFlags](const TreeItemMessage &message) {
+        aggregatedFlags += message.m_flags;
+    });
+    aggregatedFlags.removeDuplicates();
+    return aggregatedFlags;
 }
 
 /** @short Pass a debugging message to the real Model, if possible

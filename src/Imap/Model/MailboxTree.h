@@ -292,6 +292,7 @@ class TreeItemMessage: public TreeItem
     friend class Model;
     friend class ObtainSynchronizedMailboxTask; // needs access to m_offset
     friend class KeepMailboxOpenTask; // needs access to m_offset
+    friend class ThreadingMsgListModel; // needs access to m_flags
     friend class UpdateFlagsTask; // needs access to m_flags
     friend class UpdateFlagsOfAllMessagesTask; // needs access to m_flags
     int m_offset;

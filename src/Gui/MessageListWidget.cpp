@@ -37,10 +37,10 @@
 
 namespace Gui {
 
-MessageListWidget::MessageListWidget(QWidget *parent) :
+MessageListWidget::MessageListWidget(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel) :
     QWidget(parent), m_supportsFuzzySearch(false)
 {
-    tree = new MsgListView(this);
+    tree = new MsgListView(this, m_favoriteTagsModel);
 
     m_quickSearchText = new LineEdit(this);
     m_quickSearchText->setHistoryEnabled(true);

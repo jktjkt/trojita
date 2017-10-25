@@ -24,6 +24,7 @@
 #define MESSAGELISTWIDGET_H
 
 #include <QWidget>
+#include "Imap/Model/FavoriteTagsModel.h"
 
 class LineEdit;
 class QTimer;
@@ -38,7 +39,7 @@ class MessageListWidget : public QWidget
 {
     Q_OBJECT
 public:
-    explicit MessageListWidget(QWidget *parent = 0);
+    explicit MessageListWidget(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel);
 
     void setFuzzySearchSupported(bool supported);
     void setRawSearchEnabled(bool enabled);

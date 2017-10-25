@@ -120,6 +120,8 @@ enum {
     RoleMessageFlags,
     /** @short Is the current item a root of thread with unread messages */
     RoleThreadRootWithUnreadMessages,
+    /** @short Aggregated flags from the thread */
+    RoleThreadAggregatedFlags,
     /** @short Fuzzy date of a particular message; useful for rough navigation */
     RoleMessageFuzzyDate,
     /** @short List of message IDs from the message's References header */

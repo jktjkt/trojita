@@ -24,6 +24,7 @@
 
 #include <QHeaderView>
 #include <QTreeView>
+#include "Imap/Model/FavoriteTagsModel.h"
 
 class QSignalMapper;
 
@@ -45,7 +46,7 @@ class MsgListView : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit MsgListView(QWidget *parent=0);
+    explicit MsgListView(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel);
     virtual ~MsgListView() {}
     void setModel(QAbstractItemModel *model);
     void setAutoActivateAfterKeyNavigation(bool enabled);
