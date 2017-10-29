@@ -78,7 +78,10 @@ if(Qt5LinguistTools_FOUND)
     find_package(Qt5LinguistForTrojita)
 endif()
 
+trojita_find_package(KF5AkonadiContact "" "" "" "Required for building Akonadi address book plugin")
+
 trojita_plugin_option(WITH_ABOOKADDRESSBOOK_PLUGIN "Build AbookAddressbook plugin" STATIC)
+trojita_plugin_option(WITH_AKONADIADDRESSBOOK_PLUGIN "Build AkonadiAddressbook plugin" KF5AkonadiContact_FOUND)
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
 trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "${QTKEYCHAIN_DEPENDS}")
 
@@ -689,6 +692,25 @@ if(WITH_ABOOKADDRESSBOOK_PLUGIN)
         target_link_libraries(be.contacts trojita_plugin_AbookAddressbookPlugin)
     endif()
     target_link_libraries(be.contacts Qt5::Widgets)
+endif()
+
+## AkonadiAddressbook plugin
+if(WITH_AKONADIADDRESSBOOK_PLUGIN)
+    set(path_AkonadiAddressbook ${CMAKE_CURRENT_SOURCE_DIR}/src/Plugins/AkonadiAddressbook)
+    set(libAkonadiAddressbook_HEADERS
+        ${path_AkonadiAddressbook}/AkonadiAddressbook.h
+        ${path_AkonadiAddressbook}/AkonadiAddressbookCompletionJob.h
+        ${path_AkonadiAddressbook}/AkonadiAddressbookNamesJob.h
+    )
+    set(libAkonadiAddressbook_SOURCES
+        ${path_AkonadiAddressbook}/AkonadiAddressbook.cpp
+        ${path_AkonadiAddressbook}/AkonadiAddressbookCompletionJob.cpp
+        ${path_AkonadiAddressbook}/AkonadiAddressbookNamesJob.cpp
+    )
+
+    trojita_add_plugin(trojita_plugin_AkonadiAddressbookPlugin WITH_AKONADIADDRESSBOOK_PLUGIN ${libAkonadiAddressbook_SOURCES})
+    target_link_libraries(trojita_plugin_AkonadiAddressbookPlugin KF5::AkonadiContact)
+    set_property(TARGET trojita_plugin_AkonadiAddressbookPlugin APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 endif()
 
 # Generate file static_plugins.h.in
