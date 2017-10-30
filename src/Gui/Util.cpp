@@ -129,7 +129,11 @@ bool isFromDistinctImapAccount(QDropEvent* de)
     return false;
 }
 
-const QString Css::warningBorder = QStringLiteral("border: 2px solid red; background-color: #E7C575; color: black; padding: 5px; margin: 5px; text-align: center;");
+QString cssWarningBorder()
+{
+    static QString border = QStringLiteral("border: 2px solid red; background-color: #E7C575; color: black; padding: 5px; margin: 5px; text-align: center;");
+    return border;
+}
 
 } // namespace Util
 
