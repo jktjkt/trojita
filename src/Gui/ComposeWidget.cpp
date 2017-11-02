@@ -589,7 +589,7 @@ ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const Q
         auto lbl = new QLabel(tr("<b>This message appears to be malformed, please be careful before sending it.</b>")
                               + QStringLiteral("<ul><li>") + warnings.join(QStringLiteral("</li><li>")) + QStringLiteral("</li></ul>"),
                               w);
-        lbl->setStyleSheet(Gui::Util::Css::warningBorder);
+        lbl->setStyleSheet(Gui::Util::cssWarningBorder());
         w->ui->verticalSplitter->insertWidget(1, lbl);
     }
 
