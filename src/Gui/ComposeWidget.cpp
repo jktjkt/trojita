@@ -1524,7 +1524,7 @@ void ComposeWidget::onCompletionAvailable(const Plugins::NameEmailList &completi
         m_completionPopup->setUpdatesEnabled(false);
         m_completionPopup->clear();
         Q_FOREACH(const QString &s, contacts)
-            m_completionPopup->addAction(s);
+            m_completionPopup->addAction(s)->setData(s);
         if (m_completionPopup->isHidden())
             m_completionPopup->popup(toEdit->mapToGlobal(QPoint(0, toEdit->height())));
         m_completionPopup->setUpdatesEnabled(true);
@@ -1533,9 +1533,9 @@ void ComposeWidget::onCompletionAvailable(const Plugins::NameEmailList &completi
 
 void ComposeWidget::completeRecipient(QAction *act)
 {
-    if (act->text().isEmpty())
+    if (act->data().toString().isEmpty())
         return;
-    m_completionReceiver->setText(act->text());
+    m_completionReceiver->setText(act->data().toString());
     m_completionReceiver = 0;
     m_completionPopup->close();
 }
