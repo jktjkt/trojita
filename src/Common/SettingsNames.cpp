@@ -118,5 +118,6 @@ const QString SettingsNames::autoMarkReadEnabled = QStringLiteral("autoMarkRead/
 const QString SettingsNames::autoMarkReadSeconds = QStringLiteral("autoMarkRead/seconds");
 const QString SettingsNames::interopRevealVersions = QStringLiteral("interoperability/revealVersions");
 const QString SettingsNames::completeMessageWidgetGeometry = QStringLiteral("gui/completeMessageWidgetGeometry");
+const QString SettingsNames::mboxDropAction = QStringLiteral("gui/mboxList.dropAction");
 
 }

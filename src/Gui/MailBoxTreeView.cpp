@@ -25,6 +25,7 @@
 #include <QDropEvent>
 #include <QMenu>
 #include <QMimeData>
+#include "Common/SettingsNames.h"
 #include "Gui/MailBoxTreeView.h"
 #include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
@@ -34,9 +35,9 @@
 
 namespace Gui {
 
-MailBoxTreeView::MailBoxTreeView(QWidget *parent)
+MailBoxTreeView::MailBoxTreeView(QWidget *parent, QSettings *settings)
     : QTreeView(parent)
-    , m_mailboxFinder(nullptr)
+    , m_mailboxFinder(nullptr), m_settings(settings)
 {
     setUniformRowHeights(true);
     setContextMenuPolicy(Qt::CustomContextMenu);
@@ -86,6 +87,18 @@ void MailBoxTreeView::setModel(QAbstractItemModel *model)
     QTreeView::setModel(model);
     resetWatchedMailboxes();
 }
+/** @short Returns the user's default action from Qt::DropAction or Qt::IgnoreAction if not set */
+Qt::DropAction MailBoxTreeView::defaultDropAction()
+{
+    auto mboxDropAction = m_settings->value(Common::SettingsNames::mboxDropAction, QVariant(QStringLiteral("ask"))).toString();
+    if (mboxDropAction == QStringLiteral("move")) {
+        return Qt::MoveAction;
+    } else if (mboxDropAction == QStringLiteral("copy")) {
+        return Qt::CopyAction;
+    } else {
+        return Qt::IgnoreAction;
+    }
+}
 
 /** @short Reimplemented for more consistent handling of modifiers
 
@@ -123,6 +136,8 @@ void MailBoxTreeView::dropEvent(QDropEvent *event)
         event->setDropAction(Qt::CopyAction);
     } else if (event->keyboardModifiers() == Qt::ShiftModifier) {
         event->setDropAction(Qt::MoveAction);
+    } else if (defaultDropAction() != Qt::IgnoreAction) {
+        event->setDropAction(defaultDropAction());
     } else {
         QMenu menu(this);
         QAction *moveAction = menu.addAction(UiUtils::loadIcon(QStringLiteral("go-jump")), tr("Move here\tShift"));

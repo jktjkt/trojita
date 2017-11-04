@@ -61,6 +61,7 @@ struct SettingsNames {
     static const QString autoMarkReadEnabled, autoMarkReadSeconds;
     static const QString interopRevealVersions;
     static const QString completeMessageWidgetGeometry;
+    static const QString mboxDropAction;
 };
 
 }

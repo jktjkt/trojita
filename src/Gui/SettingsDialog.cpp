@@ -427,6 +427,19 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     markReadSeconds->setValue(s.value(Common::SettingsNames::autoMarkReadSeconds, QVariant(0)).toUInt());
     connect(markReadCheckbox, &QAbstractButton::toggled, markReadSeconds, &QWidget::setEnabled);
 
+    auto mboxDropAction = s.value(Common::SettingsNames::mboxDropAction, QVariant(QStringLiteral("ask"))).toString();
+
+    connect(mboxDropActionCheckbox, &QAbstractButton::toggled, mboxDropActionBox, &QWidget::setEnabled);
+    if (mboxDropAction != QStringLiteral("ask"))
+        mboxDropActionCheckbox->setChecked(true);
+
+    mboxDropActionBox->addItem(tr("Move"), QStringLiteral("move"));
+    if (mboxDropAction == QStringLiteral("move"))
+        mboxDropActionBox->setCurrentIndex(mboxDropActionBox->count() - 1);
+    mboxDropActionBox->addItem(tr("Copy"), QStringLiteral("copy"));
+    if (mboxDropAction == QStringLiteral("copy"))
+        mboxDropActionBox->setCurrentIndex(mboxDropActionBox->count() - 1);
+
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
     showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
                                         "<p>The remote server will receive the user's IP address and versions of Trojitá, the Qt library, "
@@ -542,6 +555,8 @@ void GeneralPage::save(QSettings &s)
     m_identitiesModel->saveToSettings(s);
     s.setValue(Common::SettingsNames::autoMarkReadEnabled, markReadCheckbox->isChecked());
     s.setValue(Common::SettingsNames::autoMarkReadSeconds, markReadSeconds->value());
+    s.setValue(Common::SettingsNames::mboxDropAction,
+            mboxDropActionCheckbox->isChecked() ? mboxDropActionBox->currentData() : QStringLiteral("ask"));
     s.setValue(Common::SettingsNames::appLoadHomepage, showHomepageCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiPreferPlaintextRendering, preferPlaintextCheckbox->isChecked());
     s.setValue(Common::SettingsNames::guiShowSystray, guiSystrayCheckbox->isChecked());
