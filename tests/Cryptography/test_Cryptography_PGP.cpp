@@ -38,8 +38,6 @@
 
 /* TODO: test cases:
  *   * decrypt with not yet valid key
- *   * verify valid signature
- *   * verify corrupted signature
  *   * verify signature of modified text
  *   * verify signature with expired key
  *   * verify signature with not yet valid key
@@ -157,7 +155,7 @@ void CryptographyPGPTest::testDecryption_data()
             << QStringLiteral("valid@test.trojita.flaska.net")
             << true;
 
-    // corrupted daya
+    // corrupted data
     QTest::newRow("invalid")
             << bsEncrypted
             << encInvalid
