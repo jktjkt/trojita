@@ -106,9 +106,10 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
     EMIT_LATER_NOARG(this, reloadPasswordsRequested);
 }
 
-void SettingsDialog::setOriginalPasswordPlugin(const QString &plugin)
+void SettingsDialog::setOriginalPlugins(const QString &passwordPlugin, const QString &addressBookPlugin)
 {
-    m_originalPasswordPlugin = plugin;
+    m_originalPasswordPlugin = passwordPlugin;
+    m_originalAddressBookPlugin = addressBookPlugin;
 }
 
 void SettingsDialog::adjustSizeToScrollAreas()
@@ -228,6 +229,9 @@ void SettingsDialog::reject()
     if (!m_originalPasswordPlugin.isEmpty() && pluginManager()->passwordPlugin() != m_originalPasswordPlugin) {
         // Password plugin was changed, revert back to original one
         pluginManager()->setPasswordPlugin(m_originalPasswordPlugin);
+    }
+    if (!m_originalAddressBookPlugin.isEmpty() && pluginManager()->addressbookPlugin() != m_originalAddressBookPlugin) {
+        pluginManager()->setAddressbookPlugin(m_originalAddressBookPlugin);
     }
     m_senderIdentities->loadFromSettings(*m_settings);
     m_favoriteTags->loadFromSettings(*m_settings);
@@ -420,7 +424,7 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
 
     passwordBox->setCurrentIndex(passwordIndex);
 
-    m_parent->setOriginalPasswordPlugin(passwordPlugin);
+    m_parent->setOriginalPlugins(passwordPlugin, addressbookPlugin);
 
 
     markReadCheckbox->setChecked(s.value(Common::SettingsNames::autoMarkReadEnabled, QVariant(true)).toBool());

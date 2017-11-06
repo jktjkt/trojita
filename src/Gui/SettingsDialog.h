@@ -335,7 +335,7 @@ public:
     Plugins::PluginManager *pluginManager();
     Imap::ImapAccess* imapAccess();
 
-    void setOriginalPasswordPlugin(const QString &plugin);
+    void setOriginalPlugins(const QString &passwordPlugin, const QString &addressBookPlugin);
 
     static QString warningStyleSheet;
 
@@ -361,6 +361,7 @@ private:
     QSettings *m_settings;
     int m_saveSignalCount;
     QString m_originalPasswordPlugin;
+    QString m_originalAddressBookPlugin;
 
     SettingsDialog(const SettingsDialog &); // don't implement
     SettingsDialog &operator=(const SettingsDialog &); // don't implement
