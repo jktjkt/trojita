@@ -109,7 +109,7 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
 void SettingsDialog::setOriginalPlugins(const QString &passwordPlugin, const QString &addressBookPlugin)
 {
     m_originalPasswordPlugin = passwordPlugin;
-    m_originalAddressBookPlugin = addressBookPlugin;
+    m_originalAddressbookPlugin = addressBookPlugin;
 }
 
 void SettingsDialog::adjustSizeToScrollAreas()
@@ -226,13 +226,13 @@ void SettingsDialog::slotAccept()
 void SettingsDialog::reject()
 {
     // The changes were performed on the live data, so we have to make sure they are discarded when user cancels
-    if (!m_originalPasswordPlugin.isEmpty() && pluginManager()->passwordPlugin() != m_originalPasswordPlugin) {
-        // Password plugin was changed, revert back to original one
-        pluginManager()->setPasswordPlugin(m_originalPasswordPlugin);
+#define HANDLE_PLUGIN(LOWERCASE, UPPERCASE) \
+    if (!m_original##UPPERCASE##Plugin.isEmpty() && pluginManager()->LOWERCASE##Plugin() != m_original##UPPERCASE##Plugin) { \
+        pluginManager()->set##UPPERCASE##Plugin(m_original##UPPERCASE##Plugin); \
     }
-    if (!m_originalAddressBookPlugin.isEmpty() && pluginManager()->addressbookPlugin() != m_originalAddressBookPlugin) {
-        pluginManager()->setAddressbookPlugin(m_originalAddressBookPlugin);
-    }
+    HANDLE_PLUGIN(addressbook, Addressbook)
+    HANDLE_PLUGIN(password, Password)
+#undef HANDLE_PLUGIN
     m_senderIdentities->loadFromSettings(*m_settings);
     m_favoriteTags->loadFromSettings(*m_settings);
     QDialog::reject();
@@ -377,52 +377,34 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     QMap<QString, QString>::const_iterator it;
     int i;
 
-    const QMap<QString, QString> &addressbookPlugins = pluginManager->availableAddressbookPlugins();
-    const QString &addressbookPlugin = pluginManager->addressbookPlugin();
-    int addressbookIndex = -1;
+#define HANDLE_PLUGIN(LOWERCASE, UPPERCASE, DISABLE, NOTFOUND) \
+    const QMap<QString, QString> &LOWERCASE##Plugins = pluginManager->available##UPPERCASE##Plugins(); \
+    const QString &LOWERCASE##Plugin = pluginManager->LOWERCASE##Plugin(); \
+    int LOWERCASE##Index = -1; \
+    \
+    for (it = LOWERCASE##Plugins.constBegin(), i = 0; it != LOWERCASE##Plugins.constEnd(); ++it, ++i) { \
+        LOWERCASE##Box->addItem(it.value(), it.key()); \
+        if (LOWERCASE##Index < 0 && LOWERCASE##Plugin == it.key()) \
+            LOWERCASE##Index = i; \
+    } \
+    \
+    LOWERCASE##Box->addItem(DISABLE); \
+    \
+    if (LOWERCASE##Plugin == QLatin1String("none")) \
+        LOWERCASE##Index = LOWERCASE##Box->count()-1; \
+    \
+    if (LOWERCASE##Index == -1) { \
+        if (!LOWERCASE##Plugin.isEmpty()) \
+            LOWERCASE##Box->addItem(NOTFOUND.arg(LOWERCASE##Plugin), LOWERCASE##Plugin); \
+        LOWERCASE##Index = LOWERCASE##Box->count()-1; \
+    } \
+    \
+    LOWERCASE##Box->setCurrentIndex(LOWERCASE##Index);
 
-    for (it = addressbookPlugins.constBegin(), i = 0; it != addressbookPlugins.constEnd(); ++it, ++i) {
-        addressbookBox->addItem(it.value(), it.key());
-        if (addressbookIndex < 0 && addressbookPlugin == it.key())
-            addressbookIndex = i;
-    }
-
-    addressbookBox->addItem(tr("Disable address book"));
-
-    if (addressbookPlugin == QLatin1String("none"))
-        addressbookIndex = addressbookBox->count()-1;
-
-    if (addressbookIndex == -1) {
-        if (!addressbookPlugin.isEmpty())
-            addressbookBox->addItem(tr("Plugin not found (%1)").arg(addressbookPlugin), addressbookPlugin);
-        addressbookIndex = addressbookBox->count()-1;
-    }
-
-    addressbookBox->setCurrentIndex(addressbookIndex);
-
-
-    const QMap<QString, QString> &passwordPlugins = pluginManager->availablePasswordPlugins();
-    const QString &passwordPlugin = pluginManager->passwordPlugin();
-    int passwordIndex = -1;
-
-    for (it = passwordPlugins.constBegin(), i = 0; it != passwordPlugins.constEnd(); ++it, ++i) {
-        passwordBox->addItem(it.value(), it.key());
-        if (passwordIndex < 0 && passwordPlugin == it.key())
-            passwordIndex = i;
-    }
-
-    passwordBox->addItem(tr("Disable passwords"));
-
-    if (passwordPlugin == QLatin1String("none"))
-        passwordIndex = passwordBox->count()-1;
-
-    if (passwordIndex == -1) {
-        if (!passwordPlugin.isEmpty())
-            passwordBox->addItem(tr("Plugin not found (%1)").arg(passwordPlugin), passwordPlugin);
-        passwordIndex = passwordBox->count()-1;
-    }
-
-    passwordBox->setCurrentIndex(passwordIndex);
+    QString pluginNotFound = tr("Plugin not found (%1)");
+    HANDLE_PLUGIN(addressbook, Addressbook, tr("Disable address book"), pluginNotFound)
+    HANDLE_PLUGIN(password, Password, tr("Disable passwords"), pluginNotFound)
+#undef HANDLE_PLUGIN
 
     m_parent->setOriginalPlugins(passwordPlugin, addressbookPlugin);
 
@@ -552,19 +534,16 @@ void GeneralPage::save(QSettings &s)
     s.setValue(Common::SettingsNames::guiStartMinimized, guiStartMinimizedCheckbox->isChecked());
     s.setValue(Common::SettingsNames::interopRevealVersions, revealTrojitaVersions->isChecked());
 
-    const QString &addressbookPlugin = m_parent->pluginManager()->addressbookPlugin();
-    const QString &selectedAddressbookPlugin = addressbookBox->itemData(addressbookBox->currentIndex()).toString();
-
-    if (selectedAddressbookPlugin != addressbookPlugin) {
-        m_parent->pluginManager()->setAddressbookPlugin(selectedAddressbookPlugin);
+#define HANDLE_PLUGIN(LOWERCASE, UPPERCASE) \
+    const QString &LOWERCASE##Plugin = m_parent->pluginManager()->LOWERCASE##Plugin(); \
+    const QString &selected##UPPERCASE##Plugin = LOWERCASE##Box->itemData(LOWERCASE##Box->currentIndex()).toString(); \
+    if (selected##UPPERCASE##Plugin != LOWERCASE##Plugin) { \
+        m_parent->pluginManager()->set##UPPERCASE##Plugin(selected##UPPERCASE##Plugin); \
     }
 
-    const QString &passwordPlugin = m_parent->pluginManager()->passwordPlugin();
-    const QString &selectedPasswordPlugin = passwordBox->itemData(passwordBox->currentIndex()).toString();
-
-    if (selectedPasswordPlugin != passwordPlugin) {
-        m_parent->pluginManager()->setPasswordPlugin(selectedPasswordPlugin);
-    }
+    HANDLE_PLUGIN(addressbook, Addressbook);
+    HANDLE_PLUGIN(password, Password);
+#undef HANDLE_PLUGIN
 
     emit saved();
 }

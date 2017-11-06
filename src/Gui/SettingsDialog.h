@@ -361,7 +361,7 @@ private:
     QSettings *m_settings;
     int m_saveSignalCount;
     QString m_originalPasswordPlugin;
-    QString m_originalAddressBookPlugin;
+    QString m_originalAddressbookPlugin;
 
     SettingsDialog(const SettingsDialog &); // don't implement
     SettingsDialog &operator=(const SettingsDialog &); // don't implement
