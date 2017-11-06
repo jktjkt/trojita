@@ -31,6 +31,11 @@
 #include <QPaintEvent>
 #include <QTimer>
 #include <QUrl>
+#include "configure.cmake.h"
+#ifdef TROJITA_HAVE_SONNET
+#include <SonnetUi/sonnet/spellcheckdecorator.h>
+#include <SonnetUi/sonnet/highlighter.h>
+#endif
 
 #include "Gui/Util.h"
 #include "UiUtils/Color.h"
@@ -54,6 +59,11 @@ ComposerTextEdit::ComposerTextEdit(QWidget *parent) : QTextEdit(parent)
 
     m_pasteQuoted = new QAction(tr("Paste as Quoted Text"), this);
     connect(m_pasteQuoted, &QAction::triggered, this, &ComposerTextEdit::slotPasteAsQuotation);
+
+#ifdef TROJITA_HAVE_SONNET
+    Sonnet::SpellCheckDecorator *decorator = new Sonnet::SpellCheckDecorator(this);
+    decorator->highlighter()->setAutomatic(false);
+#endif
 }
 
 void ComposerTextEdit::notify(const QString &n, uint timeout)

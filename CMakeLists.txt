@@ -53,6 +53,7 @@ trojita_option(BUILD_TESTING "Build tests" ON)
 trojita_option(WITH_MIMETIC "Build with client-side MIME parsing" AUTO)
 trojita_option(WITH_GPGMEPP "Use GpgME's native C++ bindings" AUTO)
 trojita_option(WITH_KF5_GPGMEPP "Use legacy discontinued GpgME++ library from KDE frameworks" AUTO)
+trojita_option(WITH_SPELLCHECKER_SONNET "Build with spellchecker through KDE's Sonnet" AUTO "WITH_DESKTOP")
 
 if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
@@ -224,6 +225,13 @@ if(WITH_ZLIB)
 else()
     set(TROJITA_HAVE_ZLIB False)
     message(STATUS "Disabling COMPRESS=DEFLATE, zlib is not available")
+endif()
+
+trojita_find_package(KF5Sonnet "" "https://projects.kde.org/projects/frameworks/sonnet" "Qt5 Spell Checking Library from KDE" "Spell checking support" WITH_SPELLCHECKER_SONNET)
+if(WITH_SPELLCHECKER_SONNET)
+    set(TROJITA_HAVE_SONNET True)
+else()
+    set(TROJITA_HAVE_SONNET False)
 endif()
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
@@ -731,6 +739,9 @@ if(WITH_DESKTOP)
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
     set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
     target_link_libraries(DesktopGui Common UiUtils Composer Cryptography Imap IPC MSA Plugins Streams qwwsmtpclient Qt5::WebKitWidgets)
+    if(WITH_SPELLCHECKER_SONNET)
+        target_link_libraries(DesktopGui KF5::SonnetUi)
+    endif()
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored
