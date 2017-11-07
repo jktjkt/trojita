@@ -163,7 +163,7 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
     // indexes for column 0, i.e. subject
     QModelIndexList baseIndexes;
 
-    Q_FOREACH(const QModelIndex &index, selectedIndexes()) {
+    Q_FOREACH(const QModelIndex &index, selectedTree()) {
         if (!(model()->flags(index) & Qt::ItemIsDragEnabled))
             continue;
         if (index.column() == Imap::Mailbox::MsgListModel::SUBJECT)
@@ -218,24 +218,14 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
         else if (supportedActions & Qt::CopyAction && dragDropMode() != QAbstractItemView::InternalMove)
             dropAction = Qt::CopyAction;
         if (drag->exec(supportedActions, dropAction) == Qt::MoveAction) {
-            // QAbstractItemView::startDrag calls d->clearOrRemove() here, so
-            // this is a copy of QAbstractItemModelPrivate::clearOrRemove();
-            const QItemSelection selection = selectionModel()->selection();
-            QList<QItemSelectionRange>::const_iterator it = selection.constBegin();
-
+            // QAbstractItemView::startDrag calls d->clearOrRemove() here
             if (!dragDropOverwriteMode()) {
-                for (; it != selection.constEnd(); ++it) {
-                    QModelIndex parent = it->parent();
-                    if (it->left() != 0)
-                        continue;
-                    if (it->right() != (model()->columnCount(parent) - 1))
-                        continue;
-                    int count = it->bottom() - it->top() + 1;
-                    model()->removeRows(it->top(), count, parent);
+                Q_FOREACH(const QModelIndex &index, baseIndexes) {
+                    model()->removeRow(index.row(), index.parent());
                 }
             } else {
                 // we can't remove the rows so reset the items (i.e. the view is like a table)
-                QModelIndexList list = selection.indexes();
+                QModelIndexList list = selectedIndexes();
                 for (int i = 0; i < list.size(); ++i) {
                     QModelIndex index = list.at(i);
                     QMap<int, QVariant> roles = model()->itemData(index);
