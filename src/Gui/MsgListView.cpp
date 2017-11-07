@@ -248,6 +248,27 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
     }
 }
 
+QModelIndexList MsgListView::selectedTree() const
+{
+    QModelIndexList indexes;
+    QModelIndexList selected = selectedIndexes();
+    const int originalItems = selected.length(); // only check collapsed/expanded status on original selection
+    for (int i = 0; i < selected.length(); ++i) {
+        const QModelIndex item = selected[i];
+        if (item.column() != 0 || !item.data(Imap::Mailbox::RoleMessageUid).isValid())
+            continue;
+        indexes << item;
+        // Now see if this is a collapsed thread and include all the collapsed items as needed
+        // Also note that this is recursive - each child found is run through this same item loop for validity/child checks as well
+        if (i >= originalItems || !isExpanded(item)) {
+            for (int j = 0; j < item.model()->rowCount(item); ++j) {
+                selected << item.child(j, 0); // Make sure this is run through the main loop as well - don't add it directly
+            }
+        }
+    }
+    return indexes;
+}
+
 void MsgListView::slotFixSize()
 {
     if (!m_autoResizeSections)

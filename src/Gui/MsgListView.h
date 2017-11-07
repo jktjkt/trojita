@@ -58,6 +58,8 @@ protected:
     void keyReleaseEvent(QKeyEvent *ke);
     virtual void startDrag(Qt::DropActions supportedActions);
     bool event(QEvent *event);
+    /** @short Returns a list of all selected and related (collapsed) message indexes for column 0 */
+    QModelIndexList selectedTree() const;
 private slots:
     void slotFixSize();
     /** @short Expand all items below current root index */
