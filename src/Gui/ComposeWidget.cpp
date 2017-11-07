@@ -296,6 +296,10 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::A
     m_markButton->hide();
     m_replyModeButton->hide();
 
+    if (auto spellchecker = m_mainWindow->pluginManager()->spellchecker()) {
+        spellchecker->actOnEditor(ui->mailText);
+    }
+
     connect(ui->mailText, &ComposerTextEdit::urlsAdded, this, &ComposeWidget::slotAttachFiles);
     connect(ui->mailText, &ComposerTextEdit::sendRequest, this, &ComposeWidget::send);
     connect(ui->mailText, &QTextEdit::textChanged, this, &ComposeWidget::setMessageUpdated);

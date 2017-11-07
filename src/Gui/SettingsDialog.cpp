@@ -106,10 +106,12 @@ SettingsDialog::SettingsDialog(MainWindow *parent, Composer::SenderIdentitiesMod
     EMIT_LATER_NOARG(this, reloadPasswordsRequested);
 }
 
-void SettingsDialog::setOriginalPlugins(const QString &passwordPlugin, const QString &addressBookPlugin)
+void SettingsDialog::setOriginalPlugins(const QString &passwordPlugin, const QString &addressBookPlugin,
+                                        const QString &spellcheckerPlugin)
 {
     m_originalPasswordPlugin = passwordPlugin;
     m_originalAddressbookPlugin = addressBookPlugin;
+    m_originalSpellcheckerPlugin = spellcheckerPlugin;
 }
 
 void SettingsDialog::adjustSizeToScrollAreas()
@@ -232,6 +234,7 @@ void SettingsDialog::reject()
     }
     HANDLE_PLUGIN(addressbook, Addressbook)
     HANDLE_PLUGIN(password, Password)
+    HANDLE_PLUGIN(spellchecker, Spellchecker)
 #undef HANDLE_PLUGIN
     m_senderIdentities->loadFromSettings(*m_settings);
     m_favoriteTags->loadFromSettings(*m_settings);
@@ -404,9 +407,10 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
     QString pluginNotFound = tr("Plugin not found (%1)");
     HANDLE_PLUGIN(addressbook, Addressbook, tr("Disable address book"), pluginNotFound)
     HANDLE_PLUGIN(password, Password, tr("Disable passwords"), pluginNotFound)
+    HANDLE_PLUGIN(spellchecker, Spellchecker, tr("Disable spell checking"), pluginNotFound)
 #undef HANDLE_PLUGIN
 
-    m_parent->setOriginalPlugins(passwordPlugin, addressbookPlugin);
+    m_parent->setOriginalPlugins(passwordPlugin, addressbookPlugin, spellcheckerPlugin);
 
 
     markReadCheckbox->setChecked(s.value(Common::SettingsNames::autoMarkReadEnabled, QVariant(true)).toBool());
@@ -543,6 +547,7 @@ void GeneralPage::save(QSettings &s)
 
     HANDLE_PLUGIN(addressbook, Addressbook);
     HANDLE_PLUGIN(password, Password);
+    HANDLE_PLUGIN(spellchecker, Spellchecker);
 #undef HANDLE_PLUGIN
 
     emit saved();

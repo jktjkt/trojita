@@ -53,7 +53,6 @@ trojita_option(BUILD_TESTING "Build tests" ON)
 trojita_option(WITH_MIMETIC "Build with client-side MIME parsing" AUTO)
 trojita_option(WITH_GPGMEPP "Use GpgME's native C++ bindings" AUTO)
 trojita_option(WITH_KF5_GPGMEPP "Use legacy discontinued GpgME++ library from KDE frameworks" AUTO)
-trojita_option(WITH_SPELLCHECKER_SONNET "Build with spellchecker through KDE's Sonnet" AUTO "WITH_DESKTOP")
 
 if(WIN32)
     trojita_option(WITH_NSIS "Build Windows NSIS installer" AUTO "WITH_DESKTOP")
@@ -85,6 +84,7 @@ trojita_plugin_option(WITH_ABOOKADDRESSBOOK_PLUGIN "Build AbookAddressbook plugi
 trojita_plugin_option(WITH_AKONADIADDRESSBOOK_PLUGIN "Build AkonadiAddressbook plugin" KF5AkonadiContact_FOUND)
 trojita_plugin_option(WITH_CLEARTEXT_PLUGIN "Build Cleartext password plugin" STATIC)
 trojita_plugin_option(WITH_QTKEYCHAIN_PLUGIN "Build Qtkeychain password plugin" "${QTKEYCHAIN_DEPENDS}")
+trojita_plugin_option(WITH_SONNET_PLUGIN "Build a plugin for spellchecking via KDE's Sonnet" "WITH_DESKTOP")
 
 trojita_find_package(Git "" "" "" "")
 
@@ -118,6 +118,8 @@ if(Qt5Keychain_FOUND OR QtKeychain_FOUND)
 else()
     message(STATUS "Could not find QtKeychain library")
 endif()
+
+trojita_find_package(KF5Sonnet "" "https://projects.kde.org/projects/frameworks/sonnet" "Qt5 Spell Checking Library from KDE" "Spell checking support" WITH_SONNET_PLUGIN)
 
 if(NOT DEFINED CMAKE_INSTALL_LIBDIR)
     set(CMAKE_INSTALL_LIBDIR "lib${LIB_SUFFIX}")
@@ -227,13 +229,6 @@ else()
     message(STATUS "Disabling COMPRESS=DEFLATE, zlib is not available")
 endif()
 
-trojita_find_package(KF5Sonnet "" "https://projects.kde.org/projects/frameworks/sonnet" "Qt5 Spell Checking Library from KDE" "Spell checking support" WITH_SPELLCHECKER_SONNET)
-if(WITH_SPELLCHECKER_SONNET)
-    set(TROJITA_HAVE_SONNET True)
-else()
-    set(TROJITA_HAVE_SONNET False)
-endif()
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/configure.cmake.h)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/configure-plugins.cmake.in
@@ -258,6 +253,7 @@ set(libPlugins_SOURCES
     ${path_Plugins}/PasswordPlugin.cpp
     ${path_Plugins}/PluginJob.cpp
     ${path_Plugins}/PluginManager.cpp
+    ${path_Plugins}/SpellcheckerPlugin.cpp
 )
 
 set(path_UiUtils ${CMAKE_CURRENT_SOURCE_DIR}/src/UiUtils)
@@ -721,6 +717,12 @@ if(WITH_AKONADIADDRESSBOOK_PLUGIN)
     set_property(TARGET trojita_plugin_AkonadiAddressbookPlugin APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 endif()
 
+if(WITH_SONNET_PLUGIN)
+    trojita_add_plugin(trojita_plugin_Sonnet WITH_SONNET_PLUGIN src/Plugins/SonnetSpellchecker/SonnetSpellchecker.cpp)
+    set_property(TARGET trojita_plugin_Sonnet APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
+    target_link_libraries(trojita_plugin_Sonnet KF5::SonnetUi)
+endif()
+
 # Generate file static_plugins.h.in
 get_property(STATIC_PLUGINS GLOBAL PROPERTY TROJITA_STATIC_PLUGINS)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h.in "#include <QtPlugin>\n")
@@ -739,9 +741,6 @@ if(WITH_DESKTOP)
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
     set_property(TARGET DesktopGui APPEND PROPERTY INCLUDE_DIRECTORIES ${path_DesktopGui})
     target_link_libraries(DesktopGui Common UiUtils Composer Cryptography Imap IPC MSA Plugins Streams qwwsmtpclient Qt5::WebKitWidgets)
-    if(WITH_SPELLCHECKER_SONNET)
-        target_link_libraries(DesktopGui KF5::SonnetUi)
-    endif()
 
     # On Windows build a real Win32 GUI application without console window
     # On other platforms WIN32 flag is ignored

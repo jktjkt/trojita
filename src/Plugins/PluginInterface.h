@@ -63,10 +63,26 @@ public:
     virtual PasswordPlugin *create(QObject *parent, QSettings *settings) = 0;
 };
 
+class SpellcheckerPlugin;
+
+class SpellcheckerPluginInterface
+{
+public:
+    /** @short Return name (internal identifier) of plugin. This string must not be translated! */
+    virtual QString name() const = 0;
+
+    /** @short Return short description (visible for user) of plugin. This string can be translated. */
+    virtual QString description() const = 0;
+
+    /** @short Return new plugin instance implemented by plugin */
+    virtual SpellcheckerPlugin *create(QObject *parent, QSettings *settings) = 0;
+};
+
 }
 
 Q_DECLARE_INTERFACE(Plugins::AddressbookPluginInterface, "AddressbookPluginInterface")
 Q_DECLARE_INTERFACE(Plugins::PasswordPluginInterface, "PasswordPluginInterface")
+Q_DECLARE_INTERFACE(Plugins::SpellcheckerPluginInterface, "SpellcheckerPluginInterface")
 
 #endif //TROJITAPLUGIN_INTERFACE
 
