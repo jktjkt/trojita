@@ -27,6 +27,7 @@ public:
 
 signals:
     void textEditingFinished(const QString &text);
+    void escapePressed();
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);
