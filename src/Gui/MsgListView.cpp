@@ -164,10 +164,10 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
     QModelIndexList baseIndexes;
 
     Q_FOREACH(const QModelIndex &index, selectedTree()) {
-        if (!(model()->flags(index) & Qt::ItemIsDragEnabled))
-            continue;
-        if (index.column() == Imap::Mailbox::MsgListModel::SUBJECT)
+        if (model()->flags(index) & Qt::ItemIsDragEnabled) {
+            Q_ASSERT(index.column() == Imap::Mailbox::MsgListModel::SUBJECT);
             baseIndexes << index;
+        }
     }
 
     if (!baseIndexes.isEmpty()) {
