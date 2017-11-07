@@ -259,6 +259,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_zoom_original"), QStringLiteral("zoom-original"), tr("Original Size"));
     shortcutHandler->defineAction(QStringLiteral("action_focus_mailbox_tree"), QString(), tr("Move Focus to Mailbox List"));
     shortcutHandler->defineAction(QStringLiteral("action_focus_msg_list"), QString(), tr("Move Focus to Message List"));
+    shortcutHandler->defineAction(QStringLiteral("action_focus_quick_search"), QString(), tr("Move Focus to Quick Search"), QStringLiteral("/"));
     shortcutHandler->defineAction(QStringLiteral("action_tag_1"), QStringLiteral("mail-tag-1"), tr("Tag with &1st tag"), QStringLiteral("1"));
     shortcutHandler->defineAction(QStringLiteral("action_tag_2"), QStringLiteral("mail-tag-2"), tr("Tag with &2nd tag"), QStringLiteral("2"));
     shortcutHandler->defineAction(QStringLiteral("action_tag_3"), QStringLiteral("mail-tag-3"), tr("Tag with &3rd tag"), QStringLiteral("3"));
@@ -378,10 +379,8 @@ void MainWindow::createActions()
     triggerSearch->setShortcut(QKeySequence(QStringLiteral(":, =")));
     connect(triggerSearch, &QAction::triggered, msgListWidget, &MessageListWidget::focusRawSearch);
 
-    triggerSearch = new QAction(this);
-    addAction(triggerSearch);
-    triggerSearch->setShortcut(QKeySequence(QStringLiteral("/")));
-    connect(triggerSearch, &QAction::triggered, msgListWidget, &MessageListWidget::focusSearch);
+    addAction(ShortcutHandler::instance()->createAction(QStringLiteral("action_focus_quick_search"),
+            msgListWidget, SLOT(focusSearch()), this));
 
     addAction(ShortcutHandler::instance()->createAction(QStringLiteral("action_focus_mailbox_tree"), mboxTree,
             SLOT(setFocus()), this));
