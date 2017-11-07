@@ -48,6 +48,7 @@
 
 #include "configure.cmake.h"
 #include "Common/Application.h"
+#include "Common/InvokeMethod.h"
 #include "Common/Paths.h"
 #include "Common/PortNumbers.h"
 #include "Common/SettingsNames.h"
@@ -188,7 +189,7 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
 
     slotUpdateWindowTitle();
 
-    recoverDrafts();
+    CALL_LATER_NOARG(this, recoverDrafts);
 
     if (m_actionLayoutWide->isEnabled() &&
             m_settings->value(Common::SettingsNames::guiMainWindowLayout) == Common::SettingsNames::guiMainWindowLayoutWide) {

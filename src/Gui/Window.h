@@ -223,6 +223,8 @@ private slots:
 
     void slotFavoriteTagsChanged();
 
+    void recoverDrafts();
+
 protected:
     void resizeEvent(QResizeEvent *);
 
@@ -243,7 +245,6 @@ private:
     void applySizesAndState();
     QString settingsKeyForLayout(const LayoutMode layout);
 
-    void recoverDrafts();
     void createSysTray();
     void removeSysTray();
 
