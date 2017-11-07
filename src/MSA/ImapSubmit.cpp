@@ -43,7 +43,7 @@ bool ImapSubmit::supportsImapSending() const
     return true;
 }
 
-void ImapSubmit::sendImap(const QString &mailbox, const int uidValidity, const int uid,
+void ImapSubmit::sendImap(const QString &mailbox, const uint uidValidity, const uint uid,
                           const Imap::Mailbox::UidSubmitOptionsList options)
 {
     Imap::Mailbox::UidSubmitTask *submitTask = m_model->sendMailViaUidSubmit(mailbox, uidValidity, uid, options);

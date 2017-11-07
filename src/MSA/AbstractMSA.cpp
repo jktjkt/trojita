@@ -59,7 +59,7 @@ void AbstractMSA::sendBurl(const QByteArray &from, const QList<QByteArray> &to, 
     emit error(tr("BURL is not supported by %1").arg(QString::fromUtf8(metaObject()->className())));
 }
 
-void AbstractMSA::sendImap(const QString &mailbox, const int uidValidity, const int uid, const Imap::Mailbox::UidSubmitOptionsList options)
+void AbstractMSA::sendImap(const QString &mailbox, const uint uidValidity, const uint uid, const Imap::Mailbox::UidSubmitOptionsList options)
 {
     Q_UNUSED(mailbox);
     Q_UNUSED(uidValidity);
