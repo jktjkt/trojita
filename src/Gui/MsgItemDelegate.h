@@ -23,6 +23,8 @@
 #ifndef MSGITEMDELEGATE_H
 #define MSGITEMDELEGATE_H
 
+#include <QFont>
+#include <QFontMetrics>
 #include <QModelIndex>
 #include <QPainter>
 #include <QStyleOptionViewItem>
@@ -41,6 +43,7 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 private:
     QColor itemColor(const QModelIndex &index) const;
+    QFont itemFont(const QModelIndex &index) const;
 
     Imap::Mailbox::FavoriteTagsModel *m_favoriteTagsModel;
 };

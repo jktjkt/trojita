@@ -19,7 +19,6 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include <QFont>
 #include "PrettyMsgListModel.h"
 #include "ItemRoles.h"
 #include "MsgListModel.h"
@@ -170,35 +169,6 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
         default:
             return QVariant();
         }
-
-    case Qt::FontRole: {
-        // We will need the data, but asking for Flags or IsMarkedXYZ doesn't cause a fetch
-        translated.data(RoleMessageSubject);
-
-        // These items should definitely *not* be rendered in bold
-        if (!translated.data(RoleIsFetched).toBool())
-            return QVariant();
-
-        QFont font;
-        if (translated.data(RoleMessageIsMarkedDeleted).toBool())
-            font.setStrikeOut(true);
-
-        if (! translated.data(RoleMessageIsMarkedRead).toBool()) {
-            // If any message is marked as unread, show it in bold and be done with it
-            font.setBold(true);
-        } else if (translated.model()->hasChildren(translated.sibling(translated.row(), 0)) &&
-                   translated.data(RoleThreadRootWithUnreadMessages).toBool()) {
-            // If this node is not marked as read, is a root of some thread and that thread
-            // contains unread messages, display the thread's root underlined
-            font.setUnderline(true);
-        }
-
-        if (index.column() == MsgListModel::SUBJECT && translated.data(RoleMessageSubject).toString().isEmpty()) {
-            font.setItalic(true);
-        }
-
-        return font;
-    }
 
     }
 
