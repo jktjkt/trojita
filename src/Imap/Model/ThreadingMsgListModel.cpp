@@ -63,7 +63,7 @@ namespace Mailbox
 
 ThreadingMsgListModel::ThreadingMsgListModel(QObject *parent):
     QAbstractProxyModel(parent), threadingHelperLastId(0), modelResetInProgress(false), threadingInFlight(false),
-    m_shallBeThreading(false), m_sortTask(0), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE),
+    m_shallBeThreading(false), m_filteredBySearch(false), m_sortTask(0), m_sortReverse(false), m_currentSortingCriteria(SORT_NONE),
     m_searchValidity(RESULT_INVALIDATED)
 {
     m_delayedPrune = new QTimer(this);
@@ -561,11 +561,29 @@ void ThreadingMsgListModel::wantThreading(const SkipSortSearch skipSortSearch)
     QVector<Imap::Responses::ThreadingNode> mapping = realModel->cache()->messageThreading(mailbox.data(RoleMailboxName).toString());
 
     // Find the UID of the last message in the mailbox
-    uint highestUidInMailbox = findHighestUidInMailbox(list);
+    QString scope;
+    uint highestUidInMailbox;
+    if (m_filteredBySearch) {
+        scope = QLatin1String("search");
+        if (m_searchValidity != RESULT_FRESH) {
+            if (m_searchValidity != RESULT_ASKED) {
+                if (skipSortSearch == AUTO_SORT_SEARCH) {
+                    searchSortPreferenceImplementation(m_currentSearchConditions, m_currentSortingCriteria, m_sortReverse ? Qt::DescendingOrder : Qt::AscendingOrder);
+                }
+            } else {
+                logTrace(QStringLiteral("Seems like the server answered in reverse order to our SEARCH/THREAD question. It's okay, threading should be tried later."));
+            }
+            return;
+        }
+        // Required due to incremental updates
+        highestUidInMailbox = *std::max_element(m_currentSortResult.constBegin(), m_currentSortResult.constEnd());
+    } else {
+        scope = QLatin1String("mailbox");
+        highestUidInMailbox = findHighestUidInMailbox(list);
+    }
     uint highestUidInThreadingLowerBound = findHighEnoughNumber(mapping, highestUidInMailbox);
-
-    logTrace(QStringLiteral("ThreadingMsgListModel::wantThreading: THREAD contains info about UID %1 (or higher), mailbox has %2")
-             .arg(QString::number(highestUidInThreadingLowerBound), QString::number(highestUidInMailbox)));
+    logTrace(QStringLiteral("ThreadingMsgListModel::wantThreading: THREAD contains info about UID %1 (or higher), %2 has %3")
+             .arg(QString::number(highestUidInThreadingLowerBound), scope, QString::number(highestUidInMailbox)));
 
     if (highestUidInThreadingLowerBound >= highestUidInMailbox) {
         // There's no point asking for data at this point, we shall just apply threading
@@ -653,8 +671,9 @@ void ThreadingMsgListModel::askForThreading(const uint firstUnknownUid)
                     this, &ThreadingMsgListModel::slotIncrementalThreadingAvailable);
             connect(threadTask, &ImapTask::failed, this, &ThreadingMsgListModel::slotIncrementalThreadingFailed);
         } else {
+            auto searchConditions = m_filteredBySearch ? m_currentSearchConditions : QStringList() << QStringLiteral("ALL");
             realModel->m_taskFactory->createThreadTask(const_cast<Model *>(realModel), mailboxIndex,
-                                                       requestedAlgorithm, QStringList() << QStringLiteral("ALL"));
+                                                       requestedAlgorithm, searchConditions);
             connect(realModel, &Model::threadingAvailable, this, &ThreadingMsgListModel::slotThreadingAvailable);
             connect(realModel, &Model::threadingFailed, this, &ThreadingMsgListModel::slotThreadingFailed);
         }
@@ -751,14 +770,6 @@ bool ThreadingMsgListModel::shouldIgnoreThisThreadingResponse(const QModelIndex 
     if (algorithm != requestedAlgorithm) {
         logTrace(QStringLiteral("Weird, asked for threading via %1 but got %2 instead -- ignoring")
                  .arg(QString::fromUtf8(requestedAlgorithm), QString::fromUtf8(algorithm)));
-        return true;
-    }
-
-    if (searchCriteria.size() != 1 || searchCriteria.front() != QLatin1String("ALL")) {
-        QString buf;
-        QTextStream ss(&buf);
-        logTrace(QStringLiteral("Weird, requesting messages matching ALL, but got this instead: %1")
-                 .arg(searchCriteria.join(QStringLiteral(", "))));
         return true;
     }
 
@@ -1300,8 +1311,18 @@ void ThreadingMsgListModel::setUserWantsThreading(bool enable)
 
 bool ThreadingMsgListModel::setUserSearchingSortingPreference(const QStringList &searchConditions, const SortCriterium criterium, const Qt::SortOrder order)
 {
-    wantThreading(SKIP_SORT_SEARCH);
-    return searchSortPreferenceImplementation(searchConditions, criterium, order);
+    auto changedSearch = (searchConditions != m_currentSearchConditions);
+    if (!m_shallBeThreading) {
+        updateNoThreading();
+    }
+    auto succeed = searchSortPreferenceImplementation(searchConditions, criterium, order);
+    if (m_shallBeThreading && changedSearch) {
+        // Asking for threading regardless of `threadingInFlight` because
+        // THREAD-ing had to be redone in the context of this search
+        logTrace(QStringLiteral("Current threading invalidated by changed search"));
+        askForThreading(0);
+    }
+    return succeed;
 }
 
 /** @short The workhorse behind setUserSearchingSortingPreference() */
@@ -1364,6 +1385,7 @@ bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList
         if (searchConditions.isEmpty()) {
             // This operation is special, it will immediately restore the original shape of the mailbox
             m_currentSearchConditions = searchConditions;
+            m_filteredBySearch = false;
             calculateNullSort();
             applySort();
             return true;
@@ -1375,6 +1397,7 @@ bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList
             connect(m_sortTask.data(), &SortTask::sortingFailed, this, &ThreadingMsgListModel::slotSortingFailed);
             connect(m_sortTask.data(), &SortTask::incrementalSortUpdate, this, &ThreadingMsgListModel::slotSortingIncrementalUpdate);
             m_currentSearchConditions = searchConditions;
+            m_filteredBySearch = true;
             m_searchValidity = RESULT_ASKED;
         } else {
             // A result of SEARCH has just arrived
@@ -1397,6 +1420,7 @@ bool ThreadingMsgListModel::searchSortPreferenceImplementation(const QStringList
         applySort();
     } else {
         m_currentSearchConditions = searchConditions;
+        m_filteredBySearch = ! searchConditions.isEmpty();
         m_currentSortingCriteria = criterium;
         calculateNullSort();
         applySort();
@@ -1446,7 +1470,9 @@ void ThreadingMsgListModel::applySort()
         }
         Q_ASSERT(messages.size() == 1);
         QHash<void *,uint>::const_iterator it = ptrToInternal.constFind(messages.front());
-        Q_ASSERT(it != ptrToInternal.constEnd());
+        // else applyThreading() taking care of it
+        if (!threadingInFlight)
+            Q_ASSERT(it != ptrToInternal.constEnd());
         if (!allRootIds.contains(*it)) {
             // not a thread root, so don't show it
             continue;
