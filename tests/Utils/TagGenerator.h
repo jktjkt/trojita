@@ -42,6 +42,14 @@ public:
     {
         return QStringLiteral("y%1 ").arg(number).toUtf8() + QByteArray(what);
     }
+    QByteArray prev() const
+    {
+        return QStringLiteral("y%1").arg(number-1).toUtf8();
+    }
+    QByteArray prev( const char * const what ) const
+    {
+        return QStringLiteral("y%1 ").arg(number-1).toUtf8() + QByteArray(what);
+    }
     void reset()
     {
         number = -1;
