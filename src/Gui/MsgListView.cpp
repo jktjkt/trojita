@@ -163,11 +163,11 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
     // indexes for column 0, i.e. subject
     QModelIndexList baseIndexes;
 
-    Q_FOREACH(const QModelIndex &index, selectedIndexes()) {
-        if (!(model()->flags(index) & Qt::ItemIsDragEnabled))
-            continue;
-        if (index.column() == Imap::Mailbox::MsgListModel::SUBJECT)
+    Q_FOREACH(const QModelIndex &index, selectedTree()) {
+        if (model()->flags(index) & Qt::ItemIsDragEnabled) {
+            Q_ASSERT(index.column() == Imap::Mailbox::MsgListModel::SUBJECT);
             baseIndexes << index;
+        }
     }
 
     if (!baseIndexes.isEmpty()) {
@@ -218,24 +218,14 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
         else if (supportedActions & Qt::CopyAction && dragDropMode() != QAbstractItemView::InternalMove)
             dropAction = Qt::CopyAction;
         if (drag->exec(supportedActions, dropAction) == Qt::MoveAction) {
-            // QAbstractItemView::startDrag calls d->clearOrRemove() here, so
-            // this is a copy of QAbstractItemModelPrivate::clearOrRemove();
-            const QItemSelection selection = selectionModel()->selection();
-            QList<QItemSelectionRange>::const_iterator it = selection.constBegin();
-
+            // QAbstractItemView::startDrag calls d->clearOrRemove() here
             if (!dragDropOverwriteMode()) {
-                for (; it != selection.constEnd(); ++it) {
-                    QModelIndex parent = it->parent();
-                    if (it->left() != 0)
-                        continue;
-                    if (it->right() != (model()->columnCount(parent) - 1))
-                        continue;
-                    int count = it->bottom() - it->top() + 1;
-                    model()->removeRows(it->top(), count, parent);
+                Q_FOREACH(const QModelIndex &index, baseIndexes) {
+                    model()->removeRow(index.row(), index.parent());
                 }
             } else {
                 // we can't remove the rows so reset the items (i.e. the view is like a table)
-                QModelIndexList list = selection.indexes();
+                QModelIndexList list = selectedIndexes();
                 for (int i = 0; i < list.size(); ++i) {
                     QModelIndex index = list.at(i);
                     QMap<int, QVariant> roles = model()->itemData(index);
@@ -246,6 +236,27 @@ void MsgListView::startDrag(Qt::DropActions supportedActions)
             }
         }
     }
+}
+
+QModelIndexList MsgListView::selectedTree() const
+{
+    QModelIndexList indexes;
+    QModelIndexList selected = selectedIndexes();
+    const int originalItems = selected.length(); // only check collapsed/expanded status on original selection
+    for (int i = 0; i < selected.length(); ++i) {
+        const QModelIndex item = selected[i];
+        if (item.column() != 0 || !item.data(Imap::Mailbox::RoleMessageUid).isValid())
+            continue;
+        indexes << item;
+        // Now see if this is a collapsed thread and include all the collapsed items as needed
+        // Also note that this is recursive - each child found is run through this same item loop for validity/child checks as well
+        if (i >= originalItems || !isExpanded(item)) {
+            for (int j = 0; j < item.model()->rowCount(item); ++j) {
+                selected << item.child(j, 0); // Make sure this is run through the main loop as well - don't add it directly
+            }
+        }
+    }
+    return indexes;
 }
 
 void MsgListView::slotFixSize()

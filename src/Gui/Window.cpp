@@ -1520,20 +1520,8 @@ void MainWindow::slotEditDraft()
 QModelIndexList MainWindow::translatedSelection() const
 {
     QModelIndexList translatedIndexes;
-    QModelIndexList selected = msgListWidget->tree->selectionModel()->selectedIndexes();
-    const int originalItems = selected.length(); // only check collapsed/expanded status on original selection
-    for (int i = 0; i < selected.length(); ++i) {
-        const QModelIndex item = selected[i];
-        if (item.column() != 0 || !item.data(Imap::Mailbox::RoleMessageUid).isValid())
-            continue;
-        translatedIndexes << Imap::deproxifiedIndex(item);
-        // Now see if this is a collapsed thread and include all the collapsed items as needed
-        // Also note that this is recursive - each child found is run through this same item loop for validity/child checks as well
-        if (i >= originalItems || !msgListWidget->tree->isExpanded(item)) {
-            for (int j = 0; j < item.model()->rowCount(item); ++j) {
-                selected << item.child(j, 0); // Make sure this is run through the main loop as well - don't add it directly
-            }
-        }
+    Q_FOREACH(const QModelIndex &index, msgListWidget->tree->selectedTree()) {
+        translatedIndexes << Imap::deproxifiedIndex(index);
     }
     return translatedIndexes;
 }
