@@ -79,6 +79,12 @@ bool LineEdit::eventFilter(QObject *o, QEvent *e)
 
 void LineEdit::keyReleaseEvent(QKeyEvent *ke)
 {
+    if (ke->key() == Qt::Key_Escape) {
+        QLineEdit::keyReleaseEvent(ke);
+        emit escapePressed();
+        return;
+    }
+
     if (!m_historyEnabled || completer()->completionMode() == QCompleter::UnfilteredPopupCompletion ||
         !(ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down)) {
         // irrelevant events -> ignore
