@@ -55,6 +55,8 @@ void Sendmail::sendMail(const QByteArray &from, const QList<QByteArray> &to, con
     }
     writtenSoFar = 0;
     emit connecting();
+    emit logged(Common::LogKind::LOG_IO_WRITTEN, QStringLiteral("sendmail"),
+                QStringLiteral("*** Exec: %1 %2").arg(command, myArgs.join(QLatin1Char(' '))));
     proc->start(command, myArgs);
     dataToSend = data;
 }
@@ -71,6 +73,7 @@ void Sendmail::handleStarted()
 
     emit sending();
     proc->write(dataToSend);
+    emit logged(Common::LogKind::LOG_IO_WRITTEN, QStringLiteral("sendmail"), QString::fromUtf8(dataToSend));
     proc->closeWriteChannel();
 }
 

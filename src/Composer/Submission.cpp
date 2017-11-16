@@ -276,6 +276,7 @@ void Submission::slotInvokeMsaNow()
     connect(msa, &MSA::AbstractMSA::sent, this, &Submission::sent);
     connect(msa, &MSA::AbstractMSA::error, this, &Submission::gotError);
     connect(msa, &MSA::AbstractMSA::passwordRequested, this, &Submission::passwordRequested);
+    connect(msa, &MSA::AbstractMSA::logged, this, &Submission::logged);
     connect(this, &Submission::gotPassword, msa, &MSA::AbstractMSA::setPassword);
     connect(this, &Submission::canceled, msa, &MSA::AbstractMSA::cancel);
 

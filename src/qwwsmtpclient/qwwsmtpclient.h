@@ -88,6 +88,8 @@ signals:
     void rawCommandReply(int code, const QString &details);
     void sslErrors(const QList<QSslError> &);
     void socketError(QAbstractSocket::SocketError err, const QString& message);
+    void logReceived(const QByteArray& data);
+    void logSent(const QByteArray& data);
 
 private:
     QwwSmtpClientPrivate *d;
