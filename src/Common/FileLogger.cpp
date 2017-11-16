@@ -115,6 +115,9 @@ QString FileLogger::formatMessage(uint parser, const Common::LogMessage &message
     case LOG_MESSAGES:
         direction = QStringLiteral(" [msg] ");
         break;
+    case LOG_SUBMISSION:
+        direction = QStringLiteral(" [submission] ");
+        break;
     case LOG_OTHER:
         direction = QStringLiteral(" ");
         break;

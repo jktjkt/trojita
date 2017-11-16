@@ -202,6 +202,7 @@ void ProtocolLoggerWidget::flushToWidget(const uint connectionId, Common::RingBu
         case LOG_OTHER:
         case LOG_PARSE_ERROR:
         case LOG_TASKS:
+        case LOG_SUBMISSION:
             direction = QLatin1String("<span style=\"color: #c0c0c0;\">") + it->source + QLatin1String("</span> ");
             break;
         }

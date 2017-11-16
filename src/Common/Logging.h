@@ -36,6 +36,7 @@ enum LogKind {
     LOG_MAILBOX_SYNC, /**< Tracing of mailbox resynchronization */
     LOG_TASKS, /**< Tracing related to Tasks */
     LOG_MESSAGES, /**< Manipulating messages */
+    LOG_SUBMISSION, /**< Message submission */
     LOG_OTHER /**< Something else */
 };
 
