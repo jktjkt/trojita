@@ -65,12 +65,12 @@ void FileLogger::escapeCrLf(QString &s)
             .replace(QLatin1Char('\n'), 0x240a /* SYMBOL FOR LINE FEED */);
 }
 
-void FileLogger::slotImapLogged(uint parser, Common::LogMessage message)
+void FileLogger::log(uint connectionId, Common::LogMessage message)
 {
     if (!m_fileLog && !m_consoleLog)
         return;
 
-    QString formatted = formatMessage(parser, message);
+    QString formatted = formatMessage(connectionId, message);
     escapeCrLf(formatted);
 
     if (m_fileLog) {
@@ -85,7 +85,7 @@ void FileLogger::slotImapLogged(uint parser, Common::LogMessage message)
             // Got to reformat the message
             message.truncatedBytes = message.message.size() - CUTOFF;
             message.message = message.message.left(CUTOFF);
-            formatted = formatMessage(parser, message);
+            formatted = formatMessage(connectionId, message);
             escapeCrLf(formatted);
         }
         qDebug() << formatted.toUtf8().constData() << "\n";

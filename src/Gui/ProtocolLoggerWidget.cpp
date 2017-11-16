@@ -79,9 +79,9 @@ ProtocolLoggerWidget::~ProtocolLoggerWidget()
 {
 }
 
-QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parserId)
+QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint connectionId)
 {
-    QPlainTextEdit *res = logs[parserId].widget;
+    QPlainTextEdit *res = logs[connectionId].widget;
     if (!res) {
         res = new QPlainTextEdit();
         res->setLineWrapMode(QPlainTextEdit::NoWrap);
@@ -95,8 +95,8 @@ QPlainTextEdit *ProtocolLoggerWidget::getLogger(const uint parserId)
         // to the very first value we throw at it, which might be a
         // grey one.
         res->appendHtml(QStringLiteral("<p>&nbsp;</p>"));
-        tabs->addTab(res, tr("Connection %1").arg(parserId));
-        logs[parserId].widget = res;
+        tabs->addTab(res, tr("Connection %1").arg(connectionId));
+        logs[connectionId].widget = res;
     }
     return res;
 }
@@ -142,12 +142,12 @@ void ProtocolLoggerWidget::hideEvent(QHideEvent *e)
     QWidget::hideEvent(e);
 }
 
-void ProtocolLoggerWidget::slotImapLogged(uint parserId, Common::LogMessage message)
+void ProtocolLoggerWidget::log(uint connectionId, Common::LogMessage message)
 {
     using namespace Common;
 
     if (m_fileLogger) {
-        m_fileLogger->slotImapLogged(parserId, message);
+        m_fileLogger->log(connectionId, message);
     }
     enum {CUTOFF=200};
     if (message.message.size() > CUTOFF) {
@@ -155,16 +155,16 @@ void ProtocolLoggerWidget::slotImapLogged(uint parserId, Common::LogMessage mess
         message.message = message.message.left(CUTOFF);
     }
     // we rely on the default constructor and QMap's behavior of operator[] to call it here
-    logs[parserId].buffer.append(message);
+    logs[connectionId].buffer.append(message);
     if (loggingActive && !delayedDisplay->isActive())
         delayedDisplay->start();
 }
 
-void ProtocolLoggerWidget::flushToWidget(const uint parserId, Common::RingBuffer<Common::LogMessage> &buf)
+void ProtocolLoggerWidget::flushToWidget(const uint connectionId, Common::RingBuffer<Common::LogMessage> &buf)
 {
     using namespace Common;
 
-    QPlainTextEdit *w = getLogger(parserId);
+    QPlainTextEdit *w = getLogger(connectionId);
 
     if (buf.skippedCount()) {
         w->appendHtml(tr("<p style=\"color: #bb0000\"><i><b>%n message(s)</b> were skipped because this widget was hidden.</i></p>",
@@ -231,12 +231,12 @@ void ProtocolLoggerWidget::slotShowLogs()
 }
 
 /** @short Check whether some of the logs need cleaning */
-void ProtocolLoggerWidget::onConnectionClosed(uint parserId, Imap::ConnectionState state)
+void ProtocolLoggerWidget::onConnectionClosed(uint connectionId, Imap::ConnectionState state)
 {
     if (state == Imap::CONN_STATE_LOGOUT) {
         auto now = QDateTime::currentMSecsSinceEpoch();
         auto cutoff = now - 3 * 60 * 1000; // upon each disconnect, trash logs older than three minutes
-        auto it = logs.find(parserId);
+        auto it = logs.find(connectionId);
         if (it != logs.end()) {
             it->closedTime = now;
         }
