@@ -113,6 +113,8 @@ public:
 
     static QWidget *messageSourceWidget(const QModelIndex &message);
 
+    void registerComposeWindow(ComposeWidget* widget);
+
 public slots:
     void slotComposeMailUrl(const QUrl &url);
     void slotComposeMail();

@@ -50,21 +50,21 @@ QString submissionProgressToString(const Submission::SubmissionProgress progress
 {
     switch (progress) {
     case Submission::STATE_INIT:
-        return QStringLiteral("STATE_INIT");
+        return QStringLiteral("INIT");
     case Submission::STATE_BUILDING_MESSAGE:
-        return QStringLiteral("STATE_BUILDING_MESSAGE");
+        return QStringLiteral("BUILDING_MESSAGE");
     case Submission::STATE_SAVING:
-        return QStringLiteral("STATE_SAVING");
+        return QStringLiteral("SAVING");
     case Submission::STATE_PREPARING_URLAUTH:
-        return QStringLiteral("STATE_PREPARING_URLAUTH");
+        return QStringLiteral("PREPARING_URLAUTH");
     case Submission::STATE_SUBMITTING:
-        return QStringLiteral("STATE_SUBMITTING");
+        return QStringLiteral("SUBMITTING");
     case Submission::STATE_UPDATING_FLAGS:
-        return QStringLiteral("STATE_UPDATING_FLAGS");
+        return QStringLiteral("UPDATING_FLAGS");
     case Submission::STATE_SENT:
-        return QStringLiteral("STATE_SENT");
+        return QStringLiteral("SENT");
     case Submission::STATE_FAILED:
-        return QStringLiteral("STATE_FAILED");
+        return QStringLiteral("FAILED");
     }
     return QStringLiteral("[unknown: %1]").arg(QString::number(static_cast<int>(progress)));
 }
@@ -100,9 +100,9 @@ QString Submission::accountId() const
 
 void Submission::changeConnectionState(const SubmissionProgress state)
 {
+    emit logged(Common::LOG_SUBMISSION, QStringLiteral("Submission"), QStringLiteral("Progress: %1 -> %2").arg(
+                    submissionProgressToString(m_state), submissionProgressToString(state)));
     m_state = state;
-    if (m_model)
-        m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Submission"), submissionProgressToString(m_state));
 
     // Now broadcast a human-readable message and update the progress dialog
     switch (state) {
@@ -167,7 +167,7 @@ void Submission::setSmtpOptions(const bool useBurl, const QString &smtpUsername)
 {
     m_useBurl = useBurl;
     if (m_useBurl && !m_model->isGenUrlAuthSupported()) {
-        m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Submission"), QStringLiteral("Cannot BURL without the URLAUTH extension"));
+        emit logged(Common::LOG_SUBMISSION, QStringLiteral("Submission"), QStringLiteral("Cannot BURL without the URLAUTH extension"));
         m_useBurl = false;
     }
     m_smtpUsername = smtpUsername;
@@ -305,8 +305,7 @@ void Submission::cancelPassword()
 
 void Submission::gotError(const QString &error)
 {
-    if (m_model)
-        m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Submission"), QStringLiteral("gotError: %1").arg(error));
+    emit logged(Common::LogKind::LOG_SUBMISSION, QStringLiteral("Submission"), QStringLiteral("Error: ") + error);
     changeConnectionState(STATE_FAILED);
     emit failed(error);
 }
@@ -374,8 +373,8 @@ void Submission::slotAppendSucceeded()
         }
     } else {
         m_useBurl = false;
-        m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Submission"),
-                          QStringLiteral("APPEND does not contain APPENDUID or UIDVALIDITY, cannot use BURL or the SUBMIT command"));
+        emit logged(Common::LogKind::LOG_SUBMISSION, QStringLiteral("Submission"),
+                    QStringLiteral("APPEND does not contain APPENDUID or UIDVALIDITY, cannot use BURL or the SUBMIT command"));
         slotInvokeMsaNow();
     }
 }
@@ -420,8 +419,8 @@ void Submission::onUpdatingFlagsOfReplyingToSucceded()
 void Submission::onUpdatingFlagsOfReplyingToFailed()
 {
     m_updateReplyingToMessageFlagsTask = 0;
-    m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Submission"),
-                      QStringLiteral("Cannot update flags of the message we replied to -- interesting, but we cannot do anything at this point anyway"));
+    emit logged(Common::LogKind::LOG_OTHER, QStringLiteral("Submission"),
+                QStringLiteral("Cannot update flags of the message we replied to -- interesting, but we cannot do anything at this point anyway"));
     changeConnectionState(STATE_SENT);
     emit succeeded();
 }
@@ -436,8 +435,8 @@ void Submission::onUpdatingFlagsOfForwardingSucceeded()
 void Submission::onUpdatingFlagsOfForwardingFailed()
 {
     m_updateForwardingMessageFlagsTask = 0;
-    m_model->logTrace(0, Common::LOG_OTHER, QStringLiteral("Submission"),
-                      QStringLiteral("Cannot update flags of the message we forwarded -- interesting, but we cannot do anything at this point anyway"));
+    emit logged(Common::LogKind::LOG_OTHER, QStringLiteral("Submission"),
+                QStringLiteral("Cannot update flags of the message we forwarded -- interesting, but we cannot do anything at this point anyway"));
     changeConnectionState(STATE_SENT);
     emit succeeded();
 }

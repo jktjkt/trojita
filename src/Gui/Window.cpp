@@ -2884,4 +2884,11 @@ void MainWindow::slotFavoriteTagsChanged()
     }
 }
 
+void MainWindow::registerComposeWindow(ComposeWidget* widget)
+{
+    connect(widget, &ComposeWidget::logged, this, [this](const Common::LogKind kind, const QString& source, const QString& message) {
+        imapLogger->log(0, Common::LogMessage(QDateTime::currentDateTime(), kind, source, message, 0));
+    });
+}
+
 }
