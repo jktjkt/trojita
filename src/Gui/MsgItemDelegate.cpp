@@ -50,12 +50,46 @@ QColor MsgItemDelegate::itemColor(const QModelIndex &index) const
     return m_favoriteTagsModel->findBestColorForTags(flags.toStringList());
 }
 
+QFont MsgItemDelegate::itemFont(const QModelIndex &index) const
+{
+    QFont font;
+
+    Q_ASSERT(index.isValid());
+
+    // We will need the data, but asking for Flags or IsMarkedXYZ doesn't cause a fetch
+    index.data(Imap::Mailbox::RoleMessageSubject);
+
+    // These items should definitely *not* be rendered in bold
+    if (!index.data(Imap::Mailbox::RoleIsFetched).toBool())
+        return font;
+
+    if (index.data(Imap::Mailbox::RoleMessageIsMarkedDeleted).toBool())
+        font.setStrikeOut(true);
+
+    if (! index.data(Imap::Mailbox::RoleMessageIsMarkedRead).toBool()) {
+        // If any message is marked as unread, show it in bold and be done with it
+        font.setBold(true);
+    } else if (index.model()->hasChildren(index.sibling(index.row(), 0)) &&
+               index.data(Imap::Mailbox::RoleThreadRootWithUnreadMessages).toBool()) {
+        // If this node is not marked as read, is a root of some thread and that thread
+        // contains unread messages, display the thread's root underlined
+        font.setUnderline(true);
+    }
+
+    if (index.column() == Imap::Mailbox::MsgListModel::SUBJECT && index.data(Imap::Mailbox::RoleMessageSubject).toString().isEmpty()) {
+        font.setItalic(true);
+    }
+
+    return font;
+}
+
 void MsgItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     QStyleOptionViewItem viewOption(option);
     auto foregroundColor = itemColor(index);
     if (foregroundColor.isValid())
         viewOption.palette.setColor(QPalette::Text, foregroundColor);
+    viewOption.font = itemFont(index);
     ColoredItemDelegate::paintWithForeground(painter, viewOption, index, foregroundColor);
 }
 
