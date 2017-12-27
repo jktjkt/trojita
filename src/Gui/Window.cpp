@@ -778,7 +778,7 @@ void MainWindow::createWidgets()
     m_delayedStateSaving->setSingleShot(true);
     connect(m_delayedStateSaving, &QTimer::timeout, this, &MainWindow::saveSizesAndState);
 
-    mboxTree = new MailBoxTreeView();
+    mboxTree = new MailBoxTreeView(nullptr, m_settings);
     mboxTree->setDesiredExpansion(m_settings->value(Common::SettingsNames::guiExpandedMailboxes).toStringList());
     connect(mboxTree, &QWidget::customContextMenuRequested, this, &MainWindow::showContextMenuMboxTree);
     connect(mboxTree, &MailBoxTreeView::mailboxExpansionChanged, this, [this](const QStringList &mailboxNames) {

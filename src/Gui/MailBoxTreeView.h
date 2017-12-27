@@ -24,6 +24,7 @@
 #ifndef GUI_MAILBOXTREEVIEW_H
 #define GUI_MAILBOXTREEVIEW_H
 
+#include <QSettings>
 #include <QTreeView>
 
 namespace Imap {
@@ -39,7 +40,7 @@ class MailBoxTreeView : public QTreeView
 {
     Q_OBJECT
 public:
-    explicit MailBoxTreeView(QWidget *parent = nullptr);
+    explicit MailBoxTreeView(QWidget *parent, QSettings *settings);
     void setDesiredExpansion(const QStringList &mailboxNames);
     void setModel(QAbstractItemModel *model) override;
 signals:
@@ -54,9 +55,11 @@ protected:
     void dropEvent(QDropEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *event) override;
     void resetWatchedMailboxes();
+    Qt::DropAction defaultDropAction();
 private:
     Imap::Mailbox::MailboxFinder *m_mailboxFinder;
     QSet<QString> m_desiredExpansionState;
+    QSettings *m_settings;
 };
 }
 

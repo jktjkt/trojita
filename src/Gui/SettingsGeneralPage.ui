@@ -24,7 +24,7 @@
     <enum>Qt::LeftToRight</enum>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="7" column="0" colspan="2">
+    <item row="8" column="0" colspan="2">
      <widget class="QCheckBox" name="showHomepageCheckbox">
       <property name="toolTip">
        <string/>
@@ -34,21 +34,21 @@
       </property>
      </widget>
     </item>
-    <item row="8" column="0" colspan="2">
+    <item row="9" column="0" colspan="2">
      <widget class="QCheckBox" name="preferPlaintextCheckbox">
       <property name="text">
        <string>Show plaintext e-mails instead of the HTML version</string>
       </property>
      </widget>
     </item>
-    <item row="9" column="0" colspan="2">
+    <item row="10" column="0" colspan="2">
      <widget class="QCheckBox" name="guiSystrayCheckbox">
       <property name="text">
        <string>Show system tray icon</string>
       </property>
      </widget>
     </item>
-    <item row="10" column="0">
+    <item row="11" column="0">
      <widget class="QCheckBox" name="guiStartMinimizedCheckbox">
       <property name="text">
        <string>Start minimized</string>
@@ -232,7 +232,7 @@
       </item>
      </layout>
     </item>
-    <item row="6" column="0">
+    <item row="7" column="0">
      <widget class="QCheckBox" name="revealTrojitaVersions">
       <property name="toolTip">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Selecting this option will include version information about Trojitá and the underlying platform, including the Qt version and operating system details. Please consider leaving this option enabled so that developers are able to troubleshoot bugreports when something goes wrong.&lt;/p&gt;&lt;p&gt;The data are communicated via the IMAP's &lt;code&gt;ID&lt;/code&gt; command and through the &lt;code&gt;User-Agent&lt;/code&gt; header in outgoing e-mails, among other things.&lt;/p&gt;&lt;p&gt;Please note that even if you disable this option, the servers which Trojitá talks to and the people who read your e-mails will still be able to find out that you are using (some version of) Trojitá.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -241,6 +241,30 @@
        <string>Reveal Trojitá's version and platform information</string>
       </property>
      </widget>
+    </item>
+    <item row="6" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="mboxDropActionCheckbox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;p&gt;If enabled, you can set the default drag and drop action for the mailbox tree.&lt;/p&gt;&lt;p&gt;If disabled, Trojitá will ask you every time. You can always override the action using modifier keys when dropping (control: copy, shift: move).&lt;/p&gt;</string>
+        </property>
+        <property name="text">
+         <string>Default drop action for the mbox tree</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="mboxDropActionBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
    </layout>
   </widget>
