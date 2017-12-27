@@ -2420,10 +2420,6 @@ void MainWindow::slotSortingConfirmed(int column, Qt::SortOrder order)
 
 void MainWindow::slotSearchRequested(const QStringList &searchConditions)
 {
-    if (!searchConditions.isEmpty() && actionThreadMsgList->isChecked()) {
-        // right now, searching and threading doesn't play well together at all
-        actionThreadMsgList->trigger();
-    }
     Imap::Mailbox::ThreadingMsgListModel * threadingMsgListModel =
             qobject_cast<Imap::Mailbox::ThreadingMsgListModel *>(m_imapAccess->threadingMsgListModel());
     threadingMsgListModel->setUserSearchingSortingPreference(searchConditions, threadingMsgListModel->currentSortCriterium(),

@@ -285,6 +285,9 @@ private:
     /** @short Is threading enabled, or shall we just use other features like sorting and filtering? */
     bool m_shallBeThreading;
 
+    /** @short Are we filtering the mailbox by search? */
+    bool m_filteredBySearch;
+
     /** @short Task handling the SORT command */
     QPointer<SortTask> m_sortTask;
 

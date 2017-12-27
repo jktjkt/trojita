@@ -1125,7 +1125,106 @@ void ImapModelThreadingTest::testDynamicSearch()
     expectedUidOrder = uidMap;
     checkUidMapFromThreading(expectedUidOrder);
 
-    // FIXME: check threading & searching combo
+    // Let's check threading & searching combo
+    threadingModel->setUserWantsThreading(true);
+    QByteArray threading;
+    QByteArray ordering;
+
+    // testing simple threading functionality for sure
+    threading = QByteArray("(6)(9 10)");
+    cClient(t.mk("UID THREAD REFS utf-8 ALL\r\n"));
+    cServer(QByteArray("* THREAD ") + threading + QByteArray("\r\n") + t.last("OK thread\r\n"));
+    QCOMPARE(treeToThreading(QModelIndex()), threading);
+
+#define _letsThreadingSearch(CONDITIONS, ORDERING, THREADING, reversed_answer) \
+{ \
+    threadingModel->setUserSearchingSortingPreference(CONDITIONS, threadingModel->currentSortCriterium(), threadingModel->currentSortOrder()); \
+    QString imapConds = CONDITIONS.join(' '); \
+    auto q = t.mk(QString("UID SEARCH RETURN (ALL) CHARSET utf-8 " + imapConds + "\r\n").toLocal8Bit().data()); \
+    searchTag = t.last(); \
+    q.append(t.mk(QString("UID THREAD REFS utf-8 " + imapConds + "\r\n").toLocal8Bit().data())); \
+    cClient(q); \
+    if (!reversed_answer) { \
+        cServer("* ESEARCH (TAG \"" + searchTag + "\") UID ALL " + ORDERING + "\r\n" + t.prev("OK searched\r\n")); \
+        cServer(QByteArray("* THREAD ") + THREADING + QByteArray("\r\n") + t.last("OK thread\r\n")); \
+    } else { \
+        cServer(QByteArray("* THREAD ") + THREADING + QByteArray("\r\n") + t.last("OK thread\r\n")); \
+        cServer("* ESEARCH (TAG \"" + searchTag + "\") UID ALL " + ORDERING + "\r\n" + t.prev("OK searched\r\n")); \
+    } \
+    cEmpty(); \
+}
+#define letsThreadingSearch(CONDITIONS, ORDERING, THREADING) _letsThreadingSearch(CONDITIONS, ORDERING, THREADING, false)
+#define letsTrickyThreadingSearch(CONDITIONS, ORDERING, THREADING) _letsThreadingSearch(CONDITIONS, ORDERING, THREADING, true)
+
+    QStringList conditions;
+
+    threading = QByteArray("(9)");
+    ordering = QByteArray("9");
+    conditions = QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("foo1");
+    letsThreadingSearch(conditions, ordering, threading);
+    QCOMPARE(treeToThreading(QModelIndex()), threading);
+
+    threading = QByteArray("(9 10)");
+    ordering = QByteArray("9,10");
+    conditions = QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("foo2");
+    letsThreadingSearch(conditions, ordering, threading);
+    QCOMPARE(treeToThreading(QModelIndex()), threading);
+    // redundant testing against treeToThreading() bugs for sure
+    QCOMPARE(threadingModel->rowCount(QModelIndex()), 1);
+    QCOMPARE(threadingModel->rowCount(threadingModel->index(1, 0)), 1);
+
+    threading = QByteArray("(9 10)");
+    ordering = QByteArray("9,10");
+    conditions = QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("fooOOO2");
+    letsTrickyThreadingSearch(conditions, ordering, threading);
+    QCOMPARE(treeToThreading(QModelIndex()), threading);
+
+    injector.injectCapability(QStringLiteral("CONTEXT=SEARCH"));
+
+#define letsThreadingSearchUpdate(CONDITIONS, ORDERING, THREADING) \
+{ \
+    threadingModel->setUserSearchingSortingPreference(CONDITIONS, threadingModel->currentSortCriterium(), threadingModel->currentSortOrder()); \
+    QString imapConds = CONDITIONS.join(' '); \
+    auto q = t.mk(QString("UID SEARCH RETURN (ALL UPDATE) CHARSET utf-8 " + imapConds + "\r\n").toLocal8Bit().data()); \
+    searchTag = t.last(); \
+    q.append(t.mk(QString("UID THREAD REFS utf-8 " + imapConds + "\r\n").toLocal8Bit().data())); \
+    cClient(q); \
+    cServer("* ESEARCH (TAG \"" + searchTag + "\") UID ALL " + ORDERING + "\r\n" + t.prev("OK searched\r\n")); \
+    cServer(QByteArray("* THREAD ") + THREADING + QByteArray("\r\n") + t.last("OK thread\r\n")); \
+    cEmpty(); \
+}
+
+    threading = QByteArray("(10)");
+    ordering = QByteArray("10");
+    conditions = QStringList() << QStringLiteral("SUBJECT") << QStringLiteral("foo3");
+    letsThreadingSearchUpdate(conditions, ordering, threading);
+    QCOMPARE(treeToThreading(QModelIndex()), threading);
+    // getting incremental update with active search
+    threading = QByteArray("(10 15)");
+    ordering = QByteArray("10 15");
+    cServer("* 4 EXISTS\r\n* ESEARCH (TAG \"" + searchTag + "\") UID ADDTO (0 15)\r\n");
+    auto qFoo3 = t.mk("UID FETCH 15:* (FLAGS)\r\n");
+    qFoo3.append(t.mk("UID THREAD REFS utf-8 SUBJECT foo3\r\n"));
+    cClient(qFoo3);
+    cServer("* 4 FETCH (UID 15 FLAGS ())\r\n" + t.prev("ok fetched\r\n"));
+    cServer(QByteArray("* THREAD ") + threading + QByteArray("\r\n") + t.last("OK thread\r\n"));
+    cEmpty();
+    QCOMPARE(treeToThreading(QModelIndex()), threading);
+
+    // exiting search
+    threading = QByteArray("(6)(9 (10)(15))");
+    ordering = QByteArray("6,9:10,15");
+    conditions = QStringList();
+    threadingModel->setUserSearchingSortingPreference(conditions, threadingModel->currentSortCriterium(), threadingModel->currentSortOrder());
+    auto q = t.mk(QString("CANCELUPDATE \"" + searchTag + "\"\r\n").toLocal8Bit().data());
+    q.append(t.mk(QString("UID THREAD REFS utf-8 ALL\r\n").toLocal8Bit().data()));
+    cClient(q);
+    cServer("* OK Updates cancelled\r\n" + t.prev("OK searched\r\n"));
+    cServer(QByteArray("* THREAD ") + threading + QByteArray("\r\n") + t.last("OK thread\r\n"));
+    cEmpty();
+    justKeepTask();
+    QCOMPARE(treeToThreading(QModelIndex()), threading);
+
     // FIXME: check sorting & searching combo
     // FIXME: check threading & sorting & searching combo
     // FIXME: check incremental updates
