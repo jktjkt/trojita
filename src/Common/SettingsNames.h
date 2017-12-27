@@ -56,7 +56,7 @@ struct SettingsNames {
     static const QString appLoadHomepage;
     static const QString guiShowSystray, guiOnSystrayClose, guiStartMinimized;
     static const QString knownEmailsKey;
-    static const QString addressbookPlugin, passwordPlugin;
+    static const QString addressbookPlugin, passwordPlugin, spellcheckerPlugin;
     static const QString imapIdleRenewal;
     static const QString autoMarkReadEnabled, autoMarkReadSeconds;
     static const QString interopRevealVersions;

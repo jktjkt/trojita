@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     a.setAttribute(Qt::AA_UseHighDpiPixmaps);
     QSettings s(QStringLiteral("flaska.net"), QStringLiteral("be.contacts"));
     s.setValue(QStringLiteral("plugin"), QLatin1String("abookaddressbook"));
-    Plugins::PluginManager m(nullptr, &s, QStringLiteral("plugin"), QStringLiteral("plugin"));
+    Plugins::PluginManager m(nullptr, &s, QStringLiteral("plugin"), QStringLiteral("plugin"), QStringLiteral("plugin"));
     Plugins::AddressbookPlugin *addressbook = m.addressbook();
     if (addressbook) {
         addressbook->openAddressbookWindow();

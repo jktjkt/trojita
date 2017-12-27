@@ -113,6 +113,7 @@ const QString SettingsNames::appLoadHomepage = QStringLiteral("app.updates.check
 const QString SettingsNames::knownEmailsKey = QStringLiteral("addressBook/knownEmails");
 const QString SettingsNames::addressbookPlugin = QStringLiteral("plugin/addressbook");
 const QString SettingsNames::passwordPlugin = QStringLiteral("plugin/password");
+const QString SettingsNames::spellcheckerPlugin = QStringLiteral("plugin/spellchecker");
 const QString SettingsNames::imapIdleRenewal = QStringLiteral("imapIdleRenewal");
 const QString SettingsNames::autoMarkReadEnabled = QStringLiteral("autoMarkRead/enabled");
 const QString SettingsNames::autoMarkReadSeconds = QStringLiteral("autoMarkRead/seconds");

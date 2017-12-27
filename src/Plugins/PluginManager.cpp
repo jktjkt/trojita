@@ -41,11 +41,17 @@
 
 namespace Plugins {
 
-PluginManager::PluginManager(QObject *parent, QSettings *settings, const QString &addressbookKey, const QString &passwordKey) : QObject(parent),
-    m_settings(settings), m_addressbookKey(addressbookKey), m_passwordKey(passwordKey)
+PluginManager::PluginManager(QObject *parent, QSettings *settings,
+                             const QString &addressbookKey, const QString &passwordKey, const QString &spellcheckerKey)
+    : QObject(parent)
+    , m_settings(settings)
+    , m_addressbookKey(addressbookKey)
+    , m_passwordKey(passwordKey)
+    , m_spellcheckerKey(spellcheckerKey)
 {
     m_addressbookName = m_settings->value(m_addressbookKey, QLatin1String("abookaddressbook")).toString();
     m_passwordName = m_settings->value(m_passwordKey, QLatin1String("cleartextpassword")).toString();
+    m_spellcheckerName = m_settings->value(m_spellcheckerKey, QString()).toString();
     CALL_LATER_NOARG(this, loadPlugins)
 }
 
@@ -149,6 +155,22 @@ void PluginManager::loadPlugin(QObject *pluginInstance)
             setPasswordPlugin(name);
         }
     }
+
+    if (auto spellcheckerPlugin = qobject_cast<SpellcheckerPluginInterface *>(pluginInstance)) {
+        const QString &name = spellcheckerPlugin->name();
+        Q_ASSERT(!name.isEmpty());
+        Q_ASSERT(!m_availableSpellchckePlugins.contains(name));
+        m_availableSpellchckePlugins[name] = spellcheckerPlugin;
+#ifdef PLUGIN_DEBUG
+        qDebug() << "Found spellchecker plugin" << name << ":" << spellcheckerPlugin->description();
+#endif
+        if (name == m_spellcheckerName) {
+#ifdef PLUGIN_DEBUG
+            qDebug() << "Will activate new default plugin" << name;
+#endif
+            setSpellcheckerPlugin(name);
+        }
+    }
 }
 
 QMap<QString, QString> PluginManager::availableAddressbookPlugins() const
@@ -169,6 +191,15 @@ QMap<QString, QString> PluginManager::availablePasswordPlugins() const
     return res;
 }
 
+QMap<QString, QString> PluginManager::availableSpellcheckerPlugins() const
+{
+    QMap<QString, QString> res;
+    for (auto plugin: m_availableSpellchckePlugins) {
+        res[plugin->name()] = plugin->description();
+    }
+    return res;
+}
+
 QString PluginManager::addressbookPlugin() const
 {
     return m_addressbookName;
@@ -177,6 +208,11 @@ QString PluginManager::addressbookPlugin() const
 QString PluginManager::passwordPlugin() const
 {
     return m_passwordName;
+}
+
+QString PluginManager::spellcheckerPlugin() const
+{
+    return m_spellcheckerName;
 }
 
 void PluginManager::setAddressbookPlugin(const QString &name)
@@ -219,6 +255,26 @@ void PluginManager::setPasswordPlugin(const QString &name)
     emit pluginsChanged();
 }
 
+void PluginManager::setSpellcheckerPlugin(const QString &name)
+{
+    m_spellcheckerName = name;
+    m_settings->setValue(m_spellcheckerKey, name);
+
+    if (m_spellchecker) {
+        delete m_spellchecker;
+    }
+
+    auto plugin = m_availableSpellchckePlugins.find(name);
+    if (plugin != m_availableSpellchckePlugins.end()) {
+#ifdef PLUGIN_DEBUG
+        qDebug() << "Setting new spellchecker plugin:" << (*plugin)->name();
+#endif
+        m_spellchecker = (*plugin)->create(this, m_settings);
+    }
+
+    emit pluginsChanged();
+}
+
 Plugins::AddressbookPlugin *PluginManager::addressbook() const
 {
     return m_addressbook;
@@ -227,6 +283,11 @@ Plugins::AddressbookPlugin *PluginManager::addressbook() const
 Plugins::PasswordPlugin *PluginManager::password() const
 {
     return m_password;
+}
+
+Plugins::SpellcheckerPlugin *PluginManager::spellchecker() const
+{
+    return m_spellchecker;
 }
 
 const PluginManager::MimePartReplacers &PluginManager::mimePartReplacers() const
