@@ -918,7 +918,7 @@ void MainWindow::setupModels()
     connect(imapModel(), &Imap::Mailbox::Model::mailboxCreationFailed, this, &MainWindow::slotMailboxCreateFailed);
     connect(imapModel(), &Imap::Mailbox::Model::mailboxSyncFailed, this, &MainWindow::slotMailboxSyncFailed);
 
-    connect(imapModel(), &Imap::Mailbox::Model::logged, imapLogger, &ProtocolLoggerWidget::slotImapLogged);
+    connect(imapModel(), &Imap::Mailbox::Model::logged, imapLogger, &ProtocolLoggerWidget::log);
     connect(imapModel(), &Imap::Mailbox::Model::connectionStateChanged, imapLogger, &ProtocolLoggerWidget::onConnectionClosed);
 
     auto nw = qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher());
@@ -2878,6 +2878,13 @@ void MainWindow::slotFavoriteTagsChanged()
         if (action)
             action->setText(tr("Tag with \"%1\"").arg(m_favoriteTags->tagNameByIndex(i - 1)));
     }
+}
+
+void MainWindow::registerComposeWindow(ComposeWidget* widget)
+{
+    connect(widget, &ComposeWidget::logged, this, [this](const Common::LogKind kind, const QString& source, const QString& message) {
+        imapLogger->log(0, Common::LogMessage(QDateTime::currentDateTime(), kind, source, message, 0));
+    });
 }
 
 }

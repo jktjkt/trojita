@@ -37,6 +37,12 @@ SMTP::SMTP(QObject *parent, const QString &host, quint16 port, bool encryptedCon
     connect(qwwSmtp, &QwwSmtpClient::connected, this, &AbstractMSA::sending);
     connect(qwwSmtp, &QwwSmtpClient::done, this, &SMTP::handleDone);
     connect(qwwSmtp, &QwwSmtpClient::socketError, this, &SMTP::handleError);
+    connect(qwwSmtp, &QwwSmtpClient::logReceived, this, [this](const QByteArray& data) {
+        emit logged(Common::LogKind::LOG_IO_READ, QStringLiteral("SMTP"), QString::fromUtf8(data));
+    });
+    connect(qwwSmtp, &QwwSmtpClient::logSent, this, [this](const QByteArray& data) {
+        emit logged(Common::LogKind::LOG_IO_WRITTEN, QStringLiteral("SMTP"), QString::fromUtf8(data));
+    });
 }
 
 void SMTP::cancel()

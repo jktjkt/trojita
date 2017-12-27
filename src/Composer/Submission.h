@@ -26,7 +26,8 @@
 #include <QPersistentModelIndex>
 #include <QPointer>
 
-#include "Recipients.h"
+#include "Common/Logging.h"
+#include "Composer/Recipients.h"
 
 namespace Imap {
 namespace Mailbox {
@@ -109,6 +110,7 @@ signals:
     void passwordRequested(const QString &user, const QString &host);
     void gotPassword(const QString &password);
     void canceled();
+    void logged(const Common::LogKind kind, const QString& source, const QString& message);
 
 private:
     bool shouldBuildMessageLocally() const;

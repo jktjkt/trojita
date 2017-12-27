@@ -62,10 +62,10 @@ public:
     virtual ~ProtocolLoggerWidget();
 
 public slots:
-    /** @short An IMAP model wants to log something */
-    void slotImapLogged(uint parserId, Common::LogMessage message);
+    /** @short A protocol handler wants to log something */
+    void log(uint connectionId, Common::LogMessage message);
 
-    void onConnectionClosed(uint parserId, Imap::ConnectionState state);
+    void onConnectionClosed(uint connectionId, Imap::ConnectionState state);
 
     /** @short Enable/disable persistent logging */
     void slotSetPersistentLogging(const bool enabled);
@@ -91,10 +91,10 @@ private:
     Common::FileLogger *m_fileLogger;
 
     /** @short Return (possibly newly created) logger widget for a given parser */
-    QPlainTextEdit *getLogger(const uint parserId);
+    QPlainTextEdit *getLogger(const uint connectionId);
 
     /** @short Dump the log bufer contents to the GUI widget */
-    void flushToWidget(const uint parserId, Common::RingBuffer<Common::LogMessage> &buf);
+    void flushToWidget(const uint connectionId, Common::RingBuffer<Common::LogMessage> &buf);
 
     virtual void showEvent(QShowEvent *e);
     virtual void hideEvent(QHideEvent *e);

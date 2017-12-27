@@ -31,6 +31,7 @@
 #include <QPointer>
 #include <QWidget>
 
+#include "Common/Logging.h"
 #include "Composer/Recipients.h"
 #include "Composer/MessageComposer.h"
 #include "Plugins/AddressbookPlugin.h"
@@ -132,6 +133,9 @@ private slots:
     void updateReplyMarkingAction();
     void updateReplyMode();
     void markReplyModeHandpicked();
+
+signals:
+    void logged(const Common::LogKind kind, const QString& source, const QString& message);
 
 private:
     ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::AbstractComposer> messageComposer, MSA::MSAFactory *msaFactory);

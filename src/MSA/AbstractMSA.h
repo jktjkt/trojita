@@ -24,6 +24,7 @@
 
 #include <QByteArray>
 #include <QObject>
+#include "Common/Logging.h"
 #include "Imap/Model/UidSubmitData.h"
 
 namespace MSA
@@ -52,6 +53,7 @@ signals:
     void error(const QString &message);
     void progressMax(int max);
     void progress(int num);
+    void logged(const Common::LogKind kind, const QString& source, const QString& message);
 };
 
 /** @short Factory producing AbstractMSA instances */

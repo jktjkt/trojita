@@ -39,8 +39,8 @@ public:
     virtual ~FileLogger();
 
 public slots:
-    /** @short An IMAP model wants to log something */
-    void slotImapLogged(uint parser, Common::LogMessage message);
+    /** @short A connection handler wants to log something */
+    void log(uint connectionId, Common::LogMessage message);
 
     /** @short Enable/disable persistent logging */
     void setFileLogging(const bool enabled, const QString &fileName);
