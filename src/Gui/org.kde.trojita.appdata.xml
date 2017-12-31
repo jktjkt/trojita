@@ -97,7 +97,7 @@
     <p xml:lang="bs">Daje prednost efikasnosti, brzini i otvorenim standardima ispred drugih ciljeva. Trojitá također teži da bude višestruka platforma i da dobro funkcioniše na svemu, od velikih desktop računara do malih mobilnih uređaja. Trojitá je nezavisan program, nije dio "lično-informacijskog menadžerskog" paketa.</p>
     <p xml:lang="ca">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="ca-valencia">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
-    <p xml:lang="da">Den prioriterer effektivitet, hastighed og åbne standarder over andre mål. Trojitá prøver også at virke på flere platforme, og fungere godt på alt fra store desktop-computere til små mobiltelefoner. Trojitá er et selvstændigt program, det er ikke del af suite til håndtering af personlig information.</p>
+    <p xml:lang="da">Den prioriterer effektivitet, hastighed og åbne standarder over andre mål. Trojitá har også som mål at virke på flere platforme, og fungere godt på alt fra store skrivebordscomputere til små mobiltelefoner. Trojitá er et selvstændigt program, som ikk er en del af en samling til håndtering af personlig information.</p>
     <p xml:lang="el">Δίνει προτεραιότητα σε αποτελεσματικότητα, ταχύτητα και στα ανοιχτά πρότυπα πάνω απ' όλα. Η Trojitá επίσης στοχεύει να έχει υλοποίηση για πολλές πλατφόρμες και να λειτουργεί καλά σε οτιδήποτε από μεγάλους υπολογιστές γραφείου μέχρι μικρά κινητά τηλέφωνα. Η Trojitá είναι ένα ανεξάρτητο πρόγραμμα, όχι τμήμα κάποιας σουίτας «διαχείρισης προσωπικών πληροφοριών».</p>
     <p xml:lang="en-GB">It prioritises efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.</p>
     <p xml:lang="es">Prioriza la eficiencia, la velocidad y los estándares abiertos por encima de otros objetivos. Trojitá también pretende ser multiplataforma y funciona bien en cualquier equipo, desde los de escritorio hasta los teléfonos móviles más pequeños. Trojitá es un programa independiente que no forma parte de ningún sistema de «gestión de información personal».</p>
@@ -240,7 +240,7 @@
       <li xml:lang="bs">Podrška za režim snimanja propusnosti ciljan za korisnike mobilnih uređaja za skupom konekcijom</li>
       <li xml:lang="ca">Permet el mode d'estalvi de l'amplada de banda destinat als usuaris de mòbils amb una connexió cara</li>
       <li xml:lang="ca-valencia">Permet el mode d'estalvi de l'amplada de banda destinat als usuaris de mòbils amb una connexió cara</li>
-      <li xml:lang="da">Understøttelse af båndbreddebesparende tilstand til mobile brugere dyre forbindelser</li>
+      <li xml:lang="da">Understøttelse af båndbreddebesparende tilstand til mobile brugere med dyr forbindelse</li>
       <li xml:lang="el">Υποστήριξη λειτουργίας μείωσης της ευρυζωνικής κατανάλωσης για χρήστες κινητών με ακριβές συνδέσεις</li>
       <li xml:lang="en-GB">Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
       <li xml:lang="es">Modo de ahorro de ancho de banda dirigido a usuarios de móviles con conexiones caras</li>
@@ -315,6 +315,7 @@
       <caption xml:lang="ar">نصوص الاقتباس الطّويلة تُطوى آليًّا</caption>
       <caption xml:lang="ca">El text citat excessivament es col·lapsa</caption>
       <caption xml:lang="ca-valencia">El text citat excessivament es col·lapsa</caption>
+      <caption xml:lang="da">Automatisk sammenfoldning af tekst med mange citeringer</caption>
       <caption xml:lang="el">Το υπέρμετρο κείμενο σε παράθεση συμπτύσσεται αυτόματα</caption>
       <caption xml:lang="en-GB">Excessively quoted text is automatically collapsed</caption>
       <caption xml:lang="es">El texto citado en exceso se contrae automáticamente</caption>
@@ -336,6 +337,7 @@
       <caption xml:lang="ar">البُرد الإلكترونيّة المعمّاة والموقّعة مدعومة، حيث تُعطى حالتها بالإنجليزية</caption>
       <caption xml:lang="ca">Funciona amb correu electrònic encriptat i signat, amb l'estat indicat en anglès</caption>
       <caption xml:lang="ca-valencia">Funciona amb correu electrònic encriptat i signat, amb l'estat indicat en anglés</caption>
+      <caption xml:lang="da">Understøttelse af krypteret og signeret e-mail, med status i ren engelsk</caption>
       <caption xml:lang="el">Υποστήριξη υπογεγραμμένων μηνυμάτων· η κατάσταση εμφανίζεται σε ανεπεξέργαστο κείμενο στην Αγγλική γλώσσα.</caption>
       <caption xml:lang="en-GB">Encrypted and signed e-mail is supported, with status given in plain English</caption>
       <caption xml:lang="es">Permite el uso de correo electrónico cifrado y firmado, con el estado dado en inglés sin formato</caption>
