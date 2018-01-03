@@ -1037,7 +1037,7 @@ void MainWindow::handleTrayIconChange()
     auto watchingMode = settings()->value(Common::SettingsNames::watchedFoldersKey).toString();
     if (watchingMode == Common::SettingsNames::watchAll || watchingMode == Common::SettingsNames::watchSubscribed) {
         bool subscribedOnly = watchingMode == Common::SettingsNames::watchSubscribed;
-        unreadCount = std::accumulate(UiUtils::QaimDfsIterator(m_imapAccess->mailboxModel()->index(0, 0)),
+        unreadCount = std::accumulate(UiUtils::QaimDfsIterator(m_imapAccess->mailboxModel()->index(0, 0), m_imapAccess->mailboxModel()),
                                       UiUtils::QaimDfsIterator(), 0, [subscribedOnly](const int acc, const QModelIndex &idx) {
 
             if (subscribedOnly && !idx.data(Imap::Mailbox::RoleMailboxIsSubscribed).toBool())
