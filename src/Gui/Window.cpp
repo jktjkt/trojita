@@ -248,7 +248,7 @@ void MainWindow::defineActions()
     shortcutHandler->defineAction(QStringLiteral("action_reply_list"), QStringLiteral("mail-reply-list"), tr("Reply to &Mailing List"), tr("Ctrl+L"));
     shortcutHandler->defineAction(QStringLiteral("action_reply_guess"), QString(), tr("Reply by &Guess"), tr("Ctrl+R"));
     shortcutHandler->defineAction(QStringLiteral("action_forward_attachment"), QStringLiteral("mail-forward"), tr("&Forward"), tr("Ctrl+Shift+F"));
-    shortcutHandler->defineAction(QStringLiteral("action_bounce"), QStringLiteral("mail-bounce"), tr("Edit as New E-Mail Message..."));
+    shortcutHandler->defineAction(QStringLiteral("action_resend"), QStringLiteral("mail-resend"), tr("Resend..."));
     shortcutHandler->defineAction(QStringLiteral("action_archive"), QStringLiteral("mail-move-to-archive"), tr("&Archive"), QStringLiteral("A"));
     shortcutHandler->defineAction(QStringLiteral("action_contact_editor"), QStringLiteral("contact-unknown"), tr("Address Book..."));
     shortcutHandler->defineAction(QStringLiteral("action_network_offline"), QStringLiteral("network-disconnect"), tr("&Offline"));
@@ -284,7 +284,7 @@ void MainWindow::createActions()
     // list: Ctrl+Shift+L
     // forward: Ctrl+L
     // (no shortcuts for type of forwarding)
-    // bounce: ctrl+B
+    // resend: ctrl+B
     // new message: Ctrl+N
     //
     // KMail:
@@ -294,7 +294,7 @@ void MainWindow::createActions()
     // list: L
     // forward as attachment: F
     // forward inline: Shift+F
-    // bounce: E
+    // resend: E
     // new: Ctrl+N
 
     m_actionContactEditor = ShortcutHandler::instance()->createAction(QStringLiteral("action_contact_editor"), this, SLOT(invokeContactEditor()), this);
@@ -399,7 +399,7 @@ void MainWindow::createActions()
     expunge = ShortcutHandler::instance()->createAction(QStringLiteral("action_expunge"), this, SLOT(slotExpunge()), this);
 
     m_forwardAsAttachment = ShortcutHandler::instance()->createAction(QStringLiteral("action_forward_attachment"), this, SLOT(slotForwardAsAttachment()), this);
-    m_bounce = ShortcutHandler::instance()->createAction(QStringLiteral("action_bounce"), this, SLOT(slotBounce()), this);
+    m_resend = ShortcutHandler::instance()->createAction(QStringLiteral("action_resend"), this, SLOT(slotResend()), this);
     markAsRead = ShortcutHandler::instance()->createAction(QStringLiteral("action_mark_as_read"), this);
     markAsRead->setCheckable(true);
     msgListWidget->tree->addAction(markAsRead);
@@ -696,7 +696,7 @@ void MainWindow::createMenus()
     ADD_ACTION(imapMenu, m_replyList);
     imapMenu->addSeparator();
     ADD_ACTION(imapMenu, m_forwardAsAttachment);
-    ADD_ACTION(imapMenu, m_bounce);
+    ADD_ACTION(imapMenu, m_resend);
     imapMenu->addSeparator();
     ADD_ACTION(imapMenu, expunge);
     imapMenu->addSeparator()->setText(tr("Network Access"));
@@ -1839,7 +1839,7 @@ void MainWindow::updateActionsOnlineOffline(bool online)
         m_replyAllButMe->setEnabled(false);
         m_replyList->setEnabled(false);
         m_forwardAsAttachment->setEnabled(false);
-        m_bounce->setEnabled(false);
+        m_resend->setEnabled(false);
     }
 }
 
@@ -1868,7 +1868,7 @@ void MainWindow::slotUpdateMessageActions()
     }
 
     m_forwardAsAttachment->setEnabled(m_messageWidget->messageView->currentMessage().isValid());
-    m_bounce->setEnabled(m_messageWidget->messageView->currentMessage().isValid());
+    m_resend->setEnabled(m_messageWidget->messageView->currentMessage().isValid());
 }
 
 void MainWindow::scrollMessageUp()
@@ -1914,7 +1914,7 @@ void MainWindow::slotForwardAsAttachment()
     m_messageWidget->messageView->forward(this, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
 }
 
-void MainWindow::slotBounce()
+void MainWindow::slotResend()
 {
     QModelIndex index;
     Imap::Mailbox::Model::realTreeItem(msgListWidget->tree->currentIndex(), nullptr, &index);
