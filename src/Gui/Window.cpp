@@ -419,14 +419,17 @@ void MainWindow::createActions()
 
     markAsFlagged = ShortcutHandler::instance()->createAction(QStringLiteral("action_mark_as_flagged"), this);
     markAsFlagged->setCheckable(true);
+    msgListWidget->tree->addAction(markAsFlagged);
     connect(markAsFlagged, &QAction::triggered, this, &MainWindow::handleMarkAsFlagged);
 
     markAsJunk = ShortcutHandler::instance()->createAction(QStringLiteral("action_mark_as_junk"), this);
     markAsJunk->setCheckable(true);
+    msgListWidget->tree->addAction(markAsJunk);
     connect(markAsJunk, &QAction::triggered, this, &MainWindow::handleMarkAsJunk);
 
     markAsNotJunk = ShortcutHandler::instance()->createAction(QStringLiteral("action_mark_as_notjunk"), this);
     markAsNotJunk->setCheckable(true);
+    msgListWidget->tree->addAction(markAsNotJunk);
     connect(markAsNotJunk, &QAction::triggered, this, &MainWindow::handleMarkAsNotJunk);
 
     saveWholeMessage = ShortcutHandler::instance()->createAction(QStringLiteral("action_save_message_as"), this, SLOT(slotSaveCurrentMessageBody()), this);
@@ -442,6 +445,7 @@ void MainWindow::createActions()
             SLOT(openCompleteMessageWidget()), this));
 
     moveToArchive = ShortcutHandler::instance()->createAction(QStringLiteral("action_archive"), this);
+    msgListWidget->tree->addAction(moveToArchive);
     connect(moveToArchive, &QAction::triggered, this, &MainWindow::handleMoveToArchive);
 
     auto addTagAction = [=](int row) {
