@@ -67,12 +67,11 @@ void AkonadiAddressbookCompletionJob::searchResult(KJob *job)
         for (int i = 0; i < contacts.size() && (m_max == -1 || list.size() < m_max); ++i) {
             KContacts::Addressee contact = contacts[i];
 
-            // Trying to sort out irrelevant email addresses. Although this is not perfect.
-            QStringList emails = contact.emails().filter(m_input, Qt::CaseInsensitive);
-            if (emails.size() == 0)
-                emails = contact.emails();
+            // put the matching ones first and then the rest
+            QStringList emails1 = contact.emails().filter(m_input, Qt::CaseInsensitive);
+            QStringList emails2 = contact.emails().toSet().subtract(emails1.toSet()).toList();
 
-            Q_FOREACH(const QString &email, emails) {
+            Q_FOREACH(const QString &email, emails1 + emails2) {
                 if (!m_ignores.contains(email)) {
                     list << NameEmail(contact.realName(), email);
                     if (m_max != -1 && list.size() >= m_max)
