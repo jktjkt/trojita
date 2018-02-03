@@ -82,8 +82,8 @@ private slots:
     void updateAncestors();
     void updateGeometry();
 private:
-    uchar m_step;
-    char m_fadeStep;
+    int m_step;
+    int m_fadeStep;
     int m_timer;
     QTimer *m_startTimer;
     QList<QWidget*> m_ancestors;
