@@ -1031,14 +1031,14 @@ void MainWindow::handleTrayIconChange()
         tooltip = QStringLiteral("Trojitá [%1]").arg(profileName);
     }
 
-    uint unreadCount = 0;
+    int unreadCount = 0;
     bool numbersValid = false;
 
     auto watchingMode = settings()->value(Common::SettingsNames::watchedFoldersKey).toString();
     if (watchingMode == Common::SettingsNames::watchAll || watchingMode == Common::SettingsNames::watchSubscribed) {
         bool subscribedOnly = watchingMode == Common::SettingsNames::watchSubscribed;
-        unreadCount = std::accumulate(UiUtils::QaimDfsIterator(m_imapAccess->mailboxModel()->index(0, 0)),
-                                      UiUtils::QaimDfsIterator(), 0, [subscribedOnly](const uint acc, const QModelIndex &idx) {
+        unreadCount = std::accumulate(UiUtils::QaimDfsIterator(m_imapAccess->mailboxModel()->index(0, 0), m_imapAccess->mailboxModel()),
+                                      UiUtils::QaimDfsIterator(), 0, [subscribedOnly](const int acc, const QModelIndex &idx) {
 
             if (subscribedOnly && !idx.data(Imap::Mailbox::RoleMailboxIsSubscribed).toBool())
                 return acc;

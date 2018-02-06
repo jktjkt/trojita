@@ -646,10 +646,11 @@ void ThreadingMsgListModel::askForThreading(const uint firstUnknownUid)
     Q_ASSERT(sourceModel());
     Q_ASSERT(sourceModel()->rowCount());
 
-    const Imap::Mailbox::Model *realModel;
+    const Imap::Mailbox::Model *realModel = nullptr;
     QModelIndex someMessage = sourceModel()->index(0,0);
     QModelIndex realIndex;
     Imap::Mailbox::Model::realTreeItem(someMessage, &realModel, &realIndex);
+    Q_ASSERT(realModel);
     QModelIndex mailboxIndex = realIndex.parent().parent();
 
     if (realModel->capabilities().contains(QStringLiteral("THREAD=REFS"))) {
