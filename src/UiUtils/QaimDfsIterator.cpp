@@ -172,7 +172,7 @@ void gotoNext(const QAbstractItemModel *model, const QModelIndex &currentIndex,
     UiUtils::wrappedFind<decltype(it)>(
                 it,
                 QaimDfsIterator(QModelIndex(), model),
-                QaimDfsIterator(model->index(0, 0, QModelIndex())),
+                QaimDfsIterator(model->index(0, 0, QModelIndex()), model),
                 QaimDfsIterator(currentIndex, model),
                 [](const QModelIndex &idx) { return idx.isValid(); },
                 matcher,
