@@ -132,7 +132,7 @@ void EnvelopeView::setMessage(const QModelIndex &index)
     }
     if (!e.cc.isEmpty()) {
         if (receiverWidget) {
-            receiverWidget->addAddresses(QStringLiteral(" %1").arg(tr("CC'd to")), e.cc, m_messageView);
+            receiverWidget->addAddresses(QStringLiteral(" %1").arg(tr("Cc'd to")), e.cc, m_messageView);
         } else {
             receiverLabel = tr("Cc");
             receiverWidget = new AddressRowWidget(this, QString(), e.cc, m_messageView);
