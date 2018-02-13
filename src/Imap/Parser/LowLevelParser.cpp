@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2018 Erik Quaeghebeur <kde@equaeghe.nospammail.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -22,7 +23,10 @@
 
 #include <limits>
 #include <QDebug>
+#include <QMap>
 #include <QPair>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QStringList>
 #include <QVariant>
 #include <QDateTime>
@@ -415,69 +419,85 @@ Imap::Uids getSequence(const QByteArray &line, int &start)
 
 QDateTime parseRFC2822DateTime(const QByteArray &input)
 {
-    QStringList monthNames = QStringList() << QStringLiteral("jan") << QStringLiteral("feb") << QStringLiteral("mar")
-                                           << QStringLiteral("apr") << QStringLiteral("may") << QStringLiteral("jun")
-                                           << QStringLiteral("jul") << QStringLiteral("aug") << QStringLiteral("sep")
-                                           << QStringLiteral("oct") << QStringLiteral("nov") << QStringLiteral("dec");
+    static const QMap<QString, uint> monthnumbers({ // default value is 0
+        {QLatin1String("jan"), 1}, {QLatin1String("feb"), 2},
+        {QLatin1String("mar"), 3}, {QLatin1String("apr"), 4},
+        {QLatin1String("may"), 5}, {QLatin1String("jun"), 6},
+        {QLatin1String("jul"), 7}, {QLatin1String("aug"), 8},
+        {QLatin1String("sep"), 9}, {QLatin1String("oct"), 10},
+        {QLatin1String("nov"), 11}, {QLatin1String("dec"), 12}
+    });
 
-    QRegExp rx(QString::fromUtf8("^(?:\\s*([A-Z][a-z]+)\\s*,\\s*)?"   // date-of-week
-                                 "(\\d{1,2})\\s+(%1)\\s+(\\d{2,4})" // date
-                                 "\\s+(\\d{1,2})\\s*:(\\d{1,2})\\s*(?::\\s*(\\d{1,2})\\s*)?" // time
-                                 "(\\s+(?:(?:([+-]?)(\\d{2})(\\d{2}))|(UT|GMT|EST|EDT|CST|CDT|MST|MDT|PST|PDT|[A-IK-Za-ik-z])))?" // timezone
-                                 ).arg(monthNames.join(QLatin1String("|"))), Qt::CaseInsensitive);
-    int pos = rx.indexIn(QString::fromUtf8(input));
+    static const QMap<QString, int> tzoffsethrs({ // default value is 0
+        {QLatin1String("EST"), 5}, {QLatin1String("EDT"), 4},
+        {QLatin1String("CST"), 6}, {QLatin1String("CDT"), 5},
+        {QLatin1String("MST"), 7}, {QLatin1String("MDT"), 6},
+        {QLatin1String("PST"), 8}, {QLatin1String("PDT"), 7}
+    });
 
-    if (pos == -1)
+    static const QRegularExpression rx(
+              QLatin1String("^\\s*"
+                            "(?:"
+                                "([A-Z][a-z]+)" // 1: day-of-week (may be empty)
+                                "\\s*,\\s*"
+                            ")?"
+                            "(\\d{1,2})" // 2: day
+                            "\\s+"
+                            "(") // 3: month
+            +         QStringList(monthnumbers.keys()).join(QLatin1Char('|'))
+                      // wrapping with QStringList because Qt 5.2 has no join for Qlist<QString>, unlike Qt >=5.5 (Qt 5.3-4?)
+            + QLatin1String(")"
+                            "\\s+"
+                            "(\\d{2,4})" // 4: year
+                            "\\s+"
+                            "(\\d{1,2})" // 5: hours
+                            "\\s*:\\s*"
+                            "(\\d{1,2})" // 6: minutes
+                            "(?:"
+                                "\\s*:\\s*"
+                                "(\\d{1,2})" // 7: seconds (may be empty)
+                            ")?"
+                            "(?:"
+                                "\\s+"
+                                "(?:" // timezone (some or all may be empty)
+                                    "(" // 8: timezone offset
+                                      "([+-]?)" // 9: offset direction
+                                      "(\\d{2})" // 10: offset hours
+                                      "(\\d{2})" // 11: offset minutes
+                                    ")"
+                                    "|"
+                                    "(") // 12: timezone code
+            +                QStringList(tzoffsethrs.keys()).join(QLatin1Char('|'))
+                                         // codes not considered are ignored and implicitly assumed to correspond to UTC
+                             // wrapping with QStringList because Qt 5.2 has no join for Qlist<QString>, unlike Qt >=5.5 (Qt 5.3-4?)
+            + QLatin1String(        ")"
+                                ")"
+                            ")?"
+                            "\\s*"),
+                            QRegularExpression::CaseInsensitiveOption);
+
+    QRegularExpressionMatch match = rx.match(QString::fromUtf8(input));
+    if (!match.hasMatch())
         throw ParseError("Date format not recognized");
 
-    QStringList list = rx.capturedTexts();
-
-    if (list.size() != 13)
-        throw ParseError("Date regular expression returned weird data (internal error?)");
-
-    int year = list[4].toInt();
-    int month = monthNames.indexOf(list[3].toLower()) + 1;
+    int year = match.captured(4).toInt();
+    int month = monthnumbers[match.captured(3).toLower()];
     if (month == 0)
         throw ParseError("Invalid month name");
-    int day = list[2].toInt();
-    int hours = list[5].toInt();
-    int minutes = list[6].toInt();
-    int seconds = list[7].toInt();
-    int shift = list[10].toInt() * 60 + list[11].toInt();
-    if (list[9] == QLatin1String("-"))
-        shift *= 60;
-    else
-        shift *= -60;
-    if (! list[12].isEmpty()) {
-        const QString tz = list[12].toUpper();
-        if (tz == QLatin1String("UT") || tz == QLatin1String("GMT"))
-            shift = 0;
-        else if (tz == QLatin1String("EST"))
-            shift = 5 * 3600;
-        else if (tz == QLatin1String("EDT"))
-            shift = 4 * 3600;
-        else if (tz == QLatin1String("CST"))
-            shift = 6 * 3600;
-        else if (tz == QLatin1String("CDT"))
-            shift = 5 * 3600;
-        else if (tz == QLatin1String("MST"))
-            shift = 7 * 3600;
-        else if (tz == QLatin1String("MDT"))
-            shift = 6 * 3600;
-        else if (tz == QLatin1String("PST"))
-            shift = 8 * 3600;
-        else if (tz == QLatin1String("PDT"))
-            shift = 7 * 3600;
-        else if (tz.size() == 1)
-            shift = 0;
-        else
-            throw ParseError("Invalid TZ specification");
-    }
+    int day = match.captured(2).toInt();
+    int hours = match.captured(5).toInt();
+    int minutes = match.captured(6).toInt();
+    int seconds = match.captured(7).toInt();
+    int shift(0);
+    if (!match.captured(8).isEmpty()) {
+        shift = (match.captured(10).toInt() * 60 + match.captured(11).toInt()) * 60;
+        if (match.captured(9) != QLatin1String("-"))
+            shift *= -1;
+    } else if (!match.captured(12).isEmpty())
+        shift = tzoffsethrs[match.captured(12).toUpper()] * 3600;
 
-    QDateTime date(QDate(year, month, day), QTime(hours, minutes, seconds), Qt::UTC);
-    date = date.addSecs(shift);
-
-    return date;
+    return QDateTime(QDate(year, month, day), QTime(hours, minutes, seconds),
+                     Qt::UTC).addSecs(shift); // TODO: perhaps use  Qt::OffsetFromUTC timespec instead to preserve more information
 }
 
 void eatSpaces(const QByteArray &line, int &start)

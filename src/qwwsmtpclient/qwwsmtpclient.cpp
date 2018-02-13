@@ -12,6 +12,7 @@
 #include "qwwsmtpclient.h"
 #include <QSslSocket>
 #include <QtDebug>
+#include <QRegularExpression>
 #include <QQueue>
 #include <QVariant>
 #include <QStringList>
@@ -148,13 +149,12 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
     while (socket->canReadLine()) {
         QString line = socket->readLine();
         emit q->logReceived(line.toUtf8());
-        QRegExp rx("(\\d+)-(.*)\n");        // multiline response (aka 250-XYZ)
-        QRegExp rxlast("(\\d+) (.*)\n");    // single or last line response (aka 250 XYZ)
-        bool mid = rx.exactMatch(line);
-        bool last = rxlast.exactMatch(line);
+        QRegularExpression rx("(*ANYCRLF)^(\\d+)-(.*)$", QRegularExpression::MultilineOption);        // multiline response (aka 250-XYZ)
+        QRegularExpression rxlast("(*ANYCRLF)^(\\d+) (.*)$", QRegularExpression::MultilineOption);    // single or last line response (aka 250 XYZ)
         // multiline
-        if (mid){
-            int status = rx.cap(1).toInt();
+        QRegularExpressionMatch mid_match = rx.match(line);
+        if (mid_match.hasMatch()) {
+            int status = mid_match.captured(1).toInt();
             SMTPCommand &cmd = commandqueue.head();
             switch (cmd.type) {
             // trying to connect
@@ -162,7 +162,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     int stage = cmd.extra.toInt();
                     // stage 0 completed with success - socket is connected and EHLO was sent
                     if(stage==1 && status==250){
-                        QString arg = rx.cap(2).trimmed();
+                        QString arg = mid_match.captured(2).trimmed();
                         parseOption(arg);   // we're probably receiving options
                     }
                 }
@@ -172,192 +172,194 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     int stage = cmd.extra.toInt();
                     // stage 0 (negotiation) completed ok
                     if(stage==1 && status==250){
-                        QString arg = rx.cap(2).trimmed();
+                        QString arg = mid_match.captured(2).trimmed();
                         parseOption(arg);   // we're probably receiving options
                     }
                 }
                 default: break;
             }
-        } else
-        // single line
-        if (last) {
-            int status = rxlast.cap(1).toInt();
-            SMTPCommand &cmd = commandqueue.head();
-            switch (cmd.type) {
-            // trying to connect
-            case SMTPCommand::Connect: {
-                int stage = cmd.extra.toInt();
-                // connection established, server sent its banner
-                if (stage==0 && status==220) {
-                    sendEhlo(); // connect ok, send ehlo
-                }
-                // server responded to EHLO
-                if (stage==1 && status==250){
-                    // success (EHLO)
-                    parseOption(rxlast.cap(2).trimmed()); // we're probably receiving the last option
-                    errorString.clear();
-                    setState(QwwSmtpClient::Connected);
-                    processNextCommand();
-                }
-                // server responded to HELO (EHLO failed)
-                if (stage==2 && status==250) {
-                    // success (HELO)
-                    errorString.clear();
-                    setState(QwwSmtpClient::Connected);
-                    processNextCommand();
-                }
-                // EHLO failed, reason given in errorString
-                if (stage==1 && (status==554 || status==501 || status==502 || status==421)) {
-                    errorString = rxlast.cap(2).trimmed();
-                    sendHelo(); // ehlo failed, send helo
-                    cmd.extra = 2;
-                }
-                //abortDialog();
-            }
-            break;
-            // trying to establish a delayed SSL handshake
-            case SMTPCommand::StartTLS: {
-                int stage = cmd.extra.toInt();
-                // received an invitation from the server to enter TLS mode
-                if (stage==0 && status==220) {
-                    emit q->logSent("*** startClientEncryption");
-                    socket->startClientEncryption();
-                }
-                // TLS established, connection is encrypted, EHLO was sent
-                else if (stage==1 && status==250) {
-                    setState(QwwSmtpClient::Connected);
-                    parseOption(rxlast.cap(2).trimmed());   // we're probably receiving options
-                    errorString.clear();
-                    emit q->tlsStarted();
-                    processNextCommand();
-                }
-                // starttls failed
-                else {
-                    emit q->logReceived(QByteArrayLiteral("*** TLS failed at stage ") + QByteArray::number(stage) + ": " + line.toUtf8());
-                    errorString = "TLS failed";
-                    emit q->done(false);
-                }
-            }
-            break;
-            // trying to authenticate the client to the server
-            case SMTPCommand::Authenticate: {
-                int stage = cmd.extra.toInt();
-                if (stage==0 && status==334) {
-                    // AUTH mode was accepted by the server, 1st challenge sent
-                    QwwSmtpClient::AuthMode authmode = (QwwSmtpClient::AuthMode)cmd.data.toList().at(0).toInt();
-                    errorString.clear();
-                    switch (authmode) {
-                    case QwwSmtpClient::AuthPlain:
-                        sendAuthPlain(cmd.data.toList().at(1).toString(), cmd.data.toList().at(2).toString());
-                        break;
-                    case QwwSmtpClient::AuthLogin:
-                        sendAuthLogin(cmd.data.toList().at(1).toString(), cmd.data.toList().at(2).toString(), 1);
-                        break;
-                    default:
-                        qWarning("I shouldn't be here");
-                        setState(QwwSmtpClient::Connected);
-                        processNextCommand();
-                        break;
-                    }
-                    cmd.extra = stage+1;
-                } else if (stage==1 && status==334) {
-                    // AUTH mode and user names were acccepted by the server, 2nd challenge sent
-                    QwwSmtpClient::AuthMode authmode = (QwwSmtpClient::AuthMode)cmd.data.toList().at(0).toInt();
-                    errorString.clear();
-                    switch (authmode) {
-                    case QwwSmtpClient::AuthPlain:
-                        // auth failed
-                        setState(QwwSmtpClient::Connected);
-                        processNextCommand();
-                        break;
-                    case QwwSmtpClient::AuthLogin:
-                        sendAuthLogin(cmd.data.toList().at(1).toString(), cmd.data.toList().at(2).toString(), 2);
-                        break;
-                    default:
-                        qWarning("I shouldn't be here");
-                        setState(QwwSmtpClient::Connected);
-                        processNextCommand();
-                        break;
-                    }
-                } else if (stage==2 && status==334) {
-                    // auth failed
-                    errorString = rxlast.cap(2).trimmed();
-                    setState(QwwSmtpClient::Connected);
-                    processNextCommand();
-                } else if (status==235) {
-                    // auth ok
-                    errorString.clear();
-                    emit q->authenticated();
-                    setState(QwwSmtpClient::Connected);
-                    processNextCommand();
-                } else {
-                    errorString = rxlast.cap(2).trimmed();
-                    setState(QwwSmtpClient::Connected);
-                    emit q->done(false);
-                }
-            }
-            break;
-            // trying to send mail
-            case SMTPCommand::Mail:
-            case SMTPCommand::MailBurl:
-            {
-                int stage = cmd.extra.toInt();
-                // temporary failure upon receiving the sender address (greylisting probably)
-                if (status==421 && stage==0) {
-                    errorString = rxlast.cap(2).trimmed();
-                    // temporary envelope failure (greylisting)
-                    setState(QwwSmtpClient::Connected);
-                    processNextCommand(false);
-                }
-                if (status==250 && stage==0) {
-                    // sender accepted
-                    errorString.clear();
-                    sendRcpt();
-                } else if (status==250 && stage==1) {
-                    // all receivers accepted
-                    if (cmd.type == SMTPCommand::MailBurl) {
-                        errorString.clear();
-                        QByteArray url = cmd.data.toList().at(2).toByteArray();
-                        auto data = "BURL " + url + " LAST\r\n";
-                        emit q->logSent(data);
-                        socket->write(data);
-                        cmd.extra=2;
-                    } else {
-                        errorString.clear();
-                        QByteArray data("DATA\r\n");
-                        emit q->logSent(data);
-                        socket->write(data);
-                        cmd.extra=2;
-                    }
-                } else if ((cmd.type == SMTPCommand::Mail && status==354 && stage==2)) {
-                    // DATA command accepted
-                    errorString.clear();
-                    QByteArray toBeWritten = cmd.data.toList().at(2).toByteArray() + "\r\n.\r\n"; // termination token - CRLF.CRLF
-                    emit q->logSent(toBeWritten);
-                    socket->write(toBeWritten); // expecting data to be already escaped (CRLF.CRLF)
-                    cmd.extra=3;
-                } else if ((cmd.type == SMTPCommand::MailBurl && status==250 && stage==2)) {
-                    // BURL succeeded
-                    setState(QwwSmtpClient::Connected);
-                    errorString.clear();
-                    processNextCommand();
-                } else if ((cmd.type == SMTPCommand::Mail && status==250 && stage==3)) {
-                    // mail queued
-                    setState(QwwSmtpClient::Connected);
-                    errorString.clear();
-                    processNextCommand();
-                } else {
-                    // something went wrong
-                    errorString = rxlast.cap(2).trimmed();
-                    setState(QwwSmtpClient::Connected);
-                    emit q->done(false);
-                    processNextCommand();
-                }
-            }
-                default: break;
-            }
         } else {
-            qDebug() << "None of two regular expressions matched the input" << line;
+            // single line
+            QRegularExpressionMatch last_match = rxlast.match(line);
+            if (last_match.hasMatch()) {
+                int status = last_match.captured(1).toInt();
+                SMTPCommand &cmd = commandqueue.head();
+                switch (cmd.type) {
+                // trying to connect
+                case SMTPCommand::Connect: {
+                    int stage = cmd.extra.toInt();
+                    // connection established, server sent its banner
+                    if (stage==0 && status==220) {
+                        sendEhlo(); // connect ok, send ehlo
+                    }
+                    // server responded to EHLO
+                    if (stage==1 && status==250){
+                        // success (EHLO)
+                        parseOption(last_match.captured(2).trimmed()); // we're probably receiving the last option
+                        errorString.clear();
+                        setState(QwwSmtpClient::Connected);
+                        processNextCommand();
+                    }
+                    // server responded to HELO (EHLO failed)
+                    if (stage==2 && status==250) {
+                        // success (HELO)
+                        errorString.clear();
+                        setState(QwwSmtpClient::Connected);
+                        processNextCommand();
+                    }
+                    // EHLO failed, reason given in errorString
+                    if (stage==1 && (status==554 || status==501 || status==502 || status==421)) {
+                        errorString = last_match.captured(2).trimmed();
+                        sendHelo(); // ehlo failed, send helo
+                        cmd.extra = 2;
+                    }
+                    //abortDialog();
+                }
+                break;
+                // trying to establish a delayed SSL handshake
+                case SMTPCommand::StartTLS: {
+                    int stage = cmd.extra.toInt();
+                    // received an invitation from the server to enter TLS mode
+                    if (stage==0 && status==220) {
+                        emit q->logSent("*** startClientEncryption");
+                        socket->startClientEncryption();
+                    }
+                    // TLS established, connection is encrypted, EHLO was sent
+                    else if (stage==1 && status==250) {
+                        setState(QwwSmtpClient::Connected);
+                        parseOption(last_match.captured(2).trimmed());   // we're probably receiving options
+                        errorString.clear();
+                        emit q->tlsStarted();
+                        processNextCommand();
+                    }
+                    // starttls failed
+                    else {
+                        emit q->logReceived(QByteArrayLiteral("*** TLS failed at stage ") + QByteArray::number(stage) + ": " + line.toUtf8());
+                        errorString = "TLS failed";
+                        emit q->done(false);
+                    }
+                }
+                break;
+                // trying to authenticate the client to the server
+                case SMTPCommand::Authenticate: {
+                    int stage = cmd.extra.toInt();
+                    if (stage==0 && status==334) {
+                        // AUTH mode was accepted by the server, 1st challenge sent
+                        QwwSmtpClient::AuthMode authmode = (QwwSmtpClient::AuthMode)cmd.data.toList().at(0).toInt();
+                        errorString.clear();
+                        switch (authmode) {
+                        case QwwSmtpClient::AuthPlain:
+                            sendAuthPlain(cmd.data.toList().at(1).toString(), cmd.data.toList().at(2).toString());
+                            break;
+                        case QwwSmtpClient::AuthLogin:
+                            sendAuthLogin(cmd.data.toList().at(1).toString(), cmd.data.toList().at(2).toString(), 1);
+                            break;
+                        default:
+                            qWarning("I shouldn't be here");
+                            setState(QwwSmtpClient::Connected);
+                            processNextCommand();
+                            break;
+                        }
+                        cmd.extra = stage+1;
+                    } else if (stage==1 && status==334) {
+                        // AUTH mode and user names were acccepted by the server, 2nd challenge sent
+                        QwwSmtpClient::AuthMode authmode = (QwwSmtpClient::AuthMode)cmd.data.toList().at(0).toInt();
+                        errorString.clear();
+                        switch (authmode) {
+                        case QwwSmtpClient::AuthPlain:
+                            // auth failed
+                            setState(QwwSmtpClient::Connected);
+                            processNextCommand();
+                            break;
+                        case QwwSmtpClient::AuthLogin:
+                            sendAuthLogin(cmd.data.toList().at(1).toString(), cmd.data.toList().at(2).toString(), 2);
+                            break;
+                        default:
+                            qWarning("I shouldn't be here");
+                            setState(QwwSmtpClient::Connected);
+                            processNextCommand();
+                            break;
+                        }
+                    } else if (stage==2 && status==334) {
+                        // auth failed
+                        errorString = last_match.captured(2).trimmed();
+                        setState(QwwSmtpClient::Connected);
+                        processNextCommand();
+                    } else if (status==235) {
+                        // auth ok
+                        errorString.clear();
+                        emit q->authenticated();
+                        setState(QwwSmtpClient::Connected);
+                        processNextCommand();
+                    } else {
+                        errorString = last_match.captured(2).trimmed();
+                        setState(QwwSmtpClient::Connected);
+                        emit q->done(false);
+                    }
+                }
+                break;
+                // trying to send mail
+                case SMTPCommand::Mail:
+                case SMTPCommand::MailBurl:
+                {
+                    int stage = cmd.extra.toInt();
+                    // temporary failure upon receiving the sender address (greylisting probably)
+                    if (status==421 && stage==0) {
+                        errorString = last_match.captured(2).trimmed();
+                        // temporary envelope failure (greylisting)
+                        setState(QwwSmtpClient::Connected);
+                        processNextCommand(false);
+                    }
+                    if (status==250 && stage==0) {
+                        // sender accepted
+                        errorString.clear();
+                        sendRcpt();
+                    } else if (status==250 && stage==1) {
+                        // all receivers accepted
+                        if (cmd.type == SMTPCommand::MailBurl) {
+                            errorString.clear();
+                            QByteArray url = cmd.data.toList().at(2).toByteArray();
+                            auto data = "BURL " + url + " LAST\r\n";
+                            emit q->logSent(data);
+                            socket->write(data);
+                            cmd.extra=2;
+                        } else {
+                            errorString.clear();
+                            QByteArray data("DATA\r\n");
+                            emit q->logSent(data);
+                            socket->write(data);
+                            cmd.extra=2;
+                        }
+                    } else if ((cmd.type == SMTPCommand::Mail && status==354 && stage==2)) {
+                        // DATA command accepted
+                        errorString.clear();
+                        QByteArray toBeWritten = cmd.data.toList().at(2).toByteArray() + "\r\n.\r\n"; // termination token - CRLF.CRLF
+                        emit q->logSent(toBeWritten);
+                        socket->write(toBeWritten); // expecting data to be already escaped (CRLF.CRLF)
+                        cmd.extra=3;
+                    } else if ((cmd.type == SMTPCommand::MailBurl && status==250 && stage==2)) {
+                        // BURL succeeded
+                        setState(QwwSmtpClient::Connected);
+                        errorString.clear();
+                        processNextCommand();
+                    } else if ((cmd.type == SMTPCommand::Mail && status==250 && stage==3)) {
+                        // mail queued
+                        setState(QwwSmtpClient::Connected);
+                        errorString.clear();
+                        processNextCommand();
+                    } else {
+                        // something went wrong
+                        errorString = last_match.captured(2).trimmed();
+                        setState(QwwSmtpClient::Connected);
+                        emit q->done(false);
+                        processNextCommand();
+                    }
+                }
+                    default: break;
+                }
+            } else {
+                qDebug() << "None of two regular expressions matched the input" << line;
+            }
         }
     }
 }

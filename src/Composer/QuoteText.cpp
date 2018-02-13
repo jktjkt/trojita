@@ -30,7 +30,7 @@ QStringList quoteText(QStringList inputLines)
 {
     QStringList quote;
     for (QStringList::iterator line = inputLines.begin(); line != inputLines.end(); ++line) {
-        if (UiUtils::signatureSeparator().exactMatch(*line)) {
+        if (UiUtils::signatureSeparator().match(*line).hasMatch()) {
             // This is the signature separator, we should not include anything below that in the quote
             break;
         }

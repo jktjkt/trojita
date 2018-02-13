@@ -1,5 +1,6 @@
 /* Copyright (C) 2012 Thomas Lübking <thomas.luebking@gmail.com>
    Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2018 Erik Quaeghebeur <kde@equaeghe.nospammail.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -26,8 +27,12 @@
 #include <QDateTime>
 #include <QFileInfo>
 #include <QFontInfo>
+#include <QMap>
 #include <QModelIndex>
 #include <QPair>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+#include <QRegularExpressionMatchIterator>
 #include <QStack>
 #include "PlainTextFormatter.h"
 #include "Common/Paths.h"
@@ -44,94 +49,65 @@ QString helperHtmlifySingleLine(QString line)
 {
     // Static regexps for the engine construction.
     // Warning, these operate on the *escaped* HTML!
-#define HTML_RE_INTRO "(^|[\\s\\(\\[\\{])"
-#define HTML_RE_EXTRO "($|[\\s\\),;.\\]\\}])"
-    static const QRegExp patternRe(QLatin1String(
-                // hyperlinks
-                "(" // cap(1)
-                "https?://" // scheme prefix
-                "(?:[;/?:@=$\\-_.+!',0-9a-zA-Z%#~\\[\\]\\(\\)\\*]|&amp;)+" // allowed characters
-                "(?:[/@=$\\-_+'0-9a-zA-Z%#~]|&amp;)" // termination
-                ")"
-                // end of hyperlink
-                "|"
-                // e-mail pattern
-                "((?:[a-zA-Z0-9_\\.!#$%'\\*\\+\\-/=?^`\\{|\\}~]|&amp;)+@[a-zA-Z0-9\\.\\-_]+)" // cap(2)
-                // end of e-mail pattern
-                "|"
-                // formatting markup
-                "(" // cap(3)
-                // bold text
-                HTML_RE_INTRO /* cap(4) */ "\\*((?!\\*)\\S+)\\*" /* cap(5) */ HTML_RE_EXTRO /* cap(6) */
-                "|"
-                // italics
-                HTML_RE_INTRO /* cap(7) */ "/((?!/)\\S+)/" /* cap(8) */ HTML_RE_EXTRO /* cap(9) */
-                "|"
-                // underline
-                HTML_RE_INTRO /* cap(10) */ "_((?!_)\\S+)_" /* cap(11) */ HTML_RE_EXTRO /* cap(12) */
-                ")"
-                // end of the formatting markup
-                ), Qt::CaseSensitive, QRegExp::RegExp2
-                );
-
-    // RE instances to work on
-    QRegExp pattern(patternRe);
+    static const QRegularExpression patternRe(QLatin1String(
+                        "(" // 1: hyperlink
+                            "https?://" // scheme prefix
+                            "(?:[][;/?:@=$_.+!',0-9a-zA-Z%#~()*-]|&amp;)+" // allowed characters
+                            "(?:[/@=$_+'0-9a-zA-Z%#~-]|&amp;)" // termination
+                        ")" // end of hyperlink
+                        "|"
+                        "(" // 2: e-mail
+                            "(?:[a-zA-Z0-9_.!#$%'*+/=?^`{|}~-]|&amp;)+"
+                            "@"
+                            "[a-zA-Z0-9._-]+"
+                        ")" // end of e-mail
+                        "|"
+                        "(?<=^|[[({\\s])" // markup group surroundings
+                            "(" // 3: markup group
+                                "([*/_])(?!\\4)" // 4: markup character, not repeated
+                                    "(\\S+?)" // 5: marked-up text
+                                "\\4(?!\\4)" // markup character, not repeated
+                          ")" // end of markup group
+                        "(?=$|[])}\\s,;.])" // markup group surroundings
+                    ), QRegularExpression::CaseInsensitiveOption);
 
     // Escape the HTML entities
     line = line.toHtmlEscaped();
 
+    static const QMap<QString, QChar> markupletter({{QStringLiteral("*"), QLatin1Char('b')},
+                                                    {QStringLiteral("/"), QLatin1Char('i')},
+                                                    {QStringLiteral("_"), QLatin1Char('u')}});
+
+    const uint orig_length = line.length();
+
     // Now prepare markup *bold*, /italic/ and _underline_ and also turn links into HTML.
-    // This is a bit more involved because we want to apply the regular expressions in a certain order and also at the same
-    // time prevent the lower-priority regexps from clobbering the output of the previous stages.
-    int start = 0;
-    while (start < line.size()) {
-        // Find the position of the first thing which matches
-        int pos = pattern.indexIn(line, start, QRegExp::CaretAtOffset);
-        if (pos == -1 || pos == line.size()) {
-            // No further matches for this line -> we're done
+    // This is a bit more involved because we want to apply the regular expressions in a certain order and
+    // also at the same time prevent the lower-priority regexps from clobbering the output of the previous stages.
+    QRegularExpressionMatchIterator i = patternRe.globalMatch(line);
+    QRegularExpressionMatch match;
+    uint growth = 0;
+    while (i.hasNext()) {
+        match = i.next();
+        switch (match.lastCapturedIndex()) { // at most one match 1 xor 2 xor 5 (5 implies 4 and 3)
+        case 1:
+            line.replace(match.capturedStart(1) + growth, match.capturedLength(1),
+                         QStringLiteral("<a href=\"%1\">%1</a>").arg(match.captured(1)));
+            break;
+        case 2:
+            line.replace(match.capturedStart(2) + growth, match.capturedLength(2),
+                         QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(match.captured(2)));
+            break;
+        case 5: // Careful here; the inner contents of the current match shall be formatted as well which is why we need recursion
+            line.replace(match.capturedStart(3) + growth, match.capturedLength(3),
+                         QStringLiteral("<%1>%2%3%2</%1>")
+                            .arg(markupletter[match.captured(4)],
+                                 QStringLiteral("<span class=\"markup\">%1</span>").arg(match.captured(4)),
+                                 helperHtmlifySingleLine(match.captured(5))));
             break;
         }
-
-        const QString &linkText = pattern.cap(1);
-        const QString &mailText = pattern.cap(2);
-        const QString &boldText = pattern.cap(5);
-        const QString &italicText = pattern.cap(8);
-        const QString &underlineText = pattern.cap(11);
-        bool isSpecialFormat = !boldText.isEmpty() || !italicText.isEmpty() || !underlineText.isEmpty();
-        QString replacement;
-
-        if (!linkText.isEmpty()) {
-            replacement = QStringLiteral("<a href=\"%1\">%1</a>").arg(linkText);
-        } else if (!mailText.isEmpty()) {
-            replacement = QStringLiteral("<a href=\"mailto:%1\">%1</a>").arg(mailText);
-        } else if (isSpecialFormat) {
-            // Careful here; the inner contents of the current match shall be formatted as well which is why we need recursion
-            QChar elementName;
-            QChar markupChar;
-            int whichOne = 0;
-
-            if (!boldText.isEmpty()) {
-                elementName = QLatin1Char('b');
-                markupChar = QLatin1Char('*');
-                whichOne = 3;
-            } else if (!italicText.isEmpty()) {
-                elementName = QLatin1Char('i');
-                markupChar = QLatin1Char('/');
-                whichOne = 6;
-            } else if (!underlineText.isEmpty()) {
-                elementName = QLatin1Char('u');
-                markupChar = QLatin1Char('_');
-                whichOne = 9;
-            }
-            Q_ASSERT(whichOne);
-            replacement = QStringLiteral("%1<%2><span class=\"markup\">%3</span>%4<span class=\"markup\">%3</span></%2>%5")
-                    .arg(pattern.cap(whichOne + 1), elementName, markupChar,
-                         helperHtmlifySingleLine(pattern.cap(whichOne + 2)), pattern.cap(whichOne + 3));
-        }
-        Q_ASSERT(!replacement.isEmpty());
-        line = line.left(pos) + replacement + line.mid(pos + pattern.matchedLength());
-        start = pos + replacement.size();
+        growth = line.length() - orig_length;
     }
+
     return line;
 }
 
@@ -177,12 +153,12 @@ void closeQuotesUpTo(QStringList &markup, QStack<QPair<int, int> > &controlStack
     }
 }
 
-/** @short Returna a regular expression which matches the signature separators */
-QRegExp signatureSeparator()
+/** @short Return a a regular expression which matches the signature separators */
+QRegularExpression signatureSeparator()
 {
     // "-- " is the standards-compliant signature separator.
     // "Line of underscores" is non-standard garbage which Mailman happily generates. Yes, it's nasty and ugly.
-    return QRegExp(QLatin1String("(-- |_{45,55})(\\r)?"));
+    return QRegularExpression(QLatin1String("^(-- |_{45,55})(\\r)?$"));
 }
 
 struct TextInfo {
@@ -201,16 +177,16 @@ static QString lineWithoutTrailingCr(const QString &line)
 
 QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 {
-    QRegExp quotemarks;
+    QRegularExpression quotemarks;
     switch (flowed) {
     case FlowedFormat::FLOWED:
     case FlowedFormat::FLOWED_DELSP:
-        quotemarks = QRegExp(QLatin1String("^>+"));
+        quotemarks = QRegularExpression(QLatin1String("^>+"));
         break;
     case FlowedFormat::PLAIN:
         // Also accept > interleaved by spaces. That's what KMail happily produces.
         // A single leading space is accepted, too. That's what Gerrit produces.
-        quotemarks = QRegExp(QLatin1String("^( >|>)+"));
+        quotemarks = QRegularExpression(QLatin1String("^( >|>)+"));
         break;
     }
     const int SIGNATURE_SEPARATOR = -2;
@@ -231,7 +207,7 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
         }
 
         // Special marker for the signature separator
-        if (signatureSeparator().exactMatch(line)) {
+        if (signatureSeparator().match(line).hasMatch()) {
             lineBuffer.emplace_back(SIGNATURE_SEPARATOR, lineWithoutTrailingCr(line));
             signatureSeparatorSeen = true;
             continue;
@@ -239,8 +215,9 @@ QString plainTextToHtml(const QString &plaintext, const FlowedFormat flowed)
 
         // Determine the quoting level
         int quoteLevel = 0;
-        if (!signatureSeparatorSeen && quotemarks.indexIn(line) == 0) {
-            quoteLevel = quotemarks.cap(0).count(QLatin1Char('>'));
+        QRegularExpressionMatch match = quotemarks.match(line);
+        if (!signatureSeparatorSeen && match.capturedStart() == 0) {
+            quoteLevel = match.captured().count(QLatin1Char('>'));
         }
 
         lineBuffer.emplace_back(quoteLevel, lineWithoutTrailingCr(line));

@@ -37,9 +37,6 @@ namespace Imap
 namespace Message
 {
 
-/* A simple regexp to match an address typed into the input field. */
-static QRegExp mailishRx(QLatin1String("(?:\\b|\\<)([\\w_.-+]+)\\s*\\@\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))(?:\\b|\\>)"));
-
 QList<MailAddress> Envelope::getListOfAddresses(const QVariant &in, const QByteArray &line, const int start)
 {
     if (in.type() == QVariant::ByteArray) {

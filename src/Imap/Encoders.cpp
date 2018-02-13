@@ -59,6 +59,10 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+
 #include "Encoders.h"
 #include "Parser/3rdparty/rfccodecs.h"
 #include "Parser/3rdparty/kcodecs.h"
@@ -271,37 +275,37 @@ namespace {
     /** @short Decode a header in the RFC 2047 format into a unicode string */
     static QString decodeWordSequence(const QByteArray& input)
     {
-        QRegExp whitespace(QLatin1String("^\\s+$"));
+        QRegularExpression whitespace(QLatin1String("^\\s+$"));
 
         // the regexp library operates on unicode strings, unfortunately
         QString str = QString::fromUtf8(input);
 
         QString out;
 
-        // Any idea why this isn't matching?
-        //QRegExp encodedWord("\\b=\\?\\S+\\?\\S+\\?\\S*\\?=\\b");
-        QRegExp encodedWord(QLatin1String("\"?=\\?(\\S+)\\?(\\S+)\\?(.*)\\?=\"?"));
-
-        // set minimal=true, to match sequences which do not have white space in between 2 encoded words; otherwise by default greedy matching is performed
-        // eg. "Sm=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=sbord" will match "=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=" as a single encoded word without minimal=true
-        // with minimal=true, "=?ISO-8859-1?B?9g==?=" will be the first encoded word and "=?ISO-8859-1?B?5Q==?=" the second.
+        // This wasn't matching for QRegExp, but perhaps it does work for QRegularExpression
+        //QRegularExpression encodedWord("\\b=\\?\\S+\\?\\S+\\?\\S*\\?=\\b");
+        QRegularExpression encodedWord(QLatin1String("\"?=\\?(\\S+)\\?(\\S+)\\?(.*)\\?=\"?"),
+                                       QRegularExpression::InvertedGreedinessOption);
+        // we set InvertedGreedinessOption, to match sequences which do not have white space in between 2 encoded words; otherwise by default greedy matching is performed
+        // eg. "Sm=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=sbord" will match "=?ISO-8859-1?B?9g==?=rg=?ISO-8859-1?B?5Q==?=" as a single encoded word without InvertedGreedinessOption
+        // with InvertedGreedinessOption, "=?ISO-8859-1?B?9g==?=" will be the first encoded word and "=?ISO-8859-1?B?5Q==?=" the second.
         // -- assuming there are no nested encodings, will there be?
-        encodedWord.setMinimal(true);
 
         int pos = 0;
         int lastPos = 0;
 
         while (pos != -1) {
-            pos = encodedWord.indexIn(str, pos);
+            QRegularExpressionMatch match = encodedWord.match(str, pos);
+            pos = match.capturedStart();
             if (pos != -1) {
-                int endPos = pos + encodedWord.matchedLength();
+                int endPos = pos + match.capturedLength();
 
                 QString preceding(str.mid(lastPos, (pos - lastPos)));
-                QString decoded = decodeWord(str.mid(pos, (endPos - pos)).toUtf8(), encodedWord.cap(1).toLatin1(),
-                                             encodedWord.cap(2).toUpper().toLatin1(), encodedWord.cap(3).toLatin1());
+                QString decoded = decodeWord(str.mid(pos, (endPos - pos)).toUtf8(), match.captured(1).toLatin1(),
+                                             match.captured(2).toUpper().toLatin1(), match.captured(3).toLatin1());
 
                 // If there is only whitespace between two encoded words, it should not be included
-                if (!whitespace.exactMatch(preceding))
+                if (!whitespace.match(preceding).hasMatch())
                     out.append(preceding);
 
                 out.append(decoded);
@@ -512,7 +516,7 @@ QByteArray quotedString( const QByteArray& unquoted, QuotedStringStyle style )
    byte-sequence for use in a "structured" mail header (such as To:,
    From:, or Received:). The result will match the "phrase"
    production. */
-static QRegExp atomPhraseRx(QLatin1String("[ \\tA-Za-z0-9!#$&'*+/=?^_`{}|~-]*"));
+static QRegularExpression atomPhraseRx(QLatin1String("^[ \\tA-Za-z0-9!#$&'*+/=?^_`{}|~-]*$"));
 QByteArray encodeRFC2047Phrase(const QString &text)
 {
     /* We want to know if we can encode as ASCII. But bizarrely, Qt
@@ -525,7 +529,7 @@ QByteArray encodeRFC2047Phrase(const QString &text)
         /* Attempt to represent it as an RFC2822 'phrase' --- either a
            sequence of atoms or as a quoted-string. */
         
-        if (atomPhraseRx.exactMatch(text)) {
+        if (atomPhraseRx.match(text).hasMatch()) {
             /* Simplest case: a sequence of atoms (not dot-atoms) */
             return latin1->fromUnicode(text);
         } else {

@@ -33,6 +33,7 @@
 #include <QMenuBar>
 #include <QMessageBox>
 #include <QProgressBar>
+#include <QRegularExpression>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QSslError>
@@ -2133,7 +2134,7 @@ void MainWindow::slotShowAboutTrojita()
             if (line.startsWith(prefix)) {
                 const int pos = prefix.size();
                 copyright << QChar(0xa9 /* COPYRIGHT SIGN */) + QLatin1Char(' ') +
-                             line.mid(pos).replace(QRegExp(QLatin1String("(\\d) - (\\d)")),
+                             line.mid(pos).replace(QRegularExpression(QLatin1String("(\\d) - (\\d)")),
                                                    QLatin1String("\\1") + QChar(0x2014 /* EM DASH */) + QLatin1String("\\2"));
             }
         }

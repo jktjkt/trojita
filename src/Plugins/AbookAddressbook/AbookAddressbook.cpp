@@ -28,6 +28,7 @@
 
 #include <QDir>
 #include <QFileSystemWatcher>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardItemModel>
 #include <QStringBuilder>
@@ -341,9 +342,11 @@ NameEmailList AbookAddressbook::complete(const QString &string, const QStringLis
     if (string.isEmpty())
         return list;
     // In e-mail addresses, dot, dash, _ and @ shall be treated as delimiters
-    QRegExp mailMatch = QRegExp(QStringLiteral("[\\.\\-_@]%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
+    QRegularExpression mailMatch(QStringLiteral("[\\.\\-_@]%1").arg(QRegularExpression::escape(string)),
+                                 QRegularExpression::CaseInsensitiveOption);
     // In human readable names, match on word boundaries
-    QRegExp nameMatch = QRegExp(QStringLiteral("\\b%1").arg(QRegExp::escape(string)), Qt::CaseInsensitive);
+    QRegularExpression nameMatch(QStringLiteral("\\b%1").arg(QRegularExpression::escape(string)),
+                                 QRegularExpression::CaseInsensitiveOption);
     // These REs are still not perfect, they won't match on e.g. ".net" or "-project", but screw these I say
     for (int i = 0; i < m_contacts->rowCount(); ++i) {
         QStandardItem *item = m_contacts->item(i);

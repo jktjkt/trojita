@@ -1,4 +1,5 @@
 /* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+   Copyright (C) 2018 Erik Quaeghebeur <kde@equaeghe.nospammail.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -21,7 +22,8 @@
 */
 
 #include <QObject>
-#include <QRegExp>
+#include <QRegularExpression>
+#include <QRegularExpressionMatchIterator>
 #include <QStringList>
 
 #include "SubjectMangling.h"
@@ -33,42 +35,29 @@ namespace Util {
 QString replySubject(const QString &subject)
 {
     // These operations should *not* check for internationalized variants of "Re"; these are evil.
+    static const QRegularExpression rePrefixMatcher(QLatin1String(
+                              /* initial whitespace */ "\\s*"
+                  /* either Re: or mailing list tag */ "(?:Re:|(\\[.+?\\]))"
+                        /* repetitions of the above */ "(?:\\s|Re:|\\1)*"),
+                                              QRegularExpression::CaseInsensitiveOption);
 
-#define RE_PREFIX_RE "(?:(?:Re:\\s*)*)"
-#define RE_PREFIX_ML "(?:(\\[[^\\]]+\\]\\s*)?)"
+    QStringList reply_subject(QStringLiteral("Re:"));
+    int start = 0;
 
-    static QRegExp rePrefixMatcher(QLatin1String("^"
-                                                 RE_PREFIX_RE // a sequence of "Re: " prefixes
-                                                 RE_PREFIX_ML // something like a mailing list prefix
-                                                 RE_PREFIX_RE // a sequence of "Re: " prefixes
-                                                 ), Qt::CaseInsensitive);
-    rePrefixMatcher.setPatternSyntax(QRegExp::RegExp2);
-    QLatin1String correctedPrefix("Re: ");
-
-    if (rePrefixMatcher.indexIn(subject) == -1) {
-        // Our regular expression has failed, so better play it safe and blindly prepend "Re: "
-        return correctedPrefix + subject;
-    } else {
-        QStringList listPrefixes;
-        int pos = 0;
-        int oldPos = 0;
-        while ((pos = rePrefixMatcher.indexIn(subject, pos, QRegExp::CaretAtOffset)) != -1) {
-            if (rePrefixMatcher.matchedLength() == 0)
-                break;
-            pos += rePrefixMatcher.matchedLength();
-            if (!listPrefixes.contains(rePrefixMatcher.cap(1)))
-                listPrefixes << rePrefixMatcher.cap(1);
-            oldPos = pos;
-        }
-
-        QString mlPrefix = listPrefixes.join(QString()).trimmed();
-        QString baseSubject = subject.mid(oldPos + qMax(0, rePrefixMatcher.matchedLength()));
-
-        if (!mlPrefix.isEmpty() && !baseSubject.isEmpty())
-            mlPrefix += QLatin1Char(' ');
-
-        return correctedPrefix + mlPrefix + baseSubject;
+    // extract mailing list tags & find start of ‘base’ subject
+    QRegularExpressionMatchIterator i = rePrefixMatcher.globalMatch(subject);
+    while (i.hasNext() && i.peekNext().capturedStart() == start) {
+        if (!i.peekNext().captured(1).isEmpty())
+            reply_subject << i.peekNext().captured(1);
+        start = i.next().capturedEnd();
     }
+
+    // no trailing space after last mailing list tag before empty ‘base’ subject
+    // TODO: this is for test-suite compliance only; remove?
+    if (start < subject.length() || reply_subject.length() == 1)
+        reply_subject << subject.mid(start);
+
+    return reply_subject.join(QLatin1Char(' '));
 }
 
 /** @short Prepare a subject to be used in a message to be forwarded */

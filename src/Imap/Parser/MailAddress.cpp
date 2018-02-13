@@ -22,6 +22,8 @@
 
 #include <typeinfo>
 
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 #include <QTextDocument>
 #include <QUrl>
 #include <QUrlQuery>
@@ -51,10 +53,10 @@ bool MailAddress::fromPrettyString(MailAddress &into, const QString &address)
 }
 
 /* Regexpes to match an address typed into the input field. */
-static QRegExp mailishRx1(QLatin1String("^\\s*([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@"
-                                       "\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))\\s*$"));
-static QRegExp mailishRx2(QLatin1String("\\s*<([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@"
-                                       "\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))>\\s*$"));
+static QRegularExpression mailishRx1(QLatin1String("^\\s*([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@"
+                                                   "\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))\\s*$"));
+static QRegularExpression mailishRx2(QLatin1String("\\s*<([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@"
+                                                   "\\s*([\\w_.-]+|(?:\\[[^][\\\\\\\"\\s]+\\]))>\\s*$"));
 
 /*
    This is of course far from complete, but at least catches "Real
@@ -64,13 +66,14 @@ static QRegExp mailishRx2(QLatin1String("\\s*<([\\w!#$%&'*+-/=?^_`{|}~]+)\\s*\\@
 */
 bool MailAddress::parseOneAddress(Imap::Message::MailAddress &into, const QString &address, int &startOffset)
 {
-    for (QRegExp mailishRx : {mailishRx2, mailishRx1}) {
-        int offset = mailishRx.indexIn(address, startOffset);
-        if (offset >= 0) {
+    for (QRegularExpression mailishRx : {mailishRx2, mailishRx1}) {
+        QRegularExpressionMatch match = mailishRx.match(address, startOffset);
+        int offset = match.capturedStart();
+        if (match.hasMatch()) {
             QString before = address.mid(startOffset, offset - startOffset);
-            into = MailAddress(before.simplified(), QString(), mailishRx.cap(1), mailishRx.cap(2));
+            into = MailAddress(before.simplified(), QString(), match.captured(1), match.captured(2));
 
-            offset += mailishRx.matchedLength();
+            offset += match.capturedLength();
 
             startOffset = offset;
             return true;
@@ -165,7 +168,7 @@ QString MailAddress::prettyList(const QVariantList &list, FormattingMode mode)
     return buf.join(QStringLiteral(", "));
 }
 
-static QRegExp dotAtomRx(QLatin1String("[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+(?:\\.[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+)*"));
+static QRegularExpression dotAtomRx(QLatin1String("^[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+(?:\\.[A-Za-z0-9!#$&'*+/=?^_`{}|~-]+)*$"));
 
 /* This returns the address formatted for use in an SMTP MAIL or RCPT command; specifically, it matches the "Mailbox" production of RFC2821. The surrounding angle-brackets are not included. */
 QByteArray MailAddress::asSMTPMailbox() const
@@ -174,7 +177,7 @@ QByteArray MailAddress::asSMTPMailbox() const
 
     /* Check whether the local-part contains any characters
        preventing it from being a dot-atom. */
-    if (dotAtomRx.exactMatch(mailbox)) {
+    if (dotAtomRx.match(mailbox).hasMatch()) {
         /* Using .toLatin1() here even though we know it only contains
            ASCII, because QString.toAscii() does not necessarily convert
            to ASCII (despite the name). .toLatin1() always converts to

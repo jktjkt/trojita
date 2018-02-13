@@ -24,6 +24,7 @@
 #define UIUTILS_PLAINTEXTFORMATTER_H
 
 #include <QStringList>
+#include <QRegularExpression>
 
 class QColor;
 class QFontInfo;
@@ -46,7 +47,7 @@ QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font,
 
 FlowedFormat flowedFormatForPart(const QModelIndex &partIndex);
 
-QRegExp signatureSeparator();
+QRegularExpression signatureSeparator();
 
 }
 

@@ -40,7 +40,6 @@
 
 #include <QtCore/QTextCodec>
 #include <QtCore/QBuffer>
-#include <QtCore/QRegExp>
 #include <QtCore/QByteArray>
 #include <QtCore/QLatin1Char>
 #include "kcodecs.h"
