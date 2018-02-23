@@ -206,8 +206,6 @@ Kind kindFromString(QByteArray str)
         return FETCH;
     if (str == "EXPUNGE")
         return EXPUNGE;
-    if (str == "FETCH")
-        return FETCH;
     if (str == "EXISTS")
         return EXISTS;
     if (str == "RECENT")

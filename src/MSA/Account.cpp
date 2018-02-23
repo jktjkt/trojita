@@ -293,8 +293,6 @@ void Account::restoreSettings()
                             Method::SMTP_STARTTLS : Method::SMTP;
     } else if (connMethod == Common::SettingsNames::methodSSMTP) {
         m_msaSubmissionMethod = Method::SSMTP;
-    } else if (connMethod == Common::SettingsNames::methodSSMTP) {
-        m_msaSubmissionMethod = Method::SSMTP;
     } else if (connMethod == Common::SettingsNames::methodSENDMAIL) {
         m_msaSubmissionMethod = Method::SENDMAIL;
     } else if (connMethod == Common::SettingsNames::methodImapSendmail) {
