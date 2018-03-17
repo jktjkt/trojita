@@ -200,7 +200,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                     processNextCommand();
                 }
                 // server responded to HELO (EHLO failed)
-                if (state==2 && status==250) {
+                if (stage==2 && status==250) {
                     // success (HELO)
                     errorString.clear();
                     setState(QwwSmtpClient::Connected);
