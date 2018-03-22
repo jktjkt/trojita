@@ -35,10 +35,10 @@ namespace {
     const int headroomForNewmessages = 1000;
 }
 
-#if 0
-namespace
-{
+namespace {
 using Imap::Mailbox::ThreadNodeInfo;
+
+#if 0
 QByteArray dumpThreadNodeInfo(const QHash<uint,ThreadNodeInfo> &mapping, const uint nodeId, const uint offset)
 {
     QByteArray res;
@@ -53,8 +53,20 @@ QByteArray dumpThreadNodeInfo(const QHash<uint,ThreadNodeInfo> &mapping, const u
     }
     return res;
 }
+#endif
+
+#if 0
+void dumpThreading(const QVector<Imap::Responses::ThreadingNode>& thr, const uint offset)
+{
+    QByteArray prefix(offset, ' ');
+    for (const auto& x: thr) {
+        std::cerr << prefix.data() << "ThreadingNode " << x.num << "\n";
+        dumpThreading(x.children, offset + 1);
+    }
 }
 #endif
+
+}
 
 namespace Imap
 {
