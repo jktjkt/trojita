@@ -118,11 +118,13 @@ QVariant PrettyMsgListModel::data(const QModelIndex &index, int role) const
 
     case Qt::TextAlignmentRole:
         switch (index.column()) {
+        case MsgListModel::DATE:
+        case MsgListModel::RECEIVED_DATE:
         case MsgListModel::SIZE:
-            return Qt::AlignRight;
+            return int(Qt::AlignRight | Qt::AlignVCenter);
         default:
-            return QVariant();
-        }
+            return int(Qt::AlignLeft | Qt::AlignVCenter);
+        } // we return int because QVariant cannot hold QFlag: https://bugreports.qt.io/browse/QTBUG-54210
 
     case Qt::DecorationRole:
         // We will need the data, but asking for Flags or IsMarkedXYZ doesn't cause a fetch
