@@ -856,7 +856,7 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
 
         bool decryptedOk = !combinedResult.first.error();
 
-        if (combinedResult.first.error()) {
+        if (!decryptedOk) {
             if (tldr.isEmpty()) {
                 tldr = tr("Broken encrypted message");
             }
