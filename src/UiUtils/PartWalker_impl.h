@@ -88,8 +88,9 @@ Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recurs
     const QByteArray contentDisposition = partIndex.data(Imap::Mailbox::RolePartBodyDisposition).toByteArray().toLower();
     const bool isInline = (contentDisposition.isEmpty() || contentDisposition == "inline") && !(loadingMode & PART_IGNORE_INLINE);
     const bool looksLikeAttachment = !partIndex.data(Imap::Mailbox::RolePartFileName).toString().isEmpty();
+    const bool isMimeParsingError = mimeType == QStringLiteral("application/x-trojita-malformed-part-from-imap-response");
     const bool wrapInAttachmentView = !(loadingMode & PART_IGNORE_DISPOSITION_ATTACHMENT)
-            && (looksLikeAttachment || !isInline || !recognizedMimeType || isDerivedMimeType || isMessageRfc822);
+            && (looksLikeAttachment || !isInline || !recognizedMimeType || isDerivedMimeType || isMessageRfc822 || isMimeParsingError);
     if (wrapInAttachmentView) {
         // The problem is that some nasty MUAs (hint hint Thunderbird) would
         // happily attach a .tar.gz and call it "inline"

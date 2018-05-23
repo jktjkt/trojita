@@ -120,7 +120,14 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     QString mimeDescription = partIndex.data(Imap::Mailbox::RolePartMimeType).toString();
     QString rawMime = mimeDescription;
     QMimeType mimeType = QMimeDatabase().mimeTypeForName(mimeDescription);
-    if (mimeType.isValid() && !mimeType.isDefault()) {
+    if (rawMime == QStringLiteral("application/x-trojita-malformed-part-from-imap-response")) {
+        mimeDescription = QString::fromUtf8(partIndex.data(Imap::Mailbox::RolePartBodyFldParam)
+                                            .value<Imap::Message::AbstractMessage::bodyFldParam_t>()
+                                            .value("x-trojita-original-mime-type"));
+        mimeDescription = tr("IMAP Server error for this part: %1 (%2)").arg(
+                    QMimeDatabase().mimeTypeForName(mimeDescription).comment(), mimeDescription);
+        m_icon->setIcon(UiUtils::loadIcon(QStringLiteral("emblem-warning")));
+    } else if (mimeType.isValid() && !mimeType.isDefault()) {
         mimeDescription = mimeType.comment();
         QIcon icon;
         if (rawMime == QLatin1String("message/rfc822")) {
