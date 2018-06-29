@@ -1572,11 +1572,6 @@ TreeItemPart::TreeItemPart(TreeItem *parent, const QByteArray &mimeType)
     , m_partRaw(nullptr)
     , m_binaryCTEFailed(false)
 {
-    if (isTopLevelMultiPart()) {
-        // Note that top-level multipart messages are special, their immediate contents
-        // can't be fetched. That's why we have to update the status here.
-        setFetchStatus(DONE);
-    }
 }
 
 TreeItemPart::TreeItemPart(TreeItem *parent)
@@ -1622,6 +1617,13 @@ void TreeItemPart::fetch(Model *const model)
 {
     if (fetched() || loading() || isUnavailable())
         return;
+
+    if (isTopLevelMultiPart()) {
+        // Note that top-level multipart messages are special, their immediate contents
+        // can't be fetched.
+        setFetchStatus(DONE);
+        return;
+    }
 
     setFetchStatus(LOADING);
     model->askForMsgPart(this);
