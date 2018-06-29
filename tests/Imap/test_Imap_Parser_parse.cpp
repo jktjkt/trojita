@@ -842,7 +842,6 @@ void ImapParserParseTest::testParseUntagged_data()
                                                     QByteArray(), 0, QByteArray(), AbstractMessage::bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant())
                                    ), 0 ));
     bodyFldParam.clear();
-    bodyFldParam.clear();
     bodyFldParam["BOUNDARY"] = "----=_NextPart_000_0077_01CBB179.57530990";
     bodyFldDsp = AbstractMessage::bodyFldDsp_t();
     fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(
@@ -862,6 +861,57 @@ void ImapParserParseTest::testParseUntagged_data()
                           "(\"MESSAGE\" \"RFC822\" NIL NIL NIL \"7BIT\" 50785 NIL (\"ATTACHMENT\" NIL) NIL) "
                           "\"MIXED\" (\"BOUNDARY\" \"----=_NextPart_000_0077_01CBB179.57530990\") NIL NIL))\r\n")
             << QSharedPointer<AbstractResponse>( new Fetch( 6116, fetchData ) );
+
+    msgList.clear();
+    bodyFldParam.clear();
+    bodyFldParam["CHARSET"] = "UTF-8";
+    msgList << QSharedPointer<AbstractMessage>(new TextMessage("text", "plain", bodyFldParam, {}, {}, "QUOTED-PRINTABLE", 388, {}, {}, {}, {}, {}, 12));
+    msgList << QSharedPointer<AbstractMessage>(new TextMessage("text", "html", bodyFldParam, {}, {}, "QUOTED-PRINTABLE", 1576, {}, {}, {}, {}, {}, 46));
+    bodyFldParam.clear();
+    bodyFldParam["BOUNDARY"] = "001a113fbc1264f3cd0551bfbcf8";
+    msgList = QList<QSharedPointer<AbstractMessage>>() << QSharedPointer<AbstractMessage>(
+        new MultiMessage(msgList, "alternative", bodyFldParam, {}, {}, {}, {}));
+    bodyFldParam.clear();
+    bodyFldParam["NAME"] = "icon.png";
+    bodyFldDsp = AbstractMessage::bodyFldDsp_t();
+    bodyFldDsp.first = "ATTACHMENT";
+    bodyFldDsp.second["FILENAME"] = "icon.png";
+    msgList << QSharedPointer<AbstractMessage>(new BasicMessage("image", "png", bodyFldParam, {}, {}, "BASE64", 7864, {}, bodyFldDsp, {}, {}, {}));
+    bodyFldParam.clear();
+    bodyFldParam["BOUNDARY"] = "001a113fbc1264f3bd0551bfbcf7";
+    msgList = QList<QSharedPointer<AbstractMessage>>() << QSharedPointer<AbstractMessage>(
+        new MultiMessage(msgList, "related", bodyFldParam, {}, {}, {}, {}));
+    msgList << QSharedPointer<AbstractMessage>(new BasicMessage("message", "delivery-status", {}, {}, {}, "7BIT", 571, {}, {}, {}, {}, {}));
+    bodyFldParam.clear();
+    bodyFldParam["x-trojita-original-mime-type"] = "message/rfc822";
+    msgList << QSharedPointer<AbstractMessage>(
+                   new BasicMessage("application", "x-trojita-malformed-part-from-imap-response", bodyFldParam, {}, {},
+                                    "QUOTED-PRINTABLE", 6109, {}, {}, {}, {}, {}));
+    bodyFldParam.clear();
+    bodyFldParam["BOUNDARY"] = "001a113fbc1264e9640551bfbcf6";
+    bodyFldParam["REPORT-TYPE"] = "delivery-status";
+    fetchData.clear();
+    fetchData["BODYSTRUCTURE"] = QSharedPointer<AbstractData>(
+                new MultiMessage(msgList, "report", bodyFldParam, {}, {}, {}, {}));
+    QTest::newRow("2018-gmail-message-rfc822-not-list")
+            << QByteArray("* 380 FETCH (BODYSTRUCTURE ("
+                    // A first part of multipart/report: a human-readable version. So far so good.
+                    "("
+                      "("
+                        "(\"TEXT\" \"PLAIN\" (\"CHARSET\" \"UTF-8\") NIL NIL \"QUOTED-PRINTABLE\" 388 12 NIL NIL NIL)"
+                        "(\"TEXT\" \"HTML\" (\"CHARSET\" \"UTF-8\") NIL NIL \"QUOTED-PRINTABLE\" 1576 46 NIL NIL NIL)"
+                        " \"ALTERNATIVE\" (\"BOUNDARY\" \"001a113fbc1264f3cd0551bfbcf8\") NIL NIL"
+                      ")"
+                      "(\"IMAGE\" \"PNG\" (\"NAME\" \"icon.png\") \"\" NIL \"BASE64\" 7864 NIL (\"ATTACHMENT\" (\"FILENAME\" \"icon.png\")) NIL)"
+                      " \"RELATED\" (\"BOUNDARY\" \"001a113fbc1264f3bd0551bfbcf7\") NIL NIL"
+                    ")"
+                    // The second part: a machine-readable report. OK.
+                    "(\"MESSAGE\" \"DELIVERY-STATUS\" NIL NIL NIL \"7BIT\" 571 NIL NIL NIL)"
+                    // Third part: this has a bug, it says that it's a message/rfc822, but it is not because it has a NIL envelope and a NIL body.
+                    "(\"MESSAGE\" \"RFC822\" NIL NIL NIL \"QUOTED-PRINTABLE\" 6109 NIL NIL NIL)"
+                    // the top-level multipart/report
+                    " \"REPORT\" (\"BOUNDARY\" \"001a113fbc1264e9640551bfbcf6\" \"REPORT-TYPE\" \"delivery-status\") NIL NIL))\r\n")
+            << QSharedPointer<AbstractResponse>(new Fetch(380, fetchData));
 
     fetchData.clear();
     fetchData["UID"] = QSharedPointer<AbstractData>(new RespData<uint>(42463));

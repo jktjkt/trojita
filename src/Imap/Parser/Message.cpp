@@ -482,6 +482,17 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
         Envelope envelope;
         QSharedPointer<AbstractMessage> body;
 
+        // This is used when the IMAP response fails to parse in a catastrophic manner. It's better than refusing
+        // to work with that mailbox altogether. In future, we might get a client-side MIME Parser for this :).
+        // In the meanwhile, it's critical to override the MIME type properly so that the upper layers don't assert
+        // on, e.g., missing headers (or invalid indexes in there), etc.
+#define RETURN_ERROR_BINARY_PART \
+    qDebug() << "will return a fake raw part instead of a damaged" << QByteArray(mediaType + '/' + mediaSubType).data() << "part"; \
+    bodyFldParam["x-trojita-original-mime-type"] = mediaType + '/' + mediaSubType; \
+    return QSharedPointer<AbstractMessage>(new BasicMessage("application", "x-trojita-malformed-part-from-imap-response", \
+        bodyFldParam, bodyFldId, bodyFldDesc, bodyFldEnc, bodyFldOctets, \
+        QByteArray(), bodyFldDsp_t(), QList<QByteArray>(), QByteArray(), QVariant()))
+
         enum { MESSAGE, TEXT, BASIC} kind;
 
         if (mediaType == "message" && mediaSubType == "rfc822") {
@@ -492,24 +503,29 @@ QSharedPointer<AbstractMessage> AbstractMessage::fromList(const QVariantList &it
 
             kind = MESSAGE;
             if (items[i].type() == QVariant::ByteArray && items[i].toByteArray().isEmpty()) {
-                // ENVELOPE is NIL, this shouldn't really happen
-                qDebug() << "AbstractMessage::fromList(): message/rfc822: yuck, got NIL for envelope";
+                // ENVELOPE is NIL -- a server bug, but there's a chance that perhaps the body might still be readable...
+                qDebug() << "message/rfc822: yuck, got NIL for envelope";
             } else if (items[i].type() != QVariant::List) {
-                throw UnexpectedHere("message/rfc822: envelope not a list", line, start);
+                qDebug() << "message/rfc822: yuck, ENVELOPE is not a list";
+                RETURN_ERROR_BINARY_PART;
             } else {
                 envelope = Envelope::fromList(items[i].toList(), line, start);
             }
             ++i;
 
-            if (items[i].type() != QVariant::List)
-                throw UnexpectedHere("message/rfc822: body not recognized as a list", line, start);
-            body = AbstractMessage::fromList(items[i].toList(), line, start);
+            if (items[i].type() != QVariant::List) {
+                // we're screwed, let's fall back to a binary part rendering
+                qDebug() << "message/rfc822: yuck, got garbage for BODY";
+                RETURN_ERROR_BINARY_PART;
+            } else {
+                body = AbstractMessage::fromList(items[i].toList(), line, start);
+            }
             ++i;
 
             try {
                 bodyFldLines = extractUInt(items[i], line, start);
             } catch (const UnexpectedHere &) {
-                qDebug() << "AbstractMessage::fromList(): message/rfc822: yuck, invalid body-fld-lines";
+                qDebug() << "message/rfc822: yuck, invalid body-fld-lines";
             }
             ++i;
 
