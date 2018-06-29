@@ -856,7 +856,7 @@ void GpgMeEncrypted::handleDataChanged(const QModelIndex &topLeft, const QModelI
 
         bool decryptedOk = !combinedResult.first.error();
 
-        if (combinedResult.first.error()) {
+        if (!decryptedOk) {
             if (tldr.isEmpty()) {
                 tldr = tr("Broken encrypted message");
             }
@@ -925,7 +925,10 @@ void GpgMeEncrypted::processDecryptedData(const bool ok, const QByteArray &data)
             mimetic::MimeEntity me(data.begin(), data.end());
             m_model->insertSubtree(idx, MimeticUtils::mimeEntityToPart(me, nullptr, 0));
         } else {
-            // offer access to the original part
+            // It's important that we do not render this message if the decryption actually failed.
+            // One form of the EFAIL attack from 2018 relied on MUAs which HTML-rendered the decrypted plaintext
+            // which was however mangled by an attacker.
+            // We just offer access to the original, encrypted part as-is for further processing.
             std::unique_ptr<LocalMessagePart> part(new LocalMessagePart(nullptr, 0, m_encPart.data(RolePartMimeType).toByteArray()));
             part->setBodyDisposition("attachment");
             part->setFilename(m_encPart.data(RolePartFileName).toString());
