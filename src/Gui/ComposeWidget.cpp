@@ -108,8 +108,8 @@ public:
         updateText();
     }
 
-    const bool everEdited() {return messageEverEdited;}
-    const bool updated() {return messageUpdated;}
+    bool everEdited() {return messageEverEdited;}
+    bool updated() {return messageUpdated;}
 private:
     ComposeWidget* composer;
     /** @short Has it been updated since the last time we auto-saved it? */

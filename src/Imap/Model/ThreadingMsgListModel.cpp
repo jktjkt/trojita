@@ -1268,7 +1268,7 @@ bool ThreadingMsgListModel::threadContainsUnreadMessages(const uint root) const
 {
     // FIXME: cache the value somewhere...
     bool containsUnreadMessages = false;
-    threadForeach<const bool>(root, [&containsUnreadMessages](const TreeItemMessage &message) -> const bool {
+    threadForeach<bool>(root, [&containsUnreadMessages](const TreeItemMessage &message) -> bool {
         return containsUnreadMessages = ! message.isMarkedAsRead();
     });
     return containsUnreadMessages;
