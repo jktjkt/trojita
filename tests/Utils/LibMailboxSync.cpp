@@ -21,6 +21,7 @@
 */
 
 #include <QTest>
+#include <QRegularExpression>
 #include "LibMailboxSync.h"
 #include "Utils/FakeCapabilitiesInjector.h"
 #include "Common/MetaTypes.h"
@@ -766,30 +767,34 @@ NetDataRegexp::NetDataRegexp(const QByteArray &raw, const QByteArray &pattern, c
 }
 
 bool operator==(const NetDataRegexp &a, const NetDataRegexp &b)
+// This used to be a QRegExp based function and it still assumes QRegExp's limitations, even though these are removed by QRegularExpression
+// TODO: Using QRegularExpression's functionality, multiline patterns and raw data can be accomodated;
+// this may simplify some code (all the ifs below here could be removed, for starters), but this will require checking all patterns
 {
     Q_ASSERT(!a.isPattern);
     Q_ASSERT(b.isPattern);
     QByteArray rawData = a.raw;
 
-    // QRegExp doesn't support multiline patterns
+    // QRegExp didn't support multiline patterns
     if (!rawData.endsWith("\r\n")) {
         // just a partial line
         return false;
     }
     rawData.chop(2);
     if (rawData.contains("\r\n")) {
-        // multiple lines, we definitely cannot handle that
+        // multiple lines, we definitely couldn't handle that
         return false;
     }
 
-    // ...but it would be a developer's mistake if the *pattern* included
+    // ...but it would've been a developer's mistake if the *pattern* included
     if (b.pattern.contains("\r\n")) {
-        // that's a developer's error -- multine patterns are not support by Qt's QRegExp, and there's nothing else in Qt4
+        // that's a developer's error -- multiline patterns were not support by Qt's QRegExp, and there was nothing else in Qt4
         Q_ASSERT(!"CRLF in the regexp pattern, fix the test suite");
         return false;
     }
 
-    return QRegExp(QString::fromUtf8(b.pattern)).exactMatch(QString::fromUtf8(rawData));
+    return QRegularExpression("\\A(?:" + QString::fromUtf8(b.pattern) + ")\\z").match(QString::fromUtf8(rawData)).hasMatch();
+    // The pattern is surrounded by start and end anchors to ensure that the match is exact
 }
 
 /** @short A string literal formatted according to RFC 3501 */
