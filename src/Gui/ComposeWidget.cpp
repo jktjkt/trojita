@@ -569,7 +569,7 @@ ComposeWidget *ComposeWidget::createFromReadOnly(MainWindow *mainWindow, const Q
     w->ui->attachmentBox->hide();
     w->ui->mailText->hide();
     auto subject = messageRoot.data(Imap::Mailbox::RoleMessageSubject).toString();
-    w->setWindowTitle(tr("Bounce Mail: %1").arg(subject.isEmpty() ? tr("(no subject)") : subject));
+    w->setWindowTitle(tr("Resend Mail: %1").arg(subject.isEmpty() ? tr("(no subject)") : subject));
 
     // Show the full content of that e-mail as the "main body" within this widget
     CompleteMessageWidget *messageWidget = new CompleteMessageWidget(w, mainWindow->settings(), mainWindow->pluginManager(), mainWindow->favoriteTagsModel());

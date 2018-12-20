@@ -148,7 +148,7 @@ private slots:
     void slotReplyList();
     void slotReplyGuess();
     void slotForwardAsAttachment();
-    void slotBounce();
+    void slotResend();
     void slotUpdateMessageActions();
     void handleTag(const bool checked, const int index);
     void handleMarkAsRead(bool);
@@ -305,7 +305,7 @@ private:
     QAction *m_replyList;
     QAction *m_replyGuess;
     QAction *m_forwardAsAttachment;
-    QAction *m_bounce;
+    QAction *m_resend;
     QAction *expunge;
     QAction *createChildMailbox;
     QAction *createTopMailbox;
