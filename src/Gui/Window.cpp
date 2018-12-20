@@ -638,7 +638,6 @@ void MainWindow::createActions()
         // https://bugreports.qt.io/browse/QTBUG-35768 , we have to work on the QAction, not QToolButton
         m_mainToolbar->actions().last()->setVisible(!menuBarVisible);
     });
-    m_mainToolbar->actions().last()->setVisible(false); // initial state to complement the default of the QMenuBar's visibility
 
     busyParsersIndicator->setFixedSize(m_mainToolbar->iconSize());
 
@@ -774,6 +773,10 @@ void MainWindow::createMenus()
     connect(netOffline, &QAction::toggled, this, &MainWindow::updateNetworkIndication);
     connect(netExpensive, &QAction::toggled, this, &MainWindow::updateNetworkIndication);
     connect(netOnline, &QAction::toggled, this, &MainWindow::updateNetworkIndication);
+
+    addToolBar(Qt::LeftToolBarArea, m_mainToolbar);
+    m_mainToolbar->actions().last()->setVisible(true); // initial state to complement the default of the QMenuBar's visibility
+    menuBar()->hide();
 
 #undef ADD_ACTION
 }
