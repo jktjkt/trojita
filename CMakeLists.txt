@@ -18,6 +18,11 @@ if(POLICY CMP0043)
     cmake_policy(SET CMP0043 OLD)
 endif()
 
+if(POLICY CMP0071)
+    # we don't really care
+    cmake_policy(SET CMP0071 NEW)
+endif()
+
 if(CMAKE_VERSION VERSION_LESS "3.1")
     # If you aren't using and old Linux with an old GCC and old CMake, please just upgrade.
     set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
