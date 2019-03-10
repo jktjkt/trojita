@@ -1044,6 +1044,8 @@ OutgoingPage::OutgoingPage(SettingsDialog *parent, QSettings &s): QScrollArea(pa
     QString profileName = QString::fromUtf8(qgetenv("TROJITA_PROFILE"));
     m_smtpAccountSettings = new MSA::Account(this, &s, profileName);
 
+    portWarningLabel->setStyleSheet(SettingsDialog::warningStyleSheet);
+
     method->insertItem(NETWORK, tr("Network"));
     method->insertItem(SENDMAIL, tr("Local sendmail-compatible"));
     method->insertItem(IMAP_SENDMAIL, tr("IMAP SENDMAIL Extension"));;
@@ -1271,11 +1273,9 @@ void OutgoingPage::save(QSettings &s)
 void OutgoingPage::showPortWarning(const QString &warning)
 {
     if (!warning.isEmpty()) {
-        portWarningLabel->setStyleSheet(SettingsDialog::warningStyleSheet);
         portWarningLabel->setVisible(true);
         portWarningLabel->setText(warning);
     } else {
-        portWarningLabel->setStyleSheet(QString());
         portWarningLabel->setVisible(false);
     }
 
