@@ -225,7 +225,20 @@ void Account::maybeShowPortWarning()
     QString portWarn;
     const int defPort = defaultPort(m_msaSubmissionMethod);
     if (m_port != defPort) {
-        portWarn = tr("This port is nonstandard. The default port is %1").arg(defPort);
+        switch (m_msaSubmissionMethod) {
+        case Method::SENDMAIL:
+        case Method::IMAP_SENDMAIL:
+            break;
+        case Method::SMTP:
+            portWarn = tr("This port is nonstandard. The default port for cleartext SMTP is %1.").arg(defPort);
+            break;
+        case Method::SMTP_STARTTLS:
+            portWarn = tr("This port is nonstandard. The default port for SMTP submission secured via STARTTLS is %1.").arg(defPort);
+            break;
+        case Method::SSMTP:
+            portWarn = tr("This port is nonstandard. The default port for SMTP over encrypted SSL/TLS connection is %1.").arg(defPort);
+            break;
+        }
     }
 
     emit showPortWarning(portWarn);

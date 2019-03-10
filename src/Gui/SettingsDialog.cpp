@@ -936,10 +936,14 @@ void ImapPage::maybeShowPortWarning()
 
     if (encryption->currentIndex() == SSL) {
         portWarning->setVisible(imapPort->text() != QString::number(Common::PORT_IMAPS));
-        portWarning->setText(tr("This port is nonstandard. The default port is 993."));
+        portWarning->setText(tr("This port is nonstandard. The default port for IMAP secured over SSL/TLS is %1.").arg(Common::PORT_IMAPS));
     } else {
         portWarning->setVisible(imapPort->text() != QString::number(Common::PORT_IMAP));
-        portWarning->setText(tr("This port is nonstandard. The default port is 143."));
+        if (encryption->currentIndex() == STARTTLS) {
+            portWarning->setText(tr("This port is nonstandard. The default port for IMAP secured via STARTTLS is %1.").arg(Common::PORT_IMAP));
+        } else {
+            portWarning->setText(tr("This port is nonstandard. The default port for IMAP over cleartext is %1.").arg(Common::PORT_IMAP));
+        }
     }
 }
 
