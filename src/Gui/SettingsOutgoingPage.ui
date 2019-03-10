@@ -75,6 +75,9 @@
       <property name="text">
        <string/>
       </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item row="5" column="0">
