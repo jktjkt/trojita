@@ -185,6 +185,9 @@ void TopLevelMessage::fetchChildren(MessageModel *model)
                                                  model, [this, model](const QModelIndex &idx) {
                 if (idx == model->m_message) {
                     model->disconnect(model->m_insertRows);
+                    if (!m_root.isValid()) {
+                        return;
+                    }
                     Q_ASSERT(m_root.isValid());
                     m_childrenState = MessagePart::FetchingState::NONE;
                     model->beginInsertRows(QModelIndex(), 0, 0);
