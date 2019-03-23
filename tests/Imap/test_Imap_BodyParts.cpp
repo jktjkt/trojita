@@ -51,6 +51,7 @@ struct Data {
 
 Q_DECLARE_METATYPE(QList<Data>)
 
+#if QT_VERSION < QT_VERSION_CHECK(5, 13, 0)
 namespace QTest {
 template <>
 char *toString(const QModelIndex &index)
@@ -60,6 +61,7 @@ char *toString(const QModelIndex &index)
     return qstrdup(buf.toUtf8().constData());
 }
 }
+#endif
 
 using namespace Imap::Mailbox;
 
