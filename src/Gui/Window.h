@@ -268,8 +268,8 @@ private:
 
     CompleteMessageWidget *m_messageWidget;
 
-    ProtocolLoggerWidget *imapLogger;
-    QDockWidget *imapLoggerDock;
+    ProtocolLoggerWidget *protocolLogger;
+    QDockWidget *protocolLoggerDock;
 
     QPointer<QSplitter> m_mainHSplitter;
     QPointer<QSplitter> m_mainVSplitter;
@@ -290,7 +290,7 @@ private:
     QAction *showFullView;
     QAction *showTaskView;
     QAction *showMimeView;
-    QAction *showImapLogger;
+    QAction *showProtocolLogger;
     QAction *logPersistent;
     QAction *showImapCapabilities;
     QAction *showMenuBar;

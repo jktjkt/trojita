@@ -348,16 +348,16 @@ void MainWindow::createActions()
     connect(showMimeView, &QAction::triggered, mailMimeDock, &QWidget::setVisible);
     connect(mailMimeDock, &QDockWidget::visibilityChanged, showMimeView, &QAction::setChecked);
 
-    showImapLogger = new QAction(tr("Show IMAP protocol &log"), this);
-    showImapLogger->setCheckable(true);
-    connect(showImapLogger, &QAction::toggled, imapLoggerDock, &QWidget::setVisible);
-    connect(imapLoggerDock, &QDockWidget::visibilityChanged, showImapLogger, &QAction::setChecked);
+    showProtocolLogger = new QAction(tr("Show protocol &log"), this);
+    showProtocolLogger->setCheckable(true);
+    connect(showProtocolLogger, &QAction::toggled, protocolLoggerDock, &QWidget::setVisible);
+    connect(protocolLoggerDock, &QDockWidget::visibilityChanged, showProtocolLogger, &QAction::setChecked);
 
     //: file to save the debug log into
     logPersistent = new QAction(tr("Log &into %1").arg(Imap::Mailbox::persistentLogFileName()), this);
     logPersistent->setCheckable(true);
-    connect(logPersistent, &QAction::triggered, imapLogger, &ProtocolLoggerWidget::slotSetPersistentLogging);
-    connect(imapLogger, &ProtocolLoggerWidget::persistentLoggingChanged, logPersistent, &QAction::setChecked);
+    connect(logPersistent, &QAction::triggered, protocolLogger, &ProtocolLoggerWidget::slotSetPersistentLogging);
+    connect(protocolLogger, &ProtocolLoggerWidget::persistentLoggingChanged, logPersistent, &QAction::setChecked);
 
     showImapCapabilities = new QAction(tr("IMAP Server In&formation..."), this);
     connect(showImapCapabilities, &QAction::triggered, this, &MainWindow::slotShowImapInfo);
@@ -695,7 +695,7 @@ void MainWindow::createMenus()
             ADD_ACTION(debugMenu, showFullView);
             ADD_ACTION(debugMenu, showTaskView);
             ADD_ACTION(debugMenu, showMimeView);
-            ADD_ACTION(debugMenu, showImapLogger);
+            ADD_ACTION(debugMenu, showProtocolLogger);
             ADD_ACTION(debugMenu, logPersistent);
             debugMenu->addSeparator();
             ADD_ACTION(debugMenu, showImapCapabilities);
@@ -860,12 +860,12 @@ void MainWindow::createWidgets()
     addDockWidget(Qt::RightDockWidgetArea, mailMimeDock);
     connect(m_messageWidget->messageView, &MessageView::messageModelChanged, this, &MainWindow::slotMessageModelChanged);
 
-    imapLoggerDock = new QDockWidget(tr("IMAP Protocol"), this);
-    imapLoggerDock->setObjectName(QStringLiteral("imapLoggerDock"));
-    imapLogger = new ProtocolLoggerWidget(imapLoggerDock);
-    imapLoggerDock->hide();
-    imapLoggerDock->setWidget(imapLogger);
-    addDockWidget(Qt::BottomDockWidgetArea, imapLoggerDock);
+    protocolLoggerDock = new QDockWidget(tr("Protocol log"), this);
+    protocolLoggerDock->setObjectName(QStringLiteral("protocolLoggerDock"));
+    protocolLogger = new ProtocolLoggerWidget(protocolLoggerDock);
+    protocolLoggerDock->hide();
+    protocolLoggerDock->setWidget(protocolLogger);
+    addDockWidget(Qt::BottomDockWidgetArea, protocolLoggerDock);
 
     busyParsersIndicator = new TaskProgressIndicator(this);
 }
@@ -930,8 +930,8 @@ void MainWindow::setupModels()
     connect(imapModel(), &Imap::Mailbox::Model::mailboxCreationFailed, this, &MainWindow::slotMailboxCreateFailed);
     connect(imapModel(), &Imap::Mailbox::Model::mailboxSyncFailed, this, &MainWindow::slotMailboxSyncFailed);
 
-    connect(imapModel(), &Imap::Mailbox::Model::logged, imapLogger, &ProtocolLoggerWidget::log);
-    connect(imapModel(), &Imap::Mailbox::Model::connectionStateChanged, imapLogger, &ProtocolLoggerWidget::onConnectionClosed);
+    connect(imapModel(), &Imap::Mailbox::Model::logged, protocolLogger, &ProtocolLoggerWidget::log);
+    connect(imapModel(), &Imap::Mailbox::Model::connectionStateChanged, protocolLogger, &ProtocolLoggerWidget::onConnectionClosed);
 
     auto nw = qobject_cast<Imap::Mailbox::NetworkWatcher *>(m_imapAccess->networkWatcher());
     Q_ASSERT(nw);
@@ -1339,7 +1339,7 @@ void MainWindow::imapError(const QString &message)
     Gui::Util::messageBoxCritical(this, tr("IMAP Protocol Error"), message);
     // Show the IMAP logger -- maybe some user will take that as a hint that they shall include it in the bug report.
     // </joke>
-    showImapLogger->setChecked(true);
+    showProtocolLogger->setChecked(true);
 }
 
 void MainWindow::networkError(const QString &message)
@@ -2849,7 +2849,7 @@ Imap::ImapAccess *MainWindow::imapAccess() const
 
 void MainWindow::enableLoggingToDisk()
 {
-    imapLogger->slotSetPersistentLogging(true);
+    protocolLogger->slotSetPersistentLogging(true);
 }
 
 void MainWindow::slotPluginsChanged()
@@ -2895,7 +2895,7 @@ void MainWindow::slotFavoriteTagsChanged()
 void MainWindow::registerComposeWindow(ComposeWidget* widget)
 {
     connect(widget, &ComposeWidget::logged, this, [this](const Common::LogKind kind, const QString& source, const QString& message) {
-        imapLogger->log(0, Common::LogMessage(QDateTime::currentDateTime(), kind, source, message, 0));
+        protocolLogger->log(0, Common::LogMessage(QDateTime::currentDateTime(), kind, source, message, 0));
     });
 }
 
