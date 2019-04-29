@@ -14,6 +14,9 @@
    <string>About Trojitá</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
    <item>
     <layout class="QHBoxLayout" name="main">
      <property name="spacing">
