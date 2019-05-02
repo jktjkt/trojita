@@ -38,6 +38,7 @@
 #include "Gui/Util.h"
 #include "Imap/Model/ItemRoles.h"
 #include "Imap/Model/MailboxTree.h"
+#include "Imap/Parser/Message.h"
 #include "UiUtils/IconLoader.h"
 
 namespace {
@@ -134,6 +135,7 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
 
         const bool isPlainText = mimeType == QLatin1String("text/plain");
         const bool isHtml = mimeType == QLatin1String("text/html");
+        const bool isCalendar = mimeType == QLatin1String("text/calendar");
 
         if (isPlainText) {
             //: Translators: use something very short, perhaps even "text". Don't describe this as "Clear text".
@@ -143,13 +145,31 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
         } else if (isHtml) {
             //: Translators: caption of the tab which shows a HTML version of the mail. Use some short, compact text here.
             mimeType = tr("HTML");
+        } else if (isCalendar) {
+            using bodyFldParam_t = Imap::Message::AbstractMessage::bodyFldParam_t;
+            const auto bodyFldParam = anotherPart.data(Imap::Mailbox::RolePartBodyFldParam).value<bodyFldParam_t>();
+            auto method = bodyFldParam[QByteArray("METHOD")].toUpper();
+            if (method == "CANCEL") {
+                mimeType = tr("Cancelled Event");
+            } else if (method == "REQUEST") {
+                mimeType = tr("Meeting Request");
+            } else if (method == "PUBLISH") {
+                mimeType = tr("Calendar Event");
+            } else if (method == "REPLY") {
+                mimeType = tr("Calendar Reply");
+            } else if (method == "ADD") {
+                mimeType = tr("New Meeting");
+            }
+            // We do not handle REFRESH, COUNTER or DECLINECOUNTER because they are "too specific" for now
         }
 
         addTab(item, mimeType);
 
         // Bug 332950: some items nested within a multipart/alternative message are not exactly an alternative.
         // One such example is a text/calendar right next to a text/html and a text/plain.
-        if (!isPlainText && !isHtml) {
+        if (isCalendar) {
+            setTabIcon(i, UiUtils::loadIcon(QStringLiteral("text-calendar")));
+        } else if (!isPlainText && !isHtml) {
             // Unfortunately we cannot change the tab background with current Qt (Q1 2014),
             // see https://bugreports.qt-project.org/browse/QTBUG-840 for details
             setTabIcon(i, UiUtils::loadIcon(QStringLiteral("emblem-important")));
