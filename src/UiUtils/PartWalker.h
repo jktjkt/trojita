@@ -58,7 +58,6 @@ private:
     Imap::Mailbox::NetworkWatcher *m_netWatcher;
     Context m_context;
     std::unique_ptr<PartVisitor<Result, Context>> m_visitor;
-
 };
 
 }

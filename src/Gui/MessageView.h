@@ -89,6 +89,7 @@ public:
     void forward(MainWindow *mainWindow, const Composer::ForwardMode mode);
     QModelIndex currentMessage() const;
     Plugins::PluginManager *pluginManager() const;
+    QSettings* profileSettings() const;
 public slots:
     void setMessage(const QModelIndex &index);
     void setEmpty();

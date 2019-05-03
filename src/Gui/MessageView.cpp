@@ -97,7 +97,7 @@ MessageView::MessageView(QWidget *parent, QSettings *settings, Plugins::PluginMa
     addAction(m_findAction);
 
     // The homepage widget -- our poor man's splashscreen
-    m_homePage = new EmbeddedWebView(this, new QNetworkAccessManager(this));
+    m_homePage = new EmbeddedWebView(this, new QNetworkAccessManager(this), settings);
     m_homePage->setFixedSize(450,300);
     CALL_LATER_NOARG(m_homePage, handlePageLoadFinished);
     m_homePage->setPage(new UserAgentWebPage(m_homePage));
@@ -486,6 +486,11 @@ void MessageView::partLinkHovered(const QString &link, const QString &title, con
     Q_UNUSED(title);
     Q_UNUSED(textContent);
     emit linkHovered(link);
+}
+
+QSettings* MessageView::profileSettings() const
+{
+    return m_settings;
 }
 
 QModelIndex MessageView::currentMessage() const

@@ -19,6 +19,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+#include "Common/SettingsNames.h"
 #include "EmbeddedWebView.h"
 #include "MessageView.h"
 #include "Gui/Util.h"
@@ -62,12 +63,12 @@ public:
 namespace Gui
 {
 
-EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager)
+EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager, QSettings *profileSettings)
     : QWebView(parent)
     , m_scrollParent(nullptr)
     , m_resizeInProgress(0)
     , m_staticWidth(0)
-    , m_colorScheme(ColorScheme::System)
+    , m_settings(profileSettings)
 {
     // set to expanding, ie. "freely" - this is important so the widget will attempt to shrink below the sizehint!
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -113,6 +114,8 @@ EmbeddedWebView::EmbeddedWebView(QWidget *parent, QNetworkAccessManager *network
     findScrollParent();
 
     addCustomStylesheet(QString());
+
+    loadColorScheme();
 }
 
 void EmbeddedWebView::constrainSize()
@@ -167,6 +170,7 @@ void EmbeddedWebView::slotLinkClicked(const QUrl &url)
 
 void EmbeddedWebView::handlePageLoadFinished()
 {
+    loadColorScheme();
     constrainSize();
 
     // We've already set it in our constructor, but apparently it isn't enough (Qt 4.8.0 on X11).
@@ -352,7 +356,7 @@ bool ErrorCheckingPage::extension(Extension extension, const ExtensionOption *op
     return true;
 }
 
-std::map<EmbeddedWebView::ColorScheme, QString> EmbeddedWebView::supportedColorSchemes() const
+std::map<EmbeddedWebView::ColorScheme, QString> EmbeddedWebView::supportedColorSchemes()
 {
     std::map<EmbeddedWebView::ColorScheme, QString> map;
     map[ColorScheme::System] = tr("System colors");
@@ -365,6 +369,24 @@ void EmbeddedWebView::setColorScheme(const ColorScheme colorScheme)
 {
     m_colorScheme = colorScheme;
     addCustomStylesheet(m_customCss);
+}
+
+/**
+ * @brief EmbeddedWebView::loadtColorScheme loads and applies a color scheme setting from the profile config.
+ */
+void EmbeddedWebView::loadColorScheme()
+{
+    ColorScheme schemeId = m_settings->value(Common::SettingsNames::msgViewColorScheme,  QVariant::fromValue(ColorScheme::System)).value<ColorScheme>();
+    setColorScheme(schemeId);
+}
+
+/**
+ * @brief EmbeddedWebView::changeColorScheme saves and applies passed configuration of a color scheme setting.
+ */
+void EmbeddedWebView::changeColorScheme(const ColorScheme colorScheme)
+{
+    m_settings->setValue(Common::SettingsNames::msgViewColorScheme, QVariant::fromValue(colorScheme).toInt());
+    setColorScheme(colorScheme);
 }
 
 void EmbeddedWebView::addCustomStylesheet(const QString &css)
