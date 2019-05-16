@@ -660,10 +660,6 @@ void ComposeWidget::passwordRequested(const QString &user, const QString &host)
         return;
     }
 
-    // FIXME: use another account-id at some point in future
-    //        we are now using the profile to avoid overwriting passwords of
-    //        other profiles in secure storage
-    //        'account-0' is the hardcoded value when not using a profile
     Plugins::PasswordJob *job = password->requestPassword(m_submission->accountId(), QStringLiteral("smtp"));
     if (!job) {
         askPassword(user, host);
