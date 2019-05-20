@@ -34,6 +34,7 @@
 #include <QMessageBox>
 #include <QProgressBar>
 #include <QRegularExpression>
+#include <QScopedPointer>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QSslError>
@@ -101,6 +102,7 @@
 
 #include "ui_CreateMailboxDialog.h"
 #include "ui_AboutDialog.h"
+#include "ui_ImapInfoDialog.h"
 
 #include "Imap/Model/ModelTest/modeltest.h"
 #include "UiUtils/IconLoader.h"
@@ -2529,10 +2531,15 @@ void MainWindow::slotShowImapInfo()
         idString = tr("<p>The server has not provided information about its software version.</p>");
     }
 
-    QMessageBox::information(this, tr("IMAP Server Information"),
-                             tr("%1"
-                                "<p>The following capabilities are currently advertised:</p>\n"
-                                "<ul>\n%2</ul>").arg(idString, caps));
+    Ui::ImapInfoDialog ui;
+    QScopedPointer<QDialog> dialog(new QDialog(this));
+
+    ui.setupUi(dialog.data());
+    ui.version->setText(tr("%1\n"
+                           "<p>The following capabilities are currently advertised:</p>").arg(idString));
+    ui.capabilities->setText(tr("<ul>\n%1</ul>").arg(caps));
+
+    dialog->exec();
 }
 
 QSize MainWindow::sizeHint() const

@@ -402,6 +402,7 @@ set(libDesktopGui_UI
     ${path_DesktopGui}/CreateMailboxDialog.ui
     ${path_DesktopGui}/EditIdentity.ui
     ${path_DesktopGui}/EditFavoriteTag.ui
+    ${path_DesktopGui}/ImapInfoDialog.ui
     ${path_DesktopGui}/PasswordDialog.ui
     ${path_DesktopGui}/ProgressPopUp.ui
     ${path_DesktopGui}/SettingsCachePage.ui
