@@ -168,7 +168,7 @@ enum {
     RolePartMultipartRelatedMainCid,
     /** @short Is this a top-level multipart, i.e. a multipart/... and a child of a message/rfc822? See isTopLevelMultipart. */
     RolePartIsTopLevelMultipart,
-    /** @short Return the body-fld-param from BODUSTRUCTURE, which usually contains some optional MIME parameters about this part */
+    /** @short Return the body-fld-param from BODYSTRUCTURE, which usually contains some optional MIME parameters about this part */
     RolePartBodyFldParam,
 
     /** @short Fetch a part from the cache if it's available, but do not request it from the server */
