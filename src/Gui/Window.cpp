@@ -565,7 +565,7 @@ void MainWindow::createActions()
     m_actionLayoutWide = new QAction(tr("&Wide"), layoutGroup);
     m_actionLayoutWide->setCheckable(true);
     connect(m_actionLayoutWide, &QAction::triggered, this, &MainWindow::slotLayoutWide);
-    m_actionLayoutOneAtTime = new QAction(tr("&One At Time"), layoutGroup);
+    m_actionLayoutOneAtTime = new QAction(tr("&One At a Time"), layoutGroup);
     m_actionLayoutOneAtTime->setCheckable(true);
     connect(m_actionLayoutOneAtTime, &QAction::triggered, this, &MainWindow::slotLayoutOneAtTime);
 
