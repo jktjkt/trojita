@@ -43,7 +43,7 @@ QString trojita_plugin_SonnetSpellcheckerPlugin::name() const
 
 QString trojita_plugin_SonnetSpellcheckerPlugin::description() const
 {
-    return trUtf8("Sonnet (KF5)");
+    return tr("Sonnet (KF5)");
 }
 
 Plugins::SpellcheckerPlugin *trojita_plugin_SonnetSpellcheckerPlugin::create(QObject *parent, QSettings *settings)

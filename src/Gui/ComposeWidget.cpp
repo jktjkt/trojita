@@ -511,7 +511,7 @@ ComposeWidget *ComposeWidget::createReply(MainWindow *mainWindow, const Composer
             err = tr("It doesn't look like this is a message to the mailing list. Please fill in the recipients manually.");
             break;
         case Composer::REPLY_PRIVATE:
-            err = trUtf8("Trojitá was unable to safely determine the real e-mail address of the author of the message. "
+            err = tr("Trojitá was unable to safely determine the real e-mail address of the author of the message. "
                          "You might want to use the \"Reply All\" function and trim the list of addresses manually.");
             break;
         }

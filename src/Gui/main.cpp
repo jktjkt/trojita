@@ -141,7 +141,7 @@ int main(int argc, char **argv)
         showHelp = true;
 
     if (showHelp) {
-        qOut << endl << QObject::trUtf8(
+        qOut << endl << QObject::tr(
             "Usage: %1 [options] [url]\n"
             "\n"
             "Trojitá %2 - fast Qt IMAP e-mail client\n"

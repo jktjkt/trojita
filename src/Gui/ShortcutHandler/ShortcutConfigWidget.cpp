@@ -38,7 +38,7 @@ ShortcutConfigWidget::ShortcutConfigWidget(QWidget *parent)
     , m_shortcutsShouldBeRestored(false)
 {
     ui.setupUi(this);
-    setWindowTitle(tr("Configure Shortcuts") + QLatin1String(" - ") + trUtf8("Trojitá"));
+    setWindowTitle(tr("Configure Shortcuts") + QLatin1String(" - ") + tr("Trojitá"));
 
     ui.shortcutTreeWidget->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui.shortcutTreeWidget->header()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -200,7 +200,7 @@ bool ShortcutConfigWidget::eventFilter(QObject *obj, QEvent *event)
             QTreeWidgetItem *childItem = topLevelItem->child(j);
             if (keySequence == childItem->text(1) && childItem->data(1, Qt::UserRole).toString() != actionName) {
                 QMessageBox::StandardButton result = QMessageBox::warning(this,
-                                                     tr("Shortcut Conflicts") + QLatin1String(" - ") + trUtf8("Trojitá"),
+                                                     tr("Shortcut Conflicts") + QLatin1String(" - ") + tr("Trojitá"),
                                                      tr("<p>The \"%1\" shortcut is ambiguous with the following shortcut:</p>"
                                                         "<p>%2</p><p>Do you want to assign an empty shortcut to this action?</p>")
                                                      .arg(keySequence, childItem->text(0)),

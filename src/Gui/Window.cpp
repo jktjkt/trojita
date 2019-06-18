@@ -127,7 +127,7 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     connect(m_pluginManager, &Plugins::PluginManager::pluginError, this, [this](const QString &errorMessage) {
         Gui::Util::messageBoxWarning(this, tr("Plugin Error"),
                                      //: The %1 placeholder is a full error message as provided by Qt, ready for human consumption.
-                                     trUtf8("A plugin failed to load, therefore some functionality might be lost. "
+                                     tr("A plugin failed to load, therefore some functionality might be lost. "
                                             "You might want to update your system or report a bug to your vendor."
                                             "\n\n%1").arg(errorMessage));
     });
@@ -579,7 +579,7 @@ void MainWindow::createActions()
     m_actionSubscribeMailbox->setEnabled(false);
     connect(m_actionSubscribeMailbox, &QAction::triggered, this, &MainWindow::slotSubscribeCurrentMailbox);
 
-    aboutTrojita = new QAction(trUtf8("&About Trojitá..."), this);
+    aboutTrojita = new QAction(tr("&About Trojitá..."), this);
     connect(aboutTrojita, &QAction::triggered, this, &MainWindow::slotShowAboutTrojita);
 
     donateToTrojita = new QAction(tr("&Donate to the project"), this);
@@ -1107,7 +1107,7 @@ void MainWindow::handleTrayIconChange()
         painter.drawPath(path);
 
         //: This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
-        tooltip += trUtf8(" - %n unread message(s)", 0, unreadCount);
+        tooltip += tr(" - %n unread message(s)", 0, unreadCount);
     } else if (isOffline) {
         //: A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
         tooltip += tr(" - offline");
@@ -1119,7 +1119,7 @@ void MainWindow::handleTrayIconChange()
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (m_trayIcon && m_trayIcon->isVisible()) {
-        Util::askForSomethingUnlessTold(trUtf8("Trojitá"),
+        Util::askForSomethingUnlessTold(tr("Trojitá"),
                                         tr("The application will continue in systray. This can be disabled within the settings."),
                                         Common::SettingsNames::guiOnSystrayClose, QMessageBox::Ok, this, m_settings);
         hide();
@@ -1426,7 +1426,7 @@ void MainWindow::slotShowSettings()
     if (method != Common::SettingsNames::methodTCP && method != Common::SettingsNames::methodSSL &&
             method != Common::SettingsNames::methodProcess ) {
         Gui::Util::messageBoxCritical(this, tr("No Configuration"),
-                                      trUtf8("No IMAP account is configured. Trojitá cannot do much without one."));
+                                      tr("No IMAP account is configured. Trojitá cannot do much without one."));
     }
     applySizesAndState();
 }
@@ -2555,13 +2555,13 @@ void MainWindow::slotUpdateWindowTitle()
         profileName = QLatin1String(" [") + profileName + QLatin1Char(']');
     if (mailbox.isValid()) {
         if (mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt()) {
-            setWindowTitle(trUtf8("%1 - %n unread - Trojitá", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt())
+            setWindowTitle(tr("%1 - %n unread - Trojitá", 0, mailbox.data(Imap::Mailbox::RoleUnreadMessageCount).toInt())
                            .arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()) + profileName);
         } else {
-            setWindowTitle(trUtf8("%1 - Trojitá").arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()) + profileName);
+            setWindowTitle(tr("%1 - Trojitá").arg(mailbox.data(Imap::Mailbox::RoleShortMailboxName).toString()) + profileName);
         }
     } else {
-        setWindowTitle(trUtf8("Trojitá") + profileName);
+        setWindowTitle(tr("Trojitá") + profileName);
     }
 }
 

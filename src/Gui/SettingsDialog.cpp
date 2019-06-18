@@ -431,7 +431,7 @@ GeneralPage::GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderI
         mboxDropActionBox->setCurrentIndex(mboxDropActionBox->count() - 1);
 
     showHomepageCheckbox->setChecked(s.value(Common::SettingsNames::appLoadHomepage, QVariant(true)).toBool());
-    showHomepageCheckbox->setToolTip(trUtf8("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
+    showHomepageCheckbox->setToolTip(tr("<p>If enabled, Trojitá will show its homepage upon startup.</p>"
                                         "<p>The remote server will receive the user's IP address and versions of Trojitá, the Qt library, "
                                         "and the underlying operating system. No private information, like account settings "
                                         "or IMAP server details, are collected.</p>"));
@@ -838,11 +838,11 @@ void ImapPage::updateWidgets()
     passwordWarning->setVisible(!imapPass->text().isEmpty());
     if (m_pwWatcher->isStorageEncrypted()) {
         passwordWarning->setStyleSheet(QString());
-        passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
+        passwordWarning->setText(tr("This password will be saved in encrypted storage. "
             "If you do not enter password here, Trojitá will prompt for one when needed."));
     } else {
         passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
-        passwordWarning->setText(trUtf8("This password will be saved in clear text. "
+        passwordWarning->setText(tr("This password will be saved in clear text. "
             "If you do not enter password here, Trojitá will prompt for one when needed."));
     }
 
@@ -1200,11 +1200,11 @@ void OutgoingPage::updateWidgets()
         passwordWarning->setVisible(authEnabled && !reuseImapCreds && !smtpPass->text().isEmpty());
         if (m_pwWatcher->isStorageEncrypted()) {
             passwordWarning->setStyleSheet(QString());
-            passwordWarning->setText(trUtf8("This password will be saved in encrypted storage. "
+            passwordWarning->setText(tr("This password will be saved in encrypted storage. "
                 "If you do not enter password here, Trojitá will prompt for one when needed."));
         } else {
             passwordWarning->setStyleSheet(SettingsDialog::warningStyleSheet);
-            passwordWarning->setText(trUtf8("This password will be saved in clear text. "
+            passwordWarning->setText(tr("This password will be saved in clear text. "
                 "If you do not enter password here, Trojitá will prompt for one when needed."));
         }
 
