@@ -19,6 +19,7 @@
   <name xml:lang="fr">Trojitá</name>
   <name xml:lang="gl">Trojitá</name>
   <name xml:lang="hu">Trojitá</name>
+  <name xml:lang="ia">Trojitá</name>
   <name xml:lang="id">Trojitá</name>
   <name xml:lang="it">Trojitá</name>
   <name xml:lang="ko">Trojitá</name>
@@ -51,6 +52,7 @@
   <summary xml:lang="fr">Client de courrier électronique IMAP</summary>
   <summary xml:lang="gl">Cliente de correo IMAP</summary>
   <summary xml:lang="hu">IMAP e-mail kliens</summary>
+  <summary xml:lang="ia">Cliente de e-posta IMAP</summary>
   <summary xml:lang="id">Klien IMAP E-mail</summary>
   <summary xml:lang="it">Client di posta elettronica IMAP</summary>
   <summary xml:lang="ko">IMAP 이메일 클라이언트</summary>
