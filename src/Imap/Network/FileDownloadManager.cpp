@@ -139,7 +139,9 @@ void FileDownloadManager::downloadMessage()
 
 void FileDownloadManager::onPartDataTransfered()
 {
-    Q_ASSERT(reply);
+    if (!reply) {
+        return;
+    }
     if (reply->error() == QNetworkReply::NoError) {
         if (!saving.open(QIODevice::WriteOnly)) {
             emit transferError(saving.errorString());
@@ -192,11 +194,11 @@ void FileDownloadManager::onCombinerTransferError(const QString &message)
 
 void FileDownloadManager::deleteReply(QNetworkReply *reply)
 {
-    if (reply == this->reply) {
+    if (reply && reply == this->reply) {
         if (!saved)
             onPartDataTransfered();
-        delete reply;
-        this->reply = 0;
+        reply->deleteLater();
+        this->reply = nullptr;
     }
 }
 
