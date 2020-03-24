@@ -32,6 +32,7 @@
 #include <QKeyEvent>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QPainterPath>
 #include <QProgressBar>
 #include <QRegularExpression>
 #include <QScopedPointer>
