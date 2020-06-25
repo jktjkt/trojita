@@ -21,6 +21,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "SMTP.h"
+#include "UiUtils/Formatting.h"
 
 namespace MSA
 {
@@ -32,8 +33,8 @@ SMTP::SMTP(QObject *parent, const QString &host, quint16 port, bool encryptedCon
     user(user), failed(false), isWaitingForPassword(false), sendingMode(MODE_SMTP_INVALID)
 {
     qwwSmtp = new QwwSmtpClient(this);
-    // FIXME: handle SSL errors properly
-    connect(qwwSmtp, &QwwSmtpClient::sslErrors, qwwSmtp, &QwwSmtpClient::ignoreSslErrors);
+    // FIXME: handle SSL errors in the same way as we handle IMAP TLS errors, with key pinning, etc.
+    connect(qwwSmtp, &QwwSmtpClient::sslErrors, this, &SMTP::handleSslErrors);
     connect(qwwSmtp, &QwwSmtpClient::connected, this, &AbstractMSA::sending);
     connect(qwwSmtp, &QwwSmtpClient::done, this, &SMTP::handleDone);
     connect(qwwSmtp, &QwwSmtpClient::socketError, this, &SMTP::handleError);
@@ -76,6 +77,12 @@ void SMTP::handleError(QAbstractSocket::SocketError err, const QString &msg)
     Q_UNUSED(err);
     failed = true;
     emit error(msg);
+}
+
+void SMTP::handleSslErrors(const QList<QSslError>& errors)
+{
+    auto msg = UiUtils::Formatting::sslErrorsToHtml(errors);
+    emit error(tr("<p>Cannot send message due to an SSL/TLS error</p>\n%1").arg(msg));
 }
 
 void SMTP::setPassword(const QString &password)

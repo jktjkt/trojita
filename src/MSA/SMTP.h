@@ -43,6 +43,7 @@ public slots:
     virtual void setPassword(const QString &password);
     void handleDone(bool ok);
     void handleError(QAbstractSocket::SocketError err, const QString &msg);
+    void handleSslErrors(const QList<QSslError>& errors);
 private:
     QwwSmtpClient *qwwSmtp;
     QString host;
