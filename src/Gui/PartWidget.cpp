@@ -378,6 +378,14 @@ void MultipartSignedEncryptedWidget::updateStatusIndicator()
 
 QString MultipartSignedEncryptedWidget::quoteMe() const
 {
+    if (m_partIndex.data(Imap::Mailbox::RolePartDecryptionSupported).toBool()) {
+        // See CVE-2019-10734, the point is not to leak cleartext from encrypted content. Even when Trojita starts supporting
+        // encryption of outgoing mail, we will have to check whether the encrypted cleartext is from the same sender, whether
+        // it matches the list of recipients (which is dynamic and can be set later on), etc etc.
+        // TL;DR, this is a can of worms.
+        return tr("[Encrypted message]");
+    }
+
     return quoteMeHelper(children());
 }
 
