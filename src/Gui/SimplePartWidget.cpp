@@ -48,7 +48,7 @@ namespace Gui
 
 SimplePartWidget::SimplePartWidget(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager,
                                    const QModelIndex &partIndex, MessageView *messageView):
-    EmbeddedWebView(parent, manager), m_partIndex(partIndex), m_messageView(messageView), m_netAccessManager(manager)
+    EmbeddedWebView(parent, manager, messageView->profileSettings()), m_partIndex(partIndex), m_messageView(messageView), m_netAccessManager(manager)
 {
     Q_ASSERT(partIndex.isValid());
 
@@ -208,7 +208,7 @@ void SimplePartWidget::buildContextMenu(const QPoint &point, QMenu &menu) const
     for (auto item: supportedColorSchemes()) {
         QAction *a = colorSchemeMenu->addAction(item.second);
         connect(a, &QAction::triggered, this, [this, item](){
-           const_cast<SimplePartWidget*>(this)->setColorScheme(item.first);
+           const_cast<SimplePartWidget*>(this)->changeColorScheme(item.first);
         });
         a->setCheckable(true);
         if (item.first == m_colorScheme) {

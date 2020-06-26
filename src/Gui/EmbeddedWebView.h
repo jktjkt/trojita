@@ -22,6 +22,7 @@
 #ifndef EMBEDDEDWEBVIEW_H
 #define EMBEDDEDWEBVIEW_H
 
+#include <QSettings>
 #include <QWebPluginFactory>
 #include <QWebView>
 
@@ -56,14 +57,14 @@ public:
         BlackOnWhite,
     };
 
-    EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager);
+    EmbeddedWebView(QWidget *parent, QNetworkAccessManager *networkManager, QSettings *profileSettings);
     QSize sizeHint() const;
     QWidget *scrollParent() const;
     void setStaticWidth(int staticWidth);
     int staticWidth() const;
-    std::map<ColorScheme, QString> supportedColorSchemes() const;
+    static std::map<ColorScheme, QString> supportedColorSchemes();
 public slots:
-    void setColorScheme(const ColorScheme colorScheme);
+    void changeColorScheme(const ColorScheme colorScheme);
 protected:
     void changeEvent(QEvent *e);
     bool eventFilter(QObject *o, QEvent *e);
@@ -74,6 +75,8 @@ protected:
     void constrainSize();
 private:
     void findScrollParent();
+    void loadColorScheme();
+    void setColorScheme(const ColorScheme colorScheme);
 private slots:
     void autoScroll();
     void slotLinkClicked(const QUrl &url);
@@ -87,6 +90,7 @@ private:
     int m_autoScrollPixels;
     int m_staticWidth;
     QString m_customCss;
+    QSettings *m_settings;
 protected:
     ColorScheme m_colorScheme;
 };
@@ -102,5 +106,7 @@ public:
 };
 
 }
+
+Q_DECLARE_METATYPE(Gui::EmbeddedWebView::ColorScheme)
 
 #endif // EMBEDDEDWEBVIEW_H
