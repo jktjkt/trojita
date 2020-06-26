@@ -267,6 +267,8 @@ QVariant GpgMePart::data(int role) const
     switch (role) {
     case Imap::Mailbox::RolePartSignatureVerifySupported:
         return m_wasSigned;
+    case RolePartDecryptionSupported:
+        return m_isAllegedlyEncrypted;
     case RolePartCryptoNotFinishedYet:
         return m_waitingForData ||
                 (m_crypto.valid() &&

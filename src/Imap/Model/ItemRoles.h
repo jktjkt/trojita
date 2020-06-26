@@ -193,7 +193,7 @@ enum {
     RolePartSignatureVerifySupported,
     /** @short Is the format of this particular multipart/encrypted supported and recognized?
 
-    See RolePartSignatureVerifySupported, this is an equivalent.
+    If true, this message part represents content of an encrypted message that Trojita can attempt to decrypt.
     */
     RolePartDecryptionSupported,
     /** @short Is there any point in waiting longer?
