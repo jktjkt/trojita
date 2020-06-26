@@ -21,6 +21,8 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include <QApplication>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 #include <QFile>
 #include <QLibraryInfo>
 #include <QObject>
@@ -78,85 +80,70 @@ int main(int argc, char **argv)
 #endif
     app.setWindowIcon(UiUtils::loadIcon(QStringLiteral("trojita")));
 
+    QCommandLineParser parser;
+    parser.setApplicationDescription(QObject::tr("Trojitá %1 - fast Qt IMAP e-mail client").arg(Common::Application::version));
+    parser.addHelpOption();
+    parser.addVersionOption();
+
+    QCommandLineOption addressbookOption(QStringList() << QLatin1String("a") << QLatin1String("addressbook"),
+                                         QObject::tr("Show addressbook window."));
+    parser.addOption(addressbookOption);
+
+    QCommandLineOption composeOption(QStringList() << QLatin1String("c") << QLatin1String("compose"),
+                                     QObject::tr("Compose new e-mail (default when url is provided)."));
+    parser.addOption(composeOption);
+
+    QCommandLineOption logtodiskOption(QStringList() << QLatin1String("l") << QLatin1String("log-to-disk"),
+                                       QObject::tr("Activate debug traffic logging to disk by default."));
+    parser.addOption(logtodiskOption);
+
+    QCommandLineOption mainwindowOption(QStringList() << QLatin1String("m") << QLatin1String("mainwindow"),
+                                        QObject::tr("Show main window (default when no option is provided)."));
+    parser.addOption(mainwindowOption);
+
+    QCommandLineOption profileOption(QStringList() << QLatin1String("p") << QLatin1String("profile"),
+                                     QObject::tr("Set profile."), QObject::tr("profile"));
+    parser.addOption(profileOption);
+
+    parser.addPositionalArgument(QLatin1String("url"), QObject::tr("Mailto: URL address for composing new e-mail."),
+                                 QObject::tr("[url]"));
+
+    parser.process(app);
+
     QTextStream qOut(stdout, QIODevice::WriteOnly);
     QTextStream qErr(stderr, QIODevice::WriteOnly);
 
-    const QStringList &arguments = app.arguments();
-
     bool error = false;
-    bool showHelp = false;
     bool showMainWindow = false;
     bool showComposeWindow = false;
     bool showAddressbookWindow = false;
-    bool logToDisk = false;
-
     QString profileName;
-
     QString url;
 
-    for (int i = 1; i < arguments.size(); ++i) {
-        const QString &arg = arguments.at(i);
-
-        if (arg.startsWith(QLatin1Char('-'))) {
-            if (arg == QLatin1String("-m") || arg == QLatin1String("--mainwindow")) {
-                showMainWindow = true;
-            } else if (arg == QLatin1String("-a") || arg == QLatin1String("--addressbook")) {
-                showAddressbookWindow = true;
-            } else if (arg == QLatin1String("-c") || arg == QLatin1String("--compose")) {
+    showAddressbookWindow = parser.isSet(addressbookOption);
+    showComposeWindow = parser.isSet(composeOption);
+    showMainWindow = parser.isSet(mainwindowOption);
+    if (parser.isSet(profileOption))
+        profileName = parser.value(profileOption);
+    if (parser.positionalArguments().size() > 0) {
+        if (parser.positionalArguments().size() == 1) {
+            url = parser.positionalArguments().at(0);
+            if (!url.startsWith(QLatin1String("mailto:"))) {
+                qErr << QObject::tr("Unexpected argument '%1'.").arg(url) << endl;
+                error = true;
+            } else
                 showComposeWindow = true;
-            } else if (arg == QLatin1String("-h") || arg == QLatin1String("--help")) {
-                showHelp = true;
-            } else if (arg == QLatin1String("-p") || arg == QLatin1String("--profile")) {
-                if (i+1 == arguments.size() || arguments.at(i+1).startsWith(QLatin1Char('-'))) {
-                    qErr << QObject::tr("Error: Profile was not specified") << endl;
-                    error = true;
-                    break;
-                } else if (!profileName.isEmpty()) {
-                    qErr << QObject::tr("Error: Duplicate profile option '%1'").arg(arg) << endl;
-                    error = true;
-                    break;
-                } else {
-                    profileName = arguments.at(i+1);
-                    ++i;
-                }
-            } else if (arg == QLatin1String("--log-to-disk")) {
-                logToDisk = true;
-            } else {
-                qErr << QObject::tr("Warning: Unknown option '%1'").arg(arg) << endl;
-            }
         } else {
-            if (!url.isEmpty() || !arg.startsWith(QLatin1String("mailto:"))) {
-                qErr << QObject::tr("Warning: Unexpected argument '%1'").arg(arg) << endl;
-            } else {
-                url = arg;
-                showComposeWindow = true;
-            }
+            qErr << QObject::tr("Unexpected arguments.") << endl;
+            error = true;
         }
     }
 
     if (!showMainWindow && !showComposeWindow && !showAddressbookWindow)
         showMainWindow = true;
 
-    if (error)
-        showHelp = true;
-
-    if (showHelp) {
-        qOut << endl << QObject::tr(
-            "Usage: %1 [options] [url]\n"
-            "\n"
-            "Trojitá %2 - fast Qt IMAP e-mail client\n"
-            "\n"
-            "Options:\n"
-            "  -h, --help               Show this help\n"
-            "  -m, --mainwindow         Show main window (default when no option is provided)\n"
-            "  -a, --addressbook        Show addressbook window\n"
-            "  -c, --compose            Compose new email (default when url is provided)\n"
-            "  -p, --profile <profile>  Set profile (cannot start with char '-')\n"
-            "  --log-to-disk            Activate debug traffic logging to disk by default\n"
-            "\n"
-            "Arguments:\n"
-            "  url                      Mailto: url address for composing new email\n"
-        ).arg(arguments.at(0), Common::Application::version) << endl;
+    if (error) {
+        qOut << endl << parser.helpText();
         return error ? 1 : 0;
     }
 
@@ -211,7 +198,7 @@ int main(int argc, char **argv)
             win.slotComposeMailUrl(QUrl::fromEncoded(url.toUtf8()));
     }
 
-    if (logToDisk) {
+    if (parser.isSet(logtodiskOption)) {
         win.enableLoggingToDisk();
     }
 
