@@ -572,19 +572,14 @@ QString htmlizedTextPart(const QModelIndex &partIndex, const QFontInfo &font, co
     // build stylesheet and html header
     QColor tintForQuoteIndicator = backgroundColor;
     tintForQuoteIndicator.setAlpha(0x66);
-    static QString stylesheet = defaultStyle.arg(linkColor.name(),
+    QString stylesheet = defaultStyle.arg(linkColor.name(),
                                                  tintColor(textColor, tintForQuoteIndicator).name());
-    static QFile file(Common::writablePath(Common::LOCATION_DATA) + QLatin1String("message.css"));
-    static QDateTime lastVersion;
-    QDateTime lastTouched(file.exists() ? QFileInfo(file).lastModified() : QDateTime());
-    if (lastVersion < lastTouched) {
-        stylesheet = defaultStyle;
-        if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            const QString userSheet = QString::fromLocal8Bit(file.readAll().data());
-            lastVersion = lastTouched;
-            stylesheet += QLatin1Char('\n') + userSheet;
-            file.close();
-        }
+
+    QFile file(Common::writablePath(Common::LOCATION_DATA) + QLatin1String("message.css"));
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        const QString userSheet = QString::fromLocal8Bit(file.readAll().data());
+        stylesheet += QLatin1Char('\n') + userSheet;
+        file.close();
     }
 
     // The dir="auto" is required for WebKit to treat all paragraphs as entities with possibly different text direction.
