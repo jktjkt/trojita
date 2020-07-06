@@ -23,6 +23,7 @@
   <name xml:lang="id">Trojitá</name>
   <name xml:lang="it">Trojitá</name>
   <name xml:lang="ko">Trojitá</name>
+  <name xml:lang="lv">Trojitá</name>
   <name xml:lang="nds">Trojitá</name>
   <name xml:lang="nl">Trojitá</name>
   <name xml:lang="pl">Trojitá</name>
@@ -57,6 +58,7 @@
   <summary xml:lang="id">Klien IMAP E-mail</summary>
   <summary xml:lang="it">Client di posta elettronica IMAP</summary>
   <summary xml:lang="ko">IMAP 이메일 클라이언트</summary>
+  <summary xml:lang="lv">IMAP e-pasta klients</summary>
   <summary xml:lang="nds">IMAP-Nettpostprogramm</summary>
   <summary xml:lang="nl">IMAP-E-mailclient</summary>
   <summary xml:lang="pl">Klient pocztowy IMAP</summary>
@@ -90,6 +92,7 @@
     <p xml:lang="id">Trojitá adalah program email ("client") yang khusus memberikan akses cepat dan efisien ke kotak surat melalui protokol IMAP. Server surat IMAP menyimpan pesan dan memungkinkan klien untuk mengambil pesan ke komputer lokal ketika diminta</p>
     <p xml:lang="it">Trojitá è un programma di posta elettronica («client») specializzato nel fornire, tramite protocollo IMAP, un accesso rapido ed efficiente alle caselle di posta. Un server di posta IMAP conserva i messaggi e permette ai client di scaricare, a richiesta, i messaggi nel computer locale.</p>
     <p xml:lang="ko">Trojitá는 IMAP 프로토콜을 사용하여 편지함에 빠르고 효율적으로 접근할 수 있도록 하는 도구입니다. IMAP 메일 서버에는 메시지가 저장되며 필요할 때 클라이언트에서 로컬 컴퓨터로 가져올 수 있습니다.</p>
+    <p xml:lang="lv">Trojitá ir e-pasta programma (klients), kas specializējas ātrā un efektīvā darbā ar IMAP protokola pastkastēm. IMAP serveris uzglabā pastu pie sevis un ļauj klientiem saņemt ziņas tad, kad tās paprasa.</p>
     <p xml:lang="nl">Trojitá is een e-mailprogramma ("client") gespecialiseerd in het geven van snelle en efficiënte toegang tot e-mailboxen over het IMAP-protocol. Een IMAP-e-mailserver slaat berichten op en biedt clients de mogelijkheid om berichten naar de lokale computer te halen wanneer dat wordt gevraagd.</p>
     <p xml:lang="pl">Trojitá jest programem pocztowym ("klientem") specjalizującym się w zapewnianiu szybkiego i wydajnego dostępu do skrzynek pocztowych przez protokół IMAP. Serwer pocztowy IMAP przechowuje wiadomości i umożliwia klientom pobieranie wiadomości na komputer lokalny wtedy, gdy tego chcą.</p>
     <p xml:lang="pt">O Trojitá é um programa ("cliente") de e-mail especializado em dar um acesso rápido e eficiente às caixas do correio através do protocolo IMAP. Um servidor de correio IMAP guarda as mensagens e permite aos clientes transferir as mensagens para o computador local, sempre que tal for pedido.</p>
@@ -120,6 +123,7 @@
     <p xml:lang="id">Ini memprioritaskan efisiensi, kecepatan dan standar terbuka di atas tujuan lain. Trojitá juga bertujuan untuk multi-platform, dan berfungsi dengan baik di segala hal mulai dari komputer desktop besar hingga ponsel kecil. Trojitá adalah program yang berdiri sendiri, bukan bagian dari suite "personal information manager".</p>
     <p xml:lang="it">Esso dà priorità, tra le altre cose, all'efficienza, la velocità e gli standard aperti. Trojitá vuole anche essere multi-piattaforma, e funziona bene sia sui grandi computer da tavolo, sia sui cellulari. Trojitá è un programma indipendente, non fa parte di una suite di «gestione personale delle informazioni».</p>
     <p xml:lang="ko">효율성, 속도, 표준 준수를 목표로 합니다. Trojitá는 데스크톱부터 스마트폰까지 여러 플랫폼에서 작동하는 것을 목표로 합니다. Trojitá는 "개인 정보 관리자" 모음과 개별적으로 작동하는 독립 프로그램입니다.</p>
+    <p xml:lang="lv">Trojitá liek uzsvaru uz efektivitāti, ātrumu un atvērtiem standartiem. Trojitá ir dažādu platformu atbalsts un darbojas vienlīdz labi gan uz lieliem darbvirsmas datoriem, gan arī uz mobilajām iekārtām. Trojitá ir atsevišķa programma nevis personīgās informācijas pārvaldnieka risinājums.</p>
     <p xml:lang="nl">De prioriteit ligt op efficiëntie, snelheid en open standaarden boven andere doelen. Trojitá richt zich ook op multi-platform en functies die het goed doen op alles vanaf grote desktopcomputers tot kleine telefoons. Trojitá is een alleenstaand programma, is geen onderdeel van een "persoonlijke informatebeheerder" suite.</p>
     <p xml:lang="pl">Przedkłada wydajność, szybkości i otwarte standardy nad innymi celami. Trojitá zamierza także być wielo-platformowym programem i działa dobrze na wszystkim począwszy od dużych komputerów biurkowych po małe telefony komórkowe. Trojitá jest samodzielnym programem, nie częścią pakietu "zarządzania informacjami osobistymi".</p>
     <p xml:lang="pt">Dá prioridade à eficiência, velocidade e a normas abertas, acima de todos os outros objectivos. O Trojitá também pretende ser multi-plataforma, funcionando bem em tudo, desde computadores grandes até telemóveis pequenos. O Trojitá é um programa autónomo, não fazendo parte de um pacote de "gestão de informações pessoais".</p>
@@ -147,6 +151,7 @@
     <p xml:lang="id">Apa yang bisa membuat Trojitá menarik bagimu:</p>
     <p xml:lang="it">Ecco cosa ti può rendere interessante Trojitá:</p>
     <p xml:lang="ko">Trojitá의 특징적인 기능:</p>
+    <p xml:lang="lv">Trojitá Jūs varētu ieinteresēt:</p>
     <p xml:lang="nl">Wat zou Trojitá voor u interessant kunnen maken:</p>
     <p xml:lang="pl">Co może cię zainteresować w Trojitá:</p>
     <p xml:lang="pt">O que poderá tornar o Trojitá interessante para si:</p>
@@ -177,6 +182,7 @@
       <li xml:lang="id">Inti IMAP kuat dan sangat cepat</li>
       <li xml:lang="it">Nucleo IMAP molto veloce e robusto</li>
       <li xml:lang="ko">매우 빠르고 안정적인 IMAP 코어</li>
+      <li xml:lang="lv">Ātrs un robusts IMAP kodols</li>
       <li xml:lang="nl">Erg snelle en robuuste IMAP-kern</li>
       <li xml:lang="pl">Bardzo szybki i zwinny rdzeń IMAP</li>
       <li xml:lang="pt">Núcleo de IMAP muito rápido e robusto</li>
@@ -203,6 +209,7 @@
       <li xml:lang="id">Penyesuaian standar adalah tujuan desain</li>
       <li xml:lang="it">Conformità agli standard come obbiettivo di progettazione</li>
       <li xml:lang="ko">표준 준수를 목표로 설계됨</li>
+      <li xml:lang="lv">Atbilstība standartiem ir filosofijas pamatā</li>
       <li xml:lang="nl">Voldoen aan standaarden is een ontwerpdoel</li>
       <li xml:lang="pl">Zgodność ze standardami jest celem projektowym</li>
       <li xml:lang="pt">A conformidade com as normas é um objectivo de desenho</li>
@@ -229,6 +236,7 @@
       <li xml:lang="id">Daftar perpesanan berdasarkan permintaan dan pemuatan bagian utama ("lazy loading")</li>
       <li xml:lang="it">Elenco dei messaggi e caricamento del corpo del messaggio su richiesta («lazy loading»)</li>
       <li xml:lang="ko">필요할 때 메시지 목록과 본문 불러오기("늦은 불러오기")</li>
+      <li xml:lang="lv">Ziņu saraksts pēc pieprasījuma un ziņu ielāde pa daļām („slinkā“ ielāde)</li>
       <li xml:lang="nl">Laden van berichtlijst en inhoud van berichten op aanvraag ("lui laden")</li>
       <li xml:lang="pl">Wczytywanie spisu wiadomości i ich treści na żądanie ("leniwe wczytywanie")</li>
       <li xml:lang="pt">Carregamento da lista de mensagens e das componentes das mensagens a pedido ("carregamento posterior")</li>
@@ -258,6 +266,7 @@
       <li xml:lang="id">Dukungab IMAP offline</li>
       <li xml:lang="it">Supporto fuori linea IMAP</li>
       <li xml:lang="ko">오프라인 IMAP 지원</li>
+      <li xml:lang="lv">Nesaistes IMAP atbalsts</li>
       <li xml:lang="nl">Ondersteuning van offline IMAP</li>
       <li xml:lang="pl">Obsługa IMAP bez sieci</li>
       <li xml:lang="pt">Suporte para IMAP desligado</li>
@@ -284,6 +293,7 @@
       <li xml:lang="id">Dukungan untuk mode hemat bandwidth yang ditujukan untuk pengguna seluler dengan koneksi mahal</li>
       <li xml:lang="it">Supporto della modalità per il risparmio della banda, con lo sguardo rivolto agli utenti mobili con connessioni dispendiose</li>
       <li xml:lang="ko">모바일 사용자용 대역폭 절약 모드</li>
+      <li xml:lang="lv">Pārraidīto datu apjoma samazināšanas režīms, kas piemērots mobilo iekārtu lietotājiem ar dārgu vai lēnu interneta piekļuvi</li>
       <li xml:lang="nl">Ondersteuning voor bandbreedte besparende modus gericht op mobiele gebruikers met een dure verbinding</li>
       <li xml:lang="pl">Obsługa trybu oszczędzania przesyłu skierowana dla użytkowników mobilnych z kosztowym przyłączem do sieci</li>
       <li xml:lang="pt">Suporte para o modo de poupança da largura de banda, destinado a utilizadores móveis com ligações caras</li>
@@ -310,6 +320,7 @@
       <li xml:lang="id">IMAP melalui SSH -- alih-alih menggunakan soket SSL, server dapat diakses melalui SSH</li>
       <li xml:lang="it">IMAP su SSH -- anziché lavorare su un socket SSL, al server si può accedere tramite SSH</li>
       <li xml:lang="ko">IMAP over SSH -- SSL 소켓 대신 SSH를 통하여 서버에 접근할 수 있습니다</li>
+      <li xml:lang="lv">IMAP caur SSH — tā vietā, lai izmantotu SSL, serverim var pieslēgties arī caur SSH</li>
       <li xml:lang="nl">IMAP over SSH -- in plaats van over een SSL-socket, de server kan bereikt worden via SSH</li>
       <li xml:lang="pl">IMAP przez SSH -- zamiast przesyłania przez gniazdo SSL, do serwer można się dostać przez SSH</li>
       <li xml:lang="pt">IMAP sobre SSH -- em vez de seguir por um 'socket' de SSL, o servidor poderá ser acedido através de SSH</li>
@@ -337,6 +348,7 @@
       <li xml:lang="id">Menangani surat HTML dengan aman dan kuat</li>
       <li xml:lang="it">Gestione sicura e robusta della posta HTML</li>
       <li xml:lang="ko">안전한 HTML 메시지 처리</li>
+      <li xml:lang="lv">Droša un robusta HTML pasta apstrāde</li>
       <li xml:lang="nl">Veilig en robuust werken met HTML-e-mail</li>
       <li xml:lang="pl">Szybkie i zwinne radzenie sobie z pocztą HTML</li>
       <li xml:lang="pt">Tratamento seguro e robusto de correio por HTML</li>
@@ -371,6 +383,7 @@
       <caption xml:lang="id">Teks yang dikutip berlebihan secara otomatis diciutkan</caption>
       <caption xml:lang="it">Il testo eccessivamente citato viene automaticamente compresso</caption>
       <caption xml:lang="ko">과도하게 인용된 텍스트를 자동으로 접기</caption>
+      <caption xml:lang="lv">Plaša citētā teksta automātiska sakļaušana</caption>
       <caption xml:lang="nl">Een grote hoeveelheid aangehaalde tekst wordt automatisch ingeklapt</caption>
       <caption xml:lang="pl">Długi tekst cytowany jest samoczynnie zwijany</caption>
       <caption xml:lang="pt">O texto citado em excesso é fechado automaticamente</caption>
@@ -399,6 +412,7 @@
       <caption xml:lang="id">Email terenkripsi dan ditandatangani yang didukung, dengan status yang diberikan dalam bahasa Inggris</caption>
       <caption xml:lang="it">È supportata la posta elettronica cifrata e firmata, con lo stato indicato in inglese</caption>
       <caption xml:lang="ko">암호화 및 전자 서명된 이메일 지원</caption>
+      <caption xml:lang="lv">Tiek atbalstīta pasta šifrēšana un parakstīšana ar vienkārši saprotamiem statusa paziņojumiem</caption>
       <caption xml:lang="nl">Versleutelde en ondertekende e-mail wordt ondersteund, met status gegeven in gewoon Engels</caption>
       <caption xml:lang="pl">Obsługa szyfrowanej i podpisanej poczty wraz ze stanem podawanym w prostym angielskim</caption>
       <caption xml:lang="pt">O e-mail encriptado e assinado é suportado, sendo o seu estado indicado em Inglês simples</caption>
