@@ -79,7 +79,7 @@
     </p>
     <p xml:lang="ar">تروجيتا هو برنامج ("عميل") بريد إلكترونيّ مخصّص للسّرعة والنّفاذ الفعّال إلى صناديق البريد عبر ميفاق IMAP. خادوم بريد IMAP يخزّن الرّسائل ويسمح للعملاء بجلبها إلى الحاسوب المحليّ عند سؤالهم عنها.</p>
     <p xml:lang="bs">Trojitá je email program ("klijent") specijaliziran u davanju brzog i efikasnog pristupa poštanskim kutijama preko IMAP protokola. IMAP poštanski server pohranjuje poruke i dopušta klijentima da uhvate poruke na lokalnom računaru kada zatraže.</p>
-    <p xml:lang="ca">Trojitá és un programa de correu electrònic («client») que s'especialitza a donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtenir-los des de l'ordinador local.</p>
+    <p xml:lang="ca">El Trojitá és un programa de correu electrònic («client») que s'especialitza a donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtenir-los des de l'ordinador local.</p>
     <p xml:lang="ca-valencia">Trojitá és un programa de correu electrònic («client») que s'especialitza a donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtindre-los des de l'ordinador local.</p>
     <p xml:lang="da">Trojitá er et e-mail-program ("klient") der er specialiseret i at give hurtig og effektiv adgang til postkasser over IMAP-protokollen. En IMAP-mailserver lagrer breve og lader klienter hente breve til den lokale computer når der er behov for det.</p>
     <p xml:lang="el">Η Trojitá είναι ένα πρόγραμμα ηλεκτρονικού ταχυδρομείου («εφαρμογή-πελάτης») με ειδικότητα τη γρήγορη και αποτελεσματική πρόσβαση σε γραμματοκιβώτια με το πρωτόκολλο IMAP. Ένας διακομιστής IMAP ηλεκτρονικής αλληλογραφίας αποθηκεύει τα μηνύματα και επιτρέπει στις εφαρμογές να τα μεταφέρουν στον τοπικό υπολογιστή όταν τους ζητηθεί.</p>
@@ -110,7 +110,7 @@
     </p>
     <p xml:lang="ar">يعطي تروجيتا الأولويّة إلى الكفاءة، والسّرعة والمعايير الحرّة على الأهداف الأخرى. يهدف أيضًا إلى أن يكون عابرًا للمنصّات وأن يعمل عملًا جيّدًا على أيّ شيء، من حواسيب سطح المكتب الكبيرة إلى الهواتف الصّغيرة. تروجيتا برنامج مستقلّ، وليس جزء من طقم "مدير معلومات شخصيّة".</p>
     <p xml:lang="bs">Daje prednost efikasnosti, brzini i otvorenim standardima ispred drugih ciljeva. Trojitá također teži da bude višestruka platforma i da dobro funkcioniše na svemu, od velikih desktop računara do malih mobilnih uređaja. Trojitá je nezavisan program, nije dio "lično-informacijskog menadžerskog" paketa.</p>
-    <p xml:lang="ca">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
+    <p xml:lang="ca">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. El Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. El Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="ca-valencia">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="da">Den prioriterer effektivitet, hastighed og åbne standarder over andre mål. Trojitá har også som mål at virke på flere platforme, og fungere godt på alt fra store skrivebordscomputere til små mobiltelefoner. Trojitá er et selvstændigt program, som ikk er en del af en samling til håndtering af personlig information.</p>
     <p xml:lang="el">Δίνει προτεραιότητα σε αποτελεσματικότητα, ταχύτητα και στα ανοιχτά πρότυπα πάνω απ' όλα. Η Trojitá επίσης στοχεύει να έχει υλοποίηση για πολλές πλατφόρμες και να λειτουργεί καλά σε οτιδήποτε από μεγάλους υπολογιστές γραφείου μέχρι μικρά κινητά τηλέφωνα. Η Trojitá είναι ένα ανεξάρτητο πρόγραμμα, όχι τμήμα κάποιας σουίτας «διαχείρισης προσωπικών πληροφοριών».</p>
@@ -137,7 +137,7 @@
     <p>What could make Trojitá interesting for you:</p>
     <p xml:lang="ar">ما قد يجعل تروجيتا مشوّقًا لك:</p>
     <p xml:lang="bs">Šta interesantno Trojitá može uraditi za vas:</p>
-    <p xml:lang="ca">Què us podria fer el Trojitá interessant:</p>
+    <p xml:lang="ca">Què us podria fer interessant el Trojitá:</p>
     <p xml:lang="ca-valencia">Què vos podria fer el Trojitá interessant:</p>
     <p xml:lang="cs">Čím by se stala Trojitá zajímavou pro vás:</p>
     <p xml:lang="da">Hvad der kunne gøre Trojitá interessant for dig:</p>
