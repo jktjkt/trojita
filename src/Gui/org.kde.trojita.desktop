@@ -1,6 +1,7 @@
 [Desktop Entry]
 Name=Trojitá
 Name[ar]=تروجيتا
+Name[az]=Trojitá
 Name[bs]=Trojitá
 Name[ca]=Trojitá
 Name[ca@valencia]=Trojitá
@@ -42,6 +43,7 @@ Name[zh_CN]=Trojitá
 Name[zh_TW]=Trojitá
 GenericName=IMAP E-mail Client
 GenericName[ar]=عميل بريد IMAP إلكترونيّ
+GenericName[az]=İMAP e-poçt müştərisi
 GenericName[bs]=IMAP klijent za elektronsku poštu
 GenericName[ca]=Client de correu electrònic IMAP
 GenericName[ca@valencia]=Client de correu electrònic IMAP
@@ -88,6 +90,7 @@ Icon=trojita
 Categories=Qt;Office;Network;Email;
 Keywords=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[ar]=mail;e-mail;IMAP;SMTP;eml;MUA;بريد;إلكتروني;
+Keywords[az]=poçt;e-poçt;İMAP;SMTP;eml;MUA;
 Keywords[bs]=mail;e-mail;IMAP;SMTP;eml;MUA;
 Keywords[ca]=mail;e-mail;IMAP;SMTP;eml;MUA;correu electrònic;
 Keywords[ca@valencia]=mail;e-mail;IMAP;SMTP;eml;MUA;correu electrònic;
@@ -125,6 +128,7 @@ Actions=Composer;
 [Desktop Action Composer]
 Name=New Message
 Name[ar]=رسالة جديدة
+Name[az]=Yeni məktub
 Name[ca]=Missatge nou
 Name[ca@valencia]=Missatge nou
 Name[cs]=Nová zpráva
