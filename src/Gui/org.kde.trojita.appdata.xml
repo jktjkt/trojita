@@ -5,6 +5,7 @@
   <project_license>GPL-2.0+</project_license>
   <name>Trojitá</name>
   <name xml:lang="ar">تروجيتا</name>
+  <name xml:lang="az">Trojitá</name>
   <name xml:lang="bs">Trojitá</name>
   <name xml:lang="ca">Trojitá</name>
   <name xml:lang="ca-valencia">Trojitá</name>
@@ -40,6 +41,7 @@
   <name xml:lang="zh-TW">Trojitá</name>
   <summary>IMAP E-mail Client</summary>
   <summary xml:lang="ar">عميل بريد IMAP إلكترونيّ</summary>
+  <summary xml:lang="az">İMAP e-poçt müştərisi</summary>
   <summary xml:lang="bs">IMAP klijent za elektronsku poštu</summary>
   <summary xml:lang="ca">Client de correu electrònic IMAP</summary>
   <summary xml:lang="ca-valencia">Client de correu electrònic IMAP</summary>
@@ -78,6 +80,7 @@
       An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.
     </p>
     <p xml:lang="ar">تروجيتا هو برنامج ("عميل") بريد إلكترونيّ مخصّص للسّرعة والنّفاذ الفعّال إلى صناديق البريد عبر ميفاق IMAP. خادوم بريد IMAP يخزّن الرّسائل ويسمح للعملاء بجلبها إلى الحاسوب المحليّ عند سؤالهم عنها.</p>
+    <p xml:lang="az">Trojitá, İMAP protokolu üzərindən poçt qutularına sürətli və səmərəli girişi təmin etməkdə ixtisaslaşmış bir e-poçt proqramıdır ("müştərisidir"). İMAP poçt servri məktubları saxlayır istifadəşilər məktubları tələb etdiyində onların yerli komputerə çatdırılmasına imkan yaradır.</p>
     <p xml:lang="bs">Trojitá je email program ("klijent") specijaliziran u davanju brzog i efikasnog pristupa poštanskim kutijama preko IMAP protokola. IMAP poštanski server pohranjuje poruke i dopušta klijentima da uhvate poruke na lokalnom računaru kada zatraže.</p>
     <p xml:lang="ca">El Trojitá és un programa de correu electrònic («client») que s'especialitza a donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtenir-los des de l'ordinador local.</p>
     <p xml:lang="ca-valencia">El Trojitá és un programa de correu electrònic («client») que s'especialitza a donar un accés ràpid i eficient a les bústies de correu a través del protocol IMAP. Un servidor de correu IMAP emmagatzema els missatges i permet als clients obtindre-los des de l'ordinador local.</p>
@@ -110,6 +113,7 @@
       Trojitá is a stand-alone program, not part of a "personal information manager" suite.
     </p>
     <p xml:lang="ar">يعطي تروجيتا الأولويّة إلى الكفاءة، والسّرعة والمعايير الحرّة على الأهداف الأخرى. يهدف أيضًا إلى أن يكون عابرًا للمنصّات وأن يعمل عملًا جيّدًا على أيّ شيء، من حواسيب سطح المكتب الكبيرة إلى الهواتف الصّغيرة. تروجيتا برنامج مستقلّ، وليس جزء من طقم "مدير معلومات شخصيّة".</p>
+    <p xml:lang="az">Effektivliyi, sürəti və açıq standartları digər hədəflərdən üstün tutur. Trojitá ayrıca çox platformalı olmağı hədəfləyir və böyük masaüstü kompüterlərdən kiçik mobil telefonlara qədər yaxşı işləyir. Trojitá müstəqil bir proqramdır, "şəxsi məlumatın idarə edilməsi" paketinin bir hissəsi deyil.</p>
     <p xml:lang="bs">Daje prednost efikasnosti, brzini i otvorenim standardima ispred drugih ciljeva. Trojitá također teži da bude višestruka platforma i da dobro funkcioniše na svemu, od velikih desktop računara do malih mobilnih uređaja. Trojitá je nezavisan program, nije dio "lično-informacijskog menadžerskog" paketa.</p>
     <p xml:lang="ca">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. El Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. El Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
     <p xml:lang="ca-valencia">Dóna prioritat a l'eficiència, la velocitat i els estàndards oberts per sobre d'altres objectius. El Trojitá també aspira a ser multiplataforma, i funciona bé arreu, des d'ordinadors d'escriptori grans a telèfons mòbils petits. El Trojitá és un programa independent, no forma part d'una suite de «gestor de la informació personal» (PIM).</p>
@@ -138,6 +142,7 @@
     <p xml:lang="zh-CN">它将效率，速度和开放标准置于第一位。Trojitá 还旨在成为一款多平台软件，所有功能从大型台式机到小型手机上都能正常运行。Trojitá 是一个独立程序，不属于 “个人信息管理器” 套件。</p>
     <p>What could make Trojitá interesting for you:</p>
     <p xml:lang="ar">ما قد يجعل تروجيتا مشوّقًا لك:</p>
+    <p xml:lang="az">Trojitanı sizin üçün maraqlı edən nədir:</p>
     <p xml:lang="bs">Šta interesantno Trojitá može uraditi za vas:</p>
     <p xml:lang="ca">Què us podria fer interessant el Trojitá:</p>
     <p xml:lang="ca-valencia">Què vos podria fer interessant el Trojitá:</p>
@@ -168,6 +173,7 @@
     <ul>
       <li>Very fast and robust IMAP core</li>
       <li xml:lang="ar">نواة IMAP متينة وسريعة جدًّا</li>
+      <li xml:lang="az">Çox sürətli və sağlam IMAP nüvəsi</li>
       <li xml:lang="bs">Veoma brza i snažna IMAP jezgra</li>
       <li xml:lang="ca">Un cor IMAP molt ràpid i robust</li>
       <li xml:lang="ca-valencia">Un cor IMAP molt ràpid i robust</li>
@@ -199,6 +205,7 @@
       <li xml:lang="zh-CN">非常快速和强大的 IMAP 核心</li>
       <li>Standards compliance is a design goal</li>
       <li xml:lang="ar">الامتثال للمعايير هو هدف التّصميم</li>
+      <li xml:lang="az">Dizayn hədəfdir - standartı qorunur</li>
       <li xml:lang="bs">Standardna usklađenost je cilj dizajna</li>
       <li xml:lang="ca">El compliment dels estàndards és un objectiu en el disseny</li>
       <li xml:lang="ca-valencia">El compliment dels estàndards és un objectiu en el disseny</li>
@@ -227,6 +234,7 @@
       <li xml:lang="zh-CN">符合标准是设计目标</li>
       <li>On-demand message list and body part loading ("lazy loading")</li>
       <li xml:lang="ar">قائمة رسائل على الطّلب وتحميل جزئيّ للمتن ("تحميل كسول")</li>
+      <li xml:lang="az">İstəyə görə məktub siyahısı və gövdə hissəsinin yüklənməsi ("ləng yükləmə")</li>
       <li xml:lang="bs">Lista poruka na zahtjev i učitavanje dijela tijela ("lijeno učitavanje")</li>
       <li xml:lang="ca">Llista els missatges en demanar-ho i carrega la part del cos («càrrega retardada»)</li>
       <li xml:lang="ca-valencia">Llista els missatges en demanar-ho i carrega la part del cos («càrrega retardada»)</li>
@@ -255,6 +263,7 @@
       <li xml:lang="zh-CN">按需获取消息列表和正文部分加载（“延迟加载”）</li>
       <li>Offline IMAP support</li>
       <li xml:lang="ar">دعم IMAP بلا إنترنت</li>
+      <li xml:lang="az">Oflayn İMAP dəstəyi</li>
       <li xml:lang="bs">Podrška za izvanmrežni IMAP</li>
       <li xml:lang="ca">Permet IMAP desconnectat</li>
       <li xml:lang="ca-valencia">Permet IMAP desconnectat</li>
@@ -286,6 +295,7 @@
       <li xml:lang="zh-CN">离线 IMAP 支持</li>
       <li>Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
       <li xml:lang="ar">دعم وضع حفظ عرض النّطاق الّذي يستهدف مستخدمي الهاتف ذوي الاتّصال الغالي</li>
+      <li xml:lang="az">Bahalı bağlantısı olan mobil istifadəçilərə uyğun trafik istifadəsinə qənaət rejimi dəstəyi</li>
       <li xml:lang="bs">Podrška za režim snimanja propusnosti ciljan za korisnike mobilnih uređaja za skupom konekcijom</li>
       <li xml:lang="ca">Permet el mode d'estalvi de l'amplada de banda destinat als usuaris de mòbils amb una connexió cara</li>
       <li xml:lang="ca-valencia">Permet el mode d'estalvi de l'amplada de banda destinat als usuaris de mòbils amb una connexió cara</li>
@@ -314,6 +324,7 @@
       <li xml:lang="zh-CN">支持针对带宽昂贵的移动用户的带宽节省模式</li>
       <li>IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
       <li xml:lang="ar">IMAP عبر SSH -- بدلًا من الاتّصال عبر مقبس SSL، يمكن النّفاذ إلى الخاوم عبر SSH</li>
+      <li xml:lang="az">İMAP serverinə SSL socket'i əvəzinə SSH ilə keçiş, serverə SSH ilə qoşulmaq olur</li>
       <li xml:lang="bs">IMAP prije SSH -- umjesto ići preko SSL priključka, serveru se može pristupiti preko SSH</li>
       <li xml:lang="ca">IMAP a través de SSH: en comptes d'anar a través d'un sòcol de SSL, el servidor pot accedir a través de SSH</li>
       <li xml:lang="ca-valencia">IMAP a través de SSH: en comptes d'anar a través d'un sòcol de SSL, el servidor pot accedir a través de SSH</li>
@@ -342,6 +353,7 @@
       <li xml:lang="zh-CN">IMAP over SSH - 可以通过 SSH 访问服务器，而不必通过 SSL 套接字</li>
       <li>Safe and robust dealing with HTML mail</li>
       <li xml:lang="ar">تعامل مع بريد HTML متين وآمن</li>
+      <li xml:lang="az">HTML poçtu ilə etibarlı və sağlam şəkildə işləmək</li>
       <li xml:lang="bs">Sigurno i čvrsto poslovanje sa HTML mail-om</li>
       <li xml:lang="ca">Manté un tracte segur i robust amb el correu HTML</li>
       <li xml:lang="ca-valencia">Manté un tracte segur i robust amb el correu HTML</li>
@@ -380,6 +392,7 @@
     <screenshot>
       <caption>Excessively quoted text is automatically collapsed</caption>
       <caption xml:lang="ar">نصوص الاقتباس الطّويلة تُطوى آليًّا</caption>
+      <caption xml:lang="az">Mətn həddindən artıq olduqda yığılır</caption>
       <caption xml:lang="ca">El text citat excessivament es col·lapsa</caption>
       <caption xml:lang="ca-valencia">El text citat excessivament es col·lapsa</caption>
       <caption xml:lang="da">Automatisk sammenfoldning af tekst med mange citeringer</caption>
@@ -410,6 +423,7 @@
     <screenshot>
       <caption>Encrypted and signed e-mail is supported, with status given in plain English</caption>
       <caption xml:lang="ar">البُرد الإلكترونيّة المعمّاة والموقّعة مدعومة، حيث تُعطى حالتها بالإنجليزية</caption>
+      <caption xml:lang="az">Sadə bir dildə yazılan şifrələnmiş və imzalanmış e-məktublar dəstəklənir</caption>
       <caption xml:lang="ca">Funciona amb correu electrònic encriptat i signat, amb l'estat indicat en anglès</caption>
       <caption xml:lang="ca-valencia">Funciona amb correu electrònic encriptat i signat, amb l'estat indicat en anglés</caption>
       <caption xml:lang="da">Understøttelse af krypteret og signeret e-mail, med status i ren engelsk</caption>
