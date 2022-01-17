@@ -126,6 +126,7 @@
     <p xml:lang="fi">Ohjelmassa kaikkien muiden päämäärien edellä ovat tehokkuus, nopeus ja avoimet standardit. Trojitá pyrkii myös monialustaisuuteen, ja se toimii kaikkialla perinteisistä pöytäkoneista matkapuhelimiin. Trojitá on itsenäinen ohjelma eikä osa mitään ”henkilökohtaisen tiedon hallinnan” ohjelmistoa.</p>
     <p xml:lang="fr">Il privilégie entre autres l'efficacité, la vitesse et les standards ouverts. Trojitá vise également à être multi-plate-forme et fonctionne aussi bien sur les petits téléphones portables que sur les ordinateurs de bureau. Trojitá est une application autonome, ne faisant partie d'aucun « gestionnaire d'informations personnelles ».</p>
     <p xml:lang="gl">Dálle prioridade á eficiencia, a velocidade e os estándares abertos por riba de calquera outra cousa. Trojitá tamén pretende funcionar en calquera plataforma, e intégrase ben tanto en grandes computadores de escritorio como en pequenos teléfonos. Trojitá é un programa independente que non forma parte de ningunha colección de programas de xestión de información persoal (PIM).</p>
+    <p xml:lang="hu">A hatékonyságot, a sebességet és a nyílt szabványokat más célok elé helyezi. A Trojitá célja továbbá, hogy multiplatformos legyen, és mindenhol jól működjön, a nagy asztali számítógépektől a kis mobiltelefonokig. A Trojitá egy önálló program, nem része egy „személyi információkezelő” csomagnak sem.</p>
     <p xml:lang="id">Ini memprioritaskan efisiensi, kecepatan dan standar terbuka di atas tujuan lain. Trojitá juga bertujuan untuk multi-platform, dan berfungsi dengan baik di segala hal mulai dari komputer desktop besar hingga ponsel kecil. Trojitá adalah program yang berdiri sendiri, bukan bagian dari suite "personal information manager".</p>
     <p xml:lang="it">Esso dà priorità, tra le altre cose, all'efficienza, la velocità e gli standard aperti. Trojitá vuole anche essere multi-piattaforma, e funziona bene sia sui grandi computer da tavolo, sia sui cellulari. Trojitá è un programma indipendente, non fa parte di una suite di «gestione personale delle informazioni».</p>
     <p xml:lang="ko">효율성, 속도, 표준 준수를 목표로 합니다. Trojitá는 데스크톱부터 스마트폰까지 여러 플랫폼에서 작동하는 것을 목표로 합니다. Trojitá는 "개인 정보 관리자" 모음과 개별적으로 작동하는 독립 프로그램입니다.</p>
@@ -156,6 +157,7 @@
     <p xml:lang="fi">Miksi Trojitá voisi kiinnostaa sinua:</p>
     <p xml:lang="fr">Ce qui pourrait vous intéresser dans Trojitá :</p>
     <p xml:lang="gl">Trojitá podería interesarlle polo seguinte:</p>
+    <p xml:lang="hu">Mi teheti érdekessé a Trojitát Önnek:</p>
     <p xml:lang="id">Apa yang bisa membuat Trojitá menarik bagimu:</p>
     <p xml:lang="it">Ecco cosa ti può rendere interessante Trojitá:</p>
     <p xml:lang="ko">Trojitá의 특징적인 기능:</p>
@@ -218,6 +220,7 @@
       <li xml:lang="fi">Suunniteltu tavoitteenaan standardinmukaisuus</li>
       <li xml:lang="fr">Conformité aux normes comme but de conception</li>
       <li xml:lang="gl">Un dos piares do seu deseño é o cumprimento cos estándares.</li>
+      <li xml:lang="hu">A szabványoknak való megfelelés tervezési cél</li>
       <li xml:lang="id">Penyesuaian standar adalah tujuan desain</li>
       <li xml:lang="it">Conformità agli standard come obbiettivo di progettazione</li>
       <li xml:lang="ko">표준 준수를 목표로 설계됨</li>
@@ -247,6 +250,7 @@
       <li xml:lang="fi">Viestiluettelojen ja -runkojen lataus vain tarvittaessa (”laiskasti”)</li>
       <li xml:lang="fr">Chargement des listes de messages et de leur contenu à la demande (« chargement fainéant »)</li>
       <li xml:lang="gl">Non carga a lista de mensaxes nin os corpos das mesmas ata que se solicita («carga preguiceira»).</li>
+      <li xml:lang="hu">Igény szerinti üzenetlista- és törzsbetöltés („lusta betöltés”)</li>
       <li xml:lang="id">Daftar perpesanan berdasarkan permintaan dan pemuatan bagian utama ("lazy loading")</li>
       <li xml:lang="it">Elenco dei messaggi e caricamento del corpo del messaggio su richiesta («lazy loading»)</li>
       <li xml:lang="ko">필요할 때 메시지 목록과 본문 불러오기("늦은 불러오기")</li>
@@ -308,6 +312,7 @@
       <li xml:lang="fi">Tuki kaistansäästötilalle ajatellen mobiilikäyttäjiä, joille verkkoyhteys on kallis</li>
       <li xml:lang="fr">Mode économie de communication pour les utilisateurs mobiles dotés d'une connexion coûteuse</li>
       <li xml:lang="gl">Permite un modo de aforro de largura de banda, pensado para usuarios de teléfonos móbiles para os que a conexión a Internet resulta custosa.</li>
+      <li xml:lang="hu">Sávszélesség-takarékos üzemmód a drága kapcsolatottal rendelkező mobilfelhasználók számára</li>
       <li xml:lang="id">Dukungan untuk mode hemat bandwidth yang ditujukan untuk pengguna seluler dengan koneksi mahal</li>
       <li xml:lang="it">Supporto della modalità per il risparmio della banda, con lo sguardo rivolto agli utenti mobili con connessioni dispendiose</li>
       <li xml:lang="ko">모바일 사용자용 대역폭 절약 모드</li>
@@ -337,6 +342,7 @@
       <li xml:lang="fi">IMAP SSH:n yli – SSL-pistokkeen käytön sijaan palvelimeen voidaan ottaa yhteys SSH:n avulla</li>
       <li xml:lang="fr">IMAP sur SSH -- au lieu de passer par des socket SSL, SSH peut être utilisé pour accéder au serveur</li>
       <li xml:lang="gl">Pode acceder ao servidor mediante SSH en vez de empregar un sócket SSL.</li>
+      <li xml:lang="hu">IMAP SSH-n át -- SSL foglalat használata helyett a kiszolgáló SSH-n keresztül is elérhető</li>
       <li xml:lang="id">IMAP melalui SSH -- alih-alih menggunakan soket SSL, server dapat diakses melalui SSH</li>
       <li xml:lang="it">IMAP su SSH -- anziché lavorare su un socket SSL, al server si può accedere tramite SSH</li>
       <li xml:lang="ko">IMAP over SSH -- SSL 소켓 대신 SSH를 통하여 서버에 접근할 수 있습니다</li>
@@ -367,6 +373,7 @@
       <li xml:lang="fi">Turvallinen ja luotettava HTML-viestien käsittely</li>
       <li xml:lang="fr">Prise en charge sûre et fiable des messages HTML</li>
       <li xml:lang="gl">A súa xestión de mensaxes HTML é segura e robusta.</li>
+      <li xml:lang="hu">HTML-levelek biztonságos és robosztus kezelése</li>
       <li xml:lang="id">Menangani surat HTML dengan aman dan kuat</li>
       <li xml:lang="it">Gestione sicura e robusta della posta HTML</li>
       <li xml:lang="ko">안전한 HTML 메시지 처리</li>
@@ -404,6 +411,7 @@
       <caption xml:lang="fi">Kohtuuttomasti lainattua tekstiä supistetaan automaattisesti</caption>
       <caption xml:lang="fr">Le texte excessivement cité est automatiquement supprimé</caption>
       <caption xml:lang="gl">Os textos con demasiadas comiñas préganse automaticamente.</caption>
+      <caption xml:lang="hu">A túl sokszor idézett szöveg automatikusan összecsukódik</caption>
       <caption xml:lang="id">Teks yang dikutip berlebihan secara otomatis diciutkan</caption>
       <caption xml:lang="it">Il testo eccessivamente citato viene automaticamente compresso</caption>
       <caption xml:lang="ko">과도하게 인용된 텍스트를 자동으로 접기</caption>
@@ -435,6 +443,7 @@
       <caption xml:lang="fi">Sähköpostin salausta ja allekirjoitusta tuetaan, ja tila ilmoitetaan selväkielisesti</caption>
       <caption xml:lang="fr">Prise en charge des messages chiffrés et signés, avec informations d'état en français</caption>
       <caption xml:lang="gl">Compatíbel con mensaxes cifradas e asinadas, co estado indicado con texto.</caption>
+      <caption xml:lang="hu">A titkosított és aláírt e-mailek támogatottak, egyszerű angol nyelven megadott állapottal</caption>
       <caption xml:lang="id">Email terenkripsi dan ditandatangani yang didukung, dengan status yang diberikan dalam bahasa Inggris</caption>
       <caption xml:lang="it">È supportata la posta elettronica cifrata e firmata, con lo stato indicato in inglese</caption>
       <caption xml:lang="ko">암호화 및 전자 서명된 이메일 지원</caption>
