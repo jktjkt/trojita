@@ -5,6 +5,6 @@ We appreciate many sorts of contributions, from patches adding new features, fix
 
 ## Submitting Patches
 
-While we are a GitHub project, we *do not accept pull requests*.
-Please send patches through [KDE's Gerrit](https://gerrit.vesnicky.cesnet.cz/).
-See an [quick tutorial](https://techbase.kde.org/Development/Gerrit#Getting_Started) for how to get started.
+While we are a GitHub project, we *do not accept pull requests* from GitHub.
+Please create a merge request in [KDE's Gitlab](https://invent.kde.org/pim/trojita).
+See a [quick tutorial](https://community.kde.org/Infrastructure/GitLab) for how to get started.
