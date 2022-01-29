@@ -405,7 +405,7 @@ QList<QSslError> SslTlsSocket::sslErrors() const
 {
     QSslSocket *sock = qobject_cast<QSslSocket *>(d);
     Q_ASSERT(sock);
-    return sock->sslErrors();
+    return sock->sslHandshakeErrors();
 }
 
 bool SslTlsSocket::isConnectingEncryptedSinceStart() const
