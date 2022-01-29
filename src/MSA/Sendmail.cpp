@@ -30,7 +30,7 @@ Sendmail::Sendmail(QObject *parent, const QString &command, const QStringList &a
     proc = new QProcess(this);
     connect(proc, &QProcess::started, this, &Sendmail::handleStarted);
     connect(proc, static_cast<void (QProcess::*)(int)>(&QProcess::finished), this, &Sendmail::handleFinished);
-    connect(proc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error), this, &Sendmail::handleError);
+    connect(proc, &QProcess::errorOccurred, this, &Sendmail::handleError);
     connect(proc, &QIODevice::bytesWritten, this, &Sendmail::handleBytesWritten);
 }
 

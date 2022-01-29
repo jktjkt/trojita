@@ -141,7 +141,7 @@ ProcessSocket::ProcessSocket(QProcess *proc, const QString &executable, const QS
     IODeviceSocket(proc), executable(executable), args(args)
 {
     connect(proc, &QProcess::stateChanged, this, &ProcessSocket::handleStateChanged);
-    connect(proc, static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error), this, &ProcessSocket::handleProcessError);
+    connect(proc, &QProcess::errorOccurred, this, &ProcessSocket::handleProcessError);
 }
 
 ProcessSocket::~ProcessSocket()
