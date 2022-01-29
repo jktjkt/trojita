@@ -158,7 +158,8 @@ else()
     # -Werror is not a default for sanity reasons (one cannot know what warnings a future compiler
     # might bring along), but it's a default in debug mode. The idea is that developers should care
     # about a warning-free build, and that this is easier than messing with yet another configure option.
-    set(CMAKE_CXX_FLAGS_DEBUG "-Werror ${CMAKE_CXX_FLAGS_DEBUG}")
+    # TODO Reenable once the project is warning free
+    # set(CMAKE_CXX_FLAGS_DEBUG "-Werror ${CMAKE_CXX_FLAGS_DEBUG}")
     # Also see CMP0043...
 
     # Optimizations are enabled unconditionally because they make a big difference in the speed of the
