@@ -241,8 +241,7 @@ SslTlsSocket::SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 
 
     connect(sock, &QSslSocket::encrypted, this, &Socket::encrypted);
     connect(sock, &QAbstractSocket::stateChanged, this, &SslTlsSocket::handleStateChanged);
-    connect(sock, static_cast<void (QAbstractSocket::*)(QAbstractSocket::SocketError)>(&QAbstractSocket::error),
-            this, &SslTlsSocket::handleSocketError);
+    connect(sock, &QAbstractSocket::errorOccurred, this, &SslTlsSocket::handleSocketError);
 }
 
 void SslTlsSocket::setProxySettings(const ProxySettings proxySettings, const QString &protocolTag)
