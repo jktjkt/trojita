@@ -87,7 +87,7 @@ QTextStream &operator<<(QTextStream &stream, const PartOfCommand &part)
         stream << "STARTTLS" << endl << "[Starting TLS...]";
         break;
     case COMPRESS_DEFLATE:
-        stream << "COMPRESS DELFATE" << endl << "[Starting deflate...]";
+        stream << "COMPRESS DEFLATE" << endl << "[Starting deflate...]";
         break;
     case ATOM_NO_SPACE_AROUND:
         stream << part.text;
