@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2021 Jan Kundrát <jkt@flaska.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -519,6 +519,8 @@ void Model::handleList(Imap::Parser *ptr, const Imap::Responses::List *const res
 {
     if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
         return;
+    if (accessParser(ptr).connState < CONN_STATE_AUTHENTICATED)
+        throw UnexpectedResponseReceived("Unexpected LIST response before authentication succeeded", *resp);
     accessParser(ptr).listResponses << *resp;
 }
 
@@ -547,6 +549,9 @@ void Model::handleStatus(Imap::Parser *ptr, const Imap::Responses::Status *const
 {
     if (accessParser(ptr).connState == CONN_STATE_LOGOUT)
         return;
+    if (accessParser(ptr).connState < CONN_STATE_AUTHENTICATED)
+        throw UnexpectedResponseReceived("Unexpected STATUS response before authentication succeeded", *resp);
+
     Q_UNUSED(ptr);
     TreeItemMailbox *mailbox = findMailboxByName(resp->mailbox);
     if (! mailbox) {

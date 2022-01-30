@@ -70,6 +70,15 @@ private slots:
 
     void testExcessivePasswordPrompts();
 
+    void dataBug432353();
+    void testNoListStatusUponConnect();
+    void testNoListStatusUponConnect_data();
+    void testNoListStatusStartTls();
+    void testNoListStatusStartTls_data();
+    void testNoListStatusBeforeAuthenticated();
+    void testNoListStatusBeforeAuthenticated_data();
+    void testListStatusUnsolicited();
+
     void provideAuthDetails();
     void acceptSsl(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
 

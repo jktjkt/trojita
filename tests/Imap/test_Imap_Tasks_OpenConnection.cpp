@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2014 Jan Kundrát <jkt@flaska.net>
+/* Copyright (C) 2006 - 2021 Jan Kundrát <jkt@flaska.net>
 
    This file is part of the Trojita Qt IMAP e-mail client,
    http://trojita.flaska.net/
@@ -611,5 +611,125 @@ void ImapModelOpenConnectionTest::provideAuthDetails()
     }
 }
 
+void ImapModelOpenConnectionTest::dataBug432353()
+{
+    QTest::addColumn<QByteArray>("garbage");
+    QTest::newRow("LIST") << QByteArray("* LIST (\\HasNoChildren) \".\" x\r\n");
+    QTest::newRow("STATUS") << QByteArray("* STATUS INBOX (MESSAGES 123)\r\n");
+}
+
+void ImapModelOpenConnectionTest::testNoListStatusUponConnect_data()
+{
+    dataBug432353();
+}
+
+void ImapModelOpenConnectionTest::testNoListStatusUponConnect()
+{
+    QFETCH(QByteArray, garbage);
+    reinit(TlsRequired::Yes);
+    cEmpty();
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    ExpectSingleErrorHere x(this);
+    cServer("* OK foo\r\n" + garbage);
+}
+
+void ImapModelOpenConnectionTest::testNoListStatusStartTls_data()
+{
+    dataBug432353();
+}
+
+void ImapModelOpenConnectionTest::testNoListStatusStartTls()
+{
+    QFETCH(QByteArray, garbage);
+    reinit(TlsRequired::Yes);
+    cEmpty();
+    cServer("* OK [Capability imap4rev1 starttls] foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cClient(t.mk("STARTTLS\r\n"));
+    cServer(t.last("OK will establish secure layer immediately\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient("[*** STARTTLS ***]" + t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n" + t.last("OK capability completed\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    ExpectSingleErrorHere x(this);
+    cServer(garbage + t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
+}
+
+void ImapModelOpenConnectionTest::testNoListStatusBeforeAuthenticated_data()
+{
+    dataBug432353();
+}
+
+void ImapModelOpenConnectionTest::testNoListStatusBeforeAuthenticated()
+{
+    QFETCH(QByteArray, garbage);
+    reinit(TlsRequired::Yes);
+    cEmpty();
+    cServer("* OK [Capability imap4rev1 starttls] foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cClient(t.mk("STARTTLS\r\n"));
+    cServer(t.last("OK will establish secure layer immediately\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient("[*** STARTTLS ***]" + t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n" + t.last("OK capability completed\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    ExpectSingleErrorHere x(this);
+    cServer(garbage + t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n"));
+}
+
+void ImapModelOpenConnectionTest::testListStatusUnsolicited()
+{
+    model->cache()->setChildMailboxes(QString(),
+                             QList<Imap::Mailbox::MailboxMetadata>()
+                                << Imap::Mailbox::MailboxMetadata(QLatin1String("INBOX"), QString(), QStringList())
+                             );
+
+    reinit(TlsRequired::Yes);
+    cEmpty();
+    cServer("* OK [Capability imap4rev1 starttls] foo\r\n");
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cClient(t.mk("STARTTLS\r\n"));
+    cServer(t.last("OK will establish secure layer immediately\r\n"));
+    QVERIFY(authSpy->isEmpty());
+    cClient("[*** STARTTLS ***]" + t.mk("CAPABILITY\r\n"));
+    QVERIFY(completedSpy->isEmpty());
+    QVERIFY(authSpy->isEmpty());
+    cServer("* CAPABILITY IMAP4rev1\r\n" + t.last("OK capability completed\r\n"));
+    cClient(t.mk("LOGIN luzr sikrit\r\n"));
+    QCOMPARE(authSpy->size(), 1);
+    cServer(t.last("OK [CAPABILITY IMAP4rev1] logged in\r\n") +
+            "* LIST (\\HasNoChildren) \".\" abc\r\n"
+            "* LIST (\\HasNoChildren) \".\" def\r\n"
+            "* STATUS INBOX (MESSAGES 123)\r\n"
+            );
+    QCOMPARE(model->rowCount(QModelIndex()), 1);
+    cClient(t.mk("LIST \"\" \"%\"\r\n"));
+    cEmpty();
+    QCOMPARE(completedSpy->size(), 1);
+    QVERIFY(failedSpy->isEmpty());
+    cServer("* LIST (\\Noselect \\HasChildren) \".\" \"xyz\"\r\n"
+            "* LIST (\\HasNoChildren) \".\" \"INBOX\"\r\n"
+            + t.last("OK list done\r\n")
+            + "* STATUS INBOX (MESSAGES 789)\r\n");
+    cEmpty();
+
+    // Mailboxes "abc" and "def" were reported by the server as an async replay after having authenticated,
+    // so there's no reason not to trust them. However, they were received before a LIST was issues,
+    // so they should be probably ignored -- but that is tricky to do properly with command pipelining, etc.
+    QCOMPARE(model->rowCount( QModelIndex() ), 5 /* empty root, INBOX, abc, def, xyz */);
+    QCOMPARE(model->index(1, 0, QModelIndex()).data().toString(), QLatin1String("INBOX"));
+    QCOMPARE(model->index(2, 0, QModelIndex()).data().toString(), QLatin1String("abc"));
+    QCOMPARE(model->index(3, 0, QModelIndex()).data().toString(), QLatin1String("def"));
+    QCOMPARE(model->index(4, 0, QModelIndex()).data().toString(), QLatin1String("xyz"));
+}
 
 QTEST_GUILESS_MAIN( ImapModelOpenConnectionTest )
