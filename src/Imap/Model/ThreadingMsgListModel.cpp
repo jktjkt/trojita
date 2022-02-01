@@ -1130,7 +1130,7 @@ void ThreadingMsgListModel::pruneTree()
             Q_ASSERT(parent != threading.end());
 
             // and the node itself has to be found in its parent's children
-            QList<uint>::iterator childIt = qFind(parent->children.begin(), parent->children.end(), it->internalId);
+            QList<uint>::iterator childIt = std::find(parent->children.begin(), parent->children.end(), it->internalId);
             Q_ASSERT(childIt != parent->children.end());
             // The offset of this child might no longer be correct, though -- we're postponing the actual deletion until later
 
@@ -1175,7 +1175,7 @@ void ThreadingMsgListModel::pruneTree()
 
                 if (parent->internalId == 0) {
                     // Update the list of all thread roots
-                    QList<uint>::iterator rootIt = qFind(threadedRootIds.begin(), threadedRootIds.end(), it->internalId);
+                    QList<uint>::iterator rootIt = std::find(threadedRootIds.begin(), threadedRootIds.end(), it->internalId);
                     if (rootIt != threadedRootIds.end())
                         *rootIt = replaceWith->internalId;
                 }
