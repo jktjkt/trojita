@@ -106,7 +106,7 @@ Imap::Uids Sequence::toVector() const
 Sequence &Sequence::add(uint num)
 {
     Q_ASSERT(kind == DISTINCT);
-    auto it = qLowerBound(numbers.begin(), numbers.end(), num);
+    auto it = std::lower_bound(numbers.begin(), numbers.end(), num);
     if (it == numbers.end() || *it != num)
         numbers.insert(it, num);
     return *this;
