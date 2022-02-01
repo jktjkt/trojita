@@ -21,6 +21,7 @@
 */
 
 #include <QTest>
+#include <functional>
 #include "test_algorithms.h"
 
 #include "Common/FindWithUnknown.h"
@@ -38,9 +39,9 @@ void TestCommonAlgorithms::testLowerBoundWithUnknown()
     QFETCH(int, needle);
     QFETCH(int, offset);
 
-    QList<int>::const_iterator it = Common::linearLowerBoundWithUnknownElements(list.constBegin(), list.constEnd(), needle, isZero, qLess<int>());
+    QList<int>::const_iterator it = Common::linearLowerBoundWithUnknownElements(list.constBegin(), list.constEnd(), needle, isZero, std::less<int>());
     QCOMPARE(it - list.constBegin(), offset);
-    it = Common::lowerBoundWithUnknownElements(list.constBegin(), list.constEnd(), needle, isZero, qLess<int>());
+    it = Common::lowerBoundWithUnknownElements(list.constBegin(), list.constEnd(), needle, isZero, std::less<int>());
     QCOMPARE(it - list.constBegin(), offset);
 }
 
