@@ -366,7 +366,7 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
     } else {
         signer = QString::fromUtf8(sig.fingerprint());
     }
-    signDate = QDateTime::fromTime_t(sig.creationTime());
+    signDate = QDateTime::fromSecsSinceEpoch(sig.creationTime());
 
     if (sig.summary() & GpgME::Signature::Green) {
         // FIXME: change the above to GpgME::Signature::Valid and react to expired keys/signatures by checking the timestamp
@@ -462,7 +462,7 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
     if (sig.summary() & GpgME::Signature::SigExpired) {
         ENSURE_LINE_LF(longStatus);
         longStatus += tr("Signature expired on %1.")
-                .arg(QDateTime::fromTime_t(sig.expirationTime()).toString(Qt::DefaultLocaleShortDate));
+                .arg(QDateTime::fromSecsSinceEpoch(sig.expirationTime()).toString(Qt::DefaultLocaleShortDate));
     }
     if (sig.summary() & GpgME::Signature::KeyMissing) {
         ENSURE_LINE_LF(longStatus);

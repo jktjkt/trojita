@@ -69,7 +69,7 @@ else()
     set(QTKEYCHAIN_DEPENDS "")
 endif()
 
-find_package(Qt5Core 5.6 REQUIRED)
+find_package(Qt5Core 5.8 REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5Sql REQUIRED)
@@ -183,7 +183,7 @@ add_definitions(-DQT_STRICT_ITERATORS)
 add_definitions(-DQT_USE_QSTRINGBUILDER)
 add_definitions(-DQT_USE_FAST_OPERATOR_PLUS)
 add_definitions(-DQT_USE_FAST_CONCATENATION)
-add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050600)
+add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050700)
 
 if(NOT MSVC)
   # We're using C++11's threading features (std::async in particular), and that requires "some threading". With GCC and

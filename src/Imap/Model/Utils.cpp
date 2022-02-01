@@ -343,7 +343,7 @@ QString formatDateTimeWithTimeZoneAtEnd(const QDateTime &now, const QString &for
 
     // Got to cast to a signed type to prevent unsigned underflow here. Also go to 64bits because otherwise there'd
     // a problem when the value is out-of-range for an int32.
-    int minutesDifference = (static_cast<qint64>(now.toTime_t()) - static_cast<qint64>(nowUtc.toTime_t())) / 60;
+    int minutesDifference = (now.toSecsSinceEpoch() - nowUtc.toSecsSinceEpoch()) / 60;
     int tzOffsetHours = qAbs(minutesDifference) / 60;
     int tzOffsetMinutes = qAbs(minutesDifference) % 60;
     // The rest is just a piece of cake now
