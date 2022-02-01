@@ -76,10 +76,10 @@ bool MailboxNameComparator(const TreeItem *const a, const TreeItem *const b)
     const TreeItemMailbox *const mailboxB = dynamic_cast<const TreeItemMailbox *const>(b);
 
     if (mailboxA->mailbox() == QLatin1String("INBOX"))
-        return true;
+        return mailboxB->mailbox() != QLatin1String("INBOX");
     if (mailboxB->mailbox() == QLatin1String("INBOX"))
         return false;
-    return mailboxA->mailbox().compare(mailboxB->mailbox(), Qt::CaseInsensitive) < 1;
+    return mailboxA->mailbox().compare(mailboxB->mailbox(), Qt::CaseInsensitive) < 0;
 }
 
 bool uidComparator(const TreeItem *const item, const uint uid)
