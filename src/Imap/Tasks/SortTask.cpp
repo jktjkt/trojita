@@ -179,7 +179,7 @@ bool SortTask::handleSearch(const Imap::Responses::Search *const resp)
     // That just doesn't look like worth it.
 
     sortResult += resp->items;
-    qSort(sortResult);
+    std::sort(sortResult.begin(), sortResult.end());
     sortResult.erase(std::unique(sortResult.begin(), sortResult.end()), sortResult.end());
     return true;
 }

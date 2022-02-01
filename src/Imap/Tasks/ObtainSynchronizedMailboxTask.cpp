@@ -974,7 +974,7 @@ void ObtainSynchronizedMailboxTask::finalizeSearch()
     }
     }
 
-    qSort(uidMap);
+    std::sort(uidMap.begin(), uidMap.end());
     if (!uidMap.isEmpty() && uidMap.front() == 0) {
         throw MailboxException("UID (E)SEARCH response contains invalid UID zero");
     }

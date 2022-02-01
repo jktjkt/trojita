@@ -590,7 +590,7 @@ void TreeItemMailbox::handleVanished(Model *const model, const Responses::Vanish
     QModelIndex listIndex = list->toIndex(model);
 
     auto uids = resp.uids;
-    qSort(uids);
+    std::sort(uids.begin(), uids.end());
     // Remove duplicates -- even that garbage can be present in a perfectly valid VANISHED :(
     uids.erase(std::unique(uids.begin(), uids.end()), uids.end());
 

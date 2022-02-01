@@ -23,6 +23,7 @@
 #include "Sequence.h"
 #include <QStringList>
 #include <QTextStream>
+#include <algorithm>
 
 namespace Imap
 {
@@ -114,7 +115,7 @@ Sequence &Sequence::add(uint num)
 Sequence Sequence::fromVector(Imap::Uids numbers)
 {
     Q_ASSERT(!numbers.isEmpty());
-    qSort(numbers);
+    std::sort(numbers.begin(), numbers.end());
     Sequence seq(numbers.first());
     for (int i = 1; i < numbers.size(); ++i) {
         seq.add(numbers[i]);

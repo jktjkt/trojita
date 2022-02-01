@@ -718,7 +718,7 @@ void ThreadingMsgListModel::slotIncrementalThreadingAvailable(const Responses::E
     for (Responses::ESearch::IncrementalThreadingData_t::const_iterator it = data.constBegin(); it != data.constEnd(); ++it) {
         gatherAllUidsFromThreadNode(affectedUids, it->thread);
     }
-    qSort(affectedUids);
+    std::sort(affectedUids.begin(), affectedUids.end());
     QList<TreeItemMessage*> affectedMessages = const_cast<Model*>(realModel)->
             findMessagesByUids(static_cast<TreeItemMailbox*>(mailboxIndex.internalPointer()), affectedUids);
     QHash<uint,void *> uidToPtrCache;

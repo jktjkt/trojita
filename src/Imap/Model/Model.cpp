@@ -25,7 +25,6 @@
 #include <QAuthenticator>
 #include <QCoreApplication>
 #include <QDebug>
-#include <QtAlgorithms>
 #include "Model.h"
 #include "Common/FindWithUnknown.h"
 #include "Common/InvokeMethod.h"
@@ -350,7 +349,7 @@ void Model::finalizeList(Parser *parser, TreeItemMailbox *mailboxPtr)
             ++it;
         }
     }
-    qSort(mailboxes.begin(), mailboxes.end(), MailboxNameComparator);
+    std::sort(mailboxes.begin(), mailboxes.end(), MailboxNameComparator);
 
     // Remove duplicates; would be great if this could be done in a STLish way,
     // but unfortunately std::unique won't help here (the "duped" part of the
@@ -406,7 +405,7 @@ void Model::finalizeIncrementalList(Parser *parser, const QString &parentMailbox
             ++it;
         }
     }
-    qSort(mailboxes.begin(), mailboxes.end(), MailboxNameComparator);
+    std::sort(mailboxes.begin(), mailboxes.end(), MailboxNameComparator);
 
     if (mailboxes.size() == 0) {
         qDebug() << "Weird, no matching LIST response for our prompt after CREATE";
@@ -1259,7 +1258,7 @@ void Model::copyMoveMessages(TreeItemMailbox *sourceMbox, const QString &destMai
 
     Q_ASSERT(sourceMbox);
 
-    qSort(uids);
+    std::sort(uids.begin(), uids.end());
 
     QModelIndexList messages;
     Sequence seq;
