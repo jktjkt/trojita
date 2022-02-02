@@ -815,7 +815,7 @@ void KeepMailboxOpenTask::slotFetchRequestedParts()
         if (uids.isEmpty())
             return;
 
-        fetchPartTasks << model->m_taskFactory->createFetchMsgPartTask(model, mailboxIndex, uids, parts.toList());
+        fetchPartTasks << model->m_taskFactory->createFetchMsgPartTask(model, mailboxIndex, uids, parts.values());
     }
 }
 

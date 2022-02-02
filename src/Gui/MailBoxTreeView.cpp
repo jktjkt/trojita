@@ -54,13 +54,13 @@ MailBoxTreeView::MailBoxTreeView(QWidget *parent, QSettings *settings)
         auto name = what.data(Imap::Mailbox::RoleMailboxName).toString();
         if (!m_desiredExpansionState.contains(name)) {
             m_desiredExpansionState.insert(name);
-            emit mailboxExpansionChanged(m_desiredExpansionState.toList());
+            emit mailboxExpansionChanged(m_desiredExpansionState.values());
         }
     });
     connect(this, &QTreeView::collapsed, this, [this](const QModelIndex &what) {
         auto name = what.data(Imap::Mailbox::RoleMailboxName).toString();
         if (m_desiredExpansionState.remove(name)) {
-            emit mailboxExpansionChanged(m_desiredExpansionState.toList());
+            emit mailboxExpansionChanged(m_desiredExpansionState.values());
         }
     });
 }
