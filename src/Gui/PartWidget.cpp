@@ -226,7 +226,7 @@ PartStatusWidget::PartStatusWidget(QWidget *parent)
     layout->addWidget(m_seperator, 1, 0, 1, 3);
     m_seperator->hide();
     layout->addWidget(m_details, 2, 0, 1, 3);
-    layout->setAlignment(m_details, 0);
+    layout->setAlignment(m_details, Qt::Alignment());
     m_details->hide();
 
     m_text->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);

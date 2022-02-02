@@ -95,7 +95,7 @@ ClearTextPassword::ClearTextPassword(QObject *parent, QSettings *settings) : Pas
 
 PasswordPlugin::Features ClearTextPassword::features() const
 {
-    return 0;
+    return PasswordPlugin::Feature();
 }
 
 PasswordJob *ClearTextPassword::requestPassword(const QString &accountId, const QString &accountType)
