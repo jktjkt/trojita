@@ -1087,8 +1087,8 @@ void MainWindow::handleTrayIconChange()
             // You just have too many messages.
             text = QStringLiteral("🐮");
             fm = QFontMetrics(f);
-        } else if (fm.width(text) > pixmap.width()) {
-            f.setPixelSize(f.pixelSize() * pixmap.width() / fm.width(text));
+        } else if (fm.horizontalAdvance(text) > pixmap.width()) {
+            f.setPixelSize(f.pixelSize() * pixmap.width() / fm.horizontalAdvance(text));
             fm = QFontMetrics(f);
         }
 

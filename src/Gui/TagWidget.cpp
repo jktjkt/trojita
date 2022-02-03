@@ -84,7 +84,7 @@ bool TagWidget::event(QEvent *e)
             setCursor(static_cast<QMouseEvent*>(e)->pos().x() > m_splitPos ? Qt::PointingHandCursor : Qt::ArrowCursor);
     } else if (e->type() == QEvent::Resize) {
         if (m_mode == Mode::UserKeyword)
-            m_splitPos = contentsRect().right() - fontMetrics().width(closeIndicator);
+            m_splitPos = contentsRect().right() - fontMetrics().horizontalAdvance(closeIndicator);
     } else if (e->type() == QEvent::MouseButtonPress) {
         switch (m_mode) {
         case Mode::AddingWidget:

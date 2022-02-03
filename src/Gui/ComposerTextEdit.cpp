@@ -146,7 +146,7 @@ void ComposerTextEdit::paintEvent(QPaintEvent *pe)
         p.setClipRegion(pe->region());
         QFont fnt = font();
         fnt.setBold(true);
-        fnt.setPointSize( fnt.pointSize()*2*r.width()/(3*QFontMetrics(fnt).width(m_notification)) );
+        fnt.setPointSize( fnt.pointSize()*2*r.width()/(3*QFontMetrics(fnt).horizontalAdvance(m_notification)) );
         r.setHeight( QFontMetrics(fnt).height() + 16 );
         r.moveCenter( rect().center() );
 

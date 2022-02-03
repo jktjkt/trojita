@@ -144,8 +144,8 @@ void BE::Contacts::updateLabel()
     QObject *o = doc;
     while ((o = o->parent())) {
         if (QLabel *l = qobject_cast<QLabel*>(o)) {
-            l->setMinimumWidth(qMax(l->fontMetrics().width(l->text()),
-                                    l->fontMetrics().width(doc->toPlainText())));
+            l->setMinimumWidth(qMax(l->fontMetrics().horizontalAdvance(l->text()),
+                                    l->fontMetrics().horizontalAdvance(doc->toPlainText())));
             break;
         }
     }

@@ -44,7 +44,7 @@ else()
     set(QTKEYCHAIN_DEPENDS "")
 endif()
 
-find_package(Qt5Core 5.8 REQUIRED)
+find_package(Qt5Core 5.11 REQUIRED)
 find_package(Qt5Gui REQUIRED)
 find_package(Qt5Network REQUIRED)
 find_package(Qt5Sql REQUIRED)
