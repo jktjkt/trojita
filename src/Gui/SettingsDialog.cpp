@@ -126,9 +126,8 @@ void SettingsDialog::adjustSizeToScrollAreas()
     area->widget()->adjustSize();
 
     // figure the size demand of this scroll area (content + margins)
-    int l,t,r,b;
-    area->getContentsMargins(&l,&r,&t,&b);
-    QSize minSize(area->widget()->size() + QSize(l+r, t+b));
+    const auto margins = area->contentsMargins();
+    QSize minSize(area->widget()->size() + QSize(margins.left() + margins.right(), margins.top() + margins.bottom()));
 
     // TODO: clamp this to 640x480 or QDesktopWidget::availableGeometry() dependent?
 

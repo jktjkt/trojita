@@ -45,9 +45,10 @@ TagWidget::TagWidget(const Mode mode, const QString &tagName, const QColor &back
 {
     m_tint.setAlpha(m_tint.alpha()/3);
     setAlignment(Qt::AlignCenter);
-    int l,t,r,b;
-    getContentsMargins(&l, &t, &r, &b);
-    setContentsMargins(l + 4, t, r + 4, b);
+    auto margins = contentsMargins();
+    margins.setLeft(margins.left() + 4);
+    margins.setRight(margins.right() + 4);
+    setContentsMargins(margins);
     if (m_mode == Mode::AddingWidget)
         setCursor(Qt::PointingHandCursor);
 }

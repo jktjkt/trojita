@@ -246,24 +246,24 @@ void EmbeddedWebView::findScrollParent()
     const int frameWidth = 2*style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     m_scrollParentPadding = frameWidth;
     QWidget *runner = this;
-    int left, top, right, bottom;
+    QMargins margins;
     while (runner) {
         runner->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        runner->getContentsMargins(&left, &top, &right, &bottom);
-        m_scrollParentPadding += left + right + frameWidth;
+        margins = runner->contentsMargins();
+        m_scrollParentPadding += margins.left() + margins.right() + frameWidth;
         if (runner->layout()) {
-            runner->layout()->getContentsMargins(&left, &top, &right, &bottom);
-            m_scrollParentPadding += left + right;
+            runner->layout()->contentsMargins();
+            m_scrollParentPadding += margins.left() + margins.right();
         }
         QWidget *p = runner->parentWidget();
         if (p && qobject_cast<MessageView*>(runner) && // is this a MessageView?
             p->objectName() == QLatin1String("qt_scrollarea_viewport") && // in a viewport?
             qobject_cast<QAbstractScrollArea*>(p->parentWidget())) { // that is used?
-            p->getContentsMargins(&left, &top, &right, &bottom);
-            m_scrollParentPadding += left + right + frameWidth;
+            margins = p->contentsMargins();
+            m_scrollParentPadding += margins.left() + margins.right() + frameWidth;
             if (p->layout()) {
-                p->layout()->getContentsMargins(&left, &top, &right, &bottom);
-                m_scrollParentPadding += left + right;
+                margins = p->layout()->contentsMargins();
+                m_scrollParentPadding += margins.left() + margins.right();
             }
             m_scrollParent = p->parentWidget();
             break; // then we have our actual message view

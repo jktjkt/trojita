@@ -69,9 +69,8 @@ void ComposerTextEdit::notify(const QString &n, uint timeout)
 
 int ComposerTextEdit::idealWidth() const
 {
-    int l,d,r;
-    getContentsMargins(&l, &d, &r, &d);
-    return l + r+ 80*QFontMetrics(font()).averageCharWidth();
+    const auto margins = contentsMargins();
+    return margins.left() + margins.right() + 80*QFontMetrics(font()).averageCharWidth();
 }
 
 void ComposerTextEdit::resetNotification()
