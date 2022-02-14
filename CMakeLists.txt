@@ -846,7 +846,7 @@ if(BUILD_TESTING)
 
       add_library(fake-dev-random SHARED ${CMAKE_CURRENT_SOURCE_DIR}/tests/Utils/fake-dev-random.c)
       set_target_properties(fake-dev-random PROPERTIES AUTOMOC off)
-      target_link_libraries(fake-dev-random dl)
+      target_link_libraries(fake-dev-random ${CMAKE_DL_LIBS})
 
       # FIXME: it would be nice to depend on the contents of keys/, but in my testing it produces Makefiles
       # which suffer from races (the keygen.sh is run multiple times in parallel within the CI environment).
