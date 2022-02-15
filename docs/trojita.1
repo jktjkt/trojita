@@ -1,0 +1,101 @@
+.\"
+.\" Copyright (C) 2022 Caspar Schutijser <caspar@schutijser.com>
+.\"
+.\" This file is part of the Trojita Qt IMAP e-mail client,
+.\" http://trojita.flaska.net/
+.\"
+.\" This program is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 2 of
+.\" the License or (at your option) version 3 or any later version
+.\" accepted by the membership of KDE e.V. (or its successor approved
+.\" by the membership of KDE e.V.), which shall act as a proxy
+.\" defined in Section 14 of version 3 of the license.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public License
+.\" along with this program.  If not, see <http://www.gnu.org/licenses/>.
+.\"
+.Dd $Mdocdate$
+.Dt TROJITA 1
+.Os
+.Sh NAME
+.Nm trojita
+.Nd fast Qt IMAP e-mail client
+.Sh SYNOPSIS
+.Nm
+.Op Fl achlmv
+.Op Fl p Ar profile
+.Op url
+.Sh DESCRIPTION
+.Nm
+is a fast Qt IMAP e-mail client.
+Optionally,
+an RFC2368 mailto
+.Ar url
+may be specified.
+This will open the compose window with a message
+constructed from the specified URL.
+.Pp
+.Nm
+supports multiple profiles which allows the use of multiple IMAP accounts.
+Multiple instances of
+.Nm ,
+each using a different profile,
+may be started concurrently.
+A profile may be specified using
+.Fl p .
+.Pp
+The options are as follows:
+.Bl -tag -width Ds
+.It Fl a , -addressbook
+Show the addressbook window.
+.It Fl c , -compose
+Compose a new e-mail
+(default when
+.Ar url
+is provided).
+.It Fl h , -help
+Show help text.
+.It Fl l , -log-to-disk
+Activate debug traffic logging to disk immediately on startup.
+.It Fl m , -mainwindow
+Show the main window
+(default when no option is provided).
+.It Fl p , -profile Ar profile
+Use the specified profile.
+.It Fl v , -version
+Show the version of
+.Nm .
+.El
+.Sh FILES
+The location of
+.Nm Ns 's
+configuration file and cache is determined by Qt.
+On XDG platforms,
+the configuration file can be found in
+.Pa ~/.config/flaska.net
+while the cache can be found in
+.Pa ~/.cache/flaska.net .
+For more details and information about other platforms,
+see
+.Lk https://doc.qt.io/qt-5/qstandardpaths.html#StandardLocation-enum .
+.Sh EXAMPLES
+Compose a new e-mail to
+.Mt alice@example.net :
+.Bd -literal -offset indent
+$ trojita -c 'mailto:alice@example.net?subject=Hi&body=Message.'
+.Ed
+.Pp
+Launch
+.Nm
+using a profile:
+.Bd -literal -offset indent
+$ trojita -p work
+.Ed
+.Sh SEE ALSO
+.Lk http://trojita.flaska.net/
