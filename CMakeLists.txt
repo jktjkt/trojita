@@ -182,6 +182,7 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(CMAKE_AUTOMOC True)
 set(CMAKE_AUTORCC True)
+set(CMAKE_AUTOUIC True)
 
 trojita_find_package(RagelForTrojita "" "" "" "" WITH_RAGEL)
 trojita_find_package(ZLIB "" "" "" "" WITH_ZLIB)
@@ -376,24 +377,6 @@ set(libDesktopGui_SOURCES
 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/icons.qrc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/license.qrc
-)
-set(libDesktopGui_UI
-    ${path_DesktopGui}/AboutDialog.ui
-    ${path_DesktopGui}/ComposeWidget.ui
-    ${path_DesktopGui}/CreateMailboxDialog.ui
-    ${path_DesktopGui}/EditIdentity.ui
-    ${path_DesktopGui}/EditFavoriteTag.ui
-    ${path_DesktopGui}/ImapInfoDialog.ui
-    ${path_DesktopGui}/PasswordDialog.ui
-    ${path_DesktopGui}/ProgressPopUp.ui
-    ${path_DesktopGui}/SettingsCachePage.ui
-    ${path_DesktopGui}/SettingsGeneralPage.ui
-    ${path_DesktopGui}/SettingsImapPage.ui
-    ${path_DesktopGui}/SettingsOutgoingPage.ui
-    ${path_DesktopGui}/SettingsFavoriteTagsPage.ui
-    ${path_DesktopGui}/TagAddDialog.ui
-    ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
-
 )
 
 set(libqwwsmtpclient_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/qwwsmtpclient/qwwsmtpclient.cpp)
@@ -656,14 +639,8 @@ if(WITH_ABOOKADDRESSBOOK_PLUGIN)
         ${path_AbookAddressbook}/AbookAddressbook.cpp
         ${path_AbookAddressbook}/be-contacts.cpp
     )
-    set(libAbookAddressbook_UI
-        ${path_AbookAddressbook}/be-contacts.ui
-        ${path_AbookAddressbook}/onecontact.ui
-    )
 
-    qt5_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
-
-    trojita_add_plugin(trojita_plugin_AbookAddressbookPlugin WITH_ABOOKADDRESSBOOK_PLUGIN ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
+    trojita_add_plugin(trojita_plugin_AbookAddressbookPlugin WITH_ABOOKADDRESSBOOK_PLUGIN ${libAbookAddressbook_SOURCES})
     set_property(TARGET trojita_plugin_AbookAddressbookPlugin APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 
     target_link_libraries(trojita_plugin_AbookAddressbookPlugin Qt5::Widgets)
@@ -716,9 +693,7 @@ endforeach()
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h.in ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h)
 
 if(WITH_DESKTOP)
-    qt5_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
-
-    add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT})
+    add_library(DesktopGui STATIC ${libDesktopGui_SOURCES})
     set_property(TARGET DesktopGui APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
