@@ -622,8 +622,7 @@ endif()
 ## QtKeyChain plugin
 if(WITH_QTKEYCHAIN_PLUGIN)
     trojita_add_plugin(trojita_plugin_QtKeychainPasswordPlugin WITH_QTKEYCHAIN_PLUGIN src/Plugins/QtKeyChain/QtKeyChainPassword.cpp)
-    target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QTKEYCHAIN_LIBRARIES} Qt5::DBus)
-    set_property(TARGET trojita_plugin_QtKeychainPasswordPlugin APPEND PROPERTY INCLUDE_DIRECTORIES ${QTKEYCHAIN_INCLUDE_DIRS})
+    target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin qt5keychain Qt5::DBus)
 endif()
 
 ## AbookAddressbook plugin
