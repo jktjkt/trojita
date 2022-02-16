@@ -2124,7 +2124,7 @@ void MainWindow::slotShowAboutTrojita()
                        );
 
     QString featuresText = QStringLiteral("<ul>");
-    for (const auto x: features) {
+    for (const auto &x: features) {
         featuresText += x.second ?
                     tr("<li>%1: supported</li>").arg(x.first)
                   : tr("<li>%1: <strong>disabled</strong></li>").arg(x.first);
