@@ -1,35 +1,10 @@
 project(trojita)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-# Qt5's qt5_use_modules need 2.8.9+
-# On win32, we need QtMain linking, which means 2.8.11+
-# EL7 ships 2.8.11, Debian 8 ships 3.0.2, and Ubuntu 14.04 LTS has 2.8.12
-cmake_minimum_required(VERSION 2.8.11)
-cmake_policy(SET CMP0020 NEW)
+cmake_minimum_required(VERSION 3.16)
 
-if(POLICY CMP0054)
-    # Silence warnings in TrojitaOption.cmake; we are fine with only doing the
-    # expansion by hand
-    cmake_policy(SET CMP0054 NEW)
-endif()
-
-if(POLICY CMP0043)
-    # We make use of CMAKE_CXXFLAGS_DEBUG...
-    cmake_policy(SET CMP0043 OLD)
-endif()
-
-if(POLICY CMP0071)
-    # we don't really care
-    cmake_policy(SET CMP0071 NEW)
-endif()
-
-if(CMAKE_VERSION VERSION_LESS "3.1")
-    # If you aren't using and old Linux with an old GCC and old CMake, please just upgrade.
-    set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
-else()
-    set(CMAKE_CXX_STANDARD 11)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set a default build type if none was specified. This was shamelessly stolen
 # from VTK's cmake setup because these guys produce both CMake and a project that
@@ -160,7 +135,6 @@ else()
     # about a warning-free build, and that this is easier than messing with yet another configure option.
     # TODO Reenable once the project is warning free
     # set(CMAKE_CXX_FLAGS_DEBUG "-Werror ${CMAKE_CXX_FLAGS_DEBUG}")
-    # Also see CMP0043...
 
     # Optimizations are enabled unconditionally because they make a big difference in the speed of the
     # resulting binaries, and that it is better to allow an opt-out from them by adjusting CXXFLAGS through
@@ -203,8 +177,9 @@ endif()
 
 # Make sure that plugins not export all symbols, only that which are explicitly marked
 include(GenerateExportHeader)
-add_compiler_export_flags()
-
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(CMAKE_AUTOMOC True)
 
 trojita_find_package(RagelForTrojita "" "" "" "" WITH_RAGEL)
