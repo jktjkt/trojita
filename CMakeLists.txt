@@ -181,6 +181,7 @@ set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(CMAKE_AUTOMOC True)
+set(CMAKE_AUTORCC True)
 
 trojita_find_package(RagelForTrojita "" "" "" "" WITH_RAGEL)
 trojita_find_package(ZLIB "" "" "" "" WITH_ZLIB)
@@ -372,6 +373,9 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigDialog.cpp
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.cpp
     ${path_DesktopGui}/ShortcutHandler/ShortcutHandler.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/icons.qrc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/license.qrc
 )
 set(libDesktopGui_UI
     ${path_DesktopGui}/AboutDialog.ui
@@ -389,10 +393,7 @@ set(libDesktopGui_UI
     ${path_DesktopGui}/SettingsFavoriteTagsPage.ui
     ${path_DesktopGui}/TagAddDialog.ui
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
-)
-set(libDesktopGui_RESOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/icons.qrc
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/license.qrc
+
 )
 
 set(libqwwsmtpclient_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/qwwsmtpclient/qwwsmtpclient.cpp)
@@ -716,9 +717,8 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BI
 
 if(WITH_DESKTOP)
     qt5_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
-    qt5_add_resources(libDesktopGui_RESOURCES_OUT ${libDesktopGui_RESOURCES})
 
-    add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
+    add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT})
     set_property(TARGET DesktopGui APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
