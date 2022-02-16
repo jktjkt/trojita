@@ -36,6 +36,7 @@
 #include <QProgressBar>
 #include <QRegularExpression>
 #include <QScopedPointer>
+#include <QScreen>
 #include <QScrollBar>
 #include <QSplitter>
 #include <QSslError>
@@ -223,7 +224,7 @@ MainWindow::MainWindow(QSettings *settings): QMainWindow(), m_imapAccess(0), m_m
     delayedResize->setSingleShot(true);
     delayedResize->setInterval(500);
     connect(delayedResize, &QTimer::timeout, this, &MainWindow::desktopGeometryChanged);
-    connect(qApp->desktop(), &QDesktopWidget::workAreaResized, delayedResize, static_cast<void (QTimer::*)()>(&QTimer::start));
+    connect(QGuiApplication::primaryScreen(), &QScreen::availableGeometry, delayedResize, static_cast<void (QTimer::*)()>(&QTimer::start));
     m_skipSavingOfUI = false;
 }
 
@@ -2764,7 +2765,7 @@ void MainWindow::applySizesAndState()
             restoreGeometry(item);
             if (windowState() & Qt::WindowMaximized) {
                 // ensure to try setting the proper geometry and have the WM constrain us
-                setGeometry(QApplication::desktop()->availableGeometry());
+                setGeometry(QGuiApplication::primaryScreen()->availableGeometry());
             }
         }
     }

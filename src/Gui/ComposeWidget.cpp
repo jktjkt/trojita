@@ -23,7 +23,6 @@
 */
 #include <QAbstractProxyModel>
 #include <QBuffer>
-#include <QDesktopWidget>
 #include <QFileDialog>
 #include <QGraphicsOpacityEffect>
 #include <QKeyEvent>
@@ -33,6 +32,7 @@
 #include <QPropertyAnimation>
 #include <QRegularExpression>
 #include <QSettings>
+#include <QScreen>
 #include <QTimer>
 #include <QToolButton>
 #include <QUrlQuery>
@@ -338,7 +338,7 @@ ComposeWidget::ComposeWidget(MainWindow *mainWindow, std::shared_ptr<Composer::A
     ui->mailText->setMinimumSize(sz, 1000*sz/1618); // golden mean editor
     adjustSize();
     ui->mailText->setMinimumSize(0, 0);
-    resize(size().boundedTo(qApp->desktop()->availableGeometry().size()));
+    resize(size().boundedTo(QGuiApplication::primaryScreen()->availableGeometry().size()));
 }
 
 ComposeWidget::~ComposeWidget()
