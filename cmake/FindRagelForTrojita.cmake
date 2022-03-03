@@ -1,47 +1,47 @@
 
-IF(NOT RAGEL_EXECUTABLE)
-	MESSAGE(STATUS "Looking for ragel")
-	FIND_PROGRAM(RAGEL_EXECUTABLE ragel)
-	IF(RAGEL_EXECUTABLE)
-		EXECUTE_PROCESS(COMMAND "${RAGEL_EXECUTABLE}" -v OUTPUT_VARIABLE _version)
-		STRING(REGEX MATCH "[0-9.]+" RAGEL_VERSION ${_version})
-        SET(RagelForTrojita_FOUND TRUE)
-	ENDIF(RAGEL_EXECUTABLE)
-ELSE(NOT RAGEL_EXECUTABLE)
-	EXECUTE_PROCESS(COMMAND "${RAGEL_EXECUTABLE}" -v OUTPUT_VARIABLE _version)
-	STRING(REGEX MATCH "[0-9.]+" RAGEL_VERSION ${_version})
-    SET(RagelForTrojita_FOUND TRUE)
-ENDIF(NOT RAGEL_EXECUTABLE)
+if(NOT RAGEL_EXECUTABLE)
+    message(STATUS "Looking for ragel")
+    find_program(RAGEL_EXECUTABLE ragel)
+    if(RAGEL_EXECUTABLE)
+        execute_process(COMMAND "${RAGEL_EXECUTABLE}" -v OUTPUT_VARIABLE _version)
+        string(REGEX MATCH "[0-9.]+" RAGEL_VERSION ${_version})
+        set(RagelForTrojita_FOUND TRUE)
+    endif()
+else()
+    execute_process(COMMAND "${RAGEL_EXECUTABLE}" -v OUTPUT_VARIABLE _version)
+    string(REGEX MATCH "[0-9.]+" RAGEL_VERSION ${_version})
+    set(RagelForTrojita_FOUND TRUE)
+endif()
 
-IF(RagelForTrojita_FOUND)
-    IF (NOT RagelForTrojita_FIND_QUIETLY)
-		MESSAGE(STATUS "Found ragel: ${RAGEL_EXECUTABLE} (${RAGEL_VERSION})")
-    ENDIF (NOT RagelForTrojita_FIND_QUIETLY)
+if(RagelForTrojita_FOUND)
+    if(NOT RagelForTrojita_FIND_QUIETLY)
+        message(STATUS "Found ragel: ${RAGEL_EXECUTABLE} (${RAGEL_VERSION})")
+    endif()
 
-	IF(NOT RAGEL_FLAGS)
-		SET(RAGEL_FLAGS "-T1")
-	ENDIF(NOT RAGEL_FLAGS)
+    if(NOT RAGEL_FLAGS)
+        set(RAGEL_FLAGS "-T1")
+    endif()
 
-	MACRO(RAGEL_PARSER SRCFILE)
-		GET_FILENAME_COMPONENT(SRCPATH "${SRCFILE}" PATH)
-		GET_FILENAME_COMPONENT(SRCBASE "${SRCFILE}" NAME_WE)
-		SET(OUTFILE "${CMAKE_CURRENT_BINARY_DIR}/${SRCBASE}.generated.cpp")
-		SET(INFILE "${SRCFILE}")
-		SET(_flags ${ARGV1})
-		IF(NOT _flags)
-			SET(_flags ${RAGEL_FLAGS})
-		ENDIF(NOT _flags)
-		ADD_CUSTOM_COMMAND(OUTPUT ${OUTFILE}
-			COMMAND "${RAGEL_EXECUTABLE}"
-			ARGS -C ${_flags} -o "${OUTFILE}" "${INFILE}"
-			DEPENDS "${INFILE}"
-			COMMENT "Generating ${SRCBASE}.generated.cpp from ${SRCFILE}"
-		)
-	ENDMACRO(RAGEL_PARSER)
+    macro(RAGEL_PARSER SRCFILE)
+        get_filename_component(SRCPATH "${SRCFILE}" PATH)
+        get_filename_COMPONENT(SRCBASE "${SRCFILE}" NAME_WE)
+        set(OUTFILE "${CMAKE_CURRENT_BINARY_DIR}/${SRCBASE}.generated.cpp")
+        set(INFILE "${SRCFILE}")
+        set(_flags ${ARGV1})
+        if(NOT _flags)
+            set(_flags ${RAGEL_FLAGS})
+        endif()
+        add_custom_command(OUTPUT ${OUTFILE}
+            COMMAND "${RAGEL_EXECUTABLE}"
+            ARGS -C ${_flags} -o "${OUTFILE}" "${INFILE}"
+            DEPENDS "${INFILE}"
+            COMMENT "Generating ${SRCBASE}.generated.cpp from ${SRCFILE}"
+        )
+    endmacro()
 
-ELSE(RagelForTrojita_FOUND)
+else()
 
-	IF(Ragel_FIND_REQUIRED)
-		MESSAGE(FATAL_ERROR "Could not find ragel")
-	ENDIF(Ragel_FIND_REQUIRED)
-ENDIF(RagelForTrojita_FOUND)
+    if(Ragel_FIND_REQUIRED)
+        message(FATAL_ERROR "Could not find ragel")
+    endif()
+endif()
