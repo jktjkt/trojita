@@ -1,4 +1,5 @@
-<RCC>
+<!DOCTYPE RCC>
+<RCC version="1.0">
     <qresource prefix="/">
         <file>icons/application-exit.svg</file>
         <file>icons/arrow-left.svg</file>

@@ -21,31 +21,47 @@
 
 # - Try to find the mimetic library
 # Once done this will define
-#  MIMETIC_FOUND - System has MIMETIC
-#  MIMETIC_INCLUDE_DIRS - The MIMETIC include directories
-#  MIMETIC_LIBRARIES - The libraries needed to use MIMETIC
-#  MIMETIC_DEFINITIONS - Compiler switches required for using MIMETIC
+#  Mimetic_FOUND - System has the mimetic library
+#  Mimetic_INCLUDE_DIRS - The MIMETIC include directories
+#  Mimetic_LIBRARIES - The libraries for use with target_link_libraries()
+#  Mimetic_DEFINITIONS - Compiler switches required for using MIMETIC
+#
+# If Mimetic_Found is TRUE, it will also define the following imported
+# target:
+# Mimetic::Mimetic
 
 find_package(PkgConfig)
 pkg_check_modules(PC_MIMETIC QUIET mimetic)
 set(MIMETIC_DEFINITIONS ${PC_MIMETIC_CFLAGS_OTHER})
 
-find_path(MIMETIC_INCLUDE_DIR mimetic.h
+find_path(Mimetic_INCLUDE_DIRS mimetic.h
           HINTS ${PC_MIMETIC_INCLUDEDIR} ${PC_MIMETIC_INCLUDE_DIRS}
           PATH_SUFFIXES mimetic)
 
-find_library(MIMETIC_LIBRARY NAMES mimetic libmimetic
+find_library(Mimetic_LIBRARIES NAMES mimetic libmimetic
              HINTS ${PC_MIMETIC_LIBDIR} ${PC_MIMETIC_LIBRARY_DIRS} )
 
-set(MIMETIC_LIBRARIES ${MIMETIC_LIBRARY} )
-set(MIMETIC_INCLUDE_DIRS ${MIMETIC_INCLUDE_DIR} )
-
 include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set MIMETIC_FOUND to TRUE
-# if all listed variables are TRUE
-find_package_handle_standard_args(Mimetic  DEFAULT_MSG
-                                  MIMETIC_LIBRARY MIMETIC_INCLUDE_DIR)
+find_package_handle_standard_args(Mimetic
+    FOUND_VAR
+        Mimetic_FOUND
+    REQUIRED_VARS
+        Mimetic_LIBRARIES
+        Mimetic_INCLUDE_DIRS
+)
 
-set(Mimetic_FOUND ${MIMETIC_FOUND})
+if (Mimetic_FOUND AND NOT TARGET Mimetic::Mimetic)
+    add_library(Mimetic::Mimetic UNKNOWN IMPORTED)
+    set_target_properties(Mimetic::Mimetic PROPERTIES
+        IMPORTED_LOCATION "${Mimetic_LIBRARIES}"
+        INTERFACE_INCLUDE_DIRECTORIES "${Mimetic_INCLUDE_DIRS}"
+    )
+endif()
 
-mark_as_advanced(MIMETIC_INCLUDE_DIR MIMETIC_LIBRARY )
+mark_as_advanced(Mimetic_INCLUDE_DIRS Mimetic_LIBRARIES)
+
+include(FeatureSummary)
+set_package_properties(Mimetic PROPERTIES
+    URL "https://www.codesink.org/mimetic_mime_library.html"
+    DESCRIPTION "A full featured, STL-based, standards compliant C++ MIME library"
+)

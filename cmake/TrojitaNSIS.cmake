@@ -53,7 +53,6 @@ endforeach()
 # The reason for this is that we only have cmake-3.3 in the CI so far.
 if(NOT (EXISTS "${OpenSSL_Crypto_LOC}" AND EXISTS "${OpenSSL_SSL_LOC}"))
     find_package(OpenSSL REQUIRED)
-    cmake_minimum_required(VERSION 3.4.0)
     get_target_property(OpenSSL_SSL_LOC OpenSSL::SSL LOCATION)
     get_target_property(OpenSSL_Crypto_LOC OpenSSL::Crypto LOCATION)
 endif()

@@ -1,35 +1,10 @@
+cmake_minimum_required(VERSION 3.16)
+
 project(trojita)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
 
-# Qt5's qt5_use_modules need 2.8.9+
-# On win32, we need QtMain linking, which means 2.8.11+
-# EL7 ships 2.8.11, Debian 8 ships 3.0.2, and Ubuntu 14.04 LTS has 2.8.12
-cmake_minimum_required(VERSION 2.8.11)
-cmake_policy(SET CMP0020 NEW)
-
-if(POLICY CMP0054)
-    # Silence warnings in TrojitaOption.cmake; we are fine with only doing the
-    # expansion by hand
-    cmake_policy(SET CMP0054 NEW)
-endif()
-
-if(POLICY CMP0043)
-    # We make use of CMAKE_CXXFLAGS_DEBUG...
-    cmake_policy(SET CMP0043 OLD)
-endif()
-
-if(POLICY CMP0071)
-    # we don't really care
-    cmake_policy(SET CMP0071 NEW)
-endif()
-
-if(CMAKE_VERSION VERSION_LESS "3.1")
-    # If you aren't using and old Linux with an old GCC and old CMake, please just upgrade.
-    set(CMAKE_CXX_FLAGS "--std=c++11 ${CMAKE_CXX_FLAGS}")
-else()
-    set(CMAKE_CXX_STANDARD 11)
-    set(CMAKE_CXX_STANDARD_REQUIRED ON)
-endif()
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set a default build type if none was specified. This was shamelessly stolen
 # from VTK's cmake setup because these guys produce both CMake and a project that
@@ -160,7 +135,6 @@ else()
     # about a warning-free build, and that this is easier than messing with yet another configure option.
     # TODO Reenable once the project is warning free
     # set(CMAKE_CXX_FLAGS_DEBUG "-Werror ${CMAKE_CXX_FLAGS_DEBUG}")
-    # Also see CMP0043...
 
     # Optimizations are enabled unconditionally because they make a big difference in the speed of the
     # resulting binaries, and that it is better to allow an opt-out from them by adjusting CXXFLAGS through
@@ -203,9 +177,12 @@ endif()
 
 # Make sure that plugins not export all symbols, only that which are explicitly marked
 include(GenerateExportHeader)
-add_compiler_export_flags()
-
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
 set(CMAKE_AUTOMOC True)
+set(CMAKE_AUTORCC True)
+set(CMAKE_AUTOUIC True)
 
 trojita_find_package(RagelForTrojita "" "" "" "" WITH_RAGEL)
 trojita_find_package(ZLIB "" "" "" "" WITH_ZLIB)
@@ -397,25 +374,7 @@ set(libDesktopGui_SOURCES
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigDialog.cpp
     ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.cpp
     ${path_DesktopGui}/ShortcutHandler/ShortcutHandler.cpp
-)
-set(libDesktopGui_UI
-    ${path_DesktopGui}/AboutDialog.ui
-    ${path_DesktopGui}/ComposeWidget.ui
-    ${path_DesktopGui}/CreateMailboxDialog.ui
-    ${path_DesktopGui}/EditIdentity.ui
-    ${path_DesktopGui}/EditFavoriteTag.ui
-    ${path_DesktopGui}/ImapInfoDialog.ui
-    ${path_DesktopGui}/PasswordDialog.ui
-    ${path_DesktopGui}/ProgressPopUp.ui
-    ${path_DesktopGui}/SettingsCachePage.ui
-    ${path_DesktopGui}/SettingsGeneralPage.ui
-    ${path_DesktopGui}/SettingsImapPage.ui
-    ${path_DesktopGui}/SettingsOutgoingPage.ui
-    ${path_DesktopGui}/SettingsFavoriteTagsPage.ui
-    ${path_DesktopGui}/TagAddDialog.ui
-    ${path_DesktopGui}/ShortcutHandler/ShortcutConfigWidget.ui
-)
-set(libDesktopGui_RESOURCES
+
     ${CMAKE_CURRENT_SOURCE_DIR}/src/icons.qrc
     ${CMAKE_CURRENT_SOURCE_DIR}/src/license.qrc
 )
@@ -610,8 +569,7 @@ target_link_libraries(UiUtils Plugins Common Qt5::Gui)
 add_library(Streams STATIC ${libStreams_SOURCES})
 set_property(TARGET Streams APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 if(WITH_ZLIB)
-    set_property(TARGET Streams APPEND PROPERTY INCLUDE_DIRECTORIES ${ZLIB_INCLUDE_DIR})
-    target_link_libraries(Streams ${ZLIB_LIBRARIES})
+    target_link_libraries(Streams ZLIB::ZLIB)
 endif()
 target_link_libraries(Streams Qt5::Network)
 
@@ -642,8 +600,7 @@ add_library(Cryptography STATIC ${libCryptography_SOURCES})
 set_property(TARGET Cryptography APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 target_link_libraries(Cryptography Common Imap)
 if(WITH_MIMETIC)
-    target_link_libraries(Cryptography ${MIMETIC_LIBRARIES})
-    set_property(TARGET Cryptography APPEND PROPERTY INCLUDE_DIRECTORIES ${MIMETIC_INCLUDE_DIRS})
+    target_link_libraries(Cryptography Mimetic::Mimetic)
 endif()
 if(WITH_CRYPTO_MESSAGES)
     if(WITH_GPGMEPP)
@@ -665,8 +622,7 @@ endif()
 ## QtKeyChain plugin
 if(WITH_QTKEYCHAIN_PLUGIN)
     trojita_add_plugin(trojita_plugin_QtKeychainPasswordPlugin WITH_QTKEYCHAIN_PLUGIN src/Plugins/QtKeyChain/QtKeyChainPassword.cpp)
-    target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin ${QTKEYCHAIN_LIBRARIES} Qt5::DBus)
-    set_property(TARGET trojita_plugin_QtKeychainPasswordPlugin APPEND PROPERTY INCLUDE_DIRECTORIES ${QTKEYCHAIN_INCLUDE_DIRS})
+    target_link_libraries(trojita_plugin_QtKeychainPasswordPlugin qt5keychain Qt5::DBus)
 endif()
 
 ## AbookAddressbook plugin
@@ -680,14 +636,8 @@ if(WITH_ABOOKADDRESSBOOK_PLUGIN)
         ${path_AbookAddressbook}/AbookAddressbook.cpp
         ${path_AbookAddressbook}/be-contacts.cpp
     )
-    set(libAbookAddressbook_UI
-        ${path_AbookAddressbook}/be-contacts.ui
-        ${path_AbookAddressbook}/onecontact.ui
-    )
 
-    qt5_wrap_ui(libAbookAddressbook_UI_OUT ${libAbookAddressbook_UI})
-
-    trojita_add_plugin(trojita_plugin_AbookAddressbookPlugin WITH_ABOOKADDRESSBOOK_PLUGIN ${libAbookAddressbook_SOURCES} ${libAbookAddressbook_UI_OUT})
+    trojita_add_plugin(trojita_plugin_AbookAddressbookPlugin WITH_ABOOKADDRESSBOOK_PLUGIN ${libAbookAddressbook_SOURCES})
     set_property(TARGET trojita_plugin_AbookAddressbookPlugin APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
 
     target_link_libraries(trojita_plugin_AbookAddressbookPlugin Qt5::Widgets)
@@ -740,10 +690,7 @@ endforeach()
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h.in ${CMAKE_CURRENT_BINARY_DIR}/static_plugins.h)
 
 if(WITH_DESKTOP)
-    qt5_wrap_ui(libDesktopGui_UI_OUT ${libDesktopGui_UI})
-    qt5_add_resources(libDesktopGui_RESOURCES_OUT ${libDesktopGui_RESOURCES})
-
-    add_library(DesktopGui STATIC ${libDesktopGui_SOURCES} ${libDesktopGui_UI_OUT} ${libDesktopGui_RESOURCES_OUT})
+    add_library(DesktopGui STATIC ${libDesktopGui_SOURCES})
     set_property(TARGET DesktopGui APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     # The following is needed for the LineEdit widget within the .ui files.
     # The ${path_DesktopGui} is needed so that the generated ui_*.h file can find the headers of the custom widgets
