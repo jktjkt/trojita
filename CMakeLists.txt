@@ -702,6 +702,8 @@ if(WITH_DESKTOP)
     add_executable(trojita WIN32 ${trojita_desktop_SOURCES} ${trojita_QM})
     set_property(TARGET trojita APPEND PROPERTY COMPILE_DEFINITIONS QT_NO_CAST_FROM_ASCII QT_NO_CAST_TO_ASCII)
     target_link_libraries(trojita AppVersion Common UiUtils DesktopGui ${STATIC_PLUGINS})
+
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/docs/trojita.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 endif()
 
 
