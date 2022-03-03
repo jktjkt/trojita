@@ -1,7 +1,13 @@
 
 if(NOT RAGEL_EXECUTABLE)
-    message(STATUS "Looking for ragel")
-    find_program(RAGEL_EXECUTABLE ragel)
+    message(STATUS "Looking for ragel-c (v7.0.0.12+)")
+    find_program(RAGEL_EXECUTABLE ragel-c)
+
+    if(NOT RAGEL_EXECUTABLE)
+        message(STATUS "Looking for ragel")
+        find_program(RAGEL_EXECUTABLE ragel)
+    endif()
+
     if(RAGEL_EXECUTABLE)
         execute_process(COMMAND "${RAGEL_EXECUTABLE}" -v OUTPUT_VARIABLE _version)
         string(REGEX MATCH "[0-9.]+" RAGEL_VERSION ${_version})
@@ -31,9 +37,12 @@ if(RagelForTrojita_FOUND)
         if(NOT _flags)
             set(_flags ${RAGEL_FLAGS})
         endif()
+        if(RAGEL_VERSION VERSION_LESS "7.0.0.12")
+            set(_language_param "-C")
+        endif()
         add_custom_command(OUTPUT ${OUTFILE}
             COMMAND "${RAGEL_EXECUTABLE}"
-            ARGS -C ${_flags} -o "${OUTFILE}" "${INFILE}"
+            ARGS ${_language_param} ${_flags} -o "${OUTFILE}" "${INFILE}"
             DEPENDS "${INFILE}"
             COMMENT "Generating ${SRCBASE}.generated.cpp from ${SRCFILE}"
         )
