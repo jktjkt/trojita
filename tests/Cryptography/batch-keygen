@@ -24,8 +24,8 @@
 %no-protection
 
 %echo Generating key for valid encryptions and signatures
-Key-Type: default
-Subkey-Type: default
+Key-Type: RSA
+Subkey-Type: RSA
 Key-Length: 1024
 Subkey-Length: 1024
 Name-Real: Valid
@@ -34,8 +34,8 @@ Expire-Date: 0
 
 %commit
 %echo Generating key for expired encryptions and signatures
-Key-Type: default
-Subkey-Type: default
+Key-Type: RSA
+Subkey-Type: RSA
 Key-Length: 1024
 Subkey-Length: 1024
 Name-Real: Expired
@@ -45,8 +45,8 @@ Expire-Date: 0
 
 %commit
 %echo Generating key that will be deleted after message generation
-Key-Type: default
-Subkey-Type: default
+Key-Type: RSA
+Subkey-Type: RSA
 Key-Length: 1024
 Subkey-Length: 1024
 Name-Real: Unknown
@@ -55,8 +55,8 @@ Expire-Date: 0
 
 %commit
 %echo Generating a key which will be used for signature verification, where the private key will be removed
-Key-Type: default
-Subkey-Type: default
+Key-Type: RSA
+Subkey-Type: RSA
 Key-Length: 1024
 Subkey-Length: 1024
 Name-Real: Some Signer
