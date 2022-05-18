@@ -471,6 +471,7 @@
       <image>http://trojita.flaska.net/img/2016-03-22-trojita-signature-missing-key.png</image>
     </screenshot>
   </screenshots>
+  <content_rating type="oars-1.1" />
   <project_group>KDE</project_group>
   <provides>
     <binary>trojita</binary>
