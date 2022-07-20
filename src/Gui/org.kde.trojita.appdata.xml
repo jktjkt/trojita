@@ -172,7 +172,7 @@
     <p xml:lang="sk">Čo môže byť pre vás zaujímavé na Trojitá:</p>
     <p xml:lang="sl">Kaj bi Trojita lahko naredila za vas zanimivega:</p>
     <p xml:lang="sv">Vad som skulle kunna göra  Trojitá intressant för dig:</p>
-    <p xml:lang="tr">Trojiti'yi sizin için ilginç kılan şey nedir:</p>
+    <p xml:lang="tr">Trojitá'yi sizin için ilginç kılan şey nedir:</p>
     <p xml:lang="uk">Можливості, які можуть зацікавити вас у Trojitá:</p>
     <p xml:lang="x-test">xxWhat could make Trojitá interesting for you:xx</p>
     <p xml:lang="zh-CN">Trojitá 能够吸引您的地方有:</p>
@@ -299,7 +299,7 @@
       <li xml:lang="sk">Offline podpora IMAP</li>
       <li xml:lang="sl">Podpora za IMAP brez povezave</li>
       <li xml:lang="sv">Nerkopplat IMAP-stöd</li>
-      <li xml:lang="tr">Çevrim dışı IMAP desteği</li>
+      <li xml:lang="tr">Çevrimdışı IMAP desteği</li>
       <li xml:lang="uk">Підтримка роботи з IMAP у автономному режимі.</li>
       <li xml:lang="x-test">xxOffline IMAP supportxx</li>
       <li xml:lang="zh-CN">离线 IMAP 支持</li>
@@ -330,7 +330,7 @@
       <li xml:lang="sk">Podpora pre režim šetrenia pásma zameraná na mobilných používateľov s drahým pripojením</li>
       <li xml:lang="sl">Podpora za način varčevanja pasovne širine, namenjen mobilnim uporabnikom z drago povezavo</li>
       <li xml:lang="sv">Stöd för bandbreddsbesparande läge avsett för mobila användare med dyra anslutningar</li>
-      <li xml:lang="tr">Pahalı bağlantıya sahip mobil kullanıcıları hedef alan bant genişliği tasarruf kipi desteği</li>
+      <li xml:lang="tr">Pahalı bağlantıya sahip taşınabilir kullanıcıları hedef alan bant genişliği tasarruf kipi desteği</li>
       <li xml:lang="uk">Підтримка режиму економії потужностей каналу обміну даними. Корисна для користувачів мобільного інтернету з дорогим тарифом.</li>
       <li xml:lang="x-test">xxSupport for bandwidth-saving mode aimed at mobile users with expensive connectionxx</li>
       <li xml:lang="zh-CN">支持针对带宽昂贵的移动用户的带宽节省模式</li>
