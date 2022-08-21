@@ -25,7 +25,12 @@
 
 #include "AkonadiAddressbook.h"
 
+#include <akonadi-contact_version.h>
+#if AKONADICONTACT_VERSION > QT_VERSION_CHECK(5, 19, 41)
+#include <Akonadi/ContactSearchJob>
+#else
 #include <Akonadi/Contact/ContactSearchJob>
+#endif
 
 class AkonadiAddressbookNamesJob : public AddressbookNamesJob {
     Q_OBJECT
