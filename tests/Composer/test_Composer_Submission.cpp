@@ -49,7 +49,7 @@ void ComposerSubmissionTest::init()
     uidNextA = 15;
     helperSyncAWithMessagesEmptyState();
 
-    QCOMPARE(msgListA.child(0, 0).data(Imap::Mailbox::RoleMessageSubject), QVariant());
+    QCOMPARE(msgListA.model()->index(0, 0, msgListA).data(Imap::Mailbox::RoleMessageSubject), QVariant());
     cClient(t.mk("UID FETCH 10:14 (" FETCH_METADATA_ITEMS ")\r\n"));
     cServer("* 1 FETCH (BODYSTRUCTURE "
             "(\"text\" \"plain\" (\"charset\" \"UTF-8\" \"format\" \"flowed\") NIL NIL \"8bit\" 362 15 NIL NIL NIL)"
@@ -379,7 +379,7 @@ void ComposerSubmissionTest::helperAttachImapPart(const int row, const QByteArra
     stream.setVersion(QDataStream::Qt_4_6);
     stream << QStringLiteral("a") << uidValidityA << uidMapA[row] << mimePart;
     mimeData->setData(Imap::MimeTypes::xTrojitaImapPart, encodedData);
-    auto partIndex = Imap::Network::MsgPartNetAccessManager::pathToPart(msgListA.child(row, 0), mimePart);
+    auto partIndex = Imap::Network::MsgPartNetAccessManager::pathToPart(msgListA.model()->index(row, 0, msgListA), mimePart);
     QVERIFY(partIndex.isValid());
     QCOMPARE(m_composer->dropMimeData(mimeData.data(), Qt::CopyAction, partIndex.row(), partIndex.column(), partIndex),
              true);
@@ -739,7 +739,7 @@ void ComposerSubmissionTest::testReplyingNormal()
 {
     helperSetupProperHeaders();
     m_submission->setImapOptions(false, QString(), QString(), QString(), false);
-    QModelIndex origMessage = msgListA.child(0, 0);
+    QModelIndex origMessage = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(origMessage.isValid());
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
     m_composer->setReplyingToMessage(origMessage);
@@ -771,7 +771,7 @@ void ComposerSubmissionTest::testForwardingNormal()
 {
     helperSetupProperHeaders();
     m_submission->setImapOptions(false, QString(), QString(), QString(), false);
-    QModelIndex origMessage = msgListA.child(0, 0);
+    QModelIndex origMessage = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(origMessage.isValid());
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
     m_composer->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
@@ -813,7 +813,7 @@ void ComposerSubmissionTest::testForwardingDeletedWhileFetching()
 {
     helperSetupProperHeaders();
     m_submission->setImapOptions(false, QString(), QString(), QString(), false);
-    QModelIndex origMessage = msgListA.child(0, 0);
+    QModelIndex origMessage = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(origMessage.isValid());
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
     m_composer->prepareForwarding(origMessage, Composer::ForwardMode::FORWARD_AS_ATTACHMENT);
@@ -843,7 +843,7 @@ void ComposerSubmissionTest::testReplyingToRemoved()
 {
     helperSetupProperHeaders();
     m_submission->setImapOptions(false, QString(), QString(), QString(), false);
-    QModelIndex origMessage = msgListA.child(0, 0);
+    QModelIndex origMessage = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(origMessage.isValid());
     QCOMPARE(origMessage.data(Imap::Mailbox::RoleMessageUid).toInt(), 10);
     m_composer->setReplyingToMessage(origMessage);

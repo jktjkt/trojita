@@ -144,13 +144,13 @@ void CopyAndFlagTest::testUpdateAllFlags()
     helperVerifyUidMapA();
     QString mailbox = QStringLiteral("a");
     QString seen = QStringLiteral("\\Seen");
-    QVERIFY(!msgListA.child(0, 0).data(RoleMessageIsMarkedRead).toBool());
+    QVERIFY(!msgListA.model()->index(0, 0, msgListA).data(RoleMessageIsMarkedRead).toBool());
     QVERIFY(!model->cache()->msgFlags(mailbox, 1).contains(seen));
-    QVERIFY(msgListA.child(1, 0).data(RoleMessageIsMarkedRead).toBool());
+    QVERIFY(msgListA.model()->index(1, 0, msgListA).data(RoleMessageIsMarkedRead).toBool());
     QVERIFY(model->cache()->msgFlags(mailbox, 2).contains(seen));
-    QVERIFY(msgListA.child(2, 0).data(RoleMessageIsMarkedRead).toBool());
+    QVERIFY(msgListA.model()->index(2, 0, msgListA).data(RoleMessageIsMarkedRead).toBool());
     QVERIFY(model->cache()->msgFlags(mailbox, 3).contains(seen));
-    QVERIFY(!msgListA.child(3, 0).data(RoleMessageIsMarkedRead).toBool());
+    QVERIFY(!msgListA.model()->index(3, 0, msgListA).data(RoleMessageIsMarkedRead).toBool());
     QVERIFY(!model->cache()->msgFlags(mailbox, 4).contains(seen));
 
     // Mark all messages as read
@@ -158,7 +158,7 @@ void CopyAndFlagTest::testUpdateAllFlags()
     cClient(t.mk("STORE 1:* +FLAGS.SILENT \\Seen\r\n"));
     cServer(t.last("OK stored\r\n"));
     for (uint i = 0; i < existsA; ++i) {
-        QVERIFY(msgListA.child(i, 0).data(RoleMessageIsMarkedRead).toBool());
+        QVERIFY(msgListA.model()->index(i, 0, msgListA).data(RoleMessageIsMarkedRead).toBool());
         QVERIFY(model->cache()->msgFlags(mailbox, uidMapA[i]).contains(seen));
     }
 

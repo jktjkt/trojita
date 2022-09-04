@@ -158,7 +158,7 @@ Result PartWalker<Result, Context>::walk(const QModelIndex &partIndex,int recurs
 
             if (!mainPartIndex.isValid()) {
                 // The Content-Type-based start parameter was not terribly useful. Let's find the HTML part manually.
-                QModelIndex candidate = partIndex.child(0, 0);
+                QModelIndex candidate = partIndex.model()->index(0, 0, partIndex);
                 while (candidate.isValid()) {
                     if (candidate.data(RolePartMimeType).toString() == QLatin1String("text/html")) {
                         mainPartIndex = candidate;

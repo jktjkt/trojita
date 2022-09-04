@@ -165,8 +165,8 @@ void ImapModelDisappearingMailboxTest::helperTestGoingReallyOfflineOnline(bool w
     QVERIFY(idxB.isValid());
     QCOMPARE( model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
     QCOMPARE( model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
-    msgListA = idxA.child(0, 0);
-    msgListB = idxB.child(0, 0);
+    msgListA = idxA.model()->index(0, 0, idxA);
+    msgListB = idxB.model()->index(0, 0, idxB);
     QVERIFY(msgListA.isValid());
     QVERIFY(msgListB.isValid());
 
@@ -198,7 +198,7 @@ void ImapModelDisappearingMailboxTest::testTrafficAfterSyncedMailboxGoesAway()
     LibMailboxSync::setModelNetworkPolicy(model, Imap::Mailbox::NETWORK_EXPENSIVE);
 
     // and request some FETCH command
-    QModelIndex messageIdx = msgListA.child(0, 0);
+    QModelIndex messageIdx = msgListA.model()->index(0, 0, msgListA);
     Q_ASSERT(messageIdx.isValid());
     QCOMPARE(messageIdx.data(Imap::Mailbox::RoleMessageSubject), QVariant());
     cClient(t.mk("UID FETCH 666 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -285,9 +285,9 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineMsgStructure()
     idxA = model->index(1, 0, QModelIndex());
     QVERIFY(idxA.isValid());
     QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
-    msgListA = idxA.child(0, 0);
+    msgListA = idxA.model()->index(0, 0, idxA);
     QVERIFY(msgListA.isValid());
-    QModelIndex msg = msgListA.child(0, 0);
+    QModelIndex msg = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(msg.isValid());
     Streams::FakeSocket *origSocket = SOCK;
 
@@ -323,9 +323,9 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags()
     QVERIFY(idxB.isValid());
     QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
     QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
-    msgListA = idxA.child(0, 0);
+    msgListA = idxA.model()->index(0, 0, idxA);
     QVERIFY(msgListA.isValid());
-    QModelIndex msg = msgListA.child(0, 0);
+    QModelIndex msg = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(msg.isValid());
     Streams::FakeSocket *origSocket = SOCK;
 
@@ -361,9 +361,9 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags2()
     QVERIFY(idxB.isValid());
     QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
     QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
-    msgListA = idxA.child(0, 0);
+    msgListA = idxA.model()->index(0, 0, idxA);
     QVERIFY(msgListA.isValid());
-    QModelIndex msg = msgListA.child(0, 0);
+    QModelIndex msg = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(msg.isValid());
     Streams::FakeSocket *origSocket = SOCK;
 
@@ -400,9 +400,9 @@ void ImapModelDisappearingMailboxTest::testSlowOfflineFlags3()
     QVERIFY(idxB.isValid());
     QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
     QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
-    msgListA = idxA.child(0, 0);
+    msgListA = idxA.model()->index(0, 0, idxA);
     QVERIFY(msgListA.isValid());
-    QModelIndex msg = msgListA.child(0, 0);
+    QModelIndex msg = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(msg.isValid());
     Streams::FakeSocket *origSocket = SOCK;
 

@@ -465,9 +465,9 @@ void ImapModelOpenConnectionTest::testLoginDelaysOtherTasks()
     QModelIndex mailboxB = model->index(2, 0, QModelIndex());
     QVERIFY(mailboxB.isValid());
     QCOMPARE(mailboxB.data(RoleMailboxName).toString(), QString::fromUtf8("b"));
-    QModelIndex msgListA = mailboxA.child(0, 0);
+    QModelIndex msgListA = mailboxA.model()->index(0, 0, mailboxA);
     Q_ASSERT(msgListA.isValid());
-    QModelIndex msgListB = mailboxB.child(0, 0);
+    QModelIndex msgListB = mailboxB.model()->index(0, 0, mailboxB);
     Q_ASSERT(msgListB.isValid());
 
     // Request syncing the mailboxes

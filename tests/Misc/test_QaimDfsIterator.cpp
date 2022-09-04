@@ -192,7 +192,8 @@ void TestQaimDfsIterator::testQaimDfsIterator_data()
     m->appendRow(item1);
     item1 = new QStandardItem("b");
     m->appendRow(item1);
-    begin = UiUtils::QaimDfsIterator(m->index(0, 0, QModelIndex()).child(0, 0));
+    QModelIndex index = m->index(0, 0, QModelIndex());
+    begin = UiUtils::QaimDfsIterator(index.model()->index(0, 0, index));
     Q_ASSERT(begin->data().toString() == "a.A");
     end = UiUtils::QaimDfsIterator(m->index(1, 0, QModelIndex()));
     Q_ASSERT(end->data().toString() == "b");

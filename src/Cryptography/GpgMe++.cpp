@@ -243,22 +243,22 @@ void GpgMePart::forwardFailure(const QString &statusTLDR, const QString &statusL
     if (m_sourceIndex.isValid()) {
         std::vector<MessagePart::Ptr> children;
         for (int i = 0; i < m_sourceIndex.model()->rowCount(m_sourceIndex); ++i) {
-            children.emplace_back(MessagePart::Ptr(new ProxyMessagePart(nullptr, 0, m_sourceIndex.child(i, 0), m_model)));
+            children.emplace_back(MessagePart::Ptr(new ProxyMessagePart(nullptr, 0, m_sourceIndex.model()->index(i, 0, m_sourceIndex), m_model)));
         }
         // This has to happen prior to emitting error()
-        m_model->insertSubtree(m_proxyParentIndex.child(m_row, 0), std::move(children));
+        m_model->insertSubtree(m_proxyParentIndex.model()->index(m_row, 0, m_proxyParentIndex), std::move(children));
     }
 
     // This forward is needed because we migth be emitting this indirectly, from the item's constructor.
     // At the time the ctor runs, the multipart/encrypted has not been inserted into the proxy model yet,
     // so we cannot obtain its index.
-    emit m_model->error(m_proxyParentIndex.child(m_row, 0), m_statusTLDR, m_statusLong);
+    emit m_model->error(m_proxyParentIndex.model()->index(m_row, 0, m_proxyParentIndex), m_statusTLDR, m_statusLong);
     emitDataChanged();
 }
 
 void GpgMePart::emitDataChanged()
 {
-    auto idx = m_proxyParentIndex.child(m_row, 0);
+    auto idx = m_proxyParentIndex.model()->index(m_row, 0, m_proxyParentIndex);
     emit m_model->dataChanged(idx, idx);
 }
 
@@ -592,12 +592,12 @@ std::vector<std::string> GpgMePart::extractMessageUids()
 GpgMeSigned::GpgMeSigned(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart, Ptr original,
                          const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex)
     : GpgMePart(protocol, replacer, model, parentPart, sourceItemIndex, proxyParentIndex)
-    , m_plaintextPart(sourceItemIndex.child(0, 0).child(0, TreeItem::OFFSET_RAW_CONTENTS))
-    , m_plaintextMimePart(sourceItemIndex.child(0, 0).child(0, TreeItem::OFFSET_MIME))
-    , m_signaturePart(sourceItemIndex.child(1, 0))
+    , m_plaintextPart(sourceItemIndex.model()->index(0, 0, sourceItemIndex).model()->index(0, TreeItem::OFFSET_RAW_CONTENTS, sourceItemIndex.model()->index(0, 0, sourceItemIndex)))
+    , m_plaintextMimePart(sourceItemIndex.model()->index(0, 0, sourceItemIndex).model()->index(0, TreeItem::OFFSET_MIME, sourceItemIndex.model()->index(0, 0, sourceItemIndex)))
+    , m_signaturePart(sourceItemIndex.model()->index(1, 0, sourceItemIndex))
 {
     m_wasSigned = true;
-    Q_ASSERT(sourceItemIndex.child(0, 0).isValid());
+    Q_ASSERT(sourceItemIndex.model()->index(0, 0, sourceItemIndex).isValid());
 
     if (m_ctx) {
         const auto rowCount = sourceItemIndex.model()->rowCount(sourceItemIndex);
@@ -664,7 +664,7 @@ void GpgMeSigned::handleDataChanged(const QModelIndex &topLeft, const QModelInde
     // There is no point in delaying this until the moment the signature gets checked.
     QByteArray rawData = m_plaintextMimePart.data(RolePartData).toByteArray() + m_plaintextPart.data(RolePartData).toByteArray();
     mimetic::MimeEntity me(rawData.begin(), rawData.end());
-    auto idx = m_proxyParentIndex.child(m_row, 0);
+    auto idx = m_proxyParentIndex.model()->index(m_row, 0, m_proxyParentIndex);
     Q_ASSERT(idx.isValid());
     m_model->insertSubtree(idx, MimeticUtils::mimeEntityToPart(me, nullptr, 0));
 
@@ -726,8 +726,8 @@ GpgMeEncrypted::GpgMeEncrypted(const Protocol protocol, GpgMeReplacer *replacer,
 
         switch (m_ctx->protocol()) {
         case GpgME::Protocol::OpenPGP:
-            m_versionPart = sourceItemIndex.child(0, 0);
-            m_encPart = sourceItemIndex.child(1, 0);
+            m_versionPart = sourceItemIndex.model()->index(0, 0, sourceItemIndex);
+            m_encPart = sourceItemIndex.model()->index(1, 0, sourceItemIndex);
             if (rowCount == 2) {
                 m_dataChanged = connect(sourceItemIndex.model(), &QAbstractItemModel::dataChanged, this, &GpgMeEncrypted::handleDataChanged);
                 Q_ASSERT(m_dataChanged);
@@ -921,7 +921,7 @@ void GpgMeEncrypted::processDecryptedData(const bool ok, const QByteArray &data)
     if (!m_versionPart.isValid() || !m_encPart.isValid() || !m_proxyParentIndex.isValid()) {
         forwardFailure(tr("Encrypted message is gone"), QString(), QStringLiteral("state-offline"));
     } else {
-        auto idx = m_proxyParentIndex.child(m_row, 0);
+        auto idx = m_proxyParentIndex.model()->index(m_row, 0, m_proxyParentIndex);
         Q_ASSERT(idx.isValid());
         if (ok) {
             mimetic::MimeEntity me(data.begin(), data.end());

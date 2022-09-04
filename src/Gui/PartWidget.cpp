@@ -92,7 +92,7 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
     // First loop iteration is used to find out what MIME type to show.
     // Two iterations are needed because we have to know about whether we're shown or hidden when creating child widgets.
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
-        QModelIndex anotherPart = partIndex.child(i, 0);
+        QModelIndex anotherPart = partIndex.model()->index(i, 0, partIndex);
         Q_ASSERT(anotherPart.isValid());
 
         QString mimeType = anotherPart.data(Imap::Mailbox::RolePartMimeType).toString();
@@ -122,7 +122,7 @@ MultipartAlternativeWidget::MultipartAlternativeWidget(QWidget *parent,
 
     // The second loop actually creates the widgets
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
-        QModelIndex anotherPart = partIndex.child(i, 0);
+        QModelIndex anotherPart = partIndex.model()->index(i, 0, partIndex);
         Q_ASSERT(anotherPart.isValid());
         // TODO: This is actually not perfect, the preferred part of a multipart/alternative
         // which is nested as a non-preferred part of another multipart/alternative actually gets loaded here.
@@ -331,7 +331,7 @@ void AsynchronousPartWidget::buildWidgets()
     disconnect(m_partIndex.model(), &QAbstractItemModel::rowsInserted, this, &MultipartSignedEncryptedWidget::handleRowsInserted);
     disconnect(m_partIndex.model(), &QAbstractItemModel::layoutChanged, this, &MultipartSignedEncryptedWidget::handleLayoutChanged);
     for (int i = 0; i < m_partIndex.model()->rowCount(m_partIndex); ++i) {
-        QModelIndex anotherPart = m_partIndex.child(i, 0);
+        QModelIndex anotherPart = m_partIndex.model()->index(i, 0, m_partIndex);
         Q_ASSERT(anotherPart.isValid());
         QWidget *res = addingOneWidget(anotherPart, filteredForEmbedding(m_options));
         layout()->addWidget(res);
@@ -420,7 +420,7 @@ GenericMultipartWidget::GenericMultipartWidget(QWidget *parent,
     layout->setSpacing(0);
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
-        QModelIndex anotherPart = partIndex.child(i, 0);
+        QModelIndex anotherPart = partIndex.model()->index(i, 0, partIndex);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
         QWidget *res = factory->walk(anotherPart, recursionDepth + 1, filteredForEmbedding(options));
         layout->addWidget(res);
@@ -449,7 +449,7 @@ Message822Widget::Message822Widget(QWidget *parent,
     layout->addWidget(envelope);
     for (int i = 0; i < partIndex.model()->rowCount(partIndex); ++i) {
         using namespace Imap::Mailbox;
-        QModelIndex anotherPart = partIndex.child(i, 0);
+        QModelIndex anotherPart = partIndex.model()->index(i, 0, partIndex);
         Q_ASSERT(anotherPart.isValid()); // guaranteed by the MVC
         QWidget *res = factory->walk(anotherPart, recursionDepth + 1, filteredForEmbedding(options));
         layout->addWidget(res);

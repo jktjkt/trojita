@@ -71,7 +71,7 @@ void CryptographyPGPTest::testDecryption()
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
 
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -89,7 +89,7 @@ void CryptographyPGPTest::testDecryption()
     QVERIFY(mappedMsg.isValid());
     QVERIFY(msgModel.rowCount(mappedMsg) > 0);
 
-    QModelIndex data = mappedMsg.child(0, 0);
+    QModelIndex data = mappedMsg.model()->index(0, 0, mappedMsg);
     QVERIFY(data.isValid());
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
     QCOMPARE(msgModel.rowCount(data), 0);
@@ -192,7 +192,7 @@ void CryptographyPGPTest::testDecryptWithoutEnvelope()
     cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     Cryptography::MessageModel msgModel(0, msg);
     msgModel.registerPartHandler(std::make_shared<Cryptography::GpgMeReplacer>());
@@ -207,7 +207,7 @@ void CryptographyPGPTest::testDecryptWithoutEnvelope()
     QVERIFY(mappedMsg.isValid());
     QVERIFY(msgModel.rowCount(mappedMsg) > 0);
 
-    QModelIndex data = mappedMsg.child(0, 0);
+    QModelIndex data = mappedMsg.model()->index(0, 0, mappedMsg);
     QVERIFY(data.isValid());
     QCOMPARE(msgModel.rowCount(data), 0);
     QCOMPARE(data.data(Imap::Mailbox::RoleIsFetched).toBool(), false);
@@ -257,7 +257,7 @@ void CryptographyPGPTest::testVerification()
     cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -279,7 +279,7 @@ void CryptographyPGPTest::testVerification()
     QVERIFY(mappedMsg.isValid());
     QVERIFY(msgModel.rowCount(mappedMsg) > 0);
 
-    QModelIndex data = mappedMsg.child(0, 0);
+    QModelIndex data = mappedMsg.model()->index(0, 0, mappedMsg);
     QVERIFY(data.isValid());
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
     QCOMPARE(msgModel.rowCount(data), 0);
@@ -321,7 +321,7 @@ void CryptographyPGPTest::testVerification()
     QCOMPARE(data.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArray("multipart/signed"));
     QVERIFY(data.data(Imap::Mailbox::RoleIsFetched).toBool() == successful);
 
-    auto partIdx = data.child(0, 0);
+    auto partIdx = data.model()->index(0, 0, data);
     QCOMPARE(partIdx.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArray("text/plain"));
     QCOMPARE(partIdx.data(Imap::Mailbox::RolePartUnicodeText).toString(), QString::fromUtf8(plaintext));
 
@@ -415,7 +415,7 @@ void CryptographyPGPTest::testMalformed()
     cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -433,7 +433,7 @@ void CryptographyPGPTest::testMalformed()
     QVERIFY(mappedMsg.isValid());
     QVERIFY(msgModel.rowCount(mappedMsg) > 0);
 
-    QModelIndex data = mappedMsg.child(0, 0);
+    QModelIndex data = mappedMsg.model()->index(0, 0, mappedMsg);
     QVERIFY(data.isValid());
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
     QCoreApplication::processEvents();
@@ -490,7 +490,7 @@ void CryptographyPGPTest::testOffline()
     cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -508,7 +508,7 @@ void CryptographyPGPTest::testOffline()
     QVERIFY(mappedMsg.isValid());
     QVERIFY(msgModel.rowCount(mappedMsg) > 0);
 
-    QModelIndex data = mappedMsg.child(0, 0);
+    QModelIndex data = mappedMsg.model()->index(0, 0, mappedMsg);
     QVERIFY(data.isValid());
 #ifdef TROJITA_HAVE_CRYPTO_MESSAGES
     QCOMPARE(msgModel.rowCount(mappedMsg), 1);

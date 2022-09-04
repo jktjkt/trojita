@@ -50,7 +50,7 @@ QaimDfsIterator &QaimDfsIterator::operator++()
     bool wentUp = false;
     while (m_current.isValid()) {
         // if there are (unvisited) children, descent into them
-        auto firstChild = m_current.child(0, 0);
+        auto firstChild = m_model->index(0, 0, m_current);
         if (!wentUp && firstChild.isValid()) {
             m_current = firstChild;
             return *this;

@@ -216,7 +216,7 @@ QModelIndex SubtreeModel::index(int row, int column, const QModelIndex &parent) 
         return QModelIndex();
 
     if (parent.isValid()) {
-        return mapFromSource(mapToSource(parent).child(row, column));
+        return mapFromSource(mapToSource(parent).model()->index(row, column, mapToSource(parent)));
     } else if (m_rootIndex.isValid() || m_usingInvalidRoot) {
         return mapFromSource(sourceModel()->index(row, column, m_rootIndex));
     } else {

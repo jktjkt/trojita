@@ -45,16 +45,16 @@ void ImapMsgPartNetAccessManagerTest::init()
     netAccessManager = new Imap::Network::MsgPartNetAccessManager(0);
 
     initialMessages(2);
-    QModelIndex m1 = msgListA.child(0, 0);
+    QModelIndex m1 = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(m1.isValid());
     QCOMPARE(model->rowCount(m1), 0);
     cClient(t.mk("UID FETCH 1:2 (" FETCH_METADATA_ITEMS ")\r\n"));
     //cServer()
 
     QCOMPARE(model->rowCount(msgListA), 2);
-    msg1 = msgListA.child(0, 0);
+    msg1 = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(msg1.isValid());
-    msg2 = msgListA.child(1, 0);
+    msg2 = msgListA.model()->index(1, 0, msgListA);
     QVERIFY(msg2.isValid());
 
     cEmpty();
@@ -199,7 +199,7 @@ void ImapMsgPartNetAccessManagerTest::testMessageParts_data()
             + t.last("OK fetched\r\n")); \
     QCOMPARE(model->rowCount(msg1), 1); \
     QCOMPARE(model->rowCount(msg2), 1); \
-    QCOMPARE(model->rowCount(msg2.child(0, 0)), 2); \
+QCOMPARE(model->rowCount(msg2.model()->index(0, 0, msg2)), 2); \
 
 /** short A fetching operation gets interrupted by switching to the offline mode */
 void ImapMsgPartNetAccessManagerTest::testFetchResultOfflineSingle()
@@ -213,7 +213,8 @@ void ImapMsgPartNetAccessManagerTest::testFetchResultOfflineSingle()
     QVERIFY(qobject_cast<Imap::Network::MsgPartNetworkReply*>(res));
     cClient(t.mk("UID FETCH 1 (BODY.PEEK[1])\r\n"));
 
-    QPersistentModelIndex msg1p1 = msgListA.child(0, 0).child(0, 0);
+    QModelIndex index = msgListA.model()->index(0, 0, msgListA);
+    QPersistentModelIndex msg1p1 = index.model()->index(0, 0, index);
     QVERIFY(msg1p1.isValid());
     QCOMPARE(msg1p1.data(Imap::Mailbox::RoleMessageUid), QVariant(1u));
     QCOMPARE(msg1p1.data(Imap::Mailbox::RoleIsFetched), QVariant(false));

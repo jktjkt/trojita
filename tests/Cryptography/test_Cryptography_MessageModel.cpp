@@ -56,7 +56,7 @@ void CryptographyMessageModelTest::testImapMessageParts()
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
 
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     Cryptography::MessageModel msgModel(0, msg);
@@ -70,7 +70,7 @@ void CryptographyMessageModelTest::testImapMessageParts()
 
     QModelIndex mappedPart = mappedMsg;
     for (QList<QPair<int,int> >::const_iterator it = path.constBegin(), end = path.constEnd(); it != end; ++it) {
-        mappedPart = mappedPart.child(it->first, it->second);
+        mappedPart = mappedPart.model()->index(it->first, it->second, mappedPart);
         QVERIFY(mappedPart.isValid());
     }
     QCOMPARE(mappedPart.data(Imap::Mailbox::RolePartData).toString(), QString());
@@ -136,12 +136,13 @@ void CryptographyMessageModelTest::testCustomMessageParts()
     minimal.invisibleRootItem()->appendRow(dummy_root);
 
     // Make sure we didn't mess up until here
-    QVERIFY(minimal.index(0,0).child(0,0).isValid());
-    QCOMPARE(minimal.index(0,0).child(0,0).data(), root_mime->data(Qt::DisplayRole));
+    QModelIndex index = minimal.index(0, 0);
+    QVERIFY(index.model()->index(0, 0, index).isValid());
+    QCOMPARE(index.model()->index(0, 0, index).data(), root_mime->data(Qt::DisplayRole));
 
-    Cryptography::MessageModel msgModel(0, minimal.index(0,0));
+    Cryptography::MessageModel msgModel(0, index);
 
-    QModelIndex rootPartIndex = msgModel.index(0,0).child(0,0);
+    QModelIndex rootPartIndex = msgModel.index(0,0).model()->index(0, 0, msgModel.index(0, 0));
 
     QCOMPARE(rootPartIndex.data(), root_mime->data(Qt::DisplayRole));
 
@@ -157,13 +158,13 @@ void CryptographyMessageModelTest::testCustomMessageParts()
 
     QVERIFY(msgModel.rowCount(rootPartIndex) > 0);
 
-    QModelIndex localRootIndex = rootPartIndex.child(0, 0);
+    QModelIndex localRootIndex = rootPartIndex.model()->index(0, 0, rootPartIndex);
     QVERIFY(localRootIndex.isValid());
     QCOMPARE(localRootIndex.data(Imap::Mailbox::RolePartMimeType), localRoot->data(Imap::Mailbox::RolePartMimeType));
-    QModelIndex localTextIndex = localRootIndex.child(0, 0);
+    QModelIndex localTextIndex = localRootIndex.model()->index(0, 0, localRootIndex);
     QVERIFY(localTextIndex.isValid());
     QCOMPARE(localTextIndex.data(Imap::Mailbox::RolePartMimeType), localText->data(Imap::Mailbox::RolePartMimeType));
-    QModelIndex localHtmlIndex = localRootIndex.child(1, 0);
+    QModelIndex localHtmlIndex = localRootIndex.model()->index(1, 0, localRootIndex);
     QVERIFY(localHtmlIndex.isValid());
     QCOMPARE(localHtmlIndex.data(Imap::Mailbox::RolePartMimeType), localHtml->data(Imap::Mailbox::RolePartMimeType));
 #endif
@@ -189,7 +190,7 @@ void CryptographyMessageModelTest::testMixedMessageParts()
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
 
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -203,7 +204,7 @@ void CryptographyMessageModelTest::testMixedMessageParts()
     QVERIFY(msgModel.rowCount(mappedMsg) > 0);
     QCOMPARE(msgModel.parent(mappedMsg), QModelIndex());
 
-    QModelIndex mappedPart = mappedMsg.child(0, 0);
+    QModelIndex mappedPart = mappedMsg.model()->index(0, 0, mappedMsg);
     QVERIFY(mappedPart.isValid());
     QCOMPARE(mappedPart.data(Imap::Mailbox::RolePartPathToPart).toByteArray(), QByteArrayLiteral("/0"));
 
@@ -223,13 +224,13 @@ void CryptographyMessageModelTest::testMixedMessageParts()
 
     QVERIFY(msgModel.rowCount(mappedPart) > 0);
 
-    QModelIndex localRootIndex = mappedPart.child(0, 0);
+    QModelIndex localRootIndex = mappedPart.model()->index(0, 0, mappedPart);
     QVERIFY(localRootIndex.isValid());
     QCOMPARE(localRootIndex.data(Imap::Mailbox::RolePartMimeType), localRoot->data(Imap::Mailbox::RolePartMimeType));
-    QModelIndex localTextIndex = localRootIndex.child(0, 0);
+    QModelIndex localTextIndex = localRootIndex.model()->index(0, 0, localRootIndex);
     QVERIFY(localTextIndex.isValid());
     QCOMPARE(localTextIndex.data(Imap::Mailbox::RolePartMimeType), localText->data(Imap::Mailbox::RolePartMimeType));
-    QModelIndex localHtmlIndex = localRootIndex.child(1, 0);
+    QModelIndex localHtmlIndex = localRootIndex.model()->index(1, 0, localRootIndex);
     QVERIFY(localHtmlIndex.isValid());
     QCOMPARE(localHtmlIndex.data(Imap::Mailbox::RolePartMimeType), localHtml->data(Imap::Mailbox::RolePartMimeType));
 }
@@ -244,7 +245,7 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -271,7 +272,7 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     QVERIFY(mappedMsg.isValid());
     QVERIFY(msgModel.rowCount(mappedMsg) > 0);
 
-    QPersistentModelIndex msgRoot = mappedMsg.child(0, 0);
+    QPersistentModelIndex msgRoot = mappedMsg.model()->index(0, 0, mappedMsg);
     QModelIndex formerMsgRoot = msgRoot;
     QVERIFY(msgRoot.isValid());
     QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartPathToPart).toByteArray(),
@@ -330,13 +331,13 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     // NOTE: the OFFSET_MIME parts are not implemented; that's more or less on purpose because they aren't being used through
     // the rest of the code so far.
 
-    auto mHeader = msgRoot.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
+    auto mHeader = msgRoot.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, msgRoot);
     QVERIFY(mHeader.isValid());
-    auto mText = msgRoot.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
+    auto mText = msgRoot.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, msgRoot);
     QVERIFY(mText.isValid());
-    auto mMime = msgRoot.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
+    auto mMime = msgRoot.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_MIME, msgRoot);
     QVERIFY(!mMime.isValid());
-    auto mRaw = msgRoot.child(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS);
+    auto mRaw = msgRoot.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS, msgRoot);
     QVERIFY(mRaw.isValid());
     // We cannot compare them for an exact byte-equality because Mimetic apparently mangles the data a bit,
     // for example there's an extra space after the comma in the To field in this case :(
@@ -349,7 +350,7 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     bodyFldParam_t expectedBodyFldParam;
     QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartBodyFldParam).value<bodyFldParam_t>(), expectedBodyFldParam);
 
-    auto multipartIdx = msgRoot.child(0, 0);
+    auto multipartIdx = msgRoot.model()->index(0, 0, msgRoot);
     QVERIFY(multipartIdx.isValid());
     QCOMPARE(multipartIdx.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("multipart/mixed"));
     QCOMPARE(msgModel.rowCount(multipartIdx), 2);
@@ -357,7 +358,7 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     expectedBodyFldParam["BOUNDARY"] = "sep";
     QCOMPARE(multipartIdx.data(Imap::Mailbox::RolePartBodyFldParam).value<bodyFldParam_t>(), expectedBodyFldParam);
 
-    auto c1 = multipartIdx.child(0, 0);
+    auto c1 = multipartIdx.model()->index(0, 0, multipartIdx);
     QVERIFY(c1.isValid());
     QCOMPARE(msgModel.rowCount(c1), 0);
     QCOMPARE(c1.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("text/plain"));
@@ -366,25 +367,25 @@ void CryptographyMessageModelTest::testLocalMimeParsing()
     expectedBodyFldParam["CHARSET"] = "utf-8";
     QCOMPARE(c1.data(Imap::Mailbox::RolePartBodyFldParam).value<bodyFldParam_t>(), expectedBodyFldParam);
 
-    auto c1raw = c1.child(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS);
+    auto c1raw = c1.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS, c1);
     QVERIFY(c1raw.isValid());
     QCOMPARE(c1raw.data(Imap::Mailbox::RolePartData).toByteArray(), myUnicode.toUtf8().toBase64());
-    QVERIFY(!c1.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER).isValid());
-    QVERIFY(!c1.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT).isValid());
-    QVERIFY(!c1.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME).isValid());
+    QVERIFY(!c1.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, c1).isValid());
+    QVERIFY(!c1.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, c1).isValid());
+    QVERIFY(!c1.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_MIME, c1).isValid());
 
-    auto c2 = multipartIdx.child(1, 0);
+    auto c2 = multipartIdx.model()->index(1, 0, multipartIdx);
     QVERIFY(c2.isValid());
     QCOMPARE(msgModel.rowCount(c2), 0);
     QCOMPARE(c2.data(Imap::Mailbox::RolePartMimeType).toByteArray(), QByteArrayLiteral("pwned/now"));
     QCOMPARE(c2.data(Imap::Mailbox::RolePartData).toByteArray(), myBinaryBody);
 
-    auto c2raw = c2.child(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS);
+    auto c2raw = c2.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS, c2);
     QVERIFY(c2raw.isValid());
     QCOMPARE(c2raw.data(Imap::Mailbox::RolePartData).toByteArray(), myBinaryBody);
-    QVERIFY(!c2.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER).isValid());
-    QVERIFY(!c2.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT).isValid());
-    QVERIFY(!c2.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME).isValid());
+    QVERIFY(!c2.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, c2).isValid());
+    QVERIFY(!c2.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, c2).isValid());
+    QVERIFY(!c2.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_MIME, c2).isValid());
 
     cEmpty();
     QVERIFY(errorSpy->isEmpty());
@@ -401,7 +402,7 @@ void CryptographyMessageModelTest::testDelayedLoading()
     cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
 
     Cryptography::MessageModel msgModel(0, msg);
@@ -417,7 +418,7 @@ void CryptographyMessageModelTest::testDelayedLoading()
     auto mappedMsg = msgModel.index(0,0);
     QVERIFY(mappedMsg.isValid());
 
-    QPersistentModelIndex msgRoot = mappedMsg.child(0, 0);
+    QPersistentModelIndex msgRoot = mappedMsg.model()->index(0, 0, mappedMsg);
     QVERIFY(msgRoot.isValid());
     QCOMPARE(msgRoot.data(Imap::Mailbox::RolePartPathToPart).toByteArray(),
              QByteArrayLiteral("/0"));

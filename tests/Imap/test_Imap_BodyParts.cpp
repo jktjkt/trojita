@@ -81,7 +81,7 @@ void BodyPartsTest::testPartIds()
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
 
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -220,7 +220,7 @@ void BodyPartsTest::testInvalidPartFetch()
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
 
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -263,13 +263,13 @@ void BodyPartsTest::testFetchingRawParts()
     cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
     cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bsManyPlaintexts + "))\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msg), 1);
-    QModelIndex rootMultipart = msg.child(0, 0);
+    QModelIndex rootMultipart = msg.model()->index(0, 0, msg);
     QVERIFY(rootMultipart.isValid());
     QCOMPARE(model->rowCount(rootMultipart), 5);
 
@@ -283,9 +283,9 @@ void BodyPartsTest::testFetchingRawParts()
     QByteArray fakePartData = "Canary 1";
 
     // First make sure that we can fetch the raw version of a simple part which has not been fetched before.
-    part = rootMultipart.child(0, 0);
+    part = rootMultipart.model()->index(0, 0, rootMultipart);
     QCOMPARE(part.data(RolePartId).toString(), QString("1"));
-    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    rawPart = part.model()->index(0, TreeItem::OFFSET_RAW_CONTENTS, part);
     QVERIFY(rawPart.isValid());
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
     cClient(t.mk("UID FETCH 333 (BODY.PEEK[1])\r\n"));
@@ -301,9 +301,9 @@ void BodyPartsTest::testFetchingRawParts()
     dataChangedSpy.clear();
 
     // Check that the same fetch is repeated when a request for raw, unprocessed data is made again
-    part = rootMultipart.child(1, 0);
+    part = rootMultipart.model()->index(1, 0, rootMultipart);
     QCOMPARE(part.data(RolePartId).toString(), QString("2"));
-    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    rawPart = part.model()->index(0, TreeItem::OFFSET_RAW_CONTENTS, part);
     QVERIFY(rawPart.isValid());
     QCOMPARE(part.data(RolePartData).toByteArray(), QByteArray());
     cClient(t.mk("UID FETCH 333 (BINARY.PEEK[2])\r\n"));
@@ -336,9 +336,9 @@ void BodyPartsTest::testFetchingRawParts()
 
     // Make sure that requests for part whose raw form was already loaded is accommodated locally
     fakePartData = "Canary 3";
-    part = rootMultipart.child(2, 0);
+    part = rootMultipart.model()->index(2, 0, rootMultipart);
     QCOMPARE(part.data(RolePartId).toString(), QString("3"));
-    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    rawPart = part.model()->index(0, TreeItem::OFFSET_RAW_CONTENTS, part);
     QVERIFY(rawPart.isValid());
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
     cClient(t.mk("UID FETCH 333 (BODY.PEEK[3])\r\n"));
@@ -361,9 +361,9 @@ void BodyPartsTest::testFetchingRawParts()
 
     // Make sure that requests for already processed part are accommodated from the cache if possible
     fakePartData = "Canary 4";
-    part = rootMultipart.child(3, 0);
+    part = rootMultipart.model()->index(3, 0, rootMultipart);
     QCOMPARE(part.data(RolePartId).toString(), QString("4"));
-    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    rawPart = part.model()->index(0, TreeItem::OFFSET_RAW_CONTENTS, part);
     QVERIFY(rawPart.isValid());
     model->cache()->setMsgPart(QStringLiteral("b"), 333, "4.X-RAW", fakePartData.toBase64());
     QVERIFY(!part.data(RoleIsFetched).toBool());
@@ -376,9 +376,9 @@ void BodyPartsTest::testFetchingRawParts()
 
     // Make sure that requests for already processed part and the raw data are merged if they happen close enough and in the correct order
     fakePartData = "Canary 5";
-    part = rootMultipart.child(4, 0);
+    part = rootMultipart.model()->index(4, 0, rootMultipart);
     QCOMPARE(part.data(RolePartId).toString(), QString("5"));
-    rawPart = part.child(0, TreeItem::OFFSET_RAW_CONTENTS);
+    rawPart = part.model()->index(0, TreeItem::OFFSET_RAW_CONTENTS, part);
     QVERIFY(rawPart.isValid());
     QCOMPARE(rawPart.data(RolePartData).toByteArray(), QByteArray());
     QCOMPARE(part.data(RolePartData).toByteArray(), QByteArray());
@@ -410,7 +410,7 @@ void BodyPartsTest::testFilenameExtraction()
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
 
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
@@ -458,13 +458,13 @@ void BodyPartsTest::testBinaryFallback()
     cClient(t.mk("UID FETCH 1:* (FLAGS)\r\n"));
     cServer("* 1 FETCH (UID 333 FLAGS ())\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msgListB), 1);
-    QModelIndex msg = msgListB.child(0, 0);
+    QModelIndex msg = msgListB.model()->index(0, 0, msgListB);
     QVERIFY(msg.isValid());
     QCOMPARE(model->rowCount(msg), 0);
     cClient(t.mk("UID FETCH 333 (" FETCH_METADATA_ITEMS ")\r\n"));
     cServer("* 1 FETCH (UID 333 BODYSTRUCTURE (" + bsManyPlaintexts + "))\r\n" + t.last("OK fetched\r\n"));
     QCOMPARE(model->rowCount(msg), 1);
-    QModelIndex rootMultipart = msg.child(0, 0);
+    QModelIndex rootMultipart = msg.model()->index(0, 0, msg);
     QVERIFY(rootMultipart.isValid());
     QCOMPARE(model->rowCount(rootMultipart), 5);
 
@@ -472,8 +472,8 @@ void BodyPartsTest::testBinaryFallback()
 
     {
         // One BINARY item fails, the other one is successfully retrieved
-        auto part1 = rootMultipart.child(0, 0);
-        auto part2 = rootMultipart.child(1, 0);
+        auto part1 = rootMultipart.model()->index(0, 0, rootMultipart);
+        auto part2 = rootMultipart.model()->index(1, 0, rootMultipart);
         QCOMPARE(part1.data(RolePartId).toString(), QString("1"));
         QCOMPARE(part1.data(RolePartData).toByteArray(), QByteArray());
         QCOMPARE(part2.data(RolePartId).toString(), QString("2"));
@@ -506,7 +506,7 @@ void BodyPartsTest::testBinaryFallback()
     {
         // A retry of a failed BINARY fails with a NO [UNKNOWN-CTE], too.
         // A real server shouldn't do that, but we shouldn't enter an infinite loop, either.
-        auto part3 = rootMultipart.child(2, 0);
+        auto part3 = rootMultipart.model()->index(2, 0, rootMultipart);
         QCOMPARE(part3.data(RolePartId).toString(), QString("3"));
         QCOMPARE(part3.data(RolePartData).toByteArray(), QByteArray());
         QTest::qWait(15);
@@ -530,7 +530,7 @@ void BodyPartsTest::testBinaryFallback()
 
     {
         // A retry of a failed BINARY fails with a regular NO, but without any [UNKNOWN-CTE] this time.
-        auto part4 = rootMultipart.child(3, 0);
+        auto part4 = rootMultipart.model()->index(3, 0, rootMultipart);
         QCOMPARE(part4.data(RolePartId).toString(), QString("4"));
         QCOMPARE(part4.data(RolePartData).toByteArray(), QByteArray());
         QTest::qWait(15);

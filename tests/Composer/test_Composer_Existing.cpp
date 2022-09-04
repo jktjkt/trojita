@@ -44,7 +44,7 @@ void ComposerExistingTest::init()
     uidNextA = 15;
     helperSyncAWithMessagesEmptyState();
 
-    QCOMPARE(msgListA.child(0, 0).data(Imap::Mailbox::RoleMessageSubject), QVariant());
+    QCOMPARE(msgListA.model()->index(0, 0, msgListA).data(Imap::Mailbox::RoleMessageSubject), QVariant());
     cClient(t.mk("UID FETCH 10:14 (" FETCH_METADATA_ITEMS ")\r\n"));
     cServer("* 1 FETCH (BODYSTRUCTURE "
             "(\"text\" \"plain\" (\"charset\" \"UTF-8\" \"format\" \"flowed\") NIL NIL \"8bit\" 362 15 NIL NIL NIL)"
@@ -56,7 +56,7 @@ void ComposerExistingTest::init()
 /** @short Not requesting anything should not result in network activity */
 void ComposerExistingTest::testDoNothing()
 {
-    Composer::ExistingMessageComposer composer(msgListA.child(0, 0));
+    Composer::ExistingMessageComposer composer(msgListA.model()->index(0, 0, msgListA));
     QVERIFY(!composer.isReadyForSerialization());
     cEmpty();
 }
@@ -64,7 +64,7 @@ void ComposerExistingTest::testDoNothing()
 /** @short A successful and simple composing */
 void ComposerExistingTest::testSimpleCompose()
 {
-    Composer::ExistingMessageComposer composer(msgListA.child(0, 0));
+    Composer::ExistingMessageComposer composer(msgListA.model()->index(0, 0, msgListA));
     QVERIFY(!composer.isReadyForSerialization());
     QString errorMessage;
     QByteArray data;
@@ -95,7 +95,7 @@ void ComposerExistingTest::testSimpleCompose()
 
 void ComposerExistingTest::testSimpleNo()
 {
-    Composer::ExistingMessageComposer composer(msgListA.child(0, 0));
+    Composer::ExistingMessageComposer composer(msgListA.model()->index(0, 0, msgListA));
     QString errorMessage;
     QByteArray data;
     QBuffer buf(&data);
@@ -121,7 +121,7 @@ void ComposerExistingTest::testCatenate()
 {
     FakeCapabilitiesInjector injector(model);
     injector.injectCapability(QStringLiteral("CATENATE"));
-    Composer::ExistingMessageComposer composer(msgListA.child(0, 0));
+    Composer::ExistingMessageComposer composer(msgListA.model()->index(0, 0, msgListA));
     QString errorMessage;
     QVERIFY(!composer.isReadyForSerialization());
     QList<Imap::Mailbox::CatenatePair> data;

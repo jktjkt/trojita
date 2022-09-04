@@ -130,20 +130,21 @@ QModelIndex MsgPartNetAccessManager::pathToPart(const QModelIndex &message, cons
     bool ok = ! items.isEmpty(); // if it's empty, it's a bogous URL
 
     for (QList<QByteArray>::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
+        const QAbstractItemModel *model = target.model();
         int offset = it->toInt(&ok);
         if (!ok) {
             // special case, we have to dive into that funny, irregular special parts now
             if (*it == "HEADER")
-                target = target.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
+                target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, target);
             else if (*it == "TEXT")
-                target = target.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
+                target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, target);
             else if (*it == "MIME")
-                target = target.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
+                target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_MIME, target);
             else
                 return QModelIndex();
             continue;
         }
-        target = target.child(offset, 0);
+        target = target.model()->index(offset, 0, target);
     }
     return target;
 }
@@ -157,7 +158,7 @@ QModelIndex MsgPartNetAccessManager::cidToPart(const QModelIndex& rootIndex, con
 {
     // A DFS search through the MIME parts tree of the current message which tries to check for a matching body part
     for (int i = 0; i < rootIndex.model()->rowCount(rootIndex); ++i) {
-        QModelIndex partIndex = rootIndex.child(i, 0);
+        QModelIndex partIndex = rootIndex.model()->index(i, 0, rootIndex);
         Q_ASSERT(partIndex.isValid());
         if (partIndex.data(Imap::Mailbox::RolePartBodyFldId).toByteArray() == cid)
             return partIndex;

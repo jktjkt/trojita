@@ -35,9 +35,9 @@ FullMessageCombiner::FullMessageCombiner(const QModelIndex &messageIndex, QObjec
     QObject(parent), m_messageIndex(messageIndex)
 {
     Q_ASSERT(m_messageIndex.isValid());
-    m_headerPartIndex = m_messageIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
+    m_headerPartIndex = m_messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, m_messageIndex);
     Q_ASSERT(m_headerPartIndex.isValid());
-    m_bodyPartIndex = m_messageIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
+    m_bodyPartIndex = m_messageIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, m_messageIndex);
     Q_ASSERT(m_bodyPartIndex.isValid());
     m_dataChanged = connect(m_messageIndex.model(), &QAbstractItemModel::dataChanged, this, &FullMessageCombiner::slotDataChanged);
 }

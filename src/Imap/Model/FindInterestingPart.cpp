@@ -58,7 +58,7 @@ QString FindInterestingPart::findMainPart( QModelIndex &part )
             part = QModelIndex();
             return QStringLiteral("Unsupported message/rfc822 formatting");
         }
-        part = part.child( 0, 0 );
+        part = part.model()->index( 0, 0, part );
         return findMainPart( part );
     }
 
@@ -67,7 +67,7 @@ QString FindInterestingPart::findMainPart( QModelIndex &part )
         QString str;
         for ( int i = 0; i < part.model()->rowCount( part ); ++i ) {
             // Walk through all children, try to find a first usable item
-            target = part.child( i, 0 );
+            target = part.model()->index( i, 0, part );
             str = findMainPart( target );
             if ( target.isValid() ) {
                 // Found a usable item
@@ -87,7 +87,7 @@ QString FindInterestingPart::findMainPart( QModelIndex &part )
 FindInterestingPart::MainPartReturnCode FindInterestingPart::findMainPartOfMessage(
         const QModelIndex &message, QModelIndex &mainPartIndex, QString &partMessage, QString *partData)
 {
-    mainPartIndex = message.child( 0, 0 );
+    mainPartIndex = message.model()->index( 0, 0, message );
     if ( ! mainPartIndex.isValid() ) {
         return MAINPART_MESSAGE_NOT_LOADED;
     }

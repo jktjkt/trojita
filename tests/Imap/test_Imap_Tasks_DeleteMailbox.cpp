@@ -63,7 +63,7 @@ void ImapModelDeleteMailboxTest::initWithOne()
     idxA = model->index(1, 0, QModelIndex());
     QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
     QVERIFY(idxA.isValid());
-    msgListA = idxA.child(0, 0);
+    msgListA = idxA.model()->index(0, 0, idxA);
     QVERIFY(msgListA.isValid());
     cEmpty();
 }
@@ -88,9 +88,9 @@ void ImapModelDeleteMailboxTest::initWithTwo()
     QCOMPARE(model->data(idxA, Qt::DisplayRole), QVariant(QLatin1String("a")));
     idxB = model->index(2, 0, QModelIndex());
     QCOMPARE(model->data(idxB, Qt::DisplayRole), QVariant(QLatin1String("b")));
-    msgListA = idxA.child(0, 0);
+    msgListA = idxA.model()->index(0, 0, idxA);
     QVERIFY(msgListA.isValid());
-    msgListB = idxB.child(0, 0);
+    msgListB = idxB.model()->index(0, 0, idxB);
     QVERIFY(msgListB.isValid());
     cEmpty();
 }
@@ -207,7 +207,7 @@ void ImapModelDeleteMailboxTest::testDeleteSelectedPendingMetadata()
     cEmpty();
 
     // Send a request for message metadata, but hold the response
-    QCOMPARE(model->rowCount(msgListA.child(0, 0)), 0);
+    QCOMPARE(model->rowCount(msgListA.model()->index(0, 0, msgListA)), 0);
     cClient(t.mk("UID FETCH 666 (" FETCH_METADATA_ITEMS ")\r\n"));
     QByteArray metadataFetchResp = t.last("OK fetched\r\n");
     cEmpty();
@@ -279,7 +279,7 @@ void ImapModelDeleteMailboxTest::testDeleteSelectedPendingAnotherMailboxDelayed(
     cEmpty();
 
     // Send a request for message metadata, but hold the response
-    QCOMPARE(model->rowCount(msgListA.child(0, 0)), 0);
+    QCOMPARE(model->rowCount(msgListA.model()->index(0, 0, msgListA)), 0);
     cClient(t.mk("UID FETCH 666 (" FETCH_METADATA_ITEMS ")\r\n"));
     QByteArray metadataFetchResp = t.last("OK fetched\r\n");
     cEmpty();

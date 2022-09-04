@@ -548,7 +548,7 @@ void LibMailboxSync::initialMessages(const uint exists)
     helperSyncAWithMessagesEmptyState();
 
     for (uint i = 1; i <= existsA; ++i) {
-        QModelIndex messageIndex = msgListA.child(i - 1, 0);
+        QModelIndex messageIndex = msgListA.model()->index(i - 1, 0, msgListA);
         Q_ASSERT(messageIndex.isValid());
         QCOMPARE(messageIndex.data(Imap::Mailbox::RoleMessageUid).toUInt(), i);
     }
@@ -588,12 +588,12 @@ void LibMailboxSync::justKeepTask()
     QModelIndex parser1 = model->taskModel()->index(0, 0);
     QVERIFY(parser1.isValid());
     QCOMPARE(model->taskModel()->rowCount(parser1), 1);
-    QModelIndex firstTask = parser1.child(0, 0);
+    QModelIndex firstTask = parser1.model()->index(0, 0, parser1);
     QVERIFY(firstTask.isValid());
-    if (firstTask.child(0, 0).isValid()) {
-        qDebug() << "Unexpected extra task:" << firstTask.child(0, 0).data();
+    if (firstTask.model()->index(0, 0, firstTask).isValid()) {
+        qDebug() << "Unexpected extra task:" << firstTask.model()->index(0, 0, firstTask).data();
     }
-    QVERIFY(!firstTask.child(0, 0).isValid());
+    QVERIFY(!firstTask.model()->index(0, 0, firstTask).isValid());
     QCOMPARE(model->accessParser(static_cast<Imap::Parser*>(parser1.internalPointer())).connState,
              Imap::CONN_STATE_SELECTED);
     Imap::Mailbox::KeepMailboxOpenTask *keepTask = dynamic_cast<Imap::Mailbox::KeepMailboxOpenTask*>(static_cast<Imap::Mailbox::ImapTask*>(firstTask.internalPointer()));

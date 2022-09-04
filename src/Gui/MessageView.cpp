@@ -239,7 +239,7 @@ void MessageView::showMessageNow()
     clearWaitingConns();
 
     QModelIndex rootPartIndex = messageModel->index(0,0);
-    Q_ASSERT(rootPartIndex.child(0,0).isValid());
+    Q_ASSERT(messageModel->index(0, 0, rootPartIndex).isValid());
 
     netAccess->setExternalsEnabled(false);
     externalElements->hide();
@@ -260,7 +260,7 @@ void MessageView::showMessageNow()
     UiUtils::PartLoadingOptions loadingMode;
     if (m_settings->value(Common::SettingsNames::guiPreferPlaintextRendering, QVariant(true)).toBool())
         loadingMode |= UiUtils::PART_PREFER_PLAINTEXT_OVER_HTML;
-    auto viewer = factory->walk(rootPartIndex.child(0,0), 0, loadingMode);
+    auto viewer = factory->walk(messageModel->index(0,0, rootPartIndex), 0, loadingMode);
     viewer->setParent(this);
     m_msgLayout->addWidget(viewer);
     m_msgLayout->setAlignment(viewer, Qt::AlignTop|Qt::AlignLeft);
@@ -361,7 +361,8 @@ QString MessageView::quoteText() const
         if (e.from.isEmpty())
             sender = tr("you");
 
-        if (messageModel->index(0, 0) /* fake message root */.child(0, 0) /* first MIME part */.data(Imap::Mailbox::RolePartDecryptionSupported).toBool()) {
+        QModelIndex index = messageModel->index(0, 0); /* fake message root */
+        if (messageModel->index(0, 0, index)  /* first MIME part */.data(Imap::Mailbox::RolePartDecryptionSupported).toBool()) {
             // This is just an UX improvement shortcut: real filtering for CVE-2019-10734 is in
             // MultipartSignedEncryptedWidget::quoteMe().
             // That is required because the encrypted part might not be the root part of the message.

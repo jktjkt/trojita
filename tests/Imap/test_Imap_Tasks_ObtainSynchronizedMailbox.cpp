@@ -261,7 +261,8 @@ void ImapModelObtainSynchronizedMailboxTest::testResyncNoArrivals()
     helperSyncBNoMessages();
     helperSyncAWithMessagesNoArrivals();
     helperVerifyUidMapA();
-    helperOneFlagUpdate( idxA.child( 0,0 ).child( 10, 0 ) );
+    QModelIndex index = idxA.model()->index(0, 0, idxA);
+    helperOneFlagUpdate( index.model()->index(10, 0, index) );
 }
 
 /** @short Test new message arrivals happening on each resync */
@@ -2129,7 +2130,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncUnreportedNewArrivals()
             "* OK [HIGHESTMODSEQ 34] .\r\n"
             );
     QCOMPARE(model->rowCount(msgListA), 4);
-    QCOMPARE(msgListA.child(3, 0).data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
+    QCOMPARE(msgListA.model()->index(3, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
     cServer(t.last("OK selected\r\n"));
     cClient(t.mk("UID FETCH 15:* (FLAGS)\r\n"));
     cServer("* 4 FETCH (FLAGS (x4 \\seen) UID 16)\r\n" + t.last("OK uid fetch flags\r\n"));
@@ -2176,7 +2177,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncReportedNewArrivals()
             "* 4 FETCH (FLAGS (x4) UID 16)\r\n"
             );
     QCOMPARE(model->rowCount(msgListA), 4);
-    QCOMPARE(msgListA.child(3, 0).data(Imap::Mailbox::RoleMessageUid).toUInt(), 16u);
+    QCOMPARE(msgListA.model()->index(3, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(), 16u);
     cServer(t.last("OK selected\r\n"));
     cEmpty();
     sync.setExists(4);
@@ -2403,7 +2404,7 @@ void ImapModelObtainSynchronizedMailboxTest::testOfflineOpening()
     checkCachedSubject(0, "msg10");
     checkCachedSubject(1, "msg20");
     checkCachedSubject(2, "");
-    QCOMPARE(msgListA.child(2, 0).data(Imap::Mailbox::RoleIsFetched).toBool(), false);
+    QCOMPARE(msgListA.model()->index(2, 0, msgListA).data(Imap::Mailbox::RoleIsFetched).toBool(), false);
 
     QCOMPARE(model->taskModel()->rowCount(), 0);
 
@@ -2438,7 +2439,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncEnabling()
     idxA = model->index(1, 0, QModelIndex());
     QVERIFY(idxA.isValid());
     QCOMPARE(idxA.data(RoleMailboxName).toString(), QString("a"));
-    msgListA = idxA.child(0, 0);
+    msgListA = idxA.model()->index(0, 0, idxA);
     QVERIFY(idxA.isValid());
     QCOMPARE(model->rowCount(msgListA), 0);
     cEmpty();
@@ -2722,7 +2723,7 @@ void ImapModelObtainSynchronizedMailboxTest::testQresyncClosedHandover()
     cClient(t.mk("SELECT b\r\n"));
     // this one should be eaten, but ignored
     cServer("* 3 FETCH (FLAGS ())\r\n");
-    QCOMPARE(msgListA.child(2, 0).data(Imap::Mailbox::RoleMessageFlags).toStringList(), okFlags);
+    QCOMPARE(msgListA.model()->index(2, 0, msgListA).data(Imap::Mailbox::RoleMessageFlags).toStringList(), okFlags);
     QCOMPARE(model->cache()->msgFlags("a", 10), okFlags);
     cServer("* 4 EXISTS\r\n");
     cServer("* 4 FETCH (UID 333666333 FLAGS (PWNED))\r\n");

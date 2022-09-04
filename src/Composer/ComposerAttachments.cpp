@@ -315,7 +315,7 @@ AttachmentItem::ContentTransferEncoding ImapMessageAttachmentItem::suggestedCTE(
     // The relevant thing is the CTE of the root MIME part, not the message itself.
     // It's not even supported by Trojita for TreeItemMessage.
 
-    QModelIndex rootPart = index.child(0, 0);
+    QModelIndex rootPart = index.model()->index(0, 0, index);
     if (rootPart.data(RolePartIsTopLevelMultipart).toBool()) {
         // This was a desperate attempt; the BODYSTRUCTURE does *not* contain the body-fld-enc field for multiparts,
         // so if our message happens to have a top-level multipart, we're out of luck and will produce an invalid result.

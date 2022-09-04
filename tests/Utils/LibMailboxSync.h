@@ -181,7 +181,7 @@ char *toString(const NetDataRegexp &x);
 
 #define requestAndCheckSubject(OFFSET, SUBJECT) \
 { \
-    QModelIndex index = msgListA.child(OFFSET, 0); \
+    QModelIndex index = msgListA.model()->index(OFFSET, 0, msgListA); \
     Q_ASSERT(index.isValid()); \
     uint uid = index.data(Imap::Mailbox::RoleMessageUid).toUInt(); \
     Q_ASSERT(uid); \
@@ -193,7 +193,7 @@ char *toString(const NetDataRegexp &x);
 
 #define checkCachedSubject(OFFSET, SUBJECT) \
 { \
-    QModelIndex index = msgListA.child(OFFSET, 0); \
+    QModelIndex index = msgListA.model()->index(OFFSET, 0, msgListA); \
     Q_ASSERT(index.isValid()); \
     Q_ASSERT(index.data(Imap::Mailbox::RoleMessageUid).toUInt()); \
     QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), QString::fromUtf8(SUBJECT)); \

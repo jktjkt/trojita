@@ -207,11 +207,11 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
     QCOMPARE(model->cache()->uidMapping(QLatin1String("a")), oldUidMap);
 
     // The messages sgould be there already
-    QVERIFY(msgListA.child(0,0).isValid());
-    QModelIndex msgB = msgListA.child(1, 0);
+    QVERIFY(msgListA.model()->index(0, 0, msgListA).isValid());
+    QModelIndex msgB = msgListA.model()->index(1, 0, msgListA);
     QVERIFY(msgB.isValid());
-    QVERIFY(msgListA.child(2,0).isValid());
-    QVERIFY( ! msgListA.child(3,0).isValid());
+    QVERIFY(msgListA.model()->index(2, 0, msgListA).isValid());
+    QVERIFY( ! msgListA.model()->index(3, 0, msgListA).isValid());
     // We shouldn't have the UID yet
     QCOMPARE(msgB.data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
 
@@ -250,9 +250,9 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficFirstArrivals(bool
 
     // Yes, we're counting to one more than what actually is here; that's because we want to prevent a possible out-of-bounds access
     for ( int i = 0; i < static_cast<int>(existsA) + 1; ++i )
-        msgListA.child(i,0).data(Imap::Mailbox::RoleMessageSubject);
+        msgListA.model()->index(i, 0, msgListA).data(Imap::Mailbox::RoleMessageSubject);
 
-    QModelIndex uid43 = msgListA.child(0, 0);
+    QModelIndex uid43 = msgListA.model()->index(0, 0, msgListA);
     Q_ASSERT(uid43.isValid());
     QCOMPARE(uid43.data(Imap::Mailbox::RoleMessageUid).toUInt(), 43u);
 
@@ -319,10 +319,10 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     // This should trigger a request for flags
     cClient(t.mk("UID FETCH 46:* (FLAGS)\r\n"));
     // The messages sgould be there already
-    QVERIFY(msgListA.child(0,0).isValid());
-    QModelIndex msgD = msgListA.child(3, 0);
+    QVERIFY(msgListA.model()->index(0, 0, msgListA).isValid());
+    QModelIndex msgD = msgListA.model()->index(3, 0, msgListA);
     QVERIFY(msgD.isValid());
-    QVERIFY( ! msgListA.child(4,0).isValid());
+    QVERIFY( ! msgListA.model()->index(4, 0, msgListA).isValid());
     // We shouldn't have the UID yet
     QCOMPARE(msgD.data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
 
@@ -362,7 +362,7 @@ void  ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive2(bool askF
     helperVerifyUidMapA();
 
     // Request the subject once again
-    msgListA.child(3,0).data(Imap::Mailbox::RoleMessageSubject);
+    msgListA.model()->index(3, 0, msgListA).data(Imap::Mailbox::RoleMessageSubject);
     // In contrast to helperGenericTrafficFirstArrivals, we won't query "message #5",ie. one more than how many are
     // actually there. The main motivation is trying to behave in a different manner than before. Hope this helps.
 
@@ -385,12 +385,12 @@ This function will check subjects of all mailboxes in the mailbox A against a li
 void ImapModelSelectedMailboxUpdatesTest::helperCheckSubjects(const QStringList &subjects)
 {
     for ( int i = 0; i < subjects.size(); ++i ) {
-        QModelIndex index = msgListA.child(i,0);
+        QModelIndex index = msgListA.model()->index(i, 0, msgListA);
         QVERIFY(index.isValid());
         QCOMPARE(index.data(Imap::Mailbox::RoleMessageSubject).toString(), subjects[i]);
     }
     // Me sure that there are no more messages
-    QVERIFY( ! msgListA.child(subjects.size(),0).isValid() );
+    QVERIFY( ! msgListA.model()->index(subjects.size(), 0, msgListA).isValid() );
 }
 
 /** @short Test what happens when the server tells us that one message got deleted */
@@ -438,10 +438,10 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive3(bool askFo
     cClient(t.mk("UID FETCH 47:* (FLAGS)\r\n"));
 
     // The messages should be there already
-    QVERIFY(msgListA.child(0,0).isValid());
-    QModelIndex msgD = msgListA.child(3, 0);
+    QVERIFY(msgListA.model()->index(0, 0, msgListA).isValid());
+    QModelIndex msgD = msgListA.model()->index(3, 0, msgListA);
     QVERIFY(msgD.isValid());
-    QVERIFY( ! msgListA.child(4,0).isValid());
+    QVERIFY( ! msgListA.model()->index(4, 0, msgListA).isValid());
     // We shouldn't have the UID yet
     QCOMPARE(msgD.data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
 
@@ -518,7 +518,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     // This should trigger a request for flags
     cClient(t.mk("UID FETCH 51:* (FLAGS)\r\n"));
 
-    QModelIndex msgE = msgListA.child(2, 0);
+    QModelIndex msgE = msgListA.model()->index(2, 0, msgListA);
     QVERIFY(msgE.isValid());
     // We shouldn't have the UID yet
     QCOMPARE(msgE.data(Imap::Mailbox::RoleMessageUid).toUInt(), 0u);
@@ -598,7 +598,7 @@ void ImapModelSelectedMailboxUpdatesTest::helperGenericTrafficArrive4(bool askFo
     QCOMPARE(model->rowCount(msgListA), uidMapA.size()); \
     Imap::Uids actual; \
     for (int i = 0; i < uidMapA.size(); ++i) { \
-        actual << msgListA.child(i, 0).data(Imap::Mailbox::RoleMessageUid).toUInt(); \
+        actual << msgListA.model()->index(i, 0, msgListA).data(Imap::Mailbox::RoleMessageUid).toUInt(); \
     } \
     QCOMPARE(actual, uidMapA); \
 } \
@@ -719,7 +719,8 @@ void ImapModelSelectedMailboxUpdatesTest::testMultipleArrivals()
     initialMessages(1);
     auto oldState = model->cache()->mailboxSyncState(("a"));
     auto oldUidMap = model->cache()->uidMapping(QStringLiteral("a"));
-    QPersistentModelIndex keepIndex = model->taskModel()->index(0, 0).child(0, 0);
+    QModelIndex index = model->taskModel()->index(0, 0);
+    QPersistentModelIndex keepIndex = index.model()->index(0, 0, index);
     QVERIFY(keepIndex.isValid());
     QCOMPARE(keepIndex.data(Imap::Mailbox::RoleTaskIsVisible), QVariant(false));
     cServer("* 2 EXISTS\r\n* 3 EXISTS\r\n");
@@ -842,7 +843,7 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchAndConcurrentArrival()
     model->setProperty("trojita-imap-delayed-fetch-part", 0);
 
     initialMessages(1);
-    QModelIndex msg1 = msgListA.child(0, 0);
+    QModelIndex msg1 = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(msg1.isValid());
     QCOMPARE(model->rowCount(msg1), 0);
 
@@ -874,7 +875,7 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchAndConcurrentArrival()
     QVERIFY(msg1.parent().data(RoleIsFetched).toBool());
     QVERIFY(msg1.data(RoleMessageSubject).isValid());
     QVERIFY(!msg1.data(RoleIsFetched).toBool()); // not fully fetched yet, though
-    QModelIndex msg1p1 = msg1.child(0, 0);
+    QModelIndex msg1p1 = msg1.model()->index(0, 0, msg1);
     QVERIFY(msg1p1.isValid());
     QCOMPARE(msg1p1.data(RolePartData).toByteArray(), QByteArray());
     cClient(t.mk("UID FETCH 1 (BODY.PEEK[1])\r\n"));
@@ -999,8 +1000,8 @@ void ImapModelSelectedMailboxUpdatesTest::testMarkAllConcurrentArrival()
     QCOMPARE(changedSpy[1][0].toModelIndex(), QModelIndex(idxA));
     QCOMPARE(changedSpy[1][1].toModelIndex(), QModelIndex(idxA));
     // now report each changed message
-    QCOMPARE(changedSpy[2][0].toModelIndex(), QModelIndex(msgListA.child(0, 0)));
-    QCOMPARE(changedSpy[2][1].toModelIndex(), QModelIndex(msgListA.child(0, 0)));
+    QCOMPARE(changedSpy[2][0].toModelIndex(), QModelIndex(msgListA.model()->index(0, 0, msgListA)));
+    QCOMPARE(changedSpy[2][1].toModelIndex(), QModelIndex(msgListA.model()->index(0, 0, msgListA)));
     // and now a pair of signals for the (list, mailbox) pair due to the mass-update of indexes
     QCOMPARE(changedSpy[3][0].toModelIndex(), QModelIndex(msgListA));
     QCOMPARE(changedSpy[3][1].toModelIndex(), QModelIndex(msgListA));
@@ -1060,7 +1061,7 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
     justKeepTask();
     cEmpty();
 
-    auto msg1 = msgListA.child(0, 0);
+    auto msg1 = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(msg1.isValid());
 
     QSignalSpy insertionSpy(model, SIGNAL(rowsInserted(QModelIndex,int,int)));
@@ -1105,7 +1106,7 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgDuplicateBodystructure()
     justKeepTask();
     cEmpty();
 
-    auto msg1 = msgListA.child(0, 0);
+    auto msg1 = msgListA.model()->index(0, 0, msgListA);
     QVERIFY(msg1.isValid());
 
     QCOMPARE(model->rowCount(msg1), 0);

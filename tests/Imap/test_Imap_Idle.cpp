@@ -118,7 +118,7 @@ void ImapModelIdleTest::testIdleBreakTask()
     QVERIFY(SOCK->writtenStuff().isEmpty());
     waitForIdle();
     SOCK->fakeReading(QByteArray("+ blah\r\n"));
-    QCOMPARE( msgListA.child(0,0).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
+    QCOMPARE( msgListA.model()->index(0, 0, msgListA).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
@@ -209,7 +209,7 @@ void ImapModelIdleTest::testIdleNoPerpetuateRenewal()
     QCoreApplication::processEvents();
 
     // so we're in regular IDLE and want to break it
-    QCOMPARE( msgListA.child(0,0).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
+    QCOMPARE( msgListA.model()->index(0, 0, msgListA).data(Imap::Mailbox::RoleMessageFrom).toString(), QString() );
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();
     QCoreApplication::processEvents();

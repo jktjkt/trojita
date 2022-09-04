@@ -172,7 +172,7 @@ void TopLevelMessage::fetchChildren(MessageModel *model)
         // trigger a fetch within the original model
         m_root.model()->rowCount(m_root);
 
-        if (m_root.child(0, 0).isValid()) {
+        if (m_root.model()->index(0, 0, m_root).isValid()) {
             // OK, we can do it synchronously.
             // Note that we are *not* guarding this based on a RoleIsFetched because that thing might not be true
             // when the rowsInserted() is called.
@@ -253,10 +253,11 @@ void ProxyMessagePart::fetchChildren(MessageModel *model)
         break;
     }
 
-    auto headerIdx = index.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER);
-    auto textIdx = index.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT);
-    auto mimeIdx = index.child(0, Imap::Mailbox::TreeItem::OFFSET_MIME);
-    auto rawIdx = index.child(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS);
+    const QAbstractItemModel *indexModel = index.model();
+    auto headerIdx = indexModel->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, index);
+    auto textIdx = indexModel->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, index);
+    auto mimeIdx = indexModel->index(0, Imap::Mailbox::TreeItem::OFFSET_MIME, index);
+    auto rawIdx = indexModel->index(0, Imap::Mailbox::TreeItem::OFFSET_RAW_CONTENTS, index);
 
     setSpecialParts(
                 std::unique_ptr<ProxyMessagePart>(headerIdx.isValid() ? new ProxyMessagePart(this, 0, headerIdx, model) : nullptr),
@@ -268,7 +269,7 @@ void ProxyMessagePart::fetchChildren(MessageModel *model)
     m_childrenState = FetchingState::LOADING;
     int row = 0;
     while (true) {
-        auto childIndex = index.child(row, 0);
+        auto childIndex = index.model()->index(row, 0, index);
         if (!childIndex.isValid()) {
             break;
         }

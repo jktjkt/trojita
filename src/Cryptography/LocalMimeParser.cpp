@@ -57,8 +57,8 @@ LocallyParsedMimePart::LocallyParsedMimePart(MessageModel *model, MessagePart *p
     : QObject(0)
     , LocalMessagePart(parentPart, originalPart->row(), sourceItemIndex.data(Imap::Mailbox::RolePartMimeType).toByteArray())
     , m_model(model)
-    , m_sourceHeaderIndex(sourceItemIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_HEADER))
-    , m_sourceTextIndex(sourceItemIndex.child(0, Imap::Mailbox::TreeItem::OFFSET_TEXT))
+    , m_sourceHeaderIndex(sourceItemIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, sourceItemIndex))
+    , m_sourceTextIndex(sourceItemIndex.model()->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, sourceItemIndex))
     , m_proxyParentIndex(proxyParentIndex)
 {
     Q_ASSERT(m_proxyParentIndex.isValid());

@@ -252,7 +252,7 @@ QModelIndexList MsgListView::selectedTree() const
         // Also note that this is recursive - each child found is run through this same item loop for validity/child checks as well
         if (i >= originalItems || !isExpanded(item)) {
             for (int j = 0; j < item.model()->rowCount(item); ++j) {
-                selected << item.child(j, 0); // Make sure this is run through the main loop as well - don't add it directly
+                selected << item.model()->index(j, 0, item); // Make sure this is run through the main loop as well - don't add it directly
             }
         }
     }
@@ -301,7 +301,7 @@ void MsgListView::slotExpandWholeSubtree(const QModelIndex &rootIndex)
         const QModelIndex currentIndex = queue[i];
         // Append all children to the queue...
         for (int j = 0; j < currentIndex.model()->rowCount(currentIndex); ++j)
-            queue.append(currentIndex.child(j, 0));
+            queue.append(currentIndex.model()->index(j, 0, currentIndex));
         // ...and expand the current index
         if (currentIndex.model()->hasChildren(currentIndex))
             expand(currentIndex);
