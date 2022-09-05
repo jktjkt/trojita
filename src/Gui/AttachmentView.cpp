@@ -80,10 +80,7 @@ AttachmentView::AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessM
     QHBoxLayout *layout = new QHBoxLayout();
     layout->setContentsMargins(0,0,0,0);
 
-    // should be PM_LayoutHorizontalSpacing, but is not implemented by many Qt4 styles -including oxygen- for other conflicts
     int spacing = style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing, &opt, this);
-    if (spacing < 0)
-        spacing = style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing, &opt, this);
     layout->setSpacing(0);
 
     m_menu = new QMenu(this);
