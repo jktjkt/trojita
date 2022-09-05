@@ -68,8 +68,10 @@ void AkonadiAddressbookCompletionJob::searchResult(KJob *job)
             KContacts::Addressee contact = contacts[i];
 
             // put the matching ones first and then the rest
+            QSet<QString> emailsSet(contact.emails().begin(), contact.emails().end());
             QStringList emails1 = contact.emails().filter(m_input, Qt::CaseInsensitive);
-            QStringList emails2 = contact.emails().toSet().subtract(emails1.toSet()).values();
+            const QSet<QString> emails1Set(emails1.begin(), emails1.end());
+            QStringList emails2 = emailsSet.subtract(emails1Set).values();
 
             Q_FOREACH(const QString &email, emails1 + emails2) {
                 if (!m_ignores.contains(email)) {

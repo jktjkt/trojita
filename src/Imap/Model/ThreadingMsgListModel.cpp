@@ -1467,11 +1467,11 @@ void ThreadingMsgListModel::applySort()
 
     emit layoutAboutToBeChanged();
     updatePersistentIndexesPhase1();
-    QSet<uint> newlyUnreachable(threading[0].children.toSet());
+    QSet<uint> newlyUnreachable(threading[0].children.begin(), threading[0].children.end());
     threading[0].children.clear();
     threading[0].children.reserve(m_currentSortResult.size() + headroomForNewmessages);
 
-    QSet<uint> allRootIds(threadedRootIds.toSet());
+    QSet<uint> allRootIds(threadedRootIds.begin(), threadedRootIds.end());
 
     for (int i = 0; i < m_currentSortResult.size(); ++i) {
         int offset = m_sortReverse ? m_currentSortResult.size() - 1 - i : i;

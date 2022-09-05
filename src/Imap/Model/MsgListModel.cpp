@@ -359,7 +359,8 @@ QMimeData *MsgListModel::mimeData(const QModelIndexList &indexes) const
         Q_ASSERT(message->uid() > 0);
         uids << message->uid();
     }
-    uids = uids.toSet().values();
+    const QSet<uint> uidsSet(uids.begin(), uids.end());
+    uids = uidsSet.values();
     stream << uids;
     res->setData(MimeTypes::xTrojitaMessageList, encodedData);
     return res;

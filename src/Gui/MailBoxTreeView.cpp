@@ -174,7 +174,7 @@ they are properly expanded/collapsed once they pop in.
 */
 void MailBoxTreeView::setDesiredExpansion(const QStringList &mailboxNames)
 {
-    m_desiredExpansionState = mailboxNames.toSet();
+    m_desiredExpansionState = QSet<QString>(mailboxNames.begin(), mailboxNames.end());
     resetWatchedMailboxes();
 }
 
