@@ -519,7 +519,7 @@ void Parser::idleDone()
     // which would allocate a new tag for us, but submit directly
     Commands::Command cmd;
     cmd << Commands::PartOfCommand(Commands::IDLE_DONE, "DONE");
-    cmdQueue.append(cmd);
+    cmdQueue.push_back(cmd);
     QTimer::singleShot(0, this, SLOT(executeCommands()));
 }
 
@@ -611,7 +611,7 @@ CommandHandle Parser::queueCommand(Commands::Command command)
 {
     CommandHandle tag = generateTag();
     command.addTag(tag);
-    cmdQueue.append(command);
+    cmdQueue.push_back(command);
     QTimer::singleShot(0, this, SLOT(executeCommands()));
     return tag;
 }
@@ -732,7 +732,7 @@ void Parser::executeCommands()
 {
     while (! waitingForContinuation && ! waitForInitialIdle &&
            ! waitingForConnection && ! waitingForEncryption && ! waitingForSslPolicy &&
-           ! cmdQueue.isEmpty() && ! startTlsInProgress && !compressDeflateInProgress)
+           ! cmdQueue.empty() && ! startTlsInProgress && !compressDeflateInProgress)
         executeACommand();
 }
 
@@ -786,8 +786,8 @@ void Parser::unfreezeAfterEncryption()
 
 void Parser::executeACommand()
 {
-    Q_ASSERT(! cmdQueue.isEmpty());
-    Commands::Command &cmd = cmdQueue.first();
+    Q_ASSERT(! cmdQueue.empty());
+    Commands::Command &cmd = cmdQueue.front();
 
     QByteArray buf;
 

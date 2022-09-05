@@ -375,10 +375,10 @@ private:
     unsigned int m_lastTagUsed;
 
     /** @short Queue storing commands that are about to be executed */
-    QLinkedList<Commands::Command> cmdQueue;
+    std::list<Commands::Command> cmdQueue;
 
     /** @short Queue storing parsed replies from the IMAP server */
-    QLinkedList<QSharedPointer<Responses::AbstractResponse> > respQueue;
+    std::list<QSharedPointer<Responses::AbstractResponse> > respQueue;
 
     bool idling;
     bool waitForInitialIdle;
