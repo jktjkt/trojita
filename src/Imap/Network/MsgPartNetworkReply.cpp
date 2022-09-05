@@ -88,7 +88,7 @@ void MsgPartNetworkReply::slotMyDataChanged()
             }
         }
         setFinished(true);
-        emit error(error());
+        emit errorOccurred(error());
         emit finished();
         return;
     }

@@ -38,7 +38,7 @@ ForbiddenReply::ForbiddenReply(QObject *parent):
 
 void ForbiddenReply::slotFinish()
 {
-    emit error(QNetworkReply::ContentOperationNotPermittedError);
+    emit errorOccurred(QNetworkReply::ContentOperationNotPermittedError);
     emit finished();
 }
 

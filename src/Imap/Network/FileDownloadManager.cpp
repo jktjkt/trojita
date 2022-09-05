@@ -107,7 +107,7 @@ void FileDownloadManager::downloadPart()
     request.setUrl(url);
     reply = manager->get(request);
     connect(reply, &QNetworkReply::finished, this, &FileDownloadManager::onPartDataTransfered);
-    connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::error),
+    connect(reply, static_cast<void (QNetworkReply::*)(QNetworkReply::NetworkError)>(&QNetworkReply::errorOccurred),
             this, &FileDownloadManager::onReplyTransferError);
     connect(manager, &QNetworkAccessManager::finished, this, &FileDownloadManager::deleteReply);
 }
