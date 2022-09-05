@@ -85,7 +85,8 @@ void EnvelopeView::setMessage(const QModelIndex &index)
     QString subDate;
     // Date
     if (e.date.isValid()) {
-        subDate = QStringLiteral("<table style=\"margin:0px; margin-left:4em; float:right;\"><tr style=\"margin:0px;\"><td style=\"margin:0px;\">%1</td></tr></table>").arg(e.date.toLocalTime().toString(Qt::SystemLocaleLongDate));
+        subDate = QStringLiteral("<table style=\"margin:0px; margin-left:4em; float:right;\"><tr style=\"margin:0px;\"><td style=\"margin:0px;\">%1</td></tr></table>")
+                      .arg(QLocale::system().toString(e.date.toLocalTime(), QLocale::LongFormat));
     }
     subDate += QStringLiteral("<span style=\"font:bold large;\">%1</span>").arg(e.subject.toHtmlEscaped());
     auto lbl = new QLabel(subDate, this);

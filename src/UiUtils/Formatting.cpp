@@ -26,6 +26,7 @@
 #include <QStringList>
 #include <QTextDocument>
 #include <QFontInfo>
+#include <QLocale>
 #include "UiUtils/PlainTextFormatter.h"
 
 namespace UiUtils {
@@ -73,7 +74,7 @@ QString Formatting::prettyDate(const QDateTime &dateTime)
     QDateTime now = QDateTime::currentDateTime().addSecs(15*60);
     if (dateTime >= now) {
         // Messages from future shall always be shown using full format to prevent nasty surprises.
-        return dateTime.toString(Qt::DefaultLocaleShortDate);
+        return QLocale().toString(dateTime, QLocale::ShortFormat);
     } else if (dateTime.date() == now.date() || dateTime > now.addSecs(-6 * 3600)) {
         // It's a "today's message", i.e. something which is either literally from today or at least something not older than
         // six hours (an arbitraty magic number).
@@ -100,7 +101,7 @@ QString Formatting::prettyDate(const QDateTime &dateTime)
             "For valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"));
     } else {
         // Old messagees shall have a full date
-        return dateTime.toString(Qt::DefaultLocaleShortDate);
+        return QLocale().toString(dateTime, QLocale::ShortFormat);
     }
 }
 

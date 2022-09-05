@@ -374,13 +374,13 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
         if (uidMatched) {
             tldr = wasEncrypted ? tr("Encrypted, verified signature") : tr("Verified signature");
             longStatus = tr("Verified signature from %1 on %2")
-                    .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                    .arg(signer, QLocale().toString(signDate , QLocale::ShortFormat));
             icon = QStringLiteral("emblem-success");
             sigValidVerified = true;
         } else {
             tldr = wasEncrypted ? tr("Encrypted, signed by stranger") : tr("Signed by stranger");
             longStatus = tr("Verified signature, but the signer is someone else:\n%1\nSignature was made on %2.")
-                    .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                    .arg(signer, QLocale().toString(signDate, QLocale::ShortFormat));
             icon = QStringLiteral("emblem-warning");
         }
     } else if (sig.summary() & GpgME::Signature::Red) {
@@ -392,7 +392,7 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
                             tr("Encrypted, bad signature: %1").arg(QString::fromUtf8(sig.status().asString()))
                           : tr("Bad signature: %1").arg(QString::fromUtf8(sig.status().asString()));
             }
-            longStatus = tr("Bad signature by %1 on %2").arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+            longStatus = tr("Bad signature by %1 on %2").arg(signer, QLocale().toString(signDate, QLocale::ShortFormat));
         } else {
             if (sig.status().code() == GPG_ERR_BAD_SIGNATURE) {
                 tldr = wasEncrypted ? tr("Encrypted, bad signature by stranger") : tr("Bad signature by stranger");
@@ -402,7 +402,7 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
                           : tr("Bad signature by stranger: %1").arg(QString::fromUtf8(sig.status().asString()));
             }
             longStatus = tr("Bad signature by someone else: %1 on %2.")
-                    .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                             .arg(signer, QLocale().toString(signDate, QLocale::ShortFormat));
         }
         icon = QStringLiteral("emblem-error");
     } else {
@@ -419,12 +419,12 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
             if (uidMatched) {
                 tldr = wasEncrypted ? tr("Encrypted, some signature") : tr("Some signature");
                 longStatus = tr("Unknown signature from %1 on %2")
-                        .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                                 .arg(signer, QLocale().toString(signDate, QLocale::ShortFormat));
                 icon = wasEncrypted ? QStringLiteral("emblem-encrypted-unlocked") : QStringLiteral("emblem-information");
             } else {
                 tldr = wasEncrypted ? tr("Encrypted, some signature by stranger") : tr("Some signature by stranger");
                 longStatus = tr("Unknown signature by somebody else: %1 on %2")
-                        .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                        .arg(signer, QLocale().toString(signDate, QLocale::ShortFormat));
                 icon = QStringLiteral("emblem-warning");
             }
             break;
@@ -433,14 +433,14 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
             if (uidMatched) {
                 tldr = wasEncrypted ? tr("Encrypted, semi-trusted signature") : tr("Semi-trusted signature");
                 longStatus = tr("Semi-trusted signature from %1 on %2")
-                        .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                        .arg(signer, QLocale().toString(signDate, QLocale::ShortFormat));
                 icon = wasEncrypted ? QStringLiteral("emblem-encrypted-unlocked") : QStringLiteral("emblem-information");
             } else {
                 tldr = wasEncrypted ?
                             tr("Encrypted, semi-trusted signature by stranger")
                           : tr("Semi-trusted signature by stranger");
                 longStatus = tr("Semi-trusted signature by somebody else: %1 on %2")
-                        .arg(signer, signDate.toString(Qt::DefaultLocaleShortDate));
+                        .arg(signer, QLocale().toString(signDate, QLocale::ShortFormat));
                 icon = QStringLiteral("emblem-warning");
             }
             break;
@@ -462,7 +462,7 @@ void GpgMePart::extractSignatureStatus(std::shared_ptr<GpgME::Context> ctx, cons
     if (sig.summary() & GpgME::Signature::SigExpired) {
         ENSURE_LINE_LF(longStatus);
         longStatus += tr("Signature expired on %1.")
-                .arg(QDateTime::fromSecsSinceEpoch(sig.expirationTime()).toString(Qt::DefaultLocaleShortDate));
+                .arg(QLocale().toString(QDateTime::fromSecsSinceEpoch(sig.expirationTime()), QLocale::ShortFormat));
     }
     if (sig.summary() & GpgME::Signature::KeyMissing) {
         ENSURE_LINE_LF(longStatus);
