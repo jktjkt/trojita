@@ -1572,7 +1572,7 @@ bool ComposeWidget::eventFilter(QObject *o, QEvent *e)
     if (o == ui->envelopeWidget)  {
         if (e->type() == QEvent::Wheel) {
             int v = ui->recipientSlider->value();
-            if (static_cast<QWheelEvent*>(e)->delta() > 0)
+            if (static_cast<QWheelEvent*>(e)->angleDelta().y() > 0)
                 --v;
             else
                 ++v;

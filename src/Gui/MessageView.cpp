@@ -315,7 +315,7 @@ bool MessageView::eventFilter(QObject *object, QEvent *event)
 {
     if (event->type() == QEvent::Wheel) {
         if (static_cast<QWheelEvent *>(event)->modifiers() == Qt::ControlModifier) {
-            if (static_cast<QWheelEvent *>(event)->delta() > 0) {
+            if (static_cast<QWheelEvent *>(event)->angleDelta().y() > 0) {
                 zoomIn();
             } else {
                 zoomOut();
