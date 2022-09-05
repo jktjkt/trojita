@@ -67,7 +67,7 @@ QStringList TagAddDialog::getTags()
 {
     QStringList tagList;
     if (exec()) {
-        tagList += ui->lineEdit->text().split(QStringLiteral(" "), QString::SkipEmptyParts);
+        tagList += ui->lineEdit->text().split(QStringLiteral(" "), Qt::SkipEmptyParts);
         tagList.removeDuplicates();
     }
     return tagList;

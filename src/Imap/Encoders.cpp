@@ -676,7 +676,7 @@ QString wrapFormatFlowed(const QString &input)
     const int defaultCutof = 75;
 
     QStringList res;
-    Q_FOREACH(QString line, input.split(QLatin1Char('\n'), QString::KeepEmptyParts)) {
+    Q_FOREACH(QString line, input.split(QLatin1Char('\n'), Qt::KeepEmptyParts)) {
         line.remove(QLatin1Char('\r'));
         if (line.isEmpty()) {
             res << line;

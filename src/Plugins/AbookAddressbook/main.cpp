@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
         for (int i = 2; i < argc; ++i) {
             QString arg = QString::fromLocal8Bit(argv[i]);
             QString mail, name;
-            QStringList contact = arg.split(QStringLiteral(" "), QString::SkipEmptyParts);
+            QStringList contact = arg.split(QStringLiteral(" "), Qt::SkipEmptyParts);
             foreach (const QString &token, contact) {
                 if (token.contains(QLatin1Char('@')))
                     mail = token;

@@ -192,11 +192,11 @@ QVariant TreeItemMailbox::data(Model *const model, int role)
     case Qt::DisplayRole:
     {
         // this one is used only for a dumb view attached to the Model
-        QString res = separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
+        QString res = separator().isEmpty() ? mailbox() : mailbox().split(separator(), Qt::SkipEmptyParts).last();
         return loading() ? res + QLatin1String(" [loading]") : res;
     }
     case RoleShortMailboxName:
-        return separator().isEmpty() ? mailbox() : mailbox().split(separator(), QString::SkipEmptyParts).last();
+        return separator().isEmpty() ? mailbox() : mailbox().split(separator(), Qt::SkipEmptyParts).last();
     case RoleMailboxName:
         return mailbox();
     case RoleMailboxSeparator:

@@ -352,7 +352,7 @@ NameEmailList AbookAddressbook::complete(const QString &string, const QStringLis
         QStandardItem *item = m_contacts->item(i);
         QString contactName = item->data(Name).toString();
         // several mail addresses per contact are stored newline delimited
-        QStringList contactMails(item->data(Mail).toString().split(QLatin1Char('\n'), QString::SkipEmptyParts));
+        QStringList contactMails(item->data(Mail).toString().split(QLatin1Char('\n'), Qt::SkipEmptyParts));
         if (contactName.contains(nameMatch)) {
             Q_FOREACH (const QString &mail, contactMails) {
                 if (ignore(mail, ignores))
