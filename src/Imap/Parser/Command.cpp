@@ -36,7 +36,7 @@ QTextStream &operator<<(QTextStream &stream, const Command &cmd)
         }
         stream << *it;
     }
-    return stream << endl;
+    return stream << Qt::endl;
 }
 
 TokenType howToTransmit(const QByteArray &str)
@@ -75,19 +75,19 @@ QTextStream &operator<<(QTextStream &stream, const PartOfCommand &part)
     }
     break;
     case LITERAL:
-        stream << "{" << part.text.length() << "}" << endl << part.text;
+        stream << "{" << part.text.length() << "}" << Qt::endl << part.text;
         break;
     case IDLE:
-        stream << "IDLE" << endl << "[Entering IDLE mode...]";
+        stream << "IDLE" << Qt::endl << "[Entering IDLE mode...]";
         break;
     case IDLE_DONE:
-        stream << "DONE" << endl << "[Leaving IDLE mode...]";
+        stream << "DONE" << Qt::endl << "[Leaving IDLE mode...]";
         break;
     case STARTTLS:
-        stream << "STARTTLS" << endl << "[Starting TLS...]";
+        stream << "STARTTLS" << Qt::endl << "[Starting TLS...]";
         break;
     case COMPRESS_DEFLATE:
-        stream << "COMPRESS DEFLATE" << endl << "[Starting deflate...]";
+        stream << "COMPRESS DEFLATE" << Qt::endl << "[Starting deflate...]";
         break;
     case ATOM_NO_SPACE_AROUND:
         stream << part.text;

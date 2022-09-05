@@ -129,12 +129,12 @@ int main(int argc, char **argv)
         if (parser.positionalArguments().size() == 1) {
             url = parser.positionalArguments().at(0);
             if (!url.startsWith(QLatin1String("mailto:"))) {
-                qErr << QObject::tr("Unexpected argument '%1'.").arg(url) << endl;
+                qErr << QObject::tr("Unexpected argument '%1'.").arg(url) << Qt::endl;
                 error = true;
             } else
                 showComposeWindow = true;
         } else {
-            qErr << QObject::tr("Unexpected arguments.") << endl;
+            qErr << QObject::tr("Unexpected arguments.") << Qt::endl;
             error = true;
         }
     }
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
         showMainWindow = true;
 
     if (error) {
-        qOut << endl << parser.helpText();
+        qOut << Qt::endl << parser.helpText();
         return error ? 1 : 0;
     }
 
@@ -177,7 +177,7 @@ int main(int argc, char **argv)
 
     QString errmsg;
     if (!IPC::registerInstance(&win, errmsg))
-        qErr << QObject::tr("Error: Registering IPC instance failed: %1").arg(errmsg) << endl;
+        qErr << QObject::tr("Error: Registering IPC instance failed: %1").arg(errmsg) << Qt::endl;
 
     if ( settings.value(Common::SettingsNames::guiStartMinimized, QVariant(false)).toBool() ) {
         if ( !settings.value(Common::SettingsNames::guiShowSystray, QVariant(true)).toBool() ) {
