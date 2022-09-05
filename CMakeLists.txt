@@ -158,7 +158,7 @@ add_definitions(-DQT_STRICT_ITERATORS)
 add_definitions(-DQT_USE_QSTRINGBUILDER)
 add_definitions(-DQT_USE_FAST_OPERATOR_PLUS)
 add_definitions(-DQT_USE_FAST_CONCATENATION)
-add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050e00)
+add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050f00)
 
 if(NOT MSVC)
   # We're using C++11's threading features (std::async in particular), and that requires "some threading". With GCC and

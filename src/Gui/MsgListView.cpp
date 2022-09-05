@@ -47,7 +47,7 @@ MsgListView::MsgListView(QWidget *parent, Imap::Mailbox::FavoriteTagsModel *m_fa
     connect(header(), &QHeaderView::sectionCountChanged, this, &MsgListView::slotUpdateHeaderActions);
     header()->setContextMenuPolicy(Qt::ActionsContextMenu);
     headerFieldsMapper = new QSignalMapper(this);
-    connect(headerFieldsMapper, static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this, &MsgListView::slotHeaderSectionVisibilityToggled);
+    connect(headerFieldsMapper, &QSignalMapper::mappedInt, this, &MsgListView::slotHeaderSectionVisibilityToggled);
 
     setUniformRowHeights(true);
     setAllColumnsShowFocus(true);
