@@ -477,6 +477,7 @@
     <binary>trojita</binary>
     <binary>be.contacts</binary>
   </provides>
+  <launchable type="desktop-id">org.kde.krename.desktop</launchable>
   <releases>
     <release version="0.7" date="2016-06-15"/>
     <release version="0.6" date="2016-01-21"/>
