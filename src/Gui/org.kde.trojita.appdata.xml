@@ -23,6 +23,7 @@
   <name xml:lang="ia">Trojitá</name>
   <name xml:lang="id">Trojitá</name>
   <name xml:lang="it">Trojitá</name>
+  <name xml:lang="ka">Trojitá</name>
   <name xml:lang="ko">Trojitá</name>
   <name xml:lang="lv">Trojitá</name>
   <name xml:lang="nds">Trojitá</name>
@@ -59,6 +60,7 @@
   <summary xml:lang="ia">Cliente de e-posta IMAP</summary>
   <summary xml:lang="id">Klien IMAP E-mail</summary>
   <summary xml:lang="it">Client di posta elettronica IMAP</summary>
+  <summary xml:lang="ka">IMAP ელფოსტის კლიენტი</summary>
   <summary xml:lang="ko">IMAP 이메일 클라이언트</summary>
   <summary xml:lang="lv">IMAP e-pasta klients</summary>
   <summary xml:lang="nds">IMAP-Nettpostprogramm</summary>
@@ -163,6 +165,7 @@
     <p xml:lang="hu">Mi teheti érdekessé a Trojitát Önnek:</p>
     <p xml:lang="id">Apa yang bisa membuat Trojitá menarik bagimu:</p>
     <p xml:lang="it">Ecco cosa ti può rendere interessante Trojitá:</p>
+    <p xml:lang="ka">რამ შეიძლება Trojitá -ში დაგაინტერესოთ:</p>
     <p xml:lang="ko">Trojitá의 특징적인 기능:</p>
     <p xml:lang="lv">Trojitá Jūs varētu ieinteresēt:</p>
     <p xml:lang="nl">Wat zou Trojitá voor u interessant kunnen maken:</p>
@@ -196,6 +199,7 @@
       <li xml:lang="hu">Nagyon gyors és robusztus IMAP-mag</li>
       <li xml:lang="id">Inti IMAP kuat dan sangat cepat</li>
       <li xml:lang="it">Nucleo IMAP molto veloce e robusto</li>
+      <li xml:lang="ka">ძალიან სწრაფი და ძლიერი IMAP ბირთვი</li>
       <li xml:lang="ko">매우 빠르고 안정적인 IMAP 코어</li>
       <li xml:lang="lv">Ātrs un robusts IMAP kodols</li>
       <li xml:lang="nl">Erg snelle en robuuste IMAP-kern</li>
@@ -227,6 +231,7 @@
       <li xml:lang="hu">A szabványoknak való megfelelés tervezési cél</li>
       <li xml:lang="id">Penyesuaian standar adalah tujuan desain</li>
       <li xml:lang="it">Conformità agli standard come obbiettivo di progettazione</li>
+      <li xml:lang="ka">სტანდარტებთან თავსებადობა, როგორც დიზაინის სამიზნე</li>
       <li xml:lang="ko">표준 준수를 목표로 설계됨</li>
       <li xml:lang="lv">Atbilstība standartiem ir filosofijas pamatā</li>
       <li xml:lang="nl">Voldoen aan standaarden is een ontwerpdoel</li>
@@ -290,6 +295,7 @@
       <li xml:lang="hu">Kapcsolat nélküli IMAP-támogatás</li>
       <li xml:lang="id">Dukungab IMAP offline</li>
       <li xml:lang="it">Supporto fuori linea IMAP</li>
+      <li xml:lang="ka">გათიშული IMAP-ის მხარდაჭერა</li>
       <li xml:lang="ko">오프라인 IMAP 지원</li>
       <li xml:lang="lv">Nesaistes IMAP atbalsts</li>
       <li xml:lang="nl">Ondersteuning van offline IMAP</li>
@@ -383,6 +389,7 @@
       <li xml:lang="hu">HTML-levelek biztonságos és robosztus kezelése</li>
       <li xml:lang="id">Menangani surat HTML dengan aman dan kuat</li>
       <li xml:lang="it">Gestione sicura e robusta della posta HTML</li>
+      <li xml:lang="ka">უსაფრთხო და ძლიერი გამკლავება HTML ფოსტასთან</li>
       <li xml:lang="ko">안전한 HTML 메시지 처리</li>
       <li xml:lang="lv">Droša un robusta HTML pasta apstrāde</li>
       <li xml:lang="nl">Veilig en robuust werken met HTML-e-mail</li>
