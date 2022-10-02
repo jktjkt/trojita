@@ -2,8 +2,6 @@ qtcreator-build
 build
 _doxygen
 _various-data
-# localization stuff -- maintained by the KDE infrastructure
-po/
 CMakeLists.txt.user
 CMakeLists.txt.user.*
 .*.swp
