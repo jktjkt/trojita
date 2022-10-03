@@ -1,0 +1,5857 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR This file is copyright:
+# This file is distributed under the same license as the basket package.
+#
+# Martin Srebotnjak <miles@filmsi.net>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: trojita\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2022-08-08 17:24+0200\n"
+"Last-Translator: Martin Srebotnjak <miles@filmsi.net>\n"
+"Language-Team: Slovenian <lugos-slo@lugos.si>\n"
+"Language: sl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%100==1 ? 1 : n%100==2 ? 2 : n%100==3 || n"
+"%100==4 ? 3 : 0);\n"
+"X-Qt-Contexts: true\n"
+"X-Generator: Poedit 3.1.1\n"
+
+#. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
+#: ../src/Composer/ComposerAttachments.cpp:146
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid ""
+"%1\n"
+"(from %2)"
+msgstr ""
+"%1\n"
+"(pošiljatelja %2)"
+
+#: ../src/Composer/ComposerAttachments.cpp:157
+msgctxt "Composer::MessageComposer|"
+msgid "File does not exist"
+msgstr "Datoteka ne obstaja"
+
+#: ../src/Composer/ComposerAttachments.cpp:160
+msgctxt "Composer::MessageComposer|"
+msgid "File is not readable"
+msgstr "Datoteka ni berljiva"
+
+#: ../src/Composer/ComposerAttachments.cpp:163
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "%1: %2, %3"
+msgstr "%1: %2, %3"
+
+#: ../src/Composer/ComposerAttachments.cpp:260
+msgctxt "Composer::MessageComposer|"
+msgid "Message not available"
+msgstr "Sporočilo ni na voljo"
+
+#: ../src/Composer/ComposerAttachments.cpp:263
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid ""
+"%1\n"
+"(%2)"
+msgstr ""
+"%1\n"
+"(%2)"
+
+#: ../src/Composer/ComposerAttachments.cpp:273
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "IMAP message %1"
+msgstr "IMAP-sporočilo %1"
+
+#: ../src/Composer/ComposerAttachments.cpp:384
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "IMAP part %1"
+msgstr "IMAP-del %1"
+
+#: ../src/Composer/ComposerAttachments.cpp:396
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "%1, %2"
+msgstr "%1, %2"
+
+#: ../src/Composer/ExistingMessageComposer.cpp:78
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Cannot obtain IMAP URL for CATENATE"
+msgstr "URL-ja IMAP za CATENATE ni mogoče pridobiti"
+
+#: ../src/Composer/MessageComposer.cpp:599
+#: ../src/Composer/MessageComposer.cpp:630
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "Attachment %1 is not available"
+msgstr "Priloga %1 ni na voljo"
+
+#: ../src/Composer/MessageComposer.cpp:635
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "Attachment %1 disappeared"
+msgstr "Priloga %1 je izginila"
+
+#: ../src/Composer/SenderIdentitiesModel.cpp:94
+msgctxt "Composer::SenderIdentitiesModel|"
+msgid "Name"
+msgstr "Ime"
+
+#: ../src/Composer/SenderIdentitiesModel.cpp:96
+msgctxt "Composer::SenderIdentitiesModel|"
+msgid "E-mail"
+msgstr "E-pošta"
+
+#: ../src/Composer/SenderIdentitiesModel.cpp:98
+msgctxt "Composer::SenderIdentitiesModel|"
+msgid "Organization"
+msgstr "Organizacija"
+
+#: ../src/Composer/SenderIdentitiesModel.cpp:100
+msgctxt "Composer::SenderIdentitiesModel|"
+msgid "Signature"
+msgstr "Podpis"
+
+#: ../src/Composer/Submission.cpp:113
+msgctxt "Composer::Submission|"
+msgid "Preparing to send"
+msgstr "Priprava na pošiljanje"
+
+#: ../src/Composer/Submission.cpp:118
+msgctxt "Composer::Submission|"
+msgid "Creating message"
+msgstr "Ustvarjanje sporočila"
+
+#: ../src/Composer/Submission.cpp:123
+msgctxt "Composer::Submission|"
+msgid "Saving to the sent folder"
+msgstr "Shranjevanje v mapo Poslano"
+
+#: ../src/Composer/Submission.cpp:128
+msgctxt "Composer::Submission|"
+msgid "Preparing message for delivery"
+msgstr "Priprava sporočila za dostavo"
+
+#: ../src/Composer/Submission.cpp:133
+msgctxt "Composer::Submission|"
+msgid "Submitting message"
+msgstr "Pošiljanje sporočila"
+
+#: ../src/Composer/Submission.cpp:138
+msgctxt "Composer::Submission|"
+msgid "Updating message keywords"
+msgstr "Posodabljanje ključnih besed sporočil"
+
+#: ../src/Composer/Submission.cpp:143
+msgctxt "Composer::Submission|"
+msgid "Message sent"
+msgstr "Sporočilo poslano"
+
+#: ../src/Composer/Submission.cpp:150
+msgctxt "Composer::Submission|"
+msgid "Sending failed"
+msgstr "Pošiljanje ni uspelo"
+
+#: ../src/Composer/Submission.cpp:180
+msgctxt "Composer::Submission|"
+msgid ""
+"The IMAP connection has disappeared. You'll have close the composer, save "
+"the draft and re-open it later. The attachments will have to be added later. "
+"Sorry for the trouble, please see <a href=\"https://projects.flaska.net/"
+"issues/640\">https://projects.flaska.net/issues/640</a> for details."
+msgstr ""
+"Povezava IMAP je izginila. Morali boste zapreti urejevalnik, shraniti "
+"osnutek in ga pozneje ponovno odpreti. Priloge bo treba dodati kasneje. "
+"Oprostite za težave, glejte <a href=\"https://projects.flaska.net/"
+"issues/640\">https://projects.flaska.net/issues/640</a> za podrobnosti."
+
+#: ../src/Composer/Submission.cpp:195
+msgctxt "Composer::Submission|"
+msgid "Some data are not available yet"
+msgstr "Nekateri podatki še niso na voljo"
+
+#: ../src/Composer/Submission.cpp:211
+#, qt-format
+msgctxt "Composer::Submission|"
+msgid ""
+"Cannot send right now -- saving failed:\n"
+" %1"
+msgstr ""
+"Trenutno ni mogoče poslati -- shranjevanje ni uspelo:\n"
+" %1"
+
+#: ../src/Composer/Submission.cpp:215
+#, qt-format
+msgctxt "Composer::Submission|"
+msgid ""
+"Cannot send right now -- saving (CATENATE) failed:\n"
+" %1"
+msgstr ""
+"Trenutno ni mogoče poslati -- shranjevanje (CATENATE) ni uspelo:\n"
+" %1"
+
+#: ../src/Composer/Submission.cpp:361
+#, qt-format
+msgctxt "Composer::Submission|"
+msgid "APPEND failed: %1"
+msgstr "APPEND ni uspel: %1"
+
+#: ../src/Composer/Submission.cpp:391
+msgctxt "Composer::Submission|"
+msgid "The URLAUTH response does not contain a proper URL"
+msgstr "Odziv URLAUTH ne vsebuje ustreznega URL-ja"
+
+#: ../src/Cryptography/GpgMe++.cpp:53
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "[getAuditLog failed: %1]"
+msgstr "[getAuditLog ni uspel: %1]"
+
+#: ../src/Cryptography/GpgMe++.cpp:169
+msgctxt "Cryptography::GpgMePart|"
+msgid "Waiting for data..."
+msgstr "Čakanje na podatke ..."
+
+#: ../src/Cryptography/GpgMe++.cpp:312
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted; some signature: missing key"
+msgstr "Šifrirano; vsaj en podpis: manjka ključ"
+
+#: ../src/Cryptography/GpgMe++.cpp:312
+msgctxt "Cryptography::GpgMePart|"
+msgid "Some signature: missing key"
+msgstr "Vsaj en podpis: manjkajoči ključ"
+
+#: ../src/Cryptography/GpgMe++.cpp:313
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid ""
+"Key %1 is not available in the keyring.\n"
+"Cannot verify signature validity or do anything else. The message might or "
+"might not have been tampered with."
+msgstr ""
+"Ključ %1 ni na voljo v naboru ključev.\n"
+"Veljavnosti podpisa ni mogoče preveriti ali storiti ničesar drugega. "
+"Sporočilo morda je ali pa ni bilo spremenjeno."
+
+#: ../src/Cryptography/GpgMe++.cpp:324
+msgctxt "Cryptography::GpgMePart|"
+msgid "Internal error"
+msgstr "Notranja napaka"
+
+#: ../src/Cryptography/GpgMe++.cpp:325
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Error when verifying signature: cannot retrieve key %1: %2"
+msgstr "Napaka pri preverjanju podpisa: ni mogoče pridobiti ključa %1: %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:375
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, verified signature"
+msgstr "Šifrirano, preverjen podpis"
+
+#: ../src/Cryptography/GpgMe++.cpp:375
+msgctxt "Cryptography::GpgMePart|"
+msgid "Verified signature"
+msgstr "Preverjen podpis"
+
+#: ../src/Cryptography/GpgMe++.cpp:376
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Verified signature from %1 on %2"
+msgstr "Preverjen podpis %1 z %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:381
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, signed by stranger"
+msgstr "Šifrirano, podpis neznanca"
+
+#: ../src/Cryptography/GpgMe++.cpp:381
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signed by stranger"
+msgstr "Podpis neznanca"
+
+#: ../src/Cryptography/GpgMe++.cpp:382
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid ""
+"Verified signature, but the signer is someone else:\n"
+"%1\n"
+"Signature was made on %2."
+msgstr ""
+"Preverjen podpis, vendar je podpisnik nekdo drug:\n"
+"%1\n"
+"Podpis je bil opravljen %2."
+
+#: ../src/Cryptography/GpgMe++.cpp:389
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, bad signature"
+msgstr "Šifriran, slab podpis"
+
+#: ../src/Cryptography/GpgMe++.cpp:389
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature"
+msgstr "Slab podpis"
+
+#: ../src/Cryptography/GpgMe++.cpp:392
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, bad signature: %1"
+msgstr "Šifriran, slab podpis: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:393
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature: %1"
+msgstr "Slab podpis: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:395
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature by %1 on %2"
+msgstr "Slab podpis (%1) z %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:398
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, bad signature by stranger"
+msgstr "Šifriran, slab podpis neznanca"
+
+#: ../src/Cryptography/GpgMe++.cpp:398
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature by stranger"
+msgstr "Slab podpis neznanca"
+
+#: ../src/Cryptography/GpgMe++.cpp:401
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, bad signature by stranger: %1"
+msgstr "Šifriran, slab podpis neznanca: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:402
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature by stranger: %1"
+msgstr "Slab podpis neznanca: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:404
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature by someone else: %1 on %2."
+msgstr "Slab podpis nekoga drugega: %1 pri %2."
+
+#: ../src/Cryptography/GpgMe++.cpp:420
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, some signature"
+msgstr "Šifrirano, vsaj en podpis"
+
+#: ../src/Cryptography/GpgMe++.cpp:420
+msgctxt "Cryptography::GpgMePart|"
+msgid "Some signature"
+msgstr "Vsaj en podpisov"
+
+#: ../src/Cryptography/GpgMe++.cpp:421
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Unknown signature from %1 on %2"
+msgstr "Neznan podpis %1 z %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:425
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, some signature by stranger"
+msgstr "Šifrirano, nek podpis neznanca"
+
+#: ../src/Cryptography/GpgMe++.cpp:425
+msgctxt "Cryptography::GpgMePart|"
+msgid "Some signature by stranger"
+msgstr "Nek podpis neznanca"
+
+#: ../src/Cryptography/GpgMe++.cpp:426
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Unknown signature by somebody else: %1 on %2"
+msgstr "Neznan podpis nekoga drugega: %1 z %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:434
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, semi-trusted signature"
+msgstr "Šifrirano, delnega zaupanja vreden podpis"
+
+#: ../src/Cryptography/GpgMe++.cpp:434
+msgctxt "Cryptography::GpgMePart|"
+msgid "Semi-trusted signature"
+msgstr "Delnega zaupanja vreden podpis"
+
+#: ../src/Cryptography/GpgMe++.cpp:435
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Semi-trusted signature from %1 on %2"
+msgstr "Delnega zaupanja vreden podpis %1 z %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:440
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, semi-trusted signature by stranger"
+msgstr "Šifriran, delnega zaupanja vreden podpis neznanca"
+
+#: ../src/Cryptography/GpgMe++.cpp:441
+msgctxt "Cryptography::GpgMePart|"
+msgid "Semi-trusted signature by stranger"
+msgstr "Delnega zaupanja vreden podpis neznanca"
+
+#: ../src/Cryptography/GpgMe++.cpp:442
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Semi-trusted signature by somebody else: %1 on %2"
+msgstr "Delnega zaupanja vreden podpis nekoga drugega: %1 z %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:455
+msgctxt "Cryptography::GpgMePart|"
+msgid "The key or at least one certificate has been revoked."
+msgstr "Ključ ali vsaj eno potrdilo je bilo preklicano."
+
+#: ../src/Cryptography/GpgMe++.cpp:460
+msgctxt "Cryptography::GpgMePart|"
+msgid "The key or one of the certificates has expired."
+msgstr "Ključu ali enemu od potrdil je potekla veljavnost."
+
+#: ../src/Cryptography/GpgMe++.cpp:464
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature expired on %1."
+msgstr "Podpis je potekel %1."
+
+#: ../src/Cryptography/GpgMe++.cpp:469
+msgctxt "Cryptography::GpgMePart|"
+msgid "Can't verify due to a missing key or certificate."
+msgstr "Zaradi manjkajočega ključa ali potrdila preverjanje ni možno."
+
+#: ../src/Cryptography/GpgMe++.cpp:473
+msgctxt "Cryptography::GpgMePart|"
+msgid "The CRL (or an equivalent mechanism) is not available."
+msgstr "CRL (ali enakovreden mehanizem) ni na voljo."
+
+#: ../src/Cryptography/GpgMe++.cpp:477
+msgctxt "Cryptography::GpgMePart|"
+msgid "Available CRL is too old."
+msgstr "Razpoložljivi CRL je prestar."
+
+#: ../src/Cryptography/GpgMe++.cpp:481
+msgctxt "Cryptography::GpgMePart|"
+msgid "A policy requirement was not met."
+msgstr "Zahteva varnostne politike ni bila izpolnjena."
+
+#: ../src/Cryptography/GpgMe++.cpp:485
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "A system error occurred. %1"
+msgstr "Prišlo je do sistemske napake. %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:494
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is undefined."
+msgstr "Veljavnost podpisa ni določena."
+
+#: ../src/Cryptography/GpgMe++.cpp:498
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is never to be trusted."
+msgstr "Veljavnosti podpisa ne velja nikoli zaupati."
+
+#: ../src/Cryptography/GpgMe++.cpp:502
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is marginal."
+msgstr "Veljavnost podpisa je obrobna."
+
+#: ../src/Cryptography/GpgMe++.cpp:506
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is full."
+msgstr "Veljavnost podpisa je polna."
+
+#: ../src/Cryptography/GpgMe++.cpp:510
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is ultimate."
+msgstr "Veljavnost podpisa je dokončna."
+
+#: ../src/Cryptography/GpgMe++.cpp:514
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is unknown."
+msgstr "Veljavnost podpisa ni znana."
+
+#: ../src/Cryptography/GpgMe++.cpp:524
+msgctxt "Cryptography::GpgMePart|"
+msgid "Trust chain:"
+msgstr "Veriga zaupanja:"
+
+#: ../src/Cryptography/GpgMe++.cpp:530
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "%1(Unavailable)"
+msgstr "%1 (ni na voljo)"
+
+#: ../src/Cryptography/GpgMe++.cpp:534
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "%1(self-signed)"
+msgstr "%1 (samo-podpisano)"
+
+#: ../src/Cryptography/GpgMe++.cpp:543
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Error when retrieving key for the trust chain: %1"
+msgstr "Napaka pri pridobivanju ključa za verigo zaupanja: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:553
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature invalidity reason: %1"
+msgstr "Razlog za neveljavnost podpisa: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:615
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Malformed Signed Message"
+msgstr "Nepravilno oblikovano podpisano sporočilo"
+
+#: ../src/Cryptography/GpgMe++.cpp:616
+#, qt-format
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Expected 2 parts, but found %1."
+msgstr "Pričakovana 2 dela, vendar najdenih %1."
+
+#: ../src/Cryptography/GpgMe++.cpp:620
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Cannot verify signature"
+msgstr "Podpisa ni mogoče preveriti"
+
+#: ../src/Cryptography/GpgMe++.cpp:621
+#, qt-format
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Failed to initialize GpgME (%1)"
+msgstr "Inicializacija GpgME (%1) ni uspela"
+
+#: ../src/Cryptography/GpgMe++.cpp:641
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Signed message is gone"
+msgstr "Podpisanega sporočila ni več"
+
+#: ../src/Cryptography/GpgMe++.cpp:653
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Data Unavailable"
+msgstr "Podatki niso na voljo"
+
+#: ../src/Cryptography/GpgMe++.cpp:654
+msgctxt "Cryptography::GpgMeSigned|"
+msgid ""
+"Some data are not available, perhaps due to an offline network connection"
+msgstr ""
+"Nekateri podatki niso na voljo, morda zaradi omrežne povezave brez povezave"
+
+#: ../src/Cryptography/GpgMe++.cpp:674
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Verifying signature..."
+msgstr "Preverjanje podpisa ..."
+
+#: ../src/Cryptography/GpgMe++.cpp:699
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "No signatures in the signed message"
+msgstr "V podpisanem sporočilu ni podpisov"
+
+#: ../src/Cryptography/GpgMe++.cpp:739 ../src/Cryptography/GpgMe++.cpp:813
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Malformed Encrypted Message"
+msgstr "Nepravilno oblikovano šifrirano sporočilo"
+
+#: ../src/Cryptography/GpgMe++.cpp:740
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Expected 2 parts for an encrypted OpenPGP message, but found %1."
+msgstr "Pričakovana 2 dela za šifrirano sporočilo OpenPGP, vendar najdenih %1."
+
+#: ../src/Cryptography/GpgMe++.cpp:765
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Cannot descrypt"
+msgstr "Ni mogoče dešifrirati"
+
+#: ../src/Cryptography/GpgMe++.cpp:766
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Failed to initialize GpgME (%1)"
+msgstr "Inicializacija GpgME (%1) ni uspela"
+
+#: ../src/Cryptography/GpgMe++.cpp:786 ../src/Cryptography/GpgMe++.cpp:922
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Encrypted message is gone"
+msgstr "Šifrirano sporočilo je izginilo"
+
+#: ../src/Cryptography/GpgMe++.cpp:796
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Data Unavailable"
+msgstr "Podatki niso na voljo"
+
+#: ../src/Cryptography/GpgMe++.cpp:797
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid ""
+"Cannot decrypt. Some data are not available, perhaps due to an offline "
+"network connection."
+msgstr ""
+"Ni mogoče dešifrirati. Nekateri podatki niso na voljo, morda zaradi omrežne "
+"povezave brez povezave."
+
+#: ../src/Cryptography/GpgMe++.cpp:814
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%1\"."
+msgstr ""
+"Nepodprta različica PGP/MIME. Pričakovana »Različica: 1«, pridobljeno »%1«."
+
+#: ../src/Cryptography/GpgMe++.cpp:820
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Decrypting..."
+msgstr "Dešifriranje ..."
+
+#: ../src/Cryptography/GpgMe++.cpp:863
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Broken encrypted message"
+msgstr "Okvarjeno šifrirano sporočilo"
+
+#: ../src/Cryptography/GpgMe++.cpp:866
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Decryption error: %1"
+msgstr "Napaka pri dešifriranju: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:869
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Encrypted message"
+msgstr "Šifrirano sporočilo"
+
+#: ../src/Cryptography/GpgMe++.cpp:875
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Wrong key usage, not for encryption"
+msgstr "Napačna uporaba ključa, ni za šifriranje"
+
+#: ../src/Cryptography/GpgMe++.cpp:879
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Unsupported algorithm: %1"
+msgstr "Nepodprti algoritem: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:887
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Cannot extract recipient %1: %2"
+msgstr "Prejemnika %1 ni mogoče izvleči: %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:892
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Encrypted to %1 (%2)"
+msgstr "Šifrirano v %1 (%2)"
+
+#: ../src/Cryptography/GpgMe++.cpp:896
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Encrypted to %1"
+msgstr "Šifrirano v %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:902
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Original filename: %1"
+msgstr "Izvirno ime datoteke: %1"
+
+#: ../src/Gui/AboutDialog.ui:14
+msgctxt "AboutDialog|"
+msgid "About Trojitá"
+msgstr "O programu Trojitá"
+
+#: ../src/Gui/AboutDialog.ui:152
+msgctxt "AboutDialog|"
+msgid "<p>This is <b>Trojitá</b>, a fast Qt IMAP e-mail client</p>"
+msgstr "<p>To je <b>Trojitá</b>, hiter poštni odjemalec Qt IMAP</p>"
+
+#: ../src/Gui/AddressRowWidget.cpp:130
+#, qt-format
+msgctxt "Gui::Expander|"
+msgid "Click to see %1 more items"
+msgstr "Kliknite, če želite videti %1 več elementov"
+
+#: ../src/Gui/AddressRowWidget.cpp:130
+msgctxt "Gui::Expander|"
+msgid "Click to collapse"
+msgstr "Kliknite za strnitev"
+
+#: ../src/Gui/AttachmentView.cpp:90
+msgctxt "Gui::AttachmentView|"
+msgid "Download"
+msgstr "Prejmi"
+
+#: ../src/Gui/AttachmentView.cpp:91
+msgctxt "Gui::AttachmentView|"
+msgid "Open Directly"
+msgstr "Odpri neposredno"
+
+#: ../src/Gui/AttachmentView.cpp:96
+msgctxt "Gui::AttachmentView|"
+msgid "Show Preview"
+msgstr "Pokaži predogled"
+
+#: ../src/Gui/AttachmentView.cpp:103
+msgctxt "Gui::AttachmentView|"
+msgid "Show Message Source"
+msgstr "Pokaži izvorno kodo sporočila"
+
+#: ../src/Gui/AttachmentView.cpp:127
+#, qt-format
+msgctxt "Gui::AttachmentView|"
+msgid "IMAP Server error for this part: %1 (%2)"
+msgstr "Napaka strežnika IMAP za ta del: %1 (%2)"
+
+#: ../src/Gui/AttachmentView.cpp:166
+#, qt-format
+msgctxt "Gui::AttachmentView|"
+msgid "%2, %3"
+msgstr "%2, %3"
+
+#: ../src/Gui/AttachmentView.cpp:241
+msgctxt "Gui::AttachmentView|"
+msgid "Save Attachment"
+msgstr "Shrani priponko"
+
+#: ../src/Gui/AttachmentView.cpp:408
+msgctxt "Gui::AttachmentView|"
+msgid "Source of Attached Message"
+msgstr "Izvorna koda priloženega sporočila"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:48
+msgctxt "ComposerAttachmentsList|"
+msgid "Send Inline"
+msgstr "Pošlji znotrajvrstično"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:53
+msgctxt "ComposerAttachmentsList|"
+msgid "Rename..."
+msgstr "Preimenuj …"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:57
+msgctxt "ComposerAttachmentsList|"
+msgid "Remove"
+msgstr "Odstrani"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:136
+msgctxt "ComposerAttachmentsList|"
+msgid "Rename Attachment"
+msgstr "Preimenuj prilogo"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:136
+msgctxt "ComposerAttachmentsList|"
+msgid "New Name"
+msgstr "Novo ime"
+
+#: ../src/Gui/ComposerTextEdit.cpp:55
+msgctxt "ComposerTextEdit|"
+msgid "Paste as Quoted Text"
+msgstr "Prilepi kot citat"
+
+#: ../src/Gui/ComposeWidget.cpp:126
+msgctxt "QWidget|"
+msgid "Cancel..."
+msgstr "Prekliči …"
+
+#: ../src/Gui/ComposeWidget.cpp:126
+msgctxt "QWidget|"
+msgid "Cancel"
+msgstr "Prekliči"
+
+#: ../src/Gui/ComposeWidget.cpp:195
+msgctxt "Gui::ComposeWidget|"
+msgid "Send"
+msgstr "Pošlji"
+
+#: ../src/Gui/ComposeWidget.cpp:234
+msgctxt "Gui::ComposeWidget|"
+msgid "New Thread"
+msgstr "Nova nit"
+
+#: ../src/Gui/ComposeWidget.cpp:237
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"This mail will be sent as a standalone message.<hr/>Change to preserve the "
+"reply hierarchy."
+msgstr ""
+"Ta pošta bo poslana kot samostojno sporočilo.<hr/>Spremenite, če želite "
+"ohraniti hierarhijo odgovora."
+
+#: ../src/Gui/ComposeWidget.cpp:238
+msgctxt "Gui::ComposeWidget|"
+msgid "Threaded"
+msgstr "Niteno"
+
+#: ../src/Gui/ComposeWidget.cpp:358
+msgctxt "Gui::ComposeWidget|"
+msgid "Error"
+msgstr "Napaka"
+
+#: ../src/Gui/ComposeWidget.cpp:358
+msgctxt "Gui::ComposeWidget|"
+msgid "Please set appropriate settings for outgoing messages."
+msgstr "Nastavite ustrezne nastavitve za odhodna sporočila."
+
+#: ../src/Gui/ComposeWidget.cpp:511
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"It doesn't look like this is a message to the mailing list. Please fill in "
+"the recipients manually."
+msgstr ""
+"Ni videti, da je to sporočilo za poštni seznam. Prejemnike vnesite ročno."
+
+#: ../src/Gui/ComposeWidget.cpp:514
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"Trojitá was unable to safely determine the real e-mail address of the author "
+"of the message. You might want to use the \"Reply All\" function and trim "
+"the list of addresses manually."
+msgstr ""
+"Trojitá ni mogla varno določiti pravega e-poštnega naslova avtorja "
+"sporočila. Morda boste želeli uporabiti funkcijo »Odgovori vsem« in ročno "
+"oklestiti seznam naslovov."
+
+#: ../src/Gui/ComposeWidget.cpp:519
+msgctxt "Gui::ComposeWidget|"
+msgid "Cannot Determine Recipients"
+msgstr "Ni mogoče določiti prejemnikov"
+
+#: ../src/Gui/ComposeWidget.cpp:566
+msgctxt "Gui::ComposeWidget|"
+msgid "Sender"
+msgstr "Pošiljatelj"
+
+#: ../src/Gui/ComposeWidget.cpp:572
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "Resend Mail: %1"
+msgstr "Ponovno pošiljanje pošte: %1"
+
+#: ../src/Gui/ComposeWidget.cpp:572
+msgctxt "Gui::ComposeWidget|"
+msgid "(no subject)"
+msgstr "(brez zadeve)"
+
+#: ../src/Gui/ComposeWidget.cpp:584
+msgctxt "Gui::ComposeWidget|"
+msgid "Message has no subject"
+msgstr "Sporočilo nima teme"
+
+#: ../src/Gui/ComposeWidget.cpp:587
+msgctxt "Gui::ComposeWidget|"
+msgid "The Message-ID header is missing"
+msgstr "Manjka glava ID-ja sporočila"
+
+#: ../src/Gui/ComposeWidget.cpp:590
+msgctxt "Gui::ComposeWidget|"
+msgid "Message has no date"
+msgstr "Sporočilo nima datuma"
+
+#: ../src/Gui/ComposeWidget.cpp:593
+msgctxt "Gui::ComposeWidget|"
+msgid "Nothing in the From field"
+msgstr "Nič ni v polju »Od«"
+
+#: ../src/Gui/ComposeWidget.cpp:596
+msgctxt "Gui::ComposeWidget|"
+msgid "No recipients in the To field"
+msgstr "V polju »Za« ni prejemnikov"
+
+#: ../src/Gui/ComposeWidget.cpp:599
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"<b>This message appears to be malformed, please be careful before sending it."
+"</b>"
+msgstr ""
+"<b>Zdi se, da je to sporočilo napačno oblikovano, bodite previdni, preden ga "
+"pošljete.</b>"
+
+#: ../src/Gui/ComposeWidget.cpp:688
+msgctxt "Gui::ComposeWidget|"
+msgid "Authentication Required"
+msgstr "Obvezno preverjanje pristnosti"
+
+#: ../src/Gui/ComposeWidget.cpp:689
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "<p>Please provide SMTP password for user <b>%1</b> on <b>%2</b>:</p>"
+msgstr "<p>Navedite geslo SMTP za uporabnika <b>%1</b> na <b>%2</b>:</p>"
+
+#: ../src/Gui/ComposeWidget.cpp:723
+msgctxt "Gui::ComposeWidget|"
+msgid "Save Draft?"
+msgstr "Ali želite shraniti osnutek?"
+
+#: ../src/Gui/ComposeWidget.cpp:724
+msgctxt "Gui::ComposeWidget|"
+msgid "The mail has not been sent.<br>Do you want to save the draft?"
+msgstr "Sporočilo ni bilo poslano.<br>Ali želite shraniti osnutek?"
+
+#: ../src/Gui/ComposeWidget.cpp:726
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"<br><span style=\"color:red\">Warning: Attachments are <b>not</b> saved with "
+"the draft!</span>"
+msgstr ""
+"<br><span style=\"color:red\">Opozorilo: Priloge se <b>ne shranijo</b> z "
+"osnutkom!</span>"
+
+#: ../src/Gui/ComposeWidget.cpp:737 ../src/Gui/Window.cpp:1527
+#: ../src/Gui/Window.cpp:1529
+msgctxt "Gui::MainWindow|"
+msgid "Drafts"
+msgstr "Osnutki"
+
+#: ../src/Gui/ComposeWidget.cpp:747
+msgctxt "Gui::ComposeWidget|"
+msgid "Save as"
+msgstr "Shrani kot"
+
+#: ../src/Gui/ComposeWidget.cpp:748
+msgctxt "Gui::ComposeWidget|"
+msgid "Drafts"
+msgstr "Osnutki"
+
+#: ../src/Gui/ComposeWidget.cpp:777
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"Cannot parse recipients:\n"
+"%1"
+msgstr ""
+"Prejemnikov ni mogoče razčleniti:\n"
+"%1"
+
+#: ../src/Gui/ComposeWidget.cpp:781
+msgctxt "Gui::ComposeWidget|"
+msgid "You haven't entered any recipients"
+msgstr "Niste vnesli nobenega prejemnika"
+
+#: ../src/Gui/ComposeWidget.cpp:789
+msgctxt "Gui::ComposeWidget|"
+msgid "The From: address does not look like a valid one"
+msgstr "Naslov Od: ni videti veljaven"
+
+#: ../src/Gui/ComposeWidget.cpp:796
+msgctxt "Gui::ComposeWidget|"
+msgid "You haven't entered any subject. Cannot send such a mail, sorry."
+msgstr "Niste vnesli zadeve. Ni mogoče poslati te pošte, oprostite."
+
+#: ../src/Gui/ComposeWidget.cpp:828
+msgctxt "Gui::ComposeWidget|"
+msgid "Cannot prepare this e-mail for sending: some parts are not available"
+msgstr ""
+"Tega e-poštnega sporočila ni mogoče pripraviti za pošiljanje: nekateri deli "
+"niso na voljo"
+
+#: ../src/Gui/ComposeWidget.cpp:919 ../src/Gui/ComposeWidget.cpp:1794
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "This mail will be marked as a response<hr/>%1"
+msgstr "To e-sporočilo bo označeno kot odgovor<hr/>%1"
+
+#: ../src/Gui/ComposeWidget.cpp:1097
+msgctxt "Gui::ComposeWidget|"
+msgid "To"
+msgstr "Za"
+
+#: ../src/Gui/ComposeWidget.cpp:1098
+msgctxt "Gui::ComposeWidget|"
+msgid "Cc"
+msgstr "Kp"
+
+#: ../src/Gui/ComposeWidget.cpp:1099
+msgctxt "Gui::ComposeWidget|"
+msgid "Bcc"
+msgstr "Skp"
+
+#: ../src/Gui/ComposeWidget.cpp:1101
+msgctxt "Gui::ComposeWidget|"
+msgid "Resent-To"
+msgstr "Ponovno-poslano-za"
+
+#: ../src/Gui/ComposeWidget.cpp:1102
+msgctxt "Gui::ComposeWidget|"
+msgid "Resent-Cc"
+msgstr "Ponovno-poslano-kp"
+
+#: ../src/Gui/ComposeWidget.cpp:1103
+msgctxt "Gui::ComposeWidget|"
+msgid "Resent-Bcc"
+msgstr "Ponovno-poslano-skp"
+
+#: ../src/Gui/ComposeWidget.cpp:1387
+msgctxt "Gui::ComposeWidget|"
+msgid "Failed to Send Mail"
+msgstr "Pošiljanje pošte ni uspelo"
+
+#: ../src/Gui/ComposeWidget.cpp:1414
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "Can't parse \"%1\" as an e-mail address."
+msgstr "»%1« ni mogoče razčleniti kot e-poštni naslov."
+
+#: ../src/Gui/ComposeWidget.cpp:1613
+msgctxt "Gui::ComposeWidget|"
+msgid "Attach File..."
+msgstr "Priloži datoteko ..."
+
+#: ../src/Gui/ComposeWidget.cpp:1795
+msgctxt "Gui::ComposeWidget|"
+msgid "<br/>"
+msgstr "<br/>"
+
+#: ../src/Gui/ComposeWidget.cpp:1838
+msgctxt "Gui::ComposeWidget|"
+msgid "Compose Mail"
+msgstr "Sestavi sporočilo"
+
+#: ../src/Gui/ComposeWidget.cpp:1840
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "%1 - Compose Mail"
+msgstr "%1 - Sestavi sporočilo"
+
+#: ../src/Gui/ComposeWidget.ui:51
+msgctxt "ComposeWidget|"
+msgid "From"
+msgstr "Od"
+
+#: ../src/Gui/ComposeWidget.ui:77
+msgctxt "ComposeWidget|"
+msgid "Subject"
+msgstr "Zadeva"
+
+#: ../src/Gui/ComposeWidget.ui:121
+msgctxt "ComposeWidget|"
+msgid "Attach..."
+msgstr "Pripni ..."
+
+#: ../src/Gui/CreateMailboxDialog.ui:14
+msgctxt "CreateMailboxDialog|"
+msgid "Create Mailbox"
+msgstr "Ustvari nabiralnik"
+
+#: ../src/Gui/CreateMailboxDialog.ui:22
+msgctxt "CreateMailboxDialog|"
+msgid "&Mailbox:"
+msgstr "&Nabiralnik:"
+
+#: ../src/Gui/CreateMailboxDialog.ui:39
+msgctxt "CreateMailboxDialog|"
+msgid "Other Mai&lboxes"
+msgstr "Drugi na&biralniki"
+
+#: ../src/Gui/CreateMailboxDialog.ui:46
+msgctxt "CreateMailboxDialog|"
+msgid "Messages Only"
+msgstr "Samo sporočila"
+
+#: ../src/Gui/CreateMailboxDialog.ui:58
+msgctxt "CreateMailboxDialog|"
+msgid ""
+"Check to add this mailbox to the server-side list of subscribed mailboxes"
+msgstr ""
+"Preverite, ali želite ta nabiralnik dodati na seznam naročenih nabiralnikov "
+"na strani strežnika"
+
+#: ../src/Gui/CreateMailboxDialog.ui:61
+msgctxt "CreateMailboxDialog|"
+msgid "&Subscribe"
+msgstr "&Naroči se"
+
+#: ../src/Gui/EditFavoriteTag.ui:20
+msgctxt "EditFavoriteTag|"
+msgid "Manage Tag"
+msgstr "Upravljaj značko"
+
+#: ../src/Gui/EditFavoriteTag.ui:29
+msgctxt "EditFavoriteTag|"
+msgid "Name"
+msgstr "Ime"
+
+#: ../src/Gui/EditFavoriteTag.ui:39
+msgctxt "EditFavoriteTag|"
+msgid "Color"
+msgstr "Barva"
+
+#: ../src/Gui/EditIdentity.ui:20
+msgctxt "EditIdentity|"
+msgid "Manage Identity"
+msgstr "Upravljaj identiteto"
+
+#: ../src/Gui/EditIdentity.ui:29
+msgctxt "EditIdentity|"
+msgid "Real Name"
+msgstr "Resnično ime"
+
+#: ../src/Gui/EditIdentity.ui:39
+msgctxt "EditIdentity|"
+msgid "E-mail"
+msgstr "E-pošta"
+
+#: ../src/Gui/EditIdentity.ui:52
+msgctxt "EditIdentity|"
+msgid "Organisation"
+msgstr "Organizacija"
+
+#: ../src/Gui/EditIdentity.ui:59
+msgctxt "EditIdentity|"
+msgid "Signature"
+msgstr "Podpis"
+
+#: ../src/Gui/EmbeddedWebView.cpp:101
+msgctxt "Gui::EmbeddedWebView|"
+msgid "Ctrl+C"
+msgstr "Krmilka+C"
+
+#: ../src/Gui/EmbeddedWebView.cpp:362
+msgctxt "Gui::EmbeddedWebView|"
+msgid "System colors"
+msgstr "Sistemske barve"
+
+#: ../src/Gui/EmbeddedWebView.cpp:363
+msgctxt "Gui::EmbeddedWebView|"
+msgid "System theme adjusted for better contrast"
+msgstr "Sistemska tema, prilagojena za boljši kontrast"
+
+#: ../src/Gui/EmbeddedWebView.cpp:364
+msgctxt "Gui::EmbeddedWebView|"
+msgid "Black on white, forced"
+msgstr "Črno na belem, vsiljeno"
+
+#: ../src/Gui/EnvelopeView.cpp:104
+msgctxt "Gui::EnvelopeView|"
+msgid "From"
+msgstr "Od"
+
+#: ../src/Gui/EnvelopeView.cpp:109
+msgctxt "Gui::EnvelopeView|"
+msgid "sent via"
+msgstr "poslano prek"
+
+#: ../src/Gui/EnvelopeView.cpp:111
+msgctxt "Gui::EnvelopeView|"
+msgid "Sender"
+msgstr "Pošiljatelj"
+
+#: ../src/Gui/EnvelopeView.cpp:117
+msgctxt "Gui::EnvelopeView|"
+msgid "replies to"
+msgstr "odgovarja"
+
+#: ../src/Gui/EnvelopeView.cpp:119
+msgctxt "Gui::EnvelopeView|"
+msgid "Reply-To"
+msgstr "Odgovori-na"
+
+#: ../src/Gui/EnvelopeView.cpp:130
+msgctxt "Gui::EnvelopeView|"
+msgid "To"
+msgstr "Za"
+
+#: ../src/Gui/EnvelopeView.cpp:135
+msgctxt "Gui::EnvelopeView|"
+msgid "Cc'd to"
+msgstr "Kp za"
+
+#: ../src/Gui/EnvelopeView.cpp:137
+msgctxt "Gui::EnvelopeView|"
+msgid "Cc"
+msgstr "Kp"
+
+#: ../src/Gui/EnvelopeView.cpp:143
+msgctxt "Gui::EnvelopeView|"
+msgid "Bcc'd to"
+msgstr "Skp za"
+
+#: ../src/Gui/EnvelopeView.cpp:145
+msgctxt "Gui::EnvelopeView|"
+msgid "Bcc"
+msgstr "Skp"
+
+#: ../src/Gui/EnvelopeView.cpp:166
+#, qt-format
+msgctxt "Gui::EnvelopeView|"
+msgid "<a href=\"%1\">%2</a>"
+msgstr "<a href=\"%1\">%2</a>"
+
+#: ../src/Gui/EnvelopeView.cpp:171
+msgctxt "Gui::EnvelopeView|"
+msgid ", "
+msgstr ", "
+
+#: ../src/Gui/EnvelopeView.cpp:176
+msgctxt "Gui::EnvelopeView|"
+msgid "Mailing List"
+msgstr "Dopisni seznam"
+
+#: ../src/Gui/ExternalElementsWidget.cpp:35
+msgctxt "Gui::ExternalElementsWidget|"
+msgid "Load"
+msgstr "Naloži"
+
+#: ../src/Gui/ExternalElementsWidget.cpp:36
+msgctxt "Gui::ExternalElementsWidget|"
+msgid "This e-mail wants to load external entities from the Internet"
+msgstr "To e-sporočilo želi naložiti zunanje entitete z interneta"
+
+#: ../src/Gui/FindBar.cpp:49
+msgctxt "Gui::FindBar|"
+msgid "&Match case"
+msgstr "Razlikovanje &malih/velikih črk"
+
+#: ../src/Gui/FindBar.cpp:50
+msgctxt "Gui::FindBar|"
+msgid "&Highlight all"
+msgstr "Pou&dari vse"
+
+#: ../src/Gui/FindBar.cpp:62
+msgctxt "Gui::FindBar|"
+msgid "Esc"
+msgstr "Ubežnica"
+
+#: ../src/Gui/FindBar.cpp:68
+msgctxt "Gui::FindBar|"
+msgid "Find:"
+msgstr "Najdi:"
+
+#: ../src/Gui/FindBar.cpp:81
+msgctxt "Gui::FindBar|"
+msgid "&Next"
+msgstr "&Naprej"
+
+#: ../src/Gui/FindBar.cpp:82
+msgctxt "Gui::FindBar|"
+msgid "F3"
+msgstr "F3"
+
+#: ../src/Gui/FindBar.cpp:83
+msgctxt "Gui::FindBar|"
+msgid "&Previous"
+msgstr "&Prejšnji"
+
+#. Translators: You can change this shortcut, but button names like Shift should not be localized here. That will break setting the shortcut. Button names will still appear localized in the UI.
+#: ../src/Gui/FindBar.cpp:86
+msgctxt "Gui::FindBar|"
+msgid "Shift+F3"
+msgstr "Dvigalka+F3"
+
+#: ../src/Gui/ImapInfoDialog.ui:14
+msgctxt "ImapInfoDialog|"
+msgid "IMAP Server Info"
+msgstr "Podatki o strežniku IMAP"
+
+#: ../src/Gui/ImapInfoDialog.ui:33
+msgctxt "ImapInfoDialog|"
+msgid "<html><head/><body><p>SERVERINFO Placeholder</p></body></html>"
+msgstr "<html><head/><body><p>Ograda SERVERINFO</p></body></html>"
+
+#: ../src/Gui/LoadablePartWidget.cpp:47
+#, qt-format
+msgctxt "Gui::LoadablePartWidget|"
+msgid "Load %1 (%2)"
+msgstr "Naloži %1 (%2)"
+
+#: ../src/Gui/MailBoxTreeView.cpp:143
+msgctxt "Gui::MailBoxTreeView|"
+msgid "Move here\tShift"
+msgstr "Premakni sem\tDvigalka"
+
+#: ../src/Gui/MailBoxTreeView.cpp:144
+msgctxt "Gui::MailBoxTreeView|"
+msgid "Copy here\tCtrl"
+msgstr "Kopiraj sem\tKrmilka"
+
+#: ../src/Gui/MailBoxTreeView.cpp:145
+msgctxt "Gui::MailBoxTreeView|"
+msgid "Cancel"
+msgstr "Prekliči"
+
+#: ../src/Gui/main.cpp:84
+#, qt-format
+msgctxt "QObject|"
+msgid "Trojitá %1 - fast Qt IMAP e-mail client"
+msgstr "Trojitá %1 – hitri odjemalec e-pošte Qt IMAP"
+
+#: ../src/Gui/main.cpp:89
+msgctxt "QObject|"
+msgid "Show addressbook window."
+msgstr "Pokaži okno adresarja."
+
+#: ../src/Gui/main.cpp:93
+msgctxt "QObject|"
+msgid "Compose new e-mail (default when url is provided)."
+msgstr "Sestavite novo e-sporočilo (privzeto, ko je URL na voljo)."
+
+#: ../src/Gui/main.cpp:97
+msgctxt "QObject|"
+msgid "Activate debug traffic logging to disk by default."
+msgstr "Privzeto aktivirajte beleženje prometa za razhroščevanje na disk."
+
+#: ../src/Gui/main.cpp:101
+msgctxt "QObject|"
+msgid "Show main window (default when no option is provided)."
+msgstr "Pokaži glavno okno (privzeto, ko ni na voljo nobene možnosti)."
+
+#: ../src/Gui/main.cpp:105
+msgctxt "QObject|"
+msgid "Set profile."
+msgstr "Določite profil."
+
+#: ../src/Gui/main.cpp:105
+msgctxt "QObject|"
+msgid "profile"
+msgstr "profil"
+
+#: ../src/Gui/main.cpp:108
+msgctxt "QObject|"
+msgid "Mailto: URL address for composing new e-mail."
+msgstr "Mailto: naslov URL za sestavo novega e-sporočila."
+
+#: ../src/Gui/main.cpp:109
+msgctxt "QObject|"
+msgid "[url]"
+msgstr "[url]"
+
+#: ../src/Gui/main.cpp:132
+#, qt-format
+msgctxt "QObject|"
+msgid "Unexpected argument '%1'."
+msgstr "Nepričakovan argument »%1«."
+
+#: ../src/Gui/main.cpp:137
+msgctxt "QObject|"
+msgid "Unexpected arguments."
+msgstr "Nepričakovani argumenti."
+
+#: ../src/Gui/main.cpp:180
+#, qt-format
+msgctxt "QObject|"
+msgid "Error: Registering IPC instance failed: %1"
+msgstr "Napaka: registracija primerka IPC ni uspela: %1"
+
+#. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
+#: ../src/Gui/MessageHeadersWidget.cpp:44
+#, qt-format
+msgctxt "Gui::MessageHeadersWidget|"
+msgid "Message headers of UID %1 in %2"
+msgstr "Glave sporočila UID%1 v %2"
+
+#: ../src/Gui/MessageHeadersWidget.cpp:55
+msgctxt "Gui::MessageHeadersWidget|"
+msgid "Search..."
+msgstr "Iskanje …"
+
+#: ../src/Gui/MessageHeadersWidget.cpp:56
+msgctxt "Gui::MessageHeadersWidget|"
+msgid "Ctrl+F"
+msgstr "Krmilka+F"
+
+#: ../src/Gui/MessageListWidget.cpp:50
+msgctxt "Gui::MessageListWidget|"
+msgid "Quick Search"
+msgstr "Hitro iskanje"
+
+#: ../src/Gui/MessageListWidget.cpp:51
+msgctxt "Gui::MessageListWidget|"
+msgid ""
+"Type in a text to search for within this mailbox. The icon on the left can "
+"be used to limit the search options (like whether to include addresses or "
+"message bodies, etc).<br/><hr/>Experts who have read RFC3501 can use the "
+"<code>:=</code> prefix and switch to a raw IMAP mode."
+msgstr ""
+"Vnesite besedilo, ki ga želite iskati v tem nabiralniku. Ikono na levi "
+"strani lahko uporabljate za omejitev možnosti iskanja (ali npr. želite "
+"vključiti naslove ali telesa sporočil itn.).<br/><hr/>Strokovnjaki, ki so "
+"prebrali RFC3501, lahko uporabijo predpono <code>:=</code> in preklopijo v "
+"neobdelani način IMAP."
+
+#: ../src/Gui/MessageListWidget.cpp:56
+msgctxt "Gui::MessageListWidget|"
+msgid "<query>"
+msgstr "<poizvedba>"
+
+#: ../src/Gui/MessageListWidget.cpp:64
+msgctxt "Gui::MessageListWidget|"
+msgid "Options for the IMAP search..."
+msgstr "Možnosti iskanja IMAP ..."
+
+#: ../src/Gui/MessageListWidget.cpp:67
+msgctxt "Gui::MessageListWidget|"
+msgid "Fuzzy Search"
+msgstr "Mehko iskanje"
+
+#: ../src/Gui/MessageListWidget.cpp:70
+msgctxt "Gui::MessageListWidget|"
+msgid "Subject"
+msgstr "Zadeva"
+
+#: ../src/Gui/MessageListWidget.cpp:73
+msgctxt "Gui::MessageListWidget|"
+msgid "Body"
+msgstr "Telo"
+
+#: ../src/Gui/MessageListWidget.cpp:75
+msgctxt "Gui::MessageListWidget|"
+msgid "Senders"
+msgstr "Pošiljatelji"
+
+#: ../src/Gui/MessageListWidget.cpp:78
+msgctxt "Gui::MessageListWidget|"
+msgid "Recipients"
+msgstr "Prejemniki"
+
+#: ../src/Gui/MessageListWidget.cpp:83
+msgctxt "Gui::MessageListWidget|"
+msgid "Complex IMAP query"
+msgstr "Kompleksna poizvedba IMAP"
+
+#: ../src/Gui/MessageListWidget.cpp:85
+msgctxt "Gui::MessageListWidget|"
+msgid "Not ..."
+msgstr "Ne ..."
+
+#: ../src/Gui/MessageListWidget.cpp:86
+msgctxt "Gui::MessageListWidget|"
+msgid "Either... or..."
+msgstr "Ali … ali …"
+
+#: ../src/Gui/MessageListWidget.cpp:88
+msgctxt "Gui::MessageListWidget|"
+msgid "From sender"
+msgstr "Od pošiljatelja"
+
+#: ../src/Gui/MessageListWidget.cpp:89
+msgctxt "Gui::MessageListWidget|"
+msgid "To receiver"
+msgstr "Za prejemnika"
+
+#: ../src/Gui/MessageListWidget.cpp:91
+msgctxt "Gui::MessageListWidget|"
+msgid "About subject"
+msgstr "O zadevi"
+
+#: ../src/Gui/MessageListWidget.cpp:92
+msgctxt "Gui::MessageListWidget|"
+msgid "Message contains ..."
+msgstr "Sporočilo vsebuje …"
+
+#: ../src/Gui/MessageListWidget.cpp:94
+msgctxt "Gui::MessageListWidget|"
+msgid "Before date"
+msgstr "Pred datumom"
+
+#: ../src/Gui/MessageListWidget.cpp:95
+msgctxt "Gui::MessageListWidget|"
+msgid "Since date"
+msgstr "Od datuma"
+
+#: ../src/Gui/MessageListWidget.cpp:97
+msgctxt "Gui::MessageListWidget|"
+msgid "Has been seen"
+msgstr "Je bil viden"
+
+#: ../src/Gui/MessageListWidget.cpp:99
+msgctxt "Gui::MessageListWidget|"
+msgid "Allow raw IMAP search"
+msgstr "Dovoli neobdelano iskanje IMAP"
+
+#: ../src/Gui/MessageSourceWidget.cpp:49
+msgctxt "Gui::MessageSourceWidget|"
+msgid ""
+"Fetching\n"
+"Message"
+msgstr ""
+"Pridobivanje\n"
+"sporočila"
+
+#: ../src/Gui/MessageSourceWidget.cpp:58
+msgctxt "Gui::MessageSourceWidget|"
+msgid "Search..."
+msgstr "Iskanje …"
+
+#: ../src/Gui/MessageSourceWidget.cpp:59
+msgctxt "Gui::MessageSourceWidget|"
+msgid "Ctrl+F"
+msgstr "Krmilka+F"
+
+#: ../src/Gui/MessageView.cpp:90
+msgctxt "Gui::MessageView|"
+msgid "Search..."
+msgstr "Iskanje …"
+
+#: ../src/Gui/MessageView.cpp:91
+msgctxt "Gui::MessageView|"
+msgid "Ctrl+F"
+msgstr "Krmilka+F"
+
+#: ../src/Gui/MessageView.cpp:142
+msgctxt "Gui::MessageView|"
+msgid ""
+"Fetching\n"
+"Message"
+msgstr ""
+"Pridobivanje\n"
+"sporočila"
+
+#: ../src/Gui/MessageView.cpp:227
+msgctxt "Gui::MessageView|"
+msgid ""
+"Waiting\n"
+"for\n"
+"Message..."
+msgstr ""
+"Čakanje\n"
+"na\n"
+"sporočilo ..."
+
+#: ../src/Gui/MessageView.cpp:362
+msgctxt "Gui::MessageView|"
+msgid "you"
+msgstr "vi"
+
+#: ../src/Gui/MessageView.cpp:368
+#, qt-format
+msgctxt "Gui::MessageView|"
+msgid ""
+"On %1, %2 sent an encrypted message:\n"
+"> ...\n"
+"\n"
+msgstr ""
+"Dne %1 je %2 poslal/a šifrirano sporočilo:\n"
+"> ...\n"
+"\n"
+
+#: ../src/Gui/MessageView.cpp:375
+#, qt-format
+msgctxt "Gui::MessageView|"
+msgid "On %1, %2 wrote:\n"
+msgstr "Dne %1 je %2 napisal/a:\n"
+
+#. Translators: use a text which is returned for e-mails older than one day but newer than one week (see UiUtils::Formatting::prettyDate() for the string formats); the idea here is to have a text which is "wide enough" in a typical UI font. The English version uses "Mon" because of the M letter; you should use something similar.
+#: ../src/Gui/MsgListView.cpp:147
+msgctxt "Gui::MsgListView|"
+msgid "Mon 10"
+msgstr "Pon, 10"
+
+#: ../src/Gui/MsgListView.cpp:149
+msgctxt "Gui::MsgListView|"
+msgid "88.8 kB"
+msgstr "88,8 kB"
+
+#: ../src/Gui/MsgListView.cpp:204
+#, qt-format
+msgctxt "Gui::MsgListView|"
+msgid "+ %n additional item(s)"
+msgid_plural "+ %n additional item(s)"
+msgstr[0] "+ %n dodaten element"
+msgstr[1] "+ %n dodatna elementa"
+msgstr[2] "+ %n dodatni elementi"
+msgstr[3] "+ %n dodatnih elementov"
+
+#: ../src/Gui/MsgListView.cpp:336
+msgctxt "Gui::MsgListView|"
+msgid "Seen status"
+msgstr "Stanje: videno"
+
+#: ../src/Gui/MsgListView.cpp:339
+msgctxt "Gui::MsgListView|"
+msgid "Flagged status"
+msgstr "Stanje: označeno z zastavico"
+
+#: ../src/Gui/MsgListView.cpp:342
+msgctxt "Gui::MsgListView|"
+msgid "Attachment"
+msgstr "Priloga"
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:89
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid ","
+msgstr ","
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:130
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid "(empty display name)"
+msgstr "(prazno pojavno ime)"
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:134
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid "<hr/><b>Address Book:</b><br/>"
+msgstr "<hr/><b>Adresar:</b><br/>"
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:141
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid "Copy e-mail address"
+msgstr "Kopiraj e-poštni naslov"
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:146
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid "Copy text"
+msgstr "Kopiraj besedilo"
+
+#. Translators: use something very short, perhaps even "text". Don't describe this as "Clear text". This string is used as a caption of a tab showing the plaintext part of a mail which is e.g. sent in both plaintext and HTML formats.
+#: ../src/Gui/PartWidget.cpp:144
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Plaintext"
+msgstr "Navadno besedilo"
+
+#. Translators: caption of the tab which shows a HTML version of the mail. Use some short, compact text here.
+#: ../src/Gui/PartWidget.cpp:147
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "HTML"
+msgstr "HTML"
+
+#: ../src/Gui/PartWidget.cpp:153
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Cancelled Event"
+msgstr "Preklicani dogodek"
+
+#: ../src/Gui/PartWidget.cpp:155
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Meeting Request"
+msgstr "Povabilo na srečanje"
+
+#: ../src/Gui/PartWidget.cpp:157
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Calendar Event"
+msgstr "Dogodek koledarja"
+
+#: ../src/Gui/PartWidget.cpp:159
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Calendar Reply"
+msgstr "Odgovor koledarja"
+
+#: ../src/Gui/PartWidget.cpp:161
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "New Meeting"
+msgstr "Novo srečanje"
+
+#: ../src/Gui/PartWidget.cpp:211 ../src/Gui/PartWidget.cpp:256
+msgctxt "Gui::PartStatusWidget|"
+msgid "Show Details"
+msgstr "Pokaži podrobnosti"
+
+#: ../src/Gui/PartWidget.cpp:260
+msgctxt "Gui::PartStatusWidget|"
+msgid "Hide Details"
+msgstr "Skrij podrobnosti"
+
+#: ../src/Gui/PartWidget.cpp:386
+msgctxt "Gui::MultipartSignedEncryptedWidget|"
+msgid "[Encrypted message]"
+msgstr "[Šifrirano sporočilo]"
+
+#: ../src/Gui/PasswordDialog.ui:14
+msgctxt "PasswordDialog|"
+msgid "Authentication Required"
+msgstr "Obvezno preverjanje pristnosti"
+
+#: ../src/Gui/PasswordDialog.ui:28
+#, qt-format
+msgctxt "PasswordDialog|"
+msgid "<p>Please provide password for %1 on %2.</p>"
+msgstr "<p>Navedite geslo za %1 na %2.</p>"
+
+#: ../src/Gui/ProtocolLoggerWidget.cpp:51
+msgctxt "Gui::ProtocolLoggerWidget|"
+msgid "Clear all"
+msgstr "Počisti vse"
+
+#: ../src/Gui/ProtocolLoggerWidget.cpp:98
+#, qt-format
+msgctxt "Gui::ProtocolLoggerWidget|"
+msgid "Connection %1"
+msgstr "Povezava %1"
+
+#: ../src/Gui/ProtocolLoggerWidget.cpp:170
+#, qt-format
+msgctxt "Gui::ProtocolLoggerWidget|"
+msgid ""
+"<p style=\"color: #bb0000\"><i><b>%n message(s)</b> were skipped because "
+"this widget was hidden.</i></p>"
+msgid_plural ""
+"<p style=\"color: #bb0000\"><i><b>%n message(s)</b> were skipped because "
+"this widget was hidden.</i></p>"
+msgstr[0] ""
+"<p style=\"color: #bb0000\"><i><b>%n sporočilo</b> je bilo preskočeno, ker "
+"je bil ta gradnik skrit.</i></p>"
+msgstr[1] ""
+"<p style=\"color: #bb0000\"><i><b>%n sporočili</b> sta bili preskočeni, ker "
+"je bil ta gradnik skrit.</i></p>"
+msgstr[2] ""
+"<p style=\"color: #bb0000\"><i><b>%n sporočila</b> so bila preskočena, ker "
+"je bil ta gradnik skrit.</i></p>"
+msgstr[3] ""
+"<p style=\"color: #bb0000\"><i><b>%n sporočil</b> je bilo preskočenih, ker "
+"je bil ta gradnik skrit.</i></p>"
+
+#: ../src/Gui/ProtocolLoggerWidget.cpp:211
+#, qt-format
+msgctxt "Gui::ProtocolLoggerWidget|"
+msgid ""
+"<br/><span style=\"color: #808080; font-style: italic;\">(+ %n more bytes)</"
+"span>"
+msgid_plural ""
+"<br/><span style=\"color: #808080; font-style: italic;\">(+ %n more bytes)</"
+"span>"
+msgstr[0] ""
+"<br/><span style=\"color: #808080; font-style: italic;\">(+ %n dodatni "
+"bajt)</span>"
+msgstr[1] ""
+"<br/><span style=\"color: #808080; font-style: italic;\">(+ %n dodatna "
+"bajta)</span>"
+msgstr[2] ""
+"<br/><span style=\"color: #808080; font-style: italic;\">(+ %n dodatni "
+"bajti)</span>"
+msgstr[3] ""
+"<br/><span style=\"color: #808080; font-style: italic;\">(+ %n dodatnih "
+"bajtov)</span>"
+
+#: ../src/Gui/SettingsCachePage.ui:30
+msgctxt "CachePage|"
+msgid "Offline mode"
+msgstr "Način brez povezave"
+
+#: ../src/Gui/SettingsCachePage.ui:48
+msgctxt "CachePage|"
+msgid "&Don't use cache"
+msgstr "&Ne uporabljaj predpomnilnika"
+
+#: ../src/Gui/SettingsCachePage.ui:61
+msgctxt "CachePage|"
+msgid "&Remember messages for X days"
+msgstr "&Pomni sporočila za X dni"
+
+#: ../src/Gui/SettingsCachePage.ui:90
+msgctxt "CachePage|"
+msgid "Store &forever"
+msgstr "Shrani &za vedno"
+
+#: ../src/Gui/SettingsCachePage.ui:106
+msgctxt "CachePage|"
+msgid "Notifications"
+msgstr "Obvestila"
+
+#: ../src/Gui/SettingsCachePage.ui:112
+msgctxt "CachePage|"
+msgid "Only the INBOX folder will be included for new message checking"
+msgstr "Samo mapa Prejeto bo vključena za preverjanje novih sporočil"
+
+#: ../src/Gui/SettingsCachePage.ui:115
+msgctxt "CachePage|"
+msgid "&INBOX Only"
+msgstr "Samo &Prejeto"
+
+#: ../src/Gui/SettingsCachePage.ui:122
+msgctxt "CachePage|"
+msgid ""
+"This might result in extremely slow operation in certain scenarios with "
+"shared mailboxes, rich folder hierarchies, or IMAP proxying, for example."
+msgstr ""
+"To lahko povzroči izredno počasno delovanje v določenih scenarijih npr. z "
+"nabiralniki v skupni rabi, bogatimi hierarhijami map ali s posredovanjem "
+"IMAP."
+
+#: ../src/Gui/SettingsCachePage.ui:125
+msgctxt "CachePage|"
+msgid "&All Mailboxes (use with care)"
+msgstr "&Vsi nabiralniki (uporabljajte previdno)"
+
+#: ../src/Gui/SettingsCachePage.ui:132
+msgctxt "CachePage|"
+msgid ""
+"E-mail folders which are marked as subscribed will be included in "
+"notifications. To subscribe a mailbox, use the context menu in the mailbox "
+"view."
+msgstr ""
+"E-poštne mape, ki so označene kot naročene, bodo vključene v obvestila. Če "
+"se želite naročiti na nabiralnik, uporabite kontekstni meni v pogledu "
+"nabiralnika."
+
+#: ../src/Gui/SettingsCachePage.ui:135
+msgctxt "CachePage|"
+msgid "&Subscribed Mailboxes"
+msgstr "&Naročeni nabiralniki"
+
+#: ../src/Gui/SettingsDialog.cpp:85
+msgctxt "Gui::SettingsDialog|"
+msgid "Settings"
+msgstr "Nastavitve"
+
+#: ../src/Gui/SettingsDialog.cpp:92
+msgctxt "Gui::SettingsDialog|"
+msgid "&General"
+msgstr "&Splošno"
+
+#: ../src/Gui/SettingsDialog.cpp:93
+msgctxt "Gui::SettingsDialog|"
+msgid "I&MAP"
+msgstr "I&MAP"
+
+#: ../src/Gui/SettingsDialog.cpp:94
+msgctxt "Gui::SettingsDialog|"
+msgid "&Offline"
+msgstr "&Brez povezave"
+
+#: ../src/Gui/SettingsDialog.cpp:95
+msgctxt "Gui::SettingsDialog|"
+msgid "&SMTP"
+msgstr "&SMTP"
+
+#: ../src/Gui/SettingsDialog.cpp:97
+msgctxt "Gui::SettingsDialog|"
+msgid "&xTuple"
+msgstr "&xTuple"
+
+#: ../src/Gui/SettingsDialog.cpp:99
+msgctxt "Gui::SettingsDialog|"
+msgid "Favorite &tags"
+msgstr "Priljubljene &oznake"
+
+#: ../src/Gui/SettingsDialog.cpp:218
+msgctxt "Gui::SettingsDialog|"
+msgid "Saving passwords failed"
+msgstr "Shranjevanje gesel ni uspelo"
+
+#: ../src/Gui/SettingsDialog.cpp:219
+#, qt-format
+msgctxt "Gui::SettingsDialog|"
+msgid ""
+"<p>Couldn't save passwords. These were the error messages:</p>\n"
+"<p>%1</p>"
+msgstr ""
+"<p>Gesel ni bilo mogoče shraniti. To so sporočila o napakah:</p>\n"
+"<p>%1</p>"
+
+#: ../src/Gui/SettingsDialog.cpp:315
+msgctxt "Gui::FavoriteTagsPage|"
+msgid "Add New Tag"
+msgstr "Dodaj novo oznako"
+
+#: ../src/Gui/SettingsDialog.cpp:323
+msgctxt "Gui::FavoriteTagsPage|"
+msgid "Edit Tag"
+msgstr "Uredi oznako"
+
+#: ../src/Gui/SettingsDialog.cpp:406
+#, qt-format
+msgctxt "Gui::GeneralPage|"
+msgid "Plugin not found (%1)"
+msgstr "Vtičnik ni bil najden (%1)"
+
+#: ../src/Gui/SettingsDialog.cpp:407
+msgctxt "Gui::GeneralPage|"
+msgid "Disable address book"
+msgstr "Onemogoči adresar"
+
+#: ../src/Gui/SettingsDialog.cpp:408
+msgctxt "Gui::GeneralPage|"
+msgid "Disable passwords"
+msgstr "Onemogoči gesla"
+
+#: ../src/Gui/SettingsDialog.cpp:409
+msgctxt "Gui::GeneralPage|"
+msgid "Disable spell checking"
+msgstr "Onemogoči preverjanje črkovanja"
+
+#: ../src/Gui/SettingsDialog.cpp:425
+msgctxt "Gui::GeneralPage|"
+msgid "Move"
+msgstr "Premakni"
+
+#: ../src/Gui/SettingsDialog.cpp:428
+msgctxt "Gui::GeneralPage|"
+msgid "Copy"
+msgstr "Kopiraj"
+
+#: ../src/Gui/SettingsDialog.cpp:433
+msgctxt "Gui::GeneralPage|"
+msgid ""
+"<p>If enabled, Trojitá will show its homepage upon startup.</p><p>The remote "
+"server will receive the user's IP address and versions of Trojitá, the Qt "
+"library, and the underlying operating system. No private information, like "
+"account settings or IMAP server details, are collected.</p>"
+msgstr ""
+"<p>Če je potrjeno, bo Trojitá ob zagonu prikazala domačo stran.</"
+"p><p>Oddaljeni strežnik bo prejel naslov IP uporabnika in različice Trojitá, "
+"knjižnice Qt in operacijskega sistema. Zasebni podatki, na primer nastavitve "
+"računa ali podrobnosti strežnika IMAP, se ne zbirajo.</p>"
+
+#: ../src/Gui/SettingsDialog.cpp:513
+msgctxt "Gui::GeneralPage|"
+msgid "Add New Identity"
+msgstr "Dodaj novo identiteto"
+
+#: ../src/Gui/SettingsDialog.cpp:521
+msgctxt "Gui::GeneralPage|"
+msgid "Edit Identity"
+msgstr "Uredi identiteto"
+
+#: ../src/Gui/SettingsDialog.cpp:529
+msgctxt "Gui::GeneralPage|"
+msgid "Delete Identity?"
+msgstr "Ali želite izbrisati identiteto?"
+
+#: ../src/Gui/SettingsDialog.cpp:530
+#, qt-format
+msgctxt "Gui::GeneralPage|"
+msgid "Are you sure you want to delete identity %1 <%2>?"
+msgstr "Ali ste prepričani, da želite izbrisati identiteto %1 <%2>?"
+
+#: ../src/Gui/SettingsDialog.cpp:579
+msgctxt "Gui::GeneralPage|"
+msgid "Please define some identities here"
+msgstr "Tukaj določite nekaj identitet"
+
+#: ../src/Gui/SettingsDialog.cpp:676
+msgctxt "Gui::EditFavoriteTag|"
+msgid "Select tag color"
+msgstr "Izberite barvo oznak"
+
+#: ../src/Gui/SettingsDialog.cpp:713
+msgctxt "Gui::ImapPage|"
+msgid "Network Connection"
+msgstr "Omrežna povezava"
+
+#: ../src/Gui/SettingsDialog.cpp:714
+msgctxt "Gui::ImapPage|"
+msgid "Local Process"
+msgstr "Krajevni proces"
+
+#: ../src/Gui/SettingsDialog.cpp:716
+msgctxt "Gui::ImapPage|"
+msgid "No encryption"
+msgstr "Brez šifriranja"
+
+#: ../src/Gui/SettingsDialog.cpp:717
+msgctxt "Gui::ImapPage|"
+msgid "Use encryption (STARTTLS)"
+msgstr "Uporabi šifriranje (STARTTLS)"
+
+#: ../src/Gui/SettingsDialog.cpp:718
+msgctxt "Gui::ImapPage|"
+msgid "Force encryption (TLS)"
+msgstr "Vsili šifriranje (TLS)"
+
+#: ../src/Gui/SettingsDialog.cpp:840
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This password will be saved in encrypted storage. If you do not enter "
+"password here, Trojitá will prompt for one when needed."
+msgstr ""
+"To geslo bo shranjeno v šifrirani shrambi. Če ne vnesete gesla tukaj, vas bo "
+"Trojitá pozvala, ko bo potrebno."
+
+#: ../src/Gui/SettingsDialog.cpp:844
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This password will be saved in clear text. If you do not enter password "
+"here, Trojitá will prompt for one when needed."
+msgstr ""
+"To geslo bo shranjeno v navadnem besedilu. Če ne vnesete gesla tukaj, vas bo "
+"Trojitá pozvala, ko bo potrebno."
+
+#: ../src/Gui/SettingsDialog.cpp:915
+msgctxt "Gui::ImapPage|"
+msgid "The IMAP server hostname is missing here"
+msgstr "Tukaj manjka ime gostitelja strežnika IMAP"
+
+#: ../src/Gui/SettingsDialog.cpp:921
+msgctxt "Gui::ImapPage|"
+msgid ""
+"The command line to the IMAP server is missing here. Perhaps you need to use "
+"SSL or TCP?"
+msgstr ""
+"Tukaj manjka ukazna vrstica strežnika IMAP. Morda morate uporabiti SSL ali "
+"TCP?"
+
+#: ../src/Gui/SettingsDialog.cpp:938
+#, qt-format
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This port is nonstandard. The default port for IMAP secured over SSL/TLS is "
+"%1."
+msgstr ""
+"Ta vrata niso standardna. Privzeta vrata za IMAP, zavarovana prek SSL/TLS, "
+"so %1."
+
+#: ../src/Gui/SettingsDialog.cpp:942
+#, qt-format
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This port is nonstandard. The default port for IMAP secured via STARTTLS is "
+"%1."
+msgstr ""
+"Ta vrata niso standardna. Privzeta vrata za IMAP, zavarovana prek STARTTLS, "
+"so %1."
+
+#: ../src/Gui/SettingsDialog.cpp:944
+#, qt-format
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This port is nonstandard. The default port for IMAP over cleartext is %1."
+msgstr "Ta vrata niso standardna. Privzeta vrata za IMAP prek cleartext je %1."
+
+#: ../src/Gui/SettingsDialog.cpp:1052
+msgctxt "Gui::OutgoingPage|"
+msgid "Network"
+msgstr "Omrežje"
+
+#: ../src/Gui/SettingsDialog.cpp:1053
+msgctxt "Gui::OutgoingPage|"
+msgid "Local sendmail-compatible"
+msgstr "Združljivo s krajevnim sendmail"
+
+#: ../src/Gui/SettingsDialog.cpp:1054
+msgctxt "Gui::OutgoingPage|"
+msgid "IMAP SENDMAIL Extension"
+msgstr "Razširitev IMAP SENDMAIL"
+
+#: ../src/Gui/SettingsDialog.cpp:1056
+msgctxt "Gui::OutgoingPage|"
+msgid "No encryption"
+msgstr "Brez šifriranja"
+
+#: ../src/Gui/SettingsDialog.cpp:1057
+msgctxt "Gui::OutgoingPage|"
+msgid "Use encryption (STARTTLS)"
+msgstr "Uporabi šifriranja (STARTTLS)"
+
+#: ../src/Gui/SettingsDialog.cpp:1058
+msgctxt "Gui::OutgoingPage|"
+msgid "Force encryption (TLS)"
+msgstr "Vsili šifriranje (TLS)"
+
+#: ../src/Gui/SettingsDialog.cpp:1202
+msgctxt "Gui::OutgoingPage|"
+msgid ""
+"This password will be saved in encrypted storage. If you do not enter "
+"password here, Trojitá will prompt for one when needed."
+msgstr ""
+"To geslo bo shranjeno v šifrirani shrambi. Če ne vnesete gesla tukaj, vas bo "
+"Trojitá pozvala, ko bo potrebno."
+
+#: ../src/Gui/SettingsDialog.cpp:1206
+msgctxt "Gui::OutgoingPage|"
+msgid ""
+"This password will be saved in clear text. If you do not enter password "
+"here, Trojitá will prompt for one when needed."
+msgstr ""
+"To geslo bo shranjeno kot navadno besedilo. Če ne vnesete gesla tukaj, vas "
+"bo Trojitá pozvala, ko bo potrebno."
+
+#: ../src/Gui/SettingsDialog.cpp:1300 ../src/Gui/SettingsDialog.cpp:1306
+msgctxt "Gui::OutgoingPage|"
+msgid "The SMTP server hostname is missing here"
+msgstr "Tukaj manjka ime gostitelja strežnika SMTP"
+
+#: ../src/Gui/SettingsDialog.cpp:1302
+msgctxt "Gui::OutgoingPage|"
+msgid "The SMTP username is missing here"
+msgstr "Tukaj manjka uporabniško ime SMTP"
+
+#: ../src/Gui/SettingsDialog.cpp:1313
+msgctxt "Gui::OutgoingPage|"
+msgid "Please specify the folder name here"
+msgstr "Prosimo, navedite ime mape tukaj"
+
+#: ../src/Gui/SettingsDialog.cpp:1337
+msgctxt "Gui::XtConnectPage|"
+msgid "Cache Directory"
+msgstr "Mapa predpomnilnika"
+
+#: ../src/Gui/SettingsDialog.cpp:1339
+msgctxt "Gui::XtConnectPage|"
+msgid "Mailboxes to synchronize"
+msgstr "Nabiralniki za usklajevanje"
+
+#: ../src/Gui/SettingsDialog.cpp:1346
+msgctxt "Gui::XtConnectPage|"
+msgid ""
+"Please use context menu inside the main application to select mailboxes to "
+"synchronize"
+msgstr ""
+"Uporabite kontekstni meni znotraj glavnega programa, da izberete nabiralnike "
+"za usklajevanje"
+
+#: ../src/Gui/SettingsDialog.cpp:1369
+msgctxt "Gui::XtConnectPage|"
+msgid "DB Hostname"
+msgstr "Ime gostitelja DB"
+
+#: ../src/Gui/SettingsDialog.cpp:1373
+msgctxt "Gui::XtConnectPage|"
+msgid "DB Port"
+msgstr "Vrata DB"
+
+#: ../src/Gui/SettingsDialog.cpp:1375
+msgctxt "Gui::XtConnectPage|"
+msgid "DB Name"
+msgstr "Ime DB"
+
+#: ../src/Gui/SettingsDialog.cpp:1377
+msgctxt "Gui::XtConnectPage|"
+msgid "DB Username"
+msgstr "Uporabniško ime DB"
+
+#: ../src/Gui/SettingsDialog.cpp:1379
+msgctxt "Gui::XtConnectPage|"
+msgid ""
+"Please fill in all IMAP options, including the password, at the IMAP page. "
+"If you do not save the password, background synchronization will not run."
+msgstr ""
+"Na strani IMAP izpolnite vse možnosti IMAP, vključno z geslom. Če gesla ne "
+"shranite, se usklajevanje v ozadju ne bo zagnalo."
+
+#: ../src/Gui/SettingsDialog.cpp:1385
+msgctxt "Gui::XtConnectPage|"
+msgid "Debugging"
+msgstr "Razhroščevanje"
+
+#: ../src/Gui/SettingsDialog.cpp:1387
+msgctxt "Gui::XtConnectPage|"
+msgid "Run xTuple Synchronization"
+msgstr "Zaženi usklajevanje xTuple"
+
+#: ../src/Gui/SettingsDialog.cpp:1459
+msgctxt "Gui::XtConnectPage|"
+msgid "Database Connection"
+msgstr "Povezava z zbirko podatkov"
+
+#: ../src/Gui/SettingsDialog.cpp:1459
+msgctxt "Gui::XtConnectPage|"
+msgid "Password"
+msgstr "Geslo"
+
+#: ../src/Gui/SettingsFavoriteTagsPage.ui:14
+msgctxt "FavoriteTagsPage|"
+msgid "ScrollArea"
+msgstr "Področje pomikanja"
+
+#: ../src/Gui/SettingsFavoriteTagsPage.ui:108
+msgctxt "FavoriteTagsPage|"
+msgid "Add"
+msgstr "Dodaj"
+
+#: ../src/Gui/SettingsFavoriteTagsPage.ui:115
+msgctxt "FavoriteTagsPage|"
+msgid "Edit"
+msgstr "Uredi"
+
+#: ../src/Gui/SettingsFavoriteTagsPage.ui:122
+msgctxt "FavoriteTagsPage|"
+msgid "Delete"
+msgstr "Izbriši"
+
+#: ../src/Gui/SettingsGeneralPage.ui:14
+msgctxt "GeneralPage|"
+msgid "ScrollArea"
+msgstr "Področje pomikanja"
+
+#: ../src/Gui/SettingsGeneralPage.ui:41
+msgctxt "GeneralPage|"
+msgid "Show Trojitá's homepage on startup"
+msgstr "Prikaži domačo stran Trojitá ob zagonu"
+
+#: ../src/Gui/SettingsGeneralPage.ui:48
+msgctxt "GeneralPage|"
+msgid "Show plaintext e-mails instead of the HTML version"
+msgstr "Pokaži e-poštna sporočila z navadnim besedilom namesto HTML"
+
+#: ../src/Gui/SettingsGeneralPage.ui:55
+msgctxt "GeneralPage|"
+msgid "Show system tray icon"
+msgstr "Pokaži ikono sistemskega pladnja"
+
+#: ../src/Gui/SettingsGeneralPage.ui:62
+msgctxt "GeneralPage|"
+msgid "Start minimized"
+msgstr "Začni pomanjšano"
+
+#: ../src/Gui/SettingsGeneralPage.ui:139
+msgctxt "GeneralPage|"
+msgid "Add"
+msgstr "Dodaj"
+
+#: ../src/Gui/SettingsGeneralPage.ui:146
+msgctxt "GeneralPage|"
+msgid "Edit"
+msgstr "Uredi"
+
+#: ../src/Gui/SettingsGeneralPage.ui:153
+msgctxt "GeneralPage|"
+msgid "Delete"
+msgstr "Izbriši"
+
+#: ../src/Gui/SettingsGeneralPage.ui:167
+msgctxt "GeneralPage|"
+msgid "Addressbook"
+msgstr "Adresar"
+
+#: ../src/Gui/SettingsGeneralPage.ui:184
+msgctxt "GeneralPage|"
+msgid "Passwords"
+msgstr "Gesla"
+
+#: ../src/Gui/SettingsGeneralPage.ui:201
+msgctxt "GeneralPage|"
+msgid "Spell checker"
+msgstr "Preverjanje črkovanja"
+
+#: ../src/Gui/SettingsGeneralPage.ui:225
+msgctxt "GeneralPage|"
+msgid "Automatically mark messages as read"
+msgstr "Samodejno označi sporočila kot prebrana"
+
+#. To indicate that there's no delay
+#: ../src/Gui/SettingsGeneralPage.ui:232
+msgctxt "GeneralPage|"
+msgid "immediately"
+msgstr "takoj"
+
+#. A suffix "seconds" inside a QDoubleSpinBox for configuring a time delay. Please keep this short so that the window is reasonably narrow.
+#: ../src/Gui/SettingsGeneralPage.ui:235
+msgctxt "GeneralPage|"
+msgid " s"
+msgstr " s"
+
+#. The action will happen *after* user-provided timeout in seconds
+#: ../src/Gui/SettingsGeneralPage.ui:238
+msgctxt "GeneralPage|"
+msgid "after "
+msgstr "po "
+
+#: ../src/Gui/SettingsGeneralPage.ui:256
+msgctxt "GeneralPage|"
+msgid ""
+"<html><head/><body><p>Selecting this option will include version information "
+"about Trojitá and the underlying platform, including the Qt version and "
+"operating system details. Please consider leaving this option enabled so "
+"that developers are able to troubleshoot bugreports when something goes "
+"wrong.</p><p>The data are communicated via the IMAP's <code>ID</code> "
+"command and through the <code>User-Agent</code> header in outgoing e-mails, "
+"among other things.</p><p>Please note that even if you disable this option, "
+"the servers which Trojitá talks to and the people who read your e-mails will "
+"still be able to find out that you are using (some version of) Trojitá.</p></"
+"body></html>"
+msgstr ""
+"<html><head/><body><p>Izbira te možnosti bo vključevala informacije o "
+"različici Trojitá in platformi, vključno z različico Qt in podrobnostmi "
+"operacijskega sistema. Prosimo, razmislite o tem, da je ta možnost "
+"omogočena, tako da razvijalci lahko razrešijo poročila o hroščih, ko gre kaj "
+"narobe.</p><p>Podatki se med drugim sporočijo prek ukaza IMAP <code>ID</"
+"code> in glave <code>User-Agent</code> v odhodnih e-poštnih sporočilih.</"
+"p><p>Upoštevajte, da tudi če onemogočite to možnost, bodo strežniki, s "
+"katerimi komunicira Trojitá, in ljudje, ki berejo vaša e-poštna sporočila, "
+"še vedno lahko ugotovili, da uporabljate (nekakšno različico) Trojitá.</p></"
+"body></html>"
+
+#: ../src/Gui/SettingsGeneralPage.ui:259
+msgctxt "GeneralPage|"
+msgid "Reveal Trojitá's version and platform information"
+msgstr "Razkrij različico Trojitá in podatke o platformi"
+
+#: ../src/Gui/SettingsGeneralPage.ui:271
+msgctxt "GeneralPage|"
+msgid ""
+"<p>If enabled, you can set the default drag and drop action for the mailbox "
+"tree.</p><p>If disabled, Trojitá will ask you every time. You can always "
+"override the action using modifier keys when dropping (control: copy, shift: "
+"move).</p>"
+msgstr ""
+"<p>Če je omogočeno, lahko nastavite privzeto dejanje povleci-in-spusti za "
+"drevo nabiralnika.</p><p>Če je onemogočeno, vas bo Trojitá vsakič vprašala. "
+"Dejanje lahko vedno preglasite s tipkami za spreminjanje pri spustu "
+"(krmilka: kopiranje, dvigalka: premikanje).</p>"
+
+#: ../src/Gui/SettingsGeneralPage.ui:274
+msgctxt "GeneralPage|"
+msgid "Default drop action for the mbox tree"
+msgstr "Privzeto dejanje spusta za drevo nabiralnika"
+
+#: ../src/Gui/SettingsImapPage.ui:27
+msgctxt "ImapPage|"
+msgid "M&ethod"
+msgstr "M&etoda"
+
+#: ../src/Gui/SettingsImapPage.ui:37
+msgctxt "ImapPage|"
+msgid "How to connect to the IMAP server"
+msgstr "Kako vzpostaviti povezavo s strežnikom IMAP"
+
+#: ../src/Gui/SettingsImapPage.ui:40
+msgctxt "ImapPage|"
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Choose <span style=\" font-"
+"style:italic;\">TCP</span> if you want to connect via standard, non-"
+"encrypted connection and negotiate encryption transparently before login.</"
+"p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Choose <span style=\" font-"
+"style:italic;\">SSL</span> to connect over an encrypted socket from the very "
+"beginning of the connection.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Finally, pick the <span "
+"style=\" font-style:italic;\">Local process</span> if you want to execute a "
+"process which then either connects to the IMAP server, or acts as one. This "
+"option enables accessing your IMAP server via SSH.</p></body></html>"
+msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Izberite <span style=\" "
+"font-style:italic;\">TCP</span>, če želite vzpostaviti povezavo prek "
+"standardne, nešifrirane povezave in se pred prijavo pregledno pogajati o "
+"šifriranju.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Izberite <span style=\" "
+"font-style:italic;\">SSL</span>, če želite vzpostaviti povezavo preko "
+"šifrirane vtičnice od samega začetka povezave.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Nazadnje izberite <span "
+"style=\" font-style:italic;\">Krajevni postopek</span>, če želite izvršiti "
+"postopek, ki se nato poveže s strežnikom IMAP ali deluje kot tak. Ta možnost "
+"omogoča dostop do strežnika IMAP prek SSH.</p></body></html>"
+
+#: ../src/Gui/SettingsImapPage.ui:55
+msgctxt "ImapPage|"
+msgid "Encryption"
+msgstr "Šifriranje"
+
+#: ../src/Gui/SettingsImapPage.ui:65
+msgctxt "ImapPage|"
+msgid "Ser&ver"
+msgstr "Stre&žnik"
+
+#: ../src/Gui/SettingsImapPage.ui:75
+msgctxt "ImapPage|"
+msgid "Hostname of the IMAP server"
+msgstr "Ime gostitelja strežnika IMAP"
+
+#: ../src/Gui/SettingsImapPage.ui:78
+msgctxt "ImapPage|"
+msgid "This is the name of the IMAP server that Trojitá should connect to."
+msgstr "To je ime strežnika IMAP, s katerem bi se Trojitá morala povezati."
+
+#: ../src/Gui/SettingsImapPage.ui:88
+msgctxt "ImapPage|"
+msgid "&Port"
+msgstr "&Vrata"
+
+#: ../src/Gui/SettingsImapPage.ui:98
+msgctxt "ImapPage|"
+msgid "Port number of the IMAP server"
+msgstr "Številka vrat strežnika IMAP"
+
+#: ../src/Gui/SettingsImapPage.ui:118
+msgctxt "ImapPage|"
+msgid "Use System Proxy Settings"
+msgstr "Uporabi sistemske nastavitve posredovalnega strežnika"
+
+#: ../src/Gui/SettingsImapPage.ui:131
+msgctxt "ImapPage|"
+msgid ""
+"Check if Trojitá should connect to a network in order to access this "
+"account. You will stay offline if there is no network connectivity."
+msgstr ""
+"Preverite, ali naj se Trojitá poveže z omrežjem za dostop do tega računa. Če "
+"ni omrežne povezave, boste ostali brez povezave."
+
+#: ../src/Gui/SettingsImapPage.ui:134
+msgctxt "ImapPage|"
+msgid "Needs Network"
+msgstr "Potrebuje omrežje"
+
+#: ../src/Gui/SettingsImapPage.ui:147
+msgctxt "ImapPage|"
+msgid "&Username"
+msgstr "&Uporabniško ime"
+
+#: ../src/Gui/SettingsImapPage.ui:157
+msgctxt "ImapPage|"
+msgid "Username"
+msgstr "Uporabniško ime"
+
+#: ../src/Gui/SettingsImapPage.ui:160
+msgctxt "ImapPage|"
+msgid "User name to log in to the IMAP server"
+msgstr "Uporabniško ime za prijavo v strežnik IMAP"
+
+#: ../src/Gui/SettingsImapPage.ui:170
+msgctxt "ImapPage|"
+msgid "Pass&word"
+msgstr "Ge&slo"
+
+#: ../src/Gui/SettingsImapPage.ui:180
+msgctxt "ImapPage|"
+msgid "Password"
+msgstr "Geslo"
+
+#: ../src/Gui/SettingsImapPage.ui:183
+msgctxt "ImapPage|"
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Password to use when "
+"connecting to the IMAP server.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">This password will be "
+"saved in <span style=\" font-weight:600;\">clear text</span> on this device, "
+"without any encryption. Unless you use a very safe form of a full disk "
+"encryption, it is a <span style=\" font-weight:600;\">bad idea</span> to "
+"save your password here.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">If you don't save the "
+"password, Trojitá will prompt for one when it needs it, but only once per "
+"session.</p></body></html>"
+msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Geslo, ki ga želite "
+"uporabiti pri vzpostavljanju povezave s strežnikom IMAP.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">To geslo bo shranjeno kot "
+"<span style=\" font-weight:600;\">navadno besedilo</span> v tej napravi brez "
+"šifriranja. Če ne uporabljate zelo varne oblike polnega šifriranja diska, je "
+"<span style=\" font-weight:600;\">slaba ideja</span>, da hranite geslo tukaj."
+"</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Če ne shranite gesla, vas "
+"bo Trojitá pozvala, ko ga potrebuje, vendar samo enkrat na sejo.</p></body></"
+"html>"
+
+#: ../src/Gui/SettingsImapPage.ui:204
+msgctxt "ImapPage|"
+msgid ""
+"The password will be stored in plaintext. Leave it blank for Trojitá to "
+"prompt when needed."
+msgstr ""
+"Geslo bo shranjeno kot navadno besedilo. Pustite prazno, da vas Trojitá "
+"pozove, ko bo potrebno."
+
+#: ../src/Gui/SettingsImapPage.ui:230
+msgctxt "ImapPage|"
+msgid "Path to Server &Binary"
+msgstr "Pot do &binarne datoteke strežnika"
+
+#: ../src/Gui/SettingsImapPage.ui:240
+msgctxt "ImapPage|"
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">If you choose the <span "
+"style=\" font-style:italic;\">Local process</span> option to connect to the "
+"IMAP server, this field specifies the program to start. For example, to "
+"connect to a remote mail server via SSH and launch a Dovecot instance in "
+"there, you could use the following:</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">ssh mail.example.org dovecot --exec-mail "
+"imap</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Note that this command has "
+"to be absolutely non-interactive, and therefore you have to have your SSH "
+"set up to login without password, perhaps via the SSH keys.</p></body></html>"
+msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Če izberete možnost <span "
+"style=\" font-style:italic;\">Krajevni proces</span> za povezavo s "
+"strežnikom IMAP, to polje določa zagon programa. Če želite npr. vzpostaviti "
+"povezavo z oddaljenim poštnim strežnikom prek SSH in tam zagnati primerek "
+"Dovecot, lahko uporabite naslednje:</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">ssh mail.example.org dovecot --exec-mail "
+"imap</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Upoštevajte, da mora biti "
+"ta ukaz popolnoma nedejaven, zato morate imeti svoj SSH nastavljen za "
+"prijavo brez gesla, morda prek ključev SSH.</p></body></html>"
+
+#: ../src/Gui/SettingsImapPage.ui:256
+msgctxt "ImapPage|"
+msgid "Extension &Blacklist"
+msgstr "&Črni seznam razširitev"
+
+#: ../src/Gui/SettingsImapPage.ui:269
+msgctxt "ImapPage|"
+msgid "Timeout of IMAP IDLE"
+msgstr "Časovna omejitev IMAP IDLE"
+
+#: ../src/Gui/SettingsImapPage.ui:282
+msgctxt "ImapPage|"
+msgid ""
+"How often to renew the IDLE session.\n"
+"This is useful to prevent timeouts due to broken or overly aggressive "
+"network middleboxes,\n"
+"NAT gateways and other nasty annoyances.\n"
+"The default value is 29 minutes."
+msgstr ""
+"Kako pogosto obnoviti sejo IDLE.\n"
+"To je koristno za preprečevanje časovnih prekinitev zaradi okvarjenih ali "
+"preveč agresivnih omrežnih vmesnih točk,\n"
+"prehodov NAT in drugih nadlog.\n"
+"Privzeta vrednost je 29 minut."
+
+#: ../src/Gui/SettingsImapPage.ui:298
+msgctxt "ImapPage|"
+msgid "Refresh Interval"
+msgstr "Interval osveževanja"
+
+#: ../src/Gui/SettingsImapPage.ui:305
+msgctxt "ImapPage|"
+msgid ""
+"How often to check for new emails in all IMAP folders.\n"
+"The default value is 300 seconds (5 minutes)."
+msgstr ""
+"Kako pogosto preveriti obstoj novih e-poštnih sporočil v vseh mapah IMAP.\n"
+"Privzeta vrednost je 300 sekund (5 minut)."
+
+#: ../src/Gui/SettingsImapPage.ui:309
+msgctxt "ImapPage|"
+msgid " seconds"
+msgstr " sekunde"
+
+#: ../src/Gui/SettingsImapPage.ui:325
+msgctxt "ImapPage|"
+msgid "Account Icon"
+msgstr "Ikona računa"
+
+#: ../src/Gui/SettingsImapPage.ui:332
+msgctxt "ImapPage|"
+msgid "Default Trojitá icon"
+msgstr "Privzeta ikona Trojitá"
+
+#: ../src/Gui/SettingsImapPage.ui:342
+msgctxt "ImapPage|"
+msgid "Archive Folder &Name"
+msgstr "Ime &arhivske mape"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:27
+msgctxt "OutgoingPage|"
+msgid "&Method"
+msgstr "&Metoda"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:40
+msgctxt "OutgoingPage|"
+msgid "Encryption"
+msgstr "Šifriranje"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:50
+msgctxt "OutgoingPage|"
+msgid "Ser&ver"
+msgstr "Stre&žnik"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:63
+msgctxt "OutgoingPage|"
+msgid "&Port"
+msgstr "&Vrata"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:86
+msgctxt "OutgoingPage|"
+msgid "&Authenticate"
+msgstr "&Overi"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:103
+msgctxt "OutgoingPage|"
+msgid "&Username"
+msgstr "&Uporabniško ime"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:116
+msgctxt "OutgoingPage|"
+msgid "Pass&word"
+msgstr "Ge&slo"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:156
+msgctxt "OutgoingPage|"
+msgid "Sendmail E&xecutable"
+msgstr "Izvajalna datoteka &sendmail"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:169
+msgctxt "OutgoingPage|"
+msgid "Save Ou&tgoing Mail"
+msgstr "Shrani o&dhodno pošto"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:182
+msgctxt "OutgoingPage|"
+msgid "Sent Folder &Name"
+msgstr "Ime mape &Poslano"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:195
+msgctxt "OutgoingPage|"
+msgid ""
+"Enable forward-without-download via BURL (RFC 4468) when the IMAP and ESMTP "
+"servers support it. Extra server-side configuration is required."
+msgstr ""
+"Omogočite prenos naprej brez prenosa prek SISTEMA BURL (RFC 4468), če ga "
+"podpirata strežnika IMAP in ESMTP. Potrebna je dodatna prilagoditev na "
+"strani strežnika."
+
+#: ../src/Gui/SettingsOutgoingPage.ui:198
+msgctxt "OutgoingPage|"
+msgid "Send with &BURL"
+msgstr "Pošlji z &BURL"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:218
+msgctxt "OutgoingPage|"
+msgid "Use IMAP Credentials"
+msgstr "Uporabi poverilnice IMAP"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
+msgctxt "Gui::ShortcutConfigDialog|"
+msgid "Configure Shortcuts"
+msgstr "Prilagodi tipke za bližnjice"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
+msgctxt "Gui::ShortcutConfigDialog|"
+msgid "Trojitá"
+msgstr "Trojitá"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
+msgctxt "Gui::ShortcutConfigWidget|"
+msgid "Configure Shortcuts"
+msgstr "Prilagodi tipke za bližnjice"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
+msgctxt "Gui::ShortcutConfigWidget|"
+msgid "Trojitá"
+msgstr "Trojitá"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:177
+msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
+msgid "Ctrl+"
+msgstr "Krmilka-"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:179
+msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
+msgid "Alt+"
+msgstr "Dvigalka-"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:181
+msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
+msgid "Shift+"
+msgstr "Dvigalka-"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
+msgctxt "Gui::ShortcutConfigWidget|"
+msgid "Shortcut Conflicts"
+msgstr "Spori med bližnjicami"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:204
+#, qt-format
+msgctxt "Gui::ShortcutConfigWidget|"
+msgid ""
+"<p>The \"%1\" shortcut is ambiguous with the following shortcut:</p><p>%2</"
+"p><p>Do you want to assign an empty shortcut to this action?</p>"
+msgstr ""
+"<p>Bližnjica »%1« je dvoumna zaradi spora z naslednjo bližnjico:</p><p>%2</"
+"p><p>Ali želite temu dejanju dodeliti prazno bližnjico?</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:14
+msgctxt "ShortcutConfigWidget|"
+msgid "Configure Shortcuts"
+msgstr "Prilagodi tipke za bližnjice"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:20
+msgctxt "ShortcutConfigWidget|"
+msgid "Select an action and press a key combination to change its shortcut:"
+msgstr ""
+"Izberite dejanje in pritisnite kombinacijo tipk, da spremenite njegovo "
+"bližnjico:"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:27
+msgctxt "ShortcutConfigWidget|"
+msgid ""
+"<p>Select an action (with the mouse or the arrow keys). Its shortcut can "
+"then be changed by simply pressing the new shortcut.</p><p>Note that a few "
+"shortcuts cannot be used: \"Up\", \"Down\", \"Left\", \"Right\", \"Page Up"
+"\", \"Page Down\", \"Tab\", \"Shift+Tab\", \"Enter\" and \"Escape\".</p>"
+msgstr ""
+"<p>Izberite dejanje (z miško ali smernimi tipkami). Njegovo bližnjico lahko "
+"nato spremenite tako, da preprosto pritisnete novo kombinacijo tipk.</"
+"p><p>Upoštevajte, da ni mogoče uporabiti nekaj bližnjic: »Navzgor«, "
+"»Navzdol«, »Levo«, »Desno«, »Prejšnja stran«, »Naslednja stran«, "
+"»Tabulatorka«, »Dvigalka+tabulatorka«, »Vnašalka« in »Ubežnica«.</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:31
+msgctxt "ShortcutConfigWidget|"
+msgid "Action"
+msgstr "Dejanje"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:36
+msgctxt "ShortcutConfigWidget|"
+msgid "Shortcut"
+msgstr "Bližnjica"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:46
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:65
+msgctxt "ShortcutConfigWidget|"
+msgid ""
+"<p>Search interactively for shortcut names (e.g. Copy) or combination of "
+"keys (e.g. Ctrl+C) by typing them.</p>"
+msgstr ""
+"<p>Interaktivno poiščite imena bližnjic (npr. Kopiraj) ali kombinacijo tipk "
+"(npr. krmilka+C) tako, da jih vnesete.</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:49
+msgctxt "ShortcutConfigWidget|Label of search field"
+msgid "Search:"
+msgstr "Išči:"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:74
+msgctxt "ShortcutConfigWidget|"
+msgid "<p>Remove the shortcut of the currently highlighted action.</p>"
+msgstr "<p>Odstranite bližnjico trenutno poudarjenega dejanja.</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:77
+msgctxt "ShortcutConfigWidget|Action for clearing shortcut"
+msgid "Clear"
+msgstr "Počisti"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:84
+msgctxt "ShortcutConfigWidget|"
+msgid ""
+"<p>Restore the default shortcut for the currently highlighted action.</p>"
+msgstr "<p>Obnovite privzeto bližnjico za trenutno poudarjeno dejanje.</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:87
+msgctxt "ShortcutConfigWidget|Action for restoring default shortcut"
+msgid "Default"
+msgstr "Privzeto"
+
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:47
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:103
+msgctxt "Gui::ShortcutHandler|"
+msgid "Main Window"
+msgstr "Glavno okno"
+
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:144
+msgctxt "Gui::ShortcutHandler|"
+msgid "Configure S&hortcuts..."
+msgstr "Prilagodi &tipke za bližnjice ..."
+
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.h:45
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.h:309
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.h:319
+msgctxt "QObject|"
+msgid "Main Window"
+msgstr "Glavno okno"
+
+#: ../src/Gui/SimplePartWidget.cpp:77
+msgctxt "Gui::SimplePartWidget|"
+msgid "Save this message part..."
+msgstr "Shrani ta del sporočila ..."
+
+#: ../src/Gui/SimplePartWidget.cpp:81
+msgctxt "Gui::SimplePartWidget|"
+msgid "Save whole message..."
+msgstr "Shrani celotno sporočilo ..."
+
+#: ../src/Gui/SimplePartWidget.cpp:85
+msgctxt "Gui::SimplePartWidget|"
+msgid "Search..."
+msgstr "Iskanje …"
+
+#: ../src/Gui/SimplePartWidget.cpp:88
+msgctxt "Gui::SimplePartWidget|"
+msgid "Copy e-mail address"
+msgstr "Kopiraj e-poštni naslov"
+
+#: ../src/Gui/SimplePartWidget.cpp:129
+msgctxt "Gui::SimplePartWidget|"
+msgid "Save Attachment"
+msgstr "Shrani priponko"
+
+#: ../src/Gui/SimplePartWidget.cpp:206
+msgctxt "Gui::SimplePartWidget|"
+msgid "Color scheme"
+msgstr "Barvna shema"
+
+#: ../src/Gui/SimplePartWidget.cpp:220
+msgctxt "Gui::SimplePartWidget|"
+msgid "Zoom"
+msgstr "Povečava"
+
+#: ../src/Gui/SimplePartWidget.cpp:226
+msgctxt "Gui::SimplePartWidget|"
+msgid "Zoom In"
+msgstr "Povečaj"
+
+#: ../src/Gui/SimplePartWidget.cpp:230
+msgctxt "Gui::SimplePartWidget|"
+msgid "Zoom Out"
+msgstr "Pomanjšaj"
+
+#: ../src/Gui/SimplePartWidget.cpp:234
+msgctxt "Gui::SimplePartWidget|"
+msgid "Original Size"
+msgstr "Izvirna velikost"
+
+#: ../src/Gui/TagAddDialog.ui:14
+msgctxt "TagAddDialog|"
+msgid "Add Tags"
+msgstr "Dodaj oznake"
+
+#: ../src/Gui/TagAddDialog.ui:26
+msgctxt "TagAddDialog|"
+msgid "Tag names (space-separated):"
+msgstr "Imena oznak (ločena s presledkom):"
+
+#: ../src/Gui/TagListWidget.cpp:107
+msgctxt "Gui::TagListWidget|"
+msgid "Disallowed tag value"
+msgstr "Prepovedana vrednost oznake"
+
+#: ../src/Gui/TagListWidget.cpp:108
+#, qt-format
+msgctxt "Gui::TagListWidget|"
+msgid ""
+"No tags were set because the following given tag(s) are reserved and have "
+"been disallowed from being set in this way: %1."
+msgstr ""
+"Značke niso bile nastavljene, ker so naslednje dane značke rezervirane in "
+"niso bile nastavljene na ta način: %1."
+
+#: ../src/Gui/TagWidget.cpp:59
+msgctxt "Gui::TagWidget|This is a verb!"
+msgid "Tag"
+msgstr "Oznaka"
+
+#: ../src/Gui/TaskProgressIndicator.cpp:84
+#, qt-format
+msgctxt "Gui::TaskProgressIndicator|"
+msgid "%n ongoing actions"
+msgid_plural "%n ongoing actions"
+msgstr[0] "%n dejanje v teku"
+msgstr[1] "%n dejanji v teku"
+msgstr[2] "%n dejanja v teku"
+msgstr[3] "%n dejanj v teku"
+
+#: ../src/Gui/TaskProgressIndicator.cpp:86
+msgctxt "Gui::TaskProgressIndicator|"
+msgid "IMAP connection idle"
+msgstr "Povezava IMAP je nedejavna"
+
+#: ../src/Gui/Util.cpp:88
+msgctxt "Gui::MainWindow|"
+msgid "Don't ask again"
+msgstr "Ne sprašuj več"
+
+#: ../src/Gui/Window.cpp:130
+msgctxt "Gui::MainWindow|"
+msgid "Plugin Error"
+msgstr "Napaka vtičnika"
+
+#. The %1 placeholder is a full error message as provided by Qt, ready for human consumption.
+#: ../src/Gui/Window.cpp:132
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"A plugin failed to load, therefore some functionality might be lost. You "
+"might want to update your system or report a bug to your vendor.\n"
+"\n"
+"%1"
+msgstr ""
+"Vtičnika ni bilo mogoče naložiti, zato je morda nekaj funkcionalnosti "
+"izgubljeno. Morda boste želeli posodobiti sistem ali ponudniku prijaviti "
+"napako.\n"
+"\n"
+"%1"
+
+#: ../src/Gui/Window.cpp:234
+msgctxt "Gui::MainWindow|"
+msgid "E&xit"
+msgstr "&Izhod"
+
+#: ../src/Gui/Window.cpp:235
+msgctxt "Gui::MainWindow|"
+msgid "&New Message..."
+msgstr "&Novo sporočilo …"
+
+#: ../src/Gui/Window.cpp:236
+msgctxt "Gui::MainWindow|"
+msgid "&Edit Draft..."
+msgstr "&Uredi osnutek ..."
+
+#: ../src/Gui/Window.cpp:237
+msgctxt "Gui::MainWindow|"
+msgid "Show Main Menu &Bar"
+msgstr "Pokaži glavno &menijsko vrstico"
+
+#: ../src/Gui/Window.cpp:237
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+M"
+msgstr "Krmilka+M"
+
+#: ../src/Gui/Window.cpp:238
+msgctxt "Gui::MainWindow|"
+msgid "Exp&unge"
+msgstr "Temeljito o&čisti"
+
+#: ../src/Gui/Window.cpp:238
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+E"
+msgstr "Krmilka+E"
+
+#: ../src/Gui/Window.cpp:239
+msgctxt "Gui::MainWindow|"
+msgid "Mark as &Read"
+msgstr "Označi kot pre&brano"
+
+#: ../src/Gui/Window.cpp:240
+msgctxt "Gui::MainWindow|"
+msgid "&Next Unread Message"
+msgstr "&Naslednje neprebrano sporočilo"
+
+#: ../src/Gui/Window.cpp:241
+msgctxt "Gui::MainWindow|"
+msgid "&Previous Unread Message"
+msgstr "&Predhodno neprebrano sporočilo"
+
+#: ../src/Gui/Window.cpp:242
+msgctxt "Gui::MainWindow|"
+msgid "Mark as &Deleted"
+msgstr "Označi kot &izbrisano"
+
+#: ../src/Gui/Window.cpp:243
+msgctxt "Gui::MainWindow|"
+msgid "Mark as &Flagged"
+msgstr "Označi z &zastavico"
+
+#: ../src/Gui/Window.cpp:244
+msgctxt "Gui::MainWindow|"
+msgid "Mark as &Junk"
+msgstr "Označi kot &nezaželeno"
+
+#: ../src/Gui/Window.cpp:245
+msgctxt "Gui::MainWindow|"
+msgid "Mark as Not &junk"
+msgstr "Označi kot &zaželeno"
+
+#: ../src/Gui/Window.cpp:246
+msgctxt "Gui::MainWindow|"
+msgid "&Save Message..."
+msgstr "&Shrani sporočilo ..."
+
+#: ../src/Gui/Window.cpp:247
+msgctxt "Gui::MainWindow|"
+msgid "View Message &Source..."
+msgstr "Pokaži izvorno &kodo sporočila ..."
+
+#: ../src/Gui/Window.cpp:248
+msgctxt "Gui::MainWindow|"
+msgid "View Message &Headers..."
+msgstr "Pokaži &glave sporočila ..."
+
+#: ../src/Gui/Window.cpp:248
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+U"
+msgstr "Krmilka+U"
+
+#: ../src/Gui/Window.cpp:249
+msgctxt "Gui::MainWindow|"
+msgid "&Private Reply"
+msgstr "Odgovori &zasebno"
+
+#: ../src/Gui/Window.cpp:249
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+Shift+A"
+msgstr "Krmilka+dvigalka+A"
+
+#: ../src/Gui/Window.cpp:250
+msgctxt "Gui::MainWindow|"
+msgid "Reply to All &but Me"
+msgstr "Odgovori vsem &razen meni"
+
+#: ../src/Gui/Window.cpp:250
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+Shift+R"
+msgstr "Krmilka+dvigalka+R"
+
+#: ../src/Gui/Window.cpp:251
+msgctxt "Gui::MainWindow|"
+msgid "Reply to &All"
+msgstr "Odgovori &vsem"
+
+#: ../src/Gui/Window.cpp:251
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+Alt+Shift+R"
+msgstr "Krmilka+izmenjalka+dvigalka+R"
+
+#: ../src/Gui/Window.cpp:252
+msgctxt "Gui::MainWindow|"
+msgid "Reply to &Mailing List"
+msgstr "Odgovori na &dopisni seznam"
+
+#: ../src/Gui/Window.cpp:252
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+L"
+msgstr "Krmilka+L"
+
+#: ../src/Gui/Window.cpp:253
+msgctxt "Gui::MainWindow|"
+msgid "Reply by &Guess"
+msgstr "Odgovori z u&gibanjem"
+
+#: ../src/Gui/Window.cpp:253
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+R"
+msgstr "Krmilka+R"
+
+#: ../src/Gui/Window.cpp:254
+msgctxt "Gui::MainWindow|"
+msgid "&Forward"
+msgstr "&Naprej"
+
+#: ../src/Gui/Window.cpp:254
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+Shift+F"
+msgstr "Krmilka+dvigalka+F"
+
+#: ../src/Gui/Window.cpp:255
+msgctxt "Gui::MainWindow|"
+msgid "Resend..."
+msgstr "Ponovno pošlji ..."
+
+#: ../src/Gui/Window.cpp:256
+msgctxt "Gui::MainWindow|"
+msgid "&Archive"
+msgstr "&Arhiviraj"
+
+#: ../src/Gui/Window.cpp:257
+msgctxt "Gui::MainWindow|"
+msgid "Address Book..."
+msgstr "Adresar …"
+
+#: ../src/Gui/Window.cpp:258
+msgctxt "Gui::MainWindow|"
+msgid "&Offline"
+msgstr "&Brez povezave"
+
+#: ../src/Gui/Window.cpp:259
+msgctxt "Gui::MainWindow|"
+msgid "&Expensive Connection"
+msgstr "&Draga povezava"
+
+#: ../src/Gui/Window.cpp:260
+msgctxt "Gui::MainWindow|"
+msgid "&Free Access"
+msgstr "&Brezplačen dostop"
+
+#: ../src/Gui/Window.cpp:261
+msgctxt "Gui::MainWindow|"
+msgid "Close Standalone Message Window"
+msgstr "Zapri samostojno okno sporočila"
+
+#: ../src/Gui/Window.cpp:262
+msgctxt "Gui::MainWindow|"
+msgid "Open message in New Window..."
+msgstr "Odpri sporočilo v novem oknu ..."
+
+#: ../src/Gui/Window.cpp:263
+msgctxt "Gui::MainWindow|"
+msgid "Navigate Back"
+msgstr "Krmari nazaj"
+
+#: ../src/Gui/Window.cpp:264
+msgctxt "Gui::MainWindow|"
+msgid "Zoom In"
+msgstr "Povečaj"
+
+#: ../src/Gui/Window.cpp:265
+msgctxt "Gui::MainWindow|"
+msgid "Zoom Out"
+msgstr "Pomanjšaj"
+
+#: ../src/Gui/Window.cpp:266
+msgctxt "Gui::MainWindow|"
+msgid "Original Size"
+msgstr "Izvirna velikost"
+
+#: ../src/Gui/Window.cpp:267
+msgctxt "Gui::MainWindow|"
+msgid "Move Focus to Mailbox List"
+msgstr "Premakni pozornost na seznam nabiralnikov"
+
+#: ../src/Gui/Window.cpp:268
+msgctxt "Gui::MainWindow|"
+msgid "Move Focus to Message List"
+msgstr "Premakni pozornost na seznam sporočil"
+
+#: ../src/Gui/Window.cpp:269
+msgctxt "Gui::MainWindow|"
+msgid "Move Focus to Quick Search"
+msgstr "Premakni pozornost na hitro iskanje"
+
+#: ../src/Gui/Window.cpp:270
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &1st tag"
+msgstr "Označi z oznako &1"
+
+#: ../src/Gui/Window.cpp:271
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &2nd tag"
+msgstr "Označi z oznako &2"
+
+#: ../src/Gui/Window.cpp:272
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &3rd tag"
+msgstr "Označi z oznako &3"
+
+#: ../src/Gui/Window.cpp:273
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &4th tag"
+msgstr "Označi z oznako &4"
+
+#: ../src/Gui/Window.cpp:274
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &5th tag"
+msgstr "Označi z oznako &5"
+
+#: ../src/Gui/Window.cpp:275
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &6th tag"
+msgstr "Označi z oznako &6"
+
+#: ../src/Gui/Window.cpp:276
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &7th tag"
+msgstr "Označi z oznako &7"
+
+#: ../src/Gui/Window.cpp:277
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &8th tag"
+msgstr "Označi z oznako &8"
+
+#: ../src/Gui/Window.cpp:278
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &9th tag"
+msgstr "Označi z oznako &9"
+
+#: ../src/Gui/Window.cpp:306
+msgctxt "Gui::MainWindow|"
+msgid "Navigation"
+msgstr "Krmarjenje"
+
+#: ../src/Gui/Window.cpp:309
+msgctxt "Gui::MainWindow|"
+msgid "&Update List of Child Mailboxes"
+msgstr "&Posodobi seznam podrejenih nabiralnikov"
+
+#: ../src/Gui/Window.cpp:312
+msgctxt "Gui::MainWindow|"
+msgid "Check for &New Messages"
+msgstr "Preveri novo pošto"
+
+#: ../src/Gui/Window.cpp:315
+msgctxt "Gui::MainWindow|"
+msgid "&Reload Everything"
+msgstr "&Ponovno naloži vse"
+
+#: ../src/Gui/Window.cpp:319
+msgctxt "Gui::MainWindow|"
+msgid "Exit the application"
+msgstr "Zaprite program"
+
+#. a debugging tool showing the full contents of the whole IMAP server; all folders, messages and their parts
+#: ../src/Gui/Window.cpp:338
+msgctxt "Gui::MainWindow|"
+msgid "Show Full &Tree Window"
+msgstr "Pokaži polno okno &drevesa"
+
+#. list of active "tasks", entities which are performing certain action like downloading a message or syncing a mailbox
+#: ../src/Gui/Window.cpp:344
+msgctxt "Gui::MainWindow|"
+msgid "Show ImapTask t&ree"
+msgstr "Pokaži d&revo imapTask"
+
+#. a debugging tool showing the mime tree of the current message
+#: ../src/Gui/Window.cpp:350
+msgctxt "Gui::MainWindow|"
+msgid "Show &MIME tree"
+msgstr "Pokaži drevo &MIME"
+
+#: ../src/Gui/Window.cpp:355
+msgctxt "Gui::MainWindow|"
+msgid "Show protocol &log"
+msgstr "Pokaži &dnevnik protokola"
+
+#. file to save the debug log into
+#: ../src/Gui/Window.cpp:361
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Log &into %1"
+msgstr "Pr&ijavi v %1"
+
+#: ../src/Gui/Window.cpp:366
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Server In&formation..."
+msgstr "Podatki o stre&žniku IMAP ..."
+
+#: ../src/Gui/Window.cpp:375
+msgctxt "Gui::MainWindow|"
+msgid "Show &Toolbar"
+msgstr "Pokaži &orodno vrstico"
+
+#: ../src/Gui/Window.cpp:381
+msgctxt "Gui::MainWindow|"
+msgid "&Settings..."
+msgstr "&Nastavitve …"
+
+#. "mailbox" as a "folder of messages", not as a "mail account"
+#: ../src/Gui/Window.cpp:476
+msgctxt "Gui::MainWindow|"
+msgid "Create &Child Mailbox..."
+msgstr "Ustvari &podrejeni nabiralnik ..."
+
+#. "mailbox" as a "folder of messages", not as a "mail account"
+#: ../src/Gui/Window.cpp:480
+msgctxt "Gui::MainWindow|"
+msgid "Create &New Mailbox..."
+msgstr "Ustvari &nov nabiralnik ..."
+
+#: ../src/Gui/Window.cpp:483
+msgctxt "Gui::MainWindow|"
+msgid "&Mark Mailbox as Read"
+msgstr "&Označi nabiralnik kot prebran"
+
+#. "mailbox" as a "folder of messages", not as a "mail account"
+#: ../src/Gui/Window.cpp:487
+msgctxt "Gui::MainWindow|"
+msgid "&Remove Mailbox"
+msgstr "&Odstrani nabiralnik"
+
+#: ../src/Gui/Window.cpp:491
+msgctxt "Gui::MainWindow|"
+msgid "&Synchronize with xTuple"
+msgstr "&Uskladi z xTuple"
+
+#: ../src/Gui/Window.cpp:511
+msgctxt "Gui::MainWindow|"
+msgid "Show Messages in &Threads"
+msgstr "Pokaži sporočila v &nitih"
+
+#: ../src/Gui/Window.cpp:522
+msgctxt "Gui::MainWindow|"
+msgid "&Ascending"
+msgstr "&Naraščajoče"
+
+#: ../src/Gui/Window.cpp:525
+msgctxt "Gui::MainWindow|"
+msgid "&Descending"
+msgstr "&Padajoče"
+
+#: ../src/Gui/Window.cpp:533
+msgctxt "Gui::MainWindow|"
+msgid "&No sorting"
+msgstr "&Brez razvrščanja"
+
+#: ../src/Gui/Window.cpp:535
+msgctxt "Gui::MainWindow|"
+msgid "Sorted by &Threading"
+msgstr "Razvrščeno po &nitih"
+
+#: ../src/Gui/Window.cpp:537
+msgctxt "Gui::MainWindow|"
+msgid "A&rrival"
+msgstr "P&rihod"
+
+#: ../src/Gui/Window.cpp:539
+msgctxt "Gui::MainWindow|"
+msgid "&Cc (Carbon Copy)"
+msgstr "&Kp (kopija)"
+
+#: ../src/Gui/Window.cpp:541
+msgctxt "Gui::MainWindow|"
+msgid "Date from &Message Headers"
+msgstr "Datum iz &glav sporočil"
+
+#: ../src/Gui/Window.cpp:543
+msgctxt "Gui::MainWindow|"
+msgid "&From Address"
+msgstr "&Z naslova"
+
+#: ../src/Gui/Window.cpp:545
+msgctxt "Gui::MainWindow|"
+msgid "&Size"
+msgstr "&Velikost"
+
+#: ../src/Gui/Window.cpp:547
+msgctxt "Gui::MainWindow|"
+msgid "S&ubject"
+msgstr "&Zadeva"
+
+#: ../src/Gui/Window.cpp:549
+msgctxt "Gui::MainWindow|"
+msgid "T&o Address"
+msgstr "&Na naslov"
+
+#: ../src/Gui/Window.cpp:554
+msgctxt "Gui::MainWindow|"
+msgid "&Hide Read Messages"
+msgstr "&Skrij prebrana sporočila"
+
+#: ../src/Gui/Window.cpp:563
+msgctxt "Gui::MainWindow|"
+msgid "&Compact"
+msgstr "&Strni"
+
+#: ../src/Gui/Window.cpp:567
+msgctxt "Gui::MainWindow|"
+msgid "&Wide"
+msgstr "&Široko"
+
+#: ../src/Gui/Window.cpp:570
+msgctxt "Gui::MainWindow|"
+msgid "&One At a Time"
+msgstr "&Eden naenkrat"
+
+#: ../src/Gui/Window.cpp:575
+msgctxt "Gui::MainWindow|"
+msgid "Show Only S&ubscribed Folders"
+msgstr "Pokaži samo naro&čene mape"
+
+#: ../src/Gui/Window.cpp:579
+msgctxt "Gui::MainWindow|"
+msgid "Su&bscribed"
+msgstr "Naro&čeni"
+
+#: ../src/Gui/Window.cpp:584
+msgctxt "Gui::MainWindow|"
+msgid "&About Trojitá..."
+msgstr "&O programu Trojitá ..."
+
+#: ../src/Gui/Window.cpp:587
+msgctxt "Gui::MainWindow|"
+msgid "&Donate to the project"
+msgstr "&Doniraj projektu"
+
+#: ../src/Gui/Window.cpp:592
+msgctxt "Gui::MainWindow|"
+msgid "Compose Mail"
+msgstr "Sestavi sporočilo"
+
+#: ../src/Gui/Window.cpp:692
+msgctxt "Gui::MainWindow|"
+msgid "&Application"
+msgstr "Progr&am"
+
+#: ../src/Gui/Window.cpp:694
+msgctxt "Gui::MainWindow|"
+msgid "&Network Access"
+msgstr "&Omrežni dostop"
+
+#: ../src/Gui/Window.cpp:698
+msgctxt "Gui::MainWindow|"
+msgid "&Debugging"
+msgstr "&Razhroščevanje"
+
+#: ../src/Gui/Window.cpp:718
+msgctxt "Gui::MainWindow|"
+msgid "&View"
+msgstr "Po&gled"
+
+#: ../src/Gui/Window.cpp:721
+msgctxt "Gui::MainWindow|"
+msgid "&Layout"
+msgstr "&Postavitev"
+
+#: ../src/Gui/Window.cpp:728
+msgctxt "Gui::MainWindow|"
+msgid "Mail&box"
+msgstr "Na&biralnik"
+
+#: ../src/Gui/Window.cpp:729
+msgctxt "Gui::MainWindow|"
+msgid "S&orting"
+msgstr "&Razvrščanje"
+
+#: ../src/Gui/Window.cpp:751
+msgctxt "Gui::MainWindow|"
+msgid "&Message"
+msgstr "&Sporočilo"
+
+#: ../src/Gui/Window.cpp:830
+#, qt-format
+msgctxt "QObject|"
+msgid "Link target: %1"
+msgstr "Cilj povezave: %1"
+
+#: ../src/Gui/Window.cpp:842
+msgctxt "Gui::MainWindow|"
+msgid "Everything"
+msgstr "Vse"
+
+#: ../src/Gui/Window.cpp:850
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Tasks"
+msgstr "Opravila IMAP"
+
+#: ../src/Gui/Window.cpp:857
+msgctxt "Gui::MainWindow|"
+msgid "MIME Tree"
+msgstr "Drevo MIME"
+
+#: ../src/Gui/Window.cpp:867
+msgctxt "Gui::MainWindow|"
+msgid "Protocol log"
+msgstr "Dnevnik protokola"
+
+#: ../src/Gui/Window.cpp:944
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Attempting to reconnect in %n seconds.."
+msgid_plural "Attempting to reconnect in %n seconds.."
+msgstr[0] "Poskus ponovne vzpostavitve povezave čez %n s …"
+msgstr[1] "Poskus ponovne vzpostavitve povezave čez %n s …"
+msgstr[2] "Poskus ponovne vzpostavitve povezave čez %n s …"
+msgstr[3] "Poskus ponovne vzpostavitve povezave čez %n s …"
+
+#: ../src/Gui/Window.cpp:997
+msgctxt "Gui::MainWindow|"
+msgid "&Quit"
+msgstr "I&zhod"
+
+#. This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
+#: ../src/Gui/Window.cpp:1112
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid " - %n unread message(s)"
+msgid_plural " - %n unread message(s)"
+msgstr[0] " - %n neprebrano sporočilo"
+msgstr[1] " - %n neprebrani sporočili"
+msgstr[2] " - %n neprebranih sporočil"
+msgstr[3] " - %n neprebranih sporočil"
+
+#. A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
+#: ../src/Gui/Window.cpp:1115
+msgctxt "Gui::MainWindow|"
+msgid " - offline"
+msgstr " – brez povezave"
+
+#: ../src/Gui/Window.cpp:1124 ../src/Gui/Window.cpp:2566
+msgctxt "Gui::MainWindow|"
+msgid "Trojitá"
+msgstr "Trojitá"
+
+#: ../src/Gui/Window.cpp:1125
+msgctxt "Gui::MainWindow|"
+msgid ""
+"The application will continue in systray. This can be disabled within the "
+"settings."
+msgstr ""
+"Program bo nadaljeval z delom v sistemskem pladnju. To lahko onemogočite v "
+"nastavitvah."
+
+#. "ALERT" is a special warning which we're required to show to the user
+#: ../src/Gui/Window.cpp:1338
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Alert"
+msgstr "Opozorilo IMAP"
+
+#: ../src/Gui/Window.cpp:1343
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Protocol Error"
+msgstr "Napaka protokola IMAP"
+
+#: ../src/Gui/Window.cpp:1351
+msgctxt "Gui::MainWindow|"
+msgid "Network Error"
+msgstr "Napaka v omrežju"
+
+#: ../src/Gui/Window.cpp:1372
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Cache Error"
+msgstr "Napaka predpomnilnika IMAP"
+
+#: ../src/Gui/Window.cpp:1373
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"The caching subsystem managing a cache of the data already downloaded from "
+"the IMAP server is having troubles. All caching will be disabled.\n"
+"\n"
+"%1"
+msgstr ""
+"Težave ima predpomnilniški podsistem, ki upravlja predpomnilnik podatkov, ki "
+"so bili že preneseni s strežnika IMAP. Vse predpomnjenje bo onemogočeno.\n"
+"\n"
+"%1"
+
+#: ../src/Gui/Window.cpp:1384
+msgctxt "Gui::MainWindow|"
+msgid "Offline"
+msgstr "Brez povezave"
+
+#: ../src/Gui/Window.cpp:1430
+msgctxt "Gui::MainWindow|"
+msgid "No Configuration"
+msgstr "Brez prilagoditev"
+
+#: ../src/Gui/Window.cpp:1431
+msgctxt "Gui::MainWindow|"
+msgid "No IMAP account is configured. Trojitá cannot do much without one."
+msgstr ""
+"Noben račun IMAP ni nastavljen. Trojitá ne more narediti veliko brez tega."
+
+#: ../src/Gui/Window.cpp:1456
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Failed to retrieve password from the store: %1"
+msgstr "Pridobivanje gesla iz trgovine ni uspelo: %1"
+
+#: ../src/Gui/Window.cpp:1474
+msgctxt "Gui::MainWindow|"
+msgid "Authentication Required"
+msgstr "Obvezno preverjanje pristnosti"
+
+#: ../src/Gui/Window.cpp:1475
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>"
+msgstr "<p>Navedite geslo IMAP za uporabnika <b>%1</b> na <b>%2:</b></p>"
+
+#: ../src/Gui/Window.cpp:1529
+msgctxt "Gui::MainWindow|"
+msgid "Edit draft"
+msgstr "Uredi osnutek"
+
+#: ../src/Gui/Window.cpp:1650
+msgctxt "Gui::MainWindow|"
+msgid "Failed to archive"
+msgstr "Arhiviranje ni uspelo"
+
+#: ../src/Gui/Window.cpp:1700
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Create a Subfolder of %1"
+msgstr "Ustvari podmapo %1"
+
+#: ../src/Gui/Window.cpp:1701
+msgctxt "Gui::MainWindow|"
+msgid "Create a Top-level Mailbox"
+msgstr "Ustvari nabiralnik najvišje ravni"
+
+#: ../src/Gui/Window.cpp:1728
+msgctxt "Gui::MainWindow|"
+msgid "Delete Mailbox"
+msgstr "Izbriši nabiralnik"
+
+#: ../src/Gui/Window.cpp:1729
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Are you sure to delete mailbox %1?"
+msgstr "Ali ste prepričani, da želite izbrisati nabiralnik %1?"
+
+#: ../src/Gui/Window.cpp:2028
+msgctxt "Gui::MainWindow|"
+msgid "Can't delete mailbox"
+msgstr "Nabiralnika ni mogoče izbrisati"
+
+#: ../src/Gui/Window.cpp:2029
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"Deleting mailbox \"%1\" failed with the following message:\n"
+"%2"
+msgstr ""
+"Brisanje nabiralnika »%1« ni uspelo z naslednjim sporočilom:\n"
+"%2"
+
+#: ../src/Gui/Window.cpp:2034
+msgctxt "Gui::MainWindow|"
+msgid "Can't create mailbox"
+msgstr "Nabiralnika ni mogoče ustvariti"
+
+#: ../src/Gui/Window.cpp:2035
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"Creating mailbox \"%1\" failed with the following message:\n"
+"%2"
+msgstr ""
+"Ustvarjanje nabiralnika »%1« ni uspelo s tem sporočilom:\n"
+"%2"
+
+#: ../src/Gui/Window.cpp:2040
+msgctxt "Gui::MainWindow|"
+msgid "Can't open mailbox"
+msgstr "Nabiralnika ni mogoče odpreti"
+
+#: ../src/Gui/Window.cpp:2041
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"Opening mailbox \"%1\" failed with the following message:\n"
+"%2"
+msgstr ""
+"Odpiranje nabiralnika »%1« je spodletelo z naslednjim sporočilom:\n"
+"%2"
+
+#: ../src/Gui/Window.cpp:2090
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Link target: %1"
+msgstr "Cilj povezave: %1"
+
+#: ../src/Gui/Window.cpp:2105
+msgctxt "Gui::MainWindow|"
+msgid "Plugins"
+msgstr "Vtičniki"
+
+#: ../src/Gui/Window.cpp:2112
+msgctxt "Gui::MainWindow|"
+msgid "Encrypted and signed messages"
+msgstr "Šifrirana in podpisana sporočila"
+
+#: ../src/Gui/Window.cpp:2119
+msgctxt "Gui::MainWindow|"
+msgid "IMAP compression"
+msgstr "Stiskanje IMAP"
+
+#: ../src/Gui/Window.cpp:2130
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<li>%1: supported</li>"
+msgstr "<li>%1: podprto</li>"
+
+#: ../src/Gui/Window.cpp:2131
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<li>%1: <strong>disabled</strong></li>"
+msgstr "<li>%1: <strong>onemogočeno</strong></li>"
+
+#: ../src/Gui/Window.cpp:2189
+msgctxt "Gui::MainWindow|"
+msgid "Can't save into file"
+msgstr "Ni mogoče shraniti v datoteko"
+
+#: ../src/Gui/Window.cpp:2190
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"Unable to save into file. Error:\n"
+"%1"
+msgstr ""
+"Ni mogoče shraniti v datoteko. Napaka:\n"
+"%1"
+
+#: ../src/Gui/Window.cpp:2195
+msgctxt "Gui::MainWindow|"
+msgid "Save Message"
+msgstr "Shrani sporočilo"
+
+#. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
+#: ../src/Gui/Window.cpp:2209
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Message source of UID %1 in %2"
+msgstr "Vir sporočila UID %1 v %2"
+
+#: ../src/Gui/Window.cpp:2222 ../src/Gui/Window.cpp:2241
+msgctxt "Gui::MainWindow|"
+msgid "Close"
+msgstr "Zapri"
+
+#: ../src/Gui/Window.cpp:2224 ../src/Gui/Window.cpp:2243
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+W"
+msgstr "Krmilka+W"
+
+#: ../src/Gui/Window.cpp:2486
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<li>%1</li>\n"
+msgstr "<li>%1</li>\n"
+
+#: ../src/Gui/Window.cpp:2494
+msgctxt "Gui::MainWindow|"
+msgid "Unknown"
+msgstr "Neznano"
+
+#: ../src/Gui/Window.cpp:2508
+msgctxt "Gui::MainWindow|"
+msgid "<p>"
+msgstr "<p>"
+
+#: ../src/Gui/Window.cpp:2510
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Server: %1 %2"
+msgstr "Strežnik: %1 %2"
+
+#: ../src/Gui/Window.cpp:2512
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Server: %1"
+msgstr "Strežnik: %1"
+
+#: ../src/Gui/Window.cpp:2515
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid " (%1)"
+msgstr " (%1)"
+
+#: ../src/Gui/Window.cpp:2519
+#, qt-format
+msgctxt ""
+"Gui::MainWindow|%1 is the operating system of an IMAP server and %2 is its "
+"version."
+msgid " on %1 %2"
+msgstr ", sistem %1 %2"
+
+#: ../src/Gui/Window.cpp:2521
+#, qt-format
+msgctxt "Gui::MainWindow|%1 is the operationg system of an IMAP server."
+msgid " on %1"
+msgstr ", sistem %1"
+
+#: ../src/Gui/Window.cpp:2523
+msgctxt "Gui::MainWindow|"
+msgid "</p>"
+msgstr "</p>"
+
+#: ../src/Gui/Window.cpp:2525
+msgctxt "Gui::MainWindow|"
+msgid "<p>The IMAP server did not return usable information about itself.</p>"
+msgstr "<p>Strežnik IMAP ni vrnil uporabnih informacij o sebi.</p>"
+
+#: ../src/Gui/Window.cpp:2529
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<li>%1: %2</li>"
+msgstr "<li>%1: %2</li>"
+
+#: ../src/Gui/Window.cpp:2531
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<ul>%1</ul>"
+msgstr "<ul>%1</ul>"
+
+#: ../src/Gui/Window.cpp:2533
+msgctxt "Gui::MainWindow|"
+msgid ""
+"<p>The server has not provided information about its software version.</p>"
+msgstr ""
+"<p>Strežnik ni predložil podatkov o svoji različici programske opreme.</p>"
+
+#: ../src/Gui/Window.cpp:2540
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"%1\n"
+"<p>The following capabilities are currently advertised:</p>"
+msgstr "%1<p>Trenutno se oglašujejo naslednje zmogljivosti:</p>"
+
+#: ../src/Gui/Window.cpp:2542
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"<ul>\n"
+"%1</ul>"
+msgstr ""
+"<ul>\n"
+"%1</ul>"
+
+#: ../src/Gui/Window.cpp:2560
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "%1 - %n unread - Trojitá"
+msgid_plural "%1 - %n unread - Trojitá"
+msgstr[0] "%1 - %n neprebrano - Trojitá"
+msgstr[1] "%1 - %n neprebrani - Trojitá"
+msgstr[2] "%1 - %n neprebrana - Trojitá"
+msgstr[3] "%1 - %n neprebranih - Trojitá"
+
+#: ../src/Gui/Window.cpp:2563
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "%1 - Trojitá"
+msgstr "%1 - Trojitá"
+
+#: ../src/Gui/Window.cpp:2900
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Tag with \"%1\""
+msgstr "Označi z »%1«"
+
+#: ../src/Imap/ConnectionState.cpp:35
+msgctxt "QObject|"
+msgid "Resolving hostname..."
+msgstr "Razreševanje imena gostitelja ..."
+
+#: ../src/Imap/ConnectionState.cpp:37
+msgctxt "QObject|"
+msgid "Connecting to the IMAP server..."
+msgstr "Vzpostavljanje povezave s strežnikom IMAP ..."
+
+#: ../src/Imap/ConnectionState.cpp:39
+msgctxt "QObject|"
+msgid "Starting encryption (SSL)..."
+msgstr "Zagon šifriranja (SSL) ..."
+
+#: ../src/Imap/ConnectionState.cpp:41
+msgctxt "QObject|"
+msgid "Checking certificates (SSL)..."
+msgstr "Preverjanje potrdil (SSL) ..."
+
+#: ../src/Imap/ConnectionState.cpp:43
+msgctxt "QObject|"
+msgid "Checking capabilities..."
+msgstr "Preverjanje zmogljivosti ..."
+
+#: ../src/Imap/ConnectionState.cpp:45
+msgctxt "QObject|"
+msgid "Waiting for encryption..."
+msgstr "Čakanje na šifriranje ..."
+
+#: ../src/Imap/ConnectionState.cpp:47
+msgctxt "QObject|"
+msgid "Asking for encryption..."
+msgstr "Zaprošanje za šifriranje ..."
+
+#: ../src/Imap/ConnectionState.cpp:49
+msgctxt "QObject|"
+msgid "Starting encryption (STARTTLS)..."
+msgstr "Zagon šifriranja (STARTTLS) ..."
+
+#: ../src/Imap/ConnectionState.cpp:51
+msgctxt "QObject|"
+msgid "Checking certificates (STARTTLS)..."
+msgstr "Preverjanje potrdil (STARTTLS) ..."
+
+#: ../src/Imap/ConnectionState.cpp:53
+msgctxt "QObject|"
+msgid "Checking capabilities (after STARTTLS)..."
+msgstr "Preverjanje zmogljivosti (po STARTTLS) ..."
+
+#: ../src/Imap/ConnectionState.cpp:55
+msgctxt "QObject|"
+msgid "Logging in..."
+msgstr "Prijavljanje ..."
+
+#: ../src/Imap/ConnectionState.cpp:57
+msgctxt "QObject|"
+msgid "Checking capabilities (after login)..."
+msgstr "Preverjanje zmogljivosti (po prijavi) ..."
+
+#: ../src/Imap/ConnectionState.cpp:59
+msgctxt "QObject|"
+msgid "Activating compression..."
+msgstr "Aktiviranje stiskanja ..."
+
+#: ../src/Imap/ConnectionState.cpp:61
+msgctxt "QObject|"
+msgid "Logged in."
+msgstr "Prijavljeni."
+
+#: ../src/Imap/ConnectionState.cpp:63
+msgctxt "QObject|"
+msgid "Waiting for another mailbox..."
+msgstr "Čakanje na drug nabiralnik ..."
+
+#: ../src/Imap/ConnectionState.cpp:65
+msgctxt "QObject|"
+msgid "Opening mailbox..."
+msgstr "Odpiranje nabiralnika ..."
+
+#: ../src/Imap/ConnectionState.cpp:67
+msgctxt "QObject|"
+msgid "Synchronizing mailbox..."
+msgstr "Usklajevanje nabiralnika ..."
+
+#: ../src/Imap/ConnectionState.cpp:69
+msgctxt "QObject|"
+msgid "Mailbox opened."
+msgstr "Nabiralnik je odprt."
+
+#: ../src/Imap/ConnectionState.cpp:71
+msgctxt "QObject|"
+msgid "Downloading message..."
+msgstr "Prenos sporočila ..."
+
+#: ../src/Imap/ConnectionState.cpp:73
+msgctxt "QObject|"
+msgid "Downloading message structure..."
+msgstr "Prenos strukture sporočila ..."
+
+#: ../src/Imap/ConnectionState.cpp:75
+msgctxt "QObject|"
+msgid "Logged out."
+msgstr "Odjavljeni."
+
+#: ../src/Imap/Model/DiskPartCache.cpp:64
+msgctxt "QObject|"
+msgid "Unrecognized QFile error"
+msgstr "Neprepoznana napaka QFile"
+
+#: ../src/Imap/Model/DiskPartCache.cpp:85
+#, qt-format
+msgctxt "QObject|"
+msgid "Couldn't remove file %1 for mailbox %2"
+msgstr "Ni bilo mogoče odstraniti datoteke %1 za nabiralnik %2"
+
+#: ../src/Imap/Model/DiskPartCache.cpp:95
+#, qt-format
+msgctxt "QObject|"
+msgid "Couldn't remove file %1 for message %2, mailbox %3"
+msgstr "Ni bilo mogoče odstraniti datoteke %1 za sporočilo %2, nabiralnik %3"
+
+#: ../src/Imap/Model/DiskPartCache.cpp:117
+#, qt-format
+msgctxt "QObject|"
+msgid ""
+"Couldn't save the part %1 of message %2 (mailbox %3) into file %4: %5 (%6)"
+msgstr ""
+"Dela %1 sporočila %2 (nabiralnik %3) ni bilo mogoče shraniti v datoteko %4: "
+"%5 (%6)"
+
+#: ../src/Imap/Model/FavoriteTagsModel.cpp:124
+msgctxt "Imap::Mailbox::FavoriteTagsModel|"
+msgid "#"
+msgstr "#"
+
+#: ../src/Imap/Model/FavoriteTagsModel.cpp:126
+msgctxt "Imap::Mailbox::FavoriteTagsModel|"
+msgid "Name"
+msgstr "Ime"
+
+#: ../src/Imap/Model/FavoriteTagsModel.cpp:128
+msgctxt "Imap::Mailbox::FavoriteTagsModel|"
+msgid "Color"
+msgstr "Barva"
+
+#: ../src/Imap/Model/FullMessageCombiner.cpp:79
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Message is gone"
+msgstr "Sporočilo je izginilo"
+
+#: ../src/Imap/Model/FullMessageCombiner.cpp:91
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Offline mode: uncached message data not available"
+msgstr "Način brez povezave: podatki o predpomnjenih sporočilih niso na voljo"
+
+#: ../src/Imap/Model/FullMessageCombiner.cpp:93
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Offline mode: uncached header data not available"
+msgstr "Način brez povezave: ne predpomenjeni podatki o glavi niso na voljo"
+
+#: ../src/Imap/Model/FullMessageCombiner.cpp:95
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Offline mode: uncached body data not available"
+msgstr "Način brez povezave: ne predpomjeni podatki telesa niso na voljo"
+
+#: ../src/Imap/Model/ImapAccess.cpp:317
+#, qt-format
+msgctxt "Imap::ImapAccess|"
+msgid "Failed to create directory %1"
+msgstr "Ustvarjanje mape %1 ni uspelo"
+
+#: ../src/Imap/Model/ImapAccess.cpp:326
+#, qt-format
+msgctxt "Imap::ImapAccess|"
+msgid "Failed to set safe permissions on cache directory %1"
+msgstr "Nastavitev varnih dovoljenj v mapi predpomnilnika %1 ni uspela"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1244
+msgctxt "Imap::Mailbox::Model|"
+msgid "Today"
+msgstr "Danes"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1248
+msgctxt "Imap::Mailbox::Model|"
+msgid "Last Week"
+msgstr "Prejšnji teden"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1251
+msgctxt ""
+"Imap::Mailbox::Model|The format specifiers (yyyy, etc) must not be "
+"translated, but their order can be changed to follow the local conventions. "
+"For valid specifiers see http://doc.qt.io/qt-5/qdate.html#toString"
+msgid "MMMM yyyy"
+msgstr "MMMM yyyy"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1718
+#, qt-format
+msgctxt "Imap::Mailbox::Model|"
+msgid "[loading %1...]"
+msgstr "[nalaganje %1 …]"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1719
+#, qt-format
+msgctxt "Imap::Mailbox::Model|"
+msgid "[loading %1: %2...]"
+msgstr "[nalaganje %1: %2 …]"
+
+#: ../src/Imap/Model/Model.cpp:1069
+msgctxt "Imap::Mailbox::Model|"
+msgid "Going offline"
+msgstr "Vklop nepovezanega načina"
+
+#: ../src/Imap/Model/Model.cpp:1143
+msgctxt "Imap::Mailbox::Model|"
+msgid ""
+"<p>It appears that you are connecting to a POP3 server. That won't work here."
+"</p>"
+msgstr ""
+"<p>Zdi se, da se povezujete s strežnikom POP3. To ne bo delovalo tukaj.</p>"
+
+#: ../src/Imap/Model/Model.cpp:1145
+msgctxt "Imap::Mailbox::Model|"
+msgid ""
+"<p>It appears that you are connecting to an SMTP server. That won't work "
+"here.</p>"
+msgstr ""
+"<p>Zdi se, da se povezujete s strežnikom SMTP. To ne bo delovalo tukaj.</p>"
+
+#: ../src/Imap/Model/Model.cpp:1147
+#, qt-format
+msgctxt "Imap::Mailbox::Model|"
+msgid ""
+"<h2>This is not an IMAP server</h2>%1<p>Please check your settings to make "
+"sure you are connecting to the IMAP service. A typical port number for IMAP "
+"is 143 or 993.</p><p>The server said:</p><pre>%2</pre>"
+msgstr ""
+"<h2>To ni strežnik IMAP</h2>%1<p>Preverite nastavitve, da se prepričate, ali "
+"se povezujete s storitvami IMAP. Tipična številka vrat za IMAP je 143 ali "
+"993.</p><p>Strežnik je dejal:</p><pre>%2</pre>"
+
+#: ../src/Imap/Model/Model.cpp:1154
+#, qt-format
+msgctxt "Imap::Mailbox::Model|"
+msgid ""
+"<p>The IMAP server sent us a reply which we could not parse. This might "
+"either mean that there's a bug in Trojitá's code, or that the IMAP server "
+"you are connected to is broken. Please report this as a bug anyway. Here are "
+"the details:</p><p><b>%1</b>: %2</p><pre>%3\n"
+"%4</pre>"
+msgstr ""
+"<p>Strežnik IMAP je poslal odgovor, ki ga ni mogoče razčleniti. To lahko "
+"pomeni, da je v kodi Trojitá nahaja napaka ali pa je strežnik IMAP, s "
+"katerem ste povezani, okvarjen. Prosimo, da to vseeno prijavite kot hrošča. "
+"Tukaj so podrobnosti:</p><p><b>%1:</b>%2</p><pre>%3\n"
+"%4</pre>"
+
+#: ../src/Imap/Model/Model.cpp:1212
+msgctxt "Imap::Mailbox::Model|"
+msgid "We aren't talking to an IMAP4 server"
+msgstr "Ne pogovarjamo se s strežnikom IMAP4"
+
+#: ../src/Imap/Model/Model.cpp:1467
+msgctxt "Imap::Mailbox::Model|"
+msgid "The connection is being killed for unspecified reason"
+msgstr "Povezava je ukinjena iz neznanega razloga"
+
+#: ../src/Imap/Model/MsgListModel.cpp:282
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Subject"
+msgstr "Zadeva"
+
+#: ../src/Imap/Model/MsgListModel.cpp:284
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "From"
+msgstr "Od"
+
+#: ../src/Imap/Model/MsgListModel.cpp:286
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "To"
+msgstr "Do"
+
+#: ../src/Imap/Model/MsgListModel.cpp:288
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Cc"
+msgstr "Kp"
+
+#: ../src/Imap/Model/MsgListModel.cpp:290
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Bcc"
+msgstr "Skp"
+
+#: ../src/Imap/Model/MsgListModel.cpp:292
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Date"
+msgstr "Datum"
+
+#: ../src/Imap/Model/MsgListModel.cpp:294
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Received"
+msgstr "Prejeto"
+
+#: ../src/Imap/Model/MsgListModel.cpp:296
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Size"
+msgstr "Velikost"
+
+#: ../src/Imap/Model/NetworkWatcher.cpp:63
+#, qt-format
+msgctxt "Imap::Mailbox::NetworkWatcher|"
+msgid "Attempting to reconnect in %n secs"
+msgid_plural "Attempting to reconnect in %n secs"
+msgstr[0] "Poskus ponovno vzpostavitve povezave v %n s"
+msgstr[1] "Poskus ponovno vzpostavitve povezave v %n s"
+msgstr[2] "Poskus ponovno vzpostavitve povezave v %n s"
+msgstr[3] "Poskus ponovno vzpostavitve povezave v %n s"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:82
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%1 (%2/%3)"
+msgstr "%1 (%2/%3)"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:86
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%1 (%2)"
+msgstr "%1 (%2)"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:129
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%n messages"
+msgid_plural "%n messages"
+msgstr[0] "%n sporočilo"
+msgstr[1] "%n sporočili"
+msgstr[2] "%n sporočila"
+msgstr[3] "%n sporočil"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:130
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%n unread"
+msgid_plural "%n unread"
+msgstr[0] "%n neprebrano"
+msgstr[1] "%n neprebrani"
+msgstr[2] "%n neprebrana"
+msgstr[3] "%n neprebranih"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:131
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%n recent"
+msgid_plural "%n recent"
+msgstr[0] "%n nedavno"
+msgstr[1] "%n nedavna"
+msgstr[2] "%n nedavna"
+msgstr[3] "%n nedavnih"
+
+#: ../src/Imap/Model/PrettyMsgListModel.cpp:108
+msgctxt "Imap::Mailbox::PrettyMsgListModel|"
+msgid "Loading..."
+msgstr "Nalaganje ..."
+
+#: ../src/Imap/Model/PrettyMsgListModel.cpp:113
+msgctxt "Imap::Mailbox::PrettyMsgListModel|"
+msgid "(no subject)"
+msgstr "(brez zadeve)"
+
+#: ../src/Imap/Model/SQLCache.cpp:96
+msgctxt "QObject|"
+msgid "Can't create table msg_threading"
+msgstr "Ni mogoče ustvariti tabele msg_threading"
+
+#: ../src/Imap/Model/SQLCache.cpp:105
+msgctxt "QObject|"
+msgid "Can't create table mailbox_sync_state"
+msgstr "Ni mogoče ustvariti tabele mailbox_sync_state"
+
+#: ../src/Imap/Model/SQLCache.cpp:117
+msgctxt "QObject|"
+msgid "Can't create table msg_metadata"
+msgstr "Ni mogoče ustvariti tabele msg_metadata"
+
+#: ../src/Imap/Model/SQLCache.cpp:132
+msgctxt "QObject|"
+msgid "Can't open database"
+msgstr "Ni mogoče odpreti zbirke podatkov"
+
+#: ../src/Imap/Model/SQLCache.cpp:147
+msgctxt "QObject|"
+msgid "Failed to verify version"
+msgstr "Preverjanje različice ni uspelo"
+
+#: ../src/Imap/Model/SQLCache.cpp:153
+msgctxt "QObject|"
+msgid "Can't determine version info"
+msgstr "Podatkov o različici ni mogoče določiti"
+
+#: ../src/Imap/Model/SQLCache.cpp:162
+msgctxt "QObject|"
+msgid "Failed to update cache DB scheme from v1 to v2"
+msgstr "Posodobitev sheme predpomnilnika DB iz v1 v v2 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:171
+msgctxt "QObject|"
+msgid "Failed to drop old table mailbox_sync_state"
+msgstr "Opustitev stare tabele mailbox_sync_state ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:177
+msgctxt "QObject|"
+msgid "Failed to update cache DB scheme from v2/v3 to v4"
+msgstr "Posodobitev sheme predpomnilnika DB iz v2/v3 v v4 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:190
+msgctxt "QObject|"
+msgid "Failed to drop old table msg_metadata"
+msgstr "Opustitev stare tabele msg_metadata ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:196
+msgctxt "QObject|"
+msgid "Failed to update cache DB scheme from v4/v5/v6 to v7"
+msgstr "Posodobitev sheme predpomnilnika DB iz v4/v5/v6 v v7 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:202
+msgctxt "QObject|"
+msgid "Unknown version of sqlite cache"
+msgstr "Neznana različica predpomnilnika sqlite"
+
+#: ../src/Imap/Model/SQLCache.cpp:223
+msgctxt "QObject|"
+msgid "Failed to prepare table structures"
+msgstr "Priprava struktur tabel ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:227
+msgctxt "QObject|"
+msgid "Can't store version info"
+msgstr "Podatkov o različici ni mogoče shraniti"
+
+#: ../src/Imap/Model/SQLCache.cpp:238
+msgctxt "QObject|"
+msgid "Can't create table child_mailboxes"
+msgstr "Ni mogoče ustvariti tabele child_mailboxes"
+
+#: ../src/Imap/Model/SQLCache.cpp:246
+msgctxt "QObject|"
+msgid "Can't create table uid_mapping"
+msgstr "Ni mogoče ustvariti tabele uid_mapping"
+
+#: ../src/Imap/Model/SQLCache.cpp:258
+msgctxt "QObject|"
+msgid "Can't create table flags"
+msgstr "Ni mogoče ustvariti zastavic tabele"
+
+#: ../src/Imap/Model/SQLCache.cpp:268
+msgctxt "QObject|"
+msgid "Can't create table parts"
+msgstr "Ni mogoče ustvariti delov tabele"
+
+#: ../src/Imap/Model/SQLCache.cpp:281
+msgctxt "QObject|"
+msgid "Failed to prepare queryChildMailboxes"
+msgstr "Priprava queryChildMailboxes ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:287
+msgctxt "QObject|"
+msgid "Failed to prepare queryChildMailboxesFresh"
+msgstr "Priprava queryChildMailboxesFresh ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:293
+msgctxt "QObject|"
+msgid "Failed to prepare queryRemoveChildMailboxes"
+msgstr "Priprava queryRemoveChildMailboxes ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:299
+msgctxt "QObject|"
+msgid "Failed to prepare querySetChildMailboxes"
+msgstr "Priprava querySetChildMailboxes ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:305
+msgctxt "QObject|"
+msgid "Failed to prepare queryMailboxSyncState"
+msgstr "Priprava queryMailboxSyncState ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:313
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMailboxSyncState"
+msgstr "Priprava querySetMailboxSyncState ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:319
+msgctxt "QObject|"
+msgid "Failed to prepare queryUidMapping"
+msgstr "Priprava queryUidMapping ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:325
+msgctxt "QObject|"
+msgid "Failed to prepare querySetUidMapping"
+msgstr "Priprava querySetUidMapping ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:331
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearUidMapping"
+msgstr "Priprava queryClearUidMapping ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:337
+msgctxt "QObject|"
+msgid "Failed to prepare queryMessageMetadata"
+msgstr "Priprava queryMessageMetadata ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:343
+msgctxt "QObject|"
+msgid "Failed to prepare queryAccssMessageMetadata"
+msgstr "Priprava queryAccssMessageMetadata ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:349
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMessageMetadata"
+msgstr "Priprava querySetMessageMetadata ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:355
+msgctxt "QObject|"
+msgid "Failed to prepare queryMessageFlags"
+msgstr "Priprava queryMessageFlags ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:361
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMessageFlags"
+msgstr "Priprava querySetMessageFlags ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:367
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearAllMessages1"
+msgstr "Priprava poizvedbeClearAllMessages1 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:373
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearAllMessages2"
+msgstr "Priprava queryClearAllMessages2 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:379
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearAllMessages3"
+msgstr "Priprava queryClearAllMessages3 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:385
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearAllMessages4"
+msgstr "Priprava queryClearAllMessages4 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:391
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearMessage1"
+msgstr "Priprava queryClearMessage1 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:397
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearMessage2"
+msgstr "Priprava queryClearMessage2 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:403
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearMessage3"
+msgstr "Priprava queryClearMessage3 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:409
+msgctxt "QObject|"
+msgid "Failed to prepare queryMessagePart"
+msgstr "Priprava queryMessagePart ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:415
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMessagePart"
+msgstr "Priprava querySetMessagePart ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:421
+msgctxt "QObject|"
+msgid "Failed to prepare queryForgetMessagePart"
+msgstr "Priprava queryForgetMessagePart ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:427
+msgctxt "QObject|"
+msgid "Failed to prepare queryMessageThreading"
+msgstr "Priprava queryMessageThreading ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:433
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMessageThreading"
+msgstr "Priprava querySetMessageThreading ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:464
+msgctxt "QObject|"
+msgid "Query queryChildMailboxes failed"
+msgstr "Poizvedba queryChildMailboxes ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:475
+#, qt-format
+msgctxt "QObject|"
+msgid "Corrupt data when reading child items for mailbox %1, line %2"
+msgstr ""
+"Poškodovani podatki pri branju podpornih elementov za nabiralnik %1, vrstica "
+"%2"
+
+#: ../src/Imap/Model/SQLCache.cpp:487
+msgctxt "QObject|"
+msgid "Query queryChildMailboxesFresh failed"
+msgstr "Poizvedba queryChildMailboxesFresh ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:512
+msgctxt "QObject|"
+msgid "Query queryRemoveChildMailboxes failed"
+msgstr "Poizvedba queryRemoveChildMailboxes ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:520
+msgctxt "QObject|"
+msgid "Query querySetChildMailboxes failed"
+msgstr "Poizvedba querySetChildMailboxes ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:530
+msgctxt "QObject|"
+msgid "Query queryMailboxSyncState failed"
+msgstr "Poizvedba queryMailboxSyncState ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:555
+msgctxt "QObject|"
+msgid "Query querySetMailboxSyncState failed"
+msgstr "Poizvedba querySetMailboxSyncState ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:565
+msgctxt "QObject|"
+msgid "Query queryUidMapping failed"
+msgstr "Poizvedba queryUidMapping ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:590
+msgctxt "QObject|"
+msgid "Query querySetUidMapping failed"
+msgstr "Poizvedba querySetUidMapping ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:602
+msgctxt "QObject|"
+msgid "Query queryClearUidMapping failed"
+msgstr "Poizvedba queryClearUidMapping ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:617
+msgctxt "QObject|"
+msgid "Query queryClearAllMessages1 failed"
+msgstr "Poizvedba queryClearAllMessages1 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:620
+msgctxt "QObject|"
+msgid "Query queryClearAllMessages2 failed"
+msgstr "Poizvedba queryClearAllMessages2 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:623
+msgctxt "QObject|"
+msgid "Query queryClearAllMessages3 failed"
+msgstr "Poizvedba queryClearAllMessages3 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:626
+msgctxt "QObject|"
+msgid "Query queryClearAllMessages4 failed"
+msgstr "Poizvedba queryClearAllMessages4 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:644
+msgctxt "QObject|"
+msgid "Query queryClearMessage1 failed"
+msgstr "Poizvedba queryClearMessage1 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:647
+msgctxt "QObject|"
+msgid "Query queryClearMessage2 failed"
+msgstr "Poizvedba queryClearMessage2 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:650
+msgctxt "QObject|"
+msgid "Query queryClearMessage3 failed"
+msgstr "Poizvedba queryClearMessage3 ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:660
+msgctxt "QObject|"
+msgid "Query queryMessageFlags failed"
+msgstr "Poizvedba queryMessageFlags ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:686
+msgctxt "QObject|"
+msgid "Query querySetMessageFlags failed"
+msgstr "Poizvedba querySetMessageFlags ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:696
+msgctxt "QObject|"
+msgid "Query queryMessageMetadata failed"
+msgstr "Poizvedba queryMessageMetadata ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:714
+msgctxt "QObject|"
+msgid "Query queryAccessMessageMetadata failed"
+msgstr "Poizvedba queryAccessMessageMetadata ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:740
+msgctxt "QObject|"
+msgid "Query querySetMessageMetadata failed"
+msgstr "Poizvedba querySetMessageMetadata ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:751
+msgctxt "QObject|"
+msgid "Query queryMessagePart failed"
+msgstr "Poizvedba queryMessagePart ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:772
+msgctxt "QObject|"
+msgid "Query querySetMessagePart failed"
+msgstr "Poizvedba querySetMessagePart ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:786
+msgctxt "QObject|"
+msgid "Query queryForgetMessagePart failed"
+msgstr "Poizvedba queryForgetMessagePart ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:795
+msgctxt "QObject|"
+msgid "Query queryMessageThreading failed"
+msgstr "Poizvedba queryMessageThreading ni uspela"
+
+#: ../src/Imap/Model/SQLCache.cpp:819
+msgctxt "QObject|"
+msgid "Query querySetMessageThreading failed"
+msgstr "Poizvedba querySetMessageThreading ni uspela"
+
+#: ../src/Imap/Model/SystemNetworkWatcher.cpp:86
+msgctxt "Imap::Mailbox::SystemNetworkWatcher|"
+msgid ""
+"Qt does not recognize any network session. Please be sure that qtbearer "
+"package (or similar) is installed. Assuming that network is actually already "
+"available."
+msgstr ""
+"Qt ne prepozna nobene omrežne seje. Prepričajte se, da je paket qtbearer "
+"(ali podoben) nameščen. Ob predpostavki, da je omrežje dejansko že na voljo."
+
+#: ../src/Imap/Model/TaskPresentationModel.cpp:194
+#, qt-format
+msgctxt "Imap::Mailbox::TaskPresentationModel|"
+msgid "Parser %1"
+msgstr "Razčlenjelnik %1"
+
+#: ../src/Imap/Model/TaskPresentationModel.cpp:199
+#, qt-format
+msgctxt "Imap::Mailbox::TaskPresentationModel|"
+msgid "%1: %2"
+msgstr "%1: %2"
+
+#: ../src/Imap/Model/ThreadingMsgListModel.cpp:328
+msgctxt "Imap::Mailbox::ThreadingMsgListModel|"
+msgid "[Message is missing]"
+msgstr "[Sporočilo manjka]"
+
+#: ../src/Imap/Model/ThreadingMsgListModel.cpp:331
+msgctxt "Imap::Mailbox::ThreadingMsgListModel|"
+msgid ""
+"This thread refers to an extra message, but that message is not present in "
+"the selected mailbox, or is missing from the current search context."
+msgstr ""
+"Ta nit se nanaša na dodatno sporočilo, vendar tega sporočila ni v izbranem "
+"nabiralniku ali manjka v trenutnem iskalnem kontekstu."
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:45
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "Cannot translate CID URL: message is gone"
+msgstr "URL CID ni mogoče prevesti: sporočila ni več"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:57
+#, qt-format
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "CID not found (%1)"
+msgstr "CID ni bil najden (%1)"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:60
+#, qt-format
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "Unsupported URL (%1)"
+msgstr "Nepodprti URL (%1)"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:74
+#, qt-format
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "msg_%1.eml"
+msgstr "spor_%1.eml"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:77
+#, qt-format
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "msg_%1_%2"
+msgstr "spor_%1_%2"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:89
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "FileDownloadManager::downloadPart(): part has disappeared"
+msgstr "FileDownloadManager::downloadPart(): del je izginil"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:118
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "FileDownloadManager::downloadMessage(): message has disappeared"
+msgstr "FileDownloadManager::downloadMessage(): sporočilo je izginilo"
+
+#: ../src/Imap/Network/ForbiddenReply.cpp:34
+msgctxt "Imap::Network::ForbiddenReply|"
+msgid "Remote Content Is Banned"
+msgstr "Oddaljena vsebina je prepovedana"
+
+#: ../src/Imap/Network/MsgPartNetworkReply.cpp:82
+msgctxt "Imap::Network::MsgPartNetworkReply|"
+msgid "Cannot access data"
+msgstr "Dostop do podatkov ni mogoč"
+
+#: ../src/Imap/Network/MsgPartNetworkReply.cpp:85
+msgctxt "Imap::Network::MsgPartNetworkReply|"
+msgid "Uncached data not available when offline"
+msgstr "Predpomnjeni podatki niso na voljo brez povezave"
+
+#: ../src/Imap/Network/MsgPartNetworkReply.cpp:87
+msgctxt "Imap::Network::MsgPartNetworkReply|"
+msgid "Error downloading data"
+msgstr "Napaka pri prenosu podatkov"
+
+#: ../src/Imap/Tasks/AppendTask.cpp:97
+msgctxt "Imap::Mailbox::AppendTask|"
+msgid "Uploading message"
+msgstr "Nalaganje sporočila"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:83
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "All messages disappeared before we could have copied them"
+msgstr "Vsa sporočila so izginila, preden smo jih lahko kopirali."
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:105
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "Asked to die"
+msgstr "Zahtevano, da se ugasne"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:116
+#, qt-format
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "The COPY operation has failed: %1"
+msgstr "Operacija COPY ni uspela: %1"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:123
+#, qt-format
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "The UID MOVE operation has failed: %1"
+msgstr "Operacija UID MOVE ni uspela: %1"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:133
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "Copying messages"
+msgstr "Kopiranje sporočil"
+
+#: ../src/Imap/Tasks/CreateMailboxTask.cpp:64
+msgctxt "Imap::Mailbox::CreateMailboxTask|"
+msgid "Asked to die"
+msgstr "Zahtevano, da se ugasne"
+
+#: ../src/Imap/Tasks/CreateMailboxTask.cpp:71
+msgctxt "Imap::Mailbox::CreateMailboxTask|"
+msgid "Cannot create mailbox"
+msgstr "Nabiralnika ni mogoče ustvariti"
+
+#: ../src/Imap/Tasks/CreateMailboxTask.cpp:79
+msgctxt "Imap::Mailbox::CreateMailboxTask|"
+msgid "Error with the LIST command after the CREATE"
+msgstr "Napaka z ukazom SEZNAM po ukazu CREATE"
+
+#: ../src/Imap/Tasks/CreateMailboxTask.cpp:89
+msgctxt "Imap::Mailbox::CreateMailboxTask|"
+msgid "Creating mailbox"
+msgstr "Ustvarjanje nabiralnika"
+
+#: ../src/Imap/Tasks/DeleteMailboxTask.cpp:99
+msgctxt "Imap::Mailbox::DeleteMailboxTask|"
+msgid "Couldn't delete mailbox"
+msgstr "Nabiralnika ni bilo mogoče izbrisati"
+
+#: ../src/Imap/Tasks/DeleteMailboxTask.cpp:109
+msgctxt "Imap::Mailbox::DeleteMailboxTask|"
+msgid "Deleting mailbox"
+msgstr "Brisanje nabiralnika"
+
+#: ../src/Imap/Tasks/DeleteMailboxTask.cpp:115
+#, qt-format
+msgctxt "Imap::Mailbox::DeleteMailboxTask|"
+msgid "Mailbox %1 has pending activity, so it cannot be deleted now."
+msgstr ""
+"Nabiralnik %1 ima dejavnost na čakanju, zato ga zdaj ni mogoče izbrisati."
+
+#: ../src/Imap/Tasks/DeleteMailboxTask.cpp:116
+msgctxt "Imap::Mailbox::DeleteMailboxTask|"
+msgid "Mailbox has pending activity"
+msgstr "Nabiralnik ima dejavnost na čakanju"
+
+#: ../src/Imap/Tasks/EnableTask.cpp:75
+msgctxt "Imap::Mailbox::EnableTask|"
+msgid "ENABLE failed, strange"
+msgstr "ENABLE je spodletel, čudno"
+
+#: ../src/Imap/Tasks/EnableTask.cpp:86
+msgctxt "Imap::Mailbox::EnableTask|"
+msgid "Enabling IMAP extensions"
+msgstr "Omogočanje razširitev IMAP"
+
+#: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:49
+msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
+msgid "Mailbox vanished before we could expunge it"
+msgstr "Nabiralnik je izginil, preden smo ga lahko temeljito očistili."
+
+#: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:68
+msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
+msgid "Expunge failed"
+msgstr "Temeljito brisanje ni uspelo"
+
+#: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:78
+msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
+msgid "Removing deleted messages"
+msgstr "Odstranjevanje izbrisanih sporočil"
+
+#: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:75
+msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
+msgid "All messages are gone already"
+msgstr "Vsa sporočila so že izginila"
+
+#: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:80
+msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
+msgid "The IMAP server doesn't support the UIDPLUS extension"
+msgstr "Strežnik IMAP ne podpira razširitve UIDPLUS"
+
+#: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:95
+msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
+msgid "UID EXPUNGE failed"
+msgstr "UID EXPUNGE je spodletel"
+
+#: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:105
+msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
+msgid "Removing some of the deleted messages"
+msgstr "Odstranjevanje nekaterih izbrisanih sporočil"
+
+#: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:60
+msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
+msgid "handleFetch: mailbox disappeared"
+msgstr "handleFetch: nabiralnik je izginil"
+
+#: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:80
+msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
+msgid "UID FETCH failed"
+msgstr "UID FETCH je spodletel"
+
+#: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:101
+msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
+msgid "Downloading headers"
+msgstr "Prenos glav"
+
+#: ../src/Imap/Tasks/FetchMsgPartTask.cpp:59
+#: ../src/Imap/Tasks/FetchMsgPartTask.cpp:75
+msgctxt "Imap::Mailbox::FetchMsgPartTask|"
+msgid "Mailbox disappeared"
+msgstr "Nabiralnik je izginil"
+
+#: ../src/Imap/Tasks/FetchMsgPartTask.cpp:121
+msgctxt "Imap::Mailbox::FetchMsgPartTask|"
+msgid "Downloading messages"
+msgstr "Prenos sporočil"
+
+#: ../src/Imap/Tasks/GenUrlAuthTask.cpp:87
+msgctxt "Imap::Mailbox::GenUrlAuthTask|"
+msgid "Obtaining authentication token"
+msgstr "Pridobivanje žetona za preverjanje pristnosti"
+
+#: ../src/Imap/Tasks/IdTask.cpp:67
+msgctxt "Imap::Mailbox::IdTask|"
+msgid "ID failed, strange"
+msgstr "ID ni uspel, čudno"
+
+#: ../src/Imap/Tasks/IdTask.cpp:84
+msgctxt "Imap::Mailbox::IdTask|"
+msgid "Identifying server"
+msgstr "Identifikacija strežnika"
+
+#: ../src/Imap/Tasks/ImapTask.cpp:256
+#, qt-format
+msgctxt "Imap::Mailbox::ImapTask|"
+msgid ""
+"The server sent the following ALERT:\n"
+"%1"
+msgstr ""
+"Strežnik je poslal naslednje opozorilo ALERT:\n"
+"%1"
+
+#: ../src/Imap/Tasks/ImapTask.h:191
+msgctxt "Imap::Mailbox::ImapTask|"
+msgid "Asked to die"
+msgstr "Zahtevano, da se ugasne"
+
+#: ../src/Imap/Tasks/ImapTask.h:195
+msgctxt "Imap::Mailbox::ImapTask|"
+msgid "Aborted"
+msgstr "Prekinjeno"
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:176
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:427
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:491
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:517
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "Asked to die"
+msgstr "Zahtevano, da se ugasne"
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:264
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:265
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "Parser is gone"
+msgstr "Razčlenjevalnik je izginil"
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:713
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "Logging off..."
+msgstr "Odjava ..."
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:920
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "The UIDVALIDITY has changed while mailbox is open. Please reconnect."
+msgstr ""
+"UIDVALIDITY se je spremenil, ko je nabiralnik odprt. Ponovno se povežite."
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:948
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "UNSELECTed"
+msgstr "Neizbrano (UNSELECT)"
+
+#: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:59
+msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
+msgid "Mailbox vanished before we could ask for its children"
+msgstr "Nabiralnik je izginil, preden smo lahko prosili za njegove podrejene"
+
+#: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:101
+msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
+msgid "LIST failed"
+msgstr "LIST je spodletel"
+
+#: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:105
+msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
+msgid "Mailbox no longer available -- weird timing?"
+msgstr "Poštni nabiralnik ni več na voljo – neprimeren čas?"
+
+#: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:151
+msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
+msgid "Listing mailboxes"
+msgstr "Izpisovanje seznama nabiralnikov"
+
+#: ../src/Imap/Tasks/NoopTask.cpp:63
+msgctxt "Imap::Mailbox::NoopTask|"
+msgid "NOOP failed, strange"
+msgstr "NOOP je spodletel, čudno"
+
+#: ../src/Imap/Tasks/NoopTask.cpp:74
+msgctxt "Imap::Mailbox::NoopTask|"
+msgid "Checking for new messages"
+msgstr "Preverjanje obstoja novih sporočil"
+
+#: ../src/Imap/Tasks/NumberOfMessagesTask.cpp:78
+msgctxt "Imap::Mailbox::NumberOfMessagesTask|"
+msgid "STATUS has failed"
+msgstr "STATUS je spodletel"
+
+#: ../src/Imap/Tasks/NumberOfMessagesTask.cpp:99
+msgctxt "Imap::Mailbox::NumberOfMessagesTask|"
+msgid "Looking for messages"
+msgstr "Iskanje sporočil"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:72
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Asked to abort or die"
+msgstr "Zahtevano, da se prekine ali ugasne"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:73
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Mailbox syncing dead or aborted"
+msgstr "Usklajevanje nabiralnika je ugasnjeno ali ustavljeno"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:146
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Asked to die"
+msgstr "Zahtevano, da se ugasne"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1202
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Escaped from mailbox"
+msgstr "Ušlo iz nabiralnika"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1207
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Synchronizing mailbox"
+msgstr "Usklajevanje nabiralnika"
+
+#: ../src/Imap/Tasks/OfflineConnectionTask.cpp:55
+msgctxt "Imap::Mailbox::OfflineConnectionTask|"
+msgid "We're offline"
+msgstr "Smo brez povezave"
+
+#: ../src/Imap/Tasks/OfflineConnectionTask.cpp:62
+msgctxt "Imap::Mailbox::OfflineConnectionTask|"
+msgid "Offline"
+msgstr "Brez povezave"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:116
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Asked to die"
+msgstr "Zahtevano, da se ugasne"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:163
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Configuration requires sending STARTTLS, but the IMAP server greets us with "
+"PREAUTH. Encryption cannot be established. If this configuration worked "
+"previously, someone is after your data and they are pretty smart."
+msgstr ""
+"Prilagoditev zahteva pošiljanje STARTTLS, vendar nas IMAP strežnik pozdravi "
+"s PREAUTH. Šifriranja ni mogoče vzpostaviti. Če je ta prilagoditev prej "
+"delovala, nekdo išče vaše podatke in so precej pametni."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:195
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "This server gracefully refuses IMAP connections through a BYE response."
+msgstr "Ta strežnik vljudno zavrača povezave IMAP prek odziva BYE."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:202
+#, qt-format
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"The server replied with the following BAD response:\n"
+"%1"
+msgstr ""
+"Strežnik je odgovoril z naslednjim odzivom BAD:\n"
+"%1"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:204
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Server has greeted us with a BAD response"
+msgstr "Strežnik nas je pozdravil z odzivom BYE"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:236
+#, qt-format
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Cannot establish a secure connection.\n"
+"The STARTTLS command failed: %1"
+msgstr ""
+"Varne povezave ni mogoče vzpostaviti.\n"
+"Ukaz STARTTLS ni uspel: %1"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:265
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Server error: Capabilities contain LOGINDISABLED even after STARTTLS"
+msgstr ""
+"Napaka strežnika: zmogljivosti vsebujejo LOGINDISABLED tudi po STARTTLS"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:301
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Temporary failure because a subsystem is down."
+msgstr "Začasna odpoved, ker podsistem ne deluje."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:304
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Authentication failed.  This often happens due to bad password or wrong user "
+"name."
+msgstr ""
+"Preverjanje pristnosti ni uspelo.  To se pogosto zgodi zaradi slabega gesla "
+"ali napačnega uporabniškega imena."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:307
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Authentication succeeded in using the authentication identity, but the "
+"server cannot or will not allow the authentication identity to act as the "
+"requested authorization identity."
+msgstr ""
+"Preverjanje pristnosti je uspelo uporabiti identiteto preverjanja "
+"pristnosti, vendar strežnik ne more ali ne dovoli, da identiteta preverjanja "
+"pristnosti deluje kot zahtevana identiteta preverjanja pristnosti."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:312
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Either authentication succeeded or the server no longer had the necessary "
+"data; either way, access is no longer permitted using that passphrase.  You "
+"should get a new passphrase."
+msgstr ""
+"Preverjanje pristnosti je uspelo ali pa strežnik ni imel več potrebnih "
+"podatkov; dostop z uporabo te fraze ni več dovoljen.  Moral bi dobiti novo "
+"frazo."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:317
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "The operation is not permitted due to a lack of privacy."
+msgstr "Operacija ni dovoljen zaradi pomanjkanja zasebnosti."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:320
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "You should contact the system administrator or support desk."
+msgstr "Obrnite se na skrbnika sistema ali podporo uporabnikom."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:327
+#, qt-format
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Login failed: %1"
+msgstr "Prijava ni uspela: %1"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:329
+#, qt-format
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "%1 %2"
+msgstr "%1 %2"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:383
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Server error: LOGINDISABLED but no STARTTLS capability. The login is "
+"effectively disabled entirely."
+msgstr ""
+"Napaka strežnika: LOGINDISABLED, vendar ni zmogljivosti STARTTLS. Prijava je "
+"v celoti onemogočena."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:403
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Server error: did not get the required CAPABILITY response."
+msgstr "Napaka strežnika: ni prejetega zahtevanega odziva CAPABILITY."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:407
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Server error: The CAPABILITY request failed."
+msgstr "Napaka strežnika: zahteva CAPABILITY ni uspela."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:472
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Cannot login, you have not provided any credentials yet."
+msgstr "Prijava ni mogoče, nobenih poverilnic še niste podali."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:484
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Connecting to mail server"
+msgstr "Povezovanje s poštnim strežnikom"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:504
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "The security state of the SSL connection got rejected"
+msgstr "Varnostno stanje povezave SSL je bilo zavrnjeno"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:513
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"The security state of the connection after a STARTTLS operation got rejected"
+msgstr "Varnostno stanje povezave po operaciji STARTTLS je bilo zavrnjeno"
+
+#: ../src/Imap/Tasks/SortTask.cpp:55
+msgctxt "Imap::Mailbox::SortTask|"
+msgid "Mailbox vanished before we could ask for threading info"
+msgstr ""
+"Nabiralnik je izginil, preden smo lahko zaprosili za informacije o niti"
+
+#: ../src/Imap/Tasks/SortTask.cpp:150
+msgctxt "Imap::Mailbox::SortTask|"
+msgid "Sorting command has failed"
+msgstr "Ukaz razvrščanja ni uspel"
+
+#: ../src/Imap/Tasks/SortTask.cpp:244
+msgctxt "Imap::Mailbox::SortTask|"
+msgid "Sorting mailbox"
+msgstr "Razvrščanje nabiralnika"
+
+#: ../src/Imap/Tasks/SubscribeUnsubscribeTask.cpp:94
+msgctxt "Imap::Mailbox::SubscribeUnsubscribeTask|"
+msgid "SUBSCRIBE/UNSUBSCRIBE has failed"
+msgstr "SUBSCRIBE/UNSUBSCRIBE je spodletel"
+
+#: ../src/Imap/Tasks/SubscribeUnsubscribeTask.cpp:110
+msgctxt "Imap::Mailbox::SubscribeUnsubscribeTask|"
+msgid "Updating subscription information"
+msgstr "Posodabljanje podatkov o naročnini"
+
+#: ../src/Imap/Tasks/ThreadTask.cpp:53
+msgctxt "Imap::Mailbox::ThreadTask|"
+msgid "Mailbox vanished before we could ask for threading info"
+msgstr ""
+"Poštni nabiralnik je izginil, preden smo lahko zaprosili za informacije o "
+"niti"
+
+#: ../src/Imap/Tasks/ThreadTask.cpp:75
+msgctxt "Imap::Mailbox::ThreadTask|"
+msgid "Threading command has failed"
+msgstr "Ukaz nitenja ni uspel"
+
+#: ../src/Imap/Tasks/ThreadTask.cpp:109
+msgctxt "Imap::Mailbox::ThreadTask|"
+msgid "Fetching conversations"
+msgstr "Pridobivanje pogovorov"
+
+#: ../src/Imap/Tasks/UidSubmitTask.cpp:55
+#, qt-format
+msgctxt "Imap::Mailbox::UidSubmitTask|"
+msgid "UIDVALIDITY mismatch: expected %1, got %2"
+msgstr "Neskladje UIDVALIDITY: pričakovano %1, pridobljeno %2"
+
+#: ../src/Imap/Tasks/UidSubmitTask.cpp:84
+msgctxt "Imap::Mailbox::UidSubmitTask|"
+msgid "Sending mail"
+msgstr "Pošiljanje sporočila"
+
+#: ../src/Imap/Tasks/UnSelectTask.cpp:49 ../src/Imap/Tasks/UnSelectTask.cpp:67
+msgctxt "Imap::Mailbox::UnSelectTask|"
+msgid "Asked to die"
+msgstr "Zahtevano, da se ugasne"
+
+#: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:101
+msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
+msgid "Failed to update Mailbox FLAGS"
+msgstr "Posodobitev FLAGS nabiralnika ni uspela"
+
+#: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:110
+msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
+msgid "Saving mailbox state"
+msgstr "Shranjevanje stanja nabiralnika"
+
+#: ../src/Imap/Tasks/UpdateFlagsTask.cpp:121
+msgctxt "Imap::Mailbox::UpdateFlagsTask|"
+msgid "All messages got removed before we could've updated their flags"
+msgstr ""
+"Vsa sporočila so bila odstranjena, preden smo lahko posodobili njihove "
+"zastavice."
+
+#: ../src/Imap/Tasks/UpdateFlagsTask.cpp:138
+msgctxt "Imap::Mailbox::UpdateFlagsTask|"
+msgid "Failed to update FLAGS"
+msgstr "Posodobitev FLAGS ni uspela"
+
+#: ../src/Imap/Tasks/UpdateFlagsTask.cpp:148
+msgctxt "Imap::Mailbox::UpdateFlagsTask|"
+msgid "Saving message state"
+msgstr "Shranjevanje stanja sporočila"
+
+#: ../src/MSA/AbstractMSA.cpp:51
+#, qt-format
+msgctxt "MSA::AbstractMSA|"
+msgid "Sending mail plaintext is not supported by %1"
+msgstr "%1 ne podpira pošiljanja pošte v navadnem besedilu"
+
+#: ../src/MSA/AbstractMSA.cpp:59
+#, qt-format
+msgctxt "MSA::AbstractMSA|"
+msgid "BURL is not supported by %1"
+msgstr "%1 ne podpira BURL"
+
+#: ../src/MSA/AbstractMSA.cpp:68
+#, qt-format
+msgctxt "MSA::AbstractMSA|"
+msgid "IMAP sending is not supported by %1"
+msgstr "%1 ne podpira pošiljanja IMAP"
+
+#: ../src/MSA/AbstractMSA.cpp:74
+#, qt-format
+msgctxt "MSA::AbstractMSA|"
+msgid "Setting password is not supported by %1"
+msgstr "%1 ne podpira nastavitve gesla"
+
+#: ../src/MSA/Account.cpp:233
+#, qt-format
+msgctxt "MSA::Account|"
+msgid "This port is nonstandard. The default port for cleartext SMTP is %1."
+msgstr "Ta vrata niso standardna. Privzeta vrata za cleartext SMTP so %1."
+
+#: ../src/MSA/Account.cpp:236
+#, qt-format
+msgctxt "MSA::Account|"
+msgid ""
+"This port is nonstandard. The default port for SMTP submission secured via "
+"STARTTLS is %1."
+msgstr ""
+"Ta vrata niso standardna. Privzeta vrata za pošiljanje SMTP, zavarovana prek "
+"sistema STARTTLS, so %1."
+
+#: ../src/MSA/Account.cpp:239
+#, qt-format
+msgctxt "MSA::Account|"
+msgid ""
+"This port is nonstandard. The default port for SMTP over encrypted SSL/TLS "
+"connection is %1."
+msgstr ""
+"Ta vrata niso standardna. Privzeta vrata za SMTP prek šifrirane povezave SSL/"
+"TLS so %1."
+
+#: ../src/MSA/Sendmail.cpp:86
+#, qt-format
+msgctxt "MSA::Sendmail|"
+msgid "The sendmail process has failed: %1"
+msgstr "Proces sendmail ni uspel: %1"
+
+#: ../src/MSA/Sendmail.cpp:108
+#, qt-format
+msgctxt "MSA::Sendmail|"
+msgid ""
+"The sendmail process has failed (%1):\n"
+"%2\n"
+"%3"
+msgstr ""
+"Proces sendmail ni uspel (%1):\n"
+"%2\n"
+"%3"
+
+#: ../src/MSA/SMTP.cpp:54
+msgctxt "MSA::SMTP|"
+msgid "Sending of the message was cancelled"
+msgstr "Pošiljanje sporočila je bilo preklicano"
+
+#: ../src/MSA/SMTP.cpp:69
+msgctxt "MSA::SMTP|"
+msgid "Sending of the message failed."
+msgstr "Pošiljanje sporočila ni uspelo."
+
+#: ../src/MSA/SMTP.cpp:71
+#, qt-format
+msgctxt "MSA::SMTP|"
+msgid "Sending of the message failed with the following error: %1"
+msgstr "Pošiljanje sporočila je spodletelo z naslednjo napako: %1"
+
+#: ../src/MSA/SMTP.cpp:85
+#, qt-format
+msgctxt "MSA::SMTP|"
+msgid ""
+"<p>Cannot send message due to an SSL/TLS error</p>\n"
+"%1"
+msgstr "<p>Sporočila ni mogoče poslati zaradi napake SSL/TLS</p>%1"
+
+#: ../src/MSA/SMTP.cpp:139
+msgctxt "MSA::SMTP|"
+msgid "Unknown SMTP mode"
+msgstr "Neznan način SMTP"
+
+#. Translators: BE::Contacts is the name of a stand-alone address book application. BE refers to Bose/Einstein (condensate).
+#: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:151
+msgctxt "BE::Contacts|"
+msgid "BE::Contacts"
+msgstr "BE::Stiki"
+
+#: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:400
+msgctxt "trojita_plugin_AbookAddressbookPlugin|"
+msgid "Addressbook in ~/.abook/"
+msgstr "Adresar v ~/.abook/"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:82
+msgctxt "BE::Contacts|"
+msgid "Filter"
+msgstr "Filtriraj"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:162
+msgctxt "BE::Contacts|"
+msgid "Contacts"
+msgstr "Stiki"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:162
+msgctxt "BE::Contacts|"
+msgid "Save changes?"
+msgstr "Ali želite shraniti spremembe?"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:276
+msgctxt "BE::Contacts|"
+msgid "[New Contact]"
+msgstr "[Nov stik]"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:457
+msgctxt "BE::Contacts|"
+msgid "[name]"
+msgstr "[ime]"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.ui:14
+msgctxt "Contacts|"
+msgid "Contacts"
+msgstr "Stiki"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.ui:48
+msgctxt "Contacts|"
+msgid "Delete"
+msgstr "Izbriši"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.ui:58
+msgctxt "Contacts|"
+msgid "Add"
+msgstr "Dodaj"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:31
+msgctxt "OneContact|"
+msgid "name"
+msgstr "ime"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:50
+msgctxt "OneContact|"
+msgid "<Mail>"
+msgstr "<e-naslov>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:69
+msgctxt "OneContact|"
+msgid "<Internet>"
+msgstr "<internet>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:84
+msgctxt "OneContact|"
+msgid "Address"
+msgstr "Naslov"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:105
+msgctxt "OneContact|"
+msgid "<country>"
+msgstr "<drzava>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:124
+msgctxt "OneContact|"
+msgid "<state>"
+msgstr "<pokrajina>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:149
+msgctxt "OneContact|"
+msgid "<city>"
+msgstr "<kraj>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:168
+msgctxt "OneContact|"
+msgid "<zip>"
+msgstr "<postnastevilka>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:187
+msgctxt "OneContact|"
+msgid "<address>"
+msgstr "<naslov>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:203
+msgctxt "OneContact|"
+msgid "Phone"
+msgstr "Telefon"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:212
+msgctxt "OneContact|"
+msgid "Office"
+msgstr "Služba"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:234
+msgctxt "OneContact|"
+msgid "workphone"
+msgstr "delovni telefon"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:247
+msgctxt "OneContact|"
+msgid "Mobile"
+msgstr "Mobilni telefon"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:269
+msgctxt "OneContact|"
+msgid "mobile"
+msgstr "mobilnik"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:282
+msgctxt "OneContact|"
+msgid "Home"
+msgstr "Domača številka"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:304
+msgctxt "OneContact|"
+msgid "phone"
+msgstr "telefon"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:317
+msgctxt "OneContact|"
+msgid "Fax"
+msgstr "Faks"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:339
+msgctxt "OneContact|"
+msgid "fax"
+msgstr "faks"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:355
+msgctxt "OneContact|"
+msgid "Notes"
+msgstr "Opombe"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:364
+msgctxt "OneContact|"
+msgid "Nick"
+msgstr "Vzdevek"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:383
+msgctxt "OneContact|"
+msgid "<nick>"
+msgstr "<vzdevek>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:396
+msgctxt "OneContact|"
+msgid "Anniversary"
+msgstr "Obletnica"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:415
+msgctxt "OneContact|"
+msgid "<anniversary>"
+msgstr "<obletnica>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:428
+msgctxt "OneContact|"
+msgid "Custom notes"
+msgstr "Opombe po meri"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:447
+msgctxt "OneContact|"
+msgid "notes"
+msgstr "opombe"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:482
+msgctxt "OneContact|"
+msgid "Photo"
+msgstr "Fotografija"
+
+#: ../src/Plugins/AkonadiAddressbook/AkonadiAddressbook.cpp:67
+msgctxt "trojita_plugin_AkonadiAddressbookPlugin|"
+msgid "KDE Addressbook (Akonadi)"
+msgstr "Adresar KDE (Akonadi)"
+
+#: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:51
+#: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:67
+#: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:79
+msgctxt "ClearTextPasswordJob|"
+msgid "This plugin only supports storing of IMAP and SMTP passwords"
+msgstr "Ta vtičnik podpira samo shranjevanje gesel IMAP in SMTP"
+
+#: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:123
+msgctxt "trojita_plugin_ClearTextPasswordPlugin|"
+msgid "Trojitá's settings"
+msgstr "Nastavitve programa Trojitá"
+
+#: ../src/Plugins/QtKeyChain/QtKeyChainPassword.cpp:127
+msgctxt "trojita_plugin_QtKeyChainPasswordPlugin|"
+msgid "Secure storage via QtKeychain"
+msgstr "Varno shranjevanje prek QtKeychaina"
+
+#: ../src/Plugins/SonnetSpellchecker/SonnetSpellchecker.cpp:46
+msgctxt "Plugins::trojita_plugin_SonnetSpellcheckerPlugin|"
+msgid "Sonnet (KF5)"
+msgstr "Sonnet (KF5)"
+
+#: ../src/qwwsmtpclient/qwwsmtpclient.cpp:449
+msgctxt "QwwSmtpClient|"
+msgid "Unsupported or unknown authentication scheme"
+msgstr "Nepodprta ali neznana shema preverjanja pristnosti"
+
+#: ../src/Streams/IODeviceSocket.cpp:178
+#, qt-format
+msgctxt "Streams::ProcessSocket|"
+msgid "Disconnected: %1"
+msgstr "Povezava je prekinjena: %1"
+
+#: ../src/Streams/IODeviceSocket.cpp:192
+msgctxt "Streams::ProcessSocket|"
+msgid "The process has started"
+msgstr "Postopek se je začel"
+
+#: ../src/Streams/IODeviceSocket.cpp:195
+#, qt-format
+msgctxt "Streams::ProcessSocket|"
+msgid "Starting process `%1 %2`"
+msgstr "Začetek postopka »%1 %2«"
+
+#: ../src/Streams/IODeviceSocket.cpp:202
+#, qt-format
+msgctxt "Streams::ProcessSocket|"
+msgid "The process has exited with return code %1."
+msgstr "Postopek je izšel s povratno kodo %1."
+
+#: ../src/Streams/IODeviceSocket.cpp:205
+#, qt-format
+msgctxt "Streams::ProcessSocket|"
+msgid ""
+"The process has exited with return code %1:\n"
+"\n"
+"%2"
+msgstr ""
+"Postopek je izšel s povratno kodo %1:\n"
+"\n"
+"%2"
+
+#: ../src/Streams/IODeviceSocket.cpp:258
+msgctxt "Streams::SslTlsSocket|"
+msgid "Connection closed"
+msgstr "Povezava zaprta"
+
+#: ../src/Streams/IODeviceSocket.cpp:283
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid " (via proxy %1)"
+msgstr " (prek posrednega strežnika %1)"
+
+#: ../src/Streams/IODeviceSocket.cpp:286
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid " (via SOCKS5 proxy %1)"
+msgstr " (prek posrednega strežnika SOCKS5 %1)"
+
+#: ../src/Streams/IODeviceSocket.cpp:289
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid " (via HTTP proxy %1)"
+msgstr " (prek posrednega strežnika HTTP %1)"
+
+#: ../src/Streams/IODeviceSocket.cpp:294
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid "Looking up %1%2..."
+msgstr "Iskanje %1%2 ..."
+
+#: ../src/Streams/IODeviceSocket.cpp:299
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid "Connecting to %1:%2%3%4..."
+msgstr "Vzpostavljanje povezave z %1:%2%3%4 ..."
+
+#: ../src/Streams/IODeviceSocket.cpp:300
+msgctxt "Streams::SslTlsSocket|"
+msgid " (SSL)"
+msgstr " (SSL)"
+
+#: ../src/Streams/IODeviceSocket.cpp:309
+msgctxt "Streams::SslTlsSocket|"
+msgid "Connected"
+msgstr "Povezani"
+
+#: ../src/Streams/IODeviceSocket.cpp:311
+msgctxt "Streams::SslTlsSocket|"
+msgid "Negotiating encryption..."
+msgstr "Pogajanje o šifriranju ..."
+
+#: ../src/Streams/IODeviceSocket.cpp:316
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid "Socket is disconnected: %1"
+msgstr "Vtičnica ni povezana: %1"
+
+#: ../src/Streams/IODeviceSocket.cpp:328 ../src/Streams/IODeviceSocket.cpp:380
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid ""
+"The underlying socket is having troubles when processing connection to %1:"
+"%2: %3"
+msgstr "Pri obdelavi povezave z %1:%2 ima vtičnica težave: %3"
+
+#: ../src/UiUtils/Formatting.cpp:39
+msgctxt "UiUtils::Formatting|"
+msgid "B"
+msgstr "B"
+
+#: ../src/UiUtils/Formatting.cpp:40
+msgctxt "UiUtils::Formatting|"
+msgid "kB"
+msgstr "kB"
+
+#: ../src/UiUtils/Formatting.cpp:41
+msgctxt "UiUtils::Formatting|"
+msgid "MB"
+msgstr "MB"
+
+#: ../src/UiUtils/Formatting.cpp:42
+msgctxt "UiUtils::Formatting|"
+msgid "GB"
+msgstr "GB"
+
+#: ../src/UiUtils/Formatting.cpp:43
+msgctxt "UiUtils::Formatting|"
+msgid "TB"
+msgstr "TB"
+
+#: ../src/UiUtils/Formatting.cpp:66
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid "%1 %2"
+msgstr "%1 %2"
+
+#: ../src/UiUtils/Formatting.cpp:85
+msgctxt ""
+"UiUtils::Formatting|Please do not translate the format specifiers. You can "
+"change their order or the separator to follow the local conventions. For "
+"valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"
+msgid "hh:mm"
+msgstr "uu:mm"
+
+#: ../src/UiUtils/Formatting.cpp:90
+msgctxt ""
+"UiUtils::Formatting|Please do not translate the format specifiers. You can "
+"change their order or the separator to follow the local conventions. For "
+"valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"
+msgid "ddd hh:mm"
+msgstr "ddd, hh:mm"
+
+#: ../src/UiUtils/Formatting.cpp:98
+msgctxt ""
+"UiUtils::Formatting|Please do not translate the format specifiers. You can "
+"change their order or the separator to follow the local conventions. For "
+"valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"
+msgid "d MMM hh:mm"
+msgstr "d. MMM, hh:mm"
+
+#: ../src/UiUtils/Formatting.cpp:141
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<li><b>CN</b>: %1,<br/>\n"
+"<b>Organization</b>: %2,<br/>\n"
+"<b>Serial</b>: %3,<br/>\n"
+"<b>SHA1</b>: %4,<br/>\n"
+"<b>MD5</b>: %5</li>"
+msgstr ""
+"<li><b>CN:</b>%1,<br/>\n"
+"Organizacija <b>:</b>%2,<br/>\n"
+"<b>Serijska:</b>%3,<br/>\n"
+"<b>SHA1</b>: %4,<br/>\n"
+"<b>MD5</b>: %5</li>"
+
+#: ../src/UiUtils/Formatting.cpp:144 ../src/UiUtils/Formatting.cpp:145
+msgctxt "UiUtils::Formatting|"
+msgid ", "
+msgstr ", "
+
+#: ../src/UiUtils/Formatting.cpp:151
+msgctxt "UiUtils::Formatting|"
+msgid "<p>The remote side doesn't have a certificate.</p>\n"
+msgstr "<p>Oddaljena stran nima potrdila.</p>\n"
+
+#: ../src/UiUtils/Formatting.cpp:152
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>This is the certificate chain of the connection:</p>\n"
+"<ul>%1</ul>\n"
+msgstr ""
+"<p>To je veriga certifikatov povezave:</p>\n"
+"<ul>%1</ul>\n"
+
+#: ../src/UiUtils/Formatting.cpp:152 ../src/UiUtils/Formatting.cpp:163
+msgctxt "UiUtils::Formatting|"
+msgid "\n"
+msgstr "\n"
+
+#: ../src/UiUtils/Formatting.cpp:159
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid "<li>%1</li>"
+msgstr "<li>%1</li>"
+
+#: ../src/UiUtils/Formatting.cpp:162
+msgctxt "UiUtils::Formatting|"
+msgid "<p>According to your system's policy, this connection is secure.</p>\n"
+msgstr ""
+"<p>V skladu z varnostnimi pravili vašega sistema je ta povezava varna.</p>\n"
+
+#: ../src/UiUtils/Formatting.cpp:163
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>The connection triggered the following SSL errors:</p>\n"
+"<ul>%1</ul>\n"
+msgstr ""
+"<p>Povezava je sprožila naslednje napake SSL:</p>\n"
+"<ul>%1</ul>\n"
+
+#: ../src/UiUtils/Formatting.cpp:174
+msgctxt "UiUtils::Formatting|"
+msgid "Different SSL certificate"
+msgstr "Drugačno potrdilo SSL"
+
+#: ../src/UiUtils/Formatting.cpp:175
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>The public key of the SSL certificate has changed. This should only "
+"happen when there was a security incident on the remote server. Your system "
+"configuration is set to accept such certificates anyway.</p>\n"
+"%1\n"
+"<p>Would you like to connect and remember the new certificate?</p>"
+msgstr ""
+"<p>Javni ključ potrdila SSL se je spremenil. To se lahko zgodi le, ko je "
+"prišlo do varnostnega incidenta na oddaljenem strežniku. Prilagoditev  "
+"sistema je tako ali tako nastavljena tako, da sprejme takšna potrdila.</p>\n"
+"%1\n"
+"<p>Ali želite vzpostaviti povezavo in si zapomniti novo potrdilo?</p>"
+
+#: ../src/UiUtils/Formatting.cpp:182
+msgctxt "UiUtils::Formatting|"
+msgid "SSL certificate looks fishy"
+msgstr "Potrdilo SSL je videti sumljivo"
+
+#: ../src/UiUtils/Formatting.cpp:183
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>The public key of the SSL certificate of the IMAP server has changed "
+"since the last time and your system doesn't believe that the new certificate "
+"is genuine.</p>\n"
+"%1\n"
+"%2\n"
+"<p>Would you like to connect anyway and remember the new certificate?</p>"
+msgstr ""
+"<p>Javni ključ potrdila SSL strežnika IMAP se je od zadnjega časa spremenil "
+"in vaš sistem ne verjame, da je novo potrdilo pristno.</p>\n"
+"%1\n"
+"%2\n"
+"<p>Ali želite vseeno vzpostaviti povezavo in si zapomniti novo potrdilo?</p>"
+
+#: ../src/UiUtils/Formatting.cpp:192 ../src/UiUtils/Formatting.cpp:199
+msgctxt "UiUtils::Formatting|"
+msgid "Accept SSL connection?"
+msgstr "Ali sprejmete povezavo SSL?"
+
+#: ../src/UiUtils/Formatting.cpp:193
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>This is the first time you're connecting to this IMAP server; the "
+"certificate is trusted by this system.</p>\n"
+"%1\n"
+"%2\n"
+"<p>Would you like to connect and remember this certificate's public key for "
+"the next time?</p>"
+msgstr ""
+"<p>To je prvič, da se povezujete s tem strežnikom IMAP; ta sistem zaupa "
+"potrdilu.</p>\n"
+"%1\n"
+"%2\n"
+"<p>Ali se želite naslednjič povezati in si zapomniti javni ključ tega "
+"potrdila?</p>"
+
+#: ../src/UiUtils/Formatting.cpp:200
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>This is the first time you're connecting to this IMAP server and the "
+"server certificate failed validation test.</p>\n"
+"%1\n"
+"\n"
+"%2\n"
+"<p>Would you like to connect and remember this certificate's public key for "
+"the next time?</p>"
+msgstr ""
+"<p>To je prvič, da vzpostavljate povezavo s tem strežnikom IMAP in potrdilo "
+"strežnika ni prestalo preverjanja veljavnosti.</p>\n"
+"%1\n"
+"\n"
+"%2\n"
+"<p>Ali želite naslednjič povezati in si zapomniti javni ključ tega potrdila?"
+"</p>"
+
+#: ../src/UiUtils/PartWalker_impl.h:44
+msgctxt "PartWalker|"
+msgid ""
+"This message contains too deep nesting of MIME message parts.\n"
+"To prevent stack exhaustion and your head from exploding, only\n"
+"the top-most thousand items or so are shown."
+msgstr ""
+"To sporočilo vsebuje pregloboko gnezdenje delov sporočil MIME.\n"
+"Da bi preprečili izčrpanost sklada in eksplozijo glave,\n"
+"je prikazanih vrhnjih tisoč elementov."
+
+#: ../src/UiUtils/PasswordWatcher.cpp:82
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Loading password from plugin %1..."
+msgstr "Nalaganje gesla iz vtičnika %1 ..."
+
+#: ../src/UiUtils/PasswordWatcher.cpp:86
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Cannot read password via plugin %1"
+msgstr "Gesla ni mogoče prebrati prek vtičnika %1"
+
+#: ../src/UiUtils/PasswordWatcher.cpp:89 ../src/UiUtils/PasswordWatcher.cpp:175
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Password plugin is not available."
+msgstr "Vtičnik za geslo ni na voljo."
+
+#: ../src/UiUtils/PasswordWatcher.cpp:120
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Password reading failed: %1"
+msgstr "Branje gesla ni uspelo: %1"
+
+#: ../src/UiUtils/PasswordWatcher.cpp:149
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Password writing failed: %1"
+msgstr "Pisanje gesla ni uspelo: %1"
+
+#: ../src/UiUtils/PasswordWatcher.cpp:168
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Saving password from plugin %1..."
+msgstr "Shranjevanje gesla iz vtičnika %1 ..."
+
+#: ../src/UiUtils/PasswordWatcher.cpp:172
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Cannot save password via plugin %1"
+msgstr "Ni mogoče shraniti gesla prek vtičnika %1"
+
+#: ../src/XtConnect/XtConnect.cpp:99
+msgctxt "XtConnect::XtConnect|"
+msgid "Database Password: "
+msgstr "Geslo zbirke podatkov: "

@@ -1,0 +1,581 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY trojita "<application
+>Trojitá</application
+>">
+  <!ENTITY kappname "&trojita;">
+  <!ENTITY package "extragera-pim">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Brazilian-Portuguese "INCLUDE">
+]>
+<book id="trojita" lang="&language;">
+
+<bookinfo>
+<title
+>Manual do &trojita;</title>
+
+<authorgroup>
+<author
+><personname
+> <firstname
+>Randall</firstname
+> <surname
+>Wood</surname
+> </personname
+> <email
+>randall+kde@woodbriceno.net</email
+> </author>
+<othercredit role="translator"
+><firstname
+>André Marcelo</firstname
+><surname
+>Alvarenga</surname
+><affiliation
+><address
+><email
+>alvarenga@kde.org</email
+></address
+></affiliation
+><contrib
+>Tradução</contrib
+></othercredit
+> 
+</authorgroup>
+
+<copyright>
+<year
+>2013</year>
+<holder
+>Randall Wood</holder>
+</copyright>
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>31/01/2013</date>
+
+<releaseinfo
+>0.3.92 (&kde; 4.9)</releaseinfo>
+
+<abstract>
+<para
+>&trojita; é um programa ("cliente") de e-mail para contas IMAP. É um programa independente que não está associado a nenhum pacote de informações ou algo equivalente. Tem como prioridade a transferência de dados de forma rápida e eficiente, sem baixar novamente qualquer informação já transferida e sendo conservador no uso da rede quando estiver pagando por minuto. Por estar em intensivo desenvolvimento ainda faltam-lhe algumas funcionalidades, mas está evoluindo rapidamente. </para>
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>extragear</keyword>
+<keyword
+>e-mail</keyword>
+<keyword
+>IMAP</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Introdução</title>
+
+<para
+>&trojita; é um programa ("cliente") de e-mail com foco em contas IMAP, onde as mensagens permanecem no servidor, mas são manipuladas pelo aplicativo que você executa no seu computador. Foi desenvolvido para ser simples (sua compilação depende de uma única biblioteca), rápido e eficiente pela rede, economizando recursos e limitando a transferência de dados. A sua interface pretende ser limpa e eficiente, fornecendo uma transferência de dados num "modo dispendioso", que reduz ao mínimo possível a duração da comunicação com o servidor. É um programa independente, não fazendo parte de um pacote maior ou mais complexo. Como está em desenvolvimento, ainda faltam-lhe algumas funcionalidades. </para>
+</chapter>
+
+<chapter id="using-kapp">
+<title
+>Usando o &trojita;</title>
+
+<para
+>O &trojita; permite-lhe ler, gravar, organizar, pesquisar e enviar e-mails. Se tiver uma conta de e-mail IMAP, o seu acesso e uso pode ser feito pelo &trojita;. IMAP é um protocolo que permite manter os seus e-mails no servidor, em vez de baixá-los para a sua máquina local. Contudo, o &trojita; transfere de fato apenas parte das suas mensagens &ndash; mesmo todas as suas mensagens &ndash; por conveniência. Nos anos 90, a maioria das pessoas usavam caixas de e-mail POP3 e o seu programa de e-mail baixava todas as suas mensagens e as removia do servidor. A desvantagem era que, se você usasse outro computador, as suas mensagens não ficariam disponíveis. O IMAP resolve esse problema mantendo os e-mails no servidor. O programa usado no seu computador local/celular simplesmente emite instruções ("responder para este e-mail", "mostrar este e-mail", &etc;) para o servidor executar.</para>
+
+<para
+>Primeiro você precisa de uma conta IMAP. Existem vários provedores: o <ulink url="http://fastmail.fm"
+>FastMail</ulink
+> é um; o <ulink url="http://tuffmail.com"
+>Tuffmail</ulink
+> e o <ulink url="http://pobox.com"
+>Pobox</ulink
+> são outros exemplos. O Gmail da Google oferece acesso IMAP à sua conta do Gmail (o Outlook e os outros não). Se o gerenciador do seu servidor &Microsoft; <application
+>Exchange</application
+> a configurou, você poderá acessar também o <application
+>Exchange</application
+> via IMAP. Se você obteve uma conta IMAP, será necessário apenas um nome de usuário e senha para acessá-la com o &trojita;.</para>
+
+<para
+>Lembre-se de que nem todos os provedores IMAP são iguais e alguns oferecem um serviço extremamente lento. O servidor do &Microsoft; <application
+>Exchange</application
+> também é conhecido por ser relativamente lento. Se escolher um bom provedor e usar um programa rápido, você ficará surpreso com esse tipo de experiência.</para>
+
+<sect1 id="configure-account">
+<title
+>Configurando a sua conta IMAP</title>
+<para
+>Primeiro, clique na aba <guilabel
+>Geral</guilabel
+> da janela Configurações. Adicione a sua conta IMAP como uma nova conta, usando estes parâmetros: <itemizedlist>
+<listitem
+><para
+>Nome verdadeiro: O nome que você deseja apresentar nos seus e-mails (o seu primeiro e último nome)</para
+></listitem>
+<listitem
+><para
+>E-mail: O seu endereço de e-mail</para
+></listitem>
+<listitem
+><para
+>Organização: O nome da sua empresa (opcional)</para
+></listitem>
+<listitem
+><para
+>Assinatura: Qualquer texto que deseje apresentar ao final dos seus e-mails, como o nome da sua página Web ou uma propaganda</para
+></listitem>
+</itemizedlist>
+</para>
+
+<para
+>Estas configurações tornam-se uma identidade e, se usuário quiser, pode ter várias. Isto é útil se, por exemplo, algum dos seus e-mails fizer parte de uma lista de discussão, onde as suas mensagens deverão ter uma aparência diferente (por exemplo, outra assinatura). Lembre-se de que, por enquanto, o &trojita; não permite várias contas de IMAP (isto é, usar com vários servidores).</para>
+
+<para
+>Depois, adicione os parâmetros da conexão necessários para acessar a sua conta. <itemizedlist>
+<listitem
+><para
+>Método: Escolha SSL se o seu provedor exigir. Caso contrário, escolha o "TCP" para uma conexão que começa sem criptografia e que poderá ser atualizada para criptografada. Se o seu provedor exigir que você execute esta atualização, assinale a opção "Efetuar STARTTLS" para garantir que ele faz isso. O "Processo local" é para usuários avançados que, por exemplo, estão conectando-se ao seu provedor através de outro agente SSH (nesse caso, deve-se colocar algo do tipo <userinput
+>ssh imap.provedor.org dovecot --exec-mail imap</userinput
+>). De um modo geral, o TCP ou o SSL são as suas escolhas mais prováveis.</para
+></listitem>
+<listitem
+><para
+>Servidor IMAP: É o nome do seu provedor (&eg;, mail.servidor.com)</para
+></listitem>
+<listitem
+><para
+>Porta: Este parâmetro deverá mudar automaticamente, dependendo do que você digitar como "Servidor IMAP". Normalmente é 143 para as conexões sem criptografia e 993 para conexões por SSL.</para
+></listitem>
+<listitem
+><para
+>Usuário: Seu nome de usuário</para
+></listitem>
+<listitem
+><para
+>Senha: Sua senha. Por enquanto o &trojita; armazena o seu nome de usuário e senha num arquivo de texto simples no seu computador. Isto não é seguro! Se isso preocupá-lo, deixe o campo da senha em branco, para que o &trojita; lhe pergunte uma vez a sua senha, mantendo-a na memória até fechar o aplicativo.</para
+></listitem>
+<listitem
+><para
+>Iniciar no modo desconectado:</para
+></listitem>
+<listitem
+><para
+>Capacidades proibidas: O &trojita; tenta ser o mais compatível possível com os padrões. Contudo, alguns servidores que se dizem compatíveis com os padrões, de fato não estão. Se tiver conhecimento de algumas funcionalidades que o seu provedor anuncia, mas que atualmente não fornece, a apresentação das mesmas aqui permite ao &trojita; ignorá-las de forma educada.</para
+></listitem>
+</itemizedlist>
+</para>
+
+<para
+>A aba do modo <guilabel
+>Desconectado</guilabel
+> é onde você configura a capacidade do &trojita; para armazenar cópias locais das mensagens existentes no seu servidor. A vantagem salvar uma cópia local é óbvia: você poderá acessá-la sem precisar conectar novamente. As desvantagens, inclui-se o preenchimento do espaço no disco rígido local e, obviamente, o risco de segurança se alguém, de alguma forma, explorar o seu computador. A configuração padrão do &trojita; armazena as cópias locais sem limite de tempo, mas aqui você poderá escolher se prefere armazenar durante um determinado número de dias ou não armazenar nada. Lembre-se de que o código para apagar as mensagens armazenadas localmente ainda não foi implementado e, sendo assim, você deve assumir que as mensagens não serão eliminadas.</para>
+
+<para
+>A aba <guilabel
+>SMTP</guilabel
+> é onde você configura o envio de e-mails. <itemizedlist>
+<listitem
+><para
+>Método: Escolha o SMTP para as conexões sem criptografia ou "SMTP seguro" se preferir (e o seu provedor aceitar) o envio de e-mails por SSL. Se escolher "compatível com sendmail local", o &trojita; irá simplesmente passar o seu e-mail para o aplicativo sendmail que estiver em execução no seu computador local (e, caso não tenha um, um erro será apresentado). Se escolher esta opção, será necessário indicar os parâmetros de uso do seu sendmail local.</para
+></listitem>
+<listitem
+><para
+>Servidor SMTP: O nome do servidor para onde os seus e-mails devem ser enviados.</para
+></listitem>
+<listitem
+><para
+>Porta: Este parâmetro deverá mudar automaticamente, dependendo do que você escolher como "Método". Normalmente é 587 para conexões sem criptografia e 465 para envio de e-mails por SSL.</para
+></listitem>
+<listitem
+><para
+>Executável do Sendmail: Só é necessário se tiver escolhido o método "compatível com sendmail local". Se for o caso, você deverá indicar aqui o comando necessário para enviar a mensagem para o seu aplicativo local. O padrão é "sendmail -bm -oi", mas se a sua configuração local não for a configuração-padrão, você precisará ajustar este parâmetro da forma adequada.</para
+></listitem>
+<listitem
+><para
+>StartTLS: Assinale esta opção se o seu provedor exigir uma conexão TLS para enviar e-mails criptografados (isto não é o mesmo que usar SSL, selecionando o "SMTP seguro" como método acima).</para
+></listitem>
+<listitem
+><para
+>Autenticação SMTP: Se precisar inserir o nome e a senha de usuário para enviar e-mails, assinale esta opção. Nos tempos modernos, isto quase sempre será necessário, para que os spammers não possam enviar mensagens indesejadas através do seu servidor.</para
+></listitem>
+<listitem
+><para
+>Usuário: O seu nome de usuário.</para
+></listitem>
+<listitem
+><para
+>Sua senha.</para
+></listitem>
+<listitem
+><para
+>Salvar e-mails enviados: Se assinalar esta opção, o &trojita; irá salvar uma cópia de cada mensagem que você enviar. Esta tem sido a opção padrão para todos os programas de e-mail, por isso poucas pessoas sabem que é possível não fazer isso.</para
+></listitem>
+<listitem
+><para
+>Nome da pasta para 'Enviados': Se optar por manter uma cópia local dos seus e-mails enviados, escolha a pasta onde eles serão mantidos.</para
+></listitem>
+<listitem
+><para
+>Enviar com BURL: BURL é uma extensão à norma IMAP implementada em 2006. Por este motivo, nem todos os servidores disponibilizam o serviço. Imagine que você tem um e-mail enorme na sua caixa de entrada com um anexo e que gostaria de encaminhar essa mensagem. A forma normal obriga o seu cliente de IMAP a baixar essa enorme mensagem e depois enviá-la novamente (provocando duas enormes transferências pela rede). A extensão BURL permite-lhe enviar essa mensagem sem precisar baixá-la primeiro. Se o seu provedor permitir o BURL, será interessante selecionar esta opção.</para
+></listitem>
+</itemizedlist>
+
+</para>
+</sect1>
+
+
+<sect1 id="reading-mail">
+<title
+>Lendo e-mails com o &trojita;</title>
+
+<para
+>O &trojita; apresenta uma interface em três painéis que deve ser familiar a todas as pessoas que já usaram e-mail. Do lado esquerdo aparece uma lista com todas as suas pastas de e-mail, provavelmente a INBOX e algumas outras. Do lado direito existem dois painéis: o superior, que mostra a lista com todas as mensagens na pasta atual e o inferior, que exibe a mensagem selecionada no painel superior. O &Microsoft; Outlook, o &kmail; e muitos outros clientes de e-mail usam este mesmo leiaute. </para>
+
+<para
+>Entretanto, estão disponíveis outros leiautes. No menu <guimenu
+>Exibir</guimenu
+>, basta selecionar <menuchoice
+><guimenu
+>Leiaute</guimenu
+> <guimenuitem
+>Panorâmico</guimenuitem
+></menuchoice
+> para escolher um leiaute com três áreas, adequada para telas maiores, onde as suas pastas aparecem na coluna da esquerda, as mensagens da pasta selecionada na coluna central e o conteúdo da mensagem selecionada na coluna da direita.</para>
+
+<para
+>Quando selecionar uma mensagem, ela será apresentada abaixo. Clique com o botão direito do mouse sobre na mensagem selecionada no painel superior, caso deseje excluir a mensagem, salvá-la no disco como um arquivo de texto ou ver todos os cabeçalhos.</para>
+
+<para
+>Para responder ou encaminhar uma mensagem, use os botões da barra de ferramentas, porque ainda não existirem atalhos de teclado definidos. Escolha a <guibutton
+>Responder de forma privada</guibutton
+> para responder apenas ao remetente. Escolha <guibutton
+>Responder a todos</guibutton
+> se desejar enviar uma resposta ao remetente e a todas as pessoas das linhas Para: ou CC:. Se a mensagem chegou através de uma lista de discussão devidamente configurada, a opção <guibutton
+>Responder à lista de discussão</guibutton
+> também estará disponível.</para>
+
+<note
+><para
+>No momento, a função "Encaminhar mensagem" ainda não foi incluída.</para
+></note>
+
+</sect1>
+
+<sect1 id="composing-mail">
+<title
+>Escrevendo/Compondo e-mails</title>
+
+<para
+>Para compor uma nova mensagem, clique no ícone no canto esquerdo da barra de ferramentas. Irá aparecer uma nova janela de mensagem, onde você poderá escolher os seus destinatários, compor o seu texto e enviá-lo. Se for interrompido e precisar salvar um rascunho, você pode fazer isso clicando no pequeno menu de expansão ao lado do botão de envio. Será então gravado um rascunho na pasta respectiva.</para>
+</sect1>
+
+<sect1 id="address-book">
+<title
+>Livro de endereços</title>
+
+<para
+>No momento, o &trojita; não tem um livro de endereços gráfico, ainda que esteja em desenvolvimento. Entretanto, existe uma alternativa bastante prática. Na inicialização, o &trojita; lê o livro de endereços em <filename role="directory"
+>~/.abook/</filename
+>, que pode ser criado com o programa em linha de comando <application
+>abook</application
+>. Se executar o <application
+>abook</application
+> em uma janela de terminal, como o &konsole;, você pode poderá adicionar, excluir e editar itens do livro de endereços. O &trojita; não manipula esse livro de endereços de forma alguma, então, por exemplo, não irá adicionar novos elementos à medida que grava as mensagens. Mas se você tiver um livro de endereços em <filename role="extension"
+>.abook</filename
+>, o &trojita; fará a sugestão automática de itens desse livro.</para
+></sect1>
+
+</chapter>
+
+<chapter id="commands">
+<title
+>Referência de comandos</title>
+
+
+<sect1 id="kapp-mainwindow">
+<title
+>Janela principal do &trojita;</title>
+
+<sect2>
+<title
+>Menu IMAP</title>
+<para>
+<variablelist>
+
+<varlistentry  id="compose-new">
+<term>
+  <menuchoice
+><guimenu
+>IMAP</guimenu
+> <guimenuitem
+>Compor e-mail...</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Abre uma nova mensagem para edição</action
+></para
+></listitem>
+</varlistentry>
+
+
+<varlistentry  id="expunge">
+<term>
+  <menuchoice
+><shortcut
+> <keycombo action="simul"
+>&Ctrl;<keycap
+>E</keycap
+></keycombo
+> </shortcut
+> <guimenu
+>IMAP</guimenu
+> <guimenuitem
+>Eliminar a caixa de e-mails</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Remove do servidor todas as mensagens já marcadas para exclusão na pasta de e-mails selecionada.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="network-offline">
+<term>
+  <menuchoice
+><guimenu
+>Acesso à rede</guimenu
+> <guimenuitem
+>Desconectado</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Se estiver selecionado, o &trojita; não irá buscar dados (mensagens) novos do seu servidor e tentará limitar-se às mensagens que transferidas anteriormente. (Ele ainda permitirá que você escreva novas mensagens, mesmo que não consiga enviá-las).</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="network-expensive">
+<term>
+  <menuchoice
+><guimenu
+>Acesso à rede</guimenu
+> <guimenuitem
+>Conexão dispendiosa</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Use isto se estiver usando o &trojita; em um celular ou outro dispositivo, onde o importante é reduzir o tráfego de rede e ser eficiente.</action
+></para
+></listitem>
+</varlistentry>
+
+
+<varlistentry  id="network-free">
+<term>
+  <menuchoice
+><guimenu
+>Acesso à rede</guimenu
+> <guimenuitem
+>Acesso livre</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Use isto se estiver usando um computador pessoal com acesso ilimitado à Internet com banda larga. Isto permite ao &trojita; pré-carregar os dados de forma mais agressiva. Isto é, em vez de baixar apenas os cabeçalhos, por exemplo, também irá baixar uma cópia local das mensagens. </action
+></para
+></listitem>
+</varlistentry>
+
+
+
+
+</variablelist>
+</para>
+</sect2>
+
+<sect2>
+<title
+>Menu Exibir</title>
+<para>
+<variablelist>
+
+<varlistentry  id="layout">
+<term>
+  <menuchoice
+><guimenu
+>Exibir</guimenu
+> <guimenuitem
+>Leiaute</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Escolha <guimenuitem
+>Panorâmico</guimenuitem
+> para um visual moderno em três painéis, com a lista de mensagens ao centro e o conteúdo da mensagem à direita. Escolha <guimenuitem
+>Compacto</guimenuitem
+> para um visual tradicional em três painéis, com a lista de mensagens no topo e o conteúdo da mensagem na parte inferior.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="threads">
+<term>
+  <menuchoice
+><guimenu
+>Exibir</guimenu
+> <guimenuitem
+>Mostrar as mensagens por tópicos</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Selecione esta opção para mostrar as mensagens agrupadas por tópicos (conversas). Isto é útil para as listas de discussão, por exemplo. Isto depende da existência de suporte de uma ou mais extensões voluntárias pelo seu servidor IMAP, uma vez que o &trojita; precisaria efetuar mais trabalho para classificar devidamente as mensagens por tópicos.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="hide">
+<term>
+  <menuchoice
+><guimenu
+>Exibir</guimenu
+> <guimenuitem
+>Ocultar as mensagens lidas</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Escolha esta opção se quiser que apenas as novas mensagens apareçam na lista de mensagens.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="subscribed">
+<term>
+  <menuchoice
+><guimenu
+>Exibir</guimenu
+> <guimenuitem
+>Mostrar somente as pastas inscritas</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Sua caixa de e-mails poderá ter mais pastas do que você precisa monitorar. Selecione esta opção para limitar as pastas apresentadas para apenas mostrar aquelas que você se inscreveu. (Isto não exclui as outras pastas, apenas evita que elas sejam mostradas na lista de pastas).</action
+></para
+></listitem>
+</varlistentry>
+
+
+
+
+
+</variablelist>
+</para>
+</sect2>
+
+<sect2>
+<title
+>Menu Ajuda</title>
+&help.menu.documentation; </sect2>
+
+</sect1>
+</chapter>
+
+<chapter id="credits">
+
+<title
+>Créditos e licença</title>
+
+<para
+>&trojita; </para>
+<para
+>Direitos autorais do programa 2006-2013 Jan Kundrát <email
+>jkt@flaska.net</email
+> </para>
+<para
+>Contribuições: <itemizedlist
+> <listitem
+><para
+>Thomas Lübking <email
+>thomas.luebking@gmail.com</email
+></para>
+</listitem>
+</itemizedlist>
+</para>
+
+<para
+>Direitos autorais da documentação &copy; 2013 Randall Wood <email
+>randall+kde@woodbriceno.net</email
+> </para>
+
+<para
+>Tradução de André Marcelo Alvarenga <email
+>alvarenga@kde.org</email
+></para
+> 
+&underFDL; &underGPL; <para
+>De acordo com a licença GPLv2/GPLv3 e CC-BY-SA</para>
+
+</chapter>
+
+<appendix id="installation">
+<title
+>Instalação</title>
+
+<sect1 id="getting-kapp">
+<title
+>Como obter o &trojita;</title>
+&install.intro.documentation; </sect1>
+
+<sect1 id="requirements">
+<title
+>Requisitos</title>
+
+<para
+>O &trojita; foi projetado para ter o mínimo de dependências. No momento, tudo o que você precisa são as bibliotecas do Qt. Você pode encontrar o código-fonte e as instruções de compilação na <ulink url="https://projects.flaska.net/projects/trojita"
+>página Web do &trojita;</ulink
+>. </para>
+
+</sect1>
+
+
+</appendix>
+
+&documentation.index;
+</book>
+
+<!--
+Local Variables:
+mode: xml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+vim:tabstop=2:shiftwidth=2:expandtab
+kate: space-indent on; indent-width 2; tab-width 2; indent-mode none;
+-->

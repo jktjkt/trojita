@@ -1,0 +1,532 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY trojita "<application
+>Trojitá</application
+>">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Dutch "INCLUDE">
+]>
+<book id="trojita" lang="&language;">
+
+<bookinfo>
+<title
+>Het handboek van &trojita;</title>
+
+<authorgroup>
+<author
+><personname
+> <firstname
+>Randall</firstname
+> <surname
+>Wood</surname
+> </personname
+> <email
+>randall+kde@woodbriceno.net</email
+> </author>
+&Freek.de.Kruijf;&Ronald.Stroethoff; 
+</authorgroup>
+
+<copyright>
+<year
+>2013</year>
+<holder
+>Randall Wood</holder>
+</copyright>
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>2013-01-31</date>
+
+<releaseinfo
+>0.3.92 (&kde; 4.9)</releaseinfo>
+
+<abstract>
+<para
+>&trojita; is een e-mailprogramma ("client") voor IMAP accounts. Het is een zelfstandig programma niet verbonden met welke Informatiesuite dan ook. Het geeft voorrang aan efficiënt en snelle overdracht van gegevens, er op lettend geen informatie te downloaden die al is gedownload en conservatief over netwerkgebruik wanneer u per minuut betaalt. Nu nog onder intensieve ontwikkeling, er ontbreken nog functies maar het verbeterd snel. </para>
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>extragear</keyword>
+<keyword
+>e-mail</keyword>
+<keyword
+>IMAP</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Inleiding</title>
+
+<para
+>&trojita; is een e-mailprogramma ("client") gespecialiseerd in IMAP e-mailaccounts, waar u met software op uw computer e-mail leest en bewerkt die op de server opgeslagen blijft. Het is ontworpen met eenvoud als doel (het kan gebouwd worden met slechts één enkele afhankelijkheid van een bibliotheek), snel en efficiënt gebruik van het netwerk, economisch gebruik van hulpbronnen en beperkte gegevensoverdracht. Het doel van de grafische gebruikers interface is om eenvoudig en efficient te zijn, daarnaast heeft het een "dure verbinding" voor overdracht van gegevens, waarin de tijdsduur van het contact met de server tot een minimum beperkt blijft. Het is een stand-alone programma, het is geen onderdeel van een grotere of meer complexe suite. Omdat het nog in ontwikkeling is, kunnen sommige functies nog ontbreken. </para>
+</chapter>
+
+<chapter id="using-kapp">
+<title
+>&trojita; gebruiken</title>
+
+<para
+>Met &trojita; kunt u e-mail lezen, schrijven, beheren, doorzoeken en versturen. Als u een IMAP e-mailaccount heeft, dan heeft u met &trojita; toegang tot deze en kunt u het gebruiken. IMAP is een protocol waarmee de e-mail op de server blijft in plaats dat u het naar uw lokale machine downloadt. Maar, &trojita; downloadt echter in werkelijkheid wel gedeeltes van uw berichten &ndash; zelfs al uw berichten &ndash; gemakshalve. In de 1990s, gebruikten de meeste mensen POP3 postvakken en hun e-mailprogramma downloadde al hun berichten, waarmee ze van de server werden verwijderend. Het nadeel was dat als u een andere computer gebruikte, de berichten niet meer beschikbaar waren. IMAP lost dat probleem op door de e-mail op de server te bewaren. Het programma dat u op uw lokale computer/smartphone gebruikt stuurt eenvoudig instructies ("beantwoord deze e-mail," "toon deze email," &etc;) naar de server voor uitvoering.</para>
+
+<para
+>Om te beginnen heeft u een IMAP-account nodig. Er zijn veel providers; <ulink url="http://fastmail.fm"
+>FastMail</ulink
+> is er een; <ulink url="http://tuffmail.com"
+>Tuffmail</ulink
+> en <ulink url="http://pobox.com"
+>Pobox</ulink
+> zijn anderen. Google's Gmail-service geeft IMAP-toegang tot uw Gmail-account (Outlook en anderen geven dat niet). En als de beheerder van uw &Microsoft; <application
+>Exchange</application
+>-server dat heeft ingesteld, dan kunt u ook toegang hebben tot <application
+>Exchange</application
+> via IMAP. Als u een IMAP-account, een gebruikersnaam en bijbehorend wachtwoord hebt, dan is &trojita; alles wat u verder nog nodig hebt.</para>
+
+<para
+>Merk op dat er verschil is tussen IMAP-providers en sommige leveren een frustrerend langzame service. &Microsoft;'s <application
+>Exchange</application
+> server is ook gemeld als iets aan de langzame kant. Als u een goede provider heeft gekozen en een snel programma gebruikt dan zult u verrast zijn hoe plezierig dit kan zijn.</para>
+
+<sect1 id="configure-account">
+<title
+>Uw IMAP-account instellen</title>
+<para
+>Klik eerst op het tabblad <guilabel
+>Algemeen</guilabel
+> van het dialoogvenster Instellingen. Voeg als nieuw account uw IMAP-account toe met deze parameters: <itemizedlist>
+<listitem
+><para
+>Echte naam: de naam die u wilt tonen op uw e-mailberichten (uw eigen voor- en achternaam)</para
+></listitem>
+<listitem
+><para
+>E-mail: uw e-mailadres</para
+></listitem>
+<listitem
+><para
+>Organisatie: uw bedrijfsnaam (onverplicht)</para
+></listitem>
+<listitem
+><para
+>Ondertekening: elke tekst waarvan u wilt dat die onderaan uw e-mailberichten verschijnt zoals de naam van uw website of een slogan.</para
+></listitem>
+</itemizedlist>
+</para>
+
+<para
+>Deze instellingen vormen een identiteit waarvan u indien gewenst er verschillende kunt hebben, als bijvoorbeeld een gedeelte van uw e-mail bestemd is voor een nieuwsgroep waar het gewenst dat uw berichten een ander uiterlijk heeft (bijvoorbeeld een andere ondertekening). Merk echt op dat op dit moment &trojita; niet meerdere IMAP-accounts ondersteunt (het gebruik van meerdere servers).</para>
+
+<para
+>Voeg vervolgens de parameters toe die nodig zijn voor toegang tot uw account. <itemizedlist>
+<listitem
+><para
+>Methode: kies SSL, als uw provider dit verlangt. In de andere gevallen kiest u "TCP" voor een verbinding die start zonder versleuteling en later misschien overgaat naar een versleutelde verbinding. En als uw provider verlangt dat u overgaat op versleuteling, schakel dan het "Voer STARTTLS uit" in om te zorgen dat het werkt. "Lokale proces" is voor gevorderde gebruikers, die bijvoorbeeld een verbinding via een andere SSH-agent met hun provider willen maken (in dit geval voert u waarschijnlijk iets in als <userinput
+>ssh imap.provider.org dovecot --exec-mail imap</userinput
+>). In het algemeen zijn TCP of SSL de meest waarschijnlijke keuzen voor u.</para
+></listitem>
+<listitem
+><para
+>IMAP-server: is de server van uw provider(&eg; mail.host.com)</para
+></listitem>
+<listitem
+><para
+>Poort: deze parameter zou automatisch moeten veranderen afhankelijk van wat u heeft ingevoerd voor "IMAP-server." Standaard is dit 143 voor niet-versleutelde e-mailberichten en 993 voor e-mailberichten verstuurt via een SSL-verbinding.</para
+></listitem>
+<listitem
+><para
+>Gebruikersnaam: uw gebruikersnaam</para
+></listitem>
+<listitem
+><para
+>Wachtwoord: uw wachtwoord. Op dit moment bewaart &trojita; uw gebruikersnaam en wachtwoord in een leesbaar tekst bestand op uw computer. Dit is niet veilig! Als u zich hierover zorgen maakt, laat dan het wachtwoord-veld leeg, &trojita; zal u eenmaal om uw wachtwoord vragen en dit in het geheugen bewaren totdat het programma eindigt.</para
+></listitem>
+<listitem
+><para
+>In offline-modus beginnen:</para
+></listitem>
+<listitem
+><para
+>Mogelijkheden op de zwarte lijst: &trojita; streeft ernaar om compleet te voldoen aan de standaarden. Maar sommige servers die zeggen dat ze voldoen aan de standaard maar doen dat niet echt. Als u merkt dat uw provider functies opgeeft die in het echt niet aanwezig zijn, dan kunt u ze in deze lijst opgeven zodat &trojita; ze vriendelijk niet meer zal gebruiken.</para
+></listitem>
+</itemizedlist>
+</para>
+
+<para
+>Het tabblad voor modus <guilabel
+>Offline</guilabel
+> is waar u de mogelijkheid in &trojita; configureert voor het lokaal opslaan van berichten op uw server. Het voordeel van een kopie lokaal opslaan is duidelijk: u kunt ze later openen zonder verbinding met de server. Een nadeel is dat uw harde schijf voller wordt en natuurlijk dat als iemand uw computer onderzoekt als veiligheidsrisico. De standaardinstelling van &trojita; is dat het de lokale kopieën oneindig lang opslaat, maar u kunt natuurlijk ook ervoor kiezen om deze maar een aantal dagen op te slaan of helemaal niet op te slaan. Merk op dat de code voor het leegmaken van de berichten-cache nog niet aanwezig is, u kunt daarom op dit moment er van uit gaan dat de berichten-cache nog niet is leeggemaakt.</para>
+
+<para
+>Het tabblad <guilabel
+>SMTP</guilabel
+> is waar u het versturen van e-mailberichten instelt. <itemizedlist>
+<listitem
+><para
+>Methode: kies SMTP voor niet versleutelde verbindingen, of "Beveiligd SMTP" als u de voorkeur geeft aan (en uw provider accepteert) e-mail versturen over SSL. Als u kiest voor "Compatibel met lokale sendmail" dan zal &trojita; uw e-mailberichten doorgegeven aan het sendmail programma op uw lokale computer (en als deze niet aanwezig is, dan zal dat mislukken). Kiezen voor deze optie vereist dat u de sendmail-parameters instelt voor gebruik van uw lokale sendmail.</para
+></listitem>
+<listitem
+><para
+>SMTP-server: de naam van de server waarnaar uw e-mailberichten gestuurd moet worden.</para
+></listitem>
+<listitem
+><para
+>Poort: deze parameter zou automatisch moeten veranderen afhankelijk van wat u heeft ingevoerd bij "Methode." Standaard is dit 587 voor niet-versleutelde e-mailberichten en 465 voor e-mailberichten verstuurt via een SSL-verbinding.</para
+></listitem>
+<listitem
+><para
+>Uitvoerbaar bestand van sendmail: is alleen noodzakelijk als u heeft gekozen voor "Compatibel met lokale sendmail" als methode. Indien dat het geval is, dan moet u hier de commando's opgeven die nodig zijn om uw bericht naar uw lokale sendmail-programma te sturen. De standaard commando is "sendmail -bm -oi" maar als uw configuratie van de standaard afwijkt dan moet deze instelling aanpassen.</para
+></listitem>
+<listitem
+><para
+>StartTLS: activeer dit als uw provider een TLS-verbinding vereist voor het versturen van versleutelde mail (dit is niet hetzelfde als SSL gebruiken door het kiezen van "Beveiligd SMTP" zoals bovengenoemde methode).</para
+></listitem>
+<listitem
+><para
+>MTP Auth: activeer dit als u een gebruikersnaam en wachtwoord moet opgegeven voor het versturen van e-mailberichten. Tegenwoordig moet u dit bijna altijd doen om te voorkomen dat spammers ongewenste berichten via de server gaan versturen.</para
+></listitem>
+<listitem
+><para
+>Gebruikersnaam: uw gebruikersnaam</para
+></listitem>
+<listitem
+><para
+>Uw wachtwoord.</para
+></listitem>
+<listitem
+><para
+>Uitgaande e-mailberichten opslaan: als u dit activeert, dan bewaart &trojita; een kopie van elk verstuurt bericht. Dit is al zo lang de standaardinstelling van alle e-mail-programma's dat maar weinig mensen weten dat het mogelijk is om het niet te doen!</para
+></listitem>
+<listitem
+><para
+>Mapnaam verzenden: Als u besluit dat u een lokale kopie van uw verstuurde e-mailberichten wilt bewaren, dan kunt u hier opgeven in welke map u deze wilt bewaren.</para
+></listitem>
+<listitem
+><para
+>Met BURL verzenden: De BURL extensie is een uitbreiding van de IMAP standaard, opgesteld in 2006, daarom hebben niet alle servers deze service beschikbaar. Stelt u zich voor dat u een enorm e-mailbericht met bijlage in uw inbox heeft en u wilt dit bericht doorsturen. De normale manier is dat uw IMAP client dit enorme bericht downloadt en het vervolgens opnieuw verstuurt (twee grote overdrachten over het netwerk veroorzakend). Met de BURL extensie is het mogelijk om het bericht te versturen zonder het eerst te downloaden. Als uw provider toestaat dat u BURL gebruikt dan is het interessant om deze extensie in te schakelen.</para
+></listitem>
+</itemizedlist>
+
+</para>
+</sect1>
+
+
+<sect1 id="reading-mail">
+<title
+>Mail lezen met &trojita;</title>
+
+<para
+>Het interface van &trojita; heeft drie panelen die bekent voor komen voor iedereen die eerder e-mail heeft gebruikt. Links is een lijst met al uw e-mail-mappen, waarschijnlijk INBOX en enkele anderen. Rechts zijn twee andere panelen: het bovenste paneel heeft een lijst met alle berichten uit de geselecteerde map en in het onderste paneel is de inhoud van de in het bovenste paneel geselecteerde berichten te zien. &Microsoft; Outlook, &kmail; en veel andere e-mailcliënts gebruiken dezelfde layout. </para>
+
+<para
+>Er zijn ook andere indelingen beschikbaar. Ga naar het menu <guimenu
+>Beeld</guimenu
+> en selecteer <menuchoice
+><guimenu
+>Opmaak</guimenu
+> <guimenuitem
+>Breed</guimenuitem
+></menuchoice
+> om een indeling met drie panelen te selecteren die geschikt is voor grotere, bredere schermen, waar uw mappen in de linker kolom worden getoond, de berichten uit de geselecteerde map in de middelste kolom, en de inhoud van het geselecteerde bericht in de rechter kolom.</para>
+
+<para
+>Wanneer u een bericht selecteert dan wordt deze eronder getoond. Klik met de &RMB; op het geselecteerde bericht in het bovenste paneel waarna u deze kunt verwijderen, als tekst op de harde schijf opslaan of om de kopregels te bekijken.</para>
+
+<para
+>Om een bericht te beantwoorden of door te sturen kunt u alleen de knoppen op de werkbalk gebruiken omdat er op dit moment nog geen sneltoetsen zijn gedefinieerd. Gebruik <guibutton
+>Privé antwoord</guibutton
+> om een antwoord alleen naar de afzender te versturen. Gebruik <guibutton
+>Aan allen antwoorden</guibutton
+> als u een antwoord wilt versturen naar de afzender en alle anderen op de Aan: of CC: regels. De keuzemogelijkheid <guibutton
+>Beantwoorden aan discussiegroep</guibutton
+> is ook beschikbaar als het bericht arriveerde via een juist-ingestelde discussiegroep.</para>
+
+<note
+><para
+>Op dit moment werkt de functie van "Bericht doorsturen" nog niet.</para
+></note>
+
+</sect1>
+
+<sect1 id="composing-mail">
+<title
+>Berichten schrijven/opstellen</title>
+
+<para
+>Klik op het pictogram aan de linkerkant van de werkbalk voor het opstellen van een nieuw bericht. Er opent een nieuw venster waarin u de ontvangers kunt selecteren, de tekst kan opstellen en versturen. Als u gestoord wordt en het daarom nodig is dat u het concept moet opslaan, dan kunt u dat doen door op het kleine uitklap-menuutje naast de knop Verzenden te klikken. Een concept zal vervolgens worden opgeslagen in uw map Concepten.</para>
+</sect1>
+
+<sect1 id="address-book">
+<title
+>Adresboek</title>
+
+<para
+>Op dit moment heeft &trojita; nog geen grafisch adresboek, maar de ontwikkeling daarvan is druk bezig. In de tussentijd is er een handige work-around. Tijdens het starten leest &trojita; van de locatie <filename role="directory"
+>~/.abook/</filename
+> het adresboek in, deze kunt u aanmaken met behulp van een commandoregel-programma met de naam <application
+>abook</application
+>. Tijdens het gebruik van <application
+>abook</application
+> in een commandovenster (zoals &konsole;) kunt u adressen toevoegen, verwijderen en wijzigen. &trojita; wijzigt dit adressenboek op geen enkele wijze, het voegt bijvoorbeeld geen nieuwe items toe tijdens het schrijven van berichten. Maar als u een adressenboek <filename role="extension"
+>.abook</filename
+> heeft, dan zal &trojita; de items automatisch aanvullend gaan gebruiken.</para
+></sect1>
+
+</chapter>
+
+<chapter id="commands">
+<title
+>Overzicht van de opdrachten</title>
+
+
+<sect1 id="kapp-mainwindow">
+<title
+>Het hoofdvenster van &trojita;</title>
+
+<sect2>
+<title
+>Het menu IMAP</title>
+<para>
+<variablelist>
+
+<varlistentry  id="compose-new">
+<term>
+  <menuchoice
+><guimenu
+>IMAP</guimenu
+> <guimenuitem
+>E-mailbericht opstellen...</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Opent een nieuw bericht voor bewerking</action
+></para
+></listitem>
+</varlistentry>
+
+
+<varlistentry  id="expunge">
+<term>
+  <menuchoice
+><shortcut
+> <keycombo action="simul"
+>&Ctrl;<keycap
+>E</keycap
+></keycombo
+> </shortcut
+> <guimenu
+>IMAP</guimenu
+> <guimenuitem
+>Postbus opschonen</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Verwijdert gemarkeerde berichten in de geselecteerde postbus (map) op de server.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="network-offline">
+<term>
+  <menuchoice
+><guimenu
+>Netwerktoegang</guimenu
+> <guimenuitem
+>Offline gaan</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Indien geactiveerd, zal &trojita; geen nieuwe data (berichten) van uw server ophalen en zal zich beperken tot tot de eerder opgehaalde berichten (u kunt nog steeds berichten samenstellen maar u kunt ze echter niet versturen).</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="network-expensive">
+<term>
+  <menuchoice
+><guimenu
+>Netwerktoegang</guimenu
+> <guimenuitem
+>Dure verbinding</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Gebruik dit als u &trojita; op een gsm of ander apparaat gebruikt waar het belangrijk is om de gegevensoverdracht te beperken en efficient te zijn.</action
+></para
+></listitem>
+</varlistentry>
+
+
+<varlistentry  id="network-free">
+<term>
+  <menuchoice
+><guimenu
+>Netwerktoegang</guimenu
+> <guimenuitem
+>Vrije toegang</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Gebruik dit als u op een desktop computer met toegang tot onbeperkt breedband internet. Dit staat &trojita; toe om meer agressief data vooraf te downloaden. Dit houd in dat in plaats van alleen bijvoorbeeld de kopregels te downloaden, er ook meteen een lokale kopie van de berichten wordt gedownload. </action
+></para
+></listitem>
+</varlistentry>
+
+
+
+
+</variablelist>
+</para>
+</sect2>
+
+<sect2>
+<title
+>Het menu Beeld</title>
+<para>
+<variablelist>
+
+<varlistentry  id="layout">
+<term>
+  <menuchoice
+><guimenu
+>Beeld</guimenu
+> <guimenuitem
+>Indeling</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Kies <guimenuitem
+>Breed</guimenuitem
+> voor een moderne opbouw met drie panelen met de lijst met berichten in het midden en het bericht zelf aan de rechterkant. Kies <guimenuitem
+>Compact</guimenuitem
+> voor de traditionele opbouw van panelen met de lijst met berichten bovenaan en het bericht zelf onderaan.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="threads">
+<term>
+  <menuchoice
+><guimenu
+>Beeld</guimenu
+> <guimenuitem
+>Berichten in discussies tonen</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Indien u dit inschakelt dan zijn de berichten gegroepeerd in discussies (gesprekken). Dit is handig bijvoorbeeld in e-maillijsten. Dit is er van afhankelijk of uw IMAP-server een of meerdere vrijwillige extensies ondersteunt, omdat &trojita; anders meer werk moet verzetten om berichten als discussies te ordenen.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="hide">
+<term>
+  <menuchoice
+><guimenu
+>Beeld</guimenu
+> <guimenuitem
+>Gelezen berichten verbergen</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Kies deze optie als u alleen nieuwe berichten wilt zien in de lijst met berichten.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="subscribed">
+<term>
+  <menuchoice
+><guimenu
+>Beeld</guimenu
+> <guimenuitem
+>Alleen ingeschreven mappen tonen</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>In uw postbus kunnen meer mappen aanwezig zijn dan dat u eigenlijk wilt bekijken. Selecteer deze optie om de mappen die getoond worden te beperken tot diegene waarbij u zich heeft ingeschreven. (Dit verwijdert de andere mappen niet, ze worden alleen niet getoond).</action
+></para
+></listitem>
+</varlistentry>
+
+
+
+
+
+</variablelist>
+</para>
+</sect2>
+
+</sect1>
+</chapter>
+
+<chapter id="credits">
+
+<title
+>Dankbetuigingen en licentie</title>
+
+<para
+>&trojita; </para>
+<para
+>Programma copyright 2006-2013 Jan Kundrát <email
+>jkt@flaska.net</email
+> </para>
+<para
+>Met dank aan: <itemizedlist
+> <listitem
+><para
+>Thomas Lübking <email
+>thomas.luebking@gmail.com</email
+></para>
+</listitem>
+</itemizedlist>
+</para>
+
+<para
+>Documentatie Copyright &copy; 2013 Randall Wood <email
+>randall+kde@woodbriceno.net</email
+> </para>
+
+&meld.fouten;&vertaling.freek; &underFDL; &underGPL; <para
+>Onder de GPLv2/GPLv3 licentie en CC-BY-SA</para>
+
+</chapter>
+
+&documentation.index;
+</book>
+
+<!--
+Local Variables:
+mode: xml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+vim:tabstop=2:shiftwidth=2:expandtab
+kate: space-indent on; indent-width 2; tab-width 2; indent-mode none;
+-->

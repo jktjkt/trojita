@@ -1,0 +1,6503 @@
+# Tommi Nieminen <translator@legisign.org>, 2014, 2015, 2018, 2019, 2020, 2022.
+# Lasse Liehu <lasse.liehu@gmail.com>, 2014, 2015, 2016.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"PO-Revision-Date: 2022-07-18 22:22+0300\n"
+"Last-Translator: Tommi Nieminen <translator@legisign.org>\n"
+"Language-Team: Finnish <kde-i18n-doc@kde.org>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 20.12.0\n"
+"X-Qt-Contexts: true\n"
+
+# %2 on tiedosto.
+#. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
+#: ../src/Composer/ComposerAttachments.cpp:146
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid ""
+"%1\n"
+"(from %2)"
+msgstr ""
+"%1\n"
+"(tiedostosta %2)"
+
+#: ../src/Composer/ComposerAttachments.cpp:157
+msgctxt "Composer::MessageComposer|"
+msgid "File does not exist"
+msgstr "Tiedostoa ei ole olemassa"
+
+#: ../src/Composer/ComposerAttachments.cpp:160
+msgctxt "Composer::MessageComposer|"
+msgid "File is not readable"
+msgstr "Tiedostoa ei voi lukea"
+
+#: ../src/Composer/ComposerAttachments.cpp:163
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "%1: %2, %3"
+msgstr "%1: %2, %3"
+
+#: ../src/Composer/ComposerAttachments.cpp:260
+msgctxt "Composer::MessageComposer|"
+msgid "Message not available"
+msgstr "Viesti ei ole saatavilla"
+
+#: ../src/Composer/ComposerAttachments.cpp:263
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid ""
+"%1\n"
+"(%2)"
+msgstr ""
+"%1\n"
+"(%2)"
+
+#: ../src/Composer/ComposerAttachments.cpp:273
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "IMAP message %1"
+msgstr "IMAP-viesti %1"
+
+#: ../src/Composer/ComposerAttachments.cpp:384
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "IMAP part %1"
+msgstr "IMAP-osa %1"
+
+#: ../src/Composer/ComposerAttachments.cpp:396
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "%1, %2"
+msgstr "%1, %2"
+
+#: ../src/Composer/ExistingMessageComposer.cpp:78
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Cannot obtain IMAP URL for CATENATE"
+msgstr "Ei saada IMAP-verkko-osoitetta CATENATEa varten"
+
+#: ../src/Composer/MessageComposer.cpp:599
+#: ../src/Composer/MessageComposer.cpp:630
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "Attachment %1 is not available"
+msgstr "Liite %1 ei ole saatavilla"
+
+#: ../src/Composer/MessageComposer.cpp:635
+#, qt-format
+msgctxt "Composer::MessageComposer|"
+msgid "Attachment %1 disappeared"
+msgstr "Liite %1 on kadonnut"
+
+#: ../src/Composer/SenderIdentitiesModel.cpp:94
+msgctxt "Composer::SenderIdentitiesModel|"
+msgid "Name"
+msgstr "Nimi"
+
+#: ../src/Composer/SenderIdentitiesModel.cpp:96
+msgctxt "Composer::SenderIdentitiesModel|"
+msgid "E-mail"
+msgstr "Sähköposti"
+
+#: ../src/Composer/SenderIdentitiesModel.cpp:98
+msgctxt "Composer::SenderIdentitiesModel|"
+msgid "Organization"
+msgstr "Organisaatio"
+
+#: ../src/Composer/SenderIdentitiesModel.cpp:100
+msgctxt "Composer::SenderIdentitiesModel|"
+msgid "Signature"
+msgstr "Allekirjoitus"
+
+#: ../src/Composer/Submission.cpp:113
+msgctxt "Composer::Submission|"
+msgid "Preparing to send"
+msgstr "Valmistellaan lähetystä"
+
+#: ../src/Composer/Submission.cpp:118
+msgctxt "Composer::Submission|"
+msgid "Creating message"
+msgstr "Luodaan viestiä"
+
+#: ../src/Composer/Submission.cpp:123
+msgctxt "Composer::Submission|"
+msgid "Saving to the sent folder"
+msgstr "Tallennetaan lähetettyjen kansioon"
+
+#: ../src/Composer/Submission.cpp:128
+msgctxt "Composer::Submission|"
+msgid "Preparing message for delivery"
+msgstr "Valmistellaan viestiä siirtoon"
+
+#: ../src/Composer/Submission.cpp:133
+msgctxt "Composer::Submission|"
+msgid "Submitting message"
+msgstr "Toimitetaan viestiä"
+
+#: ../src/Composer/Submission.cpp:138
+msgctxt "Composer::Submission|"
+msgid "Updating message keywords"
+msgstr "Päivitetään viestin avainsanoja"
+
+#: ../src/Composer/Submission.cpp:143
+msgctxt "Composer::Submission|"
+msgid "Message sent"
+msgstr "Viesti lähetetty"
+
+#: ../src/Composer/Submission.cpp:150
+msgctxt "Composer::Submission|"
+msgid "Sending failed"
+msgstr "Lähetys epäonnistui"
+
+#: ../src/Composer/Submission.cpp:180
+msgctxt "Composer::Submission|"
+msgid ""
+"The IMAP connection has disappeared. You'll have close the composer, save "
+"the draft and re-open it later. The attachments will have to be added later. "
+"Sorry for the trouble, please see <a href=\"https://projects.flaska.net/"
+"issues/640\">https://projects.flaska.net/issues/640</a> for details."
+msgstr ""
+"IMAP-yhteys on katkennut. Sulje kirjoitusikkuna, tallenna luonnos ja palauta "
+"se tuonnempana. Liitteet voi lisätä myöhemmin. Pahoittelut vaivasta. "
+"Lisätietoja: <a href=\"https://projects.flaska.net/issues/640\">https://"
+"projects.flaska.net/issues/640</a>."
+
+#: ../src/Composer/Submission.cpp:195
+msgctxt "Composer::Submission|"
+msgid "Some data are not available yet"
+msgstr "Joitakin tietoja ei ole vielä saatavilla"
+
+#: ../src/Composer/Submission.cpp:211
+#, qt-format
+msgctxt "Composer::Submission|"
+msgid ""
+"Cannot send right now -- saving failed:\n"
+" %1"
+msgstr ""
+"Ei voi lähettää juuri nyt – tallennus epäonnistui:\n"
+" %1"
+
+#: ../src/Composer/Submission.cpp:215
+#, qt-format
+msgctxt "Composer::Submission|"
+msgid ""
+"Cannot send right now -- saving (CATENATE) failed:\n"
+" %1"
+msgstr ""
+"Ei voi lähettää juuri nyt – tallennus (CATENATE) epäonnistui:\n"
+" %1"
+
+#: ../src/Composer/Submission.cpp:361
+#, qt-format
+msgctxt "Composer::Submission|"
+msgid "APPEND failed: %1"
+msgstr "APPEND epäonnistui: %1"
+
+#: ../src/Composer/Submission.cpp:391
+msgctxt "Composer::Submission|"
+msgid "The URLAUTH response does not contain a proper URL"
+msgstr "URLAUTH-vastaus ei sisällä kelvollista verkko-osoitetta"
+
+#: ../src/Cryptography/GpgMe++.cpp:53
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "[getAuditLog failed: %1]"
+msgstr "[getAuditLog epäonnistui: %1]"
+
+#: ../src/Cryptography/GpgMe++.cpp:169
+msgctxt "Cryptography::GpgMePart|"
+msgid "Waiting for data..."
+msgstr "Odotetaan tietoa…"
+
+#: ../src/Cryptography/GpgMe++.cpp:312
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted; some signature: missing key"
+msgstr "Salattu; joltakin allekirjoitukselta puuttuu avain"
+
+#: ../src/Cryptography/GpgMe++.cpp:312
+msgctxt "Cryptography::GpgMePart|"
+msgid "Some signature: missing key"
+msgstr "Joltakin allekirjoitukselta puuttuu avain"
+
+#: ../src/Cryptography/GpgMe++.cpp:313
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid ""
+"Key %1 is not available in the keyring.\n"
+"Cannot verify signature validity or do anything else. The message might or "
+"might not have been tampered with."
+msgstr ""
+"Avainta %1 ei ole avainrenkaassa.\n"
+"Allekirjoituksen luotettavuutta ei voi todentaa eikä tehdä muutakaan. "
+"Viestiä on voitu peukaloida (tai sitten ei)."
+
+#: ../src/Cryptography/GpgMe++.cpp:324
+msgctxt "Cryptography::GpgMePart|"
+msgid "Internal error"
+msgstr "Sisäinen virhe"
+
+#: ../src/Cryptography/GpgMe++.cpp:325
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Error when verifying signature: cannot retrieve key %1: %2"
+msgstr "Virhe todennettaessa allekirjoitusta; ei voida noutaa avainta %1: %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:375
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, verified signature"
+msgstr "Salattu, todennettu allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:375
+msgctxt "Cryptography::GpgMePart|"
+msgid "Verified signature"
+msgstr "Todennettu allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:376
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Verified signature from %1 on %2"
+msgstr "Varmennettu allekirjoitus: %1 koneella %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:381
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, signed by stranger"
+msgstr "Salattu, allekirjoitus vieraalta allekirjoittajalta"
+
+#: ../src/Cryptography/GpgMe++.cpp:381
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signed by stranger"
+msgstr "Vieras allekirjoittaja"
+
+#: ../src/Cryptography/GpgMe++.cpp:382
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid ""
+"Verified signature, but the signer is someone else:\n"
+"%1\n"
+"Signature was made on %2."
+msgstr ""
+"Varmennettu allekirjoitus, mutta allekirjoittaja on joku muu:\n"
+"%1\n"
+"Allekirjoitettu %2."
+
+#: ../src/Cryptography/GpgMe++.cpp:389
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, bad signature"
+msgstr "Salattu, kelvoton allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:389
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature"
+msgstr "Kelvoton allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:392
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, bad signature: %1"
+msgstr "Salattu, kelvoton allekirjoitus: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:393
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature: %1"
+msgstr "Kelvoton allekirjoitus: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:395
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature by %1 on %2"
+msgstr "Virheellinen allekirjoitus: %1 koneella %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:398
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, bad signature by stranger"
+msgstr "Salattu, vieraan allekirjoittajan kelvoton allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:398
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature by stranger"
+msgstr "Vieraan allekirjoittajan kelvoton allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:401
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, bad signature by stranger: %1"
+msgstr "Salattu, vieraan allekirjoittajan kelvoton allekirjoitus: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:402
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature by stranger: %1"
+msgstr "Vieraan allekirjoittajan kelvoton allekirjoitus: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:404
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Bad signature by someone else: %1 on %2."
+msgstr "Virheellinen allekirjoitus joltakulta muulta: %1 koneella %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:420
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, some signature"
+msgstr "Salattu, jokin allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:420
+msgctxt "Cryptography::GpgMePart|"
+msgid "Some signature"
+msgstr "Jokin allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:421
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Unknown signature from %1 on %2"
+msgstr "Tuntematon allekirjoitus: %1 koneella %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:425
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, some signature by stranger"
+msgstr "Salattu, jokin allekirjoituksista vieraalta allekirjoittajalta"
+
+#: ../src/Cryptography/GpgMe++.cpp:425
+msgctxt "Cryptography::GpgMePart|"
+msgid "Some signature by stranger"
+msgstr "Jokin allekirjoituksista vieraalta allekirjoittajalta"
+
+#: ../src/Cryptography/GpgMe++.cpp:426
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Unknown signature by somebody else: %1 on %2"
+msgstr "Tuntematon allekirjoitus joltakulta muulta: %1 koneella %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:434
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, semi-trusted signature"
+msgstr "Salattu, osaksi luotettu allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:434
+msgctxt "Cryptography::GpgMePart|"
+msgid "Semi-trusted signature"
+msgstr "Osaksi luotettu allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:435
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Semi-trusted signature from %1 on %2"
+msgstr "Puoliksi luotettu allekirjoitus: %1 koneella %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:440
+msgctxt "Cryptography::GpgMePart|"
+msgid "Encrypted, semi-trusted signature by stranger"
+msgstr "Vieraan allekirjoittajan salattu, osaksi luotettu allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:441
+msgctxt "Cryptography::GpgMePart|"
+msgid "Semi-trusted signature by stranger"
+msgstr "Vieraan allekirjoittajan osaksi luotettu allekirjoitus"
+
+#: ../src/Cryptography/GpgMe++.cpp:442
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Semi-trusted signature by somebody else: %1 on %2"
+msgstr "Puoliksi luotettu allekirjoitus joltakulta muulta: %1 koneella %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:455
+msgctxt "Cryptography::GpgMePart|"
+msgid "The key or at least one certificate has been revoked."
+msgstr "Avain tai vähintään yksi varmenteista on peruttu."
+
+#: ../src/Cryptography/GpgMe++.cpp:460
+msgctxt "Cryptography::GpgMePart|"
+msgid "The key or one of the certificates has expired."
+msgstr "Avain tai jokin varmenteista on vanhentunut."
+
+#: ../src/Cryptography/GpgMe++.cpp:464
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature expired on %1."
+msgstr "Allekirjoitus on vanhentunut %1."
+
+#: ../src/Cryptography/GpgMe++.cpp:469
+msgctxt "Cryptography::GpgMePart|"
+msgid "Can't verify due to a missing key or certificate."
+msgstr "Ei voida todentaa, koska avain tai varmenne puuttuu."
+
+#: ../src/Cryptography/GpgMe++.cpp:473
+msgctxt "Cryptography::GpgMePart|"
+msgid "The CRL (or an equivalent mechanism) is not available."
+msgstr "CRL (tai vastaava mekanismi) ei ole käytettävissä."
+
+#: ../src/Cryptography/GpgMe++.cpp:477
+msgctxt "Cryptography::GpgMePart|"
+msgid "Available CRL is too old."
+msgstr "Saatavilla oleva CRL on liian vanha."
+
+#: ../src/Cryptography/GpgMe++.cpp:481
+msgctxt "Cryptography::GpgMePart|"
+msgid "A policy requirement was not met."
+msgstr "Käytäntövaatimusta ei täytetty."
+
+#: ../src/Cryptography/GpgMe++.cpp:485
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "A system error occurred. %1"
+msgstr "Tapahtui järjestelmävirhe. %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:494
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is undefined."
+msgstr "On epäselvää, voiko allekirjoitukseen luottaa."
+
+#: ../src/Cryptography/GpgMe++.cpp:498
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is never to be trusted."
+msgstr "Allekirjoitukseen ei lainkaan tule luottaa."
+
+#: ../src/Cryptography/GpgMe++.cpp:502
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is marginal."
+msgstr "Allekirjoitukseen voi rajallisesti luottaa."
+
+#: ../src/Cryptography/GpgMe++.cpp:506
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is full."
+msgstr "Allekirjoitukseen voi täysin luottaa."
+
+#: ../src/Cryptography/GpgMe++.cpp:510
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is ultimate."
+msgstr "Allekirjoitukseen voi äärettömästi luottaa."
+
+#: ../src/Cryptography/GpgMe++.cpp:514
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature validity is unknown."
+msgstr "Allekirjoituksen luotettavuutta ei tiedetä."
+
+#: ../src/Cryptography/GpgMe++.cpp:524
+msgctxt "Cryptography::GpgMePart|"
+msgid "Trust chain:"
+msgstr "Luottamusketju:"
+
+#: ../src/Cryptography/GpgMe++.cpp:530
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "%1(Unavailable)"
+msgstr "%1 (ei käytettävissä)"
+
+#: ../src/Cryptography/GpgMe++.cpp:534
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "%1(self-signed)"
+msgstr "%1 (itseallekirjoitettu)"
+
+#: ../src/Cryptography/GpgMe++.cpp:543
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Error when retrieving key for the trust chain: %1"
+msgstr "Virhe noudettaessa luottamusketjun avainta: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:553
+#, qt-format
+msgctxt "Cryptography::GpgMePart|"
+msgid "Signature invalidity reason: %1"
+msgstr "Allekirjoituksen virheellisyyden syy: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:615
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Malformed Signed Message"
+msgstr "Virheellisesti allekirjoitettu viesti"
+
+#: ../src/Cryptography/GpgMe++.cpp:616
+#, qt-format
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Expected 2 parts, but found %1."
+msgstr "Odotettiin kahta osaa, löytyi %1."
+
+#: ../src/Cryptography/GpgMe++.cpp:620
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Cannot verify signature"
+msgstr "Allekirjoitusta ei voida todentaa"
+
+#: ../src/Cryptography/GpgMe++.cpp:621
+#, qt-format
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Failed to initialize GpgME (%1)"
+msgstr "GpgME:tä ei voida alustaa (%1)"
+
+# Tässä on todennäköisesti kyse viestin katoamisesta eikä lähtemisestä.
+#: ../src/Cryptography/GpgMe++.cpp:641
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Signed message is gone"
+msgstr "Allekirjoitettu viesti on kadonnut"
+
+#: ../src/Cryptography/GpgMe++.cpp:653
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Data Unavailable"
+msgstr "Tietoa ei ole saatavilla"
+
+#: ../src/Cryptography/GpgMe++.cpp:654
+msgctxt "Cryptography::GpgMeSigned|"
+msgid ""
+"Some data are not available, perhaps due to an offline network connection"
+msgstr "Tietoa puuttuu ehkä puuttuvan verkkoyhteyden takia."
+
+#: ../src/Cryptography/GpgMe++.cpp:674
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "Verifying signature..."
+msgstr "Todennetaan allekirjoitusta…"
+
+#: ../src/Cryptography/GpgMe++.cpp:699
+msgctxt "Cryptography::GpgMeSigned|"
+msgid "No signatures in the signed message"
+msgstr "Allekirjoitetusta viestistä ei löytynyt allekirjoituksia"
+
+#: ../src/Cryptography/GpgMe++.cpp:739 ../src/Cryptography/GpgMe++.cpp:813
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Malformed Encrypted Message"
+msgstr "Virheellinen salattu viesti"
+
+#: ../src/Cryptography/GpgMe++.cpp:740
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Expected 2 parts for an encrypted OpenPGP message, but found %1."
+msgstr "Odotettiin salatulta OpenPGP-viestiltä kahta osaa, löytyi %1."
+
+#: ../src/Cryptography/GpgMe++.cpp:765
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Cannot descrypt"
+msgstr "Salausta ei voi purkaa"
+
+#: ../src/Cryptography/GpgMe++.cpp:766
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Failed to initialize GpgME (%1)"
+msgstr "GpgME:tä ei voida alustaa (%1)"
+
+# Tässä on todennäköisesti kyse viestin katoamisesta eikä lähtemisestä.
+#: ../src/Cryptography/GpgMe++.cpp:786 ../src/Cryptography/GpgMe++.cpp:922
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Encrypted message is gone"
+msgstr "Salattu viesti on kadonnut"
+
+#: ../src/Cryptography/GpgMe++.cpp:796
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Data Unavailable"
+msgstr "Tietoa ei ole saatavilla"
+
+#: ../src/Cryptography/GpgMe++.cpp:797
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid ""
+"Cannot decrypt. Some data are not available, perhaps due to an offline "
+"network connection."
+msgstr ""
+"Salausta ei voi purkaa. Tietoja puuttuu ehkä puuttuvan verkkoyhteyden takia."
+
+#: ../src/Cryptography/GpgMe++.cpp:814
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%1\"."
+msgstr "PGP/MIME-versiota ei tueta. Odotettiin ”Version: 1”, saatiin ”%1”."
+
+#: ../src/Cryptography/GpgMe++.cpp:820
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Decrypting..."
+msgstr "Puretaan salausta…"
+
+#: ../src/Cryptography/GpgMe++.cpp:863
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Broken encrypted message"
+msgstr "Salattu viesti on rikki"
+
+#: ../src/Cryptography/GpgMe++.cpp:866
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Decryption error: %1"
+msgstr "Salauksenpurkuvirhe: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:869
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Encrypted message"
+msgstr "Salattu viesti"
+
+#: ../src/Cryptography/GpgMe++.cpp:875
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Wrong key usage, not for encryption"
+msgstr "Avainta on käytetty väärin, ei salaukseen"
+
+#: ../src/Cryptography/GpgMe++.cpp:879
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Unsupported algorithm: %1"
+msgstr "Ei-tuettu algoritmi: %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:887
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Cannot extract recipient %1: %2"
+msgstr "Ei voida irrottaa vastaanottajaa %1: %2"
+
+#: ../src/Cryptography/GpgMe++.cpp:892
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Encrypted to %1 (%2)"
+msgstr "Salattu vastaanottajalle %1 (%2)"
+
+#: ../src/Cryptography/GpgMe++.cpp:896
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Encrypted to %1"
+msgstr "Salattu henkilölle %1"
+
+#: ../src/Cryptography/GpgMe++.cpp:902
+#, qt-format
+msgctxt "Cryptography::GpgMeEncrypted|"
+msgid "Original filename: %1"
+msgstr "Alkuperäinen tiedostonimi: %1"
+
+#: ../src/Gui/AboutDialog.ui:14
+msgctxt "AboutDialog|"
+msgid "About Trojitá"
+msgstr "Tietoa Trojitásta"
+
+#: ../src/Gui/AboutDialog.ui:152
+msgctxt "AboutDialog|"
+msgid "<p>This is <b>Trojitá</b>, a fast Qt IMAP e-mail client</p>"
+msgstr "<p>Tämä on <b>Trojitá</b>, nopea Qt:n IMAP-sähköpostiasiakas</p>"
+
+#: ../src/Gui/AddressRowWidget.cpp:130
+#, qt-format
+msgctxt "Gui::Expander|"
+msgid "Click to see %1 more items"
+msgstr "Näe %1 lisää napsauttamalla"
+
+#: ../src/Gui/AddressRowWidget.cpp:130
+msgctxt "Gui::Expander|"
+msgid "Click to collapse"
+msgstr "Supista napsauttamalla"
+
+#: ../src/Gui/AttachmentView.cpp:90
+msgctxt "Gui::AttachmentView|"
+msgid "Download"
+msgstr "Lataa"
+
+#: ../src/Gui/AttachmentView.cpp:91
+msgctxt "Gui::AttachmentView|"
+msgid "Open Directly"
+msgstr "Avaa suoraan"
+
+#: ../src/Gui/AttachmentView.cpp:96
+msgctxt "Gui::AttachmentView|"
+msgid "Show Preview"
+msgstr "Näytä esikatselu"
+
+#: ../src/Gui/AttachmentView.cpp:103
+msgctxt "Gui::AttachmentView|"
+msgid "Show Message Source"
+msgstr "Näytä viestin lähdekoodi"
+
+#: ../src/Gui/AttachmentView.cpp:127
+#, qt-format
+msgctxt "Gui::AttachmentView|"
+msgid "IMAP Server error for this part: %1 (%2)"
+msgstr "IMAP-palvelinvirhe tälle osalle: %1 (%2)"
+
+#: ../src/Gui/AttachmentView.cpp:166
+#, qt-format
+msgctxt "Gui::AttachmentView|"
+msgid "%2, %3"
+msgstr "%2, %3"
+
+#: ../src/Gui/AttachmentView.cpp:241
+msgctxt "Gui::AttachmentView|"
+msgid "Save Attachment"
+msgstr "Tallenna liite"
+
+#: ../src/Gui/AttachmentView.cpp:408
+msgctxt "Gui::AttachmentView|"
+msgid "Source of Attached Message"
+msgstr "Liitetyn viestin lähdekoodi"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:48
+msgctxt "ComposerAttachmentsList|"
+msgid "Send Inline"
+msgstr "Sisällytä viestiin"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:53
+msgctxt "ComposerAttachmentsList|"
+msgid "Rename..."
+msgstr "Muuta nimeä…"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:57
+msgctxt "ComposerAttachmentsList|"
+msgid "Remove"
+msgstr "Poista"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:136
+msgctxt "ComposerAttachmentsList|"
+msgid "Rename Attachment"
+msgstr "Muuta liitteen nimeä"
+
+#: ../src/Gui/ComposerAttachmentsList.cpp:136
+msgctxt "ComposerAttachmentsList|"
+msgid "New Name"
+msgstr "Uusi nimi"
+
+#: ../src/Gui/ComposerTextEdit.cpp:55
+msgctxt "ComposerTextEdit|"
+msgid "Paste as Quoted Text"
+msgstr "Liitä lainauksena"
+
+#: ../src/Gui/ComposeWidget.cpp:126
+msgctxt "QWidget|"
+msgid "Cancel..."
+msgstr "Peru…"
+
+#: ../src/Gui/ComposeWidget.cpp:126
+msgctxt "QWidget|"
+msgid "Cancel"
+msgstr "Peru"
+
+#: ../src/Gui/ComposeWidget.cpp:195
+msgctxt "Gui::ComposeWidget|"
+msgid "Send"
+msgstr "Lähetä"
+
+#: ../src/Gui/ComposeWidget.cpp:234
+msgctxt "Gui::ComposeWidget|"
+msgid "New Thread"
+msgstr "Uusi säie"
+
+#: ../src/Gui/ComposeWidget.cpp:237
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"This mail will be sent as a standalone message.<hr/>Change to preserve the "
+"reply hierarchy."
+msgstr ""
+"Viesti lähetetään irrallisena viestinä.<hr/>Muuta säilyttääksesi vastauspuun."
+
+#: ../src/Gui/ComposeWidget.cpp:238
+msgctxt "Gui::ComposeWidget|"
+msgid "Threaded"
+msgstr "Säikeistetty"
+
+#: ../src/Gui/ComposeWidget.cpp:358
+msgctxt "Gui::ComposeWidget|"
+msgid "Error"
+msgstr "Virhe"
+
+#: ../src/Gui/ComposeWidget.cpp:358
+msgctxt "Gui::ComposeWidget|"
+msgid "Please set appropriate settings for outgoing messages."
+msgstr "Aseta lähteville viesteille soveltuvat asetukset."
+
+#: ../src/Gui/ComposeWidget.cpp:511
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"It doesn't look like this is a message to the mailing list. Please fill in "
+"the recipients manually."
+msgstr "Tämä ei vaikuta postilistaviestiltä. Anna vastaanottajat itse."
+
+#: ../src/Gui/ComposeWidget.cpp:514
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"Trojitá was unable to safely determine the real e-mail address of the author "
+"of the message. You might want to use the \"Reply All\" function and trim "
+"the list of addresses manually."
+msgstr ""
+"Trojitá ei saanut turvallisesti selville viestin kirjoittajan todellista "
+"sähköpostiosoitetta. Haluat ehkä käyttää ”Vastaa kaikille” -toimintoa ja "
+"karsia osoitteita itse."
+
+#: ../src/Gui/ComposeWidget.cpp:519
+msgctxt "Gui::ComposeWidget|"
+msgid "Cannot Determine Recipients"
+msgstr "Vastaanottajia ei saada selville"
+
+#: ../src/Gui/ComposeWidget.cpp:566
+msgctxt "Gui::ComposeWidget|"
+msgid "Sender"
+msgstr "Lähettäjä"
+
+#: ../src/Gui/ComposeWidget.cpp:572
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "Resend Mail: %1"
+msgstr "Lähetä viesti uudelleen: %1"
+
+#: ../src/Gui/ComposeWidget.cpp:572
+msgctxt "Gui::ComposeWidget|"
+msgid "(no subject)"
+msgstr "(ei aihetta)"
+
+# Tässä on todennäköisesti kyse viestin katoamisesta eikä lähtemisestä.
+#: ../src/Gui/ComposeWidget.cpp:584
+msgctxt "Gui::ComposeWidget|"
+msgid "Message has no subject"
+msgstr "Viestiltä puuttuu otsikko"
+
+#: ../src/Gui/ComposeWidget.cpp:587
+msgctxt "Gui::ComposeWidget|"
+msgid "The Message-ID header is missing"
+msgstr "Message-ID-otsake puuttuu"
+
+#: ../src/Gui/ComposeWidget.cpp:590
+msgctxt "Gui::ComposeWidget|"
+msgid "Message has no date"
+msgstr "Viestiltä puuttuu päiväys"
+
+#: ../src/Gui/ComposeWidget.cpp:593
+msgctxt "Gui::ComposeWidget|"
+msgid "Nothing in the From field"
+msgstr "Lähettäjä-kentässä ei ole ketään"
+
+#: ../src/Gui/ComposeWidget.cpp:596
+msgctxt "Gui::ComposeWidget|"
+msgid "No recipients in the To field"
+msgstr "Vastaanottaja-kentässä ei ole ketään"
+
+#: ../src/Gui/ComposeWidget.cpp:599
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"<b>This message appears to be malformed, please be careful before sending it."
+"</b>"
+msgstr ""
+"<b>Viesti vaikuttaa virheelliseltä, joten ole tarkkana, ennen kuin lähetät "
+"sen.</b>"
+
+#: ../src/Gui/ComposeWidget.cpp:688
+msgctxt "Gui::ComposeWidget|"
+msgid "Authentication Required"
+msgstr "Tunnistautumista vaaditaan"
+
+#: ../src/Gui/ComposeWidget.cpp:689
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "<p>Please provide SMTP password for user <b>%1</b> on <b>%2</b>:</p>"
+msgstr "<p>Anna käyttäjän <b>%1</b> SMTP-salasana palvelimeen <b>%2</b>:</p>"
+
+#: ../src/Gui/ComposeWidget.cpp:723
+msgctxt "Gui::ComposeWidget|"
+msgid "Save Draft?"
+msgstr "Tallennetaanko luonnos?"
+
+#: ../src/Gui/ComposeWidget.cpp:724
+msgctxt "Gui::ComposeWidget|"
+msgid "The mail has not been sent.<br>Do you want to save the draft?"
+msgstr "Viestiä ei ole lähetetty.<br>Haluatko tallentaa sen luonnokseksi?"
+
+#: ../src/Gui/ComposeWidget.cpp:726
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"<br><span style=\"color:red\">Warning: Attachments are <b>not</b> saved with "
+"the draft!</span>"
+msgstr ""
+"<br><span style=\"color:red\">Varoitus: Liitteitä <b>ei</b> tallenneta "
+"luonnokseen!</span>"
+
+#: ../src/Gui/ComposeWidget.cpp:737 ../src/Gui/Window.cpp:1527
+#: ../src/Gui/Window.cpp:1529
+msgctxt "Gui::MainWindow|"
+msgid "Drafts"
+msgstr "Luonnokset"
+
+#: ../src/Gui/ComposeWidget.cpp:747
+msgctxt "Gui::ComposeWidget|"
+msgid "Save as"
+msgstr "Tallenna nimellä"
+
+#: ../src/Gui/ComposeWidget.cpp:748
+msgctxt "Gui::ComposeWidget|"
+msgid "Drafts"
+msgstr "Luonnokset"
+
+#: ../src/Gui/ComposeWidget.cpp:777
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid ""
+"Cannot parse recipients:\n"
+"%1"
+msgstr ""
+"Vastaanottajia ei voi jäsentää:\n"
+"%1"
+
+#: ../src/Gui/ComposeWidget.cpp:781
+msgctxt "Gui::ComposeWidget|"
+msgid "You haven't entered any recipients"
+msgstr "Et ole antanut vastaanottajia"
+
+#: ../src/Gui/ComposeWidget.cpp:789
+msgctxt "Gui::ComposeWidget|"
+msgid "The From: address does not look like a valid one"
+msgstr "Vastaanottajan osoite ei vaikuta kelvolliselta"
+
+#: ../src/Gui/ComposeWidget.cpp:796
+msgctxt "Gui::ComposeWidget|"
+msgid "You haven't entered any subject. Cannot send such a mail, sorry."
+msgstr "Et ole antanut aihetta. Sellaista viestiä ei voi lähettää."
+
+#: ../src/Gui/ComposeWidget.cpp:828
+msgctxt "Gui::ComposeWidget|"
+msgid "Cannot prepare this e-mail for sending: some parts are not available"
+msgstr ""
+"Viestiä ei voi valmistella lähetettäväksi: jotkin osat eivät ole saatavilla"
+
+#: ../src/Gui/ComposeWidget.cpp:919 ../src/Gui/ComposeWidget.cpp:1794
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "This mail will be marked as a response<hr/>%1"
+msgstr "Viesti merkitään vastaukseksi<hr/>%1"
+
+#: ../src/Gui/ComposeWidget.cpp:1097
+msgctxt "Gui::ComposeWidget|"
+msgid "To"
+msgstr "Vastaanottaja"
+
+#: ../src/Gui/ComposeWidget.cpp:1098
+msgctxt "Gui::ComposeWidget|"
+msgid "Cc"
+msgstr "CC"
+
+#: ../src/Gui/ComposeWidget.cpp:1099
+msgctxt "Gui::ComposeWidget|"
+msgid "Bcc"
+msgstr "BCC"
+
+#: ../src/Gui/ComposeWidget.cpp:1101
+msgctxt "Gui::ComposeWidget|"
+msgid "Resent-To"
+msgstr "Uudelleenlähetetty osoitteeseen"
+
+#: ../src/Gui/ComposeWidget.cpp:1102
+msgctxt "Gui::ComposeWidget|"
+msgid "Resent-Cc"
+msgstr "Uudelleenlähetetty kopiona"
+
+#: ../src/Gui/ComposeWidget.cpp:1103
+msgctxt "Gui::ComposeWidget|"
+msgid "Resent-Bcc"
+msgstr "Uudelleenlähetetty piilokopiona"
+
+#: ../src/Gui/ComposeWidget.cpp:1387
+msgctxt "Gui::ComposeWidget|"
+msgid "Failed to Send Mail"
+msgstr "Postin lähetys epäonnistui"
+
+#: ../src/Gui/ComposeWidget.cpp:1414
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "Can't parse \"%1\" as an e-mail address."
+msgstr "”%1” ei jäsenny sähköpostiosoitteeksi."
+
+#: ../src/Gui/ComposeWidget.cpp:1613
+msgctxt "Gui::ComposeWidget|"
+msgid "Attach File..."
+msgstr "Liitä tiedosto…"
+
+#: ../src/Gui/ComposeWidget.cpp:1795
+msgctxt "Gui::ComposeWidget|"
+msgid "<br/>"
+msgstr "<br/>"
+
+#: ../src/Gui/ComposeWidget.cpp:1838
+msgctxt "Gui::ComposeWidget|"
+msgid "Compose Mail"
+msgstr "Kirjoita viesti"
+
+#: ../src/Gui/ComposeWidget.cpp:1840
+#, qt-format
+msgctxt "Gui::ComposeWidget|"
+msgid "%1 - Compose Mail"
+msgstr "%1 – Kirjoita viesti"
+
+#: ../src/Gui/ComposeWidget.ui:51
+msgctxt "ComposeWidget|"
+msgid "From"
+msgstr "Lähettäjä"
+
+#: ../src/Gui/ComposeWidget.ui:77
+msgctxt "ComposeWidget|"
+msgid "Subject"
+msgstr "Aihe"
+
+#: ../src/Gui/ComposeWidget.ui:121
+msgctxt "ComposeWidget|"
+msgid "Attach..."
+msgstr "Lisää liite…"
+
+#: ../src/Gui/CreateMailboxDialog.ui:14
+msgctxt "CreateMailboxDialog|"
+msgid "Create Mailbox"
+msgstr "Luo postikansio"
+
+#: ../src/Gui/CreateMailboxDialog.ui:22
+msgctxt "CreateMailboxDialog|"
+msgid "&Mailbox:"
+msgstr "&Postikansio:"
+
+#: ../src/Gui/CreateMailboxDialog.ui:39
+msgctxt "CreateMailboxDialog|"
+msgid "Other Mai&lboxes"
+msgstr "M&uut postikansiot"
+
+#: ../src/Gui/CreateMailboxDialog.ui:46
+msgctxt "CreateMailboxDialog|"
+msgid "Messages Only"
+msgstr "Vain viestit"
+
+# Yleensä vastustat ”verbiä verbitäksesi” -rakennetta, mutta tässä parempi kuin vaihtoehto
+#: ../src/Gui/CreateMailboxDialog.ui:58
+msgctxt "CreateMailboxDialog|"
+msgid ""
+"Check to add this mailbox to the server-side list of subscribed mailboxes"
+msgstr "Napsauta lisätäksesi tämän postikansion palvelinpuolen tilauksiin"
+
+#: ../src/Gui/CreateMailboxDialog.ui:61
+msgctxt "CreateMailboxDialog|"
+msgid "&Subscribe"
+msgstr "&Tilaa"
+
+#: ../src/Gui/EditFavoriteTag.ui:20
+msgctxt "EditFavoriteTag|"
+msgid "Manage Tag"
+msgstr "Luokitusten hallinta"
+
+#: ../src/Gui/EditFavoriteTag.ui:29
+msgctxt "EditFavoriteTag|"
+msgid "Name"
+msgstr "Nimi"
+
+#: ../src/Gui/EditFavoriteTag.ui:39
+msgctxt "EditFavoriteTag|"
+msgid "Color"
+msgstr "Väri"
+
+#: ../src/Gui/EditIdentity.ui:20
+msgctxt "EditIdentity|"
+msgid "Manage Identity"
+msgstr "Muokkaa henkilöyttä"
+
+#: ../src/Gui/EditIdentity.ui:29
+msgctxt "EditIdentity|"
+msgid "Real Name"
+msgstr "Oikea nimi"
+
+#: ../src/Gui/EditIdentity.ui:39
+msgctxt "EditIdentity|"
+msgid "E-mail"
+msgstr "Sähköposti"
+
+#: ../src/Gui/EditIdentity.ui:52
+msgctxt "EditIdentity|"
+msgid "Organisation"
+msgstr "Organisaatio"
+
+#: ../src/Gui/EditIdentity.ui:59
+msgctxt "EditIdentity|"
+msgid "Signature"
+msgstr "Allekirjoitus"
+
+#: ../src/Gui/EmbeddedWebView.cpp:101
+msgctxt "Gui::EmbeddedWebView|"
+msgid "Ctrl+C"
+msgstr "Ctrl+C"
+
+#: ../src/Gui/EmbeddedWebView.cpp:362
+msgctxt "Gui::EmbeddedWebView|"
+msgid "System colors"
+msgstr "Järjestelmän värit"
+
+#: ../src/Gui/EmbeddedWebView.cpp:363
+msgctxt "Gui::EmbeddedWebView|"
+msgid "System theme adjusted for better contrast"
+msgstr "Kontrastin osalta säädetty järjestelmäteema"
+
+#: ../src/Gui/EmbeddedWebView.cpp:364
+msgctxt "Gui::EmbeddedWebView|"
+msgid "Black on white, forced"
+msgstr "Mustavalkoinen, pakotettu"
+
+#: ../src/Gui/EnvelopeView.cpp:104
+msgctxt "Gui::EnvelopeView|"
+msgid "From"
+msgstr "Lähettäjä"
+
+#: ../src/Gui/EnvelopeView.cpp:109
+msgctxt "Gui::EnvelopeView|"
+msgid "sent via"
+msgstr "lähetysväylä"
+
+#: ../src/Gui/EnvelopeView.cpp:111
+msgctxt "Gui::EnvelopeView|"
+msgid "Sender"
+msgstr "Lähettäjä"
+
+#: ../src/Gui/EnvelopeView.cpp:117
+msgctxt "Gui::EnvelopeView|"
+msgid "replies to"
+msgstr "vastaukset osoitteeseen"
+
+#: ../src/Gui/EnvelopeView.cpp:119
+msgctxt "Gui::EnvelopeView|"
+msgid "Reply-To"
+msgstr "Vastausosoite"
+
+#: ../src/Gui/EnvelopeView.cpp:130
+msgctxt "Gui::EnvelopeView|"
+msgid "To"
+msgstr "Vastaanottaja"
+
+#: ../src/Gui/EnvelopeView.cpp:135
+msgctxt "Gui::EnvelopeView|"
+msgid "Cc'd to"
+msgstr "Kopionsaaja"
+
+#: ../src/Gui/EnvelopeView.cpp:137
+msgctxt "Gui::EnvelopeView|"
+msgid "Cc"
+msgstr "Kopio"
+
+#: ../src/Gui/EnvelopeView.cpp:143
+msgctxt "Gui::EnvelopeView|"
+msgid "Bcc'd to"
+msgstr "Piilokopionsaaja"
+
+#: ../src/Gui/EnvelopeView.cpp:145
+msgctxt "Gui::EnvelopeView|"
+msgid "Bcc"
+msgstr "Piilokopio"
+
+#: ../src/Gui/EnvelopeView.cpp:166
+#, qt-format
+msgctxt "Gui::EnvelopeView|"
+msgid "<a href=\"%1\">%2</a>"
+msgstr "<a href=\"%1\">%2</a>"
+
+#: ../src/Gui/EnvelopeView.cpp:171
+msgctxt "Gui::EnvelopeView|"
+msgid ", "
+msgstr ", "
+
+#: ../src/Gui/EnvelopeView.cpp:176
+msgctxt "Gui::EnvelopeView|"
+msgid "Mailing List"
+msgstr "Postituslista"
+
+#: ../src/Gui/ExternalElementsWidget.cpp:35
+msgctxt "Gui::ExternalElementsWidget|"
+msgid "Load"
+msgstr "Lataa"
+
+#: ../src/Gui/ExternalElementsWidget.cpp:36
+msgctxt "Gui::ExternalElementsWidget|"
+msgid "This e-mail wants to load external entities from the Internet"
+msgstr "Viesti haluaa ladata ulkoisia elementtejä internetistä"
+
+#: ../src/Gui/FindBar.cpp:49
+msgctxt "Gui::FindBar|"
+msgid "&Match case"
+msgstr "&Erota pien- ja suuraakkoset"
+
+#: ../src/Gui/FindBar.cpp:50
+msgctxt "Gui::FindBar|"
+msgid "&Highlight all"
+msgstr "K&orosta kaikki"
+
+#: ../src/Gui/FindBar.cpp:62
+msgctxt "Gui::FindBar|"
+msgid "Esc"
+msgstr "Esc"
+
+#: ../src/Gui/FindBar.cpp:68
+msgctxt "Gui::FindBar|"
+msgid "Find:"
+msgstr "Etsi:"
+
+#: ../src/Gui/FindBar.cpp:81
+msgctxt "Gui::FindBar|"
+msgid "&Next"
+msgstr "&Seuraava"
+
+#: ../src/Gui/FindBar.cpp:82
+msgctxt "Gui::FindBar|"
+msgid "F3"
+msgstr "F3"
+
+#: ../src/Gui/FindBar.cpp:83
+msgctxt "Gui::FindBar|"
+msgid "&Previous"
+msgstr "&Edellinen"
+
+#. Translators: You can change this shortcut, but button names like Shift should not be localized here. That will break setting the shortcut. Button names will still appear localized in the UI.
+#: ../src/Gui/FindBar.cpp:86
+msgctxt "Gui::FindBar|"
+msgid "Shift+F3"
+msgstr "Shift+F3"
+
+#: ../src/Gui/ImapInfoDialog.ui:14
+msgctxt "ImapInfoDialog|"
+msgid "IMAP Server Info"
+msgstr "IMAP-palvelintiedot"
+
+#: ../src/Gui/ImapInfoDialog.ui:33
+msgctxt "ImapInfoDialog|"
+msgid "<html><head/><body><p>SERVERINFO Placeholder</p></body></html>"
+msgstr "<html><head/><body><p>SERVERINFO-paikanvaraus</p></body></html>"
+
+#: ../src/Gui/LoadablePartWidget.cpp:47
+#, qt-format
+msgctxt "Gui::LoadablePartWidget|"
+msgid "Load %1 (%2)"
+msgstr "Lataa %1 (%2)"
+
+#: ../src/Gui/MailBoxTreeView.cpp:143
+msgctxt "Gui::MailBoxTreeView|"
+msgid "Move here\tShift"
+msgstr "Siirrä tähän\tVaihto"
+
+#: ../src/Gui/MailBoxTreeView.cpp:144
+msgctxt "Gui::MailBoxTreeView|"
+msgid "Copy here\tCtrl"
+msgstr "Kopioi tähän\tCtrl"
+
+#: ../src/Gui/MailBoxTreeView.cpp:145
+msgctxt "Gui::MailBoxTreeView|"
+msgid "Cancel"
+msgstr "Peru"
+
+#: ../src/Gui/main.cpp:84
+#, qt-format
+msgctxt "QObject|"
+msgid "Trojitá %1 - fast Qt IMAP e-mail client"
+msgstr "Trojitá %1 – nopea Qt:n IMAP-sähköpostiasiakas"
+
+#: ../src/Gui/main.cpp:89
+msgctxt "QObject|"
+msgid "Show addressbook window."
+msgstr "Näytä osoitekirjaikkuna."
+
+#: ../src/Gui/main.cpp:93
+msgctxt "QObject|"
+msgid "Compose new e-mail (default when url is provided)."
+msgstr "Kirjoita uusi viesti (oletus, jollei verkko-osoitetta ole annettu)."
+
+#: ../src/Gui/main.cpp:97
+msgctxt "QObject|"
+msgid "Activate debug traffic logging to disk by default."
+msgstr "Aktivoi oletusarvoisesti liikenteen virheenpaikannusloki."
+
+#: ../src/Gui/main.cpp:101
+msgctxt "QObject|"
+msgid "Show main window (default when no option is provided)."
+msgstr "Näytä pääikkuna (oletus, jollei valitsimia ole annettu)."
+
+#: ../src/Gui/main.cpp:105
+msgctxt "QObject|"
+msgid "Set profile."
+msgstr "Asetettu profiili."
+
+#: ../src/Gui/main.cpp:105
+msgctxt "QObject|"
+msgid "profile"
+msgstr "profiili"
+
+#: ../src/Gui/main.cpp:108
+msgctxt "QObject|"
+msgid "Mailto: URL address for composing new e-mail."
+msgstr "mailto: Verkko-osoite sähköpostiviestin kirjoittamiseksi."
+
+#: ../src/Gui/main.cpp:109
+msgctxt "QObject|"
+msgid "[url]"
+msgstr "[verkko-osoite]"
+
+#: ../src/Gui/main.cpp:132
+#, qt-format
+msgctxt "QObject|"
+msgid "Unexpected argument '%1'."
+msgstr "Odottamaton parametri ”%1”."
+
+#: ../src/Gui/main.cpp:137
+msgctxt "QObject|"
+msgid "Unexpected arguments."
+msgstr "Odottamattomia parametreja."
+
+#: ../src/Gui/main.cpp:180
+#, qt-format
+msgctxt "QObject|"
+msgid "Error: Registering IPC instance failed: %1"
+msgstr "Virhe: IPC-instanssin rekisteröinti epäonnistui: %1"
+
+#. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
+#: ../src/Gui/MessageHeadersWidget.cpp:44
+#, qt-format
+msgctxt "Gui::MessageHeadersWidget|"
+msgid "Message headers of UID %1 in %2"
+msgstr "Postilaatikon %2 UID:n %1 viestiotsakkeet"
+
+#: ../src/Gui/MessageHeadersWidget.cpp:55
+msgctxt "Gui::MessageHeadersWidget|"
+msgid "Search..."
+msgstr "Etsi…"
+
+#: ../src/Gui/MessageHeadersWidget.cpp:56
+msgctxt "Gui::MessageHeadersWidget|"
+msgid "Ctrl+F"
+msgstr "Ctrl+F"
+
+#: ../src/Gui/MessageListWidget.cpp:50
+msgctxt "Gui::MessageListWidget|"
+msgid "Quick Search"
+msgstr "Pikahaku"
+
+#: ../src/Gui/MessageListWidget.cpp:51
+msgctxt "Gui::MessageListWidget|"
+msgid ""
+"Type in a text to search for within this mailbox. The icon on the left can "
+"be used to limit the search options (like whether to include addresses or "
+"message bodies, etc).<br/><hr/>Experts who have read RFC3501 can use the "
+"<code>:=</code> prefix and switch to a raw IMAP mode."
+msgstr ""
+"Kirjoita postikansiosta etsittävä teksti tähän. Vasemmalla olevalla "
+"kuvakkeella hakuasetuksia voi rajoittaa (esim. etsitäänkö osoitteista tai "
+"viestirungoista).<br/><hr/>RFC3501:n lukeneet asiantuntijat voivat käyttää "
+"<code>:=</code>-etuliitettä ja vaihtaa raakaan IMAP-tilaan."
+
+#: ../src/Gui/MessageListWidget.cpp:56
+msgctxt "Gui::MessageListWidget|"
+msgid "<query>"
+msgstr "<kysely>"
+
+#: ../src/Gui/MessageListWidget.cpp:64
+msgctxt "Gui::MessageListWidget|"
+msgid "Options for the IMAP search..."
+msgstr "IMAP-haun valinnat…"
+
+#: ../src/Gui/MessageListWidget.cpp:67
+msgctxt "Gui::MessageListWidget|"
+msgid "Fuzzy Search"
+msgstr "Sumea haku"
+
+#: ../src/Gui/MessageListWidget.cpp:70
+msgctxt "Gui::MessageListWidget|"
+msgid "Subject"
+msgstr "Aihe"
+
+#: ../src/Gui/MessageListWidget.cpp:73
+msgctxt "Gui::MessageListWidget|"
+msgid "Body"
+msgstr "Runko"
+
+#: ../src/Gui/MessageListWidget.cpp:75
+msgctxt "Gui::MessageListWidget|"
+msgid "Senders"
+msgstr "Lähettäjät"
+
+#: ../src/Gui/MessageListWidget.cpp:78
+msgctxt "Gui::MessageListWidget|"
+msgid "Recipients"
+msgstr "Vastaanottajat"
+
+#: ../src/Gui/MessageListWidget.cpp:83
+msgctxt "Gui::MessageListWidget|"
+msgid "Complex IMAP query"
+msgstr "Kompleksinen IMAP-kysely"
+
+#: ../src/Gui/MessageListWidget.cpp:85
+msgctxt "Gui::MessageListWidget|"
+msgid "Not ..."
+msgstr "Ei…"
+
+#: ../src/Gui/MessageListWidget.cpp:86
+msgctxt "Gui::MessageListWidget|"
+msgid "Either... or..."
+msgstr "Joko… tai…"
+
+#: ../src/Gui/MessageListWidget.cpp:88
+msgctxt "Gui::MessageListWidget|"
+msgid "From sender"
+msgstr "Lähettäjältä"
+
+#: ../src/Gui/MessageListWidget.cpp:89
+msgctxt "Gui::MessageListWidget|"
+msgid "To receiver"
+msgstr "Vastaanottajalle"
+
+#: ../src/Gui/MessageListWidget.cpp:91
+msgctxt "Gui::MessageListWidget|"
+msgid "About subject"
+msgstr "Aiheesta"
+
+#: ../src/Gui/MessageListWidget.cpp:92
+msgctxt "Gui::MessageListWidget|"
+msgid "Message contains ..."
+msgstr "Viesti sisältää…"
+
+#: ../src/Gui/MessageListWidget.cpp:94
+msgctxt "Gui::MessageListWidget|"
+msgid "Before date"
+msgstr "Ennen…"
+
+#: ../src/Gui/MessageListWidget.cpp:95
+msgctxt "Gui::MessageListWidget|"
+msgid "Since date"
+msgstr "Jälkeen…"
+
+#: ../src/Gui/MessageListWidget.cpp:97
+msgctxt "Gui::MessageListWidget|"
+msgid "Has been seen"
+msgstr "On nähty"
+
+#: ../src/Gui/MessageListWidget.cpp:99
+msgctxt "Gui::MessageListWidget|"
+msgid "Allow raw IMAP search"
+msgstr "Salli raaka IMAP-haku"
+
+#: ../src/Gui/MessageSourceWidget.cpp:49
+msgctxt "Gui::MessageSourceWidget|"
+msgid ""
+"Fetching\n"
+"Message"
+msgstr ""
+"Noudetaan\n"
+"viestiä"
+
+#: ../src/Gui/MessageSourceWidget.cpp:58
+msgctxt "Gui::MessageSourceWidget|"
+msgid "Search..."
+msgstr "Etsi…"
+
+#: ../src/Gui/MessageSourceWidget.cpp:59
+msgctxt "Gui::MessageSourceWidget|"
+msgid "Ctrl+F"
+msgstr "Ctrl+F"
+
+#: ../src/Gui/MessageView.cpp:90
+msgctxt "Gui::MessageView|"
+msgid "Search..."
+msgstr "Etsi…"
+
+#: ../src/Gui/MessageView.cpp:91
+msgctxt "Gui::MessageView|"
+msgid "Ctrl+F"
+msgstr "Ctrl+F"
+
+#: ../src/Gui/MessageView.cpp:142
+msgctxt "Gui::MessageView|"
+msgid ""
+"Fetching\n"
+"Message"
+msgstr ""
+"Noudetaan\n"
+"viestiä"
+
+#: ../src/Gui/MessageView.cpp:227
+msgctxt "Gui::MessageView|"
+msgid ""
+"Waiting\n"
+"for\n"
+"Message..."
+msgstr ""
+"Odotetaan\n"
+"viestiä…"
+
+#: ../src/Gui/MessageView.cpp:362
+msgctxt "Gui::MessageView|"
+msgid "you"
+msgstr "sinä"
+
+#: ../src/Gui/MessageView.cpp:368
+#, qt-format
+msgctxt "Gui::MessageView|"
+msgid ""
+"On %1, %2 sent an encrypted message:\n"
+"> ...\n"
+"\n"
+msgstr ""
+"%2 lähetti salatun viestin %1:\n"
+"> …\n"
+"\n"
+
+#: ../src/Gui/MessageView.cpp:375
+#, qt-format
+msgctxt "Gui::MessageView|"
+msgid "On %1, %2 wrote:\n"
+msgstr "%2 kirjoitti %1:\n"
+
+# ma 28 lienee levein viikonpäivälyhenteen ja numeron yhdistelmä?
+#. Translators: use a text which is returned for e-mails older than one day but newer than one week (see UiUtils::Formatting::prettyDate() for the string formats); the idea here is to have a text which is "wide enough" in a typical UI font. The English version uses "Mon" because of the M letter; you should use something similar.
+#: ../src/Gui/MsgListView.cpp:147
+msgctxt "Gui::MsgListView|"
+msgid "Mon 10"
+msgstr "ma 28"
+
+#: ../src/Gui/MsgListView.cpp:149
+msgctxt "Gui::MsgListView|"
+msgid "88.8 kB"
+msgstr "88,8 kt"
+
+#: ../src/Gui/MsgListView.cpp:204
+#, qt-format
+msgctxt "Gui::MsgListView|"
+msgid "+ %n additional item(s)"
+msgid_plural "+ %n additional item(s)"
+msgstr[0] "+ vielä %n kohde"
+msgstr[1] "+ vielä %n kohdetta"
+
+#: ../src/Gui/MsgListView.cpp:336
+msgctxt "Gui::MsgListView|"
+msgid "Seen status"
+msgstr "Nähty-tila"
+
+#: ../src/Gui/MsgListView.cpp:339
+msgctxt "Gui::MsgListView|"
+msgid "Flagged status"
+msgstr "Merkitty tärkeäksi -tila"
+
+#: ../src/Gui/MsgListView.cpp:342
+msgctxt "Gui::MsgListView|"
+msgid "Attachment"
+msgstr "Liite"
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:89
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid ","
+msgstr ","
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:130
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid "(empty display name)"
+msgstr "(tyhjä näyttönimi)"
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:134
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid "<hr/><b>Address Book:</b><br/>"
+msgstr "<hr/><b>Osoitekirja:</b><br/>"
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:141
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid "Copy e-mail address"
+msgstr "Kopioi sähköpostiosoite"
+
+#: ../src/Gui/OneEnvelopeAddress.cpp:146
+msgctxt "Gui::OneEnvelopeAddress|"
+msgid "Copy text"
+msgstr "Kopioi teksti"
+
+#. Translators: use something very short, perhaps even "text". Don't describe this as "Clear text". This string is used as a caption of a tab showing the plaintext part of a mail which is e.g. sent in both plaintext and HTML formats.
+#: ../src/Gui/PartWidget.cpp:144
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Plaintext"
+msgstr "Raakateksti"
+
+#. Translators: caption of the tab which shows a HTML version of the mail. Use some short, compact text here.
+#: ../src/Gui/PartWidget.cpp:147
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "HTML"
+msgstr "HTML"
+
+#: ../src/Gui/PartWidget.cpp:153
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Cancelled Event"
+msgstr "Peruttu tapahtuma"
+
+#: ../src/Gui/PartWidget.cpp:155
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Meeting Request"
+msgstr "Tapaamispyyntö"
+
+#: ../src/Gui/PartWidget.cpp:157
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Calendar Event"
+msgstr "Kalenteritapahtuma"
+
+#: ../src/Gui/PartWidget.cpp:159
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "Calendar Reply"
+msgstr "Kalenterivastaus"
+
+#: ../src/Gui/PartWidget.cpp:161
+msgctxt "Gui::MultipartAlternativeWidget|"
+msgid "New Meeting"
+msgstr "Uusi tapaaminen"
+
+#: ../src/Gui/PartWidget.cpp:211 ../src/Gui/PartWidget.cpp:256
+msgctxt "Gui::PartStatusWidget|"
+msgid "Show Details"
+msgstr "Näytä yksityiskohdat"
+
+#: ../src/Gui/PartWidget.cpp:260
+msgctxt "Gui::PartStatusWidget|"
+msgid "Hide Details"
+msgstr "Piilota yksityiskohdat"
+
+#: ../src/Gui/PartWidget.cpp:386
+msgctxt "Gui::MultipartSignedEncryptedWidget|"
+msgid "[Encrypted message]"
+msgstr "[Salattu viesti]"
+
+#: ../src/Gui/PasswordDialog.ui:14
+msgctxt "PasswordDialog|"
+msgid "Authentication Required"
+msgstr "Tunnistautumista vaaditaan"
+
+#: ../src/Gui/PasswordDialog.ui:28
+#, qt-format
+msgctxt "PasswordDialog|"
+msgid "<p>Please provide password for %1 on %2.</p>"
+msgstr "<p>Anna käyttäjän %1 salasana palvelimeen %2.</p>"
+
+#: ../src/Gui/ProtocolLoggerWidget.cpp:51
+msgctxt "Gui::ProtocolLoggerWidget|"
+msgid "Clear all"
+msgstr "Tyhjennä kaikki"
+
+#: ../src/Gui/ProtocolLoggerWidget.cpp:98
+#, qt-format
+msgctxt "Gui::ProtocolLoggerWidget|"
+msgid "Connection %1"
+msgstr "Yhteys %1"
+
+#: ../src/Gui/ProtocolLoggerWidget.cpp:170
+#, qt-format
+msgctxt "Gui::ProtocolLoggerWidget|"
+msgid ""
+"<p style=\"color: #bb0000\"><i><b>%n message(s)</b> were skipped because "
+"this widget was hidden.</i></p>"
+msgid_plural ""
+"<p style=\"color: #bb0000\"><i><b>%n message(s)</b> were skipped because "
+"this widget was hidden.</i></p>"
+msgstr[0] ""
+"<p style='color: #bb0000'><i><b>%n viesti</b> ohitettiin, koska tämä "
+"elementti oli piilotettu.</i></p>"
+msgstr[1] ""
+"<p style='color: #bb0000'><i><b>%n viestiä</b> ohitettiin, koska tämä "
+"elementti oli piilotettu.</i></p>"
+
+#: ../src/Gui/ProtocolLoggerWidget.cpp:211
+#, qt-format
+msgctxt "Gui::ProtocolLoggerWidget|"
+msgid ""
+"<br/><span style=\"color: #808080; font-style: italic;\">(+ %n more bytes)</"
+"span>"
+msgid_plural ""
+"<br/><span style=\"color: #808080; font-style: italic;\">(+ %n more bytes)</"
+"span>"
+msgstr[0] ""
+"<br/><span style='color: #808080; font-style: italic;'>(+ vielä %n tavu)</"
+"span>"
+msgstr[1] ""
+"<br/><span style='color: #808080; font-style: italic;'>(+ vielä %n tavua)</"
+"span>"
+
+#: ../src/Gui/SettingsCachePage.ui:30
+msgctxt "CachePage|"
+msgid "Offline mode"
+msgstr "Verkoton tila"
+
+#: ../src/Gui/SettingsCachePage.ui:48
+msgctxt "CachePage|"
+msgid "&Don't use cache"
+msgstr "&Älä käytä välimuistia"
+
+#: ../src/Gui/SettingsCachePage.ui:61
+msgctxt "CachePage|"
+msgid "&Remember messages for X days"
+msgstr "&Muista salasanat X päivää"
+
+#: ../src/Gui/SettingsCachePage.ui:90
+msgctxt "CachePage|"
+msgid "Store &forever"
+msgstr "Tallenna &ikuisesti"
+
+#: ../src/Gui/SettingsCachePage.ui:106
+msgctxt "CachePage|"
+msgid "Notifications"
+msgstr "Ilmoitukset"
+
+#: ../src/Gui/SettingsCachePage.ui:112
+msgctxt "CachePage|"
+msgid "Only the INBOX folder will be included for new message checking"
+msgstr ""
+"Vain saapuvien kansio (INBOX) sisällytetään uusien viestien tarkistukseen"
+
+#: ../src/Gui/SettingsCachePage.ui:115
+msgctxt "CachePage|"
+msgid "&INBOX Only"
+msgstr "Vain &saapuvat"
+
+#: ../src/Gui/SettingsCachePage.ui:122
+msgctxt "CachePage|"
+msgid ""
+"This might result in extremely slow operation in certain scenarios with "
+"shared mailboxes, rich folder hierarchies, or IMAP proxying, for example."
+msgstr ""
+"Tämä voi johtaa hyvin hitaaseen toimintaan määrätilanteissa (esim. jaetut "
+"postilaatikot, mutkikas kansiohierarkia tai IMAP-välityspalvelun käyttö)."
+
+#: ../src/Gui/SettingsCachePage.ui:125
+msgctxt "CachePage|"
+msgid "&All Mailboxes (use with care)"
+msgstr "K&aikki postilaatikot (käytä varoen)"
+
+#: ../src/Gui/SettingsCachePage.ui:132
+msgctxt "CachePage|"
+msgid ""
+"E-mail folders which are marked as subscribed will be included in "
+"notifications. To subscribe a mailbox, use the context menu in the mailbox "
+"view."
+msgstr ""
+"Tilatuiksi merkityt viestikansiot sisällytetään ilmoituksiin. Kansion voi "
+"tilata postilaatikkonäkymän kontekstivalikosta."
+
+#: ../src/Gui/SettingsCachePage.ui:135
+msgctxt "CachePage|"
+msgid "&Subscribed Mailboxes"
+msgstr "&Tilatut postilaatikot"
+
+#: ../src/Gui/SettingsDialog.cpp:85
+msgctxt "Gui::SettingsDialog|"
+msgid "Settings"
+msgstr "Asetukset"
+
+#: ../src/Gui/SettingsDialog.cpp:92
+msgctxt "Gui::SettingsDialog|"
+msgid "&General"
+msgstr "&Yleiset"
+
+#: ../src/Gui/SettingsDialog.cpp:93
+msgctxt "Gui::SettingsDialog|"
+msgid "I&MAP"
+msgstr "I&MAP"
+
+#: ../src/Gui/SettingsDialog.cpp:94
+msgctxt "Gui::SettingsDialog|"
+msgid "&Offline"
+msgstr "&Verkoton tila"
+
+#: ../src/Gui/SettingsDialog.cpp:95
+msgctxt "Gui::SettingsDialog|"
+msgid "&SMTP"
+msgstr "&SMTP"
+
+#: ../src/Gui/SettingsDialog.cpp:97
+msgctxt "Gui::SettingsDialog|"
+msgid "&xTuple"
+msgstr "&xTuple"
+
+#: ../src/Gui/SettingsDialog.cpp:99
+msgctxt "Gui::SettingsDialog|"
+msgid "Favorite &tags"
+msgstr "S&uosikkiluokitukset"
+
+#: ../src/Gui/SettingsDialog.cpp:218
+msgctxt "Gui::SettingsDialog|"
+msgid "Saving passwords failed"
+msgstr "Salasanojen tallennus epäonnistui"
+
+#: ../src/Gui/SettingsDialog.cpp:219
+#, qt-format
+msgctxt "Gui::SettingsDialog|"
+msgid ""
+"<p>Couldn't save passwords. These were the error messages:</p>\n"
+"<p>%1</p>"
+msgstr ""
+"<p>Salasanoja ei voitu tallentaa. Virheilmoitukset olivat:</p>\n"
+"<p>%1</p>"
+
+#: ../src/Gui/SettingsDialog.cpp:315
+msgctxt "Gui::FavoriteTagsPage|"
+msgid "Add New Tag"
+msgstr "Lisää uusi luokitus"
+
+#: ../src/Gui/SettingsDialog.cpp:323
+msgctxt "Gui::FavoriteTagsPage|"
+msgid "Edit Tag"
+msgstr "Muokkaa luokitusta"
+
+#: ../src/Gui/SettingsDialog.cpp:406
+#, qt-format
+msgctxt "Gui::GeneralPage|"
+msgid "Plugin not found (%1)"
+msgstr "Liitännäistä ei löydy (%1)"
+
+#: ../src/Gui/SettingsDialog.cpp:407
+msgctxt "Gui::GeneralPage|"
+msgid "Disable address book"
+msgstr "Poista osoitekirja käytöstä"
+
+#: ../src/Gui/SettingsDialog.cpp:408
+msgctxt "Gui::GeneralPage|"
+msgid "Disable passwords"
+msgstr "Poista salasanat käytöstä"
+
+#: ../src/Gui/SettingsDialog.cpp:409
+msgctxt "Gui::GeneralPage|"
+msgid "Disable spell checking"
+msgstr "Älä tarkista oikeinkirjoitusta"
+
+#: ../src/Gui/SettingsDialog.cpp:425
+msgctxt "Gui::GeneralPage|"
+msgid "Move"
+msgstr "Siirrä"
+
+#: ../src/Gui/SettingsDialog.cpp:428
+msgctxt "Gui::GeneralPage|"
+msgid "Copy"
+msgstr "Kopioi"
+
+#: ../src/Gui/SettingsDialog.cpp:433
+msgctxt "Gui::GeneralPage|"
+msgid ""
+"<p>If enabled, Trojitá will show its homepage upon startup.</p><p>The remote "
+"server will receive the user's IP address and versions of Trojitá, the Qt "
+"library, and the underlying operating system. No private information, like "
+"account settings or IMAP server details, are collected.</p>"
+msgstr ""
+"<p>Jos käytössä, Trojitá näyttää kotisivunsa käynnistyessään.</"
+"p><p>Etäpalvelin saa käyttäjän IP-osoitteen ja tiedot Trojitán ja Qt-"
+"kirjastojen versioista sekä käytössä olevasta käyttöjärjestelmästä. "
+"Yksityistietoja kuten tilin tai IMAP-palvelimen tietoja ei kerätä.</p>"
+
+#: ../src/Gui/SettingsDialog.cpp:513
+msgctxt "Gui::GeneralPage|"
+msgid "Add New Identity"
+msgstr "Lisää uusi henkilöys"
+
+#: ../src/Gui/SettingsDialog.cpp:521
+msgctxt "Gui::GeneralPage|"
+msgid "Edit Identity"
+msgstr "Muokkaa henkilöyttä"
+
+#: ../src/Gui/SettingsDialog.cpp:529
+msgctxt "Gui::GeneralPage|"
+msgid "Delete Identity?"
+msgstr "Poistetaanko henkilöys?"
+
+#: ../src/Gui/SettingsDialog.cpp:530
+#, qt-format
+msgctxt "Gui::GeneralPage|"
+msgid "Are you sure you want to delete identity %1 <%2>?"
+msgstr "Haluatko varmasti poistaa henkilöyden %1 <%2>?"
+
+#: ../src/Gui/SettingsDialog.cpp:579
+msgctxt "Gui::GeneralPage|"
+msgid "Please define some identities here"
+msgstr "Määritä tässä henkilöyksiä"
+
+#: ../src/Gui/SettingsDialog.cpp:676
+msgctxt "Gui::EditFavoriteTag|"
+msgid "Select tag color"
+msgstr "Valitse luokituksen väri"
+
+#: ../src/Gui/SettingsDialog.cpp:713
+msgctxt "Gui::ImapPage|"
+msgid "Network Connection"
+msgstr "Verkkoyhteys"
+
+#: ../src/Gui/SettingsDialog.cpp:714
+msgctxt "Gui::ImapPage|"
+msgid "Local Process"
+msgstr "Paikallinen prosessi"
+
+#: ../src/Gui/SettingsDialog.cpp:716
+msgctxt "Gui::ImapPage|"
+msgid "No encryption"
+msgstr "Ei salausta"
+
+#: ../src/Gui/SettingsDialog.cpp:717
+msgctxt "Gui::ImapPage|"
+msgid "Use encryption (STARTTLS)"
+msgstr "Käytä salausta (STARTTLS)"
+
+#: ../src/Gui/SettingsDialog.cpp:718
+msgctxt "Gui::ImapPage|"
+msgid "Force encryption (TLS)"
+msgstr "Pakota salaus (TLS)"
+
+#: ../src/Gui/SettingsDialog.cpp:840
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This password will be saved in encrypted storage. If you do not enter "
+"password here, Trojitá will prompt for one when needed."
+msgstr ""
+"Salasana tallennetaan salattuna. Ellet anna salasanaa tähän, Trojitá kysyy "
+"sitä tarvitessaan."
+
+#: ../src/Gui/SettingsDialog.cpp:844
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This password will be saved in clear text. If you do not enter password "
+"here, Trojitá will prompt for one when needed."
+msgstr ""
+"Salasana tallennetaan salaamattomana tekstinä. Ellet anna salasanaa tähän, "
+"Trojitá kysyy sitä tarvitessaan."
+
+#: ../src/Gui/SettingsDialog.cpp:915
+msgctxt "Gui::ImapPage|"
+msgid "The IMAP server hostname is missing here"
+msgstr "Tästä puuttuu IMAP-palvelimen konenimi"
+
+#: ../src/Gui/SettingsDialog.cpp:921
+msgctxt "Gui::ImapPage|"
+msgid ""
+"The command line to the IMAP server is missing here. Perhaps you need to use "
+"SSL or TCP?"
+msgstr ""
+"Tästä puuttuu IMAP-palvelimen komentorivi. Tarvitset ehkä SSL:ää tai TCP:tä?"
+
+#: ../src/Gui/SettingsDialog.cpp:938
+#, qt-format
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This port is nonstandard. The default port for IMAP secured over SSL/TLS is "
+"%1."
+msgstr "Portti on epästandardi. SSL/TLS-salatun IMAPin oletusportti on %1."
+
+#: ../src/Gui/SettingsDialog.cpp:942
+#, qt-format
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This port is nonstandard. The default port for IMAP secured via STARTTLS is "
+"%1."
+msgstr "Portti on epästandardi. STARTTLS-salatun IMAPin oletusportti on %1."
+
+#: ../src/Gui/SettingsDialog.cpp:944
+#, qt-format
+msgctxt "Gui::ImapPage|"
+msgid ""
+"This port is nonstandard. The default port for IMAP over cleartext is %1."
+msgstr "Portti on epästandardi. Salaamattoman IMAPin oletusportti on %1."
+
+#: ../src/Gui/SettingsDialog.cpp:1052
+msgctxt "Gui::OutgoingPage|"
+msgid "Network"
+msgstr "Verkko"
+
+#: ../src/Gui/SettingsDialog.cpp:1053
+msgctxt "Gui::OutgoingPage|"
+msgid "Local sendmail-compatible"
+msgstr "Paikallinen sendmail-yhteensopiva"
+
+#: ../src/Gui/SettingsDialog.cpp:1054
+msgctxt "Gui::OutgoingPage|"
+msgid "IMAP SENDMAIL Extension"
+msgstr "IMAPin SENDMAIL-laajennus"
+
+#: ../src/Gui/SettingsDialog.cpp:1056
+msgctxt "Gui::OutgoingPage|"
+msgid "No encryption"
+msgstr "Ei salausta"
+
+#: ../src/Gui/SettingsDialog.cpp:1057
+msgctxt "Gui::OutgoingPage|"
+msgid "Use encryption (STARTTLS)"
+msgstr "Käytä salausta (STARTTLS)"
+
+#: ../src/Gui/SettingsDialog.cpp:1058
+msgctxt "Gui::OutgoingPage|"
+msgid "Force encryption (TLS)"
+msgstr "Pakota salaus (TLS)"
+
+#: ../src/Gui/SettingsDialog.cpp:1202
+msgctxt "Gui::OutgoingPage|"
+msgid ""
+"This password will be saved in encrypted storage. If you do not enter "
+"password here, Trojitá will prompt for one when needed."
+msgstr ""
+"Salasana tallennetaan salattuna. Ellet anna salasanaa tähän, Trojitá kysyy "
+"sitä tarvitessaan."
+
+#: ../src/Gui/SettingsDialog.cpp:1206
+msgctxt "Gui::OutgoingPage|"
+msgid ""
+"This password will be saved in clear text. If you do not enter password "
+"here, Trojitá will prompt for one when needed."
+msgstr ""
+"Salasana tallennetaan salaamattomana tekstinä. Ellet anna salasanaa tähän, "
+"Trojitá kysyy sitä tarvitessaan."
+
+#: ../src/Gui/SettingsDialog.cpp:1300 ../src/Gui/SettingsDialog.cpp:1306
+msgctxt "Gui::OutgoingPage|"
+msgid "The SMTP server hostname is missing here"
+msgstr "Tästä puuttuu SMTP-palvelimen konenimi"
+
+#: ../src/Gui/SettingsDialog.cpp:1302
+msgctxt "Gui::OutgoingPage|"
+msgid "The SMTP username is missing here"
+msgstr "Tästä puuttuu SMTP-käyttäjätunnus"
+
+#: ../src/Gui/SettingsDialog.cpp:1313
+msgctxt "Gui::OutgoingPage|"
+msgid "Please specify the folder name here"
+msgstr "Anna kansion nimi tähän"
+
+#: ../src/Gui/SettingsDialog.cpp:1337
+msgctxt "Gui::XtConnectPage|"
+msgid "Cache Directory"
+msgstr "Välimuistikansio"
+
+#: ../src/Gui/SettingsDialog.cpp:1339
+msgctxt "Gui::XtConnectPage|"
+msgid "Mailboxes to synchronize"
+msgstr "Synkronoitavat postikansiot"
+
+#: ../src/Gui/SettingsDialog.cpp:1346
+msgctxt "Gui::XtConnectPage|"
+msgid ""
+"Please use context menu inside the main application to select mailboxes to "
+"synchronize"
+msgstr "Valitse synkronoitavat postikansiot pääsovelluksen kontekstivalikosta"
+
+#: ../src/Gui/SettingsDialog.cpp:1369
+msgctxt "Gui::XtConnectPage|"
+msgid "DB Hostname"
+msgstr "Tietokannan konenimi"
+
+#: ../src/Gui/SettingsDialog.cpp:1373
+msgctxt "Gui::XtConnectPage|"
+msgid "DB Port"
+msgstr "Tietokannan portti"
+
+#: ../src/Gui/SettingsDialog.cpp:1375
+msgctxt "Gui::XtConnectPage|"
+msgid "DB Name"
+msgstr "Tietokannan nimi"
+
+#: ../src/Gui/SettingsDialog.cpp:1377
+msgctxt "Gui::XtConnectPage|"
+msgid "DB Username"
+msgstr "Tietokannan käyttäjätunnus"
+
+#: ../src/Gui/SettingsDialog.cpp:1379
+msgctxt "Gui::XtConnectPage|"
+msgid ""
+"Please fill in all IMAP options, including the password, at the IMAP page. "
+"If you do not save the password, background synchronization will not run."
+msgstr ""
+"Täytä kaikki IMAP-asetukset, myös salasana, IMAP-sivulla. Ellet tallenna "
+"salasanaa, taustasynkronointi ei toimi."
+
+#: ../src/Gui/SettingsDialog.cpp:1385
+msgctxt "Gui::XtConnectPage|"
+msgid "Debugging"
+msgstr "Virheenpaikannus"
+
+#: ../src/Gui/SettingsDialog.cpp:1387
+msgctxt "Gui::XtConnectPage|"
+msgid "Run xTuple Synchronization"
+msgstr "Suorita xTuple-synkronointi"
+
+#: ../src/Gui/SettingsDialog.cpp:1459
+msgctxt "Gui::XtConnectPage|"
+msgid "Database Connection"
+msgstr "Tietokantayhteys"
+
+#: ../src/Gui/SettingsDialog.cpp:1459
+msgctxt "Gui::XtConnectPage|"
+msgid "Password"
+msgstr "Salasana"
+
+#: ../src/Gui/SettingsFavoriteTagsPage.ui:14
+msgctxt "FavoriteTagsPage|"
+msgid "ScrollArea"
+msgstr "Vieritysalue"
+
+#: ../src/Gui/SettingsFavoriteTagsPage.ui:108
+msgctxt "FavoriteTagsPage|"
+msgid "Add"
+msgstr "Lisää"
+
+#: ../src/Gui/SettingsFavoriteTagsPage.ui:115
+msgctxt "FavoriteTagsPage|"
+msgid "Edit"
+msgstr "Muokkaa"
+
+#: ../src/Gui/SettingsFavoriteTagsPage.ui:122
+msgctxt "FavoriteTagsPage|"
+msgid "Delete"
+msgstr "Poista"
+
+#: ../src/Gui/SettingsGeneralPage.ui:14
+msgctxt "GeneralPage|"
+msgid "ScrollArea"
+msgstr "Vieritysalue"
+
+#: ../src/Gui/SettingsGeneralPage.ui:41
+msgctxt "GeneralPage|"
+msgid "Show Trojitá's homepage on startup"
+msgstr "Näytä Trojitán kotisivu käynnistettäessä"
+
+#: ../src/Gui/SettingsGeneralPage.ui:48
+msgctxt "GeneralPage|"
+msgid "Show plaintext e-mails instead of the HTML version"
+msgstr "Näytä viesti raakatekstinä HTML:n sijaan"
+
+#: ../src/Gui/SettingsGeneralPage.ui:55
+msgctxt "GeneralPage|"
+msgid "Show system tray icon"
+msgstr "Näytä ilmoitusaluekuvake"
+
+#: ../src/Gui/SettingsGeneralPage.ui:62
+msgctxt "GeneralPage|"
+msgid "Start minimized"
+msgstr "Käynnistä pienennettynä"
+
+#: ../src/Gui/SettingsGeneralPage.ui:139
+msgctxt "GeneralPage|"
+msgid "Add"
+msgstr "Lisää"
+
+#: ../src/Gui/SettingsGeneralPage.ui:146
+msgctxt "GeneralPage|"
+msgid "Edit"
+msgstr "Muokkaa"
+
+#: ../src/Gui/SettingsGeneralPage.ui:153
+msgctxt "GeneralPage|"
+msgid "Delete"
+msgstr "Poista"
+
+#: ../src/Gui/SettingsGeneralPage.ui:167
+msgctxt "GeneralPage|"
+msgid "Addressbook"
+msgstr "Osoitekirja"
+
+#: ../src/Gui/SettingsGeneralPage.ui:184
+msgctxt "GeneralPage|"
+msgid "Passwords"
+msgstr "Salasanat"
+
+#: ../src/Gui/SettingsGeneralPage.ui:201
+msgctxt "GeneralPage|"
+msgid "Spell checker"
+msgstr "Oikeinkirjoituksen tarkistus"
+
+#: ../src/Gui/SettingsGeneralPage.ui:225
+msgctxt "GeneralPage|"
+msgid "Automatically mark messages as read"
+msgstr "Merkitse viestit luetuksi"
+
+#. To indicate that there's no delay
+#: ../src/Gui/SettingsGeneralPage.ui:232
+msgctxt "GeneralPage|"
+msgid "immediately"
+msgstr "heti"
+
+#. A suffix "seconds" inside a QDoubleSpinBox for configuring a time delay. Please keep this short so that the window is reasonably narrow.
+#: ../src/Gui/SettingsGeneralPage.ui:235
+msgctxt "GeneralPage|"
+msgid " s"
+msgstr " s"
+
+#. The action will happen *after* user-provided timeout in seconds
+#: ../src/Gui/SettingsGeneralPage.ui:238
+msgctxt "GeneralPage|"
+msgid "after "
+msgstr "viiveellä "
+
+#: ../src/Gui/SettingsGeneralPage.ui:256
+msgctxt "GeneralPage|"
+msgid ""
+"<html><head/><body><p>Selecting this option will include version information "
+"about Trojitá and the underlying platform, including the Qt version and "
+"operating system details. Please consider leaving this option enabled so "
+"that developers are able to troubleshoot bugreports when something goes "
+"wrong.</p><p>The data are communicated via the IMAP's <code>ID</code> "
+"command and through the <code>User-Agent</code> header in outgoing e-mails, "
+"among other things.</p><p>Please note that even if you disable this option, "
+"the servers which Trojitá talks to and the people who read your e-mails will "
+"still be able to find out that you are using (some version of) Trojitá.</p></"
+"body></html>"
+msgstr ""
+"<html><head/><body><p>Tämän valitseminen sisällyttää Trojitán versiotiedot "
+"sekä alustan tiedot, joihin kuuluu Qt-versio ja käyttöjärjestelmän tiedot. "
+"Harkitse tämän jättämistä valituksi, jotta kehittäjät voivat selvittää "
+"vikailmoituksia, kun jotain menee vikaan.</p><p>Tiedot ilmoitetaan muun "
+"muassa IMAP-yhteyskäytännön <code>ID</code>-komennolla ja kirjoittamalla "
+"<code>User-Agent</code>-otsake lähteviin sähköposteihin.</p><p>Huomaa, että "
+"Trojitáan yhteydessä olevat palvelimet ja sähköpostejasi lukevat ihmiset "
+"voivat edelleen saada selville, että käytät jotain Trojitán versiota, vaikka "
+"poistaisit tämän valinnan.</p></body></html>"
+
+#: ../src/Gui/SettingsGeneralPage.ui:259
+msgctxt "GeneralPage|"
+msgid "Reveal Trojitá's version and platform information"
+msgstr "Paljasta Trojitán versio ja alustan tiedot"
+
+#: ../src/Gui/SettingsGeneralPage.ui:271
+msgctxt "GeneralPage|"
+msgid ""
+"<p>If enabled, you can set the default drag and drop action for the mailbox "
+"tree.</p><p>If disabled, Trojitá will ask you every time. You can always "
+"override the action using modifier keys when dropping (control: copy, shift: "
+"move).</p>"
+msgstr ""
+"<p>Jos valittu, voit asettaa postilaatikkopuun oletustoiminnon vedettäessä "
+"ja pudotettaessa sinne jotakin.</p><p>Ellei ole valittu, Trojitá kysyy "
+"toimintoa aina. Voit aina valita toiminnon muuntonäppäimin (Ctrl: kopioi, "
+"Vaihto: siirrä)."
+
+#: ../src/Gui/SettingsGeneralPage.ui:274
+msgctxt "GeneralPage|"
+msgid "Default drop action for the mbox tree"
+msgstr "Postilaatikkopuun oletustoiminto sinne pudotettaessa"
+
+#: ../src/Gui/SettingsImapPage.ui:27
+msgctxt "ImapPage|"
+msgid "M&ethod"
+msgstr "M&enetelmä"
+
+#: ../src/Gui/SettingsImapPage.ui:37
+msgctxt "ImapPage|"
+msgid "How to connect to the IMAP server"
+msgstr "Kuinka yhdistää IMAP-palvelimeen"
+
+#: ../src/Gui/SettingsImapPage.ui:40
+msgctxt "ImapPage|"
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Choose <span style=\" font-"
+"style:italic;\">TCP</span> if you want to connect via standard, non-"
+"encrypted connection and negotiate encryption transparently before login.</"
+"p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Choose <span style=\" font-"
+"style:italic;\">SSL</span> to connect over an encrypted socket from the very "
+"beginning of the connection.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Finally, pick the <span "
+"style=\" font-style:italic;\">Local process</span> if you want to execute a "
+"process which then either connects to the IMAP server, or acts as one. This "
+"option enables accessing your IMAP server via SSH.</p></body></html>"
+msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Valitse <span style=\" "
+"font-style:italic;\">TCP</span> halutessasi standardinmukaisen salaamattoman "
+"yhteyden ja neuvotella salauksesta ennen kirjautumista.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Valitse <span style=\" "
+"font-style:italic;\">SSL</span> yhdistääksesi salattuun pistokkeeseen heti "
+"yhteyden alusta.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Tai valitse <span style=\" "
+"font-style:italic;\">Paikallinen prosessi</span> jos haluat suorittaa "
+"paikallisesti prosessin, joka joko yhdistää IMAP-palvelimeen tai toimii "
+"sellaisena. Näin voit myös yhdistää IMAP-palvelimeen SSH:n avulla.</p></"
+"body></html>"
+
+#: ../src/Gui/SettingsImapPage.ui:55
+msgctxt "ImapPage|"
+msgid "Encryption"
+msgstr "Salaus"
+
+#: ../src/Gui/SettingsImapPage.ui:65
+msgctxt "ImapPage|"
+msgid "Ser&ver"
+msgstr "Pal&velin"
+
+#: ../src/Gui/SettingsImapPage.ui:75
+msgctxt "ImapPage|"
+msgid "Hostname of the IMAP server"
+msgstr "IMAP-palvelimen konenimi"
+
+#: ../src/Gui/SettingsImapPage.ui:78
+msgctxt "ImapPage|"
+msgid "This is the name of the IMAP server that Trojitá should connect to."
+msgstr "Tämä on sen IMAP-palvelimen nimi, johon Trojitán tulisi yhdistää."
+
+#: ../src/Gui/SettingsImapPage.ui:88
+msgctxt "ImapPage|"
+msgid "&Port"
+msgstr "P&ortti"
+
+#: ../src/Gui/SettingsImapPage.ui:98
+msgctxt "ImapPage|"
+msgid "Port number of the IMAP server"
+msgstr "IMAP-palvelimen portti"
+
+#: ../src/Gui/SettingsImapPage.ui:118
+msgctxt "ImapPage|"
+msgid "Use System Proxy Settings"
+msgstr "Käytä järjestelmän välityspalvelinasetuksia"
+
+#: ../src/Gui/SettingsImapPage.ui:131
+msgctxt "ImapPage|"
+msgid ""
+"Check if Trojitá should connect to a network in order to access this "
+"account. You will stay offline if there is no network connectivity."
+msgstr ""
+"Valitse tämä, jos Trojitán tulisi yhdistää verkkoon päästääkseen tälle "
+"tilille. Ellei verkkotapahtumia ole, pysyt poissa verkosta."
+
+#: ../src/Gui/SettingsImapPage.ui:134
+msgctxt "ImapPage|"
+msgid "Needs Network"
+msgstr "Vaatii verkkoa"
+
+#: ../src/Gui/SettingsImapPage.ui:147
+msgctxt "ImapPage|"
+msgid "&Username"
+msgstr "&Käyttäjätunnus"
+
+#: ../src/Gui/SettingsImapPage.ui:157
+msgctxt "ImapPage|"
+msgid "Username"
+msgstr "Käyttäjätunnus"
+
+#: ../src/Gui/SettingsImapPage.ui:160
+msgctxt "ImapPage|"
+msgid "User name to log in to the IMAP server"
+msgstr "IMAP-palvelimeen kirjauduttaessa käytettävä käyttäjätunnus"
+
+#: ../src/Gui/SettingsImapPage.ui:170
+msgctxt "ImapPage|"
+msgid "Pass&word"
+msgstr "&Salasana"
+
+#: ../src/Gui/SettingsImapPage.ui:180
+msgctxt "ImapPage|"
+msgid "Password"
+msgstr "Salasana"
+
+#: ../src/Gui/SettingsImapPage.ui:183
+msgctxt "ImapPage|"
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Password to use when "
+"connecting to the IMAP server.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">This password will be "
+"saved in <span style=\" font-weight:600;\">clear text</span> on this device, "
+"without any encryption. Unless you use a very safe form of a full disk "
+"encryption, it is a <span style=\" font-weight:600;\">bad idea</span> to "
+"save your password here.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">If you don't save the "
+"password, Trojitá will prompt for one when it needs it, but only once per "
+"session.</p></body></html>"
+msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">IMAP-palvelimeen "
+"yhdistettäessä käytettävä salasana.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Salasana tallennetaan<span "
+"style=\" font-weight:600;\">salaamattomana tekstinä</span> tälle laitteelle."
+"Ellet käytä hyvin tehokasta koko tietovälineen salausta, on <span style="
+"\"font-weight:600;\">huono ajatus</span> tallentaa salasanaasi näin.</p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+"margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
+"p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Ellet tallenna "
+"salasanaasi, Trojitá kysyy sitä tarvitessaan, mutta vain kerran kussakin "
+"istunnossa.</p></body></html>"
+
+#: ../src/Gui/SettingsImapPage.ui:204
+msgctxt "ImapPage|"
+msgid ""
+"The password will be stored in plaintext. Leave it blank for Trojitá to "
+"prompt when needed."
+msgstr ""
+"Salasana tallennetaan raakatekstinä. Jätä kenttä tyhjäksi, niin Trojitá "
+"kysyy sitä tarvitessaan."
+
+#: ../src/Gui/SettingsImapPage.ui:230
+msgctxt "ImapPage|"
+msgid "Path to Server &Binary"
+msgstr "&Palvelinohjelman sijainti"
+
+#: ../src/Gui/SettingsImapPage.ui:240
+msgctxt "ImapPage|"
+msgid ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">If you choose the <span "
+"style=\" font-style:italic;\">Local process</span> option to connect to the "
+"IMAP server, this field specifies the program to start. For example, to "
+"connect to a remote mail server via SSH and launch a Dovecot instance in "
+"there, you could use the following:</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">ssh mail.example.org dovecot --exec-mail "
+"imap</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Note that this command has "
+"to be absolutely non-interactive, and therefore you have to have your SSH "
+"set up to login without password, perhaps via the SSH keys.</p></body></html>"
+msgstr ""
+"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+"REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css"
+"\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; font-"
+"weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Jos valitset <span style="
+"\" font-style:italic;\">paikallisen prosessin</span> IMAP-palvelimeen "
+"yhdistettäessä, tämä kenttä määrittää käynnistettävän ohjelman. Jos "
+"esimerkiksi yhdistät etäpalvelimeen SSH:n avulla ja käynnistät siellä "
+"Dovecot-ohjelman, voit käyttää seuraavaa:</p>\n"
+"<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
+"family:'Courier New,courier';\">ssh mail.example.org dovecot --exec-mail "
+"imap</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Huomaa, että tämä komento "
+"ei ehdottomasti saa vaatia käyttäjän vuorovaikutusta, joten SSH on "
+"asetettava kirjautumaan salasanatta, luultavasti SSH-avainten avulla.</p></"
+"body></html>"
+
+#: ../src/Gui/SettingsImapPage.ui:256
+msgctxt "ImapPage|"
+msgid "Extension &Blacklist"
+msgstr "Laajennusten &mustalista"
+
+#: ../src/Gui/SettingsImapPage.ui:269
+msgctxt "ImapPage|"
+msgid "Timeout of IMAP IDLE"
+msgstr "IMAPin IDLE-aikakatkaisu"
+
+#: ../src/Gui/SettingsImapPage.ui:282
+msgctxt "ImapPage|"
+msgid ""
+"How often to renew the IDLE session.\n"
+"This is useful to prevent timeouts due to broken or overly aggressive "
+"network middleboxes,\n"
+"NAT gateways and other nasty annoyances.\n"
+"The default value is 29 minutes."
+msgstr ""
+"Kuinka usein IDLE-istunto uudistetaan.\n"
+"Näin voi estää rikkonaisten tai yliaggressiivisten verkkolaitteiden (kuten "
+"NAT-yhdyskäytävien)\n"
+"aiheuttamia aikakatkaisuja tai muita harmeja.\n"
+"Oletusarvo on 29 minuuttia."
+
+#: ../src/Gui/SettingsImapPage.ui:298
+msgctxt "ImapPage|"
+msgid "Refresh Interval"
+msgstr "Päivitysväli"
+
+#: ../src/Gui/SettingsImapPage.ui:305
+msgctxt "ImapPage|"
+msgid ""
+"How often to check for new emails in all IMAP folders.\n"
+"The default value is 300 seconds (5 minutes)."
+msgstr ""
+"Kuinka usein kaikista IMAP-kansioista etsitään uutta postia.\n"
+"Oletusarvo on 300 sekuntia (5 minuuttia)."
+
+#: ../src/Gui/SettingsImapPage.ui:309
+msgctxt "ImapPage|"
+msgid " seconds"
+msgstr " sekuntia"
+
+#: ../src/Gui/SettingsImapPage.ui:325
+msgctxt "ImapPage|"
+msgid "Account Icon"
+msgstr "Tilin kuvake"
+
+#: ../src/Gui/SettingsImapPage.ui:332
+msgctxt "ImapPage|"
+msgid "Default Trojitá icon"
+msgstr "Trojitán oletuskuvake"
+
+#: ../src/Gui/SettingsImapPage.ui:342
+msgctxt "ImapPage|"
+msgid "Archive Folder &Name"
+msgstr "A&rkistokansion nimi"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:27
+msgctxt "OutgoingPage|"
+msgid "&Method"
+msgstr "M&enetelmä"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:40
+msgctxt "OutgoingPage|"
+msgid "Encryption"
+msgstr "Salaus"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:50
+msgctxt "OutgoingPage|"
+msgid "Ser&ver"
+msgstr "&Palvelin"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:63
+msgctxt "OutgoingPage|"
+msgid "&Port"
+msgstr "P&ortti"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:86
+msgctxt "OutgoingPage|"
+msgid "&Authenticate"
+msgstr "T&unnistaudu"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:103
+msgctxt "OutgoingPage|"
+msgid "&Username"
+msgstr "&Käyttäjätunnus"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:116
+msgctxt "OutgoingPage|"
+msgid "Pass&word"
+msgstr "&Salasana"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:156
+msgctxt "OutgoingPage|"
+msgid "Sendmail E&xecutable"
+msgstr "sen&dmail-ohjelma"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:169
+msgctxt "OutgoingPage|"
+msgid "Save Ou&tgoing Mail"
+msgstr "&Tallenna lähtevä posti"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:182
+msgctxt "OutgoingPage|"
+msgid "Sent Folder &Name"
+msgstr "&Lähetetyt-kansion nimi"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:195
+msgctxt "OutgoingPage|"
+msgid ""
+"Enable forward-without-download via BURL (RFC 4468) when the IMAP and ESMTP "
+"servers support it. Extra server-side configuration is required."
+msgstr ""
+"Ota käyttöön lataukseton välitys BURLin (RFC 4468) kautta, kun IMAP- ja "
+"ESTMP-palvelimet tukevat sitä. Myös palvelin täytyy asettaa oikein."
+
+#: ../src/Gui/SettingsOutgoingPage.ui:198
+msgctxt "OutgoingPage|"
+msgid "Send with &BURL"
+msgstr "Lähetä &BURLilla"
+
+#: ../src/Gui/SettingsOutgoingPage.ui:218
+msgctxt "OutgoingPage|"
+msgid "Use IMAP Credentials"
+msgstr "Käytä IMAP-kirjautumistietoja"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
+msgctxt "Gui::ShortcutConfigDialog|"
+msgid "Configure Shortcuts"
+msgstr "Pikanäppäinasetukset"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
+msgctxt "Gui::ShortcutConfigDialog|"
+msgid "Trojitá"
+msgstr "Trojitá"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
+msgctxt "Gui::ShortcutConfigWidget|"
+msgid "Configure Shortcuts"
+msgstr "Pikanäppäinasetukset"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
+msgctxt "Gui::ShortcutConfigWidget|"
+msgid "Trojitá"
+msgstr "Trojitá"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:177
+msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
+msgid "Ctrl+"
+msgstr "Ctrl+"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:179
+msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
+msgid "Alt+"
+msgstr "Alt+"
+
+# Koodia lukemalla pikanäppäimet eivät välttämättä toimi, jos tässä Shiftin suomentaa vaihdoksi.
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:181
+msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
+msgid "Shift+"
+msgstr "Shift+"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
+msgctxt "Gui::ShortcutConfigWidget|"
+msgid "Shortcut Conflicts"
+msgstr "Pikanäppäinristiriita"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:204
+#, qt-format
+msgctxt "Gui::ShortcutConfigWidget|"
+msgid ""
+"<p>The \"%1\" shortcut is ambiguous with the following shortcut:</p><p>%2</"
+"p><p>Do you want to assign an empty shortcut to this action?</p>"
+msgstr ""
+"<p>Pikanäppäin ”%1” on ristiriidassa seuraavan pikanäppäimen kanssa:</p><p>"
+"%2</p><p>Haluatko poistaa pikanäppäimen tältä toiminnolta?</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:14
+msgctxt "ShortcutConfigWidget|"
+msgid "Configure Shortcuts"
+msgstr "Pikanäppäinasetukset"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:20
+msgctxt "ShortcutConfigWidget|"
+msgid "Select an action and press a key combination to change its shortcut:"
+msgstr "Valitse toiminto ja aseta pikanäppäin painamalla näppäinyhdistelmää:"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:27
+msgctxt "ShortcutConfigWidget|"
+msgid ""
+"<p>Select an action (with the mouse or the arrow keys). Its shortcut can "
+"then be changed by simply pressing the new shortcut.</p><p>Note that a few "
+"shortcuts cannot be used: \"Up\", \"Down\", \"Left\", \"Right\", \"Page Up"
+"\", \"Page Down\", \"Tab\", \"Shift+Tab\", \"Enter\" and \"Escape\".</p>"
+msgstr ""
+"<p>Valitse toiminto (hiirellä tai nuolinäppäimin). Sen pikanäppäintä voi "
+"sitten muuttaa painamalla uutta näppäinyhdistelmää.</p><p>Huomaa, että "
+"seuraavia näppäimiä ei voi muuttaa: Ylänuoli, Alanuoli, Vasen nuoli, Oikea "
+"nuoli, Page Up, Page Down, Sarkain, Vaihto+Sarkain, Enter ja Escape.</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:31
+msgctxt "ShortcutConfigWidget|"
+msgid "Action"
+msgstr "Toiminto"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:36
+msgctxt "ShortcutConfigWidget|"
+msgid "Shortcut"
+msgstr "Pikanäppäin"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:46
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:65
+msgctxt "ShortcutConfigWidget|"
+msgid ""
+"<p>Search interactively for shortcut names (e.g. Copy) or combination of "
+"keys (e.g. Ctrl+C) by typing them.</p>"
+msgstr ""
+"<p>Kirjoita tekstiä etsiäksesi vuorovaikutteisesti pikanäppäimen nimeä "
+"(esim. Kopioi) tai näppäinyhdistelmää (esim. Ctrl+C).</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:49
+msgctxt "ShortcutConfigWidget|Label of search field"
+msgid "Search:"
+msgstr "Etsi:"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:74
+msgctxt "ShortcutConfigWidget|"
+msgid "<p>Remove the shortcut of the currently highlighted action.</p>"
+msgstr "<p>Poista pikanäppäin valitusta toiminnosta.</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:77
+msgctxt "ShortcutConfigWidget|Action for clearing shortcut"
+msgid "Clear"
+msgstr "Tyhjennä"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:84
+msgctxt "ShortcutConfigWidget|"
+msgid ""
+"<p>Restore the default shortcut for the currently highlighted action.</p>"
+msgstr "<p>Palauta valitun toiminnon oletuspikanäppäin.</p>"
+
+#: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:87
+msgctxt "ShortcutConfigWidget|Action for restoring default shortcut"
+msgid "Default"
+msgstr "Oletus"
+
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:47
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:103
+msgctxt "Gui::ShortcutHandler|"
+msgid "Main Window"
+msgstr "Pääikkuna"
+
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:144
+msgctxt "Gui::ShortcutHandler|"
+msgid "Configure S&hortcuts..."
+msgstr "P&ikanäppäinasetukset…"
+
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.h:45
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.h:309
+#: ../src/Gui/ShortcutHandler/ShortcutHandler.h:319
+msgctxt "QObject|"
+msgid "Main Window"
+msgstr "Pääikkuna"
+
+#: ../src/Gui/SimplePartWidget.cpp:77
+msgctxt "Gui::SimplePartWidget|"
+msgid "Save this message part..."
+msgstr "Tallenna tämä viestin osa…"
+
+#: ../src/Gui/SimplePartWidget.cpp:81
+msgctxt "Gui::SimplePartWidget|"
+msgid "Save whole message..."
+msgstr "Tallenna koko viesti…"
+
+#: ../src/Gui/SimplePartWidget.cpp:85
+msgctxt "Gui::SimplePartWidget|"
+msgid "Search..."
+msgstr "Etsi…"
+
+#: ../src/Gui/SimplePartWidget.cpp:88
+msgctxt "Gui::SimplePartWidget|"
+msgid "Copy e-mail address"
+msgstr "Kopioi sähköpostiosoite"
+
+#: ../src/Gui/SimplePartWidget.cpp:129
+msgctxt "Gui::SimplePartWidget|"
+msgid "Save Attachment"
+msgstr "Tallenna liite"
+
+#: ../src/Gui/SimplePartWidget.cpp:206
+msgctxt "Gui::SimplePartWidget|"
+msgid "Color scheme"
+msgstr "Värimalli"
+
+#: ../src/Gui/SimplePartWidget.cpp:220
+msgctxt "Gui::SimplePartWidget|"
+msgid "Zoom"
+msgstr "Lähennä"
+
+#: ../src/Gui/SimplePartWidget.cpp:226
+msgctxt "Gui::SimplePartWidget|"
+msgid "Zoom In"
+msgstr "Lähennä"
+
+#: ../src/Gui/SimplePartWidget.cpp:230
+msgctxt "Gui::SimplePartWidget|"
+msgid "Zoom Out"
+msgstr "Loitonna"
+
+#: ../src/Gui/SimplePartWidget.cpp:234
+msgctxt "Gui::SimplePartWidget|"
+msgid "Original Size"
+msgstr "Alkuperäinen koko"
+
+#: ../src/Gui/TagAddDialog.ui:14
+msgctxt "TagAddDialog|"
+msgid "Add Tags"
+msgstr "Tunnisteiden lisääminen"
+
+#: ../src/Gui/TagAddDialog.ui:26
+msgctxt "TagAddDialog|"
+msgid "Tag names (space-separated):"
+msgstr "Luokitusten nimet (välilyönnein erotettuna):"
+
+#: ../src/Gui/TagListWidget.cpp:107
+msgctxt "Gui::TagListWidget|"
+msgid "Disallowed tag value"
+msgstr "Kielletty luokituksen arvo"
+
+#: ../src/Gui/TagListWidget.cpp:108
+#, qt-format
+msgctxt "Gui::TagListWidget|"
+msgid ""
+"No tags were set because the following given tag(s) are reserved and have "
+"been disallowed from being set in this way: %1."
+msgstr ""
+"Luokituksia ei asetettu, koska seuraavat luokitukset ovat varattuja ja "
+"niiden asettaminen tällä tapaa on kielletty: %1."
+
+#: ../src/Gui/TagWidget.cpp:59
+msgctxt "Gui::TagWidget|This is a verb!"
+msgid "Tag"
+msgstr "Luokitus"
+
+#: ../src/Gui/TaskProgressIndicator.cpp:84
+#, qt-format
+msgctxt "Gui::TaskProgressIndicator|"
+msgid "%n ongoing actions"
+msgid_plural "%n ongoing actions"
+msgstr[0] "%n meneillään oleva toiminto"
+msgstr[1] "%n meneillään olevaa toimintoa"
+
+#: ../src/Gui/TaskProgressIndicator.cpp:86
+msgctxt "Gui::TaskProgressIndicator|"
+msgid "IMAP connection idle"
+msgstr "IMAP-yhteys jouten"
+
+#: ../src/Gui/Util.cpp:88
+msgctxt "Gui::MainWindow|"
+msgid "Don't ask again"
+msgstr "Älä kysy uudelleen"
+
+#: ../src/Gui/Window.cpp:130
+msgctxt "Gui::MainWindow|"
+msgid "Plugin Error"
+msgstr "Liitännäisen virhe"
+
+#. The %1 placeholder is a full error message as provided by Qt, ready for human consumption.
+#: ../src/Gui/Window.cpp:132
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"A plugin failed to load, therefore some functionality might be lost. You "
+"might want to update your system or report a bug to your vendor.\n"
+"\n"
+"%1"
+msgstr ""
+"Liitännäisen lataus epäonnistui, joten jotkin toiminnot eivät ehkä toimi. "
+"Voit yrittää päivittää järjestelmän tai ilmoittaa ohjelmavirheestä "
+"valmistamalle.\n"
+"\n"
+"%1"
+
+#: ../src/Gui/Window.cpp:234
+msgctxt "Gui::MainWindow|"
+msgid "E&xit"
+msgstr "&Lopeta"
+
+#: ../src/Gui/Window.cpp:235
+msgctxt "Gui::MainWindow|"
+msgid "&New Message..."
+msgstr "&Uusi viesti…"
+
+#: ../src/Gui/Window.cpp:236
+msgctxt "Gui::MainWindow|"
+msgid "&Edit Draft..."
+msgstr "Muokkaa &luonnosta…"
+
+#: ../src/Gui/Window.cpp:237
+msgctxt "Gui::MainWindow|"
+msgid "Show Main Menu &Bar"
+msgstr "Näytä pää&valikkorivi"
+
+#: ../src/Gui/Window.cpp:237
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+M"
+msgstr "Ctrl+M"
+
+#: ../src/Gui/Window.cpp:238
+msgctxt "Gui::MainWindow|"
+msgid "Exp&unge"
+msgstr "Tu&hoa"
+
+#: ../src/Gui/Window.cpp:238
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+E"
+msgstr "Ctrl+E"
+
+#: ../src/Gui/Window.cpp:239
+msgctxt "Gui::MainWindow|"
+msgid "Mark as &Read"
+msgstr "M&erkitse luetuksi"
+
+#: ../src/Gui/Window.cpp:240
+msgctxt "Gui::MainWindow|"
+msgid "&Next Unread Message"
+msgstr "&Seuraava lukematon viesti"
+
+#: ../src/Gui/Window.cpp:241
+msgctxt "Gui::MainWindow|"
+msgid "&Previous Unread Message"
+msgstr "&Edellinen lukematon viesti"
+
+#: ../src/Gui/Window.cpp:242
+msgctxt "Gui::MainWindow|"
+msgid "Mark as &Deleted"
+msgstr "Merkitse p&oistetuksi"
+
+#: ../src/Gui/Window.cpp:243
+msgctxt "Gui::MainWindow|"
+msgid "Mark as &Flagged"
+msgstr "Merkitse &tärkeäksi"
+
+#: ../src/Gui/Window.cpp:244
+msgctxt "Gui::MainWindow|"
+msgid "Mark as &Junk"
+msgstr "Merkitse &roskapostiksi"
+
+#: ../src/Gui/Window.cpp:245
+msgctxt "Gui::MainWindow|"
+msgid "Mark as Not &junk"
+msgstr "Merkitse ei-&roskapostiksi"
+
+#: ../src/Gui/Window.cpp:246
+msgctxt "Gui::MainWindow|"
+msgid "&Save Message..."
+msgstr "&Tallenna viesti…"
+
+#: ../src/Gui/Window.cpp:247
+msgctxt "Gui::MainWindow|"
+msgid "View Message &Source..."
+msgstr "Näytä viestin lähde&koodi…"
+
+#: ../src/Gui/Window.cpp:248
+msgctxt "Gui::MainWindow|"
+msgid "View Message &Headers..."
+msgstr "Näytä viestin &otsakkeet…"
+
+#: ../src/Gui/Window.cpp:248
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+U"
+msgstr "Ctrl+U"
+
+#: ../src/Gui/Window.cpp:249
+msgctxt "Gui::MainWindow|"
+msgid "&Private Reply"
+msgstr "&Yksityisvastaus"
+
+#: ../src/Gui/Window.cpp:249
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+Shift+A"
+msgstr "Ctrl+Shift+A"
+
+#: ../src/Gui/Window.cpp:250
+msgctxt "Gui::MainWindow|"
+msgid "Reply to All &but Me"
+msgstr "Vastaa kaikille paitsi &minulle"
+
+#: ../src/Gui/Window.cpp:250
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+Shift+R"
+msgstr "Ctrl+Shift+R"
+
+#: ../src/Gui/Window.cpp:251
+msgctxt "Gui::MainWindow|"
+msgid "Reply to &All"
+msgstr "Vastaa &kaikille"
+
+#: ../src/Gui/Window.cpp:251
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+Alt+Shift+R"
+msgstr "Ctrl+Alt+Shift+R"
+
+#: ../src/Gui/Window.cpp:252
+msgctxt "Gui::MainWindow|"
+msgid "Reply to &Mailing List"
+msgstr "Vastaa &postituslistalle"
+
+#: ../src/Gui/Window.cpp:252
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+L"
+msgstr "Ctrl+L"
+
+#: ../src/Gui/Window.cpp:253
+msgctxt "Gui::MainWindow|"
+msgid "Reply by &Guess"
+msgstr "Vastaa &arvaten"
+
+#: ../src/Gui/Window.cpp:253
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+R"
+msgstr "Ctrl+R"
+
+#: ../src/Gui/Window.cpp:254
+msgctxt "Gui::MainWindow|"
+msgid "&Forward"
+msgstr "&Eteenpäin"
+
+#: ../src/Gui/Window.cpp:254
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+Shift+F"
+msgstr "Ctrl+Shift+F"
+
+#: ../src/Gui/Window.cpp:255
+msgctxt "Gui::MainWindow|"
+msgid "Resend..."
+msgstr "Lähetä uudelleen…"
+
+#: ../src/Gui/Window.cpp:256
+msgctxt "Gui::MainWindow|"
+msgid "&Archive"
+msgstr "&Arkisto"
+
+#: ../src/Gui/Window.cpp:257
+msgctxt "Gui::MainWindow|"
+msgid "Address Book..."
+msgstr "Osoitekirja…"
+
+#: ../src/Gui/Window.cpp:258
+msgctxt "Gui::MainWindow|"
+msgid "&Offline"
+msgstr "&Ei verkossa"
+
+#: ../src/Gui/Window.cpp:259
+msgctxt "Gui::MainWindow|"
+msgid "&Expensive Connection"
+msgstr "&Kallis yhteys"
+
+#: ../src/Gui/Window.cpp:260
+msgctxt "Gui::MainWindow|"
+msgid "&Free Access"
+msgstr "&Ilmainen yhteys"
+
+#: ../src/Gui/Window.cpp:261
+msgctxt "Gui::MainWindow|"
+msgid "Close Standalone Message Window"
+msgstr "Sulje erillinen viesti-ikkuna"
+
+#: ../src/Gui/Window.cpp:262
+msgctxt "Gui::MainWindow|"
+msgid "Open message in New Window..."
+msgstr "Avaa viesti uuteen ikkunaan…"
+
+#: ../src/Gui/Window.cpp:263
+msgctxt "Gui::MainWindow|"
+msgid "Navigate Back"
+msgstr "Palaa taaksepäin"
+
+#: ../src/Gui/Window.cpp:264
+msgctxt "Gui::MainWindow|"
+msgid "Zoom In"
+msgstr "Lähennä"
+
+#: ../src/Gui/Window.cpp:265
+msgctxt "Gui::MainWindow|"
+msgid "Zoom Out"
+msgstr "Loitonna"
+
+#: ../src/Gui/Window.cpp:266
+msgctxt "Gui::MainWindow|"
+msgid "Original Size"
+msgstr "Alkuperäinen koko"
+
+#: ../src/Gui/Window.cpp:267
+msgctxt "Gui::MainWindow|"
+msgid "Move Focus to Mailbox List"
+msgstr "Siirrä kohdistus postilaatikkoluetteloon"
+
+#: ../src/Gui/Window.cpp:268
+msgctxt "Gui::MainWindow|"
+msgid "Move Focus to Message List"
+msgstr "Siirrä kohdistus viestiluetteloon"
+
+#: ../src/Gui/Window.cpp:269
+msgctxt "Gui::MainWindow|"
+msgid "Move Focus to Quick Search"
+msgstr "Siirrä kohdistus pikahakuun"
+
+#: ../src/Gui/Window.cpp:270
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &1st tag"
+msgstr "Luokittele 1. luokituksella"
+
+#: ../src/Gui/Window.cpp:271
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &2nd tag"
+msgstr "Luokittele 2. luokituksella"
+
+#: ../src/Gui/Window.cpp:272
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &3rd tag"
+msgstr "Luokittele 3. luokituksella"
+
+#: ../src/Gui/Window.cpp:273
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &4th tag"
+msgstr "Luokittele 4. luokituksella"
+
+#: ../src/Gui/Window.cpp:274
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &5th tag"
+msgstr "Luokittele 5. luokituksella"
+
+#: ../src/Gui/Window.cpp:275
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &6th tag"
+msgstr "Luokittele 6. luokituksella"
+
+#: ../src/Gui/Window.cpp:276
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &7th tag"
+msgstr "Luokittele 7. luokituksella"
+
+#: ../src/Gui/Window.cpp:277
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &8th tag"
+msgstr "Luokittele 8. luokituksella"
+
+#: ../src/Gui/Window.cpp:278
+msgctxt "Gui::MainWindow|"
+msgid "Tag with &9th tag"
+msgstr "Luokittele 9. luokituksella"
+
+#: ../src/Gui/Window.cpp:306
+msgctxt "Gui::MainWindow|"
+msgid "Navigation"
+msgstr "Liikkuminen"
+
+#: ../src/Gui/Window.cpp:309
+msgctxt "Gui::MainWindow|"
+msgid "&Update List of Child Mailboxes"
+msgstr "Päivitä &alempien viestikansioiden luettelo"
+
+#: ../src/Gui/Window.cpp:312
+msgctxt "Gui::MainWindow|"
+msgid "Check for &New Messages"
+msgstr "&Etsi uutta postia"
+
+#: ../src/Gui/Window.cpp:315
+msgctxt "Gui::MainWindow|"
+msgid "&Reload Everything"
+msgstr "Lataa kaikki &uudelleen"
+
+#: ../src/Gui/Window.cpp:319
+msgctxt "Gui::MainWindow|"
+msgid "Exit the application"
+msgstr "Lopeta sovellus"
+
+#. a debugging tool showing the full contents of the whole IMAP server; all folders, messages and their parts
+#: ../src/Gui/Window.cpp:338
+msgctxt "Gui::MainWindow|"
+msgid "Show Full &Tree Window"
+msgstr "Näytä koko &puuikkuna"
+
+#. list of active "tasks", entities which are performing certain action like downloading a message or syncing a mailbox
+#: ../src/Gui/Window.cpp:344
+msgctxt "Gui::MainWindow|"
+msgid "Show ImapTask t&ree"
+msgstr "Näytä &IMAP-tehtäväpuu"
+
+#. a debugging tool showing the mime tree of the current message
+#: ../src/Gui/Window.cpp:350
+msgctxt "Gui::MainWindow|"
+msgid "Show &MIME tree"
+msgstr "Näytä MIME-&puu"
+
+#: ../src/Gui/Window.cpp:355
+msgctxt "Gui::MainWindow|"
+msgid "Show protocol &log"
+msgstr "Näytä &yhteyskäytäntöloki"
+
+#. file to save the debug log into
+#: ../src/Gui/Window.cpp:361
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Log &into %1"
+msgstr "&Merkitse lokiin %1"
+
+#: ../src/Gui/Window.cpp:366
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Server In&formation..."
+msgstr "&Tietoa IMAP-palvelimesta…"
+
+#: ../src/Gui/Window.cpp:375
+msgctxt "Gui::MainWindow|"
+msgid "Show &Toolbar"
+msgstr "Näytä &työkalurivi"
+
+#: ../src/Gui/Window.cpp:381
+msgctxt "Gui::MainWindow|"
+msgid "&Settings..."
+msgstr "&Asetukset…"
+
+#. "mailbox" as a "folder of messages", not as a "mail account"
+#: ../src/Gui/Window.cpp:476
+msgctxt "Gui::MainWindow|"
+msgid "Create &Child Mailbox..."
+msgstr "Luo &alikansio…"
+
+#. "mailbox" as a "folder of messages", not as a "mail account"
+#: ../src/Gui/Window.cpp:480
+msgctxt "Gui::MainWindow|"
+msgid "Create &New Mailbox..."
+msgstr "Luo &uusi postikansio…"
+
+#: ../src/Gui/Window.cpp:483
+msgctxt "Gui::MainWindow|"
+msgid "&Mark Mailbox as Read"
+msgstr "Merkitse kansio &luetuksi"
+
+#. "mailbox" as a "folder of messages", not as a "mail account"
+#: ../src/Gui/Window.cpp:487
+msgctxt "Gui::MainWindow|"
+msgid "&Remove Mailbox"
+msgstr "&Poista postikansio"
+
+#: ../src/Gui/Window.cpp:491
+msgctxt "Gui::MainWindow|"
+msgid "&Synchronize with xTuple"
+msgstr "S&ynkronoi xTuplella"
+
+#: ../src/Gui/Window.cpp:511
+msgctxt "Gui::MainWindow|"
+msgid "Show Messages in &Threads"
+msgstr "Näytä viestit &säikeinä"
+
+#: ../src/Gui/Window.cpp:522
+msgctxt "Gui::MainWindow|"
+msgid "&Ascending"
+msgstr "&Nouseva"
+
+#: ../src/Gui/Window.cpp:525
+msgctxt "Gui::MainWindow|"
+msgid "&Descending"
+msgstr "&Laskeva"
+
+#: ../src/Gui/Window.cpp:533
+msgctxt "Gui::MainWindow|"
+msgid "&No sorting"
+msgstr "&Ei lajittelua"
+
+#: ../src/Gui/Window.cpp:535
+msgctxt "Gui::MainWindow|"
+msgid "Sorted by &Threading"
+msgstr "Lajittele &säikeittäin"
+
+#: ../src/Gui/Window.cpp:537
+msgctxt "Gui::MainWindow|"
+msgid "A&rrival"
+msgstr "&Saapumisaika"
+
+#: ../src/Gui/Window.cpp:539
+msgctxt "Gui::MainWindow|"
+msgid "&Cc (Carbon Copy)"
+msgstr "&Kopio (CC)"
+
+#: ../src/Gui/Window.cpp:541
+msgctxt "Gui::MainWindow|"
+msgid "Date from &Message Headers"
+msgstr "Päiväys viestin &otsakkeista"
+
+#: ../src/Gui/Window.cpp:543
+msgctxt "Gui::MainWindow|"
+msgid "&From Address"
+msgstr "&Lähettäjän osoite"
+
+#: ../src/Gui/Window.cpp:545
+msgctxt "Gui::MainWindow|"
+msgid "&Size"
+msgstr "&Koko"
+
+#: ../src/Gui/Window.cpp:547
+msgctxt "Gui::MainWindow|"
+msgid "S&ubject"
+msgstr "&Aihe"
+
+#: ../src/Gui/Window.cpp:549
+msgctxt "Gui::MainWindow|"
+msgid "T&o Address"
+msgstr "&Vastaanottajan osoite"
+
+#: ../src/Gui/Window.cpp:554
+msgctxt "Gui::MainWindow|"
+msgid "&Hide Read Messages"
+msgstr "P&iilota luetut viestit"
+
+#: ../src/Gui/Window.cpp:563
+msgctxt "Gui::MainWindow|"
+msgid "&Compact"
+msgstr "&Tiivis"
+
+#: ../src/Gui/Window.cpp:567
+msgctxt "Gui::MainWindow|"
+msgid "&Wide"
+msgstr "Le&veä"
+
+#: ../src/Gui/Window.cpp:570
+msgctxt "Gui::MainWindow|"
+msgid "&One At a Time"
+msgstr "&Yksi kerrallaan"
+
+#: ../src/Gui/Window.cpp:575
+msgctxt "Gui::MainWindow|"
+msgid "Show Only S&ubscribed Folders"
+msgstr "Näytä vain &tilatut kansiot"
+
+#: ../src/Gui/Window.cpp:579
+msgctxt "Gui::MainWindow|"
+msgid "Su&bscribed"
+msgstr "T&ilatut"
+
+#: ../src/Gui/Window.cpp:584
+msgctxt "Gui::MainWindow|"
+msgid "&About Trojitá..."
+msgstr "&Tietoa Trojitásta…"
+
+#: ../src/Gui/Window.cpp:587
+msgctxt "Gui::MainWindow|"
+msgid "&Donate to the project"
+msgstr "Tee &lahjoitus projektille…"
+
+#: ../src/Gui/Window.cpp:592
+msgctxt "Gui::MainWindow|"
+msgid "Compose Mail"
+msgstr "Kirjoita viesti"
+
+#: ../src/Gui/Window.cpp:692
+msgctxt "Gui::MainWindow|"
+msgid "&Application"
+msgstr "&Sovellus"
+
+#: ../src/Gui/Window.cpp:694
+msgctxt "Gui::MainWindow|"
+msgid "&Network Access"
+msgstr "&Verkkoyhteys"
+
+#: ../src/Gui/Window.cpp:698
+msgctxt "Gui::MainWindow|"
+msgid "&Debugging"
+msgstr "&Virheenpaikannus"
+
+#: ../src/Gui/Window.cpp:718
+msgctxt "Gui::MainWindow|"
+msgid "&View"
+msgstr "&Näkymä"
+
+#: ../src/Gui/Window.cpp:721
+msgctxt "Gui::MainWindow|"
+msgid "&Layout"
+msgstr "&Asettelu"
+
+#: ../src/Gui/Window.cpp:728
+msgctxt "Gui::MainWindow|"
+msgid "Mail&box"
+msgstr "&Postikansio"
+
+#: ../src/Gui/Window.cpp:729
+msgctxt "Gui::MainWindow|"
+msgid "S&orting"
+msgstr "&Lajittelu"
+
+#: ../src/Gui/Window.cpp:751
+msgctxt "Gui::MainWindow|"
+msgid "&Message"
+msgstr "&Viesti"
+
+#: ../src/Gui/Window.cpp:830
+#, qt-format
+msgctxt "QObject|"
+msgid "Link target: %1"
+msgstr "Linkin kohde: %1"
+
+#: ../src/Gui/Window.cpp:842
+msgctxt "Gui::MainWindow|"
+msgid "Everything"
+msgstr "Kaikki"
+
+#: ../src/Gui/Window.cpp:850
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Tasks"
+msgstr "IMAP-tehtävät"
+
+#: ../src/Gui/Window.cpp:857
+msgctxt "Gui::MainWindow|"
+msgid "MIME Tree"
+msgstr "MIME-puu"
+
+#: ../src/Gui/Window.cpp:867
+msgctxt "Gui::MainWindow|"
+msgid "Protocol log"
+msgstr "Yhteyskäytäntöloki"
+
+#: ../src/Gui/Window.cpp:944
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Attempting to reconnect in %n seconds.."
+msgid_plural "Attempting to reconnect in %n seconds.."
+msgstr[0] "Yritetään yhdistää uudelleen %n sekunnin kuluttua…"
+msgstr[1] "Yritetään yhdistää uudelleen %n sekunnin kuluttua…"
+
+#: ../src/Gui/Window.cpp:997
+msgctxt "Gui::MainWindow|"
+msgid "&Quit"
+msgstr "&Lopeta"
+
+#. This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
+#: ../src/Gui/Window.cpp:1112
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid " - %n unread message(s)"
+msgid_plural " - %n unread message(s)"
+msgstr[0] " – %n lukematon viesti"
+msgstr[1] " – %n lukematonta viestiä"
+
+#. A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
+#: ../src/Gui/Window.cpp:1115
+msgctxt "Gui::MainWindow|"
+msgid " - offline"
+msgstr " - ei verkossa"
+
+#: ../src/Gui/Window.cpp:1124 ../src/Gui/Window.cpp:2566
+msgctxt "Gui::MainWindow|"
+msgid "Trojitá"
+msgstr "Trojitá"
+
+#: ../src/Gui/Window.cpp:1125
+msgctxt "Gui::MainWindow|"
+msgid ""
+"The application will continue in systray. This can be disabled within the "
+"settings."
+msgstr ""
+"Ohjelma pysyy käynnissä ilmoitusalueella. Voit poistaa tämän käytöstä "
+"asetuksista."
+
+#. "ALERT" is a special warning which we're required to show to the user
+#: ../src/Gui/Window.cpp:1338
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Alert"
+msgstr "IMAP-hälytys"
+
+#: ../src/Gui/Window.cpp:1343
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Protocol Error"
+msgstr "IMAP-yhteyskäytäntövirhe"
+
+#: ../src/Gui/Window.cpp:1351
+msgctxt "Gui::MainWindow|"
+msgid "Network Error"
+msgstr "Verkkovirhe"
+
+#: ../src/Gui/Window.cpp:1372
+msgctxt "Gui::MainWindow|"
+msgid "IMAP Cache Error"
+msgstr "IMAP-välimuistivirhe"
+
+#: ../src/Gui/Window.cpp:1373
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"The caching subsystem managing a cache of the data already downloaded from "
+"the IMAP server is having troubles. All caching will be disabled.\n"
+"\n"
+"%1"
+msgstr ""
+"IMAP-palvelimesta jo ladatun tiedon välimuistia hallitseva alijärjestelmä "
+"kohtasi ongelmia. Välimuisti poistetaan käytöstä.\n"
+"\n"
+"%1"
+
+#: ../src/Gui/Window.cpp:1384
+msgctxt "Gui::MainWindow|"
+msgid "Offline"
+msgstr "Ei verkossa"
+
+#: ../src/Gui/Window.cpp:1430
+msgctxt "Gui::MainWindow|"
+msgid "No Configuration"
+msgstr "Ei asetettu"
+
+#: ../src/Gui/Window.cpp:1431
+msgctxt "Gui::MainWindow|"
+msgid "No IMAP account is configured. Trojitá cannot do much without one."
+msgstr "IMAP-tiliä ei ole asetettu. Trojitá ei tee paljonkaan ilman sellaista."
+
+# *** TARKISTA: Onko %1 ”varaston” nimi (jolloin sanajärjestystä pitäisi muuttaa) vai virheilmoitus?
+#: ../src/Gui/Window.cpp:1456
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Failed to retrieve password from the store: %1"
+msgstr "Salasanan nouto varastosta epäonnistui: %1"
+
+#: ../src/Gui/Window.cpp:1474
+msgctxt "Gui::MainWindow|"
+msgid "Authentication Required"
+msgstr "Tunnistautumista vaaditaan"
+
+#: ../src/Gui/Window.cpp:1475
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>"
+msgstr "<p>Anna käyttäjän <b>%1</b> IMAP-salasana palvelimeen <b>%2</b>:</p>"
+
+#: ../src/Gui/Window.cpp:1529
+msgctxt "Gui::MainWindow|"
+msgid "Edit draft"
+msgstr "Muokkaa luonnosta"
+
+#: ../src/Gui/Window.cpp:1650
+msgctxt "Gui::MainWindow|"
+msgid "Failed to archive"
+msgstr "Arkistointi epäonnistui"
+
+#: ../src/Gui/Window.cpp:1700
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Create a Subfolder of %1"
+msgstr "Luo alikansio kansioon %1"
+
+#: ../src/Gui/Window.cpp:1701
+msgctxt "Gui::MainWindow|"
+msgid "Create a Top-level Mailbox"
+msgstr "Luo ylimmän tason postikansio"
+
+#: ../src/Gui/Window.cpp:1728
+msgctxt "Gui::MainWindow|"
+msgid "Delete Mailbox"
+msgstr "Poista postikansio"
+
+#: ../src/Gui/Window.cpp:1729
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Are you sure to delete mailbox %1?"
+msgstr "Haluatko varmasti poistaa postikansion %1?"
+
+#: ../src/Gui/Window.cpp:2028
+msgctxt "Gui::MainWindow|"
+msgid "Can't delete mailbox"
+msgstr "Postikansiota ei voi poistaa"
+
+#: ../src/Gui/Window.cpp:2029
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"Deleting mailbox \"%1\" failed with the following message:\n"
+"%2"
+msgstr ""
+"Postikansion ”%1” poisto epäonnistui seuraavan virheen takia:\n"
+"%2"
+
+#: ../src/Gui/Window.cpp:2034
+msgctxt "Gui::MainWindow|"
+msgid "Can't create mailbox"
+msgstr "Ei voida luoda postikansiota"
+
+#: ../src/Gui/Window.cpp:2035
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"Creating mailbox \"%1\" failed with the following message:\n"
+"%2"
+msgstr ""
+"Postikansion ”%1” luominen epäonnistui seuraavan virheen takia:\n"
+"%2"
+
+#: ../src/Gui/Window.cpp:2040
+msgctxt "Gui::MainWindow|"
+msgid "Can't open mailbox"
+msgstr "Postikansiota ei voi avata"
+
+#: ../src/Gui/Window.cpp:2041
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"Opening mailbox \"%1\" failed with the following message:\n"
+"%2"
+msgstr ""
+"Postikansion ”%1” avaus epäonnistui seuraavan virheen takia:\n"
+"%2"
+
+#: ../src/Gui/Window.cpp:2090
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Link target: %1"
+msgstr "Linkin kohde: %1"
+
+#: ../src/Gui/Window.cpp:2105
+msgctxt "Gui::MainWindow|"
+msgid "Plugins"
+msgstr "Liitännäiset"
+
+#: ../src/Gui/Window.cpp:2112
+msgctxt "Gui::MainWindow|"
+msgid "Encrypted and signed messages"
+msgstr "Salatut ja allekirjoitetut viestit"
+
+#: ../src/Gui/Window.cpp:2119
+msgctxt "Gui::MainWindow|"
+msgid "IMAP compression"
+msgstr "IMAP-pakkaus"
+
+#: ../src/Gui/Window.cpp:2130
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<li>%1: supported</li>"
+msgstr "<li>%1: ei tuettu</li>"
+
+#: ../src/Gui/Window.cpp:2131
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<li>%1: <strong>disabled</strong></li>"
+msgstr "<li>%1: <strong>ei käytössä</strong><li>"
+
+#: ../src/Gui/Window.cpp:2189
+msgctxt "Gui::MainWindow|"
+msgid "Can't save into file"
+msgstr "Tiedostoon ei voi tallentaa"
+
+#: ../src/Gui/Window.cpp:2190
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"Unable to save into file. Error:\n"
+"%1"
+msgstr ""
+"Tiedostoon ei voi tallentaa. Virhe:\n"
+"%1"
+
+#: ../src/Gui/Window.cpp:2195
+msgctxt "Gui::MainWindow|"
+msgid "Save Message"
+msgstr "Tallenna viesti"
+
+#. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
+#: ../src/Gui/Window.cpp:2209
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Message source of UID %1 in %2"
+msgstr "Viestin lähdekoodi – UID %1 kansiossa %2"
+
+#: ../src/Gui/Window.cpp:2222 ../src/Gui/Window.cpp:2241
+msgctxt "Gui::MainWindow|"
+msgid "Close"
+msgstr "Sulje"
+
+#: ../src/Gui/Window.cpp:2224 ../src/Gui/Window.cpp:2243
+msgctxt "Gui::MainWindow|"
+msgid "Ctrl+W"
+msgstr "Ctrl+W"
+
+#: ../src/Gui/Window.cpp:2486
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<li>%1</li>\n"
+msgstr "<li>%1</li>\n"
+
+#: ../src/Gui/Window.cpp:2494
+msgctxt "Gui::MainWindow|"
+msgid "Unknown"
+msgstr "Tuntematon"
+
+#: ../src/Gui/Window.cpp:2508
+msgctxt "Gui::MainWindow|"
+msgid "<p>"
+msgstr "<p>"
+
+#: ../src/Gui/Window.cpp:2510
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Server: %1 %2"
+msgstr "Palvelin: %1 %2"
+
+#: ../src/Gui/Window.cpp:2512
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Server: %1"
+msgstr "Palvelin: %1"
+
+#: ../src/Gui/Window.cpp:2515
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid " (%1)"
+msgstr " (%1)"
+
+#: ../src/Gui/Window.cpp:2519
+#, qt-format
+msgctxt ""
+"Gui::MainWindow|%1 is the operating system of an IMAP server and %2 is its "
+"version."
+msgid " on %1 %2"
+msgstr " käyttöjärjestelmässä %1 %2"
+
+#: ../src/Gui/Window.cpp:2521
+#, qt-format
+msgctxt "Gui::MainWindow|%1 is the operationg system of an IMAP server."
+msgid " on %1"
+msgstr " käyttöjärjestelmässä %1"
+
+#: ../src/Gui/Window.cpp:2523
+msgctxt "Gui::MainWindow|"
+msgid "</p>"
+msgstr "</p>"
+
+#: ../src/Gui/Window.cpp:2525
+msgctxt "Gui::MainWindow|"
+msgid "<p>The IMAP server did not return usable information about itself.</p>"
+msgstr "<p>IMAP-palvelin ei palauttanut käyttökelpoista tietoa itsestään.</p>"
+
+#: ../src/Gui/Window.cpp:2529
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<li>%1: %2</li>"
+msgstr "<li>%1: %2</li>"
+
+#: ../src/Gui/Window.cpp:2531
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "<ul>%1</ul>"
+msgstr "<ul>%1</ul>"
+
+#: ../src/Gui/Window.cpp:2533
+msgctxt "Gui::MainWindow|"
+msgid ""
+"<p>The server has not provided information about its software version.</p>"
+msgstr "<p>Palvelin ei tarjonnut tietoja ohjelmaversiostaan.</p>"
+
+#: ../src/Gui/Window.cpp:2540
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"%1\n"
+"<p>The following capabilities are currently advertised:</p>"
+msgstr ""
+"%1\n"
+"<p>Seuraavat ominaisuudet on ilmoitettu:</p>"
+
+#: ../src/Gui/Window.cpp:2542
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid ""
+"<ul>\n"
+"%1</ul>"
+msgstr ""
+"<ul>\n"
+"%1</ul>"
+
+#: ../src/Gui/Window.cpp:2560
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "%1 - %n unread - Trojitá"
+msgid_plural "%1 - %n unread - Trojitá"
+msgstr[0] "%1 – %n lukematta – Trojitá"
+msgstr[1] "%1 – %n lukematta – Trojitá"
+
+#: ../src/Gui/Window.cpp:2563
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "%1 - Trojitá"
+msgstr "%1 – Trojitá"
+
+#: ../src/Gui/Window.cpp:2900
+#, qt-format
+msgctxt "Gui::MainWindow|"
+msgid "Tag with \"%1\""
+msgstr "Luokittele: ”%1”"
+
+#: ../src/Imap/ConnectionState.cpp:35
+msgctxt "QObject|"
+msgid "Resolving hostname..."
+msgstr "Selvitetään verkkonimeä…"
+
+#: ../src/Imap/ConnectionState.cpp:37
+msgctxt "QObject|"
+msgid "Connecting to the IMAP server..."
+msgstr "Yhdistetään IMAP-palvelimeen…"
+
+#: ../src/Imap/ConnectionState.cpp:39
+msgctxt "QObject|"
+msgid "Starting encryption (SSL)..."
+msgstr "Käynnistetään salausta (SSL)…"
+
+#: ../src/Imap/ConnectionState.cpp:41
+msgctxt "QObject|"
+msgid "Checking certificates (SSL)..."
+msgstr "Tarkistetaan varmenteita (SSL)…"
+
+#: ../src/Imap/ConnectionState.cpp:43
+msgctxt "QObject|"
+msgid "Checking capabilities..."
+msgstr "Tarkistetaan ominaisuuksia…"
+
+#: ../src/Imap/ConnectionState.cpp:45
+msgctxt "QObject|"
+msgid "Waiting for encryption..."
+msgstr "Odotetaan salausta…"
+
+#: ../src/Imap/ConnectionState.cpp:47
+msgctxt "QObject|"
+msgid "Asking for encryption..."
+msgstr "Pyydetään salausta…"
+
+#: ../src/Imap/ConnectionState.cpp:49
+msgctxt "QObject|"
+msgid "Starting encryption (STARTTLS)..."
+msgstr "Käynnistetään salausta (STARTTLS)…"
+
+#: ../src/Imap/ConnectionState.cpp:51
+msgctxt "QObject|"
+msgid "Checking certificates (STARTTLS)..."
+msgstr "Tarkistetaan varmenteita (STARTTLS)…"
+
+#: ../src/Imap/ConnectionState.cpp:53
+msgctxt "QObject|"
+msgid "Checking capabilities (after STARTTLS)..."
+msgstr "Tarkistetaan ominaisuuksia (STARTTLS:n jälkeen)…"
+
+#: ../src/Imap/ConnectionState.cpp:55
+msgctxt "QObject|"
+msgid "Logging in..."
+msgstr "Kirjaudutaan…"
+
+#: ../src/Imap/ConnectionState.cpp:57
+msgctxt "QObject|"
+msgid "Checking capabilities (after login)..."
+msgstr "Tarkistetaan ominaisuuksia (kirjautumisen jälkeen)…"
+
+#: ../src/Imap/ConnectionState.cpp:59
+msgctxt "QObject|"
+msgid "Activating compression..."
+msgstr "Käynnistetään pakkausta…"
+
+#: ../src/Imap/ConnectionState.cpp:61
+msgctxt "QObject|"
+msgid "Logged in."
+msgstr "Kirjauduttu."
+
+#: ../src/Imap/ConnectionState.cpp:63
+msgctxt "QObject|"
+msgid "Waiting for another mailbox..."
+msgstr "Odotetaan toista postikansiota…"
+
+#: ../src/Imap/ConnectionState.cpp:65
+msgctxt "QObject|"
+msgid "Opening mailbox..."
+msgstr "Avataan postikansiota…"
+
+#: ../src/Imap/ConnectionState.cpp:67
+msgctxt "QObject|"
+msgid "Synchronizing mailbox..."
+msgstr "Synkronoidaan postikansiota…"
+
+#: ../src/Imap/ConnectionState.cpp:69
+msgctxt "QObject|"
+msgid "Mailbox opened."
+msgstr "Postikansio avattu."
+
+#: ../src/Imap/ConnectionState.cpp:71
+msgctxt "QObject|"
+msgid "Downloading message..."
+msgstr "Ladataan viestiä…"
+
+#: ../src/Imap/ConnectionState.cpp:73
+msgctxt "QObject|"
+msgid "Downloading message structure..."
+msgstr "Ladataan viestin rakennetta…"
+
+#: ../src/Imap/ConnectionState.cpp:75
+msgctxt "QObject|"
+msgid "Logged out."
+msgstr "Kirjauduttu ulos."
+
+#: ../src/Imap/Model/DiskPartCache.cpp:64
+msgctxt "QObject|"
+msgid "Unrecognized QFile error"
+msgstr "Tuntematon QFile-virhe"
+
+#: ../src/Imap/Model/DiskPartCache.cpp:85
+#, qt-format
+msgctxt "QObject|"
+msgid "Couldn't remove file %1 for mailbox %2"
+msgstr "Tiedostoa %1 ei voi poistaa: postilaatikko %2"
+
+#: ../src/Imap/Model/DiskPartCache.cpp:95
+#, qt-format
+msgctxt "QObject|"
+msgid "Couldn't remove file %1 for message %2, mailbox %3"
+msgstr "Tiedostoa %1 ei voi poistaa: viesti %2, postilaatikko %3"
+
+#: ../src/Imap/Model/DiskPartCache.cpp:117
+#, qt-format
+msgctxt "QObject|"
+msgid ""
+"Couldn't save the part %1 of message %2 (mailbox %3) into file %4: %5 (%6)"
+msgstr ""
+"Viestin %2 (postilaatikko %3) osaa %1 ei voida tallentaa tiedostoon %4: %5 "
+"(%6)"
+
+#: ../src/Imap/Model/FavoriteTagsModel.cpp:124
+msgctxt "Imap::Mailbox::FavoriteTagsModel|"
+msgid "#"
+msgstr "#"
+
+#: ../src/Imap/Model/FavoriteTagsModel.cpp:126
+msgctxt "Imap::Mailbox::FavoriteTagsModel|"
+msgid "Name"
+msgstr "Nimi"
+
+#: ../src/Imap/Model/FavoriteTagsModel.cpp:128
+msgctxt "Imap::Mailbox::FavoriteTagsModel|"
+msgid "Color"
+msgstr "Väri"
+
+# Tässä on todennäköisesti kyse viestin katoamisesta eikä lähtemisestä.
+#: ../src/Imap/Model/FullMessageCombiner.cpp:79
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Message is gone"
+msgstr "Viesti on kadonnut"
+
+#: ../src/Imap/Model/FullMessageCombiner.cpp:91
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Offline mode: uncached message data not available"
+msgstr "Verkoton tila: vain välimuistissa oleva viestitieto saatavilla"
+
+#: ../src/Imap/Model/FullMessageCombiner.cpp:93
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Offline mode: uncached header data not available"
+msgstr "Verkoton tila: vain välimuistissa oleva otsaketieto saatavilla"
+
+#: ../src/Imap/Model/FullMessageCombiner.cpp:95
+msgctxt "Imap::Mailbox::FullMessageCombiner|"
+msgid "Offline mode: uncached body data not available"
+msgstr "Verkoton tila: vain välimuistissa oleva viestinrunkotieto saatavilla"
+
+#: ../src/Imap/Model/ImapAccess.cpp:317
+#, qt-format
+msgctxt "Imap::ImapAccess|"
+msgid "Failed to create directory %1"
+msgstr "Kansion %1 luonti epäonnistui"
+
+#: ../src/Imap/Model/ImapAccess.cpp:326
+#, qt-format
+msgctxt "Imap::ImapAccess|"
+msgid "Failed to set safe permissions on cache directory %1"
+msgstr "Turvallisten oikeuksien asettaminen välimuistikansioon %1 epäonnistui"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1244
+msgctxt "Imap::Mailbox::Model|"
+msgid "Today"
+msgstr "Tänään"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1248
+msgctxt "Imap::Mailbox::Model|"
+msgid "Last Week"
+msgstr "Viime viikolla"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1251
+msgctxt ""
+"Imap::Mailbox::Model|The format specifiers (yyyy, etc) must not be "
+"translated, but their order can be changed to follow the local conventions. "
+"For valid specifiers see http://doc.qt.io/qt-5/qdate.html#toString"
+msgid "MMMM yyyy"
+msgstr "MMMM yyyy"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1718
+#, qt-format
+msgctxt "Imap::Mailbox::Model|"
+msgid "[loading %1...]"
+msgstr "[ladataan %1…]"
+
+#: ../src/Imap/Model/MailboxTree.cpp:1719
+#, qt-format
+msgctxt "Imap::Mailbox::Model|"
+msgid "[loading %1: %2...]"
+msgstr "[ladataan %1: %2…]"
+
+#: ../src/Imap/Model/Model.cpp:1069
+msgctxt "Imap::Mailbox::Model|"
+msgid "Going offline"
+msgstr "Poistutaan verkosta"
+
+#: ../src/Imap/Model/Model.cpp:1143
+msgctxt "Imap::Mailbox::Model|"
+msgid ""
+"<p>It appears that you are connecting to a POP3 server. That won't work here."
+"</p>"
+msgstr ""
+"<p>Vaikuttaa siltä, että yhdistät POP3-palvelimeen. Se ei toimi tässä.</p>"
+
+#: ../src/Imap/Model/Model.cpp:1145
+msgctxt "Imap::Mailbox::Model|"
+msgid ""
+"<p>It appears that you are connecting to an SMTP server. That won't work "
+"here.</p>"
+msgstr ""
+"<p>Vaikuttaa siltä, että yhdistät SMTP-palvelimeen. Se ei toimi tässä.</p>"
+
+#: ../src/Imap/Model/Model.cpp:1147
+#, qt-format
+msgctxt "Imap::Mailbox::Model|"
+msgid ""
+"<h2>This is not an IMAP server</h2>%1<p>Please check your settings to make "
+"sure you are connecting to the IMAP service. A typical port number for IMAP "
+"is 143 or 993.</p><p>The server said:</p><pre>%2</pre>"
+msgstr ""
+"<h2>Tämä ei ole IMAP-palvelin.</h2>%1<p>Tarkista asetukset varmistaaksesi, "
+"että yhdistät IMAP-palveluun. Tyypillinen IMAP-portin numero on 143 tai 993."
+"</p><p>Palvelin vastasi:</p><pre>%2</pre>"
+
+#: ../src/Imap/Model/Model.cpp:1154
+#, qt-format
+msgctxt "Imap::Mailbox::Model|"
+msgid ""
+"<p>The IMAP server sent us a reply which we could not parse. This might "
+"either mean that there's a bug in Trojitá's code, or that the IMAP server "
+"you are connected to is broken. Please report this as a bug anyway. Here are "
+"the details:</p><p><b>%1</b>: %2</p><pre>%3\n"
+"%4</pre>"
+msgstr ""
+"<p>IMAP-palvelin lähetti vastauksen, jota ei kyetä jäsentämään. Tämä voi "
+"tarkoittaa joko että Trojitássa on ohjelmavirhe tai että IMAP-palvelin, "
+"johon yhdistät, on rikki. Ilmoita tämä joka tapauksessa ohjelmavirheenä. "
+"Tässä ovat tarkat tiedot:</p><p><b>%1</b>: %2</p><pre>%3\n"
+"%4</pre>"
+
+#: ../src/Imap/Model/Model.cpp:1212
+msgctxt "Imap::Mailbox::Model|"
+msgid "We aren't talking to an IMAP4 server"
+msgstr "Ei olla yhteydessä IMAP4-palvelimeen"
+
+#: ../src/Imap/Model/Model.cpp:1467
+msgctxt "Imap::Mailbox::Model|"
+msgid "The connection is being killed for unspecified reason"
+msgstr "Yhteys on katkeamassa määrittämättömästä syystä"
+
+#: ../src/Imap/Model/MsgListModel.cpp:282
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Subject"
+msgstr "Aihe"
+
+#: ../src/Imap/Model/MsgListModel.cpp:284
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "From"
+msgstr "Lähettäjä"
+
+#: ../src/Imap/Model/MsgListModel.cpp:286
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "To"
+msgstr "Vastaanottaja"
+
+#: ../src/Imap/Model/MsgListModel.cpp:288
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Cc"
+msgstr "Kopio"
+
+#: ../src/Imap/Model/MsgListModel.cpp:290
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Bcc"
+msgstr "Piilokopio"
+
+#: ../src/Imap/Model/MsgListModel.cpp:292
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Date"
+msgstr "Päiväys"
+
+#: ../src/Imap/Model/MsgListModel.cpp:294
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Received"
+msgstr "Vastaanotettu"
+
+#: ../src/Imap/Model/MsgListModel.cpp:296
+msgctxt "Imap::Mailbox::MsgListModel|"
+msgid "Size"
+msgstr "Koko"
+
+#: ../src/Imap/Model/NetworkWatcher.cpp:63
+#, qt-format
+msgctxt "Imap::Mailbox::NetworkWatcher|"
+msgid "Attempting to reconnect in %n secs"
+msgid_plural "Attempting to reconnect in %n secs"
+msgstr[0] "Yritetään yhdistää uudelleen %n s kuluttua"
+msgstr[1] "Yritetään yhdistää uudelleen %n s kuluttua"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:82
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%1 (%2/%3)"
+msgstr "%1 (%2/%3)"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:86
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%1 (%2)"
+msgstr "%1 (%2)"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:129
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%n messages"
+msgid_plural "%n messages"
+msgstr[0] "%n viesti"
+msgstr[1] "%n viestiä"
+
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:130
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%n unread"
+msgid_plural "%n unread"
+msgstr[0] "%n lukematta"
+msgstr[1] "%n lukematta"
+
+# Recent viittaa tässä IMAP-RFC:n \Recent-flagiin, joka tarkoittanee suunnilleen samaa kuin uusi viesti.
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:131
+#, qt-format
+msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+msgid "%n recent"
+msgid_plural "%n recent"
+msgstr[0] "%n uusi"
+msgstr[1] "%n uutta"
+
+#: ../src/Imap/Model/PrettyMsgListModel.cpp:108
+msgctxt "Imap::Mailbox::PrettyMsgListModel|"
+msgid "Loading..."
+msgstr "Ladataan…"
+
+#: ../src/Imap/Model/PrettyMsgListModel.cpp:113
+msgctxt "Imap::Mailbox::PrettyMsgListModel|"
+msgid "(no subject)"
+msgstr "(ei aihetta)"
+
+#: ../src/Imap/Model/SQLCache.cpp:96
+msgctxt "QObject|"
+msgid "Can't create table msg_threading"
+msgstr "Ei voida luoda msg_threading-taulukkoa"
+
+#: ../src/Imap/Model/SQLCache.cpp:105
+msgctxt "QObject|"
+msgid "Can't create table mailbox_sync_state"
+msgstr "Ei voida luoda mailbox_sync_state-taulukkoa"
+
+#: ../src/Imap/Model/SQLCache.cpp:117
+msgctxt "QObject|"
+msgid "Can't create table msg_metadata"
+msgstr "Ei voida luoda msg_metadata-taulukkoa"
+
+#: ../src/Imap/Model/SQLCache.cpp:132
+msgctxt "QObject|"
+msgid "Can't open database"
+msgstr "Ei voida avata tietokantaa"
+
+#: ../src/Imap/Model/SQLCache.cpp:147
+msgctxt "QObject|"
+msgid "Failed to verify version"
+msgstr "Version tarkistaminen epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:153
+msgctxt "QObject|"
+msgid "Can't determine version info"
+msgstr "Versiotietoja ei voi määrittää"
+
+#: ../src/Imap/Model/SQLCache.cpp:162
+msgctxt "QObject|"
+msgid "Failed to update cache DB scheme from v1 to v2"
+msgstr "Välimuistitietokannan skeeman päivittäminen v1:stä v2:een epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:171
+msgctxt "QObject|"
+msgid "Failed to drop old table mailbox_sync_state"
+msgstr "Vanhan mailbox_sync_state-taulukon poistaminen epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:177
+msgctxt "QObject|"
+msgid "Failed to update cache DB scheme from v2/v3 to v4"
+msgstr ""
+"Välimuistitietokannan skeeman päivittäminen v2:stä tai v3:stä v4:een "
+"epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:190
+msgctxt "QObject|"
+msgid "Failed to drop old table msg_metadata"
+msgstr "Vanhan msg_metadata-taulukon poistaminen epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:196
+msgctxt "QObject|"
+msgid "Failed to update cache DB scheme from v4/v5/v6 to v7"
+msgstr ""
+"Välimuistitietokannan skeeman päivittäminen v4:stä, v5:stä tai v6:sta v7:een "
+"epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:202
+msgctxt "QObject|"
+msgid "Unknown version of sqlite cache"
+msgstr "Tuntematon sqlite-välimuistin versio"
+
+#: ../src/Imap/Model/SQLCache.cpp:223
+msgctxt "QObject|"
+msgid "Failed to prepare table structures"
+msgstr "Taulukkorakenteiden valmistelu epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:227
+msgctxt "QObject|"
+msgid "Can't store version info"
+msgstr "Versiotietoja ei voida tallentaa"
+
+#: ../src/Imap/Model/SQLCache.cpp:238
+msgctxt "QObject|"
+msgid "Can't create table child_mailboxes"
+msgstr "Ei voida taulua child_mailboxes-taulukkoa"
+
+#: ../src/Imap/Model/SQLCache.cpp:246
+msgctxt "QObject|"
+msgid "Can't create table uid_mapping"
+msgstr "Ei voida luoda uid_mapping-taulukkoa"
+
+#: ../src/Imap/Model/SQLCache.cpp:258
+msgctxt "QObject|"
+msgid "Can't create table flags"
+msgstr "Ei voida luoda flags-taulukkoa"
+
+#: ../src/Imap/Model/SQLCache.cpp:268
+msgctxt "QObject|"
+msgid "Can't create table parts"
+msgstr "Ei voida luoda parts-taulukkoa"
+
+#: ../src/Imap/Model/SQLCache.cpp:281
+msgctxt "QObject|"
+msgid "Failed to prepare queryChildMailboxes"
+msgstr "Valmistelu epäonnistui: queryChildMailboxes"
+
+#: ../src/Imap/Model/SQLCache.cpp:287
+msgctxt "QObject|"
+msgid "Failed to prepare queryChildMailboxesFresh"
+msgstr "Valmistelu epäonnistui: queryChildMailboxesFresh"
+
+#: ../src/Imap/Model/SQLCache.cpp:293
+msgctxt "QObject|"
+msgid "Failed to prepare queryRemoveChildMailboxes"
+msgstr "Valmistelu epäonnistui: queryRemoveChildMailboxes"
+
+#: ../src/Imap/Model/SQLCache.cpp:299
+msgctxt "QObject|"
+msgid "Failed to prepare querySetChildMailboxes"
+msgstr "Valmistelu epäonnistui: querySetChildMailboxes"
+
+#: ../src/Imap/Model/SQLCache.cpp:305
+msgctxt "QObject|"
+msgid "Failed to prepare queryMailboxSyncState"
+msgstr "Valmistelu epäonnistui: queryMailboxSyncState"
+
+#: ../src/Imap/Model/SQLCache.cpp:313
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMailboxSyncState"
+msgstr "Valmistelu epäonnistui: querySetMailboxSyncState"
+
+#: ../src/Imap/Model/SQLCache.cpp:319
+msgctxt "QObject|"
+msgid "Failed to prepare queryUidMapping"
+msgstr "Valmistelu epäonnistui: queryUidMapping"
+
+#: ../src/Imap/Model/SQLCache.cpp:325
+msgctxt "QObject|"
+msgid "Failed to prepare querySetUidMapping"
+msgstr "Valmistelu epäonnistui: querySetUidMapping"
+
+#: ../src/Imap/Model/SQLCache.cpp:331
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearUidMapping"
+msgstr "Valmistelu epäonnistui: queryClearUidMapping"
+
+#: ../src/Imap/Model/SQLCache.cpp:337
+msgctxt "QObject|"
+msgid "Failed to prepare queryMessageMetadata"
+msgstr "Valmistelu epäonnistui: queryMessageMetadata"
+
+#: ../src/Imap/Model/SQLCache.cpp:343
+msgctxt "QObject|"
+msgid "Failed to prepare queryAccssMessageMetadata"
+msgstr "Valmistelu epäonnistui: queryAccssMessageMetadata"
+
+#: ../src/Imap/Model/SQLCache.cpp:349
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMessageMetadata"
+msgstr "Valmistelu epäonnistui: querySetMessageMetadata"
+
+#: ../src/Imap/Model/SQLCache.cpp:355
+msgctxt "QObject|"
+msgid "Failed to prepare queryMessageFlags"
+msgstr "Valmistelu epäonnistui: queryMessageFlags"
+
+#: ../src/Imap/Model/SQLCache.cpp:361
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMessageFlags"
+msgstr "Valmistelu epäonnistui: querySetMessageFlags"
+
+#: ../src/Imap/Model/SQLCache.cpp:367
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearAllMessages1"
+msgstr "Valmistelu epäonnistui: queryClearAllMessages1"
+
+#: ../src/Imap/Model/SQLCache.cpp:373
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearAllMessages2"
+msgstr "Valmistelu epäonnistui: queryClearAllMessages2"
+
+#: ../src/Imap/Model/SQLCache.cpp:379
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearAllMessages3"
+msgstr "Valmistelu epäonnistui: queryClearAllMessages3"
+
+#: ../src/Imap/Model/SQLCache.cpp:385
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearAllMessages4"
+msgstr "Valmistelu epäonnistui: queryClearAllMessages4"
+
+#: ../src/Imap/Model/SQLCache.cpp:391
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearMessage1"
+msgstr "Valmistelu epäonnistui: queryClearMessage1"
+
+#: ../src/Imap/Model/SQLCache.cpp:397
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearMessage2"
+msgstr "Valmistelu epäonnistui: queryClearMessage2"
+
+#: ../src/Imap/Model/SQLCache.cpp:403
+msgctxt "QObject|"
+msgid "Failed to prepare queryClearMessage3"
+msgstr "Valmistelu epäonnistui: queryClearMessage3"
+
+#: ../src/Imap/Model/SQLCache.cpp:409
+msgctxt "QObject|"
+msgid "Failed to prepare queryMessagePart"
+msgstr "Valmistelu epäonnistui: queryMessagePart"
+
+#: ../src/Imap/Model/SQLCache.cpp:415
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMessagePart"
+msgstr "Valmistelu epäonnistui: querySetMessagePart"
+
+#: ../src/Imap/Model/SQLCache.cpp:421
+msgctxt "QObject|"
+msgid "Failed to prepare queryForgetMessagePart"
+msgstr "Valmistelu epäonnistui: queryForgetMessagePart"
+
+#: ../src/Imap/Model/SQLCache.cpp:427
+msgctxt "QObject|"
+msgid "Failed to prepare queryMessageThreading"
+msgstr "Valmistelu epäonnistui: queryMessageThreading"
+
+#: ../src/Imap/Model/SQLCache.cpp:433
+msgctxt "QObject|"
+msgid "Failed to prepare querySetMessageThreading"
+msgstr "Valmistelu epäonnistui: querySetMessageThreading"
+
+#: ../src/Imap/Model/SQLCache.cpp:464
+msgctxt "QObject|"
+msgid "Query queryChildMailboxes failed"
+msgstr "queryChildMailboxes-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:475
+#, qt-format
+msgctxt "QObject|"
+msgid "Corrupt data when reading child items for mailbox %1, line %2"
+msgstr "Vioittunutta tietoa luettaessa postikansion %1 alakohtia, rivi %2"
+
+#: ../src/Imap/Model/SQLCache.cpp:487
+msgctxt "QObject|"
+msgid "Query queryChildMailboxesFresh failed"
+msgstr "queryChildMailboxesFresh-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:512
+msgctxt "QObject|"
+msgid "Query queryRemoveChildMailboxes failed"
+msgstr "queryRemoveChildMailboxes-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:520
+msgctxt "QObject|"
+msgid "Query querySetChildMailboxes failed"
+msgstr "querySetChildMailboxes-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:530
+msgctxt "QObject|"
+msgid "Query queryMailboxSyncState failed"
+msgstr "queryMailboxSyncState-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:555
+msgctxt "QObject|"
+msgid "Query querySetMailboxSyncState failed"
+msgstr "querySetMailboxSyncState-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:565
+msgctxt "QObject|"
+msgid "Query queryUidMapping failed"
+msgstr "queryUidMapping-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:590
+msgctxt "QObject|"
+msgid "Query querySetUidMapping failed"
+msgstr "querySetUidMapping-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:602
+msgctxt "QObject|"
+msgid "Query queryClearUidMapping failed"
+msgstr "queryClearUidMapping-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:617
+msgctxt "QObject|"
+msgid "Query queryClearAllMessages1 failed"
+msgstr "queryClearAllMessages1-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:620
+msgctxt "QObject|"
+msgid "Query queryClearAllMessages2 failed"
+msgstr "queryClearAllMessages2-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:623
+msgctxt "QObject|"
+msgid "Query queryClearAllMessages3 failed"
+msgstr "queryClearAllMessages3-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:626
+msgctxt "QObject|"
+msgid "Query queryClearAllMessages4 failed"
+msgstr "queryClearAllMessages4-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:644
+msgctxt "QObject|"
+msgid "Query queryClearMessage1 failed"
+msgstr "queryClearMessage1-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:647
+msgctxt "QObject|"
+msgid "Query queryClearMessage2 failed"
+msgstr "queryClearMessage2-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:650
+msgctxt "QObject|"
+msgid "Query queryClearMessage3 failed"
+msgstr "queryClearMessage3-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:660
+msgctxt "QObject|"
+msgid "Query queryMessageFlags failed"
+msgstr "queryMessageFlags-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:686
+msgctxt "QObject|"
+msgid "Query querySetMessageFlags failed"
+msgstr "querySetMessageFlags-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:696
+msgctxt "QObject|"
+msgid "Query queryMessageMetadata failed"
+msgstr "queryMessageMetadata-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:714
+msgctxt "QObject|"
+msgid "Query queryAccessMessageMetadata failed"
+msgstr "queryAccessMessageMetadata-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:740
+msgctxt "QObject|"
+msgid "Query querySetMessageMetadata failed"
+msgstr "querySetMessageMetadata-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:751
+msgctxt "QObject|"
+msgid "Query queryMessagePart failed"
+msgstr "queryMessagePart-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:772
+msgctxt "QObject|"
+msgid "Query querySetMessagePart failed"
+msgstr "querySetMessagePart-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:786
+msgctxt "QObject|"
+msgid "Query queryForgetMessagePart failed"
+msgstr "queryForgetMessagePart-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:795
+msgctxt "QObject|"
+msgid "Query queryMessageThreading failed"
+msgstr "queryMessageThreading-kysely epäonnistui"
+
+#: ../src/Imap/Model/SQLCache.cpp:819
+msgctxt "QObject|"
+msgid "Query querySetMessageThreading failed"
+msgstr "querySetMessageThreading-kysely epäonnistui"
+
+#: ../src/Imap/Model/SystemNetworkWatcher.cpp:86
+msgctxt "Imap::Mailbox::SystemNetworkWatcher|"
+msgid ""
+"Qt does not recognize any network session. Please be sure that qtbearer "
+"package (or similar) is installed. Assuming that network is actually already "
+"available."
+msgstr ""
+"Qt ei tunnista verkkoistuntoa. Varmista, että qtbearer-paketti (tai "
+"vastaava) on asennettu – olettaen että verkkoa ylipäänsä olisi käytettävissä."
+
+#: ../src/Imap/Model/TaskPresentationModel.cpp:194
+#, qt-format
+msgctxt "Imap::Mailbox::TaskPresentationModel|"
+msgid "Parser %1"
+msgstr "Jäsennin %1"
+
+#: ../src/Imap/Model/TaskPresentationModel.cpp:199
+#, qt-format
+msgctxt "Imap::Mailbox::TaskPresentationModel|"
+msgid "%1: %2"
+msgstr "%1: %2"
+
+#: ../src/Imap/Model/ThreadingMsgListModel.cpp:328
+msgctxt "Imap::Mailbox::ThreadingMsgListModel|"
+msgid "[Message is missing]"
+msgstr "[Viesti puuttuu]"
+
+#: ../src/Imap/Model/ThreadingMsgListModel.cpp:331
+msgctxt "Imap::Mailbox::ThreadingMsgListModel|"
+msgid ""
+"This thread refers to an extra message, but that message is not present in "
+"the selected mailbox, or is missing from the current search context."
+msgstr ""
+"Säie viittaa viestiin, jota joko ei ole valitussa postikansiossa tai se "
+"puuttuu nykyisestä hakukontekstista."
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:45
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "Cannot translate CID URL: message is gone"
+msgstr "CID URL:n muuntaminen epäonnistui: viesti on kadonnut"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:57
+#, qt-format
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "CID not found (%1)"
+msgstr "CID:tä ei löydy (%1)"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:60
+#, qt-format
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "Unsupported URL (%1)"
+msgstr "URL:ää ei tueta (%1)"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:74
+#, qt-format
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "msg_%1.eml"
+msgstr "msg_%1.eml"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:77
+#, qt-format
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "msg_%1_%2"
+msgstr "msg_%1_%2"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:89
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "FileDownloadManager::downloadPart(): part has disappeared"
+msgstr "FileDownloadManager::downloadPart(): osa on kadonnut"
+
+#: ../src/Imap/Network/FileDownloadManager.cpp:118
+msgctxt "Imap::Network::FileDownloadManager|"
+msgid "FileDownloadManager::downloadMessage(): message has disappeared"
+msgstr "FileDownloadManager::downloadMessage(): viesti on kadonnut"
+
+#: ../src/Imap/Network/ForbiddenReply.cpp:34
+msgctxt "Imap::Network::ForbiddenReply|"
+msgid "Remote Content Is Banned"
+msgstr "Etäsisältö on estetty"
+
+#: ../src/Imap/Network/MsgPartNetworkReply.cpp:82
+msgctxt "Imap::Network::MsgPartNetworkReply|"
+msgid "Cannot access data"
+msgstr "Tietoihin ei päästä käsiksi"
+
+#: ../src/Imap/Network/MsgPartNetworkReply.cpp:85
+msgctxt "Imap::Network::MsgPartNetworkReply|"
+msgid "Uncached data not available when offline"
+msgstr "Välimuistin tiedot eivät ole käytettävissä verkotta"
+
+#: ../src/Imap/Network/MsgPartNetworkReply.cpp:87
+msgctxt "Imap::Network::MsgPartNetworkReply|"
+msgid "Error downloading data"
+msgstr "Virhe ladattaessa tietoja"
+
+# Voisi aiheuttaa epäselvyyttä, jos upload olisi tässä sama kuin send eli lähettää.
+# Kyse ei kuitenkaan ole viestin lähettämisestä jollekulle toiselle vaan
+# viestin laittamisesta IMAP-palvelimen postilaatikkoon.
+#: ../src/Imap/Tasks/AppendTask.cpp:97
+msgctxt "Imap::Mailbox::AppendTask|"
+msgid "Uploading message"
+msgstr "Siirretään viestiä palvelimelle"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:83
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "All messages disappeared before we could have copied them"
+msgstr "Kaikki viestit katosivat, ennen kuin niitä ehdittiin kopioida"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:105
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "Asked to die"
+msgstr "Pyydettiin kuolemaan"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:116
+#, qt-format
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "The COPY operation has failed: %1"
+msgstr "COPY-toiminto epäonnistui: %1"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:123
+#, qt-format
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "The UID MOVE operation has failed: %1"
+msgstr "UID MOVE -toiminto epäonnistui: %1"
+
+#: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:133
+msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
+msgid "Copying messages"
+msgstr "Kopioidaan viestejä"
+
+#: ../src/Imap/Tasks/CreateMailboxTask.cpp:64
+msgctxt "Imap::Mailbox::CreateMailboxTask|"
+msgid "Asked to die"
+msgstr "Pyydettiin kuolemaan"
+
+#: ../src/Imap/Tasks/CreateMailboxTask.cpp:71
+msgctxt "Imap::Mailbox::CreateMailboxTask|"
+msgid "Cannot create mailbox"
+msgstr "Ei voida luoda postikansiota"
+
+#: ../src/Imap/Tasks/CreateMailboxTask.cpp:79
+msgctxt "Imap::Mailbox::CreateMailboxTask|"
+msgid "Error with the LIST command after the CREATE"
+msgstr "Virhe LIST-komennossa CREATEn jälkeen"
+
+#: ../src/Imap/Tasks/CreateMailboxTask.cpp:89
+msgctxt "Imap::Mailbox::CreateMailboxTask|"
+msgid "Creating mailbox"
+msgstr "Luodaan postikansiota"
+
+#: ../src/Imap/Tasks/DeleteMailboxTask.cpp:99
+msgctxt "Imap::Mailbox::DeleteMailboxTask|"
+msgid "Couldn't delete mailbox"
+msgstr "Postikansiota ei voi poistaa"
+
+#: ../src/Imap/Tasks/DeleteMailboxTask.cpp:109
+msgctxt "Imap::Mailbox::DeleteMailboxTask|"
+msgid "Deleting mailbox"
+msgstr "Poistetaan postikansiota"
+
+#: ../src/Imap/Tasks/DeleteMailboxTask.cpp:115
+#, qt-format
+msgctxt "Imap::Mailbox::DeleteMailboxTask|"
+msgid "Mailbox %1 has pending activity, so it cannot be deleted now."
+msgstr "Postikansioon %1 on jonossa tehtäviä, joten sitä ei voi nyt poistaa."
+
+#: ../src/Imap/Tasks/DeleteMailboxTask.cpp:116
+msgctxt "Imap::Mailbox::DeleteMailboxTask|"
+msgid "Mailbox has pending activity"
+msgstr "Postikansioon on jonossa tehtäviä"
+
+#: ../src/Imap/Tasks/EnableTask.cpp:75
+msgctxt "Imap::Mailbox::EnableTask|"
+msgid "ENABLE failed, strange"
+msgstr "ENABLE epäonnistui, outoa"
+
+#: ../src/Imap/Tasks/EnableTask.cpp:86
+msgctxt "Imap::Mailbox::EnableTask|"
+msgid "Enabling IMAP extensions"
+msgstr "Otetaan IMAP-laajennuksia käyttöön"
+
+#: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:49
+msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
+msgid "Mailbox vanished before we could expunge it"
+msgstr "Postikansio katosi ennen kuin sitä ehdittiin tyhjentää"
+
+#: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:68
+msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
+msgid "Expunge failed"
+msgstr "Tyhjennys epäonnistui"
+
+#: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:78
+msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
+msgid "Removing deleted messages"
+msgstr "Poistetaan poistettavaksi merkittyjä viestejä"
+
+#: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:75
+msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
+msgid "All messages are gone already"
+msgstr "Kaikki viestit ovat jo kadonneet"
+
+#: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:80
+msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
+msgid "The IMAP server doesn't support the UIDPLUS extension"
+msgstr "IMAP-palvelin ei tue UIDPLUS-laajennusta"
+
+#: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:95
+msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
+msgid "UID EXPUNGE failed"
+msgstr "UID EXPUNGE epäonnistui"
+
+#: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:105
+msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
+msgid "Removing some of the deleted messages"
+msgstr "Poistetaan poistettavaksi merkittyjä viestejä"
+
+#: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:60
+msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
+msgid "handleFetch: mailbox disappeared"
+msgstr "handleFetch: postikansio katosi"
+
+#: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:80
+msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
+msgid "UID FETCH failed"
+msgstr "UID FETCH epäonnistui"
+
+#: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:101
+msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
+msgid "Downloading headers"
+msgstr "Ladataan otsakkeita"
+
+#: ../src/Imap/Tasks/FetchMsgPartTask.cpp:59
+#: ../src/Imap/Tasks/FetchMsgPartTask.cpp:75
+msgctxt "Imap::Mailbox::FetchMsgPartTask|"
+msgid "Mailbox disappeared"
+msgstr "Postikansio katosi"
+
+#: ../src/Imap/Tasks/FetchMsgPartTask.cpp:121
+msgctxt "Imap::Mailbox::FetchMsgPartTask|"
+msgid "Downloading messages"
+msgstr "Ladataan viestejä"
+
+#: ../src/Imap/Tasks/GenUrlAuthTask.cpp:87
+msgctxt "Imap::Mailbox::GenUrlAuthTask|"
+msgid "Obtaining authentication token"
+msgstr "Noudetaan tunnistautumismerkkiä"
+
+#: ../src/Imap/Tasks/IdTask.cpp:67
+msgctxt "Imap::Mailbox::IdTask|"
+msgid "ID failed, strange"
+msgstr "ID epäonnistui, outoa"
+
+#: ../src/Imap/Tasks/IdTask.cpp:84
+msgctxt "Imap::Mailbox::IdTask|"
+msgid "Identifying server"
+msgstr "Tunnistetaan palvelinta"
+
+#: ../src/Imap/Tasks/ImapTask.cpp:256
+#, qt-format
+msgctxt "Imap::Mailbox::ImapTask|"
+msgid ""
+"The server sent the following ALERT:\n"
+"%1"
+msgstr ""
+"Palvelin lähetti seuraavan HÄLYTYKSEN:\n"
+"%1"
+
+#: ../src/Imap/Tasks/ImapTask.h:191
+msgctxt "Imap::Mailbox::ImapTask|"
+msgid "Asked to die"
+msgstr "Pyydettiin kuolemaan"
+
+#: ../src/Imap/Tasks/ImapTask.h:195
+msgctxt "Imap::Mailbox::ImapTask|"
+msgid "Aborted"
+msgstr "Keskeytetty"
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:176
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:427
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:491
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:517
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "Asked to die"
+msgstr "Pyydettiin kuolemaan"
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:264
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:265
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "Parser is gone"
+msgstr "Jäsennin on kadonnut"
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:713
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "Logging off..."
+msgstr "Kirjaudutaan ulos…"
+
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:920
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "The UIDVALIDITY has changed while mailbox is open. Please reconnect."
+msgstr ""
+"UIDVALIDITY on muuttunut postikansion ollessa auki. Ota yhteys uudelleen."
+
+# UNSELECT on IMAP-komento.
+#: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:948
+msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
+msgid "UNSELECTed"
+msgstr "Tehtiin UNSELECT"
+
+#: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:59
+msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
+msgid "Mailbox vanished before we could ask for its children"
+msgstr "Postikansio katosi, ennen kuin sen alikansioita ehdittiin kysyä"
+
+#: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:101
+msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
+msgid "LIST failed"
+msgstr "LIST epäonnistui"
+
+#: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:105
+msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
+msgid "Mailbox no longer available -- weird timing?"
+msgstr "Postikansio ei ole enää saatavilla – huono ajoitus?"
+
+#: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:151
+msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
+msgid "Listing mailboxes"
+msgstr "Luetellaan postikansioita"
+
+#: ../src/Imap/Tasks/NoopTask.cpp:63
+msgctxt "Imap::Mailbox::NoopTask|"
+msgid "NOOP failed, strange"
+msgstr "NOOP epäonnistui, outoa"
+
+#: ../src/Imap/Tasks/NoopTask.cpp:74
+msgctxt "Imap::Mailbox::NoopTask|"
+msgid "Checking for new messages"
+msgstr "Etsitään uutta postia"
+
+#: ../src/Imap/Tasks/NumberOfMessagesTask.cpp:78
+msgctxt "Imap::Mailbox::NumberOfMessagesTask|"
+msgid "STATUS has failed"
+msgstr "STATUS epäonnistui"
+
+#: ../src/Imap/Tasks/NumberOfMessagesTask.cpp:99
+msgctxt "Imap::Mailbox::NumberOfMessagesTask|"
+msgid "Looking for messages"
+msgstr "Etsitään viestejä"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:72
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Asked to abort or die"
+msgstr "Pyydettiin keskeyttämään tai kuolemaan"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:73
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Mailbox syncing dead or aborted"
+msgstr "Postikansion synkronointi on joko kaatunut tai keskeytetty"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:146
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Asked to die"
+msgstr "Pyydettiin kuolemaan"
+
+# Todennäköisesti ”paettiin postikansiosta” eikä ”jokin pakeni”.
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1202
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Escaped from mailbox"
+msgstr "Paettiin postikansiosta"
+
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1207
+msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
+msgid "Synchronizing mailbox"
+msgstr "Synkronoidaan postikansiota"
+
+#: ../src/Imap/Tasks/OfflineConnectionTask.cpp:55
+msgctxt "Imap::Mailbox::OfflineConnectionTask|"
+msgid "We're offline"
+msgstr "Ei verkossa"
+
+#: ../src/Imap/Tasks/OfflineConnectionTask.cpp:62
+msgctxt "Imap::Mailbox::OfflineConnectionTask|"
+msgid "Offline"
+msgstr "Ei verkossa"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:116
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Asked to die"
+msgstr "Pyydettiin kuolemaan"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:163
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Configuration requires sending STARTTLS, but the IMAP server greets us with "
+"PREAUTH. Encryption cannot be established. If this configuration worked "
+"previously, someone is after your data and they are pretty smart."
+msgstr ""
+"Asetuksissa vaaditaan STARTTLS:n lähetystä, mutta IMAP-palvelin tervehtii "
+"PREAUTHilla. Salausta ei voi käynnistää. Jos asetus ennen toimi, joku on "
+"jäljilläsi ja on aika ovela."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:195
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "This server gracefully refuses IMAP connections through a BYE response."
+msgstr "Tämä palvelin hylkää IMAP-pyynnöt siististi vastaamalla BYE."
+
+# BAD on jotain, joka tulee palvelimelta.
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:202
+#, qt-format
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"The server replied with the following BAD response:\n"
+"%1"
+msgstr ""
+"Palvelin vastasi BAD:\n"
+"%1"
+
+# BAD on jotain, joka tulee palvelimelta.
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:204
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Server has greeted us with a BAD response"
+msgstr "Palvelin tervehti vastauksella BAD"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:236
+#, qt-format
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Cannot establish a secure connection.\n"
+"The STARTTLS command failed: %1"
+msgstr ""
+"Salattua yhteyttä ei voida muodostaa.\n"
+"STARTTLS-komento epäonnistui: %1"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:265
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Server error: Capabilities contain LOGINDISABLED even after STARTTLS"
+msgstr ""
+"Palvelinvirhe: Ominaisuudet sisältävät STARTTLS:n jälkeenkin LOGINDISABLEDin"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:301
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Temporary failure because a subsystem is down."
+msgstr "Väliaikainen virhe, koska osajärjestelmä ei ole käynnissä."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:304
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Authentication failed.  This often happens due to bad password or wrong user "
+"name."
+msgstr ""
+"Tunnistautuminen epäonnistui. Näin käy yleensä väärän salasanan tai "
+"käyttäjätunnuksen takia."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:307
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Authentication succeeded in using the authentication identity, but the "
+"server cannot or will not allow the authentication identity to act as the "
+"requested authorization identity."
+msgstr ""
+"Tunnistautuminen onnistui tunnistautumishenkilöydellä, mutta palvelin ei voi "
+"tai halua sallia sitä pyydetyksi valtuutushenkilöydeksi."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:312
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Either authentication succeeded or the server no longer had the necessary "
+"data; either way, access is no longer permitted using that passphrase.  You "
+"should get a new passphrase."
+msgstr ""
+"Tunnistautuminen joko onnistui tai palvelimella ei enää ole tarvittavia "
+"tietoja; joka tapauksessa käyttöön tällä salasanalla ei enää ole lupaa. "
+"Hanki uusi salasana."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:317
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "The operation is not permitted due to a lack of privacy."
+msgstr "Toiminto ei ole sallittu yksityisyyden puutteen takia."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:320
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "You should contact the system administrator or support desk."
+msgstr "Ota yhteyttä järjestelmän ylläpitoon."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:327
+#, qt-format
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Login failed: %1"
+msgstr "Kirjautuminen epäonnistui: %1"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:329
+#, qt-format
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "%1 %2"
+msgstr "%1 %2"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:383
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"Server error: LOGINDISABLED but no STARTTLS capability. The login is "
+"effectively disabled entirely."
+msgstr ""
+"Palvelinvirhe: LOGINDISABLED, mutta ei STARTTLS-ominaisuutta. Kirjautuminen "
+"on siis kokonaan poissa käytöstä."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:403
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Server error: did not get the required CAPABILITY response."
+msgstr "Palvelinvirhe: ei saatu vaadittua CAPABILITY-vastausta."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:407
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Server error: The CAPABILITY request failed."
+msgstr "Palvelinvirhe: CAPABILITY-pyyntö epäonnistui."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:472
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Cannot login, you have not provided any credentials yet."
+msgstr "Ei voida kirjautua, koska et ole vielä antanut kirjautumistietoja."
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:484
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "Connecting to mail server"
+msgstr "Yhdistetään postipalvelimeen"
+
+# Id:stä ei puutu sanaa.
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:504
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid "The security state of the SSL connection got rejected"
+msgstr "SSL-yhteyden turvallisuustila hylättiin"
+
+#: ../src/Imap/Tasks/OpenConnectionTask.cpp:513
+msgctxt "Imap::Mailbox::OpenConnectionTask|"
+msgid ""
+"The security state of the connection after a STARTTLS operation got rejected"
+msgstr "Yhteyden STARTTLS-toiminnon jälkeinen turvallisuustila hylättiin"
+
+#: ../src/Imap/Tasks/SortTask.cpp:55
+msgctxt "Imap::Mailbox::SortTask|"
+msgid "Mailbox vanished before we could ask for threading info"
+msgstr "Postikansio katosi, ennen kuin säikeistystietoja ehdittiin kysyä"
+
+#: ../src/Imap/Tasks/SortTask.cpp:150
+msgctxt "Imap::Mailbox::SortTask|"
+msgid "Sorting command has failed"
+msgstr "Lajittelukomento epäonnistui"
+
+#: ../src/Imap/Tasks/SortTask.cpp:244
+msgctxt "Imap::Mailbox::SortTask|"
+msgid "Sorting mailbox"
+msgstr "Lajitellaan postikansiota"
+
+#: ../src/Imap/Tasks/SubscribeUnsubscribeTask.cpp:94
+msgctxt "Imap::Mailbox::SubscribeUnsubscribeTask|"
+msgid "SUBSCRIBE/UNSUBSCRIBE has failed"
+msgstr "SUBSCRIBE/UNSUBSCRIBE epäonnistui"
+
+#: ../src/Imap/Tasks/SubscribeUnsubscribeTask.cpp:110
+msgctxt "Imap::Mailbox::SubscribeUnsubscribeTask|"
+msgid "Updating subscription information"
+msgstr "Päivitetään tilaustietoja"
+
+#: ../src/Imap/Tasks/ThreadTask.cpp:53
+msgctxt "Imap::Mailbox::ThreadTask|"
+msgid "Mailbox vanished before we could ask for threading info"
+msgstr "Postikansio katosi, ennen kuin säikeistystietoja ehdittiin kysyä"
+
+#: ../src/Imap/Tasks/ThreadTask.cpp:75
+msgctxt "Imap::Mailbox::ThreadTask|"
+msgid "Threading command has failed"
+msgstr "Säikeistyskomento epäonnistui"
+
+#: ../src/Imap/Tasks/ThreadTask.cpp:109
+msgctxt "Imap::Mailbox::ThreadTask|"
+msgid "Fetching conversations"
+msgstr "Noudetaan keskusteluja"
+
+#: ../src/Imap/Tasks/UidSubmitTask.cpp:55
+#, qt-format
+msgctxt "Imap::Mailbox::UidSubmitTask|"
+msgid "UIDVALIDITY mismatch: expected %1, got %2"
+msgstr "UIDVALIDITY-epäsuhta: odotettiin %1, saatiin %2"
+
+#: ../src/Imap/Tasks/UidSubmitTask.cpp:84
+msgctxt "Imap::Mailbox::UidSubmitTask|"
+msgid "Sending mail"
+msgstr "Lähetetään postia"
+
+#: ../src/Imap/Tasks/UnSelectTask.cpp:49 ../src/Imap/Tasks/UnSelectTask.cpp:67
+msgctxt "Imap::Mailbox::UnSelectTask|"
+msgid "Asked to die"
+msgstr "Pyydettiin kuolemaan"
+
+#: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:101
+msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
+msgid "Failed to update Mailbox FLAGS"
+msgstr "Postikansion lippujen (FLAGS) päivittäminen epäonnistui"
+
+#: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:110
+msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
+msgid "Saving mailbox state"
+msgstr "Tallennetaan postikansion tilaa"
+
+#: ../src/Imap/Tasks/UpdateFlagsTask.cpp:121
+msgctxt "Imap::Mailbox::UpdateFlagsTask|"
+msgid "All messages got removed before we could've updated their flags"
+msgstr "Kaikki viestit poistettiin ennen kuin ehdimme päivittää niiden lippuja"
+
+#: ../src/Imap/Tasks/UpdateFlagsTask.cpp:138
+msgctxt "Imap::Mailbox::UpdateFlagsTask|"
+msgid "Failed to update FLAGS"
+msgstr "Lippujen (FLAGS) päivittäminen epäonnistui"
+
+#: ../src/Imap/Tasks/UpdateFlagsTask.cpp:148
+msgctxt "Imap::Mailbox::UpdateFlagsTask|"
+msgid "Saving message state"
+msgstr "Tallennetaan viestin tilaa"
+
+#: ../src/MSA/AbstractMSA.cpp:51
+#, qt-format
+msgctxt "MSA::AbstractMSA|"
+msgid "Sending mail plaintext is not supported by %1"
+msgstr "%1 ei tue viestin lähetystä raakatekstinä"
+
+#: ../src/MSA/AbstractMSA.cpp:59
+#, qt-format
+msgctxt "MSA::AbstractMSA|"
+msgid "BURL is not supported by %1"
+msgstr "%1 ei tue BURLia"
+
+#: ../src/MSA/AbstractMSA.cpp:68
+#, qt-format
+msgctxt "MSA::AbstractMSA|"
+msgid "IMAP sending is not supported by %1"
+msgstr "%1 ei tue IMAP-lähetystä"
+
+#: ../src/MSA/AbstractMSA.cpp:74
+#, qt-format
+msgctxt "MSA::AbstractMSA|"
+msgid "Setting password is not supported by %1"
+msgstr "%1 ei tue salasanan asettamista"
+
+#: ../src/MSA/Account.cpp:233
+#, qt-format
+msgctxt "MSA::Account|"
+msgid "This port is nonstandard. The default port for cleartext SMTP is %1."
+msgstr "Portti on epästandardi. Salaamattoman SMTP:n oletusportti on %1."
+
+#: ../src/MSA/Account.cpp:236
+#, qt-format
+msgctxt "MSA::Account|"
+msgid ""
+"This port is nonstandard. The default port for SMTP submission secured via "
+"STARTTLS is %1."
+msgstr "Portti on epästandardi. STARTTLS-salatun SMTP:n oletusportti on %1."
+
+#: ../src/MSA/Account.cpp:239
+#, qt-format
+msgctxt "MSA::Account|"
+msgid ""
+"This port is nonstandard. The default port for SMTP over encrypted SSL/TLS "
+"connection is %1."
+msgstr "Portti on epästandardi. SSL/TLS-salatun SMTP:n oletusportti on %1."
+
+#: ../src/MSA/Sendmail.cpp:86
+#, qt-format
+msgctxt "MSA::Sendmail|"
+msgid "The sendmail process has failed: %1"
+msgstr "sendmail-prosessi on epäonnistunut: %1"
+
+#: ../src/MSA/Sendmail.cpp:108
+#, qt-format
+msgctxt "MSA::Sendmail|"
+msgid ""
+"The sendmail process has failed (%1):\n"
+"%2\n"
+"%3"
+msgstr ""
+"sendmail-prosessi on epäonnistunut (%1):\n"
+"%2\n"
+"%3"
+
+#: ../src/MSA/SMTP.cpp:54
+msgctxt "MSA::SMTP|"
+msgid "Sending of the message was cancelled"
+msgstr "Viestin lähetys peruttiin."
+
+#: ../src/MSA/SMTP.cpp:69
+msgctxt "MSA::SMTP|"
+msgid "Sending of the message failed."
+msgstr "Viestin lähetys epäonnistui."
+
+#: ../src/MSA/SMTP.cpp:71
+#, qt-format
+msgctxt "MSA::SMTP|"
+msgid "Sending of the message failed with the following error: %1"
+msgstr "Viestin lähetys epäonnistui seuraavan virheen takia: %1"
+
+#: ../src/MSA/SMTP.cpp:85
+#, qt-format
+msgctxt "MSA::SMTP|"
+msgid ""
+"<p>Cannot send message due to an SSL/TLS error</p>\n"
+"%1"
+msgstr ""
+"<p>Viestiä ei voi lähettää SSL/TLS-virheen vuoksi</p>\n"
+"%1"
+
+#: ../src/MSA/SMTP.cpp:139
+msgctxt "MSA::SMTP|"
+msgid "Unknown SMTP mode"
+msgstr "Tuntematon SMTP-tila"
+
+#. Translators: BE::Contacts is the name of a stand-alone address book application. BE refers to Bose/Einstein (condensate).
+#: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:151
+msgctxt "BE::Contacts|"
+msgid "BE::Contacts"
+msgstr "BE::Yhteystiedot"
+
+#: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:400
+msgctxt "trojita_plugin_AbookAddressbookPlugin|"
+msgid "Addressbook in ~/.abook/"
+msgstr "Osoitekirja kansiossa ~/.abook"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:82
+msgctxt "BE::Contacts|"
+msgid "Filter"
+msgstr "Suodatin"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:162
+msgctxt "BE::Contacts|"
+msgid "Contacts"
+msgstr "Yhteystiedot"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:162
+msgctxt "BE::Contacts|"
+msgid "Save changes?"
+msgstr "Tallennetaanko muutokset?"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:276
+msgctxt "BE::Contacts|"
+msgid "[New Contact]"
+msgstr "[Uusi yhteystieto]"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.cpp:457
+msgctxt "BE::Contacts|"
+msgid "[name]"
+msgstr "[nimi]"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.ui:14
+msgctxt "Contacts|"
+msgid "Contacts"
+msgstr "Yhteystiedot"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.ui:48
+msgctxt "Contacts|"
+msgid "Delete"
+msgstr "Poista"
+
+#: ../src/Plugins/AbookAddressbook/be-contacts.ui:58
+msgctxt "Contacts|"
+msgid "Add"
+msgstr "Lisää"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:31
+msgctxt "OneContact|"
+msgid "name"
+msgstr "nimi"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:50
+msgctxt "OneContact|"
+msgid "<Mail>"
+msgstr "<Posti>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:69
+msgctxt "OneContact|"
+msgid "<Internet>"
+msgstr "<Internet>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:84
+msgctxt "OneContact|"
+msgid "Address"
+msgstr "Osoite"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:105
+msgctxt "OneContact|"
+msgid "<country>"
+msgstr "<maa>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:124
+msgctxt "OneContact|"
+msgid "<state>"
+msgstr "<osavaltio>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:149
+msgctxt "OneContact|"
+msgid "<city>"
+msgstr "<kaupunki>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:168
+msgctxt "OneContact|"
+msgid "<zip>"
+msgstr "<postinumero>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:187
+msgctxt "OneContact|"
+msgid "<address>"
+msgstr "<osoite>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:203
+msgctxt "OneContact|"
+msgid "Phone"
+msgstr "Puhelin"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:212
+msgctxt "OneContact|"
+msgid "Office"
+msgstr "Toimisto"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:234
+msgctxt "OneContact|"
+msgid "workphone"
+msgstr "työpuhelin"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:247
+msgctxt "OneContact|"
+msgid "Mobile"
+msgstr "Matkapuhelin"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:269
+msgctxt "OneContact|"
+msgid "mobile"
+msgstr "matkapuhelin"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:282
+msgctxt "OneContact|"
+msgid "Home"
+msgstr "Koti"
+
+# Tätä viestiä (”phone”) ei yhdistetä edellisen viestin kanssa.
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:304
+msgctxt "OneContact|"
+msgid "phone"
+msgstr "puhelin"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:317
+msgctxt "OneContact|"
+msgid "Fax"
+msgstr "Faksi"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:339
+msgctxt "OneContact|"
+msgid "fax"
+msgstr "faksi"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:355
+msgctxt "OneContact|"
+msgid "Notes"
+msgstr "Muistilaput"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:364
+msgctxt "OneContact|"
+msgid "Nick"
+msgstr "Kutsumanimi"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:383
+msgctxt "OneContact|"
+msgid "<nick>"
+msgstr "<kutsumanimi>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:396
+msgctxt "OneContact|"
+msgid "Anniversary"
+msgstr "Merkkipäivä"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:415
+msgctxt "OneContact|"
+msgid "<anniversary>"
+msgstr "<merkkipäivä>"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:428
+msgctxt "OneContact|"
+msgid "Custom notes"
+msgstr "Omat muistilaput"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:447
+msgctxt "OneContact|"
+msgid "notes"
+msgstr "muistilaput"
+
+#: ../src/Plugins/AbookAddressbook/onecontact.ui:482
+msgctxt "OneContact|"
+msgid "Photo"
+msgstr "Kuva"
+
+#: ../src/Plugins/AkonadiAddressbook/AkonadiAddressbook.cpp:67
+msgctxt "trojita_plugin_AkonadiAddressbookPlugin|"
+msgid "KDE Addressbook (Akonadi)"
+msgstr "KDE:n osoitekirja (Akonadi)"
+
+#: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:51
+#: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:67
+#: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:79
+msgctxt "ClearTextPasswordJob|"
+msgid "This plugin only supports storing of IMAP and SMTP passwords"
+msgstr "Tämä liitännäinen tukee vain IMAP- ja SMTP-salasanojen tallennusta"
+
+#: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:123
+msgctxt "trojita_plugin_ClearTextPasswordPlugin|"
+msgid "Trojitá's settings"
+msgstr "Trojitán asetukset"
+
+#: ../src/Plugins/QtKeyChain/QtKeyChainPassword.cpp:127
+msgctxt "trojita_plugin_QtKeyChainPasswordPlugin|"
+msgid "Secure storage via QtKeychain"
+msgstr "Salattu tallennustila QtKeyChainin kautta"
+
+#: ../src/Plugins/SonnetSpellchecker/SonnetSpellchecker.cpp:46
+msgctxt "Plugins::trojita_plugin_SonnetSpellcheckerPlugin|"
+msgid "Sonnet (KF5)"
+msgstr "Sonnet (KF5)"
+
+#: ../src/qwwsmtpclient/qwwsmtpclient.cpp:449
+msgctxt "QwwSmtpClient|"
+msgid "Unsupported or unknown authentication scheme"
+msgstr "Ei-tuettu tai tuntematon tunnistautumistapa"
+
+#: ../src/Streams/IODeviceSocket.cpp:178
+#, qt-format
+msgctxt "Streams::ProcessSocket|"
+msgid "Disconnected: %1"
+msgstr "Ei yhteyttä: %1"
+
+#: ../src/Streams/IODeviceSocket.cpp:192
+msgctxt "Streams::ProcessSocket|"
+msgid "The process has started"
+msgstr "Prosessi on käynnistynyt"
+
+#: ../src/Streams/IODeviceSocket.cpp:195
+#, qt-format
+msgctxt "Streams::ProcessSocket|"
+msgid "Starting process `%1 %2`"
+msgstr "Käynnistetään prosessia ”%1 %2”"
+
+#: ../src/Streams/IODeviceSocket.cpp:202
+#, qt-format
+msgctxt "Streams::ProcessSocket|"
+msgid "The process has exited with return code %1."
+msgstr "Prosessi päättyi paluukoodilla %1."
+
+#: ../src/Streams/IODeviceSocket.cpp:205
+#, qt-format
+msgctxt "Streams::ProcessSocket|"
+msgid ""
+"The process has exited with return code %1:\n"
+"\n"
+"%2"
+msgstr ""
+"Prosessi päättyi paluukoodilla %1:\n"
+"\n"
+"%2"
+
+#: ../src/Streams/IODeviceSocket.cpp:258
+msgctxt "Streams::SslTlsSocket|"
+msgid "Connection closed"
+msgstr "Yhteys katkaistu"
+
+#: ../src/Streams/IODeviceSocket.cpp:283
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid " (via proxy %1)"
+msgstr " (välityspalvelimen %1 kautta)"
+
+#: ../src/Streams/IODeviceSocket.cpp:286
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid " (via SOCKS5 proxy %1)"
+msgstr " (SOCKS5-välityspalvelimen %1 kautta)"
+
+#: ../src/Streams/IODeviceSocket.cpp:289
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid " (via HTTP proxy %1)"
+msgstr " (HTTP-välityspalvelimen %1 kautta)"
+
+#: ../src/Streams/IODeviceSocket.cpp:294
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid "Looking up %1%2..."
+msgstr "Etsitään: %1%2…"
+
+#: ../src/Streams/IODeviceSocket.cpp:299
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid "Connecting to %1:%2%3%4..."
+msgstr "Yhdistetty kohteeseen %1:%2%3%4…"
+
+#: ../src/Streams/IODeviceSocket.cpp:300
+msgctxt "Streams::SslTlsSocket|"
+msgid " (SSL)"
+msgstr " (SSL)"
+
+#: ../src/Streams/IODeviceSocket.cpp:309
+msgctxt "Streams::SslTlsSocket|"
+msgid "Connected"
+msgstr "Yhdistetty"
+
+#: ../src/Streams/IODeviceSocket.cpp:311
+msgctxt "Streams::SslTlsSocket|"
+msgid "Negotiating encryption..."
+msgstr "Neuvotellaan salauksesta…"
+
+#: ../src/Streams/IODeviceSocket.cpp:316
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid "Socket is disconnected: %1"
+msgstr "Pistoke on katkaistu: %1"
+
+#: ../src/Streams/IODeviceSocket.cpp:328 ../src/Streams/IODeviceSocket.cpp:380
+#, qt-format
+msgctxt "Streams::SslTlsSocket|"
+msgid ""
+"The underlying socket is having troubles when processing connection to %1:"
+"%2: %3"
+msgstr "Käytetyllä pistokkeella on ongelmia yhdistää koneeseen %1:%2: %3"
+
+#: ../src/UiUtils/Formatting.cpp:39
+msgctxt "UiUtils::Formatting|"
+msgid "B"
+msgstr "t"
+
+#: ../src/UiUtils/Formatting.cpp:40
+msgctxt "UiUtils::Formatting|"
+msgid "kB"
+msgstr "kt"
+
+#: ../src/UiUtils/Formatting.cpp:41
+msgctxt "UiUtils::Formatting|"
+msgid "MB"
+msgstr "Mt"
+
+#: ../src/UiUtils/Formatting.cpp:42
+msgctxt "UiUtils::Formatting|"
+msgid "GB"
+msgstr "Gt"
+
+#: ../src/UiUtils/Formatting.cpp:43
+msgctxt "UiUtils::Formatting|"
+msgid "TB"
+msgstr "Tt"
+
+#: ../src/UiUtils/Formatting.cpp:66
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid "%1 %2"
+msgstr "%1 %2"
+
+#: ../src/UiUtils/Formatting.cpp:85
+msgctxt ""
+"UiUtils::Formatting|Please do not translate the format specifiers. You can "
+"change their order or the separator to follow the local conventions. For "
+"valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"
+msgid "hh:mm"
+msgstr "hh:mm"
+
+#: ../src/UiUtils/Formatting.cpp:90
+msgctxt ""
+"UiUtils::Formatting|Please do not translate the format specifiers. You can "
+"change their order or the separator to follow the local conventions. For "
+"valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"
+msgid "ddd hh:mm"
+msgstr "ddd hh:mm"
+
+#: ../src/UiUtils/Formatting.cpp:98
+msgctxt ""
+"UiUtils::Formatting|Please do not translate the format specifiers. You can "
+"change their order or the separator to follow the local conventions. For "
+"valid specifiers see http://doc.qt.io/qt-5/qdatetime.html#toString"
+msgid "d MMM hh:mm"
+msgstr "d.M. hh:mm"
+
+#: ../src/UiUtils/Formatting.cpp:141
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<li><b>CN</b>: %1,<br/>\n"
+"<b>Organization</b>: %2,<br/>\n"
+"<b>Serial</b>: %3,<br/>\n"
+"<b>SHA1</b>: %4,<br/>\n"
+"<b>MD5</b>: %5</li>"
+msgstr ""
+"<li><b>CN</b>: %1,<br/>\n"
+"<b>Organisaatio</b>: %2,<br/>\n"
+"<b>Sarjanumero</b>: %3,<br/>\n"
+"<b>SHA1</b>: %4,<br/>\n"
+"<b>MD5</b>: %5</li>"
+
+#: ../src/UiUtils/Formatting.cpp:144 ../src/UiUtils/Formatting.cpp:145
+msgctxt "UiUtils::Formatting|"
+msgid ", "
+msgstr ", "
+
+#: ../src/UiUtils/Formatting.cpp:151
+msgctxt "UiUtils::Formatting|"
+msgid "<p>The remote side doesn't have a certificate.</p>\n"
+msgstr "<p>Etäpäällä ei ole varmennetta.</p>\n"
+
+#: ../src/UiUtils/Formatting.cpp:152
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>This is the certificate chain of the connection:</p>\n"
+"<ul>%1</ul>\n"
+msgstr ""
+"<p>Tämä on yhteyden varmenneketju:</p>\n"
+"<ul>%1</ul>\n"
+
+#: ../src/UiUtils/Formatting.cpp:152 ../src/UiUtils/Formatting.cpp:163
+msgctxt "UiUtils::Formatting|"
+msgid "\n"
+msgstr "\n"
+
+#: ../src/UiUtils/Formatting.cpp:159
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid "<li>%1</li>"
+msgstr "<li>%1</li>"
+
+#: ../src/UiUtils/Formatting.cpp:162
+msgctxt "UiUtils::Formatting|"
+msgid "<p>According to your system's policy, this connection is secure.</p>\n"
+msgstr "<p>Järjestelmäkäytänteittesi mukaan yhteys on salattu.</p>\n"
+
+#: ../src/UiUtils/Formatting.cpp:163
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>The connection triggered the following SSL errors:</p>\n"
+"<ul>%1</ul>\n"
+msgstr ""
+"<p>Yhteys aiheutti seuraavat SSL-virheet:</p>\n"
+"<ul>%1</ul>\n"
+
+#: ../src/UiUtils/Formatting.cpp:174
+msgctxt "UiUtils::Formatting|"
+msgid "Different SSL certificate"
+msgstr "Eri SSL-varmenne"
+
+#: ../src/UiUtils/Formatting.cpp:175
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>The public key of the SSL certificate has changed. This should only "
+"happen when there was a security incident on the remote server. Your system "
+"configuration is set to accept such certificates anyway.</p>\n"
+"%1\n"
+"<p>Would you like to connect and remember the new certificate?</p>"
+msgstr ""
+"<p>SSL-varmenteen julkinen avain on muuttunut. Näin pitäisi käydä vain, jos "
+"etäpalvelimen turvallisuus on vaarantunut. Järjestelmäsi on asetettu "
+"kuitenkin hyväksymään nämä varmenteet.</p>\n"
+"%1\n"
+"<p>Haluatko yhdistää ja tallentaa uuden varmenteen?</p>"
+
+#: ../src/UiUtils/Formatting.cpp:182
+msgctxt "UiUtils::Formatting|"
+msgid "SSL certificate looks fishy"
+msgstr "SSL-varmenne vaikuttaa epäilyttävältä"
+
+#: ../src/UiUtils/Formatting.cpp:183
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>The public key of the SSL certificate of the IMAP server has changed "
+"since the last time and your system doesn't believe that the new certificate "
+"is genuine.</p>\n"
+"%1\n"
+"%2\n"
+"<p>Would you like to connect anyway and remember the new certificate?</p>"
+msgstr ""
+"<p>IMAP-palvelimen SSL-varmenteen julkinen avain on muuttunut viime kerran "
+"jälkeen eikä järjestelmäsi pidä sitä aitona.</p>\n"
+"%1\n"
+"%2\n"
+"<p>Haluatko silti yhdistää ja tallentaa uuden varmenteen?</p>"
+
+#: ../src/UiUtils/Formatting.cpp:192 ../src/UiUtils/Formatting.cpp:199
+msgctxt "UiUtils::Formatting|"
+msgid "Accept SSL connection?"
+msgstr "Hyväksytäänkö SSL-yhteys?"
+
+#: ../src/UiUtils/Formatting.cpp:193
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>This is the first time you're connecting to this IMAP server; the "
+"certificate is trusted by this system.</p>\n"
+"%1\n"
+"%2\n"
+"<p>Would you like to connect and remember this certificate's public key for "
+"the next time?</p>"
+msgstr ""
+"<p>Yhdistät tähän IMAP-palvelimeen ensi kertaa, ja järjestelmäsi luottaa sen "
+"varmenteeseen.</p>\n"
+"%1\n"
+"%2\n"
+"<p>Haluatko yhdistää ja tallentaa varmenteen julkisen avaimen seuraavaa "
+"kertaa varten?</p>"
+
+#: ../src/UiUtils/Formatting.cpp:200
+#, qt-format
+msgctxt "UiUtils::Formatting|"
+msgid ""
+"<p>This is the first time you're connecting to this IMAP server and the "
+"server certificate failed validation test.</p>\n"
+"%1\n"
+"\n"
+"%2\n"
+"<p>Would you like to connect and remember this certificate's public key for "
+"the next time?</p>"
+msgstr ""
+"<p>Yhdistät tähän IMAP-palvelimeen ensi kertaa, eikä palvelimen varmenne "
+"läpäissyt kelpoisuustestiä.</p>\n"
+"%1\n"
+"\n"
+"%2\n"
+"<p>Haluatko yhdistää ja tallentaa varmenteen julkisen avaimen seuraavaa "
+"kertaa varten?</p>"
+
+#: ../src/UiUtils/PartWalker_impl.h:44
+msgctxt "PartWalker|"
+msgid ""
+"This message contains too deep nesting of MIME message parts.\n"
+"To prevent stack exhaustion and your head from exploding, only\n"
+"the top-most thousand items or so are shown."
+msgstr ""
+"Viesti sisältää liian monta sisäkkäistä MIME-viestiosaa.\n"
+"Jottei pino loppuisi ja pääsi räjähtäisi, vain ylimmät\n"
+"tuhatkunta kohtaa näytetään."
+
+#: ../src/UiUtils/PasswordWatcher.cpp:82
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Loading password from plugin %1..."
+msgstr "Ladataan salasanaa liitännäisestä %1…"
+
+#: ../src/UiUtils/PasswordWatcher.cpp:86
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Cannot read password via plugin %1"
+msgstr "Ei voida lukea salasanaa liitännäisellä %1"
+
+#: ../src/UiUtils/PasswordWatcher.cpp:89 ../src/UiUtils/PasswordWatcher.cpp:175
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Password plugin is not available."
+msgstr "Salasanaliitännäinen ei ole käytettävissä."
+
+#: ../src/UiUtils/PasswordWatcher.cpp:120
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Password reading failed: %1"
+msgstr "Salasanan luku epäonnistui: %1"
+
+#: ../src/UiUtils/PasswordWatcher.cpp:149
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Password writing failed: %1"
+msgstr "Salasanan tallennus epäonnistui: %1"
+
+#: ../src/UiUtils/PasswordWatcher.cpp:168
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Saving password from plugin %1..."
+msgstr "Tallennetaan liitännäisen %1 salasana…"
+
+#: ../src/UiUtils/PasswordWatcher.cpp:172
+#, qt-format
+msgctxt "UiUtils::PasswordWatcher|"
+msgid "Cannot save password via plugin %1"
+msgstr "Ei voi tallentaa salasanaa liitännäisellä %1"
+
+#: ../src/XtConnect/XtConnect.cpp:99
+msgctxt "XtConnect::XtConnect|"
+msgid "Database Password: "
+msgstr "Tietokannan salasana: "
+
+#~ msgctxt "QObject|"
+#~ msgid "Error: Profile was not specified"
+#~ msgstr "Virhe: profiilia ei annettu"
+
+#~ msgctxt "QObject|"
+#~ msgid "Error: Duplicate profile option '%1'"
+#~ msgstr "Virhe: profiilivalitsin ”%1” oli useampaan kertaan"
+
+#~ msgctxt "QObject|"
+#~ msgid "Warning: Unknown option '%1'"
+#~ msgstr "Varoitus: tuntematon valitsin ”%1”"
+
+#~ msgctxt "QObject|"
+#~ msgid ""
+#~ "Usage: %1 [options] [url]\n"
+#~ "\n"
+#~ "Trojitá %2 - fast Qt IMAP e-mail client\n"
+#~ "\n"
+#~ "Options:\n"
+#~ "  -h, --help               Show this help\n"
+#~ "  -m, --mainwindow         Show main window (default when no option is "
+#~ "provided)\n"
+#~ "  -a, --addressbook        Show addressbook window\n"
+#~ "  -c, --compose            Compose new email (default when url is "
+#~ "provided)\n"
+#~ "  -p, --profile <profile>  Set profile (cannot start with char '-')\n"
+#~ "  --log-to-disk            Activate debug traffic logging to disk by "
+#~ "default\n"
+#~ "\n"
+#~ "Arguments:\n"
+#~ "  url                      Mailto: url address for composing new email\n"
+#~ msgstr ""
+#~ "Käyttö: %1 [valitsimet] [osoite]\n"
+#~ "\n"
+#~ "Trojitá %2 - nopea Qt:n IMAP-sähköpostiasiakas\n"
+#~ "\n"
+#~ "Valitsimet:\n"
+#~ "  -h, --help               Näytä tämä ohje\n"
+#~ "  -m, --mainwindow         Näytä pääikkuna (oletus, kun mitään valitsinta "
+#~ "ei ole annettu)\n"
+#~ "  -a, --addressbook        Näytä osoitekirja\n"
+#~ "  -c, --compose            Kirjoita uusi viesti (oletus, kun osoite on "
+#~ "annettu)\n"
+#~ "  -p, --profile <profiili> Aseta profiili (ei voi alkaa viivalla, ”-”)\n"
+#~ "  --log-to-disk            Aktivoi virheenpaikannusliikenteen lokitus "
+#~ "levylle oletusarvoisesti\n"
+#~ "\n"
+#~ "Parametrit:\n"
+#~ "  url                      Mailto:-osoite uuden viestin kirjoittamista "
+#~ "varten\n"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "IMAP Protocol"
+#~ msgstr "IMAP-yhteyskäytäntö"
+
+#~ msgctxt "Gui::ImapPage|"
+#~ msgid "This port is nonstandard. The default port is 993."
+#~ msgstr "Tämä ei ole standardin mukainen portti. Oletusportti on 993."
+
+#~ msgctxt "Gui::ImapPage|"
+#~ msgid "This port is nonstandard. The default port is 143."
+#~ msgstr "Tämä ei ole standardin mukainen portti. Oletusportti on 143."
+
+#~ msgctxt "ImapPage|"
+#~ msgid ""
+#~ "This port number looks suspicious. The usual numbers for IMAP are 143 "
+#~ "(with the TCP connection method or with STARTTLS) and 993 (when using "
+#~ "SSL)."
+#~ msgstr ""
+#~ "Portin numero vaikuttaa epäilyttävältä. Tavallisia IMAP-portteja ovat 143 "
+#~ "(TCP- tai STARTTLS-menetelmillä) tai 993 (SSL:ää käytettäessä)."
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "&IMAP"
+#~ msgstr "&IMAP"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "Network Access"
+#~ msgstr "Verkkoyhteys"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "&Help"
+#~ msgstr "&Ohje"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "Edit as New E-Mail Message..."
+#~ msgstr "Muokkaa uutena sähköpostiviestinä…"
+
+#~ msgctxt "Gui::SimplePartWidget|"
+#~ msgid "Ctrl+F"
+#~ msgstr "Ctrl+F"
+
+#~ msgctxt "Composer::Submission|"
+#~ msgid "Sent"
+#~ msgstr "Lähetetty"
+
+#~ msgctxt "Gui::ComposeWidget|"
+#~ msgid "Sent"
+#~ msgstr "Lähetetty"
+
+#, fuzzy
+#~| msgctxt "Gui::ErrorCheckingPage|"
+#~| msgid ""
+#~| "<img src='%2'/><span style='font-family: sans-serif; color: "
+#~| "gray'>Uncached data not available when offline</span>"
+#~ msgctxt "Gui::ErrorCheckingPage|"
+#~ msgid ""
+#~ "<img src=\"%2\"/><span style=\"font-family: sans-serif; color: gray"
+#~ "\">Uncached data not available when offline</span>"
+#~ msgstr ""
+#~ "<img src='%2'/><span style='font-family: sans-serif; color: "
+#~ "gray'>Välimuistiin tallentamaton tieto ei ole saatavilla "
+#~ "verkkoyhteydettä</span>"
+
+#~ msgctxt "Imap::Network::MsgPartNetworkReply|"
+#~ msgid "Offline"
+#~ msgstr "Ei verkossa"
+
+#~ msgctxt "Imap::Mailbox::FetchMsgPartTask|"
+#~ msgid "Part fetch failed"
+#~ msgstr "Osan nouto epäonnistui"
+
+#~ msgctxt "Gui::MultipartSignedWidget|"
+#~ msgid "Malformed multipart/signed message: only one nested part"
+#~ msgstr ""
+#~ "Viallinen useampiosainen tai allekirjoitettu viesti: vain yksi "
+#~ "sisäkkäinen osa"
+
+#~ msgctxt "Gui::MultipartSignedWidget|"
+#~ msgid "Malformed multipart/signed message: %1 nested parts"
+#~ msgstr ""
+#~ "Viallinen useampiosainen tai allekirjoitettu viesti: %1 sisäkkäistä osaa"
+
+#~ msgctxt "Streams::ProcessSocket|"
+#~ msgid "The QProcess is having troubles: %1"
+#~ msgstr "QProcessilla on ongelmia: %1"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>Mailing List:</b>&nbsp;%1"
+#~ msgstr "<b>Postituslista:</b>&nbsp;%1"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>Subject:</b>&nbsp;%1"
+#~ msgstr "<b>Aihe:</b>&nbsp;%1"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>Date:</b>&nbsp;%1"
+#~ msgstr "<b>Päiväys:</b>&nbsp;%1"
+
+#~ msgctxt "LineEdit|"
+#~ msgid "Clear input field"
+#~ msgstr "Tyhjennä syöttökenttä"
+
+#~ msgctxt "Gui::TagListWidget|"
+#~ msgid "<b>Tags:</b>"
+#~ msgstr "<b>Luokitukset:</b>"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Desktop"
+#~ msgstr "Työpöytä"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Documents"
+#~ msgstr "Tiedostot"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Fonts"
+#~ msgstr "Fontit"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Music"
+#~ msgstr "Musiikki"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Movies"
+#~ msgstr "Elokuvat"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Pictures"
+#~ msgstr "Kuvat"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Temporary Directory"
+#~ msgstr "Väliaikaiskansio"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Home"
+#~ msgstr "Koti"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Cache"
+#~ msgstr "Välimuisti"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Shared Data"
+#~ msgstr "Jaettu tieto"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Runtime"
+#~ msgstr "Ajoympäristö"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Configuration"
+#~ msgstr "Asetukset"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Shared Cache"
+#~ msgstr "Jaettu välimuisti"
+
+#~ msgctxt "QStandardPaths|"
+#~ msgid "Download"
+#~ msgstr "Lataukset"
+
+#~ msgctxt "trojita_plugin_KResourceAddressbookPlugin|"
+#~ msgid "KDE Addressbook (legacy)"
+#~ msgstr "KDE:n osoitekirja (vanha)"
+
+#~ msgctxt "UiUtils::Formatting|"
+#~ msgid "0"
+#~ msgstr "0"
+
+#~ msgctxt "UiUtils::Formatting|"
+#~ msgid "%n bytes"
+#~ msgid_plural "%n bytes"
+#~ msgstr[0] "%n tavu"
+#~ msgstr[1] "%n tavua"
+
+#~ msgctxt "Gui::TagListWidget|"
+#~ msgid "Tag name:"
+#~ msgstr "Luokituksen nimi:"
+
+#~ msgctxt "Gui::TagListWidget|"
+#~ msgid "Tag name %1 is a reserved name which cannot be manipulated this way."
+#~ msgstr "Luokituksen nimi %1 on varattu eikä sitä voi käsitellä näin."
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Username"
+#~ msgstr "Käyttäjätunnus"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Server address"
+#~ msgstr "Palvelinosoite"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Port"
+#~ msgstr "Portti"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Secure connection"
+#~ msgstr "Salattu yhteys"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "No"
+#~ msgstr "Ei"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "SSL"
+#~ msgstr "SSL"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "StartTLS"
+#~ msgstr "StartTLS"
+
+#~ msgctxt "MailboxListPage|"
+#~ msgid "Loading..."
+#~ msgstr "Ladataan…"
+
+#~ msgctxt "main|"
+#~ msgid "OK"
+#~ msgstr "OK"
+
+#~ msgctxt "main|"
+#~ msgid "Cancel"
+#~ msgstr "Peru"
+
+#~ msgctxt "MainPage|"
+#~ msgid "Hello world!"
+#~ msgstr "Hei maailma!"
+
+#~ msgctxt "MainPage|"
+#~ msgid "Click here!"
+#~ msgstr "Napsauta tästä!"
+
+#~ msgctxt "MessageListPage|"
+#~ msgid "(No subject)"
+#~ msgstr "(Ei aihetta)"
+
+#~ msgctxt "MessageListPage|"
+#~ msgid "Message is loading..."
+#~ msgstr "Viesti latautuu…"
+
+#~ msgctxt "MessageListPage|"
+#~ msgid "Empty Mailbox"
+#~ msgstr "Tyhjä postikansio"
+
+#~ msgctxt "MessageListPage|"
+#~ msgid "Invalid Mailbox"
+#~ msgstr "Virheellinen postikansio"
+
+#~ msgctxt "OneMessagePage|"
+#~ msgid "From"
+#~ msgstr "Lähettäjä"
+
+#~ msgctxt "OneMessagePage|"
+#~ msgid "To"
+#~ msgstr "Vastaanottaja"
+
+#~ msgctxt "OneMessagePage|"
+#~ msgid "Cc"
+#~ msgstr "Kopio"
+
+#~ msgctxt "OneMessagePage|"
+#~ msgid "Bcc"
+#~ msgstr "Piilokopio"
+
+#~ msgctxt "OneMessagePage|"
+#~ msgid "<b>Date:</b> "
+#~ msgstr "<b>Päiväys:</b> "
+
+#~ msgctxt "OneMessagePage|"
+#~ msgid "<b>Subject:</b> "
+#~ msgstr "<b>Aihe:</b> "
+
+#~ msgctxt "PageHeader|"
+#~ msgid "No activity"
+#~ msgstr "Ei toimintaa"
+
+#~ msgctxt "PasswordInputSheet|"
+#~ msgid "Login"
+#~ msgstr "Kirjaudu"
+
+#~ msgctxt "PasswordInputSheet|"
+#~ msgid "Cancel"
+#~ msgstr "Peru"
+
+#~ msgctxt "PasswordInputSheet|"
+#~ msgid "Password"
+#~ msgstr "Salasana"
+
+#~ msgctxt "SslSheet|"
+#~ msgid "Connect"
+#~ msgstr "Yhdistä"
+
+#~ msgctxt "SslSheet|"
+#~ msgid "Reject"
+#~ msgstr "Hylkää"
+
+#~ msgctxt "Imap::Mailbox::SubscribeUnsubscribeTask|"
+#~ msgid "Looking for messages"
+#~ msgstr "Etsitään viestejä"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>From:</b>&nbsp;%1<br/>"
+#~ msgstr "<b>Lähettäjä:</b>&nbsp;%1<br/>"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>Sender:</b>&nbsp;%1<br/>"
+#~ msgstr "<b>Lähettäjä:</b>&nbsp;%1<br/>"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>Reply-To:</b>&nbsp;%1<br/>"
+#~ msgstr "<b>Vastausosoite:</b>&nbsp;%1<br/>"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>To:</b>&nbsp;%1<br/>"
+#~ msgstr "<b>Vastaanottaja:</b>&nbsp;%1<br/>"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>Cc:</b>&nbsp;%1<br/>"
+#~ msgstr "<b>CC:</b>&nbsp;%1<br/>"
+
+#~ msgctxt "Gui::EnvelopeView|"
+#~ msgid "<b>Bcc:</b>&nbsp;%1<br/>"
+#~ msgstr "<b>BCC:</b>&nbsp;%1<br/>"
+
+#~ msgctxt "ImapPage|"
+#~ msgid "Reveal I'm using Trojitá"
+#~ msgstr "Paljasta, että käytän Trojitáa"
+
+#~ msgctxt "ImapPage|"
+#~ msgid ""
+#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+#~ "REC-html40/strict.dtd\">\n"
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
+#~ "css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">If checked, Trojitá "
+#~ "will send the <span style=\" font-family:'Courier New,courier';\">ID</"
+#~ "span> IMAP command to the remote server. </p>\n"
+#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"
+#~ "\"></p>\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">The command contains "
+#~ "information about the name of the program speaking the IMAP protocol "
+#~ "along with some basic information for statistics, like the program "
+#~ "version.</p></body></html>"
+#~ msgstr ""
+#~ "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/"
+#~ "REC-html40/strict.dtd\">\n"
+#~ "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/"
+#~ "css\">\n"
+#~ "p, li { white-space: pre-wrap; }\n"
+#~ "</style></head><body style=\" font-family:'DejaVu Sans'; font-size:8pt; "
+#~ "font-weight:400; font-style:normal;\">\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Jos valittu, Trojitá "
+#~ "lähettää IMAPin <span style=\" font-family:'Courier New,courier';\">ID</"
+#~ "span>-komennon etäpalvelimelle. </p>\n"
+#~ "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
+#~ "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"
+#~ "\"></p>\n"
+#~ "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
+#~ "right:0px; -qt-block-indent:0; text-indent:0px;\">Komento sisältää tiedot "
+#~ "IMAP-yhteyskäytäntöä käyttävästä ohjelmasta sekä perustilastotietoja "
+#~ "kuten ohjelman version.</p></body></html>"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "Show Menu Bar"
+#~ msgstr "Näytä valikkorivi"
+
+#~ msgctxt "Imap::Mailbox|"
+#~ msgid "Asked to die"
+#~ msgstr "Pyydettiin kuolemaan"
+
+#~ msgctxt "Imap::Mailbox::PrettyMailboxModel|"
+#~ msgid ""
+#~ "<p>%1</p>\n"
+#~ "<p>%2 messages<br/>%3 unread<br/>%4 recent</p>"
+#~ msgstr ""
+#~ "<p>%1</p>\n"
+#~ "<p>%2 viestiä<br/>%3 lukematta<br/>%4 viimeaikaista</p>"
+
+#~ msgctxt "ImapPage|"
+#~ msgid "Start in O&ffline Mode"
+#~ msgstr "Käynnistä &verkottomassa tilassa"
+
+#~ msgctxt "ImapPage|"
+#~ msgid "Don't connect to the IMAP server upon startup"
+#~ msgstr "Älä yhdistä IMAP-palvelimeen käynnistettäessä"
+
+#~ msgctxt "ImapPage|"
+#~ msgid ""
+#~ "If you choose this option, Trojitá won't automatically connect to the "
+#~ "IMAP server upon startup, and you will have to explicitly go online."
+#~ msgstr ""
+#~ "Jos valitset tämän asetuksen, Trojitá ei automaattisesti yhdistä IMAP-"
+#~ "palvelimeen käynnistettäessä, vaan sinun on itse pyydettävä verkkoon "
+#~ "yhdistämistä."
+
+#~ msgctxt "Imap::Mailbox::Model|"
+#~ msgid ""
+#~ "<p>The server has refused to start the encryption through the STARTTLS "
+#~ "command.</p>"
+#~ msgstr "<p>Palvelin torjui salauksen käynnistyksen STARTTLS-komennolla.</p>"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "Login Failed"
+#~ msgstr "Kirjautuminen epäonnistui"
+
+#~ msgctxt "Imap::Mailbox::OpenConnectionTask|"
+#~ msgid ""
+#~ "%1\n"
+#~ "\n"
+#~ "%2"
+#~ msgstr ""
+#~ "%1\n"
+#~ "\n"
+#~ "%2"
+
+#~ msgctxt "Imap::Mailbox::OpenConnectionTask|"
+#~ msgid "Server has closed the connection"
+#~ msgstr "Palvelin on katkaissut yhteyden"
+
+#~ msgctxt "Imap::Mailbox::OpenConnectionTask|"
+#~ msgid "STARTTLS failed: %1"
+#~ msgstr "STARTTLS epäonnistui: %1"
+
+#~ msgctxt "Imap::Mailbox::OpenConnectionTask|"
+#~ msgid "Server does not support STARTTLS"
+#~ msgstr "Palvelin ei tue STARTTLS:ää"
+
+#~ msgctxt "Imap::Mailbox::OpenConnectionTask|"
+#~ msgid "Server did not provide useful capabilities"
+#~ msgstr "Palvelin ei tarjoa käyttökelpoisia ominaisuuksia"
+
+#~ msgctxt "Imap::Mailbox::OpenConnectionTask|"
+#~ msgid "CAPABILITIES command has failed"
+#~ msgstr "CAPABILITIES-komento epäonnistui"
+
+# Credentials tarkoittaa tässä salasanan ja käyttäjätunnuksen yhdistelmää.
+#~ msgctxt "Imap::Mailbox::OpenConnectionTask|"
+#~ msgid "No credentials available"
+#~ msgstr "Kirjautumistietoja ei ole saatavilla"
+
+# *** TARKISTA: BE?
+#~ msgctxt "OneContact|"
+#~ msgid "BE::Contacts"
+#~ msgstr "BE::Yhteystiedot"
+
+#~ msgctxt "QObject|"
+#~ msgid "Trojitá"
+#~ msgstr "Trojitá"
+
+#, fuzzy
+#~| msgctxt "Gui::ComposeWidget|"
+#~| msgid "To"
+#~ msgctxt "HeaderComponent|"
+#~ msgid "To:"
+#~ msgstr "Vastaanottaja"
+
+#, fuzzy
+#~| msgctxt "Gui::ComposeWidget|"
+#~| msgid "Cc"
+#~ msgctxt "HeaderComponent|"
+#~ msgid "Cc:"
+#~ msgstr "CC"
+
+#~ msgctxt "HeaderComponent|"
+#~ msgid "Subject:"
+#~ msgstr "Aihe:"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Server Settings"
+#~ msgstr "Palvelinasetukset"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Username required"
+#~ msgstr "Käyttäjätunnus vaaditaan"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Password"
+#~ msgstr "Salasana"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid ""
+#~ "This password will be saved in encrypted storage. If you do not enter "
+#~ "password here, Trojitá will prompt for one when needed."
+#~ msgstr ""
+#~ "Salasana tallennetaan salattuna. Ellet anna salasanaa tähän, Trojitá "
+#~ "kysyy sitä tarvitessaan."
+
+#~ msgctxt "ImapSettings|"
+#~ msgid ""
+#~ "This password will be saved in clear text. If you do not enter password "
+#~ "here, Trojitá will prompt for one when needed."
+#~ msgstr ""
+#~ "Salasana tallennetaan salaamattomana tekstinä. Ellet anna salasanaa "
+#~ "tähän, Trojitá kysyy sitä tarvitessaan."
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "No Encryption"
+#~ msgstr "Ei salausta"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Use encryption (STARTTLS)"
+#~ msgstr "Käytä salausta (STARTTLS)"
+
+#~ msgctxt "ImapSettings|"
+#~ msgid "Force encryption (TLS)"
+#~ msgstr "Pakota salaus (TLS)"
+
+#~ msgctxt "InfoDialog|"
+#~ msgid "Close"
+#~ msgstr "Sulje"
+
+#~ msgctxt "MailboxListPage|"
+#~ msgid "Mail Box"
+#~ msgstr "Postilaatikko"
+
+#~ msgctxt "MailboxListPage|"
+#~ msgid "%L1 total, %L2 unread"
+#~ msgstr "%L1 kaikkiaan, %L2 lukematta"
+
+#~ msgctxt "MailboxListPage|"
+#~ msgid "Back"
+#~ msgstr "Takaisin"
+
+#~ msgctxt "MailboxListPage|"
+#~ msgid "Settings"
+#~ msgstr "Asetukset"
+
+#~ msgctxt "MailboxListPage|"
+#~ msgid "Network"
+#~ msgstr "Verkko"
+
+#~ msgctxt "MailboxListPage|"
+#~ msgid "Offline mode"
+#~ msgstr "Verkoton tila"
+
+#~ msgctxt "MailboxListPage|"
+#~ msgid "Online mode"
+#~ msgstr "Verkollinen tila"
+
+#~ msgctxt "main|"
+#~ msgid "Error"
+#~ msgstr "Virhe"
+
+#~ msgctxt "main|"
+#~ msgid "Network Error"
+#~ msgstr "Verkkovirhe"
+
+#~ msgctxt "main|"
+#~ msgid "Server Message"
+#~ msgstr "Palvelimen viesti"
+
+#~ msgctxt "main|"
+#~ msgid "<font color='#333333'>Authentication Error</font>"
+#~ msgstr "<font color='#333333'>Tunnistautumisvirhe</font>"
+
+#~ msgctxt "main|"
+#~ msgid "Try re-entering account password or click cancel to go to Settings"
+#~ msgstr ""
+#~ "Yritä syöttää tilin salasana uudelleen tai napsauta Peru päästäksesi "
+#~ "asetuksiin"
+
+#~ msgctxt "main|"
+#~ msgid "<font color='#333333'>Authentication Required</font>"
+#~ msgstr "<font color='#333333'>Tunnistautumista vaaditaan</font>"
+
+#~ msgctxt "main|"
+#~ msgid "Please provide IMAP password for user <b>%1</b> on <b>%2</b>:"
+#~ msgstr "Anna käyttäjän <b>%1</b> IMAP-salasana palvelimeen <b>%2</b>:"
+
+#~ msgctxt "MessageListPage|"
+#~ msgid "<No Subject>"
+#~ msgstr "<Ei aihetta>"
+
+#, fuzzy
+#~| msgctxt "QStandardPaths|"
+#~| msgid "Applications"
+#~ msgctxt "MessageListToolbar|"
+#~ msgid "Options"
+#~ msgstr "Sovellukset"
+
+#~ msgctxt "PasswordInputSheet|"
+#~ msgid "Enter password"
+#~ msgstr "Anna salasana"
+
+#~ msgctxt "SettingsTabs|"
+#~ msgid "Failed saving password"
+#~ msgstr "Salasanan tallennus epäonnistui"
+
+#~ msgctxt "SettingsTabs|"
+#~ msgid "IMAP Settings"
+#~ msgstr "IMAP-asetukset"
+
+#~ msgctxt "SettingsTabs|"
+#~ msgid "SMTP Settings"
+#~ msgstr "SMTP-asetukset"
+
+#~ msgctxt "SettingsToolbar|"
+#~ msgid "Cancel"
+#~ msgstr "Peru"
+
+#~ msgctxt "SettingsToolbar|"
+#~ msgid "Save"
+#~ msgstr "Tallenna"
+
+#~ msgctxt "main|"
+#~ msgid "If running on Desktop, start in a phone sized window."
+#~ msgstr "Jos käytössä työpöydällä, käynnistä puhelinkoon ikkunaan."
+
+#~ msgctxt "main|"
+#~ msgid "If running on Desktop, start in a tablet sized window."
+#~ msgstr "Jos käytössä työpöydällä, käynnistä tablettikoon ikkunaan."
+
+#~ msgctxt "main|"
+#~ msgid "DO NOT USE: autopilot sets this automatically"
+#~ msgstr "ÄLÄ KÄYTÄ: automaattiohjaus asettaa tämän automaattisesti"
+
+#~ msgctxt "OneMessagePage|"
+#~ msgid "<b>Message URL:</b> "
+#~ msgstr "<b>Viestin verkko-osoite:</b> "
+
+#~ msgctxt "Gui::OutgoingPage|"
+#~ msgid "SMTP"
+#~ msgstr "SMTP"
+
+#~ msgctxt "Gui::OutgoingPage|"
+#~ msgid "Secure SMTP"
+#~ msgstr "Salattu SMTP"
+
+#~ msgctxt "OutgoingPage|"
+#~ msgid "Perform &STARTTLS"
+#~ msgstr "Suorita &STARTTLS"

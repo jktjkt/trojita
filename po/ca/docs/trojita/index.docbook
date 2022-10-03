@@ -1,0 +1,534 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY trojita "<application
+>Trojitá</application
+>">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Catalan  "INCLUDE">
+]>
+<book id="trojita" lang="&language;">
+
+<bookinfo>
+<title
+>El manual del &trojita;</title>
+
+<authorgroup>
+<author
+><personname
+> <firstname
+>Randall</firstname
+> <surname
+>Wood</surname
+> </personname
+> <email
+>randall+kde@woodbriceno.net</email
+> </author>
+&traductor.JosepMa.Ferrer; 
+</authorgroup>
+
+<copyright>
+<year
+>2013</year>
+<holder
+>Randall Wood</holder>
+</copyright>
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>31 de març de 2013</date>
+
+<releaseinfo
+>0.3.92 (&kde; 4.9)</releaseinfo>
+
+<abstract>
+<para
+>El &trojita; és un programa de correu electrònic («client») per a comptes IMAP. Es tracta d'un programa independent que no està associat amb cap paquet d'informació o equivalent. Dona prioritat a la transferència de dades eficient i ràpida, té cura de no tornar a descarregar cap informació que ja s'ha descarregat, i és conservador amb l'ús de la xarxa quan es paga per minuts. Actualment és en desenvolupament intensiu, li manquen algunes característiques, però està evolucionant ràpidament. </para>
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>extragear</keyword>
+<keyword
+>correu electrònic</keyword>
+<keyword
+>IMAP</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Introducció</title>
+
+<para
+>El &trojita; és un programa de correu electrònic («client») centrat en els comptes de correu IMAP, on el correu roman en el servidor però és manipulat pel programari que executeu a l'ordinador sota les vostres mans. Està dissenyat per a ser senzill (es pot construir utilitzant només una única biblioteca dependent), i ràpid i eficient a través de la xarxa, economitzant recursos i limitant la transferència de dades. La seva interfície gràfica està pensada per a ser ordenada i eficient, i proporciona una transferència de dades «mode costosa», que redueix al mínim la durada de la conversa amb el servidor. És un programa independent, no forma part d'una suite més gran o més complexa. Com que està en desenvolupament, encara falten algunes característiques. </para>
+</chapter>
+
+<chapter id="using-kapp">
+<title
+>Ús del &trojita;</title>
+
+<para
+>El &trojita; permet llegir, escriure, organitzar, cercar i enviar correus electrònics. Si teniu un compte de correu electrònic IMAP, el &trojita; us permetrà accedir-hi i utilitzar-lo. IMAP és un protocol que permet que el vostre correu romangui al servidor, en lloc de descarregar-lo a la vostra màquina local. No obstant això, el &trojita; de fet descarrega parts dels vostres missatges per comoditat. En la dècada de 1990, la majoria de les persones utilitzaven bústies POP3, i el seu programari de correu electrònic descarregava tots els seus missatges, eliminant-los del servidor. El desavantatge era que si s'utilitzava qualsevol altre ordinador, els vostres missatges no estaven disponibles. IMAP resol aquest problema mantenint el correu al servidor. El programari que utilitzeu a l'ordinador/mòbil simplement emet instruccions («respon a aquest correu electrònic», «mostra aquest correu electrònic», &etc;) perquè el servidor les executi.</para>
+
+<para
+>Primer necessiteu un compte IMAP. Hi ha molts proveïdors; <ulink url="http://fastmail.fm"
+>FastMail</ulink
+> n'és un; <ulink url="http://tuffmail.com"
+>Tuffmail</ulink
+> i <ulink url="http://pobox.com"
+>Pobox</ulink
+> en són altres. El servei Gmail de Google proporciona accés IMAP al vostre compte de Gmail (Outlook i altres no). I si el gestor del servidor <application
+>Exchange</application
+> de &Microsoft; l'ha configurat, també podeu accedir a l'<application
+>Exchange</application
+> a través d'IMAP. Si teniu un compte IMAP, tot el que us caldrà és un nom d'usuari i una contrasenya perquè hi accedeixi el &trojita;.</para>
+
+<para
+>Tingueu en compte que no tots els proveïdors IMAP són iguals i alguns ofereixen un servei que és lent fins a la frustració. El servidor <application
+>Exchange</application
+> de &Microsoft; també es diu que és una mica lent. Si trieu un bon proveïdor i feu servir programari ràpid, us sorprendreu d'una experiència ben agradable.</para>
+
+<sect1 id="configure-account">
+<title
+>Configuració del vostre compte IMAP</title>
+<para
+>Primer, feu clic a la pestanya <guilabel
+>General</guilabel
+> del quadre Arranjament. Afegiu el vostre compte IMAP com un compte nou, utilitzant aquests paràmetres: <itemizedlist>
+<listitem
+><para
+>Nom real: el nom que voleu mostrar en els vostres correus (el vostre nom i cognoms)</para
+></listitem>
+<listitem
+><para
+>Correu electrònic: la vostra adreça electrònica</para
+></listitem>
+<listitem
+><para
+>Organització: el nom de la vostra empresa o organització (opcional)</para
+></listitem>
+<listitem
+><para
+>Signatura: qualsevol text que vulgueu que aparegui a la part inferior dels vostres correus, com el nom de la web o un eslògan</para
+></listitem>
+</itemizedlist>
+</para>
+
+<para
+>Aquests paràmetres esdevenen una identitat, i se'n poden tenir diverses, per exemple, si voleu que alguns dels vostres correus són de part d'una llista de correu on els vostres missatges haurien de ser diferents (una línia de signatura diferent, per exemple). No obstant això, en l'actualitat, el &trojita; encara no permet diversos comptes IMAP (és a dir, utilitzar amb múltiples servidors).</para>
+
+<para
+>A continuació, afegiu els paràmetres de connexió necessaris per accedir al vostre compte. <itemizedlist>
+<listitem
+><para
+>Mètode: trieu SSL, si el proveïdor ho requereix. En cas contrari, trieu «TCP» per a una connexió que comença sense encriptar i es pot actualitzar a encriptació mentre es connecta. I si el proveïdor us requereix que feu aquesta actualització a l'encriptació, activeu «Porta a terme l'ordre STARTTLS» per assegurar que es faci. El «Procés local» és per a usuaris avançats que, per exemple, estan connectant amb el proveïdor a través d'un altre agent SSH (en aquest cas cal posar alguna cosa com <userinput
+>ssh imap.provider.org dovecot --exec-mail imap</userinput
+>). En general, TCP o SSL són les dues opcions més probables.</para
+></listitem>
+<listitem
+><para
+>Servidor IMAP: és el servidor del vostre proveïdor (&pex; mail.host.com)</para
+></listitem>
+<listitem
+><para
+>Port: aquest paràmetre s'ha de canviar automàticament depenent del que introduïu a «Servidor IMAP». Normalment és 143 per a connexions no encriptades i 993 per a connexions SSL.</para
+></listitem>
+<listitem
+><para
+>Nom d'usuari: el vostre nom d'usuari</para
+></listitem>
+<listitem
+><para
+>Contrasenya: la vostra contrasenya. Actualment, el &trojita; emmagatzema el nom d'usuari i la contrasenya en un fitxer de text pla al vostre ordinador. No és segur! Si això us preocupa, deixeu el camp de la contrasenya en blanc, i el &trojita; us demanarà una vegada la contrasenya i la mantindrà en memòria fins que sortiu de l'aplicació.</para
+></listitem>
+<listitem
+><para
+>Comença en el mode desconnectat:</para
+></listitem>
+<listitem
+><para
+>Capacitats de llista negra: el &trojita; s'esforça per complir els estàndards. Però alguns servidors que anuncien el compliment de les normes no ho són. Si esteu al corrent d'algunes característiques que el vostre proveïdor anuncia però que en realitat no proporciona, informar-les aquí permet al &trojita; ignorar-les educadament.</para
+></listitem>
+</itemizedlist>
+</para>
+
+<para
+>La pestanya del mode <guilabel
+>Desconnectat</guilabel
+> és on configureu la capacitat del &trojita; per emmagatzemar còpies locals de missatges al vostre servidor. L'avantatge de desar una còpia localment és òbvia: es pot accedir més tard sense tornar a connectar. Els desavantatges inclouen omplir el disc dur local i, per descomptat, el risc de seguretat si algú mai examina el vostre ordinador. De manera predeterminada, el &trojita; emmagatzema les còpies locals indefinidament, però aquí podeu triar si preferiu emmagatzemar-les fins a un nombre determinat de dies, o no emmagatzemar-les en absolut. Tingueu en compte que el codi per netejar la memòria cau de missatges encara no s'ha implementat, de manera que en l'actualitat haureu d'assumir que la memòria cau de missatges no s'eliminarà.</para>
+
+<para
+>La pestanya <guilabel
+>SMTP</guilabel
+> és on configureu l'enviament de correu electrònic. <itemizedlist>
+<listitem
+><para
+>Mètode: trieu SMTP per a connexions no encriptades, o «SMTP segur» si preferiu (i el vostre proveïdor accepta) el correu enviat a través de SSL. Si trieu «Local compatible amb el Sendmail» el &trojita; simplement passarà el vostre correu a l'aplicació Sendmail que s'executa al vostre ordinador local (i si no en teniu cap, fracassarà). Triar aquesta opció requereix que especifiqueu els paràmetres del Sendmail per utilitzar el vostre Sendmail local.</para
+></listitem>
+<listitem
+><para
+>Servidor SMTP: el nom del servidor al qual s'ha d'enviar el vostre correu.</para
+></listitem>
+<listitem
+><para
+>Port: aquest paràmetre ha de canviar automàticament depenent del que trieu a «Mètode». Típicament, és 587 per a correu sense encriptar, i 465 per a correu enviat sobre SSL.</para
+></listitem>
+<listitem
+><para
+>Executable del Sendmail: només és necessari si heu triat «compatible amb el Sendmail local» com a mètode. Si és així, aquí hauríeu de posar qualsevol ordre que sigui necessària perquè el missatge s'enviï a l'aplicació local de Sendmail. El valor per defecte és «sendmail -bm -oi», però si la vostra configuració local no és estàndard, haureu d'ajustar aquest paràmetre de manera apropiada.</para
+></listitem>
+<listitem
+><para
+>StartTLS: activeu aquesta casella si el vostre proveïdor necessita una connexió TLS per enviar correu encriptat (això no és el mateix que utilitzar SSL escollint «SMTP segur» com a mètode anterior).</para
+></listitem>
+<listitem
+><para
+>Autenticació SMTP: si cal introduir un nom d'usuari i una contrasenya per enviar correu, activeu aquesta casella. Actualment, gairebé sempre s'ha de fer, ja que en cas contrari els generadors de correu brossa envien missatges no desitjats a través del servidor.</para
+></listitem>
+<listitem
+><para
+>Nom d'usuari: el vostre nom d'usuari.</para
+></listitem>
+<listitem
+><para
+>La vostra contrasenya.</para
+></listitem>
+<listitem
+><para
+>Desa el correu sortint: si activeu aquesta casella, el &trojita; desarà una còpia de cada correu que envieu. Aquesta ha estat la configuració predeterminada per a tots els programes de correu electrònic des de fa tant de temps que poca gent sap que és possible no fer-ho!</para
+></listitem>
+<listitem
+><para
+>Nom de la carpeta d'enviats: si decidiu mantenir una còpia local del correu enviat, trieu en quina carpeta us agradaria guardar-la.</para
+></listitem>
+<listitem
+><para
+>Envia amb BURL: l'extensió BURL és una extensió de l'estàndard IMAP, implementat el 2006, així que no tots els servidors disposen del servei. Imagineu que teniu un correu electrònic enorme a la vostra bústia d'entrada amb un adjunt, i voleu reenviar aquest missatge. La forma normal requereix que el vostre client IMAP baixi aquest missatge enorme i després el reenviï (amb dues transferències grans de xarxa). L'extensió BURL us permet enviar aquest missatge sense haver de descarregar-lo primer. Si el vostre proveïdor permet BURL, val la pena seleccionar aquesta opció.</para
+></listitem>
+</itemizedlist>
+
+</para>
+</sect1>
+
+
+<sect1 id="reading-mail">
+<title
+>Lectura del correu amb el &trojita;</title>
+
+<para
+>El &trojita; presenta una interfície de tres subfinestres que hauria de ser habitual a qualsevol que abans hagi utilitzat el correu electrònic. A l'esquerra hi ha una llista de totes les vostres carpetes de correu electrònic, probablement la bústia d'entrada i altres. A la part dreta hi ha dues subfinestres: la subfinestra superior mostra la llista de tots els missatges de la carpeta actual, i la subfinestra inferior mostra el missatge seleccionat a la subfinestra superior. L'Outlook de &Microsoft;, el &kmail; i molts altres clients de correu electrònic utilitzen aquesta mateixa disposició. </para>
+
+<para
+>No obstant això, hi ha altres disposicions disponibles. En el menú <guimenu
+>Visualitza</guimenu
+>, seleccioneu simplement <menuchoice
+><guimenu
+>Disposició</guimenu
+> <guimenuitem
+>Ampla</guimenuitem
+></menuchoice
+> per triar en el seu lloc una disposició de tres subfinestres adequada per a pantalles més grans i amples, on les carpetes es mostren a la columna esquerra, els missatges de la carpeta seleccionada a la columna central, i el contingut del missatge seleccionat a la columna dreta.</para>
+
+<para
+>Quan seleccioneu un missatge, es mostrarà a continuació. Feu clic dret sobre el missatge seleccionat a la subfinestra superior si voleu suprimir el missatge, desar-lo al disc com un fitxer de text, o veure totes les capçaleres.</para>
+
+<para
+>Per respondre o reenviar un missatge, utilitzeu els botons de la barra d'eines, ja que actualment no hi ha cap drecera de teclat definida. Trieu <guibutton
+>Resposta privada</guibutton
+> per respondre només al remitent. Trieu <guibutton
+>Respon a tothom</guibutton
+> si voleu respondre al remitent i a tots els altres en les línies A: o CC:. Si el missatge arriba a través d'una llista de correu adequadament configurada, també estarà disponible l'opció <guibutton
+>Respon a la llista de correu</guibutton
+>.</para>
+
+<note
+><para
+>En l'actualitat, encara no s'ha inclòs la funció de «Reenvia el missatge».</para
+></note>
+
+</sect1>
+
+<sect1 id="composing-mail">
+<title
+>Escriure/redactar el correu</title>
+
+<para
+>Per compondre un missatge nou, feu clic a la icona a l'extrem esquerre de la barra d'eines. Apareixerà una finestra de missatge nou, on podreu triar els destinataris, compondre el text i enviar. Si us interrompen i necessiteu desar un esborrany, podeu fer-ho amb un clic al menú petit d'expansió al costat del botó d'enviament. A continuació es desarà un esborrany a la carpeta d'esborranys.</para>
+</sect1>
+
+<sect1 id="address-book">
+<title
+>Llibreta d'adreces</title>
+
+<para
+>Actualment, el &trojita; no té cap llibreta d'adreces gràfica, encara que s'està desenvolupant activament. No obstant això, mentrestant, hi ha una solució de treball molt eficaç. En començar, el &trojita; llegeix la llibreta d'adreces situada a <filename role="directory"
+>~/.abook/</filename
+>, que es pot crear utilitzant el programa de només consola anomenat <application
+>abook</application
+>. Executant <application
+>abook</application
+> en una finestra de terminal com el &konsole;, podeu afegir, suprimir i editar entrades de la llibreta d'adreces. El &trojita; no manipula aquesta llibreta d'adreces de cap manera, per exemple, no afegirà noves entrades mentre escriviu missatges. Però si teniu una llibreta d'adreces <filename role="extension"
+>.abook</filename
+>, el &trojita; l'utilitzarà per a completar automàticament les entrades.</para
+></sect1>
+
+</chapter>
+
+<chapter id="commands">
+<title
+>Referència d'ordres</title>
+
+
+<sect1 id="kapp-mainwindow">
+<title
+>La finestra principal del &trojita;</title>
+
+<sect2>
+<title
+>El menú IMAP</title>
+<para>
+<variablelist>
+
+<varlistentry  id="compose-new">
+<term>
+  <menuchoice
+><guimenu
+>IMAP</guimenu
+> <guimenuitem
+>Editor de correu...</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Obre un missatge nou per editar</action
+></para
+></listitem>
+</varlistentry>
+
+
+<varlistentry  id="expunge">
+<term>
+  <menuchoice
+><shortcut
+> <keycombo action="simul"
+>&Ctrl;<keycap
+>E</keycap
+></keycombo
+> </shortcut
+> <guimenu
+>IMAP</guimenu
+> <guimenuitem
+>Expurga la bústia</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Elimina del servidor qualsevol missatge ja marcat per a la supressió a la bústia seleccionada (carpeta).</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="network-offline">
+<term>
+  <menuchoice
+><guimenu
+>Accés a la xarxa</guimenu
+> <guimenuitem
+>Desconnectat</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Si està seleccionat, el &trojita; no obtindrà cap dada nova (missatges) del servidor i es limitarà als missatges que heu baixat prèviament. No obstant això, encara us deixarà compondre missatges nous, encara que no pugui enviar-los.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="network-expensive">
+<term>
+  <menuchoice
+><guimenu
+>Accés a la xarxa</guimenu
+> <guimenuitem
+>Connexió cara</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Useu això si utilitzeu el &trojita; en un telèfon mòbil o un altre dispositiu on és important reduir el trànsit de xarxa i ser eficient.</action
+></para
+></listitem>
+</varlistentry>
+
+
+<varlistentry  id="network-free">
+<term>
+  <menuchoice
+><guimenu
+>Accés a la xarxa</guimenu
+> <guimenuitem
+>Accés gratuït</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Useu això si sou en un ordinador d'escriptori amb accés il·limitat a Internet de banda ampla. Això permet al &trojita; precarregar dades de forma més dinàmica. És a dir, en lloc de descarregar simplement les capçaleres, per exemple, avançarà i descarregarà també una còpia local dels missatges. </action
+></para
+></listitem>
+</varlistentry>
+
+
+
+
+</variablelist>
+</para>
+</sect2>
+
+<sect2>
+<title
+>El menú Visualitza</title>
+<para>
+<variablelist>
+
+<varlistentry  id="layout">
+<term>
+  <menuchoice
+><guimenu
+>Visualitza</guimenu
+> <guimenuitem
+>Disposició</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Trieu <guimenuitem
+>Ample</guimenuitem
+> per a una vista moderna de tres plafons amb la llista de missatges al centre i el missatge mateix a la dreta. Trieu <guimenuitem
+>Compacta</guimenuitem
+> per a la vista tradicional de tres panells amb la llista de missatges a la part superior i el missatge mateix a la part inferior.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="threads">
+<term>
+  <menuchoice
+><guimenu
+>Visualitza</guimenu
+> <guimenuitem
+>Mostra els missatges en converses</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Seleccioneu aquesta opció per a mostrar els missatges agrupats en fils (converses). Això és útil per a les llistes de correu, per exemple. Això depèn del vostre servidor IMAP que admeti una o més extensions voluntàries, ja que en cas contrari el &trojita; hauria de fer més treball per endreçar els fils de missatges.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="hide">
+<term>
+  <menuchoice
+><guimenu
+>Visualitza</guimenu
+> <guimenuitem
+>Oculta els missatges llegits</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Trieu aquesta opció si només voleu que apareguin els missatges nous a la llista de missatges.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="subscribed">
+<term>
+  <menuchoice
+><guimenu
+>Visualitza</guimenu
+> <guimenuitem
+>Mostra només les carpetes subscrites</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>La vostra bústia pot tenir més carpetes de les que realment cal controlar. Seleccioneu aquesta opció per limitar les carpetes mostrades només a les que us heu subscrit. Això no elimina les altres carpetes, només els impedeix que es mostrin a la llista de carpetes.</action
+></para
+></listitem>
+</varlistentry>
+
+
+
+
+
+</variablelist>
+</para>
+</sect2>
+
+</sect1>
+</chapter>
+
+<chapter id="credits">
+
+<title
+>Crèdits i llicència</title>
+
+<para
+>&trojita; </para>
+<para
+>Copyright del programa 2006-2013 Jan Kundrát <email
+>jkt@flaska.net</email
+> </para>
+<para
+>Col·laboradors: <itemizedlist
+> <listitem
+><para
+>Thomas Lübking <email
+>thomas.luebking@gmail.com</email
+></para>
+</listitem>
+</itemizedlist>
+</para>
+
+<para
+>Copyright de la documentació &copy; 2013 Randall Wood <email
+>randall+kde@woodbriceno.net</email
+> </para>
+
+<para
+>Traductor de la documentació: &credits.JosepMa.Ferrer;</para
+> &underFDL; &underGPL; <para
+>Segons la llicència GPLv2/GPLv3 i la CC-BY-SA</para>
+
+</chapter>
+
+&documentation.index;
+</book>
+
+<!--
+Local Variables:
+mode: xml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+vim:tabstop=2:shiftwidth=2:expandtab
+kate: space-indent on; indent-width 2; tab-width 2; indent-mode none;
+-->

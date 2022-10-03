@@ -1,0 +1,550 @@
+<?xml version="1.0" ?>
+<!DOCTYPE book PUBLIC "-//KDE//DTD DocBook XML V4.5-Based Variant V1.1//EN"
+"dtd/kdedbx45.dtd" [
+  <!ENTITY trojita "<application
+>Trojitá</application
+>">
+  <!ENTITY % addindex "IGNORE">
+  <!ENTITY % Swedish "INCLUDE">
+]>
+<book id="trojita" lang="&language;">
+
+<bookinfo>
+<title
+>Handbok &trojita;</title>
+
+<authorgroup>
+<author
+><personname
+> <firstname
+>Randall</firstname
+> <surname
+>Wood</surname
+> </personname
+> <email
+>randall+kde@woodbriceno.net</email
+> </author>
+<othercredit role="translator"
+> <firstname
+>Stefan</firstname
+> <surname
+>Asserhäll</surname
+> <affiliation
+><address
+><email
+>stefan.asserhall@bredband.net</email
+></address
+></affiliation
+> <contrib
+>Översättare</contrib
+></othercredit
+> 
+</authorgroup>
+
+<copyright>
+<year
+>2013</year>
+<holder
+>Randall Wood</holder>
+</copyright>
+<legalnotice
+>&FDLNotice;</legalnotice>
+
+<date
+>2013-01-31</date>
+
+<releaseinfo
+>0.3.92 (&kde; 4.9)</releaseinfo>
+
+<abstract>
+<para
+>&trojita; är ett e-postprogram ("klient") för IMAP-konton. Det är ett fristående program som inte är kopplat till några informationssviter eller motsvarande. Det prioriterar effektivitet och snabb dataöverföring, är noga med att inte ladda ner någon information som redan har laddats ner igen, och är konservativ med nätverksanvändning när du betalar per minut. Det genomgår för närvarande intensiv utveckling, och saknar vissa funktioner men förbättras snabbt. </para>
+</abstract>
+
+<keywordset>
+<keyword
+>KDE</keyword>
+<keyword
+>extragear</keyword>
+<keyword
+>e-post</keyword>
+<keyword
+>IMAP</keyword>
+</keywordset>
+
+</bookinfo>
+
+<chapter id="introduction">
+<title
+>Inledning</title>
+
+<para
+>&trojita; är ett e-postprogram ("klient") fokuserat på IMAP-konton, där breven förblir på servern men manipuleras av programvaran som körs på datorn i din närhet. Det är konstruerat för att vara enkelt (det kan byggas med beroende av endast ett bibliotek), samt snabbt och effektivt över nätverket, där det hushållar med resurser och begränsar dataöverföringar. Dess grafiska användargränssnitt är avsett att vara stilrent och effektivt, och tillhandahåller ett "dyrt läge" för dataöverföring, som reducerar dess konversation med servern till ett minimum. Det ärett fristående program, inte del av en större eller mer komplex programsvit. Eftersom det är under utveckling, saknas fortfarande vissa funktioner. </para>
+</chapter>
+
+<chapter id="using-kapp">
+<title
+>Använda &trojita;</title>
+
+<para
+>&trojita; låter dig läsa, skriva, organisera, söka efter och skicka e-post. Om du har ett e-postkonto med IMAP, låter &trojita; dig komma åt och använda det. IMAP är ett protokoll som låter brev vara kvar på server, istället för att laddas ner till den lokala datorn. Dock laddar &trojita; ner delar av breven, eller till och med hela breven, av bekvämlighetsskäl. På 1990-talet använde de flesta POP3-brevlådor och e-postprogramvaran laddade ner alla brev, och tog bort dem från servern. Nackdelen är att om du använder någon annan dator, är breven inte längre tillgängliga. IMAP löser det problemet genom att behålla breven på servern. Programvaran du använder på den lokala datorn eller mobiltelefonen ger helt enkelt instruktioner ("svara på brevet", "visa brevet", etc.) som servern utför.</para>
+
+<para
+>Först av allt behöver du ett IMAP-konto. Det finns många leverantörer: <ulink url="http://fastmail.fm"
+>FastMail</ulink
+> är en av dem. <ulink url="http://tuffmail.com"
+>Tuffmail</ulink
+> och <ulink url="http://pobox.com"
+>Pobox</ulink
+> är andra. Googles Gmail-tjänst ger åtkomst till ditt Gmail-konto via IMAP (Outlook och andra gör det inte). Om de som hanterar din &Microsoft; <application
+>Exchange</application
+>-server har ställt in det, kan du också komma åt <application
+>Exchange</application
+> via IMAP. Om du har ett IMAP-konto, ett användarnamn och ett lösenord, är det allt du ska behöva för att använda &trojita; att komma åt det.</para>
+
+<para
+>Observera att inte alla IMAP-leverantörer är likadana, och vissa erbjuder en tjänst som är frustrerande långsam. &Microsoft;s <application
+>Exchange</application
+>-server har också rapporterats vara något långsam. Men om du väljer en bra leverantör och använder snabb programvara, blir du överraskad av hur trevlig upplevelsen kan vara.</para>
+
+<sect1 id="configure-account">
+<title
+>Anpassa ditt IMAP-konto</title>
+<para
+>Klicka först på fliken <guilabel
+>Allmänt</guilabel
+> i inställningsrutan. Lägg till ditt IMAP-konto som ett nytt konto, med följande parametrar: <itemizedlist>
+<listitem
+><para
+>Verkligt namn: Namnet som du vill visa på dina brev (ditt eget förnamn och efternamn)</para
+></listitem>
+<listitem
+><para
+>E-post: Din e-postadress</para
+></listitem>
+<listitem
+><para
+>Organisation: Ditt företagsnamn (valfritt)</para
+></listitem>
+<listitem
+><para
+>Brevfot: Eventuell text som du vill ska visas längst ner i dina brev, såsom din hemsida eller en slogan</para
+></listitem>
+</itemizedlist>
+</para>
+
+<para
+>Dessa inställningar blir en identitet, och du kan ha flera om du vill, exempelvis om vissa av dina brev skickas till en sändlista där breven ska se annorlunda ut (t.ex. ha en annan brevfot). Observera dock att &trojita; ännu inte tillåter flera IMAP-konton (dvs. användning med flera servrar).</para>
+
+<para
+>Lägg därefter till anslutningsparametrarna som är nödvändiga för att komma åt ditt konto. <itemizedlist>
+<listitem
+><para
+>Metod: Välj SSL, om leverantören kräver det. Välj annars "TCP" för en anslutning som startar okrypterad och kan uppgraderas till kryptering vid anslutning. Och om leverantören kräver att uppgradering till kryptering utförs, markera "Utför STARTTLS" för att vara säker på att det sker. "Lokal process" är till för avancerade användare, som exempelvis ansluter till leverantören via en annan SSH-agent (i detta fall skulle man ange något som liknar <userinput
+>ssh imap.provider.org dovecot --exec-mail imap</userinput
+>). I allmänhet är TCP eller SSL de två troligaste alternativen.</para
+></listitem>
+<listitem
+><para
+>IMAP-server: är leverantörens server (t.ex. mail.host.com)</para
+></listitem>
+<listitem
+><para
+>Port: Parametern ska ändras automatiskt beroende på vad du anger för "IMAP-server". Typiskt är det 143 för okrypterade anslutningar och 993 för SSL-anslutningar.</para
+></listitem>
+<listitem
+><para
+>Användarnamn: ditt användarnamn</para
+></listitem>
+<listitem
+><para
+>Lösenord: Ditt lösenord. För närvarande lagrar &trojita; användarnamn och lösenord i en vanlig textfil på datorn. Det är inte säkert! Om detta oroar dig, lämna lösenordsfältet tomt, så frågar &trojita; dig en gång efter lösenordet och håller det i minnet tills programmet avslutas.</para
+></listitem>
+<listitem
+><para
+>Starta i nerkopplat läge:</para
+></listitem>
+<listitem
+><para
+>Svartlistade utökningar: &trojita; strävar efter att uppfylla standarder, men vissa servrar som annonserar att de uppfyller standarder gör i själva verket inte det. Om du är medveten om några funktioner som leverantören annonserar men i själva verket inte tillhandahåller, gör det möjligt att låta &trojita; artigt ignorera dem.</para
+></listitem>
+</itemizedlist>
+</para>
+
+<para
+>Fliken <guilabel
+>Nerkopplad</guilabel
+> är platsen som &trojita;s möjlighet att lagra lokala kopior av brev på servern anpassas. Fördelen med att spara en lokal kopia är uppenbar: Du kan komma åt den senare utan att koppla upp igen. Nackdelarna inkluderar att fylla den lokala hårddisken, och naturligtvis säkerhetsrisken om någon någonsin kommer åt att utforska datorn. &trojita;s standardläge är att lagra lokala kopior för alltid, men du kan välja om du föredrar att lagra upp till ett visst antal dagar, eller inte lagra alls. Observera att koden för att rensa brevcachen ännu inte har implementerats, så för närvarande bör du anta att brevcachen inte töms.</para>
+
+<para
+>Fliken <guilabel
+>SMTP</guilabel
+> är stället där man anpassar att skicka brev. <itemizedlist>
+<listitem
+><para
+>Metod: Välj SMTP för okrypterade anslutningar eller "Säker SMTP" om du föredrar (och leverantören accepterar) brev skickade via SSL. Om du väljer "Kompatibel med lokal sendmail" skickar &trojita; helt enkelt dina brev till programmet sendmail som kör på den lokala datorn (och om det inte finns något, kommer det att misslyckas). Väljes alternativet krävs att du anger parametrar till sendmail för att använda det lokala sendmail-programmet.</para
+></listitem>
+<listitem
+><para
+>SMTP-server: namnet på servern dit dina brev ska skickas.</para
+></listitem>
+<listitem
+><para
+>Port: Parametern ska ändras automatiskt beroende på vad du anger för "Metod". Typiskt är det 587 för okrypterade brev, och 465 för brev som skickas via SSL.</para
+></listitem>
+<listitem
+><para
+>Sendmail körbart program: Krävs bara om du har valt "Kompatibel med lokal sendmail" som metod. Om det är fallet ska du skriva in vilket kommando som än krävs för att brevet ska skickas till det lokala sendmail-programmet. Standardvärdet är "sendmail -bm -oi", men om den lokala inställningen inte är standardmässig, måste du justera parametern på lämpligt sätt.</para
+></listitem>
+<listitem
+><para
+>Utför STARTTLS: Markera rutan om leverantören kräver en TLS-anslutning för att skicka krypterade brev (det är inte samma sak som att använda SSL genom att välja "Säker SMTP" som metod ovan).</para
+></listitem>
+<listitem
+><para
+>SMTP behörighetskontroll: Om du måste skriva in ett användarnamn och lösenord för att skicka brev, markera då den här rutan. I modern tid måste du nästan alltid göra det, eftersom skräppostare annars skickar  oönskade brev via servern.</para
+></listitem>
+<listitem
+><para
+>Användarnamn: ditt användarnamn.</para
+></listitem>
+<listitem
+><para
+>Ditt lösenord.</para
+></listitem>
+<listitem
+><para
+>Spara skickade brev: Om den här rutan markeras, sparar &trojita; en kopia av alla brev du skickar. Det har varit standardinställning i alla e-postprogram så länge nu, att bara ett fåtal ens känner till att det är möjligt att inte göra det.</para
+></listitem>
+<listitem
+><para
+>Korg för skickade brev: Om du bestämmer dig för att behålla en lokal kopia av skickade brev, välj i vilken korg du vill behålla dem.</para
+></listitem>
+<listitem
+><para
+>Skicka med BURL: BURL är en utökning av IMAP-standarden implementerad under 2006, så alla servrar tillhandahåller inte tjänsten. Antag att du har ett enormt brev i inkorgen med en bilaga, och du vill skicka vidare brevet. Det normala sättet kräver att IMAP-klienten laddar ner det enorma brevet. och därefter skickar det igen (vilket orsakar två stora nätverksöverföringar). BURL-utökningen låter dig skicka brevet utan att först ladda ner det. Om leverantören tillåter BURL, är det värt att markera alternativet.</para
+></listitem>
+</itemizedlist>
+
+</para>
+</sect1>
+
+
+<sect1 id="reading-mail">
+<title
+>Läsa brev med &trojita;</title>
+
+<para
+>&trojita; erbjuder ett gränssnitt med tre rutor som bör vara bekant för alla som någonsin har använt e-post tidigare. På vänster sida finns en lista med alla brevkorgar, troligen INKORG och några andra. På höger sida finns två rutor: Den övre rutan visar listan med alla brev i aktuell korg, och den nedre rutan visar brevet som är markerat i den övre rutan. &Microsoft; Outlook, &kmail; och många andra e-postprogram använder samma layout. </para>
+
+<para
+>Andra layouter är dock tillgängliga. Välj helt enkelt <menuchoice
+><guimenu
+>Layout</guimenu
+> <guimenuitem
+>Bred</guimenuitem
+></menuchoice
+> i menyn <guimenu
+>Visa</guimenu
+> för att istället välja en layout med tre rutor lämplig för större, bredare skärmar, där korgarna visas i vänstra kolumnen, breven i den valda korgen i mittenkolumnen, och innehållet i det markerade brevet i den högra kolumnen.</para>
+
+<para
+>När du markerar ett brev, visas det nedanför. Högerklicka på det markerade brevet i den övre rutan om du vill ta bort brevet, spara det på disk som en textfil, eller visa huvuden.</para>
+
+<para
+>Använd knapparna i verktygsraden för att svara på, eller vidarebefordra, ett brev, eftersom inga snabbtangenter för närvarande är definierade. Välj <guibutton
+>Privat svar</guibutton
+> för att bara svara till avsändaren. Välj <guibutton
+>Svara till alla</guibutton
+> om du vill svara till avsändaren och alla andra på raderna Till: eller Kopia:. Om brevet anlände via en riktigt inställd sändlista, är också alternativet <guibutton
+>Svara till sändlista</guibutton
+> tillgängligt.</para>
+
+<note
+><para
+>För närvarande har inte funktionen "Vidarebefordra brev" ännu inkluderats.</para
+></note>
+
+</sect1>
+
+<sect1 id="composing-mail">
+<title
+>Skriva brev</title>
+
+<para
+>Klicka på ikonen längst till vänster på verktygsraden för att skriva ett nytt brev. Ett nytt brevfönster visas, där du kan välja mottagare, skriva texten och skicka. Om du blir avbruten och behöver spara ett utkast, kan du göra det genom att klicka på den lilla expanderande menyn intill sändknappen. Ett utkast sparas då i utkastkorgen.</para>
+</sect1>
+
+<sect1 id="address-book">
+<title
+>Adressbok</title>
+
+<para
+>För närvarande har inte &trojita; en grafisk adressbok, även om en håller på att utvecklas. Dock finns ett mycket effektivt sätt att gå förbi problemet under tiden. Vid start läser &trojita; adressboken som finns i <filename role="directory"
+>~/.abook/</filename
+>, vilken du kan skapa med kommandoradsprogrammet vid namn <application
+>abook</application
+>. Genom att köra <application
+>abook</application
+> i ett terminalfönster som &konsole;, kan du lägga till, ta bort och redigera adressboksposter. &trojita; manipulerar inte adressboken på något sätt, så nya poster läggs till exempel inte till när du skriver brev. Men om du har adressboken <filename role="extension"
+>.abook</filename
+>, fyller &trojita; automatiskt i poster genom att använda den.</para
+></sect1>
+
+</chapter>
+
+<chapter id="commands">
+<title
+>Kommandoreferens</title>
+
+
+<sect1 id="kapp-mainwindow">
+<title
+>Huvudfönstret i &trojita;</title>
+
+<sect2>
+<title
+>Menyn IMAP</title>
+<para>
+<variablelist>
+
+<varlistentry  id="compose-new">
+<term>
+  <menuchoice
+><guimenu
+>IMAP</guimenu
+> <guimenuitem
+>Skriv brev...</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Öppnar ett nytt brev för redigering</action
+></para
+></listitem>
+</varlistentry>
+
+
+<varlistentry  id="expunge">
+<term>
+  <menuchoice
+><shortcut
+> <keycombo action="simul"
+>&Ctrl;<keycap
+>E</keycap
+></keycombo
+> </shortcut
+> <guimenu
+>IMAP</guimenu
+> <guimenuitem
+>Städa brevlåda</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Tar bort alla brev som redan är markerade för borttagning i brevlådan (korgen) som för närvarande är vald.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="network-offline">
+<term>
+  <menuchoice
+><guimenu
+>Nätverksåtkomst</guimenu
+> <guimenuitem
+>Nerkopplad</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Om markerad, hämtar inte &trojita; någon ny data (nya brev) från servern, och begränsar sig till breven som du tidigare har laddad ner (du kan dock fortfarande skriva nya brev, även om du inte kommer att kunna skicka dem).</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="network-expensive">
+<term>
+  <menuchoice
+><guimenu
+>Nätverksåtkomst</guimenu
+> <guimenuitem
+>Dyr anslutning</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Välj det här om du använder &trojita; på en mobiltelefon eller annan enhet där det är viktigt att reducera nätverkstrafik och vara effektiv.</action
+></para
+></listitem>
+</varlistentry>
+
+
+<varlistentry  id="network-free">
+<term>
+  <menuchoice
+><guimenu
+>Nätverksåtkomst</guimenu
+> <guimenuitem
+>Gratis åtkomst</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Använd detta om du befinner dig på en skrivbordsdator med obegränsad bredbandsåtkomst till Internet. Det låter &trojita; ladda ner data i förväg på ett mer aggressivt sätt. Istället för att bara ladda ner rubriker, fortsätter den exempelvis också direkt med att ladda ner en lokal kopia av breven. </action
+></para
+></listitem>
+</varlistentry>
+
+
+
+
+</variablelist>
+</para>
+</sect2>
+
+<sect2>
+<title
+>Menyn Visa</title>
+<para>
+<variablelist>
+
+<varlistentry  id="layout">
+<term>
+  <menuchoice
+><guimenu
+>Visa</guimenu
+> <guimenuitem
+>Layout</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Välj <guimenuitem
+>Bred</guimenuitem
+> för en modern visning med tre paneler, med brevlistan i mitten och själva brevet till höger. Välj <guimenuitem
+>Kompakt</guimenuitem
+> för den traditionella visningen med tre paneler där brevlistan är överst och själva breven längst ner.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="threads">
+<term>
+  <menuchoice
+><guimenu
+>Visa</guimenu
+> <guimenuitem
+>Visa brev i trådar</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Välj alternativet för att visa breven grupperade i trådar (konversationer). Det är exempelvis användbart för sändlistor. Det förlitar sig på att IMAP-servern stöder en eller flera frivilliga utökningar, eftersom &trojita; annars skulle behöva utföra mer arbete för att tråda brev på ett riktigt sätt.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="hide">
+<term>
+  <menuchoice
+><guimenu
+>Visa</guimenu
+> <guimenuitem
+>Dölj lästa brev</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Välj det här alternativet om du bara vill att nya brev ska visas i brevlistan.</action
+></para
+></listitem>
+</varlistentry>
+
+<varlistentry  id="subscribed">
+<term>
+  <menuchoice
+><guimenu
+>Visa</guimenu
+> <guimenuitem
+>Visa bara prenumererade korgar</guimenuitem
+> </menuchoice>
+</term>
+<listitem
+><para
+><action
+>Brevlådan kan ha flera korgar än du faktiskt vill bevaka. Välj alternativet för att begränsa korgarna som visas till de du prenumererat på (det tar inte bort de andra korgarna, utan förhindrar bara att de visas i korglistan).</action
+></para
+></listitem>
+</varlistentry>
+
+
+
+
+
+</variablelist>
+</para>
+</sect2>
+
+</sect1>
+</chapter>
+
+<chapter id="credits">
+
+<title
+>Tack till och licens</title>
+
+<para
+>&trojita; </para>
+<para
+>Program copyright 2006-2013 Jan Kundrát <email
+>jkt@flaska.net</email
+> </para>
+<para
+>Bidragsgivare: <itemizedlist
+> <listitem
+><para
+>Thomas Lübking <email
+>thomas.luebking@gmail.com</email
+></para>
+</listitem>
+</itemizedlist>
+</para>
+
+<para
+>Dokumentation Copyright &copy; 2013 Randall Wood <email
+>randall+kde@woodbriceno.net</email
+> </para>
+
+<para
+>Översättning Stefan Asserhäll <email
+>stefan.asserhall@bredband.net</email
+></para
+> &underFDL; &underGPL; <para
+>Enligt licenserna GPLv2/GPLv3 och CC-BY-SA</para>
+
+</chapter>
+
+&documentation.index;
+</book>
+
+<!--
+Local Variables:
+mode: xml
+sgml-minimize-attributes:nil
+sgml-general-insert-case:lower
+sgml-indent-step:0
+sgml-indent-data:nil
+End:
+
+vim:tabstop=2:shiftwidth=2:expandtab
+kate: space-indent on; indent-width 2; tab-width 2; indent-mode none;
+-->
