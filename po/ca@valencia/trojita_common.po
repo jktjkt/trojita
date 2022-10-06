@@ -3219,7 +3219,7 @@ msgstr "Navegació"
 #: ../src/Gui/Window.cpp:309
 msgctxt "Gui::MainWindow|"
 msgid "&Update List of Child Mailboxes"
-msgstr "Act&ualisa la llista de bústies filles"
+msgstr "Act&ualitza la llista de bústies filles"
 
 #: ../src/Gui/Window.cpp:312
 msgctxt "Gui::MainWindow|"
@@ -3279,7 +3279,7 @@ msgstr "Mostra la barra d'&eines"
 #: ../src/Gui/Window.cpp:381
 msgctxt "Gui::MainWindow|"
 msgid "&Settings..."
-msgstr "&Configuració..."
+msgstr "Con&figuració..."
 
 #. "mailbox" as a "folder of messages", not as a "mail account"
 #: ../src/Gui/Window.cpp:476
@@ -3432,7 +3432,7 @@ msgstr "&Depuració"
 #: ../src/Gui/Window.cpp:718
 msgctxt "Gui::MainWindow|"
 msgid "&View"
-msgstr "&Visualitza"
+msgstr "Vi&sualitza"
 
 #: ../src/Gui/Window.cpp:721
 msgctxt "Gui::MainWindow|"
