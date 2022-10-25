@@ -2080,7 +2080,7 @@ msgstr "Directori cau"
 #: ../src/Gui/SettingsDialog.cpp:1339
 msgctxt "Gui::XtConnectPage|"
 msgid "Mailboxes to synchronize"
-msgstr "Bústies a sincronitzar"
+msgstr "Bústies que s'han de sincronitzar"
 
 #: ../src/Gui/SettingsDialog.cpp:1346
 msgctxt "Gui::XtConnectPage|"
@@ -2089,7 +2089,7 @@ msgid ""
 "synchronize"
 msgstr ""
 "Utilitzeu el menú contextual dins de l'aplicació principal per a seleccionar "
-"les bústies a sincronitzar"
+"les bústies que s'han de sincronitzar"
 
 #: ../src/Gui/SettingsDialog.cpp:1369
 msgctxt "Gui::XtConnectPage|"
