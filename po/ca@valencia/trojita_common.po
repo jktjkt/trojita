@@ -751,7 +751,7 @@ msgstr "Elimina"
 #: ../src/Gui/ComposerAttachmentsList.cpp:136
 msgctxt "ComposerAttachmentsList|"
 msgid "Rename Attachment"
-msgstr "Canvia el nom l'adjunt"
+msgstr "Canvia el nom de l'adjunt"
 
 #: ../src/Gui/ComposerAttachmentsList.cpp:136
 msgctxt "ComposerAttachmentsList|"
