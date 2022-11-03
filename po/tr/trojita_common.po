@@ -669,7 +669,7 @@ msgstr "<p><b>Trojitá</b>, hızlı bir Qt IMAP e-posta istemcisidir</p>"
 #, qt-format
 msgctxt "Gui::Expander|"
 msgid "Click to see %1 more items"
-msgstr "%1 öğe daha görmek için tıkla"
+msgstr "%1 öge daha görmek için tıkla"
 
 #: ../src/Gui/AddressRowWidget.cpp:130
 msgctxt "Gui::Expander|"
@@ -4411,7 +4411,7 @@ msgstr "queryChildMailboxes sorgusu başarısız oldu"
 #, qt-format
 msgctxt "QObject|"
 msgid "Corrupt data when reading child items for mailbox %1, line %2"
-msgstr "%1 posta kutusu için alt öğeler okunurken %2 satırında veri kesildi"
+msgstr "%1 posta kutusu için alt ögeler okunurken %2 satırında veri kesildi"
 
 #: ../src/Imap/Model/SQLCache.cpp:487
 msgctxt "QObject|"
@@ -4846,7 +4846,7 @@ msgstr "UNSELECTed"
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:59
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
 msgid "Mailbox vanished before we could ask for its children"
-msgstr "Posta kutusu alt öğeleri soramadan ortadan kayboldu"
+msgstr "Posta kutusu alt ögeleri soramadan ortadan kayboldu"
 
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:101
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
@@ -5772,19 +5772,19 @@ msgid ""
 msgstr ""
 "Bu ileti derin iç içe MIME parçaları içeriyor.\n"
 "Yığın taşmasını ve kafanızın patlaması engellemek için yalnızca\n"
-"en üstteki bin öğe gösterildi."
+"en üstteki bin öge gösterildi."
 
 #: ../src/UiUtils/PasswordWatcher.cpp:82
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Loading password from plugin %1..."
-msgstr "Parola %1 eklentisinden yükleniyor..."
+msgstr "%1 eklentisinden parola yükleniyor..."
 
 #: ../src/UiUtils/PasswordWatcher.cpp:86
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot read password via plugin %1"
-msgstr "Parola %1 eklentisinden okunamıyor"
+msgstr "%1 eklentisinden parola okunamıyor"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:89 ../src/UiUtils/PasswordWatcher.cpp:175
 msgctxt "UiUtils::PasswordWatcher|"
