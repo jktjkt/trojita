@@ -2669,7 +2669,7 @@ msgid ""
 msgstr ""
 "Habilita la baixada sense transferència a través de Burl (RFC 4468), quan "
 "els servidors IMAP i ESMTP ho permeten. Es requerix una configuració "
-"addicional a la banda del servidor."
+"addicional en la banda del servidor."
 
 #: ../src/Gui/SettingsOutgoingPage.ui:198
 msgctxt "OutgoingPage|"
