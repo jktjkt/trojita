@@ -4,15 +4,15 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2022-08-20 20:52+0200\n"
-"Last-Translator: Frederik Schwarzer <schwarzer@kde.org>\n"
+"PO-Revision-Date: 2022-11-10 20:37+0100\n"
+"Last-Translator: Frank Steinmetzger <dev-kde@felsenfleischer.de>\n"
 "Language-Team: German <kde-i18n-de@kde.org>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 21.12.3\n"
+"X-Generator: Lokalize 22.08.3\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -4903,7 +4903,7 @@ msgstr ""
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:948
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "UNSELECTed"
-msgstr ""
+msgstr "UNSELECT ausgeführt"
 
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:59
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
@@ -4999,10 +4999,11 @@ msgstr ""
 "Funktionierte diese Einstellung vorher, versucht jemand an Ihre Daten zu "
 "kommen."
 
+# ein schönes Wort für gracefully?
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:195
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "This server gracefully refuses IMAP connections through a BYE response."
-msgstr ""
+msgstr "Der Server hat die IMAP-Verbindung mit einer BYE-Antwort verweigert."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:202
 #, qt-format
