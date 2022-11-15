@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2022-11-01 13:08+0300\n"
+"PO-Revision-Date: 2022-11-14 14:05+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 22.08.2\n"
+"X-Generator: Lokalize 22.08.3\n"
 "X-Qt-Contexts: true\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
@@ -2115,7 +2115,7 @@ msgstr "Parola"
 #: ../src/Gui/SettingsFavoriteTagsPage.ui:14
 msgctxt "FavoriteTagsPage|"
 msgid "ScrollArea"
-msgstr "Kaydırma Alanı"
+msgstr "Sarma Alanı"
 
 #: ../src/Gui/SettingsFavoriteTagsPage.ui:108
 msgctxt "FavoriteTagsPage|"
@@ -2135,7 +2135,7 @@ msgstr "Sil"
 #: ../src/Gui/SettingsGeneralPage.ui:14
 msgctxt "GeneralPage|"
 msgid "ScrollArea"
-msgstr "Kaydırma Alanı"
+msgstr "Sarma Alanı"
 
 #: ../src/Gui/SettingsGeneralPage.ui:41
 msgctxt "GeneralPage|"
