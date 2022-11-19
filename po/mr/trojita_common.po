@@ -688,44 +688,44 @@ msgctxt "Gui::Expander|"
 msgid "Click to collapse"
 msgstr ""
 
-#: ../src/Gui/AttachmentView.cpp:90
+#: ../src/Gui/AttachmentView.cpp:87
 msgctxt "Gui::AttachmentView|"
 msgid "Download"
 msgstr "डाउनलोड"
 
-#: ../src/Gui/AttachmentView.cpp:91
+#: ../src/Gui/AttachmentView.cpp:88
 msgctxt "Gui::AttachmentView|"
 msgid "Open Directly"
 msgstr ""
 
-#: ../src/Gui/AttachmentView.cpp:96
+#: ../src/Gui/AttachmentView.cpp:93
 msgctxt "Gui::AttachmentView|"
 msgid "Show Preview"
 msgstr ""
 
-#: ../src/Gui/AttachmentView.cpp:103
+#: ../src/Gui/AttachmentView.cpp:100
 msgctxt "Gui::AttachmentView|"
 msgid "Show Message Source"
 msgstr ""
 
-#: ../src/Gui/AttachmentView.cpp:127
+#: ../src/Gui/AttachmentView.cpp:124
 #, qt-format
 msgctxt "Gui::AttachmentView|"
 msgid "IMAP Server error for this part: %1 (%2)"
 msgstr ""
 
-#: ../src/Gui/AttachmentView.cpp:166
+#: ../src/Gui/AttachmentView.cpp:163
 #, qt-format
 msgctxt "Gui::AttachmentView|"
 msgid "%2, %3"
 msgstr ""
 
-#: ../src/Gui/AttachmentView.cpp:241
+#: ../src/Gui/AttachmentView.cpp:238
 msgctxt "Gui::AttachmentView|"
 msgid "Save Attachment"
 msgstr ""
 
-#: ../src/Gui/AttachmentView.cpp:408
+#: ../src/Gui/AttachmentView.cpp:405
 msgctxt "Gui::AttachmentView|"
 msgid "Source of Attached Message"
 msgstr ""
@@ -1160,7 +1160,7 @@ msgctxt "Gui::EmbeddedWebView|"
 msgid "Black on white, forced"
 msgstr ""
 
-#: ../src/Gui/EnvelopeView.cpp:104
+#: ../src/Gui/EnvelopeView.cpp:105
 #, fuzzy
 #| msgctxt "ComposeWidget|"
 #| msgid "From"
@@ -1168,12 +1168,12 @@ msgctxt "Gui::EnvelopeView|"
 msgid "From"
 msgstr "पासून"
 
-#: ../src/Gui/EnvelopeView.cpp:109
+#: ../src/Gui/EnvelopeView.cpp:110
 msgctxt "Gui::EnvelopeView|"
 msgid "sent via"
 msgstr ""
 
-#: ../src/Gui/EnvelopeView.cpp:111
+#: ../src/Gui/EnvelopeView.cpp:112
 #, fuzzy
 #| msgctxt "Gui::ComposeWidget|"
 #| msgid "Send"
@@ -1181,17 +1181,17 @@ msgctxt "Gui::EnvelopeView|"
 msgid "Sender"
 msgstr "पाठवा"
 
-#: ../src/Gui/EnvelopeView.cpp:117
+#: ../src/Gui/EnvelopeView.cpp:118
 msgctxt "Gui::EnvelopeView|"
 msgid "replies to"
 msgstr ""
 
-#: ../src/Gui/EnvelopeView.cpp:119
+#: ../src/Gui/EnvelopeView.cpp:120
 msgctxt "Gui::EnvelopeView|"
 msgid "Reply-To"
 msgstr ""
 
-#: ../src/Gui/EnvelopeView.cpp:130
+#: ../src/Gui/EnvelopeView.cpp:131
 #, fuzzy
 #| msgctxt "Gui::ComposeWidget|"
 #| msgid "To"
@@ -1199,12 +1199,12 @@ msgctxt "Gui::EnvelopeView|"
 msgid "To"
 msgstr "पर्यंत"
 
-#: ../src/Gui/EnvelopeView.cpp:135
+#: ../src/Gui/EnvelopeView.cpp:136
 msgctxt "Gui::EnvelopeView|"
 msgid "Cc'd to"
 msgstr ""
 
-#: ../src/Gui/EnvelopeView.cpp:137
+#: ../src/Gui/EnvelopeView.cpp:138
 #, fuzzy
 #| msgctxt "Gui::ComposeWidget|"
 #| msgid "Cc"
@@ -1212,12 +1212,12 @@ msgctxt "Gui::EnvelopeView|"
 msgid "Cc"
 msgstr "Cc"
 
-#: ../src/Gui/EnvelopeView.cpp:143
+#: ../src/Gui/EnvelopeView.cpp:144
 msgctxt "Gui::EnvelopeView|"
 msgid "Bcc'd to"
 msgstr ""
 
-#: ../src/Gui/EnvelopeView.cpp:145
+#: ../src/Gui/EnvelopeView.cpp:146
 #, fuzzy
 #| msgctxt "Gui::ComposeWidget|"
 #| msgid "Bcc"
@@ -1225,13 +1225,13 @@ msgctxt "Gui::EnvelopeView|"
 msgid "Bcc"
 msgstr "Bcc"
 
-#: ../src/Gui/EnvelopeView.cpp:166
+#: ../src/Gui/EnvelopeView.cpp:167
 #, qt-format
 msgctxt "Gui::EnvelopeView|"
 msgid "<a href=\"%1\">%2</a>"
 msgstr ""
 
-#: ../src/Gui/EnvelopeView.cpp:171
+#: ../src/Gui/EnvelopeView.cpp:172
 #, fuzzy
 #| msgctxt "Imap::Mailbox::CertificateUtils|"
 #| msgid ", "
@@ -1239,7 +1239,7 @@ msgctxt "Gui::EnvelopeView|"
 msgid ", "
 msgstr ", "
 
-#: ../src/Gui/EnvelopeView.cpp:176
+#: ../src/Gui/EnvelopeView.cpp:177
 msgctxt "Gui::EnvelopeView|"
 msgid "Mailing List"
 msgstr ""
@@ -1593,7 +1593,7 @@ msgctxt "Gui::MessageView|"
 msgid "you"
 msgstr ""
 
-#: ../src/Gui/MessageView.cpp:368
+#: ../src/Gui/MessageView.cpp:369
 #, qt-format
 msgctxt "Gui::MessageView|"
 msgid ""
@@ -1602,7 +1602,7 @@ msgid ""
 "\n"
 msgstr ""
 
-#: ../src/Gui/MessageView.cpp:375
+#: ../src/Gui/MessageView.cpp:377
 #, qt-format
 msgctxt "Gui::MessageView|"
 msgid "On %1, %2 wrote:\n"
@@ -5569,7 +5569,7 @@ msgid ""
 "%2: %3"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:39
+#: ../src/UiUtils/Formatting.cpp:40
 #, fuzzy
 #| msgctxt "Imap::Mailbox::PrettySize|"
 #| msgid "kB"
@@ -5577,7 +5577,7 @@ msgctxt "UiUtils::Formatting|"
 msgid "B"
 msgstr "kB"
 
-#: ../src/UiUtils/Formatting.cpp:40
+#: ../src/UiUtils/Formatting.cpp:41
 #, fuzzy
 #| msgctxt "Imap::Mailbox::PrettySize|"
 #| msgid "kB"
@@ -5585,7 +5585,7 @@ msgctxt "UiUtils::Formatting|"
 msgid "kB"
 msgstr "kB"
 
-#: ../src/UiUtils/Formatting.cpp:41
+#: ../src/UiUtils/Formatting.cpp:42
 #, fuzzy
 #| msgctxt "Imap::Mailbox::PrettySize|"
 #| msgid "MB"
@@ -5593,7 +5593,7 @@ msgctxt "UiUtils::Formatting|"
 msgid "MB"
 msgstr "MB"
 
-#: ../src/UiUtils/Formatting.cpp:42
+#: ../src/UiUtils/Formatting.cpp:43
 #, fuzzy
 #| msgctxt "Imap::Mailbox::PrettySize|"
 #| msgid "GB"
@@ -5601,7 +5601,7 @@ msgctxt "UiUtils::Formatting|"
 msgid "GB"
 msgstr "GB"
 
-#: ../src/UiUtils/Formatting.cpp:43
+#: ../src/UiUtils/Formatting.cpp:44
 #, fuzzy
 #| msgctxt "Imap::Mailbox::PrettySize|"
 #| msgid "TB"
@@ -5609,7 +5609,7 @@ msgctxt "UiUtils::Formatting|"
 msgid "TB"
 msgstr "TB"
 
-#: ../src/UiUtils/Formatting.cpp:66
+#: ../src/UiUtils/Formatting.cpp:67
 #, fuzzy, qt-format
 #| msgctxt "Imap::Mailbox::PrettySize|"
 #| msgid "%1 %2"
@@ -5617,7 +5617,7 @@ msgctxt "UiUtils::Formatting|"
 msgid "%1 %2"
 msgstr "%1 %2"
 
-#: ../src/UiUtils/Formatting.cpp:85
+#: ../src/UiUtils/Formatting.cpp:86
 #, fuzzy
 #| msgctxt "Imap::Mailbox::PrettyMsgListModel|"
 #| msgid "hh:mm"
@@ -5628,7 +5628,7 @@ msgctxt ""
 msgid "hh:mm"
 msgstr "hh:mm"
 
-#: ../src/UiUtils/Formatting.cpp:90
+#: ../src/UiUtils/Formatting.cpp:91
 #, fuzzy
 #| msgctxt "Imap::Mailbox::PrettyMsgListModel|"
 #| msgid "ddd hh:mm"
@@ -5639,7 +5639,7 @@ msgctxt ""
 msgid "ddd hh:mm"
 msgstr "ddd hh:mm"
 
-#: ../src/UiUtils/Formatting.cpp:98
+#: ../src/UiUtils/Formatting.cpp:99
 #, fuzzy
 #| msgctxt "Imap::Mailbox::PrettyMsgListModel|"
 #| msgid "d MMM hh:mm"
@@ -5650,7 +5650,7 @@ msgctxt ""
 msgid "d MMM hh:mm"
 msgstr "d MMM hh:mm"
 
-#: ../src/UiUtils/Formatting.cpp:141
+#: ../src/UiUtils/Formatting.cpp:142
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5661,7 +5661,7 @@ msgid ""
 "<b>MD5</b>: %5</li>"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:144 ../src/UiUtils/Formatting.cpp:145
+#: ../src/UiUtils/Formatting.cpp:145 ../src/UiUtils/Formatting.cpp:146
 #, fuzzy
 #| msgctxt "Imap::Mailbox::CertificateUtils|"
 #| msgid ", "
@@ -5669,12 +5669,12 @@ msgctxt "UiUtils::Formatting|"
 msgid ", "
 msgstr ", "
 
-#: ../src/UiUtils/Formatting.cpp:151
+#: ../src/UiUtils/Formatting.cpp:152
 msgctxt "UiUtils::Formatting|"
 msgid "<p>The remote side doesn't have a certificate.</p>\n"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:152
+#: ../src/UiUtils/Formatting.cpp:153
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5682,7 +5682,7 @@ msgid ""
 "<ul>%1</ul>\n"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:152 ../src/UiUtils/Formatting.cpp:163
+#: ../src/UiUtils/Formatting.cpp:153 ../src/UiUtils/Formatting.cpp:164
 #, fuzzy
 #| msgctxt "Imap::Mailbox::CertificateUtils|"
 #| msgid "\n"
@@ -5690,7 +5690,7 @@ msgctxt "UiUtils::Formatting|"
 msgid "\n"
 msgstr "\n"
 
-#: ../src/UiUtils/Formatting.cpp:159
+#: ../src/UiUtils/Formatting.cpp:160
 #, fuzzy, qt-format
 #| msgctxt "Imap::Mailbox::CertificateUtils|"
 #| msgid "<li>%1</li>"
@@ -5698,12 +5698,12 @@ msgctxt "UiUtils::Formatting|"
 msgid "<li>%1</li>"
 msgstr "<li>%1</li>"
 
-#: ../src/UiUtils/Formatting.cpp:162
+#: ../src/UiUtils/Formatting.cpp:163
 msgctxt "UiUtils::Formatting|"
 msgid "<p>According to your system's policy, this connection is secure.</p>\n"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:163
+#: ../src/UiUtils/Formatting.cpp:164
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5711,12 +5711,12 @@ msgid ""
 "<ul>%1</ul>\n"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:174
+#: ../src/UiUtils/Formatting.cpp:175
 msgctxt "UiUtils::Formatting|"
 msgid "Different SSL certificate"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:175
+#: ../src/UiUtils/Formatting.cpp:176
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5727,12 +5727,12 @@ msgid ""
 "<p>Would you like to connect and remember the new certificate?</p>"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:182
+#: ../src/UiUtils/Formatting.cpp:183
 msgctxt "UiUtils::Formatting|"
 msgid "SSL certificate looks fishy"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:183
+#: ../src/UiUtils/Formatting.cpp:184
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5744,7 +5744,7 @@ msgid ""
 "<p>Would you like to connect anyway and remember the new certificate?</p>"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:192 ../src/UiUtils/Formatting.cpp:199
+#: ../src/UiUtils/Formatting.cpp:193 ../src/UiUtils/Formatting.cpp:200
 #, fuzzy
 #| msgctxt "Gui::ProtocolLoggerWidget|"
 #| msgid "Connection %1"
@@ -5752,7 +5752,7 @@ msgctxt "UiUtils::Formatting|"
 msgid "Accept SSL connection?"
 msgstr "जुळवणी %1"
 
-#: ../src/UiUtils/Formatting.cpp:193
+#: ../src/UiUtils/Formatting.cpp:194
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5764,7 +5764,7 @@ msgid ""
 "the next time?</p>"
 msgstr ""
 
-#: ../src/UiUtils/Formatting.cpp:200
+#: ../src/UiUtils/Formatting.cpp:201
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""

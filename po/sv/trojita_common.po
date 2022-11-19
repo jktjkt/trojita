@@ -681,44 +681,44 @@ msgctxt "Gui::Expander|"
 msgid "Click to collapse"
 msgstr "Klicka för att dra ihop"
 
-#: ../src/Gui/AttachmentView.cpp:90
+#: ../src/Gui/AttachmentView.cpp:87
 msgctxt "Gui::AttachmentView|"
 msgid "Download"
 msgstr "Ladda ner"
 
-#: ../src/Gui/AttachmentView.cpp:91
+#: ../src/Gui/AttachmentView.cpp:88
 msgctxt "Gui::AttachmentView|"
 msgid "Open Directly"
 msgstr "Öppna direkt"
 
-#: ../src/Gui/AttachmentView.cpp:96
+#: ../src/Gui/AttachmentView.cpp:93
 msgctxt "Gui::AttachmentView|"
 msgid "Show Preview"
 msgstr "Visa förhandsgranskning"
 
-#: ../src/Gui/AttachmentView.cpp:103
+#: ../src/Gui/AttachmentView.cpp:100
 msgctxt "Gui::AttachmentView|"
 msgid "Show Message Source"
 msgstr "Visa brevkälla"
 
-#: ../src/Gui/AttachmentView.cpp:127
+#: ../src/Gui/AttachmentView.cpp:124
 #, qt-format
 msgctxt "Gui::AttachmentView|"
 msgid "IMAP Server error for this part: %1 (%2)"
 msgstr "IMAP-serverfel för den här delen: %1 (%2)"
 
-#: ../src/Gui/AttachmentView.cpp:166
+#: ../src/Gui/AttachmentView.cpp:163
 #, qt-format
 msgctxt "Gui::AttachmentView|"
 msgid "%2, %3"
 msgstr "%2, %3"
 
-#: ../src/Gui/AttachmentView.cpp:241
+#: ../src/Gui/AttachmentView.cpp:238
 msgctxt "Gui::AttachmentView|"
 msgid "Save Attachment"
 msgstr "Spara bilaga"
 
-#: ../src/Gui/AttachmentView.cpp:408
+#: ../src/Gui/AttachmentView.cpp:405
 msgctxt "Gui::AttachmentView|"
 msgid "Source of Attached Message"
 msgstr "Källa för bifogat brev"
@@ -1126,68 +1126,68 @@ msgctxt "Gui::EmbeddedWebView|"
 msgid "Black on white, forced"
 msgstr "Svart på vitt, tvingat"
 
-#: ../src/Gui/EnvelopeView.cpp:104
+#: ../src/Gui/EnvelopeView.cpp:105
 msgctxt "Gui::EnvelopeView|"
 msgid "From"
 msgstr "Från"
 
-#: ../src/Gui/EnvelopeView.cpp:109
+#: ../src/Gui/EnvelopeView.cpp:110
 msgctxt "Gui::EnvelopeView|"
 msgid "sent via"
 msgstr "skickat via"
 
-#: ../src/Gui/EnvelopeView.cpp:111
+#: ../src/Gui/EnvelopeView.cpp:112
 msgctxt "Gui::EnvelopeView|"
 msgid "Sender"
 msgstr "Avsändare"
 
-#: ../src/Gui/EnvelopeView.cpp:117
+#: ../src/Gui/EnvelopeView.cpp:118
 msgctxt "Gui::EnvelopeView|"
 msgid "replies to"
 msgstr "svar till"
 
-#: ../src/Gui/EnvelopeView.cpp:119
+#: ../src/Gui/EnvelopeView.cpp:120
 msgctxt "Gui::EnvelopeView|"
 msgid "Reply-To"
 msgstr "Svara till"
 
-#: ../src/Gui/EnvelopeView.cpp:130
+#: ../src/Gui/EnvelopeView.cpp:131
 msgctxt "Gui::EnvelopeView|"
 msgid "To"
 msgstr "Till"
 
-#: ../src/Gui/EnvelopeView.cpp:135
+#: ../src/Gui/EnvelopeView.cpp:136
 msgctxt "Gui::EnvelopeView|"
 msgid "Cc'd to"
 msgstr "Kopia till"
 
-#: ../src/Gui/EnvelopeView.cpp:137
+#: ../src/Gui/EnvelopeView.cpp:138
 msgctxt "Gui::EnvelopeView|"
 msgid "Cc"
 msgstr "Kopia"
 
-#: ../src/Gui/EnvelopeView.cpp:143
+#: ../src/Gui/EnvelopeView.cpp:144
 msgctxt "Gui::EnvelopeView|"
 msgid "Bcc'd to"
 msgstr "dold kopia till"
 
-#: ../src/Gui/EnvelopeView.cpp:145
+#: ../src/Gui/EnvelopeView.cpp:146
 msgctxt "Gui::EnvelopeView|"
 msgid "Bcc"
 msgstr "Dold kopia"
 
-#: ../src/Gui/EnvelopeView.cpp:166
+#: ../src/Gui/EnvelopeView.cpp:167
 #, qt-format
 msgctxt "Gui::EnvelopeView|"
 msgid "<a href=\"%1\">%2</a>"
 msgstr "<a href=\"%1\">%2</a>"
 
-#: ../src/Gui/EnvelopeView.cpp:171
+#: ../src/Gui/EnvelopeView.cpp:172
 msgctxt "Gui::EnvelopeView|"
 msgid ", "
 msgstr ", "
 
-#: ../src/Gui/EnvelopeView.cpp:176
+#: ../src/Gui/EnvelopeView.cpp:177
 msgctxt "Gui::EnvelopeView|"
 msgid "Mailing List"
 msgstr "Sändlista"
@@ -1516,7 +1516,7 @@ msgctxt "Gui::MessageView|"
 msgid "you"
 msgstr "du"
 
-#: ../src/Gui/MessageView.cpp:368
+#: ../src/Gui/MessageView.cpp:369
 #, qt-format
 msgctxt "Gui::MessageView|"
 msgid ""
@@ -1528,7 +1528,7 @@ msgstr ""
 "> ...\n"
 "\n"
 
-#: ../src/Gui/MessageView.cpp:375
+#: ../src/Gui/MessageView.cpp:377
 #, qt-format
 msgctxt "Gui::MessageView|"
 msgid "On %1, %2 wrote:\n"
@@ -5571,38 +5571,38 @@ msgstr ""
 "Det underliggande uttaget har problem när anslutning till %1 behandlas: %2: "
 "%3"
 
-#: ../src/UiUtils/Formatting.cpp:39
+#: ../src/UiUtils/Formatting.cpp:40
 msgctxt "UiUtils::Formatting|"
 msgid "B"
 msgstr "B"
 
-#: ../src/UiUtils/Formatting.cpp:40
+#: ../src/UiUtils/Formatting.cpp:41
 msgctxt "UiUtils::Formatting|"
 msgid "kB"
 msgstr "KiB"
 
-#: ../src/UiUtils/Formatting.cpp:41
+#: ../src/UiUtils/Formatting.cpp:42
 msgctxt "UiUtils::Formatting|"
 msgid "MB"
 msgstr "MiB"
 
-#: ../src/UiUtils/Formatting.cpp:42
+#: ../src/UiUtils/Formatting.cpp:43
 msgctxt "UiUtils::Formatting|"
 msgid "GB"
 msgstr "GiB"
 
-#: ../src/UiUtils/Formatting.cpp:43
+#: ../src/UiUtils/Formatting.cpp:44
 msgctxt "UiUtils::Formatting|"
 msgid "TB"
 msgstr "TiB"
 
-#: ../src/UiUtils/Formatting.cpp:66
+#: ../src/UiUtils/Formatting.cpp:67
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid "%1 %2"
 msgstr "%1 %2"
 
-#: ../src/UiUtils/Formatting.cpp:85
+#: ../src/UiUtils/Formatting.cpp:86
 msgctxt ""
 "UiUtils::Formatting|Please do not translate the format specifiers. You can "
 "change their order or the separator to follow the local conventions. For "
@@ -5610,7 +5610,7 @@ msgctxt ""
 msgid "hh:mm"
 msgstr "hh:mm"
 
-#: ../src/UiUtils/Formatting.cpp:90
+#: ../src/UiUtils/Formatting.cpp:91
 msgctxt ""
 "UiUtils::Formatting|Please do not translate the format specifiers. You can "
 "change their order or the separator to follow the local conventions. For "
@@ -5618,7 +5618,7 @@ msgctxt ""
 msgid "ddd hh:mm"
 msgstr "ddd hh:mm"
 
-#: ../src/UiUtils/Formatting.cpp:98
+#: ../src/UiUtils/Formatting.cpp:99
 msgctxt ""
 "UiUtils::Formatting|Please do not translate the format specifiers. You can "
 "change their order or the separator to follow the local conventions. For "
@@ -5626,7 +5626,7 @@ msgctxt ""
 msgid "d MMM hh:mm"
 msgstr "d MMM hh:mm"
 
-#: ../src/UiUtils/Formatting.cpp:141
+#: ../src/UiUtils/Formatting.cpp:142
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5642,17 +5642,17 @@ msgstr ""
 "<b>SHA1</b>: %4,<br/>\n"
 "<b>MD5</b>: %5</li>"
 
-#: ../src/UiUtils/Formatting.cpp:144 ../src/UiUtils/Formatting.cpp:145
+#: ../src/UiUtils/Formatting.cpp:145 ../src/UiUtils/Formatting.cpp:146
 msgctxt "UiUtils::Formatting|"
 msgid ", "
 msgstr ", "
 
-#: ../src/UiUtils/Formatting.cpp:151
+#: ../src/UiUtils/Formatting.cpp:152
 msgctxt "UiUtils::Formatting|"
 msgid "<p>The remote side doesn't have a certificate.</p>\n"
 msgstr "<p>Fjärrsidan har inte ett certifikat.</p>\n"
 
-#: ../src/UiUtils/Formatting.cpp:152
+#: ../src/UiUtils/Formatting.cpp:153
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5662,23 +5662,23 @@ msgstr ""
 "<p>Detta är anslutningens certifikatkedja:</p>\n"
 "<ul>%1</ul>\n"
 
-#: ../src/UiUtils/Formatting.cpp:152 ../src/UiUtils/Formatting.cpp:163
+#: ../src/UiUtils/Formatting.cpp:153 ../src/UiUtils/Formatting.cpp:164
 msgctxt "UiUtils::Formatting|"
 msgid "\n"
 msgstr "\n"
 
-#: ../src/UiUtils/Formatting.cpp:159
+#: ../src/UiUtils/Formatting.cpp:160
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid "<li>%1</li>"
 msgstr "<li>%1</li>"
 
-#: ../src/UiUtils/Formatting.cpp:162
+#: ../src/UiUtils/Formatting.cpp:163
 msgctxt "UiUtils::Formatting|"
 msgid "<p>According to your system's policy, this connection is secure.</p>\n"
 msgstr "<p>Enligt systemets princip är den här anslutningen säker.</p>\n"
 
-#: ../src/UiUtils/Formatting.cpp:163
+#: ../src/UiUtils/Formatting.cpp:164
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5688,12 +5688,12 @@ msgstr ""
 "<p>Anslutningen utlöste följande SSL-fel:</p>\n"
 "<ul>%1</ul>\n"
 
-#: ../src/UiUtils/Formatting.cpp:174
+#: ../src/UiUtils/Formatting.cpp:175
 msgctxt "UiUtils::Formatting|"
 msgid "Different SSL certificate"
 msgstr "Annat SSL-certifikat"
 
-#: ../src/UiUtils/Formatting.cpp:175
+#: ../src/UiUtils/Formatting.cpp:176
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5709,12 +5709,12 @@ msgstr ""
 "%1\n"
 "<p>Vill du ansluta och komma ihåg det nya certifikatet?</p>"
 
-#: ../src/UiUtils/Formatting.cpp:182
+#: ../src/UiUtils/Formatting.cpp:183
 msgctxt "UiUtils::Formatting|"
 msgid "SSL certificate looks fishy"
 msgstr "SSL-certifikatet ser misstänkt ut"
 
-#: ../src/UiUtils/Formatting.cpp:183
+#: ../src/UiUtils/Formatting.cpp:184
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5731,12 +5731,12 @@ msgstr ""
 "%2\n"
 "<p>Vill du ansluta trots detta och komma ihåg det nya certifikatet?</p>"
 
-#: ../src/UiUtils/Formatting.cpp:192 ../src/UiUtils/Formatting.cpp:199
+#: ../src/UiUtils/Formatting.cpp:193 ../src/UiUtils/Formatting.cpp:200
 msgctxt "UiUtils::Formatting|"
 msgid "Accept SSL connection?"
 msgstr "Acceptera SSL-anslutning?"
 
-#: ../src/UiUtils/Formatting.cpp:193
+#: ../src/UiUtils/Formatting.cpp:194
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
@@ -5754,7 +5754,7 @@ msgstr ""
 "<p>Vill du ansluta och komma ihåg certifikatets öppna nyckel till nästa gång?"
 "</p>"
 
-#: ../src/UiUtils/Formatting.cpp:200
+#: ../src/UiUtils/Formatting.cpp:201
 #, qt-format
 msgctxt "UiUtils::Formatting|"
 msgid ""
