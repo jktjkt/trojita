@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2022-11-14 14:05+0300\n"
+"PO-Revision-Date: 2022-11-21 22:36+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -2917,7 +2917,7 @@ msgstr "&Yeni İleti..."
 #: ../src/Gui/Window.cpp:236
 msgctxt "Gui::MainWindow|"
 msgid "&Edit Draft..."
-msgstr "&Taslağı Düzenle..."
+msgstr "Taslağı Dü&zenle..."
 
 #: ../src/Gui/Window.cpp:237
 msgctxt "Gui::MainWindow|"
@@ -3242,7 +3242,7 @@ msgstr "&Araç Çubuğunu Göster"
 #: ../src/Gui/Window.cpp:381
 msgctxt "Gui::MainWindow|"
 msgid "&Settings..."
-msgstr "&Ayarlar..."
+msgstr "Ayar&lar..."
 
 #. "mailbox" as a "folder of messages", not as a "mail account"
 #: ../src/Gui/Window.cpp:476
