@@ -5,5 +5,5 @@ Dependencies:
 - 'on': ['@all']
   'require':
     'frameworks/extra-cmake-modules': '@stable'
-    'frameworks/ksonnet': '@stable'
+    'frameworks/sonnet': '@stable'
     'pim/akonadi-contacts' : '@same'
