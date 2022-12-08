@@ -3519,7 +3519,7 @@ msgid ""
 "The application will continue in systray. This can be disabled within the "
 "settings."
 msgstr ""
-"L'aplicació continuarà en la safata del sistema. Açò es pot desactivar a la "
+"L'aplicació continuarà en la safata del sistema. Açò es pot desactivar en la "
 "configuració."
 
 #. "ALERT" is a special warning which we're required to show to the user
