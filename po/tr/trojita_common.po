@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2022-11-21 22:36+0300\n"
+"PO-Revision-Date: 2022-12-11 20:41+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 22.08.3\n"
+"X-Generator: Lokalize 22.12.0\n"
 "X-Qt-Contexts: true\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
@@ -2870,8 +2870,8 @@ msgstr "Etiket"
 msgctxt "Gui::TaskProgressIndicator|"
 msgid "%n ongoing actions"
 msgid_plural "%n ongoing actions"
-msgstr[0] "%n devam eden eylem"
-msgstr[1] "%n devam eden eylem"
+msgstr[0] "%n süren eylem"
+msgstr[1] "%n süren eylem"
 
 #: ../src/Gui/TaskProgressIndicator.cpp:86
 msgctxt "Gui::TaskProgressIndicator|"
@@ -3482,8 +3482,7 @@ msgid ""
 "The application will continue in systray. This can be disabled within the "
 "settings."
 msgstr ""
-"Uygulama sistem tepsisinde devam edecek, bu ayarlardan devre dışı "
-"bırakılabilir."
+"Uygulama sistem tepsisinde sürecek, bu ayarlardan devre dışı bırakılabilir."
 
 #. "ALERT" is a special warning which we're required to show to the user
 #: ../src/Gui/Window.cpp:1338
@@ -4240,7 +4239,7 @@ msgstr ""
 #: ../src/Imap/Model/SQLCache.cpp:202
 msgctxt "QObject|"
 msgid "Unknown version of sqlite cache"
-msgstr "Bilinmeyen sqlite ön bellek sürümü"
+msgstr "Bilinmeyen sqlite önbellek sürümü"
 
 #: ../src/Imap/Model/SQLCache.cpp:223
 msgctxt "QObject|"
