@@ -1,0 +1,12 @@
+Debug build, memory as reported by `pmap`. 32bit x86.
+
+97276 startup
+101952K dovecot (26040 msgs)
+104724K qt-interest (18467 msgs)
+114332K gentoo-dev (39857 msgs)
+
+114628K after loading one plaintext message
+
+= 84364 msgs in total, 3 parsers, grew 17MB
+
+114760K INBOX (6056 msgs)

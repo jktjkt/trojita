@@ -1,0 +1,8 @@
+ImapMailbox( mailbox, CacheManager&, ParserPool& );
+
+ParserPool.getParser( const server, const mailbox );
+
+Cache->forget( const server, const mailbox );
+Cache->setState( const server, const mailbox, uidvalidity, uidnext );
+Cache->uidToSeq( const server, const mailbox, uid );
+Cache->seqToUid( const server, const mailbox, seq );

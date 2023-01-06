@@ -1,0 +1,334 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+
+\begin{document}
+
+\chapter{The Mobile IMAP}
+\label{sec:mobile-imap}
+
+Many of the existing IMAP extensions discussed in \secref{sec:imap-extensions} have the potential of improving the
+client's operation tremendously.  At the same time, experience has shown that there is a certain chicken-and-egg problem
+with new proposals where server vendors are not willing to invest their time into promising extensions which no client
+supports yet and clients are not interested in implementing extensions which they cannot test for interoperability.  In
+this chapter, I am trying to provide a concise summary of individual merit of these extensions.
+
+\section{The Lemonade Profile}
+\label{sec:lemonade-comparison}
+
+The Lemonade profile, as defined in RFC 4550 \cite{rfc4550} in 2006 and later updated through RFC 5550 \cite{rfc5550}
+during 2009, provides a list of extensions considered ``critical'' for any mobile IMAP e-mail client.  The set of
+mandatory extensions is rather big, though, and to the best of my knowledge, there is {\em no} server on the market
+implementing all of the compulsory features.  One might therefore wonder what were the reasons for this lack of general
+availability of the Lemonade extension family.
+
+\subsection{Cross-Service Requirements}
+
+One unique feature of Lemonade is the possibility to {\em forward messages without their prior download}.  The three
+ESMTP~\cite{rfc5321} and IMAP extensions, often referred to as the {\em Lemonade trio}, namely the {\tt CATENATE}, {\tt
+URLAUTH} and {\tt BURL}, allow the clients to compose a message using existing parts available from the IMAP mail store,
+provide a way of generating single-purpose ``pawn tickets'' for making the composed messages available to the submission
+server, and replacing the {\tt DATA} SMTP command with a way of downloading the message from the IMAP server,
+respectively.  This feature prevents having to transfer potentially huge data over the network three times --- once when
+the users wants to read it, second time when the message is saved to the sent folder, and finally when delivering via
+SMTP.
+
+Unfortunately, a big problem with said approach is the fact that it mandates collaboration across different services ---
+an explicit trust path between the IMAP and ESMTP servers have to be set up, which is a process prone to errors
+\cite{qmf-fastmail-burl-bug}.  This matter is also complicated by the fact that no open source MTA~\footnote{Mail
+Transfer Agent, typically an SMTP or ESMTP server} ships with official support for {\tt BURL}.~\footnote{Unofficial
+patches exists for Postfix dating back to 2010 \cite{apple-postfix-burl}, but they have not been integrated into the
+mainline version as of July 2012 (the {\tt postfix-2.10-20120715.tar.gz} development snapshot.}  Situation is better on
+the IMAP server front with Cyrus supporting the {\tt URLAUTH} and {\tt CATENATE} extensions out-of-box with Dovecot's
+support scheduled for its upcoming 2.2 release \cite{imap-server-extension-matrix}.
+
+\subsection{Complicated Extensions}
+
+Some of the extensions whose support is mandated by the Lemonade proposal seems to be notoriously hard for the server
+vendors to implement.
+
+A perfect example is the {\tt CONTEXT=SORT} extension \cite{rfc5267}.  As a client developer, I recognize its extreme
+usefulness and appreciate its design.  Availability of such an extension would make it extremely easy to implement
+live-updated sorting in my Trojitá (and Trojitá {\em does} make use of the sort context extension).  That said, given
+that no IMAP server which I am aware of announces its availability, clients have to deal with the status quo in the
+meanwhile.
+
+The {\tt CONVERT} extension \cite{rfc5259} belongs to a similar category --- the features it offers, like the
+server-side downscaling of JPEG images, would be {\em very} handy on a cell phone, yet no IMAP server known to the
+author includes that functionality.
+
+Both of these RFCs were published four and five years ago, respectively, and were designed by engineers working for an
+IMAP server vendor.  One cannot therefore dismiss them altogether as a product of people not having any say in the
+server development.  My opinion is that the allocation of engineering resources required for shipping a particular
+feature in a finished product is based on another criteria than the research activity.
+
+\section{State of Other Client Implementations}
+
+To obtain a better understanding on how the existing solutions available on the market today use IMAP, this section
+takes a look at some of the most popular solutions.
+
+\subsection{Apple iOS}
+
+Apple's devices generally ship with a decent implementation of their IMAP stack, an evaluation shared by independent
+researchers \cite{isode-iphone4}.  The list of extensions supported by the application includes {\tt CONDSTORE} and {\tt
+ESEARCH} for improved mailbox synchronization, {\tt COMPRESS} for transparent deflate compression and {\tt BURL} for the
+forward-without download.
+
+It is, however, surprising that their support of extensions aimed at making mailbox resynchronization more efficient
+does not include the {\tt QRESYNC} extension \cite{rfc5162}, especially given that its implementation does not impose
+much in terms of additional requirements on top the already-supported {\tt CONDSTORE}.
+
+The iOS also notably does not use the {\tt IDLE} command at all.  The reason, according to a message allegedly sent by
+Steve Jobs \cite{jobs-ios-idle}, is that is is {\em ``a power hungry standard''}.  Systematic measurements
+\cite{wcdma-energy} \cite{cridland-fach-dch-measurements} and experience alike~\footnote{Mark Crispin's famous {\em ``I
+have built on-demand networks which shut down until signaled back on, and then happily resumed all the active TCP
+sessions even though the "network connection" had been powered off for days.''} \cite{crispin-no-ifup}.} shows, however,
+that the mere act of having a TCP connection open with an occasional keep alive ``pings'' being transfered have no
+significant impact on battery life on other platforms.
+
+\subsection{Android's Native E-mail Client}
+
+There is not much to be said about Android's native client's IMAP performance --- the stock client does not offer push
+notification through {\tt IDLE} \cite{android-idle} and the list of extension identifiers referenced from the
+application's source~\footnote{File \path{src/com/android/email/mail/store/ImapConnection.java} from Android's
+\path{platform/packages/apps/Email} repository as of the {\tt android-4.1.1\_r3-35-g01c55fd} revision.} only references
+the {\tt NAMESPACE}, {\tt UIDPLUS} and {\tt STARTTLS} capabilities.  None of the extensions which try to improve
+synchronization performance (the {\tt ESEARCH}, {\tt CONDSTORE} and {\tt QRESYNC}) are available.  No provisions for
+Lemonade's family are present at all.  The {\tt LITERAL+}, an extension which takes literally no effort for clients to
+support and removes one network round trip when uploading messages, is not supported.
+
+Further analysis shows that the code is blocking and incapable of issuing or processing requests in parallel.  These
+observations are consistent with what users generally describe as a ``slow'' experience.  This might not come surprising
+given that Google would likely prefer its users to choose Google's own e-mail offering, the GMail, over various private
+IMAP accounts for business reasons.
+
+\subsection{Android's K-9 Mail}
+
+The Android's K-9 mail~\cite{k9mail} is a fork of the original e-mail application from Google.  The developers have
+managed to add support for two extensions, namely the {\tt IDLE} and the {\tt COMPRESS=DEFLATE}.  More advanced features
+like the {\tt ESEARCH} / {\tt CONDSTORE} / {\tt QRESYNC} are however still missing.
+
+Furthermore, comments like {\em ``TODO Need to start keeping track of UIDVALIDITY''}~\footnote{File
+\path{src/com/fsck/k9/mail/store/ImapStore.java}, line 103 as of the Git revision {\tt 3.512-1249-g5ce0e19} of the K-9's
+source code repository.} might make one feel nervous about the safety of the data being accessed.
+
+\subsection{Modest / Tinymail}
+
+The several years old Nokia N900 shipped with a mail client called Modest, an application based on top of the Tinymail
+framework~\cite{tinymail}.  The underlying library supports an efficient mailbox synchronization through {\tt QRESYNC}
+and the sources contain a reference to the {\tt CONVERT} extension --- however, this functionality appears to be limited
+and in an early state.  The ``Lemonade trio'' for forwarding without download is not supported.
+
+The code is written using the synchronous idioms. No support for command pipelining is present.
+
+\subsection{Nokia's Qt Messaging Framework}
+
+Nokia's Qt Messaging Framework~\cite{qmf} powers the e-mail functionality in the MeeGo Harmattan line of phones, the N9
+and the N950.  Support for extensions appears to be rich --- the Lemonade trio is supported in its
+entirety,~\footnote{An interesting detail is that the {\tt BURL} extension is disabled if the account is configured to
+use IMAP over an SSL port instead of the {\tt STARTTLS}; this is caused by a deficiency in the IMAP-URL standard
+\cite{rfc5092}.} as well as are the {\tt COMPRESS=DEFLATE}, {\tt BINARY}, {\tt IDLE}, {\tt CHILDREN} and many others.
+
+The underlying IMAP library exhibits regular ``batched synchronization'' mode of operation; connections to mailboxes are
+typically not left alone for long, but the code makes aggressive use of the {\tt QRESYNC} extension to benefit from
+extremely cheap mailbox synchronization.  Code is written with memory-constrained devices in mind, care is taken to
+prevent data copying if possible.  The general behavior focuses on making the specified subset of messages always
+available on device --- there is no support for server-side threading or sorting, but some form of a server-side search
+{\em is} available.  Live updates through {\tt CONTEXT=SEARCH} are not employed.  Support for the {\tt LIST-STATUS} is
+not available.
+
+An interesting extension which is supported by the QMF is Google's {\tt XLIST} \cite{gmail-xlist} extension.  However,
+the code~\footnote{File \path{src/plugins/messageservices/imap/imapprotocol.cpp} as of QMF's Git revision {\tt
+2011W26\_2-263-gec26531}.} appears to only use the {\tt \\Inbox} mailbox flag for forcing case-insensitive mailbox
+comparison, a mechanism already mandated by the baseline IMAP protocol \cite[p. 17]{rfc3501}.
+
+All in all, the Qt Messaging Framework is a promising library with support for other protocols besides IMAP.  Its IMAP
+implementation feels solid and is reasonably well covered by the unit tests.
+
+\subsection{Trojitá}
+
+Trojitá~\cite{trojita-website} is an advanced IMAP client which includes support for many different extensions from the
+basic ones like {\tt IDLE}, {\tt LITERAL+} or the {\tt ID} extension to the complex ones like the Lemonade trio or the
+{\tt ESEARCH} / {\tt CONDSTORE} / {\tt QRESYNC} triplet.  Trojitá can scale up to company-wide ERP-level e-mail
+processing (Appendix \ref{sec:xtuple}, p. \pageref{sec:xtuple}) while still using the same code base of
+the underlying IMAP library as the desktop and cell phone version.
+
+\section{Evaluating Extensions}
+
+As the previous section shows, the level of support for various extensions and their real-world deployment varies
+wildly.  Many today's clients are using only a limited subset of features which are generally available, leaving
+opportunities for new applications entering the market to offer smoother, more efficient user experience.
+
+Previous efforts aimed at standardizing a set of extensions to serve as a ``mobile profile'' of IMAP have not delivered
+a universally acceptable result.  Lemonade, a specification universally considered to be {\em the} specification to go
+when evaluating clients and servers alike \cite{isode-lemonade}, mandates a set of extensions which --- to the best of
+my knowledge --- is not available on any single IMAP server in its entirety.  Furthermore, the clients do not even
+attempt to use these extensions, probably due to not being able to verify them for interoperability and because of
+concerns about shipping something which could very well be considered a dead code.
+
+The rest of this chapter tries to look at the available extensions through the optics of a client developer who is
+trying to push the IMAP server developers slightly, but not too much --- pushing forward is crucial in attaining a
+sustainable development, yet applying too much pressure often leads to the whole movement getting stuck on a first
+obstacle.  I make a few assumptions about the features which the client support; most notably, the client should have a
+persistent cache to store already downloaded data.  The client is also expected to serve a human user who will work with
+the application for many days across a network which might fail occasionally or even very often.
+
+This humble taxonomy is not an attempt to define a {\em level of support} --- entire working groups dedicated to this
+task have failed to deliver a universally-accepted solution despite spending many years on this goal.  Instead, it is
+intended to serve as a reference suggesting client and server developers alike what extensions might be useful.
+
+Further details about the mentioned extensions are available in chapters three (p.  \pageref{sec:imap-extensions} and
+four (p. \pageref{sec:proposed-extensions}).
+
+\subsection{The Bare Minimum}
+
+The first group of extensions lists those proposals which I consider to be a practical requirement for a well-behaving
+client to implement.  Furthermore, their implementation does not impose an overly significant burden on the servers,
+neither in terms of complicated code and therefore increased development costs, nor in the runtime overhead.
+
+\subsubsection{LITERAL+}
+
+Implementing the {\tt LITERAL+} extension actually {\em reduces} the amount of special code which the client executes
+when transmitting data using literals.  As such, there is no excuse for not implementing this extension.
+
+\subsubsection{IDLE}
+
+Entering the {\tt IDLE} mode enables the server to issue any untagged response, including the {\tt EXPUNGE} and {\tt
+VANISHED}, at any time.  Because the IMAP clients are already required to handle any response at any time, actually
+making use of this feature should not impose any extra requirements on their implementors.  The only acceptable reason
+for not using {\tt IDLE} is, in my opinion, a technical deficiency in the platform's TCP stack and the related layers.
+If the total power consumption of the {\tt IDLE} command exceed periodic polling, clients shall refrain from calling
+{\tt IDLE}.
+
+\subsubsection{ID}
+
+The {\tt ID} command provides useful diagnostics about the other end of the IMAP channel.  Similar features exist in
+other Internet protocols.  Hiding the name of one's implementation is a weak form of security measure --- existing
+efforts \cite{openemailsurvey} are able to recognize an IMAP server by its {\tt CAPABILITY} response, a set of standard
+human-readable texts and through additional criteria and it is conceivable that an alternative for clients is feasible
+as well.
+
+\subsubsection{BINARY}
+
+The {\tt BINARY} extension can delegate decoding of the content-transfer-encoding to the server side.  Given that
+servers compliant with the baseline IMAP protocol already have to include a full MIME decoder, support for the BINARY
+extension is a firm candidate for the basic level of the extension taxonomy in spite of the fact that the most widely
+deployed IMAP server does not support it in its production releases yet.
+
+\subsubsection{UIDPLUS}
+
+Without the {\tt UIDPLUS} extension, it is hard for clients to tell the UID of a message they have just appended to the
+mailbox.  On servers which support persistent storage of UIDs, support for this extension does not add any further
+requirements.
+
+\subsubsection{CHILDREN, LIST-EXTENDED and LIST-STATUS}
+
+With the {\tt CHILDREN} {\tt LIST} extension, GUI clients do not have to explicitly issue one more {\tt LIST} command
+for each mailbox shown in the GUI to tell whether said mailbox shall be drawn with a visual cue indicating its
+potentially expandable state.  The {\tt LIST-EXTENDED} and {\tt LIST-STATUS} allow for bundling of additional metadata
+with the {\tt LIST} responses and invoking the {\tt STATUS} command, respectively.
+
+\subsubsection{ESEARCH}
+
+The {\tt ESEARCH} response does not add any requirements on the IMAP servers besides the fact that they must send the
+whole response at once.  I believe that this is a reasonable trade-off considering the benefits the compact {\tt uidset}
+syntax can provide when working with large mailboxes.
+
+\subsubsection{COMPRESS=DEFLATE}
+
+Given the ubiquitous presence of the ZLib library, clients shall make sure that either the TLS compression is active or
+the {\tt COMPRESS=DEFLATE} command is issued.  IMAP is a textual protocol and as such compresses extremely well.
+
+\subsection{Useful Extensions}
+
+The second group of extensions consists of those which are very valuable for the increased efficiency of the protocol
+exchange, yet their implementation imposes a set of requirements on the server vendors, CPU resources or generally
+requires considerable effort to ``get right''.
+
+\subsubsection{CONDSTORE and QRESYNC}
+
+The {\tt CONDSTORE} extension enables clients to skip downloading of all flags upon each mailbox reconnect.  As such, it
+is highly desirable.  It is not placed in the basic category due to its implications on the server side, though.
+
+With server requirements not significantly different to the {\tt CONDSTORE}, {\tt QRESYNC} reduces the amount of data
+transferred when resynchronizing a mailbox after new messages have arrived and others have been expunged.  Because it
+allows clients to skip the UID map rebuild, significant bandwidth savings can be obtained.  As such, clients are highly
+recommended to support this extension.
+
+\subsubsection{ENABLE}
+
+The {\tt ENABLE} extension is a requirement for QRESYNC.  It does not add any additional requirements on clients or
+servers, so it shall belong to the same category.
+
+\subsubsection{MULTIAPPEND}
+
+The {\tt MULTIAPPEND} command improves performance in clients upload many messages at once --- a scenario common in
+applications which support batched import of existing e-mails.  Clients which do not need this feature can safely ignore
+this extension.  {\tt MULTIAPPEND} also mandates that the whole operation is atomic, that is, either all of the messages
+are appended, or none for them are.  For this reason, this extension is not put into the basic level.
+
+\subsubsection{SENDMAIL}
+
+Servers implementing the {\tt SENDMAIL} extension as proposed in this thesis free their clients from having to speak the
+ESMTP protocol at all, a benefit bringing along streamlined end-user configuration and reducing support calls.  However,
+due to a certain political pressure against the adoption of any extension allowing message submission via IMAP, I have
+decided to put {\tt SENDMAIL} to the middle category.
+
+\subsubsection{CATENATE}
+
+If the client can make use of the {\tt CATENATE} extension, it can be leveraged for tasks like stripping out an unwanted
+attachment from a message otherwise considered valuable.  Its usefulness increases in combination with {\tt SENDMAIL} or
+{\tt BURL} where it allows for full support for the ``forward without download'' functionality and significant bandwidth
+reduction.
+
+\subsection{The Most Advanced Extensions}
+
+The last group contains those extensions which are either something {\em special}, exotic, or generally hard to
+implement correctly.  Clients can benefit from many extensions from this group, yet one cannot expect to have them
+available on many IMAP servers due to their inherent complexity or increased amount of requirements which they put on
+the server.
+
+\subsubsection{SORT, SORT=DISPLAY and THREAD}
+
+These extensions present functionality which is very desirable from a client's point of view, yet requires the server to
+build an index of the whole mailbox contents at once.  In absence of this extension, clients wishing to offer threading
+support or those that need to present the results to their users in a particular order have no choice but to download
+additional data for every single message in the mailbox.
+
+\subsubsection{INCTHREAD, CONTEXT=SEARCH and CONTEXT=SORT}
+
+This group builds upon the functionality provided by {\tt SORT} and {\tt THREAD} by enabling live updates to the results
+the client is interested in.  In their absence, clients either have to repeat the server-side operation once again
+whenever a new message arrive, or defer to a purely client-side sorting or threading.
+
+\subsubsection{SEARCH=FUZZY}
+
+Adding support for ``fuzzy search'', this extension mandates servers to build an equivalent of a fulltext search index
+for the current mailbox, placing a significant burden on the IMAP server.
+
+\subsubsection{URLAUTH and BURL}
+
+This subgroup of extensions is known as the ``Lemonade trio''.  Together, they allow for efficient operations like
+forward-without download, drastically reducing the amount of data to send when working with big messages.  Due to the
+requirement for an explicit trust path between the IMAP server and the ESMTP submission service, clients have to
+anticipate problems when they try to utilize this functionality.
+
+\subsubsection{SPECIAL-USE and CREATE-SPECIAL-USE}
+
+A relatively new extension which allows clients to automatically obtain data about what mailbox serves a ``special
+purpose'' --- for example, containing {\em all messages} from any other mailbox, or being designated as a ``sent
+folder'' by the system or account configuration.  This could become a very useful extension, but it is too early to
+mandate its support now.
+
+\subsubsection{CONVERT}
+
+No servers that I am aware of deploy the {\tt CONVERT} extension despite the time it has been around.  No matter how
+useful I find this extension, this trait alone puts it firmly into the ``speciality'' group.
+
+\subsubsection{NOTIFY and MULTISEARCH}
+
+The {\tt NOTIFY} builds where {\tt IDLE} stopped, adding support for asynchronous notification about state of many
+mailboxes without a need of keeping concurrent connections opened.  The {\tt MULTISEARCH} command adds support for
+searches spanning several mailboxes, improving the traditional model where clients are required to ``hop'' mailboxes
+periodically.  Without much support on the server side, these extensions probably cannot be relied upon in 2012.
+
+\end{document}

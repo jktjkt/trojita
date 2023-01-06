@@ -1,0 +1,456 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+
+<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC5234 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5234.xml">
+<!ENTITY RFC3501 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3501.xml">
+<!ENTITY RFC4466 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4466.xml">
+<!ENTITY RFC4731 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4731.xml">
+<!ENTITY RFC5256 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5256.xml">
+<!ENTITY RFC5267 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5267.xml">
+<!ENTITY DRAFT-inthread SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.draft-ietf-morg-inthread-01.xml">
+]>
+<?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
+<?rfc strict="yes" ?>
+<?rfc toc="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes" ?>
+<?rfc compact="yes" ?>
+<?rfc subcompact="no" ?>
+<rfc category="std" docName="draft-kundrat-incthread-02" ipr="trust200902">
+
+  <front>
+    <title abbrev="IMAP INCTHREAD Extension">IMAP Extension for Incremental Threading (INCTHREAD)</title>
+
+    <author fullname="Jan Kundrat" initials="J." surname="Kundrat">
+      <address>
+        <postal>
+          <street>Eledrova 558</street>
+          <city>Prague</city>
+          <code>181 00</code>
+          <country>CZ</country>
+        </postal>
+        <email>jkt@flaska.net</email>
+      </address>
+    </author>
+
+    <date year="2013" month="August" day="27"/>
+
+    <area>General</area>
+    <workgroup>Internet Engineering Task Force</workgroup>
+
+    <keyword>IMAP</keyword>
+    <keyword>THREAD</keyword>
+    <keyword>INTHREAD</keyword>
+    <keyword>incremental threading</keyword>
+    <keyword>ESEARCH</keyword>
+    <keyword>CONTEXT</keyword>
+    <keyword>CONTEXT=SORT</keyword>
+    <keyword>CONTEXT=SEARCH</keyword>
+    <keyword>CONTEXT=THREAD</keyword>
+
+    <abstract>
+        <t>This document describes the INCTHREAD IMAP extension which enables clients to retrieve incremental updates of
+            the mailbox threading.  The extension repurposes the ESEARCH response for passing along the threading
+            information and builds on top of Arnt Gulbrandsen's work on the INTHREAD search key.  The UID THREAD command
+            is also extended to allow activating this extension.  Together, these changes make it possible for clients
+            not to fetch the complete mailbox threading each time a new message arrives.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section title="Introduction">
+        <t>Online IMAP clients which want to conserve the required bandwidth and also show messages in threads to their
+            users have an option to delegate the message threading to the IMAP server through mechanisms outlines in
+            <xref target="RFC5256"/>.  Using the UID SEARCH command, clients do not have to download the message headers
+            (like the Message-Id, References and In-Reply-To), and can instead fetch the resulting thread mapping of all
+            messages in a mailbox.</t>
+
+        <t>Unfortunately, the savings in transferred data are significantly reduced when clients have to fetch the
+            thread mapping over and over again, for example when a new message arrives.  Even if the client downloads
+            the relevant headers of new arrivals, these data alone are not sufficient to determine a proper place where
+            to insert the newly arriving message.  Furthermore, a single newly arriving message could potentially affect
+            placement of many messages (or even all of them in a pathological case due to joining of adjacent threads).
+            This issue prevents using approach similar to the CONTEXT=SEARCH and CONTEXT=SORT extensions <xref
+                target="RFC5267"/> where only a position of the new arrival is communicated in an incremental
+            manner.</t>
+
+        <t>This extension builds on Arnt Gulbrandsen's work <xref target="I-D.ietf-morg-inthread"/> and reuses the
+            INTHREAD search key defined in said draft.  This search key is used to inform the server that the search
+            conditions are to refer to all threads containing any messages which match the original search criteria.
+            However, as the untagged THREAD response does not contain any data about the position of the affected thread
+            among other threads in the mailbox, support for INTHREAD alone does not relieve the clients from performing
+            additional operations due to missing information.  A naive workaround where the affected threads are always
+            placed at the logical end of the mailbox would yield results different from the complete THREAD command when
+            copying older messages.  Similarly, attempting to reuse the original thread position would significantly
+            limit the usefulness of the REFS algorithm <xref target="I-D.ietf-morg-inthread"/> which sorts threads with
+            "fresh messages" at the end of the view.</t>
+
+        <t>Because the THREAD response cannot transmit the position of the resulting thread relative to other threads in
+            the mailbox, the ESEARCH response <xref target="RFC4731"/> is used and the UID THREAD command is extended to
+            allow for specifying the return options in manner consistent with how SEARCH and UID SEARCH were modified by
+            ESEARCH.  Finally, two new ESEARCH return options, the THREAD and the INCTHREAD, are defined.</t>
+
+        <t>These modifications together allow clients to delegate the threading operation completely to the server side
+            without significantly increasing network traffic even on busy mailboxes.</t>
+
+        <section title="Drawbacks and Alternatives">
+            <t>This extension can still transfer excessive amounts of data because the commands return complete threads
+                instead of incremental difference updates.  However, this approach allows for reusing the clients' and
+                servers' existing facilities, both for parsing and response processing.  In addition, unless the
+                protocol mandated history tracking of the threading tree, a much intrusive and resource-demanding
+                feature, the incremental updates would be only possible in case where the mailbox is currently selected.
+                This extension affirms the decision about threading requests to remain on the client side, letting it
+                use its policies about when to request full threading information and when to use the incremental
+                updates.</t>
+
+            <t>No support for automated updates of the threading data in the sense of the CONTEXT extension <xref
+                    target="RFC5267"/> are defined at this point.  This might change based on feedback from other server
+                and client vendors.</t>
+        </section>
+
+      <section title="Requirements Language">
+        <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+        "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+        document are to be interpreted as described in <xref
+        target="RFC2119">RFC 2119</xref>.</t>
+      </section>
+    </section>
+
+    <section title="IMAP Protocol Changes">
+        <section title="New SEARCH Keys">
+            <t>This document reuses the INTHREAD search key from <xref target="I-D.ietf-morg-inthread"/> with no changes
+                in its meaning or semantics.</t>
+            <t>Please note that the "INTHREAD" search key and the "INCTHREAD" ESEARCH return option are two distinct
+                features.</t>
+        </section>
+
+        <section title="Modified IMAP Commands">
+            <section title="Modified UID THREAD Command">
+                <t>The UID THREAD command is extended with the following two return options:</t>
+
+                <t><list style="hanging">
+                        <t hangText="THREAD">Return the threading information through the ESEARCH response using syntax
+                            similar to the untagged THREAD response.</t>
+                        <t hangText="INCTHREAD">Return a dedicated INCTHREAD section for each thread found in the result
+                            set.</t>
+                </list></t>
+
+                <t>The THREAD and INCTHREAD return options are mutually exclusive.  Servers MUST return a tagged BAD
+                    response if a client specifies both return options in a single UID THREAD command.</t>
+
+                <t>Servers MUST use the ESEARCH response instead of the untagged THREAD response when responding to the
+                    extended form of the UID THREAD command.</t>
+
+                <t>The THREAD and UID THREAD are two distinct commands.  Because clients are not expected to rely on
+                    transient identifiers like the message sequence numbers for threading retrieval and storage and
+                    because of the requirement of using UIDs in the INCTHREAD response, no modification to the THREAD
+                    command is defined.  This might change in future iterations of this draft if client authors express
+                    sufficient interest.</t>
+            </section>
+        </section>
+
+        <section title="ESEARCH Extension">
+            <t>Servers announcing the INCTHREAD capability support two new search return options:</t>
+
+            <t><list style="hanging">
+                    <t hangText="THREAD">Method for conveying the threading information in a form similar to the THREAD
+                        untagged response.</t>
+
+                    <t hangText="INCTHREAD">Response contains the threading information along with the specification of
+                        a UID of the previous thread root.</t>
+            </list></t>
+
+            <section title="The THREAD ESEARCH Return Value">
+                <t>The THREAD return value uses the same format as the threading data in the untagged THREAD responses
+                    <xref target="RFC5256"/>.  This return value is defined to allow clients to easily match data
+                    received over network with the tag of the command which caused them, as per the usual ESEARCH
+                    rules.</t>
+                <t>Due to the rules of <xref target="RFC4466"/>, the <xref target="RFC5256"/>-styled response is
+                    enclosed in one extra pair of parentheses when returned as ESEARCH data.  As an example, threading
+                    data (1)(2 3) are encoded as ((1)(2 3)) when sent in the THREAD ESEARCH response.</t>
+            </section>
+
+            <section title="The INCTHREAD ESEARCH Return Value">
+                <t>The INCTHREAD return value consists of "previous thread root UID" followed by "threading response
+                    containing a single thread".  The UID of the previous thread root MUST be zero if the thread sorts
+                    first in the resulting list of threads.  The tuple is enclosed in parentheses to conform to <xref
+                        target="RFC4466"/>.</t>
+
+                <t>A dedicated INCTHREAD record MUST be present for each thread contained in the result set.</t>
+
+                <section title="Processing Incremental Threading Updates">
+                    <t>At first, the client removes any messages referenced in the received INCTHREAD response from its
+                        thread mapping.  This step is crucial to allow new arrivals joining previously independent
+                        threads together.</t>
+
+                    <t>In the second step, the client extracts the threading information from the received INCTHREAD
+                        response.  The threading data is parsed as in <xref target="RFC5256"/> and the newly formed
+                        thread is inserted just behind a thread whose root message has UID specified in the "uid"
+                        argument of the INCTHREAD response.</t>
+
+                    <t>If non-zero, the UID of the previous thread root message MUST refer to the previous thread in a
+                        mapping which contains all messages from a mailbox.  In particular, no matter what additional
+                        searching criteria the client has used, the previous thread MUST always be identified without
+                        any search criteria being applied.</t>
+
+                    <t>If the client supports incremental threading, the INCTHREAD blocks of an ESEARCH response MUST be
+                        processed in order.  In particular, inserting the newly formed threads to a proper location
+                        shall happen immediately when the new thread is created because the subsequent responses COULD
+                        refer to the root message of the just-inserted thread.</t>
+
+                    <t>If the UID is said to be zero (0), it is interpreted specially to mean that the newly formed
+                        thread is the very first one among the list of threads in the mailbox.  Servers MUST NOT send a
+                        number which does not refer to any thread root UID unless the number is 0 to indicate the very
+                        first thread.</t>
+
+                    <t>Clients MUST deal with servers sending a UID which does not refer to any thread root or any
+                        message in the mailbox.  Is is implementation-defined at which position such thread shall be
+                        inserted, but the thread MUST appear in the list of threads.</t>
+                </section>
+            </section>
+        </section>
+
+        <section title="New Capabilities">
+            <t>This document adds two new IMAP capabilities, the ETHREAD and INCTHREAD.</t>
+
+            <t>Servers announcing the ETHREAD capability support the extended UID THREAD command syntax and the THREAD
+                return option.</t>
+
+            <t>Servers supporting the INCTHREAD capability MUST support and announce the ETHREAD capability as well.</t>
+        </section>
+    </section>
+
+    <section title="Examples">
+        <t>This section contains a few examples to illustrate how the INCTHREAD extension operates.</t>
+
+        <section title="General Mode of Operation">
+            <t>Using the proposed extension, a typical communication between two compliant IMAP protocol speakers might
+                look like the following:</t>
+
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+S: * 666 EXISTS
+C: x1 UID FETCH 665:* (FLAGS)
+S: * 666 FETCH (UID 1666 FLAGS ())
+S: x1 OK fetched
+C: x2 UID THREAD RETURN (INCTHREAD) REFS utf-8
+      INTHREAD REFS 666
+S: * ESEARCH (TAG "x2") UID INCTHREAD (400
+      (600 601 (640 666)(602 603)))
+S: x2 OK sent]]></artwork>
+            </figure>
+
+            <t>The actual resulting message threading looks like the following:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+...
+ |
+ | (All preceding threads are simply skipped.)
+ |
+ +-- 400
+ |    +-- ...
+ | (No data for the previous thread besides its root node is sent.)
+ |
+ +-- 600
+ |    +-- 601
+ |         +-- 640
+ |         |    +-- 666  <-- the new arrival
+ |         +-- 602
+ |              +-- 603
+ |
+... (No data about any subsequent threads is included in the response.)]]></artwork>
+            </figure>
+        </section>
+
+        <section title="Inserting a Single Message">
+            <t>Consider the following threading for a mailbox:</t>
+
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+C: x1 UID THREAD (RETURN THREAD) REFS utf-8 ALL
+S: * ESEARCH (TAG "x2") UID THREAD ((1)(2)(3)(4))
+S: x1 OK Threading sent]]></artwork>
+            </figure>
+
+            <t>Such a response corresponds to the following threading:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+ +-- 1
+ +-- 2
+ +-- 3
+ +-- 4]]></artwork>
+            </figure>
+
+            <t>A new message arrives and the client asks for the reading information:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+S: * 5 EXISTS
+S: * 5 FETCH (UID 5)
+C: x2 UID THREAD (RETURN INCTHREAD) REFS utf-8 INTHREAD REFS UID 5
+S: * ESEARCH (TAG "x2") UID INCTHREAD (2 (3 5))
+S: x2 OK Threading sent]]></artwork>
+            </figure>
+
+            <t>The updated threading information should look like the following:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+ +-- 1
+ +-- 2
+ +-- 3
+ |   +-- 5
+ +-- 4]]></artwork>
+            </figure>
+
+            <t>In this case, the thread with thread root with UID 4 is still considered "fresher" by the selected thread
+                algorithm.</t>
+            <!--t><vspace blankLines="1"/></t-->
+        </section>
+
+        <section title="Joining Threads">
+            <t>The following example shows a more complicated scenario where independent threads are joined together.
+                This illustrates the need for clients to remove the referenced messages from their thread mapping:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+C: x1 UID THREAD (RETURN THREAD) REFS utf-8 ALL
+S: * ESEARCH (TAG "x2") UID THREAD ((1 2)(3 4)(5))
+S: x1 OK Threading sent]]></artwork>
+            </figure>
+
+            <t>Such a response corresponds to the following threading:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+ +-- 1
+ |   +-- 2
+ +-- 3
+ |   +-- 4
+ +-- 5]]></artwork>
+            </figure>
+
+            <t>A new response arrives, joining the first two threads in the mailbox together:</t>
+             <figure align="center">
+                <artwork align="left"><![CDATA[
+S: * 6 EXISTS
+S: * 6 FETCH (UID 6)
+C: x2 UID THREAD (RETURN INCTHREAD) REFS utf-8 INTHREAD REFS UID 6
+S: * ESEARCH (TAG "x2") UID INCTHREAD (0 (6 (1 2)(3 4)))
+S: x2 OK Threading sent]]></artwork>
+            </figure>
+           
+            <t>The newly formed thread remains at the beginning of a mailbox:</t>
+            <figure align="center">
+                <artwork align="left"><![CDATA[
+ +-- 6           <-- new arrival
+ |   +-- 1       <-- previous thread #1
+ |   |   +-- 2
+ |   +-- 3       <-- previous thread #2
+ |       +-- 4
+ +-- 5           <-- previous thread #3 remains as a standalone thread]]></artwork>
+            </figure>
+        </section>
+
+    </section>
+
+    <section anchor="Acknowledgements" title="Acknowledgements">
+        <t>This extension builds upon the SEARCH=INTHREAD extension <xref target="I-D.ietf-morg-inthread"/> and the
+            THREAD extension <xref target="RFC5256"/>.</t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t>IMAP4 capabilities are registered by publishing a standards track or IESG approved experimental RFC.  The
+          registry is currently located at:</t>
+      <t>http://www.iana.org/assignments/imap4-capabilities</t>
+      <t>This document defines the ETHREAD and INCTHREAD IMAP capabilities.  IANA will be asked to add these capability
+          to the registry.</t>
+    </section>
+
+    <section title="Formal Syntax">
+        <t>The following syntax specification uses the Augmented Backus-Naur
+            Form (ABNF) notation as specified in <xref target="RFC5234"/>.</t>
+
+        <t>Non-terminals referenced but not defined below are as defined by <xref target="RFC3501"/>, <xref
+                target="RFC4466"/>, <xref target="RFC4731"/>, or <xref target="RFC5256"/>.</t>
+
+        <figure align="center">
+            <artwork align="left" type="abnf"><![CDATA[
+capability          =/ "ETHREAD" / "INCTHREAD"
+    ;; <capability> from [RFC3501]
+
+modifier-ethread    = "THREAD"
+
+modifier-incthread  = "INCTHREAD"
+
+thread-return-opt   = modifier-thread / modifier-incthread
+    ;; Similar to <search-return-opt> from [RFC4466]
+
+ret-data-thread     = "THREAD" [SP "(" 1*thread-list ")" ]
+    ;; <thread-list> from [RFC5256]
+
+ret-data-incthread  = "INCTHREAD" SP "(" uid SP thread-list ")"
+    ;; <uid> from [RFC3501]
+    ;; <thread-list> from [RFC5256]
+
+search-return-data  =/ ret-data-thread / ret-data-incthread
+    ;; <search-return-data> from [RFC4466]
+
+thread              =/ "UID" SP "THREAD" [thread-return-opts]
+                       SP thread-alg SP search-criteria
+    ;; <thread> and <thread-alg> from [RFC5256]
+    ;; <search-criteria> from [RFC3501] as amended by
+    ;;   [I-D.ietf-morg-inthread]
+    ;;
+    ;; The thread-return-opts MUST contain exactly one of
+    ;;   modifier-thread or modifier-incthread
+
+thread-return-opts  = SP "RETURN" SP "(" [thread-return-opt
+                      *(SP thread-return-opt)] ")"
+    ;; similar to the <search-return-opts> from [RFC4466]
+
+]]></artwork>
+        </figure>
+    </section>
+
+    <section anchor="Security" title="Security Considerations">
+        <t>This document is believed to not have any security implications besides those already implied by <xref
+                target="RFC5256"/> and <xref target="I-D.ietf-morg-inthread"/>.</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      &RFC2119;
+
+      &RFC5234;
+
+      &RFC3501;
+
+      &RFC4466;
+
+      &RFC4731;
+
+      &RFC5256;
+
+      &DRAFT-inthread;
+    </references>
+
+    <references title="Informative References">
+      &RFC5267;
+    </references>
+
+    <section anchor="changelog" title="Changelog">
+        <section title="Changes in -02 since -01">
+            <t><list style="symbols">
+                <t>Enclose the ESEARCH response data in parentheses to conform with RFC4466.
+                   Thanks to Alexey Melnikov for his review.</t>
+            </list></t>
+        </section>
+        <section title="Changes in -01 since -00">
+            <t><list style="symbols">
+                <t>Added some clarifications that each INCTHREAD block MUST be processed immediately because the
+                    subsequent block might refer to its results</t>
+            </list></t>
+        </section>
+    </section>
+  </back>
+</rfc>

@@ -1,0 +1,15 @@
+Mobile IMAP: Implementing Advanced IMAP Features in the Trojita Qt E-Mail Client
+
+Mobile environment imposes certain challenges to application development, from
+limited hardware computing capacity and short battery life to expensive and
+unreliable network connection.  Users expect the system to deal with network
+interruptions and to conserve the limited resources automatically.  The base
+IMAP protocol leaves much to be desired in order to be fully usable in such
+environments.  Thankfully, certain extensions were adopted which allow an IMAP
+application to limit the amount of transfered data, as well as to speed up
+certain operations.  The goal of this proposed Master's thesis is to explore
+various IMAP extensions, describe their design choices and objectives, survey
+their real-world adoption, in terms of both client-side and server-side support,
+evaluate their advantages for a mobile application, and implement the most
+important ones in the Trojita Qt-based IMAP e-mail client, an application
+developed as the author's bachelor thesis.

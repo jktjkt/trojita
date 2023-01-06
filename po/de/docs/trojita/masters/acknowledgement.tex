@@ -1,0 +1,97 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+\begin{document}
+
+\chapter{Acknowledgement}
+\label{sec:acknowledgement}
+
+This appendix provides full reference about third party contributions to the Trojitá code base.  It also mentions the
+commercial ecosystem built around this open-source project.
+
+\section{Commercial Applications}
+
+\subsection{Partnership with KWest GmbH.}
+\label{sec:kwest}
+
+In early 2010, I was contracted \cite{kwest-trojita} by a German embedded systems vendor, the KWest GmbH (lately
+acquired by Blaupunkt).  That company was tasked by a German ISP for developing a tablet and were looking for an e-mail
+client to ship.  Even though the tablet was not finished for reasons unrelated to Trojitá, but this collaboration
+significantly improved the feature set of Trojitá.
+
+\subsection{Collaboration with OpenMFG LLC, dba xTuple}
+\label{sec:xtuple}
+
+Later in 2010, an American CRM~\footnote{Customer Resource Management} vendor, the OpenMFG LLC, dba xTuple, were on a
+search for a solution integrating customers' e-mail correspondence into their ERP database.  I was contracted to add the
+required features to Trojitá.  The project successfully concluded in early 2011 and shipped on time.
+
+More details about the whole architecture are available on xTuple's product website \cite{xtuple-trojita}.
+
+\subsection{Nokia Developer Participation}
+\label{sec:nokia-cdp}
+
+In 2011, my application for Nokia's Community Device Program was accepted.  Nokia was kind enough to provide their MeeGo
+smartphone, the N950, on loan.  I have used this opportunity to build a version of Trojitá optimized for this platform
+\cite{trojita-n950-preview}.
+
+This application was also presented at the OpenMobility conference in Prague \cite{trojita-openmobility}.
+
+\newpage
+\section{Third-party Contributions}
+
+Although I'm the principal author of the vast majority of code in Trojitá, the project is run in an open environment as
+a free software.  This model has attracted quite a few developers --- both individuals and from established software
+vendors --- over the course of the project history.  This section presents a complete overview of all of their
+contributions.  It is sorted in a chronological order.
+
+\begin{description}
+  \item[Justin J] contributed improvements to the GUI.
+  \item[Benson Tsai] started the effort of providing an optimized user interface suitable for portable devices.
+    Portions of his work remained unmerged due to technical issues in compatibility with the desktop version, but his
+    patches were most inspiring.
+  \item[Gil Moskowitz] from {\em OpenMFG LLC, dba xTuple} contributed patches towards better PostgreSQL integration in
+    the xTuple e-mail synchronizer shipped as part of Trojitá.
+  \item[John Rogelstad] from {\em OpenMFG LLC, dba xTuple} improved PostgreSQL interoperability through use of xTuple's
+    own {\tt XSqlQuery} classes and fixed a build failure on Windows.
+  \item[Jiří Helebrant] contributed GUI improvements and the Trojitá's logo and application icon.  He is also the author
+    of the web site design.
+  \item[Jun Yang] submitted a patch fixing a build failure under Visual Studio~2008.  He also reported an
+    interoperability problem with {\tt STATUS} response parsing with servers not conforming to RFC~3501.
+  \item[Andrew Brouwers] is the author of the {\tt .desktop} file which ships with Trojitá and of the initial version of
+    the {\tt .spec} file used for building RPMs.
+  \item[Tomáš Kouba] cleaned up the C++ code.  He also reported build failures with older versions of Qt.
+  \item[Mariusz Fik] of {\em OpenSuSE} improved the {\tt .spec} file.  He also started using OpenSuSE's Open Build
+    Service for building Trojitá.
+  \item[Thomas Gahr] from {\em Ludwig-Maximilians-Universität München} implemented a simple address book, improved the
+    GUI and made sure that new arrivals are properly reported.
+  \item[Shanti Bouchez] added support for tagging e-mails with arbitrary keywords.  She also improved SMTP
+    interoperability and enabled SSL/TLS support in there.
+  \item[Chase Douglas] from {\em Canonical Ltd.} added a feature for hiding of already read messages from the message
+    listing.
+  \item[Wim Lewis] fixed encoding of human-readable names in outgoing messages.
+  \item[Thomas Lübking] contributed a feature for raw IMAP searching, fixed quite a few QWidget issues and submitted
+    many GUI improvements in general.
+\end{description}
+
+I'd like to use this opportunity to also extend my gratitude to all users who reported bugs or encouraged further
+development of Trojitá.
+
+\newpage
+\section{Use of Existing Libraries}
+
+Trojitá makes use of the following third party libraries:
+
+\begin{description}
+  \item[The Qt framework] is used throughout the code as Trojitá is a Qt application.
+  \item[The Qt Messaging Framework] provided code for wrapping the deflate compression algorithm in a Qt API.  It is
+    also used for low-level character set conversions and MIME encoding/decoding.
+  \item[ZLib] is used as a backend for actual deflate compression and decompression.
+  \item[The KDE project's PIM libraries] was used for low-level string manipulation, character set conversion and
+    related operations.
+  \item[The QwwSmtpClient] library from Witold Wysota is used for speaking the SMTP protocol.  Several fixes were
+    applied on top of the original release.
+  \item[ModelTest] is a testing tool for verifying {\tt QAbstractItemModel} invariants. It is shipped as part of the
+    source tree for technical reasons.
+\end{description}
+
+\end{document}

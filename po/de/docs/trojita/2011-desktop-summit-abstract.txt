@@ -1,0 +1,10 @@
+Trojitá, a fast and lean IMAP e-mail client
+
+<a href="http://jkt.flaska.net/blog/">Jan Kundrát</a> is a computer science student, <a href="http://www.particle.cz/farm/index.aspx?lang=en">HPC Linux system administrator</a> and an independent consultant.  He is involved in the <a href="http://www.gentoo.org/">Gentoo Linux</a> and KDE's <a href="http://kphotoalbum.org/">KPhotoAlbum</a> projects.  When not sitting in front of some computer, Jan enjoys travelling, hiking, paddling, beer tasting, reading interesting books and occasionally covering weddings as a photographer.
+
+
+<a href="http://trojita.flaska.net/">Trojitá</a> is a very fast and lightweight IMAP e-mail client written using the Qt library. Thanks to its modern architecture, not burdened by historic limitations, Trojitá is able to fully use key IMAP protocol features and actually bring them to the user's device.  Using Trojitá, people can work with huge mail folders with tens of thousands of messages on mobile devices without feeling the usual pain and without waiting for all messages to appear before reading new arrivals.
+
+Apart from a desktop application, a touch-friendly interface to Trojitá is in the making, and the core IMAP library has been used in a commercial <a href="http://www.xtuple.org/emailIntegration/beta">ERP product</a>.
+
+The proposed talk discusses Trojitá's history and architecture, and explains how the Qt's Model-View framework enabled delivering an application which fetches data on-demand over the network, saving vast amounts of network bandwidth and CPU power.

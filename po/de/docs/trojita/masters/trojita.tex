@@ -1,0 +1,196 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[11pt,a4paper]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[czech,english]{babel}
+\usepackage{a4wide}
+\usepackage{listings}
+\usepackage{longtable}
+\usepackage{graphicx}
+\usepackage[left=4cm,top=25mm,bottom=25mm,right=25mm]{geometry}
+\pagestyle{plain}
+\usepackage{etoolbox}
+\usepackage{lmodern}\renewcommand{\ttdefault}{lmvtt}
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{subfiles}
+\usepackage{todonotes}
+\usepackage[numbers]{natbib}
+\usepackage{pdfpages}
+\usepackage{dirtree}
+\usepackage{attrib}
+
+\newcommand{\secref}[1]{section~\ref{#1} on page~\pageref{#1}}
+
+\newenvironment{trojitabehavior}{\begin{quote}\itshape}{\end{quote}}
+
+
+\hyphenation{URL-AUTH}
+
+\begin{document}
+
+% this looks much better in print
+%\usemintedstyle{bw}
+
+\title{IMAP extension for mobile devices}
+
+\author{Bc. Jan Kundrát}
+
+\date{July 2012}
+
+\begin{titlepage}
+\begin{center}
+\large
+
+Charles University in Prague
+
+\medskip
+
+Faculty of Mathematics and Physics
+
+\vfill
+
+{\bf\Large MASTER THESIS}
+
+\vfill
+
+\centerline{\mbox{\includegraphics[width=60mm]{mff-logo.eps}}}
+
+\vfill
+\vspace{5mm}
+
+{\LARGE Bc. Jan Kundrát}
+
+\vspace{15mm}
+
+{\LARGE\bfseries IMAP extension for mobile devices}
+
+\vfill
+
+Department of Software Engineering
+
+\vfill
+
+\begin{tabular}{rl}
+
+Supervisor of the master thesis: & RNDr.~Ing.~Jiří~Peterka \\
+\noalign{\vspace{2mm}}
+Study programme: & Informatics \\
+\noalign{\vspace{2mm}}
+Specialization: & Software Engineering \\
+\end{tabular}
+
+\vfill
+
+Prague 2012
+
+\end{center}
+\end{titlepage}
+
+\section*{Acknowledgement}
+I would like to thank my supervisor, RNDr. Ing. Jiří Peterka, for his valuable advices and numerous consultations.
+
+Many experts on various IMAP-related mailing lists, especially Timo Sirainen, Bron Gondwana, Arnt Gulbrandsen, Mark
+Crispin, Alexey Melnikov, Dave Cridland and Adrien de Croy, have  shared explanations about corner cases concerning
+various protocol features and provided feedback on my Internet-Draft proposals --- thanks for that.
+
+Portions of my work on Trojitá were sponsored by KWest GmbH. and OpenMFG LLC, dba xTuple.  Thanks to Sebastian Wendt and
+John Rogelstad for making this collaboration possible.
+
+Adam Kudrna kindly corrected many mistakes in this text; the remaining errors, however, are mine.
+
+Finally, special thanks belong to Ms.~Julie Růžičková for her willingness to listen whenever I had something to
+discuss, patient support when I was debugging intricate bugs and tremendous amount of empathy throughout the time, as
+well as to my parents for supporting my studies.
+\newpage
+
+% legal
+\vglue 0pt plus 1fill
+
+\noindent
+I declare that I carried out this master thesis independently, and only with the cited sources, literature and other
+professional sources.
+
+\medskip\noindent
+I understand that my work relates to the rights and obligations under the Act No.~121/2000 Coll., the Copyright Act, as
+amended, in particular the fact that the Charles University in Prague has the right to conclude a license agreement on
+the use of this work as a school work pursuant to Section 60 paragraph 1 of the Copyright Act.
+
+\vspace{30mm}
+
+\noindent Prague, July 27, 2012 \hspace{\fill}Jan Kundrát\\
+
+\vspace{20mm}
+\newpage
+
+
+\vbox to 0.5\vsize{
+\setlength\parindent{0mm}
+\setlength\parskip{5mm}
+
+Název práce: IMAP extension for mobile devices \\
+Autor: Jan Kundrát \\
+Katedra: Katedra softwarového inženýrství \\
+Vedoucí diplomové práce: RNDr. Ing. Jiří Peterka \\
+
+Abstrakt:
+
+Masové rozšíření chytrých telefonů, ke~kterému došlo v~posledních letech, s~sebou přineslo i zvýšený zájem o mobilní
+přístup k~elektronické poště.  Protokol IMAP prošel od svého vzniku mnoha úpravami; objevila se rozšíření přidávající
+nové funkce, ale i modifikace optimalizující komunikaci přes potenciálně nespolehlivou síť.  Tato práce si klade za cíl
+provést analýzu stávajících rozšíření protokolu IMAP z~pohledu jejich použitelnosti a přínosu využití v~mobilních
+zařízeních.  Obsahuje tři nově vytvořené návrhy rozšíření, z~nichž každé obohacuje protokol IMAP z~jiného směru.
+Součástí práce je též popis, jak byla tato rozšíření zahrnuta do programu Trojitá, autorova mobilního e-mailového
+programu šířeného jako svobodný software.
+
+Klíčová slova: IMAP, e-mail, rozšíření, mobilní přístup, optimalizace, datový tok, Lemonade, Trojitá
+
+\vss}\nobreak\vbox to 0.49\vsize{
+\setlength\parindent{0mm}
+\setlength\parskip{5mm}
+
+Title: IMAP extension for mobile devices \\
+Author: Jan Kundrát \\
+Department:  Department of Software Engineering \\
+Supervisor: RNDr. Ing. Jiří Peterka \\
+
+Abstract:
+
+With the mass availability of smartphones, mobile access to e-mail is gaining importance.  Over the years, the IMAP
+protocol has been extended with many features ranging from extensions adding new functionality  to those improving
+efficiency over an unreliable network.  This thesis evaluates the available extensions based on their suitability for
+use in the context of a mobile client.  Three new extensions have been developed, each improving the protocol in a
+distinct way.  The thesis also discusses how most of these extensions were implemented in Trojitá, the author's free
+software open source IMAP e-mail client.
+
+Keywords: IMAP, e-mail, extensions, mobile access, optimisation, data traffic, Lemonade, Trojitá
+
+\vss}
+\newpage
+
+\setcounter{tocdepth}{3}
+\tableofcontents
+
+\subfile{intro}
+
+%\part{The IMAP Standard}
+\subfile{imap-protocol}
+\subfile{extensions}
+\subfile{proposed-drafts}
+\subfile{mobile-imap}
+
+%\part{Inside Trojitá}
+\subfile{architecture}
+\subfile{conclusion}
+
+%\part{Additional Resources}
+\appendix
+\subfile{draft-manuscripts}
+\subfile{acknowledgement}
+\subfile{source-cd}
+
+\bibliography{rfc,trojita}
+\bibliographystyle{unsrtnat}
+
+\end{document}

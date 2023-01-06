@@ -1,0 +1,395 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+
+\begin{document}
+
+\chapter{Proposed Extensions}
+\label{sec:proposed-extensions}
+
+Previous chapters have shed some light on the complicated world of IMAP and showed how the protocol limitations affects
+the users' experience.  I have also introduced some of the existing extensions which aim to address many of the
+presented shortcomings.  There are still quite a few issues which make lives of the client implementors harder than
+necessary, though.  At this point, I present three separate extensions which fix race conditions, improve the
+effectiveness of the protocol or add new features which contribute to smoother operation of the e-mail clients.  This
+broad range of changes was selected to illustrate that improving IMAP can happen on many different fronts and that even
+after more than twenty years of ``active service'', the protocol can be actively improved to address newly emerging
+trends.
+
+Internet Drafts are usually prepared in a special system \cite{rfc-formatting} which handles the required strict
+document formatting using plain ASCII text.  This chapter is therefore purposely very short, providing only the minimal
+descriptions of the proposed extensions.  The Internet Drafts themselves are included in Appendix
+\ref{sec:id-manuscripts} on page \pageref{sec:id-manuscripts} and are an integral part of this thesis.
+
+\section{Announcing the UIDs of Newly Arriving Messages during the QRESYNC mode: the ARRIVED Extension}
+\label{sec:draft-arrived}
+
+The first extension I have implemented addresses a race condition in the {\tt QRESYNC} extension \cite{rfc5162}.  In
+{\tt QRESYNC}, the offset-based {\tt EXPUNGE} responses known from the baseline IMAP protocol are replaced by {\tt
+VANISHED} responses which use UIDs.  Unfortunately, because the {\tt EXISTS} still informs about the number of new
+deliveries only, without including the UIDs, and due to the fact that the IMAP server is explicitly
+allowed~\footnote{{\em``Note that a VANISHED response caused by EXPUNGE, UID EXPUNGE, or messages expunged in other
+connections SHOULD only contain UIDs for messages expunged since the last VANISHED/EXPUNGE response sent for the
+currently opened mailbox or since the mailbox was opened.  That is, servers SHOULD NOT send UIDs for previously expunged
+messages, unless explicitly requested to do so by the UID FETCH (VANISHED) command.''
+
+``Note that client implementors must take care to properly decrement the number of messages in the mailbox even if
+a server violates this last SHOULD or repeats the same UID multiple times in the returned UID set.  In general, this
+means that a client using this extension should either avoid using message numbers entirely, or have a complete mapping
+of UIDs to message sequence numbers for the selected mailbox.''}~\cite[p. 12]{rfc5162} --- in the
+RFC language, {\em SHOULD} means that implementations are suggested to use the recommended behavior, but can deviate
+from that as {\em ``there may exist valid reasons in particular circumstances to ignore a particular item''}
+\cite{rfc2092}.} to include non-existing UIDs in the {\tt VANISHED} responses, a race condition exists where client does
+not know about the full span of the sequence $\rightarrow$ UID mapping, which in turn violates RFC 5162's requirement
+on clients having {\em ``a complete mapping of UIDs to message sequence numbers for the selected mailbox''}.
+
+The proposed extension addresses this issue through the {\tt ARRIVED} response which informs the clients about the UIDs
+of new message arrivals.  At the same time, it improves the protocol efficiency by freeing the clients from a
+requirement to explicitly ask for message UIDs when a new message is delivered.
+
+This is how a typical session without the {\tt ARRIVED} extension looks like.  Suppose the mailbox previously contained
+just a single message with UID 5, the UIDNEXT is 11:
+
+\begin{minted}{text}
+  S: * 3 EXISTS
+  S: * 2 FETCH (FLAGS (foo))
+  S: * 3 FETCH (FLAGS (bar))
+  S: * VANISHED 12:20
+  C: x UID SEARCH UID 11:*
+  S: * SEARCH 21
+  S: x OK Search completed
+  C: y UID FETCH 21 (FLAGS)
+  S: * 2 FETCH (UID 21 FLAGS (foo))
+\end{minted}
+
+The client had no chance but to ignore the unsolicited {\tt FETCH} responses, recover the full UID mapping through the
+{\tt UID SEARCH} command and finally re-request the flag data once again through the {\tt UID FETCH} command.
+
+In contrast to the above, the following is how the same session happens when {\tt QRESYNC} is active and enabled:
+
+\begin{minted}{text}
+  S: ARRIVED 21
+  S: VANISHED 12:20
+  S: * 2 FETCH (FLAGS (foo))
+  S: * 3 FETCH (FLAGS (bar))
+\end{minted}
+
+No client activity at all is required then the {\tt ARRIVED} extension is available.
+
+\subsection{Alternatives}
+
+In absence of the {\tt ARRIVED} extension, clients are required to perform an explicit UID rediscovery, possibly through
+the {\tt UID SEARCH $formerUidNext$:*}; this could pose a problem when servers send any data using the {\tt FETCH}
+responses without the {\tt UID} field.  Always including the {\tt UID} in unsolicited {\tt FETCH} responses, as
+recommended in RFC 5162's errata document, can mitigate this particular issue.  However, servers which already do not
+send non-existing UIDs in the {\tt VANISHED} responses will still benefit from implementing the {\tt ARRIVED} extension
+as the clients will be able to refrain from performing an explicit {\tt UID SEARCH} operations on them upon new
+deliveries.  Furthermore, due to the fact that clients have {\em no way} of finding out whether servers include the
+non-existing UIDs in {\tt VANISHED} responses, the benefits of the proposed extension are demonstrated whenever new
+arrivals are expunged before their UIDs become known, no matter whether the servers conform to the requirement imposed
+by the relevant errata.
+
+Full text of the proposed extension in the format of an Internet-Draft suitable for IETF submission is included in
+section \secref{sec:draft-imap-qresync-arrived}.  This extension was presented for discussion on the {\tt imap-protocol}
+mailing list \cite{jkt-i-p-draft-qresync-arrived-01}.
+
+\section{Improving Incremental Threading through Modified INTHREAD}
+\label{sec:draft-incthread}
+
+Delegating message threading to the server-side can provide clients with enormous benefits, especially when working with
+large mailboxes.  However, these benefits can be significantly reduced when clients are forced to request full thread
+mapping over and over again.
+
+Unfortunately, that is exactly the situation when new messages arrive.  When clients use the server-side threading, they
+by design do not have to keep track of the {\tt Message-Id}, {\tt References} and {\tt In-Reply-To} headers as the
+thread tree building is all done by the IMAP server.  However, that also means that newly arriving messages cannot be
+easily ``plugged'' into the already known tree, even if full header set of the new arrival was known.  Doing so reliably
+would require knowledge of the relevant headers of all messages in mailbox, knowledge which is rather expensive to
+obtain and avoidance of which is the whole point of server-side threading.
+
+\subsection{Existing Approach}
+
+Extensions exist solving this problem for both searching (the {\tt CONTEXT=SEARCH} extension from RFC~5267
+\cite{rfc5267} which is reasonably wide-deployed) and sorting (the {\tt CONTEXT=SORT}, support of which is extremely
+scarce despite being defined in the same RFC document), but no such proposal was ever submitted for threading.  I
+suspect that the reason is inherent in the way the threading works --- a single newly arriving message can indeed cause
+threading updates for {\em any} other message in a mailbox, even for {\em all} of them in a pathological
+case.~\footnote{Any new arrival could possibly join many existing threads previously considered to be individual and
+independent of each other to a single thread having all of them as subthreads.}  This is in a strong contrast to live
+updates of search results where a pair of simple ``add item $X$ to result'' and ``remove X from the result'' is enough,
+or even to incremental sort order communication (where the operation is complicated a little more, requiring ``add item
+$X$ to the result at offset $Y$'').
+
+One {\em could} attempt to try the incremental threading by asking for UIDs of messages with the {\tt Message-Id} header
+matching any referenced from the new arrivals' {\tt References}, but doing so is hard in practice as some MUAs choose
+not to use {\tt References} and set just the {\tt In-Reply-To} header.  Thread building exclusively through the {\tt
+In-Reply-To}, however, completely misses the correct thread order for threads with ``gaps'' in them, a scenario very
+common when one's own replies are located in a dedicated {\em Sent} folder with the rest of the thread in e.g. the {\tt
+INBOX}.  Using just the basic {\tt SEARCH} command is therefore not sufficient.
+
+An existing draft proposal \cite{draft-ietf-morg-inthread} extends the search query capabilities with the {\tt INTHREAD}
+operator matching a {\em whole thread} of messages.  This capability alone is not enough to fully accommodate the whole
+incremental threading problem, but it is an improvement good enough to build upon.  The only missing piece of
+functionality is being able to tell where the new thread shall be positioned, but in absence of better tools, an
+approximation always showing threads with ``new arrivals'' at the very end of the view might be good
+enough.~\footnote{Displaying threads with ``new arrivals'' among the ``last messages'' is suboptimal because the newly
+arriving message {\em could} be in fact a result of a copy operation.  Having these ``older'' messages suddenly appear
+should not interleave them with the recent content of the mailbox.}
+
+\subsection{The INCTHREAD Extension}
+
+The proposed extension builds on top of {\tt INTHREAD}, adding the exact positioning to each individual thread matching
+the search criteria.  In addition, the format of the response does not use the {\tt THREAD} untagged response from RFC
+5256 \cite{rfc5256}, but instead uses the extensible {\tt ESEARCH} response from RFC 4731 \cite{rfc4731} --- the {\tt
+ESEARCH} already contains provisions for returning multiple types of data and as an added bonus ties the response to a
+particular command's tag, making it possible to parallelize threading operation.  These reasons make the {\tt ESEARCH}
+response better suited to accommodate the new result format.
+
+The improvement, as measured in decreased bandwidth consumption, is not always as impressive as those from the CONTEXT
+extensions.  It is conceivable that more advanced forms of conveying the modified threading information (e.g. the
+strictly incremental responses about how an update affects a particular branch in the threading tree) would result in
+smaller overall transmitted octet counts, but on the other hand implementing such an extension would prove challenging
+to both servers and clients.  There are also circumstances under which the tree-oriented differential updates would not
+work; the most obvious one is when a client reconnected to a mailbox, detected a couple of new arrivals and now wants to
+ask for updates ``ex post'', long after they have physically happened in the mailbox.  Finally, the client-driven mode
+of operation through the proposed extension better fits the IMAP behavior where clients specify in what kinds of
+information they are interested and servers optimize their operation by only transmitting what is strictly necessary.
+
+Using the proposed extension, a typical communication between two compliant IMAP protocol speakers might look like the
+following:
+
+\begin{minted}{text}
+  S: * 666 EXISTS
+  C: x1 UID FETCH 665:* (FLAGS)
+  S: * 666 FETCH (UID 1666 FLAGS ())
+  S: x1 OK fetched
+  C: x2 UID THREAD RETURN (INCTHREAD) REFS utf-8
+        INTHREAD REFS 666
+  S: * ESEARCH (TAG "x2") UID INCTHREAD 400
+        (600 601 (640 666)(602 603))
+  S: x2 OK sent
+\end{minted}
+
+At first, the server informs the client about new delivery.  Client responds with a request for UID and message flags of
+the new arrivals.  When both are known, the new form of the {\tt UID THREAD} command is issued, specifying that the
+threading algorithm {\tt REFS} shall be used, searching shall be done in the {\tt utf-8} character set and that the
+returned value shall include the relative thread position among other threads in the whole mailbox.
+
+The result instructs the client that messages with UIDs of 600, 601, 602, 603 and 640 shall be removed from their
+previous positions in the threading tree, and that they together with UID 666 form a new thread with the specified
+shape.  This new thread immediately follows a thread whose thread root has UID 400.  Figure
+\ref{fig:incthread-threading-example} shows how the new threading for this mailbox looks like.
+
+\begin{figure}
+\vspace{10mm}
+\dirtree{%
+.1 \ldots.
+.2 \ldots \DTcomment{Preceding threads are skipped}.
+.2 400 \DTcomment{No information about the rest of this thread is transmitted}.
+.3 \ldots.
+.2 600 \DTcomment{On the other hand, the whole of the new thread is always sent}.
+.3 601.
+.4 640.
+.5 {\bf 666} \DTcomment{This is the newly arrived message}.
+.4 602.
+.5 603.
+.2 \ldots \DTcomment{The following threads are also skipped}.
+}
+\vspace{8mm}
+  \label{fig:incthread-threading-example}
+  \caption{The incremental threading response conveyed information about one message thread in a mailbox.  No data for
+  other threads have to be transmitted, leading to a significant performance improvements on slow networks or
+  bandwidth-constrained devices.}
+\end{figure}
+
+Even though the updated extended {\tt THREAD} command can still send data which are already known by the client, the
+design is a reasonable compromise between one imposing overly complex requirements on both clients and servers on one
+hand, and needlessly transmitting the whole mapping over and over again in absence of any extensions.
+
+The full text of the proposed extension, including the formal grammar, is available from section
+\secref{sec:draft-imap-incthread}.  The extension was presented for expert review on the {\tt imapext} mailing list
+\cite{jkt-i-p-draft-incthread}.
+
+\section{Submitting Internet Mail --- the SENDMAIL Extension}
+\label{sec:draft-sendmail}
+
+Message submission is one of the controversial subjects, along the ``imap5'' and ``move messages'' discussions ---
+whenever any of these topics is brought up on the imap-protocol mailing list, an interesting discussion is guaranteed to
+happen.  In this proposal, I have tried to accommodate criticism from many previous review rounds.
+
+The baseline IMAP protocol does not offer any way of e-mail submission.  Mail User Agents willing to send mail are
+supposed to use the (E)SMTP protocol \cite{rfc5321} \cite{rfc2821}, preferably over a dedicated submission service
+\cite{rfc6409}.  This is how most of contemporary e-mail clients (at least those using the IETF standards in contrast
+to the proprietary ones) work, but it also brings along a set of issues.
+
+First of all, the clients have to be {\em properly configured}.  Given that ESMTP and IMAP can be (and often are)
+managed separately, clients have to ask their users for two sets of accounts, one for each type of service.  Proposals
+exist trying to eliminate much of this complexity, especially through the DNS system \cite{rfc6186} or via non-standard
+mechanisms like those proposed by Mozilla \cite{mozilla-ispdb} --- but as usual, these mechanisms often cover only a
+subset of service providers.  Client programmers are required to implement and test full support for both protocols.
+IMAP is doubtlessly the more complicated one, exceeding ESMTP both in syntax and semantic, yet adding a requirement for
+a proper SMTP implementation causes a measurable burden on the developers.
+
+Furthermore, network firewalls and other filters along the way have to be properly configured to allow for a reliable
+pass-through for both services \cite{crocker-beep-multi-conns}.  Even though the situation has much improved with a
+dedicated ``Submission'' service \cite{rfc6409} which moved the e-mail submission to a dedicated port to not interfere
+with the traditional SPAM-laden TCP port 25, there are still certain situations where customers cannot use both e-mail
+services, leading to confused support calls \cite{submission-users-suck-smtp-imap} \cite{panozzo-submission-users-suck}.
+
+In addition to the above, many users wants to store their outgoing e-mail in a separate IMAP mail folder.  This means
+that under typical circumstances, a message being sent has to be uploaded twice over the network, once for IMAP, the
+second time for ESMTP delivery.  In case when a message contains an attachment previously already available on the IMAP
+server, the same data can in fact travel over the network {\em three times} -- at first when being downloaded by the
+IMAP client only to be subsequently sent after the proper MIME encapsulation to the destined ``Sent'' folder, and
+finally over SMTP as usual.  As a last point in this quick list, even in presence of specific extensions, the time
+required to actually {\em establish} a separate connection, setup proper TLS confidentiality and start tunnelling data
+over it is often non-negligible.
+
+All of the above suggests that there are certain benefits in choosing to deliver e-mail messages from
+MUAs~\footnote{Mail User Agents} over IMAP.
+
+\subsection{Competing Proposals}
+
+Over the years, many proposals have appeared trying to accommodate this issue \cite{draft-ietf-lemonade-submit}.
+
+\subsubsection{The ``Lemonade Trio''}
+
+The most widely deployed mechanism aiming at bandwidth reduction is the Lemonade extension family \cite{rfc5550}.
+Through the use of IMAP's {\tt CATENATE} \cite{rfc4469} and {\tt URLAUTH} \cite{rfc4467} along with SMTP's BURL
+\cite{rfc4468}, conforming clients can:
+
+\begin{itemize}
+  \item compose a message on the IMAP server's side, reusing any existing data,
+  \item deliver that message over SMTP without having to upload the data.
+\end{itemize}
+
+At the same time, this approach has the following disadvantages:
+
+\begin{itemize}
+  \item a trust relation (at least a limited one) has to exist between the SMTP and IMAP servers,
+  \item both SMTP and IMAP servers have to be properly configured,
+  \item clients still have to maintain a separate SMTP protocol stack,
+  \item an extra connection has to be opened.
+\end{itemize}
+
+Trojitá includes full support for these extensions.  However, because there is {\em no} way of discovering whether the
+IMAP and SMTP daemons ``trust'' each other,~\footnote{The mere presence of the {\tt URLAUTH} capability on the IMAP
+server side and the advertised {\tt BURL} extension by the ESMTP service does not imply that an eventual submission will
+succeed.} Trojitá requires the user to explicitly enable a checkbox in the settings dialog to activate these
+features.~\footnote{The {\tt CATENATE} extension is not subject to this limitation; it will be used whenever the server
+announces its presence, unless the user has explicitly forbidden its usage.  This is equivalent to how Trojitá handles
+any other IMAP extension.}  Using this explicit confirmation is intended to deter bugs like those which have plagued
+other MUA implementations \cite{qmf-fastmail-burl-bug} from affecting Trojitá.  This implementation might change in
+future.
+
+\subsubsection{Tunneling SMTP inside IMAP}
+
+A second approach in which the IETF community and related researchers have tried to tackle down the e-mail submission
+was via actually tunneling the real ESMTP session through the IMAP protocol \cite[p. 30]{draft-maes-lemonade-p-imap}.
+This approach removes the burden of establishing a second connection, but retains the required complexity of having to
+ship and test a full ESMTP client stack.  This approach is {\em by definition} as flexible as any future ESMTP extension
+and does not require any changes on the (ESMTP) server side (besides support for SMTP pipelining \cite{rfc2920}), with
+only a limited amount of modifications for the IMAP clients.  On the other hand, the requirement to tunnel a second
+protocol through IMAP adds a lot of complexity to their interaction and it appears that either the IMAP daemon or the
+SMTP server has to include support for BURL nonetheless.  One has to wonder if the ESMTP serialization, no matter how
+useful when speaking ESMTP, can be replaced with something terser.  Consider the following example from the proposed
+draft:
+
+\begin{minted}{text}
+  C: a004 XDELIVER CAPABILITY
+  S: * XDELIVER CAPABILITY (8BITMIME EXPN HELP)
+  C: a005 XDELIVER TEXT {123+}
+  C: EHLO
+  C: MAIL FROM: john@smith.com
+  C: RCPT TO: mooch@owatagu.siam.edu
+  C: DATA
+  C: URL /Inbox;UIDVALIDITY=9999/;UID=33;Section=BODY
+  .
+  S: * XDELIVER {321}
+  S: 220 mail.metastructure.net ESMTP
+  S: 250-mail.metastructure.net
+  S: 250-AUTH LOGIN CRAM-MD5 PLAIN
+  S: 250-AUTH=LOGIN CRAM-MD5 PLAIN
+  S: 250-PIPELINING
+  S: 250 8BITMIME
+  S: 250 ok
+  S: 250 ok
+  S: 354 go ahead
+  S: 250 ok 1126337586 qp 28229
+\end{minted}
+
+This communication is indeed rather verbose.  The same result is achieved in a clearer way through the {\tt UID SUBMIT}
+command I propose later in this chapter.
+
+No known deployments of these drafts exist and no further standardization process has been observed on the relevant
+mailing lists.
+
+\subsubsection{The POSTADDRESS Draft}
+
+For the sake of completeness, one should also mention the {\tt POSTADDRESS} draft
+\cite{draft-melnikov-imap-postaddress}.  This extension tried to provide a way for servers to announce an Internet
+e-mail address for each mailbox which could act as the ``Sent'' folder.  The idea behind this proposal was that clients
+should obtain this e-mail address and include it in the {\tt Bcc} field of the outgoing e-mail messages.  Doing so would
+facilitate the same result as the {\tt APPEND} command, but without having to send the data explicitly.  Drawbacks of
+this method included privacy concerns and the fact that this extension might not work with Sieve or other server-side
+filtering \cite{postaddress-sieve}.  As of July 2012, this idea appears to have been abandoned for good.
+
+\subsection{The SENDMAIL Extension}
+
+In mid 2011, a few requests for e-mail submission over IMAP have appeared on the {\tt imap5} mailing list
+\cite{brong-imap5-list-of-ideas} (with the expected outcome of calling names \cite{crispin-brong-you-suck-useless}).
+The idea presented by proponents of the ``submit mail over IMAP'' camp appeared to be that:
+
+\begin{itemize}
+  \item Using two protocols ``for e-mail'' is a significant source of support requests for large service providers.
+  \item The IETF-approved approach to the ``forward-without-download'', i.e. the {\tt URLAUTH} and {\tt BURL}
+    extensions, are not widely deployed.  They are also notoriously hard to implement and deploy for server vendors and
+    system integrators.
+  \item Extending IMAP to allow for message submission simplifies the number of authorization channels.
+  \item Handling the ``common case'' in an efficient manner outweighs the drawback of enabling a second e-mail
+    submission protocol.
+\end{itemize}
+
+Based on the said discussion, it appears that there is a strong demand for having ``such a feature'' in IMAP.  I've
+therefore read through various mailing list archives, studied previous iterations of the discussion and tried to address
+many issues which were previously considered to be a blocking issue (like the apparent need to rewrite message bodies
+when dealing with blind-carbon-copies (the {\tt Bcc} headers), having to scan message contents unconditionally, or a
+lack of delivery status notification (DSN) control).  The extension which I propose as a part of this thesis has the
+following advantages:
+
+\begin{itemize}
+  \item It removes the need for clients to speak both ESMTP and IMAP protocols.
+  \item It reduces the amount of account details to ask users for.
+  \item Whole communication is performed over a single connection, eliminating a significant cause of support requests.
+  \item All features can be implemented as a thin wrapper over a {\tt sendmail}-compatible binary which is nowadays
+    shipped by most MTAs.
+  \item Messages can be submitted using a single round trip once stored on the server.
+  \item The extension plays well with {\tt CATENATE}.
+  \item Further ESMTP extensions can be trivially integrated through IMAP capabilities.
+\end{itemize}
+
+The extension proposes a single IMAP command, the {\tt UID SENDMAIL}.  This commands accepts a reference to an already
+existing message to be sent along with a complimentary list of submission options.  This list is intended to serve as a
+substitute to the missing ESMTP envelope; in the initial version, clients can use it to specify senders and receivers or
+for control of the DSN options.  The command is also ready for future extensibility; other options can be easily added
+to the specification when further ESMTP extensions are defined.
+
+A typical conversation with a {\tt SENDMAIL}-capable IMAP server can therefore look similar to the following (note that
+white space has been added to the {\tt UID SENDMAIL} command for clarity):
+
+\begin{minted}{text}
+  C: x UID SENDMAIL 123 (FROM "foo@example.org"
+        RECIPIENT "a@example.org"
+        RECIPIENT "b@example.org"
+        DSN (delay failure)
+      )
+  S: * 10 FETCH (UID 123 FLAGS (\$Submitted))
+  S: x OK Message passed to the sendmail binary
+\end{minted}
+
+Changing Trojitá to support e-mail delivery via the proposed extension was just a matter of plugging another
+implementation of its abstract MSA~\footnote{Mail Submission Agent} interface.
+
+Full text of this specification is available in section \secref{sec:draft-imap-sendmail}.  An interesting discussion
+followed \cite{jkt-i-p-draft-sendmail} after I posted my initial draft to the {\tt imapext} IETF mailing list.
+
+\end{document}

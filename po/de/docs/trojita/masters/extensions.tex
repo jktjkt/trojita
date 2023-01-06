@@ -1,0 +1,1039 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+
+\begin{document}
+
+\chapter{IMAP Extensions}
+\label{sec:imap-extensions}
+
+It might be concluded from the brief analysis presented in the previous chapter that certain features of the IMAP
+protocol are rather limiting in its real-world deployment.  Fortunately, IMAP was designed to include support for
+extensions which allow rather substantial changes to its mode of operation.  Throughout this chapter, I provide a
+detailed analysis of opportunities where the baseline IMAP protocol leaves something to be desired.  Many such gaps have
+been addressed by various extensions over the last twenty years; these extensions are thoroughly explained and evaluated
+on their merits.  Information about their support in Trojitá is also included.
+
+\section{Optimizing the Protocol}
+
+Before dwelling into more advanced topics like improving the synchronization performance or adding new features, let's
+have a look at the basic layer of the IMAP protocol and investigate how these affect performance.
+
+\subsection{The LITERAL+ Extension}
+\label{sec:imap-literalplus}
+
+One of the lowest-hanging optimization fruit to cater are IMAP's synchronizing literals.  In the basic IMAP, before a
+client proceeds with tasks involving upload of binary data (or any data over a certain size, for that matter), it has to
+ask for an explicit server's approval based on the length of the data in question.  As it has been shown previously,
+this confirmation imposes a full round trip over the network, inducing latency and destroying any potential pipelining
+improvements.
+
+The LITERAL+ extension (RFC~2088~\cite{rfc2088}) simply lifts the requirement of having to wait for the server's
+continuation requests by a subtle change of the syntax.  Adding an overhead of just one byte, the latency is completely
+eliminated and communication gets rapidly streamlined.  One can go as far as to say that the code paths for dealing with
+LITERAL+ data are actually simpler than having to deal with the old-fashioned synchronizing literals.  Consider the
+following example:
+
+\begin{minted}{text}
+  S: * OK
+  C: A001 LOGIN {11}
+  # The client has to wait for server's response before proceeding any further
+  S: + go ahead
+  C: FRED FOOBAR {7}
+  # A second round-trip wait occurs here
+  S: + go ahead
+  C: fat man
+  S: A001 OK LOGIN completed
+\end{minted}
+
+When using the LITERAL+ syntax, the whole interaction happens without having to wait for the server:
+
+\begin{minted}{text}
+  S: * OK
+  C: A001 LOGIN {11+}
+  C: FRED FOOBAR {7+}
+  C: fat man
+  S: A001 OK LOGIN completed
+\end{minted}
+
+\begin{trojitabehavior}
+Trojitá includes full support for the LITERAL+ extension --- when it detects the {\tt LITERAL+} capability, it will
+immediately switch to using non-synchronizing literals for increased performance.
+\end{trojitabehavior}
+
+\subsection{Data Compression}
+
+IMAP is a textual, line-based protocol.  As such, it presents extremely good opportunities for compression --- using the
+tried DEFLATE algorithm~\cite{rfc1951}, the basic IMAP chatter can be easily compressed to 25~-~40~\% of its original
+size~\cite[p. 4]{rfc4978}.  RFC~4978~\cite{rfc4978} provides mechanism for exactly this functionality through the {\tt
+COMPRESS=DEFLATE} capability.
+
+\begin{trojitabehavior}
+Trojitá ships with full support for this extension through the permissively licensed {\tt zlib} library.  Unfortunately,
+the Qt's {\tt QSslSocket} currently doesn't provide a way to reliably tell whether the SSL connection is already
+employing compression.  When combined with IMAP servers hidden behind SSL accelerators or load balancers (i.e. in
+situations where the server does not have a clear idea whether the session is already compressed either), this has a
+risk of needlessly trying to compress data twice.  This is a limitation in system libraries which cannot be overcome
+without resorting to patching system components or conducting non-portable hacks.
+\end{trojitabehavior}
+
+\subsection{Improving Security through Cryptography}
+
+RFC~2595~\cite{rfc2595} deals with best practices for establishing SSL/TLS connections to the IMAP server.
+
+\begin{trojitabehavior}
+Trojitá
+follows these recommendations, most notably it tries to establish a secure channel over {\tt STARTTLS} command even
+without an explicit action on the user's side, should the server be configured to advertise itself as not accepting
+logins over insecure connections through the {\tt LOGINDISABLED} capability.  A manual override is available in
+situations where the SSL encryption is not available.
+
+In advent of the recent breaches of many well-known (and widely trusted) Certificate Authorities~\cite{ssl-breaches},
+Trojitá also comes with support for SSL key pinning~\cite{ssl-pinning}.  The trust model presented to the user is
+similar to handling of SSH servers' public keys with OpenSSH --- upon first connection, the user is always presented with
+a choice of whether to accept the certificate or not, along with a confirmation about whether the operating system and
+its policy considers the certificate as ``trusted''.  No matter what the system-wide policy says, a changed public key
+is always considered a threat and the situation is presented to the user accordingly.
+\end{trojitabehavior}
+
+\subsection{The IDLE Mode}
+\label{sec:imap-idle}
+
+I have mentioned that even though the protocol requires clients to be ready to accept any responses at any time, in
+practice, servers are forbidden to send {\tt EXPUNGE}s when no command is in progress.  This requirement is necessary to
+prevent a dangerous resynchronization as the server cannot possibly know whether the client has started to issue an
+UID-less {\tt STORE} command which references messages through their sequence numbers.  Unfortunately, this directly
+translates to clients having to {\em poll} the server quite often if they care about updates concerning the deleted
+messages.
+
+Any protocol which uses polling looks bad on paper --- having to poll leads to increased latency and higher power usage
+because the equipment has to actively check for updates every now and then.  In contrast, {\em push-based} updates allow
+the client to enter a low-power state where it merely waits to be woken up when a change occurs.  Such a mode is exactly
+what the IDLE extension defined by RFC~2177~\cite{rfc2177} adds to IMAP.  It must, however, be said that real-world
+concerns related to firewall timeouts and especially the NAT traversal has limited the usefulness of the IDLE command
+somewhat, even to the extent where Mark Crispin, the original author of the IMAP protocol, claims that ``I see no
+particular benefit to use of IDLE on a desktop machine''~\cite{crispin-idle-useless} --- a view which is not shared by
+the wider community~\cite{tss-idle-keepalive} \cite{android-idle}, yet certainly worth a consideration.
+
+The IDLE extension is basically a hack on top of the IMAP protocol which reverses a mantra of the basic IMAP
+specification~\cite[p. 72]{rfc3501}:
+
+\begin{quote}
+  A command is not ``in progress'' until the complete command has been received; in particular, a command is not ``in
+  progress'' during the negotiation of command continuation.
+\end{quote}
+
+With IDLE, a typical interaction might look like this one:
+
+\begin{minted}{text}
+  C: A004 IDLE
+  S: * 2 EXPUNGE
+  S: * 3 EXISTS
+  S: + idling
+  ...time passes; another client expunges message 3...
+  S: * 3 EXPUNGE
+  S: * 2 EXISTS
+  ...time passes; new mail arrives...
+  S: * 3 EXISTS
+  C: DONE
+  S: A004 OK IDLE terminated
+  C: A005 FETCH 3 ALL
+  S: * 3 FETCH (...)
+  S: A005 OK FETCH completed
+  C: A006 IDLE
+\end{minted}
+
+The whole effect of the {\tt IDLE} command is therefore to indicate to the server that the client is {\em really}
+willing to listen for any updates to the mailbox state.  Because of compatibility concerns with legacy mail stores, the
+IDLE extension still does {\em not} mandate the server to actually send updates about any changes as soon as they are
+conducted --- indeed, a server which internally polls every fifteen minutes to check whether a message has arrived is
+fully compliant with the IDLE extension, albeit rather useless to user who might expect (and, one might add, rightly so)
+to be {\em instantly} notified about changes to the mailbox.
+
+\begin{trojitabehavior}
+Trojitá includes full support for the IDLE extension and will enter that mode automatically shortly after a mailbox is
+selected.  A simple heuristics is implemented which delays re-entering the IDLE command if it is likely that the
+connection will be reused for any other purpose in near future, further eliminating needless data transfers.
+Unfortunately, Trojitá is at the mercy of the IMAP server when it comes to superfluous data transfers, so it cannot
+prevent the ``pings'' sent even when the connection does not contain a gateway with overly short timeouts.
+\end{trojitabehavior}
+
+\section{Improving Mailbox Synchronization}
+
+The previous section dealt with optimizing the overall IMAP protocol as a whole.  At this stage, let's have a look at
+more specific issues which cannot be easily overcome through generic measures like data compression using off-the-shelf
+algorithms or updates to the basic protocol flows.
+
+In the basic IMAP, neither the server nor the client are required to keep any persistent state.  Clearly, it is
+beneficiary for a client to keep downloaded copies of the immutable mailbox/message data (consult
+\secref{sec:imap-immutable-data} in its persistent cache for some time, should the device constraints allow such a
+storage.  There is still quite a lot of other data which has to be validated while the mailbox is being resynchronized.
+Consider the following scenario where a mail user agent opens a mailbox with a thousand of messages which has witnessed
+expunges and new arrivals since the last time it was opened:
+
+\begin{minted}{text}
+  C: y1 SELECT foo
+  S: * 1000 EXISTS
+  S: * OK [UIDVALIDITY 12345] UIDs valid
+  S: * OK [UIDNEXT 2345] Next UID
+  S: y1 OK Selected
+  C: y2 UID SEARCH ALL
+
+    The following response has been shortened for demonstration purposes. In
+    practice, it will have to contain a thousand of numbers.
+
+  S: * SEARCH 2 4 5 6 7 8 9 10 ... 2290 2310 2311 2312 2333
+  S: y2 OK Search completed
+  C: y3 FETCH 1:1000 (FLAGS)
+  S: * 1 FETCH (FLAGS ())
+  S: * 2 FETCH (FLAGS (\\Seen))
+  S: * 3 FETCH (FLAGS (\\Recent \$Answered))
+
+    996 additional FETCH responses were omitted from this example for brevity.
+
+  S: * 1000 FETCH (FLAGS (\\Seen))
+  S: y3 OK fetched
+\end{minted}
+
+Let's identify two steps which substantially contribute to the transferred data:
+
+\begin{itemize}
+  \item synchronizing the UIDs,
+  \item updating flags.
+\end{itemize}
+
+The rest of this section takes a look at optimization opportunities at each of these stages.  Please keep in mind that
+some basic optimization heuristics concerning the UID synchronization were discussed in \secref{sec:imap-mailbox-sync}
+along with reasons on why these steps are necessary in clients willing to maintain an offline cache of immutable data.
+
+\subsection{The ESEARCH Extension}
+
+As seen in the protocol sample, the {\tt SEARCH} response containing UIDs of all messages in a mailbox can be rather
+large.  At the same time, chances are that at least some of the adjacent messages might have been assigned contiguous
+UIDs --- this is certainly not a requirement per se, but quite a few IMAP servers internally {\em do} assign UIDs from a
+per-mailbox counter.  Real-world, albeit anecdotal evidence \cite{cridland-uids-are-often-monotonic} indicates that this
+scenario is very common, and therefore it might make sense to transmit the UIDs of all messages using the {\tt
+sequence-set} \cite[p. 89]{rfc3501} syntax.  The ESEARCH extension, as defined in RFC~4731~\cite{rfc4731}, allows
+exactly that:
+
+\begin{minted}{text}
+  S: * ESEARCH [TAG "y12"] UID 1,3:9,17:25,30:1000
+\end{minted}
+
+At the time of the ESEARCH adoption, the imap-protocol mailing list witnessed a disagreement on how exactly the {\tt
+sequence-set} shall be interpreted.  Mark Crispin, the author of the original IMAP protocol (but not of the ESEARCH
+extension) implemented ESEARCH in a different manner.  He chose to take an advantage of the RFC3501-style definition of
+UID sequences where the RFC mandates that servers shall treat non-existent UIDs given in sequence sets as if they
+weren't referenced from the command at all.  For example, if the mailbox contained just UIDs 3, 5 and 10, a client using
+the {\tt 3:10} construct has to be interpreted as if it requested {\tt sequence-set 3,5,10}.  Doing so present certain
+optimization opportunities to the servers, for example when the client already knows the UID mapping and performs a
+server-side search for messages matching certain criteria {\em and} the result set accurately matches an adjacent range
+of messages, the server could take advantage of this adjacency a return a {\tt sequence-set} in the form of {\tt
+10:150}, even though the mailbox contains only a few UIDs from this range~\cite{crispin-esearch-flawed}.  Furthermore,
+his another point is that the clients already have two other ways of obtaining the UID mapping, either through the {\tt
+UID SEARCH ALL} command or via an explicit {\tt UID FETCH 1:*}.  Needless to say, such a reasoning fails to take into
+account potential bandwidth savings which can be rather substantial on ``reasonable'' mailboxes.  In the end, the
+authors of the RFC 4731 disagreed with Crispin \cite{melnikov-esearch-interpretation}
+\cite{cridland-esearch-interpretation}.
+
+\begin{trojitabehavior}
+The ESEARCH extension allows nice bandwidth savings, so Trojitá tries to use it if the server says that it is supported.
+\end{trojitabehavior}
+
+In addition to that, format of the returned responses is changed so that it also includes the tag of the command which
+caused it, allowing much more aggressive pipelining --- for example, clients are free to perform the UID discovery at the
+same time as running a user-initiated search.  On the other hand, even in presence of ESEARCH, the UID mapping still has
+to be synchronized explicitly.  This requirement is only lifted in the QRESYNC extension
+(\secref{sec:extension-qresync}).  Before describing that, though, it is necessary to have a look at the CONDSTORE.
+
+\subsection{Avoiding Flags Resynchronization via CONDSTORE}
+
+Leaving the UID synchronization alone for a while, let's have a look at various ways of eliminating the need to ask for
+changed message flags.  In this case, no extension trying to reduce the data overhead of the {\tt FETCH} response was
+proposed, but the problem got attacked from another side.
+
+The whole point of flags synchronization is to be able to pick up changes which have happened since the last time the
+mailbox was selected.  If only the server was somehow able to assign a ``serial number'' to each change, clients could
+subsequently ask for all changes which have happened after a certain point.  The CONDSTORE extension from RFC 4551
+\cite{rfc4551} works in this way.
+
+CONDSTORE-capable servers share a concept of ``modification sequence'', a {\tt MODSEQ}.  Each message in a mailbox is
+assigned an unsigned 64bit integer.  Whenever message metadata (like its flags) change, the {\tt MODSEQ} of that
+particular message gets increased.  Each increment is also required to reach a value which is higher than {\tt MODSEQ}
+of any other message in that mailbox.  Similarly, a mailbox is assigned a {\tt HIGHESTMODSEQ}, an unsigned 64bit integer
+which is interpreted as ``no message has ever had a {\tt MODSEQ} higher than this number'' --- of course subject to the
+usual {\tt UIDVALIDITY} rules.~\footnote{As always, any change in {\tt UIDVALIDITY} directly translates to a full cache
+flush and discarding any data previously remembered for the affected mailbox.  This includes not only the immutable data
+of messages, but also the UIDs, message flags and --- in this extension --- the {\tt MODSEQ} and {\tt HIGHESTMODSEQ}
+values.}
+
+When a CONDSTORE-capable client opens a mailbox which was previously synced (and if the server supports CONDSTORE as
+well, of course --- keep in mind that the IMAP extensions are strictly voluntary in their nature), at first it synces the
+UID mapping as usual, possibly through the ESEARCH command discussed earlier.  After that, the client can use an
+extended variant of the {\tt FETCH} command to ask for flags of those messages whose {\em current} {\tt MODSEQ} is
+higher than the {\tt HIGHESTMODSEQ} which the client has remembered previously.  The server will respond with regular
+{\tt FETCH} responses for each affected message.  In result, after this interaction is completed, the client is aware of
+all pending flag changes and is fully resynchronized again.
+
+This is how a typical synchronization might look like:
+
+\begin{minted}{text}
+  C: y1 SELECT foo (CONDSTORE)
+  S: * 1000 EXISTS
+  S: * OK [UIDVALIDITY 12345] UIDs valid
+  S: * OK [UIDNEXT 2345] Next UID
+  S: * OK [HIGHESTMODSEQ 715194045007]
+  S: y1 OK Selected
+
+    At this point, the client will obtain the UID mapping, likely through the
+    UID SEARCH or its ESEARCH variant:
+
+  C: y2 UID SEARCH RETURN () ALL
+  S: * ESEARCH (TAG "y2") UID ALL 2,4:10,21:1008,2290,2310:2312,2333
+  S: y2 OK Search completed
+
+    At this point the CONDSTORE extension can be finally utilized -- only changed
+    flags will be transmitted:
+
+  C: y3 UID FETCH 1:1000 (FLAGS) (CHANGEDSINCE 613184045007)
+  S: * 997 FETCH (UID 2310 MODSEQ 715194045007 FLAGS (\\Seen \\Deleted))
+  S: * 1000 FETCH (UID 2333 MODSEQ 715194045005 FLAGS (\\Seen))
+  S: y3 OK Fetched
+\end{minted}
+
+The algorithm is race-free --- as every message has a separate {\tt MODSEQ} counter, the delay between the {\tt SELECT}
+and {\tt FETCH} command doesn't lead to data loss; by the time the {\tt FETCH} completes, the server guarantees that the
+client has received any pending updates since the last synchronization.
+
+The CONDSTORE is an extremely valuable extension; its savings on big mailboxes are predictable and automatic --- instead
+of having to transmit $O(n)$ responses where $n$ is the number of {\em messages}, only $O(m)$ are required under QRESYNC
+with $m$ being the number of {\em modifications}.  This is an extension which, unfortunately, places a certain burden on
+the IMAP server which has to track the serial numbers of messages' metadata; however, given the obvious reductions in
+bandwidth, many servers have already implemented it, most notably the Dovecot and Cyrus open source IMAP servers.
+
+\begin{trojitabehavior}
+Trojitá includes full support for this extension, making use of it whenever it is available.
+\end{trojitabehavior}
+
+\subsection{Optimizing UID Synchronization with QRESYNC}
+\label{sec:extension-qresync}
+
+The CONDSTORE extension discussed earlier has brought in the concept of a server-side state tracking and used that to
+allow bandwidth-efficient way of synchronizing flag changes.  Given that a CONDSTORE-capable server already tracks
+certain state, it might be worthwhile to somehow extend this state to cover the deleted messages as well.  As it turns
+out, such a mechanism is implemented in the QRESYNC extension which is defined by RFC 5162 \cite{rfc5162}.
+
+The basic idea behind QRESYNC is that as long as the UID mapping was fresh at some point in past, it is only necessary
+to inform the client about which UIDs from that set are no longer there and push out the UIDs of newly arrived messages.
+
+The QRESYNC extension modifies the {\tt SELECT command} so that it includes a few more parameters.  First of all, the
+updated version of this command includes a tuple of {\tt (UIDNEXT, HIGHESTMODSEQ)} as known to the client.  If the {\tt
+UIDNEXT} did not change, the server will have a look at the {\tt HIGHESTMODSEQ} value and in addition to essentially
+behaving as a CONDSTORE server, it also sends out a list of expunged messages.~\footnote{Technically, the expunges are
+sent out before the information about the updated flags, but that isn't the point here.}  A new response is defined for
+this purpose, the {\tt VANISHED EARLIER}.
+
+In format similar to the {\tt ESEARCH} response, the {\tt VANISHED EARLIER} contains a {\tt sequence-set} of UIDs which
+the server believes that the client considers to be present in the mailbox.  Not only are these UIDs transmitted in a
+compact syntax, thanks to the {\tt sequence-set} format, but the response typically contains only such UIDs which were
+{\em just} removed.  The actual wording (and therefore the implications of this extension) are slightly different --- the
+server is free to inform the clients about any UIDs, as long as they aren't in the mailbox right now, at the time of the
+sync.  This is motivated by the need to relieve the servers from having to maintain a list of expunged UIDs
+indefinitely, just in case a QRESYNC-enabled client reconnects after two years of inactivity.  When such a situation
+happens, a server which cannot remember expunges going so far in history has no other option but to send a {\tt
+VANISHED EARLIER} for {\em all} UIDs lower than the {\tt UIDNEXT}, no matter if they {\em ever} were present in the
+mailbox.  This fallback suggests that the QRESYNC extension could very well have a negative net effect overall, at least
+in certain pathological situations --- essentially when the list of expunges grows so long that the server decides to
+prune some of its records.
+
+In order to mitigate this issue, a few other options were added to QRESYNC.  The first of them is a way of indicating to
+the server the range of UIDs about which the client actually cares.  The idea here is that if the client only cached a
+subset of messages (for example those with UID higher than 50000), there isn't much point in informing the client about
+each and every UID which might had been in the mailbox before (like those 49,999 of UIDs lower than 50,000).
+
+However, chances are that this optimization is not enough to overcome the danger of having to sync too many UIDs --- and
+indeed, some user agents might want to preemptively load messages both from the beginning {\em and} from the end of the
+mailbox in an effort to optimize preloading.  Such user agents would not be able to benefit from the ``range of known
+UIDs'' optimization.
+
+Fortunately, the {\tt SELECT QRESYNC} command includes provisions for passing another type of data around --- it is also
+possible to provide a representative list of $(sequence, UID)$ pairs.  Using technique similar to the proposed binary
+search when discovering UIDs, the client can decide to send along a UID from roughly middle of the mailbox as the first
+one, followed by another one located at circa 75~\% of the mapping, next one from $7 \over 8$ etc., halving the interval
+in each step.  The concrete strategy to be pursuit is left to the client, as it is basically a policy decision.  Using
+more fine-grained interval means that more data is sent along during each resynchronization without a direct merit (i.e.
+when the server {\em still} remembers the previous {\tt HIGHESTMODSEQ} and can provide the client with relevant data),
+while on the other hand sending less UIDs leads to minor data savings during ordinary reconnects while causing
+potentially huge amounts of data to be transfered when the server is unable to use the --- perhaps very old or otherwise
+stale --- {\tt HIGHESTMODSEQ}.
+
+\begin{trojitabehavior}
+The presented version of Trojitá always uses halving of sequences, effectively transmitting $log_2(n)$ sequence-UID
+pairs:
+\end{trojitabehavior}
+
+\begin{minted}{c++}
+    Sequence knownSeq, knownUid;
+    int i = oldUidMap.size() / 2;
+    while (i < oldUidMap.size()) {
+        // Message sequence number is one-based, our indexes are zero-based
+        knownSeq.add(i + 1);
+        knownUid.add(oldUidMap[i]);
+        i += (oldUidMap.size() - i) / 2 + 1;
+    }
+\end{minted}
+
+Our example synchronization (a thousand messages in a mailbox, unspecified changed since the last time) could therefore
+look like this --- the client has fresh enough UID mapping up to UID 1008 (sequence number 995).  The server does not
+remember deletions so far to the past, but the passed UID mapping fragment could nevertheless be used to optimize the
+delivered data:
+
+\begin{minted}{text}
+  C: SELECT foo (QRESYNC 12345 613184045007 (500,750,875,937,968,983,990,995,997
+  512,772,887,949,980,985,995,1002,1008,1111))
+  S: * 1000 EXISTS
+  S: * OK [UIDVALIDITY 12345] UIDs valid
+  S: * OK [UIDNEXT 2345] Next UID
+  S: * OK [HIGHESTMODSEQ 715194045007]
+  S: * VANISHED (EARLIER) 1009:2289,2291:2309,2313:2332,2343,2344
+  S: * 997 FETCH (UID 2310 MODSEQ 715194045007 FLAGS (\\Seen \\Deleted))
+  S: * 1000 FETCH (UID 2333 MODSEQ 715194045005 FLAGS (\\Seen))
+  S: y1 OK Selected
+\end{minted}
+
+The received data contain enough information to reconstruct complete UID mapping even under these unfavorable
+conditions.  The redundant UID information in the {\tt FETCH} responses can be also used to make sure that both sides of
+the connection arrive to the same final state. 
+
+\begin{trojitabehavior}
+Trojitá will throw an error when it detects failure at any time.
+\end{trojitabehavior}
+
+To further reduce the amount of data transmitted during the IMAP session, the QRESYNC extension also introduces a second
+kind of the {\tt VANISHED} response --- the one without the {\tt EARLIER} modifier.  Serving as a substitute for the
+ordinary {\tt EXPUNGE}, the {\tt VANISHED}'s biggest advantage is that it can inform about multiple expunges in a single
+response.  Somewhat ironically, this modification also relieves the clients of their need to maintain a complete
+UID-sequence mapping at all times --- but only after providing a method of making this synchronization severely less
+painful in the first place.  The whole matter is a bit more complicated by the wording of the RFC which is pretty clear
+on that the {\tt VANISHED} responses {\em should} be sent instead of {\tt EXPUNGE} --- a language which, in RFC terms,
+means that the servers are supposed to do so, yet the clients are forbidden from relying on such behavior because under
+special circumstances, the servers might very well have a good reason to defer back to the {\tt EXPUNGE}~\cite{rfc2119}.
+
+Unfortunately, the combination of offset-based {\tt EXISTS} (which is a response used to inform the client about growth
+of the number of messages in a mailbox) with UID-based {\tt VANISHED} can lead to races, a dangerous condition which I
+have identified~\cite{kundrat-vanished-race}.  The problem lies in QRESYNC's allowance for non-existent UIDs to be
+included in the {\tt VANISHED} response.  Consider the following scenario where the client is fully synced with a
+mailbox with just a single message bearing UID 5.  The mailbox' {\tt UIDNEXT} is 11:
+
+\begin{minted}{text}
+  S: * 3 EXISTS
+  C: x UID FETCH 11:* (FLAGS)
+  S: * VANISHED 12:20
+\end{minted}
+
+The server is telling the client that any UIDs between 12 and 20 are gone.  The problem is that the client cannot
+possibly know whether any message has got any of these particular UIDs, i.e. whether the messages \#2 and \#3 (the first
+and second arrival) fall into that range.  Trojitá will immediately send out a request for UIDs of the new arrivals
+(that is the {\tt UID FETCH} command in the previous example), but due to the timing issues, it is perfectly possible
+that these messages are ``long'' gone (and the appropriate {\tt VANISHED} sent) by the time the server receives the {\tt
+UID FETCH} command.  There isn't much that a compliant IMAP client can do at this point besides issuing an explicit
+command for finding out whether any new messages have actually remained in the mailbox.  This is a minor deficiency in
+the QRESYNC extension which could be easily avoided by replacing the {\tt EXISTS} in manner similar to how {\tt EXPUNGE}
+got replaced by {\tt VANISHED}.  The previous example would look like this one, eliminating any possibility of races:
+
+\begin{minted}{text}
+  S: * ARRIVED 12,33
+  C: x UID FETCH 11:* (FLAGS)
+  S: * VANISHED 12:20
+\end{minted}
+
+The {\tt ARRIVED} command is defined in a proposed draft in \secref{sec:draft-arrived}.  A similar functionality could
+be achieved through the NOTIFY extension defined by RFC 5465 \cite{rfc5465}, but supporting NOTIFY is a rather strong
+undertaking for an IMAP server and --- as of July 2012 --- support for that extension is still rather
+scarce.~\footnote{None of the widely deployed open source IMAP servers supported {\tt NOTIFY} at the time this thesis
+was written.  The Dovecot IMAP server had an experimental branch with partial support which would be enough to serve as
+a replacement for {\tt ARRIVED}, but it could not be discovered through the IMAP capabilities because {\tt NOTIFY} is an
+all-or-nothing extension; it mandates full server support and doesn't include provisions for partial functionality which
+would have been enough in this case.}
+
+The QRESYNC extension also mandates an interesting mechanism for its activation.  The {\tt SELECT \ldots QRESYNC}
+command does not work when the IMAP client opens a mailbox for the first time --- the client has no cached state, so it
+cannot construct any of the optional arguments to the {\tt QRESYNC} select modifier.  Furthermore, it cannot fabricate a
+proper {\tt HIGHESTMODSEQ} in a safe way -- using value too low would result in needlessly sending a huge number of {\tt
+VANISHED EARLIER} responses, while using a too high value could confuse the server and treat the client as a buggy one.
+This is why a special {\tt ENABLE QRESYNC} command (from the ENABLE extension, RFC~5161 \cite{rfc5161}) is defined to be
+a {\em QRESYNC-enabling command}, activating any necessary {\tt MODSEQ} tracking on the server side.  This requirement
+might be non-obvious at first, for the {\tt SELECT \ldots QRESYNC} on its own should be sufficient to inform the server
+that the client indeed wants to speak QRESYNC.
+
+Unfortunately, there is also a certain murkiness about the {\tt ENABLE} command --- the errata \#1365 for RFC 5162
+\cite{rfc5162-errata} proposes to add an explicit note that ``(A server MUST respond with a tagged BAD
+response if) (\ldots) or the server has not positively responded to that command with "ENABLED QRESYNC", in the current
+connection'', even though the RFC 5161 explicitly allows for aggressive pipelining of {\tt ENABLE} and {\tt
+SELECT}.~\footnote{``There are no limitations on pipelining ENABLE.  For example, it is possible to send ENABLE and then
+immediately SELECT, or a LOGIN immediately followed by ENABLE. \cite[p. 2]{rfc5161}}  I have raised this issue on the
+{\tt imap-protocol} mailing list and the consensus there was that it is indeed allowed not to wait for the server's {\tt
+ENABLED} before issuing a {\tt SELECT \ldots QRESYNC} \cite{melnikov-qresync-enable}.  I fully support such an outcome
+as it would be rather awkward to see a requirement for extra network round trips in contemporary IMAP extensions.
+
+\section{Fetching the Data}
+
+The IMAP protocol contains rather rich set of features aimed at downloading the message data in an efficient manner;
+clients can defer parsing of the MIME message parts~\cite{rfc2045} to the server and deal with the individual data
+separately.  In spite of that, there are a few optimization opportunities which can drastically reduce the amount of
+data to be transfered.
+
+\subsection{The BINARY Extension}
+
+Historically, e-mail messages could only contain English text, for which a 7-bit character set and the US-ASCII encoding
+was adequate.  However, with the advent of ``multimedia'', a steady pressure had emerged, leading to the MIME standard
+family.  Using MIME, complex tree-like structures can be embedded in e-mail messages and transmitted over the Internet
+mail.  However, at the time these were introduced, there was a real risk of not being able to transmit such complex
+messages over traditional communication channels which were often only 7-bit safe.  Due to these backward compatibility
+concerns, a few standard method of converting arbitrary data to a textual form were conceived under the name of {\em
+Content-Transfer-Encoding}.
+
+The two most common encoding schemes are Quoted-Printable~\cite[p. 18]{rfc2045} and Base64~\cite[p. 23]{rfc2045}, the
+latter of which is especially suitable for converting arbitrary binary data to a 7-bit form.  However, it is clear that
+mapping generic 8-bit data into 7-bit octets (and eliminating the appearance of certain ``magic'' characters in the
+process) cannot possibly work without inflating the total size of the transferred data.  For the Base64
+Content-Transfer-Encoding, the mapping converts 8-bit input (i.e. 256 values per octets) into a target alphabet of only
+64 characters, imposing an overhead of roughly 33~\% compared to the raw binary form.  Whenever the MIME-encoded message
+is transmitted, the amount of transferred data is therefore roughly one-third higher than strictly required.
+
+RFC 3516 \cite{rfc3516} adds a feature to work around this limitation through the {\tt BINARY} extension.  When the
+server supports this feature, clients can delegate the Content-Transfer-Encoding processing to the server and receive
+the raw binary data.  Perhaps surprisingly, the {\tt BINARY} extension was not supported in Dovecot, one of the most
+popular IMAP servers, at the time this thesis was written.
+
+\begin{trojitabehavior}
+Nevertheless, Trojitá includes full support for this extension and will automatically fetch data using the appropriate
+FETCH modifier in order to reduce the amount of data to send over the network.
+\end{trojitabehavior}
+
+\subsection{Server-side Conversions via CONVERT}
+
+Certain devices might have limitations which the sender might not have expected when she was preparing the message.  For
+example, a screen of a cell phone could have a very low resolution.  Unless the user really wants to see the full
+details after zooming in eight times, it might make sense to reduce the resolution of that 22-megapixel $5760 \times
+3840$ image produced by Canon 5D~Mk.~III to fit on a $480 \times 800$ pixels screen of a high-end smart phone from 2012.
+Even if the user actually wants to see the real image, it might be worthwhile to offer an access to a lower-resolution
+version for a quick preview.  This server-side conversion is what the {\tt CONVERT} extension from RFC 5259
+\cite{rfc5259} enables.
+
+Unfortunately, it appears that there are actually {\em no} publicly available servers which offer support for
+server-side conversions and the most popular open source implementations have not expressed much interest when asked for
+their future plans.
+
+\begin{trojitabehavior}
+Due to this induced inability to test this feature for interoperability, Trojitá doesn't support the {\tt CONVERT}
+extension at this point.
+\end{trojitabehavior}
+
+\subsection{Metadata Decoding}
+
+IMAP requires compliant servers to support MIME message parsing and RFC 2822 header decoding.  One feature which is
+notably absent, though, is a support for server-side decoding of RFC 2047-formatted message headers and IMAP's {\tt
+ENVELOPE} fields.  This shortcoming is partially addressed by two RFCs --- the already mentioned {\tt CONVERT} extension
+mandates support for character set decoding and conversions of RFC 2822 message headers while an experimental RFC 5738
+\cite{rfc5738} adds an ``UTF-8'' mode which switches all {\tt FETCH} commands to return the decoded Unicode data,
+including the IMAP's {\tt ENVELOPE}.  Sadly, support for this extension is similar to what has been already said for the
+{\tt CONVERT} and one can also safely claim that the possible data savings are minuscule, if any.  In addition, the
+UTF-8 extension changes quite a lot of assumptions from the traditional IMAP protocol, to the extent that one could very
+well propose yet another extension which would {\em just} enable access to the decoded {\tt ENVELOPE} and RFC 2822
+header data.  No such extension exists at this point, though.
+
+\begin{trojitabehavior}
+If the IMAP protocol was designed today, mandating a full-featured RFC 2047 decoder would be an obvious addition, but
+with the legacy of the protocol history, a requirement to implement a client-side decoder anyway and no available server
+support and the RFC being marked as {\em experimental}, Trojitá does not try to use the {\tt SELECT \ldots UTF8}
+parameter.
+\end{trojitabehavior}
+
+\section{Updating Mailboxes}
+
+Previous sections have introduced the existing extensions aimed at improving mailbox synchronization and data download.
+In this part, I will talk about how to optimize access to an already selected mailbox and how to get updated information
+about other mailboxes.
+
+\subsection{Sorting Messages}
+
+In a typical IMAP scenario, the server can access data for any message in a mailbox in a very cheap way.  This is in a
+strong contrast to its clients which are typically connected over a network whose quality could leave much to be
+desired.  It might therefore make sense to offload the data-intensive processing to the IMAP server and only send the
+results to the client.
+
+RFC 5256 \cite{rfc5256} adds support for server-side sorting.  Using these features allows clients to request the server
+to sort a subset of messages using predefined sorting criteria like the message date, the time of its arrival, name of
+the sender, contents of the subject field etc.  This feature set is subsequently augmented by RFC 5957 \cite{rfc5957}
+which adds another sorting method which prefers the ``real name'' included in the e-mail addresses instead of using the
+raw {\tt foo@example.org} format.  The results of the {\tt SORT} operation are transmitted in a format similar to the
+{\tt SEARCH} response.
+
+\begin{trojitabehavior}
+Trojitá includes full support for both of the mentioned RFCs.
+\end{trojitabehavior}
+
+This feature alone is a tremendous improvements over the traditional method where clients would have to download
+envelope data for all messages in a mailbox and then sort the messages based on the obtained data.  However, clients
+have no way of reusing the sort result when a new message arrives, mandating at least a limited support for client-side
+sorting as well.  This limitation is mitigated only by the {\tt CONTEXT} family of extensions which is discussed later
+in this chapter.
+
+\subsection{Threads and Conversations}
+
+RFC 5256 \cite{rfc5256} also includes support for organizing messages into threads.  The threading algorithm takes a
+look at various pieces of message metadata like their subjects or the {\tt Message-Id}, {\tt References} and {\tt
+In-Reply-To} headers and builds a tree of messages where children of a particular node represent messages which were
+made as responses to the parent one.  This RFC specifies a few threading algorithms from almost useless one (the {\tt
+ORDEREDSUBJECT} which groups together messages sharing a similar subject, effectively bundling unrelated items like
+generic ``info'', ``inquiry'' etc. messages) to almost perfect ones (the {\tt REFERENCES} which works like the {\tt
+ORDEREDSUBJECT}, but also takes the special machine-readable headers into account).  Sadly, even the {\tt REFERENCES}
+algorithm only sorts the threads by the time stamp of the thread root and not by the latest message in a thread,
+effectively ``hiding'' new responses deep in the mailbox history.  It also still looks at the message subjects,
+potentially lumping unrelated messages together.
+
+Both of these limitations are removed by the {\tt REFS} threading algorithm \cite{draft-ietf-morg-inthread}.  Despite
+being still in the draft phase, the Dovecot IMAP server includes full support for it.
+
+\begin{trojitabehavior}
+Trojitá will use it if the {\tt THREAD=REFS} capability is advertised.  In absence of the {\tt REFS} algorithm, Trojitá
+degrades to {\tt REFERENCES} and {\tt ORDEREDSUBJECT}, respectively.
+\end{trojitabehavior}
+
+Unfortunately, none of these extensions addresses the need to re-download the whole thread mapping when a new message
+arrives; matters are in fact even more complicated than when sorting because a single arriving message could have a wide
+ranging effect on the whole threading information.  This issue is addressed by the proposed ``extended {\tt INTHREAD}''
+described in \secref{sec:draft-incthread}.
+
+\subsection{Incremental Sorting and Searching}
+
+Soon after the original {\tt SORT} command got standardized, it became apparent that having to request a full update of
+the sort order whenever a new message arrived would nullify some of the bandwidth saving opportunitites of performing
+the server-side sort.  A similar concern existed for server-side searching --- here, too, the client would have to
+explicitly check if the new arrivals match the search criteria.  This limitation was addressed by introduction of the
+so-called {\em contexts} in RFC 5267 \cite{rfc5267}.
+
+This RFC defines three extensions, the {\tt ESORT}, {\tt CONTEXT=SEARCH} and {\tt CONTEXT=SORT}.  The first one is
+similar to the {\tt ESEARCH} (and in fact reuses the {\tt ESEARCH} response) in that it could reduce the amount of data
+transmitted in response to the {\tt SORT} command.  The two {\tt CONTEXT=\ldots} capabilities extend the {\tt SEARCH}
+and {\tt SORT} commands by a way to tell the server that it should tell the client whenever the results are updated.  An
+efficient way of communicating the changes through the {\tt ADDTO} and {\tt REMOVEFROM} {\tt ESEARCH} return values was
+introduced.
+
+In absence of the search/sort contexts, a newly arriving message would typically result in client repeating the
+operation.~\footnote{When speaking about searching, there is a pretty straightforward optimization opportunity where the
+{\tt SEARCH} command can be augmented to include an explicit ``and the messages' UID is higher than the
+$old\_uidnext$''.  Unfortunately, no such optimization can be performed for the {\tt SORT} command where the sort order
+can possibly depend on each and every other message in a mailbox.}  This is turn leads to excess data transfers like in
+the following example where a single arrival results in transferring the whole mapping again:
+
+\begin{minted}{text}
+  C: x1 UID SORT (SUBJECT) utf-8 ALL
+  S: * SORT 1 2 10 5 50 20 ... [rest of UIDs goes here]
+  S: x1 OK sorted
+  ...time passes...
+  S: * 1007 EXISTS
+  C: x2 UID SORT (SUBJECT) utf-8 ALL
+  S: * SORT 1 2 1111 10 5 50 20 ... [rest of UIDs goes here]
+  S: x2 OK sorted
+\end{minted}
+
+For brevity purposes, the sort order of the other 1,000 messages has been omitted.  In presence of the {\tt
+CONTEXT=SORT} extension, though, the same protocol interaction would look like this one:
+
+\begin{minted}{text}
+  C: x1 UID SORT RETURN (ALL UPDATE) (SUBJECT) utf-8 ALL
+  S: * ESEARCH (TAG "x1") UID ALL 1:2,10,5,50,20,90:1090
+  S: x1 OK sorted
+  ...time passes...
+  S: * 1007 EXISTS
+  S: * ESEARCH (TAG "x1") UID ADDTO (2 1111)
+\end{minted}
+
+Using the sort contexts therefore leads to dramatic bandwidth savings on ``busy'' mailboxes which keep receiving new
+mail over time; the {\tt ESEARCH} response can also occasionally contribute to a reduced amount of transferred data when
+the UIDs were assigned in a favorable way.  The biggest contribution is, however, the introduction of the {\tt ADDTO}
+{\tt ESEARCH} return response which obliterates the need to transfer sort order of the whole mailbox along with the
+single updated item.
+
+The search and sort contexts also impose certain, albeit abysmal overhead, though --- whenever a message is removed, an
+explicit {\tt ESEARCH REMOVEFROM} has to be issued.  This functionality is mandated by the relevant RFC, even though it
+doesn't provide any extra functionality --- all clients {\em still} have to listen for {\tt EXPUNGE} or {\tt VANISHED}
+untagged responses (and rightly so, obviously), so there is no technical obstacle in requiring them to remove the
+freshly removed items from their search/sort result cache.  Etiquette also dictates that clients shall cancel these
+updates when they are no longer needed through the {\tt CANCELUPDATE} command.  These drawback are however extremely
+small when working with larger mailboxes and absolutely worth the increased benefit of not transferring the whole set of
+UIDs over and over again.
+
+\begin{trojitabehavior}
+Trojitá includes full support for both {\tt CONTEXT=SEARCH} and {\tt CONTEXT=SORT}.  The {\tt CONTEXT=SEARCH} has been
+tested for interoperability against the Dovecot IMAP server, one of the few implementations which actually offer this
+functionality.  Unfortunately, I was not able to locate a single IMAP server supporting {\tt CONTEXT=SORT}, so no
+real-world interoperability tests could have been performed.~\footnote{As any other feature of Trojitá, though, the
+support for {\tt CONTEXT=SORT} is covered by the automated test suite which was carefully written to minimize the chance
+of any unwanted side effects and guard against unintended results when the servers deviate from the expected behavior.}
+This is a rather surprising outcome given that the RFC 5267 is not exactly a fresh standard now and that its authors
+work from a commercial software vendor offering a pretty advanced IMAP server implementation.
+\end{trojitabehavior}
+
+Sadly, no equivalent of these incremental updates is defined for the {\tt THREAD} command.  I suspect that this is
+caused by the fact that a single new arrival can affect each and every message in the previously received thread
+mapping.  I have attempted to address this limitation by augmenting the {\tt SEARCH=INTHREAD} draft, see
+\secref{sec:draft-incthread} for details about the selected approach.
+
+\subsection{Advanced Searching}
+
+Although the basic IMAP specification provides quite a rich set of features aimed at searching the currently selected
+mailbox, the specification leaves quite a fertile ground for improvements.
+
+The biggest problem with IMAP's searching is that it requires a strict substring matching, a requirement which is openly
+ignored by at least Google's IMAP implementation \cite{gmail-imap-unsupported-features}.  Google's partial answer to
+this problem is at least an ability to issue ``raw'' GMail-like searches through the {\tt X-GM-RAW} SEARCH operator
+\cite{gmail-x-gm-raw}.  Others have tried to add a similar feature through the {\tt SEARCH=FUZZY} extension as defined
+in RFC 6203 \cite{rfc6203}.
+
+\begin{trojitabehavior}
+Trojitá makes use of the fuzzy searching if available and announced in the capability response.  There were also some
+experimental extensions \cite{draft-ietf-imapext-regex} aimed at introducing search based on regular expressions, but
+they have not gained much traction.
+\end{trojitabehavior}
+
+A long-missing feature from IMAP is an ability to search multiple mailboxes at once.  A very crude hack is the
+(unofficial) {\tt SCAN} extension \cite{crispin-scan} which is said to be private to the University of Washington's {\tt
+uw-imapd} daemon.  More recent attempt at tackling down this problem is the {\tt MULTISEARCH} extension \cite{rfc6237}
+built on top of the {\tt NOTIFY} \cite{rfc5465}.  As of July 2012, no publicly available IMAP servers have announced
+support for this extension.
+
+\subsection{Obtaining Statistics for Other Mailboxes}
+
+Many IMAP clients start their session by requesting a {\tt LIST} of all top-level mailboxes.  This command is then
+followed by a {\tt STATUS} for each of them in order to obtain information like the number of messages in each mailbox.
+The obtained information is typically used in a GUI of some kind to show the mailbox list to the user.
+
+The basic IMAP specification unfortunately doesn't convey the critical piece of information about whether a mailbox
+contains any child mailboxes --- a data point typically required by any GUI to be able to show a proper widget for
+opening a list of these child items.  In absence of the {\tt CHILDREN} extensions, as defined by RFC 3348
+\cite{rfc3348}, clients have no choice but to issue an explicit {\tt LIST} command for all mailboxes,~\footnote{The only
+exception being those marked with the {\tt {\textbackslash}NoInferiors} which is meant to indicate that this mailbox
+could {\em never} contain any child mailboxes, perhaps due to technical limitations on the server side --- a very
+different case from not containing any child mailboxes at {\em this} time.} trying to list their children.
+
+The {\tt CHILDREN} is a pretty straightforward extension which shall arguably be supported by any IMAP server worth its
+salt; its absence does not improve the situation in any way.
+
+\begin{trojitabehavior}
+Trojitá supports it fully and will gracefully fall back to extra {\tt LIST} requests in case it is not available.
+\end{trojitabehavior}
+
+The initial discovery of mailboxes also mandates a separate {\tt STATUS} command for each mailbox --- behavior which
+arguably goes against the spirit behind that command which was intended to {\em not} serve as a generic ``tell me about
+updates to other mailboxes'' feature.  This initial idea no longer has its merit, unfortunately --- users simply {\em
+expect} being able to see a number of unread messages right next to the mailbox name, and client authors have to deliver
+this information to them.  Having to send an extra {\tt STATUS} command for each mailbox during the initial discovery is
+not too evil thing per se (the total wasted bandwidth is negligible when compared to mailbox synchronization), but worth
+optimizing anyway.  RFC 5819 \cite{rfc5819} adds an option to the {\tt LIST} command to request automatic sending of the
+untagged {\tt STATUS} command along.
+
+\begin{trojitabehavior}
+When the IMAP server announces the {\tt LIST-STATUS} capability, Trojitá will automatically make use of this extension.
+\end{trojitabehavior}
+
+\subsection{Push-notification of Other Mailboxes' State}
+
+A feature most notably absent from the {\tt IDLE} is any support of passively monitoring changes of non-selected
+mailboxes.  Over the time, many extensions have appeared in the state of various drafts
+\cite{draft-wener-lemonade-clearidle} \cite{draft-gulbrandsen-imap-nostore} \cite{draft-magicaltux-imap4-idleplus},
+often simply requesting unsolicited delivery of {\tt STATUS} and {\tt FETCH} responses.  None of these extensions gained
+widespread support nor reached the state of a proposed standard, though.
+
+Said status was reached by the {\tt NOTIFY} extension codified in RFC 5465 \cite{rfc5465}.  It adds an impressive amount
+of features; compliant agents can listen for creation and deletion of mailboxes (eliminating the need to redo a
+top-to-bottom {\tt LIST} discovery), changes in amount of messages in specified list of mailboxes and even for their
+flag changes.  Sadly, support for this extension is scarce among the existing IMAP servers and its author reportedly has
+mixed feelings \cite{arnt-good-bad-rfc} about its fate where basically ``noone implements it''.  In early 2012, a
+posting on the Dovecot mailing list announced \cite{dovecot-imap-notify} preliminary support for a part of this
+extension in Dovecot, one of the most widely deployed open source IMAP daemons.  Unfortunately, this code was not
+complete as of July 2012 \cite{dovecot-hg-notify} and the branch I have tried contained regressions which prevented
+regular use of other features of the IMAP server altogether.~\footnote{This is not to say that the Dovecot is a bad IMAP
+daemon --- not at all.  The version which was used is a development snapshot which is clearly marked as an experimental
+version which requires future work.}
+
+\begin{trojitabehavior}
+Due to not being able to verify the {\tt NOTIFY} operation against any available IMAP server implementation, Trojitá
+will not try to leverage this extension for the time being.
+\end{trojitabehavior}
+
+\section{Composing and Delivering Mail}
+
+The baseline versions of the IMAP protocol does not offer any substantial assistance in composing and delivery of new
+messages --- the only feature even remotely related to this topic is the {\tt APPEND} command which saves a message
+passed by the client into a mailbox.  Over the time, several extensions appeared aiming at improving this area.
+
+The first extension is the {\tt MULTIAPPEND} command (RFC 3502 \cite{rfc3502}) which allows the client to atomically
+upload many messages at once.  Having such a feature could be a terrific boon in clients which support batched import of
+data from the existing mail store, but it is not so valuable in a generic client.
+
+\begin{trojitabehavior}
+If Trojitá grows and a support for batched import becomes a wanted feature, the {\tt MULTIAPPEND} command will
+doubtlessly contribute to a smoother experience.
+\end{trojitabehavior}
+
+Much more useful is the {\tt CATENATE} extension \cite{rfc4469} which allows clients to build a message from a
+combination of uploaded parts and data already available on the IMAP server.  This extension is crucial for implementing
+advanced forward-without-download feature.  Suppose a user who is currently on her vacation high above some Nordic
+fjord, accessing e-mail over a metered GPRS connection, has just received a huge e-mail consisting of a big binary
+attachment.  IMAP already has a feature which allows her to check the accompanying text without downloading the full
+message body.  What is missing is some kind of support of forwarding the original message to another recipient.
+
+This task consists of several steps --- first of all, the body of the resulting message to be sent has to be composed.
+The {\tt CATENATE} extension tremendously helps with this task.  Using {\tt CATENATE}, a client can compose a message
+consisting of a mixture of data, some of which is coming from the client over the network as raw literals, others being
+recycled from server-side data, be it full messages, arbitrary message parts or even byte-sized chunks of these.  After
+the message composing is concluded, the message shall be submitted to an MTA~\footnote{Mail Transfer Agent}, typically
+over the SMTP protocol \cite{rfc6409}.  Finally, a copy of the message shall be stored in the user's ``sent'' folder for
+future reference.
+
+\begin{trojitabehavior}
+Trojitá will make use of the {\tt CATENATE} extension when available.
+\end{trojitabehavior}
+
+It can be seen that in absence of specialized extensions, this an interaction could possibly involve up to three
+transfers of the huge binary data, possibly in an inefficient transport encoding, over the unreliable or expensive
+network connection.  Clearly, there's a huge room for improvements.  The {\tt CATENATE} extension assists in a
+server-side IMAP message assembly, but does not provide a way of improving actual message submission.
+
+The first possible way of improving relies on a whole family of extensions concerning both SMTP and IMAP.  The SMTP
+protocol is extended by the {\tt BURL} command \cite{rfc4468} while the IMAP server has to support the {\tt URLAUTH}
+extension \cite{rfc4467} and both daemons have to be properly configured.  Using this protocol combination (which itself
+depends on quite a few more extensions, please see the respective RFC documents for details), the IMAP client can
+generate a single-use authorization token which --- if used --- enables its holder to access the given message part.
+This token is then passed to the SMTP daemon which will combine data obtained directly from the MUA\footnote{Mail User
+Agent, i.e. the program which acts on the user's behalf in accessing and submitting the Internet mail} (like the
+accompanying text) with the data downloaded from the IMAP server via the passed authorization token, build a MIME
+message and take care of its further delivery through the usual means.  As was already mentioned, if the IMAP server
+also supports the {\tt CATENATE} extension, the client can build the message on the server at once from the mentioned
+fragments (the new accompanying text and the attachment from the original message) and pass this newly-formed message
+for submission through the {\tt BURL} SMTP extension.  This has a potential of eliminating the need to transfer the data
+to/from the client {\em at all}, leading to a drastic bandwidth reduction.
+
+\begin{trojitabehavior}
+Trojitá includes full support for the {\tt BURL} and {\tt URLAUTH} extensions.  Due to the interoperability troubles
+with misconfigured servers which were observed in real world \cite{qmf-fastmail-burl-bug}, making use of {\tt BURL} has
+to be explicitly allowed in the settings dialog of the application.
+\end{trojitabehavior}
+
+Unfortunately, such mode of operation comes at a cost.  Support for the required extensions is not
+ubiquitous among the deployed servers and even if the code contains all required features, it is often a policy decision
+whether an IMAP server should ever allow access to possibly privacy-sensitive data to the outbound MTAs.
+
+Another possibility presenting slightly different set of features, advantages and disadvantages is implemented by
+deferring the actual message submission to the IMAP server as well.  The {\tt CATENATE} extension is still useful
+because it shall nonetheless be used to build the MIME message body from existing parts, eliminating the need to upload
+the data to the IMAP server.  When the message body is built (no matter how, using {\tt CATENATE} or deferring to legacy
+means), the IMAP server can be asked to submit the resulting data for delivery.
+
+This former approach has been traditionally dismissed by many IMAP proponents, including Mark Crispin, on various
+grounds.  The most common complaint is that the SMTP protocol is extremely mature, widely deployed and also complex ---
+and that this inherent complexity is {\em required} by various use cases crucial for proper operation of today's
+Internet mail.  The critics often argue that covering the whole feature set of the (E)SMTP-based submission would lead
+only to an equivalent of tunneling the SMTP session over IMAP \cite{crispin-smtp-tunneling}
+\cite{cridland-imap-submission-sendmail-not-enough}, an outcome which is clearly not desirable.  This approach was
+also subject to various standardization efforts, often literally tunneling the (E)SMTP conversations \cite[p.
+30]{draft-maes-lemonade-p-imap} over an IMAP connection.  Proponents of this submit-over-IMAP approach, however,
+counter-argument by stating that optimizing for a common use case has its own merits
+\cite{brong-common-sendmail-makes-sense}.  The critics concur that having two ways of obtaining an identical result is
+suboptimal and that an easier, yet more limited way would threaten the existence of the older, more flexible solution
+\cite{crispin-submission-would-kill-smtp}.
+
+Finally, a third way of solving the forward-without-download problem was presented in September 2010 through the {\tt
+POSTADDRESS} extension \cite{draft-melnikov-imap-postaddress}.  Using this mechanism, a client first obtains a valid
+e-mail address serving as a ``delivery address'' for the user's {\em Sent} mailbox.  After getting hold of that
+information, the SMTP session then proceeds as usual with one difference --- the obtained address is added as another
+recipient of the submitted e-mail message.
+
+\begin{trojitabehavior}
+Besides including full support for the already mentioned ``Lemonade trio'' of extension ({\tt CATENATE}, {\tt URLAUTH}
+and {\tt BURL}, Trojitá also includes experimental support for the second approach of forward-without-download, the
+submission-over-IMAP variant.
+\end{trojitabehavior}
+
+Mail submission is an important topic, so I have dedicated a full section to a more detailed analysis of various
+advantages and disadvantages of competing approaches.  More information is available in section
+(\secref{sec:draft-sendmail}) where I present my Internet-Draft documenting a proposed extension in which I've tried to
+address many concerns raised during the previous discussion rounds.
+
+\section{Further Improvements}
+
+Many additional extensions have been defined over years, covering various areas of the protocol.  This section deals
+with those extensions which do not quite fit into any of the previous categories.
+
+\subsection{Debugging}
+
+Most of other communication protocols contain a way of letting the other party know what software implementation and in
+which version it is talking to.  In the web, this is usually accomplished through the {\tt User-Agent} and {\tt Server}
+headers, e-mail messages often contain either an {\tt X-Mailer} or {\tt User-Agent} field in theirs RFC 2822 headers,
+etc.  IMAP adds a similar feature through the {\tt ID} extension defined in RFC 2971 \cite{rfc2971}.
+
+This RFC is pretty clear on that implementations are explicitly {\em forbidden} from using {\em any} knowledge obtained
+through the {\tt ID} extension to alter their behavior.  This is a reasonable decision intended to prevent clients
+implementing blacklists and whitelists of ``known'' servers.  All IMAP protocol speakers are intended to only use the
+{\tt CAPABILITY} responses (and the {\tt ENABLE} extension, if present) to change their behavior.
+
+\begin{trojitabehavior}
+Trojitá is fully compliant with these requirements.
+\end{trojitabehavior}
+
+\subsection{Internationalization}
+
+The ``internationalization'' RFC (RFC 5255 \cite{rfc5255}) is focused on server implementations, mainly specifying how
+to perform search/sort collation under various circumstances.  That said, it also presents two commands to the IMAP
+clients.  The first of them is the {\tt LANGUAGE} command suitable for changing the language in which various error and
+notifying messages are generated and sent by the server.
+
+\begin{trojitabehavior}
+Trojitá tries hard to rely on machine-readable response codes (RFC 5530 \cite{rfc5530}) instead.
+\end{trojitabehavior}
+
+The second command is the {\tt COMPARATOR}, a feature intended to let clients
+specify which comparators and collators to use when performing search or sort operations (these comparators are defined
+in RFC 4790 \cite{rfc4790}).  By default, servers supporting at least the {\tt I18NLEVEL=1} extension are required to
+perform collations using the {\tt i;unicode-casemap} comparator \cite{rfc5051} --- a feature which is very useful (and
+often sufficient) in countries using the Latin alphabet.  Those servers which support {\tt I18NLEVEL=2} also accept
+client-specified preference about how to perform these operations.
+
+\begin{trojitabehavior}
+Adding support for this higher level would be trivial on a technical front (the {\tt LANGUAGE} and {\tt COMPARATOR}
+commands are very simple with much more demanding requirements on servers), but no requests for such a feature in
+Trojitá were received yet --- suggesting that the {\tt i;unicode-casemap} comparator works well for most users at this
+point.
+\end{trojitabehavior}
+
+There is also the experimental ``UTF-8'' RFC \cite{rfc5738} whose aim is to get rid of any non-UTF8 data being
+transferred over IMAP.  Unfortunately, as designed, this document presents backward-incompatible changes to the IMAP
+protocol and is hence not widely supported by the common server implementations.  The client authors would very much
+prefer to stop dealing with various Unicode encoding schemes, but this RFC does not completely address all of the
+issues.  An ongoing discussion is nevertheless taking place on official IETF's channels; it will be promising to watch
+its future and especially the fate of the ``5738bis'' Internet Draft \cite{draft-ietf-eai-5738bis}.
+
+\begin{trojitabehavior}
+It shall be noted that Trojitá's source is completely ready for internationalization and localisation of the
+application.~\footnote{This support does not come at no cost, unfortunately.  Qt's {\tt QDateTime} class which is used
+for keeping track of the date and time information in all Qt-using projects unfortunately does not support tracking of
+timezone information \cite{qt-qdatetime-tz}.  Trojitá works around this limitation of the public API by manual hack in
+{\tt Imap::Mailbox::formatDateTimeWithTimeZoneAtEnd()} method.}
+\end{trojitabehavior}
+
+\subsection{Other Supported RFCs}
+
+Trojitá is fully conforming to the description of the ``Distributed Electronic Mail Models in IMAP4'', as defined in RFC
+1733 \cite{rfc1733}.  It also respect the recommendations about concurrent access to mailboxes from RFC 2180
+\cite{rfc2180}, generic suggestions to the IMAP implementors (RFC 2683 \cite{rfc2683}), Mark Crispin's famous ``Ten
+Commandments of How to Write an IMAP client'' \cite{crispin-ten-commandments} and Timo Sirainen's suggestions for client
+authors \cite{tss-client-coding-howto} \cite{imapwiki-client-best-practices}.
+
+It will make use of the {\tt UNSELECT} command for internal technical reasons (RFC 3691 \cite{rfc3691}), if available;
+if it isn't present, it will gracefully revert to using fabricated mailbox names with the {\tt EXAMINE} command from the
+baseline IMAP specification.  This failover is thoroughly verified by a suite of automated unit tests.
+
+Trojitá is capable of recording responses from the {\tt UIDPLUS} extension (RFC 4315 \cite{rfc4315}); the author have
+also contributed \cite{jkt-move-uidplus} to the discussion related to the {\tt COPYUID} equivalent for the proposed {\tt
+UID MOVE} command.
+
+The code also includes full support for recognizing various extensions to the IMAP's grammar (RFC 4466 \cite{rfc4466}),
+response codes (RFC 5530 \cite{rfc5530}) and the reserved set of keywords (RFC 5788 \cite{rfc5788}).
+
+RFC 5258 \cite{rfc5258} is used when available to explicitly encourage the IMAP server to send additional metadata in
+{\tt LIST} responses --- the biggest benefit of this extension is eliminating the need of sending explicit {\tt LSUB}
+requests to discover mailbox subscriptions.
+
+Finally, the Lemonade extension (RFC 5550 \cite{rfc5550} and the obsolete RFC 4550 \cite{rfc4550}) has compiled a set of
+requirements crucial to the mobile IMAP e-mail clients.  Comparison of the proposed set of extensions with the Lemonade
+profile is presented in a dedicated section of this thesis on page \pageref{sec:lemonade-comparison}.
+
+\subsection{Out-of-scope Features}
+
+The extensions presented so far all have a certain affinity towards the ``mobile IMAP''.  Many other extensions have
+been introduced, though, often solving a real problem.
+
+The first family of extensions with debatable merit are extensions providing support for so-called referrals.  The RFC
+2221 \cite{rfc2221} adds a mechanism for servers to redirect clients based on their identity, a feature which was
+originally supposed to come handy in large corporate environment.  Similar to that, the RFC 2193 \cite{rfc2193} adds
+mailbox referrals, a feature where a subset of user's mailboxes might be stored on a remote server.  As it happens,
+these features have not attained a big market share among client developers \cite{thunderbird-referrals} and the servers
+which supports that are generally willing to act as a transparent proxy for their clients anyway
+\cite{cyrus-referral-proxy}.
+
+Extensions which are useful in a general-purpose e-mail client are the {\tt NAMESPACE} extension (RFC 2342
+\cite{rfc2342}) which would allow compliant clients to automatically discover where e.g. other users' mailboxes are
+located, support for managing access-control lists (ACLs) on the server (RFC 4314 \cite{rfc4314} and its obsolete form
+given in RFC 2086 \cite{rfc2086}) and finally support for reporting and managing storage quotas (RFC 2087
+\cite{rfc2087}).
+
+\begin{trojitabehavior}
+These have not been implemented in Trojitá yet.
+\end{trojitabehavior}
+
+A mechanism for increasing interoperability with organizations which have invested in a single-sign-on infrastructure
+like Kerberos could be improved through better support for SASL (RFC 1731 \cite{rfc1731}, RFC4959 \cite{rfc4959}).
+
+\begin{trojitabehavior}
+A request from users which would very much prefer to have a GSSAPI-enabled Trojitá was already received, but
+unfortunately this feature remains unimplemented due to time constraints.
+\end{trojitabehavior}
+
+A few extensions might improve the general comfort of users setting up their e-mail clients for the first time.  Without
+any doubt, autoconfiguration through the DNS SRV records (RFC 6186 \cite{rfc6186}) falls into this category.
+
+There are also certain features which might add a whole new level of functionality to working with e-mail -- examples
+are the {\tt ANNOTATE} extension (RFC 5257 \cite{rfc5257}) for adding arbitrary annotations to individual messages or
+even their parts, which is still marked as experimental, or the similar {\tt METADATA} feature (RFC 5464 \cite{rfc5464})
+adding the same functionality on a server or mailbox level.  Needless to say, support for these extensions is scarce
+among the IMAP clients.
+
+Other extensions try to fill a certain niche.  Examples are the {\tt WITHIN} extension (RFC 5032 \cite{rfc5032}) which
+allows clients to search among messages of a certain age or the {\tt SEARCHRES} (RFC 5182 \cite{rfc5182}) adding a
+low-level pipelining optimization which would allow the client to re-use the previous search result in the subsequent
+commands.  RFC 5466 \cite{rfc5466} adds support for persistent storage of search criteria on the server through the
+already mentioned {\tt METADATA} extension.
+
+\begin{trojitabehavior}
+I have not found a use case for having these optional extensions utilized from Trojitá in any place.
+\end{trojitabehavior}
+
+The RFC 3503 \cite{rfc3503} deals with how to generate the message delivery notifications (MDNs) in IMAP.
+
+\begin{trojitabehavior}
+This document clearly does not apply to clients which on purpose do not create MDNs for privacy reasons, such as
+Trojitá.
+\end{trojitabehavior}
+
+Finally, certain extensions improve the user experience in specialized environments.  One of them is RFC 5616
+\cite{rfc5616}, an extension aimed at ``Streaming Internet Messaging Attachments''.  One could imagine a use case where
+a carrier-level voice mailbox was implemented over IMAP; in similar situations, such a solution would have its merit.
+At the same time, this specific extension has so special requirements on the network architecture that it is clearly
+out-of-scope for a general-purpose e-mail client merely running on a cell phone.
+
+\section{Obsolete Extensions}
+
+IMAP is a rather old protocol (its history is slightly older than the author of this thesis, for that matter).  Certain
+features have been therefore deprecated over time and it took years to grow to the current IMAP4rev1 version from the
+old standards of IMAP2 \cite{rfc1064} \cite{rfc1176}, IMAP3 \cite{rfc1203} and IMAP4 \cite{rfc1730}.  Attention has been
+paid to make this transition as smooth as possible through various compatibility recommendations \cite{rfc1732}
+\cite{rfc2060} \cite{rfc2061} \cite{rfc2062}.
+
+\begin{trojitabehavior}
+Trojitá requires the server to at least announce the {\tt IMAP4rev1} capability.  This protocol revision is currently
+defined by RFC 3501 \cite{rfc3501} from March 2003; however, changes since the previous version from December 1996
+(\cite{rfc2060}) are mostly backward compatible --- and in practice, no report of Trojitá not being able to work against
+any IMAP server implementation out there were received.
+\end{trojitabehavior}
+
+The {\tt UIDPLUS} extension got redefined from its former shape \cite{rfc2359} to the current revision \cite{rfc4315};
+the new document states that the reason for this revision was to prevent sending of bogus UID replies when the target
+mailbox did not support persistent UIDs.
+
+\begin{trojitabehavior}
+As such, Trojitá can deal with both revision of the {\tt UIDPLUS} document.
+\end{trojitabehavior}
+
+\end{document}

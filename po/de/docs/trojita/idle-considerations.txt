@@ -1,0 +1,6 @@
+IDLE: servers would break idling and issue an untagged OK to prevent NAT
+timeouts -> wakeup :(
+
+Check the imap-protocol thread (roughly from 2010-10-04).
+
+http://xmpp.org/extensions/xep-0286.html

@@ -1,0 +1,84 @@
+Suported RFCs
+
+- 1733 Distributed Electronic Mail Models in IMAP4
+- 2088 IMAP4 non-synchronizing literals
+- 2177 IMAP4 IDLE command
+- 2180 IMAP4 Multi-Accessed Mailbox Practice
+- 2595 Using TLS with IMAP, POP3 and ACAP
+- 2683 IMAP4 Implementation Recommendations
+- 2971 IMAP4 ID extension
+- 3348 The Internet Message Action Protocol (IMAP4) Child Mailbox Extension
+- 3501 INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1
+- 3516 IMAP4 Binary Content Extension
+- 3691 Internet Message Access Protocol (IMAP) UNSELECT command
+- 4315 (2359) Internet Message Access Protocol (IMAP) - UIDPLUS extension
+- 4466 Collected Extensions to IMAP4 ABNF
+- 4467 Internet Message Access Protocol (IMAP) - URLAUTH Extension
+- 4468 Message Submission BURL Extension
+- 4469 Internet Message Access Protocol (IMAP) CATENATE Extension
+- 4551 IMAP Extension for Conditional STORE Operation or Quick Flag Changes Resynchronization
+- 4731 IMAP4 Extension to SEARCH Command for Controlling What Kind of Information Is Returned
+- 4978 The IMAP COMPRESS Extension
+- 5092 (2192) IMAP URL Scheme
+- 5161 The IMAP ENABLE Extension
+- 5162 IMAP4 Extensions for Quick Mailbox Resynchronization
+- 5256 Internet Message Access Protocol - SORT and THREAD Extensions
+- 5258 Internet Message Access Protocol version 4 - LIST Command Extensions
+- 5267 Contexts for IMAP4
+- 5530 IMAP Response Codes
+- 5550 (4550) The Internet Email to Support Diverse Service Environments (Lemonade) Profile
+- 5788 IMAP4 Keyword Registry
+- 5819 IMAP4 Extension for Returning STATUS Information in Extended LIST
+- 5957 Display-Based Address Sorting for the IMAP4 SORT Extension
+- 6203 IMAP4 Extension for Fuzzy Search
+
+To be evaluated:
+- 5465 The IMAP NOTIFY Extension
+- 6154 IMAP LIST Extension for Special-Use Mailboxes
+
+Obsolete:
+- 1064 INTERACTIVE MAIL ACCESS PROTOCOL - VERSION 2
+- 1176 Interactive Mail Access Protocol: Version 2
+- 1203 Interactive Mail Access Protocol: Version 3
+- 1730 Internet Message Access Protocol - Version 4
+- 1732 IMAP4 Compatibility with IMAP2 and IMAP2bis
+- 2060 Internet Message Access Protocol - Version 4rev1
+- 2061 IMAP4 Compatibility with IMAP2bis
+- 2062 Internet Message Access Protocol - Obsolete Syntax
+- 2086 IMAP4 ACL extension
+- 2095 IMAP/POP AUTHorize Extension for Simple Challenge/Response
+- 2192 IMAP URL Scheme
+- 2359 IMAP4 UIDPLUS extension
+
+Not implemented:
+- 1731 IMAP4 Authentication Mechanisms
+- 2087 IMAP4 QUOTA extension
+- 2193 IMAP4 Mailbox Referrals
+- 2195 (2095) IMAP/POP AUTHorize Extension for Simple Challenge/Response
+- 2221 IMAP4 Login Referrals
+- 2342 IMAP4 Namespace
+- 3502 Internet Message Access Protocol (IMAP) - MULTIAPPEND Extension
+- 3503 Message Disposition Notification (MDN) profile for Internet Message Access Protocol (IMAP)
+- 4314 (2086) IMAP4 Access Control List (ACL) Extension
+- 4549 Synchronization Operations for Disconnected IMAP4 Clients
+- 4959 IMAP Extension for Simple Authentication and Security Layer (SASL) Initial Client Response
+- 5032 WITHIN Search Extension to the IMAP Protocol
+- 5182 IMAP Extension for Referencing the Last SEARCH Result
+- 5255 Internet Message Access Protocol Internationalization
+- 5257 Internet Message Access Protocol - ANNOTATE Extension
+- 5259 Internet Message Access Protocol - CONVERT Extension
+- 5464 The IMAP METADATA Extension
+- 5466 IMAP4 Extension for Named Searches (Filters)
+- 5593 Internet Message Access Protocol (IMAP) - URL Access Identifier Extension
+- 5616 Streaming Internet Messaging Attachments
+- 5738 IMAP Support for UTF-8
+- 6186 Use of SRV Records for Locating Email Submission/Access Services
+- 6237 IMAP4 Multimailbox SEARCH Extension
+
+Irrelevant stuff:
+- 3656 The Mailbox Update (MUPDATE) Distributed Mailbox Database Protocol
+- 3807 V5.2-User Adaptation Layer (V5UA)
+- 4416 Goals for Internet Messaging to Support Diverse Service Environments
+- 5232 Sieve Email Filtering: Imap4flags Extension
+- 5423 Internet Message Store Events
+- 5524 Extended URLFETCH for Binary and Converted Parts

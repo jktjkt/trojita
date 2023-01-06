@@ -1,0 +1,92 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+
+\begin{document}
+
+\chapter{Conclusion}
+\label{sec:conclusion}
+
+The goal of this thesis was to investigate the existing IMAP extensions, evaluate how well they contribute to the
+operation of a mobile e-mail client, and find out what areas could benefit from further optimization.  All of these
+goals were fulfilled.
+
+The ``mobile client'' I often speak about throughout this thesis is today a very powerful device, and one that is very,
+very different from what was considered a ``mobile client'' just a few years ago.  An ordinary phone that people use on
+a daily basis has typically a 1~GHz CPU with a gigabyte of RAM and can transfer data at the rate of several tens of
+megabits per second.  However, should these powerful resources be fully utilized, the battery life would drop to mere
+hours at best.  With great power comes great responsibility, and in the context of mobile applications this
+responsibility directly translates to a need of eliminating data transfers and CPU-heavy client-side operations as much
+as possible.  Thankfully, the IMAP protocol and its rich extension family provide ample opportunities for delegating a
+fair amount of processing to the server.
+
+The available IMAP extensions range from simple tweaks of the protocol behavior and experimental facilities adding
+completely different features to IMAP all the way to the extensions which are hard to implement, but provide the
+protocol speakers with features or processes which would otherwise not be achievable, or prove to be needlessly hard to
+attain.  Certain features, formerly designed to accommodate hardware designs which are ancient through today's optics
+(like the support for command pipelining which was meant to allow the computer operators to physically locate a tape in
+their archive and mount that on the user's behalf), are today crucial for sustaining high performance over cellular
+networks with rather big round-trip times.
+
+I believe that one cannot really evaluate a proposal without getting a perfect grasp of the changes it introduces.  This
+is why I implemented most of the available extensions in Trojitá, my free software project dedicated to building a
+usable, fast and lightweight IMAP e-mail client.  Functions which remained cumbersome or still required substantial data
+transfers even after the support for the existing extensions was added proved to be excellent candidates for proposing
+concrete enhancements.
+
+I have selected three areas in which the IMAP protocol can be still improved.  These areas do not have much in common.
+It was my intention to demonstrate that even more than twenty years after the IMAP protocol was conceived, it can be
+still built upon and modified to better suit today's needs, and that these opportunities can be discovered on multiple
+fronts.
+
+As an example of a rather low-hanging fruit, I have proposed an extension which fixes a possible race condition in the
+QRESYNC extension.  This bug illustrates the process of the protocol design pretty well --- despite a concerted effort
+of many people involved in drafting and reviewing of the proposal, bugs can still creep in.
+
+A second extension which I have included in this thesis optimizes the behavior of an online client.  By building on top
+of three separate extensions which have been around for years, it allows an IMAP client to obtain threading information
+for messages in an incremental manner, preventing downloads of huge amount of data over and over again.
+
+My last proposal deals with a relatively hot topic in the IMAP sphere --- it adds a support for message submission to
+happen over IMAP.  The question about whether this approach is the correct one has historically divided the protocol
+experts and software vendors into two hostile camps, one with cheering proponents, the other holding vigorous critics.
+People have tried to achieve a similar result by various means, but so far nothing as simple as the proposed {\tt UID
+SENDMAIL} has ever got enough traction.
+
+All of the extensions which I have designed were submitted for review to the expert group through mailing lists related
+to the IMAP protocol and its extensions.  Especially with the last proposal, an interesting discussion has been sprouted.
+It will be interesting to watch the fate of the proposals as they enter the IETF standardization process.  With luck and
+enough patience, they might even become an RFC one day.
+
+The Trojitá application has received a substantial amount of attention throughout my work on this thesis.  The project
+has grown almost three times in its overall size since my bachelor thesis on this subject.  I was happy to receive
+contributions from people all over the world.  Two companies expressed their interest in basing their commercial
+offering on top of Trojitá; I was hired to perform a contracted work on Trojitá on their behalf.  A completely new
+version of the user interface optimized for touch-controlled cell phones has been developed and --- thanks to a generous
+donation from Nokia --- ported to the MeeGo line of smartphones.  Interoperability testing revealed quite a few bugs,
+both in Trojitá as well as in production releases of IMAP servers from many software vendors, opensource and proprietary
+variants alike.
+
+\section{Future Work}
+\label{sec:future-work}
+
+This thesis represents the result of my ongoing involvement with IMAP and e-mail related topics in general.  It is my
+intention to carry on this work in future.
+
+The documents I proposed will have to be maintained.  People known in the IMAP world have already raised their questions
+and provided valuable comments on the functionality of the extensions, some of them expressed explicit interest and
+willingness to implement them in their own products.  I will do my best to shepherd the drafts through their long
+journey towards possible acceptance.  Even if this process fails and no RFC gets directly produced, the approach will
+still have been documented and available for future protocol engineers and developers.
+
+The Trojitá as a free software project will certainly benefit from its increased visibility.  There is a long list of
+features which might be added in future, be it support for signed or encrypted e-mails or pushing harder for
+implementation of more extensions among the IMAP servers.  The mobile version could certainly be ported to other phone
+platforms as well.  Targeting Android will definitely be a welcome improvement.
+
+Some of the extensions which are mentioned in this thesis were not implemented in Trojitá for various reasons, typically
+due to the fact that I was not able to find any servers announcing their availability.  This should change in future ---
+some of the IMAP server vendors have already expressed their interest in implementing quite a few of these advanced
+features.  Thanks to its internal structure, I am confident that Trojitá will be able to accommodate these new proposals
+as they arrive.
+
+\end{document}

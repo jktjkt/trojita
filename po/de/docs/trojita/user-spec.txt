@@ -1,0 +1,159 @@
+The trojita IMAP Client
+-----------------------
+
+What is it?
+-----------
+
+At the time I started to work with e-mail on a more advanced level than a free
+e-mail provider could offer, my quest for an advanced and standards-compliant
+"Mail Client" (MUA) begun.  At first, I have no idea about various mail-related
+protocols, but during the process, I learned the meaning of abbreviations like
+SMTP, POP and IMAP.  As I'm a fan of open solutions, I have immediately put
+proprietary protocols out of consideration.  This left me with essentially just
+two choices for accessing my mail collection, either POP3 or IMAP4.
+
+POP3 is an older protocol.  While it certainly has its advantages (it's really
+simple to implement, for one), it wasn't designed for managing mail from
+multiple places, and it doesn't really support multiple mailboxes.  As I used to
+read my e-mails from at least four computers, I went on and had a closer look on
+the only remaining protocol, the IMAP4.
+
+Unlike POP, which was designed for retrieval of messages and wasn't designed
+for use-cases where they remain on the central server, the IMAP is built in a
+server-centric way.  The only place where the messages are kept permanently is
+the IMAP server.  The protocol, defined in RFC 3501, offers a rich suite of
+commands for both data access and data manipulation.  It is no longer needed to
+download a whole 5MB mail that has three lines of text and a JPEG attachment
+just because you wanted to see the text.  IMAP offers a comprehensive set of
+commands for determining message structure, partial message retrieval and even
+server-side message sorting based on message threading.
+
+This power of IMAP is, however, often not exploited by today's IMAP clients.  In
+fact, most of them are just dumb POP-clients upgraded to speak the IMAP
+language.  Such clients are more vulnerable to various attacks (one
+badly-formatted mail is parsed not only by the IMAP server, but then by the MUA
+again, increasing the risk of buffer overflows and other security-related issue)
+and are also wasting system resources.
+
+The aim of the trojita MUA is to create a nice and efficient IMAP-only mail
+client that makes use of advanced concepts found in the IMAP protocol (and
+its numerous extensions) and in modern programming libraries.  If I create a
+tool for working with mail that I find comfortable, then I'll call trojita a
+success.
+
+
+Use cases
+---------
+
+Connecting to an IMAP server, working with mailboxes ("folders") and messages
+contained therein.  Being able to display as many data formats as possible and
+convenient, while staying secure (beware of HTML stuff with remote images etc).
+Support for various forms of cryptographic contents (X.509 and PGP
+signatures/encrypted messages) is planned for later releases.  Being able to
+compose mail (again, with the cryptographic stuff) and send it either via a SMTP
+connection or possibly through a local sendmail-compatible interface.  Being
+able to utilize a not-so-common way of talking to the IMAP server via a UNIX
+pipe (handy for IMAP-over-SSH for example).
+
+
+Goals
+-----
+
+Respecting all related RFC standards.  Using the IMAP protocol in an efficient
+way.  Making use of convenient and effective programming technologies and modern
+libraries.  Being cross-platform friendly, providing a graphical user interface.
+Utilizing a unit-testing framework for early regressions detection.
+
+
+Technologies used
+-----------------
+
+Due to the emphasis on modern libraries, portability and the joy of programming,
+I've chosen the Qt library.  When combined with the C++ STL, it provides an
+extremely rich toolbox that is essential for writing large applications in a
+pleasant way.
+
+
+Overview
+--------
+
+On the very lowest layer of trojita, we can find the library that handles the
+low-level layer of the IMAP protocol.  It is used to parse bytes flowing from
+the IMAP server to slightly higher objects like "atoms", "strings", "numbers"
+and "lists".  It is pretty simple and can be found in the Imap::LowLevelParser
+namespace (files Imap/LowLevelParser.* with corresponding unit tests in
+test/test_Imap_LowLevelParser.* ).
+
+Building on the top of the Low Level Parser, we find the Parser.  It is the
+point of interaction with the IMAP server.  It is being fed with IMAP commands
+(via calling the appropriate member functions of the Imap::Parser class
+instance) and emits Qt signals when it receives and parses a response from the
+server.
+
+(Due to the nature of C++, where working with virtual functions de facto
+forces the programmer to use pointers or references, this layer makes heavy use
+of the std::tr1::shared_ptr template as defined in the Technical Report 1.  The
+build system of trojita tries to use system-provided tr1/memory header, but will
+fall back to the one provided by Boost in case the system compiler doesn't
+support the TR1.)
+
+So, now we have an interface that we can feed with IMAP commands and which
+returns us parsed data back.  This is how a typical conversation looks like:
+
+me:     perform the SELECT operation on mailbox INBOX
+parser: queued as command y001 
+imap:   response: total message count, number: 18
+imap:   response: defined flags, list: (\Answered \Recent \Deleted \Seen \Draft)
+imap:   response: # of recent messages, number: 2
+imap:   untagged reply: OK, response: first unseen message, number: 13
+imap:   untagged reply: OK, response: UIDVALIDITY, number: 1337666
+imap:   command y001 completed successfully, message: bla bla bla
+me:     give me the envelope of the 12th message in this mailbox
+imap:   ...
+
+While this is certainly cool feature, it isn't really useful for humans.  We
+usually prefer to see a nice graphical list of messages that we can click at,
+shuffle them around and otherwise mess with them, and we want that window with a
+quoted text to appear when we click the "reply" button.  Here's where the next
+layer comes in.
+
+We have a choice to make here -- either we can use a traditional IMAP-like
+approach and treat mailboxes as a completely separated hierarchy, or we can
+deal with the IMAP server as a whole.  The former is what older development
+versions (as of end of May 2008) used, the latter is what the Right Thing (TM)
+is :).  In this new approach, there's only one tree-like model representing all
+mailboxes on the IMAP server, as one user sees it.  All views interact with this
+huge model only, and each of these views might be tied to a subtree of the whole
+model.
+
+While this design choice has numerous advantages (like simplified sharing of
+Parser instances, which in turn enables working with servers that don't
+particularly like dozens of open connections per one user), it has to be
+carefully thought-out before implementation.  In the following, we'll discuss
+how we employ the whole Interview framework of Qt in trojitá.
+
+There's only one top-level item in our view.
+
+Children of this top-level item represent mailbox hierarchy, possibly in
+different namespaces (a namespace is a term from IMAP, see RFC 3501 for
+details).  A mailbox can hold number of other mailboxes (properly nested), or a
+list of messages, or a combination of thereof.
+
+A message itself is hierarchically structured.  The structure matches closely
+the MIME structure of the real email message.  In addition, there are some
+metadata (like IMAP flags or envelope) that are also part of the message
+representation in the view.
+
+This scenario has a problem that needs to be solved -- if a mailbox can contain
+both messages and other mailboxes, how does one distinguish among them?
+
+The purpose of the Imap::Mailbox::Model is to provide a nice high-level
+overview of an IMAP mailbox.  This is implemented using a standard Qt
+model-view-architecture interface.  This means that it is extremely easy to add
+a graphical view to the application, as the Qt library already provides one.
+The idea here is that all the views could be extremely stupid (they indeed are),
+and all the IMAP logic like caching is to be provided by the lower layers.
+
+FIXME: describe (and implement :) ) Imap::Mailbox::Cache and
+(yet-to-be-thought-about) Imap::Mailbox::ParserPool for multiplexing of Parsers
+among multiple Models.

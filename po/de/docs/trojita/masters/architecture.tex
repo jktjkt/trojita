@@ -1,0 +1,353 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+
+\begin{document}
+
+\chapter{Trojitá's Architecture}
+
+This chapter provides a brief introduction to the architecture of Trojitá from a programmer's point of view.  Additional
+information is provided in the documentation shipped as a part of the source tree.
+
+\section{Overview of Components}
+
+Trojitá makes heavy use of certain idioms common in Qt programming and in object-oriented software development in
+general.
+
+At the highest layer lies the GUI, graphical code managing the actual user interaction.  This code contains no knowledge
+of IMAP or any other e-mail protocol; it is simply a graphical presentation layer specific to the desktop version of
+Trojitá.  In the releases intended for mobile platforms, the traditional {\tt QWidget}-based GUI is replaced by a
+variant built on top of Qt's QML \cite{qml}, a framework especially suited for touch-centric devices.
+
+Any interaction with IMAP is initiated through the model-view framework \cite{qt-mvc} and related utilities.  A core
+class encapsulating a representation of a single IMAP server, the {\tt Model} class, is accompanied by various proxy
+models and other helpers to segregate and transform the data into a better shape suitable for the upper layers.
+
+Any action which shall take effect is, however, not performed by any of the model-related classes.  Trojitá utilizes the
+concept of {\em tasks}, a set of single-purpose classes each serving a distinct role.  Examples of such tasks are
+``obtain a connection'', ``synchronize a mailbox'', ``download a message'' or ``update message flags''.
+
+One layer below the Tasks, the Parser is located.  This class along with its support tools converts data between a byte
+stream arriving from or destined to the network and higher-level commands and responses which are utilized by the upper
+layers.  Actual network I/O operations are handled through a thin wrapper around Qt's own {\tt QIODevice} called {\tt
+Streams}.~\footnote{The {\tt QIODevice} is wrapped to allow for transparent compression using the deflate algorithm.
+Due to the historic reasons, the {\tt Stream} subclasses use the {\em has-a} instead of the {\em is-a} approach; this
+was required back when Trojitá shipped I/O implementations not based on the {\tt QIODevice} class for evaluation
+purposes.  It also helps to reduce the amount of functions each I/O implementation has to implement.}
+
+\subsection{Handling Input/Output}
+
+The raw byte streams provided by the network abstraction classes are intercepted by the {\tt Parser} class.  It takes
+any incoming octet sequence and with the help of a {\tt LowLevelParser} instantiates the concrete subclasses of the {\tt
+AbstractResponse} class.  Actual parsing of the responses is typically deferred to the corresponding {\tt Response}
+constructors which will tokenize the incoming data through {\tt LowLevelParser}'s methods and act on their contents
+according to the corresponding grammar rules.
+
+The response parsing had to be substantially relaxed from its original state due to observed interoperability issues.
+Even the most popular IMAP implementations struggled with following the ABNF-defined \cite{rfc5234} syntax to the
+letter; the most iconic example is Google's service which has prevented the IMAP clients talking to it from accessing
+forwarded messages for many years~\cite{gmail-bodystructure-sucks}.~\footnote{As of mid-2012, this issue remains
+unfixed despite my bug reports raised through both official and unofficial channels.}
+
+For some time, Trojitá's {\tt Parser} was implemented in a separate thread in an attempt to improve performance.
+However, profiling showed that the amount of time spent in parsing was negligible compared to the rest of the
+application with the only exception being the {\tt THREAD} response which essentially requires a complex transformation
+of nested lists.  As such, the whole of Trojitá is now a single threaded application.~\footnote{The WebKit engine used
+in HTML rendering creates threads for its individual purposes; the similar behavior is observed in the QML engine used
+in the mobile version.  These threads are not counted here, for they are considered to come from the ``system
+libraries''.}
+
+\subsection{The Concept of Tasks}
+
+The Tasks are designed to collaborate with each other, and there is a network of dependencies on how they can be used
+so that each task is responsible for only a subset of the overall work required to achieve a particular goal.  For
+example, when a message shall be marked as read, an {\tt UpdateFlagTask} is created.  Because ``marking message as
+read'' is implemented by manipulating IMAP message flags, an action which can only happen while a mailbox is selected,
+the {\tt UpdateFlagsTask} asks the {\tt Model} to return an instance of a {\tt KeepMailboxOpenTask}, a ``manager''
+object which is responsible for keeping the mailbox state synchronized between the server and the client.~\footnote{The
+{\tt KeepMailboxOpenTask} also serves as a dispatcher ensuring that the selected mailbox is switched only when any tasks
+which needed a particular mailbox open will have finished.} If the mailbox is already opened, an existing instance of
+the {\tt KeepMailboxOpenTask} is returned; if that is not the case, a new instance is returned.  The {\tt
+UpdateFlagsTask}'s execution is blocked and will commence only when (and if) the acquisition of a synchronized status
+succeeds.  Similarly, this ``maintaining'' task (the {\tt KeepMailboxOpenTask} itself deals just with incremental {\em
+updates} to the mailbox state and is activated only when the mailbox is opened. The actual mailbox synchronization is
+delegated to the {\tt ObtainSynchronizedMailboxTask}.  This synchronizer obtains the underlying connection handle
+through consultation with the {\tt Model} to decide whether a new connection shall be established or an existing one
+re-purposed.  This policy decision is completely contained in the {\tt Model} and is not visible to other layers (or the
+tasks) at all.
+
+Similar divisions of responsibility exist during other scenarios; the supporting infrastructure makes sure that no
+actions are started unless their prerequisites have succeeded.
+
+The whole hierarchy is presented to the user in various shapes; the most basic and rudimentary one is a ``busy
+indicator'' showing whether any activity is taking place.  A more detailed view showing an overview of all active tasks
+in a tree-like manner illustrating their dependencies is available (see the {\tt TaskPresentationModel} class in
+Trojitá's sources).
+
+The introduction of Tasks to Trojitá in 2010 proved to be an excellent decision allowing for much increased development
+pace and contributed to the much improved robustness and code clarity.  Thanks to a proper use of git's branches, the
+transition was undertaken over a longer time pried without disturbing the ongoing application development.
+
+The Tasks are instantiated by an auxiliary factory class in order to better facilitate automated unit testing with
+mock objects.
+
+\subsection{Routing Responses}
+
+The Tasks introduced in the previous section are also used for proper response processing.  At all times, the {\tt
+Model} can access a list of ``active tasks'' which are assigned to a particular IMAP connection.  When a response
+arrives, it is dispatched to these tasks in a well-defined order until either of the tasks declares the response as
+``handled''.  If no task claims responsibility for a particular response, the {\tt Model} itself takes action.  This
+action might be either regular processing, or, in case the {\tt Model} cannot safely take care of said response, an
+error being raised and the connection sewered to prevent possible data loss due to suspected bug in the IMAP
+implementation.
+
+The responses themselves are communicated to the {\tt Model} (and, through it, to the responsible Tasks) through a queue
+of responses using Qt's own signal-and-slot mechanism.  The same way of passing data is used for additional
+``meta information'' like informing about connection errors, parser exceptions or the low-level SSL/TLS certificate
+properties.  Having a unified queue of the incoming data made error handling much more elegant.~\footnote{Previously,
+matters were complicated by the way how QWidget-based UIs tend to deal with errors through dialog boxes which trigger
+nested event loops.}  Care has been taken to optimize this parsed data passing to minimize the amount of copying and ---
+in general --- Qt's {\tt QMetaObject} invocations while balancing the GUI responsiveness.  The IMAP handlers now process
+the incoming responses in batches, pausing every so often to allow the GUI to keep up with other incoming events to
+prevent an appearance of the whole application ``freezing'' temporarily.  The selected approach works well even on cell
+phones with limited resources.
+
+Any responses passing through the queue are also logged into an in-memory ring buffer.  Should an error occur, this
+buffer is used as a ``black box'' device which is shown to the user to give her a better context of what went wrong.
+This debug logging proved to be extremely valuable in debugging interoperability issues with non-compliant servers as
+well as when fixing bugs in Trojitá.
+
+\subsection{Models and Proxies}
+
+Historically, much of the IMAP logic in Trojitá has been concentrated in the {\tt Model} class.  Over the time, I've
+refactored that code to separate modules; however, even today, the {\tt Model} handles both data publication through the
+Qt's model-view framework as well as IMAP response dispatch to the relevant Tasks.  With little less than two thousands
+of physical lines of code, the {\tt Model} remains the second-largest source file in the code base (the biggest file is
+a unit tests related to various modes of mailbox synchronization).
+
+The {\tt Model} itself exports a view containing anything available from a particular IMAP server account through the
+Qt's model-view API.  The actual data is stored in a tree formed by various {\tt TreeItem} subclasses.
+
+As showing a single, rich-structured tree containing {\em everything} from mailboxes to individual message parts would
+not be particularly user-friendly, a number of so called proxy models were created.  These models usually operate on
+Qt's {\tt QModelIndex} level, but where profiling showed that a compelling speed increase would result from bypassing
+the {\tt QVariant} abstraction, direct access through the underlying (and Trojitá-specific) {\tt TreeItem} classes was
+used instead.  This has notably affected the design of the {\tt ThreadingMsgListModel} which is actually the biggest
+consumer of the CPU time when Trojitá opens a huge mailbox and activates message threading for the first time.
+
+Proxies exist for performing various transformations and filtering of the available data; some of them (like the {\tt
+MailboxModel} and {\tt MsgListModel}) are generic enough and used in all of the desktop client, the mobile application
+and the single-purpose batch synchronizer (see Appendix \ref{sec:xtuple}, p.~\pageref{sec:xtuple}) while others (like
+the {\tt PrettyMsgListModel}) are exclusive to the traditional desktop GUI.
+
+\subsection{Lazy Loading and Cache}
+
+The model-view separation strictly followed throughout Trojitá proved to be very useful when leveraging the full
+potential of many advanced IMAP features.  Because the individual message parts are accessible separately, Trojitá's
+native mode of operation supported the often-mentioned use case of ``only download a tiny text accompanying the big
+photo attachment and then ask user whether to fetch the photo'' without any effort.  At the same time, this separation
+made certain tasks which would typically be considered trivial a bit more demanding --- e.g. when forwarding a message,
+Trojitá has to explicitly retrieve two independent body parts, one for the headers and one for the message payload, and
+explicitly join them together.  On the other hand, in most of the situations this separation brought benefits visible to
+the end user which trumped the minor, uncommon complications.
+
+Any data once downloaded are kept in a persistent cache.  This feature allows Trojitá to work extremely well under
+unfavorable network conditions.  It also allows its users to access any data which were already known previously in an
+offline mode.
+
+Several caching backends are shipped in Trojitá; some of them store data exclusively in memory and therefore are not
+{\em persistent} per se, others use SQLite \cite{sqlite} for actual data storage.  Another mode which offloads ``big
+data'' storage to additional on-disk files is used by default.~\footnote{Work on the structured cache backends was
+sponsored by the KWest GbmH. (Appendix \ref{sec:kwest}, p.~\pageref{sec:kwest}).}
+
+\section{The Mobile Version}
+
+Trojitá also ships with a special version targeted for use on cell phones with touch screen such as Nokia's N9.  The
+release was tested on the Nokia N950, a developer device which I obtained through Nokia's Community Device Programme
+(Appendix \ref{sec:nokia-cdp}, p.~\pageref{sec:nokia-cdp}).
+
+The touch-optimized version of Trojitá shares most of the code with the desktop version; in particular, none of the
+underlying IMAP code had to be modified.  The changes were concentrated solely in the GUI layer which was completely
+rewritten using QML \cite{qml}, Qt's declarative language for fluid user interface creation.  A certain amount of C++
+code was also required, mainly for seamless integration of the underlying data providers with the JavaScript-based QML
+data presentation.
+
+I also had to extend some of the existing Qt classes with proper functions required for Trojitá.  One of them was
+replacing QML's native {\tt QDeclarativeWebView} component, an QML item encapsulating WebKit, the HTML renderer.  This
+replacement was required because the stock version from upstream Qt did not support specifying a {\tt
+QNetworkAccessManager} instance to use on a per-item basis~\cite{jkt-qdeclarativewebview}.  In QML, the whole QML scene
+shares a single instance of the {\tt QNetworkAccessManager} which is used for all sorts of data fetching.  In Trojitá,
+such a behavior is unacceptable for security reasons because the actual message data are transferred through said
+manager, and the manager therefore has to implement a proper security policy denying any requests for external
+elements.~\footnote{If the e-mail rendered was able to access external data, e.g. fetch images from the Internet at
+will, the resulting HTTP transfers would compromise the user's privacy and reveal confidential information like presence
+and schedule of a real person accessing a particular e-mail account.  Such tracing can be trivially implemented by
+including a unique identifier in the image URL, which is the reason why any decent MUA rejects such network requests by
+default.}  Another reason for this separation is to make sure that each {\tt QNetworkAccessManager} can only access data
+originating from a single e-mail message, an enforcement crucial to prevent phishing attempts and maintain the
+confidentiality of the user's messages.  There were also additional technical reasons for this extension, some of which
+were related to a documented requirement of QML's global instance adding provisions for future multithreaded access, a
+requirement which Trojitá's implementation explicitly does not guarantee for performance reasons.
+
+Apart from the mentioned issues, the porting proved to be very easy, to the extent when the most limiting factor were
+the author's lack of familiarity with QML and this technology's relative immaturity and lack of existing components when
+compared to the ``regular'' Qt applications.~\footnote{An example is the lack of a {\tt QSettings} equivalent in QML;
+users are suggested to use raw SQL access through {\tt openDatabaseSync} method which is indeed much more flexible, but
+also located several layers below the {\tt QSettings} on an index of the out-of-box usability --- clearly, writing
+custom SQL queries is more demanding than issuing a call to {\tt int i = QSettings().value("i").toInt()}.}  No design
+decisions of the application were hit as obstacles during the porting process.
+
+Trojitá's asynchronous mode of operation where any data transfers are performed in the background, without blocking the
+user interface, was paramount in achieving a decent performance and smooth UI updates.  The batched data processing
+mentioned in previous sections of this chapter is an example of a performance optimization which contributed to the
+excellent responsiveness of the cell phone version.
+
+The mobile version is still not as mature as the regular desktop release; most importantly, it does not support sending
+e-mails for now.  Proper platform integration should also be done in future.  For these reasons, the application was
+submitted to the Ovi store, Nokia's ``app store'' product, as a {\em technical preview}.  Even at its present state,
+however, the application is very useful for accessing user's e-mail on the go and for quick checking of whether
+something important has happened.  Trojitá's support for many IMAP extensions which reduce the overall bandwidth
+consumption was also tremendously useful --- many of them, like the {\tt CONDSTORE} and {\tt QRESYNC}, were designed
+with exactly this use case in mind and are also reasonably wide deployed among the publicly available IMAP server
+implementations.
+
+\section{Regression Testing}
+
+The IMAP protocol implementation developed as a part of Trojitá is covered by an extensive test suite verifying its
+behavior under varying conditions.  All extensions supported by Trojitá which relate to e-mail retrieval are covered by
+the test suite.
+
+Most of the testing works by replacing the connection to the IMAP server by a mock object capable of verifying that the
+transmitted data matches the developer's expectations and returning the sample responses back.  This approach is
+self-contained, does not require any other software to test and therefore increases the chances of regressions getting
+caught before they made their way to a production release.
+
+The following is an example on how an actual test might look like:
+
+\begin{minted}{c++}
+/** @short Test QRESYNC reporting changed flags */
+void ImapModelObtainSynchronizedMailboxTest::testQresyncChangedFlags()
+{
+    // Trick the IMAP code into believing that the server supports QRESYNC
+    // The test environment can do that without the burden of explicitly
+    // faking the CAPABILITY response.
+    FakeCapabilitiesInjector injector(model);
+    injector.injectCapability("QRESYNC");
+
+    // Simulate the previous state of the mailbox
+    Imap::Mailbox::SyncState sync;
+    sync.setExists(3);
+    sync.setUidValidity(666);
+    sync.setUidNext(15);
+    sync.setHighestModSeq(33);
+    QList<uint> uidMap;
+    uidMap << 6 << 9 << 10;
+
+    // Store the simulated state in the persistent cache
+    model->cache()->setMailboxSyncState("a", sync);
+    model->cache()->setUidMapping("a", uidMap);
+    model->cache()->setMsgFlags("a", 6, QStringList() << "x");
+    model->cache()->setMsgFlags("a", 9, QStringList() << "y");
+    model->cache()->setMsgFlags("a", 10, QStringList() << "z");
+
+    // At this point, we can proceed with actual testing
+
+    // Initiate the activity
+    model->resyncMailbox(idxA);
+    // Check the I/O communication
+    cClient(t.mk("SELECT a (QRESYNC (666 33 (2 9)))\r\n"));
+    cServer("* 3 EXISTS\r\n"
+            "* OK [UIDVALIDITY 666] .\r\n"
+            "* OK [UIDNEXT 15] .\r\n"
+            "* OK [HIGHESTMODSEQ 36] .\r\n"
+            "* 2 FETCH (UID 9 FLAGS (x2 \\Seen))\r\n"
+            );
+    cServer(t.last("OK selected\r\n"));
+    // Make sure that nothing else was transferred "over the network"
+    cEmpty();
+
+    // Verify that the persistent cache had been updated properly
+    sync.setHighestModSeq(36);
+    QCOMPARE(model->cache()->mailboxSyncState("a"), sync);
+    QCOMPARE(static_cast<int>(model->cache()->mailboxSyncState("a").exists()),
+             uidMap.size());
+    QCOMPARE(model->cache()->uidMapping("a"), uidMap);
+    QCOMPARE(model->cache()->msgFlags("a", 6),
+             QStringList() << "x");
+    QCOMPARE(model->cache()->msgFlags("a", 9),
+             QStringList() << "\\Seen" << "x2");
+    QCOMPARE(model->cache()->msgFlags("a", 10),
+             QStringList() << "z");
+
+    // Make sure that we've picked up the changed flag
+    QCOMPARE(idxA.data(Imap::Mailbox::RoleUnreadMessageCount).toInt(), 2);
+
+    // Nothing else should be running
+    justKeepTask();
+}
+\end{minted}
+
+Trojitá includes many of these individual test cases covering both regular operation as well as several pathological
+scenarios which would be tricky to hit in the real world.  In addition to that, the automated tests also verify speed of
+mailbox synchronization with folders containing hundreds of thousands of messages, a scenario which might be rare in
+practice~\footnote{The {\em Seznam.cz}, the most popular Czech free e-mail provider, imposes a limit of just 30,000
+messages per account as of early 2012.} but extremely useful for catching programmer mistakes like proposing an $O(n^2)$
+algorithm~\footnote{It was necessary to locate a message in the mailbox by its UID.  A conventional binary search
+algorithm was not applicable because the search could encounter ``message placeholders'' whose UID was not know, and
+therefore could not be compared to the reference value.  In the end, measurements have shown that starting with binary
+search and falling back on a linear scan later in the process upon encountering the first undefined value works fast
+enough in all tested circumstances.} over an $O(n \log n)$ one --- in spite of the fact that the overhead of the testing
+framework, especially when working with huge data transfers, as is indeed the case when synchronizing such a mailbox, is
+comparable to the actual code being profiled.
+
+\subsection{Scalability}
+
+I'm regularly testing Trojitá on mailboxes with hundreds of thousands of messages.  Trojitá's unique design which
+guarantees that only the {\em required} data is transferred is paramount in achieving (and retaining) reasonable
+performance under varying workloads.
+
+Trojitá respects all relevant recommendations about incremental retrieval of data.  Unless in the so called ``expensive
+mode'' where Trojitá tries to save bandwidth at the cost of increased waiting time, an intelligent preload is
+implemented which will seamlessly ask for data which is likely to be required in future in a background preload
+operation.
+
+\subsection{Command Pipelining}
+
+Whenever possible, Trojitá issues the IMAP commands in parallel.~\footnote{The parallelization imposes a configurable
+limit on the number of concurrently active tasks so as not to overload the server.}  Unfortunately, many expensive
+operations invoked on the server side often requires mailbox-wide locks, at least in the current server's
+implementations.  An example of such behavior are Dovecot's adaptive indexes \cite{dovecot-adaptive-indexes} which are
+created on-demand, in response to actual client's requests.  When Trojitá asks for threading on a big mailbox for the
+first time, Dovecot will block handling the threading request and building the required index, not responding to a query
+for metadata of messages, even though Trojitá has already issued a command requesting their delivery.
+
+Under normal circumstances, though, pipelining is crucial for decent performance in presence of excess network round
+trip times, and this parallel delivery of commands works extremely well even in case where the servers are unable to
+fulfill the requests in parallel.
+
+\subsection{Low-level optimization}
+
+Performance measurements were undertaken using Valgrind's \cite{valgrind} {\tt callgrind} \cite{valgrind-callgrind} tool
+while memory usage was tracked using Valgrind's {\tt massif} \cite{valgrind-massif}.  It is hard to compare existing
+clients based on the ``consumed memory'' alone, especially when considering that certain desktop clients like KDE's
+Akonadi-based \cite{akonadi} products are split into several processes, many of which are handling both IMAP-related and
+unrelated operations.  The memory profiling was therefore concentrated on making Trojitá's memory usage ``reasonable''
+and for checking of obvious regressions.
+
+Some of the results I have observed when profiling the code were initially rather surprising --- for example, replacing
+a {\tt QStringList} implementation by a {\tt QSet<QString>} one actually {\em increased} the memory usage from 296~MB in
+a synthetic benchmark~\footnote{The test used was {\tt ImapModelObtainSynchronizedMailboxTest::testFlagReSyncBenchmark}
+as of commit {\tt cf92f5f9f8e929e1427877c0db470d8c59651d3b} (March 2012) with the number of messages in mailbox being
+increased to half a million.  Measurements were performed on an {\tt x86\_64} Gentoo Linux machine running Qt~4.7.1.} to
+385~MB, i.e. by roughly one third --- a result caused by the {\tt QSet}'s hash table memory overhead.
+
+In the end, the total use in the mentioned benchmark was reduced to just 186~MB by explicit use of {\tt QString}'s
+implicit sharing where the actual text data are saved in memory only once, using {\tt QString}'s native reference
+counting.  The results could be likely improved by moving the data sharing one level up to the level of the whole {\tt
+QStringList} instead of the underlying elements.
+
+More drastic reductions could be obtained by actively removing unused data from memory and reducing the amount of empty
+placeholders being initialized to ``null'' values in the {\tt TreeItemMessage} instances, or, potentially, deferring
+their instantiations indefinitely till the corresponding messages come to the widget's viewport.  However, no compelling
+reason to do so on the target platforms was observed so far.
+
+\end{document}

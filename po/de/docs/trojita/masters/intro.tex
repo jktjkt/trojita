@@ -1,0 +1,64 @@
+% vim: spelllang=en spell textwidth=120
+\documentclass[trojita]{subfiles}
+
+\begin{document}
+
+\chapter{Introduction}
+
+\begin{quote}
+  \itshape I also believe the only reason we still use email is that it’s impossible or very difficult to replace, kind
+  of like Facebook in a way. \attrib{Heidar Bernhardsson \cite{email-difficult-to-replace-like-facebook}}
+\end{quote}
+
+The boom of mobile computing in the last few years has changed the way how people work with their e-mail.  After a short
+period where it appeared that the webmail was the future and days of standard protocols were numbered, suddenly people
+realized that in fact, there {\em is} a merit in having a standardized protocol for e-mail access.
+
+Contemporary smartphones started to smear down the border between how a text message, an instant-messaging (IM)
+communication and a traditional e-mail work.  Suddenly, it is common to have a single ``messaging'' application
+aggregating communication history gathered from many distinct channels.
+
+Even though some people prefer not to use these integrated facilities, their mere existence and certain demand from the
+end-users present an unique opportunity for standardization --- it is easier to develop, test and deploy {\em one}
+particular data provider suitable for use with many different services from multitude of vendors than having to deploy a
+custom implementation for each social network which happens to be popular this year and on the continent the device
+manufacturer decided to target.  Engineers working for cell phone and tablet vendors who are taking place in the IETF
+standardization process are a clear evidence that the market recognizes this potential and that nobody wants to loose.
+
+In this thesis, I would like to explore the IMAP protocol \cite{rfc3501} and its rich extension family, evaluating their
+features by a prism of a {\em mobile client} --- a device which might have a decent amount of CPU and memory resources,
+as common with today's smartphones and modern tablets, but whose network connection is prone to frequent interruptions
+and might be payed based on the amount of transferred data, and whose battery would get extinguished in a few hours if
+certain precautions are not taken.  It turns out that although many of the IMAP extensions are extremely useful for
+increased efficiency of the client's operation, there are still quite a few opportunities for improvement, or outright
+deficiencies to correct.
+
+\section{Structure of the Thesis}
+
+The next chapter (p. \pageref{sec:imap-protocol}) of this thesis provides a brief introduction to the baseline IMAP
+protocol, its strengths and weaknesses and the general mode of operation.  The third chapter (p.
+\pageref{sec:imap-extensions}) analyzes the existing IMAP extensions based on the ``layer'' on which they add features
+to IMAP and on how they could be useful for the clients.  Their usefulness is illustrated through my experience in
+development of {\em Trojitá}, an open source mobile IMAP e-mail client which I started and have been maintaining for the
+last six years.  In chapter four (p.  \pageref{sec:proposed-extensions}), I have selected three completely different
+areas in which the state of IMAP, as of 2012, can still be built upon.  My improvements are delivered in the format of
+the so-called {\em Internet Drafts}, materials directly used by the IETF as the source of the RFC documents, the
+specifications which drive innovation on the Internet.  All of the extensions which I propose were presented for expert
+review through the relevant communication channels and are on track to become the Internet-Drafts and, hopefully, RFCs.
+
+After the theoretical section, chapter five (p. \pageref{sec:mobile-imap}) evaluates the status of the extension support
+among a selection of existing mobile clients available on the market and on real devices.  Chapter six serves as a short
+introduction for programmers into how Trojitá, the mobile e-mail client developed for this thesis, operates.  The work
+is concluded and a discussion of the work planned in future is available from chapter seven (p.
+\pageref{sec:conclusion}).
+
+All of the extensions which I am proposing are available in their traditional, formal format in Appendix \ref{sec:id-manuscripts}
+(p. \pageref{sec:id-manuscripts}).
+
+Finally, as Trojitá is a free software, open-source project, Appendix \ref{sec:acknowledgement} (p.
+\pageref{sec:acknowledgement}) acknowledges the work of other developers who have contributed to Trojitá over the years
+and lists the open source libraries required for its operation.  It also mentions two companies which decided to build
+their e-mail products on top of Trojitá.  The instructions on how to build Trojitá from source as well as the structure
+of the accompanying CD are in Appendix \ref{sec:source-cd} (p. \pageref{sec:source-cd}).
+
+\end{document}
