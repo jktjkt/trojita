@@ -1,10 +1,10 @@
 # Ongun Kanat <ongun.kanat@gmail.com>, 2013.
 # Volkan Gezer <volkangezer@gmail.com>, 2013, 2014, 2017.
-# Emir SARI <emir_sari@icloud.com>, 2022.
+# Emir SARI <emir_sari@icloud.com>, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2022-12-11 20:41+0300\n"
+"PO-Revision-Date: 2023-01-11 19:01+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 22.12.0\n"
+"X-Generator: Lokalize 22.12.1\n"
 "X-Qt-Contexts: true\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
@@ -780,7 +780,7 @@ msgstr ""
 #: ../src/Gui/ComposeWidget.cpp:238
 msgctxt "Gui::ComposeWidget|"
 msgid "Threaded"
-msgstr "Dizili"
+msgstr "Konulara Ayrılmış"
 
 #: ../src/Gui/ComposeWidget.cpp:358
 msgctxt "Gui::ComposeWidget|"
@@ -3275,7 +3275,7 @@ msgstr "xTuple ile eşitle"
 #: ../src/Gui/Window.cpp:511
 msgctxt "Gui::MainWindow|"
 msgid "Show Messages in &Threads"
-msgstr "İletileri &Dizi Halinde Göster"
+msgstr "İletileri &Konulara Ayrılmış Olarak Göster"
 
 #: ../src/Gui/Window.cpp:522
 msgctxt "Gui::MainWindow|"
@@ -3295,7 +3295,7 @@ msgstr "&Sıralama yok"
 #: ../src/Gui/Window.cpp:535
 msgctxt "Gui::MainWindow|"
 msgid "Sorted by &Threading"
-msgstr "&Diziye Göre Sırala"
+msgstr "&Konulara Göre Sırala"
 
 #: ../src/Gui/Window.cpp:537
 msgctxt "Gui::MainWindow|"
@@ -4571,8 +4571,8 @@ msgid ""
 "This thread refers to an extra message, but that message is not present in "
 "the selected mailbox, or is missing from the current search context."
 msgstr ""
-"Bu dizi bir ilave iletiye başvuruyor; ancak bu ileti seçilen posta kutusunda "
-"yok veya veya geçerli arama başvurusu eksik."
+"Bu konu başlığı, bir ek iletiye başvuruyor; ancak bu ileti seçilen posta "
+"kutusunda yok veya veya geçerli arama başvurusu eksik."
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:45
 msgctxt "Imap::Network::FileDownloadManager|"
@@ -5070,7 +5070,7 @@ msgstr "STARTTLS işleminden sonra bağlantı için güvenlik şartı reddedildi
 #: ../src/Imap/Tasks/SortTask.cpp:55
 msgctxt "Imap::Mailbox::SortTask|"
 msgid "Mailbox vanished before we could ask for threading info"
-msgstr "İş parçadığı bilgisi soramadan posta kutusu ortadan kayboldu"
+msgstr "Konulara ayırma bilgisini soramadan posta kutusu uçtu gitti"
 
 #: ../src/Imap/Tasks/SortTask.cpp:150
 msgctxt "Imap::Mailbox::SortTask|"
@@ -5095,17 +5095,17 @@ msgstr "Abonelik bilgisi güncelleniyor"
 #: ../src/Imap/Tasks/ThreadTask.cpp:53
 msgctxt "Imap::Mailbox::ThreadTask|"
 msgid "Mailbox vanished before we could ask for threading info"
-msgstr "İş parçacığı bilgisi soramadan posta kutusu ortadan kayboldu"
+msgstr "Konulara ayırma bilgisini soramadan posta kutusu uçtu gitti"
 
 #: ../src/Imap/Tasks/ThreadTask.cpp:75
 msgctxt "Imap::Mailbox::ThreadTask|"
 msgid "Threading command has failed"
-msgstr "İş parçacığı komutu başarısız oldu"
+msgstr "Konulara ayırma komutu başarısız oldu"
 
 #: ../src/Imap/Tasks/ThreadTask.cpp:109
 msgctxt "Imap::Mailbox::ThreadTask|"
 msgid "Fetching conversations"
-msgstr "Konuşmalar alınıyor"
+msgstr "Konuşmalar getiriliyor"
 
 #: ../src/Imap/Tasks/UidSubmitTask.cpp:55
 #, qt-format
