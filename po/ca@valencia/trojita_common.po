@@ -2117,8 +2117,9 @@ msgid ""
 "Please fill in all IMAP options, including the password, at the IMAP page. "
 "If you do not save the password, background synchronization will not run."
 msgstr ""
-"Ompliu totes les opcions IMAP, inclosa la contrasenya, en la pàgina d'IMAP. "
-"Si no guardeu la contrasenya, no s'executarà la sincronització en segon pla."
+"Empleneu totes les opcions IMAP, inclosa la contrasenya, en la pàgina "
+"d'IMAP. Si no guardeu la contrasenya, no s'executarà la sincronització en "
+"segon pla."
 
 #: ../src/Gui/SettingsDialog.cpp:1385
 msgctxt "Gui::XtConnectPage|"
