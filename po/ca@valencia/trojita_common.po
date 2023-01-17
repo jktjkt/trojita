@@ -1082,7 +1082,7 @@ msgstr "&Subscriu"
 #: ../src/Gui/EditFavoriteTag.ui:20
 msgctxt "EditFavoriteTag|"
 msgid "Manage Tag"
-msgstr "Gestió d'etiquetes"
+msgstr "Gestioneu les etiquetes"
 
 #: ../src/Gui/EditFavoriteTag.ui:29
 msgctxt "EditFavoriteTag|"
@@ -5243,7 +5243,7 @@ msgstr "La configuració de la contrasenya no és admesa per %1"
 msgctxt "MSA::Account|"
 msgid "This port is nonstandard. The default port for cleartext SMTP is %1."
 msgstr ""
-"Este port no és estàndard. El port predeterminat per al SMTP de text en clar "
+"Este port no és estàndard. El port predeterminat per a SMTP de text en clar "
 "és %1."
 
 #: ../src/MSA/Account.cpp:236
@@ -5263,7 +5263,7 @@ msgid ""
 "This port is nonstandard. The default port for SMTP over encrypted SSL/TLS "
 "connection is %1."
 msgstr ""
-"Este port no és estàndard. El port predeterminat per al SMTP sobre una "
+"Este port no és estàndard. El port predeterminat per a SMTP sobre una "
 "connexió encriptada SSL/TLS és %1."
 
 #: ../src/MSA/Sendmail.cpp:86
@@ -5513,7 +5513,7 @@ msgstr ""
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:123
 msgctxt "trojita_plugin_ClearTextPasswordPlugin|"
 msgid "Trojitá's settings"
-msgstr "Configuració de Trojitá"
+msgstr "Configureu Trojitá"
 
 #: ../src/Plugins/QtKeyChain/QtKeyChainPassword.cpp:127
 msgctxt "trojita_plugin_QtKeyChainPasswordPlugin|"
