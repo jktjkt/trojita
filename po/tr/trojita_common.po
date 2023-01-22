@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-01-11 19:01+0300\n"
+"PO-Revision-Date: 2023-01-21 14:47+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -2338,7 +2338,7 @@ msgstr "&Sunucu"
 #: ../src/Gui/SettingsImapPage.ui:75
 msgctxt "ImapPage|"
 msgid "Hostname of the IMAP server"
-msgstr "IMAP Sunucusun Adı"
+msgstr "IMAP sunucusunun adı"
 
 #: ../src/Gui/SettingsImapPage.ui:78
 msgctxt "ImapPage|"

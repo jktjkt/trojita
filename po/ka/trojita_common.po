@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Qt-Contexts: true\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -241,7 +241,7 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:375
 msgctxt "Cryptography::GpgMePart|"
 msgid "Verified signature"
-msgstr ""
+msgstr "გადამოწმებული ხელმოწერა"
 
 #: ../src/Cryptography/GpgMe++.cpp:376
 #, qt-format
@@ -257,7 +257,7 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:381
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signed by stranger"
-msgstr ""
+msgstr "ხელმოწერილია უცნობისმიერ"
 
 #: ../src/Cryptography/GpgMe++.cpp:382
 #, qt-format
@@ -271,24 +271,24 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:389
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature"
-msgstr ""
+msgstr "დაშიფრულია. ცუდი ხელმოწერა"
 
 #: ../src/Cryptography/GpgMe++.cpp:389
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature"
-msgstr ""
+msgstr "არასწორი ხელმოწერა"
 
 #: ../src/Cryptography/GpgMe++.cpp:392
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature: %1"
-msgstr ""
+msgstr "დაშიფრულია. ცუდი ხელმოწერა: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:393
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature: %1"
-msgstr ""
+msgstr "ცუდი ხელმოწერა: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:395
 #, qt-format
@@ -327,7 +327,7 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:420
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, some signature"
-msgstr ""
+msgstr "დაშიფრულია. რაღაც ხელმოწერა"
 
 #: ../src/Cryptography/GpgMe++.cpp:420
 msgctxt "Cryptography::GpgMePart|"
@@ -417,7 +417,7 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:477
 msgctxt "Cryptography::GpgMePart|"
 msgid "Available CRL is too old."
-msgstr ""
+msgstr "ხელმისაწვდომი CRL ძალიან ძველია."
 
 #: ../src/Cryptography/GpgMe++.cpp:481
 msgctxt "Cryptography::GpgMePart|"
@@ -601,7 +601,7 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:869
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted message"
-msgstr ""
+msgstr "დაშიფრული შეტყობინება"
 
 #: ../src/Cryptography/GpgMe++.cpp:875
 msgctxt "Cryptography::GpgMeEncrypted|"
@@ -973,7 +973,7 @@ msgstr "<br/>"
 #: ../src/Gui/ComposeWidget.cpp:1838
 msgctxt "Gui::ComposeWidget|"
 msgid "Compose Mail"
-msgstr ""
+msgstr "ელფოსტის შედგენა"
 
 #: ../src/Gui/ComposeWidget.cpp:1840
 #, qt-format
@@ -1110,7 +1110,7 @@ msgstr "პასუხობს"
 #: ../src/Gui/EnvelopeView.cpp:120
 msgctxt "Gui::EnvelopeView|"
 msgid "Reply-To"
-msgstr ""
+msgstr "უპასუხეთ"
 
 #: ../src/Gui/EnvelopeView.cpp:131
 msgctxt "Gui::EnvelopeView|"
@@ -1171,7 +1171,7 @@ msgstr "&დიდი და პატარა ასოების სხვ�
 #: ../src/Gui/FindBar.cpp:50
 msgctxt "Gui::FindBar|"
 msgid "&Highlight all"
-msgstr ""
+msgstr "&ყველას გამოკვეთა"
 
 #: ../src/Gui/FindBar.cpp:62
 msgctxt "Gui::FindBar|"
@@ -1279,7 +1279,7 @@ msgstr ""
 #: ../src/Gui/main.cpp:109
 msgctxt "QObject|"
 msgid "[url]"
-msgstr ""
+msgstr "[url]"
 
 #: ../src/Gui/main.cpp:132
 #, qt-format
@@ -1755,7 +1755,7 @@ msgstr ""
 #: ../src/Gui/SettingsDialog.cpp:315
 msgctxt "Gui::FavoriteTagsPage|"
 msgid "Add New Tag"
-msgstr ""
+msgstr "ახალი ჭდის დამატება"
 
 #: ../src/Gui/SettingsDialog.cpp:323
 msgctxt "Gui::FavoriteTagsPage|"
@@ -1766,22 +1766,22 @@ msgstr "ჭდის ჩასწორება"
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Plugin not found (%1)"
-msgstr ""
+msgstr "დამატება ვერ ვიპოვე (%1)"
 
 #: ../src/Gui/SettingsDialog.cpp:407
 msgctxt "Gui::GeneralPage|"
 msgid "Disable address book"
-msgstr ""
+msgstr "მისამართების წიგნის გამორთვა"
 
 #: ../src/Gui/SettingsDialog.cpp:408
 msgctxt "Gui::GeneralPage|"
 msgid "Disable passwords"
-msgstr ""
+msgstr "პაროლების გამორთვა"
 
 #: ../src/Gui/SettingsDialog.cpp:409
 msgctxt "Gui::GeneralPage|"
 msgid "Disable spell checking"
-msgstr ""
+msgstr "მართლწერის შემოწმების გამორთვა"
 
 #: ../src/Gui/SettingsDialog.cpp:425
 msgctxt "Gui::GeneralPage|"
@@ -1810,7 +1810,7 @@ msgstr ""
 #: ../src/Gui/SettingsDialog.cpp:521
 msgctxt "Gui::GeneralPage|"
 msgid "Edit Identity"
-msgstr ""
+msgstr "იდენტიფიკაციის ჩასწორება"
 
 #: ../src/Gui/SettingsDialog.cpp:529
 msgctxt "Gui::GeneralPage|"
@@ -1836,12 +1836,12 @@ msgstr ""
 #: ../src/Gui/SettingsDialog.cpp:713
 msgctxt "Gui::ImapPage|"
 msgid "Network Connection"
-msgstr ""
+msgstr "ქსელური შეერთება"
 
 #: ../src/Gui/SettingsDialog.cpp:714
 msgctxt "Gui::ImapPage|"
 msgid "Local Process"
-msgstr ""
+msgstr "ლოკალური პროცესი"
 
 #: ../src/Gui/SettingsDialog.cpp:716
 msgctxt "Gui::ImapPage|"
@@ -2073,7 +2073,7 @@ msgstr "სისტემის კუთხეში ხატულის ჩ
 #: ../src/Gui/SettingsGeneralPage.ui:62
 msgctxt "GeneralPage|"
 msgid "Start minimized"
-msgstr ""
+msgstr "ჩაკეცილად გაშვება"
 
 #: ../src/Gui/SettingsGeneralPage.ui:139
 msgctxt "GeneralPage|"
@@ -2093,7 +2093,7 @@ msgstr "წაშლა"
 #: ../src/Gui/SettingsGeneralPage.ui:167
 msgctxt "GeneralPage|"
 msgid "Addressbook"
-msgstr ""
+msgstr "მისამართების წიგნი"
 
 #: ../src/Gui/SettingsGeneralPage.ui:184
 msgctxt "GeneralPage|"
@@ -2103,7 +2103,7 @@ msgstr "პაროლები"
 #: ../src/Gui/SettingsGeneralPage.ui:201
 msgctxt "GeneralPage|"
 msgid "Spell checker"
-msgstr ""
+msgstr "მართლწერის შემოწმება"
 
 #: ../src/Gui/SettingsGeneralPage.ui:225
 msgctxt "GeneralPage|"
@@ -2114,13 +2114,13 @@ msgstr ""
 #: ../src/Gui/SettingsGeneralPage.ui:232
 msgctxt "GeneralPage|"
 msgid "immediately"
-msgstr ""
+msgstr "დაუყოვნებლივ"
 
 #. A suffix "seconds" inside a QDoubleSpinBox for configuring a time delay. Please keep this short so that the window is reasonably narrow.
 #: ../src/Gui/SettingsGeneralPage.ui:235
 msgctxt "GeneralPage|"
 msgid " s"
-msgstr ""
+msgstr " წმ"
 
 #. The action will happen *after* user-provided timeout in seconds
 #: ../src/Gui/SettingsGeneralPage.ui:238
@@ -2467,7 +2467,7 @@ msgstr ""
 #: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
 msgctxt "Gui::ShortcutConfigDialog|"
 msgid "Configure Shortcuts"
-msgstr ""
+msgstr "მალსახმობების მორგება"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
 msgctxt "Gui::ShortcutConfigDialog|"
@@ -2477,7 +2477,7 @@ msgstr "Trojitá"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
 msgctxt "Gui::ShortcutConfigWidget|"
 msgid "Configure Shortcuts"
-msgstr ""
+msgstr "მალსახმობების მორგება"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
@@ -2516,7 +2516,7 @@ msgstr ""
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:14
 msgctxt "ShortcutConfigWidget|"
 msgid "Configure Shortcuts"
-msgstr ""
+msgstr "მალსახმობების მორგება"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:20
 msgctxt "ShortcutConfigWidget|"
@@ -2553,7 +2553,7 @@ msgstr ""
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:49
 msgctxt "ShortcutConfigWidget|Label of search field"
 msgid "Search:"
-msgstr ""
+msgstr "ძებნა:"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:74
 msgctxt "ShortcutConfigWidget|"
@@ -2574,7 +2574,7 @@ msgstr ""
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:87
 msgctxt "ShortcutConfigWidget|Action for restoring default shortcut"
 msgid "Default"
-msgstr ""
+msgstr "აქტივობების მმართველის ჩვენება"
 
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:47
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:103
@@ -2632,7 +2632,7 @@ msgstr "გადიდება"
 #: ../src/Gui/SimplePartWidget.cpp:226
 msgctxt "Gui::SimplePartWidget|"
 msgid "Zoom In"
-msgstr ""
+msgstr "გადიდება"
 
 #: ../src/Gui/SimplePartWidget.cpp:230
 msgctxt "Gui::SimplePartWidget|"
@@ -2693,7 +2693,7 @@ msgstr "აღარ მკითხო"
 #: ../src/Gui/Window.cpp:130
 msgctxt "Gui::MainWindow|"
 msgid "Plugin Error"
-msgstr ""
+msgstr "დამატების შეცდომა"
 
 #. The %1 placeholder is a full error message as provided by Qt, ready for human consumption.
 #: ../src/Gui/Window.cpp:132
@@ -2714,12 +2714,12 @@ msgstr "&გამოსვლა"
 #: ../src/Gui/Window.cpp:235
 msgctxt "Gui::MainWindow|"
 msgid "&New Message..."
-msgstr ""
+msgstr "&ახალი შეტყობინება..."
 
 #: ../src/Gui/Window.cpp:236
 msgctxt "Gui::MainWindow|"
 msgid "&Edit Draft..."
-msgstr ""
+msgstr "&მონახაზის ჩასწორება..."
 
 #: ../src/Gui/Window.cpp:237
 msgctxt "Gui::MainWindow|"
@@ -2779,7 +2779,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:246
 msgctxt "Gui::MainWindow|"
 msgid "&Save Message..."
-msgstr ""
+msgstr "&შეტყობინების შენახვა..."
 
 #: ../src/Gui/Window.cpp:247
 msgctxt "Gui::MainWindow|"
@@ -2869,7 +2869,7 @@ msgstr "&დაარქივება"
 #: ../src/Gui/Window.cpp:257
 msgctxt "Gui::MainWindow|"
 msgid "Address Book..."
-msgstr ""
+msgstr "მისამართების წიგნი..."
 
 #: ../src/Gui/Window.cpp:258
 msgctxt "Gui::MainWindow|"
@@ -2884,7 +2884,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:260
 msgctxt "Gui::MainWindow|"
 msgid "&Free Access"
-msgstr ""
+msgstr "&თავისუფალი წვდომა"
 
 #: ../src/Gui/Window.cpp:261
 msgctxt "Gui::MainWindow|"
@@ -2904,7 +2904,7 @@ msgstr "უკან გადასვლა"
 #: ../src/Gui/Window.cpp:264
 msgctxt "Gui::MainWindow|"
 msgid "Zoom In"
-msgstr ""
+msgstr "გადიდება"
 
 #: ../src/Gui/Window.cpp:265
 msgctxt "Gui::MainWindow|"
@@ -2999,7 +2999,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:319
 msgctxt "Gui::MainWindow|"
 msgid "Exit the application"
-msgstr ""
+msgstr "აპლიკაციიდან გასვლა"
 
 #. a debugging tool showing the full contents of the whole IMAP server; all folders, messages and their parts
 #: ../src/Gui/Window.cpp:338
@@ -3117,7 +3117,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:543
 msgctxt "Gui::MainWindow|"
 msgid "&From Address"
-msgstr ""
+msgstr "&მისამართიდან"
 
 #: ../src/Gui/Window.cpp:545
 msgctxt "Gui::MainWindow|"
@@ -3127,12 +3127,12 @@ msgstr "&ზომა"
 #: ../src/Gui/Window.cpp:547
 msgctxt "Gui::MainWindow|"
 msgid "S&ubject"
-msgstr ""
+msgstr "&თემა"
 
 #: ../src/Gui/Window.cpp:549
 msgctxt "Gui::MainWindow|"
 msgid "T&o Address"
-msgstr ""
+msgstr "&მისამართზე"
 
 #: ../src/Gui/Window.cpp:554
 msgctxt "Gui::MainWindow|"
@@ -3147,7 +3147,7 @@ msgstr "შემცირება"
 #: ../src/Gui/Window.cpp:567
 msgctxt "Gui::MainWindow|"
 msgid "&Wide"
-msgstr ""
+msgstr "&ფართო"
 
 #: ../src/Gui/Window.cpp:570
 msgctxt "Gui::MainWindow|"
@@ -3177,7 +3177,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:592
 msgctxt "Gui::MainWindow|"
 msgid "Compose Mail"
-msgstr ""
+msgstr "ელფოსტის შედგენა"
 
 #: ../src/Gui/Window.cpp:692
 msgctxt "Gui::MainWindow|"
@@ -3187,12 +3187,12 @@ msgstr "&აპლიკაცია"
 #: ../src/Gui/Window.cpp:694
 msgctxt "Gui::MainWindow|"
 msgid "&Network Access"
-msgstr ""
+msgstr "&ქსელური წვდომა"
 
 #: ../src/Gui/Window.cpp:698
 msgctxt "Gui::MainWindow|"
 msgid "&Debugging"
-msgstr ""
+msgstr "&გამართვა"
 
 #: ../src/Gui/Window.cpp:718
 msgctxt "Gui::MainWindow|"
@@ -3207,17 +3207,17 @@ msgstr "&განლაგება"
 #: ../src/Gui/Window.cpp:728
 msgctxt "Gui::MainWindow|"
 msgid "Mail&box"
-msgstr ""
+msgstr "&საფოსტ ყუთი"
 
 #: ../src/Gui/Window.cpp:729
 msgctxt "Gui::MainWindow|"
 msgid "S&orting"
-msgstr ""
+msgstr "&დალაგება"
 
 #: ../src/Gui/Window.cpp:751
 msgctxt "Gui::MainWindow|"
 msgid "&Message"
-msgstr ""
+msgstr "&შეტყობინება"
 
 #: ../src/Gui/Window.cpp:830
 #, qt-format
@@ -3233,17 +3233,17 @@ msgstr "ყველაფერი"
 #: ../src/Gui/Window.cpp:850
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Tasks"
-msgstr ""
+msgstr "IMAP-ის ამოცანები"
 
 #: ../src/Gui/Window.cpp:857
 msgctxt "Gui::MainWindow|"
 msgid "MIME Tree"
-msgstr ""
+msgstr "MIME-ის ხე"
 
 #: ../src/Gui/Window.cpp:867
 msgctxt "Gui::MainWindow|"
 msgid "Protocol log"
-msgstr ""
+msgstr "პროტოკოლის ჟურნალი"
 
 #: ../src/Gui/Window.cpp:944
 #, qt-format
@@ -3264,8 +3264,8 @@ msgstr "&გასვლა"
 msgctxt "Gui::MainWindow|"
 msgid " - %n unread message(s)"
 msgid_plural " - %n unread message(s)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] " - %n წაუკითხავი შეტყობინება"
+msgstr[1] " - %n წაუკითხავი შეტყობინება"
 
 #. A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
 #: ../src/Gui/Window.cpp:1115
@@ -3289,22 +3289,22 @@ msgstr ""
 #: ../src/Gui/Window.cpp:1338
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Alert"
-msgstr ""
+msgstr "IMAP-ის გაფრთხილება"
 
 #: ../src/Gui/Window.cpp:1343
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Protocol Error"
-msgstr ""
+msgstr "IMAP-ის პროტოკოლის შეცდომა"
 
 #: ../src/Gui/Window.cpp:1351
 msgctxt "Gui::MainWindow|"
 msgid "Network Error"
-msgstr ""
+msgstr "ქსელის შეცდომა"
 
 #: ../src/Gui/Window.cpp:1372
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Cache Error"
-msgstr ""
+msgstr "IMAP-ის კეშის შეცდომა"
 
 #: ../src/Gui/Window.cpp:1373
 #, qt-format
@@ -3324,7 +3324,7 @@ msgstr "გათიშული"
 #: ../src/Gui/Window.cpp:1430
 msgctxt "Gui::MainWindow|"
 msgid "No Configuration"
-msgstr ""
+msgstr "კონფიგურაციის გარეშე"
 
 #: ../src/Gui/Window.cpp:1431
 msgctxt "Gui::MainWindow|"
@@ -3351,18 +3351,18 @@ msgstr ""
 #: ../src/Gui/Window.cpp:1529
 msgctxt "Gui::MainWindow|"
 msgid "Edit draft"
-msgstr ""
+msgstr "მონახაზის ჩასწორება"
 
 #: ../src/Gui/Window.cpp:1650
 msgctxt "Gui::MainWindow|"
 msgid "Failed to archive"
-msgstr ""
+msgstr "არქივირების შეცდომა"
 
 #: ../src/Gui/Window.cpp:1700
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Create a Subfolder of %1"
-msgstr ""
+msgstr "%1-ის ქვესაქაღალდის შექმნა"
 
 #: ../src/Gui/Window.cpp:1701
 msgctxt "Gui::MainWindow|"
@@ -3372,7 +3372,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:1728
 msgctxt "Gui::MainWindow|"
 msgid "Delete Mailbox"
-msgstr ""
+msgstr "საფოსტო ყუთის წაშლა"
 
 #: ../src/Gui/Window.cpp:1729
 #, qt-format
@@ -3383,7 +3383,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:2028
 msgctxt "Gui::MainWindow|"
 msgid "Can't delete mailbox"
-msgstr ""
+msgstr "საფოსტო ყუთის წაშლის შეცდომა"
 
 #: ../src/Gui/Window.cpp:2029
 #, qt-format
@@ -3396,7 +3396,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:2034
 msgctxt "Gui::MainWindow|"
 msgid "Can't create mailbox"
-msgstr ""
+msgstr "საფოსტო ყუთის შექმნის შეცდომა"
 
 #: ../src/Gui/Window.cpp:2035
 #, qt-format
@@ -3409,7 +3409,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:2040
 msgctxt "Gui::MainWindow|"
 msgid "Can't open mailbox"
-msgstr ""
+msgstr "საფოსტო ყუთის გახსნის შეცდომა"
 
 #: ../src/Gui/Window.cpp:2041
 #, qt-format
@@ -3433,18 +3433,18 @@ msgstr "დამატებები"
 #: ../src/Gui/Window.cpp:2112
 msgctxt "Gui::MainWindow|"
 msgid "Encrypted and signed messages"
-msgstr ""
+msgstr "დაშიფრული და ხელმოწერილი შეტყობინებები"
 
 #: ../src/Gui/Window.cpp:2119
 msgctxt "Gui::MainWindow|"
 msgid "IMAP compression"
-msgstr ""
+msgstr "IMAP-ის შეკუმშვა"
 
 #: ../src/Gui/Window.cpp:2130
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: supported</li>"
-msgstr ""
+msgstr "<li>%1: მხარდაჭერილია</li>"
 
 #: ../src/Gui/Window.cpp:2131
 #, qt-format
@@ -3455,7 +3455,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:2189
 msgctxt "Gui::MainWindow|"
 msgid "Can't save into file"
-msgstr ""
+msgstr "ფაილში ჩაწერა შეუძლებელია"
 
 #: ../src/Gui/Window.cpp:2190
 #, qt-format
@@ -3604,102 +3604,102 @@ msgstr ""
 #: ../src/Imap/ConnectionState.cpp:35
 msgctxt "QObject|"
 msgid "Resolving hostname..."
-msgstr ""
+msgstr "ჰოსტის სახელის ამოხსნა..."
 
 #: ../src/Imap/ConnectionState.cpp:37
 msgctxt "QObject|"
 msgid "Connecting to the IMAP server..."
-msgstr ""
+msgstr "IMAP სერვერთან დაკავშირება..."
 
 #: ../src/Imap/ConnectionState.cpp:39
 msgctxt "QObject|"
 msgid "Starting encryption (SSL)..."
-msgstr ""
+msgstr "SSL დაშიფვრის გაშვება..."
 
 #: ../src/Imap/ConnectionState.cpp:41
 msgctxt "QObject|"
 msgid "Checking certificates (SSL)..."
-msgstr ""
+msgstr "სერტიფიკატის (SSL) შემოწმება..."
 
 #: ../src/Imap/ConnectionState.cpp:43
 msgctxt "QObject|"
 msgid "Checking capabilities..."
-msgstr ""
+msgstr "შესაძლებლობების შემოწმება.."
 
 #: ../src/Imap/ConnectionState.cpp:45
 msgctxt "QObject|"
 msgid "Waiting for encryption..."
-msgstr ""
+msgstr "დაშიფვრის მოლოდინი..."
 
 #: ../src/Imap/ConnectionState.cpp:47
 msgctxt "QObject|"
 msgid "Asking for encryption..."
-msgstr ""
+msgstr "დაშიფვრის მოთხოვნა..."
 
 #: ../src/Imap/ConnectionState.cpp:49
 msgctxt "QObject|"
 msgid "Starting encryption (STARTTLS)..."
-msgstr ""
+msgstr "STARTTLS დაშიფვრის გაშვება..."
 
 #: ../src/Imap/ConnectionState.cpp:51
 msgctxt "QObject|"
 msgid "Checking certificates (STARTTLS)..."
-msgstr ""
+msgstr "სერტიფიკატის (STARTTLS) შემოწმება..."
 
 #: ../src/Imap/ConnectionState.cpp:53
 msgctxt "QObject|"
 msgid "Checking capabilities (after STARTTLS)..."
-msgstr ""
+msgstr "შესაძლებლობების შემოწმება (STARTTLS-ის შემდეგ).."
 
 #: ../src/Imap/ConnectionState.cpp:55
 msgctxt "QObject|"
 msgid "Logging in..."
-msgstr ""
+msgstr "შესვლა..."
 
 #: ../src/Imap/ConnectionState.cpp:57
 msgctxt "QObject|"
 msgid "Checking capabilities (after login)..."
-msgstr ""
+msgstr "შესაძლებლობების შემოწმება (შესვლის შემდეგ)..."
 
 #: ../src/Imap/ConnectionState.cpp:59
 msgctxt "QObject|"
 msgid "Activating compression..."
-msgstr ""
+msgstr "შეკუმშვის ჩართვა..."
 
 #: ../src/Imap/ConnectionState.cpp:61
 msgctxt "QObject|"
 msgid "Logged in."
-msgstr ""
+msgstr "შეხვედით."
 
 #: ../src/Imap/ConnectionState.cpp:63
 msgctxt "QObject|"
 msgid "Waiting for another mailbox..."
-msgstr ""
+msgstr "სხვა საფოსტო ყუთის მოლოდინი..."
 
 #: ../src/Imap/ConnectionState.cpp:65
 msgctxt "QObject|"
 msgid "Opening mailbox..."
-msgstr ""
+msgstr "საფოსტო ყუთის გახსნა..."
 
 #: ../src/Imap/ConnectionState.cpp:67
 msgctxt "QObject|"
 msgid "Synchronizing mailbox..."
-msgstr ""
+msgstr "საფოსტო ყუთის სინქრონიზაცია..."
 
 #: ../src/Imap/ConnectionState.cpp:69
 msgctxt "QObject|"
 msgid "Mailbox opened."
-msgstr ""
+msgstr "საფოსტო ყუთი გაიხსნა."
 
 #: ../src/Imap/ConnectionState.cpp:71
 msgctxt "QObject|"
 msgid "Downloading message..."
-msgstr ""
+msgstr "შეტყობინების გადმოწრა..."
 
 #: ../src/Imap/ConnectionState.cpp:73
 msgctxt "QObject|"
 msgid "Downloading message structure..."
-msgstr ""
+msgstr "შეტყობინების სტრუქტურის გადმოწერა..."
 
 #: ../src/Imap/ConnectionState.cpp:75
 msgctxt "QObject|"
@@ -3769,7 +3769,7 @@ msgstr ""
 #, qt-format
 msgctxt "Imap::ImapAccess|"
 msgid "Failed to create directory %1"
-msgstr ""
+msgstr "შეცდომა საქაღალდის (%1) შექმნისას"
 
 #: ../src/Imap/Model/ImapAccess.cpp:326
 #, qt-format
@@ -3799,13 +3799,13 @@ msgstr "თთთთ წწწწ"
 #, qt-format
 msgctxt "Imap::Mailbox::Model|"
 msgid "[loading %1...]"
-msgstr ""
+msgstr "[%1-ის ჩატვირთვა...]"
 
 #: ../src/Imap/Model/MailboxTree.cpp:1719
 #, qt-format
 msgctxt "Imap::Mailbox::Model|"
 msgid "[loading %1: %2...]"
-msgstr ""
+msgstr "[%1-ის ჩატვირთვა: %2...]"
 
 #: ../src/Imap/Model/Model.cpp:1069
 msgctxt "Imap::Mailbox::Model|"
@@ -3869,7 +3869,7 @@ msgstr "ვისგან"
 #: ../src/Imap/Model/MsgListModel.cpp:286
 msgctxt "Imap::Mailbox::MsgListModel|"
 msgid "To"
-msgstr ""
+msgstr "ვის"
 
 #: ../src/Imap/Model/MsgListModel.cpp:288
 msgctxt "Imap::Mailbox::MsgListModel|"
@@ -3968,7 +3968,7 @@ msgstr ""
 #: ../src/Imap/Model/SQLCache.cpp:132
 msgctxt "QObject|"
 msgid "Can't open database"
-msgstr ""
+msgstr "მონაცემთა ბაზის გახსნა შეუძლებელია"
 
 #: ../src/Imap/Model/SQLCache.cpp:147
 msgctxt "QObject|"
@@ -4043,132 +4043,132 @@ msgstr ""
 #: ../src/Imap/Model/SQLCache.cpp:281
 msgctxt "QObject|"
 msgid "Failed to prepare queryChildMailboxes"
-msgstr ""
+msgstr "შეცდომა queryChildMailboxes-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:287
 msgctxt "QObject|"
 msgid "Failed to prepare queryChildMailboxesFresh"
-msgstr ""
+msgstr "შეცდომა queryChildMailboxesFresh-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:293
 msgctxt "QObject|"
 msgid "Failed to prepare queryRemoveChildMailboxes"
-msgstr ""
+msgstr "შეცდომა queryRemoveChildMailboxes-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:299
 msgctxt "QObject|"
 msgid "Failed to prepare querySetChildMailboxes"
-msgstr ""
+msgstr "შეცდომა querySetChildMailboxes-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:305
 msgctxt "QObject|"
 msgid "Failed to prepare queryMailboxSyncState"
-msgstr ""
+msgstr "შეცდომა queryMailboxSyncState-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:313
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMailboxSyncState"
-msgstr ""
+msgstr "შეცდომა querySetMailboxSyncState-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:319
 msgctxt "QObject|"
 msgid "Failed to prepare queryUidMapping"
-msgstr ""
+msgstr "შეცდომა queryUidMapping-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:325
 msgctxt "QObject|"
 msgid "Failed to prepare querySetUidMapping"
-msgstr ""
+msgstr "შეცდომა querySetUidMapping-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:331
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearUidMapping"
-msgstr ""
+msgstr "შეცდომა queryClearUidMapping-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:337
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageMetadata"
-msgstr ""
+msgstr "შეცდომა queryMessageMetadata-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:343
 msgctxt "QObject|"
 msgid "Failed to prepare queryAccssMessageMetadata"
-msgstr ""
+msgstr "შეცდომა queryAccssMessageMetadata-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:349
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageMetadata"
-msgstr ""
+msgstr "შეცდომა querySetMessageMetadata-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:355
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageFlags"
-msgstr ""
+msgstr "შეცდომა queryMessageFlags-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:361
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageFlags"
-msgstr ""
+msgstr "შეცდომა querySetMessageFlags-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:367
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages1"
-msgstr ""
+msgstr "შეცდომა queryClearAllMessages1-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:373
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages2"
-msgstr ""
+msgstr "შეცდომა queryClearAllMessages2-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:379
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages3"
-msgstr ""
+msgstr "შეცდომა queryClearAllMessages3-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:385
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages4"
-msgstr ""
+msgstr "შეცდომა queryClearAllMessages4-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:391
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage1"
-msgstr ""
+msgstr "შეცდომა queryClearMessage1-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:397
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage2"
-msgstr ""
+msgstr "შეცდომა queryClearMessage2-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:403
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage3"
-msgstr ""
+msgstr "შეცდომა queryClearMessage3-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:409
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessagePart"
-msgstr ""
+msgstr "შეცდომა queryMessagePart-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:415
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessagePart"
-msgstr ""
+msgstr "შეცდომა querySetMessagePart-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:421
 msgctxt "QObject|"
 msgid "Failed to prepare queryForgetMessagePart"
-msgstr ""
+msgstr "შეცდომა queryForgetMessagePart-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:427
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageThreading"
-msgstr ""
+msgstr "შეცდომა queryMessageThreading-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:433
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageThreading"
-msgstr ""
+msgstr "შეცდომა querySetMessageThreading-ის მომზადებისას"
 
 #: ../src/Imap/Model/SQLCache.cpp:464
 msgctxt "QObject|"
@@ -4353,7 +4353,7 @@ msgstr ""
 #, qt-format
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "Unsupported URL (%1)"
-msgstr ""
+msgstr "მხარდაუჭერელი URL (%1)"
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:74
 #, qt-format
@@ -4380,7 +4380,7 @@ msgstr ""
 #: ../src/Imap/Network/ForbiddenReply.cpp:34
 msgctxt "Imap::Network::ForbiddenReply|"
 msgid "Remote Content Is Banned"
-msgstr ""
+msgstr "დაშორებული შემცველობა აკრძალულია"
 
 #: ../src/Imap/Network/MsgPartNetworkReply.cpp:82
 msgctxt "Imap::Network::MsgPartNetworkReply|"
@@ -4395,12 +4395,12 @@ msgstr ""
 #: ../src/Imap/Network/MsgPartNetworkReply.cpp:87
 msgctxt "Imap::Network::MsgPartNetworkReply|"
 msgid "Error downloading data"
-msgstr ""
+msgstr "მონაცემების გადმოწერის შეცდომა"
 
 #: ../src/Imap/Tasks/AppendTask.cpp:97
 msgctxt "Imap::Mailbox::AppendTask|"
 msgid "Uploading message"
-msgstr ""
+msgstr "შეტყობინების ატვირთვა"
 
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:83
 msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
@@ -4410,7 +4410,7 @@ msgstr ""
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:105
 msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "ვთხოვეთ, გარდაიცვალოს"
 
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:116
 #, qt-format
@@ -4427,12 +4427,12 @@ msgstr ""
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:133
 msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
 msgid "Copying messages"
-msgstr ""
+msgstr "შეტყობინებების კოპირება"
 
 #: ../src/Imap/Tasks/CreateMailboxTask.cpp:64
 msgctxt "Imap::Mailbox::CreateMailboxTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "ვთხოვეთ, გარდაიცვალოს"
 
 #: ../src/Imap/Tasks/CreateMailboxTask.cpp:71
 msgctxt "Imap::Mailbox::CreateMailboxTask|"
@@ -4457,7 +4457,7 @@ msgstr ""
 #: ../src/Imap/Tasks/DeleteMailboxTask.cpp:109
 msgctxt "Imap::Mailbox::DeleteMailboxTask|"
 msgid "Deleting mailbox"
-msgstr ""
+msgstr "საფოსტო ყუთის წაშლა"
 
 #: ../src/Imap/Tasks/DeleteMailboxTask.cpp:115
 #, qt-format
@@ -4554,7 +4554,7 @@ msgstr ""
 #: ../src/Imap/Tasks/IdTask.cpp:84
 msgctxt "Imap::Mailbox::IdTask|"
 msgid "Identifying server"
-msgstr ""
+msgstr "სერვერის იდენტიფიკაცია"
 
 #: ../src/Imap/Tasks/ImapTask.cpp:256
 #, qt-format
@@ -4567,7 +4567,7 @@ msgstr ""
 #: ../src/Imap/Tasks/ImapTask.h:191
 msgctxt "Imap::Mailbox::ImapTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "ვთხოვეთ, გარდაიცვალოს"
 
 #: ../src/Imap/Tasks/ImapTask.h:195
 msgctxt "Imap::Mailbox::ImapTask|"
@@ -4580,7 +4580,7 @@ msgstr "შეწყვეტილია"
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:517
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "ვთხოვეთ, გარდაიცვალოს"
 
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:264
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:265
@@ -4611,7 +4611,7 @@ msgstr ""
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:101
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
 msgid "LIST failed"
-msgstr ""
+msgstr "LIST -ის შეცდომა"
 
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:105
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
@@ -4626,17 +4626,17 @@ msgstr ""
 #: ../src/Imap/Tasks/NoopTask.cpp:63
 msgctxt "Imap::Mailbox::NoopTask|"
 msgid "NOOP failed, strange"
-msgstr ""
+msgstr "NOOP -ის შეცდომა. უცნაურია"
 
 #: ../src/Imap/Tasks/NoopTask.cpp:74
 msgctxt "Imap::Mailbox::NoopTask|"
 msgid "Checking for new messages"
-msgstr ""
+msgstr "ახალი შეტყობინებების შემოწმება"
 
 #: ../src/Imap/Tasks/NumberOfMessagesTask.cpp:78
 msgctxt "Imap::Mailbox::NumberOfMessagesTask|"
 msgid "STATUS has failed"
-msgstr ""
+msgstr "STATUS-ის შეცდომა"
 
 #: ../src/Imap/Tasks/NumberOfMessagesTask.cpp:99
 msgctxt "Imap::Mailbox::NumberOfMessagesTask|"
@@ -4656,7 +4656,7 @@ msgstr ""
 #: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:146
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "ვთხოვეთ, გარდაიცვალოს"
 
 #: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1202
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
@@ -4681,7 +4681,7 @@ msgstr "გათიშული"
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:116
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "ვთხოვეთ, გარდაიცვალოს"
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:163
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
@@ -4823,7 +4823,7 @@ msgstr ""
 #: ../src/Imap/Tasks/SortTask.cpp:244
 msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting mailbox"
-msgstr ""
+msgstr "საფოსტო ყუთის დალაგება"
 
 #: ../src/Imap/Tasks/SubscribeUnsubscribeTask.cpp:94
 msgctxt "Imap::Mailbox::SubscribeUnsubscribeTask|"
@@ -4859,12 +4859,12 @@ msgstr ""
 #: ../src/Imap/Tasks/UidSubmitTask.cpp:84
 msgctxt "Imap::Mailbox::UidSubmitTask|"
 msgid "Sending mail"
-msgstr ""
+msgstr "ელფოსტის გაგზავნა"
 
 #: ../src/Imap/Tasks/UnSelectTask.cpp:49 ../src/Imap/Tasks/UnSelectTask.cpp:67
 msgctxt "Imap::Mailbox::UnSelectTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "ვთხოვეთ, გარდაიცვალოს"
 
 #: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:101
 msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
@@ -4960,7 +4960,7 @@ msgstr ""
 #: ../src/MSA/SMTP.cpp:69
 msgctxt "MSA::SMTP|"
 msgid "Sending of the message failed."
-msgstr ""
+msgstr "შეტყობინების გაგზავნის შეცდომა."
 
 #: ../src/MSA/SMTP.cpp:71
 #, qt-format
@@ -4979,13 +4979,13 @@ msgstr ""
 #: ../src/MSA/SMTP.cpp:139
 msgctxt "MSA::SMTP|"
 msgid "Unknown SMTP mode"
-msgstr ""
+msgstr "SMTP-ისუცნობი რეჟიმი"
 
 #. Translators: BE::Contacts is the name of a stand-alone address book application. BE refers to Bose/Einstein (condensate).
 #: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:151
 msgctxt "BE::Contacts|"
 msgid "BE::Contacts"
-msgstr ""
+msgstr "კონტაქტები"
 
 #: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:400
 msgctxt "trojita_plugin_AbookAddressbookPlugin|"
@@ -5010,12 +5010,12 @@ msgstr "შევინახო ცვლილებები?"
 #: ../src/Plugins/AbookAddressbook/be-contacts.cpp:276
 msgctxt "BE::Contacts|"
 msgid "[New Contact]"
-msgstr ""
+msgstr "[ახალი კონტაქტი]"
 
 #: ../src/Plugins/AbookAddressbook/be-contacts.cpp:457
 msgctxt "BE::Contacts|"
 msgid "[name]"
-msgstr ""
+msgstr "[სახელი]"
 
 #: ../src/Plugins/AbookAddressbook/be-contacts.ui:14
 msgctxt "Contacts|"
@@ -5150,7 +5150,7 @@ msgstr "<anniversary>"
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:428
 msgctxt "OneContact|"
 msgid "Custom notes"
-msgstr ""
+msgstr "სხვა შენიშვნები"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:447
 msgctxt "OneContact|"
@@ -5165,7 +5165,7 @@ msgstr "სურათი"
 #: ../src/Plugins/AkonadiAddressbook/AkonadiAddressbook.cpp:67
 msgctxt "trojita_plugin_AkonadiAddressbookPlugin|"
 msgid "KDE Addressbook (Akonadi)"
-msgstr ""
+msgstr "KDE-ის მისამართების წიგნი (Akonadi)"
 
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:51
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:67
@@ -5177,7 +5177,7 @@ msgstr ""
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:123
 msgctxt "trojita_plugin_ClearTextPasswordPlugin|"
 msgid "Trojitá's settings"
-msgstr ""
+msgstr "Trojitá-ის მორგება"
 
 #: ../src/Plugins/QtKeyChain/QtKeyChainPassword.cpp:127
 msgctxt "trojita_plugin_QtKeyChainPasswordPlugin|"
@@ -5187,29 +5187,29 @@ msgstr ""
 #: ../src/Plugins/SonnetSpellchecker/SonnetSpellchecker.cpp:46
 msgctxt "Plugins::trojita_plugin_SonnetSpellcheckerPlugin|"
 msgid "Sonnet (KF5)"
-msgstr ""
+msgstr "Sonnet (KF5)"
 
 #: ../src/qwwsmtpclient/qwwsmtpclient.cpp:449
 msgctxt "QwwSmtpClient|"
 msgid "Unsupported or unknown authentication scheme"
-msgstr ""
+msgstr "მხარდაუჭერელიან უცნობი ავთენტიკაციის სქემა"
 
 #: ../src/Streams/IODeviceSocket.cpp:178
 #, qt-format
 msgctxt "Streams::ProcessSocket|"
 msgid "Disconnected: %1"
-msgstr ""
+msgstr "გათიშულია: %1"
 
 #: ../src/Streams/IODeviceSocket.cpp:192
 msgctxt "Streams::ProcessSocket|"
 msgid "The process has started"
-msgstr ""
+msgstr "პროცესი გაეშვა"
 
 #: ../src/Streams/IODeviceSocket.cpp:195
 #, qt-format
 msgctxt "Streams::ProcessSocket|"
 msgid "Starting process `%1 %2`"
-msgstr ""
+msgstr "ეშვება პროცესი `%1 %2`"
 
 #: ../src/Streams/IODeviceSocket.cpp:202
 #, qt-format
@@ -5269,7 +5269,7 @@ msgstr " (SSL)"
 #: ../src/Streams/IODeviceSocket.cpp:309
 msgctxt "Streams::SslTlsSocket|"
 msgid "Connected"
-msgstr ""
+msgstr "დაკავშირებულია"
 
 #: ../src/Streams/IODeviceSocket.cpp:311
 msgctxt "Streams::SslTlsSocket|"
@@ -5495,13 +5495,13 @@ msgstr ""
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Password reading failed: %1"
-msgstr ""
+msgstr "პაროლის წაკითხვის შეცდომა: %1"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:149
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Password writing failed: %1"
-msgstr ""
+msgstr "პაროლის ჩაწერის შეცდომა: %1"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:168
 #, qt-format
