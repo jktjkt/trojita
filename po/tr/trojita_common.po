@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-01-21 14:47+0300\n"
+"PO-Revision-Date: 2023-02-08 20:22+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 22.12.1\n"
+"X-Generator: Lokalize 22.12.2\n"
 "X-Qt-Contexts: true\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
@@ -2307,8 +2307,8 @@ msgstr ""
 "weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Standart, şifrelenmemiş "
-"bağlantıyla bağlanmak ve girişten önce şifrelemeyi saydam olarak yapmak için "
-"<span style=\" font-style:italic;\">TCP</span> seçin.</p>\n"
+"bağlantıyla bağlanmak ve oturum açma öncesi şifrelemeyi saydam olarak yapmak "
+"için <span style=\" font-style:italic;\">TCP</span> seçin.</p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
 "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
 "p>\n"
@@ -2513,9 +2513,9 @@ msgstr ""
 "family:'Courier New,courier';\">ssh mail.example.org dovecot --exec-mail "
 "imap</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
-"right:0px; -qt-block-indent:0; text-indent:0px;\">Bu komutun tamamiyle "
+"right:0px; -qt-block-indent:0; text-indent:0px;\">Bu komutun tamamıyla "
 "etkileşimsiz çalışması gerektiğini unutmayın, yani SSH'ı parola olmadan "
-"giriş yapabilecek şekilde, belki de anahtarlarla kullanacak şekilde "
+"oturum açabilecek şekilde, belki de anahtarlarla kullanacak şekilde "
 "ayarlamalısınız.</p></body></html>"
 
 #: ../src/Gui/SettingsImapPage.ui:256
@@ -3876,7 +3876,7 @@ msgstr "Oturum açılıyor..."
 #: ../src/Imap/ConnectionState.cpp:57
 msgctxt "QObject|"
 msgid "Checking capabilities (after login)..."
-msgstr "Yetenekler denetleniyor (Girişten sonra)..."
+msgstr "Yetenekler denetleniyor (oturum açılışı sonrası)..."
 
 #: ../src/Imap/ConnectionState.cpp:59
 msgctxt "QObject|"
@@ -5033,7 +5033,7 @@ msgid ""
 "Server error: LOGINDISABLED but no STARTTLS capability. The login is "
 "effectively disabled entirely."
 msgstr ""
-"Sunucu hatası: LOGINDISABLED ama STARTTLS yeteneği yok. Giriş tümden "
+"Sunucu hatası: LOGINDISABLED ama STARTTLS yeteneği yok. Oturum açma tümden "
 "kapatıldı."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:403
@@ -5049,7 +5049,7 @@ msgstr "Sunucu hatası: CAPABILITY isteği başarısız."
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:472
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Cannot login, you have not provided any credentials yet."
-msgstr "Giriş yapılamıyor, henüz kimlik bilgisi sağlamadınız."
+msgstr "Oturum açılamıyor, henüz kimlik bilgisi sağlamadınız."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:484
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
