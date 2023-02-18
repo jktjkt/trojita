@@ -1,19 +1,19 @@
-# Vit Pelcak <vit@pelcak.org>, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022.
+# Vit Pelcak <vit@pelcak.org>, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023.
 # Tomáš Chvátal <tomas.chvatal@gmail.com>, 2013.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-28 02:35+0200\n"
-"PO-Revision-Date: 2022-03-04 10:54+0100\n"
-"Last-Translator: Vit Pelcak <vpelcak@suse.cz>\n"
+"PO-Revision-Date: 2023-02-16 09:02+0100\n"
+"Last-Translator: Vit Pelcak <vit@pelcak.org>\n"
 "Language-Team: Czech <kde-i18n-doc@kde.org>\n"
 "Language: cs\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Lokalize 21.12.2\n"
+"X-Generator: Lokalize 22.12.2\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -2116,7 +2116,7 @@ msgstr "Zobrazit e-maily v čistém textu namísto verze v HTML"
 #: ../src/Gui/SettingsGeneralPage.ui:55
 msgctxt "GeneralPage|"
 msgid "Show system tray icon"
-msgstr "Zobrazit ikonu v systémové liště"
+msgstr "Zobrazovat ikonu v systémovém panelu"
 
 #: ../src/Gui/SettingsGeneralPage.ui:62
 msgctxt "GeneralPage|"
