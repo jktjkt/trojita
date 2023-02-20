@@ -1,15 +1,15 @@
 # Translation of trojita_common.po to Catalan
-# Copyright (C) 2014-2022 This_file_is_part_of_KDE
+# Copyright (C) 2014-2023 This_file_is_part_of_KDE
 # This file is distributed under the license LGPL version 2.1 or
 # version 3 or later versions approved by the membership of KDE e.V.
 #
 # Antoni Bella Pérez <antonibella5@yahoo.com>, 2014, 2015, 2016, 2017, 2018, 2020.
-# Josep M. Ferrer <txemaq@gmail.com>, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022.
+# Josep M. Ferrer <txemaq@gmail.com>, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: trojita\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"PO-Revision-Date: 2022-05-15 15:53+0200\n"
+"PO-Revision-Date: 2023-02-19 11:54+0100\n"
 "Last-Translator: Josep M. Ferrer <txemaq@gmail.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -217,7 +217,7 @@ msgstr "[el «getAuditLog» ha fallat: %1]"
 #: ../src/Cryptography/GpgMe++.cpp:169
 msgctxt "Cryptography::GpgMePart|"
 msgid "Waiting for data..."
-msgstr "S'està esperant per les dades..."
+msgstr "S'està esperant les dades..."
 
 #: ../src/Cryptography/GpgMe++.cpp:312
 msgctxt "Cryptography::GpgMePart|"
