@@ -4,8 +4,6 @@
   <!ENTITY trojita "<application
 >Trojitá</application
 >">
-  <!ENTITY kappname "&trojita;">
-  <!ENTITY package "extragera-pim">
   <!ENTITY % addindex "IGNORE">
   <!ENTITY % Brazilian-Portuguese "INCLUDE">
 ]>
@@ -130,7 +128,7 @@
 ></listitem>
 <listitem
 ><para
->Assinatura: Qualquer texto que deseje apresentar ao final dos seus e-mails, como o nome da sua página Web ou uma propaganda</para
+>Assinatura: Qualquer texto que deseje apresentar ao final dos seus e-mails, como o nome do seu site ou uma propaganda</para
 ></listitem>
 </itemizedlist>
 </para>
@@ -237,18 +235,18 @@
 >Lendo e-mails com o &trojita;</title>
 
 <para
->O &trojita; apresenta uma interface em três painéis que deve ser familiar a todas as pessoas que já usaram e-mail. Do lado esquerdo aparece uma lista com todas as suas pastas de e-mail, provavelmente a INBOX e algumas outras. Do lado direito existem dois painéis: o superior, que mostra a lista com todas as mensagens na pasta atual e o inferior, que exibe a mensagem selecionada no painel superior. O &Microsoft; Outlook, o &kmail; e muitos outros clientes de e-mail usam este mesmo leiaute. </para>
+>O &trojita; apresenta uma interface em três painéis que deve ser familiar a todas as pessoas que já usaram e-mail. Do lado esquerdo aparece uma lista com todas as suas pastas de e-mail, provavelmente a INBOX e algumas outras. Do lado direito existem dois painéis: o superior, que mostra a lista com todas as mensagens na pasta atual e o inferior, que exibe a mensagem selecionada no painel superior. O &Microsoft; Outlook, o &kmail; e muitos outros clientes de e-mail usam este mesmo layout. </para>
 
 <para
->Entretanto, estão disponíveis outros leiautes. No menu <guimenu
+>Entretanto, estão disponíveis outros layouts. No menu <guimenu
 >Exibir</guimenu
 >, basta selecionar <menuchoice
 ><guimenu
->Leiaute</guimenu
+>Layout</guimenu
 > <guimenuitem
 >Panorâmico</guimenuitem
 ></menuchoice
-> para escolher um leiaute com três áreas, adequada para telas maiores, onde as suas pastas aparecem na coluna da esquerda, as mensagens da pasta selecionada na coluna central e o conteúdo da mensagem selecionada na coluna da direita.</para>
+> para escolher um layout com três áreas, adequada para telas maiores, onde as suas pastas aparecem na coluna da esquerda, as mensagens da pasta selecionada na coluna central e o conteúdo da mensagem selecionada na coluna da direita.</para>
 
 <para
 >Quando selecionar uma mensagem, ela será apresentada abaixo. Clique com o botão direito do mouse sobre na mensagem selecionada no painel superior, caso deseje excluir a mensagem, salvá-la no disco como um arquivo de texto ou ver todos os cabeçalhos.</para>
@@ -422,7 +420,7 @@
 ><guimenu
 >Exibir</guimenu
 > <guimenuitem
->Leiaute</guimenuitem
+>Layout</guimenuitem
 > </menuchoice>
 </term>
 <listitem
@@ -496,11 +494,6 @@
 </para>
 </sect2>
 
-<sect2>
-<title
->Menu Ajuda</title>
-&help.menu.documentation; </sect2>
-
 </sect1>
 </chapter>
 
@@ -535,34 +528,10 @@
 >Tradução de André Marcelo Alvarenga <email
 >alvarenga@kde.org</email
 ></para
-> 
-&underFDL; &underGPL; <para
+> &underFDL; &underGPL; <para
 >De acordo com a licença GPLv2/GPLv3 e CC-BY-SA</para>
 
 </chapter>
-
-<appendix id="installation">
-<title
->Instalação</title>
-
-<sect1 id="getting-kapp">
-<title
->Como obter o &trojita;</title>
-&install.intro.documentation; </sect1>
-
-<sect1 id="requirements">
-<title
->Requisitos</title>
-
-<para
->O &trojita; foi projetado para ter o mínimo de dependências. No momento, tudo o que você precisa são as bibliotecas do Qt. Você pode encontrar o código-fonte e as instruções de compilação na <ulink url="https://projects.flaska.net/projects/trojita"
->página Web do &trojita;</ulink
->. </para>
-
-</sect1>
-
-
-</appendix>
 
 &documentation.index;
 </book>
