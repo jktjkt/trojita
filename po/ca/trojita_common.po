@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trojita\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"PO-Revision-Date: 2023-02-19 11:54+0100\n"
+"PO-Revision-Date: 2023-02-26 19:56+0100\n"
 "Last-Translator: Josep M. Ferrer <txemaq@gmail.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -5535,6 +5535,7 @@ msgctxt "Streams::ProcessSocket|"
 msgid "The process has started"
 msgstr "El procés s'ha iniciat"
 
+# skip-rule: rst-italic2,rst-link0italic
 #: ../src/Streams/IODeviceSocket.cpp:195
 #, qt-format
 msgctxt "Streams::ProcessSocket|"
