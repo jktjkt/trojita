@@ -325,7 +325,7 @@ bool MailboxModel::dropFileUrlList(const QString &mailboxName, QList<QUrl> files
 {
     bool ok = false;
 
-    files.erase(std::remove_if(files.begin(), files.end(), std::not1(std::ptr_fun(isFileWithMimeMessage))), files.end());
+    files.erase(std::remove_if(files.begin(), files.end(), [](const auto &file) { return !isFileWithMimeMessage(file); }), files.end());
     std::for_each(files.begin(), files.end(), [this, mailboxName, &ok](const QUrl &url){
         QFile f(url.path());
         if (!f.open(QIODevice::ReadOnly))
