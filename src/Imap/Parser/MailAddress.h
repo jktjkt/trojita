@@ -103,35 +103,14 @@ bool operator==(const MailAddress &a, const MailAddress &b);
 inline bool operator!=(const MailAddress &a, const MailAddress &b) { return !(a == b); }
 
 
-/** Are the actual e-mail addresses (without any fancy details) equal?
+/** Are the actual e-mail addresses (without any fancy details) equal? */
+bool MailAddressesEqualByMail(const MailAddress &a, const MailAddress &b);
 
-These ugly functors are needed as long as we need support for pre-C++11 compilers.
-*/
-class MailAddressesEqualByMail: public std::binary_function<MailAddress, MailAddress, bool>
-{
-public:
-    result_type operator()(const MailAddress &a, const MailAddress &b) const;
-};
+/** Are the domains in the e-mail addresses equal? */
+bool MailAddressesEqualByDomain(const MailAddress &a, const MailAddress &b);
 
-/** Are the domains in the e-mail addresses equal?
-
-These ugly functors are needed as long as we need support for pre-C++11 compilers.
-*/
-class MailAddressesEqualByDomain: public std::binary_function<MailAddress, MailAddress, bool>
-{
-public:
-    result_type operator()(const MailAddress &a, const MailAddress &b) const;
-};
-
-/** @short Is the second domain a prefix of the first one?
-
-Insert the usual complaint about lack of C++11 support here.
-*/
-class MailAddressesEqualByDomainSuffix: public std::binary_function<MailAddress, MailAddress, bool>
-{
-public:
-    result_type operator()(const MailAddress &a, const MailAddress &b) const;
-};
+/** @short Is the second domain a prefix of the first one? */
+bool MailAddressesEqualByDomainSuffix(const MailAddress &a, const MailAddress &b);
 
 }
 

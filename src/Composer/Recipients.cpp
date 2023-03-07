@@ -282,7 +282,7 @@ bool replyRecipientList(const ReplyMode mode, const SenderIdentitiesModel *sende
         Q_FOREACH(const Imap::Message::MailAddress &addr, extractEmailAddresses(senderIdetitiesModel)) {
             RecipientList::iterator it = res.begin();
             while (it != res.end()) {
-                if (Imap::Message::MailAddressesEqualByMail()(it->second, addr)) {
+                if (Imap::Message::MailAddressesEqualByMail(it->second, addr)) {
                     // this is our own address
                     it = res.erase(it);
                 } else {
@@ -348,12 +348,10 @@ bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, con
     using namespace Imap::Message;
     QList<MailAddress> identities = extractEmailAddresses(senderIdetitiesModel);
 
-    // I want to stop this madness. I want C++11.
-
     // First of all, look for a full match of the sender among the addresses
     for (int i = 0; i < identities.size(); ++i) {
         auto it = std::find_if(addresses.constBegin(), addresses.constEnd(),
-                               std::bind2nd(Imap::Message::MailAddressesEqualByMail(), identities[i]));
+                               [&identities, i](const auto &addr) { return Imap::Message::MailAddressesEqualByMail(addr, identities[i]); });
         if (it != addresses.constEnd()) {
             // Found an exact match of one of our identities in the recipients -> return that
             row = i;
@@ -364,7 +362,7 @@ bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, con
     // Then look for the matching domain
     for (int i = 0; i < identities.size(); ++i) {
         auto it = std::find_if(addresses.constBegin(), addresses.constEnd(),
-                               std::bind2nd(Imap::Message::MailAddressesEqualByDomain(), identities[i]));
+                               [&identities, i](const auto &addr) { return Imap::Message::MailAddressesEqualByDomain(addr, identities[i]); });
         if (it != addresses.constEnd()) {
             // Found a match because the domain matches -> return that
             row = i;
@@ -375,7 +373,7 @@ bool chooseSenderIdentity(const SenderIdentitiesModel *senderIdetitiesModel, con
     // Check for situations where the identity's domain is the suffix of some address
     for (int i = 0; i < identities.size(); ++i) {
         auto it = std::find_if(addresses.constBegin(), addresses.constEnd(),
-                               std::bind2nd(Imap::Message::MailAddressesEqualByDomainSuffix(), identities[i]));
+                               [&identities, i](const auto &addr) { return Imap::Message::MailAddressesEqualByDomainSuffix(addr, identities[i]); });
         if (it != addresses.constEnd()) {
             // Found a match because the domain suffix matches -> return that
             row = i;
