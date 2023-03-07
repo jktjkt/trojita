@@ -222,19 +222,6 @@ bool prepareReplyList(const QList<QUrl> &headerListPost, const bool headerListPo
     return false;
 }
 
-/** @short Functor for extracting the second value from a pair
-
-Helper for the Composer::Util::extractEmailAddresses.
-*/
-template<typename T>
-class ExtractSecond: public std::unary_function<T, typename T::second_type> {
-public:
-   typename T::second_type operator()(const T& value) const
-   {
-       return value.second;
-   }
-};
-
 }
 
 namespace Composer {
@@ -412,7 +399,7 @@ QList<Imap::Message::MailAddress> extractEmailAddresses(const RecipientList &lis
 {
     QList<Imap::Message::MailAddress> addresses;
     std::transform(list.constBegin(), list.constEnd(), std::back_inserter(addresses),
-                   ExtractSecond<RecipientList::value_type>());
+                   [](const auto &address) { return address.second; });
     return addresses;
 }
 

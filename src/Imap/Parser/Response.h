@@ -413,29 +413,6 @@ public:
     /** @short Convenience typedef for the received data of the list type */
     typedef QVector<QPair<QByteArray, Uids>> ListData_t;
 
-    /** @short Compare identifiers of the ListData_t list */
-    template <typename T>
-    class CompareListDataIdentifier: public std::unary_function<const typename T::value_type&, bool> {
-        QByteArray keyOne;
-        QByteArray keyTwo;
-        bool hasKeyTwo;
-    public:
-        /** @short Find a record which matches the given key */
-        explicit CompareListDataIdentifier(const QByteArray &key): keyOne(key), hasKeyTwo(false) {}
-
-        /** @short Find a record matching any of the two passed keys */
-        explicit CompareListDataIdentifier(const QByteArray &keyOne, const QByteArray &keyTwo):
-            keyOne(keyOne), keyTwo(keyTwo), hasKeyTwo(true) {}
-
-        bool operator() (const typename T::value_type & item) {
-            if (hasKeyTwo) {
-                return item.first == keyOne || item.first == keyTwo;
-            } else {
-                return item.first == keyOne;
-            }
-        }
-    };
-
     /** @short Represent one item to be added/removed by an incremental SEARCH/SORT response */
     struct ContextIncrementalItem {
 

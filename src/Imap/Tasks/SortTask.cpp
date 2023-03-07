@@ -189,9 +189,8 @@ bool SortTask::handleESearch(const Responses::ESearch *const resp)
     if (resp->tag != sortTag)
         return false;
 
-    Responses::ESearch::CompareListDataIdentifier<Responses::ESearch::ListData_t> allComparator("ALL");
-    Responses::ESearch::ListData_t::const_iterator allIterator =
-            std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), allComparator);
+    auto allComparator = [](const auto &listData) { return listData.first == "ALL"; };
+    auto allIterator = std::find_if(resp->listData.constBegin(), resp->listData.constEnd(), allComparator);
 
     if (allIterator != resp->listData.constEnd()) {
         m_firstUntaggedReceived = true;
