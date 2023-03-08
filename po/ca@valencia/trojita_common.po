@@ -84,7 +84,7 @@ msgstr "%1, %2"
 #: ../src/Composer/ExistingMessageComposer.cpp:78
 msgctxt "Imap::Mailbox::FullMessageCombiner|"
 msgid "Cannot obtain IMAP URL for CATENATE"
-msgstr "No s'ha pogut obtindre l'URL IMAP per al guardada (CATENATE)"
+msgstr "No s'ha pogut obtindre l'URL IMAP per a la guardada (CATENATE)"
 
 #: ../src/Composer/MessageComposer.cpp:599
 #: ../src/Composer/MessageComposer.cpp:630
