@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-02-08 20:22+0300\n"
+"PO-Revision-Date: 2023-03-09 13:33+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 22.12.2\n"
+"X-Generator: Lokalize 22.12.3\n"
 "X-Qt-Contexts: true\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
@@ -1926,7 +1926,7 @@ msgid ""
 "password here, Trojitá will prompt for one when needed."
 msgstr ""
 "Bu parola şifreli depolama alanına kaydedilecek. Eğer buraya parola "
-"girmezseniz Trojitá ihtiyaç duyulduğu zaman size soracak."
+"girmezseniz Trojitá gereksinim duyulduğu zaman size soracak."
 
 #: ../src/Gui/SettingsDialog.cpp:844
 msgctxt "Gui::ImapPage|"
@@ -1935,7 +1935,7 @@ msgid ""
 "here, Trojitá will prompt for one when needed."
 msgstr ""
 "Bu parola diske açık metin halinde kaydedilecek. Eğer buraya parola bilgisi "
-"girmezseniz Trojitá ihtiyaç duyulduğu zaman size soracak."
+"girmezseniz Trojitá gereksinim duyulduğu zaman size soracak."
 
 #: ../src/Gui/SettingsDialog.cpp:915
 msgctxt "Gui::ImapPage|"
@@ -2017,7 +2017,7 @@ msgid ""
 "password here, Trojitá will prompt for one when needed."
 msgstr ""
 "Bu parola şifreli alanda kaydedilecek. Eğer buraya parola girmezseniz "
-"Trojitá ihtiyaç duyulduğu zaman size soracak."
+"Trojitá gereksinim duyulduğu zaman size soracak."
 
 #: ../src/Gui/SettingsDialog.cpp:1206
 msgctxt "Gui::OutgoingPage|"
@@ -2026,7 +2026,7 @@ msgid ""
 "here, Trojitá will prompt for one when needed."
 msgstr ""
 "Bu parola açık metin halinde kaydedilecek. Eğer buraya parola girmezseniz "
-"Trojitá ihtiyaç duyulduğu zaman size soracak."
+"Trojitá gereksinim duyulduğu zaman size soracak."
 
 #: ../src/Gui/SettingsDialog.cpp:1300 ../src/Gui/SettingsDialog.cpp:1306
 msgctxt "Gui::OutgoingPage|"
@@ -2463,7 +2463,7 @@ msgid ""
 "prompt when needed."
 msgstr ""
 "Bu parola açık metin halinde kaydedilecek. Eğer buraya parola girmezseniz "
-"Trojitá ihtiyaç duyulduğu zaman size soracak."
+"Trojitá gereksinim duyulduğu zaman size soracak."
 
 #: ../src/Gui/SettingsImapPage.ui:230
 msgctxt "ImapPage|"
