@@ -109,7 +109,7 @@ public:
     static bodyFldDsp_t makeBodyFldDsp(const QVariant &list, const QByteArray &line, const int start);
     static QList<QByteArray> makeBodyFldLang(const QVariant &input, const QByteArray &line, const int start);
 
-    virtual QTextStream &dump(QTextStream &s) const { return dump(s, 0); }
+    QTextStream &dump(QTextStream &s) const override { return dump(s, 0); }
     virtual QTextStream &dump(QTextStream &s, const int indent) const = 0;
     virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const = 0;
 
@@ -144,10 +144,10 @@ public:
         bodyFldId(bodyFldId), bodyFldDesc(bodyFldDesc),
         bodyFldEnc(bodyFldEnc), bodyFldOctets(bodyFldOctets), bodyFldMd5(bodyFldMd5) {}
 
-    virtual bool eq(const AbstractData &other) const;
+    bool eq(const AbstractData &other) const override;
 
 protected:
-    void storeInterestingFields(Mailbox::TreeItemPart *p) const;
+    void storeInterestingFields(Mailbox::TreeItemPart *p) const override;
 };
 
 /** @short Ordinary Message (body-type-basic in RFC3501) */
@@ -164,11 +164,11 @@ public:
         OneMessage(mediaType, mediaSubType, bodyFldParam, bodyFldId,
                    bodyFldDesc, bodyFldEnc, bodyFldOctets, bodyFldMd5,
                    bodyFldDsp, bodyFldLang, bodyFldLoc, bodyExtension) {};
-    virtual QTextStream &dump(QTextStream &s, const int indent) const;
+    QTextStream &dump(QTextStream &s, const int indent) const override;
     using OneMessage::dump;
     /* No need for "virtual bool eq( const AbstractData& other ) const" as
      * it's already implemented in OneMessage::eq() */
-    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const;
+    Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const override;
 };
 
 /** @short A message holding another RFC822 message (body-type-msg) */
@@ -190,10 +190,10 @@ public:
                    bodyFldDesc, bodyFldEnc, bodyFldOctets, bodyFldMd5,
                    bodyFldDsp, bodyFldLang, bodyFldLoc, bodyExtension),
         envelope(envelope), body(body), bodyFldLines(bodyFldLines) {}
-    virtual QTextStream &dump(QTextStream &s, const int indent) const;
+    QTextStream &dump(QTextStream &s, const int indent) const override;
     using OneMessage::dump;
-    virtual bool eq(const AbstractData &other) const;
-    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const;
+    bool eq(const AbstractData &other) const override;
+    Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const override;
 };
 
 /** @short A text message (body-type-text) */
@@ -212,10 +212,10 @@ public:
                    bodyFldDesc, bodyFldEnc, bodyFldOctets, bodyFldMd5,
                    bodyFldDsp, bodyFldLang, bodyFldLoc, bodyExtension),
         bodyFldLines(bodyFldLines) {}
-    virtual QTextStream &dump(QTextStream &s, const int indent) const;
+    QTextStream &dump(QTextStream &s, const int indent) const override;
     using OneMessage::dump;
-    virtual bool eq(const AbstractData &other) const;
-    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const;
+    bool eq(const AbstractData &other) const override;
+    Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const override;
 };
 
 /** @short Multipart message (body-type-mpart) */
@@ -230,12 +230,12 @@ public:
                  const QVariant &bodyExtension):
         AbstractMessage("multipart", mediaSubType, bodyFldParam, bodyFldDsp, bodyFldLang, bodyFldLoc, bodyExtension),
         bodies(bodies) {}
-    virtual QTextStream &dump(QTextStream &s, const int indent) const;
+    QTextStream &dump(QTextStream &s, const int indent) const override;
     using AbstractMessage::dump;
-    virtual bool eq(const AbstractData &other) const;
-    virtual Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const;
+    bool eq(const AbstractData &other) const override;
+    Mailbox::TreeItemChildrenList createTreeItems(Mailbox::TreeItem *parent) const override;
 protected:
-    void storeInterestingFields(Mailbox::TreeItemPart *p) const;
+    void storeInterestingFields(Mailbox::TreeItemPart *p) const override;
 };
 
 QTextStream &operator<<(QTextStream &stream, const Envelope &e);

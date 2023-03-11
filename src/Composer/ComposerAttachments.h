@@ -112,17 +112,17 @@ public:
     ImapMessageAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid);
     ~ImapMessageAttachmentItem();
 
-    virtual QString caption() const;
-    virtual QString tooltip() const;
-    virtual QByteArray mimeType() const;
-    virtual QString contentDispositionFilename() const;
-    virtual bool setPreferredFileName(const QString &name);
-    virtual QSharedPointer<QIODevice> rawData() const;
-    virtual bool isAvailableLocally() const;
-    virtual ContentTransferEncoding suggestedCTE() const;
-    virtual QByteArray imapUrl() const;
-    virtual void preload() const;
-    virtual void asDroppableMimeData(QDataStream &stream) const;
+    QString caption() const override;
+    QString tooltip() const override;
+    QByteArray mimeType() const override;
+    QString contentDispositionFilename() const override;
+    bool setPreferredFileName(const QString &name) override;
+    QSharedPointer<QIODevice> rawData() const override;
+    bool isAvailableLocally() const override;
+    ContentTransferEncoding suggestedCTE() const override;
+    QByteArray imapUrl() const override;
+    void preload() const override;
+    void asDroppableMimeData(QDataStream &stream) const override;
 private:
     Imap::Mailbox::FullMessageCombiner *fullMessageCombiner;
     QPersistentModelIndex index;
@@ -135,17 +135,17 @@ public:
     ImapPartAttachmentItem(Imap::Mailbox::Model *model, const QString &mailbox, const uint uidValidity, const uint uid, const QByteArray &trojitaPath);
     ~ImapPartAttachmentItem();
 
-    virtual QString caption() const;
-    virtual QString tooltip() const;
-    virtual QByteArray mimeType() const;
-    virtual QString contentDispositionFilename() const;
-    virtual bool setPreferredFileName(const QString &name);
-    virtual QSharedPointer<QIODevice> rawData() const;
-    virtual bool isAvailableLocally() const;
-    virtual ContentTransferEncoding suggestedCTE() const;
-    virtual QByteArray imapUrl() const;
-    virtual void preload() const;
-    virtual void asDroppableMimeData(QDataStream &stream) const;
+    QString caption() const override;
+    QString tooltip() const override;
+    QByteArray mimeType() const override;
+    QString contentDispositionFilename() const override;
+    bool setPreferredFileName(const QString &name) override;
+    QSharedPointer<QIODevice> rawData() const override;
+    bool isAvailableLocally() const override;
+    ContentTransferEncoding suggestedCTE() const override;
+    QByteArray imapUrl() const override;
+    void preload() const override;
+    void asDroppableMimeData(QDataStream &stream) const override;
 private:
     QPersistentModelIndex index;
     QString preferredName;
@@ -157,17 +157,17 @@ public:
     explicit FileAttachmentItem(const QString &fileName);
     ~FileAttachmentItem();
 
-    virtual QString caption() const;
-    virtual QString tooltip() const;
-    virtual QByteArray mimeType() const;
-    virtual QString contentDispositionFilename() const;
-    virtual bool setPreferredFileName(const QString &name);
-    virtual QSharedPointer<QIODevice> rawData() const;
-    virtual bool isAvailableLocally() const;
-    virtual ContentTransferEncoding suggestedCTE() const;
-    virtual QByteArray imapUrl() const;
-    virtual void preload() const;
-    virtual void asDroppableMimeData(QDataStream &stream) const;
+    QString caption() const override;
+    QString tooltip() const override;
+    QByteArray mimeType() const override;
+    QString contentDispositionFilename() const override;
+    bool setPreferredFileName(const QString &name) override;
+    QSharedPointer<QIODevice> rawData() const override;
+    bool isAvailableLocally() const override;
+    ContentTransferEncoding suggestedCTE() const override;
+    QByteArray imapUrl() const override;
+    void preload() const override;
+    void asDroppableMimeData(QDataStream &stream) const override;
 private:
     QString fileName;
     QString preferredName;

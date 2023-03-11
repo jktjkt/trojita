@@ -36,15 +36,15 @@ class UnSelectTask : public ImapTask
     Q_OBJECT
 public:
     UnSelectTask(Model *model, ImapTask *parentTask);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp);
-    virtual bool handleFlags(const Imap::Responses::Flags *const resp);
-    virtual bool handleSearch(const Imap::Responses::Search *const resp);
-    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return true;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp) override;
+    bool handleFlags(const Imap::Responses::Flags *const resp) override;
+    bool handleSearch(const Imap::Responses::Search *const resp) override;
+    bool handleFetch(const Imap::Responses::Fetch *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return true;}
 private slots:
     /** @short Try to guess a non-existing mailbox name */
     void doFakeSelect();

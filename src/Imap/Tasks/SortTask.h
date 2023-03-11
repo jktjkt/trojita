@@ -37,15 +37,15 @@ class SortTask : public ImapTask
     Q_OBJECT
 public:
     SortTask(Model *model, const QModelIndex &mailbox, const QStringList &searchConditions, const QStringList &sortCriteria);
-    virtual void perform();
-    virtual void abort();
+    void perform() override;
+    void abort() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleSort(const Imap::Responses::Sort *const resp);
-    virtual bool handleSearch(const Imap::Responses::Search *const resp);
-    virtual bool handleESearch(const Responses::ESearch *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return true;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleSort(const Imap::Responses::Sort *const resp) override;
+    bool handleSearch(const Imap::Responses::Search *const resp) override;
+    bool handleESearch(const Responses::ESearch *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return true;}
 
     bool isPersistent() const;
     bool isJustUpdatingNow() const;
@@ -63,7 +63,7 @@ signals:
     void incrementalSortUpdate(const Imap::Responses::ESearch::IncrementalContextData_t &updates);
 
 protected:
-    virtual void _failed(const QString &errorMessage);
+    void _failed(const QString &errorMessage) override;
 private:
     CommandHandle sortTag;
     CommandHandle cancelUpdateTag;

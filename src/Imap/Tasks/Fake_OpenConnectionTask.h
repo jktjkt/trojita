@@ -41,12 +41,12 @@ class Fake_OpenConnectionTask: public OpenConnectionTask
     Q_OBJECT
 public:
     Fake_OpenConnectionTask(Imap::Mailbox::Model *model, Imap::Parser *parser);
-    virtual void perform();
-    virtual bool needsMailbox() const {return false;}
+    void perform() override;
+    bool needsMailbox() const override {return false;}
 protected slots:
     void slotPerform() { perform(); }
 private:
-    bool handleStateHelper(const Imap::Responses::State *const resp);
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
 };
 
 }

@@ -36,12 +36,12 @@ class IdTask : public ImapTask
     Q_OBJECT
 public:
     IdTask(Model *model, ImapTask *dependingTask);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleId(const Responses::Id *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleId(const Responses::Id *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 private:
     CommandHandle tag;
 };

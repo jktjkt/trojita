@@ -36,7 +36,7 @@ class PasswordDialog : public QDialog
     Q_OBJECT
 
 public:
-    virtual ~PasswordDialog() override;
+    ~PasswordDialog() override;
 
     static PasswordDialog *getPassword(QWidget *parent, const QString &windowTitle, const QString &description,
                                        const QString &errorMessage = QString());
@@ -46,7 +46,7 @@ signals:
 
 protected:
     explicit PasswordDialog(QWidget *parent = 0);
-    virtual void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
     Ui::PasswordDialog ui;
 };

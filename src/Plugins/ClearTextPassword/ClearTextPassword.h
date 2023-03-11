@@ -79,9 +79,9 @@ class trojita_plugin_ClearTextPasswordPlugin : public QObject, public PasswordPl
     Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.password.cleartext")
 
 public:
-    virtual QString name() const override;
-    virtual QString description() const override;
-    virtual PasswordPlugin *create(QObject *parent, QSettings *settings) override;
+    QString name() const override;
+    QString description() const override;
+    PasswordPlugin *create(QObject *parent, QSettings *settings) override;
 private:
 };
 

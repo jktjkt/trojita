@@ -38,14 +38,14 @@ class FetchMsgPartTask : public ImapTask
     Q_OBJECT
 public:
     FetchMsgPartTask(Model *model, const QModelIndex &mailbox, const Imap::Uids &uids, const QList<QByteArray> &parts);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    bool handleFetch(const Imap::Responses::Fetch *const resp) override;
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
 
-    virtual QString debugIdentification() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return true;}
+    QString debugIdentification() const override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return true;}
 protected:
     void markPendingItemsUnavailable();
     void doForAllParts(const std::function<void(TreeItemPart *, const QByteArray &, const uint)> &f);

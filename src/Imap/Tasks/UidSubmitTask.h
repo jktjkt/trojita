@@ -39,11 +39,11 @@ class UidSubmitTask : public ImapTask
 public:
     UidSubmitTask(Model *model, const QString &mailbox, const uint uidValidity, const uint uid,
                   const UidSubmitOptionsList &submitOptions);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool needsMailbox() const {return true;}
-    virtual QVariant taskData(const int role) const;
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool needsMailbox() const override {return true;}
+    QVariant taskData(const int role) const override;
 
 private:
     ImapTask *conn;

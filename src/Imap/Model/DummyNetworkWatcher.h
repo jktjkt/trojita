@@ -35,7 +35,7 @@ public:
     DummyNetworkWatcher(ImapAccess *parent, Model *model);
 
 protected:
-    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) override;
+    void setDesiredNetworkPolicy(const NetworkPolicy policy) override;
 };
 
 }

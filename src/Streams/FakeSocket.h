@@ -41,14 +41,14 @@ class FakeSocket: public Socket
 public:
     explicit FakeSocket(const Imap::ConnectionState initialState);
     ~FakeSocket();
-    virtual bool canReadLine();
-    virtual QByteArray read(qint64 maxSize);
-    virtual QByteArray readLine(qint64 maxSize = 0);
-    virtual qint64 write(const QByteArray &byteArray);
-    virtual void startTls();
-    virtual void startDeflate();
-    virtual bool isDead();
-    virtual void close();
+    bool canReadLine() override;
+    QByteArray read(qint64 maxSize) override;
+    QByteArray readLine(qint64 maxSize = 0) override;
+    qint64 write(const QByteArray &byteArray) override;
+    void startTls() override;
+    void startDeflate() override;
+    bool isDead() override;
+    void close() override;
 
     /** @short Return data written since the last call to this function */
     QByteArray writtenStuff();

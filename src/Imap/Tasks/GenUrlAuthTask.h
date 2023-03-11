@@ -38,12 +38,12 @@ class GenUrlAuthTask : public ImapTask
 public:
     GenUrlAuthTask(Model *model, const QString &host, const QString &user, const QString &mailbox, const uint uidValidity,
                    const uint uid, const QString &part, const QString &access);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleGenUrlAuth(const Responses::GenUrlAuth *const resp);
-    virtual bool needsMailbox() const {return false;}
-    virtual QVariant taskData(const int role) const;
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleGenUrlAuth(const Responses::GenUrlAuth *const resp) override;
+    bool needsMailbox() const override {return false;}
+    QVariant taskData(const int role) const override;
 
 signals:
     /** @short The GENURLAUTH succeeded, returning a usable URL */

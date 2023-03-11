@@ -40,11 +40,11 @@ public:
                const QDateTime &timestamp);
     AppendTask(Model *model, const QString &targetMailbox, const QList<CatenatePair> &data, const QStringList &flags,
                const QDateTime &timestamp);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool needsMailbox() const {return false;}
-    virtual QVariant taskData(const int role) const;
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool needsMailbox() const override {return false;}
+    QVariant taskData(const int role) const override;
 
 signals:
     /** The APPEND succeeded and the specified UIDVALIDITY / UID pair refers to the uploaded message */

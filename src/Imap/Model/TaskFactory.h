@@ -120,8 +120,8 @@ class TestingTaskFactory: public TaskFactory
 {
 public:
     TestingTaskFactory();
-    virtual OpenConnectionTask *createOpenConnectionTask(Model *model);
-    virtual ListChildMailboxesTask *createListChildMailboxesTask(Model *model, const QModelIndex &mailbox);
+    OpenConnectionTask *createOpenConnectionTask(Model *model) override;
+    ListChildMailboxesTask *createListChildMailboxesTask(Model *model, const QModelIndex &mailbox) override;
     bool fakeOpenConnectionTask;
     bool fakeListChildMailboxes;
     QMap<QString,QStringList> fakeListChildMailboxesMap;

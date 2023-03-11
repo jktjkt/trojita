@@ -46,9 +46,9 @@ class trojita_plugin_SonnetSpellcheckerPlugin : public QObject, public Spellchec
     Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.spellchecker.sonnet")
 
 public:
-    virtual QString name() const override;
-    virtual QString description() const override;
-    virtual SpellcheckerPlugin *create(QObject *parent, QSettings *settings) override;
+    QString name() const override;
+    QString description() const override;
+    SpellcheckerPlugin *create(QObject *parent, QSettings *settings) override;
 };
 
 }

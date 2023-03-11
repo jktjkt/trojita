@@ -38,17 +38,17 @@ class ListChildMailboxesTask : public ImapTask
 public:
     ListChildMailboxesTask(Model *_model, const QModelIndex &mailbox);
     ~ListChildMailboxesTask();
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleStatus(const Imap::Responses::Status *const resp);
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleStatus(const Imap::Responses::Status *const resp) override;
 
-    virtual QString debugIdentification() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    QString debugIdentification() const override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 protected:
     void applyCachedStatus();
-    virtual void _failed(const QString &errorMessage);
+    void _failed(const QString &errorMessage) override;
 
     CommandHandle tag;
     ImapTask *conn;

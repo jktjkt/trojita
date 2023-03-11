@@ -1088,7 +1088,7 @@ void ImapModelSelectedMailboxUpdatesTest::testFetchMsgMetadataPerPartes()
 
 class MonitoringCache : public Imap::Mailbox::MemoryCache {
 public:
-    virtual void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata) override
+    void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata) override
     {
         msgMetadataLog.emplace_back(uid);
         MemoryCache::setMessageMetadata(mailbox, uid, metadata);

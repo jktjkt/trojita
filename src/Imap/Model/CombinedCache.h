@@ -60,34 +60,34 @@ public:
 
     virtual ~CombinedCache();
 
-    virtual QList<MailboxMetadata> childMailboxes(const QString &mailbox) const;
-    virtual bool childMailboxesFresh(const QString &mailbox) const;
-    virtual void setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data);
+    QList<MailboxMetadata> childMailboxes(const QString &mailbox) const override;
+    bool childMailboxesFresh(const QString &mailbox) const override;
+    void setChildMailboxes(const QString &mailbox, const QList<MailboxMetadata> &data) override;
 
-    virtual SyncState mailboxSyncState(const QString &mailbox) const;
-    virtual void setMailboxSyncState(const QString &mailbox, const SyncState &state);
+    SyncState mailboxSyncState(const QString &mailbox) const override;
+    void setMailboxSyncState(const QString &mailbox, const SyncState &state) override;
 
-    virtual void setUidMapping(const QString &mailbox, const Imap::Uids &seqToUid);
-    virtual void clearUidMapping(const QString &mailbox);
-    virtual Imap::Uids uidMapping(const QString &mailbox) const;
+    void setUidMapping(const QString &mailbox, const Imap::Uids &seqToUid) override;
+    void clearUidMapping(const QString &mailbox) override;
+    Imap::Uids uidMapping(const QString &mailbox) const override;
 
-    virtual void clearAllMessages(const QString &mailbox);
-    virtual void clearMessage(const QString mailbox, const uint uid);
+    void clearAllMessages(const QString &mailbox) override;
+    void clearMessage(const QString mailbox, const uint uid) override;
 
-    virtual MessageDataBundle messageMetadata(const QString &mailbox, const uint uid) const;
-    virtual void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata);
+    MessageDataBundle messageMetadata(const QString &mailbox, const uint uid) const override;
+    void setMessageMetadata(const QString &mailbox, const uint uid, const MessageDataBundle &metadata) override;
 
-    virtual QStringList msgFlags(const QString &mailbox, const uint uid) const;
-    virtual void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags);
+    QStringList msgFlags(const QString &mailbox, const uint uid) const override;
+    void setMsgFlags(const QString &mailbox, const uint uid, const QStringList &flags) override;
 
-    virtual QByteArray messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const;
-    virtual void setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data);
-    virtual void forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId);
+    QByteArray messagePart(const QString &mailbox, const uint uid, const QByteArray &partId) const override;
+    void setMsgPart(const QString &mailbox, const uint uid, const QByteArray &partId, const QByteArray &data) override;
+    void forgetMessagePart(const QString &mailbox, const uint uid, const QByteArray &partId) override;
 
-    virtual QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox);
-    virtual void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading);
+    QVector<Imap::Responses::ThreadingNode> messageThreading(const QString &mailbox) override;
+    void setMessageThreading(const QString &mailbox, const QVector<Imap::Responses::ThreadingNode> &threading) override;
 
-    virtual void setRenewalThreshold(const int days);
+    void setRenewalThreshold(const int days) override;
 
     /** @short Open a connection to the cache */
     bool open();

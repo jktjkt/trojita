@@ -45,12 +45,12 @@ public:
     MultipartAlternativeWidget(QWidget *parent, PartWidgetFactory *factory,
                                const QModelIndex &partIndex,
                                const int recursionDepth, const UiUtils::PartLoadingOptions options);
-    virtual QString quoteMe() const override;
-    virtual bool searchDialogRequested() override;
-    virtual void reloadContents() override;
-    virtual void zoomIn() override;
-    virtual void zoomOut() override;
-    virtual void zoomOriginal() override;
+    QString quoteMe() const override;
+    bool searchDialogRequested() override;
+    void reloadContents() override;
+    void zoomIn() override;
+    void zoomOut() override;
+    void zoomOriginal() override;
 protected:
     bool eventFilter(QObject *o, QEvent *e) override;
 };
@@ -109,16 +109,16 @@ public:
     MultipartSignedEncryptedWidget(QWidget *parent, PartWidgetFactory *factory,
                                    const QModelIndex &partIndex, const int recursionDepth,
                                    const UiUtils::PartLoadingOptions loadingOptions);
-    virtual QString quoteMe() const override;
-    virtual bool searchDialogRequested() override;
-    virtual void reloadContents() override;
-    virtual void zoomIn() override;
-    virtual void zoomOut() override;
-    virtual void zoomOriginal() override;
+    QString quoteMe() const override;
+    bool searchDialogRequested() override;
+    void reloadContents() override;
+    void zoomIn() override;
+    void zoomOut() override;
+    void zoomOriginal() override;
 protected slots:
-    virtual void updateStatusIndicator() override;
+    void updateStatusIndicator() override;
 protected:
-    virtual QWidget *addingOneWidget(const QModelIndex &index, UiUtils::PartLoadingOptions options) override;
+    QWidget *addingOneWidget(const QModelIndex &index, UiUtils::PartLoadingOptions options) override;
 };
 
 /** @short Message quoting support for generic multipart/ * */
@@ -129,12 +129,12 @@ public:
     GenericMultipartWidget(QWidget *parent, PartWidgetFactory *factory,
                            const QModelIndex &partIndex, const int recursionDepth,
                            const UiUtils::PartLoadingOptions loadingOptions);
-    virtual QString quoteMe() const override;
-    virtual bool searchDialogRequested() override;
-    virtual void reloadContents() override;
-    virtual void zoomIn() override;
-    virtual void zoomOut() override;
-    virtual void zoomOriginal() override;
+    QString quoteMe() const override;
+    bool searchDialogRequested() override;
+    void reloadContents() override;
+    void zoomIn() override;
+    void zoomOut() override;
+    void zoomOriginal() override;
 };
 
 /** @short Message quoting support for generic multipart/ * */
@@ -145,12 +145,12 @@ public:
     Message822Widget(QWidget *parent, PartWidgetFactory *factory,
                      const QModelIndex &partIndex, const int recursionDepth,
                      const UiUtils::PartLoadingOptions loadingOptions);
-    virtual QString quoteMe() const override;
-    virtual bool searchDialogRequested() override;
-    virtual void reloadContents() override;
-    virtual void zoomIn() override;
-    virtual void zoomOut() override;
-    virtual void zoomOriginal() override;
+    QString quoteMe() const override;
+    bool searchDialogRequested() override;
+    void reloadContents() override;
+    void zoomIn() override;
+    void zoomOut() override;
+    void zoomOriginal() override;
 };
 
 

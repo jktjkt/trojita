@@ -120,8 +120,8 @@ public:
     */
     KeepMailboxOpenTask(Model *model, const QModelIndex &mailboxIndex, Parser *oldParser);
 
-    virtual void abort();
-    virtual void die(const QString &message);
+    void abort() override;
+    void die(const QString &message) override;
 
     void stopForLogout();
 
@@ -130,7 +130,7 @@ public:
     This function is called when the synchronizing task finished successfully, that is, when we are ready
     to execute regular tasks which depend on us.
     */
-    virtual void perform();
+    void perform() override;
 
     /** @short Add any other task which somehow needs our current mailbox
 
@@ -138,20 +138,20 @@ public:
     sure that we won't emit finished() until all the dependant tasks have finished. This essnetially
     prevents replacing an "alive" KeepMailboxOpenTask with a different one.
     */
-    virtual void addDependentTask(ImapTask *task);
+    void addDependentTask(ImapTask *task) override;
 
     /** @short Make sure to re-open the mailbox, even if it is already open */
     void resynchronizeMailbox();
 
-    QString debugIdentification() const;
+    QString debugIdentification() const override;
 
     void requestPartDownload(const uint uid, const QByteArray &partId, const uint estimatedSize);
     /** @short Request a delayed loading of a message envelope */
     void requestEnvelopeDownload(const uint uid);
 
-    virtual QVariant taskData(const int role) const;
+    QVariant taskData(const int role) const override;
 
-    virtual bool needsMailbox() const {return true;}
+    bool needsMailbox() const override {return true;}
 
     bool isReadyToTerminate() const;
 
@@ -175,11 +175,11 @@ private slots:
     /** @short The synchronization is done, let's start working now */
     void slotSyncHasCompleted() { perform(); }
 
-    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp);
-    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleFlags(const Imap::Responses::Flags *const resp);
-    virtual bool handleVanished(const Responses::Vanished *const resp);
+    bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp) override;
+    bool handleFetch(const Imap::Responses::Fetch *const resp) override;
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleFlags(const Imap::Responses::Flags *const resp) override;
+    bool handleVanished(const Responses::Vanished *const resp) override;
     bool handleResponseCodeInsideState(const Imap::Responses::State *const resp);
 
     void slotPerformNoop();
@@ -234,7 +234,7 @@ private:
     void saveSyncStateIfPossible(Imap::Mailbox::TreeItemMailbox *mailbox);
 
 protected:
-    virtual void killAllPendingTasks(const QString &message);
+    void killAllPendingTasks(const QString &message) override;
 
     QPersistentModelIndex mailboxIndex;
 

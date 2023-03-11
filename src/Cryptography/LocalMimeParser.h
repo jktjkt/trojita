@@ -32,7 +32,7 @@ namespace Cryptography {
 class LocalMimeMessageParser: public PartReplacer {
 public:
     LocalMimeMessageParser();
-    virtual ~LocalMimeMessageParser() override;
+    ~LocalMimeMessageParser() override;
 
     MessagePart::Ptr createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
                                 const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex) override;

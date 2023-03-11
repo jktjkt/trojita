@@ -43,13 +43,13 @@ class IODeviceSocket: public Socket
 public:
     explicit IODeviceSocket(QIODevice *device);
     ~IODeviceSocket();
-    virtual bool canReadLine();
-    virtual QByteArray read(qint64 maxSize);
-    virtual QByteArray readLine(qint64 maxSize = 0);
-    virtual qint64 write(const QByteArray &byteArray);
-    virtual void startTls();
-    virtual void startDeflate();
-    virtual bool isDead() = 0;
+    bool canReadLine() override;
+    QByteArray read(qint64 maxSize) override;
+    QByteArray readLine(qint64 maxSize = 0) override;
+    qint64 write(const QByteArray &byteArray) override;
+    void startTls() override;
+    void startDeflate() override;
+    bool isDead() override = 0;
 private slots:
     virtual void handleStateChanged() = 0;
     virtual void delayedStart() = 0;
@@ -71,12 +71,12 @@ class ProcessSocket: public IODeviceSocket
 public:
     ProcessSocket(QProcess *proc, const QString &executable, const QStringList &args);
     ~ProcessSocket();
-    bool isDead();
-    virtual void close();
+    bool isDead() override;
+    void close() override;
 private slots:
-    void handleStateChanged();
+    void handleStateChanged() override;
     void handleProcessError(QProcess::ProcessError);
-    void delayedStart();
+    void delayedStart() override;
 private:
     QString executable;
     QStringList args;
@@ -92,15 +92,15 @@ public:
     connected() only after it has established proper encryption */
     SslTlsSocket(QSslSocket *sock, const QString &host, const quint16 port, const bool startEncrypted=false);
     void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
-    bool isDead();
-    virtual QList<QSslCertificate> sslChain() const;
-    virtual QList<QSslError> sslErrors() const;
-    bool isConnectingEncryptedSinceStart() const;
-    virtual void close();
+    bool isDead() override;
+    QList<QSslCertificate> sslChain() const override;
+    QList<QSslError> sslErrors() const override;
+    bool isConnectingEncryptedSinceStart() const override;
+    void close() override;
 private slots:
-    void handleStateChanged();
+    void handleStateChanged() override;
     void handleSocketError(QAbstractSocket::SocketError);
-    void delayedStart();
+    void delayedStart() override;
 private:
     bool startEncrypted;
     QString host;

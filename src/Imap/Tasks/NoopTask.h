@@ -36,11 +36,11 @@ class NoopTask : public ImapTask
     Q_OBJECT
 public:
     NoopTask(Model *model, ImapTask *parentTask);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 private:
     CommandHandle tag;
     ImapTask *conn;

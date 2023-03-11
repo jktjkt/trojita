@@ -45,7 +45,7 @@ public slots:
     void networkSessionError();
 
 protected:
-    virtual void setDesiredNetworkPolicy(const NetworkPolicy policy) override;
+    void setDesiredNetworkPolicy(const NetworkPolicy policy) override;
 
 private:
     QNetworkConfigurationManager *m_netConfManager;

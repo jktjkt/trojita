@@ -59,12 +59,12 @@ class AttachmentView : public QFrame, public AbstractPartWidget
 public:
     AttachmentView(QWidget *parent, Imap::Network::MsgPartNetAccessManager *manager, const QModelIndex &m_partIndex,
                    MessageView *messageView, QWidget *contentWidget);
-    virtual QString quoteMe() const;
-    virtual bool searchDialogRequested();
-    virtual void reloadContents();
-    virtual void zoomIn();
-    virtual void zoomOut();
-    virtual void zoomOriginal();
+    QString quoteMe() const override;
+    bool searchDialogRequested() override;
+    void reloadContents() override;
+    void zoomIn() override;
+    void zoomOut() override;
+    void zoomOriginal() override;
 protected:
     virtual void mouseMoveEvent(QMouseEvent *event);
     virtual void mousePressEvent(QMouseEvent *event);

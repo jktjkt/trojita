@@ -38,11 +38,11 @@ class DeleteMailboxTask : public ImapTask
     Q_OBJECT
 public:
     DeleteMailboxTask(Model *model, const QString &mailbox);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 public slots:
     void mailboxHasPendingActions();
 private:

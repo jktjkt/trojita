@@ -40,9 +40,9 @@ class OfflineConnectionTask : public ImapTask
     Q_OBJECT
 public:
     explicit OfflineConnectionTask(Model *model);
-    virtual void perform();
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    void perform() override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 protected slots:
     void slotPerform();
     void slotDie();

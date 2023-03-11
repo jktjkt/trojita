@@ -39,13 +39,13 @@ class SubscribeUnsubscribeTask : public ImapTask
 public:
     SubscribeUnsubscribeTask(Model *model, const QString &mailboxName, SubscribeUnsubscribeOperation operation);
     SubscribeUnsubscribeTask(Model *model, ImapTask *parentTask, const QString &mailboxName, SubscribeUnsubscribeOperation operation);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
 
-    virtual QString debugIdentification() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    QString debugIdentification() const override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 private:
     CommandHandle tag;
     ImapTask *conn;

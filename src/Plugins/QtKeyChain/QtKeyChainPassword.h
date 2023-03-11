@@ -85,9 +85,9 @@ class trojita_plugin_QtKeyChainPasswordPlugin : public QObject, public Plugins::
     Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.password.qtkeychain")
 
 public:
-    virtual QString name() const override;
-    virtual QString description() const override;
-    virtual Plugins::PasswordPlugin *create(QObject *parent, QSettings *) override;
+    QString name() const override;
+    QString description() const override;
+    Plugins::PasswordPlugin *create(QObject *parent, QSettings *) override;
 };
 
 #endif //QTKEYCHAINPASSWORD_H

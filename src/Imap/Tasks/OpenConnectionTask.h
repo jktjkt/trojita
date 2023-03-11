@@ -45,11 +45,11 @@ class OpenConnectionTask : public ImapTask
     Q_OBJECT
 public:
     explicit OpenConnectionTask(Model *model);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
     // FIXME: reimplement handleCapability(), add some guards against "unexpected changes" to Model's implementation
-    virtual bool handleSocketEncryptedResponse(const Responses::SocketEncryptedResponse *const resp);
+    bool handleSocketEncryptedResponse(const Responses::SocketEncryptedResponse *const resp) override;
 
     /** @short Inform the task that the auth credentials are now available and can be used */
     void authCredentialsNowAvailable();
@@ -63,9 +63,9 @@ public:
     /** @short Return a list of SSL errors which the underlying socket has encountered since its start */
     QList<QSslError> sslErrors() const;
 
-    virtual QString debugIdentification() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    QString debugIdentification() const override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 
 protected:
     /** @short A special, internal constructor used only by Fake_OpenConnectionTask */

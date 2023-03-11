@@ -34,13 +34,13 @@ class SMTP : public AbstractMSA
 public:
     SMTP(QObject *parent, const QString &host, quint16 port, bool encryptedConnect, bool startTls, bool auth,
          const QString &user);
-    virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
+    void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data) override;
 
-    virtual bool supportsBurl() const;
-    virtual void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
+    bool supportsBurl() const override;
+    void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl) override;
 public slots:
-    virtual void cancel();
-    virtual void setPassword(const QString &password);
+    void cancel() override;
+    void setPassword(const QString &password) override;
     void handleDone(bool ok);
     void handleError(QAbstractSocket::SocketError err, const QString &msg);
     void handleSslErrors(const QList<QSslError>& errors);
@@ -72,7 +72,7 @@ public:
     SMTPFactory(const QString &host, quint16 port, bool encryptedConnect, bool startTls, bool auth,
          const QString &user);
     virtual ~SMTPFactory();
-    virtual AbstractMSA *create(QObject *parent) const;
+    AbstractMSA *create(QObject *parent) const override;
 private:
     QString m_host;
     quint16 m_port;

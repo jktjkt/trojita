@@ -64,8 +64,8 @@ class ProcessSocketFactory: public SocketFactory
     QStringList args;
 public:
     ProcessSocketFactory(const QString &executable, const QStringList &args);
-    virtual Socket *create();
-    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
+    Socket *create() override;
+    void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag) override;
 };
 
 /** @short Manufacture sockets based on QSslSocket */
@@ -82,8 +82,8 @@ class SslSocketFactory: public SocketFactory
     QString m_protocolTag;
 public:
     SslSocketFactory(const QString &host, const quint16 port);
-    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
-    virtual Socket *create();
+    void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag) override;
+    Socket *create() override;
 };
 
 /** @short Factory for regular TCP sockets that are able to STARTTLS */
@@ -100,8 +100,8 @@ class TlsAbleSocketFactory: public SocketFactory
     QString m_protocolTag;
 public:
     TlsAbleSocketFactory(const QString &host, const quint16 port);
-    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
-    virtual Socket *create();
+    void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag) override;
+    Socket *create() override;
 };
 
 /** @short A fake factory suitable for unit tests */
@@ -110,11 +110,11 @@ class FakeSocketFactory: public SocketFactory
     Q_OBJECT
 public:
     explicit FakeSocketFactory(const Imap::ConnectionState initialState);
-    virtual Socket *create();
+    Socket *create() override;
     /** @short Return the last created socket */
     Socket *lastSocket();
     void setInitialState(const Imap::ConnectionState initialState);
-    virtual void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag);
+    void setProxySettings(const Streams::ProxySettings proxySettings, const QString &protocolTag) override;
 
 private:
     QPointer<Socket> m_last;

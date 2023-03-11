@@ -59,9 +59,9 @@ class trojita_plugin_AkonadiAddressbookPlugin : public QObject, public Addressbo
     Q_PLUGIN_METADATA(IID "net.flaska.trojita.plugins.addressbook.akonadiaddressbook")
 
 public:
-    virtual QString name() const override;
-    virtual QString description() const override;
-    virtual AddressbookPlugin *create(QObject *parent, QSettings *settings) override;
+    QString name() const override;
+    QString description() const override;
+    AddressbookPlugin *create(QObject *parent, QSettings *settings) override;
 };
 
 #endif

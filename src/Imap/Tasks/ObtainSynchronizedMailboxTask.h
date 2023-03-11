@@ -46,23 +46,23 @@ class ObtainSynchronizedMailboxTask : public ImapTask
     Q_OBJECT
 public:
     ObtainSynchronizedMailboxTask(Model *model, const QModelIndex &mailboxIndex, ImapTask *parentTask, KeepMailboxOpenTask *keepTask);
-    virtual void perform();
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp);
-    virtual bool handleFlags(const Imap::Responses::Flags *const resp);
-    virtual bool handleSearch(const Imap::Responses::Search *const resp);
-    virtual bool handleESearch(const Imap::Responses::ESearch *const resp);
-    virtual bool handleFetch(const Imap::Responses::Fetch *const resp);
-    virtual bool handleVanished(const Imap::Responses::Vanished *const resp);
-    virtual bool handleEnabled(const Responses::Enabled * const resp);
+    void perform() override;
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleNumberResponse(const Imap::Responses::NumberResponse *const resp) override;
+    bool handleFlags(const Imap::Responses::Flags *const resp) override;
+    bool handleSearch(const Imap::Responses::Search *const resp) override;
+    bool handleESearch(const Imap::Responses::ESearch *const resp) override;
+    bool handleFetch(const Imap::Responses::Fetch *const resp) override;
+    bool handleVanished(const Imap::Responses::Vanished *const resp) override;
+    bool handleEnabled(const Responses::Enabled * const resp) override;
 
     typedef enum { UID_SYNC_ALL, UID_SYNC_ONLY_NEW } UidSyncingMode;
 
-    virtual void addDependentTask(ImapTask *task);
+    void addDependentTask(ImapTask *task) override;
 
-    virtual QString debugIdentification() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    QString debugIdentification() const override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 
 private:
     void finalizeSelect();

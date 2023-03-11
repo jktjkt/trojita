@@ -56,8 +56,8 @@ template<class T> class RespData : public AbstractData
 public:
     T data;
     RespData(const T &_data) : data(_data) {};
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractData &other) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractData &other) const override;
 };
 
 /** Explicit specialization for void as we can't define a void member of a
@@ -65,8 +65,8 @@ public:
 template<> class RespData<void> : public AbstractData
 {
 public:
-    virtual QTextStream &dump(QTextStream &s) const { return s; };
-    virtual bool eq(const AbstractData &other) const;
+    QTextStream &dump(QTextStream &s) const override { return s; };
+    bool eq(const AbstractData &other) const override;
 };
 
 

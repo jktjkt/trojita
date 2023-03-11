@@ -50,13 +50,13 @@ public:
     explicit MessageComposer(Imap::Mailbox::Model *model);
     ~MessageComposer();
 
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    virtual Qt::DropActions supportedDropActions() const override;
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
-    virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
-    virtual QStringList mimeTypes() const override;
-    virtual QMimeData *mimeData(const QModelIndexList &indexes) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    Qt::DropActions supportedDropActions() const override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
+    QStringList mimeTypes() const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
 
     void setInReplyTo(const QList<QByteArray> &inReplyTo);
     void setReferences(const QList<QByteArray> &references);
@@ -67,20 +67,20 @@ public:
     void setReplyingToMessage(const QModelIndex &index);
     void prepareForwarding(const QModelIndex &index, const ForwardMode mode);
 
-    virtual bool isReadyForSerialization() const override;
-    virtual bool asRawMessage(QIODevice *target, QString *errorMessage) const override;
-    virtual bool asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const override;
-    virtual void setPreloadEnabled(const bool preload) override;
-    virtual void setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &recipients) override;
-    virtual void setFrom(const Imap::Message::MailAddress &from) override;
+    bool isReadyForSerialization() const override;
+    bool asRawMessage(QIODevice *target, QString *errorMessage) const override;
+    bool asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const override;
+    void setPreloadEnabled(const bool preload) override;
+    void setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress> > &recipients) override;
+    void setFrom(const Imap::Message::MailAddress &from) override;
 
-    virtual QDateTime timestamp() const override;
+    QDateTime timestamp() const override;
     QList<QByteArray> inReplyTo() const;
     QList<QByteArray> references() const;
-    virtual QByteArray rawFromAddress() const override;
-    virtual QList<QByteArray> rawRecipientAddresses() const override;
-    virtual QModelIndex replyingToMessage() const override;
-    virtual QModelIndex forwardingMessage() const override;
+    QByteArray rawFromAddress() const override;
+    QList<QByteArray> rawRecipientAddresses() const override;
+    QModelIndex replyingToMessage() const override;
+    QModelIndex forwardingMessage() const override;
 
     bool addFileAttachment(const QString &path);
     void removeAttachment(const QModelIndex &index);

@@ -37,13 +37,13 @@ class NumberOfMessagesTask : public ImapTask
     Q_OBJECT
 public:
     NumberOfMessagesTask(Model *model, const QModelIndex &mailbox);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
 
-    virtual QString debugIdentification() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    QString debugIdentification() const override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 
     static QStringList requestedStatusOptions();
 private:

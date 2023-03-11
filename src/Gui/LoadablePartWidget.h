@@ -50,13 +50,13 @@ public:
                        PartWidgetFactory *factory, int recursionDepth,
                        const UiUtils::PartLoadingOptions loadingMode);
     QString quoteMe() const override;
-    virtual bool searchDialogRequested() override;
-    virtual void reloadContents() override;
-    virtual void zoomIn() override;
-    virtual void zoomOut() override;
-    virtual void zoomOriginal() override;
+    bool searchDialogRequested() override;
+    void reloadContents() override;
+    void zoomIn() override;
+    void zoomOut() override;
+    void zoomOriginal() override;
 protected:
-    virtual void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 private slots:
     void loadClicked();
 private:

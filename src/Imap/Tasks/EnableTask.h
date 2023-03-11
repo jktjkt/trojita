@@ -36,12 +36,12 @@ class EnableTask : public ImapTask
     Q_OBJECT
 public:
     EnableTask(Model *model, ImapTask *parentTask, const QList<QByteArray> &extensions);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleEnabled(const Responses::Enabled *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleEnabled(const Responses::Enabled *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 private:
     CommandHandle tag;
     QList<QByteArray> extensions;

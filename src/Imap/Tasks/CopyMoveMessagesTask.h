@@ -38,11 +38,11 @@ class CopyMoveMessagesTask : public ImapTask
     Q_OBJECT
 public:
     CopyMoveMessagesTask(Model *model, const QModelIndexList &messages, const QString &targetMailbox, const CopyMoveOperation op);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return true;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return true;}
 private:
     CommandHandle copyTag;
     CommandHandle moveTag;

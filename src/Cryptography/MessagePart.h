@@ -111,7 +111,7 @@ public:
     QVariant data(int role) const override;
 private:
 #ifdef MIME_TREE_DEBUG
-    virtual QByteArray dumpLocalInfo() const override;
+    QByteArray dumpLocalInfo() const override;
 #endif
 
     QPersistentModelIndex m_root;
@@ -130,7 +130,7 @@ public:
 
 private:
 #ifdef MIME_TREE_DEBUG
-    virtual QByteArray dumpLocalInfo() const override;
+    QByteArray dumpLocalInfo() const override;
 #endif
 
     QPersistentModelIndex m_sourceIndex;

@@ -35,10 +35,10 @@ class Fake : public AbstractMSA
 public:
     Fake(QObject *parent, FakeFactory *factory, const bool supportsBurl, const bool supportsImap);
     virtual ~Fake();
-    virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
-    virtual void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl);
+    void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data) override;
+    void sendBurl(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &imapUrl) override;
 public slots:
-    virtual void cancel();
+    void cancel() override;
 private:
     Fake(const Fake &); // don't implement
     Fake &operator=(const Fake &); // don't implement
@@ -59,7 +59,7 @@ class FakeFactory: public QObject, public MSAFactory
 public:
     FakeFactory();
     virtual ~FakeFactory();
-    virtual AbstractMSA *create(QObject *parent) const;
+    AbstractMSA *create(QObject *parent) const override;
     Fake *lastMSA() const;
 
     void setBurlSupport(const bool enabled);

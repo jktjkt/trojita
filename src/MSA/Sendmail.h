@@ -36,14 +36,14 @@ class Sendmail : public AbstractMSA
 public:
     Sendmail(QObject *parent, const QString &command, const QStringList &args);
     virtual ~Sendmail();
-    virtual void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data);
+    void sendMail(const QByteArray &from, const QList<QByteArray> &to, const QByteArray &data) override;
 private slots:
     void handleError(QProcess::ProcessError e);
     void handleBytesWritten(qint64 bytes);
     void handleStarted();
     void handleFinished(const int exitCode);
 public slots:
-    virtual void cancel();
+    void cancel() override;
 private:
     QProcess *proc;
     QString command;
@@ -60,7 +60,7 @@ class SendmailFactory: public MSAFactory
 public:
     SendmailFactory(const QString &command, const QStringList &args);
     virtual ~SendmailFactory();
-    virtual AbstractMSA *create(QObject *parent) const;
+    AbstractMSA *create(QObject *parent) const override;
 private:
     QString m_command;
     QStringList m_args;

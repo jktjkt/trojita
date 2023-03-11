@@ -87,10 +87,10 @@ class FavoriteTagsPage : public QScrollArea, Ui_FavoriteTagsPage, public Configu
     Q_OBJECT
 public:
     FavoriteTagsPage(SettingsDialog *parent, QSettings &s, Imap::Mailbox::FavoriteTagsModel *favoriteTagsModel);
-    virtual void save(QSettings &s);
-    virtual QWidget *asWidget();
-    virtual bool checkValidity() const;
-    virtual bool passwordFailures(QString &message) const;
+    void save(QSettings &s) override;
+    QWidget *asWidget() override;
+    bool checkValidity() const override;
+    bool passwordFailures(QString &message) const override;
 
 private slots:
     void updateWidgets();
@@ -116,10 +116,10 @@ class GeneralPage : public QScrollArea, Ui_GeneralPage, public ConfigurationWidg
     Q_OBJECT
 public:
     GeneralPage(SettingsDialog *parent, QSettings &s, Composer::SenderIdentitiesModel *identitiesModel);
-    virtual void save(QSettings &s);
-    virtual QWidget *asWidget();
-    virtual bool checkValidity() const;
-    virtual bool passwordFailures(QString &message) const;
+    void save(QSettings &s) override;
+    QWidget *asWidget() override;
+    bool checkValidity() const override;
+    bool passwordFailures(QString &message) const override;
 
 private slots:
     void updateWidgets();
@@ -202,10 +202,10 @@ class OutgoingPage : public QScrollArea, Ui_OutgoingPage, public ConfigurationWi
     Q_OBJECT
 public:
     OutgoingPage(SettingsDialog *parent, QSettings &s);
-    virtual void save(QSettings &s);
-    virtual QWidget *asWidget();
-    virtual bool checkValidity() const;
-    virtual bool passwordFailures(QString &message) const;
+    void save(QSettings &s) override;
+    QWidget *asWidget() override;
+    bool checkValidity() const override;
+    bool passwordFailures(QString &message) const override;
 
 private slots:
     void slotSetSubmissionMethod();
@@ -237,10 +237,10 @@ class ImapPage : public QScrollArea, Ui_ImapPage, public ConfigurationWidgetInte
     Q_OBJECT
 public:
     ImapPage(SettingsDialog *parent, QSettings &s);
-    virtual void save(QSettings &s);
-    virtual QWidget *asWidget();
-    virtual bool checkValidity() const;
-    virtual bool passwordFailures(QString &message) const;
+    void save(QSettings &s) override;
+    QWidget *asWidget() override;
+    bool checkValidity() const override;
+    bool passwordFailures(QString &message) const override;
 
 private:
     enum { NETWORK, PROCESS };
@@ -270,10 +270,10 @@ class CachePage : public QScrollArea, Ui_CachePage, public ConfigurationWidgetIn
     Q_OBJECT
 public:
     CachePage(QWidget *parent, QSettings &s);
-    virtual void save(QSettings &s);
-    virtual QWidget *asWidget();
-    virtual bool checkValidity() const;
-    virtual bool passwordFailures(QString &message) const;
+    void save(QSettings &s) override;
+    QWidget *asWidget() override;
+    bool checkValidity() const override;
+    bool passwordFailures(QString &message) const override;
 
 private:
     QCheckBox *startOffline;

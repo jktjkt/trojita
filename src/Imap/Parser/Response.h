@@ -283,10 +283,10 @@ public:
     State(): respCode(NONE) {}
 
     /** @short helper for operator<<( QTextStream& ) */
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure storing a CAPABILITY untagged response */
@@ -296,10 +296,10 @@ public:
     /** @short List of capabilities */
     QStringList capabilities;
     Capability(const QStringList &capabilities): capabilities(capabilities) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure for EXISTS/EXPUNGE/RECENT responses */
@@ -310,10 +310,10 @@ public:
     /** @short Number that we're storing */
     uint number;
     NumberResponse(const Kind kind, const uint number);
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure storing a LIST untagged response */
@@ -340,10 +340,10 @@ public:
     List(const Kind kind, const QStringList &flags, const QString &separator, const QString &mailbox,
          const QMap<QByteArray, QVariant> &extendedData):
         kind(kind), flags(flags), separator(separator), mailbox(mailbox), extendedData(extendedData) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 struct NamespaceData {
@@ -365,10 +365,10 @@ public:
     Namespace(const QList<NamespaceData> &personal, const QList<NamespaceData> &users,
               const QList<NamespaceData> &other):
         personal(personal), users(users), other(other) {};
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 
@@ -380,10 +380,10 @@ public:
     QStringList flags;
     Flags(const QStringList &flags) : flags(flags) {};
     Flags(const QByteArray &line, int &start);
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure storing a SEARCH untagged response */
@@ -394,10 +394,10 @@ public:
     Uids items;
     Search(const QByteArray &line, int &start);
     Search(const Uids &items) : items(items) {};
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure storing an ESEARCH untagged response */
@@ -487,10 +487,10 @@ public:
         tag(tag), seqOrUids(seqOrUids), incrementalContextData(incrementalContextData) {}
     ESearch(const QByteArray &tag, const SequencesOrUids seqOrUids, const IncrementalThreadingData_t &incThreadData):
         tag(tag), seqOrUids(seqOrUids), incThreadData(incThreadData) {}
-    virtual QTextStream &dump(QTextStream &stream) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &stream) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure storing a STATUS untagged response */
@@ -516,11 +516,11 @@ public:
     Status(const QString &mailbox, const stateDataType &states) :
         mailbox(mailbox), states(states) {};
     Status(const QByteArray &line, int &start);
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
     static StateKind stateKindFromStr(QString s);
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short FETCH response */
@@ -537,10 +537,10 @@ public:
 
     Fetch(const uint number, const QByteArray &line, int &start);
     Fetch(const uint number, const dataType &data);
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 private:
     static QDateTime dateify(QByteArray str, const QByteArray &line, const int start);
 };
@@ -553,10 +553,10 @@ public:
     Uids numbers;
     Sort(const QByteArray &line, int &start);
     Sort(const Uids &items): numbers(items) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure storing a THREAD untagged response */
@@ -567,10 +567,10 @@ public:
     QVector<ThreadingNode> rootItems;
     Thread(const QByteArray &line, int &start);
     Thread(const QVector<ThreadingNode> &items): rootItems(items) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure storing the result of the ID command */
@@ -581,10 +581,10 @@ public:
     QMap<QByteArray,QByteArray> data;
     Id(const QByteArray &line, int &start);
     Id(const QMap<QByteArray,QByteArray> &items): data(items) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short Structure storing each enabled extension */
@@ -594,10 +594,10 @@ public:
     QList<QByteArray> extensions;
     Enabled(const QByteArray &line, int &start);
     Enabled(const QList<QByteArray> &extensions): extensions(extensions) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short VANISHED contains information about UIDs of removed messages */
@@ -609,10 +609,10 @@ public:
     Uids uids;
     Vanished(const QByteArray &line, int &start);
     Vanished(EarlierOrNow earlier, const Uids &uids): earlier(earlier), uids(uids) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short The GENURLAUTH response */
@@ -622,10 +622,10 @@ public:
     QString url;
     GenUrlAuth(const QByteArray &line, int &start);
     GenUrlAuth(const QString &url): url(url) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short A fake response for passing along the SSL state */
@@ -636,10 +636,10 @@ public:
     QList<QSslError> sslErrors;
     /** @short List of sequence/UID numbers as returned by the server */
     SocketEncryptedResponse(const QList<QSslCertificate> &certificateChain, const QList<QSslError> &sslErrors);
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short A fake response saying that the socket got disconnected */
@@ -648,10 +648,10 @@ class SocketDisconnectedResponse : public AbstractResponse
 public:
     QString message;
     explicit SocketDisconnectedResponse(const QString &message): message(message) {}
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 /** @short A fake response about a parsing error */
@@ -663,10 +663,10 @@ public:
     QByteArray line;
     int offset;
     explicit ParseErrorResponse(const ImapException &e);
-    virtual QTextStream &dump(QTextStream &s) const;
-    virtual bool eq(const AbstractResponse &other) const;
-    virtual void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const;
-    virtual bool plug(Imap::Mailbox::ImapTask *task) const;
+    QTextStream &dump(QTextStream &s) const override;
+    bool eq(const AbstractResponse &other) const override;
+    void plug(Imap::Parser *parser, Imap::Mailbox::Model *model) const override;
+    bool plug(Imap::Mailbox::ImapTask *task) const override;
 };
 
 QTextStream &operator<<(QTextStream &stream, const Code &r);

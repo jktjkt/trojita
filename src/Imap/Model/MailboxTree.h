@@ -152,13 +152,13 @@ public:
 
     static TreeItemMailbox *fromMetadata(TreeItem *parent, const MailboxMetadata &metadata);
 
-    virtual TreeItemChildrenList setChildren(const TreeItemChildrenList &items);
-    virtual void fetch(Model *const model);
+    TreeItemChildrenList setChildren(const TreeItemChildrenList &items) override;
+    void fetch(Model *const model) override;
     virtual void fetchWithCacheControl(Model *const model, bool forceReload);
-    virtual unsigned int rowCount(Model *const model);
-    virtual QVariant data(Model *const model, int role);
-    virtual bool hasChildren(Model *const model);
-    virtual TreeItem *child(const int offset, Model *const model);
+    unsigned int rowCount(Model *const model) override;
+    QVariant data(Model *const model, int role) override;
+    bool hasChildren(Model *const model) override;
+    TreeItem *child(const int offset, Model *const model) override;
 
     SyncState syncState;
 
@@ -216,10 +216,10 @@ class TreeItemMsgList: public TreeItem
 public:
     explicit TreeItemMsgList(TreeItem *parent);
 
-    virtual void fetch(Model *const model);
-    virtual unsigned int rowCount(Model *const model);
-    virtual QVariant data(Model *const model, int role);
-    virtual bool hasChildren(Model *const model);
+    void fetch(Model *const model) override;
+    unsigned int rowCount(Model *const model) override;
+    QVariant data(Model *const model, int role) override;
+    bool hasChildren(Model *const model) override;
 
     int totalMessageCount(Model *const model);
     int unreadMessageCount(Model *const model);
@@ -315,13 +315,13 @@ public:
     explicit TreeItemMessage(TreeItem *parent);
     ~TreeItemMessage();
 
-    virtual int row() const;
-    virtual void fetch(Model *const model);
-    virtual unsigned int rowCount(Model *const model);
-    virtual unsigned int columnCount();
-    virtual QVariant data(Model *const model, int role);
-    virtual bool hasChildren(Model *const model) { Q_UNUSED(model); return true; }
-    virtual TreeItemChildrenList setChildren(const TreeItemChildrenList &items);
+    int row() const override;
+    void fetch(Model *const model) override;
+    unsigned int rowCount(Model *const model) override;
+    unsigned int columnCount() override;
+    QVariant data(Model *const model, int role) override;
+    bool hasChildren(Model *const model) override { Q_UNUSED(model); return true; }
+    TreeItemChildrenList setChildren(const TreeItemChildrenList &items) override;
     Message::Envelope envelope(Model *const model);
     QDateTime internalDate(Model *const model);
     quint64 size(Model *const model);
@@ -335,7 +335,7 @@ public:
     bool isMarkedAsNotJunk() const;
     void checkFlagsReadRecent(bool &isRead, bool &isRecent) const;
     uint uid() const;
-    virtual TreeItem *specialColumnPtr(int row, int column) const;
+    TreeItem *specialColumnPtr(int row, int column) const override;
     bool hasAttachments(Model *const model);
 
     static QVariantList addresListToQVariant(const QList<Imap::Message::MailAddress> &addressList);
@@ -366,16 +366,16 @@ public:
     TreeItemPart(TreeItem *parent, const QByteArray &mimeType);
     ~TreeItemPart();
 
-    virtual unsigned int childrenCount(Model *const model);
-    virtual TreeItem *child(const int offset, Model *const model);
-    virtual TreeItemChildrenList setChildren(const TreeItemChildrenList &items);
+    unsigned int childrenCount(Model *const model) override;
+    TreeItem *child(const int offset, Model *const model) override;
+    TreeItemChildrenList setChildren(const TreeItemChildrenList &items) override;
 
     virtual void fetchFromCache(Model *const model);
-    virtual void fetch(Model *const model);
-    virtual unsigned int rowCount(Model *const model);
-    virtual unsigned int columnCount();
-    virtual QVariant data(Model *const model, int role);
-    virtual bool hasChildren(Model *const model);
+    void fetch(Model *const model) override;
+    unsigned int rowCount(Model *const model) override;
+    unsigned int columnCount() override;
+    QVariant data(Model *const model, int role) override;
+    bool hasChildren(Model *const model) override;
 
     virtual QByteArray partId() const;
 
@@ -419,7 +419,7 @@ public:
     void setMultipartRelatedStartPart(const QByteArray &start) { m_multipartRelatedStartPart = start; }
     void setBodyFldParam(const Imap::Message::AbstractMessage::bodyFldParam_t &bodyFldParam) { m_bodyFldParam = bodyFldParam; }
     Imap::Message::AbstractMessage::bodyFldParam_t bodyFldParam() const { return m_bodyFldParam; }
-    virtual TreeItem *specialColumnPtr(int row, int column) const;
+    TreeItem *specialColumnPtr(int row, int column) const override;
     virtual bool isTopLevelMultiPart() const;
 
     virtual void silentlyReleaseMemoryRecursive();
@@ -436,16 +436,16 @@ class TreeItemModifiedPart: public TreeItemPart
     PartModifier m_modifier;
 public:
     TreeItemModifiedPart(TreeItem *parent, const PartModifier kind);
-    virtual int row() const;
-    virtual unsigned int columnCount();
-    virtual QByteArray partId() const;
-    virtual QByteArray pathToPart() const;
-    virtual TreeItem *specialColumnPtr(int row, int column) const;
+    int row() const override;
+    unsigned int columnCount() override;
+    QByteArray partId() const override;
+    QByteArray pathToPart() const override;
+    TreeItem *specialColumnPtr(int row, int column) const override;
     PartModifier kind() const;
-    virtual QModelIndex toIndex(Model *const model) const;
-    virtual QByteArray partIdForFetch(const PartFetchingMode fetchingMode) const;
+    QModelIndex toIndex(Model *const model) const override;
+    QByteArray partIdForFetch(const PartFetchingMode fetchingMode) const override;
 protected:
-    virtual bool isTopLevelMultiPart() const;
+    bool isTopLevelMultiPart() const override;
 private:
     QByteArray modifierToByteArray() const;
 };
@@ -459,9 +459,9 @@ class TreeItemPartMultipartMessage: public TreeItemPart
 public:
     TreeItemPartMultipartMessage(TreeItem *parent, const Message::Envelope &envelope);
     virtual ~TreeItemPartMultipartMessage();
-    virtual QVariant data(Model * const model, int role);
-    virtual TreeItem *specialColumnPtr(int row, int column) const;
-    virtual void silentlyReleaseMemoryRecursive();
+    QVariant data(Model * const model, int role) override;
+    TreeItem *specialColumnPtr(int row, int column) const override;
+    void silentlyReleaseMemoryRecursive() override;
 };
 
 }

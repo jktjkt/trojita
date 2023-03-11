@@ -42,15 +42,15 @@ public:
     explicit ExistingMessageComposer(const QModelIndex &messageRoot);
     ~ExistingMessageComposer();
 
-    virtual bool isReadyForSerialization() const override;
-    virtual bool asRawMessage(QIODevice *target, QString *errorMessage) const override;
-    virtual bool asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const override;
-    virtual QDateTime timestamp() const override;
-    virtual QByteArray rawFromAddress() const override;
-    virtual QList<QByteArray> rawRecipientAddresses() const override;
-    virtual void setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress>> &recipients) override;
-    virtual void setFrom(const Imap::Message::MailAddress &from) override;
-    virtual void setPreloadEnabled(const bool preload) override;
+    bool isReadyForSerialization() const override;
+    bool asRawMessage(QIODevice *target, QString *errorMessage) const override;
+    bool asCatenateData(QList<Imap::Mailbox::CatenatePair> &target, QString *errorMessage) const override;
+    QDateTime timestamp() const override;
+    QByteArray rawFromAddress() const override;
+    QList<QByteArray> rawRecipientAddresses() const override;
+    void setRecipients(const QList<QPair<Composer::RecipientKind, Imap::Message::MailAddress>> &recipients) override;
+    void setFrom(const Imap::Message::MailAddress &from) override;
+    void setPreloadEnabled(const bool preload) override;
 private:
     QByteArray resentChunk() const;
     std::unique_ptr<Imap::Mailbox::FullMessageCombiner> m_combiner;

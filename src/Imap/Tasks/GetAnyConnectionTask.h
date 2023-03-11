@@ -48,10 +48,10 @@ class GetAnyConnectionTask : public ImapTask
     Q_OBJECT
 public:
     explicit GetAnyConnectionTask(Model *model);
-    virtual void perform();
-    virtual bool isReadyToRun() const;
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return false;}
+    void perform() override;
+    bool isReadyToRun() const override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return false;}
 private:
     ImapTask *newConn;
 };

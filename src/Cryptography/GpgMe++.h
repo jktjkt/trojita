@@ -57,7 +57,7 @@ enum class Protocol {
 class GpgMeReplacer: public PartReplacer {
 public:
     GpgMeReplacer();
-    virtual ~GpgMeReplacer() override;
+    ~GpgMeReplacer() override;
 
     MessagePart::Ptr createPart(MessageModel *model, MessagePart *parentPart, MessagePart::Ptr original,
                                 const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex) override;
@@ -74,7 +74,7 @@ public:
     GpgMePart(const Protocol protocol, GpgMeReplacer *replacer, MessageModel *model, MessagePart *parentPart,
               const QModelIndex &sourceItemIndex, const QModelIndex &proxyParentIndex);
     ~GpgMePart();
-    virtual QVariant data(int role) const override;
+    QVariant data(int role) const override;
 
 protected slots:
     void forwardFailure(const QString &statusTLDR, const QString &statusLong, const QString &statusIcon);
@@ -117,7 +117,7 @@ public:
     ~GpgMeSigned();
 
 private slots:
-    virtual void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) override;
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) override;
 
 private:
     QPersistentModelIndex m_plaintextPart, m_plaintextMimePart, m_signaturePart;
@@ -131,7 +131,7 @@ public:
     ~GpgMeEncrypted();
 
 private slots:
-    virtual void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) override;
+    void handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight) override;
     void processDecryptedData(const bool ok, const QByteArray &data);
 
 private:

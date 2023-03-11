@@ -41,11 +41,11 @@ class ExpungeMailboxTask : public ImapTask
     Q_OBJECT
 public:
     ExpungeMailboxTask(Model *model, const QModelIndex &mailbox);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return true;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return true;}
 private:
     CommandHandle tag;
     ImapTask *conn;

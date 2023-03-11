@@ -47,18 +47,18 @@ public:
 
     ThreadTask(Model *model, const QModelIndex &mailbox, const QByteArray &algorithm, const QStringList &searchCriteria,
                const ThreadingIncrementalMode incrementalMode = THREADING_REGULAR);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool handleThread(const Imap::Responses::Thread *const resp);
-    virtual bool handleESearch(const Responses::ESearch *const resp);
-    virtual QVariant taskData(const int role) const;
-    virtual bool needsMailbox() const {return true;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool handleThread(const Imap::Responses::Thread *const resp) override;
+    bool handleESearch(const Responses::ESearch *const resp) override;
+    QVariant taskData(const int role) const override;
+    bool needsMailbox() const override {return true;}
 signals:
     /** @short An incremental update to the threading as per draft-imap-incthread */
     void incrementalThreadingAvailable(const Responses::ESearch::IncrementalThreadingData_t &update);
 protected:
-    virtual void _failed(const QString &errorMessage);
+    void _failed(const QString &errorMessage) override;
 private:
     CommandHandle tag;
     ImapTask *conn;

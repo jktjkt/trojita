@@ -37,10 +37,10 @@ class Fake_ListChildMailboxesTask : public ListChildMailboxesTask
     Q_OBJECT
 public:
     Fake_ListChildMailboxesTask(Model *model, const QModelIndex &mailbox);
-    virtual void perform();
+    void perform() override;
 
-    virtual bool handleStateHelper(const Imap::Responses::State *const resp);
-    virtual bool needsMailbox() const {return false;}
+    bool handleStateHelper(const Imap::Responses::State *const resp) override;
+    bool needsMailbox() const override {return false;}
 };
 
 }
