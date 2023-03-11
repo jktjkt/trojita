@@ -2238,7 +2238,7 @@ msgstr ""
 "<p>Jos valittu, voit asettaa postilaatikkopuun oletustoiminnon vedettäessä "
 "ja pudotettaessa sinne jotakin.</p><p>Ellei ole valittu, Trojitá kysyy "
 "toimintoa aina. Voit aina valita toiminnon muuntonäppäimin (Ctrl: kopioi, "
-"Vaihto: siirrä)."
+"Vaihto: siirrä).</p>"
 
 #: ../src/Gui/SettingsGeneralPage.ui:274
 msgctxt "GeneralPage|"
@@ -3649,7 +3649,7 @@ msgstr "<li>%1: ei tuettu</li>"
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: <strong>disabled</strong></li>"
-msgstr "<li>%1: <strong>ei käytössä</strong><li>"
+msgstr "<li>%1: <strong>ei käytössä</strong></li>"
 
 #: ../src/Gui/Window.cpp:2189
 msgctxt "Gui::MainWindow|"
