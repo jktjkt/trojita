@@ -132,19 +132,16 @@ QModelIndex MsgPartNetAccessManager::pathToPart(const QModelIndex &message, cons
     for (QList<QByteArray>::const_iterator it = items.constBegin(); target.isValid() && it != items.constEnd(); ++it) {
         const QAbstractItemModel *model = target.model();
         int offset = it->toInt(&ok);
-        if (!ok) {
-            // special case, we have to dive into that funny, irregular special parts now
-            if (*it == "HEADER")
-                target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, target);
-            else if (*it == "TEXT")
-                target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, target);
-            else if (*it == "MIME")
-                target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_MIME, target);
-            else
-                return QModelIndex();
-            continue;
-        }
-        target = target.model()->index(offset, 0, target);
+        if (ok)
+            target = model->index(offset, 0, target);
+        else if (*it == "HEADER")
+            target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_HEADER, target);
+        else if (*it == "TEXT")
+            target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_TEXT, target);
+        else if (*it == "MIME")
+            target = model->index(0, Imap::Mailbox::TreeItem::OFFSET_MIME, target);
+        else
+            return QModelIndex();
     }
     return target;
 }
