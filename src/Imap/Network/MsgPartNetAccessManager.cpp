@@ -73,10 +73,10 @@ QNetworkReply *MsgPartNetAccessManager::createRequest(Operation op, const QNetwo
     }
 
     Q_ASSERT(message.isValid());
-    QModelIndex partIndex = pathToPart(message, req.url().path().toUtf8());
 
     if (req.url().scheme() == QLatin1String("trojita-imap") && req.url().host() == QLatin1String("msg")) {
         // Internal Trojita reference
+        QModelIndex partIndex = pathToPart(message, req.url().path().toUtf8());
         if (partIndex.isValid()) {
             return new Imap::Network::MsgPartNetworkReply(this, partIndex);
         } else {
