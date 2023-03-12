@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: kdeorg\n"
-"PO-Revision-Date: 2023-02-24 12:44\n"
+"PO-Revision-Date: 2023-03-11 04:53\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -4653,12 +4653,12 @@ msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Asked to die"
 msgstr ""
 
-#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1202
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1200
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Escaped from mailbox"
 msgstr ""
 
-#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1207
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1205
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Synchronizing mailbox"
 msgstr ""
@@ -4815,7 +4815,7 @@ msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting command has failed"
 msgstr ""
 
-#: ../src/Imap/Tasks/SortTask.cpp:244
+#: ../src/Imap/Tasks/SortTask.cpp:243
 msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting mailbox"
 msgstr ""

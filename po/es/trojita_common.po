@@ -4957,12 +4957,12 @@ msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Asked to die"
 msgstr "Se ha pedido que termine"
 
-#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1202
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1200
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Escaped from mailbox"
 msgstr "Se ha salido del buzón"
 
-#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1207
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1205
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Synchronizing mailbox"
 msgstr "Sincronizando buzón"
@@ -5147,7 +5147,7 @@ msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting command has failed"
 msgstr "La orden de ordenación ha fallado"
 
-#: ../src/Imap/Tasks/SortTask.cpp:244
+#: ../src/Imap/Tasks/SortTask.cpp:243
 msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting mailbox"
 msgstr "Ordenando buzón"

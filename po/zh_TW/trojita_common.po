@@ -5280,12 +5280,12 @@ msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Asked to die"
 msgstr ""
 
-#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1202
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1200
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Escaped from mailbox"
 msgstr ""
 
-#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1207
+#: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1205
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Synchronizing mailbox"
 msgstr "同步信箱中"
@@ -5455,7 +5455,7 @@ msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting command has failed"
 msgstr "CAPABILITIES 命令失敗"
 
-#: ../src/Imap/Tasks/SortTask.cpp:244
+#: ../src/Imap/Tasks/SortTask.cpp:243
 msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting mailbox"
 msgstr "排序信箱中"
