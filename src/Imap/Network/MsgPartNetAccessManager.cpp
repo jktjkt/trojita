@@ -129,7 +129,7 @@ QModelIndex MsgPartNetAccessManager::pathToPart(const QModelIndex &message, cons
     QList<QByteArray> items = path.mid(1).split('/'); // mid(1) to get rid of the leading slash now that we don't use QString::SkipEmptyParts
     bool ok = ! items.isEmpty(); // if it's empty, it's a bogous URL
 
-    for (QList<QByteArray>::const_iterator it = items.constBegin(); it != items.constEnd(); ++it) {
+    for (QList<QByteArray>::const_iterator it = items.constBegin(); target.isValid() && it != items.constEnd(); ++it) {
         const QAbstractItemModel *model = target.model();
         int offset = it->toInt(&ok);
         if (!ok) {
