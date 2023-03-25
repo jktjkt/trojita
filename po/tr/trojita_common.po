@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-03-09 13:33+0300\n"
+"PO-Revision-Date: 2023-03-24 16:53+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -3454,7 +3454,7 @@ msgstr[1] "%n saniye içinde tekrar bağlanma denenecek.."
 #: ../src/Gui/Window.cpp:997
 msgctxt "Gui::MainWindow|"
 msgid "&Quit"
-msgstr "&Çıkış"
+msgstr "&Çık"
 
 #. This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
 #: ../src/Gui/Window.cpp:1112
