@@ -1686,9 +1686,6 @@ void Model::releaseMessageData(const QModelIndex &message)
 
     msg->setFetchStatus(TreeItem::NONE);
 
-#ifndef XTUPLE_CONNECT
-    beginRemoveRows(realMessage, 0, msg->m_children.size() - 1);
-#endif
     if (msg->data()->partHeader()) {
         msg->data()->partHeader()->silentlyReleaseMemoryRecursive();
         msg->data()->setPartHeader(nullptr);
@@ -1706,10 +1703,6 @@ void Model::releaseMessageData(const QModelIndex &message)
         delete part;
     }
     msg->m_children.clear();
-#ifndef XTUPLE_CONNECT
-    endRemoveRows();
-    emit dataChanged(realMessage, realMessage);
-#endif
 }
 
 QStringList Model::capabilities() const

@@ -487,12 +487,6 @@ void MainWindow::createActions()
     deleteCurrentMailbox = new QAction(tr("&Remove Mailbox"), this);
     connect(deleteCurrentMailbox, &QAction::triggered, this, &MainWindow::slotDeleteCurrentMailbox);
 
-#ifdef XTUPLE_CONNECT
-    xtIncludeMailboxInSync = new QAction(tr("&Synchronize with xTuple"), this);
-    xtIncludeMailboxInSync->setCheckable(true);
-    connect(xtIncludeMailboxInSync, SIGNAL(triggered()), this, SLOT(slotXtSyncCurrentMailbox()));
-#endif
-
     m_replyPrivate = ShortcutHandler::instance()->createAction(QStringLiteral("action_reply_private"), this, SLOT(slotReplyTo()), this);
     m_replyPrivate->setEnabled(false);
 
@@ -1252,13 +1246,6 @@ void MainWindow::showContextMenuMboxTree(const QPoint &position)
 
         actionList.append(m_actionSubscribeMailbox);
         m_actionSubscribeMailbox->setChecked(mboxTree->indexAt(position).data(Imap::Mailbox::RoleMailboxIsSubscribed).toBool());
-
-#ifdef XTUPLE_CONNECT
-        actionList.append(xtIncludeMailboxInSync);
-        xtIncludeMailboxInSync->setChecked(
-            m_settings->value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
-                mboxTree->indexAt(position).data(Imap::Mailbox::RoleMailboxName).toString()));
-#endif
     } else {
         actionList.append(createTopMailbox);
     }
@@ -2245,29 +2232,6 @@ void MainWindow::slotViewMsgHeaders()
         widget->show();
     }
 }
-
-#ifdef XTUPLE_CONNECT
-void MainWindow::slotXtSyncCurrentMailbox()
-{
-    QModelIndex index = mboxTree->currentIndex();
-    if (! index.isValid())
-        return;
-
-    QString mailbox = index.data(Imap::Mailbox::RoleMailboxName).toString();
-    QSettings s;
-    QStringList mailboxes = s.value(Common::SettingsNames::xtSyncMailboxList).toStringList();
-    if (xtIncludeMailboxInSync->isChecked()) {
-        if (! mailboxes.contains(mailbox)) {
-            mailboxes.append(mailbox);
-        }
-    } else {
-        mailboxes.removeAll(mailbox);
-    }
-    s.setValue(Common::SettingsNames::xtSyncMailboxList, mailboxes);
-    QSettings(QSettings::UserScope, QString::fromAscii("xTuple.com"), QString::fromAscii("xTuple")).setValue(Common::SettingsNames::xtSyncMailboxList, mailboxes);
-    prettyMboxModel->xtConnectStatusChanged(index);
-}
-#endif
 
 void MainWindow::slotSubscribeCurrentMailbox()
 {

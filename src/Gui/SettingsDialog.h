@@ -241,9 +241,6 @@ public:
     virtual QWidget *asWidget();
     virtual bool checkValidity() const;
     virtual bool passwordFailures(QString &message) const;
-#ifdef XTUPLE_CONNECT
-    bool hasPassword() const;
-#endif
 
 private:
     enum { NETWORK, PROCESS };
@@ -293,37 +290,6 @@ signals:
     void widgetsUpdated();
 };
 
-#ifdef XTUPLE_CONNECT
-class SettingsDialog;
-class XtConnectPage : public QWidget
-{
-    Q_OBJECT
-public:
-    XtConnectPage(QWidget *parent, QSettings &s, ImapPage *imapPage);
-    void save(QSettings &s);
-    virtual void showEvent(QShowEvent *event);
-public slots:
-    void saveXtConfig();
-    void runXtConnect();
-private:
-    QLineEdit *cacheDir;
-    QPointer<ImapPage> imap;
-
-    QLineEdit *hostName;
-    QSpinBox *port;
-    QLineEdit *dbName;
-    QLineEdit *username;
-    QLabel *imapPasswordWarning;
-    QCheckBox *debugLog;
-
-    XtConnectPage(const XtConnectPage &); // don't implement
-    XtConnectPage &operator=(const XtConnectPage &); // don't implement
-signals:
-    void saved();
-    void widgetsUpdated();
-};
-#endif
-
 
 class SettingsDialog : public QDialog
 {
@@ -353,9 +319,6 @@ private:
     QDialogButtonBox *buttons;
     QTabWidget *stack;
     QVector<ConfigurationWidgetInterface*> pages;
-#ifdef XTUPLE_CONNECT
-    XtConnectPage *xtConnect;
-#endif
     Composer::SenderIdentitiesModel *m_senderIdentities;
     Imap::Mailbox::FavoriteTagsModel *m_favoriteTags;
     QSettings *m_settings;

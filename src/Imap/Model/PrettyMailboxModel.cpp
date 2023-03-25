@@ -22,11 +22,6 @@
 #include "PrettyMailboxModel.h"
 #include "ItemRoles.h"
 
-#ifdef XTUPLE_CONNECT
-# include "Common/SettingsNames.h"
-# include <QSettings>
-#endif
-
 #include <QFont>
 #include "UiUtils/Formatting.h"
 #include "UiUtils/IconLoader.h"
@@ -107,11 +102,6 @@ QVariant PrettyMailboxModel::data(const QModelIndex &index, int role) const
         QModelIndex translated = mapToSource(index);
         if (translated.data(RoleMailboxItemsAreLoading).toBool())
             return UiUtils::loadIcon(QStringLiteral("folder-grey"));
-#ifdef XTUPLE_CONNECT
-        else if (QSettings().value(Common::SettingsNames::xtSyncMailboxList).toStringList().contains(
-                     translated.data(RoleMailboxName).toString()))
-            return UiUtils::loadIcon(QLatin1String("folder-xt-sync.png"));
-#endif
         else if (translated.data(RoleMailboxIsINBOX).toBool())
             return UiUtils::loadIcon(QStringLiteral("mail-folder-inbox"));
         else if (translated.data(RoleRecentMessageCount).toInt() > 0)
@@ -157,14 +147,6 @@ bool PrettyMailboxModel::hasChildren(const QModelIndex &parent) const
 {
     return sourceModel()->hasChildren(mapToSource(parent));
 }
-
-#ifdef XTUPLE_CONNECT
-void PrettyMailboxModel::xtConnectStatusChanged(QModelIndex index)
-{
-    Q_ASSERT(index.model() == this);
-    emit dataChanged(index, index);
-}
-#endif
 
 void PrettyMailboxModel::setShowOnlySubscribed(bool filterUnsubscribed)
 {

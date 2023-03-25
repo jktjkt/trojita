@@ -167,9 +167,6 @@ private slots:
     void slotCreateTopMailbox();
     void slotDeleteCurrentMailbox();
     void handleTrayIconChange();
-#ifdef XTUPLE_CONNECT
-    void slotXtSyncCurrentMailbox();
-#endif
     void slotSubscribeCurrentMailbox();
     void slotShowOnlySubscribed();
     void updateMessageFlags();
@@ -310,9 +307,6 @@ private:
     QAction *createChildMailbox;
     QAction *createTopMailbox;
     QAction *deleteCurrentMailbox;
-#ifdef XTUPLE_CONNECT
-    QAction *xtIncludeMailboxInSync;
-#endif
     QAction *aboutTrojita;
     QAction *donateToTrojita;
 
