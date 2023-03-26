@@ -544,7 +544,7 @@ void QwwSmtpClientPrivate::sendAuthPlain(const QString & username, const QString
 
 void QwwSmtpClientPrivate::sendAuthLogin(const QString & username, const QString & password, int stage) {
     if (stage==1) {
-        auto buf = username.toUtf8().toBase64() + "\r\n";
+        QByteArray buf = username.toUtf8().toBase64() + "\r\n";
         emit q->logSent(buf);
         socket->write(buf);
     } else if (stage==2) {
