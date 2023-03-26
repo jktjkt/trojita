@@ -319,7 +319,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                         if (cmd.type == SMTPCommand::MailBurl) {
                             errorString.clear();
                             QByteArray url = cmd.data.toList().at(2).toByteArray();
-                            auto data = "BURL " + url + " LAST\r\n";
+                            QByteArray data = "BURL " + url + " LAST\r\n";
                             emit q->logSent(data);
                             socket->write(data);
                             cmd.extra=2;
