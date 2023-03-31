@@ -21,6 +21,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <cstdint> // workaround broken mimetic header
 #include <sstream>
 #include <mimetic/mimetic.h>
 #include "Cryptography/MimeticUtils.h"

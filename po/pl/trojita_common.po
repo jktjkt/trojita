@@ -203,28 +203,28 @@ msgctxt "Composer::Submission|"
 msgid "The URLAUTH response does not contain a proper URL"
 msgstr "Odpowiedz URLAUTH nie zwiera poprawnego adresu URL"
 
-#: ../src/Cryptography/GpgMe++.cpp:53
+#: ../src/Cryptography/GpgMe++.cpp:54
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "[getAuditLog failed: %1]"
 msgstr "[Niepowodzenie getAuditLog: %1]"
 
-#: ../src/Cryptography/GpgMe++.cpp:169
+#: ../src/Cryptography/GpgMe++.cpp:170
 msgctxt "Cryptography::GpgMePart|"
 msgid "Waiting for data..."
 msgstr "Oczekiwanie na dane..."
 
-#: ../src/Cryptography/GpgMe++.cpp:312
+#: ../src/Cryptography/GpgMe++.cpp:313
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted; some signature: missing key"
 msgstr "Szyfrowana; jakiś podpis: brak klucza"
 
-#: ../src/Cryptography/GpgMe++.cpp:312
+#: ../src/Cryptography/GpgMe++.cpp:313
 msgctxt "Cryptography::GpgMePart|"
 msgid "Some signature: missing key"
 msgstr "Jakiś podpis: brak klucza"
 
-#: ../src/Cryptography/GpgMe++.cpp:313
+#: ../src/Cryptography/GpgMe++.cpp:314
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid ""
@@ -236,44 +236,44 @@ msgstr ""
 "Nie można sprawdzić poprawności podpisu ani niczego innego. Wiadomość mogła "
 "lub nie ulec zmianie przez oszusta."
 
-#: ../src/Cryptography/GpgMe++.cpp:324
+#: ../src/Cryptography/GpgMe++.cpp:325
 msgctxt "Cryptography::GpgMePart|"
 msgid "Internal error"
 msgstr "Błąd wewnętrzny"
 
-#: ../src/Cryptography/GpgMe++.cpp:325
+#: ../src/Cryptography/GpgMe++.cpp:326
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Error when verifying signature: cannot retrieve key %1: %2"
 msgstr "Błąd przy sprawdzaniu podpisu: nie można pobrać klucza %1: %2"
 
-#: ../src/Cryptography/GpgMe++.cpp:375
+#: ../src/Cryptography/GpgMe++.cpp:376
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, verified signature"
 msgstr "Szyfrowana, sprawdzony podpis"
 
-#: ../src/Cryptography/GpgMe++.cpp:375
+#: ../src/Cryptography/GpgMe++.cpp:376
 msgctxt "Cryptography::GpgMePart|"
 msgid "Verified signature"
 msgstr "Sprawdzono podpis"
 
-#: ../src/Cryptography/GpgMe++.cpp:376
+#: ../src/Cryptography/GpgMe++.cpp:377
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Verified signature from %1 on %2"
 msgstr "Sprawdzono podpis od %1 dnia %2"
 
-#: ../src/Cryptography/GpgMe++.cpp:381
+#: ../src/Cryptography/GpgMe++.cpp:382
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, signed by stranger"
 msgstr "Szyfrowana, podpisana przez nieznajomego"
 
-#: ../src/Cryptography/GpgMe++.cpp:381
+#: ../src/Cryptography/GpgMe++.cpp:382
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signed by stranger"
 msgstr "Podpisana przez nieznajomego"
 
-#: ../src/Cryptography/GpgMe++.cpp:382
+#: ../src/Cryptography/GpgMe++.cpp:383
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid ""
@@ -285,260 +285,260 @@ msgstr ""
 "%1\n"
 "Podpisano dnia %2."
 
-#: ../src/Cryptography/GpgMe++.cpp:389
+#: ../src/Cryptography/GpgMe++.cpp:390
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature"
 msgstr "Szyfrowana, zły podpis"
 
-#: ../src/Cryptography/GpgMe++.cpp:389
+#: ../src/Cryptography/GpgMe++.cpp:390
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature"
 msgstr "Zły podpis"
 
-#: ../src/Cryptography/GpgMe++.cpp:392
+#: ../src/Cryptography/GpgMe++.cpp:393
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature: %1"
 msgstr "Szyfrowana, zły podpis: %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:393
+#: ../src/Cryptography/GpgMe++.cpp:394
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature: %1"
 msgstr "Zły podpis: %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:395
+#: ../src/Cryptography/GpgMe++.cpp:396
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature by %1 on %2"
 msgstr "Zły podpis złożony przez %1 dnia %2"
 
-#: ../src/Cryptography/GpgMe++.cpp:398
+#: ../src/Cryptography/GpgMe++.cpp:399
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature by stranger"
 msgstr "Szyfrowana, zły podpis złożony przez nieznajomego"
 
-#: ../src/Cryptography/GpgMe++.cpp:398
+#: ../src/Cryptography/GpgMe++.cpp:399
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature by stranger"
 msgstr "Zły podpis złożony przez nieznajomego"
 
-#: ../src/Cryptography/GpgMe++.cpp:401
+#: ../src/Cryptography/GpgMe++.cpp:402
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature by stranger: %1"
 msgstr "Szyfrowana, zły podpis złożony przez nieznajomego: %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:402
+#: ../src/Cryptography/GpgMe++.cpp:403
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature by stranger: %1"
 msgstr "Zły podpis złożony przez nieznajomego: %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:404
+#: ../src/Cryptography/GpgMe++.cpp:405
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature by someone else: %1 on %2."
 msgstr "Zły podpis złożony przez kogoś innego: %1 dnia %2."
 
-#: ../src/Cryptography/GpgMe++.cpp:420
+#: ../src/Cryptography/GpgMe++.cpp:421
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, some signature"
 msgstr "Szyfrowana, jakiś podpis"
 
-#: ../src/Cryptography/GpgMe++.cpp:420
+#: ../src/Cryptography/GpgMe++.cpp:421
 msgctxt "Cryptography::GpgMePart|"
 msgid "Some signature"
 msgstr "Jakiś podpis"
 
-#: ../src/Cryptography/GpgMe++.cpp:421
+#: ../src/Cryptography/GpgMe++.cpp:422
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Unknown signature from %1 on %2"
 msgstr "Nieznany podpisu od %1 dnia %2"
 
-#: ../src/Cryptography/GpgMe++.cpp:425
+#: ../src/Cryptography/GpgMe++.cpp:426
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, some signature by stranger"
 msgstr "Szyfrowana, jakiś podpis złożony przez nieznajomego"
 
-#: ../src/Cryptography/GpgMe++.cpp:425
+#: ../src/Cryptography/GpgMe++.cpp:426
 msgctxt "Cryptography::GpgMePart|"
 msgid "Some signature by stranger"
 msgstr "Jakiś podpis złożony przez nieznajomego"
 
-#: ../src/Cryptography/GpgMe++.cpp:426
+#: ../src/Cryptography/GpgMe++.cpp:427
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Unknown signature by somebody else: %1 on %2"
 msgstr "Nieznany podpis złożony przez kogoś innego: %1 dnia %2"
 
-#: ../src/Cryptography/GpgMe++.cpp:434
+#: ../src/Cryptography/GpgMe++.cpp:435
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, semi-trusted signature"
 msgstr "Szyfrowana, połowicznie zaufany podpis"
 
-#: ../src/Cryptography/GpgMe++.cpp:434
+#: ../src/Cryptography/GpgMe++.cpp:435
 msgctxt "Cryptography::GpgMePart|"
 msgid "Semi-trusted signature"
 msgstr "Połowicznie zaufany podpis"
 
-#: ../src/Cryptography/GpgMe++.cpp:435
+#: ../src/Cryptography/GpgMe++.cpp:436
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Semi-trusted signature from %1 on %2"
 msgstr "Połowicznie zaufany podpis od %1 dnia %2"
 
-#: ../src/Cryptography/GpgMe++.cpp:440
+#: ../src/Cryptography/GpgMe++.cpp:441
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, semi-trusted signature by stranger"
 msgstr "Szyfrowana, połowicznie zaufany podpis złożony przez nieznajomego"
 
-#: ../src/Cryptography/GpgMe++.cpp:441
+#: ../src/Cryptography/GpgMe++.cpp:442
 msgctxt "Cryptography::GpgMePart|"
 msgid "Semi-trusted signature by stranger"
 msgstr "Połowicznie zaufany podpis złożony przez nieznajomego"
 
-#: ../src/Cryptography/GpgMe++.cpp:442
+#: ../src/Cryptography/GpgMe++.cpp:443
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Semi-trusted signature by somebody else: %1 on %2"
 msgstr "Połowicznie zaufany podpis złożony przez kogoś innego: %1 dnia %2"
 
-#: ../src/Cryptography/GpgMe++.cpp:455
+#: ../src/Cryptography/GpgMe++.cpp:456
 msgctxt "Cryptography::GpgMePart|"
 msgid "The key or at least one certificate has been revoked."
 msgstr "Klucz lub co najmniej jeden certyfikat został odwołany."
 
-#: ../src/Cryptography/GpgMe++.cpp:460
+#: ../src/Cryptography/GpgMe++.cpp:461
 msgctxt "Cryptography::GpgMePart|"
 msgid "The key or one of the certificates has expired."
 msgstr "Klucz lub co najmniej jeden certyfikat wygasł."
 
-#: ../src/Cryptography/GpgMe++.cpp:464
+#: ../src/Cryptography/GpgMe++.cpp:465
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature expired on %1."
 msgstr "Podpis wygasł dnia %1."
 
-#: ../src/Cryptography/GpgMe++.cpp:469
+#: ../src/Cryptography/GpgMe++.cpp:470
 msgctxt "Cryptography::GpgMePart|"
 msgid "Can't verify due to a missing key or certificate."
 msgstr "Nie można sprawdzić ważności ze względu na klucz lub certyfikat."
 
-#: ../src/Cryptography/GpgMe++.cpp:473
+#: ../src/Cryptography/GpgMe++.cpp:474
 msgctxt "Cryptography::GpgMePart|"
 msgid "The CRL (or an equivalent mechanism) is not available."
 msgstr "CRL (lub równoważny mechanizm) jest niedostępny."
 
-#: ../src/Cryptography/GpgMe++.cpp:477
+#: ../src/Cryptography/GpgMe++.cpp:478
 msgctxt "Cryptography::GpgMePart|"
 msgid "Available CRL is too old."
 msgstr "Dostępne CRL jest zbyt stare."
 
-#: ../src/Cryptography/GpgMe++.cpp:481
+#: ../src/Cryptography/GpgMe++.cpp:482
 msgctxt "Cryptography::GpgMePart|"
 msgid "A policy requirement was not met."
 msgstr "Wymagane zasady nie zostały spełnione."
 
-#: ../src/Cryptography/GpgMe++.cpp:485
+#: ../src/Cryptography/GpgMe++.cpp:486
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "A system error occurred. %1"
 msgstr "Wystąpił błąd systemowy. %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:494
+#: ../src/Cryptography/GpgMe++.cpp:495
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is undefined."
 msgstr "Ważność podpisu jest nieokreślona."
 
-#: ../src/Cryptography/GpgMe++.cpp:498
+#: ../src/Cryptography/GpgMe++.cpp:499
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is never to be trusted."
 msgstr "Ważności podpisu nigdy nie można zaufać."
 
-#: ../src/Cryptography/GpgMe++.cpp:502
+#: ../src/Cryptography/GpgMe++.cpp:503
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is marginal."
 msgstr "Ważność podpisu jest marginalna."
 
-#: ../src/Cryptography/GpgMe++.cpp:506
+#: ../src/Cryptography/GpgMe++.cpp:507
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is full."
 msgstr "Ważność podpisu jest pełna."
 
-#: ../src/Cryptography/GpgMe++.cpp:510
+#: ../src/Cryptography/GpgMe++.cpp:511
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is ultimate."
 msgstr "Ważność podpisu jest ostateczna."
 
-#: ../src/Cryptography/GpgMe++.cpp:514
+#: ../src/Cryptography/GpgMe++.cpp:515
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is unknown."
 msgstr "Ważność podpisu jest nieznana."
 
-#: ../src/Cryptography/GpgMe++.cpp:524
+#: ../src/Cryptography/GpgMe++.cpp:525
 msgctxt "Cryptography::GpgMePart|"
 msgid "Trust chain:"
 msgstr "Łańcuch zaufania:"
 
-#: ../src/Cryptography/GpgMe++.cpp:530
+#: ../src/Cryptography/GpgMe++.cpp:531
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "%1(Unavailable)"
 msgstr "%1(Niedostępny)"
 
-#: ../src/Cryptography/GpgMe++.cpp:534
+#: ../src/Cryptography/GpgMe++.cpp:535
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "%1(self-signed)"
 msgstr "%1(samo-podpisany)"
 
-#: ../src/Cryptography/GpgMe++.cpp:543
+#: ../src/Cryptography/GpgMe++.cpp:544
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Error when retrieving key for the trust chain: %1"
 msgstr "Błąd uzyskiwania kluczy do łańcucha zaufania: %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:553
+#: ../src/Cryptography/GpgMe++.cpp:554
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature invalidity reason: %1"
 msgstr "Powód nieważności podpisu: %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:615
+#: ../src/Cryptography/GpgMe++.cpp:616
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Malformed Signed Message"
 msgstr "Zniekształcona wiadomość podpisana"
 
-#: ../src/Cryptography/GpgMe++.cpp:616
+#: ../src/Cryptography/GpgMe++.cpp:617
 #, qt-format
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Expected 2 parts, but found %1."
 msgstr "Spodziewano się 2 części, lecz znaleziono %1."
 
-#: ../src/Cryptography/GpgMe++.cpp:620
+#: ../src/Cryptography/GpgMe++.cpp:621
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Cannot verify signature"
 msgstr "Nie można sprawdzić podpisu"
 
-#: ../src/Cryptography/GpgMe++.cpp:621
+#: ../src/Cryptography/GpgMe++.cpp:622
 #, qt-format
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Failed to initialize GpgME (%1)"
 msgstr "Nie można rozpocząć GpgME (%1)"
 
-#: ../src/Cryptography/GpgMe++.cpp:641
+#: ../src/Cryptography/GpgMe++.cpp:642
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Signed message is gone"
 msgstr "Podpisana wiadomość przepadła"
 
-#: ../src/Cryptography/GpgMe++.cpp:653
+#: ../src/Cryptography/GpgMe++.cpp:654
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Data Unavailable"
 msgstr "Dane niedostępne"
 
-#: ../src/Cryptography/GpgMe++.cpp:654
+#: ../src/Cryptography/GpgMe++.cpp:655
 msgctxt "Cryptography::GpgMeSigned|"
 msgid ""
 "Some data are not available, perhaps due to an offline network connection"
@@ -546,50 +546,50 @@ msgstr ""
 "Pewne dane są niedostępne, prawdopodobnie ze względu na brak połączenia z "
 "internetem"
 
-#: ../src/Cryptography/GpgMe++.cpp:674
+#: ../src/Cryptography/GpgMe++.cpp:675
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Verifying signature..."
 msgstr "Sprawdzanie podpisu..."
 
-#: ../src/Cryptography/GpgMe++.cpp:699
+#: ../src/Cryptography/GpgMe++.cpp:700
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "No signatures in the signed message"
 msgstr "Brak podpisów w podpisanej wiadomości"
 
-#: ../src/Cryptography/GpgMe++.cpp:739 ../src/Cryptography/GpgMe++.cpp:813
+#: ../src/Cryptography/GpgMe++.cpp:740 ../src/Cryptography/GpgMe++.cpp:814
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Malformed Encrypted Message"
 msgstr "Zniekształcona wiadomość zaszyfrowana"
 
-#: ../src/Cryptography/GpgMe++.cpp:740
+#: ../src/Cryptography/GpgMe++.cpp:741
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Expected 2 parts for an encrypted OpenPGP message, but found %1."
 msgstr ""
 "Spodziewano się 2 części szyfrowanej wiadomości OpenPGP, lecz znaleziono %1."
 
-#: ../src/Cryptography/GpgMe++.cpp:765
+#: ../src/Cryptography/GpgMe++.cpp:766
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Cannot descrypt"
 msgstr "Nie można odszyfrować"
 
-#: ../src/Cryptography/GpgMe++.cpp:766
+#: ../src/Cryptography/GpgMe++.cpp:767
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Failed to initialize GpgME (%1)"
 msgstr "Nie można rozpocząć GpgME (%1)"
 
-#: ../src/Cryptography/GpgMe++.cpp:786 ../src/Cryptography/GpgMe++.cpp:922
+#: ../src/Cryptography/GpgMe++.cpp:787 ../src/Cryptography/GpgMe++.cpp:923
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted message is gone"
 msgstr "Wiadomość zaszyfrowana przepadła"
 
-#: ../src/Cryptography/GpgMe++.cpp:796
+#: ../src/Cryptography/GpgMe++.cpp:797
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Data Unavailable"
 msgstr "Dane niedostępne"
 
-#: ../src/Cryptography/GpgMe++.cpp:797
+#: ../src/Cryptography/GpgMe++.cpp:798
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid ""
 "Cannot decrypt. Some data are not available, perhaps due to an offline "
@@ -598,64 +598,64 @@ msgstr ""
 "Nie można odszyfrować. Pewne dane są niedostępne, prawdopodobnie ze względu "
 "na brak połączenia z internetem"
 
-#: ../src/Cryptography/GpgMe++.cpp:814
+#: ../src/Cryptography/GpgMe++.cpp:815
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%1\"."
 msgstr ""
 "Nieobsługiwana wersja PGP/MIME. Oczekiwano \"Wersji: 1\", uzyskano \"%1\"."
 
-#: ../src/Cryptography/GpgMe++.cpp:820
+#: ../src/Cryptography/GpgMe++.cpp:821
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Decrypting..."
 msgstr "Odszyfrowywanie..."
 
-#: ../src/Cryptography/GpgMe++.cpp:863
+#: ../src/Cryptography/GpgMe++.cpp:864
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Broken encrypted message"
 msgstr "Uszkodzona wiadomość zaszyfrowana"
 
-#: ../src/Cryptography/GpgMe++.cpp:866
+#: ../src/Cryptography/GpgMe++.cpp:867
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Decryption error: %1"
 msgstr "Błąd odszyfrowywania: %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:869
+#: ../src/Cryptography/GpgMe++.cpp:870
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted message"
 msgstr "Wiadomość zaszyfrowana"
 
-#: ../src/Cryptography/GpgMe++.cpp:875
+#: ../src/Cryptography/GpgMe++.cpp:876
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Wrong key usage, not for encryption"
 msgstr "Złe wykorzystanie klucza, nie do szyfrowania"
 
-#: ../src/Cryptography/GpgMe++.cpp:879
+#: ../src/Cryptography/GpgMe++.cpp:880
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Unsupported algorithm: %1"
 msgstr "Nieobsługiwany algorytm: %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:887
+#: ../src/Cryptography/GpgMe++.cpp:888
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Cannot extract recipient %1: %2"
 msgstr "Nie można wydobyć adresata %1: %2"
 
-#: ../src/Cryptography/GpgMe++.cpp:892
+#: ../src/Cryptography/GpgMe++.cpp:893
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted to %1 (%2)"
 msgstr "Zaszyfrowano jako %1 (%2)"
 
-#: ../src/Cryptography/GpgMe++.cpp:896
+#: ../src/Cryptography/GpgMe++.cpp:897
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted to %1"
 msgstr "Zaszyfrowano jako %1"
 
-#: ../src/Cryptography/GpgMe++.cpp:902
+#: ../src/Cryptography/GpgMe++.cpp:903
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Original filename: %1"

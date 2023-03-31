@@ -319,7 +319,7 @@ void QwwSmtpClientPrivate::_q_readFromSocket() {
                         if (cmd.type == SMTPCommand::MailBurl) {
                             errorString.clear();
                             QByteArray url = cmd.data.toList().at(2).toByteArray();
-                            auto data = "BURL " + url + " LAST\r\n";
+                            QByteArray data = "BURL " + url + " LAST\r\n";
                             emit q->logSent(data);
                             socket->write(data);
                             cmd.extra=2;
@@ -544,7 +544,7 @@ void QwwSmtpClientPrivate::sendAuthPlain(const QString & username, const QString
 
 void QwwSmtpClientPrivate::sendAuthLogin(const QString & username, const QString & password, int stage) {
     if (stage==1) {
-        auto buf = username.toUtf8().toBase64() + "\r\n";
+        QByteArray buf = username.toUtf8().toBase64() + "\r\n";
         emit q->logSent(buf);
         socket->write(buf);
     } else if (stage==2) {
