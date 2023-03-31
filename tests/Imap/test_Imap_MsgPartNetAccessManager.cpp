@@ -191,6 +191,13 @@ void ImapMsgPartNetAccessManagerTest::testMessageParts_data()
             << "cid:<image002.jpg@01CEFBE5.40406E50>"
             << true
             << QByteArray("image/jpeg");
+
+    QTest::newRow("torture/trivial-out-of-bounds")
+            << bsTortureTest
+            << QByteArray()
+            << "trojita-imap://msg/666/666"
+            << false
+            << QByteArray();
 }
 
 #define COMMON_METADATA_CHAT_PLAIN_AND_SIGNED \
