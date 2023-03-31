@@ -43,8 +43,6 @@ struct SettingsNames {
     static const QString cacheMetadataKey, cacheMetadataMemory,
            cacheOfflineKey, cacheOfflineNone, cacheOfflineXDays, cacheOfflineAll, cacheOfflineNumberDaysKey;
     static const QString watchedFoldersKey, watchOnlyInbox, watchSubscribed, watchAll;
-    static const QString xtConnectCacheDirectory, xtSyncMailboxList, xtDbHost, xtDbPort,
-           xtDbDbName, xtDbUser;
     static const QString guiMsgListShowThreading;
     static const QString guiMsgListHideRead;
     static const QString guiMailboxListShowOnlySubscribed;
