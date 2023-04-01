@@ -897,8 +897,8 @@ msgstr ""
 "<br><span style=\"color:red\">Hoiatus: manuseid mustandisse <b>ei</b> "
 "salvestata!</span>"
 
-#: ../src/Gui/ComposeWidget.cpp:737 ../src/Gui/Window.cpp:1527
-#: ../src/Gui/Window.cpp:1529
+#: ../src/Gui/ComposeWidget.cpp:737 ../src/Gui/Window.cpp:1514
+#: ../src/Gui/Window.cpp:1516
 msgctxt "Gui::MainWindow|"
 msgid "Drafts"
 msgstr "Mustandid"
@@ -1789,22 +1789,17 @@ msgctxt "Gui::SettingsDialog|"
 msgid "&SMTP"
 msgstr "&SMTP"
 
-#: ../src/Gui/SettingsDialog.cpp:97
-msgctxt "Gui::SettingsDialog|"
-msgid "&xTuple"
-msgstr "&xTuple"
-
-#: ../src/Gui/SettingsDialog.cpp:99
+#: ../src/Gui/SettingsDialog.cpp:96
 msgctxt "Gui::SettingsDialog|"
 msgid "Favorite &tags"
 msgstr "Le&mmiksildid"
 
-#: ../src/Gui/SettingsDialog.cpp:218
+#: ../src/Gui/SettingsDialog.cpp:212
 msgctxt "Gui::SettingsDialog|"
 msgid "Saving passwords failed"
 msgstr "Paroolide salvestamine nurjus"
 
-#: ../src/Gui/SettingsDialog.cpp:219
+#: ../src/Gui/SettingsDialog.cpp:213
 #, qt-format
 msgctxt "Gui::SettingsDialog|"
 msgid ""
@@ -1814,48 +1809,48 @@ msgstr ""
 "<p>Paroole ei õnnestunud salvestada. Teatati tõrgetest:</p>\n"
 "<p>%1</p>"
 
-#: ../src/Gui/SettingsDialog.cpp:315
+#: ../src/Gui/SettingsDialog.cpp:309
 msgctxt "Gui::FavoriteTagsPage|"
 msgid "Add New Tag"
 msgstr "Uue sildi lisamine"
 
-#: ../src/Gui/SettingsDialog.cpp:323
+#: ../src/Gui/SettingsDialog.cpp:317
 msgctxt "Gui::FavoriteTagsPage|"
 msgid "Edit Tag"
 msgstr "Sildi muutmine"
 
-#: ../src/Gui/SettingsDialog.cpp:406
+#: ../src/Gui/SettingsDialog.cpp:400
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Plugin not found (%1)"
 msgstr "Pluginat ei leitud (%1)"
 
-#: ../src/Gui/SettingsDialog.cpp:407
+#: ../src/Gui/SettingsDialog.cpp:401
 msgctxt "Gui::GeneralPage|"
 msgid "Disable address book"
 msgstr "Aadressiraamatu keelamine"
 
-#: ../src/Gui/SettingsDialog.cpp:408
+#: ../src/Gui/SettingsDialog.cpp:402
 msgctxt "Gui::GeneralPage|"
 msgid "Disable passwords"
 msgstr "Paroolide keelamine"
 
-#: ../src/Gui/SettingsDialog.cpp:409
+#: ../src/Gui/SettingsDialog.cpp:403
 msgctxt "Gui::GeneralPage|"
 msgid "Disable spell checking"
 msgstr "Õigekirja kontrolli keelamine"
 
-#: ../src/Gui/SettingsDialog.cpp:425
+#: ../src/Gui/SettingsDialog.cpp:419
 msgctxt "Gui::GeneralPage|"
 msgid "Move"
 msgstr "Liiguta"
 
-#: ../src/Gui/SettingsDialog.cpp:428
+#: ../src/Gui/SettingsDialog.cpp:422
 msgctxt "Gui::GeneralPage|"
 msgid "Copy"
 msgstr "Kopeeri"
 
-#: ../src/Gui/SettingsDialog.cpp:433
+#: ../src/Gui/SettingsDialog.cpp:427
 msgctxt "Gui::GeneralPage|"
 msgid ""
 "<p>If enabled, Trojitá will show its homepage upon startup.</p><p>The remote "
@@ -1868,63 +1863,63 @@ msgstr ""
 "operatsioonisüsteemi versioonid. Mingit privaatteavet, näiteks konto "
 "seadistusi või IMAP serveri üksikasju, ei koguta.</p>"
 
-#: ../src/Gui/SettingsDialog.cpp:513
+#: ../src/Gui/SettingsDialog.cpp:507
 msgctxt "Gui::GeneralPage|"
 msgid "Add New Identity"
 msgstr "Uue idenditeedi lisamine"
 
-#: ../src/Gui/SettingsDialog.cpp:521
+#: ../src/Gui/SettingsDialog.cpp:515
 msgctxt "Gui::GeneralPage|"
 msgid "Edit Identity"
 msgstr "Identiteedi muutmine"
 
-#: ../src/Gui/SettingsDialog.cpp:529
+#: ../src/Gui/SettingsDialog.cpp:523
 msgctxt "Gui::GeneralPage|"
 msgid "Delete Identity?"
 msgstr "Kas kustutada identiteet?"
 
-#: ../src/Gui/SettingsDialog.cpp:530
+#: ../src/Gui/SettingsDialog.cpp:524
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Are you sure you want to delete identity %1 <%2>?"
 msgstr "Kas tõesti kustutada identiteet %1 <%2>?"
 
-#: ../src/Gui/SettingsDialog.cpp:579
+#: ../src/Gui/SettingsDialog.cpp:573
 msgctxt "Gui::GeneralPage|"
 msgid "Please define some identities here"
 msgstr "Palun määra siin identiteedid"
 
-#: ../src/Gui/SettingsDialog.cpp:676
+#: ../src/Gui/SettingsDialog.cpp:670
 msgctxt "Gui::EditFavoriteTag|"
 msgid "Select tag color"
 msgstr "Sildi värvi valimine"
 
-#: ../src/Gui/SettingsDialog.cpp:713
+#: ../src/Gui/SettingsDialog.cpp:707
 msgctxt "Gui::ImapPage|"
 msgid "Network Connection"
 msgstr "Võrguühendus"
 
-#: ../src/Gui/SettingsDialog.cpp:714
+#: ../src/Gui/SettingsDialog.cpp:708
 msgctxt "Gui::ImapPage|"
 msgid "Local Process"
 msgstr "Kohalik protsess"
 
-#: ../src/Gui/SettingsDialog.cpp:716
+#: ../src/Gui/SettingsDialog.cpp:710
 msgctxt "Gui::ImapPage|"
 msgid "No encryption"
 msgstr "Krüptimist ei kasutata"
 
-#: ../src/Gui/SettingsDialog.cpp:717
+#: ../src/Gui/SettingsDialog.cpp:711
 msgctxt "Gui::ImapPage|"
 msgid "Use encryption (STARTTLS)"
 msgstr "Krüptimise kasutamine (STARTTLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:718
+#: ../src/Gui/SettingsDialog.cpp:712
 msgctxt "Gui::ImapPage|"
 msgid "Force encryption (TLS)"
 msgstr "Jõuga krüptimine (TLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:840
+#: ../src/Gui/SettingsDialog.cpp:834
 msgctxt "Gui::ImapPage|"
 msgid ""
 "This password will be saved in encrypted storage. If you do not enter "
@@ -1933,7 +1928,7 @@ msgstr ""
 "See parool salvestatakse krüptituna. Kui parool siin andmata jätta, küsib "
 "Trojità parooli, kui selleks vajadus tekib."
 
-#: ../src/Gui/SettingsDialog.cpp:844
+#: ../src/Gui/SettingsDialog.cpp:838
 msgctxt "Gui::ImapPage|"
 msgid ""
 "This password will be saved in clear text. If you do not enter password "
@@ -1942,12 +1937,12 @@ msgstr ""
 "See parool salvestatakse lihttekstina. Kui parool siin andmata jätta, küsib "
 "Trojità parooli, kui selleks vajadus tekib."
 
-#: ../src/Gui/SettingsDialog.cpp:915
+#: ../src/Gui/SettingsDialog.cpp:909
 msgctxt "Gui::ImapPage|"
 msgid "The IMAP server hostname is missing here"
 msgstr "IMAP serveri masinanimi on puudu"
 
-#: ../src/Gui/SettingsDialog.cpp:921
+#: ../src/Gui/SettingsDialog.cpp:915
 msgctxt "Gui::ImapPage|"
 msgid ""
 "The command line to the IMAP server is missing here. Perhaps you need to use "
@@ -1955,7 +1950,7 @@ msgid ""
 msgstr ""
 "IMAP serveri käsurida on puudu. Võib-olla tuleks kasutada SSL-i või TCP-d?"
 
-#: ../src/Gui/SettingsDialog.cpp:938
+#: ../src/Gui/SettingsDialog.cpp:932
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -1964,7 +1959,7 @@ msgid ""
 msgstr ""
 "See ei ole standardne port. SSL/TLS turvalisusega IMAP vaikimisi port on %1."
 
-#: ../src/Gui/SettingsDialog.cpp:942
+#: ../src/Gui/SettingsDialog.cpp:936
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -1973,7 +1968,7 @@ msgid ""
 msgstr ""
 "See ei ole standardne port. STARTTLS turvalisusega IMAP vaikimisi port on %1."
 
-#: ../src/Gui/SettingsDialog.cpp:944
+#: ../src/Gui/SettingsDialog.cpp:938
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -1982,37 +1977,37 @@ msgstr ""
 "See ei ole standardne port. Lihtteksti turvalisusega IMAP vaikimisi port on "
 "%1."
 
-#: ../src/Gui/SettingsDialog.cpp:1052
+#: ../src/Gui/SettingsDialog.cpp:1046
 msgctxt "Gui::OutgoingPage|"
 msgid "Network"
 msgstr "Võrk"
 
-#: ../src/Gui/SettingsDialog.cpp:1053
+#: ../src/Gui/SettingsDialog.cpp:1047
 msgctxt "Gui::OutgoingPage|"
 msgid "Local sendmail-compatible"
 msgstr "Kohalik sendmailiga ühilduv"
 
-#: ../src/Gui/SettingsDialog.cpp:1054
+#: ../src/Gui/SettingsDialog.cpp:1048
 msgctxt "Gui::OutgoingPage|"
 msgid "IMAP SENDMAIL Extension"
 msgstr "IMAP SENDMAILi laiend"
 
-#: ../src/Gui/SettingsDialog.cpp:1056
+#: ../src/Gui/SettingsDialog.cpp:1050
 msgctxt "Gui::OutgoingPage|"
 msgid "No encryption"
 msgstr "Krüptimist ei kasutata"
 
-#: ../src/Gui/SettingsDialog.cpp:1057
+#: ../src/Gui/SettingsDialog.cpp:1051
 msgctxt "Gui::OutgoingPage|"
 msgid "Use encryption (STARTTLS)"
 msgstr "Krüptimise kasutamine (STARTTLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:1058
+#: ../src/Gui/SettingsDialog.cpp:1052
 msgctxt "Gui::OutgoingPage|"
 msgid "Force encryption (TLS)"
 msgstr "Jõuga krüptimine (TLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:1202
+#: ../src/Gui/SettingsDialog.cpp:1196
 msgctxt "Gui::OutgoingPage|"
 msgid ""
 "This password will be saved in encrypted storage. If you do not enter "
@@ -2021,7 +2016,7 @@ msgstr ""
 "See parool salvestatakse krüptituna. Kui parool siin andmata jätta, küsib "
 "Trojità parooli, kui selleks vajadus tekib."
 
-#: ../src/Gui/SettingsDialog.cpp:1206
+#: ../src/Gui/SettingsDialog.cpp:1200
 msgctxt "Gui::OutgoingPage|"
 msgid ""
 "This password will be saved in clear text. If you do not enter password "
@@ -2030,88 +2025,20 @@ msgstr ""
 "See parool salvestatakse lihttekstina. Kui parool siin andmata jätta, küsib "
 "Trojità parooli, kui selleks vajadus tekib."
 
-#: ../src/Gui/SettingsDialog.cpp:1300 ../src/Gui/SettingsDialog.cpp:1306
+#: ../src/Gui/SettingsDialog.cpp:1294 ../src/Gui/SettingsDialog.cpp:1300
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP server hostname is missing here"
 msgstr "SMTP serveri masinanimi on puudu"
 
-#: ../src/Gui/SettingsDialog.cpp:1302
+#: ../src/Gui/SettingsDialog.cpp:1296
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP username is missing here"
 msgstr "SMTP kasutajanimi on puudu"
 
-#: ../src/Gui/SettingsDialog.cpp:1313
+#: ../src/Gui/SettingsDialog.cpp:1307
 msgctxt "Gui::OutgoingPage|"
 msgid "Please specify the folder name here"
 msgstr "Palun määra kausta nimi"
-
-#: ../src/Gui/SettingsDialog.cpp:1337
-msgctxt "Gui::XtConnectPage|"
-msgid "Cache Directory"
-msgstr "Puhvri kataloog"
-
-#: ../src/Gui/SettingsDialog.cpp:1339
-msgctxt "Gui::XtConnectPage|"
-msgid "Mailboxes to synchronize"
-msgstr "Sünkroonitavad postkastid"
-
-#: ../src/Gui/SettingsDialog.cpp:1346
-msgctxt "Gui::XtConnectPage|"
-msgid ""
-"Please use context menu inside the main application to select mailboxes to "
-"synchronize"
-msgstr ""
-"Palun kasuta sünkroonitavate postkastide valimiseks rakenduse peaakna "
-"kontekstimenüüd"
-
-#: ../src/Gui/SettingsDialog.cpp:1369
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Hostname"
-msgstr "Andmebaasi masinanimi"
-
-#: ../src/Gui/SettingsDialog.cpp:1373
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Port"
-msgstr "Andmebaasi port"
-
-#: ../src/Gui/SettingsDialog.cpp:1375
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Name"
-msgstr "Andmebaasi nimi"
-
-#: ../src/Gui/SettingsDialog.cpp:1377
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Username"
-msgstr "Andmebaasi kasutajanimi"
-
-#: ../src/Gui/SettingsDialog.cpp:1379
-msgctxt "Gui::XtConnectPage|"
-msgid ""
-"Please fill in all IMAP options, including the password, at the IMAP page. "
-"If you do not save the password, background synchronization will not run."
-msgstr ""
-"Palun täida IMAP leheküljel kõik väljad, kaasa arvatud parool. Kui jätta "
-"parool salvestamata, ei tehta taustal sünkroonimist."
-
-#: ../src/Gui/SettingsDialog.cpp:1385
-msgctxt "Gui::XtConnectPage|"
-msgid "Debugging"
-msgstr "Silumine"
-
-#: ../src/Gui/SettingsDialog.cpp:1387
-msgctxt "Gui::XtConnectPage|"
-msgid "Run xTuple Synchronization"
-msgstr "Käivita xTuple sünkroonimine"
-
-#: ../src/Gui/SettingsDialog.cpp:1459
-msgctxt "Gui::XtConnectPage|"
-msgid "Database Connection"
-msgstr "Andmebaasiühendus"
-
-#: ../src/Gui/SettingsDialog.cpp:1459
-msgctxt "Gui::XtConnectPage|"
-msgid "Password"
-msgstr "Parool"
 
 #: ../src/Gui/SettingsFavoriteTagsPage.ui:14
 msgctxt "FavoriteTagsPage|"
@@ -3269,183 +3196,178 @@ msgctxt "Gui::MainWindow|"
 msgid "&Remove Mailbox"
 msgstr "&Eemalda postkast"
 
-#: ../src/Gui/Window.cpp:491
-msgctxt "Gui::MainWindow|"
-msgid "&Synchronize with xTuple"
-msgstr "Sünkrooni &xTuplega"
-
-#: ../src/Gui/Window.cpp:511
+#: ../src/Gui/Window.cpp:505
 msgctxt "Gui::MainWindow|"
 msgid "Show Messages in &Threads"
 msgstr "Kirjade &näitamine lõimedes"
 
-#: ../src/Gui/Window.cpp:522
+#: ../src/Gui/Window.cpp:516
 msgctxt "Gui::MainWindow|"
 msgid "&Ascending"
 msgstr "&Kasvav"
 
-#: ../src/Gui/Window.cpp:525
+#: ../src/Gui/Window.cpp:519
 msgctxt "Gui::MainWindow|"
 msgid "&Descending"
 msgstr "Ka&hanev"
 
-#: ../src/Gui/Window.cpp:533
+#: ../src/Gui/Window.cpp:527
 msgctxt "Gui::MainWindow|"
 msgid "&No sorting"
 msgstr "&Sortimata"
 
-#: ../src/Gui/Window.cpp:535
+#: ../src/Gui/Window.cpp:529
 msgctxt "Gui::MainWindow|"
 msgid "Sorted by &Threading"
 msgstr "Sor&ditud lõimede järgi"
 
-#: ../src/Gui/Window.cpp:537
+#: ../src/Gui/Window.cpp:531
 msgctxt "Gui::MainWindow|"
 msgid "A&rrival"
 msgstr "Saa&bumine"
 
-#: ../src/Gui/Window.cpp:539
+#: ../src/Gui/Window.cpp:533
 msgctxt "Gui::MainWindow|"
 msgid "&Cc (Carbon Copy)"
 msgstr "Koopia (&CC)"
 
-#: ../src/Gui/Window.cpp:541
+#: ../src/Gui/Window.cpp:535
 msgctxt "Gui::MainWindow|"
 msgid "Date from &Message Headers"
 msgstr "Kuupä&ev kirjapäisest"
 
-#: ../src/Gui/Window.cpp:543
+#: ../src/Gui/Window.cpp:537
 msgctxt "Gui::MainWindow|"
 msgid "&From Address"
 msgstr "Saatja &aadress"
 
-#: ../src/Gui/Window.cpp:545
+#: ../src/Gui/Window.cpp:539
 msgctxt "Gui::MainWindow|"
 msgid "&Size"
 msgstr "Suu&rus"
 
-#: ../src/Gui/Window.cpp:547
+#: ../src/Gui/Window.cpp:541
 msgctxt "Gui::MainWindow|"
 msgid "S&ubject"
 msgstr "T&eema"
 
-#: ../src/Gui/Window.cpp:549
+#: ../src/Gui/Window.cpp:543
 msgctxt "Gui::MainWindow|"
 msgid "T&o Address"
 msgstr "Saa&ja aadress"
 
-#: ../src/Gui/Window.cpp:554
+#: ../src/Gui/Window.cpp:548
 msgctxt "Gui::MainWindow|"
 msgid "&Hide Read Messages"
 msgstr "Loetud kirjade &peitmine"
 
-#: ../src/Gui/Window.cpp:563
+#: ../src/Gui/Window.cpp:557
 msgctxt "Gui::MainWindow|"
 msgid "&Compact"
 msgstr "&Kompaktne"
 
-#: ../src/Gui/Window.cpp:567
+#: ../src/Gui/Window.cpp:561
 msgctxt "Gui::MainWindow|"
 msgid "&Wide"
 msgstr "&Lai"
 
-#: ../src/Gui/Window.cpp:570
+#: ../src/Gui/Window.cpp:564
 msgctxt "Gui::MainWindow|"
 msgid "&One At a Time"
 msgstr "Ü&hekordne"
 
-#: ../src/Gui/Window.cpp:575
+#: ../src/Gui/Window.cpp:569
 msgctxt "Gui::MainWindow|"
 msgid "Show Only S&ubscribed Folders"
 msgstr "Ainult tellitud &kaustade näitamine"
 
-#: ../src/Gui/Window.cpp:579
+#: ../src/Gui/Window.cpp:573
 msgctxt "Gui::MainWindow|"
 msgid "Su&bscribed"
 msgstr "T&ellitud"
 
-#: ../src/Gui/Window.cpp:584
+#: ../src/Gui/Window.cpp:578
 msgctxt "Gui::MainWindow|"
 msgid "&About Trojitá..."
 msgstr "&Trojità teave ..."
 
-#: ../src/Gui/Window.cpp:587
+#: ../src/Gui/Window.cpp:581
 msgctxt "Gui::MainWindow|"
 msgid "&Donate to the project"
 msgstr "&Projektile annetamine"
 
-#: ../src/Gui/Window.cpp:592
+#: ../src/Gui/Window.cpp:586
 msgctxt "Gui::MainWindow|"
 msgid "Compose Mail"
 msgstr "Kirja koostamine"
 
-#: ../src/Gui/Window.cpp:692
+#: ../src/Gui/Window.cpp:686
 msgctxt "Gui::MainWindow|"
 msgid "&Application"
 msgstr "&Rakendus"
 
-#: ../src/Gui/Window.cpp:694
+#: ../src/Gui/Window.cpp:688
 msgctxt "Gui::MainWindow|"
 msgid "&Network Access"
 msgstr "&Võrguligipääs"
 
-#: ../src/Gui/Window.cpp:698
+#: ../src/Gui/Window.cpp:692
 msgctxt "Gui::MainWindow|"
 msgid "&Debugging"
 msgstr "&Silumine"
 
-#: ../src/Gui/Window.cpp:718
+#: ../src/Gui/Window.cpp:712
 msgctxt "Gui::MainWindow|"
 msgid "&View"
 msgstr "&Vaade"
 
-#: ../src/Gui/Window.cpp:721
+#: ../src/Gui/Window.cpp:715
 msgctxt "Gui::MainWindow|"
 msgid "&Layout"
 msgstr "&Paigutus"
 
-#: ../src/Gui/Window.cpp:728
+#: ../src/Gui/Window.cpp:722
 msgctxt "Gui::MainWindow|"
 msgid "Mail&box"
 msgstr "&Postkast"
 
-#: ../src/Gui/Window.cpp:729
+#: ../src/Gui/Window.cpp:723
 msgctxt "Gui::MainWindow|"
 msgid "S&orting"
 msgstr "&Sortimine"
 
-#: ../src/Gui/Window.cpp:751
+#: ../src/Gui/Window.cpp:745
 msgctxt "Gui::MainWindow|"
 msgid "&Message"
 msgstr "&Kiri"
 
-#: ../src/Gui/Window.cpp:830
+#: ../src/Gui/Window.cpp:824
 #, qt-format
 msgctxt "QObject|"
 msgid "Link target: %1"
 msgstr "Lingi sihtmärk: %1"
 
-#: ../src/Gui/Window.cpp:842
+#: ../src/Gui/Window.cpp:836
 msgctxt "Gui::MainWindow|"
 msgid "Everything"
 msgstr "Kõik"
 
-#: ../src/Gui/Window.cpp:850
+#: ../src/Gui/Window.cpp:844
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Tasks"
 msgstr "IMAP üleanded"
 
-#: ../src/Gui/Window.cpp:857
+#: ../src/Gui/Window.cpp:851
 msgctxt "Gui::MainWindow|"
 msgid "MIME Tree"
 msgstr "MIME puu"
 
-#: ../src/Gui/Window.cpp:867
+#: ../src/Gui/Window.cpp:861
 msgctxt "Gui::MainWindow|"
 msgid "Protocol log"
 msgstr "Protokolli logi"
 
-#: ../src/Gui/Window.cpp:944
+#: ../src/Gui/Window.cpp:938
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Attempting to reconnect in %n seconds.."
@@ -3453,13 +3375,13 @@ msgid_plural "Attempting to reconnect in %n seconds.."
 msgstr[0] "Katse uuesti ühenduda %n sekundi pärast ..."
 msgstr[1] "Katse uuesti ühenduda %n sekundi pärast ..."
 
-#: ../src/Gui/Window.cpp:997
+#: ../src/Gui/Window.cpp:991
 msgctxt "Gui::MainWindow|"
 msgid "&Quit"
 msgstr "&Välju"
 
 #. This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
-#: ../src/Gui/Window.cpp:1112
+#: ../src/Gui/Window.cpp:1106
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid " - %n unread message(s)"
@@ -3468,17 +3390,17 @@ msgstr[0] " - %n lugemata kirja"
 msgstr[1] " - %n lugemata kirja"
 
 #. A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
-#: ../src/Gui/Window.cpp:1115
+#: ../src/Gui/Window.cpp:1109
 msgctxt "Gui::MainWindow|"
 msgid " - offline"
 msgstr " - võrguühenduseta"
 
-#: ../src/Gui/Window.cpp:1124 ../src/Gui/Window.cpp:2566
+#: ../src/Gui/Window.cpp:1118 ../src/Gui/Window.cpp:2530
 msgctxt "Gui::MainWindow|"
 msgid "Trojitá"
 msgstr "Trojitá"
 
-#: ../src/Gui/Window.cpp:1125
+#: ../src/Gui/Window.cpp:1119
 msgctxt "Gui::MainWindow|"
 msgid ""
 "The application will continue in systray. This can be disabled within the "
@@ -3487,27 +3409,27 @@ msgstr ""
 "Rakendus tegutseb edasi süsteemisalves. Seda saab seadistustes keelata."
 
 #. "ALERT" is a special warning which we're required to show to the user
-#: ../src/Gui/Window.cpp:1338
+#: ../src/Gui/Window.cpp:1325
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Alert"
 msgstr "IMAP hoiatus"
 
-#: ../src/Gui/Window.cpp:1343
+#: ../src/Gui/Window.cpp:1330
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Protocol Error"
 msgstr "IMAP protokolli tõrge"
 
-#: ../src/Gui/Window.cpp:1351
+#: ../src/Gui/Window.cpp:1338
 msgctxt "Gui::MainWindow|"
 msgid "Network Error"
 msgstr "Võrgu tõrge"
 
-#: ../src/Gui/Window.cpp:1372
+#: ../src/Gui/Window.cpp:1359
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Cache Error"
 msgstr "IMAP puhvri tõrge"
 
-#: ../src/Gui/Window.cpp:1373
+#: ../src/Gui/Window.cpp:1360
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3521,78 +3443,78 @@ msgstr ""
 "\n"
 "%1"
 
-#: ../src/Gui/Window.cpp:1384
+#: ../src/Gui/Window.cpp:1371
 msgctxt "Gui::MainWindow|"
 msgid "Offline"
 msgstr "Võrguühenduseta"
 
-#: ../src/Gui/Window.cpp:1430
+#: ../src/Gui/Window.cpp:1417
 msgctxt "Gui::MainWindow|"
 msgid "No Configuration"
 msgstr "Seadistamata"
 
-#: ../src/Gui/Window.cpp:1431
+#: ../src/Gui/Window.cpp:1418
 msgctxt "Gui::MainWindow|"
 msgid "No IMAP account is configured. Trojitá cannot do much without one."
 msgstr ""
 "Ühtegi IMAP kontot ei ole seadistatud. Trojitá ei saa suurt midagi ette "
 "võtta."
 
-#: ../src/Gui/Window.cpp:1456
+#: ../src/Gui/Window.cpp:1443
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Failed to retrieve password from the store: %1"
 msgstr "Parooli hankimine salvestist nurjus: %1"
 
-#: ../src/Gui/Window.cpp:1474
+#: ../src/Gui/Window.cpp:1461
 msgctxt "Gui::MainWindow|"
 msgid "Authentication Required"
 msgstr "Vajalik on autentimine"
 
-#: ../src/Gui/Window.cpp:1475
+#: ../src/Gui/Window.cpp:1462
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>"
 msgstr "<p>Palun anna kasutaja <b>%1</b> IMAP parool masinas <b>%2</b>:</p>"
 
-#: ../src/Gui/Window.cpp:1529
+#: ../src/Gui/Window.cpp:1516
 msgctxt "Gui::MainWindow|"
 msgid "Edit draft"
 msgstr "Mustandi muutmine"
 
-#: ../src/Gui/Window.cpp:1650
+#: ../src/Gui/Window.cpp:1637
 msgctxt "Gui::MainWindow|"
 msgid "Failed to archive"
 msgstr "Arhiveerimine nurjus"
 
-#: ../src/Gui/Window.cpp:1700
+#: ../src/Gui/Window.cpp:1687
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Create a Subfolder of %1"
 msgstr "Kausta %1 alamkausta loomine"
 
-#: ../src/Gui/Window.cpp:1701
+#: ../src/Gui/Window.cpp:1688
 msgctxt "Gui::MainWindow|"
 msgid "Create a Top-level Mailbox"
 msgstr "Tipptaseme postkasti loomine"
 
-#: ../src/Gui/Window.cpp:1728
+#: ../src/Gui/Window.cpp:1715
 msgctxt "Gui::MainWindow|"
 msgid "Delete Mailbox"
 msgstr "Kustuta postkast"
 
-#: ../src/Gui/Window.cpp:1729
+#: ../src/Gui/Window.cpp:1716
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Are you sure to delete mailbox %1?"
 msgstr "Kas tõesti kustutada postkast %1?"
 
-#: ../src/Gui/Window.cpp:2028
+#: ../src/Gui/Window.cpp:2015
 msgctxt "Gui::MainWindow|"
 msgid "Can't delete mailbox"
 msgstr "Postkasti kustutamine nurjus"
 
-#: ../src/Gui/Window.cpp:2029
+#: ../src/Gui/Window.cpp:2016
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3602,12 +3524,12 @@ msgstr ""
 "Postkasti \"%1\" kustutamine nurjus järgmise teatega:\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2034
+#: ../src/Gui/Window.cpp:2021
 msgctxt "Gui::MainWindow|"
 msgid "Can't create mailbox"
 msgstr "Postkasti loomine nurjus"
 
-#: ../src/Gui/Window.cpp:2035
+#: ../src/Gui/Window.cpp:2022
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3617,12 +3539,12 @@ msgstr ""
 "Postkasti \"%1\" loomine nurjus järgmise teatega:\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2040
+#: ../src/Gui/Window.cpp:2027
 msgctxt "Gui::MainWindow|"
 msgid "Can't open mailbox"
 msgstr "Postkasti avamine nurjus"
 
-#: ../src/Gui/Window.cpp:2041
+#: ../src/Gui/Window.cpp:2028
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3632,45 +3554,45 @@ msgstr ""
 "Postkasti \"%1\" avamine nurjus järgmise teatega:\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2090
+#: ../src/Gui/Window.cpp:2077
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Link target: %1"
 msgstr "Lingi sihtmärk: %1"
 
-#: ../src/Gui/Window.cpp:2105
+#: ../src/Gui/Window.cpp:2092
 msgctxt "Gui::MainWindow|"
 msgid "Plugins"
 msgstr "Pluginad"
 
-#: ../src/Gui/Window.cpp:2112
+#: ../src/Gui/Window.cpp:2099
 msgctxt "Gui::MainWindow|"
 msgid "Encrypted and signed messages"
 msgstr "Krüptitud ja allkirjastatud kirjad"
 
-#: ../src/Gui/Window.cpp:2119
+#: ../src/Gui/Window.cpp:2106
 msgctxt "Gui::MainWindow|"
 msgid "IMAP compression"
 msgstr "IMAP tihendamine"
 
-#: ../src/Gui/Window.cpp:2130
+#: ../src/Gui/Window.cpp:2117
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: supported</li>"
 msgstr "<li>%1: toetatud</li>"
 
-#: ../src/Gui/Window.cpp:2131
+#: ../src/Gui/Window.cpp:2118
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: <strong>disabled</strong></li>"
 msgstr "<li>%1: <strong>keelatud</strong></li>"
 
-#: ../src/Gui/Window.cpp:2189
+#: ../src/Gui/Window.cpp:2176
 msgctxt "Gui::MainWindow|"
 msgid "Can't save into file"
 msgstr "Faili salvestamine nurjus"
 
-#: ../src/Gui/Window.cpp:2190
+#: ../src/Gui/Window.cpp:2177
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3680,63 +3602,63 @@ msgstr ""
 "Faili salvestamine nurjus. Tõrge:\n"
 "%1"
 
-#: ../src/Gui/Window.cpp:2195
+#: ../src/Gui/Window.cpp:2182
 msgctxt "Gui::MainWindow|"
 msgid "Save Message"
 msgstr "Kirja salvestamine"
 
 #. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
-#: ../src/Gui/Window.cpp:2209
+#: ../src/Gui/Window.cpp:2196
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Message source of UID %1 in %2"
 msgstr "UID %1 kirja lähtekood postkastis %2"
 
-#: ../src/Gui/Window.cpp:2222 ../src/Gui/Window.cpp:2241
+#: ../src/Gui/Window.cpp:2209 ../src/Gui/Window.cpp:2228
 msgctxt "Gui::MainWindow|"
 msgid "Close"
 msgstr "Sulge"
 
-#: ../src/Gui/Window.cpp:2224 ../src/Gui/Window.cpp:2243
+#: ../src/Gui/Window.cpp:2211 ../src/Gui/Window.cpp:2230
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+W"
 msgstr "Ctrl+W"
 
-#: ../src/Gui/Window.cpp:2486
+#: ../src/Gui/Window.cpp:2450
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1</li>\n"
 msgstr "<li>%1</li>\n"
 
-#: ../src/Gui/Window.cpp:2494
+#: ../src/Gui/Window.cpp:2458
 msgctxt "Gui::MainWindow|"
 msgid "Unknown"
 msgstr "Teadmata"
 
-#: ../src/Gui/Window.cpp:2508
+#: ../src/Gui/Window.cpp:2472
 msgctxt "Gui::MainWindow|"
 msgid "<p>"
 msgstr "<p>"
 
-#: ../src/Gui/Window.cpp:2510
+#: ../src/Gui/Window.cpp:2474
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Server: %1 %2"
 msgstr "Server: %1 %2"
 
-#: ../src/Gui/Window.cpp:2512
+#: ../src/Gui/Window.cpp:2476
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Server: %1"
 msgstr "Server: %1"
 
-#: ../src/Gui/Window.cpp:2515
+#: ../src/Gui/Window.cpp:2479
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid " (%1)"
 msgstr " (%1)"
 
-#: ../src/Gui/Window.cpp:2519
+#: ../src/Gui/Window.cpp:2483
 #, qt-format
 msgctxt ""
 "Gui::MainWindow|%1 is the operating system of an IMAP server and %2 is its "
@@ -3744,41 +3666,41 @@ msgctxt ""
 msgid " on %1 %2"
 msgstr "%1 %2 peal"
 
-#: ../src/Gui/Window.cpp:2521
+#: ../src/Gui/Window.cpp:2485
 #, qt-format
 msgctxt "Gui::MainWindow|%1 is the operationg system of an IMAP server."
 msgid " on %1"
 msgstr "%1 peal"
 
-#: ../src/Gui/Window.cpp:2523
+#: ../src/Gui/Window.cpp:2487
 msgctxt "Gui::MainWindow|"
 msgid "</p>"
 msgstr "</p>"
 
-#: ../src/Gui/Window.cpp:2525
+#: ../src/Gui/Window.cpp:2489
 msgctxt "Gui::MainWindow|"
 msgid "<p>The IMAP server did not return usable information about itself.</p>"
 msgstr "<p>IMAP server ei pakkunud enda kohta kasutatavat teavet.</p>"
 
-#: ../src/Gui/Window.cpp:2529
+#: ../src/Gui/Window.cpp:2493
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: %2</li>"
 msgstr "<li>%1: %2</li>"
 
-#: ../src/Gui/Window.cpp:2531
+#: ../src/Gui/Window.cpp:2495
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<ul>%1</ul>"
 msgstr "<ul>%1</ul>"
 
-#: ../src/Gui/Window.cpp:2533
+#: ../src/Gui/Window.cpp:2497
 msgctxt "Gui::MainWindow|"
 msgid ""
 "<p>The server has not provided information about its software version.</p>"
 msgstr "<p>Server ei pakkunud teavet oma tarkvaraversiooni kohta.</p>"
 
-#: ../src/Gui/Window.cpp:2540
+#: ../src/Gui/Window.cpp:2504
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3788,7 +3710,7 @@ msgstr ""
 "%1\n"
 "<p>Praegu on toetatud järgmised võimalused:</p>"
 
-#: ../src/Gui/Window.cpp:2542
+#: ../src/Gui/Window.cpp:2506
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3798,7 +3720,7 @@ msgstr ""
 "<ul>\n"
 "%1</ul>"
 
-#: ../src/Gui/Window.cpp:2560
+#: ../src/Gui/Window.cpp:2524
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "%1 - %n unread - Trojitá"
@@ -3806,13 +3728,13 @@ msgid_plural "%1 - %n unread - Trojitá"
 msgstr[0] "%1 — %n lugemata — Trojitá"
 msgstr[1] "%1 — %n lugemata — Trojitá"
 
-#: ../src/Gui/Window.cpp:2563
+#: ../src/Gui/Window.cpp:2527
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "%1 - Trojitá"
 msgstr "%1 — Trojitá"
 
-#: ../src/Gui/Window.cpp:2900
+#: ../src/Gui/Window.cpp:2864
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Tag with \"%1\""
@@ -4131,19 +4053,19 @@ msgid_plural "Attempting to reconnect in %n secs"
 msgstr[0] "Püütakse uuesti ühenduda %n sekundi pärast"
 msgstr[1] "Püütakse uuesti ühenduda %n sekundi pärast"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:82
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:77
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%1 (%2/%3)"
 msgstr "%1 (%2/%3)"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:86
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:81
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%1 (%2)"
 msgstr "%1 (%2)"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:129
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:119
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n messages"
@@ -4151,7 +4073,7 @@ msgid_plural "%n messages"
 msgstr[0] "%n kirja"
 msgstr[1] "%n kirja"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:130
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:120
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n unread"
@@ -4159,7 +4081,7 @@ msgid_plural "%n unread"
 msgstr[0] "%n lugemata kiri"
 msgstr[1] "%n lugemata kirja"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:131
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:121
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n recent"
@@ -5807,10 +5729,74 @@ msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot save password via plugin %1"
 msgstr "Parooli salvestamine plugina %1 vahendusel nurjus"
 
-#: ../src/XtConnect/XtConnect.cpp:99
-msgctxt "XtConnect::XtConnect|"
-msgid "Database Password: "
-msgstr "Andmebaasi parool: "
+#~ msgctxt "Gui::SettingsDialog|"
+#~ msgid "&xTuple"
+#~ msgstr "&xTuple"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Cache Directory"
+#~ msgstr "Puhvri kataloog"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Mailboxes to synchronize"
+#~ msgstr "Sünkroonitavad postkastid"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid ""
+#~ "Please use context menu inside the main application to select mailboxes "
+#~ "to synchronize"
+#~ msgstr ""
+#~ "Palun kasuta sünkroonitavate postkastide valimiseks rakenduse peaakna "
+#~ "kontekstimenüüd"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Hostname"
+#~ msgstr "Andmebaasi masinanimi"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Port"
+#~ msgstr "Andmebaasi port"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Name"
+#~ msgstr "Andmebaasi nimi"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Username"
+#~ msgstr "Andmebaasi kasutajanimi"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid ""
+#~ "Please fill in all IMAP options, including the password, at the IMAP "
+#~ "page. If you do not save the password, background synchronization will "
+#~ "not run."
+#~ msgstr ""
+#~ "Palun täida IMAP leheküljel kõik väljad, kaasa arvatud parool. Kui jätta "
+#~ "parool salvestamata, ei tehta taustal sünkroonimist."
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Debugging"
+#~ msgstr "Silumine"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Run xTuple Synchronization"
+#~ msgstr "Käivita xTuple sünkroonimine"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Database Connection"
+#~ msgstr "Andmebaasiühendus"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Password"
+#~ msgstr "Parool"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "&Synchronize with xTuple"
+#~ msgstr "Sünkrooni &xTuplega"
+
+#~ msgctxt "XtConnect::XtConnect|"
+#~ msgid "Database Password: "
+#~ msgstr "Andmebaasi parool: "
 
 #~ msgctxt "QObject|"
 #~ msgid "Error: Profile was not specified"

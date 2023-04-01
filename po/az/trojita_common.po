@@ -902,8 +902,8 @@ msgstr ""
 "<br><span style=\"color:red\">Xəbərdarlıq: Qoşma qaralama ilə "
 "<b>saxlanılmadı</b>"
 
-#: ../src/Gui/ComposeWidget.cpp:737 ../src/Gui/Window.cpp:1527
-#: ../src/Gui/Window.cpp:1529
+#: ../src/Gui/ComposeWidget.cpp:737 ../src/Gui/Window.cpp:1514
+#: ../src/Gui/Window.cpp:1516
 msgctxt "Gui::MainWindow|"
 msgid "Drafts"
 msgstr "Qaralamalar"
@@ -1793,22 +1793,17 @@ msgctxt "Gui::SettingsDialog|"
 msgid "&SMTP"
 msgstr "&SMTP"
 
-#: ../src/Gui/SettingsDialog.cpp:97
-msgctxt "Gui::SettingsDialog|"
-msgid "&xTuple"
-msgstr "&xTuple"
-
-#: ../src/Gui/SettingsDialog.cpp:99
+#: ../src/Gui/SettingsDialog.cpp:96
 msgctxt "Gui::SettingsDialog|"
 msgid "Favorite &tags"
 msgstr "Seçilmiş e&tiketlər"
 
-#: ../src/Gui/SettingsDialog.cpp:218
+#: ../src/Gui/SettingsDialog.cpp:212
 msgctxt "Gui::SettingsDialog|"
 msgid "Saving passwords failed"
 msgstr "Şifrə saxlanıla bilmədi"
 
-#: ../src/Gui/SettingsDialog.cpp:219
+#: ../src/Gui/SettingsDialog.cpp:213
 #, qt-format
 msgctxt "Gui::SettingsDialog|"
 msgid ""
@@ -1818,48 +1813,48 @@ msgstr ""
 "<p>Şifrələri saxlamaq mümkün olmadı. Bunlar xəta bildirişləridir:</p>\n"
 "<p>%1</p>"
 
-#: ../src/Gui/SettingsDialog.cpp:315
+#: ../src/Gui/SettingsDialog.cpp:309
 msgctxt "Gui::FavoriteTagsPage|"
 msgid "Add New Tag"
 msgstr "Yeni etiket əlavə edin"
 
-#: ../src/Gui/SettingsDialog.cpp:323
+#: ../src/Gui/SettingsDialog.cpp:317
 msgctxt "Gui::FavoriteTagsPage|"
 msgid "Edit Tag"
 msgstr "Etiketə düzəliş edin"
 
-#: ../src/Gui/SettingsDialog.cpp:406
+#: ../src/Gui/SettingsDialog.cpp:400
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Plugin not found (%1)"
 msgstr "Qoşma tapılmadı (%1)"
 
-#: ../src/Gui/SettingsDialog.cpp:407
+#: ../src/Gui/SettingsDialog.cpp:401
 msgctxt "Gui::GeneralPage|"
 msgid "Disable address book"
 msgstr "Ünvan kitabçasını söndürün"
 
-#: ../src/Gui/SettingsDialog.cpp:408
+#: ../src/Gui/SettingsDialog.cpp:402
 msgctxt "Gui::GeneralPage|"
 msgid "Disable passwords"
 msgstr "Şifrələri qeyri-aktiv edin"
 
-#: ../src/Gui/SettingsDialog.cpp:409
+#: ../src/Gui/SettingsDialog.cpp:403
 msgctxt "Gui::GeneralPage|"
 msgid "Disable spell checking"
 msgstr "Orfoqrafiya yoxlamasını söndürün"
 
-#: ../src/Gui/SettingsDialog.cpp:425
+#: ../src/Gui/SettingsDialog.cpp:419
 msgctxt "Gui::GeneralPage|"
 msgid "Move"
 msgstr "Köçürün"
 
-#: ../src/Gui/SettingsDialog.cpp:428
+#: ../src/Gui/SettingsDialog.cpp:422
 msgctxt "Gui::GeneralPage|"
 msgid "Copy"
 msgstr "Kopyalayın"
 
-#: ../src/Gui/SettingsDialog.cpp:433
+#: ../src/Gui/SettingsDialog.cpp:427
 msgctxt "Gui::GeneralPage|"
 msgid ""
 "<p>If enabled, Trojitá will show its homepage upon startup.</p><p>The remote "
@@ -1872,63 +1867,63 @@ msgstr ""
 "əsas əməliyyat sisteminin versiyaları haqqında məlumatları alacaqdır. Hesab "
 "ayarları və ya İMAP server məlumatları toplanmır.</p>"
 
-#: ../src/Gui/SettingsDialog.cpp:513
+#: ../src/Gui/SettingsDialog.cpp:507
 msgctxt "Gui::GeneralPage|"
 msgid "Add New Identity"
 msgstr "Yeni kimlik əlavə edin"
 
-#: ../src/Gui/SettingsDialog.cpp:521
+#: ../src/Gui/SettingsDialog.cpp:515
 msgctxt "Gui::GeneralPage|"
 msgid "Edit Identity"
 msgstr "Kimliyə düzəliş edin"
 
-#: ../src/Gui/SettingsDialog.cpp:529
+#: ../src/Gui/SettingsDialog.cpp:523
 msgctxt "Gui::GeneralPage|"
 msgid "Delete Identity?"
 msgstr "Kimliyi silin"
 
-#: ../src/Gui/SettingsDialog.cpp:530
+#: ../src/Gui/SettingsDialog.cpp:524
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Are you sure you want to delete identity %1 <%2>?"
 msgstr "%1 kimliyini silmək istədiyinizə əminsiniz <%2>?"
 
-#: ../src/Gui/SettingsDialog.cpp:579
+#: ../src/Gui/SettingsDialog.cpp:573
 msgctxt "Gui::GeneralPage|"
 msgid "Please define some identities here"
 msgstr "Burada kimlik göstərməniz xahiş olunur"
 
-#: ../src/Gui/SettingsDialog.cpp:676
+#: ../src/Gui/SettingsDialog.cpp:670
 msgctxt "Gui::EditFavoriteTag|"
 msgid "Select tag color"
 msgstr "Etiket rəngini seçin"
 
-#: ../src/Gui/SettingsDialog.cpp:713
+#: ../src/Gui/SettingsDialog.cpp:707
 msgctxt "Gui::ImapPage|"
 msgid "Network Connection"
 msgstr "Şəbəkə Bağlantısı"
 
-#: ../src/Gui/SettingsDialog.cpp:714
+#: ../src/Gui/SettingsDialog.cpp:708
 msgctxt "Gui::ImapPage|"
 msgid "Local Process"
 msgstr "Yerli proses"
 
-#: ../src/Gui/SettingsDialog.cpp:716
+#: ../src/Gui/SettingsDialog.cpp:710
 msgctxt "Gui::ImapPage|"
 msgid "No encryption"
 msgstr "Şifrələmə yoxdur"
 
-#: ../src/Gui/SettingsDialog.cpp:717
+#: ../src/Gui/SettingsDialog.cpp:711
 msgctxt "Gui::ImapPage|"
 msgid "Use encryption (STARTTLS)"
 msgstr "Şifrələmədən istifadə edin (STARTTLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:718
+#: ../src/Gui/SettingsDialog.cpp:712
 msgctxt "Gui::ImapPage|"
 msgid "Force encryption (TLS)"
 msgstr "Məcburi şifrələmə (TLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:840
+#: ../src/Gui/SettingsDialog.cpp:834
 msgctxt "Gui::ImapPage|"
 msgid ""
 "This password will be saved in encrypted storage. If you do not enter "
@@ -1937,7 +1932,7 @@ msgstr ""
 "Bu şifrə şifrələnmiş yaddaşda saxlanılacaqdır. Əgər buranı boş buraxsanız "
 "Trojitá lazım olduqda sizdən şifrəni soruşacaqdır."
 
-#: ../src/Gui/SettingsDialog.cpp:844
+#: ../src/Gui/SettingsDialog.cpp:838
 msgctxt "Gui::ImapPage|"
 msgid ""
 "This password will be saved in clear text. If you do not enter password "
@@ -1946,12 +1941,12 @@ msgstr ""
 "Bu şifrə adi mətn formatında saxlanılacaq. Əgər buranı boş buraxsanız "
 "Trojitá lazım olduqda sizdən şifrəni soruşacaqdır."
 
-#: ../src/Gui/SettingsDialog.cpp:915
+#: ../src/Gui/SettingsDialog.cpp:909
 msgctxt "Gui::ImapPage|"
 msgid "The IMAP server hostname is missing here"
 msgstr "Burada İMAP serverinin host_adı çatışmır"
 
-#: ../src/Gui/SettingsDialog.cpp:921
+#: ../src/Gui/SettingsDialog.cpp:915
 msgctxt "Gui::ImapPage|"
 msgid ""
 "The command line to the IMAP server is missing here. Perhaps you need to use "
@@ -1960,7 +1955,7 @@ msgstr ""
 "Burada İMAP serveri üçün əmr sətri çatışmır. Bəlkə də SSL və ya TCP istifadə "
 "etməlisiniz?"
 
-#: ../src/Gui/SettingsDialog.cpp:938
+#: ../src/Gui/SettingsDialog.cpp:932
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -1970,7 +1965,7 @@ msgstr ""
 "Bu, standart bağlantı nöqtəsi deyil. SSL/TLS ilə qorunan standart İMAP "
 "bağlantı nöqtəsi %1 olmalıdır."
 
-#: ../src/Gui/SettingsDialog.cpp:942
+#: ../src/Gui/SettingsDialog.cpp:936
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -1980,7 +1975,7 @@ msgstr ""
 "Bu standart bağlantı nöqtəsi deyil. STARTTLS ilə qorunan standart İMAP "
 "bağlantı nöqtəsi %1 olmalıdır."
 
-#: ../src/Gui/SettingsDialog.cpp:944
+#: ../src/Gui/SettingsDialog.cpp:938
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -1989,37 +1984,37 @@ msgstr ""
 "Bu standart bağlantı nöqtəsi deyil. Adi mətn üzərindən standrt İMAP bağlantı "
 "nöqtəsi %1 olmalıdır."
 
-#: ../src/Gui/SettingsDialog.cpp:1052
+#: ../src/Gui/SettingsDialog.cpp:1046
 msgctxt "Gui::OutgoingPage|"
 msgid "Network"
 msgstr "Şəbəkə"
 
-#: ../src/Gui/SettingsDialog.cpp:1053
+#: ../src/Gui/SettingsDialog.cpp:1047
 msgctxt "Gui::OutgoingPage|"
 msgid "Local sendmail-compatible"
 msgstr "Yerli, sendmail ilə uyğun"
 
-#: ../src/Gui/SettingsDialog.cpp:1054
+#: ../src/Gui/SettingsDialog.cpp:1048
 msgctxt "Gui::OutgoingPage|"
 msgid "IMAP SENDMAIL Extension"
 msgstr "İMAP SENDMAİL genişləndirməsi"
 
-#: ../src/Gui/SettingsDialog.cpp:1056
+#: ../src/Gui/SettingsDialog.cpp:1050
 msgctxt "Gui::OutgoingPage|"
 msgid "No encryption"
 msgstr "Şifrələmə yoxdur"
 
-#: ../src/Gui/SettingsDialog.cpp:1057
+#: ../src/Gui/SettingsDialog.cpp:1051
 msgctxt "Gui::OutgoingPage|"
 msgid "Use encryption (STARTTLS)"
 msgstr "Şifrələmədən istifadə edin (STARTTLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:1058
+#: ../src/Gui/SettingsDialog.cpp:1052
 msgctxt "Gui::OutgoingPage|"
 msgid "Force encryption (TLS)"
 msgstr "Məcburi şifrələmə (TLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:1202
+#: ../src/Gui/SettingsDialog.cpp:1196
 msgctxt "Gui::OutgoingPage|"
 msgid ""
 "This password will be saved in encrypted storage. If you do not enter "
@@ -2028,7 +2023,7 @@ msgstr ""
 "Bu şifrə şifrələnmiş yaddaşda saxlanılacaqdır. Əgər buranı boş buraxsanız "
 "Trojitá lazım olduqda sizdən şifrəni soruşacaqdır."
 
-#: ../src/Gui/SettingsDialog.cpp:1206
+#: ../src/Gui/SettingsDialog.cpp:1200
 msgctxt "Gui::OutgoingPage|"
 msgid ""
 "This password will be saved in clear text. If you do not enter password "
@@ -2037,88 +2032,20 @@ msgstr ""
 "Bu şifrə adi mətn formatında saxlanılacaq. Əgər buranı boş buraxsanız "
 "Trojitá lazım olduqda sizdən şifrəni soruşacaqdır."
 
-#: ../src/Gui/SettingsDialog.cpp:1300 ../src/Gui/SettingsDialog.cpp:1306
+#: ../src/Gui/SettingsDialog.cpp:1294 ../src/Gui/SettingsDialog.cpp:1300
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP server hostname is missing here"
 msgstr "Burada SMTP serverinin host_adı çatışmır"
 
-#: ../src/Gui/SettingsDialog.cpp:1302
+#: ../src/Gui/SettingsDialog.cpp:1296
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP username is missing here"
 msgstr "Burada SMTP istifadəçi adı çatışmır"
 
-#: ../src/Gui/SettingsDialog.cpp:1313
+#: ../src/Gui/SettingsDialog.cpp:1307
 msgctxt "Gui::OutgoingPage|"
 msgid "Please specify the folder name here"
 msgstr "Qovluğun adını burada göstərin"
-
-#: ../src/Gui/SettingsDialog.cpp:1337
-msgctxt "Gui::XtConnectPage|"
-msgid "Cache Directory"
-msgstr "Keş qovluğu"
-
-#: ../src/Gui/SettingsDialog.cpp:1339
-msgctxt "Gui::XtConnectPage|"
-msgid "Mailboxes to synchronize"
-msgstr "Eyniləşdiriləcək poçt qutuları"
-
-#: ../src/Gui/SettingsDialog.cpp:1346
-msgctxt "Gui::XtConnectPage|"
-msgid ""
-"Please use context menu inside the main application to select mailboxes to "
-"synchronize"
-msgstr ""
-"Eyniləşdiriləcək poçt qutularını tətbiq daxilindəki əsas kontekst menyudan "
-"seçin"
-
-#: ../src/Gui/SettingsDialog.cpp:1369
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Hostname"
-msgstr "VB host_adı"
-
-#: ../src/Gui/SettingsDialog.cpp:1373
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Port"
-msgstr "VB qoşulma nöqtəsi"
-
-#: ../src/Gui/SettingsDialog.cpp:1375
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Name"
-msgstr "VB adı"
-
-#: ../src/Gui/SettingsDialog.cpp:1377
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Username"
-msgstr "VB istifadəçi adı"
-
-#: ../src/Gui/SettingsDialog.cpp:1379
-msgctxt "Gui::XtConnectPage|"
-msgid ""
-"Please fill in all IMAP options, including the password, at the IMAP page. "
-"If you do not save the password, background synchronization will not run."
-msgstr ""
-"İMAP səhifəsində şifrələr də daxil tam İMAP parametrlərini daxil edin. Əgər "
-"şifrəni saxlamasanız arxa planda eyniləşdirilmə işləməyəcəkdir."
-
-#: ../src/Gui/SettingsDialog.cpp:1385
-msgctxt "Gui::XtConnectPage|"
-msgid "Debugging"
-msgstr "Sazlama"
-
-#: ../src/Gui/SettingsDialog.cpp:1387
-msgctxt "Gui::XtConnectPage|"
-msgid "Run xTuple Synchronization"
-msgstr "xTuple eyniləşdirilməsini başladın"
-
-#: ../src/Gui/SettingsDialog.cpp:1459
-msgctxt "Gui::XtConnectPage|"
-msgid "Database Connection"
-msgstr "Verilənlər bazası bağlantısı"
-
-#: ../src/Gui/SettingsDialog.cpp:1459
-msgctxt "Gui::XtConnectPage|"
-msgid "Password"
-msgstr "Şifrə"
 
 #: ../src/Gui/SettingsFavoriteTagsPage.ui:14
 msgctxt "FavoriteTagsPage|"
@@ -3281,183 +3208,178 @@ msgctxt "Gui::MainWindow|"
 msgid "&Remove Mailbox"
 msgstr "Poçt qutusunu &silin"
 
-#: ../src/Gui/Window.cpp:491
-msgctxt "Gui::MainWindow|"
-msgid "&Synchronize with xTuple"
-msgstr "xTuple ilə eynilə&şdirin"
-
-#: ../src/Gui/Window.cpp:511
+#: ../src/Gui/Window.cpp:505
 msgctxt "Gui::MainWindow|"
 msgid "Show Messages in &Threads"
 msgstr "Məktubu söhbəvtlərdə göstərin"
 
-#: ../src/Gui/Window.cpp:522
+#: ../src/Gui/Window.cpp:516
 msgctxt "Gui::MainWindow|"
 msgid "&Ascending"
 msgstr "&Artan"
 
-#: ../src/Gui/Window.cpp:525
+#: ../src/Gui/Window.cpp:519
 msgctxt "Gui::MainWindow|"
 msgid "&Descending"
 msgstr "A&zalan"
 
-#: ../src/Gui/Window.cpp:533
+#: ../src/Gui/Window.cpp:527
 msgctxt "Gui::MainWindow|"
 msgid "&No sorting"
 msgstr "Çeşidlə&nməsin"
 
-#: ../src/Gui/Window.cpp:535
+#: ../src/Gui/Window.cpp:529
 msgctxt "Gui::MainWindow|"
 msgid "Sorted by &Threading"
 msgstr "Söhbə&tlərə görə çeşidlənsin"
 
-#: ../src/Gui/Window.cpp:537
+#: ../src/Gui/Window.cpp:531
 msgctxt "Gui::MainWindow|"
 msgid "A&rrival"
 msgstr "Alınmasına gö&rə"
 
-#: ../src/Gui/Window.cpp:539
+#: ../src/Gui/Window.cpp:533
 msgctxt "Gui::MainWindow|"
 msgid "&Cc (Carbon Copy)"
 msgstr "&Cc (Kopyası)"
 
-#: ../src/Gui/Window.cpp:541
+#: ../src/Gui/Window.cpp:535
 msgctxt "Gui::MainWindow|"
 msgid "Date from &Message Headers"
 msgstr "&Məktub başlığındakı verilənlər görə"
 
-#: ../src/Gui/Window.cpp:543
+#: ../src/Gui/Window.cpp:537
 msgctxt "Gui::MainWindow|"
 msgid "&From Address"
 msgstr "Ün&vandan"
 
-#: ../src/Gui/Window.cpp:545
+#: ../src/Gui/Window.cpp:539
 msgctxt "Gui::MainWindow|"
 msgid "&Size"
 msgstr "1&Ölçü"
 
-#: ../src/Gui/Window.cpp:547
+#: ../src/Gui/Window.cpp:541
 msgctxt "Gui::MainWindow|"
 msgid "S&ubject"
 msgstr "Mövz&u"
 
-#: ../src/Gui/Window.cpp:549
+#: ../src/Gui/Window.cpp:543
 msgctxt "Gui::MainWindow|"
 msgid "T&o Address"
 msgstr "Ü&nvana"
 
-#: ../src/Gui/Window.cpp:554
+#: ../src/Gui/Window.cpp:548
 msgctxt "Gui::MainWindow|"
 msgid "&Hide Read Messages"
 msgstr "Oxunmuş məktublar &görünməsin"
 
-#: ../src/Gui/Window.cpp:563
+#: ../src/Gui/Window.cpp:557
 msgctxt "Gui::MainWindow|"
 msgid "&Compact"
 msgstr "Yığ&cam"
 
-#: ../src/Gui/Window.cpp:567
+#: ../src/Gui/Window.cpp:561
 msgctxt "Gui::MainWindow|"
 msgid "&Wide"
 msgstr "&Geniş"
 
-#: ../src/Gui/Window.cpp:570
+#: ../src/Gui/Window.cpp:564
 msgctxt "Gui::MainWindow|"
 msgid "&One At a Time"
 msgstr "Bir d&əfəyə"
 
-#: ../src/Gui/Window.cpp:575
+#: ../src/Gui/Window.cpp:569
 msgctxt "Gui::MainWindow|"
 msgid "Show Only S&ubscribed Folders"
 msgstr "Yalnız ab&unəlik olan qovluqlar göstərilsin"
 
-#: ../src/Gui/Window.cpp:579
+#: ../src/Gui/Window.cpp:573
 msgctxt "Gui::MainWindow|"
 msgid "Su&bscribed"
 msgstr "A&bunə olunmuş"
 
-#: ../src/Gui/Window.cpp:584
+#: ../src/Gui/Window.cpp:578
 msgctxt "Gui::MainWindow|"
 msgid "&About Trojitá..."
 msgstr "Trojitá h&aqqında..."
 
-#: ../src/Gui/Window.cpp:587
+#: ../src/Gui/Window.cpp:581
 msgctxt "Gui::MainWindow|"
 msgid "&Donate to the project"
 msgstr "Layihəyə ma&ddi dətək verin"
 
-#: ../src/Gui/Window.cpp:592
+#: ../src/Gui/Window.cpp:586
 msgctxt "Gui::MainWindow|"
 msgid "Compose Mail"
 msgstr "Məktub yazın"
 
-#: ../src/Gui/Window.cpp:692
+#: ../src/Gui/Window.cpp:686
 msgctxt "Gui::MainWindow|"
 msgid "&Application"
 msgstr "&Tətbiq"
 
-#: ../src/Gui/Window.cpp:694
+#: ../src/Gui/Window.cpp:688
 msgctxt "Gui::MainWindow|"
 msgid "&Network Access"
 msgstr "Şəbə&kəyə giriş"
 
-#: ../src/Gui/Window.cpp:698
+#: ../src/Gui/Window.cpp:692
 msgctxt "Gui::MainWindow|"
 msgid "&Debugging"
 msgstr "&Sazlama"
 
-#: ../src/Gui/Window.cpp:718
+#: ../src/Gui/Window.cpp:712
 msgctxt "Gui::MainWindow|"
 msgid "&View"
 msgstr "&Baxış"
 
-#: ../src/Gui/Window.cpp:721
+#: ../src/Gui/Window.cpp:715
 msgctxt "Gui::MainWindow|"
 msgid "&Layout"
 msgstr "Xar&ici görünüş"
 
-#: ../src/Gui/Window.cpp:728
+#: ../src/Gui/Window.cpp:722
 msgctxt "Gui::MainWindow|"
 msgid "Mail&box"
 msgstr "&Poçt qutusu"
 
-#: ../src/Gui/Window.cpp:729
+#: ../src/Gui/Window.cpp:723
 msgctxt "Gui::MainWindow|"
 msgid "S&orting"
 msgstr "Çeşi&dləmə"
 
-#: ../src/Gui/Window.cpp:751
+#: ../src/Gui/Window.cpp:745
 msgctxt "Gui::MainWindow|"
 msgid "&Message"
 msgstr "&Məktub"
 
-#: ../src/Gui/Window.cpp:830
+#: ../src/Gui/Window.cpp:824
 #, qt-format
 msgctxt "QObject|"
 msgid "Link target: %1"
 msgstr "Keçid hədəfi: %1"
 
-#: ../src/Gui/Window.cpp:842
+#: ../src/Gui/Window.cpp:836
 msgctxt "Gui::MainWindow|"
 msgid "Everything"
 msgstr "Hər biri"
 
-#: ../src/Gui/Window.cpp:850
+#: ../src/Gui/Window.cpp:844
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Tasks"
 msgstr "İMAP tapşırıqları"
 
-#: ../src/Gui/Window.cpp:857
+#: ../src/Gui/Window.cpp:851
 msgctxt "Gui::MainWindow|"
 msgid "MIME Tree"
 msgstr "MİME ağacı"
 
-#: ../src/Gui/Window.cpp:867
+#: ../src/Gui/Window.cpp:861
 msgctxt "Gui::MainWindow|"
 msgid "Protocol log"
 msgstr "Protokol jurnalı"
 
-#: ../src/Gui/Window.cpp:944
+#: ../src/Gui/Window.cpp:938
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Attempting to reconnect in %n seconds.."
@@ -3465,13 +3387,13 @@ msgid_plural "Attempting to reconnect in %n seconds.."
 msgstr[0] "%n saniyə ərzində qoşulmağa cəhd edilir..."
 msgstr[1] "%n saniyə ərzində qoşulmağa cəhd edilir..."
 
-#: ../src/Gui/Window.cpp:997
+#: ../src/Gui/Window.cpp:991
 msgctxt "Gui::MainWindow|"
 msgid "&Quit"
 msgstr "&Çıxış"
 
 #. This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
-#: ../src/Gui/Window.cpp:1112
+#: ../src/Gui/Window.cpp:1106
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid " - %n unread message(s)"
@@ -3480,17 +3402,17 @@ msgstr[0] " - %n oxunmamış məktub(lar)"
 msgstr[1] " - %n oxunmamış məktub(lar)"
 
 #. A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
-#: ../src/Gui/Window.cpp:1115
+#: ../src/Gui/Window.cpp:1109
 msgctxt "Gui::MainWindow|"
 msgid " - offline"
 msgstr " - oflayn"
 
-#: ../src/Gui/Window.cpp:1124 ../src/Gui/Window.cpp:2566
+#: ../src/Gui/Window.cpp:1118 ../src/Gui/Window.cpp:2530
 msgctxt "Gui::MainWindow|"
 msgid "Trojitá"
 msgstr "Trojitá"
 
-#: ../src/Gui/Window.cpp:1125
+#: ../src/Gui/Window.cpp:1119
 msgctxt "Gui::MainWindow|"
 msgid ""
 "The application will continue in systray. This can be disabled within the "
@@ -3498,27 +3420,27 @@ msgid ""
 msgstr "Tətbiq, sistem treyində aktiv qalacaq. Bu, ayarlarda söndürülə bilər."
 
 #. "ALERT" is a special warning which we're required to show to the user
-#: ../src/Gui/Window.cpp:1338
+#: ../src/Gui/Window.cpp:1325
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Alert"
 msgstr "İMAP siqnalı"
 
-#: ../src/Gui/Window.cpp:1343
+#: ../src/Gui/Window.cpp:1330
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Protocol Error"
 msgstr "İMAP protokol xətası"
 
-#: ../src/Gui/Window.cpp:1351
+#: ../src/Gui/Window.cpp:1338
 msgctxt "Gui::MainWindow|"
 msgid "Network Error"
 msgstr "Şəbəkə xətası"
 
-#: ../src/Gui/Window.cpp:1372
+#: ../src/Gui/Window.cpp:1359
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Cache Error"
 msgstr "İMAP keş xətası"
 
-#: ../src/Gui/Window.cpp:1373
+#: ../src/Gui/Window.cpp:1360
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3532,79 +3454,79 @@ msgstr ""
 "\n"
 "%1"
 
-#: ../src/Gui/Window.cpp:1384
+#: ../src/Gui/Window.cpp:1371
 msgctxt "Gui::MainWindow|"
 msgid "Offline"
 msgstr "Şəbəkədən kənar"
 
-#: ../src/Gui/Window.cpp:1430
+#: ../src/Gui/Window.cpp:1417
 msgctxt "Gui::MainWindow|"
 msgid "No Configuration"
 msgstr "Tənzimləmə yoxdur"
 
-#: ../src/Gui/Window.cpp:1431
+#: ../src/Gui/Window.cpp:1418
 msgctxt "Gui::MainWindow|"
 msgid "No IMAP account is configured. Trojitá cannot do much without one."
 msgstr ""
 "Heç bir İMAP hesabı ayarlanmayıb. Heç bir hesab olmadan Trojitá i şləyə "
 "bilməz."
 
-#: ../src/Gui/Window.cpp:1456
+#: ../src/Gui/Window.cpp:1443
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Failed to retrieve password from the store: %1"
 msgstr "Yaddaşdan şifrə alına bilmədi: %1"
 
-#: ../src/Gui/Window.cpp:1474
+#: ../src/Gui/Window.cpp:1461
 msgctxt "Gui::MainWindow|"
 msgid "Authentication Required"
 msgstr "Kimlik doğrulaması tələb olunur"
 
-#: ../src/Gui/Window.cpp:1475
+#: ../src/Gui/Window.cpp:1462
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>"
 msgstr ""
 "<p><b>%2</b>-də/da <b>%1</b> istifadəçisi üçün İMAP şifrəsini daxil edin:</p>"
 
-#: ../src/Gui/Window.cpp:1529
+#: ../src/Gui/Window.cpp:1516
 msgctxt "Gui::MainWindow|"
 msgid "Edit draft"
 msgstr "Qaralamaya düzəliş edin"
 
-#: ../src/Gui/Window.cpp:1650
+#: ../src/Gui/Window.cpp:1637
 msgctxt "Gui::MainWindow|"
 msgid "Failed to archive"
 msgstr "Arxivə köçürülə bilmədi"
 
-#: ../src/Gui/Window.cpp:1700
+#: ../src/Gui/Window.cpp:1687
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Create a Subfolder of %1"
 msgstr "%1 alt qovluğu yaradın"
 
-#: ../src/Gui/Window.cpp:1701
+#: ../src/Gui/Window.cpp:1688
 msgctxt "Gui::MainWindow|"
 msgid "Create a Top-level Mailbox"
 msgstr "Üst səviyyəli Poçt qutusu yaradın"
 
-#: ../src/Gui/Window.cpp:1728
+#: ../src/Gui/Window.cpp:1715
 msgctxt "Gui::MainWindow|"
 msgid "Delete Mailbox"
 msgstr "Poçt qutusunu silin"
 
-#: ../src/Gui/Window.cpp:1729
+#: ../src/Gui/Window.cpp:1716
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Are you sure to delete mailbox %1?"
 msgstr "%1 poçt qutusunu silmək istədiyinizə əminsiniz?"
 
-#: ../src/Gui/Window.cpp:2028
+#: ../src/Gui/Window.cpp:2015
 msgctxt "Gui::MainWindow|"
 msgid "Can't delete mailbox"
 msgstr "Poçt qutusu silinə bilmir"
 
-#: ../src/Gui/Window.cpp:2029
+#: ../src/Gui/Window.cpp:2016
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3614,12 +3536,12 @@ msgstr ""
 "\"%1\" poçt qutusunun aşağıdakı məktublarla silinməsi alınmadı:\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2034
+#: ../src/Gui/Window.cpp:2021
 msgctxt "Gui::MainWindow|"
 msgid "Can't create mailbox"
 msgstr "Poçt qutusu yaradıla bilmir"
 
-#: ../src/Gui/Window.cpp:2035
+#: ../src/Gui/Window.cpp:2022
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3629,12 +3551,12 @@ msgstr ""
 "Aşağıdakı məktublarla \"%1\" poçt qutusu yaradılması alınmadı:\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2040
+#: ../src/Gui/Window.cpp:2027
 msgctxt "Gui::MainWindow|"
 msgid "Can't open mailbox"
 msgstr "Poçt qutusu açıla bilmir"
 
-#: ../src/Gui/Window.cpp:2041
+#: ../src/Gui/Window.cpp:2028
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3644,45 +3566,45 @@ msgstr ""
 "Aşağıdakı məktublarla \"%1\" poçt qutusu açılması mümkün olmadı:\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2090
+#: ../src/Gui/Window.cpp:2077
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Link target: %1"
 msgstr "Keçid hədəfi: %1"
 
-#: ../src/Gui/Window.cpp:2105
+#: ../src/Gui/Window.cpp:2092
 msgctxt "Gui::MainWindow|"
 msgid "Plugins"
 msgstr "Qoşmalar"
 
-#: ../src/Gui/Window.cpp:2112
+#: ../src/Gui/Window.cpp:2099
 msgctxt "Gui::MainWindow|"
 msgid "Encrypted and signed messages"
 msgstr "Şifrələnmiş və imzalanmış məktublar"
 
-#: ../src/Gui/Window.cpp:2119
+#: ../src/Gui/Window.cpp:2106
 msgctxt "Gui::MainWindow|"
 msgid "IMAP compression"
 msgstr "İMAP sıxılması"
 
-#: ../src/Gui/Window.cpp:2130
+#: ../src/Gui/Window.cpp:2117
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: supported</li>"
 msgstr "<li>%1:dəstəklənən</li>"
 
-#: ../src/Gui/Window.cpp:2131
+#: ../src/Gui/Window.cpp:2118
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: <strong>disabled</strong></li>"
 msgstr "<li>%1: <strong>söndürülüb</strong></li>"
 
-#: ../src/Gui/Window.cpp:2189
+#: ../src/Gui/Window.cpp:2176
 msgctxt "Gui::MainWindow|"
 msgid "Can't save into file"
 msgstr "Faylda saxlanıla bilmir"
 
-#: ../src/Gui/Window.cpp:2190
+#: ../src/Gui/Window.cpp:2177
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3692,63 +3614,63 @@ msgstr ""
 "Faylda saxlamaq mümkün deyil. Xəta:\n"
 "%1"
 
-#: ../src/Gui/Window.cpp:2195
+#: ../src/Gui/Window.cpp:2182
 msgctxt "Gui::MainWindow|"
 msgid "Save Message"
 msgstr "Məktubu saxlayın"
 
 #. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
-#: ../src/Gui/Window.cpp:2209
+#: ../src/Gui/Window.cpp:2196
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Message source of UID %1 in %2"
 msgstr "%2 daxilindəki UİD %1 aid məktub mənbəsi"
 
-#: ../src/Gui/Window.cpp:2222 ../src/Gui/Window.cpp:2241
+#: ../src/Gui/Window.cpp:2209 ../src/Gui/Window.cpp:2228
 msgctxt "Gui::MainWindow|"
 msgid "Close"
 msgstr "Bağlayın"
 
-#: ../src/Gui/Window.cpp:2224 ../src/Gui/Window.cpp:2243
+#: ../src/Gui/Window.cpp:2211 ../src/Gui/Window.cpp:2230
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+W"
 msgstr "Ctrl+W"
 
-#: ../src/Gui/Window.cpp:2486
+#: ../src/Gui/Window.cpp:2450
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1</li>\n"
 msgstr "<li>%1</li>\n"
 
-#: ../src/Gui/Window.cpp:2494
+#: ../src/Gui/Window.cpp:2458
 msgctxt "Gui::MainWindow|"
 msgid "Unknown"
 msgstr "Naməlum"
 
-#: ../src/Gui/Window.cpp:2508
+#: ../src/Gui/Window.cpp:2472
 msgctxt "Gui::MainWindow|"
 msgid "<p>"
 msgstr "<p>"
 
-#: ../src/Gui/Window.cpp:2510
+#: ../src/Gui/Window.cpp:2474
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Server: %1 %2"
 msgstr "Server: %1 %2"
 
-#: ../src/Gui/Window.cpp:2512
+#: ../src/Gui/Window.cpp:2476
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Server: %1"
 msgstr "Server: %1"
 
-#: ../src/Gui/Window.cpp:2515
+#: ../src/Gui/Window.cpp:2479
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid " (%1)"
 msgstr " (%1)"
 
-#: ../src/Gui/Window.cpp:2519
+#: ../src/Gui/Window.cpp:2483
 #, qt-format
 msgctxt ""
 "Gui::MainWindow|%1 is the operating system of an IMAP server and %2 is its "
@@ -3756,35 +3678,35 @@ msgctxt ""
 msgid " on %1 %2"
 msgstr " %1 %2 üzərində"
 
-#: ../src/Gui/Window.cpp:2521
+#: ../src/Gui/Window.cpp:2485
 #, qt-format
 msgctxt "Gui::MainWindow|%1 is the operationg system of an IMAP server."
 msgid " on %1"
 msgstr " %1 üzərində"
 
-#: ../src/Gui/Window.cpp:2523
+#: ../src/Gui/Window.cpp:2487
 msgctxt "Gui::MainWindow|"
 msgid "</p>"
 msgstr "</p>"
 
-#: ../src/Gui/Window.cpp:2525
+#: ../src/Gui/Window.cpp:2489
 msgctxt "Gui::MainWindow|"
 msgid "<p>The IMAP server did not return usable information about itself.</p>"
 msgstr "<p>İMAP serveri özü haqqında faydalı məlumatları qaytarmadı.</p>"
 
-#: ../src/Gui/Window.cpp:2529
+#: ../src/Gui/Window.cpp:2493
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: %2</li>"
 msgstr "<li>%1: %2</li>"
 
-#: ../src/Gui/Window.cpp:2531
+#: ../src/Gui/Window.cpp:2495
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<ul>%1</ul>"
 msgstr "<ul>%1</ul>"
 
-#: ../src/Gui/Window.cpp:2533
+#: ../src/Gui/Window.cpp:2497
 msgctxt "Gui::MainWindow|"
 msgid ""
 "<p>The server has not provided information about its software version.</p>"
@@ -3792,7 +3714,7 @@ msgstr ""
 "<p>Server özünün proqram təminatı versiyası haqqında informasiyanı təqdim "
 "etmədi.</p>"
 
-#: ../src/Gui/Window.cpp:2540
+#: ../src/Gui/Window.cpp:2504
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3802,7 +3724,7 @@ msgstr ""
 "%1\n"
 "<p>Hal-hazırda aşağıdakı imkanlar təklif olunur:</p>"
 
-#: ../src/Gui/Window.cpp:2542
+#: ../src/Gui/Window.cpp:2506
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3812,7 +3734,7 @@ msgstr ""
 "<ul>\n"
 "%1</ul>"
 
-#: ../src/Gui/Window.cpp:2560
+#: ../src/Gui/Window.cpp:2524
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "%1 - %n unread - Trojitá"
@@ -3820,13 +3742,13 @@ msgid_plural "%1 - %n unread - Trojitá"
 msgstr[0] "%1 - %n oxunmadı - Trojitá"
 msgstr[1] "%1 - %n oxunmadı - Trojitá"
 
-#: ../src/Gui/Window.cpp:2563
+#: ../src/Gui/Window.cpp:2527
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "%1 - Trojitá"
 msgstr "%1 - Trojitá"
 
-#: ../src/Gui/Window.cpp:2900
+#: ../src/Gui/Window.cpp:2864
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Tag with \"%1\""
@@ -4149,19 +4071,19 @@ msgid_plural "Attempting to reconnect in %n secs"
 msgstr[0] "%n saniyədə yenidən bağlanmağa cəhd edilir"
 msgstr[1] "%n saniyədə yenidən bağlanmağa cəhd edilir"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:82
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:77
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%1 (%2/%3)"
 msgstr "%1 (%2/%3)"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:86
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:81
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%1 (%2)"
 msgstr "%1 (%2)"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:129
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:119
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n messages"
@@ -4169,7 +4091,7 @@ msgid_plural "%n messages"
 msgstr[0] "%n məktublar"
 msgstr[1] "%n məktublar"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:130
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:120
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n unread"
@@ -4177,7 +4099,7 @@ msgid_plural "%n unread"
 msgstr[0] "%n oxunmamış"
 msgstr[1] "%n oxunmamış"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:131
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:121
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n recent"
@@ -5841,7 +5763,71 @@ msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot save password via plugin %1"
 msgstr "%1 qoşması ilə şifrə saxlanıla bilmir"
 
-#: ../src/XtConnect/XtConnect.cpp:99
-msgctxt "XtConnect::XtConnect|"
-msgid "Database Password: "
-msgstr "Verilənlər bazası şifrəsi: "
+#~ msgctxt "Gui::SettingsDialog|"
+#~ msgid "&xTuple"
+#~ msgstr "&xTuple"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Cache Directory"
+#~ msgstr "Keş qovluğu"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Mailboxes to synchronize"
+#~ msgstr "Eyniləşdiriləcək poçt qutuları"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid ""
+#~ "Please use context menu inside the main application to select mailboxes "
+#~ "to synchronize"
+#~ msgstr ""
+#~ "Eyniləşdiriləcək poçt qutularını tətbiq daxilindəki əsas kontekst "
+#~ "menyudan seçin"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Hostname"
+#~ msgstr "VB host_adı"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Port"
+#~ msgstr "VB qoşulma nöqtəsi"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Name"
+#~ msgstr "VB adı"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Username"
+#~ msgstr "VB istifadəçi adı"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid ""
+#~ "Please fill in all IMAP options, including the password, at the IMAP "
+#~ "page. If you do not save the password, background synchronization will "
+#~ "not run."
+#~ msgstr ""
+#~ "İMAP səhifəsində şifrələr də daxil tam İMAP parametrlərini daxil edin. "
+#~ "Əgər şifrəni saxlamasanız arxa planda eyniləşdirilmə işləməyəcəkdir."
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Debugging"
+#~ msgstr "Sazlama"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Run xTuple Synchronization"
+#~ msgstr "xTuple eyniləşdirilməsini başladın"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Database Connection"
+#~ msgstr "Verilənlər bazası bağlantısı"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Password"
+#~ msgstr "Şifrə"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "&Synchronize with xTuple"
+#~ msgstr "xTuple ilə eynilə&şdirin"
+
+#~ msgctxt "XtConnect::XtConnect|"
+#~ msgid "Database Password: "
+#~ msgstr "Verilənlər bazası şifrəsi: "

@@ -918,8 +918,8 @@ msgstr ""
 "<br><span style=\"color:red\">Avertissement : les pièces jointes ne sont "
 "<b>pas</b> enregistrées avec le brouillon !</span>"
 
-#: ../src/Gui/ComposeWidget.cpp:737 ../src/Gui/Window.cpp:1527
-#: ../src/Gui/Window.cpp:1529
+#: ../src/Gui/ComposeWidget.cpp:737 ../src/Gui/Window.cpp:1514
+#: ../src/Gui/Window.cpp:1516
 msgctxt "Gui::MainWindow|"
 msgid "Drafts"
 msgstr "Brouillons"
@@ -1814,22 +1814,17 @@ msgctxt "Gui::SettingsDialog|"
 msgid "&SMTP"
 msgstr "&SMTP"
 
-#: ../src/Gui/SettingsDialog.cpp:97
-msgctxt "Gui::SettingsDialog|"
-msgid "&xTuple"
-msgstr "&xTuple"
-
-#: ../src/Gui/SettingsDialog.cpp:99
+#: ../src/Gui/SettingsDialog.cpp:96
 msgctxt "Gui::SettingsDialog|"
 msgid "Favorite &tags"
 msgstr "É&tiquettes préférées"
 
-#: ../src/Gui/SettingsDialog.cpp:218
+#: ../src/Gui/SettingsDialog.cpp:212
 msgctxt "Gui::SettingsDialog|"
 msgid "Saving passwords failed"
 msgstr "L'enregistrement des mots de passe a échoué."
 
-#: ../src/Gui/SettingsDialog.cpp:219
+#: ../src/Gui/SettingsDialog.cpp:213
 #, qt-format
 msgctxt "Gui::SettingsDialog|"
 msgid ""
@@ -1840,48 +1835,48 @@ msgstr ""
 "</p>\n"
 "<p>%1</p>"
 
-#: ../src/Gui/SettingsDialog.cpp:315
+#: ../src/Gui/SettingsDialog.cpp:309
 msgctxt "Gui::FavoriteTagsPage|"
 msgid "Add New Tag"
 msgstr "Ajouter une nouvelle étiquette"
 
-#: ../src/Gui/SettingsDialog.cpp:323
+#: ../src/Gui/SettingsDialog.cpp:317
 msgctxt "Gui::FavoriteTagsPage|"
 msgid "Edit Tag"
 msgstr "Modifier l'étiquette"
 
-#: ../src/Gui/SettingsDialog.cpp:406
+#: ../src/Gui/SettingsDialog.cpp:400
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Plugin not found (%1)"
 msgstr "Impossible de trouver le module externe (%1)"
 
-#: ../src/Gui/SettingsDialog.cpp:407
+#: ../src/Gui/SettingsDialog.cpp:401
 msgctxt "Gui::GeneralPage|"
 msgid "Disable address book"
 msgstr "Désactiver le carnet d'adresses"
 
-#: ../src/Gui/SettingsDialog.cpp:408
+#: ../src/Gui/SettingsDialog.cpp:402
 msgctxt "Gui::GeneralPage|"
 msgid "Disable passwords"
 msgstr "Désactiver les mots de passes"
 
-#: ../src/Gui/SettingsDialog.cpp:409
+#: ../src/Gui/SettingsDialog.cpp:403
 msgctxt "Gui::GeneralPage|"
 msgid "Disable spell checking"
 msgstr "Désactiver la vérification orthographique"
 
-#: ../src/Gui/SettingsDialog.cpp:425
+#: ../src/Gui/SettingsDialog.cpp:419
 msgctxt "Gui::GeneralPage|"
 msgid "Move"
 msgstr "Déplacer"
 
-#: ../src/Gui/SettingsDialog.cpp:428
+#: ../src/Gui/SettingsDialog.cpp:422
 msgctxt "Gui::GeneralPage|"
 msgid "Copy"
 msgstr "Copier"
 
-#: ../src/Gui/SettingsDialog.cpp:433
+#: ../src/Gui/SettingsDialog.cpp:427
 msgctxt "Gui::GeneralPage|"
 msgid ""
 "<p>If enabled, Trojitá will show its homepage upon startup.</p><p>The remote "
@@ -1895,63 +1890,63 @@ msgstr ""
 "jacent. Aucune information personnelle, comme les paramètres du compte ou "
 "les détails du serveur IMAP n'est collectée.</p>"
 
-#: ../src/Gui/SettingsDialog.cpp:513
+#: ../src/Gui/SettingsDialog.cpp:507
 msgctxt "Gui::GeneralPage|"
 msgid "Add New Identity"
 msgstr "Ajouter une nouvelle identité"
 
-#: ../src/Gui/SettingsDialog.cpp:521
+#: ../src/Gui/SettingsDialog.cpp:515
 msgctxt "Gui::GeneralPage|"
 msgid "Edit Identity"
 msgstr "Modifier une identité"
 
-#: ../src/Gui/SettingsDialog.cpp:529
+#: ../src/Gui/SettingsDialog.cpp:523
 msgctxt "Gui::GeneralPage|"
 msgid "Delete Identity?"
 msgstr "Supprimer l'identité ?"
 
-#: ../src/Gui/SettingsDialog.cpp:530
+#: ../src/Gui/SettingsDialog.cpp:524
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Are you sure you want to delete identity %1 <%2>?"
 msgstr "Voulez-vous vraiment supprimer l'identité %1 <%2> ?"
 
-#: ../src/Gui/SettingsDialog.cpp:579
+#: ../src/Gui/SettingsDialog.cpp:573
 msgctxt "Gui::GeneralPage|"
 msgid "Please define some identities here"
 msgstr "Veuillez définir des identités ici"
 
-#: ../src/Gui/SettingsDialog.cpp:676
+#: ../src/Gui/SettingsDialog.cpp:670
 msgctxt "Gui::EditFavoriteTag|"
 msgid "Select tag color"
 msgstr "Choisir la couleur de l'étiquette"
 
-#: ../src/Gui/SettingsDialog.cpp:713
+#: ../src/Gui/SettingsDialog.cpp:707
 msgctxt "Gui::ImapPage|"
 msgid "Network Connection"
 msgstr "Connexion réseau"
 
-#: ../src/Gui/SettingsDialog.cpp:714
+#: ../src/Gui/SettingsDialog.cpp:708
 msgctxt "Gui::ImapPage|"
 msgid "Local Process"
 msgstr "Processus local"
 
-#: ../src/Gui/SettingsDialog.cpp:716
+#: ../src/Gui/SettingsDialog.cpp:710
 msgctxt "Gui::ImapPage|"
 msgid "No encryption"
 msgstr "Aucun chiffrement"
 
-#: ../src/Gui/SettingsDialog.cpp:717
+#: ../src/Gui/SettingsDialog.cpp:711
 msgctxt "Gui::ImapPage|"
 msgid "Use encryption (STARTTLS)"
 msgstr "Utiliser le chiffrement (STARTTLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:718
+#: ../src/Gui/SettingsDialog.cpp:712
 msgctxt "Gui::ImapPage|"
 msgid "Force encryption (TLS)"
 msgstr "Forcer le chiffrement (STARTTLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:840
+#: ../src/Gui/SettingsDialog.cpp:834
 msgctxt "Gui::ImapPage|"
 msgid ""
 "This password will be saved in encrypted storage. If you do not enter "
@@ -1960,7 +1955,7 @@ msgstr ""
 "Le mot de passe sera enregistré sous forme chiffrée. Si vous le laissez "
 "vide, Trojitá vous le demande au besoin."
 
-#: ../src/Gui/SettingsDialog.cpp:844
+#: ../src/Gui/SettingsDialog.cpp:838
 msgctxt "Gui::ImapPage|"
 msgid ""
 "This password will be saved in clear text. If you do not enter password "
@@ -1969,12 +1964,12 @@ msgstr ""
 "Le mot de passe sera enregistré en texte clair. Si vous le laissez vide, "
 "Trojitá vous le demande au besoin."
 
-#: ../src/Gui/SettingsDialog.cpp:915
+#: ../src/Gui/SettingsDialog.cpp:909
 msgctxt "Gui::ImapPage|"
 msgid "The IMAP server hostname is missing here"
 msgstr "Le nom d'hôte du serveur IMAP est manquant"
 
-#: ../src/Gui/SettingsDialog.cpp:921
+#: ../src/Gui/SettingsDialog.cpp:915
 msgctxt "Gui::ImapPage|"
 msgid ""
 "The command line to the IMAP server is missing here. Perhaps you need to use "
@@ -1983,7 +1978,7 @@ msgstr ""
 "La ligne de commande vers le serveur IMAP est manquant ? Peut-être devez-"
 "vous utiliser SSL ou TCP ?"
 
-#: ../src/Gui/SettingsDialog.cpp:938
+#: ../src/Gui/SettingsDialog.cpp:932
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -1993,7 +1988,7 @@ msgstr ""
 "Ce port n'est pas standard. Le port par défaut pour IMAP sécurisé sur SSL/"
 "TLS est le %1"
 
-#: ../src/Gui/SettingsDialog.cpp:942
+#: ../src/Gui/SettingsDialog.cpp:936
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -2003,7 +1998,7 @@ msgstr ""
 "Ce port n'est pas standard. Le port par défaut pour IMAP sécurisé via "
 "STARTTLS est le %1"
 
-#: ../src/Gui/SettingsDialog.cpp:944
+#: ../src/Gui/SettingsDialog.cpp:938
 #, qt-format
 msgctxt "Gui::ImapPage|"
 msgid ""
@@ -2012,37 +2007,37 @@ msgstr ""
 "Ce port n'est pas standard. Le port par défaut pour IMAP en texte en clair "
 "est le %1"
 
-#: ../src/Gui/SettingsDialog.cpp:1052
+#: ../src/Gui/SettingsDialog.cpp:1046
 msgctxt "Gui::OutgoingPage|"
 msgid "Network"
 msgstr "Réseau"
 
-#: ../src/Gui/SettingsDialog.cpp:1053
+#: ../src/Gui/SettingsDialog.cpp:1047
 msgctxt "Gui::OutgoingPage|"
 msgid "Local sendmail-compatible"
 msgstr "Compatibilité locale « SendMail »"
 
-#: ../src/Gui/SettingsDialog.cpp:1054
+#: ../src/Gui/SettingsDialog.cpp:1048
 msgctxt "Gui::OutgoingPage|"
 msgid "IMAP SENDMAIL Extension"
 msgstr "Extension SENDMAIL IMAP"
 
-#: ../src/Gui/SettingsDialog.cpp:1056
+#: ../src/Gui/SettingsDialog.cpp:1050
 msgctxt "Gui::OutgoingPage|"
 msgid "No encryption"
 msgstr "Aucun chiffrement"
 
-#: ../src/Gui/SettingsDialog.cpp:1057
+#: ../src/Gui/SettingsDialog.cpp:1051
 msgctxt "Gui::OutgoingPage|"
 msgid "Use encryption (STARTTLS)"
 msgstr "Utiliser le chiffrement (STARTTLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:1058
+#: ../src/Gui/SettingsDialog.cpp:1052
 msgctxt "Gui::OutgoingPage|"
 msgid "Force encryption (TLS)"
 msgstr "Forcer le chiffrement (TLS)"
 
-#: ../src/Gui/SettingsDialog.cpp:1202
+#: ../src/Gui/SettingsDialog.cpp:1196
 msgctxt "Gui::OutgoingPage|"
 msgid ""
 "This password will be saved in encrypted storage. If you do not enter "
@@ -2051,7 +2046,7 @@ msgstr ""
 "Le mot de passe sera enregistré sous forme chiffrée. Si vous le laissez "
 "vide, Trojitá vous le demande au besoin."
 
-#: ../src/Gui/SettingsDialog.cpp:1206
+#: ../src/Gui/SettingsDialog.cpp:1200
 msgctxt "Gui::OutgoingPage|"
 msgid ""
 "This password will be saved in clear text. If you do not enter password "
@@ -2060,89 +2055,20 @@ msgstr ""
 "Le mot de passe sera enregistré en texte clair. Si vous le laissez vide, "
 "Trojitá vous le demande au besoin."
 
-#: ../src/Gui/SettingsDialog.cpp:1300 ../src/Gui/SettingsDialog.cpp:1306
+#: ../src/Gui/SettingsDialog.cpp:1294 ../src/Gui/SettingsDialog.cpp:1300
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP server hostname is missing here"
 msgstr "Le nom d'hôte du serveur SMTP est manquant"
 
-#: ../src/Gui/SettingsDialog.cpp:1302
+#: ../src/Gui/SettingsDialog.cpp:1296
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP username is missing here"
 msgstr "Le nom d'utilisateur SMTP est manquant"
 
-#: ../src/Gui/SettingsDialog.cpp:1313
+#: ../src/Gui/SettingsDialog.cpp:1307
 msgctxt "Gui::OutgoingPage|"
 msgid "Please specify the folder name here"
 msgstr "Veuillez spécifier le nom de dossier"
-
-#: ../src/Gui/SettingsDialog.cpp:1337
-msgctxt "Gui::XtConnectPage|"
-msgid "Cache Directory"
-msgstr "Dossier de cache"
-
-#: ../src/Gui/SettingsDialog.cpp:1339
-msgctxt "Gui::XtConnectPage|"
-msgid "Mailboxes to synchronize"
-msgstr "Boîtes aux lettres à synchroniser"
-
-#: ../src/Gui/SettingsDialog.cpp:1346
-msgctxt "Gui::XtConnectPage|"
-msgid ""
-"Please use context menu inside the main application to select mailboxes to "
-"synchronize"
-msgstr ""
-"Veuillez utiliser le menu contextuel au sein de la principale application "
-"pour sélectionner les boîtes aux lettres à synchroniser"
-
-#: ../src/Gui/SettingsDialog.cpp:1369
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Hostname"
-msgstr "Nom d'hôte de la BD"
-
-#: ../src/Gui/SettingsDialog.cpp:1373
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Port"
-msgstr "Port de la DB"
-
-#: ../src/Gui/SettingsDialog.cpp:1375
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Name"
-msgstr "Nom de la BD"
-
-#: ../src/Gui/SettingsDialog.cpp:1377
-msgctxt "Gui::XtConnectPage|"
-msgid "DB Username"
-msgstr "Nom d'utilisateur de la BD"
-
-#: ../src/Gui/SettingsDialog.cpp:1379
-msgctxt "Gui::XtConnectPage|"
-msgid ""
-"Please fill in all IMAP options, including the password, at the IMAP page. "
-"If you do not save the password, background synchronization will not run."
-msgstr ""
-"Veuillez remplir toutes les options IMAP, y compris le mot de passe sur la "
-"page IMAP. Si vous n'enregistrez pas le mot de passe, la synchronisation en "
-"arrière-plan ne s'exécutera pas."
-
-#: ../src/Gui/SettingsDialog.cpp:1385
-msgctxt "Gui::XtConnectPage|"
-msgid "Debugging"
-msgstr "Débogage"
-
-#: ../src/Gui/SettingsDialog.cpp:1387
-msgctxt "Gui::XtConnectPage|"
-msgid "Run xTuple Synchronization"
-msgstr "Exécuter la synchronisation xTuple"
-
-#: ../src/Gui/SettingsDialog.cpp:1459
-msgctxt "Gui::XtConnectPage|"
-msgid "Database Connection"
-msgstr "Connexion à la base de données"
-
-#: ../src/Gui/SettingsDialog.cpp:1459
-msgctxt "Gui::XtConnectPage|"
-msgid "Password"
-msgstr "Mot de passe"
 
 #: ../src/Gui/SettingsFavoriteTagsPage.ui:14
 msgctxt "FavoriteTagsPage|"
@@ -3312,183 +3238,178 @@ msgctxt "Gui::MainWindow|"
 msgid "&Remove Mailbox"
 msgstr "&Supprimer une boîte aux lettres"
 
-#: ../src/Gui/Window.cpp:491
-msgctxt "Gui::MainWindow|"
-msgid "&Synchronize with xTuple"
-msgstr "&Synchroniser avec xTuple"
-
-#: ../src/Gui/Window.cpp:511
+#: ../src/Gui/Window.cpp:505
 msgctxt "Gui::MainWindow|"
 msgid "Show Messages in &Threads"
 msgstr "Afficher les messages par &fils de discussion"
 
-#: ../src/Gui/Window.cpp:522
+#: ../src/Gui/Window.cpp:516
 msgctxt "Gui::MainWindow|"
 msgid "&Ascending"
 msgstr "&Ascendant"
 
-#: ../src/Gui/Window.cpp:525
+#: ../src/Gui/Window.cpp:519
 msgctxt "Gui::MainWindow|"
 msgid "&Descending"
 msgstr "&Descendant"
 
-#: ../src/Gui/Window.cpp:533
+#: ../src/Gui/Window.cpp:527
 msgctxt "Gui::MainWindow|"
 msgid "&No sorting"
 msgstr "&Pas de tri"
 
-#: ../src/Gui/Window.cpp:535
+#: ../src/Gui/Window.cpp:529
 msgctxt "Gui::MainWindow|"
 msgid "Sorted by &Threading"
 msgstr "Trié par f&il"
 
-#: ../src/Gui/Window.cpp:537
+#: ../src/Gui/Window.cpp:531
 msgctxt "Gui::MainWindow|"
 msgid "A&rrival"
 msgstr "Arriv&ée"
 
-#: ../src/Gui/Window.cpp:539
+#: ../src/Gui/Window.cpp:533
 msgctxt "Gui::MainWindow|"
 msgid "&Cc (Carbon Copy)"
 msgstr "&CC (copie carbone)"
 
-#: ../src/Gui/Window.cpp:541
+#: ../src/Gui/Window.cpp:535
 msgctxt "Gui::MainWindow|"
 msgid "Date from &Message Headers"
 msgstr "Dater depuis les en-têtes des &messages"
 
-#: ../src/Gui/Window.cpp:543
+#: ../src/Gui/Window.cpp:537
 msgctxt "Gui::MainWindow|"
 msgid "&From Address"
 msgstr "Dep&uis une adresse"
 
-#: ../src/Gui/Window.cpp:545
+#: ../src/Gui/Window.cpp:539
 msgctxt "Gui::MainWindow|"
 msgid "&Size"
 msgstr "&Taille"
 
-#: ../src/Gui/Window.cpp:547
+#: ../src/Gui/Window.cpp:541
 msgctxt "Gui::MainWindow|"
 msgid "S&ubject"
 msgstr "&Sujet"
 
-#: ../src/Gui/Window.cpp:549
+#: ../src/Gui/Window.cpp:543
 msgctxt "Gui::MainWindow|"
 msgid "T&o Address"
 msgstr "À l'&adresse"
 
-#: ../src/Gui/Window.cpp:554
+#: ../src/Gui/Window.cpp:548
 msgctxt "Gui::MainWindow|"
 msgid "&Hide Read Messages"
 msgstr "&Cacher les messages lus"
 
-#: ../src/Gui/Window.cpp:563
+#: ../src/Gui/Window.cpp:557
 msgctxt "Gui::MainWindow|"
 msgid "&Compact"
 msgstr "&Compresser"
 
-#: ../src/Gui/Window.cpp:567
+#: ../src/Gui/Window.cpp:561
 msgctxt "Gui::MainWindow|"
 msgid "&Wide"
 msgstr "&Large"
 
-#: ../src/Gui/Window.cpp:570
+#: ../src/Gui/Window.cpp:564
 msgctxt "Gui::MainWindow|"
 msgid "&One At a Time"
 msgstr "&Un à la fois"
 
-#: ../src/Gui/Window.cpp:575
+#: ../src/Gui/Window.cpp:569
 msgctxt "Gui::MainWindow|"
 msgid "Show Only S&ubscribed Folders"
 msgstr "Afficher uniquement les dossiers auquel vous &êtes abonné"
 
-#: ../src/Gui/Window.cpp:579
+#: ../src/Gui/Window.cpp:573
 msgctxt "Gui::MainWindow|"
 msgid "Su&bscribed"
 msgstr "A&bonné"
 
-#: ../src/Gui/Window.cpp:584
+#: ../src/Gui/Window.cpp:578
 msgctxt "Gui::MainWindow|"
 msgid "&About Trojitá..."
 msgstr "&À propos de Trojitá..."
 
-#: ../src/Gui/Window.cpp:587
+#: ../src/Gui/Window.cpp:581
 msgctxt "Gui::MainWindow|"
 msgid "&Donate to the project"
 msgstr "&Faire une donation pour le projet"
 
-#: ../src/Gui/Window.cpp:592
+#: ../src/Gui/Window.cpp:586
 msgctxt "Gui::MainWindow|"
 msgid "Compose Mail"
 msgstr "Rédiger un message"
 
-#: ../src/Gui/Window.cpp:692
+#: ../src/Gui/Window.cpp:686
 msgctxt "Gui::MainWindow|"
 msgid "&Application"
 msgstr "&Application"
 
-#: ../src/Gui/Window.cpp:694
+#: ../src/Gui/Window.cpp:688
 msgctxt "Gui::MainWindow|"
 msgid "&Network Access"
 msgstr "Accès au r&éseau"
 
-#: ../src/Gui/Window.cpp:698
+#: ../src/Gui/Window.cpp:692
 msgctxt "Gui::MainWindow|"
 msgid "&Debugging"
 msgstr "&Débogage"
 
-#: ../src/Gui/Window.cpp:718
+#: ../src/Gui/Window.cpp:712
 msgctxt "Gui::MainWindow|"
 msgid "&View"
 msgstr "&Affichage"
 
-#: ../src/Gui/Window.cpp:721
+#: ../src/Gui/Window.cpp:715
 msgctxt "Gui::MainWindow|"
 msgid "&Layout"
 msgstr "&Disposition"
 
-#: ../src/Gui/Window.cpp:728
+#: ../src/Gui/Window.cpp:722
 msgctxt "Gui::MainWindow|"
 msgid "Mail&box"
 msgstr "&Boîte aux lettres"
 
-#: ../src/Gui/Window.cpp:729
+#: ../src/Gui/Window.cpp:723
 msgctxt "Gui::MainWindow|"
 msgid "S&orting"
 msgstr "Tr&i"
 
-#: ../src/Gui/Window.cpp:751
+#: ../src/Gui/Window.cpp:745
 msgctxt "Gui::MainWindow|"
 msgid "&Message"
 msgstr "&Message"
 
-#: ../src/Gui/Window.cpp:830
+#: ../src/Gui/Window.cpp:824
 #, qt-format
 msgctxt "QObject|"
 msgid "Link target: %1"
 msgstr "Cible du lien : %1"
 
-#: ../src/Gui/Window.cpp:842
+#: ../src/Gui/Window.cpp:836
 msgctxt "Gui::MainWindow|"
 msgid "Everything"
 msgstr "Tout"
 
-#: ../src/Gui/Window.cpp:850
+#: ../src/Gui/Window.cpp:844
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Tasks"
 msgstr "Tâches IMAP"
 
-#: ../src/Gui/Window.cpp:857
+#: ../src/Gui/Window.cpp:851
 msgctxt "Gui::MainWindow|"
 msgid "MIME Tree"
 msgstr "Arbre MIME"
 
-#: ../src/Gui/Window.cpp:867
+#: ../src/Gui/Window.cpp:861
 msgctxt "Gui::MainWindow|"
 msgid "Protocol log"
 msgstr "Journal du protocole"
 
-#: ../src/Gui/Window.cpp:944
+#: ../src/Gui/Window.cpp:938
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Attempting to reconnect in %n seconds.."
@@ -3496,13 +3417,13 @@ msgid_plural "Attempting to reconnect in %n seconds.."
 msgstr[0] "Nouvel essai de connexion dans %n seconde..."
 msgstr[1] "Nouvel essai de connexion dans %n secondes..."
 
-#: ../src/Gui/Window.cpp:997
+#: ../src/Gui/Window.cpp:991
 msgctxt "Gui::MainWindow|"
 msgid "&Quit"
 msgstr "&Quitter"
 
 #. This is a tooltip for the tray icon. It will be prefixed by something like "Trojita" or "Trojita [work]"
-#: ../src/Gui/Window.cpp:1112
+#: ../src/Gui/Window.cpp:1106
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid " - %n unread message(s)"
@@ -3511,17 +3432,17 @@ msgstr[0] "- %n message non lu"
 msgstr[1] "- %n messages non lus"
 
 #. A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
-#: ../src/Gui/Window.cpp:1115
+#: ../src/Gui/Window.cpp:1109
 msgctxt "Gui::MainWindow|"
 msgid " - offline"
 msgstr "Déconnecté"
 
-#: ../src/Gui/Window.cpp:1124 ../src/Gui/Window.cpp:2566
+#: ../src/Gui/Window.cpp:1118 ../src/Gui/Window.cpp:2530
 msgctxt "Gui::MainWindow|"
 msgid "Trojitá"
 msgstr "Trojitá"
 
-#: ../src/Gui/Window.cpp:1125
+#: ../src/Gui/Window.cpp:1119
 msgctxt "Gui::MainWindow|"
 msgid ""
 "The application will continue in systray. This can be disabled within the "
@@ -3531,27 +3452,27 @@ msgstr ""
 "être désactivée dans les paramètres."
 
 #. "ALERT" is a special warning which we're required to show to the user
-#: ../src/Gui/Window.cpp:1338
+#: ../src/Gui/Window.cpp:1325
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Alert"
 msgstr "Alerte MAP"
 
-#: ../src/Gui/Window.cpp:1343
+#: ../src/Gui/Window.cpp:1330
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Protocol Error"
 msgstr "Erreur du Protocole IMAP"
 
-#: ../src/Gui/Window.cpp:1351
+#: ../src/Gui/Window.cpp:1338
 msgctxt "Gui::MainWindow|"
 msgid "Network Error"
 msgstr "Erreur de connexion"
 
-#: ../src/Gui/Window.cpp:1372
+#: ../src/Gui/Window.cpp:1359
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Cache Error"
 msgstr "Erreur de cache IMAP"
 
-#: ../src/Gui/Window.cpp:1373
+#: ../src/Gui/Window.cpp:1360
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3566,35 +3487,35 @@ msgstr ""
 "\n"
 "%1"
 
-#: ../src/Gui/Window.cpp:1384
+#: ../src/Gui/Window.cpp:1371
 msgctxt "Gui::MainWindow|"
 msgid "Offline"
 msgstr "Déconnecté"
 
-#: ../src/Gui/Window.cpp:1430
+#: ../src/Gui/Window.cpp:1417
 msgctxt "Gui::MainWindow|"
 msgid "No Configuration"
 msgstr "Pas de configuration"
 
-#: ../src/Gui/Window.cpp:1431
+#: ../src/Gui/Window.cpp:1418
 msgctxt "Gui::MainWindow|"
 msgid "No IMAP account is configured. Trojitá cannot do much without one."
 msgstr ""
 "Aucun compte IMAP n'est configuré. Il est impossible pour Trojitá d'en faire "
 "plus sans cela."
 
-#: ../src/Gui/Window.cpp:1456
+#: ../src/Gui/Window.cpp:1443
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Failed to retrieve password from the store: %1"
 msgstr "Impossible d'extraire le mot de passe de l'emplacement : %1"
 
-#: ../src/Gui/Window.cpp:1474
+#: ../src/Gui/Window.cpp:1461
 msgctxt "Gui::MainWindow|"
 msgid "Authentication Required"
 msgstr "Authentification requise"
 
-#: ../src/Gui/Window.cpp:1475
+#: ../src/Gui/Window.cpp:1462
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>"
@@ -3602,44 +3523,44 @@ msgstr ""
 "<p>Veuillez saisir un mot de passe IMAP pour l'utilisateur <b>%1</b> sur <b>"
 "%2</b> :</p>"
 
-#: ../src/Gui/Window.cpp:1529
+#: ../src/Gui/Window.cpp:1516
 msgctxt "Gui::MainWindow|"
 msgid "Edit draft"
 msgstr "Modifier un brouillon"
 
-#: ../src/Gui/Window.cpp:1650
+#: ../src/Gui/Window.cpp:1637
 msgctxt "Gui::MainWindow|"
 msgid "Failed to archive"
 msgstr "Impossible d'archiver"
 
-#: ../src/Gui/Window.cpp:1700
+#: ../src/Gui/Window.cpp:1687
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Create a Subfolder of %1"
 msgstr "Créer un sous-dossier de %1"
 
-#: ../src/Gui/Window.cpp:1701
+#: ../src/Gui/Window.cpp:1688
 msgctxt "Gui::MainWindow|"
 msgid "Create a Top-level Mailbox"
 msgstr "Créer une boîte aux lettres de premier niveau"
 
-#: ../src/Gui/Window.cpp:1728
+#: ../src/Gui/Window.cpp:1715
 msgctxt "Gui::MainWindow|"
 msgid "Delete Mailbox"
 msgstr "Supprimer une boîte aux lettres"
 
-#: ../src/Gui/Window.cpp:1729
+#: ../src/Gui/Window.cpp:1716
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Are you sure to delete mailbox %1?"
 msgstr "Voulez-vous vraiment supprimer la boîte aux lettres %1 ?"
 
-#: ../src/Gui/Window.cpp:2028
+#: ../src/Gui/Window.cpp:2015
 msgctxt "Gui::MainWindow|"
 msgid "Can't delete mailbox"
 msgstr "Impossible de supprimer une boîte aux lettres"
 
-#: ../src/Gui/Window.cpp:2029
+#: ../src/Gui/Window.cpp:2016
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3650,12 +3571,12 @@ msgstr ""
 "suivant :\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2034
+#: ../src/Gui/Window.cpp:2021
 msgctxt "Gui::MainWindow|"
 msgid "Can't create mailbox"
 msgstr "Impossible de créer une boîte aux lettres"
 
-#: ../src/Gui/Window.cpp:2035
+#: ../src/Gui/Window.cpp:2022
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3666,12 +3587,12 @@ msgstr ""
 "suivant :\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2040
+#: ../src/Gui/Window.cpp:2027
 msgctxt "Gui::MainWindow|"
 msgid "Can't open mailbox"
 msgstr "Impossible d'ouvrir la boîte aux lettres"
 
-#: ../src/Gui/Window.cpp:2041
+#: ../src/Gui/Window.cpp:2028
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3682,45 +3603,45 @@ msgstr ""
 "suivant :\n"
 "%2"
 
-#: ../src/Gui/Window.cpp:2090
+#: ../src/Gui/Window.cpp:2077
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Link target: %1"
 msgstr "Cible du lien : %1"
 
-#: ../src/Gui/Window.cpp:2105
+#: ../src/Gui/Window.cpp:2092
 msgctxt "Gui::MainWindow|"
 msgid "Plugins"
 msgstr "Plug-ins"
 
-#: ../src/Gui/Window.cpp:2112
+#: ../src/Gui/Window.cpp:2099
 msgctxt "Gui::MainWindow|"
 msgid "Encrypted and signed messages"
 msgstr "Message chiffré et signé"
 
-#: ../src/Gui/Window.cpp:2119
+#: ../src/Gui/Window.cpp:2106
 msgctxt "Gui::MainWindow|"
 msgid "IMAP compression"
 msgstr "Compression IMAP"
 
-#: ../src/Gui/Window.cpp:2130
+#: ../src/Gui/Window.cpp:2117
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: supported</li>"
 msgstr "<li>%1 : pris en charge</li>"
 
-#: ../src/Gui/Window.cpp:2131
+#: ../src/Gui/Window.cpp:2118
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: <strong>disabled</strong></li>"
 msgstr "<li>%1: <strong>désactivé</strong></li>"
 
-#: ../src/Gui/Window.cpp:2189
+#: ../src/Gui/Window.cpp:2176
 msgctxt "Gui::MainWindow|"
 msgid "Can't save into file"
 msgstr "Impossible d'enregistrer dans un fichier"
 
-#: ../src/Gui/Window.cpp:2190
+#: ../src/Gui/Window.cpp:2177
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3730,63 +3651,63 @@ msgstr ""
 "Impossible d'enregistrer dans un fichier. Erreur :\n"
 "%1"
 
-#: ../src/Gui/Window.cpp:2195
+#: ../src/Gui/Window.cpp:2182
 msgctxt "Gui::MainWindow|"
 msgid "Save Message"
 msgstr "Enregistrer un message"
 
 #. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
-#: ../src/Gui/Window.cpp:2209
+#: ../src/Gui/Window.cpp:2196
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Message source of UID %1 in %2"
 msgstr "Source de messages de l'UID %1 dans %2"
 
-#: ../src/Gui/Window.cpp:2222 ../src/Gui/Window.cpp:2241
+#: ../src/Gui/Window.cpp:2209 ../src/Gui/Window.cpp:2228
 msgctxt "Gui::MainWindow|"
 msgid "Close"
 msgstr "Fermer"
 
-#: ../src/Gui/Window.cpp:2224 ../src/Gui/Window.cpp:2243
+#: ../src/Gui/Window.cpp:2211 ../src/Gui/Window.cpp:2230
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+W"
 msgstr "Ctrl+W"
 
-#: ../src/Gui/Window.cpp:2486
+#: ../src/Gui/Window.cpp:2450
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1</li>\n"
 msgstr "<li>%1</li>\n"
 
-#: ../src/Gui/Window.cpp:2494
+#: ../src/Gui/Window.cpp:2458
 msgctxt "Gui::MainWindow|"
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: ../src/Gui/Window.cpp:2508
+#: ../src/Gui/Window.cpp:2472
 msgctxt "Gui::MainWindow|"
 msgid "<p>"
 msgstr "<p>"
 
-#: ../src/Gui/Window.cpp:2510
+#: ../src/Gui/Window.cpp:2474
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Server: %1 %2"
 msgstr "Serveur : %1 %2"
 
-#: ../src/Gui/Window.cpp:2512
+#: ../src/Gui/Window.cpp:2476
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Server: %1"
 msgstr "Serveur : %1"
 
-#: ../src/Gui/Window.cpp:2515
+#: ../src/Gui/Window.cpp:2479
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid " (%1)"
 msgstr " (%1)"
 
-#: ../src/Gui/Window.cpp:2519
+#: ../src/Gui/Window.cpp:2483
 #, qt-format
 msgctxt ""
 "Gui::MainWindow|%1 is the operating system of an IMAP server and %2 is its "
@@ -3794,37 +3715,37 @@ msgctxt ""
 msgid " on %1 %2"
 msgstr " sur %1 %2"
 
-#: ../src/Gui/Window.cpp:2521
+#: ../src/Gui/Window.cpp:2485
 #, qt-format
 msgctxt "Gui::MainWindow|%1 is the operationg system of an IMAP server."
 msgid " on %1"
 msgstr " sur %1"
 
-#: ../src/Gui/Window.cpp:2523
+#: ../src/Gui/Window.cpp:2487
 msgctxt "Gui::MainWindow|"
 msgid "</p>"
 msgstr "</p>"
 
-#: ../src/Gui/Window.cpp:2525
+#: ../src/Gui/Window.cpp:2489
 msgctxt "Gui::MainWindow|"
 msgid "<p>The IMAP server did not return usable information about itself.</p>"
 msgstr ""
 "<p>Le serveur IMAP n'a pas retourné d'informations utilisables à son propos."
 "</p>"
 
-#: ../src/Gui/Window.cpp:2529
+#: ../src/Gui/Window.cpp:2493
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: %2</li>"
 msgstr "<li>%1 : %2</li>"
 
-#: ../src/Gui/Window.cpp:2531
+#: ../src/Gui/Window.cpp:2495
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<ul>%1</ul>"
 msgstr "<ul>%1</ul>"
 
-#: ../src/Gui/Window.cpp:2533
+#: ../src/Gui/Window.cpp:2497
 msgctxt "Gui::MainWindow|"
 msgid ""
 "<p>The server has not provided information about its software version.</p>"
@@ -3832,7 +3753,7 @@ msgstr ""
 "<p>Le serveur n'a pas fourni d'informations à propos de sa version de "
 "logiciel.</p>"
 
-#: ../src/Gui/Window.cpp:2540
+#: ../src/Gui/Window.cpp:2504
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3840,7 +3761,7 @@ msgid ""
 "<p>The following capabilities are currently advertised:</p>"
 msgstr "%1<p>Les capacités suivantes sont actuellement annoncées :</p>"
 
-#: ../src/Gui/Window.cpp:2542
+#: ../src/Gui/Window.cpp:2506
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid ""
@@ -3850,7 +3771,7 @@ msgstr ""
 "<ul>\n"
 "%1</ul>"
 
-#: ../src/Gui/Window.cpp:2560
+#: ../src/Gui/Window.cpp:2524
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "%1 - %n unread - Trojitá"
@@ -3858,13 +3779,13 @@ msgid_plural "%1 - %n unread - Trojitá"
 msgstr[0] "%1 — %n non lu — Trojitá"
 msgstr[1] "%1 — %n non lus — Trojitá"
 
-#: ../src/Gui/Window.cpp:2563
+#: ../src/Gui/Window.cpp:2527
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "%1 - Trojitá"
 msgstr "%1 — Trojitá"
 
-#: ../src/Gui/Window.cpp:2900
+#: ../src/Gui/Window.cpp:2864
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Tag with \"%1\""
@@ -4198,19 +4119,19 @@ msgid_plural "Attempting to reconnect in %n secs"
 msgstr[0] "Nouvel essai de connexion dans %n seconde"
 msgstr[1] "Nouvel essai de connexion dans %n secondes"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:82
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:77
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%1 (%2/%3)"
 msgstr "%1 (%2/%3)"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:86
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:81
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%1 (%2)"
 msgstr "%1 (%2)"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:129
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:119
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n messages"
@@ -4218,7 +4139,7 @@ msgid_plural "%n messages"
 msgstr[0] "%n message"
 msgstr[1] "%n messages"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:130
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:120
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n unread"
@@ -4226,7 +4147,7 @@ msgid_plural "%n unread"
 msgstr[0] "%n non lu"
 msgstr[1] "%n non lus"
 
-#: ../src/Imap/Model/PrettyMailboxModel.cpp:131
+#: ../src/Imap/Model/PrettyMailboxModel.cpp:121
 #, qt-format
 msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n recent"
@@ -5915,10 +5836,75 @@ msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot save password via plugin %1"
 msgstr "Impossible d'enregistrer le mot de passe par le plug-in %1"
 
-#: ../src/XtConnect/XtConnect.cpp:99
-msgctxt "XtConnect::XtConnect|"
-msgid "Database Password: "
-msgstr "Mot de passe de la base de données :"
+#~ msgctxt "Gui::SettingsDialog|"
+#~ msgid "&xTuple"
+#~ msgstr "&xTuple"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Cache Directory"
+#~ msgstr "Dossier de cache"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Mailboxes to synchronize"
+#~ msgstr "Boîtes aux lettres à synchroniser"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid ""
+#~ "Please use context menu inside the main application to select mailboxes "
+#~ "to synchronize"
+#~ msgstr ""
+#~ "Veuillez utiliser le menu contextuel au sein de la principale application "
+#~ "pour sélectionner les boîtes aux lettres à synchroniser"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Hostname"
+#~ msgstr "Nom d'hôte de la BD"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Port"
+#~ msgstr "Port de la DB"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Name"
+#~ msgstr "Nom de la BD"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "DB Username"
+#~ msgstr "Nom d'utilisateur de la BD"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid ""
+#~ "Please fill in all IMAP options, including the password, at the IMAP "
+#~ "page. If you do not save the password, background synchronization will "
+#~ "not run."
+#~ msgstr ""
+#~ "Veuillez remplir toutes les options IMAP, y compris le mot de passe sur "
+#~ "la page IMAP. Si vous n'enregistrez pas le mot de passe, la "
+#~ "synchronisation en arrière-plan ne s'exécutera pas."
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Debugging"
+#~ msgstr "Débogage"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Run xTuple Synchronization"
+#~ msgstr "Exécuter la synchronisation xTuple"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Database Connection"
+#~ msgstr "Connexion à la base de données"
+
+#~ msgctxt "Gui::XtConnectPage|"
+#~ msgid "Password"
+#~ msgstr "Mot de passe"
+
+#~ msgctxt "Gui::MainWindow|"
+#~ msgid "&Synchronize with xTuple"
+#~ msgstr "&Synchroniser avec xTuple"
+
+#~ msgctxt "XtConnect::XtConnect|"
+#~ msgid "Database Password: "
+#~ msgstr "Mot de passe de la base de données :"
 
 #~ msgctxt "QObject|"
 #~ msgid "Error: Profile was not specified"
