@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: kdeorg\n"
-"PO-Revision-Date: 2023-03-27 11:59\n"
+"PO-Revision-Date: 2023-04-10 14:10\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -5430,19 +5430,3 @@ msgstr ""
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot save password via plugin %1"
 msgstr ""
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Debugging"
-#~ msgstr "调试"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Database Connection"
-#~ msgstr "数据库连接"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Password"
-#~ msgstr "密码"
-
-#~ msgctxt "XtConnect::XtConnect|"
-#~ msgid "Database Password: "
-#~ msgstr "数据库密码: "
