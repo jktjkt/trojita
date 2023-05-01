@@ -1,13 +1,13 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-#
 # Marce Villarino <mvillarino@kde-espana.es>, 2012, 2013.
 # Adrián Chaves Fernández <adriyetichaves@gmail.com>, 2013, 2015, 2016, 2017.
-# Adrián Chaves (Gallaecio) <adrian@chaves.io>, 2017, 2018, 2019.
+# Adrián Chaves (Gallaecio) <adrian@chaves.io>, 2017, 2018, 2019, 2023.
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2019-10-08 14:02+0200\n"
+"PO-Revision-Date: 2023-04-30 15:42+0200\n"
 "Last-Translator: Adrián Chaves (Gallaecio) <adrian@chaves.io>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 19.07.70\n"
+"X-Generator: Lokalize 23.04.0\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -567,7 +567,7 @@ msgstr "Mensaxe cifrada corrompida"
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Expected 2 parts for an encrypted OpenPGP message, but found %1."
 msgstr ""
-"Experábanse 2 partes para unha mensaxe OpenPGP cifrada, pero atopáronse %1."
+"Esperábanse 2 partes para unha mensaxe OpenPGP cifrada, pero atopáronse %1."
 
 #: ../src/Cryptography/GpgMe++.cpp:766
 msgctxt "Cryptography::GpgMeEncrypted|"
@@ -583,7 +583,7 @@ msgstr "Non se puido inicializar GpgME (%1)"
 #: ../src/Cryptography/GpgMe++.cpp:787 ../src/Cryptography/GpgMe++.cpp:923
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted message is gone"
-msgstr "A mensaxe sifrada desapareceu."
+msgstr "A mensaxe cifrada desapareceu."
 
 #: ../src/Cryptography/GpgMe++.cpp:797
 msgctxt "Cryptography::GpgMeEncrypted|"
@@ -987,7 +987,7 @@ msgstr "Enviar de novo copia"
 #: ../src/Gui/ComposeWidget.cpp:1103
 msgctxt "Gui::ComposeWidget|"
 msgid "Resent-Bcc"
-msgstr "Enciar de novo copia agochada"
+msgstr "Enviar de novo copia agochada"
 
 #: ../src/Gui/ComposeWidget.cpp:1387
 msgctxt "Gui::ComposeWidget|"
@@ -1279,70 +1279,65 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 #: ../src/Gui/main.cpp:84
-#, fuzzy, qt-format
-#| msgctxt "AboutDialog|"
-#| msgid "<p>This is <b>Trojitá</b>, a fast Qt IMAP e-mail client</p>"
+#, qt-format
 msgctxt "QObject|"
 msgid "Trojitá %1 - fast Qt IMAP e-mail client"
 msgstr ""
-"<p>Isto é <b>Trojitá</b>, un cliente rápido de correo electrónico mediante "
-"IMAP programado usando Qt.</p>"
+"Trojitá %1, un rápido cliente de correo electrónico por IMAP feito con Qt"
 
 #: ../src/Gui/main.cpp:89
 msgctxt "QObject|"
 msgid "Show addressbook window."
-msgstr ""
+msgstr "Mostrar a xanela do caderno de enderezos."
 
 #: ../src/Gui/main.cpp:93
 msgctxt "QObject|"
 msgid "Compose new e-mail (default when url is provided)."
-msgstr ""
+msgstr "Escribir unha nova mensaxe (predeterminado ao fornecer un URL)."
 
 #: ../src/Gui/main.cpp:97
 msgctxt "QObject|"
 msgid "Activate debug traffic logging to disk by default."
 msgstr ""
+"Activar o rexistro de depuración de tráfico no disco de maneira "
+"predeterminada."
 
 #: ../src/Gui/main.cpp:101
 msgctxt "QObject|"
 msgid "Show main window (default when no option is provided)."
 msgstr ""
+"Mostrar a xanela principal (predeterminado cando non se fornecen opcións)."
 
 #: ../src/Gui/main.cpp:105
 msgctxt "QObject|"
 msgid "Set profile."
-msgstr ""
+msgstr "Definir o perfil."
 
 #: ../src/Gui/main.cpp:105
 msgctxt "QObject|"
 msgid "profile"
-msgstr ""
+msgstr "perfil"
 
 #: ../src/Gui/main.cpp:108
 msgctxt "QObject|"
 msgid "Mailto: URL address for composing new e-mail."
-msgstr ""
+msgstr "Enderezo de URL mailto: para escribir unha nova mensaxe."
 
 #: ../src/Gui/main.cpp:109
 msgctxt "QObject|"
 msgid "[url]"
-msgstr ""
+msgstr "[url]"
 
 #: ../src/Gui/main.cpp:132
-#, fuzzy, qt-format
-#| msgctxt "QObject|"
-#| msgid "Warning: Unexpected argument '%1'"
+#, qt-format
 msgctxt "QObject|"
 msgid "Unexpected argument '%1'."
-msgstr "Aviso: «%1» é un argumento inesperado."
+msgstr "«%1» é un argumento inesperado."
 
 #: ../src/Gui/main.cpp:137
-#, fuzzy
-#| msgctxt "QObject|"
-#| msgid "Warning: Unexpected argument '%1'"
 msgctxt "QObject|"
 msgid "Unexpected arguments."
-msgstr "Aviso: «%1» é un argumento inesperado."
+msgstr "Argumentos inesperados."
 
 #: ../src/Gui/main.cpp:180
 #, qt-format
@@ -1538,6 +1533,9 @@ msgid ""
 "> ...\n"
 "\n"
 msgstr ""
+"O %1, %2 enviou unha mensaxe cifrada:\n"
+"> …\n"
+"\n"
 
 #: ../src/Gui/MessageView.cpp:377
 #, qt-format
@@ -1652,12 +1650,9 @@ msgid "Hide Details"
 msgstr "Agochar os detalles"
 
 #: ../src/Gui/PartWidget.cpp:386
-#, fuzzy
-#| msgctxt "Cryptography::GpgMeEncrypted|"
-#| msgid "Encrypted message"
 msgctxt "Gui::MultipartSignedEncryptedWidget|"
 msgid "[Encrypted message]"
-msgstr "Mensaxe cifrada"
+msgstr "[Mensaxe cifrada]"
 
 #: ../src/Gui/PasswordDialog.ui:14
 msgctxt "PasswordDialog|"
@@ -1756,9 +1751,9 @@ msgid ""
 "This might result in extremely slow operation in certain scenarios with "
 "shared mailboxes, rich folder hierarchies, or IMAP proxying, for example."
 msgstr ""
-"Isto podería reducir significativamente a velocidade da operación en certos "
-"casos con caixas de correo compartidas, xerarquías de cartafoles complexas "
-"ou proxy de IMAP, por exemplo."
+"Isto podería reducir de maneira significativa a velocidade da operación en "
+"certos casos con caixas de correo compartidas, xerarquías de cartafoles "
+"complexas ou proxy de IMAP, por exemplo."
 
 #: ../src/Gui/SettingsCachePage.ui:125
 msgctxt "CachePage|"
@@ -4817,6 +4812,7 @@ msgstr ""
 "O valor de UIDVALIDITY cambiou mentres a caixa de correo estaba aberta. "
 "Conéctese de novo."
 
+# well-spelled: UNSELECT
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:948
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "UNSELECTed"
@@ -4984,7 +4980,7 @@ msgid ""
 "data; either way, access is no longer permitted using that passphrase.  You "
 "should get a new passphrase."
 msgstr ""
-"Ou se completou a autenticación ou o servidor za non ten os datos "
+"Ou se completou a autenticación ou o servidor xa non ten os datos "
 "necesarios. En calquera caso, non se permite seguir accedendo con esa frase "
 "de paso. Debería conseguir unha nova frase de paso."
 
@@ -5233,6 +5229,8 @@ msgid ""
 "<p>Cannot send message due to an SSL/TLS error</p>\n"
 "%1"
 msgstr ""
+"<p>Non se pode enviar a mensaxe por un erro de SSL/TLS</p>\n"
+"%1"
 
 #: ../src/MSA/SMTP.cpp:139
 msgctxt "MSA::SMTP|"
@@ -5473,7 +5471,7 @@ msgstr "Comezando o proceso «%1 %2»…"
 #, qt-format
 msgctxt "Streams::ProcessSocket|"
 msgid "The process has exited with return code %1."
-msgstr "O proceso saiu co código de saída %1."
+msgstr "O proceso saíu co código de saída %1."
 
 #: ../src/Streams/IODeviceSocket.cpp:205
 #, qt-format
@@ -5483,7 +5481,7 @@ msgid ""
 "\n"
 "%2"
 msgstr ""
-"O proceso saiu co código de saída %1:\n"
+"O proceso saíu co código de saída %1:\n"
 "\n"
 "%2"
 
@@ -5541,7 +5539,7 @@ msgstr "Negociando o cifrado…"
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid "Socket is disconnected: %1"
-msgstr "O sócket está desconectado: %1"
+msgstr "O socket está desconectado: %1"
 
 #: ../src/Streams/IODeviceSocket.cpp:328 ../src/Streams/IODeviceSocket.cpp:380
 #, qt-format
@@ -5549,7 +5547,7 @@ msgctxt "Streams::SslTlsSocket|"
 msgid ""
 "The underlying socket is having troubles when processing connection to %1:"
 "%2: %3"
-msgstr "O sócket está a ter problemas para procesar a conexión con %1:%2: %3"
+msgstr "O socket está a ter problemas para procesar a conexión con %1:%2: %3"
 
 #: ../src/UiUtils/Formatting.cpp:40
 msgctxt "UiUtils::Formatting|"
@@ -5684,8 +5682,8 @@ msgid ""
 "<p>Would you like to connect and remember the new certificate?</p>"
 msgstr ""
 "<p>A chave pública do certificado de SSL cambiou. Isto só debería ocorrer a "
-"raíz dun incindente de seguranza no servidor remoto. O seu sistema está "
-"configurado para acceptar estes certificados de todos xeitos.</p>\n"
+"raíz dun incidente de seguranza no servidor remoto. O seu sistema está "
+"configurado para aceptar estes certificados de todos xeitos.</p>\n"
 "%1\n"
 "<p>Quere conectarse e lembrar o novo certificado?</p>"
 
@@ -5797,7 +5795,7 @@ msgstr "A escritura do contrasinal fallou: %1"
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Saving password from plugin %1..."
-msgstr "Gargando o contrasinal do complemento %1…"
+msgstr "Gardando o contrasinal do complemento %1…"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:172
 #, qt-format
