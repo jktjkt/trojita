@@ -354,7 +354,7 @@
       <li xml:lang="et">IMAP üle SSH - SSL-sokli tarvitamise asemel on serverisse võimalik pääseda ka SSH kaudu</li>
       <li xml:lang="fi">IMAP SSH:n yli – SSL-pistokkeen käytön sijaan palvelimeen voidaan ottaa yhteys SSH:n avulla</li>
       <li xml:lang="fr">IMAP sur SSH -- au lieu de passer par des socket SSL, SSH peut être utilisé pour accéder au serveur</li>
-      <li xml:lang="gl">Pode acceder ao servidor mediante SSH en vez de empregar un sócket SSL.</li>
+      <li xml:lang="gl">Pode acceder ao servidor mediante SSH en vez de empregar un socket SSL.</li>
       <li xml:lang="hu">IMAP SSH-n át -- SSL foglalat használata helyett a kiszolgáló SSH-n keresztül is elérhető</li>
       <li xml:lang="id">IMAP melalui SSH -- alih-alih menggunakan soket SSL, server dapat diakses melalui SSH</li>
       <li xml:lang="it">IMAP su SSH -- anziché lavorare su un socket SSL, al server si può accedere tramite SSH</li>
