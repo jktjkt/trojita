@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-03-24 16:53+0300\n"
+"PO-Revision-Date: 2023-05-15 22:26+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 22.12.3\n"
+"X-Generator: Lokalize 23.03.70\n"
 "X-Qt-Contexts: true\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
@@ -995,7 +995,7 @@ msgstr "\"%1\" bir e-posta adresi olarak işlenemedi."
 #: ../src/Gui/ComposeWidget.cpp:1613
 msgctxt "Gui::ComposeWidget|"
 msgid "Attach File..."
-msgstr "Dosya ekle..."
+msgstr "Dosya İliştir..."
 
 #: ../src/Gui/ComposeWidget.cpp:1795
 msgctxt "Gui::ComposeWidget|"
@@ -5369,7 +5369,7 @@ msgstr "Trojitá ayarları"
 #: ../src/Plugins/QtKeyChain/QtKeyChainPassword.cpp:127
 msgctxt "trojita_plugin_QtKeyChainPasswordPlugin|"
 msgid "Secure storage via QtKeychain"
-msgstr "QtKeychain ile güvenli saklama"
+msgstr "QtKeychain ile güvenli depolama"
 
 #: ../src/Plugins/SonnetSpellchecker/SonnetSpellchecker.cpp:46
 msgctxt "Plugins::trojita_plugin_SonnetSpellcheckerPlugin|"
