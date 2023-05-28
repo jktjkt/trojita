@@ -1,6 +1,9 @@
+# Fumiaki Okushi <fumiaki.okushi@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: trojita_common\n"
+"PO-Revision-Date: 2023-05-27 00:46-0700\n"
+"Last-Translator: Fumiaki Okushi <fumiaki.okushi@gmail.com>\n"
 "Language-Team: Japanese <kde-jp@kde.org>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -1491,6 +1494,7 @@ msgctxt "Gui::MsgListView|"
 msgid "+ %n additional item(s)"
 msgid_plural "+ %n additional item(s)"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Gui/MsgListView.cpp:336
 msgctxt "Gui::MsgListView|"
