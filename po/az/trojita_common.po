@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-02-17 01:07+0400\n"
+"PO-Revision-Date: 2023-05-29 19:04+0400\n"
 "Last-Translator: Kheyyam <xxmn77@gmail.com>\n"
 "Language-Team: Azerbaijani <kde-i18n-doc@kde.org>\n"
 "Language: az\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Lokalize 22.12.2\n"
+"X-Generator: Lokalize 23.04.1\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -4870,9 +4870,9 @@ msgid ""
 "previously, someone is after your data and they are pretty smart."
 msgstr ""
 "Tənzimləmə STARTTLS göndərişi tələb edir, lakin İMAP bizi PREAUTH ilə "
-"qarşılayır. Şifrələmə qurula bilmzə. Əgər bu məlumatlarınız əvvəllər "
+"qarşılayır. Şifrələmə qurula bilmzə. Əgər bu tənzimləmələr əvvəllər "
 "işləyibsə bu o deməkdir ki, kimsə sizin məlumatlarınızı əldə etməyə çalışır "
-"və o, bu işdəəməlli-başlı bacarıqlıdır."
+"və o, bu işdə əməlli-başlı bacarıqlıdır."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:195
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
