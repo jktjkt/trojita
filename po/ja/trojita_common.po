@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "X-Accelerator-Marker: &\n"
 "X-Text-Markup: kde4\n"
 
@@ -1494,7 +1494,6 @@ msgctxt "Gui::MsgListView|"
 msgid "+ %n additional item(s)"
 msgid_plural "+ %n additional item(s)"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Gui/MsgListView.cpp:336
 msgctxt "Gui::MsgListView|"
@@ -1620,7 +1619,6 @@ msgid_plural ""
 "<p style=\"color: #bb0000\"><i><b>%n message(s)</b> were skipped because "
 "this widget was hidden.</i></p>"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Gui/ProtocolLoggerWidget.cpp:211
 #, qt-format
@@ -1632,7 +1630,6 @@ msgid_plural ""
 "<br/><span style=\"color: #808080; font-style: italic;\">(+ %n more bytes)</"
 "span>"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Gui/SettingsCachePage.ui:30
 msgctxt "CachePage|"
@@ -2599,7 +2596,6 @@ msgctxt "Gui::TaskProgressIndicator|"
 msgid "%n ongoing actions"
 msgid_plural "%n ongoing actions"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Gui/TaskProgressIndicator.cpp:86
 msgctxt "Gui::TaskProgressIndicator|"
@@ -3167,7 +3163,6 @@ msgctxt "Gui::MainWindow|"
 msgid "Attempting to reconnect in %n seconds.."
 msgid_plural "Attempting to reconnect in %n seconds.."
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Gui/Window.cpp:991
 msgctxt "Gui::MainWindow|"
@@ -3181,7 +3176,6 @@ msgctxt "Gui::MainWindow|"
 msgid " - %n unread message(s)"
 msgid_plural " - %n unread message(s)"
 msgstr[0] ""
-msgstr[1] ""
 
 #. A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
 #: ../src/Gui/Window.cpp:1109
@@ -3501,7 +3495,6 @@ msgctxt "Gui::MainWindow|"
 msgid "%1 - %n unread - Trojitá"
 msgid_plural "%1 - %n unread - Trojitá"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Gui/Window.cpp:2527
 #, qt-format
@@ -3816,7 +3809,6 @@ msgctxt "Imap::Mailbox::NetworkWatcher|"
 msgid "Attempting to reconnect in %n secs"
 msgid_plural "Attempting to reconnect in %n secs"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Imap/Model/PrettyMailboxModel.cpp:77
 #, qt-format
@@ -3836,7 +3828,6 @@ msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n messages"
 msgid_plural "%n messages"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Imap/Model/PrettyMailboxModel.cpp:120
 #, qt-format
@@ -3844,7 +3835,6 @@ msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n unread"
 msgid_plural "%n unread"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Imap/Model/PrettyMailboxModel.cpp:121
 #, qt-format
@@ -3852,7 +3842,6 @@ msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n recent"
 msgid_plural "%n recent"
 msgstr[0] ""
-msgstr[1] ""
 
 #: ../src/Imap/Model/PrettyMsgListModel.cpp:108
 msgctxt "Imap::Mailbox::PrettyMsgListModel|"
