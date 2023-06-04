@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-05-29 12:57+0300\n"
+"PO-Revision-Date: 2023-06-04 02:06+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 23.04.1\n"
+"X-Generator: Lokalize 23.07.70\n"
 "X-Qt-Contexts: true\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
@@ -1104,7 +1104,7 @@ msgstr "İmza"
 #: ../src/Gui/EmbeddedWebView.cpp:101
 msgctxt "Gui::EmbeddedWebView|"
 msgid "Ctrl+C"
-msgstr "Ctrl+C"
+msgstr "Kontrol+C"
 
 #: ../src/Gui/EmbeddedWebView.cpp:362
 msgctxt "Gui::EmbeddedWebView|"
@@ -1236,7 +1236,7 @@ msgstr "&Önceki"
 #: ../src/Gui/FindBar.cpp:86
 msgctxt "Gui::FindBar|"
 msgid "Shift+F3"
-msgstr "Shift+F3"
+msgstr "Üst Karakter+F3"
 
 #: ../src/Gui/ImapInfoDialog.ui:14
 msgctxt "ImapInfoDialog|"
@@ -1257,12 +1257,12 @@ msgstr "%1 (%2) Yükle"
 #: ../src/Gui/MailBoxTreeView.cpp:143
 msgctxt "Gui::MailBoxTreeView|"
 msgid "Move here\tShift"
-msgstr "Buraya Taşı\tÜstKarakter"
+msgstr "Buraya Taşı\tÜst Karakter"
 
 #: ../src/Gui/MailBoxTreeView.cpp:144
 msgctxt "Gui::MailBoxTreeView|"
 msgid "Copy here\tCtrl"
-msgstr "Buraya Kopyala\tCtrl"
+msgstr "Buraya Kopyala\tKontrol"
 
 #: ../src/Gui/MailBoxTreeView.cpp:145
 msgctxt "Gui::MailBoxTreeView|"
@@ -1347,7 +1347,7 @@ msgstr "Ara..."
 #: ../src/Gui/MessageHeadersWidget.cpp:56
 msgctxt "Gui::MessageHeadersWidget|"
 msgid "Ctrl+F"
-msgstr "Ctrl+F"
+msgstr "Kontrol+F"
 
 #: ../src/Gui/MessageListWidget.cpp:50
 msgctxt "Gui::MessageListWidget|"
@@ -1474,7 +1474,7 @@ msgstr "Ara..."
 #: ../src/Gui/MessageSourceWidget.cpp:59
 msgctxt "Gui::MessageSourceWidget|"
 msgid "Ctrl+F"
-msgstr "Ctrl+F"
+msgstr "Kontrol+F"
 
 #: ../src/Gui/MessageView.cpp:90
 msgctxt "Gui::MessageView|"
@@ -1484,7 +1484,7 @@ msgstr "Ara..."
 #: ../src/Gui/MessageView.cpp:91
 msgctxt "Gui::MessageView|"
 msgid "Ctrl+F"
-msgstr "Ctrl+F"
+msgstr "Kontrol+F"
 
 #: ../src/Gui/MessageView.cpp:142
 msgctxt "Gui::MessageView|"
@@ -1751,7 +1751,7 @@ msgid ""
 "view."
 msgstr ""
 "Abone olarak işaretlenmiş e-posta klasörleri iletilere dahil edilecek. Bir "
-"posta kutusunu abone yapmak için, posta kutusu görünümündeki içerik menüsünü "
+"posta kutusunu abone yapmak için, posta kutusu görünümündeki bağlam menüsünü "
 "kullanın."
 
 #: ../src/Gui/SettingsCachePage.ui:135
@@ -2596,12 +2596,12 @@ msgstr "Trojitá"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:177
 msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
 msgid "Ctrl+"
-msgstr "Ctrl+"
+msgstr "Kontrol+"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:179
 msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
 msgid "Alt+"
-msgstr "Alt+"
+msgstr "Seçenek+"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:181
 msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
@@ -2632,7 +2632,7 @@ msgstr "Kısayolları Yapılandır"
 msgctxt "ShortcutConfigWidget|"
 msgid "Select an action and press a key combination to change its shortcut:"
 msgstr ""
-"Bir eylem seçin ve kısayolu değiştirmek için bir tuş birleşimine basın:"
+"Bir eylem seçin ve kısayolu değiştirmek için bir düğme birleşimine basın:"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:27
 msgctxt "ShortcutConfigWidget|"
@@ -2644,8 +2644,9 @@ msgid ""
 msgstr ""
 "<p>Bir eylem seçin (Fare veya ok tuşları ile). Seçilen kısayol yeni kısayola "
 "bastıktan sonra değişecektir.</p><p>Dikkat edin bazıları için kısayollar "
-"kullanılamaz: \"Yukarı\", \"Aşağı\", \"Sol\", \"Sağ\", \"Page Up\", \"Page "
-"Down\", \"Sekme\", \"ÜstKarakter+Sekme\", \"Enter\" ve \"Escape\".</p>"
+"kullanılamaz: \"Yukarı\", \"Aşağı\", \"Sol\", \"Sağ\", \"Sayfa Yukarı\", "
+"\"Sayfa Aşağı\", \"Sekme\", \"Üst Karakter+Sekme\", \"Giriş\" ve \"Vazgeç\"."
+"</p>"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:31
 msgctxt "ShortcutConfigWidget|"
@@ -2664,8 +2665,8 @@ msgid ""
 "<p>Search interactively for shortcut names (e.g. Copy) or combination of "
 "keys (e.g. Ctrl+C) by typing them.</p>"
 msgstr ""
-"<p>Kısayol adlarını etkileşimli olarak (örn. Kopyala) veya tuş birleşimini "
-"(örn. Ctrl+C) tuşlayarak arayın.</p>"
+"<p>Kısayol adlarını etkileşimli olarak (örn. Kopyala) veya düğme birleşimini "
+"(örn. Ctrl+C) kullanarak arayın.</p>"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:49
 msgctxt "ShortcutConfigWidget|Label of search field"
@@ -2853,7 +2854,7 @@ msgstr "Ana Menü Çubuğunu &Göster"
 #: ../src/Gui/Window.cpp:237
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+M"
-msgstr "Ctrl+M"
+msgstr "Kontrol+M"
 
 #: ../src/Gui/Window.cpp:238
 msgctxt "Gui::MainWindow|"
@@ -2863,7 +2864,7 @@ msgstr "&Çıkar"
 #: ../src/Gui/Window.cpp:238
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+E"
-msgstr "Ctrl+E"
+msgstr "Kontrol+E"
 
 #: ../src/Gui/Window.cpp:239
 msgctxt "Gui::MainWindow|"
@@ -2918,7 +2919,7 @@ msgstr "İleti Başlıklarını &Göster..."
 #: ../src/Gui/Window.cpp:248
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+U"
-msgstr "Ctrl+U"
+msgstr "Kontrol+U"
 
 #: ../src/Gui/Window.cpp:249
 msgctxt "Gui::MainWindow|"
@@ -2928,7 +2929,7 @@ msgstr "&Özel Yanıt"
 #: ../src/Gui/Window.cpp:249
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+Shift+A"
-msgstr "Ctrl+ÜstKarakter+A"
+msgstr "Kontrol+Üst Karakter+A"
 
 #: ../src/Gui/Window.cpp:250
 msgctxt "Gui::MainWindow|"
@@ -2938,7 +2939,7 @@ msgstr "&Ben hariç tümünü yanıtla"
 #: ../src/Gui/Window.cpp:250
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+Shift+R"
-msgstr "Ctrl+ÜstKarakter+R"
+msgstr "Kontrol+Üst Karakter+R"
 
 #: ../src/Gui/Window.cpp:251
 msgctxt "Gui::MainWindow|"
@@ -2948,7 +2949,7 @@ msgstr "&Tümünü Yanıtla"
 #: ../src/Gui/Window.cpp:251
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+Alt+Shift+R"
-msgstr "Ctrl+Alt+ÜstKarakter+R"
+msgstr "Kontrol+Seçenek+Üst Karakter+R"
 
 #: ../src/Gui/Window.cpp:252
 msgctxt "Gui::MainWindow|"
@@ -2958,7 +2959,7 @@ msgstr "&Posta Listesine Yanıtla"
 #: ../src/Gui/Window.cpp:252
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+L"
-msgstr "Ctrl+L"
+msgstr "Kontrol+L"
 
 #: ../src/Gui/Window.cpp:253
 msgctxt "Gui::MainWindow|"
@@ -2968,7 +2969,7 @@ msgstr "&Alıcıyı Tahmin Ederek Yanıtla"
 #: ../src/Gui/Window.cpp:253
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+R"
-msgstr "Ctrl+R"
+msgstr "Kontrol+R"
 
 #: ../src/Gui/Window.cpp:254
 msgctxt "Gui::MainWindow|"
@@ -2978,7 +2979,7 @@ msgstr "&Yönlendir"
 #: ../src/Gui/Window.cpp:254
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+Shift+F"
-msgstr "Ctrl+Shift+F"
+msgstr "Kontrol+Üst Karakter+F"
 
 #: ../src/Gui/Window.cpp:255
 msgctxt "Gui::MainWindow|"
@@ -3621,7 +3622,7 @@ msgstr "Kapat"
 #: ../src/Gui/Window.cpp:2211 ../src/Gui/Window.cpp:2230
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+W"
-msgstr "Ctrl+W"
+msgstr "Kontrol+W"
 
 #: ../src/Gui/Window.cpp:2450
 #, qt-format
