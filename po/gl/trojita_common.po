@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-04-30 15:42+0200\n"
+"PO-Revision-Date: 2023-06-05 15:27+0200\n"
 "Last-Translator: Adrián Chaves (Gallaecio) <adrian@chaves.io>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 23.04.0\n"
+"X-Generator: Lokalize 23.04.1\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -5683,7 +5683,7 @@ msgid ""
 msgstr ""
 "<p>A chave pública do certificado de SSL cambiou. Isto só debería ocorrer a "
 "raíz dun incidente de seguranza no servidor remoto. O seu sistema está "
-"configurado para aceptar estes certificados de todos xeitos.</p>\n"
+"configurado para aceptar estes certificados aínda así.</p>\n"
 "%1\n"
 "<p>Quere conectarse e lembrar o novo certificado?</p>"
 
@@ -5707,7 +5707,7 @@ msgstr ""
 "última vez, e o sistema non cree que o novo certificado sexa real.</p>\n"
 "%1\n"
 "%2\n"
-"<p>Quere conectarse de todos xeitos e lembrar o novo certificado?</p>"
+"<p>Quere conectarse aínda así e lembrar o novo certificado?</p>"
 
 #: ../src/UiUtils/Formatting.cpp:193 ../src/UiUtils/Formatting.cpp:200
 msgctxt "UiUtils::Formatting|"
