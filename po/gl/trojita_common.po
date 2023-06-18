@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-06-05 15:27+0200\n"
+"PO-Revision-Date: 2023-06-17 16:04+0200\n"
 "Last-Translator: Adrián Chaves (Gallaecio) <adrian@chaves.io>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 23.04.1\n"
+"X-Generator: Lokalize 23.04.2\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -819,7 +819,7 @@ msgid ""
 msgstr ""
 "Trojitá non puido determinar con certeza o enderezo de correo electrónico do "
 "autor da mensaxe. Pode que queira empregar a función de «Responder a todos» "
-"e editar a lista de enderezos de maneira manual."
+"e recortar a lista de enderezos de maneira manual."
 
 #: ../src/Gui/ComposeWidget.cpp:519
 msgctxt "Gui::ComposeWidget|"
@@ -4586,7 +4586,7 @@ msgstr "FileDownloadManager::downloadMessage(): a mensaxe desapareceu."
 #: ../src/Imap/Network/ForbiddenReply.cpp:34
 msgctxt "Imap::Network::ForbiddenReply|"
 msgid "Remote Content Is Banned"
-msgstr "O contido remoto está desactivado"
+msgstr "O contido remoto está prohibido"
 
 #: ../src/Imap/Network/MsgPartNetworkReply.cpp:82
 msgctxt "Imap::Network::MsgPartNetworkReply|"
