@@ -698,7 +698,7 @@ msgstr "Abrir directamente"
 #: ../src/Gui/AttachmentView.cpp:93
 msgctxt "Gui::AttachmentView|"
 msgid "Show Preview"
-msgstr "Mostrar a vista previa"
+msgstr "Amosar a vista previa"
 
 #: ../src/Gui/AttachmentView.cpp:100
 msgctxt "Gui::AttachmentView|"
@@ -799,7 +799,7 @@ msgstr "Erro"
 #: ../src/Gui/ComposeWidget.cpp:358
 msgctxt "Gui::ComposeWidget|"
 msgid "Please set appropriate settings for outgoing messages."
-msgstr "Estabeleza as opcións axeitadas das mensaxes saíntes."
+msgstr "Defina as opcións axeitadas das mensaxes saíntes."
 
 #: ../src/Gui/ComposeWidget.cpp:511
 msgctxt "Gui::ComposeWidget|"
@@ -818,8 +818,8 @@ msgid ""
 "the list of addresses manually."
 msgstr ""
 "Trojitá non puido determinar con certeza o enderezo de correo electrónico do "
-"autor da mensaxe. Pode que queira empregar a función de «Responder a todos» "
-"e recortar a lista de enderezos de maneira manual."
+"autor da mensaxe. Pode que queira usar a función de «Responder a todos» e "
+"recortar a lista de enderezos de maneira manual."
 
 #: ../src/Gui/ComposeWidget.cpp:519
 msgctxt "Gui::ComposeWidget|"
@@ -1288,7 +1288,7 @@ msgstr ""
 #: ../src/Gui/main.cpp:89
 msgctxt "QObject|"
 msgid "Show addressbook window."
-msgstr "Mostrar a xanela do caderno de enderezos."
+msgstr "Amosar a xanela do caderno de enderezos."
 
 #: ../src/Gui/main.cpp:93
 msgctxt "QObject|"
@@ -1306,7 +1306,7 @@ msgstr ""
 msgctxt "QObject|"
 msgid "Show main window (default when no option is provided)."
 msgstr ""
-"Mostrar a xanela principal (predeterminado cando non se fornecen opcións)."
+"Amosar a xanela principal (predeterminado cando non se fornecen opcións)."
 
 #: ../src/Gui/main.cpp:105
 msgctxt "QObject|"
@@ -1585,7 +1585,7 @@ msgstr ","
 #: ../src/Gui/OneEnvelopeAddress.cpp:130
 msgctxt "Gui::OneEnvelopeAddress|"
 msgid "(empty display name)"
-msgstr "(nome para mostrar baleiro)"
+msgstr "(nome para amosar baleiro)"
 
 #: ../src/Gui/OneEnvelopeAddress.cpp:134
 msgctxt "Gui::OneEnvelopeAddress|"
@@ -1642,7 +1642,7 @@ msgstr "Nova reunión"
 #: ../src/Gui/PartWidget.cpp:211 ../src/Gui/PartWidget.cpp:256
 msgctxt "Gui::PartStatusWidget|"
 msgid "Show Details"
-msgstr "Mostrar os detalles"
+msgstr "Amosar os detalles"
 
 #: ../src/Gui/PartWidget.cpp:260
 msgctxt "Gui::PartStatusWidget|"
@@ -1716,7 +1716,7 @@ msgstr "Modo desconectado"
 #: ../src/Gui/SettingsCachePage.ui:48
 msgctxt "CachePage|"
 msgid "&Don't use cache"
-msgstr "&Non empregar a caché."
+msgstr "&Non usar a caché."
 
 #: ../src/Gui/SettingsCachePage.ui:61
 msgctxt "CachePage|"
@@ -1871,7 +1871,7 @@ msgid ""
 "library, and the underlying operating system. No private information, like "
 "account settings or IMAP server details, are collected.</p>"
 msgstr ""
-"<p>Se activa esta opción, Trojitá mostrará a páxina principal ao iniciarse.</"
+"<p>Se activa esta opción, Trojitá amosará a páxina principal ao iniciarse.</"
 "p> <p>O servidor remoto recibirá o enderezo IP do usuario e a versión de "
 "Trojitá, da biblioteca Qt, e do sistema operativo. Non se recollerá "
 "información de carácter privado, como a configuración das contas ou detalles "
@@ -2085,17 +2085,17 @@ msgstr "Zona de desprazamento"
 #: ../src/Gui/SettingsGeneralPage.ui:41
 msgctxt "GeneralPage|"
 msgid "Show Trojitá's homepage on startup"
-msgstr "Mostrar a páxina principal de Trojitá no inicio."
+msgstr "Amosar a páxina principal de Trojitá no inicio."
 
 #: ../src/Gui/SettingsGeneralPage.ui:48
 msgctxt "GeneralPage|"
 msgid "Show plaintext e-mails instead of the HTML version"
-msgstr "Mostrar as mensaxes en texto sen formato, en vez de a versión HTML."
+msgstr "Amosar as mensaxes en texto sen formato, en vez de a versión HTML."
 
 #: ../src/Gui/SettingsGeneralPage.ui:55
 msgctxt "GeneralPage|"
 msgid "Show system tray icon"
-msgstr "Mostrar a icona na zona de notificación."
+msgstr "Amosar a icona na zona de notificación."
 
 #: ../src/Gui/SettingsGeneralPage.ui:62
 msgctxt "GeneralPage|"
@@ -2253,9 +2253,9 @@ msgstr ""
 "weight:400; font-style:normal;\">\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Escolla <span style=\" "
-"font-style:italic;\">TCP</span> se quere empregar unha conexión estándar —"
-"sen cifrar— e negociar o cifrado de forma transparente antes de autenticarse."
-"</p>\n"
+"font-style:italic;\">TCP</span> se quere usar unha conexión estándar —sen "
+"cifrar— e negociar o cifrado de forma transparente antes de autenticarse.</"
+"p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; "
 "margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"></"
 "p>\n"
@@ -2874,7 +2874,7 @@ msgstr "&Editar o borrador…"
 #: ../src/Gui/Window.cpp:237
 msgctxt "Gui::MainWindow|"
 msgid "Show Main Menu &Bar"
-msgstr "Mostrar a &barra principal do menú"
+msgstr "Amosar a &barra principal do menú"
 
 #: ../src/Gui/Window.cpp:237
 msgctxt "Gui::MainWindow|"
@@ -3155,24 +3155,24 @@ msgstr "Saír da aplicación"
 #: ../src/Gui/Window.cpp:338
 msgctxt "Gui::MainWindow|"
 msgid "Show Full &Tree Window"
-msgstr "Mostrar a xanela da ár&bore completa"
+msgstr "Amosar a xanela da ár&bore completa"
 
 #. list of active "tasks", entities which are performing certain action like downloading a message or syncing a mailbox
 #: ../src/Gui/Window.cpp:344
 msgctxt "Gui::MainWindow|"
 msgid "Show ImapTask t&ree"
-msgstr "Mostrar a á&rbore de ImapTask"
+msgstr "Amosar a á&rbore de ImapTask"
 
 #. a debugging tool showing the mime tree of the current message
 #: ../src/Gui/Window.cpp:350
 msgctxt "Gui::MainWindow|"
 msgid "Show &MIME tree"
-msgstr "Mostrar a á&rbore de MIME"
+msgstr "Amosar a á&rbore de MIME"
 
 #: ../src/Gui/Window.cpp:355
 msgctxt "Gui::MainWindow|"
 msgid "Show protocol &log"
-msgstr "Mostrar o &historial do protocolo"
+msgstr "Amosar o &historial do protocolo"
 
 #. file to save the debug log into
 #: ../src/Gui/Window.cpp:361
@@ -3189,7 +3189,7 @@ msgstr "In&formación do servidor de IMAP…"
 #: ../src/Gui/Window.cpp:375
 msgctxt "Gui::MainWindow|"
 msgid "Show &Toolbar"
-msgstr "Mostrar a barra de &ferramentas"
+msgstr "Amosar a barra de &ferramentas"
 
 #: ../src/Gui/Window.cpp:381
 msgctxt "Gui::MainWindow|"
@@ -3222,7 +3222,7 @@ msgstr "&Retirar a caixa de correo"
 #: ../src/Gui/Window.cpp:505
 msgctxt "Gui::MainWindow|"
 msgid "Show Messages in &Threads"
-msgstr "Mostrar as mensaxes en &fíos"
+msgstr "Amosar as mensaxes en &fíos"
 
 #: ../src/Gui/Window.cpp:516
 msgctxt "Gui::MainWindow|"
@@ -3302,7 +3302,7 @@ msgstr "&Un de cada vez"
 #: ../src/Gui/Window.cpp:569
 msgctxt "Gui::MainWindow|"
 msgid "Show Only S&ubscribed Folders"
-msgstr "Mostrar só os cartafoles s&ubscritos"
+msgstr "Amosar só os cartafoles s&ubscritos"
 
 #: ../src/Gui/Window.cpp:573
 msgctxt "Gui::MainWindow|"
@@ -3429,7 +3429,7 @@ msgid ""
 "The application will continue in systray. This can be disabled within the "
 "settings."
 msgstr ""
-"A aplicación continuará executándose en segundo plano e mostrará unha icona "
+"A aplicación continuará executándose en segundo plano e amosará unha icona "
 "na área de notificacións. Pode desactivar este comportamento desde a "
 "configuración."
 
@@ -3953,8 +3953,7 @@ msgstr "Non se puido crear o directorio %1."
 #, qt-format
 msgctxt "Imap::ImapAccess|"
 msgid "Failed to set safe permissions on cache directory %1"
-msgstr ""
-"Non se puideron estabelecer permisos seguros no directorio de caché %1."
+msgstr "Non se puideron definir permisos seguros no directorio de caché %1."
 
 #: ../src/Imap/Model/MailboxTree.cpp:1244
 msgctxt "Imap::Mailbox::Model|"
@@ -5041,14 +5040,14 @@ msgstr "Conectando co servidor de correo"
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:504
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "The security state of the SSL connection got rejected"
-msgstr "Rexeitouse o estado de seguranza da conexión SSL."
+msgstr "Rexeitouse o estado de seguridade da conexión SSL."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:513
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid ""
 "The security state of the connection after a STARTTLS operation got rejected"
 msgstr ""
-"Rexeitouse o estado de seguranza da conexión despois dunha operación "
+"Rexeitouse o estado de seguridade da conexión despois dunha operación "
 "STARTTLS."
 
 #: ../src/Imap/Tasks/SortTask.cpp:55
@@ -5682,7 +5681,7 @@ msgid ""
 "<p>Would you like to connect and remember the new certificate?</p>"
 msgstr ""
 "<p>A chave pública do certificado de SSL cambiou. Isto só debería ocorrer a "
-"raíz dun incidente de seguranza no servidor remoto. O seu sistema está "
+"raíz dun incidente de seguridade no servidor remoto. O seu sistema está "
 "configurado para aceptar estes certificados aínda así.</p>\n"
 "%1\n"
 "<p>Quere conectarse e lembrar o novo certificado?</p>"
@@ -5760,7 +5759,7 @@ msgid ""
 "the top-most thousand items or so are shown."
 msgstr ""
 "A mensaxe contén partes MIME aniñadas con demasiados niveis.\n"
-"Para non esgotar a pila, só se mostrarán os mil elementos superiores."
+"Para non esgotar a pila, só se amosarán os mil elementos superiores."
 
 #: ../src/UiUtils/PasswordWatcher.cpp:82
 #, qt-format
