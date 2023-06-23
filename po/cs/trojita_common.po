@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-11-28 02:35+0200\n"
-"PO-Revision-Date: 2023-02-16 09:02+0100\n"
+"PO-Revision-Date: 2023-06-22 11:33+0200\n"
 "Last-Translator: Vit Pelcak <vit@pelcak.org>\n"
 "Language-Team: Czech <kde-i18n-doc@kde.org>\n"
 "Language: cs\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Lokalize 22.12.2\n"
+"X-Generator: Lokalize 23.04.2\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -5290,7 +5290,7 @@ msgctxt "Streams::SslTlsSocket|"
 msgid ""
 "The underlying socket is having troubles when processing connection to %1:"
 "%2: %3"
-msgstr "Podpůrná vrstva má problemy při zpracování spojení %1:%2: %3"
+msgstr "Podpůrná vrstva má problémy při zpracování spojení %1:%2: %3"
 
 #: ../src/UiUtils/Formatting.cpp:40
 msgctxt "UiUtils::Formatting|"
