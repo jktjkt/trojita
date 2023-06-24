@@ -2305,7 +2305,7 @@ msgstr "Número de porto do servidor de IMAP"
 #: ../src/Gui/SettingsImapPage.ui:118
 msgctxt "ImapPage|"
 msgid "Use System Proxy Settings"
-msgstr "Usar a configuración de proxy do sistema."
+msgstr "Usar a configuración de mandatario do sistema."
 
 #: ../src/Gui/SettingsImapPage.ui:131
 msgctxt "ImapPage|"
@@ -5493,19 +5493,19 @@ msgstr "Pechouse a conexión."
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid " (via proxy %1)"
-msgstr " (a través do proxy %1)"
+msgstr " (a través do mandatario %1)"
 
 #: ../src/Streams/IODeviceSocket.cpp:286
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid " (via SOCKS5 proxy %1)"
-msgstr " (a través do proxy SOCKS5 %1)"
+msgstr " (a través do mandatario SOCKS5 %1)"
 
 #: ../src/Streams/IODeviceSocket.cpp:289
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid " (via HTTP proxy %1)"
-msgstr " (a través do proxy HTTP %1)"
+msgstr " (a través do mandatario HTTP %1)"
 
 #: ../src/Streams/IODeviceSocket.cpp:294
 #, qt-format
