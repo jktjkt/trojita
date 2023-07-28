@@ -14,6 +14,7 @@
   <name xml:lang="de">Trojitá</name>
   <name xml:lang="el">Trojitá</name>
   <name xml:lang="en-GB">Trojitá</name>
+  <name xml:lang="eo">Trojitá</name>
   <name xml:lang="es">Trojitá</name>
   <name xml:lang="et">Trojitá</name>
   <name xml:lang="fi">Trojitá</name>
@@ -51,6 +52,7 @@
   <summary xml:lang="de">IMAP-E-Mail-Programm</summary>
   <summary xml:lang="el">IMAP εφαρμογή ηλεκτρονικής αλληλογραφίας</summary>
   <summary xml:lang="en-GB">IMAP E-mail Client</summary>
+  <summary xml:lang="eo">IMAP Retpoŝta Kliento</summary>
   <summary xml:lang="es">Cliente de correo IMAP</summary>
   <summary xml:lang="et">IMAP e-posti klient</summary>
   <summary xml:lang="fi">IMAP-sähköpostiohjelma</summary>
@@ -90,6 +92,7 @@
     <p xml:lang="de">Trojitá ist ein E-Mail-Programm („Client“), das auf schnellen und effizienten Zugriff auf Mailboxen über das IMAP-Protokoll zugeschnitten ist. Ein IMAP-Mailserver speichert die Nachtrichten und erlaubt es Clients, diese bei Bedarf auf den lokalen Rechner abzurufen.</p>
     <p xml:lang="el">Η Trojitá είναι ένα πρόγραμμα ηλεκτρονικού ταχυδρομείου («εφαρμογή-πελάτης») με ειδικότητα τη γρήγορη και αποτελεσματική πρόσβαση σε γραμματοκιβώτια με το πρωτόκολλο IMAP. Ένας διακομιστής IMAP ηλεκτρονικής αλληλογραφίας αποθηκεύει τα μηνύματα και επιτρέπει στις εφαρμογές να τα μεταφέρουν στον τοπικό υπολογιστή όταν τους ζητηθεί.</p>
     <p xml:lang="en-GB">Trojitá is an email program ("client") specialised in giving fast and efficient access to mailboxes over the IMAP protocol. An IMAP mail server stores messages and allows clients to fetch messages to the local computer when asked for.</p>
+    <p xml:lang="eo">Trojitá estas retpoŝta programo ("kliento") specialigita en doni rapidan kaj efikan aliron al leterkestoj per la protokolo IMAP. IMAP-poŝtservilo konservas mesaĝojn kaj permesas al klientoj alporti mesaĝojn al la loka komputilo kiam oni petas.</p>
     <p xml:lang="es">Trojitá es un programa de correo electrónico («cliente») especializado en dar un acceso rápido y eficiente a los buzones de correo sobre el protocolo IMAP. Un servidor de correo IMAP almacena los mensajes y permite a los clientes extraerlos en un sistema local cuando se le pida.</p>
     <p xml:lang="et">Trojitá on e-posti rakendus ("klient"), mille eritunnuseks on oma postkasti kiire ja tõhusa kasutamise võimaldamine IMAP-protokolli vahendusel. IMAP e-posti server salvestab kirjad ja võimaldab soovi korral tõmmata kirjad kohalikku arvutisse.</p>
     <p xml:lang="fi">Trojitá on sähköpostiohjelma (”-asiakas”), joka on erikoistunut nopeaan ja tehokkaaseen IMAP-yhteyskäytännön yli tapahtuvaan käyttöön. IMAP-postipalvelin tallentaa viestit ja antaa asiakkaiden noutaa viestejä paikalliselle tietokoneelle pyydettäessä.</p>
@@ -125,6 +128,7 @@
     <p xml:lang="de">Es priorisiert Effizienz, Geschwindigkeit und offene Standards über alles andere. Trojitá unterstützt außerdem mehrere Plattformen und läuft gut auf großen Desktoprechnern bis hin zu kleinen Mobilgeräten. Trojitá ist ein eigenständiges Programm und nicht Teil eines „Persönliche Informationen Management“-Systems.</p>
     <p xml:lang="el">Δίνει προτεραιότητα σε αποτελεσματικότητα, ταχύτητα και στα ανοιχτά πρότυπα πάνω απ' όλα. Η Trojitá επίσης στοχεύει να έχει υλοποίηση για πολλές πλατφόρμες και να λειτουργεί καλά σε οτιδήποτε από μεγάλους υπολογιστές γραφείου μέχρι μικρά κινητά τηλέφωνα. Η Trojitá είναι ένα ανεξάρτητο πρόγραμμα, όχι τμήμα κάποιας σουίτας «διαχείρισης προσωπικών πληροφοριών».</p>
     <p xml:lang="en-GB">It prioritises efficiency, speed and open standards above other goals. Trojitá also aims to be multi-platform, and functions well on everything from big desktop computers to small cellphones. Trojitá is a stand-alone program, not part of a "personal information manager" suite.</p>
+    <p xml:lang="eo">Ĝi prioritatas efikecon, rapidecon kaj malfermajn normojn super aliaj celoj. Trojitá ankaŭ celas esti plurplatforma, kaj funkcias bone en ĉio, de grandaj labortablaj komputiloj ĝis malgrandaj poŝtelefonoj. Trojitá estas memstara programo, ne parto de "persona informa administranto" aro.</p>
     <p xml:lang="es">Prioriza la eficiencia, la velocidad y los estándares abiertos por encima de otros objetivos. Trojitá también pretende ser multiplataforma y funciona bien en cualquier equipo, desde los de escritorio hasta los teléfonos móviles más pequeños. Trojitá es un programa independiente que no forma parte de ningún sistema de «gestión de información personal».</p>
     <p xml:lang="et">Trojitá seab kõigi teiste sihtide ees rõhu tõhususele, kiirusele ja avatud standarditele. Samuti on meie eesmärk olla kasutatav paljudel platvormidel ning tulla edukalt toime nii suurtel lauaarvutitel kui ka väikestel mobiiltelefonidel. Trojitá on omaette rakendus, mis ei kuulu ühtegi "isikliku teabe haldamise" (PIM) komplekti.</p>
     <p xml:lang="fi">Ohjelmassa kaikkien muiden päämäärien edellä ovat tehokkuus, nopeus ja avoimet standardit. Trojitá pyrkii myös monialustaisuuteen, ja se toimii kaikkialla perinteisistä pöytäkoneista matkapuhelimiin. Trojitá on itsenäinen ohjelma eikä osa mitään ”henkilökohtaisen tiedon hallinnan” ohjelmistoa.</p>
@@ -157,6 +161,7 @@
     <p xml:lang="de">Warum Trojitá für Sie interessant sein könnte:</p>
     <p xml:lang="el">Τι θα μπορούσε να κάνει την Trojitá ενδιαφέρουσα για εσάς:</p>
     <p xml:lang="en-GB">What could make Trojitá interesting for you:</p>
+    <p xml:lang="eo">Kio povus fari Trojitá interesa por vi:</p>
     <p xml:lang="es">Qué puede hacer a Trojitá interesante para usted:</p>
     <p xml:lang="et">Trojitá puhul võib huvi pakkuda:</p>
     <p xml:lang="fi">Miksi Trojitá voisi kiinnostaa sinua:</p>
@@ -191,6 +196,7 @@
       <li xml:lang="de">Sehr schneller und robuster IMAP-Kern</li>
       <li xml:lang="el">Πολύ γρήγορος και σταθερός IMAP πυρήνας</li>
       <li xml:lang="en-GB">Very fast and robust IMAP core</li>
+      <li xml:lang="eo">Tre rapida kaj fortika IMAP-kerno</li>
       <li xml:lang="es">Un núcleo IMAP muy rápido y robusto</li>
       <li xml:lang="et">Väga kiire ja töökindel IMAP tuum</li>
       <li xml:lang="fi">Hyvin nopea ja vakaa IMAP-ydin</li>
@@ -223,6 +229,7 @@
       <li xml:lang="de">Standardkonformität als Entwurfsziel</li>
       <li xml:lang="el">Η συμμόρφωση με τα πρότυπα είναι σχεδιαστικός στόχος</li>
       <li xml:lang="en-GB">Standards compliance is a design goal</li>
+      <li xml:lang="eo">Normkonformeco estas dezajnocelo</li>
       <li xml:lang="es">La conformidad con los estándares es un objetivo de su diseño</li>
       <li xml:lang="et">Sihikindel ühildumine standarditega</li>
       <li xml:lang="fi">Suunniteltu tavoitteenaan standardinmukaisuus</li>
@@ -255,6 +262,7 @@
       <li xml:lang="de">Abrufen der Nachrichtenliste und -teile auf Nachfrage („lazy loading“)</li>
       <li xml:lang="el">Κατ' απαίτηση λίστα μηνυμάτων και φόρτωση κειμένου («καθυστερημένη φόρτωση»)</li>
       <li xml:lang="en-GB">On-demand message list and body part loading ("lazy loading")</li>
+      <li xml:lang="eo">Laŭpeta mesaĝlisto kaj ŝargo de korpoparto ("maldiligenta ŝargo")</li>
       <li xml:lang="es">Lista de mensajes bajo demanda y descarga de partes de su contenido («descarga relajada»)</li>
       <li xml:lang="et">Nõudmisel kirjade nimekirja ja sisu laadimine ("laisk laadimine")</li>
       <li xml:lang="fi">Viestiluettelojen ja -runkojen lataus vain tarvittaessa (”laiskasti”)</li>
@@ -287,6 +295,7 @@
       <li xml:lang="de">Unterstützung für Offline-IMAP</li>
       <li xml:lang="el">Εκτός δικτύου υποστήριξη IMAP</li>
       <li xml:lang="en-GB">Offline IMAP support</li>
+      <li xml:lang="eo">Senkonekta IMAP-subteno</li>
       <li xml:lang="es">Uso de IMAP sin conexión</li>
       <li xml:lang="et">Võrguta IMAP toetus</li>
       <li xml:lang="fi">Verkottoman IMAPin tuki</li>
@@ -319,6 +328,7 @@
       <li xml:lang="de">Unterstützung eines bandbreitesparenden Modus’ für Nutzer mobiler Geräte mit teurer Verbindung</li>
       <li xml:lang="el">Υποστήριξη λειτουργίας μείωσης της ευρυζωνικής κατανάλωσης για χρήστες κινητών με ακριβές συνδέσεις</li>
       <li xml:lang="en-GB">Support for bandwidth-saving mode aimed at mobile users with expensive connection</li>
+      <li xml:lang="eo">Subteno por bendolarĝ-ŝpara reĝimo celita al moveblaj uzantoj kun multekosta konekto</li>
       <li xml:lang="es">Modo de ahorro de ancho de banda dirigido a usuarios de móviles con conexiones caras</li>
       <li xml:lang="et">Ribalaiuse säästmise režiimi toetus (eelkõige kalli andmesidega mobiilseadmete kasutajatele)</li>
       <li xml:lang="fi">Tuki kaistansäästötilalle ajatellen mobiilikäyttäjiä, joille verkkoyhteys on kallis</li>
@@ -350,6 +360,7 @@
       <li xml:lang="de">IMAP über SSH – statt über einen SSL-Sockets kann der Server über SSH erreicht werden</li>
       <li xml:lang="el">IMAP πάνω από SSH -- αντί πάνω από SSL υποδοχή, η πρόσβαση στο διακομιστή γίνεται με SSH</li>
       <li xml:lang="en-GB">IMAP over SSH -- instead of going over an SSL socket, the server could be accessed via SSH</li>
+      <li xml:lang="eo">IMAP super SSH -- anstataŭ transiri SSL-ingon, la servilo povus esti alirebla per SSH</li>
       <li xml:lang="es">IMAP sobre SSH: en lugar de usar una conexión SSL, se puede acceder al servidor usando SSH</li>
       <li xml:lang="et">IMAP üle SSH - SSL-sokli tarvitamise asemel on serverisse võimalik pääseda ka SSH kaudu</li>
       <li xml:lang="fi">IMAP SSH:n yli – SSL-pistokkeen käytön sijaan palvelimeen voidaan ottaa yhteys SSH:n avulla</li>
@@ -381,6 +392,7 @@
       <li xml:lang="de">Sicherer und robuster Umgang mit HTML-E-Mails</li>
       <li xml:lang="el">Ασφαλής και σταθερή ανταπόκριση με μηνύματα σε HTML</li>
       <li xml:lang="en-GB">Safe and robust dealing with HTML mail</li>
+      <li xml:lang="eo">Sekura kaj fortika traktado kun HTML-poŝto</li>
       <li xml:lang="es">Uso seguro y robusto de correo en HTML</li>
       <li xml:lang="et">HTML-kirjade turvaline ja töökindel käitlemine</li>
       <li xml:lang="fi">Turvallinen ja luotettava HTML-viestien käsittely</li>
@@ -421,6 +433,7 @@
       <caption xml:lang="de">Überbordende Textzitate werden automatisch eingeklappt</caption>
       <caption xml:lang="el">Το υπέρμετρο κείμενο σε παράθεση συμπτύσσεται αυτόματα</caption>
       <caption xml:lang="en-GB">Excessively quoted text is automatically collapsed</caption>
+      <caption xml:lang="eo">Troe citita teksto estas aŭtomate kolapsita</caption>
       <caption xml:lang="es">El texto citado en exceso se contrae automáticamente</caption>
       <caption xml:lang="et">Liiga pika tsiteeritud teksti automaatne kokkukerimine</caption>
       <caption xml:lang="fi">Kohtuuttomasti lainattua tekstiä supistetaan automaattisesti</caption>
@@ -454,6 +467,7 @@
       <caption xml:lang="de">Es werden verschlüsselte und signierte E-Mails unterstützt, der Status wird in normaler Sprache ausgegeben</caption>
       <caption xml:lang="el">Υποστήριξη υπογεγραμμένων μηνυμάτων· η κατάσταση εμφανίζεται σε ανεπεξέργαστο κείμενο στην Αγγλική γλώσσα.</caption>
       <caption xml:lang="en-GB">Encrypted and signed e-mail is supported, with status given in plain English</caption>
+      <caption xml:lang="eo">Ĉifrita kaj subskribita retpoŝto estas subtenata, kun statuso donita en simpla angla</caption>
       <caption xml:lang="es">Permite el uso de correo electrónico cifrado y firmado, con el estado dado en inglés sin formato</caption>
       <caption xml:lang="et">Krüptitud ja allkirjastatud e-kirjade toetus (olekuteated puhtas inglise keeles)</caption>
       <caption xml:lang="fi">Sähköpostin salausta ja allekirjoitusta tuetaan, ja tila ilmoitetaan selväkielisesti</caption>
