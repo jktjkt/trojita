@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: kdeorg\n"
-"PO-Revision-Date: 2023-07-30 07:10\n"
+"PO-Revision-Date: 2023-08-02 12:41\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -858,7 +858,7 @@ msgstr ""
 #: ../src/Gui/ComposeWidget.cpp:688
 msgctxt "Gui::ComposeWidget|"
 msgid "Authentication Required"
-msgstr "需要认证"
+msgstr "需要进行身份认证"
 
 #: ../src/Gui/ComposeWidget.cpp:689
 #, qt-format
@@ -1608,7 +1608,7 @@ msgstr ""
 #: ../src/Gui/PasswordDialog.ui:14
 msgctxt "PasswordDialog|"
 msgid "Authentication Required"
-msgstr "需要认证"
+msgstr "需要进行身份认证"
 
 #: ../src/Gui/PasswordDialog.ui:28
 #, qt-format
@@ -3268,7 +3268,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:1461
 msgctxt "Gui::MainWindow|"
 msgid "Authentication Required"
-msgstr "需要认证"
+msgstr "需要进行身份认证"
 
 #: ../src/Gui/Window.cpp:1462
 #, qt-format
