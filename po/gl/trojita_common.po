@@ -7,7 +7,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-06-17 16:04+0200\n"
+"PO-Revision-Date: 2023-08-05 11:55+0200\n"
 "Last-Translator: Adrián Chaves (Gallaecio) <adrian@chaves.io>\n"
 "Language-Team: Galician <proxecto@trasno.gal>\n"
 "Language: gl\n"
@@ -15,7 +15,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 23.04.2\n"
+"X-Generator: Lokalize 23.04.3\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -1288,7 +1288,7 @@ msgstr ""
 #: ../src/Gui/main.cpp:89
 msgctxt "QObject|"
 msgid "Show addressbook window."
-msgstr "Amosar a xanela do caderno de enderezos."
+msgstr "Amosar a xanela da axenda de enderezos."
 
 #: ../src/Gui/main.cpp:93
 msgctxt "QObject|"
@@ -1590,7 +1590,7 @@ msgstr "(nome para amosar baleiro)"
 #: ../src/Gui/OneEnvelopeAddress.cpp:134
 msgctxt "Gui::OneEnvelopeAddress|"
 msgid "<hr/><b>Address Book:</b><br/>"
-msgstr "<hr/><b>Caderno de enderezos:</b><br/>"
+msgstr "<hr/><b>Axenda de enderezos:</b><br/>"
 
 #: ../src/Gui/OneEnvelopeAddress.cpp:141
 msgctxt "Gui::OneEnvelopeAddress|"
@@ -1841,7 +1841,7 @@ msgstr "Non se atopou o complemento (%1)."
 #: ../src/Gui/SettingsDialog.cpp:401
 msgctxt "Gui::GeneralPage|"
 msgid "Disable address book"
-msgstr "Desactivar o caderno de enderezos."
+msgstr "Desactivar a axenda de enderezos."
 
 #: ../src/Gui/SettingsDialog.cpp:402
 msgctxt "Gui::GeneralPage|"
@@ -2120,7 +2120,7 @@ msgstr "Eliminar"
 #: ../src/Gui/SettingsGeneralPage.ui:167
 msgctxt "GeneralPage|"
 msgid "Addressbook"
-msgstr "Caderno de enderezos"
+msgstr "Axenda de enderezos"
 
 #: ../src/Gui/SettingsGeneralPage.ui:184
 msgctxt "GeneralPage|"
@@ -3019,7 +3019,7 @@ msgstr "&Arquivar"
 #: ../src/Gui/Window.cpp:257
 msgctxt "Gui::MainWindow|"
 msgid "Address Book..."
-msgstr "Caderno de enderezos…"
+msgstr "Axenda de enderezos…"
 
 #: ../src/Gui/Window.cpp:258
 msgctxt "Gui::MainWindow|"
@@ -4987,7 +4987,7 @@ msgstr ""
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "The operation is not permitted due to a lack of privacy."
 msgstr ""
-"Non se permite a operación por mor da falta de protección da intimidade."
+"Non se permite a operación por mor da falta de protección da privacidade."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:320
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
@@ -5245,7 +5245,7 @@ msgstr "BE::Contactos"
 #: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:400
 msgctxt "trojita_plugin_AbookAddressbookPlugin|"
 msgid "Addressbook in ~/.abook/"
-msgstr "Caderno de enderezos en ~/.abook/"
+msgstr "Axenda de enderezos en ~/.abook/"
 
 #: ../src/Plugins/AbookAddressbook/be-contacts.cpp:82
 msgctxt "BE::Contacts|"
@@ -5420,7 +5420,7 @@ msgstr "Foto"
 #: ../src/Plugins/AkonadiAddressbook/AkonadiAddressbook.cpp:67
 msgctxt "trojita_plugin_AkonadiAddressbookPlugin|"
 msgid "KDE Addressbook (Akonadi)"
-msgstr "Caderno de enderezos de KDE (Akonadi)"
+msgstr "Axenda de enderezos de KDE (Akonadi)"
 
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:51
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:67
