@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trojita\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"PO-Revision-Date: 2023-02-26 19:56+0100\n"
+"PO-Revision-Date: 2023-08-06 20:35+0200\n"
 "Last-Translator: Josep M. Ferrer <txemaq@gmail.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca@valencia\n"
@@ -19,7 +19,7 @@ msgstr ""
 "X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Accelerator-Marker: &\n"
-"X-Generator: Lokalize 20.12.0\n"
+"X-Generator: Lokalize 23.04.3\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -3910,6 +3910,7 @@ msgstr ""
 "No s'ha pogut guardar la part %1 del missatge %2 (bústia %3) dins del fitxer "
 "%4: %5 (%6)"
 
+# skip-rule: punctuation-period-no
 #: ../src/Imap/Model/FavoriteTagsModel.cpp:124
 msgctxt "Imap::Mailbox::FavoriteTagsModel|"
 msgid "#"
@@ -5668,7 +5669,7 @@ msgid ""
 "<p>The connection triggered the following SSL errors:</p>\n"
 "<ul>%1</ul>\n"
 msgstr ""
-"<p>La connexió provoca els següents errors SSL:</p>\n"
+"<p>La connexió provoca els errors següents SSL:</p>\n"
 "<ul>%1</ul>\n"
 
 #: ../src/UiUtils/Formatting.cpp:175
@@ -5811,73 +5812,3 @@ msgstr "S'està guardant la contrasenya des del connector %1..."
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot save password via plugin %1"
 msgstr "No s'ha pogut guardar la contrasenya mitjançant el connector %1"
-
-#~ msgctxt "Gui::SettingsDialog|"
-#~ msgid "&xTuple"
-#~ msgstr "&xTuple"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Cache Directory"
-#~ msgstr "Directori cau"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Mailboxes to synchronize"
-#~ msgstr "Bústies que s'han de sincronitzar"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid ""
-#~ "Please use context menu inside the main application to select mailboxes "
-#~ "to synchronize"
-#~ msgstr ""
-#~ "Utilitzeu el menú contextual dins de l'aplicació principal per a "
-#~ "seleccionar les bústies que s'han de sincronitzar"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "DB Hostname"
-#~ msgstr "Nom de la màquina de la BD"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "DB Port"
-#~ msgstr "Port de la BD"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "DB Name"
-#~ msgstr "Nom de la BD"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "DB Username"
-#~ msgstr "Nom d'usuari de la BD"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid ""
-#~ "Please fill in all IMAP options, including the password, at the IMAP "
-#~ "page. If you do not save the password, background synchronization will "
-#~ "not run."
-#~ msgstr ""
-#~ "Empleneu totes les opcions IMAP, inclosa la contrasenya, en la pàgina "
-#~ "d'IMAP. Si no guardeu la contrasenya, no s'executarà la sincronització en "
-#~ "segon pla."
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Debugging"
-#~ msgstr "Depuració"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Run xTuple Synchronization"
-#~ msgstr "Executa la sincronització xTuple"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Database Connection"
-#~ msgstr "Connexió amb la base de dades"
-
-#~ msgctxt "Gui::XtConnectPage|"
-#~ msgid "Password"
-#~ msgstr "Contrasenya"
-
-#~ msgctxt "Gui::MainWindow|"
-#~ msgid "&Synchronize with xTuple"
-#~ msgstr "&Sincronitza amb el xTuple"
-
-#~ msgctxt "XtConnect::XtConnect|"
-#~ msgid "Database Password: "
-#~ msgstr "Contrasenya de la base de dades: "
