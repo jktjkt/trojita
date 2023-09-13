@@ -2702,8 +2702,8 @@ msgid ""
 "<p>Search interactively for shortcut names (e.g. Copy) or combination of "
 "keys (e.g. Ctrl+C) by typing them.</p>"
 msgstr ""
-"<p>Busca interactivament per a noms de drecera (p. ex. Copia) o combinacions "
-"de tecles (p. ex. Ctrl+C).</p>"
+"<p>Busca interactivament per a noms de drecera (p. ex., Copia) o "
+"combinacions de tecles (p. ex., Ctrl+C).</p>"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:49
 msgctxt "ShortcutConfigWidget|Label of search field"
