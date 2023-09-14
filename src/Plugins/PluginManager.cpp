@@ -159,8 +159,8 @@ void PluginManager::loadPlugin(QObject *pluginInstance)
     if (auto spellcheckerPlugin = qobject_cast<SpellcheckerPluginInterface *>(pluginInstance)) {
         const QString &name = spellcheckerPlugin->name();
         Q_ASSERT(!name.isEmpty());
-        Q_ASSERT(!m_availableSpellchckePlugins.contains(name));
-        m_availableSpellchckePlugins[name] = spellcheckerPlugin;
+        Q_ASSERT(!m_availableSpellcheckPlugins.contains(name));
+        m_availableSpellcheckPlugins[name] = spellcheckerPlugin;
 #ifdef PLUGIN_DEBUG
         qDebug() << "Found spellchecker plugin" << name << ":" << spellcheckerPlugin->description();
 #endif
@@ -194,7 +194,7 @@ QMap<QString, QString> PluginManager::availablePasswordPlugins() const
 QMap<QString, QString> PluginManager::availableSpellcheckerPlugins() const
 {
     QMap<QString, QString> res;
-    for (auto plugin: m_availableSpellchckePlugins) {
+    for (auto plugin: m_availableSpellcheckPlugins) {
         res[plugin->name()] = plugin->description();
     }
     return res;
@@ -264,8 +264,8 @@ void PluginManager::setSpellcheckerPlugin(const QString &name)
         delete m_spellchecker;
     }
 
-    auto plugin = m_availableSpellchckePlugins.find(name);
-    if (plugin != m_availableSpellchckePlugins.end()) {
+    auto plugin = m_availableSpellcheckPlugins.find(name);
+    if (plugin != m_availableSpellcheckPlugins.end()) {
 #ifdef PLUGIN_DEBUG
         qDebug() << "Setting new spellchecker plugin:" << (*plugin)->name();
 #endif

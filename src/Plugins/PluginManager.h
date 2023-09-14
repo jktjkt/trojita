@@ -113,7 +113,7 @@ private:
 
     QMap<QString, AddressbookPluginInterface *> m_availableAddressbookPlugins;
     QMap<QString, PasswordPluginInterface *> m_availablePasswordPlugins;
-    QMap<QString, SpellcheckerPluginInterface *> m_availableSpellchckePlugins;
+    QMap<QString, SpellcheckerPluginInterface *> m_availableSpellcheckPlugins;
 
     QString m_addressbookName;
     QString m_passwordName;
