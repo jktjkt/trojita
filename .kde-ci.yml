@@ -6,4 +6,4 @@ Dependencies:
   'require':
     'frameworks/extra-cmake-modules': '@stable'
     'frameworks/sonnet': '@stable'
-    'pim/akonadi-contacts' : '@same'
+    'pim/akonadi-contacts' : '@stable'
