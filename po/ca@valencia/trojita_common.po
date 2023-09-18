@@ -2207,8 +2207,8 @@ msgstr ""
 "<p>Si està activada, podeu definir l'acció predeterminada per a arrossegar i "
 "deixar anar a l'arbre de la bústia de correu.</p><p>Si està inactivada, "
 "Trojitá preguntarà cada vegada. Sempre podreu superposar l'acció utilitzant "
-"les tecles modificadores en deixar anar (Control: copia, Majúscules: mou).</"
-"p>"
+"les tecles modificadores en deixar anar («Control»: copia, «Majúscules»: "
+"mou).</p>"
 
 #: ../src/Gui/SettingsGeneralPage.ui:274
 msgctxt "GeneralPage|"
@@ -2703,7 +2703,7 @@ msgid ""
 "keys (e.g. Ctrl+C) by typing them.</p>"
 msgstr ""
 "<p>Busca interactivament per a noms de drecera (p. ex., Copia) o "
-"combinacions de tecles (p. ex., Ctrl+C).</p>"
+"combinacions de tecles (p. ex., «Ctrl+C»).</p>"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:49
 msgctxt "ShortcutConfigWidget|Label of search field"
