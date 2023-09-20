@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: trojita\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"PO-Revision-Date: 2023-08-06 20:35+0200\n"
+"PO-Revision-Date: 2023-09-19 19:02+0200\n"
 "Last-Translator: Josep M. Ferrer <txemaq@gmail.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca\n"
@@ -19,7 +19,7 @@ msgstr ""
 "X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Accelerator-Marker: &\n"
-"X-Generator: Lokalize 23.04.3\n"
+"X-Generator: Lokalize 22.12.3\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -217,7 +217,7 @@ msgstr "[el «getAuditLog» ha fallat: %1]"
 #: ../src/Cryptography/GpgMe++.cpp:170
 msgctxt "Cryptography::GpgMePart|"
 msgid "Waiting for data..."
-msgstr "S'està esperant les dades..."
+msgstr "S'estan esperant les dades..."
 
 #: ../src/Cryptography/GpgMe++.cpp:313
 msgctxt "Cryptography::GpgMePart|"

@@ -1,10 +1,10 @@
-# Eloy Cuadra <ecuadra@eloihr.net>, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021.
+# SPDX-FileCopyrightText: 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023 Eloy Cuadra <ecuadra@eloihr.net>
 # Rafael Belmonte <EagleScreen@gmail.com>, 2013.
 # Sergio Ahumada <sahumada@texla.cl>, 2015, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2021-10-07 14:47+0200\n"
+"PO-Revision-Date: 2023-09-20 02:29+0200\n"
 "Last-Translator: Eloy Cuadra <ecuadra@eloihr.net>\n"
 "Language-Team: Spanish <kde-l10n-es@kde.org>\n"
 "Language: es\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 21.08.1\n"
+"X-Generator: Lokalize 23.08.1\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -983,7 +983,7 @@ msgstr "Cc"
 #: ../src/Gui/ComposeWidget.cpp:1099
 msgctxt "Gui::ComposeWidget|"
 msgid "Bcc"
-msgstr "Bcc"
+msgstr "Cco"
 
 #: ../src/Gui/ComposeWidget.cpp:1101
 msgctxt "Gui::ComposeWidget|"
@@ -998,7 +998,7 @@ msgstr "Reenviado-Cc"
 #: ../src/Gui/ComposeWidget.cpp:1103
 msgctxt "Gui::ComposeWidget|"
 msgid "Resent-Bcc"
-msgstr "Reenviado-Bcc"
+msgstr "Reenviado-Cco"
 
 #: ../src/Gui/ComposeWidget.cpp:1387
 msgctxt "Gui::ComposeWidget|"
@@ -1173,7 +1173,7 @@ msgstr "Para"
 #: ../src/Gui/EnvelopeView.cpp:136
 msgctxt "Gui::EnvelopeView|"
 msgid "Cc'd to"
-msgstr "Con Cc para"
+msgstr "Cc para"
 
 #: ../src/Gui/EnvelopeView.cpp:138
 msgctxt "Gui::EnvelopeView|"
@@ -1183,12 +1183,12 @@ msgstr "Cc"
 #: ../src/Gui/EnvelopeView.cpp:144
 msgctxt "Gui::EnvelopeView|"
 msgid "Bcc'd to"
-msgstr "Bcc para"
+msgstr "Cco para"
 
 #: ../src/Gui/EnvelopeView.cpp:146
 msgctxt "Gui::EnvelopeView|"
 msgid "Bcc"
-msgstr "Bcc"
+msgstr "Cco"
 
 #: ../src/Gui/EnvelopeView.cpp:167
 #, qt-format
@@ -4079,7 +4079,7 @@ msgstr "Cc"
 #: ../src/Imap/Model/MsgListModel.cpp:290
 msgctxt "Imap::Mailbox::MsgListModel|"
 msgid "Bcc"
-msgstr "Bcc"
+msgstr "Cco"
 
 #: ../src/Imap/Model/MsgListModel.cpp:292
 msgctxt "Imap::Mailbox::MsgListModel|"
