@@ -80,7 +80,7 @@ msgstr "%1, %2"
 #: ../src/Composer/ExistingMessageComposer.cpp:78
 msgctxt "Imap::Mailbox::FullMessageCombiner|"
 msgid "Cannot obtain IMAP URL for CATENATE"
-msgstr "Non se pode obter o URL de IMAP para CATENATE"
+msgstr "Non é posíbel obter o URL de IMAP para CATENATE"
 
 #: ../src/Composer/MessageComposer.cpp:599
 #: ../src/Composer/MessageComposer.cpp:630
@@ -118,22 +118,22 @@ msgstr "Sinatura"
 #: ../src/Composer/Submission.cpp:113
 msgctxt "Composer::Submission|"
 msgid "Preparing to send"
-msgstr "Estase a preparar o envío"
+msgstr "Preparando o envío"
 
 #: ../src/Composer/Submission.cpp:118
 msgctxt "Composer::Submission|"
 msgid "Creating message"
-msgstr "Estase a crear a mensaxe"
+msgstr "Creando a mensaxe"
 
 #: ../src/Composer/Submission.cpp:123
 msgctxt "Composer::Submission|"
 msgid "Saving to the sent folder"
-msgstr "Estase a gardar no cartafol de enviados"
+msgstr "Gardando no cartafol de enviados"
 
 #: ../src/Composer/Submission.cpp:128
 msgctxt "Composer::Submission|"
 msgid "Preparing message for delivery"
-msgstr "Estase a preparar a mensaxe para enviala"
+msgstr "Preparando a mensaxe para enviala"
 
 #: ../src/Composer/Submission.cpp:133
 msgctxt "Composer::Submission|"
@@ -180,7 +180,7 @@ msgid ""
 "Cannot send right now -- saving failed:\n"
 " %1"
 msgstr ""
-"Non se pode enviar nestes momentos. a garda fallou:\n"
+"Non é posíbel enviar nestes momentos. a garda fallou:\n"
 " %1"
 
 #: ../src/Composer/Submission.cpp:215
@@ -190,7 +190,7 @@ msgid ""
 "Cannot send right now -- saving (CATENATE) failed:\n"
 " %1"
 msgstr ""
-"Non se pode enviar nestes momentos. A garda (CATENATE) fallou:\n"
+"Non é posíbel enviar nestes momentos. A garda (CATENATE) fallou:\n"
 " %1"
 
 #: ../src/Composer/Submission.cpp:361
@@ -521,13 +521,13 @@ msgstr "Esperábanse 2 partes, pero atopáronse %1."
 #: ../src/Cryptography/GpgMe++.cpp:621
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Cannot verify signature"
-msgstr "Non se pode verificar a sinatura"
+msgstr "Non é posíbel verificar a sinatura"
 
 #: ../src/Cryptography/GpgMe++.cpp:622
 #, qt-format
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Failed to initialize GpgME (%1)"
-msgstr "Non se puido inicializar GpgME (%1)"
+msgstr "Non foi posíbel inicializar GpgME (%1)"
 
 #: ../src/Cryptography/GpgMe++.cpp:642
 msgctxt "Cryptography::GpgMeSigned|"
@@ -572,13 +572,13 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:766
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Cannot descrypt"
-msgstr "Non se pode descifrar"
+msgstr "Non é posíbel descifrar"
 
 #: ../src/Cryptography/GpgMe++.cpp:767
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Failed to initialize GpgME (%1)"
-msgstr "Non se puido inicializar GpgME (%1)"
+msgstr "Non foi posíbel inicializar GpgME (%1)"
 
 #: ../src/Cryptography/GpgMe++.cpp:787 ../src/Cryptography/GpgMe++.cpp:923
 msgctxt "Cryptography::GpgMeEncrypted|"
@@ -596,7 +596,7 @@ msgid ""
 "Cannot decrypt. Some data are not available, perhaps due to an offline "
 "network connection."
 msgstr ""
-"Non se pode descifrar. Algúns datos aínda non están dispoñíbeis, "
+"Non é posíbel descifrar. Algúns datos aínda non están dispoñíbeis, "
 "posibelmente porque estea sen conexión de rede."
 
 #: ../src/Cryptography/GpgMe++.cpp:815
@@ -642,7 +642,7 @@ msgstr "Algoritmo incompatíbel: %1"
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Cannot extract recipient %1: %2"
-msgstr "Non se pode extraer o destinatario %1: %2"
+msgstr "Non é posíbel extraer o destinatario %1: %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:893
 #, qt-format
@@ -824,7 +824,7 @@ msgstr ""
 #: ../src/Gui/ComposeWidget.cpp:519
 msgctxt "Gui::ComposeWidget|"
 msgid "Cannot Determine Recipients"
-msgstr "Non se poden determinar os destinatarios"
+msgstr "Non é posíbel determinar os destinatarios"
 
 #: ../src/Gui/ComposeWidget.cpp:566
 msgctxt "Gui::ComposeWidget|"
@@ -928,7 +928,7 @@ msgid ""
 "Cannot parse recipients:\n"
 "%1"
 msgstr ""
-"Non se poden analizar os destinatarios:\n"
+"Non é posíbel analizar os destinatarios:\n"
 "%1"
 
 #: ../src/Gui/ComposeWidget.cpp:781
@@ -950,7 +950,7 @@ msgstr "Non inseriu un asunto. Non se poden enviar mensaxes sen asunto."
 msgctxt "Gui::ComposeWidget|"
 msgid "Cannot prepare this e-mail for sending: some parts are not available"
 msgstr ""
-"Non se pode preparar esta mensaxe para enviala: algunhas partes non están "
+"Non é posíbel preparar esta mensaxe para enviala: algunhas partes non están "
 "dispoñíbeis"
 
 #: ../src/Gui/ComposeWidget.cpp:919 ../src/Gui/ComposeWidget.cpp:1794
@@ -992,7 +992,7 @@ msgstr "Enviar de novo copia agochada"
 #: ../src/Gui/ComposeWidget.cpp:1387
 msgctxt "Gui::ComposeWidget|"
 msgid "Failed to Send Mail"
-msgstr "Non se puido enviar a mensaxe"
+msgstr "Non foi posíbel enviar a mensaxe"
 
 #: ../src/Gui/ComposeWidget.cpp:1414
 #, qt-format
@@ -2850,7 +2850,7 @@ msgid ""
 "\n"
 "%1"
 msgstr ""
-"Non se puido cargar un dos complementos, polo que pode que algunhas "
+"Non foi posíbel cargar un dos complementos, polo que pode que algunhas "
 "funcionalidades non estean dispoñíbeis. Quizais deba actualizar o sistema ou "
 "informar do fallo ao seu provedor de software.\n"
 "\n"
@@ -3489,7 +3489,7 @@ msgstr ""
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Failed to retrieve password from the store: %1"
-msgstr "Non se puido obter o contrasinal do almacenamento: %1"
+msgstr "Non foi posíbel obter o contrasinal do almacenamento: %1"
 
 #: ../src/Gui/Window.cpp:1461
 msgctxt "Gui::MainWindow|"
@@ -3511,7 +3511,7 @@ msgstr "Editar o borrador"
 #: ../src/Gui/Window.cpp:1637
 msgctxt "Gui::MainWindow|"
 msgid "Failed to archive"
-msgstr "Non se puido arquivar"
+msgstr "Non foi posíbel arquivar"
 
 #: ../src/Gui/Window.cpp:1687
 #, qt-format
@@ -3628,7 +3628,7 @@ msgid ""
 "Unable to save into file. Error:\n"
 "%1"
 msgstr ""
-"Non se pode gardar no ficheiro. Erro:\n"
+"Non é posíbel gardar no ficheiro. Erro:\n"
 "%1"
 
 #: ../src/Gui/Window.cpp:2182
@@ -3884,14 +3884,15 @@ msgstr "Erro descoñecido de QFile."
 #, qt-format
 msgctxt "QObject|"
 msgid "Couldn't remove file %1 for mailbox %2"
-msgstr "Non se puido retirar o ficheiro %1 da caixa de correo %2."
+msgstr "Non foi posíbel retirar o ficheiro %1 da caixa de correo %2."
 
 #: ../src/Imap/Model/DiskPartCache.cpp:95
 #, qt-format
 msgctxt "QObject|"
 msgid "Couldn't remove file %1 for message %2, mailbox %3"
 msgstr ""
-"Non se puido retirar o ficheiro %1 para a mensaxe %2 da caixa de correo %3."
+"Non foi posíbel retirar o ficheiro %1 para a mensaxe %2 da caixa de correo "
+"%3."
 
 #: ../src/Imap/Model/DiskPartCache.cpp:117
 #, qt-format
@@ -3899,7 +3900,7 @@ msgctxt "QObject|"
 msgid ""
 "Couldn't save the part %1 of message %2 (mailbox %3) into file %4: %5 (%6)"
 msgstr ""
-"Non se puido gardar a parte %1 da mensaxe %2 (da caixa de correo %3) no "
+"Non foi posíbel gardar a parte %1 da mensaxe %2 (da caixa de correo %3) no "
 "ficheiro %4: %5 (%6)."
 
 #: ../src/Imap/Model/FavoriteTagsModel.cpp:124
@@ -3947,13 +3948,13 @@ msgstr ""
 #, qt-format
 msgctxt "Imap::ImapAccess|"
 msgid "Failed to create directory %1"
-msgstr "Non se puido crear o directorio %1."
+msgstr "Non foi posíbel crear o directorio %1."
 
 #: ../src/Imap/Model/ImapAccess.cpp:326
 #, qt-format
 msgctxt "Imap::ImapAccess|"
 msgid "Failed to set safe permissions on cache directory %1"
-msgstr "Non se puideron definir permisos seguros no directorio de caché %1."
+msgstr "Non foi posíbel definir permisos seguros no directorio de caché %1."
 
 #: ../src/Imap/Model/MailboxTree.cpp:1244
 msgctxt "Imap::Mailbox::Model|"
@@ -4159,12 +4160,12 @@ msgstr "Non é posíbel crear a táboa «msg_metadata»."
 #: ../src/Imap/Model/SQLCache.cpp:132
 msgctxt "QObject|"
 msgid "Can't open database"
-msgstr "Non se pode abrir a base de datos"
+msgstr "Non é posíbel abrir a base de datos"
 
 #: ../src/Imap/Model/SQLCache.cpp:147
 msgctxt "QObject|"
 msgid "Failed to verify version"
-msgstr "Non se puido verificar a versión."
+msgstr "Non foi posíbel verificar a versión."
 
 #: ../src/Imap/Model/SQLCache.cpp:153
 msgctxt "QObject|"
@@ -4175,32 +4176,32 @@ msgstr "Non é posíbel determinar a información da versión."
 msgctxt "QObject|"
 msgid "Failed to update cache DB scheme from v1 to v2"
 msgstr ""
-"Non se puido actualizar o esquema da base de datos da caché da versión 1 á "
-"versión 2."
+"Non foi posíbel actualizar o esquema da base de datos da caché da versión 1 "
+"á versión 2."
 
 #: ../src/Imap/Model/SQLCache.cpp:171
 msgctxt "QObject|"
 msgid "Failed to drop old table mailbox_sync_state"
-msgstr "Non se puido eliminar a táboa vella «mailbox_sync_state»."
+msgstr "Non foi posíbel eliminar a táboa vella «mailbox_sync_state»."
 
 #: ../src/Imap/Model/SQLCache.cpp:177
 msgctxt "QObject|"
 msgid "Failed to update cache DB scheme from v2/v3 to v4"
 msgstr ""
-"Non se puido actualizar o esquema da base de datos da caché da versión 2 ou "
-"3 á versión 4."
+"Non foi posíbel actualizar o esquema da base de datos da caché da versión 2 "
+"ou 3 á versión 4."
 
 #: ../src/Imap/Model/SQLCache.cpp:190
 msgctxt "QObject|"
 msgid "Failed to drop old table msg_metadata"
-msgstr "Non se puido eliminar a táboa vella «msg_metadata»."
+msgstr "Non foi posíbel eliminar a táboa vella «msg_metadata»."
 
 #: ../src/Imap/Model/SQLCache.cpp:196
 msgctxt "QObject|"
 msgid "Failed to update cache DB scheme from v4/v5/v6 to v7"
 msgstr ""
-"Non se puido actualizar o esquema da base de datos da caché da versión 4, 5 "
-"ou 6 á 7."
+"Non foi posíbel actualizar o esquema da base de datos da caché da versión 4, "
+"5 ou 6 á 7."
 
 #: ../src/Imap/Model/SQLCache.cpp:202
 msgctxt "QObject|"
@@ -4210,7 +4211,7 @@ msgstr "Versión descoñecida da caché de SQLite"
 #: ../src/Imap/Model/SQLCache.cpp:223
 msgctxt "QObject|"
 msgid "Failed to prepare table structures"
-msgstr "Non se puido preparar a estrutura das táboas."
+msgstr "Non foi posíbel preparar a estrutura das táboas."
 
 #: ../src/Imap/Model/SQLCache.cpp:227
 msgctxt "QObject|"
@@ -4240,132 +4241,132 @@ msgstr "Non é posíbel crear a táboa «parts»."
 #: ../src/Imap/Model/SQLCache.cpp:281
 msgctxt "QObject|"
 msgid "Failed to prepare queryChildMailboxes"
-msgstr "Non se puido preparar «queryChildMailboxes»."
+msgstr "Non foi posíbel preparar «queryChildMailboxes»."
 
 #: ../src/Imap/Model/SQLCache.cpp:287
 msgctxt "QObject|"
 msgid "Failed to prepare queryChildMailboxesFresh"
-msgstr "Non se puido preparar «queryChildMailboxesFresh»."
+msgstr "Non foi posíbel preparar «queryChildMailboxesFresh»."
 
 #: ../src/Imap/Model/SQLCache.cpp:293
 msgctxt "QObject|"
 msgid "Failed to prepare queryRemoveChildMailboxes"
-msgstr "Non se puido preparar «queryRemoveChildMailboxes»."
+msgstr "Non foi posíbel preparar «queryRemoveChildMailboxes»."
 
 #: ../src/Imap/Model/SQLCache.cpp:299
 msgctxt "QObject|"
 msgid "Failed to prepare querySetChildMailboxes"
-msgstr "Non se puido preparar «querySetChildMailboxes»."
+msgstr "Non foi posíbel preparar «querySetChildMailboxes»."
 
 #: ../src/Imap/Model/SQLCache.cpp:305
 msgctxt "QObject|"
 msgid "Failed to prepare queryMailboxSyncState"
-msgstr "Non se puido preparar «queryMailboxSyncState»."
+msgstr "Non foi posíbel preparar «queryMailboxSyncState»."
 
 #: ../src/Imap/Model/SQLCache.cpp:313
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMailboxSyncState"
-msgstr "Non se puido preparar «querySetMailboxSyncState»."
+msgstr "Non foi posíbel preparar «querySetMailboxSyncState»."
 
 #: ../src/Imap/Model/SQLCache.cpp:319
 msgctxt "QObject|"
 msgid "Failed to prepare queryUidMapping"
-msgstr "Non se puido preparar «queryUidMapping»."
+msgstr "Non foi posíbel preparar «queryUidMapping»."
 
 #: ../src/Imap/Model/SQLCache.cpp:325
 msgctxt "QObject|"
 msgid "Failed to prepare querySetUidMapping"
-msgstr "Non se puido preparar «querySetUidMapping»."
+msgstr "Non foi posíbel preparar «querySetUidMapping»."
 
 #: ../src/Imap/Model/SQLCache.cpp:331
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearUidMapping"
-msgstr "Non se puido preparar «queryClearUidMapping»."
+msgstr "Non foi posíbel preparar «queryClearUidMapping»."
 
 #: ../src/Imap/Model/SQLCache.cpp:337
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageMetadata"
-msgstr "Non se puido preparar «queryMessageMetadata»."
+msgstr "Non foi posíbel preparar «queryMessageMetadata»."
 
 #: ../src/Imap/Model/SQLCache.cpp:343
 msgctxt "QObject|"
 msgid "Failed to prepare queryAccssMessageMetadata"
-msgstr "Non se puido preparar «queryAccssMessageMetadata»."
+msgstr "Non foi posíbel preparar «queryAccssMessageMetadata»."
 
 #: ../src/Imap/Model/SQLCache.cpp:349
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageMetadata"
-msgstr "Non se puido preparar «querySetMessageMetadata»."
+msgstr "Non foi posíbel preparar «querySetMessageMetadata»."
 
 #: ../src/Imap/Model/SQLCache.cpp:355
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageFlags"
-msgstr "Non se puido preparar «queryMessageFlags»."
+msgstr "Non foi posíbel preparar «queryMessageFlags»."
 
 #: ../src/Imap/Model/SQLCache.cpp:361
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageFlags"
-msgstr "Non se puido preparar «querySetMessageFlags»."
+msgstr "Non foi posíbel preparar «querySetMessageFlags»."
 
 #: ../src/Imap/Model/SQLCache.cpp:367
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages1"
-msgstr "Non se puido preparar «queryClearAllMessages1»."
+msgstr "Non foi posíbel preparar «queryClearAllMessages1»."
 
 #: ../src/Imap/Model/SQLCache.cpp:373
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages2"
-msgstr "Non se puido preparar «queryClearAllMessages2»."
+msgstr "Non foi posíbel preparar «queryClearAllMessages2»."
 
 #: ../src/Imap/Model/SQLCache.cpp:379
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages3"
-msgstr "Non se puido preparar «queryClearAllMessages3»."
+msgstr "Non foi posíbel preparar «queryClearAllMessages3»."
 
 #: ../src/Imap/Model/SQLCache.cpp:385
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages4"
-msgstr "Non se puido preparar «queryClearAllMessages4»."
+msgstr "Non foi posíbel preparar «queryClearAllMessages4»."
 
 #: ../src/Imap/Model/SQLCache.cpp:391
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage1"
-msgstr "Non se puido preparar «queryClearMessage1»."
+msgstr "Non foi posíbel preparar «queryClearMessage1»."
 
 #: ../src/Imap/Model/SQLCache.cpp:397
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage2"
-msgstr "Non se puido preparar «queryClearMessage2»."
+msgstr "Non foi posíbel preparar «queryClearMessage2»."
 
 #: ../src/Imap/Model/SQLCache.cpp:403
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage3"
-msgstr "Non se puido preparar «queryClearMessage3»."
+msgstr "Non foi posíbel preparar «queryClearMessage3»."
 
 #: ../src/Imap/Model/SQLCache.cpp:409
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessagePart"
-msgstr "Non se puido preparar «queryMessagePart»."
+msgstr "Non foi posíbel preparar «queryMessagePart»."
 
 #: ../src/Imap/Model/SQLCache.cpp:415
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessagePart"
-msgstr "Non se puido preparar «querySetMessagePart»."
+msgstr "Non foi posíbel preparar «querySetMessagePart»."
 
 #: ../src/Imap/Model/SQLCache.cpp:421
 msgctxt "QObject|"
 msgid "Failed to prepare queryForgetMessagePart"
-msgstr "Non se puido preparar queryForgetMessagePart"
+msgstr "Non foi posíbel preparar queryForgetMessagePart"
 
 #: ../src/Imap/Model/SQLCache.cpp:427
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageThreading"
-msgstr "Non se puido preparar «queryMessageThreading»."
+msgstr "Non foi posíbel preparar «queryMessageThreading»."
 
 #: ../src/Imap/Model/SQLCache.cpp:433
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageThreading"
-msgstr "Non se puido preparar «querySetMessageThreading»."
+msgstr "Non foi posíbel preparar «querySetMessageThreading»."
 
 #: ../src/Imap/Model/SQLCache.cpp:464
 msgctxt "QObject|"
@@ -4546,7 +4547,7 @@ msgstr ""
 #: ../src/Imap/Network/FileDownloadManager.cpp:45
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "Cannot translate CID URL: message is gone"
-msgstr "Non se pode traducir o URL CID: a mensaxe xa non existe."
+msgstr "Non é posíbel traducir o URL CID: a mensaxe xa non existe."
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:57
 #, qt-format
@@ -4590,7 +4591,7 @@ msgstr "O contido remoto está prohibido"
 #: ../src/Imap/Network/MsgPartNetworkReply.cpp:82
 msgctxt "Imap::Network::MsgPartNetworkReply|"
 msgid "Cannot access data"
-msgstr "Non se pode acceder aos datos"
+msgstr "Non é posíbel acceder aos datos"
 
 #: ../src/Imap/Network/MsgPartNetworkReply.cpp:85
 msgctxt "Imap::Network::MsgPartNetworkReply|"
@@ -4644,7 +4645,7 @@ msgstr "Solicitou morrer"
 #: ../src/Imap/Tasks/CreateMailboxTask.cpp:71
 msgctxt "Imap::Mailbox::CreateMailboxTask|"
 msgid "Cannot create mailbox"
-msgstr "Non se pode crear a caixa de correo."
+msgstr "Non é posíbel crear a caixa de correo."
 
 #: ../src/Imap/Tasks/CreateMailboxTask.cpp:79
 msgctxt "Imap::Mailbox::CreateMailboxTask|"
@@ -4659,7 +4660,7 @@ msgstr "Creando a caixa de correo…"
 #: ../src/Imap/Tasks/DeleteMailboxTask.cpp:99
 msgctxt "Imap::Mailbox::DeleteMailboxTask|"
 msgid "Couldn't delete mailbox"
-msgstr "Non se puido eliminar a caixa de correo."
+msgstr "Non foi posíbel eliminar a caixa de correo."
 
 #: ../src/Imap/Tasks/DeleteMailboxTask.cpp:109
 msgctxt "Imap::Mailbox::DeleteMailboxTask|"
@@ -4937,7 +4938,7 @@ msgid ""
 "Cannot establish a secure connection.\n"
 "The STARTTLS command failed: %1"
 msgstr ""
-"Non se pode estabelecer unha conexión segura.\n"
+"Non é posíbel estabelecer unha conexión segura.\n"
 "A orde STARTTLS fallou: %1"
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:265
@@ -5030,7 +5031,7 @@ msgstr "Erro do servidor: a solicitude CAPABILITY fallou."
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:472
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Cannot login, you have not provided any credentials yet."
-msgstr "Non se pode identificar, aínda non forneceu ningún dato de acceso."
+msgstr "Non é posíbel identificar, aínda non forneceu ningún dato de acceso."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:484
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
@@ -5113,7 +5114,7 @@ msgstr "Solicitou morrer"
 #: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:101
 msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
 msgid "Failed to update Mailbox FLAGS"
-msgstr "Non se puideron actualizar as marcas da caixa de correo."
+msgstr "Non foi posíbel actualizar as marcas da caixa de correo."
 
 #: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:110
 msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
@@ -5128,7 +5129,7 @@ msgstr "Retiráronse todas as mensaxes antes de poder actualizar as súas marcas
 #: ../src/Imap/Tasks/UpdateFlagsTask.cpp:138
 msgctxt "Imap::Mailbox::UpdateFlagsTask|"
 msgid "Failed to update FLAGS"
-msgstr "Non se puideron actualizar as marcas"
+msgstr "Non foi posíbel actualizar as marcas"
 
 #: ../src/Imap/Tasks/UpdateFlagsTask.cpp:148
 msgctxt "Imap::Mailbox::UpdateFlagsTask|"
@@ -5771,7 +5772,7 @@ msgstr "Cargando o contrasinal do complemento %1…"
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot read password via plugin %1"
-msgstr "Non se pode ler o contrasinal mediante o complemento %1…"
+msgstr "Non é posíbel ler o contrasinal mediante o complemento %1…"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:89 ../src/UiUtils/PasswordWatcher.cpp:175
 msgctxt "UiUtils::PasswordWatcher|"
@@ -5800,7 +5801,7 @@ msgstr "Gardando o contrasinal do complemento %1…"
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot save password via plugin %1"
-msgstr "Non se pode gardar o contrasinal mediante o complemento %1…"
+msgstr "Non é posíbel gardar o contrasinal mediante o complemento %1…"
 
 #~ msgctxt "Gui::SettingsDialog|"
 #~ msgid "&xTuple"
