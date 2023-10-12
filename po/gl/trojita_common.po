@@ -2050,7 +2050,7 @@ msgstr "Falta o nome do servidor de SMTP."
 #: ../src/Gui/SettingsDialog.cpp:1296
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP username is missing here"
-msgstr "Falta o nome de usuario de SMTP."
+msgstr "Falta o nome de usuaria de SMTP."
 
 #: ../src/Gui/SettingsDialog.cpp:1307
 msgctxt "Gui::OutgoingPage|"
@@ -2329,12 +2329,12 @@ msgstr "Nome de &usuario"
 #: ../src/Gui/SettingsImapPage.ui:157
 msgctxt "ImapPage|"
 msgid "Username"
-msgstr "Nome de usuario"
+msgstr "Nome de usuaria"
 
 #: ../src/Gui/SettingsImapPage.ui:160
 msgctxt "ImapPage|"
 msgid "User name to log in to the IMAP server"
-msgstr "Nome de usuario co que acceder ao servidor de IMAP."
+msgstr "Nome de usuaria co que acceder ao servidor de IMAP."
 
 #: ../src/Gui/SettingsImapPage.ui:170
 msgctxt "ImapPage|"
@@ -4960,7 +4960,7 @@ msgid ""
 "name."
 msgstr ""
 "A autenticación fallou. Isto adoita ocorrer cando o contrasinal ou o nome de "
-"usuario son incorrectos."
+"usuaria son incorrectos."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:307
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
