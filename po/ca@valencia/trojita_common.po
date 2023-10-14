@@ -2428,7 +2428,7 @@ msgstr ""
 #: ../src/Gui/SettingsImapPage.ui:230
 msgctxt "ImapPage|"
 msgid "Path to Server &Binary"
-msgstr "Camí al &binari del servidor"
+msgstr "Camí cap al &binari del servidor"
 
 #: ../src/Gui/SettingsImapPage.ui:240
 msgctxt "ImapPage|"
