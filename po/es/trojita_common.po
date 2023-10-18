@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-09-20 02:29+0200\n"
+"PO-Revision-Date: 2023-10-17 21:42+0200\n"
 "Last-Translator: Eloy Cuadra <ecuadra@eloihr.net>\n"
 "Language-Team: Spanish <kde-l10n-es@kde.org>\n"
 "Language: es\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 23.08.1\n"
+"X-Generator: Lokalize 23.08.2\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -3324,7 +3324,7 @@ msgstr "&Acerca de Trojitá..."
 #: ../src/Gui/Window.cpp:581
 msgctxt "Gui::MainWindow|"
 msgid "&Donate to the project"
-msgstr "&Donar al proyecto"
+msgstr "Hacer un &donativo al proyecto"
 
 #: ../src/Gui/Window.cpp:586
 msgctxt "Gui::MainWindow|"
