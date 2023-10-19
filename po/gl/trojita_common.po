@@ -3533,7 +3533,7 @@ msgstr "Eliminar a caixa de correos"
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Are you sure to delete mailbox %1?"
-msgstr "Está seguro de que quere eliminar a caixa de correo %1?"
+msgstr "Seguro que quere eliminar a caixa de correo %1?"
 
 #: ../src/Gui/Window.cpp:2015
 msgctxt "Gui::MainWindow|"
