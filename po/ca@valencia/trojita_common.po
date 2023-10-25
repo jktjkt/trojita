@@ -1982,8 +1982,8 @@ msgid ""
 "This port is nonstandard. The default port for IMAP secured over SSL/TLS is "
 "%1."
 msgstr ""
-"Este port no és estàndard. El port predeterminat per a l'IMAP assegurat "
-"sobre SSL/TLS és %1."
+"Este port no és estàndard. El port predeterminat per a IMAP assegurat sobre "
+"SSL/TLS és %1."
 
 #: ../src/Gui/SettingsDialog.cpp:936
 #, qt-format
@@ -1992,8 +1992,8 @@ msgid ""
 "This port is nonstandard. The default port for IMAP secured via STARTTLS is "
 "%1."
 msgstr ""
-"Este port no és estàndard. El port predeterminat per a l'IMAP assegurat "
-"sobre STARTTLS és %1."
+"Este port no és estàndard. El port predeterminat per a IMAP assegurat sobre "
+"STARTTLS és %1."
 
 #: ../src/Gui/SettingsDialog.cpp:938
 #, qt-format
@@ -2001,7 +2001,7 @@ msgctxt "Gui::ImapPage|"
 msgid ""
 "This port is nonstandard. The default port for IMAP over cleartext is %1."
 msgstr ""
-"Este port no és estàndard. El port predeterminat per a l'IMAP sobre text en "
+"Este port no és estàndard. El port predeterminat per a IMAP sobre text en "
 "clar és %1."
 
 #: ../src/Gui/SettingsDialog.cpp:1046
@@ -2184,7 +2184,7 @@ msgstr ""
 "i detalls del sistema operatiu. Considereu deixar esta opció activa, per tal "
 "que els desenvolupadors puguen solucionar els problemes dels informes "
 "d'error quan alguna cosa va malament.</p><p>Les dades es comuniquen "
-"mitjançant l'ordre <code>ID</code> de l'IMAP i a través de la capçalera "
+"mitjançant l'ordre <code>ID</code> d'IMAP i a través de la capçalera "
 "<code>User-Agent</code> en els correus d'eixida, entre altres coses.</"
 "p><p>Cal tindre en compte que encara que desactiveu esta opció, els "
 "servidors amb els quals es comunica Trojitá i la gent que llig els vostres "
