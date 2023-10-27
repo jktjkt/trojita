@@ -18,7 +18,7 @@
   <name xml:lang="es">Trojitá</name>
   <name xml:lang="et">Trojitá</name>
   <name xml:lang="fi">Trojitá</name>
-  <name xml:lang="fr">Trojitá</name>
+  <name xml:lang="fr">Trojita</name>
   <name xml:lang="gl">Trojitá</name>
   <name xml:lang="hu">Trojitá</name>
   <name xml:lang="ia">Trojitá</name>
@@ -96,7 +96,7 @@
     <p xml:lang="es">Trojitá es un programa de correo electrónico («cliente») especializado en dar un acceso rápido y eficiente a los buzones de correo sobre el protocolo IMAP. Un servidor de correo IMAP almacena los mensajes y permite a los clientes extraerlos en un sistema local cuando se le pida.</p>
     <p xml:lang="et">Trojitá on e-posti rakendus ("klient"), mille eritunnuseks on oma postkasti kiire ja tõhusa kasutamise võimaldamine IMAP-protokolli vahendusel. IMAP e-posti server salvestab kirjad ja võimaldab soovi korral tõmmata kirjad kohalikku arvutisse.</p>
     <p xml:lang="fi">Trojitá on sähköpostiohjelma (”-asiakas”), joka on erikoistunut nopeaan ja tehokkaaseen IMAP-yhteyskäytännön yli tapahtuvaan käyttöön. IMAP-postipalvelin tallentaa viestit ja antaa asiakkaiden noutaa viestejä paikalliselle tietokoneelle pyydettäessä.</p>
-    <p xml:lang="fr">Trojitá est une application (client) de courriers électroniques spécialisé dans l'accès rapide et efficace à des boîtes aux lettres par le protocole IMAP. Un serveur IMAP stocke les messages et permet aux clients de synchroniser les courriers électroniques sur l'ordinateur (local).</p>
+    <p xml:lang="fr">Trojita est une application (client) de courriers électroniques spécialisé dans l'accès rapide et efficace à des boîtes aux lettres par le protocole IMAP. Un serveur IMAP stocke les messages et permet aux clients de synchroniser les courriers électroniques sur l'ordinateur (local).</p>
     <p xml:lang="gl">Trojitá é un programa de correo electrónico ("cliente") especializado en fornecer acceso rápido e eficiente a caixas de correo mediante o protocolo IMAP. Os servidores de correo de IMAP almacenan mensaxes e permiten que os clientes obteñan as mensaxes no computador local cando as solicitan.</p>
     <p xml:lang="hu">A Trojitá egy olyan e-mail program („kliens”), amely arra specializálódott, hogy gyors és hatékony hozzáférést biztosítson postafiókokhoz az IMAP protokollon keresztül. Egy IMAP levelezőszerver tárolja az üzeneteket, és lehetővé teszi a kliensek számára, hogy letöltsék az üzeneteket a helyi számítógépre kérés esetén.</p>
     <p xml:lang="id">Trojitá adalah program email ("client") yang khusus memberikan akses cepat dan efisien ke kotak surat melalui protokol IMAP. Server surat IMAP menyimpan pesan dan memungkinkan klien untuk mengambil pesan ke komputer lokal ketika diminta</p>
@@ -132,7 +132,7 @@
     <p xml:lang="es">Prioriza la eficiencia, la velocidad y los estándares abiertos por encima de otros objetivos. Trojitá también pretende ser multiplataforma y funciona bien en cualquier equipo, desde los de escritorio hasta los teléfonos móviles más pequeños. Trojitá es un programa independiente que no forma parte de ningún sistema de «gestión de información personal».</p>
     <p xml:lang="et">Trojitá seab kõigi teiste sihtide ees rõhu tõhususele, kiirusele ja avatud standarditele. Samuti on meie eesmärk olla kasutatav paljudel platvormidel ning tulla edukalt toime nii suurtel lauaarvutitel kui ka väikestel mobiiltelefonidel. Trojitá on omaette rakendus, mis ei kuulu ühtegi "isikliku teabe haldamise" (PIM) komplekti.</p>
     <p xml:lang="fi">Ohjelmassa kaikkien muiden päämäärien edellä ovat tehokkuus, nopeus ja avoimet standardit. Trojitá pyrkii myös monialustaisuuteen, ja se toimii kaikkialla perinteisistä pöytäkoneista matkapuhelimiin. Trojitá on itsenäinen ohjelma eikä osa mitään ”henkilökohtaisen tiedon hallinnan” ohjelmistoa.</p>
-    <p xml:lang="fr">Il privilégie entre autres l'efficacité, la vitesse et les standards ouverts. Trojitá vise également à être multi-plate-forme et fonctionne aussi bien sur les petits téléphones portables que sur les ordinateurs de bureau. Trojitá est une application autonome, ne faisant partie d'aucun « gestionnaire d'informations personnelles ».</p>
+    <p xml:lang="fr">Il privilégie entre autres l'efficacité, la vitesse et les standards ouverts. Trojita vise également à être multi-plate-forme et fonctionne aussi bien sur les petits téléphones portables que sur les ordinateurs de bureau. Trojita est une application autonome, ne faisant partie d'aucun « gestionnaire d'informations personnelles ».</p>
     <p xml:lang="gl">Dálle prioridade á eficiencia, a velocidade e os estándares abertos por riba de calquera outra cousa. Trojitá tamén pretende funcionar en calquera plataforma, e intégrase ben tanto en grandes computadores de escritorio como en pequenos teléfonos. Trojitá é un programa independente que non forma parte de ningunha colección de programas de xestión de información persoal (PIM).</p>
     <p xml:lang="hu">A hatékonyságot, a sebességet és a nyílt szabványokat más célok elé helyezi. A Trojitá célja továbbá, hogy multiplatformos legyen, és mindenhol jól működjön, a nagy asztali számítógépektől a kis mobiltelefonokig. A Trojitá egy önálló program, nem része egy „személyi információkezelő” csomagnak sem.</p>
     <p xml:lang="id">Ini memprioritaskan efisiensi, kecepatan dan standar terbuka di atas tujuan lain. Trojitá juga bertujuan untuk multi-platform, dan berfungsi dengan baik di segala hal mulai dari komputer desktop besar hingga ponsel kecil. Trojitá adalah program yang berdiri sendiri, bukan bagian dari suite "personal information manager".</p>
@@ -165,7 +165,7 @@
     <p xml:lang="es">Qué puede hacer a Trojitá interesante para usted:</p>
     <p xml:lang="et">Trojitá puhul võib huvi pakkuda:</p>
     <p xml:lang="fi">Miksi Trojitá voisi kiinnostaa sinua:</p>
-    <p xml:lang="fr">Ce qui pourrait vous intéresser dans Trojitá :</p>
+    <p xml:lang="fr">Ce qui pourrait vous intéresser dans Trojita :</p>
     <p xml:lang="gl">Trojitá podería interesarlle polo seguinte:</p>
     <p xml:lang="hu">Mi teheti érdekessé a Trojitát Önnek:</p>
     <p xml:lang="id">Apa yang bisa membuat Trojitá menarik bagimu:</p>
