@@ -1,20 +1,20 @@
 # translation of trojita_common.po to
+# SPDX-FileCopyrightText: 2021, 2023 Xavier Besnard <xavier.besnard@neuf.fr>
 # Joëlle Cornavin <jcorn@free.fr>, 2012, 2013.
 # Vincent PINON <vpinon@kde.org>, 2013, 2014.
 # Baptiste Pauget <bap.pauget@orange.fr>, 2018.
 # Simon Depiets <sdepiets@gmail.com>, 2018, 2019, 2020.
-# Xavier Besnard <xavier.besnard@neuf.fr>, 2021.
 msgid ""
 msgstr ""
 "Project-Id-Version: trojita_common\n"
-"PO-Revision-Date: 2021-12-29 20:08+0100\n"
-"Last-Translator: Xavier Besnard <xavier.besnard@neuf.fr>\n"
-"Language-Team: French <kde-francophone@kde.org>\n"
+"PO-Revision-Date: 2023-11-01 22:12+0100\n"
+"Last-Translator: Xavier BESNARD <xavier.besnard@neuf.fr>\n"
+"Language-Team: fr\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 21.12.0\n"
+"X-Generator: Lokalize 23.08.2\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Environment: kde\n"
 "X-Accelerator-Marker: &\n"
@@ -674,13 +674,13 @@ msgstr "Nom original du fichier : %1"
 #: ../src/Gui/AboutDialog.ui:14
 msgctxt "AboutDialog|"
 msgid "About Trojitá"
-msgstr "À propos de Trojitá"
+msgstr "À propos de Trojita"
 
 #: ../src/Gui/AboutDialog.ui:152
 msgctxt "AboutDialog|"
 msgid "<p>This is <b>Trojitá</b>, a fast Qt IMAP e-mail client</p>"
 msgstr ""
-"<p>Voici <b>Trojitá</b>, un client Qt rapide pour courrier électronique en "
+"<p>Voici <b>Trojita</b>, un client Qt rapide pour courrier électronique en "
 "IMAP</p>"
 
 #: ../src/Gui/AddressRowWidget.cpp:130
@@ -826,7 +826,7 @@ msgid ""
 "of the message. You might want to use the \"Reply All\" function and trim "
 "the list of addresses manually."
 msgstr ""
-"Trojitá n'a pas été en mesure de déterminer avec certitude l'adresse "
+"Trojita n'a pas été en mesure de déterminer avec certitude l'adresse "
 "électronique de l'auteur du message. Vous pourriez être amené à utiliser la "
 "fonction « Répondre à tous » et couper la liste des adresses manuellement."
 
@@ -1295,7 +1295,7 @@ msgstr "Annuler"
 #, qt-format
 msgctxt "QObject|"
 msgid "Trojitá %1 - fast Qt IMAP e-mail client"
-msgstr "Trojitá %1 - client Qt rapide pour courrier électronique en IMAP"
+msgstr "Trojita %1 - client Qt rapide pour courrier électronique en IMAP"
 
 #: ../src/Gui/main.cpp:89
 msgctxt "QObject|"
@@ -1766,7 +1766,7 @@ msgid ""
 msgstr ""
 "Cela pourrait conduire à une opération extrêmement lente dans certains cas "
 "de boîtes mail partagées, de hiérarchies de dossiers importantes, ou de "
-"serveur mandataire IMAP, par example."
+"serveur mandataire IMAP, par exemple."
 
 #: ../src/Gui/SettingsCachePage.ui:125
 msgctxt "CachePage|"
@@ -1884,9 +1884,9 @@ msgid ""
 "library, and the underlying operating system. No private information, like "
 "account settings or IMAP server details, are collected.</p>"
 msgstr ""
-"<p>S'il est activé, Trojitá affichera sa page d'accueil au démarrage.</"
+"<p>S'il est activé, Trojita affichera sa page d'accueil au démarrage.</"
 "p><p>Le serveur distant recevra l'adresse IP de l'utilisateur et les "
-"versions de Trojitá, la bibliothèque Qt et le système d'exploitation sous-"
+"versions de Trojita, la bibliothèque Qt et le système d'exploitation sous-"
 "jacent. Aucune information personnelle, comme les paramètres du compte ou "
 "les détails du serveur IMAP n'est collectée.</p>"
 
@@ -1953,7 +1953,7 @@ msgid ""
 "password here, Trojitá will prompt for one when needed."
 msgstr ""
 "Le mot de passe sera enregistré sous forme chiffrée. Si vous le laissez "
-"vide, Trojitá vous le demande au besoin."
+"vide, Trojita vous le demande au besoin."
 
 #: ../src/Gui/SettingsDialog.cpp:838
 msgctxt "Gui::ImapPage|"
@@ -1962,7 +1962,7 @@ msgid ""
 "here, Trojitá will prompt for one when needed."
 msgstr ""
 "Le mot de passe sera enregistré en texte clair. Si vous le laissez vide, "
-"Trojitá vous le demande au besoin."
+"Trojita vous le demande au besoin."
 
 #: ../src/Gui/SettingsDialog.cpp:909
 msgctxt "Gui::ImapPage|"
@@ -2044,7 +2044,7 @@ msgid ""
 "password here, Trojitá will prompt for one when needed."
 msgstr ""
 "Le mot de passe sera enregistré sous forme chiffrée. Si vous le laissez "
-"vide, Trojitá vous le demande au besoin."
+"vide, Trojita vous le demande au besoin."
 
 #: ../src/Gui/SettingsDialog.cpp:1200
 msgctxt "Gui::OutgoingPage|"
@@ -2053,7 +2053,7 @@ msgid ""
 "here, Trojitá will prompt for one when needed."
 msgstr ""
 "Le mot de passe sera enregistré en texte clair. Si vous le laissez vide, "
-"Trojitá vous le demande au besoin."
+"Trojita vous le demande au besoin."
 
 #: ../src/Gui/SettingsDialog.cpp:1294 ../src/Gui/SettingsDialog.cpp:1300
 msgctxt "Gui::OutgoingPage|"
@@ -2098,7 +2098,7 @@ msgstr "Zone de défilement"
 #: ../src/Gui/SettingsGeneralPage.ui:41
 msgctxt "GeneralPage|"
 msgid "Show Trojitá's homepage on startup"
-msgstr "Afficher la page d'accueil de Trojitá au démarrage"
+msgstr "Afficher la page d'accueil de Trojita au démarrage"
 
 #: ../src/Gui/SettingsGeneralPage.ui:48
 msgctxt "GeneralPage|"
@@ -2183,20 +2183,20 @@ msgid ""
 "body></html>"
 msgstr ""
 "<html><head/><body><p>Si cette option est sélectionnée, des informations sur "
-"Trojitá et le système sous-jacent seront ajoutées, dont les informations de "
+"Trojita et le système sous-jacent seront ajoutées, dont les informations de "
 "version de Qt et le système d'exploitation. Merci d'envisager de laisser de "
 "cette option activée afin de permettre aux développeurs de corriger les "
 "défauts rencontrés.</p><p>Les données sont entre autres transmisses par la "
 "commande IMAP <code>ID</code> et dans l'en-tête <code>User-Agent</code> des "
 "messages sortants.</p><p>Veuillez noter que même si cette option est "
-"désactivée, le serveur avec lequel Trojitá communique et les destinataires "
+"désactivée, le serveur avec lequel Trojita communique et les destinataires "
 "de vos e-mails seront toujours capable de savoir que vous utilisez une "
-"certaine version de Trojitá.</p></body></html>"
+"certaine version de Trojita.</p></body></html>"
 
 #: ../src/Gui/SettingsGeneralPage.ui:259
 msgctxt "GeneralPage|"
 msgid "Reveal Trojitá's version and platform information"
-msgstr "Afficher la version de Trojitá et les informations sur la plate-forme"
+msgstr "Afficher la version de Trojita et les informations sur la plate-forme"
 
 #: ../src/Gui/SettingsGeneralPage.ui:271
 msgctxt "GeneralPage|"
@@ -2207,7 +2207,7 @@ msgid ""
 "move).</p>"
 msgstr ""
 "<p>Si activé, vous pouvez définir les actions de glisser-déposer par défaut "
-"pour l'arbre des boîtes mails.</p><p>Si désactivé, Trojitá vous le demandera "
+"pour l'arbre des boîtes mails.</p><p>Si désactivé, Trojita vous le demandera "
 "à chaque fois. Vous pouvez toujours passer outre l'action définie en "
 "utiliser les touches modificatrice lors de la dépose (Contrôle : copier, "
 "Maj : déplacer).</p>"
@@ -2305,7 +2305,7 @@ msgstr "Nom d'hôte du serveur IMAP"
 #: ../src/Gui/SettingsImapPage.ui:78
 msgctxt "ImapPage|"
 msgid "This is the name of the IMAP server that Trojitá should connect to."
-msgstr "Il s'agit du nom du serveur IMAP auquel Trojitá devra se connecter."
+msgstr "Il s'agit du nom du serveur IMAP auquel Trojita devra se connecter."
 
 #: ../src/Gui/SettingsImapPage.ui:88
 msgctxt "ImapPage|"
@@ -2328,7 +2328,7 @@ msgid ""
 "Check if Trojitá should connect to a network in order to access this "
 "account. You will stay offline if there is no network connectivity."
 msgstr ""
-"Cochez si Trojitá doit se connecter à un réseau pour accéder à ce compte. "
+"Cochez si Trojita doit se connecter à un réseau pour accéder à ce compte. "
 "Vous resterez déconnecté si aucun accès réseau n'est disponible."
 
 #: ../src/Gui/SettingsImapPage.ui:134
@@ -2416,7 +2416,7 @@ msgstr ""
 "p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Si vous n'enregistrez pas "
-"le mot de passe, Trojitá vous invitera à en enregistrer un lorsqu'il en aura "
+"le mot de passe, Trojita vous invitera à en enregistrer un lorsqu'il en aura "
 "besoin, mais seulement une fois par session.</p></body></html>"
 
 #: ../src/Gui/SettingsImapPage.ui:204
@@ -2426,7 +2426,7 @@ msgid ""
 "prompt when needed."
 msgstr ""
 "Le mot de passe sera enregistré en texte clair. Laissez le vide pour que "
-"Trojitá vous le demande au besoin."
+"Trojita vous le demande au besoin."
 
 #: ../src/Gui/SettingsImapPage.ui:230
 msgctxt "ImapPage|"
@@ -2535,7 +2535,7 @@ msgstr "Icône du compte"
 #: ../src/Gui/SettingsImapPage.ui:332
 msgctxt "ImapPage|"
 msgid "Default Trojitá icon"
-msgstr "Icône par défaut de Trojitá"
+msgstr "Icône par défaut de Trojita"
 
 #: ../src/Gui/SettingsImapPage.ui:342
 msgctxt "ImapPage|"
@@ -2620,7 +2620,7 @@ msgstr "Configurer les raccourcis"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
 msgctxt "Gui::ShortcutConfigDialog|"
 msgid "Trojitá"
-msgstr "Trojitá"
+msgstr "Trojita"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
 msgctxt "Gui::ShortcutConfigWidget|"
@@ -2631,7 +2631,7 @@ msgstr "Configurer les raccourcis"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
 msgctxt "Gui::ShortcutConfigWidget|"
 msgid "Trojitá"
-msgstr "Trojitá"
+msgstr "Trojita"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:177
 msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
@@ -2686,8 +2686,8 @@ msgstr ""
 "<p>Sélectionnez une action (avec la souris ou les touches fléchées). Vous "
 "pouvez alors changer son raccourci simplement en cliquant sur le nouveau "
 "raccourci.</p><p>Notez qu'il n'est pas possible d'utiliser quelques "
-"raccourcis : « Haut », « Bas », « Gauche », « Droite », « Page préc », "
-"« Page suiv », « Tab », « Maj+Tab », « Entrée » et « Échap ».</p>"
+"raccourcis : « Haut », « Bas », « Gauche », « Droite », « Page Préc », "
+"« Page Suiv », « Tab », « Maj + Tab », « Entrée » et « Échap ».</p>"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:31
 msgctxt "ShortcutConfigWidget|"
@@ -3331,7 +3331,7 @@ msgstr "A&bonné"
 #: ../src/Gui/Window.cpp:578
 msgctxt "Gui::MainWindow|"
 msgid "&About Trojitá..."
-msgstr "&À propos de Trojitá..."
+msgstr "&À propos de Trojita..."
 
 #: ../src/Gui/Window.cpp:581
 msgctxt "Gui::MainWindow|"
@@ -3440,7 +3440,7 @@ msgstr "Déconnecté"
 #: ../src/Gui/Window.cpp:1118 ../src/Gui/Window.cpp:2530
 msgctxt "Gui::MainWindow|"
 msgid "Trojitá"
-msgstr "Trojitá"
+msgstr "Trojita"
 
 #: ../src/Gui/Window.cpp:1119
 msgctxt "Gui::MainWindow|"
@@ -3501,7 +3501,7 @@ msgstr "Pas de configuration"
 msgctxt "Gui::MainWindow|"
 msgid "No IMAP account is configured. Trojitá cannot do much without one."
 msgstr ""
-"Aucun compte IMAP n'est configuré. Il est impossible pour Trojitá d'en faire "
+"Aucun compte IMAP n'est configuré. Il est impossible pour Trojita d'en faire "
 "plus sans cela."
 
 #: ../src/Gui/Window.cpp:1443
@@ -3612,7 +3612,7 @@ msgstr "Cible du lien : %1"
 #: ../src/Gui/Window.cpp:2092
 msgctxt "Gui::MainWindow|"
 msgid "Plugins"
-msgstr "Plug-ins"
+msgstr "Modules externes"
 
 #: ../src/Gui/Window.cpp:2099
 msgctxt "Gui::MainWindow|"
@@ -3776,14 +3776,14 @@ msgstr ""
 msgctxt "Gui::MainWindow|"
 msgid "%1 - %n unread - Trojitá"
 msgid_plural "%1 - %n unread - Trojitá"
-msgstr[0] "%1 — %n non lu — Trojitá"
-msgstr[1] "%1 — %n non lus — Trojitá"
+msgstr[0] "%1 — %n non lu — Trojita"
+msgstr[1] "%1 — %n non lus — Trojita"
 
 #: ../src/Gui/Window.cpp:2527
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "%1 - Trojitá"
-msgstr "%1 — Trojitá"
+msgstr "%1 — Trojita"
 
 #: ../src/Gui/Window.cpp:2864
 #, qt-format
@@ -3899,7 +3899,7 @@ msgstr "Déconnecté."
 #: ../src/Imap/Model/DiskPartCache.cpp:64
 msgctxt "QObject|"
 msgid "Unrecognized QFile error"
-msgstr "Erreur QFile non reconnue"
+msgstr "Erreur « QFile » non reconnue"
 
 #: ../src/Imap/Model/DiskPartCache.cpp:85
 #, qt-format
@@ -4056,7 +4056,7 @@ msgid ""
 msgstr ""
 "<p>Le serveur IMAP nous a envoyé une réponse qu'il nous est impossible "
 "d'analyser syntaxiquement. Cela pourrait signifier soit qu'il existe un "
-"bogue dans le code de Trojitá, soit que le serveur IMAP auquel vous êtes "
+"bogue dans le code de Trojita, soit que le serveur IMAP auquel vous êtes "
 "connecté est défectueux. Veuillez signaler ce problème en tant que bogue "
 "quoi qu'il en soit. Voici les détails :</p><p><b>%1</b> : %2</p><pre>%3\n"
 "%4</pre>"
@@ -4794,7 +4794,7 @@ msgid ""
 "The server sent the following ALERT:\n"
 "%1"
 msgstr ""
-"Le serveur a envoyé l'ALERTE suivante :\n"
+"Le serveur a envoyé l'alerte suivante :\n"
 "%1"
 
 #: ../src/Imap/Tasks/ImapTask.h:191
@@ -5458,7 +5458,7 @@ msgstr "Ce plug-in ne peut enregistrer que des mots de passe IMAP ou SMTP"
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:123
 msgctxt "trojita_plugin_ClearTextPasswordPlugin|"
 msgid "Trojitá's settings"
-msgstr "Paramètres de Trojitá"
+msgstr "Paramètres de Trojita"
 
 #: ../src/Plugins/QtKeyChain/QtKeyChainPassword.cpp:127
 msgctxt "trojita_plugin_QtKeyChainPasswordPlugin|"
