@@ -123,10 +123,10 @@
 >Aquests paràmetres esdevenen una identitat, i se'n poden tenir diverses, per exemple, si voleu que alguns dels vostres correus són de part d'una llista de correu on els vostres missatges haurien de ser diferents (una línia de signatura diferent, per exemple). No obstant això, en l'actualitat, el &trojita; encara no permet diversos comptes IMAP (és a dir, utilitzar amb múltiples servidors).</para>
 
 <para
->A continuació, afegiu els paràmetres de connexió necessaris per accedir al vostre compte. <itemizedlist>
+>A continuació, afegiu els paràmetres de connexió necessaris per a accedir al vostre compte. <itemizedlist>
 <listitem
 ><para
->Mètode: trieu SSL, si el proveïdor ho requereix. En cas contrari, trieu «TCP» per a una connexió que comença sense encriptar i es pot actualitzar a encriptació mentre es connecta. I si el proveïdor us requereix que feu aquesta actualització a l'encriptació, activeu «Porta a terme l'ordre STARTTLS» per assegurar que es faci. El «Procés local» és per a usuaris avançats que, per exemple, estan connectant amb el proveïdor a través d'un altre agent SSH (en aquest cas cal posar alguna cosa com <userinput
+>Mètode: trieu SSL, si el proveïdor ho requereix. En cas contrari, trieu «TCP» per a una connexió que comença sense encriptar i es pot actualitzar a encriptació mentre es connecta. I si el proveïdor us requereix que feu aquesta actualització a l'encriptació, activeu «Porta a terme l'ordre STARTTLS» per a assegurar que es faci. El «Procés local» és per a usuaris avançats que, per exemple, estan connectant amb el proveïdor a través d'un altre agent SSH (en aquest cas cal posar alguna cosa com <userinput
 >ssh imap.provider.org dovecot --exec-mail imap</userinput
 >). En general, TCP o SSL són les dues opcions més probables.</para
 ></listitem>
@@ -160,7 +160,7 @@
 <para
 >La pestanya del mode <guilabel
 >Desconnectat</guilabel
-> és on configureu la capacitat del &trojita; per emmagatzemar còpies locals de missatges al vostre servidor. L'avantatge de desar una còpia localment és òbvia: es pot accedir més tard sense tornar a connectar. Els desavantatges inclouen omplir el disc dur local i, per descomptat, el risc de seguretat si algú mai examina el vostre ordinador. De manera predeterminada, el &trojita; emmagatzema les còpies locals indefinidament, però aquí podeu triar si preferiu emmagatzemar-les fins a un nombre determinat de dies, o no emmagatzemar-les en absolut. Tingueu en compte que el codi per netejar la memòria cau de missatges encara no s'ha implementat, de manera que en l'actualitat haureu d'assumir que la memòria cau de missatges no s'eliminarà.</para>
+> és on configureu la capacitat del &trojita; per a emmagatzemar còpies locals de missatges al vostre servidor. L'avantatge de desar una còpia localment és òbvia: es pot accedir més tard sense tornar a connectar. Els desavantatges inclouen omplir el disc dur local i, per descomptat, el risc de seguretat si algú mai examina el vostre ordinador. De manera predeterminada, el &trojita; emmagatzema les còpies locals indefinidament, però aquí podeu triar si preferiu emmagatzemar-les fins a un nombre determinat de dies, o no emmagatzemar-les en absolut. Tingueu en compte que el codi per a netejar la memòria cau de missatges encara no s'ha implementat, de manera que en l'actualitat haureu d'assumir que la memòria cau de missatges no s'eliminarà.</para>
 
 <para
 >La pestanya <guilabel
@@ -184,7 +184,7 @@
 ></listitem>
 <listitem
 ><para
->StartTLS: activeu aquesta casella si el vostre proveïdor necessita una connexió TLS per enviar correu encriptat (això no és el mateix que utilitzar SSL escollint «SMTP segur» com a mètode anterior).</para
+>StartTLS: activeu aquesta casella si el vostre proveïdor necessita una connexió TLS per a enviar correu encriptat (això no és el mateix que utilitzar SSL escollint «SMTP segur» com a mètode anterior).</para
 ></listitem>
 <listitem
 ><para
@@ -232,15 +232,15 @@
 > <guimenuitem
 >Ampla</guimenuitem
 ></menuchoice
-> per triar en el seu lloc una disposició de tres subfinestres adequada per a pantalles més grans i amples, on les carpetes es mostren a la columna esquerra, els missatges de la carpeta seleccionada a la columna central, i el contingut del missatge seleccionat a la columna dreta.</para>
+> per a triar en el seu lloc una disposició de tres subfinestres adequada per a pantalles més grans i amples, on les carpetes es mostren a la columna esquerra, els missatges de la carpeta seleccionada a la columna central, i el contingut del missatge seleccionat a la columna dreta.</para>
 
 <para
 >Quan seleccioneu un missatge, es mostrarà a continuació. Feu clic dret sobre el missatge seleccionat a la subfinestra superior si voleu suprimir el missatge, desar-lo al disc com un fitxer de text, o veure totes les capçaleres.</para>
 
 <para
->Per respondre o reenviar un missatge, utilitzeu els botons de la barra d'eines, ja que actualment no hi ha cap drecera de teclat definida. Trieu <guibutton
+>Per a respondre o reenviar un missatge, utilitzeu els botons de la barra d'eines, ja que actualment no hi ha cap drecera de teclat definida. Trieu <guibutton
 >Resposta privada</guibutton
-> per respondre només al remitent. Trieu <guibutton
+> per a respondre només al remitent. Trieu <guibutton
 >Respon a tothom</guibutton
 > si voleu respondre al remitent i a tots els altres en les línies A: o CC:. Si el missatge arriba a través d'una llista de correu adequadament configurada, també estarà disponible l'opció <guibutton
 >Respon a la llista de correu</guibutton
@@ -258,7 +258,7 @@
 >Escriure/redactar el correu</title>
 
 <para
->Per compondre un missatge nou, feu clic a la icona a l'extrem esquerre de la barra d'eines. Apareixerà una finestra de missatge nou, on podreu triar els destinataris, compondre el text i enviar. Si us interrompen i necessiteu desar un esborrany, podeu fer-ho amb un clic al menú petit d'expansió al costat del botó d'enviament. A continuació es desarà un esborrany a la carpeta d'esborranys.</para>
+>Per a compondre un missatge nou, feu clic a la icona a l'extrem esquerre de la barra d'eines. Apareixerà una finestra de missatge nou, on podreu triar els destinataris, compondre el text i enviar. Si us interrompen i necessiteu desar un esborrany, podeu fer-ho amb un clic al menú petit d'expansió al costat del botó d'enviament. A continuació es desarà un esborrany a la carpeta d'esborranys.</para>
 </sect1>
 
 <sect1 id="address-book">
@@ -272,7 +272,7 @@
 >abook</application
 >. Executant <application
 >abook</application
-> en una finestra de terminal com el &konsole;, podeu afegir, suprimir i editar entrades de la llibreta d'adreces. El &trojita; no manipula aquesta llibreta d'adreces de cap manera, per exemple, no afegirà noves entrades mentre escriviu missatges. Però si teniu una llibreta d'adreces <filename role="extension"
+> en una finestra de terminal com el &konsole;, podeu afegir, suprimir i editar entrades de la llibreta d'adreces. El &trojita; no manipula aquesta llibreta d'adreces de cap manera, per exemple, no afegirà entrades noves mentre escriviu missatges. Però si teniu una llibreta d'adreces <filename role="extension"
 >.abook</filename
 >, el &trojita; l'utilitzarà per a completar automàticament les entrades.</para
 ></sect1>
@@ -306,7 +306,7 @@
 <listitem
 ><para
 ><action
->Obre un missatge nou per editar</action
+>Obre un missatge nou per a editar</action
 ></para
 ></listitem>
 </varlistentry>
@@ -433,7 +433,7 @@
 <listitem
 ><para
 ><action
->Seleccioneu aquesta opció per a mostrar els missatges agrupats en fils (converses). Això és útil per a les llistes de correu, per exemple. Això depèn del vostre servidor IMAP que admeti una o més extensions voluntàries, ja que en cas contrari el &trojita; hauria de fer més treball per endreçar els fils de missatges.</action
+>Seleccioneu aquesta opció per a mostrar els missatges agrupats en fils (converses). Això és útil per a les llistes de correu, per exemple. Això depèn del vostre servidor IMAP que admeti una o més extensions voluntàries, ja que en cas contrari el &trojita; hauria de fer més treball per a endreçar els fils de missatges.</action
 ></para
 ></listitem>
 </varlistentry>
@@ -467,7 +467,7 @@
 <listitem
 ><para
 ><action
->La vostra bústia pot tenir més carpetes de les que realment cal controlar. Seleccioneu aquesta opció per limitar les carpetes mostrades només a les que us heu subscrit. Això no elimina les altres carpetes, només els impedeix que es mostrin a la llista de carpetes.</action
+>La vostra bústia pot tenir més carpetes de les que realment cal controlar. Seleccioneu aquesta opció per a limitar les carpetes mostrades només a les que us heu subscrit. Això no elimina les altres carpetes, només els impedeix que es mostrin a la llista de carpetes.</action
 ></para
 ></listitem>
 </varlistentry>
