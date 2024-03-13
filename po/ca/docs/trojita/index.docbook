@@ -188,7 +188,7 @@
 ></listitem>
 <listitem
 ><para
->Autenticació SMTP: si cal introduir un nom d'usuari i una contrasenya per enviar correu, activeu aquesta casella. Actualment, gairebé sempre s'ha de fer, ja que en cas contrari els generadors de correu brossa envien missatges no desitjats a través del servidor.</para
+>Autenticació SMTP: si cal introduir un nom d'usuari i una contrasenya per a enviar correu, activeu aquesta casella. Actualment, gairebé sempre s'ha de fer, ja que en cas contrari els generadors de correu brossa envien missatges no desitjats a través del servidor.</para
 ></listitem>
 <listitem
 ><para
