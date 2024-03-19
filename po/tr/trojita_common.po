@@ -1,10 +1,10 @@
 # Ongun Kanat <ongun.kanat@gmail.com>, 2013.
 # Volkan Gezer <volkangezer@gmail.com>, 2013, 2014, 2017.
-# SPDX-FileCopyrightText: 2022, 2023 Emir SARI <emir_sari@icloud.com>
+# SPDX-FileCopyrightText: 2022, 2023, 2024 Emir SARI <emir_sari@icloud.com>
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2023-12-27 13:25+0300\n"
+"PO-Revision-Date: 2024-03-18 19:45+0300\n"
 "Last-Translator: Emir SARI <emir_sari@icloud.com>\n"
 "Language-Team: Turkish <kde-l10n-tr@kde.org>\n"
 "Language: tr\n"
@@ -12,7 +12,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Lokalize 24.01.85\n"
+"X-Generator: Lokalize 24.02.0\n"
 "X-Qt-Contexts: true\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
@@ -2154,7 +2154,7 @@ msgstr ""
 "Qt sürümü ve işletim sistemi ayrıntılarıyla birlikte sürüm bilgisi dahil "
 "edecektir. Lütfen bu seçeneği açık bırakmayı değerlendirin böylece "
 "geliştiriciler bir şeyler ters gittiğinde geliştiriciler hata raporlarını "
-"daha rahat çözebilirler.</p><p>Veri bir çok şeyin yanında IMAP'ın <code>ID</"
+"daha rahat çözebilirler.</p><p>Veri birçok şeyin yanında IMAP'ın <code>ID</"
 "code> komutu ve giden e-postaların <code>User-Agent</code> başlığı "
 "aracılığıyla iletişim kurar.</p><p>Bu seçeneği kapatsanız bile Trojitá nın "
 "konuştuğu sunucuların ve e-postalarınız okuyan insanların Trojitá nın belli "
