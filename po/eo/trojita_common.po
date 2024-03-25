@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: trojita\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
 "POT-Creation-Date: 2023-11-05 13:43+0100\n"
-"PO-Revision-Date: 2024-02-26 21:30+0100\n"
+"PO-Revision-Date: 2024-03-24 10:34+0100\n"
 "Last-Translator: Oliver Kellogg <okellogg@users.sourceforge.net>\n"
 "Language-Team: Esperanto <kde-i18n-eo.org>\n"
 "Language: eo\n"
@@ -36,18 +36,18 @@ msgstr "Dosiero ne ekzistas"
 #: ../src/Composer/ComposerAttachments.cpp:160
 msgctxt "Composer::MessageComposer|"
 msgid "File is not readable"
-msgstr ""
+msgstr "Dosiero ne estas legebla"
 
 #: ../src/Composer/ComposerAttachments.cpp:163
 #, qt-format
 msgctxt "Composer::MessageComposer|"
 msgid "%1: %2, %3"
-msgstr ""
+msgstr "%1: %2, %3"
 
 #: ../src/Composer/ComposerAttachments.cpp:260
 msgctxt "Composer::MessageComposer|"
 msgid "Message not available"
-msgstr ""
+msgstr "Mesaĝo ne havebla"
 
 #: ../src/Composer/ComposerAttachments.cpp:263
 #, qt-format
@@ -61,13 +61,13 @@ msgstr ""
 #, qt-format
 msgctxt "Composer::MessageComposer|"
 msgid "IMAP message %1"
-msgstr ""
+msgstr "IMAP-mesaĝo %1"
 
 #: ../src/Composer/ComposerAttachments.cpp:384
 #, qt-format
 msgctxt "Composer::MessageComposer|"
 msgid "IMAP part %1"
-msgstr ""
+msgstr "IMAP parto %1"
 
 #: ../src/Composer/ComposerAttachments.cpp:396
 #, qt-format
@@ -78,20 +78,20 @@ msgstr "%1, %2"
 #: ../src/Composer/ExistingMessageComposer.cpp:78
 msgctxt "Imap::Mailbox::FullMessageCombiner|"
 msgid "Cannot obtain IMAP URL for CATENATE"
-msgstr ""
+msgstr "Ne povas akiri IMAP-URL por CATENATE"
 
 #: ../src/Composer/MessageComposer.cpp:599
 #: ../src/Composer/MessageComposer.cpp:630
 #, qt-format
 msgctxt "Composer::MessageComposer|"
 msgid "Attachment %1 is not available"
-msgstr ""
+msgstr "Aldonaĵo %1 ne haveblas"
 
 #: ../src/Composer/MessageComposer.cpp:635
 #, qt-format
 msgctxt "Composer::MessageComposer|"
 msgid "Attachment %1 disappeared"
-msgstr ""
+msgstr "Aldonaĵo %1 malaperis"
 
 #: ../src/Composer/SenderIdentitiesModel.cpp:94
 msgctxt "Composer::SenderIdentitiesModel|"
@@ -116,32 +116,32 @@ msgstr "Subskribo"
 #: ../src/Composer/Submission.cpp:113
 msgctxt "Composer::Submission|"
 msgid "Preparing to send"
-msgstr ""
+msgstr "Preparante por sendi"
 
 #: ../src/Composer/Submission.cpp:118
 msgctxt "Composer::Submission|"
 msgid "Creating message"
-msgstr ""
+msgstr "Kreante mesaĝon"
 
 #: ../src/Composer/Submission.cpp:123
 msgctxt "Composer::Submission|"
 msgid "Saving to the sent folder"
-msgstr ""
+msgstr "Konservado en la sendita dosierujo"
 
 #: ../src/Composer/Submission.cpp:128
 msgctxt "Composer::Submission|"
 msgid "Preparing message for delivery"
-msgstr ""
+msgstr "Preparado de mesaĝo por livero"
 
 #: ../src/Composer/Submission.cpp:133
 msgctxt "Composer::Submission|"
 msgid "Submitting message"
-msgstr ""
+msgstr "Sendante mesaĝon"
 
 #: ../src/Composer/Submission.cpp:138
 msgctxt "Composer::Submission|"
 msgid "Updating message keywords"
-msgstr ""
+msgstr "Ĝisdatigante mesaĝajn ŝlosilvortojn"
 
 #: ../src/Composer/Submission.cpp:143
 msgctxt "Composer::Submission|"
@@ -151,7 +151,7 @@ msgstr "Mesaĝo sendita"
 #: ../src/Composer/Submission.cpp:150
 msgctxt "Composer::Submission|"
 msgid "Sending failed"
-msgstr ""
+msgstr "Sendado malsukcesis"
 
 #: ../src/Composer/Submission.cpp:180
 msgctxt "Composer::Submission|"
@@ -165,7 +165,7 @@ msgstr ""
 #: ../src/Composer/Submission.cpp:195
 msgctxt "Composer::Submission|"
 msgid "Some data are not available yet"
-msgstr ""
+msgstr "Iuj datumoj ankoraŭ ne haveblas"
 
 #: ../src/Composer/Submission.cpp:211
 #, qt-format
@@ -187,18 +187,18 @@ msgstr ""
 #, qt-format
 msgctxt "Composer::Submission|"
 msgid "APPEND failed: %1"
-msgstr ""
+msgstr "APPEND malsukcesis: %1"
 
 #: ../src/Composer/Submission.cpp:391
 msgctxt "Composer::Submission|"
 msgid "The URLAUTH response does not contain a proper URL"
-msgstr ""
+msgstr "La respondo URLAUTH ne enhavas taŭgan URL"
 
 #: ../src/Cryptography/GpgMe++.cpp:54
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "[getAuditLog failed: %1]"
-msgstr ""
+msgstr "[getAuditLog malsukcesis: %1]"
 
 #: ../src/Cryptography/GpgMe++.cpp:170
 msgctxt "Cryptography::GpgMePart|"
@@ -208,12 +208,12 @@ msgstr "Atendante datumojn..."
 #: ../src/Cryptography/GpgMe++.cpp:313
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted; some signature: missing key"
-msgstr ""
+msgstr "Ĉifrita; iu subskribo: mankanta ŝlosilo"
 
 #: ../src/Cryptography/GpgMe++.cpp:313
 msgctxt "Cryptography::GpgMePart|"
 msgid "Some signature: missing key"
-msgstr ""
+msgstr "Iu subskribo: mankas ŝlosilo"
 
 #: ../src/Cryptography/GpgMe++.cpp:314
 #, qt-format
@@ -233,33 +233,33 @@ msgstr "Interna eraro"
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Error when verifying signature: cannot retrieve key %1: %2"
-msgstr ""
+msgstr "Eraro dum kontrolado de subskribo: ne povas retrovi ŝlosilon %1: %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:376
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, verified signature"
-msgstr ""
+msgstr "Ĉifrita, kontrolita subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:376
 msgctxt "Cryptography::GpgMePart|"
 msgid "Verified signature"
-msgstr ""
+msgstr "Kontrolita subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:377
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Verified signature from %1 on %2"
-msgstr ""
+msgstr "Kontrolita subskribo de %1 sur %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:382
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, signed by stranger"
-msgstr ""
+msgstr "Ĉifrita, subskribita de fremdulo"
 
 #: ../src/Cryptography/GpgMe++.cpp:382
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signed by stranger"
-msgstr ""
+msgstr "Subskribite de fremdulo"
 
 #: ../src/Cryptography/GpgMe++.cpp:383
 #, qt-format
@@ -273,7 +273,7 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:390
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature"
-msgstr ""
+msgstr "Ĉifrita, malbona subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:390
 msgctxt "Cryptography::GpgMePart|"
@@ -284,137 +284,137 @@ msgstr "Malbona subskribo"
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature: %1"
-msgstr ""
+msgstr "Ĉifrita, malbona subskribo: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:394
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature: %1"
-msgstr ""
+msgstr "Malbona subskribo: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:396
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature by %1 on %2"
-msgstr ""
+msgstr "Malbona subskribo de %1 sur %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:399
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature by stranger"
-msgstr ""
+msgstr "Ĉifrita, malbona subskribo de fremdulo"
 
 #: ../src/Cryptography/GpgMe++.cpp:399
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature by stranger"
-msgstr ""
+msgstr "Malbona subskribo de fremdulo"
 
 #: ../src/Cryptography/GpgMe++.cpp:402
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, bad signature by stranger: %1"
-msgstr ""
+msgstr "Ĉifrita, malbona subskribo de fremdulo: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:403
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature by stranger: %1"
-msgstr ""
+msgstr "Malbona subskribo de fremdulo: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:405
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Bad signature by someone else: %1 on %2."
-msgstr ""
+msgstr "Malbona subskribo de iu alia: %1 sur %2."
 
 #: ../src/Cryptography/GpgMe++.cpp:421
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, some signature"
-msgstr ""
+msgstr "Ĉifrita, iom da subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:421
 msgctxt "Cryptography::GpgMePart|"
 msgid "Some signature"
-msgstr ""
+msgstr "Iu subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:422
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Unknown signature from %1 on %2"
-msgstr ""
+msgstr "Nekonata subskribo de %1 sur %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:426
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, some signature by stranger"
-msgstr ""
+msgstr "Ĉifrita, iu subskribo de fremdulo"
 
 #: ../src/Cryptography/GpgMe++.cpp:426
 msgctxt "Cryptography::GpgMePart|"
 msgid "Some signature by stranger"
-msgstr ""
+msgstr "Iu subskribo de fremdulo"
 
 #: ../src/Cryptography/GpgMe++.cpp:427
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Unknown signature by somebody else: %1 on %2"
-msgstr ""
+msgstr "Nekonata subskribo de iu alia: %1 sur %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:435
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, semi-trusted signature"
-msgstr ""
+msgstr "Ĉifrita, duonfidinda subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:435
 msgctxt "Cryptography::GpgMePart|"
 msgid "Semi-trusted signature"
-msgstr ""
+msgstr "Duonfidinda subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:436
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Semi-trusted signature from %1 on %2"
-msgstr ""
+msgstr "Duonfidinda subskribo de %1 sur %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:441
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, semi-trusted signature by stranger"
-msgstr ""
+msgstr "Ĉifrita, duonfidinda subskribo de fremdulo"
 
 #: ../src/Cryptography/GpgMe++.cpp:442
 msgctxt "Cryptography::GpgMePart|"
 msgid "Semi-trusted signature by stranger"
-msgstr ""
+msgstr "Duonfidinda subskribo de fremdulo"
 
 #: ../src/Cryptography/GpgMe++.cpp:443
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Semi-trusted signature by somebody else: %1 on %2"
-msgstr ""
+msgstr "Duonfidinda subskribo de iu alia: %1 sur %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:456
 msgctxt "Cryptography::GpgMePart|"
 msgid "The key or at least one certificate has been revoked."
-msgstr ""
+msgstr "La ŝlosilo aŭ almenaŭ unu atestilo estas nuligitaj."
 
 #: ../src/Cryptography/GpgMe++.cpp:461
 msgctxt "Cryptography::GpgMePart|"
 msgid "The key or one of the certificates has expired."
-msgstr ""
+msgstr "La ŝlosilo aŭ unu el la atestiloj eksvalidiĝis."
 
 #: ../src/Cryptography/GpgMe++.cpp:465
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature expired on %1."
-msgstr ""
+msgstr "Subskribo eksvalidiĝis je %1."
 
 #: ../src/Cryptography/GpgMe++.cpp:470
 msgctxt "Cryptography::GpgMePart|"
 msgid "Can't verify due to a missing key or certificate."
-msgstr ""
+msgstr "Ne povas kontroli pro mankanta ŝlosilo aŭ atestilo."
 
 #: ../src/Cryptography/GpgMe++.cpp:474
 msgctxt "Cryptography::GpgMePart|"
 msgid "The CRL (or an equivalent mechanism) is not available."
-msgstr ""
+msgstr "La CRL (aŭ ekvivalenta mekanismo) ne estas havebla."
 
 #: ../src/Cryptography/GpgMe++.cpp:478
 msgctxt "Cryptography::GpgMePart|"
@@ -424,104 +424,104 @@ msgstr "Uzebla ANVLo estas tro malnova."
 #: ../src/Cryptography/GpgMe++.cpp:482
 msgctxt "Cryptography::GpgMePart|"
 msgid "A policy requirement was not met."
-msgstr ""
+msgstr "Politika postulo ne estis plenumita."
 
 #: ../src/Cryptography/GpgMe++.cpp:486
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "A system error occurred. %1"
-msgstr ""
+msgstr "Okazis sistema eraro. %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:495
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is undefined."
-msgstr ""
+msgstr "Signaturvalideco estas nedifinita."
 
 #: ../src/Cryptography/GpgMe++.cpp:499
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is never to be trusted."
-msgstr ""
+msgstr "La valideco de subskribo neniam estas fidinda."
 
 #: ../src/Cryptography/GpgMe++.cpp:503
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is marginal."
-msgstr ""
+msgstr "Signaturvalideco estas marĝena."
 
 #: ../src/Cryptography/GpgMe++.cpp:507
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is full."
-msgstr ""
+msgstr "La valideco de subskribo estas plena."
 
 #: ../src/Cryptography/GpgMe++.cpp:511
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is ultimate."
-msgstr ""
+msgstr "Signaturvalideco estas finfina."
 
 #: ../src/Cryptography/GpgMe++.cpp:515
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature validity is unknown."
-msgstr ""
+msgstr "La valideco de la subskribo estas nekonata."
 
 #: ../src/Cryptography/GpgMe++.cpp:525
 msgctxt "Cryptography::GpgMePart|"
 msgid "Trust chain:"
-msgstr ""
+msgstr "Fida ĉeno:"
 
 #: ../src/Cryptography/GpgMe++.cpp:531
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "%1(Unavailable)"
-msgstr ""
+msgstr "%1(Nedisponebla)"
 
 #: ../src/Cryptography/GpgMe++.cpp:535
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "%1(self-signed)"
-msgstr ""
+msgstr "%1 (memsubskribita)"
 
 #: ../src/Cryptography/GpgMe++.cpp:544
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Error when retrieving key for the trust chain: %1"
-msgstr ""
+msgstr "Eraro kiam oni prenas ŝlosilon por la fida ĉeno: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:554
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Signature invalidity reason: %1"
-msgstr ""
+msgstr "Kialo de nevalideco de subskribo: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:616
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Malformed Signed Message"
-msgstr ""
+msgstr "Misformita Subskribita Mesaĝo"
 
 #: ../src/Cryptography/GpgMe++.cpp:617
 #, qt-format
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Expected 2 parts, but found %1."
-msgstr ""
+msgstr "Atendita 2 partoj, sed trovita %1."
 
 #: ../src/Cryptography/GpgMe++.cpp:621
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Cannot verify signature"
-msgstr ""
+msgstr "Ne povas kontroli subskribon"
 
 #: ../src/Cryptography/GpgMe++.cpp:622
 #, qt-format
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Failed to initialize GpgME (%1)"
-msgstr ""
+msgstr "Malsukcesis pravalorigi GpgME (%1)"
 
 #: ../src/Cryptography/GpgMe++.cpp:642
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Signed message is gone"
-msgstr ""
+msgstr "Subskribita mesaĝo malaperis"
 
 #: ../src/Cryptography/GpgMe++.cpp:654
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Data Unavailable"
-msgstr ""
+msgstr "Datumoj Ne Disponeblaj"
 
 #: ../src/Cryptography/GpgMe++.cpp:655
 msgctxt "Cryptography::GpgMeSigned|"
@@ -532,44 +532,44 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:675
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Verifying signature..."
-msgstr ""
+msgstr "Kontrolante subskribon..."
 
 #: ../src/Cryptography/GpgMe++.cpp:700
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "No signatures in the signed message"
-msgstr ""
+msgstr "Neniuj subskriboj en la subskribita mesaĝo"
 
 #: ../src/Cryptography/GpgMe++.cpp:740 ../src/Cryptography/GpgMe++.cpp:814
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Malformed Encrypted Message"
-msgstr ""
+msgstr "Misformita Ĉifrita Mesaĝo"
 
 #: ../src/Cryptography/GpgMe++.cpp:741
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Expected 2 parts for an encrypted OpenPGP message, but found %1."
-msgstr ""
+msgstr "Atendis 2 partojn por ĉifrita OpenPGP-mesaĝo, sed trovis %1."
 
 #: ../src/Cryptography/GpgMe++.cpp:766
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Cannot descrypt"
-msgstr ""
+msgstr "Ne povas malĉifri"
 
 #: ../src/Cryptography/GpgMe++.cpp:767
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Failed to initialize GpgME (%1)"
-msgstr ""
+msgstr "Malsukcesis pravalorigi GpgME (%1)"
 
 #: ../src/Cryptography/GpgMe++.cpp:787 ../src/Cryptography/GpgMe++.cpp:923
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted message is gone"
-msgstr ""
+msgstr "Ĉifrita mesaĝo malaperis"
 
 #: ../src/Cryptography/GpgMe++.cpp:797
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Data Unavailable"
-msgstr ""
+msgstr "Datumoj Ne Disponeblaj"
 
 #: ../src/Cryptography/GpgMe++.cpp:798
 msgctxt "Cryptography::GpgMeEncrypted|"
@@ -582,23 +582,23 @@ msgstr ""
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Unsupported PGP/MIME version. Expected \"Version: 1\", got \"%1\"."
-msgstr ""
+msgstr "Nesubtenata PGP/MIME-versio. Atendita \"Versio: 1\", ricevis \"%1\"."
 
 #: ../src/Cryptography/GpgMe++.cpp:821
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Decrypting..."
-msgstr ""
+msgstr "Malĉifri..."
 
 #: ../src/Cryptography/GpgMe++.cpp:864
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Broken encrypted message"
-msgstr ""
+msgstr "Rompita ĉifrita mesaĝo"
 
 #: ../src/Cryptography/GpgMe++.cpp:867
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Decryption error: %1"
-msgstr ""
+msgstr "Malĉifra eraro: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:870
 msgctxt "Cryptography::GpgMeEncrypted|"
@@ -608,58 +608,58 @@ msgstr "Ĉifrita mesaĝo"
 #: ../src/Cryptography/GpgMe++.cpp:876
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Wrong key usage, not for encryption"
-msgstr ""
+msgstr "Malĝusta ŝlosila uzado, ne por ĉifrado"
 
 #: ../src/Cryptography/GpgMe++.cpp:880
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Unsupported algorithm: %1"
-msgstr ""
+msgstr "Nesubtenata algoritmo: %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:888
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Cannot extract recipient %1: %2"
-msgstr ""
+msgstr "Ne povas eltiri ricevonton %1: %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:893
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted to %1 (%2)"
-msgstr ""
+msgstr "Ĉifrite al %1 (%2)"
 
 #: ../src/Cryptography/GpgMe++.cpp:897
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Encrypted to %1"
-msgstr ""
+msgstr "Ĉifrite al %1"
 
 #: ../src/Cryptography/GpgMe++.cpp:903
 #, qt-format
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Original filename: %1"
-msgstr ""
+msgstr "Origina dosiernomo: %1"
 
 #: ../src/Gui/AboutDialog.ui:14
 msgctxt "AboutDialog|"
 msgid "About Trojitá"
-msgstr ""
+msgstr "Pri Trojitá"
 
 #: ../src/Gui/AboutDialog.ui:152
 msgctxt "AboutDialog|"
 msgid "<p>This is <b>Trojitá</b>, a fast Qt IMAP e-mail client</p>"
-msgstr ""
+msgstr "<p>Ĉi tio estas <b>Trojitá</b>, rapida retpoŝta kliento Qt IMAP</p>"
 
 #: ../src/Gui/AddressRowWidget.cpp:130
 #, qt-format
 msgctxt "Gui::Expander|"
 msgid "Click to see %1 more items"
-msgstr ""
+msgstr "Klaku por vidi %1 pliajn erojn"
 
 #: ../src/Gui/AddressRowWidget.cpp:130
 msgctxt "Gui::Expander|"
 msgid "Click to collapse"
-msgstr ""
+msgstr "Klaku por malvastigi"
 
 #: ../src/Gui/AttachmentView.cpp:87
 msgctxt "Gui::AttachmentView|"
@@ -669,7 +669,7 @@ msgstr "Elŝuti"
 #: ../src/Gui/AttachmentView.cpp:88
 msgctxt "Gui::AttachmentView|"
 msgid "Open Directly"
-msgstr ""
+msgstr "Malfermu Rekte"
 
 #: ../src/Gui/AttachmentView.cpp:93
 msgctxt "Gui::AttachmentView|"
@@ -679,13 +679,13 @@ msgstr "Montri Antaŭrigardon"
 #: ../src/Gui/AttachmentView.cpp:100
 msgctxt "Gui::AttachmentView|"
 msgid "Show Message Source"
-msgstr ""
+msgstr "Montru Mesaĝan Fonton"
 
 #: ../src/Gui/AttachmentView.cpp:124
 #, qt-format
 msgctxt "Gui::AttachmentView|"
 msgid "IMAP Server error for this part: %1 (%2)"
-msgstr ""
+msgstr "Eraro de IMAP-Servilo por ĉi tiu parto: %1 (%2)"
 
 #: ../src/Gui/AttachmentView.cpp:163
 #, qt-format
@@ -701,12 +701,12 @@ msgstr "Konservi Aldonaĵon"
 #: ../src/Gui/AttachmentView.cpp:405
 msgctxt "Gui::AttachmentView|"
 msgid "Source of Attached Message"
-msgstr ""
+msgstr "Fonto de Alkroĉita Mesaĝo"
 
 #: ../src/Gui/ComposerAttachmentsList.cpp:48
 msgctxt "ComposerAttachmentsList|"
 msgid "Send Inline"
-msgstr ""
+msgstr "Sendu Inline"
 
 #: ../src/Gui/ComposerAttachmentsList.cpp:53
 msgctxt "ComposerAttachmentsList|"
@@ -721,7 +721,7 @@ msgstr "Forigi"
 #: ../src/Gui/ComposerAttachmentsList.cpp:136
 msgctxt "ComposerAttachmentsList|"
 msgid "Rename Attachment"
-msgstr ""
+msgstr "Alinomigi Aldonaĵon"
 
 #: ../src/Gui/ComposerAttachmentsList.cpp:136
 msgctxt "ComposerAttachmentsList|"
@@ -731,12 +731,12 @@ msgstr "Nova nomo"
 #: ../src/Gui/ComposerTextEdit.cpp:55
 msgctxt "ComposerTextEdit|"
 msgid "Paste as Quoted Text"
-msgstr ""
+msgstr "Algluu kiel Citita Teksto"
 
 #: ../src/Gui/ComposeWidget.cpp:126
 msgctxt "QWidget|"
 msgid "Cancel..."
-msgstr ""
+msgstr "Nuligi..."
 
 #: ../src/Gui/ComposeWidget.cpp:126
 msgctxt "QWidget|"
@@ -751,7 +751,7 @@ msgstr "Sendi"
 #: ../src/Gui/ComposeWidget.cpp:234
 msgctxt "Gui::ComposeWidget|"
 msgid "New Thread"
-msgstr ""
+msgstr "Nova Fadeno"
 
 #: ../src/Gui/ComposeWidget.cpp:237
 msgctxt "Gui::ComposeWidget|"
@@ -773,7 +773,7 @@ msgstr "Eraro"
 #: ../src/Gui/ComposeWidget.cpp:358
 msgctxt "Gui::ComposeWidget|"
 msgid "Please set appropriate settings for outgoing messages."
-msgstr ""
+msgstr "Bonvolu agordi taŭgajn agordojn por eksiĝintaj mesaĝoj."
 
 #: ../src/Gui/ComposeWidget.cpp:511
 msgctxt "Gui::ComposeWidget|"
@@ -793,7 +793,7 @@ msgstr ""
 #: ../src/Gui/ComposeWidget.cpp:519
 msgctxt "Gui::ComposeWidget|"
 msgid "Cannot Determine Recipients"
-msgstr ""
+msgstr "Ne Povas Determini Ricevantojn"
 
 #: ../src/Gui/ComposeWidget.cpp:566
 msgctxt "Gui::ComposeWidget|"
@@ -804,37 +804,37 @@ msgstr "Sendinto"
 #, qt-format
 msgctxt "Gui::ComposeWidget|"
 msgid "Resend Mail: %1"
-msgstr ""
+msgstr "Resendu Poŝton: %1"
 
 #: ../src/Gui/ComposeWidget.cpp:572
 msgctxt "Gui::ComposeWidget|"
 msgid "(no subject)"
-msgstr ""
+msgstr "(neniu temo)"
 
 #: ../src/Gui/ComposeWidget.cpp:584
 msgctxt "Gui::ComposeWidget|"
 msgid "Message has no subject"
-msgstr ""
+msgstr "Mesaĝo ne havas temon"
 
 #: ../src/Gui/ComposeWidget.cpp:587
 msgctxt "Gui::ComposeWidget|"
 msgid "The Message-ID header is missing"
-msgstr ""
+msgstr "La Message-ID-kapo mankas"
 
 #: ../src/Gui/ComposeWidget.cpp:590
 msgctxt "Gui::ComposeWidget|"
 msgid "Message has no date"
-msgstr ""
+msgstr "Mesaĝo ne havas daton"
 
 #: ../src/Gui/ComposeWidget.cpp:593
 msgctxt "Gui::ComposeWidget|"
 msgid "Nothing in the From field"
-msgstr ""
+msgstr "Nenio en la kampo De"
 
 #: ../src/Gui/ComposeWidget.cpp:596
 msgctxt "Gui::ComposeWidget|"
 msgid "No recipients in the To field"
-msgstr ""
+msgstr "Neniuj ricevantoj en la kampo Al"
 
 #: ../src/Gui/ComposeWidget.cpp:599
 msgctxt "Gui::ComposeWidget|"
@@ -853,16 +853,17 @@ msgstr "Aŭtentigo Postulata"
 msgctxt "Gui::ComposeWidget|"
 msgid "<p>Please provide SMTP password for user <b>%1</b> on <b>%2</b>:</p>"
 msgstr ""
+"<p>Bonvolu provizi SMTP-pasvorton por uzanto <b>%1</b> sur <b>%2</b>:</p>"
 
 #: ../src/Gui/ComposeWidget.cpp:723
 msgctxt "Gui::ComposeWidget|"
 msgid "Save Draft?"
-msgstr ""
+msgstr "Ĉu konservi malneton?"
 
 #: ../src/Gui/ComposeWidget.cpp:724
 msgctxt "Gui::ComposeWidget|"
 msgid "The mail has not been sent.<br>Do you want to save the draft?"
-msgstr ""
+msgstr "La poŝto ne estas sendita.<br>Ĉu vi volas konservi la malneton?"
 
 #: ../src/Gui/ComposeWidget.cpp:726
 msgctxt "Gui::ComposeWidget|"
@@ -898,28 +899,29 @@ msgstr ""
 #: ../src/Gui/ComposeWidget.cpp:781
 msgctxt "Gui::ComposeWidget|"
 msgid "You haven't entered any recipients"
-msgstr ""
+msgstr "Vi enigis neniujn ricevantojn"
 
 #: ../src/Gui/ComposeWidget.cpp:789
 msgctxt "Gui::ComposeWidget|"
 msgid "The From: address does not look like a valid one"
-msgstr ""
+msgstr "La De: adreso ne aspektas kiel valida"
 
 #: ../src/Gui/ComposeWidget.cpp:796
 msgctxt "Gui::ComposeWidget|"
 msgid "You haven't entered any subject. Cannot send such a mail, sorry."
-msgstr ""
+msgstr "Vi enigis neniun temon. Ne povas sendi tian poŝton, pardonu."
 
 #: ../src/Gui/ComposeWidget.cpp:828
 msgctxt "Gui::ComposeWidget|"
 msgid "Cannot prepare this e-mail for sending: some parts are not available"
 msgstr ""
+"Ne povas prepari ĉi tiun retmesaĝon por sendo: kelkaj partoj ne haveblas"
 
 #: ../src/Gui/ComposeWidget.cpp:919 ../src/Gui/ComposeWidget.cpp:1794
 #, qt-format
 msgctxt "Gui::ComposeWidget|"
 msgid "This mail will be marked as a response<hr/>%1"
-msgstr ""
+msgstr "Ĉi tiu retpoŝto estos markita kiel respondo<hr/>%1"
 
 #: ../src/Gui/ComposeWidget.cpp:1097
 msgctxt "Gui::ComposeWidget|"
@@ -939,33 +941,33 @@ msgstr "Bcc"
 #: ../src/Gui/ComposeWidget.cpp:1101
 msgctxt "Gui::ComposeWidget|"
 msgid "Resent-To"
-msgstr ""
+msgstr "Resent-Al"
 
 #: ../src/Gui/ComposeWidget.cpp:1102
 msgctxt "Gui::ComposeWidget|"
 msgid "Resent-Cc"
-msgstr ""
+msgstr "Resent-Cc"
 
 #: ../src/Gui/ComposeWidget.cpp:1103
 msgctxt "Gui::ComposeWidget|"
 msgid "Resent-Bcc"
-msgstr ""
+msgstr "Resent-Bcc"
 
 #: ../src/Gui/ComposeWidget.cpp:1387
 msgctxt "Gui::ComposeWidget|"
 msgid "Failed to Send Mail"
-msgstr ""
+msgstr "Malsukcesis Sendi Poŝton"
 
 #: ../src/Gui/ComposeWidget.cpp:1414
 #, qt-format
 msgctxt "Gui::ComposeWidget|"
 msgid "Can't parse \"%1\" as an e-mail address."
-msgstr ""
+msgstr "Ne povas analizi \"%1\" kiel retadreson."
 
 #: ../src/Gui/ComposeWidget.cpp:1613
 msgctxt "Gui::ComposeWidget|"
 msgid "Attach File..."
-msgstr ""
+msgstr "Alektu dosieron..."
 
 #: ../src/Gui/ComposeWidget.cpp:1795
 msgctxt "Gui::ComposeWidget|"
@@ -975,13 +977,13 @@ msgstr "<br/>"
 #: ../src/Gui/ComposeWidget.cpp:1838
 msgctxt "Gui::ComposeWidget|"
 msgid "Compose Mail"
-msgstr ""
+msgstr "Verki Poŝton"
 
 #: ../src/Gui/ComposeWidget.cpp:1840
 #, qt-format
 msgctxt "Gui::ComposeWidget|"
 msgid "%1 - Compose Mail"
-msgstr ""
+msgstr "%1 - Verki Poŝton"
 
 #: ../src/Gui/ComposeWidget.ui:51
 msgctxt "ComposeWidget|"
@@ -996,27 +998,27 @@ msgstr "Temo"
 #: ../src/Gui/ComposeWidget.ui:121
 msgctxt "ComposeWidget|"
 msgid "Attach..."
-msgstr ""
+msgstr "Alektu..."
 
 #: ../src/Gui/CreateMailboxDialog.ui:14
 msgctxt "CreateMailboxDialog|"
 msgid "Create Mailbox"
-msgstr ""
+msgstr "Krei Leterkeston"
 
 #: ../src/Gui/CreateMailboxDialog.ui:22
 msgctxt "CreateMailboxDialog|"
 msgid "&Mailbox:"
-msgstr ""
+msgstr "&Leterkesto:"
 
 #: ../src/Gui/CreateMailboxDialog.ui:39
 msgctxt "CreateMailboxDialog|"
 msgid "Other Mai&lboxes"
-msgstr ""
+msgstr "Aliaj leterkestoj"
 
 #: ../src/Gui/CreateMailboxDialog.ui:46
 msgctxt "CreateMailboxDialog|"
 msgid "Messages Only"
-msgstr ""
+msgstr "Nur Mesaĝoj"
 
 #: ../src/Gui/CreateMailboxDialog.ui:58
 msgctxt "CreateMailboxDialog|"
@@ -1027,12 +1029,12 @@ msgstr ""
 #: ../src/Gui/CreateMailboxDialog.ui:61
 msgctxt "CreateMailboxDialog|"
 msgid "&Subscribe"
-msgstr ""
+msgstr "&Abonu"
 
 #: ../src/Gui/EditFavoriteTag.ui:20
 msgctxt "EditFavoriteTag|"
 msgid "Manage Tag"
-msgstr ""
+msgstr "Administri Etikedon"
 
 #: ../src/Gui/EditFavoriteTag.ui:29
 msgctxt "EditFavoriteTag|"
@@ -1047,7 +1049,7 @@ msgstr "Koloro"
 #: ../src/Gui/EditIdentity.ui:20
 msgctxt "EditIdentity|"
 msgid "Manage Identity"
-msgstr ""
+msgstr "Administri Identecon"
 
 #: ../src/Gui/EditIdentity.ui:29
 msgctxt "EditIdentity|"
@@ -1062,7 +1064,7 @@ msgstr "Retpoŝto"
 #: ../src/Gui/EditIdentity.ui:52
 msgctxt "EditIdentity|"
 msgid "Organisation"
-msgstr ""
+msgstr "Organizo"
 
 #: ../src/Gui/EditIdentity.ui:59
 msgctxt "EditIdentity|"
@@ -1082,12 +1084,12 @@ msgstr "Sistemkoloroj"
 #: ../src/Gui/EmbeddedWebView.cpp:363
 msgctxt "Gui::EmbeddedWebView|"
 msgid "System theme adjusted for better contrast"
-msgstr ""
+msgstr "Sistema etoso ĝustigita por pli bona kontrasto"
 
 #: ../src/Gui/EmbeddedWebView.cpp:364
 msgctxt "Gui::EmbeddedWebView|"
 msgid "Black on white, forced"
-msgstr ""
+msgstr "Nigra sur blanka, devigita"
 
 #: ../src/Gui/EnvelopeView.cpp:105
 msgctxt "Gui::EnvelopeView|"
@@ -1097,7 +1099,7 @@ msgstr "De"
 #: ../src/Gui/EnvelopeView.cpp:110
 msgctxt "Gui::EnvelopeView|"
 msgid "sent via"
-msgstr ""
+msgstr "sendita tra"
 
 #: ../src/Gui/EnvelopeView.cpp:112
 msgctxt "Gui::EnvelopeView|"
@@ -1107,7 +1109,7 @@ msgstr "Sendinto"
 #: ../src/Gui/EnvelopeView.cpp:118
 msgctxt "Gui::EnvelopeView|"
 msgid "replies to"
-msgstr ""
+msgstr "respondas al"
 
 #: ../src/Gui/EnvelopeView.cpp:120
 msgctxt "Gui::EnvelopeView|"
@@ -1122,7 +1124,7 @@ msgstr "Al"
 #: ../src/Gui/EnvelopeView.cpp:136
 msgctxt "Gui::EnvelopeView|"
 msgid "Cc'd to"
-msgstr ""
+msgstr "Cc'd al"
 
 #: ../src/Gui/EnvelopeView.cpp:138
 msgctxt "Gui::EnvelopeView|"
@@ -1132,7 +1134,7 @@ msgstr "Cc"
 #: ../src/Gui/EnvelopeView.cpp:144
 msgctxt "Gui::EnvelopeView|"
 msgid "Bcc'd to"
-msgstr ""
+msgstr "Bcc'd al"
 
 #: ../src/Gui/EnvelopeView.cpp:146
 msgctxt "Gui::EnvelopeView|"
@@ -1143,7 +1145,7 @@ msgstr "Bcc"
 #, qt-format
 msgctxt "Gui::EnvelopeView|"
 msgid "<a href=\"%1\">%2</a>"
-msgstr ""
+msgstr "<a href=\"%1\">%2</a>"
 
 #: ../src/Gui/EnvelopeView.cpp:172
 msgctxt "Gui::EnvelopeView|"
@@ -1163,7 +1165,7 @@ msgstr "Ŝargi"
 #: ../src/Gui/ExternalElementsWidget.cpp:36
 msgctxt "Gui::ExternalElementsWidget|"
 msgid "This e-mail wants to load external entities from the Internet"
-msgstr ""
+msgstr "Ĉi tiu retpoŝto volas ŝargi eksterajn entojn el la Interreto"
 
 #: ../src/Gui/FindBar.cpp:49
 msgctxt "Gui::FindBar|"
@@ -1204,33 +1206,33 @@ msgstr "An&taŭa"
 #: ../src/Gui/FindBar.cpp:86
 msgctxt "Gui::FindBar|"
 msgid "Shift+F3"
-msgstr ""
+msgstr "Maj+F3"
 
 #: ../src/Gui/ImapInfoDialog.ui:14
 msgctxt "ImapInfoDialog|"
 msgid "IMAP Server Info"
-msgstr ""
+msgstr "Informoj pri IMAP-Servilo"
 
 #: ../src/Gui/ImapInfoDialog.ui:33
 msgctxt "ImapInfoDialog|"
 msgid "<html><head/><body><p>SERVERINFO Placeholder</p></body></html>"
-msgstr ""
+msgstr "<html><head/><body><p>SERVERINFO Anstataŭilo</p></body></html>"
 
 #: ../src/Gui/LoadablePartWidget.cpp:47
 #, qt-format
 msgctxt "Gui::LoadablePartWidget|"
 msgid "Load %1 (%2)"
-msgstr ""
+msgstr "Ŝargi %1 (%2)"
 
 #: ../src/Gui/MailBoxTreeView.cpp:143
 msgctxt "Gui::MailBoxTreeView|"
 msgid "Move here\tShift"
-msgstr ""
+msgstr "Movu ĉi tien\tShift"
 
 #: ../src/Gui/MailBoxTreeView.cpp:144
 msgctxt "Gui::MailBoxTreeView|"
 msgid "Copy here\tCtrl"
-msgstr ""
+msgstr "Kopiu ĉi tie\tCtrl"
 
 #: ../src/Gui/MailBoxTreeView.cpp:145
 msgctxt "Gui::MailBoxTreeView|"
@@ -1241,32 +1243,32 @@ msgstr "Nuligi"
 #, qt-format
 msgctxt "QObject|"
 msgid "Trojitá %1 - fast Qt IMAP e-mail client"
-msgstr ""
+msgstr "Trojitá %1 - rapida retpoŝta kliento Qt IMAP"
 
 #: ../src/Gui/main.cpp:89
 msgctxt "QObject|"
 msgid "Show addressbook window."
-msgstr ""
+msgstr "Montru fenestron de adreslibro."
 
 #: ../src/Gui/main.cpp:93
 msgctxt "QObject|"
 msgid "Compose new e-mail (default when url is provided)."
-msgstr ""
+msgstr "Verki novan retmesaĝon (defaŭlte kiam url estas provizita)."
 
 #: ../src/Gui/main.cpp:97
 msgctxt "QObject|"
 msgid "Activate debug traffic logging to disk by default."
-msgstr ""
+msgstr "Defaŭlte aktivigu sencimigan trafikan registradon al disko."
 
 #: ../src/Gui/main.cpp:101
 msgctxt "QObject|"
 msgid "Show main window (default when no option is provided)."
-msgstr ""
+msgstr "Montru ĉefan fenestron (defaŭlte kiam neniu opcio estas provizita)."
 
 #: ../src/Gui/main.cpp:105
 msgctxt "QObject|"
 msgid "Set profile."
-msgstr ""
+msgstr "Agordu profilon."
 
 #: ../src/Gui/main.cpp:105
 msgctxt "QObject|"
@@ -1276,7 +1278,7 @@ msgstr "Profilo"
 #: ../src/Gui/main.cpp:108
 msgctxt "QObject|"
 msgid "Mailto: URL address for composing new e-mail."
-msgstr ""
+msgstr "Mailto: URL-adreso por verki novan retmesaĝon."
 
 #: ../src/Gui/main.cpp:109
 msgctxt "QObject|"
@@ -1287,25 +1289,25 @@ msgstr "[url]"
 #, qt-format
 msgctxt "QObject|"
 msgid "Unexpected argument '%1'."
-msgstr ""
+msgstr "Neatendita argumento '%1'."
 
 #: ../src/Gui/main.cpp:137
 msgctxt "QObject|"
 msgid "Unexpected arguments."
-msgstr ""
+msgstr "Neatenditaj argumentoj."
 
 #: ../src/Gui/main.cpp:180
 #, qt-format
 msgctxt "QObject|"
 msgid "Error: Registering IPC instance failed: %1"
-msgstr ""
+msgstr "Eraro: Registrado de IPC-instanco malsukcesis: %1"
 
 #. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
 #: ../src/Gui/MessageHeadersWidget.cpp:44
 #, qt-format
 msgctxt "Gui::MessageHeadersWidget|"
 msgid "Message headers of UID %1 in %2"
-msgstr ""
+msgstr "Mesaĝkapoj de UID %1 en %2"
 
 #: ../src/Gui/MessageHeadersWidget.cpp:55
 msgctxt "Gui::MessageHeadersWidget|"
@@ -1320,7 +1322,7 @@ msgstr "Ctrl+F"
 #: ../src/Gui/MessageListWidget.cpp:50
 msgctxt "Gui::MessageListWidget|"
 msgid "Quick Search"
-msgstr ""
+msgstr "Rapida Serĉo"
 
 #: ../src/Gui/MessageListWidget.cpp:51
 msgctxt "Gui::MessageListWidget|"
@@ -1334,17 +1336,17 @@ msgstr ""
 #: ../src/Gui/MessageListWidget.cpp:56
 msgctxt "Gui::MessageListWidget|"
 msgid "<query>"
-msgstr ""
+msgstr "<demando>"
 
 #: ../src/Gui/MessageListWidget.cpp:64
 msgctxt "Gui::MessageListWidget|"
 msgid "Options for the IMAP search..."
-msgstr ""
+msgstr "Opcioj por la IMAP-serĉo..."
 
 #: ../src/Gui/MessageListWidget.cpp:67
 msgctxt "Gui::MessageListWidget|"
 msgid "Fuzzy Search"
-msgstr ""
+msgstr "Neklara Serĉo"
 
 #: ../src/Gui/MessageListWidget.cpp:70
 msgctxt "Gui::MessageListWidget|"
@@ -1359,7 +1361,7 @@ msgstr "Korpo"
 #: ../src/Gui/MessageListWidget.cpp:75
 msgctxt "Gui::MessageListWidget|"
 msgid "Senders"
-msgstr ""
+msgstr "Sendintoj"
 
 #: ../src/Gui/MessageListWidget.cpp:78
 msgctxt "Gui::MessageListWidget|"
@@ -1369,57 +1371,57 @@ msgstr "Ricevantoj"
 #: ../src/Gui/MessageListWidget.cpp:83
 msgctxt "Gui::MessageListWidget|"
 msgid "Complex IMAP query"
-msgstr ""
+msgstr "Kompleksa IMAP-demando"
 
 #: ../src/Gui/MessageListWidget.cpp:85
 msgctxt "Gui::MessageListWidget|"
 msgid "Not ..."
-msgstr ""
+msgstr "Ne..."
 
 #: ../src/Gui/MessageListWidget.cpp:86
 msgctxt "Gui::MessageListWidget|"
 msgid "Either... or..."
-msgstr ""
+msgstr "Aŭ... aŭ..."
 
 #: ../src/Gui/MessageListWidget.cpp:88
 msgctxt "Gui::MessageListWidget|"
 msgid "From sender"
-msgstr ""
+msgstr "De sendinto"
 
 #: ../src/Gui/MessageListWidget.cpp:89
 msgctxt "Gui::MessageListWidget|"
 msgid "To receiver"
-msgstr ""
+msgstr "Al ricevilo"
 
 #: ../src/Gui/MessageListWidget.cpp:91
 msgctxt "Gui::MessageListWidget|"
 msgid "About subject"
-msgstr ""
+msgstr "Pri temo"
 
 #: ../src/Gui/MessageListWidget.cpp:92
 msgctxt "Gui::MessageListWidget|"
 msgid "Message contains ..."
-msgstr ""
+msgstr "Mesaĝo enhavas..."
 
 #: ../src/Gui/MessageListWidget.cpp:94
 msgctxt "Gui::MessageListWidget|"
 msgid "Before date"
-msgstr ""
+msgstr "Antaŭ dato"
 
 #: ../src/Gui/MessageListWidget.cpp:95
 msgctxt "Gui::MessageListWidget|"
 msgid "Since date"
-msgstr ""
+msgstr "Ekde dato"
 
 #: ../src/Gui/MessageListWidget.cpp:97
 msgctxt "Gui::MessageListWidget|"
 msgid "Has been seen"
-msgstr ""
+msgstr "Estis vidita"
 
 #: ../src/Gui/MessageListWidget.cpp:99
 msgctxt "Gui::MessageListWidget|"
 msgid "Allow raw IMAP search"
-msgstr ""
+msgstr "Permesu krudan IMAP-serĉon"
 
 #: ../src/Gui/MessageSourceWidget.cpp:49
 msgctxt "Gui::MessageSourceWidget|"
@@ -1481,18 +1483,18 @@ msgstr ""
 #, qt-format
 msgctxt "Gui::MessageView|"
 msgid "On %1, %2 wrote:\n"
-msgstr ""
+msgstr "Je %1, %2 skribis:\n"
 
 #. Translators: use a text which is returned for e-mails older than one day but newer than one week (see UiUtils::Formatting::prettyDate() for the string formats); the idea here is to have a text which is "wide enough" in a typical UI font. The English version uses "Mon" because of the M letter; you should use something similar.
 #: ../src/Gui/MsgListView.cpp:147
 msgctxt "Gui::MsgListView|"
 msgid "Mon 10"
-msgstr ""
+msgstr "lundo 10"
 
 #: ../src/Gui/MsgListView.cpp:149
 msgctxt "Gui::MsgListView|"
 msgid "88.8 kB"
-msgstr ""
+msgstr "88,8 kB"
 
 #: ../src/Gui/MsgListView.cpp:204
 #, qt-format
@@ -1500,16 +1502,17 @@ msgctxt "Gui::MsgListView|"
 msgid "+ %n additional item(s)"
 msgid_plural "+ %n additional item(s)"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Gui/MsgListView.cpp:336
 msgctxt "Gui::MsgListView|"
 msgid "Seen status"
-msgstr ""
+msgstr "Vidita stato"
 
 #: ../src/Gui/MsgListView.cpp:339
 msgctxt "Gui::MsgListView|"
 msgid "Flagged status"
-msgstr ""
+msgstr "Markita stato"
 
 #: ../src/Gui/MsgListView.cpp:342
 msgctxt "Gui::MsgListView|"
@@ -1524,17 +1527,17 @@ msgstr ","
 #: ../src/Gui/OneEnvelopeAddress.cpp:130
 msgctxt "Gui::OneEnvelopeAddress|"
 msgid "(empty display name)"
-msgstr ""
+msgstr "(malplena montra nomo)"
 
 #: ../src/Gui/OneEnvelopeAddress.cpp:134
 msgctxt "Gui::OneEnvelopeAddress|"
 msgid "<hr/><b>Address Book:</b><br/>"
-msgstr ""
+msgstr "<hr/><b>Adreslibro:</b><br/>"
 
 #: ../src/Gui/OneEnvelopeAddress.cpp:141
 msgctxt "Gui::OneEnvelopeAddress|"
 msgid "Copy e-mail address"
-msgstr ""
+msgstr "Kopiu retadreson"
 
 #: ../src/Gui/OneEnvelopeAddress.cpp:146
 msgctxt "Gui::OneEnvelopeAddress|"
@@ -1545,7 +1548,7 @@ msgstr "Kopii tekston"
 #: ../src/Gui/PartWidget.cpp:144
 msgctxt "Gui::MultipartAlternativeWidget|"
 msgid "Plaintext"
-msgstr ""
+msgstr "Plata teksto"
 
 #. Translators: caption of the tab which shows a HTML version of the mail. Use some short, compact text here.
 #: ../src/Gui/PartWidget.cpp:147
@@ -1556,12 +1559,12 @@ msgstr "HTML"
 #: ../src/Gui/PartWidget.cpp:153
 msgctxt "Gui::MultipartAlternativeWidget|"
 msgid "Cancelled Event"
-msgstr ""
+msgstr "Nuligita Evento"
 
 #: ../src/Gui/PartWidget.cpp:155
 msgctxt "Gui::MultipartAlternativeWidget|"
 msgid "Meeting Request"
-msgstr ""
+msgstr "Kunvena Peto"
 
 #: ../src/Gui/PartWidget.cpp:157
 msgctxt "Gui::MultipartAlternativeWidget|"
@@ -1571,12 +1574,12 @@ msgstr "Kalendara Evento"
 #: ../src/Gui/PartWidget.cpp:159
 msgctxt "Gui::MultipartAlternativeWidget|"
 msgid "Calendar Reply"
-msgstr ""
+msgstr "Kalendaro Respondo"
 
 #: ../src/Gui/PartWidget.cpp:161
 msgctxt "Gui::MultipartAlternativeWidget|"
 msgid "New Meeting"
-msgstr ""
+msgstr "Nova Renkontiĝo"
 
 #: ../src/Gui/PartWidget.cpp:211 ../src/Gui/PartWidget.cpp:256
 msgctxt "Gui::PartStatusWidget|"
@@ -1591,7 +1594,7 @@ msgstr "Kaŝi Detalojn"
 #: ../src/Gui/PartWidget.cpp:386
 msgctxt "Gui::MultipartSignedEncryptedWidget|"
 msgid "[Encrypted message]"
-msgstr ""
+msgstr "[Ĉifrita mesaĝo]"
 
 #: ../src/Gui/PasswordDialog.ui:14
 msgctxt "PasswordDialog|"
@@ -1602,7 +1605,7 @@ msgstr "Aŭtentigo Postulata"
 #, qt-format
 msgctxt "PasswordDialog|"
 msgid "<p>Please provide password for %1 on %2.</p>"
-msgstr ""
+msgstr "<p>Bonvolu doni pasvorton por %1 sur %2.</p>"
 
 #: ../src/Gui/ProtocolLoggerWidget.cpp:51
 msgctxt "Gui::ProtocolLoggerWidget|"
@@ -1613,7 +1616,7 @@ msgstr "Forviŝu ĉion"
 #, qt-format
 msgctxt "Gui::ProtocolLoggerWidget|"
 msgid "Connection %1"
-msgstr ""
+msgstr "Konekto %1"
 
 #: ../src/Gui/ProtocolLoggerWidget.cpp:170
 #, qt-format
@@ -1625,6 +1628,7 @@ msgid_plural ""
 "<p style=\"color: #bb0000\"><i><b>%n message(s)</b> were skipped because "
 "this widget was hidden.</i></p>"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Gui/ProtocolLoggerWidget.cpp:211
 #, qt-format
@@ -1636,26 +1640,27 @@ msgid_plural ""
 "<br/><span style=\"color: #808080; font-style: italic;\">(+ %n more bytes)</"
 "span>"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Gui/SettingsCachePage.ui:30
 msgctxt "CachePage|"
 msgid "Offline mode"
-msgstr ""
+msgstr "Senreta reĝimo"
 
 #: ../src/Gui/SettingsCachePage.ui:48
 msgctxt "CachePage|"
 msgid "&Don't use cache"
-msgstr ""
+msgstr "&Ne uzu kaŝmemoron"
 
 #: ../src/Gui/SettingsCachePage.ui:61
 msgctxt "CachePage|"
 msgid "&Remember messages for X days"
-msgstr ""
+msgstr "&Memoru mesaĝojn dum X tagoj"
 
 #: ../src/Gui/SettingsCachePage.ui:90
 msgctxt "CachePage|"
 msgid "Store &forever"
-msgstr ""
+msgstr "Konservu &eterne"
 
 #: ../src/Gui/SettingsCachePage.ui:106
 msgctxt "CachePage|"
@@ -1665,12 +1670,12 @@ msgstr "Sciigoj"
 #: ../src/Gui/SettingsCachePage.ui:112
 msgctxt "CachePage|"
 msgid "Only the INBOX folder will be included for new message checking"
-msgstr ""
+msgstr "Nur la INBOX-dosierujo estos inkluzivita por nova mesaĝo-kontrolado"
 
 #: ../src/Gui/SettingsCachePage.ui:115
 msgctxt "CachePage|"
 msgid "&INBOX Only"
-msgstr ""
+msgstr "&ENFERKESTO Nur"
 
 #: ../src/Gui/SettingsCachePage.ui:122
 msgctxt "CachePage|"
@@ -1682,7 +1687,7 @@ msgstr ""
 #: ../src/Gui/SettingsCachePage.ui:125
 msgctxt "CachePage|"
 msgid "&All Mailboxes (use with care)"
-msgstr ""
+msgstr "&Ĉiuj Poŝtkestoj (uzu zorge)"
 
 #: ../src/Gui/SettingsCachePage.ui:132
 msgctxt "CachePage|"
@@ -1695,7 +1700,7 @@ msgstr ""
 #: ../src/Gui/SettingsCachePage.ui:135
 msgctxt "CachePage|"
 msgid "&Subscribed Mailboxes"
-msgstr ""
+msgstr "&Abonitaj Leterkestoj"
 
 #: ../src/Gui/SettingsDialog.cpp:85
 msgctxt "Gui::SettingsDialog|"
@@ -1710,27 +1715,27 @@ msgstr "Ĝ&enerala"
 #: ../src/Gui/SettingsDialog.cpp:93
 msgctxt "Gui::SettingsDialog|"
 msgid "I&MAP"
-msgstr ""
+msgstr "I&MAPO"
 
 #: ../src/Gui/SettingsDialog.cpp:94
 msgctxt "Gui::SettingsDialog|"
 msgid "&Offline"
-msgstr ""
+msgstr "&Senrete"
 
 #: ../src/Gui/SettingsDialog.cpp:95
 msgctxt "Gui::SettingsDialog|"
 msgid "&SMTP"
-msgstr ""
+msgstr "&SMTP"
 
 #: ../src/Gui/SettingsDialog.cpp:96
 msgctxt "Gui::SettingsDialog|"
 msgid "Favorite &tags"
-msgstr ""
+msgstr "Plej ŝatataj &etikedoj"
 
 #: ../src/Gui/SettingsDialog.cpp:212
 msgctxt "Gui::SettingsDialog|"
 msgid "Saving passwords failed"
-msgstr ""
+msgstr "Konservado de pasvortoj malsukcesis"
 
 #: ../src/Gui/SettingsDialog.cpp:213
 #, qt-format
@@ -1754,22 +1759,22 @@ msgstr "Redakti Etikedon"
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Plugin not found (%1)"
-msgstr ""
+msgstr "Kromaĵo ne trovita (%1)"
 
 #: ../src/Gui/SettingsDialog.cpp:401
 msgctxt "Gui::GeneralPage|"
 msgid "Disable address book"
-msgstr ""
+msgstr "Malebligu adresaron"
 
 #: ../src/Gui/SettingsDialog.cpp:402
 msgctxt "Gui::GeneralPage|"
 msgid "Disable passwords"
-msgstr ""
+msgstr "Malebligu pasvortojn"
 
 #: ../src/Gui/SettingsDialog.cpp:403
 msgctxt "Gui::GeneralPage|"
 msgid "Disable spell checking"
-msgstr ""
+msgstr "Malebligu literumkontrolon"
 
 #: ../src/Gui/SettingsDialog.cpp:419
 msgctxt "Gui::GeneralPage|"
@@ -1793,7 +1798,7 @@ msgstr ""
 #: ../src/Gui/SettingsDialog.cpp:507
 msgctxt "Gui::GeneralPage|"
 msgid "Add New Identity"
-msgstr ""
+msgstr "Aldonu Novan Identecon"
 
 #: ../src/Gui/SettingsDialog.cpp:515
 msgctxt "Gui::GeneralPage|"
@@ -1803,33 +1808,33 @@ msgstr "Redakti identecon"
 #: ../src/Gui/SettingsDialog.cpp:523
 msgctxt "Gui::GeneralPage|"
 msgid "Delete Identity?"
-msgstr ""
+msgstr "Ĉu forigi identecon?"
 
 #: ../src/Gui/SettingsDialog.cpp:524
 #, qt-format
 msgctxt "Gui::GeneralPage|"
 msgid "Are you sure you want to delete identity %1 <%2>?"
-msgstr ""
+msgstr "Ĉu vi certas, ke vi volas forigi identecon %1 <%2>?"
 
 #: ../src/Gui/SettingsDialog.cpp:573
 msgctxt "Gui::GeneralPage|"
 msgid "Please define some identities here"
-msgstr ""
+msgstr "Bonvolu difini iujn identecojn ĉi tie"
 
 #: ../src/Gui/SettingsDialog.cpp:670
 msgctxt "Gui::EditFavoriteTag|"
 msgid "Select tag color"
-msgstr ""
+msgstr "Elektu etikedkoloron"
 
 #: ../src/Gui/SettingsDialog.cpp:707
 msgctxt "Gui::ImapPage|"
 msgid "Network Connection"
-msgstr ""
+msgstr "Reta Konekto"
 
 #: ../src/Gui/SettingsDialog.cpp:708
 msgctxt "Gui::ImapPage|"
 msgid "Local Process"
-msgstr ""
+msgstr "Loka Procezo"
 
 #: ../src/Gui/SettingsDialog.cpp:710
 msgctxt "Gui::ImapPage|"
@@ -1839,12 +1844,12 @@ msgstr "Neniu ĉifrado"
 #: ../src/Gui/SettingsDialog.cpp:711
 msgctxt "Gui::ImapPage|"
 msgid "Use encryption (STARTTLS)"
-msgstr ""
+msgstr "Uzu ĉifradon (STARTTLS)"
 
 #: ../src/Gui/SettingsDialog.cpp:712
 msgctxt "Gui::ImapPage|"
 msgid "Force encryption (TLS)"
-msgstr ""
+msgstr "Forto ĉifrado (TLS)"
 
 #: ../src/Gui/SettingsDialog.cpp:834
 msgctxt "Gui::ImapPage|"
@@ -1863,7 +1868,7 @@ msgstr ""
 #: ../src/Gui/SettingsDialog.cpp:909
 msgctxt "Gui::ImapPage|"
 msgid "The IMAP server hostname is missing here"
-msgstr ""
+msgstr "La gastiga nomo de IMAP-servilo mankas ĉi tie"
 
 #: ../src/Gui/SettingsDialog.cpp:915
 msgctxt "Gui::ImapPage|"
@@ -1903,12 +1908,12 @@ msgstr "Reto"
 #: ../src/Gui/SettingsDialog.cpp:1047
 msgctxt "Gui::OutgoingPage|"
 msgid "Local sendmail-compatible"
-msgstr ""
+msgstr "Loka sendpoŝto-kongrua"
 
 #: ../src/Gui/SettingsDialog.cpp:1048
 msgctxt "Gui::OutgoingPage|"
 msgid "IMAP SENDMAIL Extension"
-msgstr ""
+msgstr "IMAP SENDMAIL Etendaĵo"
 
 #: ../src/Gui/SettingsDialog.cpp:1050
 msgctxt "Gui::OutgoingPage|"
@@ -1918,12 +1923,12 @@ msgstr "Neniu ĉifrado"
 #: ../src/Gui/SettingsDialog.cpp:1051
 msgctxt "Gui::OutgoingPage|"
 msgid "Use encryption (STARTTLS)"
-msgstr ""
+msgstr "Uzu ĉifradon (STARTTLS)"
 
 #: ../src/Gui/SettingsDialog.cpp:1052
 msgctxt "Gui::OutgoingPage|"
 msgid "Force encryption (TLS)"
-msgstr ""
+msgstr "Forto ĉifrado (TLS)"
 
 #: ../src/Gui/SettingsDialog.cpp:1196
 msgctxt "Gui::OutgoingPage|"
@@ -1942,22 +1947,22 @@ msgstr ""
 #: ../src/Gui/SettingsDialog.cpp:1294 ../src/Gui/SettingsDialog.cpp:1300
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP server hostname is missing here"
-msgstr ""
+msgstr "La gastiga nomo de SMTP-servilo mankas ĉi tie"
 
 #: ../src/Gui/SettingsDialog.cpp:1296
 msgctxt "Gui::OutgoingPage|"
 msgid "The SMTP username is missing here"
-msgstr ""
+msgstr "La uzantnomo SMTP mankas ĉi tie"
 
 #: ../src/Gui/SettingsDialog.cpp:1307
 msgctxt "Gui::OutgoingPage|"
 msgid "Please specify the folder name here"
-msgstr ""
+msgstr "Bonvolu specifi la dosierujon ĉi tie"
 
 #: ../src/Gui/SettingsFavoriteTagsPage.ui:14
 msgctxt "FavoriteTagsPage|"
 msgid "ScrollArea"
-msgstr ""
+msgstr "ScrollAreo"
 
 #: ../src/Gui/SettingsFavoriteTagsPage.ui:108
 msgctxt "FavoriteTagsPage|"
@@ -1977,17 +1982,17 @@ msgstr "Forigi"
 #: ../src/Gui/SettingsGeneralPage.ui:14
 msgctxt "GeneralPage|"
 msgid "ScrollArea"
-msgstr ""
+msgstr "ScrollAreo"
 
 #: ../src/Gui/SettingsGeneralPage.ui:41
 msgctxt "GeneralPage|"
 msgid "Show Trojitá's homepage on startup"
-msgstr ""
+msgstr "Montru la hejmpaĝon de Trojitá ĉe ekfunkciigo"
 
 #: ../src/Gui/SettingsGeneralPage.ui:48
 msgctxt "GeneralPage|"
 msgid "Show plaintext e-mails instead of the HTML version"
-msgstr ""
+msgstr "Montru simplajn tekstajn retmesaĝojn anstataŭ la HTML-version"
 
 #: ../src/Gui/SettingsGeneralPage.ui:55
 msgctxt "GeneralPage|"
@@ -2017,7 +2022,7 @@ msgstr "Forigi"
 #: ../src/Gui/SettingsGeneralPage.ui:167
 msgctxt "GeneralPage|"
 msgid "Addressbook"
-msgstr ""
+msgstr "Adresaron"
 
 #: ../src/Gui/SettingsGeneralPage.ui:184
 msgctxt "GeneralPage|"
@@ -2027,12 +2032,12 @@ msgstr "Pasvortoj"
 #: ../src/Gui/SettingsGeneralPage.ui:201
 msgctxt "GeneralPage|"
 msgid "Spell checker"
-msgstr ""
+msgstr "Literumilo"
 
 #: ../src/Gui/SettingsGeneralPage.ui:225
 msgctxt "GeneralPage|"
 msgid "Automatically mark messages as read"
-msgstr ""
+msgstr "Aŭtomate marku mesaĝojn kiel legitajn"
 
 #. To indicate that there's no delay
 #: ../src/Gui/SettingsGeneralPage.ui:232
@@ -2050,7 +2055,7 @@ msgstr " s"
 #: ../src/Gui/SettingsGeneralPage.ui:238
 msgctxt "GeneralPage|"
 msgid "after "
-msgstr ""
+msgstr "post"
 
 #: ../src/Gui/SettingsGeneralPage.ui:256
 msgctxt "GeneralPage|"
@@ -2070,7 +2075,7 @@ msgstr ""
 #: ../src/Gui/SettingsGeneralPage.ui:259
 msgctxt "GeneralPage|"
 msgid "Reveal Trojitá's version and platform information"
-msgstr ""
+msgstr "Malkaŝu la versio- kaj platforminformojn de Trojitá"
 
 #: ../src/Gui/SettingsGeneralPage.ui:271
 msgctxt "GeneralPage|"
@@ -2084,17 +2089,17 @@ msgstr ""
 #: ../src/Gui/SettingsGeneralPage.ui:274
 msgctxt "GeneralPage|"
 msgid "Default drop action for the mbox tree"
-msgstr ""
+msgstr "Defaŭlta faliga ago por la mbox-arbo"
 
 #: ../src/Gui/SettingsImapPage.ui:27
 msgctxt "ImapPage|"
 msgid "M&ethod"
-msgstr ""
+msgstr "M&etodo"
 
 #: ../src/Gui/SettingsImapPage.ui:37
 msgctxt "ImapPage|"
 msgid "How to connect to the IMAP server"
-msgstr ""
+msgstr "Kiel konekti al la IMAP-servilo"
 
 #: ../src/Gui/SettingsImapPage.ui:40
 msgctxt "ImapPage|"
@@ -2136,32 +2141,33 @@ msgstr "Ĉifrado"
 #: ../src/Gui/SettingsImapPage.ui:65
 msgctxt "ImapPage|"
 msgid "Ser&ver"
-msgstr ""
+msgstr "Ser&ver"
 
 #: ../src/Gui/SettingsImapPage.ui:75
 msgctxt "ImapPage|"
 msgid "Hostname of the IMAP server"
-msgstr ""
+msgstr "Gastnomo de la IMAP-servilo"
 
 #: ../src/Gui/SettingsImapPage.ui:78
 msgctxt "ImapPage|"
 msgid "This is the name of the IMAP server that Trojitá should connect to."
 msgstr ""
+"Ĉi tiu estas la nomo de la IMAP-servilo al kiu Trojitá devus konektiĝi."
 
 #: ../src/Gui/SettingsImapPage.ui:88
 msgctxt "ImapPage|"
 msgid "&Port"
-msgstr ""
+msgstr "&Pordo"
 
 #: ../src/Gui/SettingsImapPage.ui:98
 msgctxt "ImapPage|"
 msgid "Port number of the IMAP server"
-msgstr ""
+msgstr "Portnumero de la IMAP-servilo"
 
 #: ../src/Gui/SettingsImapPage.ui:118
 msgctxt "ImapPage|"
 msgid "Use System Proxy Settings"
-msgstr ""
+msgstr "Uzu Sistemajn Prokurajn Agordojn"
 
 #: ../src/Gui/SettingsImapPage.ui:131
 msgctxt "ImapPage|"
@@ -2173,7 +2179,7 @@ msgstr ""
 #: ../src/Gui/SettingsImapPage.ui:134
 msgctxt "ImapPage|"
 msgid "Needs Network"
-msgstr ""
+msgstr "Bezonas Reton"
 
 #: ../src/Gui/SettingsImapPage.ui:147
 msgctxt "ImapPage|"
@@ -2188,12 +2194,12 @@ msgstr "Uzantnomo"
 #: ../src/Gui/SettingsImapPage.ui:160
 msgctxt "ImapPage|"
 msgid "User name to log in to the IMAP server"
-msgstr ""
+msgstr "Uzantnomo por ensaluti al la IMAP-servilo"
 
 #: ../src/Gui/SettingsImapPage.ui:170
 msgctxt "ImapPage|"
 msgid "Pass&word"
-msgstr ""
+msgstr "Pasvorto"
 
 #: ../src/Gui/SettingsImapPage.ui:180
 msgctxt "ImapPage|"
@@ -2241,7 +2247,7 @@ msgstr ""
 #: ../src/Gui/SettingsImapPage.ui:230
 msgctxt "ImapPage|"
 msgid "Path to Server &Binary"
-msgstr ""
+msgstr "Vojo al Servilo &Binara"
 
 #: ../src/Gui/SettingsImapPage.ui:240
 msgctxt "ImapPage|"
@@ -2272,12 +2278,12 @@ msgstr ""
 #: ../src/Gui/SettingsImapPage.ui:256
 msgctxt "ImapPage|"
 msgid "Extension &Blacklist"
-msgstr ""
+msgstr "Etendo &Nigra Listo"
 
 #: ../src/Gui/SettingsImapPage.ui:269
 msgctxt "ImapPage|"
 msgid "Timeout of IMAP IDLE"
-msgstr ""
+msgstr "Tempo de IMAP IDLE"
 
 #: ../src/Gui/SettingsImapPage.ui:282
 msgctxt "ImapPage|"
@@ -2292,7 +2298,7 @@ msgstr ""
 #: ../src/Gui/SettingsImapPage.ui:298
 msgctxt "ImapPage|"
 msgid "Refresh Interval"
-msgstr ""
+msgstr "Refreŝiga Intervalo"
 
 #: ../src/Gui/SettingsImapPage.ui:305
 msgctxt "ImapPage|"
@@ -2309,22 +2315,22 @@ msgstr " sekundoj"
 #: ../src/Gui/SettingsImapPage.ui:325
 msgctxt "ImapPage|"
 msgid "Account Icon"
-msgstr ""
+msgstr "Konto Piktogramo"
 
 #: ../src/Gui/SettingsImapPage.ui:332
 msgctxt "ImapPage|"
 msgid "Default Trojitá icon"
-msgstr ""
+msgstr "Defaŭlta piktogramo Trojitá"
 
 #: ../src/Gui/SettingsImapPage.ui:342
 msgctxt "ImapPage|"
 msgid "Archive Folder &Name"
-msgstr ""
+msgstr "Arkiva Dosierujo &Nomo"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:27
 msgctxt "OutgoingPage|"
 msgid "&Method"
-msgstr ""
+msgstr "&Metodo"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:40
 msgctxt "OutgoingPage|"
@@ -2334,17 +2340,17 @@ msgstr "Ĉifrado"
 #: ../src/Gui/SettingsOutgoingPage.ui:50
 msgctxt "OutgoingPage|"
 msgid "Ser&ver"
-msgstr ""
+msgstr "Ser&ver"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:63
 msgctxt "OutgoingPage|"
 msgid "&Port"
-msgstr ""
+msgstr "&Pordo"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:86
 msgctxt "OutgoingPage|"
 msgid "&Authenticate"
-msgstr ""
+msgstr "&Aŭtentikigi"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:103
 msgctxt "OutgoingPage|"
@@ -2354,22 +2360,22 @@ msgstr "&Uzantnomo"
 #: ../src/Gui/SettingsOutgoingPage.ui:116
 msgctxt "OutgoingPage|"
 msgid "Pass&word"
-msgstr ""
+msgstr "Pasvorto"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:156
 msgctxt "OutgoingPage|"
 msgid "Sendmail E&xecutable"
-msgstr ""
+msgstr "Sendmail E&realigebla"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:169
 msgctxt "OutgoingPage|"
 msgid "Save Ou&tgoing Mail"
-msgstr ""
+msgstr "Konservu Eksiĝintan Poŝton"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:182
 msgctxt "OutgoingPage|"
 msgid "Sent Folder &Name"
-msgstr ""
+msgstr "Sendita Dosierujo &Nomo"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:195
 msgctxt "OutgoingPage|"
@@ -2381,12 +2387,12 @@ msgstr ""
 #: ../src/Gui/SettingsOutgoingPage.ui:198
 msgctxt "OutgoingPage|"
 msgid "Send with &BURL"
-msgstr ""
+msgstr "Sendu kun &BURL"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:218
 msgctxt "OutgoingPage|"
 msgid "Use IMAP Credentials"
-msgstr ""
+msgstr "Uzu IMAP-Akreditaĵojn"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
 msgctxt "Gui::ShortcutConfigDialog|"
@@ -2412,22 +2418,22 @@ msgstr "Trojitá"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:177
 msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
 msgid "Ctrl+"
-msgstr ""
+msgstr "Ctrl+"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:179
 msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
 msgid "Alt+"
-msgstr ""
+msgstr "Alt+"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:181
 msgctxt "Gui::ShortcutConfigWidget|Shortcut modifier"
 msgid "Shift+"
-msgstr ""
+msgstr "Shift+"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
 msgctxt "Gui::ShortcutConfigWidget|"
 msgid "Shortcut Conflicts"
-msgstr ""
+msgstr "Ŝparvojaj Konfliktoj"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:204
 #, qt-format
@@ -2445,7 +2451,7 @@ msgstr "Agordi Ŝparvojojn"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:20
 msgctxt "ShortcutConfigWidget|"
 msgid "Select an action and press a key combination to change its shortcut:"
-msgstr ""
+msgstr "Elektu agon kaj premu klavkombinon por ŝanĝi ĝian ŝparvojon:"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:27
 msgctxt "ShortcutConfigWidget|"
@@ -2482,7 +2488,7 @@ msgstr "Serĉi:"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:74
 msgctxt "ShortcutConfigWidget|"
 msgid "<p>Remove the shortcut of the currently highlighted action.</p>"
-msgstr ""
+msgstr "<p>Forigu la ŝparvojon de la aktuale elstarigita ago.</p>"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:77
 msgctxt "ShortcutConfigWidget|Action for clearing shortcut"
@@ -2521,12 +2527,12 @@ msgstr "Ĉefa Fenestro"
 #: ../src/Gui/SimplePartWidget.cpp:77
 msgctxt "Gui::SimplePartWidget|"
 msgid "Save this message part..."
-msgstr ""
+msgstr "Konservu ĉi tiun mesaĝon parton..."
 
 #: ../src/Gui/SimplePartWidget.cpp:81
 msgctxt "Gui::SimplePartWidget|"
 msgid "Save whole message..."
-msgstr ""
+msgstr "Konservu la tutan mesaĝon..."
 
 #: ../src/Gui/SimplePartWidget.cpp:85
 msgctxt "Gui::SimplePartWidget|"
@@ -2536,7 +2542,7 @@ msgstr "Serĉi..."
 #: ../src/Gui/SimplePartWidget.cpp:88
 msgctxt "Gui::SimplePartWidget|"
 msgid "Copy e-mail address"
-msgstr ""
+msgstr "Kopiu retadreson"
 
 #: ../src/Gui/SimplePartWidget.cpp:129
 msgctxt "Gui::SimplePartWidget|"
@@ -2576,12 +2582,12 @@ msgstr "Aldoni Etikedojn"
 #: ../src/Gui/TagAddDialog.ui:26
 msgctxt "TagAddDialog|"
 msgid "Tag names (space-separated):"
-msgstr ""
+msgstr "Etikednomoj (spac-disigitaj):"
 
 #: ../src/Gui/TagListWidget.cpp:107
 msgctxt "Gui::TagListWidget|"
 msgid "Disallowed tag value"
-msgstr ""
+msgstr "Nepermesita etikedvaloro"
 
 #: ../src/Gui/TagListWidget.cpp:108
 #, qt-format
@@ -2602,11 +2608,12 @@ msgctxt "Gui::TaskProgressIndicator|"
 msgid "%n ongoing actions"
 msgid_plural "%n ongoing actions"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Gui/TaskProgressIndicator.cpp:86
 msgctxt "Gui::TaskProgressIndicator|"
 msgid "IMAP connection idle"
-msgstr ""
+msgstr "IMAP-konekto neaktiva"
 
 #: ../src/Gui/Util.cpp:88
 msgctxt "Gui::MainWindow|"
@@ -2642,12 +2649,12 @@ msgstr "&Nova mesaĝo..."
 #: ../src/Gui/Window.cpp:236
 msgctxt "Gui::MainWindow|"
 msgid "&Edit Draft..."
-msgstr ""
+msgstr "&Redakti malneton..."
 
 #: ../src/Gui/Window.cpp:237
 msgctxt "Gui::MainWindow|"
 msgid "Show Main Menu &Bar"
-msgstr ""
+msgstr "Montru Ĉefmenuon &Baron"
 
 #: ../src/Gui/Window.cpp:237
 msgctxt "Gui::MainWindow|"
@@ -2657,7 +2664,7 @@ msgstr "Ctrl+M"
 #: ../src/Gui/Window.cpp:238
 msgctxt "Gui::MainWindow|"
 msgid "Exp&unge"
-msgstr ""
+msgstr "Exp&unge"
 
 #: ../src/Gui/Window.cpp:238
 msgctxt "Gui::MainWindow|"
@@ -2667,37 +2674,37 @@ msgstr "Ctrl+E"
 #: ../src/Gui/Window.cpp:239
 msgctxt "Gui::MainWindow|"
 msgid "Mark as &Read"
-msgstr ""
+msgstr "Marki kiel &Legita"
 
 #: ../src/Gui/Window.cpp:240
 msgctxt "Gui::MainWindow|"
 msgid "&Next Unread Message"
-msgstr ""
+msgstr "&Sekva Nelegita Mesaĝo"
 
 #: ../src/Gui/Window.cpp:241
 msgctxt "Gui::MainWindow|"
 msgid "&Previous Unread Message"
-msgstr ""
+msgstr "&Antaŭa Nelegita Mesaĝo"
 
 #: ../src/Gui/Window.cpp:242
 msgctxt "Gui::MainWindow|"
 msgid "Mark as &Deleted"
-msgstr ""
+msgstr "Marki kiel &Forigita"
 
 #: ../src/Gui/Window.cpp:243
 msgctxt "Gui::MainWindow|"
 msgid "Mark as &Flagged"
-msgstr ""
+msgstr "Marki kiel &Markigita"
 
 #: ../src/Gui/Window.cpp:244
 msgctxt "Gui::MainWindow|"
 msgid "Mark as &Junk"
-msgstr ""
+msgstr "Marki kiel &Funkaĵo"
 
 #: ../src/Gui/Window.cpp:245
 msgctxt "Gui::MainWindow|"
 msgid "Mark as Not &junk"
-msgstr ""
+msgstr "Marki kiel Ne &rubaĵo"
 
 #: ../src/Gui/Window.cpp:246
 msgctxt "Gui::MainWindow|"
@@ -2707,12 +2714,12 @@ msgstr "Kon&servi Mesaĝon..."
 #: ../src/Gui/Window.cpp:247
 msgctxt "Gui::MainWindow|"
 msgid "View Message &Source..."
-msgstr ""
+msgstr "Rigardu Mesaĝon &Fonton..."
 
 #: ../src/Gui/Window.cpp:248
 msgctxt "Gui::MainWindow|"
 msgid "View Message &Headers..."
-msgstr ""
+msgstr "Rigardu Mesaĝajn &Titolojn..."
 
 #: ../src/Gui/Window.cpp:248
 msgctxt "Gui::MainWindow|"
@@ -2722,7 +2729,7 @@ msgstr "Ctrl+U"
 #: ../src/Gui/Window.cpp:249
 msgctxt "Gui::MainWindow|"
 msgid "&Private Reply"
-msgstr ""
+msgstr "&Privata Respondo"
 
 #: ../src/Gui/Window.cpp:249
 msgctxt "Gui::MainWindow|"
@@ -2732,27 +2739,27 @@ msgstr "Ctrl+Shift+A"
 #: ../src/Gui/Window.cpp:250
 msgctxt "Gui::MainWindow|"
 msgid "Reply to All &but Me"
-msgstr ""
+msgstr "Respondu al Ĉiuj &krom Mi"
 
 #: ../src/Gui/Window.cpp:250
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+Shift+R"
-msgstr ""
+msgstr "Ctrl+Shift+R"
 
 #: ../src/Gui/Window.cpp:251
 msgctxt "Gui::MainWindow|"
 msgid "Reply to &All"
-msgstr ""
+msgstr "Respondu al &Ĉiuj"
 
 #: ../src/Gui/Window.cpp:251
 msgctxt "Gui::MainWindow|"
 msgid "Ctrl+Alt+Shift+R"
-msgstr ""
+msgstr "Ctrl+Alt+Shift+R"
 
 #: ../src/Gui/Window.cpp:252
 msgctxt "Gui::MainWindow|"
 msgid "Reply to &Mailing List"
-msgstr ""
+msgstr "Respondu al Dissendolisto"
 
 #: ../src/Gui/Window.cpp:252
 msgctxt "Gui::MainWindow|"
@@ -2762,7 +2769,7 @@ msgstr "Ktrl+L"
 #: ../src/Gui/Window.cpp:253
 msgctxt "Gui::MainWindow|"
 msgid "Reply by &Guess"
-msgstr ""
+msgstr "Respondo de &Divenu"
 
 #: ../src/Gui/Window.cpp:253
 msgctxt "Gui::MainWindow|"
@@ -2782,7 +2789,7 @@ msgstr "Ctrl+Shift+F"
 #: ../src/Gui/Window.cpp:255
 msgctxt "Gui::MainWindow|"
 msgid "Resend..."
-msgstr ""
+msgstr "Resendi..."
 
 #: ../src/Gui/Window.cpp:256
 msgctxt "Gui::MainWindow|"
@@ -2792,32 +2799,32 @@ msgstr "&Arĥivo"
 #: ../src/Gui/Window.cpp:257
 msgctxt "Gui::MainWindow|"
 msgid "Address Book..."
-msgstr ""
+msgstr "Adresaron..."
 
 #: ../src/Gui/Window.cpp:258
 msgctxt "Gui::MainWindow|"
 msgid "&Offline"
-msgstr ""
+msgstr "&Senrete"
 
 #: ../src/Gui/Window.cpp:259
 msgctxt "Gui::MainWindow|"
 msgid "&Expensive Connection"
-msgstr ""
+msgstr "&Kostega Konekto"
 
 #: ../src/Gui/Window.cpp:260
 msgctxt "Gui::MainWindow|"
 msgid "&Free Access"
-msgstr ""
+msgstr "&Libera Aliro"
 
 #: ../src/Gui/Window.cpp:261
 msgctxt "Gui::MainWindow|"
 msgid "Close Standalone Message Window"
-msgstr ""
+msgstr "Fermu Memsan Mesaĝan Fenestron"
 
 #: ../src/Gui/Window.cpp:262
 msgctxt "Gui::MainWindow|"
 msgid "Open message in New Window..."
-msgstr ""
+msgstr "Malfermu mesaĝon en Nova Fenestro..."
 
 #: ../src/Gui/Window.cpp:263
 msgctxt "Gui::MainWindow|"
@@ -2842,62 +2849,62 @@ msgstr "Originala Grandeco"
 #: ../src/Gui/Window.cpp:267
 msgctxt "Gui::MainWindow|"
 msgid "Move Focus to Mailbox List"
-msgstr ""
+msgstr "Movu Fokuso al Leterkesto Listo"
 
 #: ../src/Gui/Window.cpp:268
 msgctxt "Gui::MainWindow|"
 msgid "Move Focus to Message List"
-msgstr ""
+msgstr "Movu Fokson al Mesaĝa Listo"
 
 #: ../src/Gui/Window.cpp:269
 msgctxt "Gui::MainWindow|"
 msgid "Move Focus to Quick Search"
-msgstr ""
+msgstr "Movu Fokuso al Rapida Serĉo"
 
 #: ../src/Gui/Window.cpp:270
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &1st tag"
-msgstr ""
+msgstr "Etikedo kun &1a etikedo"
 
 #: ../src/Gui/Window.cpp:271
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &2nd tag"
-msgstr ""
+msgstr "Etikedo kun &dua etikedo"
 
 #: ../src/Gui/Window.cpp:272
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &3rd tag"
-msgstr ""
+msgstr "Etikedo kun &3a etikedo"
 
 #: ../src/Gui/Window.cpp:273
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &4th tag"
-msgstr ""
+msgstr "Etikedo kun &4a etikedo"
 
 #: ../src/Gui/Window.cpp:274
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &5th tag"
-msgstr ""
+msgstr "Etikedo kun &5a etikedo"
 
 #: ../src/Gui/Window.cpp:275
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &6th tag"
-msgstr ""
+msgstr "Etikedo kun &6a etikedo"
 
 #: ../src/Gui/Window.cpp:276
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &7th tag"
-msgstr ""
+msgstr "Etikedo kun &7a etikedo"
 
 #: ../src/Gui/Window.cpp:277
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &8th tag"
-msgstr ""
+msgstr "Etikedo kun &8a etikedo"
 
 #: ../src/Gui/Window.cpp:278
 msgctxt "Gui::MainWindow|"
 msgid "Tag with &9th tag"
-msgstr ""
+msgstr "Etikedo kun &9a etikedo"
 
 #: ../src/Gui/Window.cpp:306
 msgctxt "Gui::MainWindow|"
@@ -2907,17 +2914,17 @@ msgstr "Navigado"
 #: ../src/Gui/Window.cpp:309
 msgctxt "Gui::MainWindow|"
 msgid "&Update List of Child Mailboxes"
-msgstr ""
+msgstr "&Ĝisdatigi Listo de Infanaj Leterkestoj"
 
 #: ../src/Gui/Window.cpp:312
 msgctxt "Gui::MainWindow|"
 msgid "Check for &New Messages"
-msgstr ""
+msgstr "Kontroli pri &Novaj Mesaĝoj"
 
 #: ../src/Gui/Window.cpp:315
 msgctxt "Gui::MainWindow|"
 msgid "&Reload Everything"
-msgstr ""
+msgstr "&Reŝargi ĉion"
 
 #: ../src/Gui/Window.cpp:319
 msgctxt "Gui::MainWindow|"
@@ -2928,36 +2935,36 @@ msgstr "Eliri la aplikaĵon"
 #: ../src/Gui/Window.cpp:338
 msgctxt "Gui::MainWindow|"
 msgid "Show Full &Tree Window"
-msgstr ""
+msgstr "Montri Plenan &Arban Fenestron"
 
 #. list of active "tasks", entities which are performing certain action like downloading a message or syncing a mailbox
 #: ../src/Gui/Window.cpp:344
 msgctxt "Gui::MainWindow|"
 msgid "Show ImapTask t&ree"
-msgstr ""
+msgstr "Montri ImapTask t&ree"
 
 #. a debugging tool showing the mime tree of the current message
 #: ../src/Gui/Window.cpp:350
 msgctxt "Gui::MainWindow|"
 msgid "Show &MIME tree"
-msgstr ""
+msgstr "Montru &MIME-arbon"
 
 #: ../src/Gui/Window.cpp:355
 msgctxt "Gui::MainWindow|"
 msgid "Show protocol &log"
-msgstr ""
+msgstr "Montri protokolon &protokolo"
 
 #. file to save the debug log into
 #: ../src/Gui/Window.cpp:361
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Log &into %1"
-msgstr ""
+msgstr "Ensalutu &en %1"
 
 #: ../src/Gui/Window.cpp:366
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Server In&formation..."
-msgstr ""
+msgstr "Informoj pri IMAP-Servilo..."
 
 #: ../src/Gui/Window.cpp:375
 msgctxt "Gui::MainWindow|"
@@ -2973,29 +2980,29 @@ msgstr "A&gordoj..."
 #: ../src/Gui/Window.cpp:476
 msgctxt "Gui::MainWindow|"
 msgid "Create &Child Mailbox..."
-msgstr ""
+msgstr "Krei &Infanan Leterkeston..."
 
 #. "mailbox" as a "folder of messages", not as a "mail account"
 #: ../src/Gui/Window.cpp:480
 msgctxt "Gui::MainWindow|"
 msgid "Create &New Mailbox..."
-msgstr ""
+msgstr "Krei novan leterkeston..."
 
 #: ../src/Gui/Window.cpp:483
 msgctxt "Gui::MainWindow|"
 msgid "&Mark Mailbox as Read"
-msgstr ""
+msgstr "&Marki Leterkeston kiel Legita"
 
 #. "mailbox" as a "folder of messages", not as a "mail account"
 #: ../src/Gui/Window.cpp:487
 msgctxt "Gui::MainWindow|"
 msgid "&Remove Mailbox"
-msgstr ""
+msgstr "&Forigi Leterkeston"
 
 #: ../src/Gui/Window.cpp:505
 msgctxt "Gui::MainWindow|"
 msgid "Show Messages in &Threads"
-msgstr ""
+msgstr "Montru Mesaĝojn en &Fadenoj"
 
 #: ../src/Gui/Window.cpp:516
 msgctxt "Gui::MainWindow|"
@@ -3010,37 +3017,37 @@ msgstr "&Malkreskanta"
 #: ../src/Gui/Window.cpp:527
 msgctxt "Gui::MainWindow|"
 msgid "&No sorting"
-msgstr ""
+msgstr "&Neniu ordigo"
 
 #: ../src/Gui/Window.cpp:529
 msgctxt "Gui::MainWindow|"
 msgid "Sorted by &Threading"
-msgstr ""
+msgstr "Ordigita per &Fadenado"
 
 #: ../src/Gui/Window.cpp:531
 msgctxt "Gui::MainWindow|"
 msgid "A&rrival"
-msgstr ""
+msgstr "Al&alveno"
 
 #: ../src/Gui/Window.cpp:533
 msgctxt "Gui::MainWindow|"
 msgid "&Cc (Carbon Copy)"
-msgstr ""
+msgstr "&Cc (Karbona Kopio)"
 
 #: ../src/Gui/Window.cpp:535
 msgctxt "Gui::MainWindow|"
 msgid "Date from &Message Headers"
-msgstr ""
+msgstr "Dato el &Mesaĝkapoj"
 
 #: ../src/Gui/Window.cpp:537
 msgctxt "Gui::MainWindow|"
 msgid "&From Address"
-msgstr ""
+msgstr "&De Adreso"
 
 #: ../src/Gui/Window.cpp:539
 msgctxt "Gui::MainWindow|"
 msgid "&Size"
-msgstr ""
+msgstr "&Grandeco"
 
 #: ../src/Gui/Window.cpp:541
 msgctxt "Gui::MainWindow|"
@@ -3050,52 +3057,52 @@ msgstr "&Temo"
 #: ../src/Gui/Window.cpp:543
 msgctxt "Gui::MainWindow|"
 msgid "T&o Address"
-msgstr ""
+msgstr "T&o Adreso"
 
 #: ../src/Gui/Window.cpp:548
 msgctxt "Gui::MainWindow|"
 msgid "&Hide Read Messages"
-msgstr ""
+msgstr "&Kaŝi Legajn Mesaĝojn"
 
 #: ../src/Gui/Window.cpp:557
 msgctxt "Gui::MainWindow|"
 msgid "&Compact"
-msgstr ""
+msgstr "&Kompakta"
 
 #: ../src/Gui/Window.cpp:561
 msgctxt "Gui::MainWindow|"
 msgid "&Wide"
-msgstr ""
+msgstr "&Larĝe"
 
 #: ../src/Gui/Window.cpp:564
 msgctxt "Gui::MainWindow|"
 msgid "&One At a Time"
-msgstr ""
+msgstr "&Unuope"
 
 #: ../src/Gui/Window.cpp:569
 msgctxt "Gui::MainWindow|"
 msgid "Show Only S&ubscribed Folders"
-msgstr ""
+msgstr "Montri Nur Abonitaj Dosierujoj"
 
 #: ../src/Gui/Window.cpp:573
 msgctxt "Gui::MainWindow|"
 msgid "Su&bscribed"
-msgstr ""
+msgstr "Abonis"
 
 #: ../src/Gui/Window.cpp:578
 msgctxt "Gui::MainWindow|"
 msgid "&About Trojitá..."
-msgstr ""
+msgstr "&Pri Trojitá..."
 
 #: ../src/Gui/Window.cpp:581
 msgctxt "Gui::MainWindow|"
 msgid "&Donate to the project"
-msgstr ""
+msgstr "&Donaci al la projekto"
 
 #: ../src/Gui/Window.cpp:586
 msgctxt "Gui::MainWindow|"
 msgid "Compose Mail"
-msgstr ""
+msgstr "Verki Poŝton"
 
 #: ../src/Gui/Window.cpp:686
 msgctxt "Gui::MainWindow|"
@@ -3105,7 +3112,7 @@ msgstr "&Apliko"
 #: ../src/Gui/Window.cpp:688
 msgctxt "Gui::MainWindow|"
 msgid "&Network Access"
-msgstr ""
+msgstr "&Reta Aliro"
 
 #: ../src/Gui/Window.cpp:692
 msgctxt "Gui::MainWindow|"
@@ -3125,12 +3132,12 @@ msgstr "&Aranĝo"
 #: ../src/Gui/Window.cpp:722
 msgctxt "Gui::MainWindow|"
 msgid "Mail&box"
-msgstr ""
+msgstr "Leterkesto"
 
 #: ../src/Gui/Window.cpp:723
 msgctxt "Gui::MainWindow|"
 msgid "S&orting"
-msgstr ""
+msgstr "S&ortado"
 
 #: ../src/Gui/Window.cpp:745
 msgctxt "Gui::MainWindow|"
@@ -3141,7 +3148,7 @@ msgstr "&Mesaĝo"
 #, qt-format
 msgctxt "QObject|"
 msgid "Link target: %1"
-msgstr ""
+msgstr "Ligocelo: %1"
 
 #: ../src/Gui/Window.cpp:836
 msgctxt "Gui::MainWindow|"
@@ -3151,17 +3158,17 @@ msgstr "Ĉion"
 #: ../src/Gui/Window.cpp:844
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Tasks"
-msgstr ""
+msgstr "IMAP-Taskoj"
 
 #: ../src/Gui/Window.cpp:851
 msgctxt "Gui::MainWindow|"
 msgid "MIME Tree"
-msgstr ""
+msgstr "MIME-Arbo"
 
 #: ../src/Gui/Window.cpp:861
 msgctxt "Gui::MainWindow|"
 msgid "Protocol log"
-msgstr ""
+msgstr "Protokolo protokolo"
 
 #: ../src/Gui/Window.cpp:938
 #, qt-format
@@ -3169,6 +3176,7 @@ msgctxt "Gui::MainWindow|"
 msgid "Attempting to reconnect in %n seconds.."
 msgid_plural "Attempting to reconnect in %n seconds.."
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Gui/Window.cpp:991
 msgctxt "Gui::MainWindow|"
@@ -3182,12 +3190,13 @@ msgctxt "Gui::MainWindow|"
 msgid " - %n unread message(s)"
 msgid_plural " - %n unread message(s)"
 msgstr[0] ""
+msgstr[1] ""
 
 #. A tooltip suffix when offline. The prefix is something like "Trojita" or "Trojita [work]"
 #: ../src/Gui/Window.cpp:1109
 msgctxt "Gui::MainWindow|"
 msgid " - offline"
-msgstr ""
+msgstr " - eksterrete"
 
 #: ../src/Gui/Window.cpp:1118 ../src/Gui/Window.cpp:2530
 msgctxt "Gui::MainWindow|"
@@ -3205,12 +3214,12 @@ msgstr ""
 #: ../src/Gui/Window.cpp:1325
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Alert"
-msgstr ""
+msgstr "IMAP-Averto"
 
 #: ../src/Gui/Window.cpp:1330
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Protocol Error"
-msgstr ""
+msgstr "IMAP-Protokolo-Eraro"
 
 #: ../src/Gui/Window.cpp:1338
 msgctxt "Gui::MainWindow|"
@@ -3220,7 +3229,7 @@ msgstr "Reta Eraro"
 #: ../src/Gui/Window.cpp:1359
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Cache Error"
-msgstr ""
+msgstr "IMAP Cache Eraro"
 
 #: ../src/Gui/Window.cpp:1360
 #, qt-format
@@ -3240,18 +3249,18 @@ msgstr "Senrete"
 #: ../src/Gui/Window.cpp:1417
 msgctxt "Gui::MainWindow|"
 msgid "No Configuration"
-msgstr ""
+msgstr "Neniu Agordo"
 
 #: ../src/Gui/Window.cpp:1418
 msgctxt "Gui::MainWindow|"
 msgid "No IMAP account is configured. Trojitá cannot do much without one."
-msgstr ""
+msgstr "Neniu IMAP-konto estas agordita. Trojitá ne povas fari multon sen unu."
 
 #: ../src/Gui/Window.cpp:1443
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Failed to retrieve password from the store: %1"
-msgstr ""
+msgstr "Malsukcesis preni pasvorton el la vendejo: %1"
 
 #: ../src/Gui/Window.cpp:1461
 msgctxt "Gui::MainWindow|"
@@ -3263,43 +3272,44 @@ msgstr "Aŭtentigo Postulata"
 msgctxt "Gui::MainWindow|"
 msgid "<p>Please provide IMAP password for user <b>%1</b> on <b>%2</b>:</p>"
 msgstr ""
+"<p>Bonvolu provizi IMAP-pasvorton por uzanto <b>%1</b> sur <b>%2</b>:</p>"
 
 #: ../src/Gui/Window.cpp:1516
 msgctxt "Gui::MainWindow|"
 msgid "Edit draft"
-msgstr ""
+msgstr "Redakti malneton"
 
 #: ../src/Gui/Window.cpp:1637
 msgctxt "Gui::MainWindow|"
 msgid "Failed to archive"
-msgstr ""
+msgstr "Malsukcesis arkivi"
 
 #: ../src/Gui/Window.cpp:1687
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Create a Subfolder of %1"
-msgstr ""
+msgstr "Kreu Subdosierujon de %1"
 
 #: ../src/Gui/Window.cpp:1688
 msgctxt "Gui::MainWindow|"
 msgid "Create a Top-level Mailbox"
-msgstr ""
+msgstr "Kreu Supran Leterkeston"
 
 #: ../src/Gui/Window.cpp:1715
 msgctxt "Gui::MainWindow|"
 msgid "Delete Mailbox"
-msgstr ""
+msgstr "Forigi Leterkeston"
 
 #: ../src/Gui/Window.cpp:1716
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Are you sure to delete mailbox %1?"
-msgstr ""
+msgstr "Ĉu vi certe forigas leterkeston %1?"
 
 #: ../src/Gui/Window.cpp:2015
 msgctxt "Gui::MainWindow|"
 msgid "Can't delete mailbox"
-msgstr ""
+msgstr "Ne povas forigi leterkeston"
 
 #: ../src/Gui/Window.cpp:2016
 #, qt-format
@@ -3312,7 +3322,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:2021
 msgctxt "Gui::MainWindow|"
 msgid "Can't create mailbox"
-msgstr ""
+msgstr "Ne povas krei leterkeston"
 
 #: ../src/Gui/Window.cpp:2022
 #, qt-format
@@ -3325,7 +3335,7 @@ msgstr ""
 #: ../src/Gui/Window.cpp:2027
 msgctxt "Gui::MainWindow|"
 msgid "Can't open mailbox"
-msgstr ""
+msgstr "Ne povas malfermi leterkeston"
 
 #: ../src/Gui/Window.cpp:2028
 #, qt-format
@@ -3339,7 +3349,7 @@ msgstr ""
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Link target: %1"
-msgstr ""
+msgstr "Ligocelo: %1"
 
 #: ../src/Gui/Window.cpp:2092
 msgctxt "Gui::MainWindow|"
@@ -3349,29 +3359,29 @@ msgstr "Kromprogramoj"
 #: ../src/Gui/Window.cpp:2099
 msgctxt "Gui::MainWindow|"
 msgid "Encrypted and signed messages"
-msgstr ""
+msgstr "Ĉifritaj kaj subskribitaj mesaĝoj"
 
 #: ../src/Gui/Window.cpp:2106
 msgctxt "Gui::MainWindow|"
 msgid "IMAP compression"
-msgstr ""
+msgstr "IMAP-kunpremado"
 
 #: ../src/Gui/Window.cpp:2117
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: supported</li>"
-msgstr ""
+msgstr "<li>%1: subtenata</li>"
 
 #: ../src/Gui/Window.cpp:2118
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: <strong>disabled</strong></li>"
-msgstr ""
+msgstr "<li>%1: <strong>malŝaltita</strong></li>"
 
 #: ../src/Gui/Window.cpp:2176
 msgctxt "Gui::MainWindow|"
 msgid "Can't save into file"
-msgstr ""
+msgstr "Ne povas konservi en dosiero"
 
 #: ../src/Gui/Window.cpp:2177
 #, qt-format
@@ -3384,14 +3394,14 @@ msgstr ""
 #: ../src/Gui/Window.cpp:2182
 msgctxt "Gui::MainWindow|"
 msgid "Save Message"
-msgstr ""
+msgstr "Konservu Mesaĝon"
 
 #. Translators: %1 is the UID of a message (a number) and %2 is the name of a mailbox.
 #: ../src/Gui/Window.cpp:2196
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Message source of UID %1 in %2"
-msgstr ""
+msgstr "Mesaĝfonto de UID %1 en %2"
 
 #: ../src/Gui/Window.cpp:2209 ../src/Gui/Window.cpp:2228
 msgctxt "Gui::MainWindow|"
@@ -3417,13 +3427,13 @@ msgstr "Nekonata"
 #: ../src/Gui/Window.cpp:2472
 msgctxt "Gui::MainWindow|"
 msgid "<p>"
-msgstr ""
+msgstr "<p>"
 
 #: ../src/Gui/Window.cpp:2474
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Server: %1 %2"
-msgstr ""
+msgstr "Servilo: %1 %2"
 
 #: ../src/Gui/Window.cpp:2476
 #, qt-format
@@ -3449,23 +3459,23 @@ msgstr ""
 #, qt-format
 msgctxt "Gui::MainWindow|%1 is the operationg system of an IMAP server."
 msgid " on %1"
-msgstr ""
+msgstr " sur %1"
 
 #: ../src/Gui/Window.cpp:2487
 msgctxt "Gui::MainWindow|"
 msgid "</p>"
-msgstr ""
+msgstr "</p>"
 
 #: ../src/Gui/Window.cpp:2489
 msgctxt "Gui::MainWindow|"
 msgid "<p>The IMAP server did not return usable information about itself.</p>"
-msgstr ""
+msgstr "<p>La IMAP-servilo ne resendis uzeblajn informojn pri si.</p>"
 
 #: ../src/Gui/Window.cpp:2493
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "<li>%1: %2</li>"
-msgstr ""
+msgstr "<li>%1: %2</li>"
 
 #: ../src/Gui/Window.cpp:2495
 #, qt-format
@@ -3501,68 +3511,69 @@ msgctxt "Gui::MainWindow|"
 msgid "%1 - %n unread - Trojitá"
 msgid_plural "%1 - %n unread - Trojitá"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Gui/Window.cpp:2527
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "%1 - Trojitá"
-msgstr ""
+msgstr "%1 - Trojitá"
 
 #: ../src/Gui/Window.cpp:2864
 #, qt-format
 msgctxt "Gui::MainWindow|"
 msgid "Tag with \"%1\""
-msgstr ""
+msgstr "Etikedu kun \"%1\""
 
 #: ../src/Imap/ConnectionState.cpp:35
 msgctxt "QObject|"
 msgid "Resolving hostname..."
-msgstr ""
+msgstr "Solvante gastigan nomon..."
 
 #: ../src/Imap/ConnectionState.cpp:37
 msgctxt "QObject|"
 msgid "Connecting to the IMAP server..."
-msgstr ""
+msgstr "Konektante al la IMAP-servilo..."
 
 #: ../src/Imap/ConnectionState.cpp:39
 msgctxt "QObject|"
 msgid "Starting encryption (SSL)..."
-msgstr ""
+msgstr "Komencante ĉifradon (SSL)..."
 
 #: ../src/Imap/ConnectionState.cpp:41
 msgctxt "QObject|"
 msgid "Checking certificates (SSL)..."
-msgstr ""
+msgstr "Kontrolante atestojn (SSL)..."
 
 #: ../src/Imap/ConnectionState.cpp:43
 msgctxt "QObject|"
 msgid "Checking capabilities..."
-msgstr ""
+msgstr "Kontrolante kapablojn..."
 
 #: ../src/Imap/ConnectionState.cpp:45
 msgctxt "QObject|"
 msgid "Waiting for encryption..."
-msgstr ""
+msgstr "Atendante ĉifradon..."
 
 #: ../src/Imap/ConnectionState.cpp:47
 msgctxt "QObject|"
 msgid "Asking for encryption..."
-msgstr ""
+msgstr "Petante ĉifradon..."
 
 #: ../src/Imap/ConnectionState.cpp:49
 msgctxt "QObject|"
 msgid "Starting encryption (STARTTLS)..."
-msgstr ""
+msgstr "Komencante ĉifradon (STARTTLS)..."
 
 #: ../src/Imap/ConnectionState.cpp:51
 msgctxt "QObject|"
 msgid "Checking certificates (STARTTLS)..."
-msgstr ""
+msgstr "Kontrolante atestojn (STARTTLS)..."
 
 #: ../src/Imap/ConnectionState.cpp:53
 msgctxt "QObject|"
 msgid "Checking capabilities (after STARTTLS)..."
-msgstr ""
+msgstr "Kontrolante kapablojn (post STARTTLS)..."
 
 #: ../src/Imap/ConnectionState.cpp:55
 msgctxt "QObject|"
@@ -3572,69 +3583,69 @@ msgstr "Ensalutante..."
 #: ../src/Imap/ConnectionState.cpp:57
 msgctxt "QObject|"
 msgid "Checking capabilities (after login)..."
-msgstr ""
+msgstr "Kontrolante kapablojn (post ensaluto)..."
 
 #: ../src/Imap/ConnectionState.cpp:59
 msgctxt "QObject|"
 msgid "Activating compression..."
-msgstr ""
+msgstr "Aktivigante kunpremadon..."
 
 #: ../src/Imap/ConnectionState.cpp:61
 msgctxt "QObject|"
 msgid "Logged in."
-msgstr ""
+msgstr "Ensalutinta."
 
 #: ../src/Imap/ConnectionState.cpp:63
 msgctxt "QObject|"
 msgid "Waiting for another mailbox..."
-msgstr ""
+msgstr "Atendante alian leterkeston..."
 
 #: ../src/Imap/ConnectionState.cpp:65
 msgctxt "QObject|"
 msgid "Opening mailbox..."
-msgstr ""
+msgstr "Malferma leterkesto..."
 
 #: ../src/Imap/ConnectionState.cpp:67
 msgctxt "QObject|"
 msgid "Synchronizing mailbox..."
-msgstr ""
+msgstr "Sinkronigante leterkeston..."
 
 #: ../src/Imap/ConnectionState.cpp:69
 msgctxt "QObject|"
 msgid "Mailbox opened."
-msgstr ""
+msgstr "Leterkesto malfermiĝis."
 
 #: ../src/Imap/ConnectionState.cpp:71
 msgctxt "QObject|"
 msgid "Downloading message..."
-msgstr ""
+msgstr "Elŝutante mesaĝon..."
 
 #: ../src/Imap/ConnectionState.cpp:73
 msgctxt "QObject|"
 msgid "Downloading message structure..."
-msgstr ""
+msgstr "Elŝutante mesaĝostrukturon..."
 
 #: ../src/Imap/ConnectionState.cpp:75
 msgctxt "QObject|"
 msgid "Logged out."
-msgstr ""
+msgstr "Elsalutita."
 
 #: ../src/Imap/Model/DiskPartCache.cpp:64
 msgctxt "QObject|"
 msgid "Unrecognized QFile error"
-msgstr ""
+msgstr "Nerekonita eraro de QFile"
 
 #: ../src/Imap/Model/DiskPartCache.cpp:85
 #, qt-format
 msgctxt "QObject|"
 msgid "Couldn't remove file %1 for mailbox %2"
-msgstr ""
+msgstr "Ne eblis forigi dosieron %1 por leterkesto %2"
 
 #: ../src/Imap/Model/DiskPartCache.cpp:95
 #, qt-format
 msgctxt "QObject|"
 msgid "Couldn't remove file %1 for message %2, mailbox %3"
-msgstr ""
+msgstr "Ne eblis forigi dosieron %1 por mesaĝo %2, leterkesto %3"
 
 #: ../src/Imap/Model/DiskPartCache.cpp:117
 #, qt-format
@@ -3661,22 +3672,22 @@ msgstr "Koloro"
 #: ../src/Imap/Model/FullMessageCombiner.cpp:79
 msgctxt "Imap::Mailbox::FullMessageCombiner|"
 msgid "Message is gone"
-msgstr ""
+msgstr "Mesaĝo malaperis"
 
 #: ../src/Imap/Model/FullMessageCombiner.cpp:91
 msgctxt "Imap::Mailbox::FullMessageCombiner|"
 msgid "Offline mode: uncached message data not available"
-msgstr ""
+msgstr "Senreta reĝimo: nekonmemorigitaj mesaĝaj datumoj ne haveblaj"
 
 #: ../src/Imap/Model/FullMessageCombiner.cpp:93
 msgctxt "Imap::Mailbox::FullMessageCombiner|"
 msgid "Offline mode: uncached header data not available"
-msgstr ""
+msgstr "Senreta reĝimo: nekaŝigitaj kap-datumoj ne haveblaj"
 
 #: ../src/Imap/Model/FullMessageCombiner.cpp:95
 msgctxt "Imap::Mailbox::FullMessageCombiner|"
 msgid "Offline mode: uncached body data not available"
-msgstr ""
+msgstr "Senreta reĝimo: nekonmemorigitaj korpo-datumoj ne haveblaj"
 
 #: ../src/Imap/Model/ImapAccess.cpp:317
 #, qt-format
@@ -3688,7 +3699,7 @@ msgstr "Malsukcesis krei dosierujon %1"
 #, qt-format
 msgctxt "Imap::ImapAccess|"
 msgid "Failed to set safe permissions on cache directory %1"
-msgstr ""
+msgstr "Malsukcesis agordi sekurajn permesojn sur kaŝmemordosierujo %1"
 
 #: ../src/Imap/Model/MailboxTree.cpp:1244
 msgctxt "Imap::Mailbox::Model|"
@@ -3712,18 +3723,18 @@ msgstr "MMMM jjjj"
 #, qt-format
 msgctxt "Imap::Mailbox::Model|"
 msgid "[loading %1...]"
-msgstr ""
+msgstr "[ŝargante %1...]"
 
 #: ../src/Imap/Model/MailboxTree.cpp:1719
 #, qt-format
 msgctxt "Imap::Mailbox::Model|"
 msgid "[loading %1: %2...]"
-msgstr ""
+msgstr "[ŝargante %1: %2...]"
 
 #: ../src/Imap/Model/Model.cpp:1069
 msgctxt "Imap::Mailbox::Model|"
 msgid "Going offline"
-msgstr ""
+msgstr "Eksterrete"
 
 #: ../src/Imap/Model/Model.cpp:1143
 msgctxt "Imap::Mailbox::Model|"
@@ -3762,12 +3773,12 @@ msgstr ""
 #: ../src/Imap/Model/Model.cpp:1212
 msgctxt "Imap::Mailbox::Model|"
 msgid "We aren't talking to an IMAP4 server"
-msgstr ""
+msgstr "Ni ne parolas kun IMAP4-servilo"
 
 #: ../src/Imap/Model/Model.cpp:1467
 msgctxt "Imap::Mailbox::Model|"
 msgid "The connection is being killed for unspecified reason"
-msgstr ""
+msgstr "La konekto estas mortigita pro nespecifita kialo"
 
 #: ../src/Imap/Model/MsgListModel.cpp:282
 msgctxt "Imap::Mailbox::MsgListModel|"
@@ -3815,6 +3826,7 @@ msgctxt "Imap::Mailbox::NetworkWatcher|"
 msgid "Attempting to reconnect in %n secs"
 msgid_plural "Attempting to reconnect in %n secs"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Imap/Model/PrettyMailboxModel.cpp:77
 #, qt-format
@@ -3834,6 +3846,7 @@ msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n messages"
 msgid_plural "%n messages"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Imap/Model/PrettyMailboxModel.cpp:120
 #, qt-format
@@ -3841,6 +3854,7 @@ msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n unread"
 msgid_plural "%n unread"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Imap/Model/PrettyMailboxModel.cpp:121
 #, qt-format
@@ -3848,6 +3862,7 @@ msgctxt "Imap::Mailbox::PrettyMailboxModel|"
 msgid "%n recent"
 msgid_plural "%n recent"
 msgstr[0] ""
+msgstr[1] ""
 
 #: ../src/Imap/Model/PrettyMsgListModel.cpp:108
 msgctxt "Imap::Mailbox::PrettyMsgListModel|"
@@ -3857,363 +3872,364 @@ msgstr "Ŝargante..."
 #: ../src/Imap/Model/PrettyMsgListModel.cpp:113
 msgctxt "Imap::Mailbox::PrettyMsgListModel|"
 msgid "(no subject)"
-msgstr ""
+msgstr "(neniu temo)"
 
 #: ../src/Imap/Model/SQLCache.cpp:96
 msgctxt "QObject|"
 msgid "Can't create table msg_threading"
-msgstr ""
+msgstr "Ne povas krei tabelon msg_threading"
 
 #: ../src/Imap/Model/SQLCache.cpp:105
 msgctxt "QObject|"
 msgid "Can't create table mailbox_sync_state"
-msgstr ""
+msgstr "Ne povas krei tabelan mailbox_sync_state"
 
 #: ../src/Imap/Model/SQLCache.cpp:117
 msgctxt "QObject|"
 msgid "Can't create table msg_metadata"
-msgstr ""
+msgstr "Ne povas krei tabelon msg_metadata"
 
 #: ../src/Imap/Model/SQLCache.cpp:132
 msgctxt "QObject|"
 msgid "Can't open database"
-msgstr ""
+msgstr "Ne povas malfermi datumbazon"
 
 #: ../src/Imap/Model/SQLCache.cpp:147
 msgctxt "QObject|"
 msgid "Failed to verify version"
-msgstr ""
+msgstr "Malsukcesis kontroli la version"
 
 #: ../src/Imap/Model/SQLCache.cpp:153
 msgctxt "QObject|"
 msgid "Can't determine version info"
-msgstr ""
+msgstr "Ne povas determini versio-informojn"
 
 #: ../src/Imap/Model/SQLCache.cpp:162
 msgctxt "QObject|"
 msgid "Failed to update cache DB scheme from v1 to v2"
-msgstr ""
+msgstr "Malsukcesis ĝisdatigi kaŝmemoran DB-skemon de v1 al v2"
 
 #: ../src/Imap/Model/SQLCache.cpp:171
 msgctxt "QObject|"
 msgid "Failed to drop old table mailbox_sync_state"
-msgstr ""
+msgstr "Malsukcesis faligi malnovan tablon mailbox_sync_state"
 
 #: ../src/Imap/Model/SQLCache.cpp:177
 msgctxt "QObject|"
 msgid "Failed to update cache DB scheme from v2/v3 to v4"
-msgstr ""
+msgstr "Malsukcesis ĝisdatigi kaŝmemoran DB-skemon de v2/v3 al v4"
 
 #: ../src/Imap/Model/SQLCache.cpp:190
 msgctxt "QObject|"
 msgid "Failed to drop old table msg_metadata"
-msgstr ""
+msgstr "Malsukcesis forigi malnovan tabelon msg_metadata"
 
 #: ../src/Imap/Model/SQLCache.cpp:196
 msgctxt "QObject|"
 msgid "Failed to update cache DB scheme from v4/v5/v6 to v7"
-msgstr ""
+msgstr "Malsukcesis ĝisdatigi kaŝmemoran DB-skemon de v4/v5/v6 al v7"
 
 #: ../src/Imap/Model/SQLCache.cpp:202
 msgctxt "QObject|"
 msgid "Unknown version of sqlite cache"
-msgstr ""
+msgstr "Nekonata versio de sqlite kaŝmemoro"
 
 #: ../src/Imap/Model/SQLCache.cpp:223
 msgctxt "QObject|"
 msgid "Failed to prepare table structures"
-msgstr ""
+msgstr "Malsukcesis prepari tabelajn strukturojn"
 
 #: ../src/Imap/Model/SQLCache.cpp:227
 msgctxt "QObject|"
 msgid "Can't store version info"
-msgstr ""
+msgstr "Ne povas konservi informojn pri versio"
 
 #: ../src/Imap/Model/SQLCache.cpp:238
 msgctxt "QObject|"
 msgid "Can't create table child_mailboxes"
-msgstr ""
+msgstr "Ne povas krei tabelajn child_mailboxes"
 
 #: ../src/Imap/Model/SQLCache.cpp:246
 msgctxt "QObject|"
 msgid "Can't create table uid_mapping"
-msgstr ""
+msgstr "Ne povas krei tabelon uid_mapping"
 
 #: ../src/Imap/Model/SQLCache.cpp:258
 msgctxt "QObject|"
 msgid "Can't create table flags"
-msgstr ""
+msgstr "Ne povas krei tabelflagojn"
 
 #: ../src/Imap/Model/SQLCache.cpp:268
 msgctxt "QObject|"
 msgid "Can't create table parts"
-msgstr ""
+msgstr "Ne povas krei tabelpartojn"
 
 #: ../src/Imap/Model/SQLCache.cpp:281
 msgctxt "QObject|"
 msgid "Failed to prepare queryChildMailboxes"
-msgstr ""
+msgstr "Malsukcesis prepari queryChildMailboxes"
 
 #: ../src/Imap/Model/SQLCache.cpp:287
 msgctxt "QObject|"
 msgid "Failed to prepare queryChildMailboxesFresh"
-msgstr ""
+msgstr "Malsukcesis prepari demandonChildMailboxesFresh"
 
 #: ../src/Imap/Model/SQLCache.cpp:293
 msgctxt "QObject|"
 msgid "Failed to prepare queryRemoveChildMailboxes"
-msgstr ""
+msgstr "Malsukcesis prepari demandonRemoveChildMailboxes"
 
 #: ../src/Imap/Model/SQLCache.cpp:299
 msgctxt "QObject|"
 msgid "Failed to prepare querySetChildMailboxes"
-msgstr ""
+msgstr "Malsukcesis prepari querySetChildMailboxes"
 
 #: ../src/Imap/Model/SQLCache.cpp:305
 msgctxt "QObject|"
 msgid "Failed to prepare queryMailboxSyncState"
-msgstr ""
+msgstr "Malsukcesis prepari demandonMailboxSyncState"
 
 #: ../src/Imap/Model/SQLCache.cpp:313
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMailboxSyncState"
-msgstr ""
+msgstr "Malsukcesis prepari querySetMailboxSyncState"
 
 #: ../src/Imap/Model/SQLCache.cpp:319
 msgctxt "QObject|"
 msgid "Failed to prepare queryUidMapping"
-msgstr ""
+msgstr "Malsukcesis prepari queryUidMapping"
 
 #: ../src/Imap/Model/SQLCache.cpp:325
 msgctxt "QObject|"
 msgid "Failed to prepare querySetUidMapping"
-msgstr ""
+msgstr "Malsukcesis prepari querySetUidMapping"
 
 #: ../src/Imap/Model/SQLCache.cpp:331
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearUidMapping"
-msgstr ""
+msgstr "Malsukcesis prepari queryClearUidMapping"
 
 #: ../src/Imap/Model/SQLCache.cpp:337
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageMetadata"
-msgstr ""
+msgstr "Malsukcesis prepari queryMessageMetadata"
 
 #: ../src/Imap/Model/SQLCache.cpp:343
 msgctxt "QObject|"
 msgid "Failed to prepare queryAccssMessageMetadata"
-msgstr ""
+msgstr "Malsukcesis prepari queryAccssMessageMetadata"
 
 #: ../src/Imap/Model/SQLCache.cpp:349
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageMetadata"
-msgstr ""
+msgstr "Malsukcesis prepari querySetMessageMetadata"
 
 #: ../src/Imap/Model/SQLCache.cpp:355
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageFlags"
-msgstr ""
+msgstr "Malsukcesis prepari queryMessageFlags"
 
 #: ../src/Imap/Model/SQLCache.cpp:361
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageFlags"
-msgstr ""
+msgstr "Malsukcesis prepari querySetMessageFlags"
 
 #: ../src/Imap/Model/SQLCache.cpp:367
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages1"
-msgstr ""
+msgstr "Malsukcesis prepari queryClearAllMessages1"
 
 #: ../src/Imap/Model/SQLCache.cpp:373
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages2"
-msgstr ""
+msgstr "Malsukcesis prepari queryClearAllMessages2"
 
 #: ../src/Imap/Model/SQLCache.cpp:379
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages3"
-msgstr ""
+msgstr "Malsukcesis prepari queryClearAllMessages3"
 
 #: ../src/Imap/Model/SQLCache.cpp:385
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearAllMessages4"
-msgstr ""
+msgstr "Malsukcesis prepari queryClearAllMessages4"
 
 #: ../src/Imap/Model/SQLCache.cpp:391
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage1"
-msgstr ""
+msgstr "Malsukcesis prepari queryClearMessage1"
 
 #: ../src/Imap/Model/SQLCache.cpp:397
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage2"
-msgstr ""
+msgstr "Malsukcesis prepari queryClearMessage2"
 
 #: ../src/Imap/Model/SQLCache.cpp:403
 msgctxt "QObject|"
 msgid "Failed to prepare queryClearMessage3"
-msgstr ""
+msgstr "Malsukcesis prepari queryClearMessage3"
 
 #: ../src/Imap/Model/SQLCache.cpp:409
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessagePart"
-msgstr ""
+msgstr "Malsukcesis prepari queryMessagePart"
 
 #: ../src/Imap/Model/SQLCache.cpp:415
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessagePart"
-msgstr ""
+msgstr "Malsukcesis prepari querySetMessagePart"
 
 #: ../src/Imap/Model/SQLCache.cpp:421
 msgctxt "QObject|"
 msgid "Failed to prepare queryForgetMessagePart"
-msgstr ""
+msgstr "Malsukcesis prepari queryForgetMessagePart"
 
 #: ../src/Imap/Model/SQLCache.cpp:427
 msgctxt "QObject|"
 msgid "Failed to prepare queryMessageThreading"
-msgstr ""
+msgstr "Malsukcesis prepari queryMessageThreading"
 
 #: ../src/Imap/Model/SQLCache.cpp:433
 msgctxt "QObject|"
 msgid "Failed to prepare querySetMessageThreading"
-msgstr ""
+msgstr "Malsukcesis prepari querySetMessageThreading"
 
 #: ../src/Imap/Model/SQLCache.cpp:464
 msgctxt "QObject|"
 msgid "Query queryChildMailboxes failed"
-msgstr ""
+msgstr "DemandodemandadoChildMailboxes malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:475
 #, qt-format
 msgctxt "QObject|"
 msgid "Corrupt data when reading child items for mailbox %1, line %2"
 msgstr ""
+"Koruptaj datumoj dum legado de infanaj eroj por leterkesto %1, linio %2"
 
 #: ../src/Imap/Model/SQLCache.cpp:487
 msgctxt "QObject|"
 msgid "Query queryChildMailboxesFresh failed"
-msgstr ""
+msgstr "DemandodemandadoChildMailboxesFresh malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:512
 msgctxt "QObject|"
 msgid "Query queryRemoveChildMailboxes failed"
-msgstr ""
+msgstr "DemanddemandoRemoveChildMailboxes malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:520
 msgctxt "QObject|"
 msgid "Query querySetChildMailboxes failed"
-msgstr ""
+msgstr "Demando querySetChildMailboxes malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:530
 msgctxt "QObject|"
 msgid "Query queryMailboxSyncState failed"
-msgstr ""
+msgstr "DemandodemandoMailboxSyncState malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:555
 msgctxt "QObject|"
 msgid "Query querySetMailboxSyncState failed"
-msgstr ""
+msgstr "Demando querySetMailboxSyncState malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:565
 msgctxt "QObject|"
 msgid "Query queryUidMapping failed"
-msgstr ""
+msgstr "Demando queryUidMapping malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:590
 msgctxt "QObject|"
 msgid "Query querySetUidMapping failed"
-msgstr ""
+msgstr "Demando querySetUidMapping malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:602
 msgctxt "QObject|"
 msgid "Query queryClearUidMapping failed"
-msgstr ""
+msgstr "Demanda demandoClearUidMapping malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:617
 msgctxt "QObject|"
 msgid "Query queryClearAllMessages1 failed"
-msgstr ""
+msgstr "Demando queryClearAllMessages1 malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:620
 msgctxt "QObject|"
 msgid "Query queryClearAllMessages2 failed"
-msgstr ""
+msgstr "Demando queryClearAllMessages2 malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:623
 msgctxt "QObject|"
 msgid "Query queryClearAllMessages3 failed"
-msgstr ""
+msgstr "Demando queryClearAllMessages3 malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:626
 msgctxt "QObject|"
 msgid "Query queryClearAllMessages4 failed"
-msgstr ""
+msgstr "Demando queryClearAllMessages4 malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:644
 msgctxt "QObject|"
 msgid "Query queryClearMessage1 failed"
-msgstr ""
+msgstr "Demando queryClearMessage1 malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:647
 msgctxt "QObject|"
 msgid "Query queryClearMessage2 failed"
-msgstr ""
+msgstr "Demando queryClearMessage2 malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:650
 msgctxt "QObject|"
 msgid "Query queryClearMessage3 failed"
-msgstr ""
+msgstr "Demando queryClearMessage3 malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:660
 msgctxt "QObject|"
 msgid "Query queryMessageFlags failed"
-msgstr ""
+msgstr "Demando queryMessageFlags malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:686
 msgctxt "QObject|"
 msgid "Query querySetMessageFlags failed"
-msgstr ""
+msgstr "Demando querySetMessageFlags malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:696
 msgctxt "QObject|"
 msgid "Query queryMessageMetadata failed"
-msgstr ""
+msgstr "DemandodemandoMessageMetadata malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:714
 msgctxt "QObject|"
 msgid "Query queryAccessMessageMetadata failed"
-msgstr ""
+msgstr "Demandodemando AccessMessageMetadata malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:740
 msgctxt "QObject|"
 msgid "Query querySetMessageMetadata failed"
-msgstr ""
+msgstr "Demando querySetMessageMetadata malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:751
 msgctxt "QObject|"
 msgid "Query queryMessagePart failed"
-msgstr ""
+msgstr "Demando queryMessagePart malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:772
 msgctxt "QObject|"
 msgid "Query querySetMessagePart failed"
-msgstr ""
+msgstr "Demando querySetMessagePart malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:786
 msgctxt "QObject|"
 msgid "Query queryForgetMessagePart failed"
-msgstr ""
+msgstr "Demando queryForgetMessagePart malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:795
 msgctxt "QObject|"
 msgid "Query queryMessageThreading failed"
-msgstr ""
+msgstr "Demando queryMessageThreading malsukcesis"
 
 #: ../src/Imap/Model/SQLCache.cpp:819
 msgctxt "QObject|"
 msgid "Query querySetMessageThreading failed"
-msgstr ""
+msgstr "Demando querySetMessageThreading malsukcesis"
 
 #: ../src/Imap/Model/SystemNetworkWatcher.cpp:86
 msgctxt "Imap::Mailbox::SystemNetworkWatcher|"
@@ -4227,7 +4243,7 @@ msgstr ""
 #, qt-format
 msgctxt "Imap::Mailbox::TaskPresentationModel|"
 msgid "Parser %1"
-msgstr ""
+msgstr "Analizilo %1"
 
 #: ../src/Imap/Model/TaskPresentationModel.cpp:199
 #, qt-format
@@ -4238,7 +4254,7 @@ msgstr "%1: %2"
 #: ../src/Imap/Model/ThreadingMsgListModel.cpp:328
 msgctxt "Imap::Mailbox::ThreadingMsgListModel|"
 msgid "[Message is missing]"
-msgstr ""
+msgstr "[Mesaĝo mankas]"
 
 #: ../src/Imap/Model/ThreadingMsgListModel.cpp:331
 msgctxt "Imap::Mailbox::ThreadingMsgListModel|"
@@ -4250,220 +4266,221 @@ msgstr ""
 #: ../src/Imap/Network/FileDownloadManager.cpp:45
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "Cannot translate CID URL: message is gone"
-msgstr ""
+msgstr "Ne povas traduki CID-URL: mesaĝo malaperis"
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:57
 #, qt-format
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "CID not found (%1)"
-msgstr ""
+msgstr "CID ne trovita (%1)"
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:60
 #, qt-format
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "Unsupported URL (%1)"
-msgstr ""
+msgstr "Nesubtenata URL (%1)"
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:74
 #, qt-format
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "msg_%1.eml"
-msgstr ""
+msgstr "msg_%1.eml"
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:77
 #, qt-format
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "msg_%1_%2"
-msgstr ""
+msgstr "msg_%1_%2"
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:89
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "FileDownloadManager::downloadPart(): part has disappeared"
-msgstr ""
+msgstr "FileDownloadManager::downloadPart(): parto malaperis"
 
 #: ../src/Imap/Network/FileDownloadManager.cpp:118
 msgctxt "Imap::Network::FileDownloadManager|"
 msgid "FileDownloadManager::downloadMessage(): message has disappeared"
-msgstr ""
+msgstr "FileDownloadManager::downloadMessage(): mesaĝo malaperis"
 
 #: ../src/Imap/Network/ForbiddenReply.cpp:34
 msgctxt "Imap::Network::ForbiddenReply|"
 msgid "Remote Content Is Banned"
-msgstr ""
+msgstr "Fora Enhavo Estas Malpermesita"
 
 #: ../src/Imap/Network/MsgPartNetworkReply.cpp:82
 msgctxt "Imap::Network::MsgPartNetworkReply|"
 msgid "Cannot access data"
-msgstr ""
+msgstr "Ne povas aliri datumojn"
 
 #: ../src/Imap/Network/MsgPartNetworkReply.cpp:85
 msgctxt "Imap::Network::MsgPartNetworkReply|"
 msgid "Uncached data not available when offline"
-msgstr ""
+msgstr "Nekonmemorigitaj datumoj ne haveblaj kiam eksterrete"
 
 #: ../src/Imap/Network/MsgPartNetworkReply.cpp:87
 msgctxt "Imap::Network::MsgPartNetworkReply|"
 msgid "Error downloading data"
-msgstr ""
+msgstr "Eraro dum elŝuto de datumoj"
 
 #: ../src/Imap/Tasks/AppendTask.cpp:97
 msgctxt "Imap::Mailbox::AppendTask|"
 msgid "Uploading message"
-msgstr ""
+msgstr "Alŝutante mesaĝon"
 
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:83
 msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
 msgid "All messages disappeared before we could have copied them"
-msgstr ""
+msgstr "Ĉiuj mesaĝoj malaperis antaŭ ol ni povus kopii ilin"
 
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:105
 msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "Petita morti"
 
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:116
 #, qt-format
 msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
 msgid "The COPY operation has failed: %1"
-msgstr ""
+msgstr "La KOPIA operacio malsukcesis: %1"
 
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:123
 #, qt-format
 msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
 msgid "The UID MOVE operation has failed: %1"
-msgstr ""
+msgstr "La operacio UID MOVE malsukcesis: %1"
 
 #: ../src/Imap/Tasks/CopyMoveMessagesTask.cpp:133
 msgctxt "Imap::Mailbox::CopyMoveMessagesTask|"
 msgid "Copying messages"
-msgstr ""
+msgstr "Kopiante mesaĝojn"
 
 #: ../src/Imap/Tasks/CreateMailboxTask.cpp:64
 msgctxt "Imap::Mailbox::CreateMailboxTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "Petita morti"
 
 #: ../src/Imap/Tasks/CreateMailboxTask.cpp:71
 msgctxt "Imap::Mailbox::CreateMailboxTask|"
 msgid "Cannot create mailbox"
-msgstr ""
+msgstr "Ne povas krei leterkeston"
 
 #: ../src/Imap/Tasks/CreateMailboxTask.cpp:79
 msgctxt "Imap::Mailbox::CreateMailboxTask|"
 msgid "Error with the LIST command after the CREATE"
-msgstr ""
+msgstr "Eraro kun la LIST-komando post la CREATE"
 
 #: ../src/Imap/Tasks/CreateMailboxTask.cpp:89
 msgctxt "Imap::Mailbox::CreateMailboxTask|"
 msgid "Creating mailbox"
-msgstr ""
+msgstr "Kreante leterkeston"
 
 #: ../src/Imap/Tasks/DeleteMailboxTask.cpp:99
 msgctxt "Imap::Mailbox::DeleteMailboxTask|"
 msgid "Couldn't delete mailbox"
-msgstr ""
+msgstr "Ne eblis forigi leterkeston"
 
 #: ../src/Imap/Tasks/DeleteMailboxTask.cpp:109
 msgctxt "Imap::Mailbox::DeleteMailboxTask|"
 msgid "Deleting mailbox"
-msgstr ""
+msgstr "Forigante leterkeston"
 
 #: ../src/Imap/Tasks/DeleteMailboxTask.cpp:115
 #, qt-format
 msgctxt "Imap::Mailbox::DeleteMailboxTask|"
 msgid "Mailbox %1 has pending activity, so it cannot be deleted now."
 msgstr ""
+"Leterkesto %1 havas pritraktatan agadon, do ĝi ne povas esti forigita nun."
 
 #: ../src/Imap/Tasks/DeleteMailboxTask.cpp:116
 msgctxt "Imap::Mailbox::DeleteMailboxTask|"
 msgid "Mailbox has pending activity"
-msgstr ""
+msgstr "Leterkesto havas pritraktatan agadon"
 
 #: ../src/Imap/Tasks/EnableTask.cpp:75
 msgctxt "Imap::Mailbox::EnableTask|"
 msgid "ENABLE failed, strange"
-msgstr ""
+msgstr "ENABLE malsukcesis, strange"
 
 #: ../src/Imap/Tasks/EnableTask.cpp:86
 msgctxt "Imap::Mailbox::EnableTask|"
 msgid "Enabling IMAP extensions"
-msgstr ""
+msgstr "Ebligante IMAP-etendaĵojn"
 
 #: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:49
 msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
 msgid "Mailbox vanished before we could expunge it"
-msgstr ""
+msgstr "Leterkesto malaperis antaŭ ol ni povis forigi ĝin"
 
 #: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:68
 msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
 msgid "Expunge failed"
-msgstr ""
+msgstr "Forigo malsukcesis"
 
 #: ../src/Imap/Tasks/ExpungeMailboxTask.cpp:78
 msgctxt "Imap::Mailbox::ExpungeMailboxTask|"
 msgid "Removing deleted messages"
-msgstr ""
+msgstr "Forigante forigitajn mesaĝojn"
 
 #: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:75
 msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
 msgid "All messages are gone already"
-msgstr ""
+msgstr "Ĉiuj mesaĝoj jam malaperis"
 
 #: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:80
 msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
 msgid "The IMAP server doesn't support the UIDPLUS extension"
-msgstr ""
+msgstr "La IMAP-servilo ne subtenas la etendon UIDPLUS"
 
 #: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:95
 msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
 msgid "UID EXPUNGE failed"
-msgstr ""
+msgstr "UID EXPUNGE malsukcesis"
 
 #: ../src/Imap/Tasks/ExpungeMessagesTask.cpp:105
 msgctxt "Imap::Mailbox::ExpungeMessagesTask|"
 msgid "Removing some of the deleted messages"
-msgstr ""
+msgstr "Forigante kelkajn el la forigitaj mesaĝoj"
 
 #: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:60
 msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
 msgid "handleFetch: mailbox disappeared"
-msgstr ""
+msgstr "handleFetch: leterkesto malaperis"
 
 #: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:80
 msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
 msgid "UID FETCH failed"
-msgstr ""
+msgstr "UID FETCH malsukcesis"
 
 #: ../src/Imap/Tasks/FetchMsgMetadataTask.cpp:101
 msgctxt "Imap::Mailbox::FetchMsgMetadataTask|"
 msgid "Downloading headers"
-msgstr ""
+msgstr "Elŝutante kapliniojn"
 
 #: ../src/Imap/Tasks/FetchMsgPartTask.cpp:59
 #: ../src/Imap/Tasks/FetchMsgPartTask.cpp:75
 msgctxt "Imap::Mailbox::FetchMsgPartTask|"
 msgid "Mailbox disappeared"
-msgstr ""
+msgstr "Leterkesto malaperis"
 
 #: ../src/Imap/Tasks/FetchMsgPartTask.cpp:121
 msgctxt "Imap::Mailbox::FetchMsgPartTask|"
 msgid "Downloading messages"
-msgstr ""
+msgstr "Elŝutante mesaĝojn"
 
 #: ../src/Imap/Tasks/GenUrlAuthTask.cpp:87
 msgctxt "Imap::Mailbox::GenUrlAuthTask|"
 msgid "Obtaining authentication token"
-msgstr ""
+msgstr "Akiro de aŭtentikigĵetono"
 
 #: ../src/Imap/Tasks/IdTask.cpp:67
 msgctxt "Imap::Mailbox::IdTask|"
 msgid "ID failed, strange"
-msgstr ""
+msgstr "ID malsukcesis, strange"
 
 #: ../src/Imap/Tasks/IdTask.cpp:84
 msgctxt "Imap::Mailbox::IdTask|"
 msgid "Identifying server"
-msgstr ""
+msgstr "Identigo de servilo"
 
 #: ../src/Imap/Tasks/ImapTask.cpp:256
 #, qt-format
@@ -4476,7 +4493,7 @@ msgstr ""
 #: ../src/Imap/Tasks/ImapTask.h:191
 msgctxt "Imap::Mailbox::ImapTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "Petita morti"
 
 #: ../src/Imap/Tasks/ImapTask.h:195
 msgctxt "Imap::Mailbox::ImapTask|"
@@ -4489,98 +4506,99 @@ msgstr "Ĉesigita"
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:517
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "Petita morti"
 
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:264
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:265
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "Parser is gone"
-msgstr ""
+msgstr "Parser malaperis"
 
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:713
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "Logging off..."
-msgstr ""
+msgstr "Malsaluti..."
 
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:920
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "The UIDVALIDITY has changed while mailbox is open. Please reconnect."
 msgstr ""
+"La UIDVALIDITY ŝanĝiĝis dum leterkesto estas malfermita. Bonvolu rekonekti."
 
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:948
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "UNSELECTed"
-msgstr ""
+msgstr "NESELEKTITA"
 
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:59
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
 msgid "Mailbox vanished before we could ask for its children"
-msgstr ""
+msgstr "Leterkesto malaperis antaŭ ol ni povis peti ĝiajn infanojn"
 
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:101
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
 msgid "LIST failed"
-msgstr ""
+msgstr "LIST malsukcesis"
 
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:105
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
 msgid "Mailbox no longer available -- weird timing?"
-msgstr ""
+msgstr "Leterkesto ne plu havebla -- stranga tempo?"
 
 #: ../src/Imap/Tasks/ListChildMailboxesTask.cpp:151
 msgctxt "Imap::Mailbox::ListChildMailboxesTask|"
 msgid "Listing mailboxes"
-msgstr ""
+msgstr "Listo de leterkestoj"
 
 #: ../src/Imap/Tasks/NoopTask.cpp:63
 msgctxt "Imap::Mailbox::NoopTask|"
 msgid "NOOP failed, strange"
-msgstr ""
+msgstr "NOOP malsukcesis, strange"
 
 #: ../src/Imap/Tasks/NoopTask.cpp:74
 msgctxt "Imap::Mailbox::NoopTask|"
 msgid "Checking for new messages"
-msgstr ""
+msgstr "Kontrolante novajn mesaĝojn"
 
 #: ../src/Imap/Tasks/NumberOfMessagesTask.cpp:78
 msgctxt "Imap::Mailbox::NumberOfMessagesTask|"
 msgid "STATUS has failed"
-msgstr ""
+msgstr "STATUS malsukcesis"
 
 #: ../src/Imap/Tasks/NumberOfMessagesTask.cpp:99
 msgctxt "Imap::Mailbox::NumberOfMessagesTask|"
 msgid "Looking for messages"
-msgstr ""
+msgstr "Serĉante mesaĝojn"
 
 #: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:72
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Asked to abort or die"
-msgstr ""
+msgstr "Petita aborti aŭ morti"
 
 #: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:73
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Mailbox syncing dead or aborted"
-msgstr ""
+msgstr "Leterkesto sinkronigado morta aŭ interrompita"
 
 #: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:146
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "Petita morti"
 
 #: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1200
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Escaped from mailbox"
-msgstr ""
+msgstr "Eskapis el leterkesto"
 
 #: ../src/Imap/Tasks/ObtainSynchronizedMailboxTask.cpp:1205
 msgctxt "Imap::Mailbox::ObtainSynchronizedMailboxTask|"
 msgid "Synchronizing mailbox"
-msgstr ""
+msgstr "Sinkronigante leterkeston"
 
 #: ../src/Imap/Tasks/OfflineConnectionTask.cpp:55
 msgctxt "Imap::Mailbox::OfflineConnectionTask|"
 msgid "We're offline"
-msgstr ""
+msgstr "Ni estas eksterrete"
 
 #: ../src/Imap/Tasks/OfflineConnectionTask.cpp:62
 msgctxt "Imap::Mailbox::OfflineConnectionTask|"
@@ -4590,7 +4608,7 @@ msgstr "Senrete"
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:116
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "Petita morti"
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:163
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
@@ -4603,7 +4621,7 @@ msgstr ""
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:195
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "This server gracefully refuses IMAP connections through a BYE response."
-msgstr ""
+msgstr "Ĉi tiu servilo gracie rifuzas IMAP-konektojn per BYE-respondo."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:202
 #, qt-format
@@ -4616,7 +4634,7 @@ msgstr ""
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:204
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Server has greeted us with a BAD response"
-msgstr ""
+msgstr "Servilo salutis nin kun MALBLA respondo"
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:236
 #, qt-format
@@ -4629,12 +4647,12 @@ msgstr ""
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:265
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Server error: Capabilities contain LOGINDISABLED even after STARTTLS"
-msgstr ""
+msgstr "Servila eraro: Kapabloj enhavas LOGINDISABLED eĉ post STARTTLS"
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:301
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Temporary failure because a subsystem is down."
-msgstr ""
+msgstr "Provizora fiasko ĉar subsistemo malfunkcias."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:304
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
@@ -4662,18 +4680,18 @@ msgstr ""
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:317
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "The operation is not permitted due to a lack of privacy."
-msgstr ""
+msgstr "La operacio ne estas permesita pro manko de privateco."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:320
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "You should contact the system administrator or support desk."
-msgstr ""
+msgstr "Vi devus kontakti la sisteman administranton aŭ helpan oficejon."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:327
 #, qt-format
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Login failed: %1"
-msgstr ""
+msgstr "Ensaluto malsukcesis: %1"
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:329
 #, qt-format
@@ -4691,27 +4709,27 @@ msgstr ""
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:403
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Server error: did not get the required CAPABILITY response."
-msgstr ""
+msgstr "Servila eraro: ne ricevis la bezonatan respondon de CAPABILITY."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:407
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Server error: The CAPABILITY request failed."
-msgstr ""
+msgstr "Servila eraro: La peto CAPABILITY malsukcesis."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:472
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Cannot login, you have not provided any credentials yet."
-msgstr ""
+msgstr "Ne povas ensaluti, vi ankoraŭ ne disponigis iujn ajn akreditaĵojn."
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:484
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "Connecting to mail server"
-msgstr ""
+msgstr "Konektante al poŝtservilo"
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:504
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
 msgid "The security state of the SSL connection got rejected"
-msgstr ""
+msgstr "La sekureca stato de la SSL-konekto estis malakceptita"
 
 #: ../src/Imap/Tasks/OpenConnectionTask.cpp:513
 msgctxt "Imap::Mailbox::OpenConnectionTask|"
@@ -4722,113 +4740,114 @@ msgstr ""
 #: ../src/Imap/Tasks/SortTask.cpp:55
 msgctxt "Imap::Mailbox::SortTask|"
 msgid "Mailbox vanished before we could ask for threading info"
-msgstr ""
+msgstr "Leterkesto malaperis antaŭ ol ni povis peti pri fadenaj informoj"
 
 #: ../src/Imap/Tasks/SortTask.cpp:150
 msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting command has failed"
-msgstr ""
+msgstr "Ordiga komando malsukcesis"
 
 #: ../src/Imap/Tasks/SortTask.cpp:243
 msgctxt "Imap::Mailbox::SortTask|"
 msgid "Sorting mailbox"
-msgstr ""
+msgstr "Ordigo de leterkesto"
 
 #: ../src/Imap/Tasks/SubscribeUnsubscribeTask.cpp:94
 msgctxt "Imap::Mailbox::SubscribeUnsubscribeTask|"
 msgid "SUBSCRIBE/UNSUBSCRIBE has failed"
-msgstr ""
+msgstr "SUBSCRIBE/UNSUBSCRIBE malsukcesis"
 
 #: ../src/Imap/Tasks/SubscribeUnsubscribeTask.cpp:110
 msgctxt "Imap::Mailbox::SubscribeUnsubscribeTask|"
 msgid "Updating subscription information"
-msgstr ""
+msgstr "Ĝisdatigi informojn pri abono"
 
 #: ../src/Imap/Tasks/ThreadTask.cpp:53
 msgctxt "Imap::Mailbox::ThreadTask|"
 msgid "Mailbox vanished before we could ask for threading info"
-msgstr ""
+msgstr "Leterkesto malaperis antaŭ ol ni povis peti pri fadenaj informoj"
 
 #: ../src/Imap/Tasks/ThreadTask.cpp:75
 msgctxt "Imap::Mailbox::ThreadTask|"
 msgid "Threading command has failed"
-msgstr ""
+msgstr "Fadenigado de komando malsukcesis"
 
 #: ../src/Imap/Tasks/ThreadTask.cpp:109
 msgctxt "Imap::Mailbox::ThreadTask|"
 msgid "Fetching conversations"
-msgstr ""
+msgstr "Alportante konversaciojn"
 
 #: ../src/Imap/Tasks/UidSubmitTask.cpp:55
 #, qt-format
 msgctxt "Imap::Mailbox::UidSubmitTask|"
 msgid "UIDVALIDITY mismatch: expected %1, got %2"
-msgstr ""
+msgstr "UIDVALIDITY nekongruo: atendita %1, akiris %2"
 
 #: ../src/Imap/Tasks/UidSubmitTask.cpp:84
 msgctxt "Imap::Mailbox::UidSubmitTask|"
 msgid "Sending mail"
-msgstr ""
+msgstr "Sendante poŝton"
 
 #: ../src/Imap/Tasks/UnSelectTask.cpp:49 ../src/Imap/Tasks/UnSelectTask.cpp:67
 msgctxt "Imap::Mailbox::UnSelectTask|"
 msgid "Asked to die"
-msgstr ""
+msgstr "Petita morti"
 
 #: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:101
 msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
 msgid "Failed to update Mailbox FLAGS"
-msgstr ""
+msgstr "Malsukcesis ĝisdatigi Poŝtkeston FLAGS"
 
 #: ../src/Imap/Tasks/UpdateFlagsOfAllMessagesTask.cpp:110
 msgctxt "Imap::Mailbox::UpdateFlagsOfAllMessagesTask|"
 msgid "Saving mailbox state"
-msgstr ""
+msgstr "Konservas staton de leterkesto"
 
 #: ../src/Imap/Tasks/UpdateFlagsTask.cpp:121
 msgctxt "Imap::Mailbox::UpdateFlagsTask|"
 msgid "All messages got removed before we could've updated their flags"
-msgstr ""
+msgstr "Ĉiuj mesaĝoj estis forigitaj antaŭ ol ni povus ĝisdatigi siajn flagojn"
 
 #: ../src/Imap/Tasks/UpdateFlagsTask.cpp:138
 msgctxt "Imap::Mailbox::UpdateFlagsTask|"
 msgid "Failed to update FLAGS"
-msgstr ""
+msgstr "Malsukcesis ĝisdatigi FLAGS"
 
 #: ../src/Imap/Tasks/UpdateFlagsTask.cpp:148
 msgctxt "Imap::Mailbox::UpdateFlagsTask|"
 msgid "Saving message state"
-msgstr ""
+msgstr "Konservanta staton de la mesaĝo"
 
 #: ../src/MSA/AbstractMSA.cpp:51
 #, qt-format
 msgctxt "MSA::AbstractMSA|"
 msgid "Sending mail plaintext is not supported by %1"
-msgstr ""
+msgstr "Sendado de poŝta klarteksto ne estas subtenata de %1"
 
 #: ../src/MSA/AbstractMSA.cpp:59
 #, qt-format
 msgctxt "MSA::AbstractMSA|"
 msgid "BURL is not supported by %1"
-msgstr ""
+msgstr "BURL ne estas subtenata de %1"
 
 #: ../src/MSA/AbstractMSA.cpp:68
 #, qt-format
 msgctxt "MSA::AbstractMSA|"
 msgid "IMAP sending is not supported by %1"
-msgstr ""
+msgstr "IMAP-sendo ne estas subtenata de %1"
 
 #: ../src/MSA/AbstractMSA.cpp:74
 #, qt-format
 msgctxt "MSA::AbstractMSA|"
 msgid "Setting password is not supported by %1"
-msgstr ""
+msgstr "Agordo de pasvorto ne estas subtenata de %1"
 
 #: ../src/MSA/Account.cpp:233
 #, qt-format
 msgctxt "MSA::Account|"
 msgid "This port is nonstandard. The default port for cleartext SMTP is %1."
 msgstr ""
+"Ĉi tiu pordo estas nenorma. La defaŭlta pordo por plata teksto SMTP estas %1."
 
 #: ../src/MSA/Account.cpp:236
 #, qt-format
@@ -4850,7 +4869,7 @@ msgstr ""
 #, qt-format
 msgctxt "MSA::Sendmail|"
 msgid "The sendmail process has failed: %1"
-msgstr ""
+msgstr "La sendpoŝta procezo malsukcesis: %1"
 
 #: ../src/MSA/Sendmail.cpp:108
 #, qt-format
@@ -4864,18 +4883,18 @@ msgstr ""
 #: ../src/MSA/SMTP.cpp:54
 msgctxt "MSA::SMTP|"
 msgid "Sending of the message was cancelled"
-msgstr ""
+msgstr "Sendado de la mesaĝo estis nuligita"
 
 #: ../src/MSA/SMTP.cpp:69
 msgctxt "MSA::SMTP|"
 msgid "Sending of the message failed."
-msgstr ""
+msgstr "Sendado de la mesaĝo malsukcesis."
 
 #: ../src/MSA/SMTP.cpp:71
 #, qt-format
 msgctxt "MSA::SMTP|"
 msgid "Sending of the message failed with the following error: %1"
-msgstr ""
+msgstr "Sendado de la mesaĝo malsukcesis kun la jena eraro: %1"
 
 #: ../src/MSA/SMTP.cpp:85
 #, qt-format
@@ -4888,18 +4907,18 @@ msgstr ""
 #: ../src/MSA/SMTP.cpp:139
 msgctxt "MSA::SMTP|"
 msgid "Unknown SMTP mode"
-msgstr ""
+msgstr "Nekonata SMTP-reĝimo"
 
 #. Translators: BE::Contacts is the name of a stand-alone address book application. BE refers to Bose/Einstein (condensate).
 #: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:151
 msgctxt "BE::Contacts|"
 msgid "BE::Contacts"
-msgstr ""
+msgstr "BE::Kontaktoj"
 
 #: ../src/Plugins/AbookAddressbook/AbookAddressbook.cpp:400
 msgctxt "trojita_plugin_AbookAddressbookPlugin|"
 msgid "Addressbook in ~/.abook/"
-msgstr ""
+msgstr "Adreslibro en ~/.a libro/"
 
 #: ../src/Plugins/AbookAddressbook/be-contacts.cpp:82
 msgctxt "BE::Contacts|"
@@ -4919,12 +4938,12 @@ msgstr "Ĉu konservi ŝanĝojn?"
 #: ../src/Plugins/AbookAddressbook/be-contacts.cpp:276
 msgctxt "BE::Contacts|"
 msgid "[New Contact]"
-msgstr ""
+msgstr "[Nova Kontakto]"
 
 #: ../src/Plugins/AbookAddressbook/be-contacts.cpp:457
 msgctxt "BE::Contacts|"
 msgid "[name]"
-msgstr ""
+msgstr "[nomo]"
 
 #: ../src/Plugins/AbookAddressbook/be-contacts.ui:14
 msgctxt "Contacts|"
@@ -4949,12 +4968,12 @@ msgstr "nomo"
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:50
 msgctxt "OneContact|"
 msgid "<Mail>"
-msgstr ""
+msgstr "<Poŝto>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:69
 msgctxt "OneContact|"
 msgid "<Internet>"
-msgstr ""
+msgstr "<Interreto>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:84
 msgctxt "OneContact|"
@@ -4964,27 +4983,27 @@ msgstr "Adreso"
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:105
 msgctxt "OneContact|"
 msgid "<country>"
-msgstr ""
+msgstr "<lando>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:124
 msgctxt "OneContact|"
 msgid "<state>"
-msgstr ""
+msgstr "<stato>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:149
 msgctxt "OneContact|"
 msgid "<city>"
-msgstr ""
+msgstr "<urbo>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:168
 msgctxt "OneContact|"
 msgid "<zip>"
-msgstr ""
+msgstr "<zip>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:187
 msgctxt "OneContact|"
 msgid "<address>"
-msgstr ""
+msgstr "<adreso>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:203
 msgctxt "OneContact|"
@@ -4999,7 +5018,7 @@ msgstr "Oficejo"
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:234
 msgctxt "OneContact|"
 msgid "workphone"
-msgstr ""
+msgstr "labortelefono"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:247
 msgctxt "OneContact|"
@@ -5044,7 +5063,7 @@ msgstr "Nick"
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:383
 msgctxt "OneContact|"
 msgid "<nick>"
-msgstr ""
+msgstr "<nick>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:396
 msgctxt "OneContact|"
@@ -5054,12 +5073,12 @@ msgstr "Datreveno"
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:415
 msgctxt "OneContact|"
 msgid "<anniversary>"
-msgstr ""
+msgstr "<datreveno>"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:428
 msgctxt "OneContact|"
 msgid "Custom notes"
-msgstr ""
+msgstr "Propraj notoj"
 
 #: ../src/Plugins/AbookAddressbook/onecontact.ui:447
 msgctxt "OneContact|"
@@ -5074,57 +5093,57 @@ msgstr "Foto"
 #: ../src/Plugins/AkonadiAddressbook/AkonadiAddressbook.cpp:67
 msgctxt "trojita_plugin_AkonadiAddressbookPlugin|"
 msgid "KDE Addressbook (Akonadi)"
-msgstr ""
+msgstr "KDE-Adreslibro (Akonadi)"
 
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:51
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:67
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:79
 msgctxt "ClearTextPasswordJob|"
 msgid "This plugin only supports storing of IMAP and SMTP passwords"
-msgstr ""
+msgstr "Ĉi tiu kromaĵo nur subtenas konservadon de IMAP kaj SMTP-pasvortoj"
 
 #: ../src/Plugins/ClearTextPassword/ClearTextPassword.cpp:123
 msgctxt "trojita_plugin_ClearTextPasswordPlugin|"
 msgid "Trojitá's settings"
-msgstr ""
+msgstr "La agordoj de Trojitá"
 
 #: ../src/Plugins/QtKeyChain/QtKeyChainPassword.cpp:127
 msgctxt "trojita_plugin_QtKeyChainPasswordPlugin|"
 msgid "Secure storage via QtKeychain"
-msgstr ""
+msgstr "Sekura konservado per QtKeychain"
 
 #: ../src/Plugins/SonnetSpellchecker/SonnetSpellchecker.cpp:46
 msgctxt "Plugins::trojita_plugin_SonnetSpellcheckerPlugin|"
 msgid "Sonnet (KF5)"
-msgstr ""
+msgstr "Soneto (KF5)"
 
 #: ../src/qwwsmtpclient/qwwsmtpclient.cpp:449
 msgctxt "QwwSmtpClient|"
 msgid "Unsupported or unknown authentication scheme"
-msgstr ""
+msgstr "Nesubtenata aŭ nekonata aŭtentikigskemo"
 
 #: ../src/Streams/IODeviceSocket.cpp:178
 #, qt-format
 msgctxt "Streams::ProcessSocket|"
 msgid "Disconnected: %1"
-msgstr ""
+msgstr "Malkonektita: %1"
 
 #: ../src/Streams/IODeviceSocket.cpp:192
 msgctxt "Streams::ProcessSocket|"
 msgid "The process has started"
-msgstr ""
+msgstr "La procezo komenciĝis"
 
 #: ../src/Streams/IODeviceSocket.cpp:195
 #, qt-format
 msgctxt "Streams::ProcessSocket|"
 msgid "Starting process `%1 %2`"
-msgstr ""
+msgstr "Komencante procezon `%1 %2`"
 
 #: ../src/Streams/IODeviceSocket.cpp:202
 #, qt-format
 msgctxt "Streams::ProcessSocket|"
 msgid "The process has exited with return code %1."
-msgstr ""
+msgstr "La procezo eliris kun revenkodo %1."
 
 #: ../src/Streams/IODeviceSocket.cpp:205
 #, qt-format
@@ -5144,36 +5163,36 @@ msgstr "Konekto fermiĝis"
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid " (via proxy %1)"
-msgstr ""
+msgstr " (per prokurilo %1)"
 
 #: ../src/Streams/IODeviceSocket.cpp:286
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid " (via SOCKS5 proxy %1)"
-msgstr ""
+msgstr " (per SOCKS5 prokurilo %1)"
 
 #: ../src/Streams/IODeviceSocket.cpp:289
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid " (via HTTP proxy %1)"
-msgstr ""
+msgstr " (per HTTP prokurilo %1)"
 
 #: ../src/Streams/IODeviceSocket.cpp:294
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid "Looking up %1%2..."
-msgstr ""
+msgstr "Serĉante %1%2..."
 
 #: ../src/Streams/IODeviceSocket.cpp:299
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid "Connecting to %1:%2%3%4..."
-msgstr ""
+msgstr "Konektante al %1:%2%3%4..."
 
 #: ../src/Streams/IODeviceSocket.cpp:300
 msgctxt "Streams::SslTlsSocket|"
 msgid " (SSL)"
-msgstr ""
+msgstr " (SSL)"
 
 #: ../src/Streams/IODeviceSocket.cpp:309
 msgctxt "Streams::SslTlsSocket|"
@@ -5183,13 +5202,13 @@ msgstr "Konektita"
 #: ../src/Streams/IODeviceSocket.cpp:311
 msgctxt "Streams::SslTlsSocket|"
 msgid "Negotiating encryption..."
-msgstr ""
+msgstr "Negocante ĉifradon..."
 
 #: ../src/Streams/IODeviceSocket.cpp:316
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid "Socket is disconnected: %1"
-msgstr ""
+msgstr "Ingo estas malkonektita: %1"
 
 #: ../src/Streams/IODeviceSocket.cpp:328 ../src/Streams/IODeviceSocket.cpp:380
 #, qt-format
@@ -5273,7 +5292,7 @@ msgstr ", "
 #: ../src/UiUtils/Formatting.cpp:152
 msgctxt "UiUtils::Formatting|"
 msgid "<p>The remote side doesn't have a certificate.</p>\n"
-msgstr ""
+msgstr "<p>La fora flanko ne havas atestilon.</p>\n"
 
 #: ../src/UiUtils/Formatting.cpp:153
 #, qt-format
@@ -5286,7 +5305,7 @@ msgstr ""
 #: ../src/UiUtils/Formatting.cpp:153 ../src/UiUtils/Formatting.cpp:164
 msgctxt "UiUtils::Formatting|"
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #: ../src/UiUtils/Formatting.cpp:160
 #, qt-format
@@ -5297,7 +5316,7 @@ msgstr "<li>%1</li>"
 #: ../src/UiUtils/Formatting.cpp:163
 msgctxt "UiUtils::Formatting|"
 msgid "<p>According to your system's policy, this connection is secure.</p>\n"
-msgstr ""
+msgstr "<p>Laŭ la politiko de via sistemo, ĉi tiu konekto estas sekura.</p>\n"
 
 #: ../src/UiUtils/Formatting.cpp:164
 #, qt-format
@@ -5310,7 +5329,7 @@ msgstr ""
 #: ../src/UiUtils/Formatting.cpp:175
 msgctxt "UiUtils::Formatting|"
 msgid "Different SSL certificate"
-msgstr ""
+msgstr "Malsama SSL-atestilo"
 
 #: ../src/UiUtils/Formatting.cpp:176
 #, qt-format
@@ -5326,7 +5345,7 @@ msgstr ""
 #: ../src/UiUtils/Formatting.cpp:183
 msgctxt "UiUtils::Formatting|"
 msgid "SSL certificate looks fishy"
-msgstr ""
+msgstr "SSL-atestilo aspektas fiŝa"
 
 #: ../src/UiUtils/Formatting.cpp:184
 #, qt-format
@@ -5343,7 +5362,7 @@ msgstr ""
 #: ../src/UiUtils/Formatting.cpp:193 ../src/UiUtils/Formatting.cpp:200
 msgctxt "UiUtils::Formatting|"
 msgid "Accept SSL connection?"
-msgstr ""
+msgstr "Ĉu akceptas SSL-konekton?"
 
 #: ../src/UiUtils/Formatting.cpp:194
 #, qt-format
@@ -5382,39 +5401,39 @@ msgstr ""
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Loading password from plugin %1..."
-msgstr ""
+msgstr "Ŝargante pasvorton de aldonaĵo %1..."
 
 #: ../src/UiUtils/PasswordWatcher.cpp:86
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot read password via plugin %1"
-msgstr ""
+msgstr "Ne povas legi pasvorton per aldonaĵo %1"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:89 ../src/UiUtils/PasswordWatcher.cpp:175
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Password plugin is not available."
-msgstr ""
+msgstr "Pasvorta kromaĵo ne haveblas."
 
 #: ../src/UiUtils/PasswordWatcher.cpp:120
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Password reading failed: %1"
-msgstr ""
+msgstr "Legado de pasvorto malsukcesis: %1"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:149
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Password writing failed: %1"
-msgstr ""
+msgstr "Skribo de pasvorto malsukcesis: %1"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:168
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Saving password from plugin %1..."
-msgstr ""
+msgstr "Konservante pasvorton de kromaĵo %1..."
 
 #: ../src/UiUtils/PasswordWatcher.cpp:172
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Cannot save password via plugin %1"
-msgstr ""
+msgstr "Ne povas konservi pasvorton per aldonaĵo %1"
