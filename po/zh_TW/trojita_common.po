@@ -1,18 +1,19 @@
 # Franklin Weng <franklin at goodhorse dot idv dot tw>, 2013.
+# SPDX-FileCopyrightText: 2024 Kisaragi Hiu <mail@kisaragi-hiu.com>
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2018-03-29 13:06+0800\n"
-"Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>\n"
-"Language-Team: Chinese Traditional <kde-tw@googlegroups.com>\n"
+"PO-Revision-Date: 2024-04-17 05:59+0900\n"
+"Last-Translator: Kisaragi Hiu <mail@kisaragi-hiu.com>\n"
+"Language-Team: Traditional Chinese <zh-l10n@lists.slat.org>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 2.0.6\n"
+"X-Generator: Lokalize 24.04.70\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -2768,7 +2769,7 @@ msgstr ""
 #: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
 msgctxt "Gui::ShortcutConfigDialog|"
 msgid "Configure Shortcuts"
-msgstr ""
+msgstr "設定快捷鍵"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigDialog.cpp:37
 msgctxt "Gui::ShortcutConfigDialog|"
@@ -2778,7 +2779,7 @@ msgstr "Trojitá"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
 msgctxt "Gui::ShortcutConfigWidget|"
 msgid "Configure Shortcuts"
-msgstr ""
+msgstr "設定快捷鍵"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:41
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
@@ -2810,7 +2811,7 @@ msgstr "Shift+F3"
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:203
 msgctxt "Gui::ShortcutConfigWidget|"
 msgid "Shortcut Conflicts"
-msgstr ""
+msgstr "快捷鍵衝突"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.cpp:204
 #, qt-format
@@ -2823,7 +2824,7 @@ msgstr ""
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:14
 msgctxt "ShortcutConfigWidget|"
 msgid "Configure Shortcuts"
-msgstr ""
+msgstr "設定快捷鍵"
 
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:20
 msgctxt "ShortcutConfigWidget|"
@@ -2887,25 +2888,25 @@ msgstr ""
 #: ../src/Gui/ShortcutHandler/ShortcutConfigWidget.ui:87
 msgctxt "ShortcutConfigWidget|Action for restoring default shortcut"
 msgid "Default"
-msgstr ""
+msgstr "預設"
 
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:47
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:103
 msgctxt "Gui::ShortcutHandler|"
 msgid "Main Window"
-msgstr ""
+msgstr "主視窗"
 
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:144
 msgctxt "Gui::ShortcutHandler|"
 msgid "Configure S&hortcuts..."
-msgstr ""
+msgstr "設定快捷鍵(&H)..."
 
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.h:45
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.h:309
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.h:319
 msgctxt "QObject|"
 msgid "Main Window"
-msgstr ""
+msgstr "主視窗"
 
 #: ../src/Gui/SimplePartWidget.cpp:77
 #, fuzzy
@@ -2931,7 +2932,7 @@ msgstr "搜尋..."
 #: ../src/Gui/SimplePartWidget.cpp:88
 msgctxt "Gui::SimplePartWidget|"
 msgid "Copy e-mail address"
-msgstr ""
+msgstr "複製電子郵件地址"
 
 #: ../src/Gui/SimplePartWidget.cpp:129
 msgctxt "Gui::SimplePartWidget|"
@@ -2941,22 +2942,22 @@ msgstr "儲存附件"
 #: ../src/Gui/SimplePartWidget.cpp:206
 msgctxt "Gui::SimplePartWidget|"
 msgid "Color scheme"
-msgstr ""
+msgstr "配色方案"
 
 #: ../src/Gui/SimplePartWidget.cpp:220
 msgctxt "Gui::SimplePartWidget|"
 msgid "Zoom"
-msgstr ""
+msgstr "縮放"
 
 #: ../src/Gui/SimplePartWidget.cpp:226
 msgctxt "Gui::SimplePartWidget|"
 msgid "Zoom In"
-msgstr ""
+msgstr "放大"
 
 #: ../src/Gui/SimplePartWidget.cpp:230
 msgctxt "Gui::SimplePartWidget|"
 msgid "Zoom Out"
-msgstr ""
+msgstr "縮小"
 
 #: ../src/Gui/SimplePartWidget.cpp:234
 #, fuzzy
@@ -2998,7 +2999,7 @@ msgstr ""
 #: ../src/Gui/TagWidget.cpp:59
 msgctxt "Gui::TagWidget|This is a verb!"
 msgid "Tag"
-msgstr ""
+msgstr "標籤"
 
 #: ../src/Gui/TaskProgressIndicator.cpp:84
 #, fuzzy, qt-format
@@ -3017,12 +3018,12 @@ msgstr "IMAP 連線閒置"
 #: ../src/Gui/Util.cpp:88
 msgctxt "Gui::MainWindow|"
 msgid "Don't ask again"
-msgstr ""
+msgstr "不要再詢問"
 
 #: ../src/Gui/Window.cpp:130
 msgctxt "Gui::MainWindow|"
 msgid "Plugin Error"
-msgstr ""
+msgstr "外掛程式錯誤"
 
 #. The %1 placeholder is a full error message as provided by Qt, ready for human consumption.
 #: ../src/Gui/Window.cpp:132
@@ -3196,7 +3197,7 @@ msgstr "Ctrl+R"
 #: ../src/Gui/Window.cpp:254
 msgctxt "Gui::MainWindow|"
 msgid "&Forward"
-msgstr ""
+msgstr "傳寄(&F)"
 
 #: ../src/Gui/Window.cpp:254
 #, fuzzy
@@ -3209,17 +3210,17 @@ msgstr "Ctrl+Shift+A"
 #: ../src/Gui/Window.cpp:255
 msgctxt "Gui::MainWindow|"
 msgid "Resend..."
-msgstr ""
+msgstr "重新傳送..."
 
 #: ../src/Gui/Window.cpp:256
 msgctxt "Gui::MainWindow|"
 msgid "&Archive"
-msgstr ""
+msgstr "封存(&A)"
 
 #: ../src/Gui/Window.cpp:257
 msgctxt "Gui::MainWindow|"
 msgid "Address Book..."
-msgstr ""
+msgstr "通訊錄..."
 
 #: ../src/Gui/Window.cpp:258
 msgctxt "Gui::MainWindow|"
@@ -3257,12 +3258,12 @@ msgstr "導覽"
 #: ../src/Gui/Window.cpp:264
 msgctxt "Gui::MainWindow|"
 msgid "Zoom In"
-msgstr ""
+msgstr "放大"
 
 #: ../src/Gui/Window.cpp:265
 msgctxt "Gui::MainWindow|"
 msgid "Zoom Out"
-msgstr ""
+msgstr "縮小"
 
 #: ../src/Gui/Window.cpp:266
 #, fuzzy
