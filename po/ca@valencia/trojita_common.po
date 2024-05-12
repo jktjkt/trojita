@@ -217,7 +217,7 @@ msgstr "[«getAuditLog» ha fallat: %1]"
 #: ../src/Cryptography/GpgMe++.cpp:170
 msgctxt "Cryptography::GpgMePart|"
 msgid "Waiting for data..."
-msgstr "S'estan esperant les dades..."
+msgstr "S'estan esperant les dades…"
 
 #: ../src/Cryptography/GpgMe++.cpp:313
 msgctxt "Cryptography::GpgMePart|"
@@ -557,7 +557,7 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:675
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Verifying signature..."
-msgstr "S'està verificant la signatura..."
+msgstr "S'està verificant la signatura…"
 
 #: ../src/Cryptography/GpgMe++.cpp:700
 msgctxt "Cryptography::GpgMeSigned|"
@@ -615,7 +615,7 @@ msgstr "Versió del PGP/MIME no admesa. S'espera «Versió: 1», hi ha la «%1»
 #: ../src/Cryptography/GpgMe++.cpp:821
 msgctxt "Cryptography::GpgMeEncrypted|"
 msgid "Decrypting..."
-msgstr "S'està desencriptant..."
+msgstr "S'està desencriptant…"
 
 #: ../src/Cryptography/GpgMe++.cpp:864
 msgctxt "Cryptography::GpgMeEncrypted|"
@@ -741,7 +741,7 @@ msgstr "Envia inclòs"
 #: ../src/Gui/ComposerAttachmentsList.cpp:53
 msgctxt "ComposerAttachmentsList|"
 msgid "Rename..."
-msgstr "Canvia el nom..."
+msgstr "Canvia el nom…"
 
 #: ../src/Gui/ComposerAttachmentsList.cpp:57
 msgctxt "ComposerAttachmentsList|"
@@ -766,7 +766,7 @@ msgstr "Apega com a text citat"
 #: ../src/Gui/ComposeWidget.cpp:126
 msgctxt "QWidget|"
 msgid "Cancel..."
-msgstr "Cancel·la..."
+msgstr "Cancel·la…"
 
 #: ../src/Gui/ComposeWidget.cpp:126
 msgctxt "QWidget|"
@@ -1013,7 +1013,7 @@ msgstr "No s'ha pogut analitzar «%1» com una adreça de correu electrònic."
 #: ../src/Gui/ComposeWidget.cpp:1613
 msgctxt "Gui::ComposeWidget|"
 msgid "Attach File..."
-msgstr "Adjunta un fitxer..."
+msgstr "Adjunta un fitxer…"
 
 #: ../src/Gui/ComposeWidget.cpp:1795
 msgctxt "Gui::ComposeWidget|"
@@ -1044,7 +1044,7 @@ msgstr "Assumpte"
 #: ../src/Gui/ComposeWidget.ui:121
 msgctxt "ComposeWidget|"
 msgid "Attach..."
-msgstr "Adjunta..."
+msgstr "Adjunta…"
 
 #: ../src/Gui/CreateMailboxDialog.ui:14
 msgctxt "CreateMailboxDialog|"
@@ -1071,8 +1071,8 @@ msgctxt "CreateMailboxDialog|"
 msgid ""
 "Check to add this mailbox to the server-side list of subscribed mailboxes"
 msgstr ""
-"Seleccioneu-la per a afegir esta bústia a la llista de la banda del servidor "
-"de bústies subscrites"
+"Marqueu-la per a afegir esta bústia a la llista de la banda del servidor de "
+"bústies subscrites"
 
 #: ../src/Gui/CreateMailboxDialog.ui:61
 msgctxt "CreateMailboxDialog|"
@@ -1365,7 +1365,7 @@ msgstr "Capçaleres del missatge amb UID %1 en %2"
 #: ../src/Gui/MessageHeadersWidget.cpp:55
 msgctxt "Gui::MessageHeadersWidget|"
 msgid "Search..."
-msgstr "Busca..."
+msgstr "Busca…"
 
 #: ../src/Gui/MessageHeadersWidget.cpp:56
 msgctxt "Gui::MessageHeadersWidget|"
@@ -1399,7 +1399,7 @@ msgstr "<consulta>"
 #: ../src/Gui/MessageListWidget.cpp:64
 msgctxt "Gui::MessageListWidget|"
 msgid "Options for the IMAP search..."
-msgstr "Opcions per a la busca IMAP..."
+msgstr "Opcions per a la busca IMAP…"
 
 #: ../src/Gui/MessageListWidget.cpp:67
 msgctxt "Gui::MessageListWidget|"
@@ -1434,12 +1434,12 @@ msgstr "Consulta IMAP complexa"
 #: ../src/Gui/MessageListWidget.cpp:85
 msgctxt "Gui::MessageListWidget|"
 msgid "Not ..."
-msgstr "No «...»"
+msgstr "No «…»"
 
 #: ../src/Gui/MessageListWidget.cpp:86
 msgctxt "Gui::MessageListWidget|"
 msgid "Either... or..."
-msgstr "Bé «...» o «...»"
+msgstr "Bé «…» o «…»"
 
 #: ../src/Gui/MessageListWidget.cpp:88
 msgctxt "Gui::MessageListWidget|"
@@ -1459,7 +1459,7 @@ msgstr "Quant a l'assumpte"
 #: ../src/Gui/MessageListWidget.cpp:92
 msgctxt "Gui::MessageListWidget|"
 msgid "Message contains ..."
-msgstr "El missatge conté «...»"
+msgstr "El missatge conté «…»"
 
 #: ../src/Gui/MessageListWidget.cpp:94
 msgctxt "Gui::MessageListWidget|"
@@ -1493,7 +1493,7 @@ msgstr ""
 #: ../src/Gui/MessageSourceWidget.cpp:58
 msgctxt "Gui::MessageSourceWidget|"
 msgid "Search..."
-msgstr "Busca..."
+msgstr "Busca…"
 
 #: ../src/Gui/MessageSourceWidget.cpp:59
 msgctxt "Gui::MessageSourceWidget|"
@@ -1503,7 +1503,7 @@ msgstr "Ctrl+F"
 #: ../src/Gui/MessageView.cpp:90
 msgctxt "Gui::MessageView|"
 msgid "Search..."
-msgstr "Busca..."
+msgstr "Busca…"
 
 #: ../src/Gui/MessageView.cpp:91
 msgctxt "Gui::MessageView|"
@@ -1528,7 +1528,7 @@ msgid ""
 msgstr ""
 "S'està esperant\n"
 "per al\n"
-"missatge..."
+"missatge…"
 
 #: ../src/Gui/MessageView.cpp:362
 msgctxt "Gui::MessageView|"
@@ -1545,7 +1545,7 @@ msgid ""
 "\n"
 msgstr ""
 "Sobre %1, %2 ha enviat un missatge encriptat:\n"
-"> ...\n"
+"> …\n"
 "\n"
 
 #: ../src/Gui/MessageView.cpp:377
@@ -1881,7 +1881,7 @@ msgid ""
 "library, and the underlying operating system. No private information, like "
 "account settings or IMAP server details, are collected.</p>"
 msgstr ""
-"<p>Si se selecciona, Trojitá mostrarà la seua pàgina d'inici en iniciar.</"
+"<p>Si està marcada, Trojitá mostrarà la seua pàgina d'inici en iniciar.</"
 "p><p>El servidor remot rebrà l'adreça IP de l'usuari d'IP i les versions de "
 "Trojitá, la biblioteca Qt, i el sistema operatiu subjacent. No s'arreplegarà "
 "informació privada, com la configuració del compte o els detalls del "
@@ -2179,14 +2179,14 @@ msgid ""
 "still be able to find out that you are using (some version of) Trojitá.</p></"
 "body></html>"
 msgstr ""
-"<html><head/><body><p>Quan se selecciona esta opció, s'inclourà informació "
-"de la versió de Trojitá i la plataforma subjacent, incloent-hi la versió de "
-"les Qt i detalls del sistema operatiu. Considereu deixar seleccionada esta "
-"opció, per tal que els desenvolupadors puguen solucionar els problemes dels "
+"<html><head/><body><p>Quan es marca esta opció, s'inclourà informació de la "
+"versió de Trojitá i la plataforma subjacent, incloent-hi la versió de les Qt "
+"i detalls del sistema operatiu. Considereu deixar seleccionada esta opció, "
+"per tal que els desenvolupadors puguen solucionar els problemes dels "
 "informes d'error quan alguna cosa va malament.</p><p>Les dades es comuniquen "
 "mitjançant l'ordre <code>ID</code> d'IMAP i a través de la capçalera "
 "<code>User-Agent</code> en els correus d'eixida, entre altres coses.</"
-"p><p>Cal tindre en compte que encara que desseleccioneu esta opció, els "
+"p><p>Cal tindre en compte que encara que desmarqueu esta opció, els "
 "servidors amb els quals es comunica Trojitá i la gent que llig els vostres "
 "correus encara poden trobar que esteu utilitzant (alguna versió de) Trojitá."
 "</p></body></html>"
@@ -2204,8 +2204,8 @@ msgid ""
 "override the action using modifier keys when dropping (control: copy, shift: "
 "move).</p>"
 msgstr ""
-"<p>Si se selecciona, podreu definir l'acció predeterminada per a arrossegar "
-"i deixar anar a l'arbre de la bústia de correu.</p><p>Si està inactiva, "
+"<p>Si està marcada, podreu definir l'acció predeterminada per a arrossegar i "
+"deixar anar a l'arbre de la bústia de correu.</p><p>Si està inactiva, "
 "Trojitá preguntarà cada vegada. Sempre podreu superposar l'acció utilitzant "
 "les tecles modificadores en deixar anar («Control»: copia, «Majúscules»: "
 "mou).</p>"
@@ -2740,7 +2740,7 @@ msgstr "Finestra principal"
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.cpp:144
 msgctxt "Gui::ShortcutHandler|"
 msgid "Configure S&hortcuts..."
-msgstr "Configura les &dreceres..."
+msgstr "Configura les &dreceres…"
 
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.h:45
 #: ../src/Gui/ShortcutHandler/ShortcutHandler.h:309
@@ -2752,17 +2752,17 @@ msgstr "Finestra principal"
 #: ../src/Gui/SimplePartWidget.cpp:77
 msgctxt "Gui::SimplePartWidget|"
 msgid "Save this message part..."
-msgstr "Guarda esta part del missatge..."
+msgstr "Guarda esta part del missatge…"
 
 #: ../src/Gui/SimplePartWidget.cpp:81
 msgctxt "Gui::SimplePartWidget|"
 msgid "Save whole message..."
-msgstr "Guarda tot el missatge..."
+msgstr "Guarda tot el missatge…"
 
 #: ../src/Gui/SimplePartWidget.cpp:85
 msgctxt "Gui::SimplePartWidget|"
 msgid "Search..."
-msgstr "Busca..."
+msgstr "Busca…"
 
 #: ../src/Gui/SimplePartWidget.cpp:88
 msgctxt "Gui::SimplePartWidget|"
@@ -2876,12 +2876,12 @@ msgstr "I&x"
 #: ../src/Gui/Window.cpp:235
 msgctxt "Gui::MainWindow|"
 msgid "&New Message..."
-msgstr "Missatge &nou..."
+msgstr "Missatge &nou…"
 
 #: ../src/Gui/Window.cpp:236
 msgctxt "Gui::MainWindow|"
 msgid "&Edit Draft..."
-msgstr "&Edita l'esborrany..."
+msgstr "&Edita l'esborrany…"
 
 #: ../src/Gui/Window.cpp:237
 msgctxt "Gui::MainWindow|"
@@ -2941,17 +2941,17 @@ msgstr "Marca com a &no brossa"
 #: ../src/Gui/Window.cpp:246
 msgctxt "Gui::MainWindow|"
 msgid "&Save Message..."
-msgstr "Guar&da el missatge..."
+msgstr "Guar&da el missatge…"
 
 #: ../src/Gui/Window.cpp:247
 msgctxt "Gui::MainWindow|"
 msgid "View Message &Source..."
-msgstr "Mostra el codi &font del missatge..."
+msgstr "Mostra el codi &font del missatge…"
 
 #: ../src/Gui/Window.cpp:248
 msgctxt "Gui::MainWindow|"
 msgid "View Message &Headers..."
-msgstr "Mostra les &capçaleres del missatge..."
+msgstr "Mostra les &capçaleres del missatge…"
 
 #: ../src/Gui/Window.cpp:248
 msgctxt "Gui::MainWindow|"
@@ -3021,7 +3021,7 @@ msgstr "Ctrl+Maj+F"
 #: ../src/Gui/Window.cpp:255
 msgctxt "Gui::MainWindow|"
 msgid "Resend..."
-msgstr "Reenvia..."
+msgstr "Reenvia…"
 
 #: ../src/Gui/Window.cpp:256
 msgctxt "Gui::MainWindow|"
@@ -3031,7 +3031,7 @@ msgstr "&Arxiva"
 #: ../src/Gui/Window.cpp:257
 msgctxt "Gui::MainWindow|"
 msgid "Address Book..."
-msgstr "Llibreta d'adreces..."
+msgstr "Llibreta d'adreces…"
 
 #: ../src/Gui/Window.cpp:258
 msgctxt "Gui::MainWindow|"
@@ -3056,7 +3056,7 @@ msgstr "Tanca la finestra individual de missatge"
 #: ../src/Gui/Window.cpp:262
 msgctxt "Gui::MainWindow|"
 msgid "Open message in New Window..."
-msgstr "Obri el missatge en una finestra nova..."
+msgstr "Obri el missatge en una finestra nova…"
 
 #: ../src/Gui/Window.cpp:263
 msgctxt "Gui::MainWindow|"
@@ -3141,7 +3141,7 @@ msgstr "Etiqueta amb la &9a etiqueta"
 #: ../src/Gui/Window.cpp:306
 msgctxt "Gui::MainWindow|"
 msgid "Navigation"
-msgstr "Navegació"
+msgstr "Navegueu"
 
 #: ../src/Gui/Window.cpp:309
 msgctxt "Gui::MainWindow|"
@@ -3196,7 +3196,7 @@ msgstr "&Inicia la sessió a %1"
 #: ../src/Gui/Window.cpp:366
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Server In&formation..."
-msgstr "In&formació del servidor IMAP..."
+msgstr "In&formació del servidor IMAP…"
 
 #: ../src/Gui/Window.cpp:375
 msgctxt "Gui::MainWindow|"
@@ -3206,19 +3206,19 @@ msgstr "Mostra la barra d'&eines"
 #: ../src/Gui/Window.cpp:381
 msgctxt "Gui::MainWindow|"
 msgid "&Settings..."
-msgstr "Con&figuració..."
+msgstr "Con&figuració…"
 
 #. "mailbox" as a "folder of messages", not as a "mail account"
 #: ../src/Gui/Window.cpp:476
 msgctxt "Gui::MainWindow|"
 msgid "Create &Child Mailbox..."
-msgstr "Crea una bústia &filla..."
+msgstr "Crea una bústia &filla…"
 
 #. "mailbox" as a "folder of messages", not as a "mail account"
 #: ../src/Gui/Window.cpp:480
 msgctxt "Gui::MainWindow|"
 msgid "Create &New Mailbox..."
-msgstr "Crea una bústia &nova..."
+msgstr "Crea una bústia &nova…"
 
 #: ../src/Gui/Window.cpp:483
 msgctxt "Gui::MainWindow|"
@@ -3324,7 +3324,7 @@ msgstr "Su&bscrita"
 #: ../src/Gui/Window.cpp:578
 msgctxt "Gui::MainWindow|"
 msgid "&About Trojitá..."
-msgstr "&Quant a Trojitá..."
+msgstr "&Quant a Trojitá…"
 
 #: ../src/Gui/Window.cpp:581
 msgctxt "Gui::MainWindow|"
@@ -3407,8 +3407,8 @@ msgstr "Registre del protocol"
 msgctxt "Gui::MainWindow|"
 msgid "Attempting to reconnect in %n seconds.."
 msgid_plural "Attempting to reconnect in %n seconds.."
-msgstr[0] "S'intentarà tornar a connectar en %n segon..."
-msgstr[1] "S'intentarà tornar a connectar en %n segons..."
+msgstr[0] "S'intentarà tornar a connectar en %n segon…"
+msgstr[1] "S'intentarà tornar a connectar en %n segons…"
 
 #: ../src/Gui/Window.cpp:991
 msgctxt "Gui::MainWindow|"
@@ -3782,67 +3782,67 @@ msgstr "Etiqueta amb «%1»"
 #: ../src/Imap/ConnectionState.cpp:35
 msgctxt "QObject|"
 msgid "Resolving hostname..."
-msgstr "S'està resolent el nom de l'amfitrió..."
+msgstr "S'està resolent el nom de l'amfitrió…"
 
 #: ../src/Imap/ConnectionState.cpp:37
 msgctxt "QObject|"
 msgid "Connecting to the IMAP server..."
-msgstr "S'està connectant amb el servidor IMAP..."
+msgstr "S'està connectant amb el servidor IMAP…"
 
 #: ../src/Imap/ConnectionState.cpp:39
 msgctxt "QObject|"
 msgid "Starting encryption (SSL)..."
-msgstr "S'està iniciant l'encriptació (SSL)..."
+msgstr "S'està iniciant l'encriptació (SSL)…"
 
 #: ../src/Imap/ConnectionState.cpp:41
 msgctxt "QObject|"
 msgid "Checking certificates (SSL)..."
-msgstr "S'estan comprovant els certificats (SSL)..."
+msgstr "S'estan comprovant els certificats (SSL)…"
 
 #: ../src/Imap/ConnectionState.cpp:43
 msgctxt "QObject|"
 msgid "Checking capabilities..."
-msgstr "S'estan comprovant les capacitats..."
+msgstr "S'estan comprovant les capacitats…"
 
 #: ../src/Imap/ConnectionState.cpp:45
 msgctxt "QObject|"
 msgid "Waiting for encryption..."
-msgstr "S'està esperant per a l'encriptació..."
+msgstr "S'està esperant per a l'encriptació…"
 
 #: ../src/Imap/ConnectionState.cpp:47
 msgctxt "QObject|"
 msgid "Asking for encryption..."
-msgstr "S'està preguntant per a l'encriptació..."
+msgstr "S'està preguntant per a l'encriptació…"
 
 #: ../src/Imap/ConnectionState.cpp:49
 msgctxt "QObject|"
 msgid "Starting encryption (STARTTLS)..."
-msgstr "S'està iniciant l'encriptació (STARTTLS)..."
+msgstr "S'està iniciant l'encriptació (STARTTLS)…"
 
 #: ../src/Imap/ConnectionState.cpp:51
 msgctxt "QObject|"
 msgid "Checking certificates (STARTTLS)..."
-msgstr "S'estan comprovant els certificats (STARTTLS)..."
+msgstr "S'estan comprovant els certificats (STARTTLS)…"
 
 #: ../src/Imap/ConnectionState.cpp:53
 msgctxt "QObject|"
 msgid "Checking capabilities (after STARTTLS)..."
-msgstr "S'estan comprovant les capacitats (després STARTTLS)..."
+msgstr "S'estan comprovant les capacitats (després STARTTLS)…"
 
 #: ../src/Imap/ConnectionState.cpp:55
 msgctxt "QObject|"
 msgid "Logging in..."
-msgstr "S'està iniciant la sessió..."
+msgstr "S'està iniciant la sessió…"
 
 #: ../src/Imap/ConnectionState.cpp:57
 msgctxt "QObject|"
 msgid "Checking capabilities (after login)..."
-msgstr "S'estan comprovant les capacitats (després d'iniciar la sessió)..."
+msgstr "S'estan comprovant les capacitats (després d'iniciar la sessió)…"
 
 #: ../src/Imap/ConnectionState.cpp:59
 msgctxt "QObject|"
 msgid "Activating compression..."
-msgstr "S'està activant la compressió..."
+msgstr "S'està activant la compressió…"
 
 #: ../src/Imap/ConnectionState.cpp:61
 msgctxt "QObject|"
@@ -3852,17 +3852,17 @@ msgstr "S'ha accedit al compte."
 #: ../src/Imap/ConnectionState.cpp:63
 msgctxt "QObject|"
 msgid "Waiting for another mailbox..."
-msgstr "S'està esperant per una altra bústia..."
+msgstr "S'està esperant per una altra bústia…"
 
 #: ../src/Imap/ConnectionState.cpp:65
 msgctxt "QObject|"
 msgid "Opening mailbox..."
-msgstr "S'està obrint la bústia..."
+msgstr "S'està obrint la bústia…"
 
 #: ../src/Imap/ConnectionState.cpp:67
 msgctxt "QObject|"
 msgid "Synchronizing mailbox..."
-msgstr "S'està sincronitzant la bústia..."
+msgstr "S'està sincronitzant la bústia…"
 
 #: ../src/Imap/ConnectionState.cpp:69
 msgctxt "QObject|"
@@ -3872,12 +3872,12 @@ msgstr "S'ha obert la bústia."
 #: ../src/Imap/ConnectionState.cpp:71
 msgctxt "QObject|"
 msgid "Downloading message..."
-msgstr "S'està baixant el missatge..."
+msgstr "S'està baixant el missatge…"
 
 #: ../src/Imap/ConnectionState.cpp:73
 msgctxt "QObject|"
 msgid "Downloading message structure..."
-msgstr "S'està baixant l'estructura del missatge..."
+msgstr "S'està baixant l'estructura del missatge…"
 
 #: ../src/Imap/ConnectionState.cpp:75
 msgctxt "QObject|"
@@ -3987,13 +3987,13 @@ msgstr "MMMM yyyy"
 #, qt-format
 msgctxt "Imap::Mailbox::Model|"
 msgid "[loading %1...]"
-msgstr "[S'està carregant %1...]"
+msgstr "[S'està carregant %1…]"
 
 #: ../src/Imap/Model/MailboxTree.cpp:1719
 #, qt-format
 msgctxt "Imap::Mailbox::Model|"
 msgid "[loading %1: %2...]"
-msgstr "[S'està carregant %1: %2...]"
+msgstr "[S'està carregant %1: %2…]"
 
 #: ../src/Imap/Model/Model.cpp:1069
 msgctxt "Imap::Mailbox::Model|"
@@ -4142,7 +4142,7 @@ msgstr[1] "%n recents"
 #: ../src/Imap/Model/PrettyMsgListModel.cpp:108
 msgctxt "Imap::Mailbox::PrettyMsgListModel|"
 msgid "Loading..."
-msgstr "S'està carregant..."
+msgstr "S'està carregant…"
 
 #: ../src/Imap/Model/PrettyMsgListModel.cpp:113
 msgctxt "Imap::Mailbox::PrettyMsgListModel|"
@@ -4803,7 +4803,7 @@ msgstr "L'analitzador ha desaparegut"
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:713
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
 msgid "Logging off..."
-msgstr "S'està tancant la sessió..."
+msgstr "S'està tancant la sessió…"
 
 #: ../src/Imap/Tasks/KeepMailboxOpenTask.cpp:920
 msgctxt "Imap::Mailbox::KeepMailboxOpenTask|"
@@ -5515,13 +5515,13 @@ msgstr " (a través de l'intermediari HTTP %1)"
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid "Looking up %1%2..."
-msgstr "S'està buscant %1%2..."
+msgstr "S'està buscant %1%2…"
 
 #: ../src/Streams/IODeviceSocket.cpp:299
 #, qt-format
 msgctxt "Streams::SslTlsSocket|"
 msgid "Connecting to %1:%2%3%4..."
-msgstr "S'està connectant amb %1:%2%3%4..."
+msgstr "S'està connectant amb %1:%2%3%4…"
 
 #: ../src/Streams/IODeviceSocket.cpp:300
 msgctxt "Streams::SslTlsSocket|"
@@ -5536,7 +5536,7 @@ msgstr "Connectat"
 #: ../src/Streams/IODeviceSocket.cpp:311
 msgctxt "Streams::SslTlsSocket|"
 msgid "Negotiating encryption..."
-msgstr "S'està negociant l'encriptació..."
+msgstr "S'està negociant l'encriptació…"
 
 #: ../src/Streams/IODeviceSocket.cpp:316
 #, qt-format
@@ -5776,7 +5776,7 @@ msgstr ""
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Loading password from plugin %1..."
-msgstr "S'està carregant la contrasenya des del connector %1..."
+msgstr "S'està carregant la contrasenya des del connector %1…"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:86
 #, qt-format
@@ -5805,7 +5805,7 @@ msgstr "No s'ha pogut escriure la contrasenya: %1"
 #, qt-format
 msgctxt "UiUtils::PasswordWatcher|"
 msgid "Saving password from plugin %1..."
-msgstr "S'està guardant la contrasenya des del connector %1..."
+msgstr "S'està guardant la contrasenya des del connector %1…"
 
 #: ../src/UiUtils/PasswordWatcher.cpp:172
 #, qt-format
