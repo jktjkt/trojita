@@ -1,18 +1,18 @@
-# Freek de Kruijf <freekdekruijf@kde.nl>, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020.
+# SPDX-FileCopyrightText: 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2024 Freek de Kruijf <freekdekruijf@kde.nl>
 # Erik Quaeghebeur <kde-i18n-nl@equaeghe.nospammail.net>, 2015.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"PO-Revision-Date: 2020-11-11 14:30+0100\n"
+"PO-Revision-Date: 2024-05-15 10:16+0200\n"
 "Last-Translator: Freek de Kruijf <freekdekruijf@kde.nl>\n"
-"Language-Team: Dutch <kde-i18n-nl@kde.org>\n"
+"Language-Team: \n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Qt-Contexts: true\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Lokalize 20.08.2\n"
+"X-Generator: Lokalize 24.02.2\n"
 
 #. Translators: %1 and %2 are file names of an attachment. %1 is the name that will be present in the e-mail and %2 is the original name on disk.
 #: ../src/Composer/ComposerAttachments.cpp:146
@@ -3078,7 +3078,7 @@ msgstr "Focus naar lijst met berichten verplaatsen"
 #: ../src/Gui/Window.cpp:269
 msgctxt "Gui::MainWindow|"
 msgid "Move Focus to Quick Search"
-msgstr "Focus op snelzoeken instellen"
+msgstr "Focus verplaatsen naar Snel zoeken"
 
 #: ../src/Gui/Window.cpp:270
 msgctxt "Gui::MainWindow|"
