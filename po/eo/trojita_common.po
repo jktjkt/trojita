@@ -1,15 +1,15 @@
 # translation of trojita_common.pot to Esperanto
 # Copyright (C) 2024 Free Software Foundation, Inc.
 # This file is distributed under the same license as the trojita package.
-# Oliver Kellogg <okellogg@users.sourceforge.net>, 2024.
+# Oliver Kellogg <olivermkellogg@gmail.com>, 2024.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: trojita\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
 "POT-Creation-Date: 2023-11-05 13:43+0100\n"
-"PO-Revision-Date: 2024-03-24 10:34+0100\n"
-"Last-Translator: Oliver Kellogg <okellogg@users.sourceforge.net>\n"
+"PO-Revision-Date: 2024-05-30 22:41+0200\n"
+"Last-Translator: Oliver Kellogg <olivermkellogg@gmail.com>\n"
 "Language-Team: Esperanto <kde-i18n-eo.org>\n"
 "Language: eo\n"
 "MIME-Version: 1.0\n"
@@ -233,23 +233,23 @@ msgstr "Interna eraro"
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Error when verifying signature: cannot retrieve key %1: %2"
-msgstr "Eraro dum kontrolado de subskribo: ne povas retrovi ŝlosilon %1: %2"
+msgstr "Eraro dum konfirmado de subskribo: ne povas retrovi ŝlosilon %1: %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:376
 msgctxt "Cryptography::GpgMePart|"
 msgid "Encrypted, verified signature"
-msgstr "Ĉifrita, kontrolita subskribo"
+msgstr "Ĉifrita, konfirmita subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:376
 msgctxt "Cryptography::GpgMePart|"
 msgid "Verified signature"
-msgstr "Kontrolita subskribo"
+msgstr "Konfirmita subskribo"
 
 #: ../src/Cryptography/GpgMe++.cpp:377
 #, qt-format
 msgctxt "Cryptography::GpgMePart|"
 msgid "Verified signature from %1 on %2"
-msgstr "Kontrolita subskribo de %1 sur %2"
+msgstr "Konfirmita subskribo de %1 sur %2"
 
 #: ../src/Cryptography/GpgMe++.cpp:382
 msgctxt "Cryptography::GpgMePart|"
@@ -409,7 +409,7 @@ msgstr "Subskribo eksvalidiĝis je %1."
 #: ../src/Cryptography/GpgMe++.cpp:470
 msgctxt "Cryptography::GpgMePart|"
 msgid "Can't verify due to a missing key or certificate."
-msgstr "Ne povas kontroli pro mankanta ŝlosilo aŭ atestilo."
+msgstr "Ne povas konfirmi pro mankanta ŝlosilo aŭ atestilo."
 
 #: ../src/Cryptography/GpgMe++.cpp:474
 msgctxt "Cryptography::GpgMePart|"
@@ -505,7 +505,7 @@ msgstr "Atendita 2 partoj, sed trovita %1."
 #: ../src/Cryptography/GpgMe++.cpp:621
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Cannot verify signature"
-msgstr "Ne povas kontroli subskribon"
+msgstr "Ne povas konfirmi subskribon"
 
 #: ../src/Cryptography/GpgMe++.cpp:622
 #, qt-format
@@ -532,7 +532,7 @@ msgstr ""
 #: ../src/Cryptography/GpgMe++.cpp:675
 msgctxt "Cryptography::GpgMeSigned|"
 msgid "Verifying signature..."
-msgstr "Kontrolante subskribon..."
+msgstr "Konfirmante subskribon..."
 
 #: ../src/Cryptography/GpgMe++.cpp:700
 msgctxt "Cryptography::GpgMeSigned|"
@@ -1013,7 +1013,7 @@ msgstr "&Leterkesto:"
 #: ../src/Gui/CreateMailboxDialog.ui:39
 msgctxt "CreateMailboxDialog|"
 msgid "Other Mai&lboxes"
-msgstr "Aliaj leterkestoj"
+msgstr "Aliaj &Leterkestoj"
 
 #: ../src/Gui/CreateMailboxDialog.ui:46
 msgctxt "CreateMailboxDialog|"
@@ -2199,7 +2199,7 @@ msgstr "Uzantnomo por ensaluti al la IMAP-servilo"
 #: ../src/Gui/SettingsImapPage.ui:170
 msgctxt "ImapPage|"
 msgid "Pass&word"
-msgstr "Pasvorto"
+msgstr "Pas&vorto"
 
 #: ../src/Gui/SettingsImapPage.ui:180
 msgctxt "ImapPage|"
@@ -2360,7 +2360,7 @@ msgstr "&Uzantnomo"
 #: ../src/Gui/SettingsOutgoingPage.ui:116
 msgctxt "OutgoingPage|"
 msgid "Pass&word"
-msgstr "Pasvorto"
+msgstr "Pas&vorto"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:156
 msgctxt "OutgoingPage|"
@@ -2370,7 +2370,7 @@ msgstr "Sendmail E&realigebla"
 #: ../src/Gui/SettingsOutgoingPage.ui:169
 msgctxt "OutgoingPage|"
 msgid "Save Ou&tgoing Mail"
-msgstr "Konservu Eksiĝintan Poŝton"
+msgstr "Konservi Eksiĝan&tan Poŝton"
 
 #: ../src/Gui/SettingsOutgoingPage.ui:182
 msgctxt "OutgoingPage|"
@@ -2759,7 +2759,7 @@ msgstr "Ctrl+Alt+Shift+R"
 #: ../src/Gui/Window.cpp:252
 msgctxt "Gui::MainWindow|"
 msgid "Reply to &Mailing List"
-msgstr "Respondu al Dissendolisto"
+msgstr "Respondi al Disse&ndolisto"
 
 #: ../src/Gui/Window.cpp:252
 msgctxt "Gui::MainWindow|"
@@ -2964,7 +2964,7 @@ msgstr "Ensalutu &en %1"
 #: ../src/Gui/Window.cpp:366
 msgctxt "Gui::MainWindow|"
 msgid "IMAP Server In&formation..."
-msgstr "Informoj pri IMAP-Servilo..."
+msgstr "In&formoj pri IMAP-Servilo..."
 
 #: ../src/Gui/Window.cpp:375
 msgctxt "Gui::MainWindow|"
@@ -2986,7 +2986,7 @@ msgstr "Krei &Infanan Leterkeston..."
 #: ../src/Gui/Window.cpp:480
 msgctxt "Gui::MainWindow|"
 msgid "Create &New Mailbox..."
-msgstr "Krei novan leterkeston..."
+msgstr "Krei &Novan Leterkeston..."
 
 #: ../src/Gui/Window.cpp:483
 msgctxt "Gui::MainWindow|"
@@ -3082,12 +3082,12 @@ msgstr "&Unuope"
 #: ../src/Gui/Window.cpp:569
 msgctxt "Gui::MainWindow|"
 msgid "Show Only S&ubscribed Folders"
-msgstr "Montri Nur Abonitaj Dosierujoj"
+msgstr "Montri N&ur Abonitajn Dosierujojn"
 
 #: ../src/Gui/Window.cpp:573
 msgctxt "Gui::MainWindow|"
 msgid "Su&bscribed"
-msgstr "Abonis"
+msgstr "A&bonis"
 
 #: ../src/Gui/Window.cpp:578
 msgctxt "Gui::MainWindow|"
@@ -3132,12 +3132,12 @@ msgstr "&Aranĝo"
 #: ../src/Gui/Window.cpp:722
 msgctxt "Gui::MainWindow|"
 msgid "Mail&box"
-msgstr "Leterkesto"
+msgstr "Leter&kesto"
 
 #: ../src/Gui/Window.cpp:723
 msgctxt "Gui::MainWindow|"
 msgid "S&orting"
-msgstr "S&ortado"
+msgstr "&Ordigado"
 
 #: ../src/Gui/Window.cpp:745
 msgctxt "Gui::MainWindow|"
@@ -3897,7 +3897,7 @@ msgstr "Ne povas malfermi datumbazon"
 #: ../src/Imap/Model/SQLCache.cpp:147
 msgctxt "QObject|"
 msgid "Failed to verify version"
-msgstr "Malsukcesis kontroli la version"
+msgstr "Malsukcesis konfirmi la version"
 
 #: ../src/Imap/Model/SQLCache.cpp:153
 msgctxt "QObject|"
