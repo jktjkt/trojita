@@ -1,15 +1,15 @@
 # Translation of trojita_common.po to Catalan (Valencian)
-# Copyright (C) 2014-2023 This_file_is_part_of_KDE
+# Copyright (C) 2014-2024 This_file_is_part_of_KDE
 # This file is distributed under the license LGPL version 2.1 or
 # version 3 or later versions approved by the membership of KDE e.V.
 #
 # Antoni Bella Pérez <antonibella5@yahoo.com>, 2014, 2015, 2016, 2017, 2018, 2020.
-# Josep M. Ferrer <txemaq@gmail.com>, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023.
+# Josep M. Ferrer <txemaq@gmail.com>, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: trojita\n"
 "Report-Msgid-Bugs-To: https://bugs.kde.org\n"
-"PO-Revision-Date: 2023-09-19 19:02+0200\n"
+"PO-Revision-Date: 2024-06-27 13:56+0200\n"
 "Last-Translator: Josep M. Ferrer <txemaq@gmail.com>\n"
 "Language-Team: Catalan <kde-i18n-ca@kde.org>\n"
 "Language: ca@valencia\n"
@@ -2470,7 +2470,7 @@ msgstr ""
 "instància de Dovecot, podeu utilitzar el següent:</p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-"
-"family:'Courier New,courier';\">ssh mail.exemple.org dovecot --exec-mail "
+"family:'Courier New,courier';\">ssh mail.example.org dovecot --exec-mail "
 "imap</span></p>\n"
 "<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-"
 "right:0px; -qt-block-indent:0; text-indent:0px;\">Cal tindre en compte que "
@@ -5551,8 +5551,8 @@ msgid ""
 "The underlying socket is having troubles when processing connection to %1:"
 "%2: %3"
 msgstr ""
-"El sòcol subjacent està tenint problemes en processar la connexió a %1: %2: "
-"%3"
+"El sòcol subjacent està tenint problemes en processar la connexió amb %1: "
+"%2: %3"
 
 #: ../src/UiUtils/Formatting.cpp:40
 msgctxt "UiUtils::Formatting|"
