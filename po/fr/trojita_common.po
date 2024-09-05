@@ -1,5 +1,5 @@
 # translation of trojita_common.po to
-# SPDX-FileCopyrightText: 2021, 2023 Xavier Besnard <xavier.besnard@kde.org>
+# SPDX-FileCopyrightText: 2021, 2023, 2024 Xavier Besnard <xavier.besnard@kde.org>
 # Joëlle Cornavin <jcorn@free.fr>, 2012, 2013.
 # Vincent PINON <vpinon@kde.org>, 2013, 2014.
 # Baptiste Pauget <bap.pauget@orange.fr>, 2018.
@@ -7,14 +7,14 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: trojita_common\n"
-"PO-Revision-Date: 2023-11-01 22:12+0100\n"
-"Last-Translator: Xavier BESNARD <xavier.besnard@neuf.fr>\n"
-"Language-Team: French <kde-francophone@kde.org>\n"
+"PO-Revision-Date: 2024-09-03 20:42+0200\n"
+"Last-Translator: Xavier Besnard <xavier.besnard@kde.org>\n"
+"Language-Team: French <French <kde-francophone@kde.org>>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Lokalize 23.08.2\n"
+"X-Generator: Lokalize 23.08.5\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Environment: kde\n"
 "X-Accelerator-Marker: &\n"
@@ -1334,7 +1334,7 @@ msgstr "profil"
 #: ../src/Gui/main.cpp:108
 msgctxt "QObject|"
 msgid "Mailto: URL address for composing new e-mail."
-msgstr "Mailto : adresse d'URL pour rédiger un nouveau courrier électronique."
+msgstr "MAILTO : adresse d'URL pour rédiger un nouveau courrier électronique."
 
 #: ../src/Gui/main.cpp:109
 msgctxt "QObject|"
@@ -2015,12 +2015,12 @@ msgstr "Réseau"
 #: ../src/Gui/SettingsDialog.cpp:1047
 msgctxt "Gui::OutgoingPage|"
 msgid "Local sendmail-compatible"
-msgstr "Compatibilité locale « SendMail »"
+msgstr "Compatibilité locale « Sendmail »"
 
 #: ../src/Gui/SettingsDialog.cpp:1048
 msgctxt "Gui::OutgoingPage|"
 msgid "IMAP SENDMAIL Extension"
-msgstr "Extension SENDMAIL IMAP"
+msgstr "Extension Sendmail « IMAP »"
 
 #: ../src/Gui/SettingsDialog.cpp:1050
 msgctxt "Gui::OutgoingPage|"
@@ -5111,7 +5111,7 @@ msgstr ""
 #: ../src/Imap/Tasks/ThreadTask.cpp:75
 msgctxt "Imap::Mailbox::ThreadTask|"
 msgid "Threading command has failed"
-msgstr "La commande Threading a échoué"
+msgstr "La commande « threading » a échoué"
 
 #: ../src/Imap/Tasks/ThreadTask.cpp:109
 msgctxt "Imap::Mailbox::ThreadTask|"
@@ -5154,7 +5154,7 @@ msgstr ""
 #: ../src/Imap/Tasks/UpdateFlagsTask.cpp:138
 msgctxt "Imap::Mailbox::UpdateFlagsTask|"
 msgid "Failed to update FLAGS"
-msgstr "La mise à jour des FLAGS a échoué"
+msgstr "La mise à jour de « FLAGS » a échoué"
 
 #: ../src/Imap/Tasks/UpdateFlagsTask.cpp:148
 msgctxt "Imap::Mailbox::UpdateFlagsTask|"
